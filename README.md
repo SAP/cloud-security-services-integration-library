@@ -36,7 +36,7 @@ response.getWriter().println(“principal” + request.getUserPrincipal());
 # Download and Installation
 To download and install the this project clone this repository via:
 ```
-git clone ##
+git clone https://github.com/SAP/cloud-security-xsuaa-integration
 ```
 For details on how to configure and run the the project please take a look into the README in the corresponding directory.
 
