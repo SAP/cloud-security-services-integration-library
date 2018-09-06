@@ -1,38 +1,13 @@
 # Description
-Authentication services provided by the xsuaa service on [SAP Cloud Platform](https://cloudplatform.sap.com) or [SAP HANA XS Advanced](https://help.sap.com/viewer/4505d0bdaf4948449b7f7379d24d0f0d/2.0.00/en-US) rely on usage of the OAuth 2.0 protocol and issued OAuth 2.0 access tokens.
-Applications making use of the xsuaa service require libraries to validate access tokens issued by xsuaa.
+Authentication services provided by the xsuaa service on [SAP Cloud Platform](https://cloudplatform.sap.com) or [SAP HANA XS Advanced](https://help.sap.com/viewer/4505d0bdaf4948449b7f7379d24d0f0d/2.0.00/en-US) rely on usage of the [OAuth 2.0](https://oauth.net) protocol and OAuth 2.0 access tokens.
+When integrating authentication with xsuaa in an application like a Java web application, libraries for validating access tokens are required.
 ## Java web applications using SAP Java Buildpack
 The SAP Java Buildpack contains libraries for validating access tokens and application developers access the functions require the [api](./api). See [sap-java-builpack-api-uage](samples/sap-java-buildpack-api-usage) for an example.
 # Requirements
 ## Java web applications using SAP Java Buildpack
-Application using the SAP Java buildpack must configure XSUAA as authentication-methos in their web.xml.
-```
-<web-app>
-<display-name>sample</display-name>
-  <login-config> 
-    <auth-method>XSUAA</auth-method> 
-  </login-config> 
-</web-app> 
-```
-In the Java coding, use the @ServletSecurity annotations:
-```
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.*;
-import javax.servlet.http.*;
-/**
-* Servlet implementation class HomeServlet
-*/
-@WebServlet(“/*”)
-@ServletSecurity(@HttpConstraint(rolesAllowed = { “Display” }))
-public class HomeServlet extends HttpServlet {
-/**
-* @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-*/
-protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-response.getWriter().println(“principal” + request.getUserPrincipal());
-}
-```
+- Java 8
+- maven 3.3.9 or later
+
 # Download and Installation
 To download and install the this project clone this repository via:
 ```
