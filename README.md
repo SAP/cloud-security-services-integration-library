@@ -24,6 +24,8 @@ See [sap-java-builpack-api-uage](samples/sap-java-buildpack-api-usage) for an ex
 To download and install the this project clone this repository via:
 ```
 git clone https://github.com/SAP/cloud-security-xsuaa-integration
+cd cloud-security-xsuaa-integration
+mvn package
 ```
 *Note:* This requires an installation of the git command line utility. 
 
