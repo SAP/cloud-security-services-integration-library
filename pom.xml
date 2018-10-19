@@ -14,20 +14,20 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springVersion>4.3.18.RELEASE</springVersion>
-		<springSecurityVersion>4.2.7.RELEASE</springSecurityVersion>
+		<springVersion>4.3.20.RELEASE</springVersion>
+		<springSecurityVersion>4.2.9.RELEASE</springSecurityVersion>
 		<servletApiVersion>4.0.1</servletApiVersion>
-		<springSecurityOAuth2Version>2.3.3.RELEASE</springSecurityOAuth2Version>
-		<cloudfoundryIdentityClientLibVersion>4.19.0</cloudfoundryIdentityClientLibVersion>
+		<springSecurityOAuth2Version>2.3.4.RELEASE</springSecurityOAuth2Version>
+		<cloudfoundryIdentityClientLibVersion>4.19.2</cloudfoundryIdentityClientLibVersion>
 		<springSecurityJwtVersion>1.0.9.RELEASE</springSecurityJwtVersion>
 		<commonsIOVersion>2.6</commonsIOVersion>
 		<jsonVersion>1.0.0</jsonVersion>
 		<junitVersion>4.12</junitVersion>
 		<assertjVersion>3.10.0</assertjVersion>
 		<commonsLang3Version>3.7</commonsLang3Version>
-		<springSecurityTest>4.2.7.RELEASE</springSecurityTest>
-		<springContextSupport>4.3.18.RELEASE</springContextSupport>
-		<fasterxmlJacksonVersion>2.9.6</fasterxmlJacksonVersion>
+		<springSecurityTest>4.2.9.RELEASE</springSecurityTest>
+		<springContextSupport>4.3.20.RELEASE</springContextSupport>
+		<fasterxmlJacksonVersion>2.9.7</fasterxmlJacksonVersion>
 	</properties>
 
 	<modules>
