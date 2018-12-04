@@ -5,9 +5,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.net.InetAddress;
+import java.net.URL;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -31,6 +35,8 @@ public class XsuaaTokenValidationIT {
 	@Autowired
 	MockMvc mvc;
 
+	@Value("${mockxsuaaserver.url}")
+	String mockServerUrl;
 
 	@Test
 	public void testToken_testdomain() throws Exception {
@@ -46,7 +52,14 @@ public class XsuaaTokenValidationIT {
 	public void test_Scope() throws Exception {
 		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt","otherdomain")))).andExpect(status().isOk());
 	}
-	
+	@Test
+	public void test_requesttoken() throws Exception {
+		String fqHost = new URL(mockServerUrl).getHost();
+		String hostname = fqHost.substring(0,fqHost.indexOf("."));
+		
+		this.mvc.perform(get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt",hostname,"legacy-token-key-testdomain")))).andExpect(status().isOk()).andExpect(content().string("cc_token"));
+	}
+		
 
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
 		private String token;

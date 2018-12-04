@@ -1,14 +1,10 @@
 package com.sap.xs2.security.container;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.xsa.security.container.XSUserInfoException;
-
-import net.minidev.json.JSONObject;
 
 public class UserInfoTestClientCredentials {
 
@@ -47,37 +43,6 @@ public class UserInfoTestClientCredentials {
 		Assert.assertNull(infoCc.getOrigin()); // not in token
 	}
 
-	private JSONObject buildBinding(String xsappname, String planName) throws JSONException {
-		JSONObject credentials = new JSONObject();
-		credentials.put("clientid", "testClient");
-		credentials.put("identityzoneid", "demo");
-		credentials.put("verificationkey", "key");
-		credentials.put("xsappname", xsappname);
-		JSONObject binding = new JSONObject();
-		binding.put("name", planName + "-uaa");
-		binding.put("label", "xsuaa");
-		binding.put("tags", new JSONArray().put("xsuaa"));
-		binding.put("plan", planName);
-		binding.put("credentials", credentials);
-		return binding;
-	}
-
-	private String buildVcapServices(String xsappname, String planName) throws JSONException {
-		JSONObject vcapServices = new JSONObject();
-		JSONArray bindingArray = new JSONArray();
-		bindingArray.put(buildBinding(xsappname, planName));
-		vcapServices.put("xsuaa", bindingArray);
-		return vcapServices.toString();
-	}
-
-	private String buildVcapServices(String xsappname1, String planName1, String xsappname2, String planName2) throws JSONException {
-		JSONObject vcapServices = new JSONObject();
-		JSONArray bindingArray = new JSONArray();
-		bindingArray.put(buildBinding(xsappname1, planName1));
-		bindingArray.put(buildBinding(xsappname2, planName2));
-		vcapServices.put("xsuaa", bindingArray);
-		return vcapServices.toString();
-	}
 
 	@Test(expected = UserInfoException.class)
 	public void getAttributeCc() throws XSUserInfoException {

@@ -63,6 +63,15 @@ public class MockAuthorizationServer extends PropertySource<MockWebServer> imple
 				if ("/otherdomain/token_keys".equals(request.getPath())) {
 					return getResponse("/mock/otherdomain_token_keys.txt", 200);
 				}
+				if (request.getPath().endsWith("/token_keys")) {
+					return getResponse("/mock/testdomain_token_keys.txt", 200);
+				}
+				if (request.getPath().startsWith("/oauth/token?grant_type=client_credentials")) {
+					if ("basic YzE6czE=".equalsIgnoreCase(request.getHeader("authorization")) && "POST".equals(request.getMethod()) && request.getPath().contains("%7B%22az_attr%22:%7B%22a%22:%22b%22,%22c%22:%22d%22%7D%7D"))
+						return getResponse("/mock/cc_token.txt", 200);
+					else
+						getResponse("/mock/404.txt", 404);
+				}
 				return getResponse("/mock/404.txt", 404);
 			}
 		};
@@ -79,13 +88,10 @@ public class MockAuthorizationServer extends PropertySource<MockWebServer> imple
 	private static MockResponse getResponse(String path, int status) {
 		String body;
 		try {
-			body = com.nimbusds.jose.util.IOUtils.readInputStreamToString(
-					MockAuthorizationServer.class.getResourceAsStream(path), Charset.forName("utf-8"));
-			return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-					.setResponseCode(status).setBody(body);
+			body = com.nimbusds.jose.util.IOUtils.readInputStreamToString(MockAuthorizationServer.class.getResourceAsStream(path), Charset.forName("utf-8"));
+			return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setResponseCode(status).setBody(body);
 		} catch (IOException e) {
-			return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-					.setResponseCode(500).setBody(e.getMessage());
+			return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setResponseCode(500).setBody(e.getMessage());
 		}
 	}
 }

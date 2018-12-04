@@ -1,6 +1,7 @@
 package com.sap.cloud.security.xsuaa;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Properties;
 
 import org.springframework.core.env.PropertiesPropertySource;
@@ -57,10 +58,16 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	}
 
 	protected Properties getConfigurationProperties(XsuaaServicesParser vcapServicesParser) throws IOException {
+	try{
 		Properties newConfigurationProperties = new Properties();
 		for (String attributeName : XSUAA_ATTRIBUTES) {
 			vcapServicesParser.getAttribute(attributeName).ifPresent(attributeValue -> newConfigurationProperties.put(XSUAA_PREFIX + attributeName, attributeValue));
 		}
 		return newConfigurationProperties;
+	}
+		catch(net.minidev.json.parser.ParseException ex)
+		{
+			throw new IOException(ex);
+		}
 	}
 }

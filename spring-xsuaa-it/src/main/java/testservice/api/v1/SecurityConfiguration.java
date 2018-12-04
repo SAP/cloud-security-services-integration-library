@@ -32,7 +32,7 @@ import com.sap.xs2.security.container.UserInfoAuthenticationConverter;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	
 	@Value("${mockxsuaaserver.url}")
-	String url2;
+	String mockServerUrl;
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -50,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Bean
 	XsuaaServiceConfiguration getXsuaaServiceConfiguration()
 	{
-		return new MockXsuaaServiceConfiguration(url2,"java-hello-world");
+		return new MockXsuaaServiceConfiguration(mockServerUrl,"java-hello-world");
 	}
 	@Bean
 	JwtDecoder jwtDecoder() {	

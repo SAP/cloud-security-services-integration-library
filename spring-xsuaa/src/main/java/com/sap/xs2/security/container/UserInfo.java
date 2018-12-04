@@ -1,9 +1,11 @@
 package com.sap.xs2.security.container;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,8 +19,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.xsa.security.container.XSTokenRequest;
 import com.sap.xsa.security.container.XSUserInfo;
 
@@ -478,14 +478,15 @@ public class UserInfo implements XSUserInfo {
 		// build authorities string for additional authorization attributes
 		String authorities = null;
 		if (tokenRequest.getAdditionalAuthorizationAttributes() != null) {
-			ObjectMapper mapper = new ObjectMapper();
-			ObjectNode az_attr = mapper.createObjectNode();
-			for (Map.Entry<String, String> entry : tokenRequest.getAdditionalAuthorizationAttributes().entrySet()) {
-				az_attr.put(entry.getKey(), entry.getValue());
+			Map<String,Object> azAttrMap = new HashMap<>();
+			azAttrMap.put("az_attr", tokenRequest.getAdditionalAuthorizationAttributes());
+			StringBuilder azStringBuilder = new StringBuilder();
+			try {
+				JSONObject.writeJSON(azAttrMap, azStringBuilder);
+			} catch (IOException e) {
+				throw new UserInfoException("Error creating json representation", e);
 			}
-			ObjectNode root = mapper.createObjectNode();
-			root.set("az_attr", az_attr);
-			authorities = root.toString();
+			authorities = azStringBuilder.toString();
 		}
 		// check whether token endpoint has the correct subdomain, if not replace it with the subdomain of the token
 		String tokenSubdomain = getSubdomain();

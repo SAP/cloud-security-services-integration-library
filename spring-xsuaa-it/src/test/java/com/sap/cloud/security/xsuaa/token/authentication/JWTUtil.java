@@ -14,9 +14,15 @@ public class JWTUtil {
 	public static String createJWT(String pathToTemplate, String subdomain) throws Exception {
 		String privateKey = IOUtils.toString(JWTUtil.class.getResourceAsStream("/privateKey.txt"), StandardCharsets.UTF_8); // PEM format
 		String template = IOUtils.toString(JWTUtil.class.getResourceAsStream(pathToTemplate),StandardCharsets.UTF_8);
-		return JWTUtil.createJWT(template,subdomain,  privateKey,"legacy-token-key");
+		return JWTUtil.createJWT(template,subdomain,  privateKey,"legacy-token-key-"+subdomain);
 	}
 
+	public static String createJWT(String pathToTemplate, String subdomain, String keyId) throws Exception {
+		String privateKey = IOUtils.toString(JWTUtil.class.getResourceAsStream("/privateKey.txt"), StandardCharsets.UTF_8); // PEM format
+		String template = IOUtils.toString(JWTUtil.class.getResourceAsStream(pathToTemplate),StandardCharsets.UTF_8);
+		return JWTUtil.createJWT(template,subdomain,  privateKey,keyId);
+	}
+	
 	public static String createJWT(String claims, String subdomain, String privateKey, String keyId) throws Exception {
 
 		RsaSigner signer = new RsaSigner(privateKey);	
@@ -24,7 +30,7 @@ public class JWTUtil {
 		claims = claims.replace("$zdn", subdomain);
 
 		Map<String, String> headers = new HashMap<>();
-		headers.put("kid", keyId+"-"+subdomain);
+		headers.put("kid",keyId );
 
 		Jwt jwt = JwtHelper.encode(claims, signer, headers);
 

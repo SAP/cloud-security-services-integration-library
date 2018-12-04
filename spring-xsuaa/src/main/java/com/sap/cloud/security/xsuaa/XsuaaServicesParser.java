@@ -3,18 +3,20 @@ package com.sap.cloud.security.xsuaa;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.util.StringUtils;
+
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 
 public class XsuaaServicesParser {
 
@@ -44,32 +46,29 @@ public class XsuaaServicesParser {
 	 * @param name
 	 *            the attribute name
 	 * @return associated value to given tag name or null if attribute not found
+	 * @throws ParseException 
 	 */
-	public Optional<String> getAttribute(String name) {
+	public Optional<String> getAttribute(String name) throws ParseException {
 
 		if (StringUtils.isEmpty(vcapServices)) {
 			return Optional.empty();
 		}
 
-		try {
-			JSONObject vcap = new JSONObject(vcapServices);
+			JSONObject vcap = (JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(vcapServices);
 			JSONObject xsuaaBinding = searchXSuaaBinding(vcap);
 
-			if (Objects.nonNull(xsuaaBinding) && xsuaaBinding.has(CREDENTIALS)) {
-				JSONObject credentials = xsuaaBinding.getJSONObject(CREDENTIALS);
-				return Optional.ofNullable(credentials.getString(name));
+			if (Objects.nonNull(xsuaaBinding) && xsuaaBinding.containsKey(CREDENTIALS)) {
+				JSONObject credentials = (JSONObject) xsuaaBinding.get(CREDENTIALS);
+				return Optional.ofNullable(credentials.getAsString(name));
 			}
-		} catch (JSONException e) {
-			logger.warn("Cannot find the attribute {} in the current environment because of " + name + " " + e.getMessage());
-		}
 
 		return Optional.empty();
 	}
 
-	private JSONObject searchXSuaaBinding(final JSONObject jsonObject) throws JSONException {
+	private JSONObject searchXSuaaBinding(final JSONObject jsonObject)  {
 		for (@SuppressWarnings("unchecked")
-		Iterator<String> iter = jsonObject.keys(); iter.hasNext();) {
-			JSONObject foundObject = getJSONObjectFromTag(jsonObject.getJSONArray(iter.next()));
+		String tag : jsonObject.keySet()) {
+			JSONObject foundObject = getJSONObjectFromTag((JSONArray)jsonObject.get(tag));
 			if (foundObject != null) {
 				return foundObject;
 			}
@@ -77,14 +76,14 @@ public class XsuaaServicesParser {
 		return null;
 	}
 
-	private JSONObject getJSONObjectFromTag(final JSONArray jsonArray) throws JSONException {
+	private JSONObject getJSONObjectFromTag(final JSONArray jsonArray)  {
 		JSONObject xsuaaBinding = null;
-		for (int i = 0; i < jsonArray.length(); i++) {
-			JSONObject binding = jsonArray.getJSONObject(i);
-			JSONArray tags = binding.getJSONArray(TAGS);
+		for (int i = 0; i < jsonArray.size(); i++) {
+			JSONObject binding = (JSONObject) jsonArray.get(i);
+			JSONArray tags = (JSONArray) binding.get(TAGS);
 
-			for (int j = 0; j < tags.length(); j++) {
-				if (tags.getString(j).equals(XSUAA_TAG)) {
+			for (int j = 0; j < tags.size(); j++) {
+				if (tags.get(j).equals(XSUAA_TAG)) {
 					if (xsuaaBinding == null) {
 						xsuaaBinding = binding;
 					} else {

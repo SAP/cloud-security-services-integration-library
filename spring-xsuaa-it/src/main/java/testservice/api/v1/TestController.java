@@ -15,7 +15,12 @@
  */
 package testservice.api.v1;
 
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,10 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.xs2.security.container.UserInfo;
 import com.sap.xs2.security.container.UserInfoException;
-
+import com.sap.xs2.security.container.XSTokenRequestImpl;
+import com.sap.xsa.security.container.XSTokenRequest;
 
 @RestController
 public class TestController {
+
+	@Value("${mockxsuaaserver.url}")
+	String mockServerUrl;
 
 	@GetMapping("/")
 	public String index(@AuthenticationPrincipal Jwt jwt) {
@@ -72,14 +81,25 @@ public class TestController {
 		// role collections
 		Assert.assertEquals(1, token.getSystemAttribute("xs.rolecollections").length);
 		Assert.assertEquals("rc1", token.getSystemAttribute("xs.rolecollections")[0]);
-		return "user:"+token.getLogonName();
+		return "user:" + token.getLogonName();
 	}
-	
+
 	@GetMapping("/scope")
 	public void checkScope(@AuthenticationPrincipal UserInfo token) throws UserInfoException {
 		Assert.assertTrue(token.checkScope("openid"));
 		Assert.assertTrue(token.checkLocalScope("Display"));
 		Assert.assertFalse(token.checkLocalScope("Other"));
-		
+	}
+
+	@GetMapping("/requesttoken")
+	public String requestToken(@AuthenticationPrincipal UserInfo token) throws UserInfoException, URISyntaxException {
+		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);
+		tokenRequest.setClientId("c1").setClientSecret("s1").setType(XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN);
+Map<String,String> azMape = new HashMap<>();
+azMape.put("a", "b");
+azMape.put("c", "d");
+tokenRequest.setAdditionalAuthorizationAttributes(azMape);
+		String newToken = token.requestToken(tokenRequest);
+		return newToken;
 	}
 }
