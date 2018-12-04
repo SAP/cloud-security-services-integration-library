@@ -14,7 +14,7 @@ public class MockXsuaaServiceConfiguration implements XsuaaServiceConfiguration 
 
 	@Override
 	public String getClientId() {
-		return null;
+		return "sb-"+appId;
 	}
 
 	@Override

@@ -36,21 +36,28 @@ public class UserInfoTestUtil {
 		return jwt.getEncoded();
 	}
 
-	public static UserInfo parse(String path, String appName) throws Exception {
+	public static UserInfo parseUserInfo(String path, String appName) throws Exception {
 		String token = UserInfoTestUtil.createJWT(path);
-		return createJwt(token,appName);
+		return createUserInfo(token,appName);
 	}
 
-	public static  UserInfo loadJwt(String path, String appName) throws Exception {
+	public static  UserInfo loadUserInfo(String path, String appName) throws Exception {
 		String token = IOUtils.resourceToString(path, Charset.forName("UTF-8"));
-
-		return createJwt(token,appName);
+		return createUserInfo(token,appName);
 	}
-	public static UserInfo createJwt(String token, String appName) throws java.text.ParseException {
+	public static UserInfo createUserInfo(String token, String appName) throws java.text.ParseException {
 		JWT parsedJwt = JWTParser.parse(token);
 		JWTClaimsSet jwtClaimsSet = parsedJwt.getJWTClaimsSet();
 		Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
 		Jwt jwt =  new Jwt(parsedJwt.getParsedString(), jwtClaimsSet.getIssueTime().toInstant(), jwtClaimsSet.getExpirationTime().toInstant(), headers, jwtClaimsSet.getClaims());
 		return new UserInfo(jwt, appName);
 	}
+	public static Jwt parseJwt(String token) throws java.text.ParseException {
+		JWT parsedJwt = JWTParser.parse(token);
+		JWTClaimsSet jwtClaimsSet = parsedJwt.getJWTClaimsSet();
+		Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
+		Jwt jwt =  new Jwt(parsedJwt.getParsedString(), jwtClaimsSet.getIssueTime().toInstant(), jwtClaimsSet.getExpirationTime().toInstant(), headers, jwtClaimsSet.getClaims());
+		return jwt;
+	}
+	
 }

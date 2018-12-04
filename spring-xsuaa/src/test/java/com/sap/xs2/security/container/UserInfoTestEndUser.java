@@ -12,8 +12,8 @@ public class UserInfoTestEndUser {
 
 	@Before
 	public void setup() throws Exception {
-		correctEnduserInfo = UserInfoTestUtil.loadJwt("/correctEndUserToken.txt", "java-hello-world");
-		correctEnduserInfoWithUaaUser = UserInfoTestUtil.loadJwt("/correctEndUserTokenUaaUser.txt", "java-hello-world");
+		correctEnduserInfo = UserInfoTestUtil.loadUserInfo("/correctEndUserToken.txt", "java-hello-world");
+		correctEnduserInfoWithUaaUser = UserInfoTestUtil.loadUserInfo("/correctEndUserTokenUaaUser.txt", "java-hello-world");
 	}
 
 

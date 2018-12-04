@@ -1,0 +1,12 @@
+{
+ "client_id":"sb-test1!t1",
+ "exp":$exp,
+ "scope":["test1!t1.read","test2!t1.write"],
+ "user_name":"testUser",
+ "user_id":"1234",
+ "email":"testUser@testOrg",
+ "zid":"demo",
+ "grant_type":"password",
+ "aud":["test1!t1","test2!t1"],
+ "iat": 1532416849
+}

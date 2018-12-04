@@ -12,7 +12,7 @@ public class UserInfoTestSAML {
 
 	@Before
 	public void setup() throws Exception {
-		token = UserInfoTestUtil.parse("/saml.txt", "java-hello-world");
+		token = UserInfoTestUtil.parseUserInfo("/saml.txt", "java-hello-world");
 	}
 
 	@Test

@@ -13,8 +13,8 @@ public class UserInfoTestClientCredentials {
 
 	@Before
 	public void setup() throws Exception {
-		infoCc = UserInfoTestUtil.loadJwt("/token_cc.txt", "java-hello-world");
-		infoCcNoAttr = UserInfoTestUtil.loadJwt("/token_cc_noattr.txt", "java-hello-world");
+		infoCc = UserInfoTestUtil.loadUserInfo("/token_cc.txt", "java-hello-world");
+		infoCcNoAttr = UserInfoTestUtil.loadUserInfo("/token_cc_noattr.txt", "java-hello-world");
 
 	}
 

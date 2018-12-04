@@ -19,14 +19,14 @@ public class UserInfoTestUser {
 	
 	@Before
 	public void setup() throws Exception {
-		infoUser = UserInfoTestUtil.loadJwt("/token_user.txt", "java-hello-world");
-		infoUserNoAttr = UserInfoTestUtil.loadJwt("/token_user_noattr.txt", "java-hello-world");
+		infoUser = UserInfoTestUtil.loadUserInfo("/token_user.txt", "java-hello-world");
+		infoUserNoAttr = UserInfoTestUtil.loadUserInfo("/token_user_noattr.txt", "java-hello-world");
 	}
 
 	@Test
 	public void testSAMLToken() throws Exception, ParseException, java.text.ParseException, UserInfoException {
 
-		UserInfo token = UserInfoTestUtil.parse("/saml.txt", "java-hello-world");
+		UserInfo token = UserInfoTestUtil.parseUserInfo("/saml.txt", "java-hello-world");
 		// attributes - old style
 		Assert.assertEquals(2, token.getAttribute("cost-center").length);
 		Assert.assertEquals("0815", token.getAttribute("cost-center")[0]);
