@@ -1,0 +1,10 @@
+{
+ "client_id":"$clientid",
+ "exp":$exp,
+ "scope":["java-hello-world.read"],
+ "user_name":"testUser",
+ "user_id":"1234",
+ "email":"testUser@testOrg",
+ "zid":"demo",
+ "grant_type":"password"
+}
