@@ -20,6 +20,16 @@ The SAP Java Buildpack integrates token validation into the tomcat server. Appli
 ### Sample
 See [sap-java-builpack-api-uage](samples/sap-java-buildpack-api-usage) for an example.
 
+## Token Validation for Java Spring Boot web applications
+Spring Boot provides OAuth resource servers. Application developers requiring authentication and authorization information in their application use the libraries defined in [spring-xsuaa](./spring-xsuaa) to obtain like user name and scopes.
+### Requirements
+- Java 8
+- maven 3.3.9 or later
+- Spring Boot 2.1 and later
+### Sample
+See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
+
+
 # Download and Installation
 To download and install the this project clone this repository via:
 ```
@@ -27,7 +37,7 @@ git clone https://github.com/SAP/cloud-security-xsuaa-integration
 cd cloud-security-xsuaa-integration
 mvn package
 ```
-*Note:* This requires an installation of the git command line utility. 
+*Note:* Use this is you want to enahnce this xsuaa integration libraries. The buid results are also available on maven central. 
 
 # Limitations
 Libraries and information provided here is around the topic of integrating with the xsuaa service. General integration into other OAuth authorization servers is not the primary focus.

@@ -1,0 +1,7 @@
+{
+  "routes": [{
+    "source": "^/",
+    "target": "/hello-token",
+    "destination": "token-destination"
+  }]
+}

@@ -5,7 +5,7 @@
 
 	<groupId>com.sap.cloud.security.xsuaa</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.0.0</version>
+	<version>1.1.0.RC1</version>
 	<packaging>pom</packaging>
 
 	<name>parent</name>
@@ -47,30 +47,36 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springVersion>4.3.20.RELEASE</springVersion>
+		<spring.core.version>5.1.1.RELEASE</spring.core.version>
+		<junit.version>4.12</junit.version>
+		<maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+		<!-- <springVersion>4.3.20.RELEASE</springVersion>
 		<springSecurityVersion>4.2.9.RELEASE</springSecurityVersion>
 		<servletApiVersion>4.0.1</servletApiVersion>
 		<springSecurityOAuth2Version>[2.3.4,)</springSecurityOAuth2Version>
 		<cloudfoundryIdentityClientLibVersion>4.19.2</cloudfoundryIdentityClientLibVersion>
 		<springSecurityJwtVersion>1.0.9.RELEASE</springSecurityJwtVersion>
 		<commonsIOVersion>2.6</commonsIOVersion>
-		<jsonVersion>1.0.0</jsonVersion>
+		<jsonVersion>1.1.0.RC1</jsonVersion>
 		<junitVersion>4.12</junitVersion>
 		<assertjVersion>3.10.0</assertjVersion>
 		<commonsLang3Version>3.7</commonsLang3Version>
 		<springSecurityTest>4.2.9.RELEASE</springSecurityTest>
 		<springContextSupport>4.3.20.RELEASE</springContextSupport>
 		<fasterxmlJacksonVersion>2.9.7</fasterxmlJacksonVersion>
+		 -->
+		<spring.security.version>5.1.1.RELEASE</spring.security.version>
 	</properties>
 
 	<modules>
 		<module>api</module>
-		<!-- <module>spring-security</module> -->
+		<module>spring-xsuaa</module>
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
+			<!-- <dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
 				<version>${springVersion}</version>
@@ -161,6 +167,7 @@
 				<artifactId>spring-context-support</artifactId>
 				<version>${springContextSupport}</version>
 			</dependency>
+			-->
 		</dependencies>
 	</dependencyManagement>
 

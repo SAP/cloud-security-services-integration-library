@@ -1,0 +1,32 @@
+---
+# Configuration:
+# configured for EU10. For other landscapes, please adopt the destination
+# If the routes are occupied, you might need to change the host in sap-java-buildpack-api-usage, the host in approuter- sap-java-buildpack-api-usage and the url in the destination 
+applications:
+# Application sap-java-buildpack-api-usage
+- name: spring-security-xsuaa-usage
+  instances: 1
+  memory: 896M
+  routes:
+    - route: spring-security-xsuaa-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
+  path: target/spring-security-xsuaa-usage-1.1.0.RC1.jar
+  services:
+    - xsuaa-authentication
+
+# Application Router as web server
+- name: approuter-spring-security-xsuaa-usage
+  path: approuter
+  buildpack: nodejs_buildpack
+  memory: 128M
+  routes:
+    - route: spring-security-xsuaa-usage-web-((ID)).((LANDSCAPE_APPS_DOMAIN))
+  services:
+    - xsuaa-authentication
+  env:
+    destinations: >
+      [
+        {"name":"token-destination",
+         "url":"https://spring-security-xsuaa-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))",
+         "forwardAuthToken": true}
+      ]
+...
