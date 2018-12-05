@@ -50,7 +50,17 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 	private List<String> allowedAudiences(Jwt token) {
 		List<String> allAudiences = new ArrayList<>();
 		if (token.getClaimAsString("aud") != null) {
-			allAudiences.addAll(token.getClaimAsStringList("aud"));
+			for(String audience:token.getClaimAsStringList("aud"))
+			{
+				if (audience.contains(".")) {
+					String aud = audience.substring(0, audience.indexOf("."));
+					allAudiences.add(aud);
+				}
+				else
+				{
+					allAudiences.add(audience);
+				}
+			}
 		}
 
 		if (allAudiences.size() == 0 && token.getClaimAsStringList("scope").size()>0) {

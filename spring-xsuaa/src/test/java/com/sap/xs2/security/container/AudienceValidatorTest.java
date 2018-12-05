@@ -48,7 +48,13 @@ public class AudienceValidatorTest {
 		OAuth2TokenValidatorResult result = new AudienceValidator(new DummyXsuaaServiceConfiguration("sb-test2!t1","test2!t1")).validate(tokenWithoutAudience);
 		Assert.assertFalse(result.hasErrors());
 	}
-	
+
+	@Test
+	public void testOtherGrantedClientIdWithoutAudienceAndDot()
+	{
+		OAuth2TokenValidatorResult result = new AudienceValidator(new DummyXsuaaServiceConfiguration("sb-test4!t1","test4!t1")).validate(tokenWithAudience);
+		Assert.assertFalse(result.hasErrors());
+	}
 
 	@Test
 	public void testUnGrantedClientId()

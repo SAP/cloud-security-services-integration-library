@@ -24,6 +24,7 @@ import com.sap.xsa.security.container.XSUserInfo;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+
 /**
  * Class providing access to common user related attributes extracted from the JWT token.
  *
@@ -410,8 +411,7 @@ public class UserInfo implements XSUserInfo {
 
 	private String getAttributeFromObject(String attributeName, String objectName) throws UserInfoException {
 		Map<String, Object> dataMap = jwt.getClaimAsMap(objectName);
-		if(dataMap == null)
-		{
+		if (dataMap == null) {
 			throw new UserInfoException("Invalid value of " + objectName);
 		}
 		String data = (String) jwt.getClaimAsMap(objectName).get(attributeName);
@@ -478,7 +478,7 @@ public class UserInfo implements XSUserInfo {
 		// build authorities string for additional authorization attributes
 		String authorities = null;
 		if (tokenRequest.getAdditionalAuthorizationAttributes() != null) {
-			Map<String,Object> azAttrMap = new HashMap<>();
+			Map<String, Object> azAttrMap = new HashMap<>();
 			azAttrMap.put("az_attr", tokenRequest.getAdditionalAuthorizationAttributes());
 			StringBuilder azStringBuilder = new StringBuilder();
 			try {
@@ -504,11 +504,11 @@ public class UserInfo implements XSUserInfo {
 			throw new UserInfoException("Invalid grant type.");
 		}
 	}
+
 	private String requestTokenTechnicalUser(XSTokenRequest tokenRequest, String authorities) throws UserInfoException {
 		// note: consistency checks (clientid, clientsecret and url) have already been executed
 		// build uri for client credentials flow
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenRequest.getTokenEndpoint())
-				.queryParam("grant_type", "client_credentials");
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenRequest.getTokenEndpoint()).queryParam("grant_type", "client_credentials");
 		if (authorities != null) {
 			builder.queryParam("authorities", authorities);
 		}
@@ -543,10 +543,7 @@ public class UserInfo implements XSUserInfo {
 			throw new UserInfoException("JWT token does not include scope 'uaa.user'.");
 		}
 		// build uri for user token flow
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl)
-				.queryParam("grant_type", "user_token")
-				.queryParam("response_type", "token")
-				.queryParam("client_id", serviceClientId);
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl).queryParam("grant_type", "user_token").queryParam("response_type", "token").queryParam("client_id", serviceClientId);
 		if (authorities != null) {
 			builder.queryParam("authorities", authorities);
 		}
@@ -567,9 +564,7 @@ public class UserInfo implements XSUserInfo {
 
 		}
 		// build uri for refresh token flow
-		builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl)
-				.queryParam("grant_type", "refresh_token")
-				.queryParam("refresh_token", responseEntity.getBody().get("refresh_token").toString());
+		builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl).queryParam("grant_type", "refresh_token").queryParam("refresh_token", responseEntity.getBody().get("refresh_token").toString());
 		// build http headers
 		headers.clear();
 		String credentials = serviceClientId + ":" + serviceClientSecret;
@@ -593,7 +588,7 @@ public class UserInfo implements XSUserInfo {
 		String url = serviceUaaUrl != null ? serviceUaaUrl + "/oauth/token" : null;
 		return requestTokenNamedUser(serviceClientId, serviceClientSecret, url, null);
 	}
-	
+
 	/**
 	 * Get the subdomain from the given url
 	 *
@@ -623,13 +618,22 @@ public class UserInfo implements XSUserInfo {
 		if (uri == null || subdomain == null || !uri.getHost().contains(".")) {
 			return null;
 		}
-		UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
-				.scheme(uri.getScheme())
-				.host(subdomain + uri.getHost().substring(uri.getHost().indexOf(".")))
-				.port(uri.getPort())
-				.path(uri.getPath());
+		UriComponentsBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme()).host(subdomain + uri.getHost().substring(uri.getHost().indexOf("."))).port(uri.getPort()).path(uri.getPath());
 		return uri.resolve(builder.build().toString());
 	}
+
+	@Override
+	public String toString() {
+		try {
+			if (GRANTTYPE_CLIENTCREDENTIAL.equals(getGrantType())) {
+				return String.format("%s (client)", getClientId());
+			}
+			else
+			{
+				return String.format("%s / %s (user)",getLogonName(), getOrigin());
+			}
+		} catch (UserInfoException e) {
+			return "unknown";
+		}
+	}
 }
-
-
