@@ -21,19 +21,19 @@ public class XSTokenRequestImplTest {
 
 	@Before
 	public void setUp() throws Exception {
-		request = new XSTokenRequestImpl("http://localhost:8080/uaa/oauth/token");
+		request = new XSTokenRequestImpl("http://localhost:8080/uaa/oauth/samlUserInfo");
 	}
 
 	@Test
 	public void test_setTokenEndpoint() throws URISyntaxException {
-		URI tokenEndpoint = new URI("http://localhost:8080/uaa/oauth/token");
+		URI tokenEndpoint = new URI("http://localhost:8080/uaa/oauth/samlUserInfo");
 		request.setTokenEndpoint(tokenEndpoint);
-		assertEquals(request.getTokenEndpoint().toString(), "http://localhost:8080/uaa/oauth/token");
+		assertEquals(request.getTokenEndpoint().toString(), "http://localhost:8080/uaa/oauth/samlUserInfo");
 	}
 	
 	@Test (expected = URISyntaxException.class)
 	public void test_setTokenEndpoint_fails_UriSyntax() throws URISyntaxException {
-		URI tokenEndpoint = new URI("PC_DEV2::localhost:8080/uaa/oauth/token");
+		URI tokenEndpoint = new URI("PC_DEV2::localhost:8080/uaa/oauth/samlUserInfo");
 		request.setTokenEndpoint(tokenEndpoint);
 	}
 	

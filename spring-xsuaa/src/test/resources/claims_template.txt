@@ -6,5 +6,6 @@
  "user_id":"1234",
  "email":"testUser@testOrg",
  "zid":"demo",
- "grant_type":"password"
+ "grant_type":"password",
+ "origin": "useridp"
 }
