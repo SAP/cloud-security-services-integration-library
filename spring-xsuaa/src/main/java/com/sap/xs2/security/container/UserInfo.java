@@ -1,34 +1,32 @@
 package com.sap.xs2.security.container;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.sap.xsa.security.container.XSTokenRequest;
+import com.sap.xsa.security.container.XSUserInfo;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.sap.xsa.security.container.XSTokenRequest;
-import com.sap.xsa.security.container.XSUserInfo;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 /**
  * Class providing access to common user related attributes extracted from the JWT token.
  *
  */
-public class UserInfo implements XSUserInfo {
+public class UserInfo implements XSUserInfo, UserDetails {
 
 	private static final String USER_NAME = "user_name";
 	private static final String GIVEN_NAME = "given_name";
@@ -36,7 +34,6 @@ public class UserInfo implements XSUserInfo {
 	private static final String EMAIL = "email";
 	private static final String EXP = "exp";
 	private static final String CID = "cid";
-	private static final String SCOPE = "scope";
 	private static final String ORIGIN = "origin";
 	private static final String GRANT_TYPE = "grant_type";
 	private static final String ADDITIONAL_AZ_ATTR = "az_attr";
@@ -50,6 +47,7 @@ public class UserInfo implements XSUserInfo {
 	private static final String SYSTEM = "SYSTEM";
 	private static final String HDB = "HDB";
 	private static final String ISSUER = "iss";
+	static final String SCOPE = "scope";
 	public static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
 	public static final String GRANTTYPE_SAML2BEARER = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	public static final String GRANTTYPE_PASSWORD = "password"; // NOSONAR
@@ -629,6 +627,53 @@ public class UserInfo implements XSUserInfo {
 				.port(uri.getPort())
 				.path(uri.getPath());
 		return uri.resolve(builder.build().toString());
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		UserInfoAuthenticationConverter converter = new UserInfoAuthenticationConverter(xsappname);
+		return converter.extractAuthorities(jwt);
+	}
+
+	@Override
+	public String getPassword() {
+		return null;
+	}
+
+	@Override
+	public String getUsername() {
+		try {
+			if (GRANTTYPE_CLIENTCREDENTIAL.equals(getGrantType())) {
+				return getClientId();
+			} else {
+				Assert.doesNotContain(getOrigin(), "/", "Method getUsername can not handle '/' characters in " + USER_NAME + " and " + ORIGIN);
+				return String.format("%s/%s", getOrigin(), getLogonName());
+			}
+		} catch (UserInfoException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		JwtTimestampValidator validator = new JwtTimestampValidator();
+		return !validator.validate(jwt).hasErrors();
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		JwtTimestampValidator validator = new JwtTimestampValidator();
+		return validator.validate(jwt).hasErrors();
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return false;
 	}
 }
 
