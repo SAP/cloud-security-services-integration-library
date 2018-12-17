@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.xsa.security.container.XSUserInfoException;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class UserInfoTestClientCredentials {
 
@@ -13,9 +14,8 @@ public class UserInfoTestClientCredentials {
 
 	@Before
 	public void setup() throws Exception {
-		infoCc = UserInfoTestUtil.loadUserInfo("/token_cc.txt", "java-hello-world");
-		infoCcNoAttr = UserInfoTestUtil.loadUserInfo("/token_cc_noattr.txt", "java-hello-world");
-
+		infoCc = UserInfoTestUtil.createFromJwtFile("/token_cc.txt", "java-hello-world");
+		infoCcNoAttr = UserInfoTestUtil.createFromJwtFile("/token_cc_noattr.txt", "java-hello-world");
 	}
 
 	@Test(expected = UserInfoException.class)
@@ -40,7 +40,7 @@ public class UserInfoTestClientCredentials {
 
 	@Test(expected = UserInfoException.class)
 	public void getOriginCc() throws XSUserInfoException {
-		Assert.assertNull(infoCc.getOrigin()); // not in token
+		Assert.assertNull(infoCc.getOrigin()); // not in samlUserInfo
 	}
 
 
@@ -66,6 +66,13 @@ public class UserInfoTestClientCredentials {
 		Assert.assertTrue(infoCc.getHdbToken().equals(infoCc.getToken("SYSTEM", "HDB")));
 		Assert.assertTrue(!infoCc.getAppToken().isEmpty());
 		Assert.assertTrue(infoCc.getAppToken().equals(infoCc.getToken("SYSTEM", "JobScheduler")));
+	}
+
+	@Test
+	public void getPrincipalNameReturnUniqueClientId() throws XSUserInfoException {
+		UserDetails principal = infoCc;
+		Assert.assertEquals(infoCc.getClientId(), principal.getUsername());
+		Assert.assertEquals("sb-java-hello-world", infoCc.getUsername());
 	}
 
 }

@@ -12,8 +12,8 @@ public class UserInfoTestEndUser {
 
 	@Before
 	public void setup() throws Exception {
-		correctEnduserInfo = UserInfoTestUtil.loadUserInfo("/correctEndUserToken.txt", "java-hello-world");
-		correctEnduserInfoWithUaaUser = UserInfoTestUtil.loadUserInfo("/correctEndUserTokenUaaUser.txt", "java-hello-world");
+		correctEnduserInfo = UserInfoTestUtil.createFromJwtFile("/correctEndUserToken.txt", "java-hello-world");
+		correctEnduserInfoWithUaaUser = UserInfoTestUtil.createFromJwtFile("/correctEndUserTokenUaaUser.txt", "java-hello-world");
 	}
 
 
@@ -37,6 +37,4 @@ public class UserInfoTestEndUser {
 	public void requestTokenForClientTestInvalidUaaUrl() throws XSUserInfoException {
 		correctEnduserInfoWithUaaUser.requestTokenForClient("foo", "bar", null);
 	}
-
-
 }

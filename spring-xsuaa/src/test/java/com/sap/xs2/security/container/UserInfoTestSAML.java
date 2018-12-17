@@ -1,18 +1,26 @@
 package com.sap.xs2.security.container;
 
+import net.minidev.json.parser.ParseException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import net.minidev.json.parser.ParseException;
+import java.util.Collection;
+
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class UserInfoTestSAML {
 
-	UserInfo token = null;
+	UserInfo samlUserInfo = null;
 
 	@Before
 	public void setup() throws Exception {
-		token = UserInfoTestUtil.parseUserInfo("/saml.txt", "java-hello-world");
+		samlUserInfo = UserInfoTestUtil.createFromTemplate("/saml.txt", "java-hello-world");
 	}
 
 	@Test
@@ -20,45 +28,57 @@ public class UserInfoTestSAML {
 
 		
 		// attributes - old style
-		Assert.assertEquals(2, token.getAttribute("cost-center").length);
-		Assert.assertEquals("0815", token.getAttribute("cost-center")[0]);
-		Assert.assertEquals("4711", token.getAttribute("cost-center")[1]);
-		Assert.assertEquals(1, token.getAttribute("country").length);
-		Assert.assertEquals("Germany", token.getAttribute("country")[0]);
+		Assert.assertEquals(2, samlUserInfo.getAttribute("cost-center").length);
+		Assert.assertEquals("0815", samlUserInfo.getAttribute("cost-center")[0]);
+		Assert.assertEquals("4711", samlUserInfo.getAttribute("cost-center")[1]);
+		Assert.assertEquals(1, samlUserInfo.getAttribute("country").length);
+		Assert.assertEquals("Germany", samlUserInfo.getAttribute("country")[0]);
 
 		// scopes
-		Assert.assertEquals(true, token.checkLocalScope("Display"));
-		Assert.assertEquals(true, token.checkLocalScope("Create"));
-		Assert.assertEquals(true, token.checkLocalScope("Delete"));
-		Assert.assertEquals(false, token.checkLocalScope("Other"));
+		Assert.assertEquals(true, samlUserInfo.checkLocalScope("Display"));
+		Assert.assertEquals(true, samlUserInfo.checkLocalScope("Create"));
+		Assert.assertEquals(true, samlUserInfo.checkLocalScope("Delete"));
+		Assert.assertEquals(false, samlUserInfo.checkLocalScope("Other"));
 		// client id
-		Assert.assertEquals("sb-java-hello-world", token.getClientId());
+		Assert.assertEquals("sb-java-hello-world", samlUserInfo.getClientId());
 		// grant type
-		Assert.assertEquals("authorization_code", token.getGrantType());
+		Assert.assertEquals("authorization_code", samlUserInfo.getGrantType());
 
 		// logon name
-		Assert.assertEquals("Mustermann", token.getLogonName());
+		Assert.assertEquals("Mustermann", samlUserInfo.getLogonName());
 		// email
-		Assert.assertEquals("max@example.com", token.getEmail());
+		Assert.assertEquals("max@example.com", samlUserInfo.getEmail());
 		// zone
-		Assert.assertEquals("11-22-33", token.getIdentityZone());
-		Assert.assertEquals("11-22-33", token.getSubaccountId());
+		Assert.assertEquals("11-22-33", samlUserInfo.getIdentityZone());
+		Assert.assertEquals("11-22-33", samlUserInfo.getSubaccountId());
 		// embedded SAML
-		Assert.assertNotNull(token.getHdbToken());
+		Assert.assertNotNull(samlUserInfo.getHdbToken());
 		// ext attr
-		Assert.assertEquals("domain\\group1", token.getAdditionalAuthAttribute("external_group"));
-		Assert.assertEquals("abcd1234", token.getAdditionalAuthAttribute("external_id"));
+		Assert.assertEquals("domain\\group1", samlUserInfo.getAdditionalAuthAttribute("external_group"));
+		Assert.assertEquals("abcd1234", samlUserInfo.getAdditionalAuthAttribute("external_id"));
 		// subdomain
-		Assert.assertEquals("testsubdomain", token.getSubdomain());
+		Assert.assertEquals("testsubdomain", samlUserInfo.getSubdomain());
 		// service instance id
-		Assert.assertEquals("abcd1234", token.getCloneServiceInstanceId());
+		Assert.assertEquals("abcd1234", samlUserInfo.getCloneServiceInstanceId());
 		// groups
-		Assert.assertEquals(1, token.getSystemAttribute("xs.saml.groups").length);
-		Assert.assertEquals("g1", token.getSystemAttribute("xs.saml.groups")[0]);
+		Assert.assertEquals(1, samlUserInfo.getSystemAttribute("xs.saml.groups").length);
+		Assert.assertEquals("g1", samlUserInfo.getSystemAttribute("xs.saml.groups")[0]);
 		// role collections
-		Assert.assertEquals(1, token.getSystemAttribute("xs.rolecollections").length);
-		Assert.assertEquals("rc1", token.getSystemAttribute("xs.rolecollections")[0]);
+		Assert.assertEquals(1, samlUserInfo.getSystemAttribute("xs.rolecollections").length);
+		Assert.assertEquals("rc1", samlUserInfo.getSystemAttribute("xs.rolecollections")[0]);
 	}
 
+	@Test
+	public void getPrincipalNameReturnUniqueLogonNameWithOrigin() {
+		UserDetails principal = samlUserInfo;
+		Assert.assertEquals("useridp/Mustermann", principal.getUsername());
+	}
 
+	@Test
+	public void getAuthoritiesReturnsAllScopes() throws Exception {
+		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) samlUserInfo.getAuthorities();
+		assertThat(authorities.size(), is(4));
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("openid")));
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("java-hello-world.Delete")));
+	}
 }

@@ -1,35 +1,32 @@
 package com.sap.xs2.security.container;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.sap.xsa.security.container.XSTokenRequest;
+import com.sap.xsa.security.container.XSUserInfo;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.sap.xsa.security.container.XSTokenRequest;
-import com.sap.xsa.security.container.XSUserInfo;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 /**
  * Class providing access to common user related attributes extracted from the JWT token.
  *
  */
-public class UserInfo implements XSUserInfo {
+public class UserInfo implements XSUserInfo, UserDetails {
 
 	private static final String USER_NAME = "user_name";
 	private static final String GIVEN_NAME = "given_name";
@@ -37,7 +34,6 @@ public class UserInfo implements XSUserInfo {
 	private static final String EMAIL = "email";
 	private static final String EXP = "exp";
 	private static final String CID = "cid";
-	private static final String SCOPE = "scope";
 	private static final String ORIGIN = "origin";
 	private static final String GRANT_TYPE = "grant_type";
 	private static final String ADDITIONAL_AZ_ATTR = "az_attr";
@@ -51,6 +47,7 @@ public class UserInfo implements XSUserInfo {
 	private static final String SYSTEM = "SYSTEM";
 	private static final String HDB = "HDB";
 	private static final String ISSUER = "iss";
+	static final String SCOPE = "scope";
 	public static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
 	public static final String GRANTTYPE_SAML2BEARER = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	public static final String GRANTTYPE_PASSWORD = "password"; // NOSONAR
@@ -411,7 +408,8 @@ public class UserInfo implements XSUserInfo {
 
 	private String getAttributeFromObject(String attributeName, String objectName) throws UserInfoException {
 		Map<String, Object> dataMap = jwt.getClaimAsMap(objectName);
-		if (dataMap == null) {
+		if(dataMap == null)
+		{
 			throw new UserInfoException("Invalid value of " + objectName);
 		}
 		String data = (String) jwt.getClaimAsMap(objectName).get(attributeName);
@@ -478,7 +476,7 @@ public class UserInfo implements XSUserInfo {
 		// build authorities string for additional authorization attributes
 		String authorities = null;
 		if (tokenRequest.getAdditionalAuthorizationAttributes() != null) {
-			Map<String, Object> azAttrMap = new HashMap<>();
+			Map<String,Object> azAttrMap = new HashMap<>();
 			azAttrMap.put("az_attr", tokenRequest.getAdditionalAuthorizationAttributes());
 			StringBuilder azStringBuilder = new StringBuilder();
 			try {
@@ -504,11 +502,11 @@ public class UserInfo implements XSUserInfo {
 			throw new UserInfoException("Invalid grant type.");
 		}
 	}
-
 	private String requestTokenTechnicalUser(XSTokenRequest tokenRequest, String authorities) throws UserInfoException {
 		// note: consistency checks (clientid, clientsecret and url) have already been executed
 		// build uri for client credentials flow
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenRequest.getTokenEndpoint()).queryParam("grant_type", "client_credentials");
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenRequest.getTokenEndpoint())
+				.queryParam("grant_type", "client_credentials");
 		if (authorities != null) {
 			builder.queryParam("authorities", authorities);
 		}
@@ -543,7 +541,10 @@ public class UserInfo implements XSUserInfo {
 			throw new UserInfoException("JWT token does not include scope 'uaa.user'.");
 		}
 		// build uri for user token flow
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl).queryParam("grant_type", "user_token").queryParam("response_type", "token").queryParam("client_id", serviceClientId);
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl)
+				.queryParam("grant_type", "user_token")
+				.queryParam("response_type", "token")
+				.queryParam("client_id", serviceClientId);
 		if (authorities != null) {
 			builder.queryParam("authorities", authorities);
 		}
@@ -564,7 +565,9 @@ public class UserInfo implements XSUserInfo {
 
 		}
 		// build uri for refresh token flow
-		builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl).queryParam("grant_type", "refresh_token").queryParam("refresh_token", responseEntity.getBody().get("refresh_token").toString());
+		builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl)
+				.queryParam("grant_type", "refresh_token")
+				.queryParam("refresh_token", responseEntity.getBody().get("refresh_token").toString());
 		// build http headers
 		headers.clear();
 		String credentials = serviceClientId + ":" + serviceClientSecret;
@@ -588,7 +591,7 @@ public class UserInfo implements XSUserInfo {
 		String url = serviceUaaUrl != null ? serviceUaaUrl + "/oauth/token" : null;
 		return requestTokenNamedUser(serviceClientId, serviceClientSecret, url, null);
 	}
-
+	
 	/**
 	 * Get the subdomain from the given url
 	 *
@@ -618,22 +621,60 @@ public class UserInfo implements XSUserInfo {
 		if (uri == null || subdomain == null || !uri.getHost().contains(".")) {
 			return null;
 		}
-		UriComponentsBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme()).host(subdomain + uri.getHost().substring(uri.getHost().indexOf("."))).port(uri.getPort()).path(uri.getPath());
+		UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
+				.scheme(uri.getScheme())
+				.host(subdomain + uri.getHost().substring(uri.getHost().indexOf(".")))
+				.port(uri.getPort())
+				.path(uri.getPath());
 		return uri.resolve(builder.build().toString());
 	}
 
 	@Override
-	public String toString() {
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		UserInfoAuthenticationConverter converter = new UserInfoAuthenticationConverter(xsappname);
+		return converter.extractAuthorities(jwt);
+	}
+
+	@Override
+	public String getPassword() {
+		return null;
+	}
+
+	@Override
+	public String getUsername() {
 		try {
 			if (GRANTTYPE_CLIENTCREDENTIAL.equals(getGrantType())) {
-				return String.format("%s (client)", getClientId());
-			}
-			else
-			{
-				return String.format("%s / %s (user)",getLogonName(), getOrigin());
+				return getClientId();
+			} else {
+				Assert.doesNotContain(getOrigin(), "/", "Method getUsername can not handle '/' characters in " + USER_NAME + " and " + ORIGIN);
+				return String.format("%s/%s", getOrigin(), getLogonName());
 			}
 		} catch (UserInfoException e) {
-			return "unknown";
+			return null;
 		}
 	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		JwtTimestampValidator validator = new JwtTimestampValidator();
+		return !validator.validate(jwt).hasErrors();
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		JwtTimestampValidator validator = new JwtTimestampValidator();
+		return validator.validate(jwt).hasErrors();
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return false;
+	}
 }
+
+

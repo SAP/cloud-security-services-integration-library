@@ -19,14 +19,14 @@ public class UserInfoTestUser {
 	
 	@Before
 	public void setup() throws Exception {
-		infoUser = UserInfoTestUtil.loadUserInfo("/token_user.txt", "java-hello-world");
-		infoUserNoAttr = UserInfoTestUtil.loadUserInfo("/token_user_noattr.txt", "java-hello-world");
+		infoUser = UserInfoTestUtil.createFromJwtFile("/token_user.txt", "java-hello-world");
+		infoUserNoAttr = UserInfoTestUtil.createFromJwtFile("/token_user_noattr.txt", "java-hello-world");
 	}
 
 	@Test
 	public void testSAMLToken() throws Exception, ParseException, java.text.ParseException, UserInfoException {
 
-		UserInfo token = UserInfoTestUtil.parseUserInfo("/saml.txt", "java-hello-world");
+		UserInfo token = UserInfoTestUtil.createFromTemplate("/saml.txt", "java-hello-world");
 		// attributes - old style
 		Assert.assertEquals(2, token.getAttribute("cost-center").length);
 		Assert.assertEquals("0815", token.getAttribute("cost-center")[0]);
@@ -80,12 +80,12 @@ public class UserInfoTestUser {
 
 	@Test(expected = UserInfoException.class)
 	public void getGivenName() throws XSUserInfoException {
-		infoUser.getGivenName(); // not in token
+		infoUser.getGivenName(); // not in samlUserInfo
 	}
 
 	@Test(expected = UserInfoException.class)
 	public void getFamilyName() throws XSUserInfoException {
-		infoUser.getFamilyName(); // not in token
+		infoUser.getFamilyName(); // not in samlUserInfo
 	}
 
 	@Test

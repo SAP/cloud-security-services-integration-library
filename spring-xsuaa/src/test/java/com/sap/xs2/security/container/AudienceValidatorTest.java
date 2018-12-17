@@ -19,8 +19,8 @@ public class AudienceValidatorTest {
 
 	@Before
 	public void setup() throws Exception {
-		tokenWithAudience = UserInfoTestUtil.parseJwt(UserInfoTestUtil.createJWT("/audience_1.txt"));	
-		tokenWithoutAudience= UserInfoTestUtil.parseJwt(UserInfoTestUtil.createJWT("/audience_2.txt"));
+		tokenWithAudience = UserInfoTestUtil.parseJwt(UserInfoTestUtil.createJwtFromTemplate("/audience_1.txt"));	
+		tokenWithoutAudience= UserInfoTestUtil.parseJwt(UserInfoTestUtil.createJwtFromTemplate("/audience_2.txt"));
 	}
 	@Test
 	public void testSameClientId()
