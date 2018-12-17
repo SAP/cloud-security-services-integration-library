@@ -9,4 +9,4 @@
 
 [spring-security-xsuaa-usage](./spring-security-xsuaa-usage): Sample application demonstrating how to integrate xsuaa with Spring Boot
 
-[spring-security-basic-auth](./spring-security-basic-auth): Sample application demonstrating how to use basic authentication with Spring
+[spring-security-basic-auth](./spring-security-basic-auth): Sample application demonstrating how to use basic authentication with Spring Boot
