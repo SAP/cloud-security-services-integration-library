@@ -81,25 +81,26 @@ public class AudienceValidatorTest {
 
 		@Override
 		public String getClientSecret() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public String getUaaUrl() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public String getTokenKeyUrl(String zid, String subdomain) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public String getAppId() {
 			return xsAppId;
+		}
+		@Override
+		public String getUaadomain() {
+			return null;
 		}
 		
 	}

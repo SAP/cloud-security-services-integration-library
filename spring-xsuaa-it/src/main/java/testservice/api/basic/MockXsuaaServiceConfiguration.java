@@ -1,4 +1,7 @@
-package testservice.api.v1;
+package testservice.api.basic;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
@@ -6,10 +9,11 @@ public class MockXsuaaServiceConfiguration implements XsuaaServiceConfiguration 
 
 	String url;
 	private String appId;
-
-	public MockXsuaaServiceConfiguration(String url, String appId) {
+	private String uaadomain;
+	public MockXsuaaServiceConfiguration(String url, String appId) throws MalformedURLException {
 		this.url = url;
 		this.appId = appId;
+		this.uaadomain = new URL(url).getHost();
 	}
 
 	@Override
@@ -19,12 +23,12 @@ public class MockXsuaaServiceConfiguration implements XsuaaServiceConfiguration 
 
 	@Override
 	public String getClientSecret() {
-		return null;
+		return "mysecret-basic";
 	}
 
 	@Override
 	public String getUaaUrl() {
-		return null;
+		return url;
 	}
 
 	@Override
@@ -39,7 +43,7 @@ public class MockXsuaaServiceConfiguration implements XsuaaServiceConfiguration 
 
 	@Override
 	public String getUaadomain() {
-		return null;
+		return uaadomain;
 	}
 
 }

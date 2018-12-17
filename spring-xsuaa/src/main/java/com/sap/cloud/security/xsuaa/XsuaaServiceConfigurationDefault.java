@@ -27,6 +27,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Value("${xsuaa.xsappname:}")
 	private String appid;
 
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -59,6 +60,11 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Override
 	public String getAppId() {
 		return this.appid;
+	}
+
+	@Override
+	public String getUaadomain() {
+		return uaadomain;
 	}
 
 }

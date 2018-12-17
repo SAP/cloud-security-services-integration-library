@@ -1,35 +1,33 @@
-package testservice.api.v1;
+package com.sap.cloud.security.xsuaa.extractor;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
-public class MockXsuaaServiceConfiguration implements XsuaaServiceConfiguration {
+public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration {
 
-	String url;
-	private String appId;
-
-	public MockXsuaaServiceConfiguration(String url, String appId) {
-		this.url = url;
-		this.appId = appId;
-	}
+	String clientId;
+	String clientSecret;
+	String uaaUrl;
+	String uaaDomain;
+	String appId;
 
 	@Override
 	public String getClientId() {
-		return "sb-"+appId;
+		return clientId;
 	}
 
 	@Override
 	public String getClientSecret() {
-		return null;
+		return clientSecret;
 	}
 
 	@Override
 	public String getUaaUrl() {
-		return null;
+		return uaaUrl;
 	}
 
 	@Override
 	public String getTokenKeyUrl(String zid, String subdomain) {
-		return url + "/" + subdomain + "/token_keys";
+		return null;
 	}
 
 	@Override
@@ -39,7 +37,7 @@ public class MockXsuaaServiceConfiguration implements XsuaaServiceConfiguration 
 
 	@Override
 	public String getUaadomain() {
-		return null;
+		return uaaDomain;
 	}
 
 }

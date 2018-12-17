@@ -9,7 +9,7 @@ applications:
   memory: 896M
   routes:
     - route: spring-security-xsuaa-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
-  path: target/spring-security-xsuaa-usage-1.1.0.RC1.jar
+  path: target/spring-security-xsuaa-usage.jar
   services:
     - xsuaa-authentication
 
