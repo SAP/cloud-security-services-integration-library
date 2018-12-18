@@ -1,18 +1,19 @@
 package com.sap.xs2.security.container;
 
-import com.nimbusds.jwt.JWTClaimsSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import com.nimbusds.jwt.JWTClaimsSet;
 
 public class UserInfoTest {
 
@@ -85,13 +86,29 @@ public class UserInfoTest {
     @Test
     public void getUserNameIsUniqueWithOrigin() throws Exception {
         userInfo = UserInfoTestUtil.createFromClaims(claimsSetBuilder.build(), xsAppName);
-        assertThat(userInfo.getUsername(), is("userIdp/testUser"));
+        assertThat(userInfo.getUsername(), is("user/userIdp/testUser"));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getUserNameReturnsErrorWhenOriginContainsDelimeterChar() throws Exception {
-        claimsSetBuilder.claim("origin", "user/Idp");
+    public void getUserNameReturnsErrorWhenOriginContainsDelimeter() throws Exception {
+        claimsSetBuilder.claim("origin", "my/Idp");
         userInfo = UserInfoTestUtil.createFromClaims(claimsSetBuilder.build(), xsAppName);
         userInfo.getUsername();
+    }
+
+    @Test
+    public void getUniquePrincipalNameForOriginAndName() {
+        String uniqueUserName = UserInfo.getUniquePrincipalName("origin", "name");
+        assertThat(uniqueUserName, is("user/origin/name"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getUniquePrincipalNameRaisesErrorWhenOriginIsNull() {
+        UserInfo.getUniquePrincipalName(null, "name");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getUniquePrincipalNameRaisesErrorWhenLogonNameIsNull() {
+        UserInfo.getUniquePrincipalName("origin", null);
     }
 }

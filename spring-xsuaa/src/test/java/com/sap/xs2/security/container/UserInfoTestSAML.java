@@ -71,7 +71,7 @@ public class UserInfoTestSAML {
 	@Test
 	public void getPrincipalNameReturnUniqueLogonNameWithOrigin() {
 		UserDetails principal = samlUserInfo;
-		Assert.assertEquals("useridp/Mustermann", principal.getUsername());
+		Assert.assertEquals("user/useridp/Mustermann", principal.getUsername());
 	}
 
 	@Test
