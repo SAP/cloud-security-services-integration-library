@@ -31,6 +31,8 @@ See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an ex
 
 
 # Download and Installation
+Build results are published to maven central: https://search.maven.org/search?q=com.sap.cloud.security 
+
 To download and install the this project clone this repository via:
 ```
 git clone https://github.com/SAP/cloud-security-xsuaa-integration
