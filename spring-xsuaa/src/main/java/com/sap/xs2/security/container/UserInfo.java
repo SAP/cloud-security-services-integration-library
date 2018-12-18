@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+
 /**
  * Class providing access to common user related attributes extracted from the JWT token.
  *
@@ -39,7 +40,6 @@ public class UserInfo implements XSUserInfo, UserDetails {
 	private static final String ADDITIONAL_AZ_ATTR = "az_attr";
 	private static final String ZONE_ID = "zid";
 	private static final String EXTERNAL_ATTR = "ext_attr";
-	private static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
 	private static final String XS_SYSTEM_ATTRIBUTES = "xs.system.attributes";
 	private static final String HDB_NAMEDUSER_SAML = "hdb.nameduser.saml";
 	private static final String SERVICEINSTANCEID = "serviceinstanceid";
@@ -47,13 +47,17 @@ public class UserInfo implements XSUserInfo, UserDetails {
 	private static final String SYSTEM = "SYSTEM";
 	private static final String HDB = "HDB";
 	private static final String ISSUER = "iss";
-	static final String SCOPE = "scope";
+	public static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
+	public static final String SCOPE = "scope";
 	public static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
 	public static final String GRANTTYPE_SAML2BEARER = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	public static final String GRANTTYPE_PASSWORD = "password"; // NOSONAR
 	public static final String GRANTTYPE_AUTHCODE = "authorization_code";
 	public static final String GRANTTYPE_USERTOKEN = "user_token";
 	public static final String EXTERNAL_CONTEXT = "ext_ctx";
+
+	public static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
+	public static final String uniqueClientNameFormat = "client/%s"; // client/<clientid>
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
@@ -74,7 +78,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Get the logon name (attribute logon_name)
-	 * 
+	 *
 	 * @return user name
 	 * @throws UserInfoException
 	 *             if method is not supported for this grant type
@@ -89,7 +93,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Get the given name (attribute given_name)
-	 * 
+	 *
 	 * @return name
 	 * @throws UserInfoException
 	 *             if method is not supported for this grant type
@@ -119,7 +123,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Get the uaa identity zone from the token
-	 * 
+	 *
 	 * @return identity zone
 	 * @throws UserInfoException
 	 *             attribute not found
@@ -158,7 +162,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Get the expriation date of the access token
-	 * 
+	 *
 	 * @return expiration date
 	 * @throws UserInfoException
 	 *             attribute cannot be found or read
@@ -176,7 +180,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Method to extract raw data from the JWT token
-	 * 
+	 *
 	 * @param attribute
 	 *            attribute name
 	 * @return attribute value
@@ -190,7 +194,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Get email address property
-	 * 
+	 *
 	 * @return email address
 	 * @throws UserInfoException
 	 *             method is not supported for this grant typ
@@ -205,7 +209,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Get a token for personalizing the connection to the HANA database
-	 * 
+	 *
 	 * @return token
 	 * @throws UserInfoException
 	 *             attribute cannot be found or read
@@ -218,7 +222,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Get a token for personalizing the connection to the HANA database
-	 * 
+	 *
 	 * @return token
 	 * @throws UserInfoException
 	 *             attribute cannot be found or read
@@ -240,7 +244,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Get a token, e.g. for forwarding to other resource servers
-	 * 
+	 *
 	 * @param namespace
 	 *            token namespace
 	 * @param name
@@ -275,7 +279,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Get a user attribute from the JWT token
-	 * 
+	 *
 	 * @return attribute values
 	 * @throws UserInfoException
 	 *             attribute cannot be found or read
@@ -290,7 +294,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Check if the JWT token contains attributes
-	 * 
+	 *
 	 * @return true: attribute exists
 	 * @throws UserInfoException
 	 *             attribute cannot be found or read
@@ -320,7 +324,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Get a system attribute from the JWT token
-	 * 
+	 *
 	 * @param attributeName
 	 *            attribute name
 	 * @return attribute values
@@ -334,7 +338,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Check if a scope {@code <xsappname>.<local scope name>} is granted to a user
-	 * 
+	 *
 	 * @param scope
 	 *            scope name
 	 * @return true: has scope
@@ -349,7 +353,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	/**
 	 * Check if a local scope is granted to a user
-	 * 
+	 *
 	 * @param scope
 	 *            scope name
 	 * @return true: has scope
@@ -408,8 +412,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 	private String getAttributeFromObject(String attributeName, String objectName) throws UserInfoException {
 		Map<String, Object> dataMap = jwt.getClaimAsMap(objectName);
-		if(dataMap == null)
-		{
+		if (dataMap == null) {
 			throw new UserInfoException("Invalid value of " + objectName);
 		}
 		String data = (String) jwt.getClaimAsMap(objectName).get(attributeName);
@@ -476,7 +479,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 		// build authorities string for additional authorization attributes
 		String authorities = null;
 		if (tokenRequest.getAdditionalAuthorizationAttributes() != null) {
-			Map<String,Object> azAttrMap = new HashMap<>();
+			Map<String, Object> azAttrMap = new HashMap<>();
 			azAttrMap.put("az_attr", tokenRequest.getAdditionalAuthorizationAttributes());
 			StringBuilder azStringBuilder = new StringBuilder();
 			try {
@@ -502,11 +505,11 @@ public class UserInfo implements XSUserInfo, UserDetails {
 			throw new UserInfoException("Invalid grant type.");
 		}
 	}
+
 	private String requestTokenTechnicalUser(XSTokenRequest tokenRequest, String authorities) throws UserInfoException {
 		// note: consistency checks (clientid, clientsecret and url) have already been executed
 		// build uri for client credentials flow
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenRequest.getTokenEndpoint())
-				.queryParam("grant_type", "client_credentials");
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenRequest.getTokenEndpoint()).queryParam("grant_type", "client_credentials");
 		if (authorities != null) {
 			builder.queryParam("authorities", authorities);
 		}
@@ -541,10 +544,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 			throw new UserInfoException("JWT token does not include scope 'uaa.user'.");
 		}
 		// build uri for user token flow
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl)
-				.queryParam("grant_type", "user_token")
-				.queryParam("response_type", "token")
-				.queryParam("client_id", serviceClientId);
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl).queryParam("grant_type", "user_token").queryParam("response_type", "token").queryParam("client_id", serviceClientId);
 		if (authorities != null) {
 			builder.queryParam("authorities", authorities);
 		}
@@ -565,9 +565,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 
 		}
 		// build uri for refresh token flow
-		builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl)
-				.queryParam("grant_type", "refresh_token")
-				.queryParam("refresh_token", responseEntity.getBody().get("refresh_token").toString());
+		builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl).queryParam("grant_type", "refresh_token").queryParam("refresh_token", responseEntity.getBody().get("refresh_token").toString());
 		// build http headers
 		headers.clear();
 		String credentials = serviceClientId + ":" + serviceClientSecret;
@@ -591,7 +589,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 		String url = serviceUaaUrl != null ? serviceUaaUrl + "/oauth/token" : null;
 		return requestTokenNamedUser(serviceClientId, serviceClientSecret, url, null);
 	}
-	
+
 	/**
 	 * Get the subdomain from the given url
 	 *
@@ -621,11 +619,7 @@ public class UserInfo implements XSUserInfo, UserDetails {
 		if (uri == null || subdomain == null || !uri.getHost().contains(".")) {
 			return null;
 		}
-		UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
-				.scheme(uri.getScheme())
-				.host(subdomain + uri.getHost().substring(uri.getHost().indexOf(".")))
-				.port(uri.getPort())
-				.path(uri.getPath());
+		UriComponentsBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme()).host(subdomain + uri.getHost().substring(uri.getHost().indexOf("."))).port(uri.getPort()).path(uri.getPath());
 		return uri.resolve(builder.build().toString());
 	}
 
@@ -644,10 +638,9 @@ public class UserInfo implements XSUserInfo, UserDetails {
 	public String getUsername() {
 		try {
 			if (GRANTTYPE_CLIENTCREDENTIAL.equals(getGrantType())) {
-				return getClientId();
+				return String.format(uniqueClientNameFormat, getClientId());
 			} else {
-				Assert.doesNotContain(getOrigin(), "/", "Method getUsername can not handle '/' characters in " + USER_NAME + " and " + ORIGIN);
-				return String.format("%s/%s", getOrigin(), getLogonName());
+				return getUniquePrincipalName(getOrigin(), getLogonName());
 			}
 		} catch (UserInfoException e) {
 			return null;
@@ -675,6 +668,20 @@ public class UserInfo implements XSUserInfo, UserDetails {
 	public boolean isEnabled() {
 		return false;
 	}
+
+	/**
+	 * Get unique principal name of a user.
+	 *
+	 * @param origin
+	 *            of the access token
+	 * @param logonName
+	 *            of the access token
+	 * @return unique principal name
+	 */
+	public static String getUniquePrincipalName(String origin, String logonName) {
+		Assert.notNull(origin, "Origin required");
+		Assert.notNull(logonName, "LogonName required");
+		Assert.doesNotContain(origin, "/", ORIGIN + " must not contain '/' characters");
+		return String.format(UNIQUE_USER_NAME_FORMAT, origin, logonName);
+	}
 }
-
-

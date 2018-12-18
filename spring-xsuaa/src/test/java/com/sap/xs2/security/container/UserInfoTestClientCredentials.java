@@ -71,9 +71,9 @@ public class UserInfoTestClientCredentials {
 
 	@Test
 	public void getPrincipalNameReturnUniqueClientId() throws XSUserInfoException {
-		UserDetails principal = infoCc;
-		Assert.assertEquals(infoCc.getClientId(), principal.getUsername());
-		Assert.assertEquals("sb-java-hello-world", infoCc.getUsername());
+		UserDetails userDetails = infoCc;
+		Assert.assertEquals("sb-java-hello-world", infoCc.getClientId());
+		Assert.assertEquals("client/sb-java-hello-world", userDetails.getUsername());
 	}
 
 }
