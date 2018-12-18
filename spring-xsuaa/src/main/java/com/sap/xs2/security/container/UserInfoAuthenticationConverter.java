@@ -37,7 +37,7 @@ public class UserInfoAuthenticationConverter implements Converter<Jwt, AbstractA
 		}
 	}
 
-	Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
+	protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
 		Collection<String> scopes = this.getScopes(jwt);
 		return scopes.stream().map(authority -> authority).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 	}
