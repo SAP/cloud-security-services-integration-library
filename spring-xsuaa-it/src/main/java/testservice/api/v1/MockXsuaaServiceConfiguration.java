@@ -14,7 +14,7 @@ public class MockXsuaaServiceConfiguration implements XsuaaServiceConfiguration 
 
 	@Override
 	public String getClientId() {
-		return null;
+		return "sb-"+appId;
 	}
 
 	@Override
@@ -35,6 +35,11 @@ public class MockXsuaaServiceConfiguration implements XsuaaServiceConfiguration 
 	@Override
 	public String getAppId() {
 		return appId;
+	}
+
+	@Override
+	public String getUaadomain() {
+		return null;
 	}
 
 }

@@ -68,4 +68,12 @@ public class UserInfoTestUtil {
 
         return jwt.getEncoded();
     }
+    
+    public static Jwt parseJwt(String token) throws java.text.ParseException {
+    	JWT parsedJwt = JWTParser.parse(token);
+    	JWTClaimsSet jwtClaimsSet = parsedJwt.getJWTClaimsSet();
+    	Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
+    	Jwt jwt =  new Jwt(parsedJwt.getParsedString(), jwtClaimsSet.getIssueTime().toInstant(), jwtClaimsSet.getExpirationTime().toInstant(), headers, jwtClaimsSet.getClaims());
+    	return jwt;
+    }
 }

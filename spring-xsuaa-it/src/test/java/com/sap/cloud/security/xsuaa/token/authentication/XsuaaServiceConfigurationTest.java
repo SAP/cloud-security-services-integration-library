@@ -14,11 +14,11 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = { InvalidBindingsTestBean.class,XsuaaServiceConfigurationDefault.class })
+@ContextConfiguration(classes = { ConfigurationTestBean.class,XsuaaServiceConfigurationDefault.class })
 public class XsuaaServiceConfigurationTest {
 
 	@Autowired
-	InvalidBindingsTestBean exampleBean;
+	ConfigurationTestBean exampleBean;
 
 
 	
@@ -35,15 +35,14 @@ public class XsuaaServiceConfigurationTest {
 		Assert.assertEquals("https://auth.com/token_keys", exampleBean.serviceConfiguration.getTokenKeyUrl("uaa", null));
 		Assert.assertEquals("https://myhost.auth.com/token_keys", exampleBean.serviceConfiguration.getTokenKeyUrl("zone", "myhost"));
 		Assert.assertEquals("java-hello-world", exampleBean.serviceConfiguration.getAppId());
-		
-
+		Assert.assertEquals("auth.com", exampleBean.serviceConfiguration.getUaadomain());
 	}
 
 }
 
 @Configuration
 @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "/vcap.json" })
-class InvalidBindingsTestBean {
+class ConfigurationTestBean {
 
 	@Autowired
 	XsuaaServiceConfigurationDefault serviceConfiguration;

@@ -16,7 +16,6 @@ public class UserInfoTestClientCredentials {
 	public void setup() throws Exception {
 		infoCc = UserInfoTestUtil.createFromJwtFile("/token_cc.txt", "java-hello-world");
 		infoCcNoAttr = UserInfoTestUtil.createFromJwtFile("/token_cc_noattr.txt", "java-hello-world");
-
 	}
 
 	@Test(expected = UserInfoException.class)
