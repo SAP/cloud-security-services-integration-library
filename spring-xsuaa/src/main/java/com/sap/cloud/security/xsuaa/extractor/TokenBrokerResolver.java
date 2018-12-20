@@ -173,8 +173,12 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		MessageDigest messageDigest;
 		try {
 			messageDigest = MessageDigest.getInstance("SHA-256");
-			messageDigest.update(Arrays.toString(keys).getBytes(StandardCharsets.UTF_8));
-			return new String(Base64.getEncoder().encodeToString(messageDigest.digest()));
+			for(String k: keys)
+			{
+				messageDigest.update(k.getBytes(StandardCharsets.UTF_8));
+			}
+			byte[] hash = messageDigest.digest();
+			return Base64.getEncoder().encodeToString(hash);
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException("No such Algorithm", e);
 		}

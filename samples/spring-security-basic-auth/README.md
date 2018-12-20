@@ -36,11 +36,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		TokenBrokerResolver tokenBrokerResolver = new TokenBrokerResolver(xsuaaServiceConfiguration, cacheManager.getCache("token"),AuthenticationMethod.BASIC);
 		http.authorizeRequests().antMatchers("/hello-token").hasAuthority("openid").
-		anyRequest().authenticated().and()
-				.oauth2ResourceServer()
-				  .bearerTokenResolver(tokenBrokerResolver)
+			anyRequest().authenticated().and().
+				sessionManagement().
+				sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+			.oauth2ResourceServer()
+				.bearerTokenResolver(tokenBrokerResolver)
 				.jwt()
-				  .jwtAuthenticationConverter(new UserInfoAuthenticationConverter(xsuaaServiceConfiguration));
+				.jwtAuthenticationConverter(new UserInfoAuthenticationConverter(xsuaaServiceConfiguration));
 	}
 
 	@Bean
