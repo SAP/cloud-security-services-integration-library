@@ -9,7 +9,6 @@ package com.sap.cloud.security.xsuaa.token;
 import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.client.RestTemplate;
 
 import java.net.URISyntaxException;
 
@@ -132,14 +131,9 @@ public interface Token extends UserDetails {
 	 *
 	 * @param tokenRequest
 	 *            request data
+	 * @throws URISyntaxException
+	 * 			   in case of wron URLs
 	 * @return requested token
-	 * @see #setRestTemplate(RestTemplate)
 	 */
 	String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException;
-
-	/**
-	 * Provide RestTemplate instance for token request
-	 * @param restTemplate the restTemplate that should be used
-	 */
-	void setRestTemplate(RestTemplate restTemplate);
 }

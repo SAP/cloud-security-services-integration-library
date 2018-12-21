@@ -46,7 +46,7 @@ public class XsuaaServicesParser {
 	 * @param name
 	 *            the attribute name
 	 * @return associated value to given tag name or null if attribute not found
-	 * @throws ParseException 
+	 * @throws ParseException  in case of configuration errors
 	 */
 	public Optional<String> getAttribute(String name) throws ParseException {
 

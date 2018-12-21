@@ -10,7 +10,7 @@
   "client_id": "sb-java-hello-world",
   "cid": "sb-java-hello-world",
   "azp": "sb-java-hello-world",
-  "grant_type": "password",
+  "grant_type": "client_credentials",
   "iat": 1442912244,
   "exp": $exp,
   "iss": "http://localhost:8080/uaa/oauth/token",
