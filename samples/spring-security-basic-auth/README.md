@@ -17,7 +17,7 @@ Configure the OAuth resource server by:
 - setting the property source to integrate with xsuaa configuration properties
 - adding a bean for the configuration
 - using the xsuaa token converter
-- configuring  the jwtDecoder
+- configuring the jwtDecoder
 - enable the bearerTokenResolver
 
 ```
@@ -40,7 +40,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.oauth2ResourceServer()
 				  .bearerTokenResolver(tokenBrokerResolver)
 				.jwt()
-				  .jwtAuthenticationConverter(new UserInfoAuthenticationConverter(xsuaaServiceConfiguration));
+				  .jwtAuthenticationConverter(new TokenAuthenticationConverter(xsuaaServiceConfiguration));
 	}
 
 	@Bean
@@ -55,11 +55,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 }
 ```
 
-In the Java coding, use the UserInfo to extract user information:
+In the Java coding, use the `Token` to extract user information:
 
 ```
 	@GetMapping("/hello-token")
-	public Map<String, String> message(@AuthenticationPrincipal UserInfo token) throws UserInfoException {
+	public Map<String, String> message(@AuthenticationPrincipal Token token) {
 		Map<String, String> result = new HashMap<>();
 		result.put("grant type", token.getGrantType());
 		result.put("client id", token.getClientId());

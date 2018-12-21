@@ -32,7 +32,7 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
 import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
-import com.sap.xs2.security.container.UserInfoAuthenticationConverter;
+import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 
 @Profile({ "test.api.basic" })
 @EnableWebSecurity
@@ -55,7 +55,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers("/message/**").hasAuthority("SCOPE_openid").anyRequest().authenticated()
 				.and().oauth2ResourceServer()
 				.bearerTokenResolver(tokenBrokerResolver)
-				.jwt().jwtAuthenticationConverter(new UserInfoAuthenticationConverter(getXsuaaServiceConfiguration()));
+				.jwt().jwtAuthenticationConverter(new TokenAuthenticationConverter(getXsuaaServiceConfiguration()));
 		// @formatter:on
 	}
 

@@ -1,18 +1,10 @@
 package com.sap.xs2.security.container;
 
-import net.minidev.json.parser.ParseException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import net.minidev.json.parser.ParseException;
 
 public class UserInfoTestSAML {
 
@@ -24,9 +16,7 @@ public class UserInfoTestSAML {
 	}
 
 	@Test
-	public void testSAMLToken() throws Exception, ParseException, java.text.ParseException, UserInfoException {
-
-		
+	public void testSAMLToken() throws Exception {
 		// attributes - old style
 		Assert.assertEquals(2, samlUserInfo.getAttribute("cost-center").length);
 		Assert.assertEquals("0815", samlUserInfo.getAttribute("cost-center")[0]);
@@ -66,19 +56,5 @@ public class UserInfoTestSAML {
 		// role collections
 		Assert.assertEquals(1, samlUserInfo.getSystemAttribute("xs.rolecollections").length);
 		Assert.assertEquals("rc1", samlUserInfo.getSystemAttribute("xs.rolecollections")[0]);
-	}
-
-	@Test
-	public void getPrincipalNameReturnUniqueLogonNameWithOrigin() {
-		UserDetails principal = samlUserInfo;
-		Assert.assertEquals("user/useridp/Mustermann", principal.getUsername());
-	}
-
-	@Test
-	public void getAuthoritiesReturnsAllScopes() throws Exception {
-		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) samlUserInfo.getAuthorities();
-		assertThat(authorities.size(), is(4));
-		assertThat(authorities, hasItem(new SimpleGrantedAuthority("openid")));
-		assertThat(authorities, hasItem(new SimpleGrantedAuthority("java-hello-world.Delete")));
 	}
 }

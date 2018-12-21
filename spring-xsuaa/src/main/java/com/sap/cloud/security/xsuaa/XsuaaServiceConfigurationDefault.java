@@ -63,7 +63,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	}
 
 	@Override
-	public String getUaadomain() {
+	public String getUaaDomain() {
 		return uaadomain;
 	}
 

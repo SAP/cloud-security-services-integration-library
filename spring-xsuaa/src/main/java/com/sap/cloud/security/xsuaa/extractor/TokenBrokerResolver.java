@@ -58,7 +58,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		this.tokenCache = tokenCache;
 		this.tokenBroker = tokenBroker;
 		this.uaaUrl = configuration.getUaaUrl();
-		this.uaaDomain = configuration.getUaadomain();
+		this.uaaDomain = configuration.getUaaDomain();
 		this.authenticationConfig = authenticationConfig;
 	}
 

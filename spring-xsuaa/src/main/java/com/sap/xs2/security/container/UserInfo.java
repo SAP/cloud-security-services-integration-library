@@ -1,33 +1,31 @@
 package com.sap.xs2.security.container;
 
-import com.sap.xsa.security.container.XSTokenRequest;
-import com.sap.xsa.security.container.XSUserInfo;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
-import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
+import com.sap.xsa.security.container.XSTokenRequest;
+import com.sap.xsa.security.container.XSUserInfo;
+
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 
 /**
  * Class providing access to common user related attributes extracted from the JWT token.
  *
  */
-public class UserInfo implements XSUserInfo, UserDetails {
+public class UserInfo implements XSUserInfo {
 
 	private static final String USER_NAME = "user_name";
 	private static final String GIVEN_NAME = "given_name";
@@ -56,8 +54,6 @@ public class UserInfo implements XSUserInfo, UserDetails {
 	public static final String GRANTTYPE_USERTOKEN = "user_token";
 	public static final String EXTERNAL_CONTEXT = "ext_ctx";
 
-	public static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
-	public static final String uniqueClientNameFormat = "client/%s"; // client/<clientid>
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
@@ -623,65 +619,4 @@ public class UserInfo implements XSUserInfo, UserDetails {
 		return uri.resolve(builder.build().toString());
 	}
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		UserInfoAuthenticationConverter converter = new UserInfoAuthenticationConverter(xsappname);
-		return converter.extractAuthorities(jwt);
-	}
-
-	@Override
-	public String getPassword() {
-		return null;
-	}
-
-	@Override
-	public String getUsername() {
-		try {
-			if (GRANTTYPE_CLIENTCREDENTIAL.equals(getGrantType())) {
-				return String.format(uniqueClientNameFormat, getClientId());
-			} else {
-				return getUniquePrincipalName(getOrigin(), getLogonName());
-			}
-		} catch (UserInfoException e) {
-			return null;
-		}
-	}
-
-	@Override
-	public boolean isAccountNonExpired() {
-		JwtTimestampValidator validator = new JwtTimestampValidator();
-		return !validator.validate(jwt).hasErrors();
-	}
-
-	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
-
-	@Override
-	public boolean isCredentialsNonExpired() {
-		JwtTimestampValidator validator = new JwtTimestampValidator();
-		return validator.validate(jwt).hasErrors();
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return false;
-	}
-
-	/**
-	 * Get unique principal name of a user.
-	 *
-	 * @param origin
-	 *            of the access token
-	 * @param logonName
-	 *            of the access token
-	 * @return unique principal name
-	 */
-	public static String getUniquePrincipalName(String origin, String logonName) {
-		Assert.notNull(origin, "Origin required");
-		Assert.notNull(logonName, "LogonName required");
-		Assert.doesNotContain(origin, "/", ORIGIN + " must not contain '/' characters");
-		return String.format(UNIQUE_USER_NAME_FORMAT, origin, logonName);
-	}
 }

@@ -25,8 +25,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
+import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
-import com.sap.xs2.security.container.UserInfoAuthenticationConverter;
 
 @EnableWebSecurity
 @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "" })
@@ -41,7 +41,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers("/hello-token").hasAuthority("openid").
 		anyRequest().authenticated().and()
 				.oauth2ResourceServer().jwt()
-				.jwtAuthenticationConverter(new UserInfoAuthenticationConverter(xsuaaServiceConfiguration));
+				.jwtAuthenticationConverter(new TokenAuthenticationConverter(xsuaaServiceConfiguration));
 		// @formatter:on
 	}
 

@@ -30,7 +30,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.anyRequest().authenticated().
 				and()
 				.oauth2ResourceServer().jwt()
-				.jwtAuthenticationConverter(new UserInfoAuthenticationConverter(xsuaaServiceConfiguration));
+				.jwtAuthenticationConverter(new TokenAuthenticationConverter(xsuaaServiceConfiguration));
 		// @formatter:on
 	}
 
@@ -48,11 +48,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 }
 ```
 
-In the Java coding, use the UserInfo to extract user information:
+In the Java coding, use the `Token` to extract user information:
 
 ```
 	@GetMapping("/hello-token")
-	public Map<String, String> message(@AuthenticationPrincipal UserInfo token) throws UserInfoException {
+	public Map<String, String> message(@AuthenticationPrincipal Token token) {
 		Map<String, String> result = new HashMap<>();
 		result.put("grant type", token.getGrantType());
 		result.put("client id", token.getClientId());

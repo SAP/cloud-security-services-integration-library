@@ -29,8 +29,8 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
 import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
+import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
-import com.sap.xs2.security.container.UserInfoAuthenticationConverter;
 
 @EnableWebSecurity
 @EnableCaching
@@ -42,18 +42,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	CacheManager cacheManager;
-	
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		TokenBrokerResolver tokenBrokerResolver = new TokenBrokerResolver(xsuaaServiceConfiguration, cacheManager.getCache("token"),
-				AuthenticationMethod.BASIC);
+		TokenBrokerResolver tokenBrokerResolver = new TokenBrokerResolver(xsuaaServiceConfiguration, cacheManager.getCache("token"), AuthenticationMethod.BASIC);
 		// @formatter:off
 		http.authorizeRequests().antMatchers("/hello-token").hasAuthority("openid").
 		anyRequest().authenticated().and()
 				.oauth2ResourceServer()
 				  .bearerTokenResolver(tokenBrokerResolver)
 				.jwt()
-				  .jwtAuthenticationConverter(new UserInfoAuthenticationConverter(xsuaaServiceConfiguration));
+				  .jwtAuthenticationConverter(new TokenAuthenticationConverter(xsuaaServiceConfiguration));
 		// @formatter:on
 	}
 
