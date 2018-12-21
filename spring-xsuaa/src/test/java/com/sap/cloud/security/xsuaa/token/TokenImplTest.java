@@ -217,7 +217,7 @@ public class TokenImplTest {
 		//TODO mock RestTemplate!!!
 
 		token = createToken(claimsSetBuilder);
-		token.setRestTemplate(mockRestTemplate);
+		//token.setRestTemplate(mockRestTemplate);
 
 		String mockServerUrl = "http://myuaa.com";
 		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);

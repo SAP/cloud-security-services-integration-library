@@ -23,6 +23,8 @@ public final class TokenUrlUtils {
 	/**
 	 * Retrieves the URL for the token request
 	 * <p>
+	 * @param endpoint
+	 * 			  endpoint
 	 * @param uaaUrl
 	 *            UAA-URL from VCAP-Services
 	 * @param uaaDomain
@@ -30,7 +32,7 @@ public final class TokenUrlUtils {
 	 * @param uaaSubDomain
 	 *            UAA-Subdomain in case of Multi tenancy
 	 * 
-	 * @return token request URL
+	 * @return token request URL 
 	 */
 
 	public static String getMultiTenancyUrl(final String endpoint, final String uaaUrl, final String uaaDomain, final String uaaSubDomain) {

@@ -21,9 +21,9 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import com.sap.cloud.security.xsuaa.mock.JWTUtil;
 
+import testservice.api.XsuaaITApplication;
 import testservice.api.basic.SecurityConfiguration;
 import testservice.api.basic.TestController;
-import testservice.api.basic.XsuaaITApplication;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { XsuaaITApplication.class, SecurityConfiguration.class, TestController.class })

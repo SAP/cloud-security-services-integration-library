@@ -30,7 +30,7 @@ public interface XsuaaServiceConfiguration {
 	 *            Zone Id (subaccount id)
 	 * @param subdomain
 	 *            of the subaccount
-	 * @return
+	 * @return token key endpoint
 	 */
 	String getTokenKeyUrl(String zid, String subdomain);
 

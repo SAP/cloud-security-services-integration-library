@@ -1,10 +1,10 @@
-package testservice.api.basic;
+package testservice.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Profile;
 
-@Profile({ "test.api.basic" })
+
 @SpringBootApplication
 public class XsuaaITApplication {
 

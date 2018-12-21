@@ -35,6 +35,10 @@ public class XsuaaTokenExchanger {
      *
      * @param tokenRequest
      *            request data
+     * @throws URISyntaxException
+     * 			   in case of inconsistent urls
+     * @throws UserInfoException
+     * 			   in case of token exchange errors
      * @return requested token
      */
     public String requestToken(XSTokenRequest tokenRequest) throws UserInfoException, URISyntaxException {
@@ -71,9 +75,11 @@ public class XsuaaTokenExchanger {
 
     /**
      * Replace the subdomain in the given uri with the given subdomain
-     *
-     * @return
-     * @throws UserInfoException
+     * @param uri
+     * 		 uri
+     * @param subdomain
+     * 		 subdomain
+     * @return subdomain
      */
     protected URI replaceSubdomain(URI uri, String subdomain) {
         if (uri == null || subdomain == null || !uri.getHost().contains(".")) {
@@ -162,8 +168,7 @@ public class XsuaaTokenExchanger {
     /**
      * Get the subdomain from the given url
      *
-     * @return
-     * @throws UserInfoException
+     * @return subdomain
      */
     protected String getSubdomain(String url) {
         String host = null;

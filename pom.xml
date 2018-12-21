@@ -57,6 +57,7 @@
 	<modules>
 		<module>api</module>
 		<module>spring-xsuaa</module>
+		<module>spring-xsuaa-it</module>
 	</modules>
 
 	<dependencyManagement>

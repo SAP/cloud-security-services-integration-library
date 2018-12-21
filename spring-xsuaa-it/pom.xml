@@ -7,12 +7,12 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.1.0.RELEASE</version>
-		<relativePath /> 
+		<relativePath />
 	</parent>
 
-	<artifactId>spring-xsuaa-integration-it</artifactId>
+	<artifactId>spring-xsuaa-it</artifactId>
 	<version>1.1.0</version>
-	<name>spring-xsuaa-integration-it</name>
+	<name>spring-xsuaa-it</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -93,6 +93,14 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
