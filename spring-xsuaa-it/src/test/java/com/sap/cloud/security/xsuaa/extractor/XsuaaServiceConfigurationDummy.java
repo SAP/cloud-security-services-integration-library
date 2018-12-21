@@ -36,7 +36,7 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 	}
 
 	@Override
-	public String getUaadomain() {
+	public String getUaaDomain() {
 		return uaaDomain;
 	}
 

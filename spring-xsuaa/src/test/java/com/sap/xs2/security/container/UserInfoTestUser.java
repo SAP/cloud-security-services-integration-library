@@ -24,7 +24,7 @@ public class UserInfoTestUser {
 	}
 
 	@Test
-	public void testSAMLToken() throws Exception, ParseException, java.text.ParseException, UserInfoException {
+	public void testSAMLToken() throws Exception {
 
 		UserInfo token = UserInfoTestUtil.createFromTemplate("/saml.txt", "java-hello-world");
 		// attributes - old style

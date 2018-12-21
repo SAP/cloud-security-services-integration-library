@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.xsa.security.container.XSUserInfoException;
-import org.springframework.security.core.userdetails.UserDetails;
 
 public class UserInfoTestClientCredentials {
 
@@ -67,12 +66,4 @@ public class UserInfoTestClientCredentials {
 		Assert.assertTrue(!infoCc.getAppToken().isEmpty());
 		Assert.assertTrue(infoCc.getAppToken().equals(infoCc.getToken("SYSTEM", "JobScheduler")));
 	}
-
-	@Test
-	public void getPrincipalNameReturnUniqueClientId() throws XSUserInfoException {
-		UserDetails principal = infoCc;
-		Assert.assertEquals(infoCc.getClientId(), principal.getUsername());
-		Assert.assertEquals("sb-java-hello-world", infoCc.getUsername());
-	}
-
 }

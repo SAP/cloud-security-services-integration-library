@@ -32,7 +32,6 @@ import testservice.api.v1.XsuaaITApplication;
 
 public class XsuaaTokenValidationIT {
 
-
 	@Autowired
 	MockMvc mvc;
 
@@ -41,26 +40,27 @@ public class XsuaaTokenValidationIT {
 
 	@Test
 	public void testToken_testdomain() throws Exception {
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt","testdomain")))).andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt","testdomain")))).andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain")))).andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain")))).andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
 	public void testToken_otherdomain() throws Exception {
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt","otherdomain")))).andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain")))).andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
+
 	@Test
 	public void test_Scope() throws Exception {
-		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt","otherdomain")))).andExpect(status().isOk());
+		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain")))).andExpect(status().isOk());
 	}
+
 	@Test
 	public void test_requesttoken() throws Exception {
 		String fqHost = new URL(mockServerUrl).getHost();
-		String hostname = fqHost.substring(0,fqHost.indexOf("."));
-		
-		this.mvc.perform(get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt",hostname,"legacy-token-key-testdomain")))).andExpect(status().isOk()).andExpect(content().string("cc_token"));
+		String hostname = fqHost.substring(0, fqHost.indexOf("."));
+
+		this.mvc.perform(get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt", hostname, "legacy-token-key-testdomain")))).andExpect(status().isOk()).andExpect(content().string("cc_token"));
 	}
-		
 
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
 		private String token;

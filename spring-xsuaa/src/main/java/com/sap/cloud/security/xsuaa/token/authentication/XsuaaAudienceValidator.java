@@ -18,10 +18,10 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
  * Validate audience using audience field content. in case this field is empty, the audience is derived from the scope field
  *
  */
-public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
+public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
-	public AudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+	public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 	}
 

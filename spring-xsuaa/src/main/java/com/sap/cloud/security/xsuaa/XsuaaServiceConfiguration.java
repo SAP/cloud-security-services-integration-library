@@ -4,22 +4,22 @@ public interface XsuaaServiceConfiguration {
 	/**
 	 * Client id of xsuaa service instance
 	 * 
-	 * @return
+	 * @return clientId
 	 */
 	String getClientId();
 
 	/**
 	 * Client secret of xsuaa instance
 	 * 
-	 * @return
+	 * @return client secret
 	 */
 	String getClientSecret();
 
 	/**
-	 * URL of the xsuaa service instance. In multi tenancy scenarios this is the
+	 * Base URL of the xsuaa service instance. In multi tenancy scenarios this is the
 	 * url where the service instance was created.
 	 * 
-	 * @return
+	 * @return uaa url
 	 */
 	String getUaaUrl();
 
@@ -35,16 +35,16 @@ public interface XsuaaServiceConfiguration {
 	String getTokenKeyUrl(String zid, String subdomain);
 
 	/**
-	 * XSAppid.
+	 * XS application identifier
 	 * 
-	 * @return
+	 * @return xs application id
 	 */
 	String getAppId();
 
 	/**
 	 * Domain of the xsuaa authentication domain
 	 * 
-	 * @return
+	 * @return uaaDomain
 	 */
-	String getUaadomain();
+	String getUaaDomain();
 }
