@@ -38,7 +38,7 @@ public class MockXsuaaServiceConfiguration implements XsuaaServiceConfiguration 
 	}
 
 	@Override
-	public String getUaadomain() {
+	public String getUaaDomain() {
 		return null;
 	}
 

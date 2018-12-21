@@ -15,19 +15,25 @@
  */
 package testservice.api.basic;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.junit.Assert.assertThat;
+
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sap.xs2.security.container.UserInfo;
-import com.sap.xs2.security.container.UserInfoException;
+import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 
@@ -43,23 +49,21 @@ public class TestController {
 	}
 
 	@GetMapping("/user")
-	public String message(@AuthenticationPrincipal UserInfo token) throws UserInfoException {
-		try {
-			return "user:" + token.getLogonName();
-		} catch (UserInfoException ex) {
-			return "client:" + token.getClientId();
-		}
+	public String message(@AuthenticationPrincipal Token token) {
+		return token.getUsername();
 	}
 
 	@GetMapping("/scope")
-	public void checkScope(@AuthenticationPrincipal UserInfo token) throws UserInfoException {
-		Assert.assertTrue(token.checkScope("openid"));
-		Assert.assertTrue(token.checkLocalScope("Display"));
-		Assert.assertFalse(token.checkLocalScope("Other"));
+	public void checkScope(@AuthenticationPrincipal Token token) {
+		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) token.getAuthorities();
+		assertThat(authorities.size(), is(4));
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("openid")));
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("java-hello-world.Display")));
+		assertThat(authorities, not(hasItem(new SimpleGrantedAuthority("java-hello-world.Other"))));
 	}
 
 	@GetMapping("/requesttoken")
-	public String requestToken(@AuthenticationPrincipal UserInfo token) throws UserInfoException, URISyntaxException {
+	public String requestToken(@AuthenticationPrincipal Token token) throws URISyntaxException {
 		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);
 		tokenRequest.setClientId("c1").setClientSecret("s1").setType(XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN);
 		Map<String, String> azMape = new HashMap<>();

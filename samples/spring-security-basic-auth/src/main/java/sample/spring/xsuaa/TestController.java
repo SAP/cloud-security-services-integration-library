@@ -22,27 +22,20 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sap.xs2.security.container.UserInfo;
-import com.sap.xs2.security.container.UserInfoException;
+import com.sap.cloud.security.xsuaa.token.Token;
 
 @RestController
 public class TestController {
 
 	@GetMapping("/hello-token")
-	public Map<String, String> message(@AuthenticationPrincipal UserInfo token) throws UserInfoException {
+	public Map<String, String> message(@AuthenticationPrincipal Token token) {
 		Map<String, String> result = new HashMap<>();
 		result.put("grant type", token.getGrantType());
 		result.put("client id", token.getClientId());
 		result.put("subaccount id", token.getSubaccountId());
 		result.put("logon name", token.getLogonName());
-		try {
-			result.put("family name", token.getFamilyName());
-		} catch (UserInfoException e) {
-		}
-		try {
-			result.put("given name", token.getGivenName());
-		} catch (UserInfoException e) {
-		}
+		result.put("family name", token.getFamilyName());
+		result.put("given name", token.getGivenName());
 		result.put("email", token.getEmail());
 		result.put("token", token.getAppToken());
 

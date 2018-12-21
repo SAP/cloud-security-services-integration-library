@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
-import com.sap.xs2.security.container.UserInfoAuthenticationConverter;
+import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 
 @Profile({ "test.api.v1" })
 @EnableWebSecurity
@@ -43,7 +43,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			anyRequest().
 			authenticated().and().oauth2ResourceServer().
 			jwt()
-				.jwtAuthenticationConverter(new UserInfoAuthenticationConverter(getXsuaaServiceConfiguration()));
+				.jwtAuthenticationConverter(new TokenAuthenticationConverter(getXsuaaServiceConfiguration()));
 		// @formatter:on
 	}
 
