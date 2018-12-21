@@ -1,0 +1,17 @@
+---
+# Configuration:
+# configured for EU10. For other landscapes, please adopt the destination
+# If the routes are occupied, you might need to change the host in sap-java-buildpack-api-usage, the host in approuter- sap-java-buildpack-api-usage and the url in the destination 
+applications:
+# Application spring-security-basic-auth
+- name: spring-security-basic-auth
+  instances: 1
+  memory: 896M
+  routes:
+    - route: spring-security-basic-auth-((ID)).((LANDSCAPE_APPS_DOMAIN))
+  path: target/spring-security-basic-auth.jar
+  services:
+    - xsuaa-authentication
+
+
+...

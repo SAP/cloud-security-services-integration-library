@@ -27,3 +27,9 @@ target
 .classpath
 *.iml
 bin
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
