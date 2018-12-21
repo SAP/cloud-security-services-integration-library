@@ -1,0 +1,23 @@
+{
+	"xsappname": "spring-security-xsuaa-usage",
+	"tenant-mode": "dedicated",
+	"scopes": 
+	[
+		{
+			"name": "$XSAPPNAME.Display",
+			"description": "With this scope, information can be read."
+		}
+	],
+
+	"role-templates": 
+	[
+		{
+			"name": "AccessRole",
+			"description": "Role to call the  sap-java-buildpack-api-usage service",
+			"scope-references": 
+			[
+				"$XSAPPNAME.Display"
+			]
+		}
+	]
+}  
