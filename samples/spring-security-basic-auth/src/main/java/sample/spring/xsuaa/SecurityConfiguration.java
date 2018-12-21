@@ -23,6 +23,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
@@ -48,9 +49,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		TokenBrokerResolver tokenBrokerResolver = new TokenBrokerResolver(xsuaaServiceConfiguration, cacheManager.getCache("token"), AuthenticationMethod.BASIC);
 		// @formatter:off
 		http.authorizeRequests().antMatchers("/hello-token").hasAuthority("openid").
-		anyRequest().authenticated().and()
-				.oauth2ResourceServer()
-				  .bearerTokenResolver(tokenBrokerResolver)
+			anyRequest().authenticated().and().
+				sessionManagement().
+				sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+			.oauth2ResourceServer()
+				.bearerTokenResolver(tokenBrokerResolver)
 				.jwt()
 				  .jwtAuthenticationConverter(new TokenAuthenticationConverter(xsuaaServiceConfiguration));
 		// @formatter:on

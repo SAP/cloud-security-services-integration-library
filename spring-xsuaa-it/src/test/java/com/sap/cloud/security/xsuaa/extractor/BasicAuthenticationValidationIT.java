@@ -52,6 +52,9 @@ public class BasicAuthenticationValidationIT {
 		SecurityConfiguration.tokenBrokerResolver.setAuthenticationConfig(new DefaultAuthenticationInformationExtractor(AuthenticationMethod.BASIC));
 		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.user", "basic.password"))).andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
 		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.user", "basic.password"))).andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
+ 		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.2user","basic.password"))).andExpect(status().is4xxClientError());
+		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.user","basic.2password"))).andExpect(status().is4xxClientError());
+
 	}
 
 	@Test
