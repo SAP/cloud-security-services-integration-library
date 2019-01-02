@@ -1,10 +1,7 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
@@ -13,6 +10,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.token.Token;
 
 /**
  * Validate audience using audience field content. in case this field is empty, the audience is derived from the scope field
@@ -43,28 +41,28 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 
 	/**
 	 * Retrieve audiences from token. In case the audience list is empty, take audiences based on the scope names.
-	 * 
+	 *
 	 * @param token
-	 * @return list of audiences
+	 * @return (empty) list of audiences
 	 */
 	private List<String> allowedAudiences(Jwt token) {
 		List<String> allAudiences = new ArrayList<>();
-		if (token.getClaimAsString("aud") != null) {
-			for(String audience:token.getClaimAsStringList("aud"))
-			{
+		List<String> tokenAudiences = token.getAudience();
+
+		if (tokenAudiences != null) {
+			for (String audience : tokenAudiences) {
 				if (audience.contains(".")) {
 					String aud = audience.substring(0, audience.indexOf("."));
 					allAudiences.add(aud);
-				}
-				else
-				{
+				} else {
 					allAudiences.add(audience);
 				}
 			}
 		}
 
-		if (allAudiences.size() == 0 && token.getClaimAsStringList("scope").size()>0) {
-			for (String scope : token.getClaimAsStringList("scope")) {
+		// extract audience (app-id) from scopes
+		if (allAudiences.size() == 0) {
+			for (String scope : getScopes(token)) {
 				if (scope.contains(".")) {
 					String aud = scope.substring(0, scope.indexOf("."));
 					allAudiences.add(aud);
@@ -72,5 +70,11 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 			}
 		}
 		return allAudiences;
+	}
+
+	private List<String> getScopes(Jwt token) {
+		List<String> scopes = null;
+		scopes = token.getClaimAsStringList(Token.CLAIM_SCOPES);
+		return scopes != null ? scopes : new ArrayList<>();
 	}
 }
