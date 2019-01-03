@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
+ * This file is licensed under the Apache Software License,
+ * v. 2 except as noted otherwise in the LICENSE file
+ * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
+ */
 package com.sap.xs2.security.container;
 
 import java.net.URI;
@@ -9,6 +15,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.sap.xsa.security.container.XSTokenRequest;
+import org.springframework.lang.Nullable;
+import org.springframework.web.client.RestTemplate;
 
 public class XSTokenRequestImpl implements XSTokenRequest {
 
@@ -22,6 +30,7 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 	private int type;
 	private String clientId;
 	private String clientSecret;
+	private RestTemplate restTemplate;
 
 	private Map<String, String> additionalAuthorizationAttributes;
 
@@ -110,8 +119,7 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 	 * @return this mutable object
 	 */
 	public XSTokenRequest setAdditionalAuthorizationAttributes(Map<String, String> additionalAuthorizationAttributes) {
-		this.additionalAuthorizationAttributes = (additionalAuthorizationAttributes == null) ? null
-				: new HashMap<>(additionalAuthorizationAttributes);
+		this.additionalAuthorizationAttributes = (additionalAuthorizationAttributes == null) ? null : new HashMap<>(additionalAuthorizationAttributes);
 		return this;
 	}
 
@@ -169,4 +177,25 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 		}
 		return objects.stream().filter(o -> Objects.isNull(o)).count() > 0;
 	}
+
+	/**
+	 * Allows to overwrite the default RestTemplate
+	 * 
+	 * @param restTemplate
+	 *            the custom restTemplate
+	 */
+	public void setRestTemplate(RestTemplate restTemplate) {
+		this.restTemplate = restTemplate;
+	}
+
+	/**
+	 * Returns the custom RestTemplate
+	 *
+	 * @return the custom restTemplate or null
+	 */
+	@Nullable
+	public RestTemplate getRestTemplate() {
+		return restTemplate;
+	}
+
 }
