@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.sap.xs2.security.container.UserInfoTestUtil;
 import org.apache.commons.io.IOUtils;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaSigner;
@@ -21,7 +20,7 @@ public class JwtGenerator {
 	public static final Date NO_EXPIRE = new Date(Long.MAX_VALUE);
 
 	public static Jwt createFromTemplate(String pathToTemplate) throws Exception {
-		String claims = IOUtils.toString(UserInfoTestUtil.class.getResourceAsStream(pathToTemplate), StandardCharsets.UTF_8);
+		String claims = IOUtils.toString(JwtGenerator.class.getResourceAsStream(pathToTemplate), StandardCharsets.UTF_8);
 		return createFromClaims(claims);
 	}
 
@@ -34,7 +33,7 @@ public class JwtGenerator {
 	}
 
 	private static Jwt createFromClaims(String claims) throws Exception {
-		String privateKey = IOUtils.toString(UserInfoTestUtil.class.getResourceAsStream("/privateKey.txt"), StandardCharsets.UTF_8); // PEM format
+		String privateKey = IOUtils.toString(JwtGenerator.class.getResourceAsStream("/privateKey.txt"), StandardCharsets.UTF_8); // PEM format
 		String token = createToken(claims, privateKey, "legacy-samlUserInfo-key");
 		return convertTokenToOAuthJwt(token);
 	}
