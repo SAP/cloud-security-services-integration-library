@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>com.sap.cloud.security.xssec</groupId>
 			<artifactId>api</artifactId>
-			<version>1.1.0</version>
+			<version>1.2.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
