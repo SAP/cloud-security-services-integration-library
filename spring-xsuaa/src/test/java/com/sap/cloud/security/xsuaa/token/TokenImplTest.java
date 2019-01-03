@@ -2,23 +2,28 @@ package com.sap.cloud.security.xsuaa.token;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
 
-import java.net.URISyntaxException;
+import java.net.URI;
 import java.util.*;
 
-import com.sap.xs2.security.container.XSTokenRequestImpl;
-import com.sap.xsa.security.container.XSTokenRequest;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.client.RestTemplate;
 
 import com.nimbusds.jwt.JWTClaimsSet;
-import org.springframework.web.client.RestTemplate;
+import com.sap.xs2.security.container.XSTokenRequestImpl;
+import com.sap.xsa.security.container.XSTokenRequest;
 
 public class TokenImplTest {
 
@@ -210,17 +215,22 @@ public class TokenImplTest {
 	}
 
 	@Test
-	@Ignore
-	public void requestToken() throws Exception {
-		RestTemplate mockRestTemplate = new RestTemplate();
+	public void requestClientCredentialsToken() throws Exception {
+		// prepare response
+		Map<String, String> ccToken = new HashMap<>();
+		ccToken.put("access_token", "cc_token");
 
-		//TODO mock RestTemplate!!!
+		// mock rest call
+		// http://myuaa.com/oauth/token?grant_type=client_credentials&authorities=%7B%22az_attr%22:%7B%22a%22:%22b%22,%22c%22:%22d%22%7D%7D
+		RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
+		ResponseEntity<Map> response = new ResponseEntity<>(ccToken, HttpStatus.OK);
+		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class))).thenReturn(response);
 
 		token = createToken(claimsSetBuilder);
-		//token.setRestTemplate(mockRestTemplate);
 
 		String mockServerUrl = "http://myuaa.com";
 		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);
+		tokenRequest.setRestTemplate(mockRestTemplate);
 		tokenRequest.setClientId("c1").setClientSecret("s1").setType(XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN);
 
 		Map<String, String> azMape = new HashMap<>();
@@ -228,7 +238,7 @@ public class TokenImplTest {
 		azMape.put("c", "d");
 		tokenRequest.setAdditionalAuthorizationAttributes(azMape);
 
-		assertThat(token.requestToken(tokenRequest), startsWith("eyJhbGciOiJSUzI1NiIsInR5"));
+		assertThat(token.requestToken(tokenRequest), is("cc_token"));
 	}
 
 	private Token createToken(JWTClaimsSet.Builder claimsBuilder) throws Exception {
