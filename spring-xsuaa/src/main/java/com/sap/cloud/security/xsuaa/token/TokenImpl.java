@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
 
+import com.sap.xs2.security.container.XSTokenRequestImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.lang.Nullable;
@@ -51,7 +52,6 @@ public class TokenImpl implements Token {
 	private final Log logger = LogFactory.getLog(getClass());
 	private String xsappname = null;
 	private Jwt jwt;
-	private RestTemplate restTemplate;
 
 	/**
 	 * @param jwt
@@ -246,6 +246,8 @@ public class TokenImpl implements Token {
 		Assert.notNull(tokenRequest, "tokenRequest argument is required");
 		Assert.isTrue(tokenRequest.isValid(), "tokenRequest is not valid");
 
+		RestTemplate restTemplate = tokenRequest instanceof XSTokenRequestImpl ? ((XSTokenRequestImpl) tokenRequest).getRestTemplate() : null;
+
 		XsuaaTokenExchanger tokenExchanger = new XsuaaTokenExchanger(restTemplate, this);
 		try {
 			return tokenExchanger.requestToken(tokenRequest);
@@ -265,10 +267,6 @@ public class TokenImpl implements Token {
 		return jwt.containsClaim(claim);
 	}
 
-	
-	public void setRestTemplate(RestTemplate restTemplate) {
-		this.restTemplate = restTemplate;
-	}
 
 	/**
 	 * For custom access to the claims of the authentication token.
