@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.1
+* Eases enhancement of TokenAuthenticationConverter (https://github.com/SAP/cloud-security-xsuaa-integration/issues/23)
+* Makes XsuaaAudienceValidator more robust (https://github.com/SAP/cloud-security-xsuaa-integration/issues/21)
+* XSTokenRequest accepts custom RestTemplate (https://github.com/SAP/cloud-security-xsuaa-integration/issues/25)
+
 ## 1.1.0
 
 * Spring-Security 5 integration libraries. Added AudienceValidator
