@@ -173,8 +173,9 @@ public class XsuaaTokenExchanger {
     }
 
     /**
-     * Get the subdomain from the given url
+     * Get the subdomain (host) from the given url
      *
+     * @param url url of given endpoint
      * @return subdomain
      */
     protected String getSubdomain(String url) {
