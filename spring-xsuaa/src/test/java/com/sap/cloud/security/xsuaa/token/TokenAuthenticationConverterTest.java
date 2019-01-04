@@ -10,7 +10,9 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,26 +20,22 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.nimbusds.jwt.JWTClaimsSet;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 
 public class TokenAuthenticationConverterTest {
-	private JWTClaimsSet.Builder claimsSetBuilder = null;
 	private String xsAppName = "my-app-name!400";
 	private TokenAuthenticationConverter tokenConverter;
 	String scopeAdmin = xsAppName + "." + "Admin";
 	String scopeRead = xsAppName + "." + "Read";
-	private Jwt jwtSamlWithXsUserAttributes;
 
 	@Before
 	public void setup() throws Exception {
-		claimsSetBuilder = new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE);
 		tokenConverter = new TokenAuthenticationConverter(xsAppName);
-		jwtSamlWithXsUserAttributes = JwtGenerator.createFromTemplate("/saml.txt");
 	}
 
 	@Test
 	public void extractAuthoritiesWithoutScopes() throws Exception {
-		Jwt jwt = JwtGenerator.createFromClaims(claimsSetBuilder.build());
+		Jwt jwt = new JwtGenerator().getToken();
 
 		AbstractAuthenticationToken authenticationToken = tokenConverter.convert(jwt);
 		assertThat(authenticationToken.getAuthorities().size(), is(0));
@@ -45,11 +43,7 @@ public class TokenAuthenticationConverterTest {
 
 	@Test
 	public void extractAuthoritiesWithScopes() throws Exception {
-		List<String> scopesList = new ArrayList<>();
-		scopesList.add(scopeAdmin);
-		scopesList.add(scopeRead);
-		claimsSetBuilder.claim(Token.CLAIM_SCOPES, scopesList);
-		Jwt jwt = JwtGenerator.createFromClaims(claimsSetBuilder.build());
+		Jwt jwt = new JwtGenerator().addScopes(scopeAdmin, scopeRead).getToken();
 
 		AbstractAuthenticationToken authenticationToken = tokenConverter.convert(jwt);
 		assertThat(authenticationToken.getAuthorities().size(), is(2));
@@ -61,16 +55,17 @@ public class TokenAuthenticationConverterTest {
 	public void extractCustomAuthoritiesWithScopes() throws Exception {
 		tokenConverter = new MyTokenAuthenticationConverter(xsAppName, "cost-center", "country");
 
-		AbstractAuthenticationToken authenticationToken = tokenConverter.convert(jwtSamlWithXsUserAttributes);
-		assertThat(authenticationToken.getAuthorities().size(), is(7));
+		Jwt jwt = new JwtGenerator().addScopes(scopeAdmin).addAttribute("cost-center", new String[] { "0815" }).addAttribute("country", new String[] { "DE", "IL" }).getToken();
+
+		AbstractAuthenticationToken authenticationToken = tokenConverter.convert(jwt);
+		assertThat(authenticationToken.getAuthorities().size(), is(4));
 		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("ATTR:COST-CENTER=0815")));
-		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("ATTR:COST-CENTER=4711")));
-		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("ATTR:COUNTRY=Germany")));
-		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("java-hello-world.Delete")));
+		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("ATTR:COUNTRY=DE")));
+		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("ATTR:COUNTRY=IL")));
+		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority(scopeAdmin)));
 	}
 
 	private static class MyTokenAuthenticationConverter extends TokenAuthenticationConverter {
-
 		protected String[] xsUserAttributes;
 
 		public MyTokenAuthenticationConverter(String appId, String... xsUserAttributes) {
