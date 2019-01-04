@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
 
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 
@@ -40,17 +41,9 @@ public class TokenImplTest {
 
 	@Before
 	public void setup() throws Exception {
-		claimsSetBuilder = new JWTClaimsSet.Builder()
-				.issueTime(new Date())
-				.expirationTime(JwtGenerator.NO_EXPIRE)
-				.claim(TokenImpl.CLAIM_USER_NAME, userName)
-				.claim(TokenImpl.CLAIM_EMAIL, userName + "@test.org")
-				.claim(TokenImpl.CLAIM_ZONE_ID, zoneId)
-				.claim(TokenImpl.CLAIM_CLIENT_ID, "sb-java-hello-world")
-				.claim(TokenImpl.CLAIM_ORIGIN, "userIdp")
-				.claim(TokenImpl.CLAIM_GRANT_TYPE, TokenImpl.GRANTTYPE_SAML2BEARER);
+		claimsSetBuilder = new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE_DATE).claim(TokenImpl.CLAIM_USER_NAME, userName).claim(TokenImpl.CLAIM_EMAIL, userName + "@test.org").claim(TokenImpl.CLAIM_ZONE_ID, zoneId).claim(TokenImpl.CLAIM_CLIENT_ID, "sb-java-hello-world").claim(TokenImpl.CLAIM_ORIGIN, "userIdp").claim(TokenImpl.CLAIM_GRANT_TYPE, TokenImpl.GRANTTYPE_SAML2BEARER);
 
-		jwtSaml = JwtGenerator.createFromTemplate("/saml.txt");
+		jwtSaml = new JwtGenerator().createFromTemplate("/saml.txt");
 		jwtCC = JwtGenerator.createFromFile("/token_cc.txt");
 		jwtCCNoAttributes = JwtGenerator.createFromFile("/token_cc_noattr.txt");
 	}

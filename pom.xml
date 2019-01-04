@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.sap.cloud.security.xsuaa</groupId>
@@ -10,7 +10,9 @@
 
 	<name>parent</name>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
-	<description>XSUAA authentication and authorization service integration libraries and samples for authenticating users and services </description>
+	<description>XSUAA authentication and authorization service integration libraries and samples for authenticating
+		users and services
+	</description>
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -50,7 +52,7 @@
 		<spring.core.version>5.1.1.RELEASE</spring.core.version>
 		<junit.version>4.12</junit.version>
 		<maven.compiler.target>1.8</maven.compiler.target>
-	        <maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.source>1.8</maven.compiler.source>
 		<spring.security.version>5.1.1.RELEASE</spring.security.version>
 	</properties>
 
@@ -58,6 +60,7 @@
 		<module>api</module>
 		<module>spring-xsuaa</module>
 		<module>spring-xsuaa-it</module>
+		<module>spring-xsuaa-test</module>
 	</modules>
 
 	<dependencyManagement>
