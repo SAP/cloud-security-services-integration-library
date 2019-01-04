@@ -5,12 +5,12 @@ import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.sap.cloud.security.xsuaa.token.JwtGenerator;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 
 public class UserInfoTestUtil {
 
 	public static UserInfo createFromTemplate(String pathToTemplate, String appName) throws Exception {
-		Jwt jwt = JwtGenerator.createFromTemplate(pathToTemplate);
+		Jwt jwt = new JwtGenerator().createFromTemplate(pathToTemplate);
 		return new UserInfo(jwt, appName);
 	}
 

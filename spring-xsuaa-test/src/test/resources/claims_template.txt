@@ -1,0 +1,37 @@
+{
+  "jti": "37587e8c45b84a85820744c1459910b5",
+  "ext_attr": {
+    "enhancer": "XSUAA",
+    "serviceinstanceid": "brokerCloneServiceInstanceId",
+    "zdn": "uaa",
+    "acl": ["app1!t23"]
+  },
+  "xs.system.attributes": {
+    "xs.saml.groups": [
+      "g1"
+    ],
+    "xs.rolecollections": []
+  },
+  "given_name": "$username",
+  "xs.user.attributes": {"usrAttr": ["value_1", "value_2"]},
+  "family_name": "unknown.org",
+  "sub": "d21f5de9-d761-47a2-b6d4-2d83161584d9",
+  "scope": [
+    "openid", "testScope", "testApp.localScope"
+  ],
+  "client_id": "$clientid",
+  "cid": "sb-clone1!b5|LR-master!b5",
+  "azp": "sb-clone1!b5|LR-master!b5",
+  "grant_type": "urn:ietf:params:oauth:grant-type:saml2-bearer",
+  "user_id": "d21f5de9-d761-47a2-b6d4-2d83161584d9",
+  "origin": "useridp",
+  "user_name": "$username",
+  "email": "$username@uaa.org",
+  "rev_sig": "b850756a",
+  "iat": 1532416849,
+  "exp": $exp,
+  "iss": "http://paas.localhost:8080/uaa/oauth/token",
+  "zid": "$zid",
+  "aud": [],
+  "az_attr": {"external_id":"abcd1234"}
+}
