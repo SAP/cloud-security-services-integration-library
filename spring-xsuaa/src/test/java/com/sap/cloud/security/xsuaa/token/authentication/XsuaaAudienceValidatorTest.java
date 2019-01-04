@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.token.JwtGenerator;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.Token;
 
 public class XsuaaAudienceValidatorTest {
@@ -30,10 +30,10 @@ public class XsuaaAudienceValidatorTest {
 		serviceConfigurationOtherGrantedClientId = new DummyXsuaaServiceConfiguration("sb-test2!t1", "test2!t1");
 		serviceConfigurationUnGrantedClientId = new DummyXsuaaServiceConfiguration("sb-test3!t1", "test3!t1");
 
-		tokenWithAudience = JwtGenerator.createFromTemplate("/audience_1.txt");
-		tokenWithoutAudience = JwtGenerator.createFromTemplate("/audience_2.txt");
+		tokenWithAudience = new JwtGenerator().createFromTemplate("/audience_1.txt");
+		tokenWithoutAudience = new JwtGenerator().createFromTemplate("/audience_2.txt");
 
-		claimsBuilder = new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE);
+		claimsBuilder = new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE_DATE);
 	}
 
 	@Test
