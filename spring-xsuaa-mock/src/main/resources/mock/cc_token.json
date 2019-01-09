@@ -1,0 +1,7 @@
+{
+  "access_token": "cc_token",
+  "token_type": "bearer",
+  "expires_in": 43199,
+  "scope": "clients.read emails.write scim.userids password.write idps.write notifications.write oauth.login scim.write critical_notifications.write",
+  "jti": "7799c8a08cb74c6bbfa8b9c63efe6dde"
+}
