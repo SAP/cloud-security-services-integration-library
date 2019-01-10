@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>spring-security-xsuaa-usage</artifactId>
-	<version>1.1.0</version>
+	<version>1.2.0</version>
 	<name>spring-security-xsuaa-usage</name>
 
 	<properties>
@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>spring-xsuaa</artifactId>
-			<version>1.1.0</version>
+			<version>1.2.0</version>
 		</dependency>
 	</dependencies>
 

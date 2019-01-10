@@ -1,16 +1,10 @@
+/**
+ * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
+ * This file is licensed under the Apache Software License,
+ * v. 2 except as noted otherwise in the LICENSE file
+ * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
+ */
 package com.sap.cloud.security.xsuaa.token;
-
-import com.sap.xs2.security.container.UserInfoException;
-import com.sap.xs2.security.container.XSTokenRequestImpl;
-import com.sap.xsa.security.container.XSTokenRequest;
-import net.minidev.json.JSONObject;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,6 +13,19 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.sap.xs2.security.container.UserInfoException;
+import com.sap.xsa.security.container.XSTokenRequest;
+
+import net.minidev.json.JSONObject;
 
 public class XsuaaTokenExchanger {
     Token token;
@@ -166,8 +173,9 @@ public class XsuaaTokenExchanger {
     }
 
     /**
-     * Get the subdomain from the given url
+     * Get the subdomain (host) from the given url
      *
+     * @param url url of given endpoint
      * @return subdomain
      */
     protected String getSubdomain(String url) {
