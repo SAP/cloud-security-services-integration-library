@@ -34,8 +34,9 @@ public class TokenImplTest {
 	private Jwt jwtCCNoAttributes;
 	private JWTClaimsSet.Builder claimsSetBuilder = null;
 	private String xsAppName = "my-app-name!400";
-	private String scopeRead = xsAppName + "." + "Display";
-	private String scopeWrite = xsAppName + "." + "Edit";
+	private String scopeRead = xsAppName + "." + "Read";
+	private String scopeWrite = xsAppName + "." + "Write";
+	private String scopeOther = "other-app-name!777.Other";
 	private String userName = "testUser";
 	private String zoneId = "e2f7fbdb-0326-40e6-940f-dfddad057ff3";
 
@@ -69,18 +70,36 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getAuthoritiesReturnsManyScopes() throws Exception {
+	public void getAuthoritiesReturnsApplicationScopes() throws Exception {
 		List<String> scopesList = new ArrayList<>();
 		scopesList.add(scopeWrite);
 		scopesList.add(scopeRead);
+		scopesList.add(scopeOther);
 		claimsSetBuilder.claim("scope", scopesList);
 
 		token = createToken(claimsSetBuilder);
 
 		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) token.getAuthorities();
 		assertThat(authorities.size(), is(2));
-		assertThat(authorities, hasItem(new SimpleGrantedAuthority(scopeRead)));
-		assertThat(authorities, hasItem(new SimpleGrantedAuthority(scopeWrite)));
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Read")));
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Write")));
+	}
+
+	@Test
+	public void getScopesReturnsAllScopes() throws Exception {
+		List<String> scopesList = new ArrayList<>();
+		scopesList.add(scopeWrite);
+		scopesList.add(scopeRead);
+		scopesList.add(scopeOther);
+		claimsSetBuilder.claim("scope", scopesList);
+
+		token = createToken(claimsSetBuilder);
+
+		Collection<String> scopes =  token.getScopes();
+		assertThat(scopes.size(), is(3));
+		assertThat(scopes, hasItem(scopeRead));
+		assertThat(scopes, hasItem(scopeWrite));
+		assertThat(scopes, hasItem(scopeOther));
 	}
 
 	@Test
@@ -160,12 +179,13 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getAuthoritiesReturnsAllScopes() throws Exception {
-		Token token = new TokenImpl(jwtSaml, xsAppName);
+	public void getAuthoritiesReturnsAllAppScopes()  {
+		Token token = new TokenImpl(jwtSaml, "java-hello-world");
 		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) token.getAuthorities();
-		assertThat(authorities.size(), is(4));
-		assertThat(authorities, hasItem(new SimpleGrantedAuthority("openid")));
-		assertThat(authorities, hasItem(new SimpleGrantedAuthority("java-hello-world.Delete")));
+		assertThat(authorities.size(), is(3)); //no openid scope
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Delete")));
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Display")));
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Create")));
 	}
 
 	@Test
