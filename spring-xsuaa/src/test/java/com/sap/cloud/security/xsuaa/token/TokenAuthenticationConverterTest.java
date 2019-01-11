@@ -23,12 +23,12 @@ public class TokenAuthenticationConverterTest {
 	String scopeOther = "other-app!234" + "." + "Other";
 
 	@Before
-	public void setup() throws Exception {
+	public void setup() {
 		tokenConverter = new TokenAuthenticationConverter(xsAppName);
 	}
 
 	@Test
-	public void extractAuthoritiesWithoutScopes() throws Exception {
+	public void extractAuthoritiesWithoutScopes() {
 		Jwt jwt = new JwtGenerator().getToken();
 
 		AbstractAuthenticationToken authenticationToken = tokenConverter.convert(jwt);
@@ -36,7 +36,7 @@ public class TokenAuthenticationConverterTest {
 	}
 
 	@Test
-	public void extractAuthoritiesIgnoresForeignScopes() throws Exception {
+	public void extractAuthoritiesIgnoresForeignScopes() {
 		Jwt jwt = new JwtGenerator().addScopes(scopeAdmin, scopeOther, scopeRead).getToken();
 
 		AbstractAuthenticationToken authenticationToken = tokenConverter.convert(jwt);
@@ -45,7 +45,7 @@ public class TokenAuthenticationConverterTest {
 	}
 
 	@Test
-	public void extractAuthoritiesWithScopes() throws Exception {
+	public void extractAuthoritiesWithScopes() {
 		Jwt jwt = new JwtGenerator().addScopes(scopeAdmin, scopeRead).getToken();
 
 		AbstractAuthenticationToken authenticationToken = tokenConverter.convert(jwt);
@@ -55,10 +55,14 @@ public class TokenAuthenticationConverterTest {
 	}
 
 	@Test
-	public void extractCustomAuthoritiesWithScopes() throws Exception {
+	public void extractCustomAuthoritiesWithScopes() {
 		tokenConverter = new MyTokenAuthenticationConverter(xsAppName, "cost-center", "country");
 
-		Jwt jwt = new JwtGenerator().addScopes(scopeAdmin).addAttribute("cost-center", new String[] { "0815" }).addAttribute("country", new String[] { "DE", "IL" }).getToken();
+		Jwt jwt = new JwtGenerator()
+				.addScopes(scopeAdmin)
+				.addAttribute("cost-center", new String[] { "0815" })
+				.addAttribute("country", new String[] { "DE", "IL" })
+				.getToken();
 
 		AbstractAuthenticationToken authenticationToken = tokenConverter.convert(jwt);
 		assertThat(authenticationToken.getAuthorities().size(), is(4));

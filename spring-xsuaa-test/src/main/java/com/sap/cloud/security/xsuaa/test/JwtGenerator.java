@@ -1,17 +1,13 @@
-/**
- * Copyright (c) 2019 SAP SE or an SAP affiliate company. All rights reserved.
- * This file is licensed under the Apache Software License,
- * v. 2 except as noted otherwise in the LICENSE file
- * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
- */
 package com.sap.cloud.security.xsuaa.test;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.*;
 
 import org.apache.commons.io.IOUtils;
+import org.springframework.lang.Nullable;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaSigner;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -21,18 +17,21 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 
 /**
- * Create tokens with a fixed private/public key and dummy values. The client ID, identity zone, and scopes are configurable.
+ * Create tokens with a fixed private/public key and dummy values. The client
+ * ID, identity zone, and scopes are configurable.
  */
 public class JwtGenerator {
 
 	public static final Date NO_EXPIRE_DATE = new Date(Long.MAX_VALUE);
 	public static final int NO_EXPIRE = Integer.MAX_VALUE;
 	public static final String CLIENT_ID = "sb-xsapplication!t895";
-	public static final String IDENTITY_ZONE_ID = "uaa"; // must be 'uaa' to make use of mockserver (see XsuaaServiceConfigurationDefault.getTokenKeyUrl)
+	public static final String IDENTITY_ZONE_ID = "uaa"; // must be 'uaa' to make use of mockserver (see
+	// XsuaaServiceConfigurationDefault.getTokenKeyUrl)
 	private static final String PRIVATE_KEY_FILE = "/privateKey.txt";
 	private final String clientId;
 	private final String identityZone;
-	private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:saml2-bearer"; // see TokenImpl.GRANTTYPE_SAML2BEARER;
+	private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:saml2-bearer"; // see
+	// TokenImpl.GRANTTYPE_SAML2BEARER;
 	private String[] scopes;
 	private String userName = "testuser";
 	private String jwtHeaderKeyId;
@@ -52,10 +51,12 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Changes the value of the jwt claim "user_name". The user name is also used for the "email" claim.
+	 * Changes the value of the jwt claim "user_name". The user name is also used
+	 * for the "email" claim.
 	 *
 	 * @param userName
-	 * @return
+	 *            the user name
+	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator setUserName(String userName) {
 		this.userName = userName;
@@ -90,10 +91,10 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the "keyId" value of the jwt token header.
+	 * Sets the keyId value as "kid" header to the jwt.
 	 *
 	 * @param keyId
-	 *            the value of the signed jwt token header "keyId"
+	 *            the value of the signed jwt token header "kid"
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator setJwtHeaderKeyId(String keyId) {
@@ -102,7 +103,9 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Returns an encoded JWT token for the `Authorization` header
+	 * Returns an encoded JWT token for the "Authorization" REST header
+	 *
+	 * @return jwt token String with "Bearer " prefix
 	 */
 	public String getTokenForAuthorizationHeader() {
 		try {
@@ -114,11 +117,12 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Builds a basic Jwt with the given clientId, userName, scopes and attributes.
+	 * Builds a basic Jwt with the given clientId, userName, scopes, user attributes
+	 * claims and the keyId header.
 	 *
 	 * @return jwt
 	 */
-	public Jwt getToken() throws Exception {
+	public Jwt getToken() {
 		JWTClaimsSet.Builder claimsSetBuilder = getBasicClaimSet();
 
 		if (scopes != null && scopes.length > 0) {
@@ -127,20 +131,51 @@ public class JwtGenerator {
 		if (attributes.size() > 0) {
 			claimsSetBuilder.claim("xs.user.attributes", attributes);
 		}
-		return createFromClaims(claimsSetBuilder.build());
+		return createFromClaims(claimsSetBuilder.build().toString(), jwtHeaderKeyId);
 	}
 
-	public Jwt createFromTemplate(String pathToTemplate) throws Exception {
-		String claimsFromTemplate = IOUtils.toString(JwtGenerator.class.getResourceAsStream(pathToTemplate), StandardCharsets.UTF_8);
+	/**
+	 * Creates a Jwt from a template file, which contains the claims. Optionally,
+	 * configure the "keyId" header via {@link #setJwtHeaderKeyId(String)}
+	 * <p>
+	 * This replaces these placeholders - "$exp" with a date, that will not expire -
+	 * "$clientid" with the configured client id {@link #JwtGenerator(String)} -
+	 * "$zid" with "uaa" - "$username" with the configured user name
+	 * {@link #setUserName(String)}
+	 *
+	 * @param pathToTemplate
+	 *            classpath resource
+	 * @return a jwt
+	 * @throws IOException
+	 *             in case the template file can not be read
+	 */
+	public Jwt createFromTemplate(String pathToTemplate) throws IOException {
+		String claimsFromTemplate = IOUtils.resourceToString(pathToTemplate, StandardCharsets.UTF_8);
 		String claimsWithReplacements = replacePlaceholders(claimsFromTemplate);
 		return createFromClaims(claimsWithReplacements, jwtHeaderKeyId);
 	}
 
-	public static Jwt createFromFile(String pathToJwt) throws Exception {
+	/**
+	 * Creates a Jwt from a file, which contains an encoded Jwt token.
+	 *
+	 * @param pathToJwt
+	 *            classpath resource
+	 * @return a jwt
+	 * @throws IOException
+	 *             in case the template file can not be read
+	 */
+	public static Jwt createFromFile(String pathToJwt) throws IOException {
 		return convertTokenToOAuthJwt(IOUtils.resourceToString(pathToJwt, Charset.forName("UTF-8")));
 	}
 
-	public static Jwt createFromClaims(JWTClaimsSet claimsSet) throws Exception {
+	/**
+	 * Creates an individual Jwt based on the provided set of claims.
+	 *
+	 * @param claimsSet
+	 *            that can be created with Nimbus JOSE + JWT JWTClaimsSet.Builder
+	 * @return a jwt
+	 */
+	public static Jwt createFromClaims(JWTClaimsSet claimsSet) {
 		return createFromClaims(claimsSet.toString(), null);
 	}
 
@@ -150,10 +185,20 @@ public class JwtGenerator {
 	 * @return a basic set of claims
 	 */
 	private JWTClaimsSet.Builder getBasicClaimSet() {
-		return new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE_DATE).claim("client_id", clientId).claim("origin", "userIdp").claim("cid", clientId).claim("user_name", userName).claim("user_id", "D012345").claim("email", userName + "@test.org").claim("zid", identityZone).claim("grant_type", GRANT_TYPE);
+		return new JWTClaimsSet.Builder()
+				.issueTime(new Date())
+				.expirationTime(JwtGenerator.NO_EXPIRE_DATE)
+				.claim("client_id", clientId)
+				.claim("origin", "userIdp")
+				.claim("cid", clientId)
+				.claim("user_name", userName)
+				.claim("user_id", "D012345")
+				.claim("email", userName + "@test.org")
+				.claim("zid", identityZone)
+				.claim("grant_type", GRANT_TYPE);
 	}
 
-	private static Jwt createFromClaims(String claims, String jwtHeaderKeyId) throws Exception {
+	private static Jwt createFromClaims(String claims, String jwtHeaderKeyId) {
 		String token = signAndEncodeToken(claims, jwtHeaderKeyId);
 		return convertTokenToOAuthJwt(token);
 	}
@@ -167,25 +212,42 @@ public class JwtGenerator {
 		return claims;
 	}
 
-	private static String signAndEncodeToken(String claims, String keyId) throws IOException {
-		String privateKey = IOUtils.toString(JwtGenerator.class.getResourceAsStream(PRIVATE_KEY_FILE), StandardCharsets.UTF_8); // PEM format
-		RsaSigner signer = new RsaSigner(privateKey);
+	private static String signAndEncodeToken(String claims, String keyId) {
+		RsaSigner signer = new RsaSigner(readPrivateKeyFromFile());
 
 		Map<String, String> headers = Collections.emptyMap();
 		if (keyId != null) {
 			headers = new HashMap<>();
 			headers.put("kid", keyId);
 		}
+
 		org.springframework.security.jwt.Jwt jwt = JwtHelper.encode(claims, signer, headers);
 
 		return jwt.getEncoded();
 	}
 
-	public static Jwt convertTokenToOAuthJwt(String token) throws java.text.ParseException {
-		JWT parsedJwt = JWTParser.parse(token);
-		JWTClaimsSet jwtClaimsSet = parsedJwt.getJWTClaimsSet();
-		Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
-		Jwt jwt = new Jwt(parsedJwt.getParsedString(), jwtClaimsSet.getIssueTime().toInstant(), jwtClaimsSet.getExpirationTime().toInstant(), headers, jwtClaimsSet.getClaims());
+	protected static String readPrivateKeyFromFile() {
+		String privateKey;
+		try {
+			privateKey = IOUtils.resourceToString(PRIVATE_KEY_FILE, StandardCharsets.UTF_8); // PEM format
+		} catch (IOException e) {
+			throw new RuntimeException("privateKey could not be read from " + PRIVATE_KEY_FILE, e);
+		}
+		return privateKey;
+	}
+
+	@Nullable
+	public static Jwt convertTokenToOAuthJwt(String token) {
+		Jwt jwt;
+		try {
+			JWT parsedJwt = JWTParser.parse(token);
+			JWTClaimsSet jwtClaimsSet = parsedJwt.getJWTClaimsSet();
+			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
+			jwt = new Jwt(parsedJwt.getParsedString(), jwtClaimsSet.getIssueTime().toInstant(),
+					jwtClaimsSet.getExpirationTime().toInstant(), headers, jwtClaimsSet.getClaims());
+		} catch (ParseException e) {
+			throw new IllegalArgumentException("token can not be parsed. ", e);
+		}
 		return jwt;
 	}
 }

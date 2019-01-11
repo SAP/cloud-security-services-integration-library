@@ -5,7 +5,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import org.junit.Assert;
@@ -41,8 +43,14 @@ public class TokenImplTest {
 	private String zoneId = "e2f7fbdb-0326-40e6-940f-dfddad057ff3";
 
 	@Before
-	public void setup() throws Exception {
-		claimsSetBuilder = new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE_DATE).claim(TokenImpl.CLAIM_USER_NAME, userName).claim(TokenImpl.CLAIM_EMAIL, userName + "@test.org").claim(TokenImpl.CLAIM_ZONE_ID, zoneId).claim(TokenImpl.CLAIM_CLIENT_ID, "sb-java-hello-world").claim(TokenImpl.CLAIM_ORIGIN, "userIdp").claim(TokenImpl.CLAIM_GRANT_TYPE, TokenImpl.GRANTTYPE_SAML2BEARER);
+	public void setup() throws IOException {
+		claimsSetBuilder = new JWTClaimsSet.Builder()
+				.issueTime(new Date())
+				.expirationTime(JwtGenerator.NO_EXPIRE_DATE)
+				.claim(TokenImpl.CLAIM_USER_NAME, userName).claim(TokenImpl.CLAIM_EMAIL, userName + "@test.org")
+				.claim(TokenImpl.CLAIM_ZONE_ID, zoneId).claim(TokenImpl.CLAIM_CLIENT_ID, "sb-java-hello-world")
+				.claim(TokenImpl.CLAIM_ORIGIN, "userIdp")
+				.claim(TokenImpl.CLAIM_GRANT_TYPE, TokenImpl.GRANTTYPE_SAML2BEARER);
 
 		jwtSaml = new JwtGenerator().createFromTemplate("/saml.txt");
 		jwtCC = JwtGenerator.createFromFile("/token_cc.txt");
@@ -50,7 +58,7 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void checkBasicJwtWithoutScopes() throws Exception {
+	public void checkBasicJwtWithoutScopes() {
 		token = createToken(claimsSetBuilder);
 
 		assertThat(token.getPassword(), nullValue());
@@ -70,7 +78,7 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getAuthoritiesReturnsApplicationScopes() throws Exception {
+	public void getAuthoritiesReturnsApplicationScopes() {
 		List<String> scopesList = new ArrayList<>();
 		scopesList.add(scopeWrite);
 		scopesList.add(scopeRead);
@@ -86,7 +94,7 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getScopesReturnsAllScopes() throws Exception {
+	public void getScopesReturnsAllScopes() {
 		List<String> scopesList = new ArrayList<>();
 		scopesList.add(scopeWrite);
 		scopesList.add(scopeRead);
@@ -95,7 +103,7 @@ public class TokenImplTest {
 
 		token = createToken(claimsSetBuilder);
 
-		Collection<String> scopes =  token.getScopes();
+		Collection<String> scopes = token.getScopes();
 		assertThat(scopes.size(), is(3));
 		assertThat(scopes, hasItem(scopeRead));
 		assertThat(scopes, hasItem(scopeWrite));
@@ -103,7 +111,7 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getZoneIdAsTenantGuid() throws Exception {
+	public void getZoneIdAsTenantGuid() {
 		claimsSetBuilder.claim(TokenImpl.CLAIM_ZONE_ID, zoneId);
 
 		token = createToken(claimsSetBuilder);
@@ -112,7 +120,7 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getAuthoritiesNoScopeClaimReturnsEmptyList() throws Exception {
+	public void getAuthoritiesNoScopeClaimReturnsEmptyList() {
 		claimsSetBuilder.claim(Token.CLAIM_SCOPES, new ArrayList<>());
 
 		token = createToken(claimsSetBuilder);
@@ -122,7 +130,7 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void isCredentialsExpiredWhenExpiryDateExceeded() throws Exception {
+	public void isCredentialsExpiredWhenExpiryDateExceeded() {
 		claimsSetBuilder.issueTime(new Date(System.currentTimeMillis() - 300000));
 		claimsSetBuilder.expirationTime(new Date(System.currentTimeMillis() - 20000));
 		token = createToken(claimsSetBuilder);
@@ -130,19 +138,19 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getUserNameIsUniqueWithOrigin() throws Exception {
+	public void getUserNameIsUniqueWithOrigin() {
 		token = createToken(claimsSetBuilder);
 		assertThat(token.getUsername(), is("user/userIdp/testUser"));
 	}
 
 	@Test
-	public void toStringShouldReturnUserName() throws Exception {
+	public void toStringShouldReturnUserName() {
 		token = createToken(claimsSetBuilder);
 		assertThat(token.toString(), is(token.getUsername()));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void getUserNameReturnsErrorWhenOriginContainsDelimeter() throws Exception {
+	public void getUserNameReturnsErrorWhenOriginContainsDelimeter() {
 		claimsSetBuilder.claim(TokenImpl.CLAIM_ORIGIN, "my/Idp");
 		token = createToken(claimsSetBuilder);
 		token.getUsername();
@@ -179,17 +187,17 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getAuthoritiesReturnsAllAppScopes()  {
+	public void getAuthoritiesReturnsAllAppScopes() {
 		Token token = new TokenImpl(jwtSaml, "java-hello-world");
 		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) token.getAuthorities();
-		assertThat(authorities.size(), is(3)); //no openid scope
+		assertThat(authorities.size(), is(3)); // no openid scope
 		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Delete")));
 		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Display")));
 		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Create")));
 	}
 
 	@Test
-	public void getXsUserAttributeValues() throws Exception {
+	public void getXsUserAttributeValues() {
 		Token token = new TokenImpl(jwtSaml, xsAppName);
 		String[] userAttrValues = token.getXSUserAttribute("cost-center");
 		assertThat(userAttrValues.length, is(2));
@@ -198,7 +206,7 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getServiceInstanceIdFromExtAttr() throws Exception {
+	public void getServiceInstanceIdFromExtAttr() {
 		claimsSetBuilder.claim(TokenImpl.CLAIM_EXTERNAL_ATTR, new SamlExternalAttrClaim());
 
 		token = createToken(claimsSetBuilder);
@@ -206,7 +214,7 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getSubdomainFromExtAttr() throws Exception {
+	public void getSubdomainFromExtAttr() {
 		claimsSetBuilder.claim(TokenImpl.CLAIM_EXTERNAL_ATTR, new SamlExternalAttrClaim());
 
 		token = createToken(claimsSetBuilder);
@@ -214,7 +222,7 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getSomeAdditionalAttributeValueFromAuthorizationAttr() throws Exception {
+	public void getSomeAdditionalAttributeValueFromAuthorizationAttr() {
 		claimsSetBuilder.claim(TokenImpl.CLAIM_ADDITIONAL_AZ_ATTR, new AdditionalAuthorizationAttrClaim());
 
 		token = createToken(claimsSetBuilder);
@@ -222,13 +230,13 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getAppToken() throws Exception {
+	public void getAppToken() {
 		token = createToken(claimsSetBuilder);
 		assertThat(token.getAppToken(), startsWith("eyJhbGciOiJSUzI1NiIsInR5"));
 	}
 
 	@Test
-	public void requestClientCredentialsToken() throws Exception {
+	public void requestClientCredentialsToken() throws URISyntaxException {
 		// prepare response
 		Map<String, String> ccToken = new HashMap<>();
 		ccToken.put("access_token", "cc_token");
@@ -237,7 +245,8 @@ public class TokenImplTest {
 		// http://myuaa.com/oauth/token?grant_type=client_credentials&authorities=%7B%22az_attr%22:%7B%22a%22:%22b%22,%22c%22:%22d%22%7D%7D
 		RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
 		ResponseEntity<Map> response = new ResponseEntity<>(ccToken, HttpStatus.OK);
-		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class))).thenReturn(response);
+		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
+				.thenReturn(response);
 
 		token = createToken(claimsSetBuilder);
 
@@ -254,7 +263,7 @@ public class TokenImplTest {
 		assertThat(token.requestToken(tokenRequest), is("cc_token"));
 	}
 
-	private Token createToken(JWTClaimsSet.Builder claimsBuilder) throws Exception {
+	private Token createToken(JWTClaimsSet.Builder claimsBuilder) {
 		Jwt jwt = JwtGenerator.createFromClaims(claimsBuilder.build());
 		return new TokenImpl(jwt, xsAppName);
 	}
