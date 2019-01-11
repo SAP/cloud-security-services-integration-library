@@ -1,16 +1,12 @@
-/**
- * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
- * This file is licensed under the Apache Software License,
- * v. 2 except as noted otherwise in the LICENSE file
- * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
- */
 package com.sap.cloud.security.xsuaa.token;
 
-import com.sap.xsa.security.container.XSTokenRequest;
+import java.net.URISyntaxException;
+import java.util.Collection;
+
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.net.URISyntaxException;
+import com.sap.xsa.security.container.XSTokenRequest;
 
 public interface Token extends UserDetails {
 	String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
@@ -119,8 +115,8 @@ public interface Token extends UserDetails {
 
 	/**
 	 * Get the encoded authentication token, e.g. for token forwarding to another app.
-     *
-     * Never expose this token via log or via HTTP.
+	 *
+	 * Never expose this token via log or via HTTP.
 	 *
 	 * @return token
 	 */
@@ -132,8 +128,15 @@ public interface Token extends UserDetails {
 	 * @param tokenRequest
 	 *            request data
 	 * @throws URISyntaxException
-	 * 			   in case of wron URLs
+	 *             in case of wron URLs
 	 * @return requested token
 	 */
 	String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException;
+
+	/**
+	 * Returns list of scopes with appId prefix, e.g. "<my-xsapp!123>.Display"
+	 * 
+	 * @return all scopes
+	 */
+	Collection<String> getScopes();
 }

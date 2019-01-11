@@ -1,18 +1,3 @@
-/*
- * Copyright 2002-2018 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package testservice.api.v1;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -72,22 +57,17 @@ public class TestController {
 
 		// service instance id
 		Assert.assertEquals("abcd1234", token.getCloneServiceInstanceId());
-		// // groups
-		// Assert.assertEquals(1, token.getSystemAttribute("xs.saml.groups").length);
-		// Assert.assertEquals("g1", token.getSystemAttribute("xs.saml.groups")[0]);
-		// role collections
-		// Assert.assertEquals(1, token.getSystemAttribute("xs.rolecollections").length);
-		// Assert.assertEquals("rc1", token.getSystemAttribute("xs.rolecollections")[0]);
+
 		return "user:" + token.getLogonName();
 	}
 
 	@GetMapping("/scope")
 	public void checkScope(@AuthenticationPrincipal Token token) {
 		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) token.getAuthorities();
-		assertThat(authorities.size(), is(4));
-		assertThat(authorities, hasItem(new SimpleGrantedAuthority("openid")));
-		assertThat(authorities, hasItem(new SimpleGrantedAuthority("java-hello-world.Display")));
-		assertThat(authorities, not(hasItem(new SimpleGrantedAuthority("java-hello-world.Other"))));
+		assertThat(authorities.size(), is(3));
+		assertThat(authorities, not(hasItem(new SimpleGrantedAuthority("openid"))));
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Display")));
+		assertThat(authorities, not(hasItem(new SimpleGrantedAuthority("Other"))));
 	}
 
 	@GetMapping("/requesttoken")

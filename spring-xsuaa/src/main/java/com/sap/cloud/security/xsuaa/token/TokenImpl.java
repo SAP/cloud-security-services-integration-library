@@ -1,13 +1,9 @@
-/**
- * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
- * This file is licensed under the Apache Software License,
- * v. 2 except as noted otherwise in the LICENSE file
- * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
- */
 package com.sap.cloud.security.xsuaa.token;
 
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import com.sap.xs2.security.container.XSTokenRequestImpl;
@@ -50,23 +46,23 @@ public class TokenImpl implements Token {
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
 
 	private final Log logger = LogFactory.getLog(getClass());
-	private String xsappname = null;
+	private String appId = null;
 	private Jwt jwt;
 
 	/**
 	 * @param jwt
 	 *            token
-	 * @param xsappname
+	 * @param appId
 	 *            app name
 	 */
-	protected TokenImpl(Jwt jwt, String xsappname) {
-		this.xsappname = xsappname;
+	protected TokenImpl(Jwt jwt, String appId) {
+		this.appId = appId;
 		this.jwt = jwt;
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsappname);
+		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(appId);
 		return converter.extractAuthorities(jwt);
 	}
 
@@ -255,6 +251,12 @@ public class TokenImpl implements Token {
 			logger.error("Error occured during token request", e);
 			return null;
 		}
+	}
+
+	@Override
+	public Collection<String> getScopes() {
+		List<String> scopesList = jwt.getClaimAsStringList(Token.CLAIM_SCOPES);
+		return scopesList != null ? scopesList : Collections.emptyList();
 	}
 
 	/**
