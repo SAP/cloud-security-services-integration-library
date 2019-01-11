@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
- * This file is licensed under the Apache Software License,
- * v. 2 except as noted otherwise in the LICENSE file
- * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
- */
 package com.sap.cloud.security.xsuaa.test;
 
 import static com.sap.cloud.security.xsuaa.test.TestConstants.*;
@@ -12,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.startsWith;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.junit.Before;
@@ -26,19 +21,19 @@ public class JwtGeneratorTest {
 	private static final String MY_USER_NAME = "UserName";
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		jwtGenerator = new JwtGenerator(MY_CLIENT_ID);
 	}
 
 	@Test
-	public void testBasicJwtToken() throws Exception {
+	public void testBasicJwtToken() {
 		Jwt jwt = new JwtGenerator().getToken();
 		assertThat(jwt.getClaimAsString("zid"), equalTo("uaa"));
 		assertThat(jwt.getExpiresAt(), not(equals(nullValue())));
 	}
 
 	@Test
-	public void testParameterizedJwtToken() throws Exception {
+	public void testParameterizedJwtToken() {
 		jwtGenerator.setUserName(MY_USER_NAME);
 		Jwt jwt = jwtGenerator.getToken();
 		assertThat(jwt.getClaimAsString("client_id"), equalTo(MY_CLIENT_ID));
@@ -50,27 +45,37 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void testBasicJwtTokenForHeader() throws Exception {
+	public void testBasicJwtTokenForHeader() {
 		String tokenForHeader = jwtGenerator.getTokenForAuthorizationHeader();
 		assertThat(tokenForHeader, startsWith("Bearer "));
 	}
 
 	@Test
-	public void testTokenWithScopes() throws Exception {
+	public void testTokenWithScopes() {
 		Jwt jwt = jwtGenerator.addScopes(new String[] { DUMMY_SCOPE, ANOTHER_SCOPE }).getToken();
 		assertThat(jwt.getClaimAsStringList("scope"), hasItems(DUMMY_SCOPE, ANOTHER_SCOPE));
 	}
 
 	@Test
-	public void testTokenWithAttributes() throws Exception {
-		Jwt jwt = jwtGenerator.addAttribute(DUMMY_ATTRIBUTE, new String[] { DUMMY_ATTRIBUTE }).addAttribute(ANOTHER_ATTRIBUTE, new String[] { ANOTHER_ATTRIBUTE_VALUE, ANOTHER_ATTRIBUTE_VALUE_2 }).getToken();
+	public void testTokenWithAttributes() {
+		Jwt jwt = jwtGenerator.addAttribute(DUMMY_ATTRIBUTE, new String[] { DUMMY_ATTRIBUTE })
+				.addAttribute(ANOTHER_ATTRIBUTE, new String[] { ANOTHER_ATTRIBUTE_VALUE, ANOTHER_ATTRIBUTE_VALUE_2 })
+				.getToken();
 		Map<String, Object> attributes = jwt.getClaimAsMap("xs.user.attributes");
 		assertThat((JSONArray) attributes.get(DUMMY_ATTRIBUTE), contains(DUMMY_ATTRIBUTE));
-		assertThat((JSONArray) attributes.get(ANOTHER_ATTRIBUTE), contains(ANOTHER_ATTRIBUTE_VALUE, ANOTHER_ATTRIBUTE_VALUE_2));
+		assertThat((JSONArray) attributes.get(ANOTHER_ATTRIBUTE),
+				contains(ANOTHER_ATTRIBUTE_VALUE, ANOTHER_ATTRIBUTE_VALUE_2));
 	}
 
 	@Test
-	public void testTokenFromTemplateWithScopesAndAttributes() throws Exception {
+	public void testTokenWithKeyId() {
+		Jwt jwt = jwtGenerator.setJwtHeaderKeyId("keyIdValue").getToken();
+		assertThat(jwt.getHeaders().containsKey("kid"), is(true));
+		assertThat(jwt.getHeaders().get("kid"), is("keyIdValue"));
+	}
+
+	@Test
+	public void testTokenFromTemplateWithScopesAndAttributes() throws IOException {
 		jwtGenerator.setUserName(MY_USER_NAME);
 		Jwt jwt = jwtGenerator.createFromTemplate("/claims_template.txt");
 
@@ -87,7 +92,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void testTokenFromFile() throws Exception {
+	public void testTokenFromFile() throws IOException {
 		Jwt jwtFromTemplate = jwtGenerator.createFromTemplate("/claims_template.txt");
 		String jwtTokenFromTemplate = jwtFromTemplate.getTokenValue();
 		Jwt jwtFromFile = JwtGenerator.createFromFile("/token_cc.txt");
