@@ -1,13 +1,6 @@
-/**
- * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
- * This file is licensed under the Apache Software License,
- * v. 2 except as noted otherwise in the LICENSE file
- * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
- */
 package com.sap.cloud.security.xsuaa.token;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collection;
@@ -27,6 +20,7 @@ public class TokenAuthenticationConverterTest {
 	private TokenAuthenticationConverter tokenConverter;
 	String scopeAdmin = xsAppName + "." + "Admin";
 	String scopeRead = xsAppName + "." + "Read";
+	String scopeOther = "other-app!234" + "." + "Other";
 
 	@Before
 	public void setup() throws Exception {
@@ -42,13 +36,22 @@ public class TokenAuthenticationConverterTest {
 	}
 
 	@Test
+	public void extractAuthoritiesIgnoresForeignScopes() throws Exception {
+		Jwt jwt = new JwtGenerator().addScopes(scopeAdmin, scopeOther, scopeRead).getToken();
+
+		AbstractAuthenticationToken authenticationToken = tokenConverter.convert(jwt);
+		assertThat(authenticationToken.getAuthorities().size(), is(2));
+		assertThat(authenticationToken.getAuthorities(), not(hasItem(new SimpleGrantedAuthority("Other"))));
+	}
+
+	@Test
 	public void extractAuthoritiesWithScopes() throws Exception {
 		Jwt jwt = new JwtGenerator().addScopes(scopeAdmin, scopeRead).getToken();
 
 		AbstractAuthenticationToken authenticationToken = tokenConverter.convert(jwt);
 		assertThat(authenticationToken.getAuthorities().size(), is(2));
-		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority(scopeRead)));
-		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority(scopeAdmin)));
+		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("Read")));
+		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("Admin")));
 	}
 
 	@Test
@@ -62,7 +65,7 @@ public class TokenAuthenticationConverterTest {
 		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("ATTR:COST-CENTER=0815")));
 		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("ATTR:COUNTRY=DE")));
 		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("ATTR:COUNTRY=IL")));
-		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority(scopeAdmin)));
+		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("Admin")));
 	}
 
 	private static class MyTokenAuthenticationConverter extends TokenAuthenticationConverter {
