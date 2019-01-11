@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
- * This file is licensed under the Apache Software License,
- * v. 2 except as noted otherwise in the LICENSE file
- * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
- */
 package com.sap.cloud.security.xsuaa.token;
 
 import java.util.Collection;
@@ -44,7 +38,7 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 		Collection<String> customAuthorities = getCustomAuthorities(new TokenImpl(jwt, appId));
 
 		Stream<String> authorities = Stream.of(scopeAuthorities, customAuthorities).flatMap(Collection::stream);
-		return authorities.map(authority -> authority).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+		return authorities.map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 	}
 
 	protected Collection<String> getCustomAuthorities(Token token) {
@@ -53,6 +47,9 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 
 	protected Collection<String> getScopes(Jwt jwt) {
 		List<String> scopesList = jwt.getClaimAsStringList(Token.CLAIM_SCOPES);
-		return scopesList != null ? scopesList : Collections.emptyList();
+		if (scopesList != null) {
+			return scopesList.stream().filter(scope -> scope.startsWith(appId + ".")).map(scope -> scope.replace(appId + ".", "")).collect(Collectors.toList());
+		}
+		return Collections.emptyList();
 	}
 }
