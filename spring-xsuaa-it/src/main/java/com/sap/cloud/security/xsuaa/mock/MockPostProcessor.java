@@ -38,9 +38,6 @@ public class MockPostProcessor implements EnvironmentPostProcessor, DisposableBe
 			if ("/otherdomain/token_keys".equals(request.getPath())) {
 				return getResponseFromFile("/mock/otherdomain_token_keys.json", HttpStatus.OK);
 			}
-			if ("/testdomain/token_keys".equals(request.getPath())) {
-				return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, PATH_PUBLIC_KEY, "legacy-token-key-testdomain");
-			}
 			if (request.getPath().startsWith("/oauth/token?grant_type=client_credentials")) {
 				if ("basic YzE6czE=".equalsIgnoreCase(request.getHeader("authorization")) && "POST".equals(request.getMethod()) && request.getPath().contains("%7B%22az_attr%22:%7B%22a%22:%22b%22,%22c%22:%22d%22%7D%7D"))
 					return getResponseFromFile("/mock/cc_token.json", HttpStatus.OK);
