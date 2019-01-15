@@ -26,10 +26,8 @@ import testservice.api.v1.TestController;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { XsuaaITApplication.class, testservice.api.v1.SecurityConfiguration.class, TestController.class })
-
 @AutoConfigureMockMvc
 @ActiveProfiles("test.api.v1")
-
 public class XsuaaTokenValidationIT {
 
 	@Autowired
@@ -59,7 +57,7 @@ public class XsuaaTokenValidationIT {
 		String fqHost = new URL(mockServerUrl).getHost();
 		String hostname = fqHost.substring(0, fqHost.indexOf("."));
 
-		this.mvc.perform(get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt", hostname, "legacy-token-key-testdomain")))).andExpect(status().isOk()).andExpect(content().string("cc_token"));
+		this.mvc.perform(get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt", hostname, "legacy-token-key")))).andExpect(status().isOk()).andExpect(content().string("cc_token"));
 	}
 
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {

@@ -12,30 +12,28 @@ import org.springframework.security.jwt.crypto.sign.RsaSigner;
 public class JWTUtil {
 
 	public static String createJWT(String pathToTemplate, String subdomain) throws Exception {
-		String privateKey = IOUtils.toString(JWTUtil.class.getResourceAsStream("/privateKey.txt"), StandardCharsets.UTF_8); // PEM format
-		String template = IOUtils.toString(JWTUtil.class.getResourceAsStream(pathToTemplate),StandardCharsets.UTF_8);
-		return JWTUtil.createJWT(template,subdomain,  privateKey,"legacy-token-key-"+subdomain);
+		String privateKey = IOUtils.resourceToString("/privateKey.txt", StandardCharsets.UTF_8); // PEM format
+		String template = IOUtils.resourceToString(pathToTemplate, StandardCharsets.UTF_8); // PEM format
+		return JWTUtil.createJWT(template, subdomain, privateKey, "legacy-token-key-" + subdomain);
 	}
 
 	public static String createJWT(String pathToTemplate, String subdomain, String keyId) throws Exception {
-		String privateKey = IOUtils.toString(JWTUtil.class.getResourceAsStream("/privateKey.txt"), StandardCharsets.UTF_8); // PEM format
-		String template = IOUtils.toString(JWTUtil.class.getResourceAsStream(pathToTemplate),StandardCharsets.UTF_8);
-		return JWTUtil.createJWT(template,subdomain,  privateKey,keyId);
+		String privateKey = IOUtils.resourceToString("/privateKey.txt", StandardCharsets.UTF_8); // PEM format
+		String template = IOUtils.resourceToString(pathToTemplate, StandardCharsets.UTF_8); // PEM format
+		return JWTUtil.createJWT(template, subdomain, privateKey, keyId);
 	}
-	
-	public static String createJWT(String claims, String subdomain, String privateKey, String keyId) throws Exception {
 
-		RsaSigner signer = new RsaSigner(privateKey);	
+	public static String createJWT(String claims, String subdomain, String privateKey, String keyId) throws Exception {
+		RsaSigner signer = new RsaSigner(privateKey);
 		claims = claims.replace("$exp", "" + (System.currentTimeMillis() / 1000 + 500));
 		claims = claims.replace("$zdn", subdomain);
 
 		Map<String, String> headers = new HashMap<>();
-		headers.put("kid",keyId );
+		headers.put("kid", keyId);
 
 		Jwt jwt = JwtHelper.encode(claims, signer, headers);
 
 		return jwt.getEncoded();
 	}
-
 
 }
