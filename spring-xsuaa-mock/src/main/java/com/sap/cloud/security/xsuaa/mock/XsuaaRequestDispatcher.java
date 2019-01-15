@@ -26,10 +26,10 @@ public class XsuaaRequestDispatcher extends Dispatcher {
 	public MockResponse dispatch(RecordedRequest request) {
 		if ("/testdomain/token_keys".equals(request.getPath())) {
 			String subdomain = "testdomain";
-			return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, PATH_PUBLIC_KEY, "legacy-token-key-" + subdomain);
+			return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, "legacy-token-key-" + subdomain);
 		}
 		if (request.getPath().endsWith("/token_keys")) {
-			return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, PATH_PUBLIC_KEY, "legacy-token-key");
+			return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, "legacy-token-key");
 		}
 		return getResponse(RESPONSE_404, HttpStatus.NOT_FOUND);
 	}
@@ -50,9 +50,9 @@ public class XsuaaRequestDispatcher extends Dispatcher {
 				.setBody(message);
 	}
 
-	protected MockResponse getTokenKeyForKeyId(String pathToTemplate, String pathToPublicKey, String keyId) {
+	protected MockResponse getTokenKeyForKeyId(String pathToTemplate, String keyId) {
 		try {
-			String publicKey = readFromFile(pathToPublicKey);
+			String publicKey = readFromFile(PATH_PUBLIC_KEY);
 			String body = readFromFile(pathToTemplate)
 					.replace("$kid", keyId)
 					.replace("$public_key", publicKey);
