@@ -61,14 +61,16 @@ public interface XSUserInfo {
 	public String getOrigin() throws XSUserInfoException;
 
 	/**
-	 * Subaccount identifier
-	 * @return
+	 * Return identity zone
+	 *
+	 * @return identity zone
 	 * @throws XSUserInfoException
+	 *             if attribute is not available in the authentication token
 	 */
 	String getIdentityZone() throws XSUserInfoException;
 	
 	/**
-	 * Subaccount identifier
+	 * Return subaccount identifier
 	 * 
 	 * @return subaccount identifier
 	 * @throws XSUserInfoException

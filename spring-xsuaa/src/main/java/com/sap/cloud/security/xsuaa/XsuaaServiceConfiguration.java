@@ -16,8 +16,8 @@ public interface XsuaaServiceConfiguration {
 	String getClientSecret();
 
 	/**
-	 * Base URL of the xsuaa service instance. In multi tenancy scenarios this is the
-	 * url where the service instance was created.
+	 * Base URL of the xsuaa service instance. In multi tenancy scenarios this is
+	 * the url where the service instance was created.
 	 * 
 	 * @return uaa url
 	 */

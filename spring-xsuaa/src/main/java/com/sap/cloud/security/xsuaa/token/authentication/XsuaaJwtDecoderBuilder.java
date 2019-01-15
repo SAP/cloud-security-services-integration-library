@@ -12,42 +12,47 @@ public class XsuaaJwtDecoderBuilder {
 
 	/**
 	 * Utility for building a JWT decoder configuration
+	 * 
 	 * @param configuration
+	 *            of the Xsuaa service
 	 */
 	public XsuaaJwtDecoderBuilder(XsuaaServiceConfiguration configuration) {
 		this.configuration = configuration;
 	}
 
 	/**
-	 * Assemble a JwtDecoder
-	 * @return
+	 * Assembles a JwtDecoder
+	 * 
+	 * @return JwtDecoder
 	 */
 	public JwtDecoder build() {
 		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize);
 	}
 
 	/**
-	 * Decoders cache the signing keys. Set the cache time.
-	 * Default: 900 seconds
+	 * Decoders cache the signing keys. Overwrite the cache time (default: 900
+	 * seconds).
+	 *
 	 * @param timeInSeconds
-	 * @return
+	 *            time to cache the signing keys
+	 * @return this
 	 */
-	public XsuaaJwtDecoderBuilder withDecoderCacheTime(int timeInSeconds)
-	{
+	public XsuaaJwtDecoderBuilder withDecoderCacheTime(int timeInSeconds) {
 		this.decoderCacheValidity = timeInSeconds;
 		return this;
 	}
+
 	/**
-	 * Determine size of cached decoder.
-	 * Mainly relevant for multi tenant applications.
-	 * Default:100
+	 * Overwrite size of cached decoder (default: 100). Mainly relevant for multi
+	 * tenant applications.
+	 *
 	 * @param size
-	 * @return
+	 *            number of cached decoders
+	 * @return this
 	 */
-	public XsuaaJwtDecoderBuilder withDecoderCacheSize(int size)
-	{
+	public XsuaaJwtDecoderBuilder withDecoderCacheSize(int size) {
 		this.decoderCacheSize = size;
 		return this;
 	}
-	
+
 }
