@@ -52,6 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	{
 		return new MockXsuaaServiceConfiguration(mockServerUrl,"java-hello-world");
 	}
+
 	@Bean
 	JwtDecoder jwtDecoder() {	
 		return new XsuaaJwtDecoderBuilder(getXsuaaServiceConfiguration()).build();
