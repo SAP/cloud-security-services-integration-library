@@ -46,12 +46,17 @@
 	</distributionManagement>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.core.version>5.1.1.RELEASE</spring.core.version>
-		<junit.version>4.12</junit.version>
-		<maven.compiler.target>1.8</maven.compiler.target>
-	        <maven.compiler.source>1.8</maven.compiler.source>
-		<spring.security.version>5.1.1.RELEASE</spring.security.version>
+        <spring.security.version>5.1.1.RELEASE</spring.security.version>
+
+        <junit.version>4.12</junit.version>
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 	<modules>
@@ -80,18 +85,63 @@
 							<artifactId>maven-javadoc-plugin</artifactId>
 							<version>3.0.1</version>
 						</plugin>
+
+                        <plugin>
+                            <groupId>net.revelc.code.formatter</groupId>
+                            <artifactId>formatter-maven-plugin</artifactId>
+                            <version>2.7.5</version>
+                            <configuration>
+                                <encoding>${project.build.sourceEncoding}</encoding>
+                                <directories>
+                                    <directory>${project.basedir}/src/main/java</directory>
+                                    <directory>${project.basedir}/src/test/java</directory>
+                                </directories>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <phase>process-sources</phase>
+                                    <goals>
+                                        <goal>format</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+
+                        <plugin>
+                            <groupId>net.revelc.code</groupId>
+                            <artifactId>impsort-maven-plugin</artifactId>
+                            <version>1.2.0</version>
+                            <configuration>
+                                <groups>java.,javax.,org.,com.</groups>
+                                <staticGroups>java,*</staticGroups>
+                                <staticAfter>false</staticAfter>
+                                <removeUnused>true</removeUnused>
+                                <excludes>
+                                    <exclude>**/test/resources/**</exclude>
+                                </excludes>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>sort-imports</id>
+                                    <goals>
+                                        <goal>sort</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
 					</plugins>
 				</pluginManagement>
+
 				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<version>3.7.0</version>
-						<configuration>
-							<source>1.8</source>
-							<target>1.8</target>
-						</configuration>
-					</plugin>
+                    <plugin>
+                        <groupId>net.revelc.code.formatter</groupId>
+                        <artifactId>formatter-maven-plugin</artifactId>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>net.revelc.code</groupId>
+                        <artifactId>impsort-maven-plugin</artifactId>
+                    </plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -99,7 +149,6 @@
 			<id>release</id>
 			<build>
 				<plugins>
-
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
@@ -113,7 +162,6 @@
 							</execution>
 						</executions>
 					</plugin>
-
 
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
