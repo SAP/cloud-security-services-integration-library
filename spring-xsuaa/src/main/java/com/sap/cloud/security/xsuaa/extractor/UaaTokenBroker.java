@@ -16,85 +16,90 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
 @Component
 public class UaaTokenBroker implements TokenBroker {
 
-	private final static Log logger = LogFactory.getLog(UaaTokenBroker.class);
-	
-	private final RestTemplate restTemplate;
+    private final static Log logger = LogFactory.getLog(UaaTokenBroker.class);
 
-	public UaaTokenBroker(RestTemplate restTemplate) {
-		super();
-		this.restTemplate = restTemplate;
-	}
+    private final RestTemplate restTemplate;
 
-	public UaaTokenBroker() {
-		this(new RestTemplate());
-	}
-	
-	@Override
-	@Cacheable(cacheManager="xsuaa.tokenbroker")
-	public String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret) throws TokenBrokerException {
+    public UaaTokenBroker(RestTemplate restTemplate) {
+        super();
+        this.restTemplate = restTemplate;
+    }
 
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			String credentials = clientId + ":" + clientSecret;
-			String base64Creds = Base64.getEncoder().encodeToString(credentials.getBytes());
-			headers.add("ACCEPT", "application/json");
-			headers.add("AUTHORIZATION", "Basic " + base64Creds);
+    public UaaTokenBroker() {
+        this(new RestTemplate());
+    }
 
-			MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
+    @Override
+    @Cacheable(cacheManager = "xsuaa.tokenbroker")
+    public String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret)
+            throws TokenBrokerException {
 
-			body.add("grant_type", "client_credentials");
-			body.add("response_type", "token");
-			body.add("client_id", clientId);
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            String credentials = clientId + ":" + clientSecret;
+            String base64Creds = Base64.getEncoder().encodeToString(credentials.getBytes());
+            headers.add("ACCEPT", "application/json");
+            headers.add("AUTHORIZATION", "Basic " + base64Creds);
 
-			// Note the body object as first parameter!
-			HttpEntity<?> httpEntity = new HttpEntity<Object>(body, headers);
-			ResponseEntity<Map> exchange = restTemplate.exchange(tokenURL, HttpMethod.POST, httpEntity, Map.class);
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
 
-			return (String) exchange.getBody().get("access_token");
-		} catch (HttpClientErrorException ex) {
-			logger.warn("Cannot obtain Token from given client credentials");
-			throw new TokenBrokerException("Error obtaining access token:"+ ex.getStatusText()+ " "+ex.getResponseBodyAsString());
-		}
-		catch (HttpServerErrorException ex) {
-			logger.warn("Cannot obtain Token from given client credentials");
-			throw new TokenBrokerException("Error obtaining access token from server:"+ ex.getStatusText()+ " "+ex.getResponseBodyAsString());
-		}
-	}
+            body.add("grant_type", "client_credentials");
+            body.add("response_type", "token");
+            body.add("client_id", clientId);
 
-	@Override
-	public String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret, String username, String password) throws TokenBrokerException {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			String credentials = clientId + ":" + clientSecret;
-			String base64Creds = Base64.getEncoder().encodeToString(credentials.getBytes());
-			headers.add("ACCEPT", "application/json");
-			headers.add("AUTHORIZATION", "Basic " + base64Creds);
+            // Note the body object as first parameter!
+            HttpEntity<?> httpEntity = new HttpEntity<Object>(body, headers);
+            ResponseEntity<Map> exchange = restTemplate.exchange(tokenURL, HttpMethod.POST, httpEntity, Map.class);
 
-			MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
+            return (String) exchange.getBody().get("access_token");
+        } catch (HttpClientErrorException ex) {
+            logger.warn("Cannot obtain Token from given client credentials");
+            throw new TokenBrokerException(
+                    "Error obtaining access token:" + ex.getStatusText() + " " + ex.getResponseBodyAsString());
+        } catch (HttpServerErrorException ex) {
+            logger.warn("Cannot obtain Token from given client credentials");
+            throw new TokenBrokerException("Error obtaining access token from server:" + ex.getStatusText() + " "
+                    + ex.getResponseBodyAsString());
+        }
+    }
 
-			body.add("grant_type", "password");
-			body.add("response_type", "token");
-			body.add("client_id", clientId);
-			body.add("username", username);
-			body.add("password", password);
+    @Override
+    public String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret,
+            String username, String password) throws TokenBrokerException {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            String credentials = clientId + ":" + clientSecret;
+            String base64Creds = Base64.getEncoder().encodeToString(credentials.getBytes());
+            headers.add("ACCEPT", "application/json");
+            headers.add("AUTHORIZATION", "Basic " + base64Creds);
 
-			// Note the body object as first parameter!
-			HttpEntity<?> httpEntity = new HttpEntity<Object>(body, headers);
-			ResponseEntity<Map> exchange = restTemplate.exchange(tokenURL, HttpMethod.POST, httpEntity, Map.class);
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
 
-			return (String) exchange.getBody().get("access_token");
+            body.add("grant_type", "password");
+            body.add("response_type", "token");
+            body.add("client_id", clientId);
+            body.add("username", username);
+            body.add("password", password);
 
-		} catch (HttpClientErrorException ex) {
-			logger.warn("Cannot obtain Token from given password credentials");
-			throw new TokenBrokerException("Error obtaining access token:"+ ex.getStatusText()+ " "+ex.getResponseBodyAsString());
-		}
-		catch (HttpServerErrorException ex) {
-			logger.warn("Cannot obtain Token from given password credentials");
-			throw new TokenBrokerException("Error obtaining access token from server:"+ ex.getStatusText()+ " "+ex.getResponseBodyAsString());
-		}
-	}
+            // Note the body object as first parameter!
+            HttpEntity<?> httpEntity = new HttpEntity<Object>(body, headers);
+            ResponseEntity<Map> exchange = restTemplate.exchange(tokenURL, HttpMethod.POST, httpEntity, Map.class);
+
+            return (String) exchange.getBody().get("access_token");
+
+        } catch (HttpClientErrorException ex) {
+            logger.warn("Cannot obtain Token from given password credentials");
+            throw new TokenBrokerException(
+                    "Error obtaining access token:" + ex.getStatusText() + " " + ex.getResponseBodyAsString());
+        } catch (HttpServerErrorException ex) {
+            logger.warn("Cannot obtain Token from given password credentials");
+            throw new TokenBrokerException("Error obtaining access token from server:" + ex.getStatusText() + " "
+                    + ex.getResponseBodyAsString());
+        }
+    }
 
 }

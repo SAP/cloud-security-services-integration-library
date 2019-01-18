@@ -10,29 +10,29 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface AuthenticationInformationExtractor {
 
-	/**
-	 * Get subdomain from configuration or request
-	 * 
-	 * @param request
-	 *            HTTP request
-	 * @return Client Subdomain
-	 */
-	Optional<String> getSubdomain(HttpServletRequest request);
+    /**
+     * Get subdomain from configuration or request
+     * 
+     * @param request
+     *            HTTP request
+     * @return Client Subdomain
+     */
+    Optional<String> getSubdomain(HttpServletRequest request);
 
-	/**
-	 * Get subdomain from configuration
-	 * 
-	 * @return Client Subdomain
-	 */
-	Optional<String> getSubdomain();
+    /**
+     * Get subdomain from configuration
+     * 
+     * @return Client Subdomain
+     */
+    Optional<String> getSubdomain();
 
-	/**
-	 * Possibility to return AuthMethods dynamically depending on request
-	 * 
-	 * @param request
-	 *            HTTP request
-	 * @return AuthenticationMethods Configured Authentication Methods
-	 */
-	List<AuthenticationMethod> getAuthenticationMethods(HttpServletRequest request);
+    /**
+     * Possibility to return AuthMethods dynamically depending on request
+     * 
+     * @param request
+     *            HTTP request
+     * @return AuthenticationMethods Configured Authentication Methods
+     */
+    List<AuthenticationMethod> getAuthenticationMethods(HttpServletRequest request);
 
 }

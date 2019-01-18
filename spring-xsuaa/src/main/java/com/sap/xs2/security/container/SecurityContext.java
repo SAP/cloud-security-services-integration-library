@@ -1,9 +1,10 @@
 package com.sap.xs2.security.container;
 
-import com.sap.cloud.security.xsuaa.token.Token;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
+
+import com.sap.cloud.security.xsuaa.token.Token;
 
 public class SecurityContext {
     /**
@@ -32,7 +33,7 @@ public class SecurityContext {
      * @return Token object
      * @throws IllegalStateException
      */
-    static public Token getToken() throws  IllegalStateException {
+    static public Token getToken() throws IllegalStateException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Assert.state(authentication != null, "Access forbidden: not authenticated");
 
@@ -42,6 +43,5 @@ public class SecurityContext {
 
         return (Token) principal;
     }
-
 
 }
