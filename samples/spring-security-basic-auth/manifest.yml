@@ -1,9 +1,8 @@
 ---
 # Configuration:
-# configured for EU10. For other landscapes, please adopt the destination
-# If the routes are occupied, you might need to change the host in sap-java-buildpack-api-usage, the host in approuter- sap-java-buildpack-api-usage and the url in the destination 
+# configured for EU10. For other landscapes, please adopt LANDSCAPE_APPS_DOMAIN in ../vars.yml
+# If the route is occupied, you might need to change ID in in ../vars.yml
 applications:
-# Application spring-security-basic-auth
 - name: spring-security-basic-auth
   instances: 1
   memory: 896M
