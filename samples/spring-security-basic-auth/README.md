@@ -17,7 +17,7 @@ Configure the OAuth resource server by:
 - configuring the jwtDecoder
 - enable the bearerTokenResolver
 
-```
+```java
 @EnableWebSecurity
 @EnableCaching
 @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "" })
@@ -33,24 +33,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
    protected void configure(HttpSecurity http) throws Exception {
       TokenBrokerResolver tokenBrokerResolver = new TokenBrokerResolver(xsuaaServiceConfiguration, cacheManager.getCache("token"),AuthenticationMethod.BASIC);
       
-      http.authorizeRequests()
-            .antMatchers("/hello-token").hasAuthority("openid")
-            .anyRequest().authenticated()
+      http
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .authorizeRequests()
+                .antMatchers("/hello-token").hasAuthority("openid")
+                .anyRequest().authenticated()
             .and()
                 .oauth2ResourceServer()
                 .bearerTokenResolver(tokenBrokerResolver)
                 .jwt()
-                .jwtAuthenticationConverter(jwtAuthenticationConverter());
+                .jwtAuthenticationConverter(getJwtAuthoritiesConverter());
    }
    
    Converter<Jwt, AbstractAuthenticationToken> getJwtAuthoritiesConverter() {
         TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
         converter.setLocalScopeAsAuthorities(true);
         return converter;
-    }
+   }
 
    @Bean
    JwtDecoder jwtDecoder() {
@@ -66,7 +66,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 In the Java coding, use the `Token` to extract user information:
 
-```
+```java
    @GetMapping("/hello-token")
    public Map<String, String> message(@AuthenticationPrincipal Token token) {
       Map<String, String> result = new HashMap<>();
@@ -113,9 +113,11 @@ spring-security-basic-auth$ cf push --vars-file ../vars.yml
 
 ## Access the application
 After deployment, the spring service can be called with basic authentication.
-```
+```shell
 curl -i --user "<SAP ID Service User>:<SAP ID Service Password>" https://spring-security-basic-auth-<ID>.<LANDSCAPE_APPS_DOMAIN>/hello-token
-
+```
+You will get a response like:
+```
 {
   "client id": "sb-spring-security-xsuaa-usage!t291",
   "family name": "Jones",

@@ -4,25 +4,31 @@
 
 This library enhances the [spring-security](https://github.com/spring-projects/spring-security/) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. A Spring boot application needs a security configuration class that enables the resource server and configures authentication using JWT tokens.
 
-## Setup
-Set the property source for xsuaa service binding on the application:
+## Configuration
 
-```java
-@SpringBootApplication
-@ComponentScan
-public class Application {
-
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-
-    @Bean
-    XsuaaServiceConfigurationDefault xsuaaDefaultConfig() {
-        return new XsuaaServiceConfigurationDefault();
-    }
-}
+### Maven Dependencies
+```xml
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-oauth2-jose</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-config</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-oauth2-resource-server</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>spring-xsuaa</artifactId>
+    <version>1.2.0</version>
+</dependency>
 ```
 
+
+### Setup
 Configure the OAuth resource server
 
 ```java
@@ -37,16 +43,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
-        http.authorizeRequests()
+        http
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
+            .authorizeRequests()
             .antMatchers("/hello-token/**").hasAuthority("Read") // checks whether it has scope "<xsappId>.Read"
             .antMatchers("/actuator/**").authenticated()
             .anyRequest().denyAll()
         .and()
             .oauth2ResourceServer()
             .jwt()
-            .decoder(jwtDecoder())
-            .jwtAuthenticationConverter(jwtAuthenticationConverter());
+            .jwtAuthenticationConverter(getJwtAuthoritiesConverter());
         // @formatter:on
+    }
+
+    Converter<Jwt, AbstractAuthenticationToken> getJwtAuthoritiesConverter() {
+        TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
+        converter.setLocalScopeAsAuthorities(true);
+        return converter;
     }
 
     @Bean
@@ -55,8 +69,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
-        return new TokenAuthenticationConverter(xsuaaServiceConfiguration);
+    XsuaaServiceConfigurationDefault xsuaaConfig() {
+        return new XsuaaServiceConfigurationDefault();
     }
 }
 ```
