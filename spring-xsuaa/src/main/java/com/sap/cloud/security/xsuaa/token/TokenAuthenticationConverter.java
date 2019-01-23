@@ -15,11 +15,13 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 /**
- * Converter for xsuaa jwt token that stores authorization data like scopes inside the token.
+ * Converter for xsuaa jwt token that stores authorization data like scopes
+ * inside the token.
  */
 public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
 	protected String appId;
+	protected boolean provideLocalScopesOnly;
 
 	public TokenAuthenticationConverter(String appId) {
 		this.appId = appId;
@@ -27,10 +29,26 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 
 	public TokenAuthenticationConverter(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		this.appId = xsuaaServiceConfiguration.getAppId();
+		this.provideLocalScopesOnly = false;
 	}
 
-	public final AbstractAuthenticationToken convert(Jwt jwt) {
+	@Override
+	public AbstractAuthenticationToken convert(Jwt jwt) {
 		return new AuthenticationToken(appId, jwt, extractAuthorities(jwt));
+	}
+
+	/**
+	 * This method allows to overwrite the default behavior of the
+	 * {@link Token#getAuthorities()} implementation.
+	 *
+	 * @param extractLocalScopesOnly
+	 *            true when {@link Token#getAuthorities()} should only extract local
+	 *            scopes. Local scopes means that non-application specific scopes
+	 *            are filtered out and scopes are returned without appId prefix,
+	 *            e.g. "Display".
+	 */
+	public void setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {
+		this.provideLocalScopesOnly = extractLocalScopesOnly;
 	}
 
 	protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
@@ -47,9 +65,17 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 
 	protected Collection<String> getScopes(Jwt jwt) {
 		List<String> scopesList = jwt.getClaimAsStringList(Token.CLAIM_SCOPES);
-		if (scopesList != null) {
-			return scopesList.stream().filter(scope -> scope.startsWith(appId + ".")).map(scope -> scope.replace(appId + ".", "")).collect(Collectors.toList());
+		if (scopesList == null) {
+			return Collections.emptyList();
 		}
-		return Collections.emptyList();
+		if (provideLocalScopesOnly == true) {
+			return scopesList.stream()
+					.filter(scope -> scope.startsWith(appId + "."))
+					.map(scope -> scope.replaceFirst(appId + ".", ""))
+					.collect(Collectors.toList());
+		} else {
+			return scopesList.stream().collect(Collectors.toList());
+		}
+
 	}
 }
