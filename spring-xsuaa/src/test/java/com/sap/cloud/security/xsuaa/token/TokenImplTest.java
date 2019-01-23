@@ -78,19 +78,39 @@ public class TokenImplTest {
 	}
 
 	@Test
-	public void getAuthoritiesReturnsApplicationScopes() {
+	public void authenticationConverterShouldSetAuthorities() {
+		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsAppName);
+		converter.setLocalScopeAsAuthorities(true);
+
 		List<String> scopesList = new ArrayList<>();
 		scopesList.add(scopeWrite);
 		scopesList.add(scopeRead);
 		scopesList.add(scopeOther);
 		claimsSetBuilder.claim("scope", scopesList);
 
-		token = createToken(claimsSetBuilder);
+		Jwt jwt = JwtGenerator.createFromClaims(claimsSetBuilder.build());
+
+		AuthenticationToken authToken = (AuthenticationToken) converter.convert(jwt);
+		token = (Token) authToken.getPrincipal();
 
 		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) token.getAuthorities();
 		assertThat(authorities.size(), is(2));
 		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Read")));
 		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Write")));
+	}
+
+	@Test
+	public void getAuthoritiesReturnsSetAuthorities() {
+		Collection<GrantedAuthority> authorities = new ArrayList<>();
+		authorities.add(new SimpleGrantedAuthority(scopeRead));
+		authorities.add(new SimpleGrantedAuthority(scopeOther));
+
+		TokenImpl token = new TokenImpl(jwtSaml, xsAppName);
+		token.setAuthorities(authorities);
+
+		Collection<GrantedAuthority> actAuthorities = (Collection<GrantedAuthority>) token.getAuthorities();
+		assertThat(actAuthorities.size(), is(2));
+		assertThat(actAuthorities, hasItem(new SimpleGrantedAuthority(scopeOther)));
 	}
 
 	@Test
@@ -184,16 +204,6 @@ public class TokenImplTest {
 		Token token = new TokenImpl(jwtCC, xsAppName);
 		Assert.assertEquals("sb-java-hello-world", token.getClientId());
 		Assert.assertEquals("client/sb-java-hello-world", token.getUsername());
-	}
-
-	@Test
-	public void getAuthoritiesReturnsAllAppScopes() {
-		Token token = new TokenImpl(jwtSaml, "java-hello-world");
-		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) token.getAuthorities();
-		assertThat(authorities.size(), is(3)); // no openid scope
-		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Delete")));
-		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Display")));
-		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Create")));
 	}
 
 	@Test

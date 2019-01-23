@@ -23,9 +23,12 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
@@ -40,10 +43,10 @@ import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	public static TokenBrokerResolver tokenBrokerResolver; //make static for tests
+
 	@Value("${mockxsuaaserver.url}")
 	String mockServerUrl;
 
-	
 	@Autowired
 	CacheManager cacheManager;
 
@@ -52,12 +55,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		tokenBrokerResolver =  new TokenBrokerResolver(getXsuaaServiceConfiguration(), cacheManager.getCache("token"),
 				AuthenticationMethod.BASIC);
 		// @formatter:off
-		http.authorizeRequests().antMatchers("/message/**").hasAuthority("SCOPE_openid").anyRequest().authenticated()
+		http.authorizeRequests()
+				.antMatchers("/user/**").hasAuthority("java-hello-world.Display")
+				.anyRequest().denyAll()
 				.and().oauth2ResourceServer()
 				.bearerTokenResolver(tokenBrokerResolver)
-				.jwt().jwtAuthenticationConverter(new TokenAuthenticationConverter(getXsuaaServiceConfiguration()));
+				.jwt().jwtAuthenticationConverter(getJwtAuthenticationConverter());
 		// @formatter:on
 	}
+
+	Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() throws MalformedURLException {
+		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(getXsuaaServiceConfiguration());
+		return converter;
+	}
+
 
 	@Bean
 	XsuaaServiceConfiguration getXsuaaServiceConfiguration() throws MalformedURLException {
