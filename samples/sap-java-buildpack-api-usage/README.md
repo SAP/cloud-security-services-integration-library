@@ -97,13 +97,13 @@ Use the [xs-security.json](./xs-security.json) to define the authentication sett
     sap-java-buildpack-api-usage$ cf create-service xsuaa application xsuaa-authentication -c xs-security.json
 ```
 ## Configuration the manifest
-The [manifest](./manifest.yml) contains hosts and paths that need to be adopted.
+The [vars](../vars.yml) contains hosts and paths that need to be adopted.
 
 ## Deploy the application
 Deploy the application using cf push. It will expect 1 GB of free memory quota.
 
 ```shell
-    sap-java-buildpack-api-usage$ cf push
+sap-java-buildpack-api-usage$ cf push --vars-file ../vars.yml
 ```
 
 ## Access the application
