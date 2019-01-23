@@ -57,21 +57,21 @@ XsuaaServiceConfigurationDefault xsuaaServiceConfiguration;
 
 In the Java coding, use the `Token` to extract user information:
 
-```
+```java
 @GetMapping("/hello-token")
 public Map<String, String> message(@AuthenticationPrincipal Token token) {
-Map<String, String> result = new HashMap<>();
-result.put("grant type", token.getGrantType());
-result.put("client id", token.getClientId());
-result.put("subaccount id", token.getSubaccountId());
-result.put("logon name", token.getLogonName());
-result.put("family name", token.getFamilyName());
-result.put("given name", token.getGivenName());
-result.put("email", token.getEmail());
-result.put("authorities", String.valueOf(token.getAuthorities()));
-result.put("scopes", String.valueOf(token.getScopes()));
+    Map<String, String> result = new HashMap<>();
+    result.put("grant type", token.getGrantType());
+    result.put("client id", token.getClientId());
+    result.put("subaccount id", token.getSubaccountId());
+    result.put("logon name", token.getLogonName());
+    result.put("family name", token.getFamilyName());
+    result.put("given name", token.getGivenName());
+    result.put("email", token.getEmail());
+    result.put("authorities", String.valueOf(token.getAuthorities()));
+    result.put("scopes", String.valueOf(token.getScopes()));
 
-return result;
+    return result;
 }
 ```
 # Deployment on Cloud Foundry or SAP HANA Advanced
@@ -108,7 +108,7 @@ spring-security-xsuaa-usage$ cf push --vars-file ../vars.yml
 
 ## Access the application
 After deployment, the application router will trigger authentication. If you access the application via the approuter `approuter-spring-security-xsuaa-usage` route e.g. `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/`, you will see an output like:
-```
+```json
 {
     client id: "sb-spring-security-xsuaa-usage!t291",
     family name: "Jones",

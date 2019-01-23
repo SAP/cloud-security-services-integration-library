@@ -5,7 +5,7 @@ In a typcal UI5 application, the approuter would server HTML files and REST data
 # Coding
 The web.xml of the application must use auth-method with value XSUAA. This enables authentication of requests using incoming OAuth authentication tokens.
 
-```
+```xml
 <web-app>
 <display-name>sample</display-name>
   <login-config> 
@@ -15,7 +15,7 @@ The web.xml of the application must use auth-method with value XSUAA. This enabl
 ```
 
 In the Java coding, use the @ServletSecurity annotations:
-```
+```java
 package com.sap.cloud.security.xssec.samples.sapbuildpack;
 
 import java.io.IOException;
