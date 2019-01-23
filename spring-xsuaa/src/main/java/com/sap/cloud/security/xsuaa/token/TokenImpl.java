@@ -47,6 +47,7 @@ public class TokenImpl implements Token {
 
 	private final Log logger = LogFactory.getLog(getClass());
 	private String appId = null;
+	private Collection<GrantedAuthority> authorities = Collections.emptyList();
 	private Jwt jwt;
 
 	/**
@@ -62,8 +63,7 @@ public class TokenImpl implements Token {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(appId);
-		return converter.extractAuthorities(jwt);
+		return this.authorities;
 	}
 
 	@Override
@@ -277,6 +277,11 @@ public class TokenImpl implements Token {
 	 */
 	ClaimAccessor getClaimAccessor() {
 		return jwt;
+	}
+
+	void setAuthorities(Collection<GrantedAuthority> authorities) {
+		Assert.notNull(authorities, "authorities are required");
+		this.authorities = authorities;
 	}
 
 	private void raiseMethodUnsupportedWhenClientCredentialGrantType(String method) {

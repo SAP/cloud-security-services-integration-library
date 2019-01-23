@@ -1,10 +1,10 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import java.util.Collection;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-
-import java.util.Collection;
 
 public class AuthenticationToken extends JwtAuthenticationToken {
 
@@ -17,7 +17,9 @@ public class AuthenticationToken extends JwtAuthenticationToken {
 
 	@Override
 	public Object getPrincipal() {
-		return new TokenImpl(getToken(), appId);
+		TokenImpl token = new TokenImpl(getToken(), appId);
+		token.setAuthorities(this.getAuthorities());
+		return token;
 	}
 
 }

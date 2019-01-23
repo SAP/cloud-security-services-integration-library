@@ -142,9 +142,8 @@ public interface Token extends UserDetails {
 	 * The default behavior can be adapted as part of
 	 * {@link com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter} class
 	 *
-	 * @return all authorities, e.g. scopes
+	 * @return all authorities such as scopes or an empty list
 	 */
 	@Override
-	@Nullable
 	Collection<? extends GrantedAuthority> getAuthorities();
 }
