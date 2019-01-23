@@ -89,12 +89,12 @@ The [Application Router](./approuter/package.json) is used to provide a single e
 ## Compile the Java application
 Run maven to package the application
 ```shell
-    sap-java-buildpack-api-usage$ mvn package
+sap-java-buildpack-api-usage$ mvn package
 ```
 ## Create the xsuaa service instance
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
 ```shell
-    sap-java-buildpack-api-usage$ cf create-service xsuaa application xsuaa-authentication -c xs-security.json
+sap-java-buildpack-api-usage$ cf create-service xsuaa application xsuaa-authentication -c xs-security.json
 ```
 ## Configuration the manifest
 The [vars](../vars.yml) contains hosts and paths that need to be adopted.
