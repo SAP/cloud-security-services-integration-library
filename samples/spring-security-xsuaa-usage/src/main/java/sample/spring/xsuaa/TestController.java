@@ -37,7 +37,8 @@ public class TestController {
 		result.put("family name", token.getFamilyName());
 		result.put("given name", token.getGivenName());
 		result.put("email", token.getEmail());
-		result.put("token", token.getAppToken());
+		result.put("authorities", String.valueOf(token.getAuthorities()));
+		result.put("scopes", String.valueOf(token.getScopes()));
 
 		return result;
 	}

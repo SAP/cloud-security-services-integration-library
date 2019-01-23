@@ -1,12 +1,12 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import java.net.URISyntaxException;
-import java.util.Collection;
-
+import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.sap.xsa.security.container.XSTokenRequest;
+import java.net.URISyntaxException;
+import java.util.Collection;
 
 public interface Token extends UserDetails {
 	String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
@@ -87,8 +87,7 @@ public interface Token extends UserDetails {
 	/**
 	 * User attribute
 	 *
-	 * @param attributeName
-	 *            name of the attribute
+	 * @param attributeName name of the attribute
 	 * @return attribute values array
 	 */
 	@Nullable
@@ -98,8 +97,7 @@ public interface Token extends UserDetails {
 	 * Additional custom authentication attributes included by the OAuth client component. Note: this is data controlled by the requester of a token.
 	 * Might be not trustworthy.
 	 *
-	 * @param attributeName
-	 *            name of the authentication attribute
+	 * @param attributeName name of the authentication attribute
 	 * @return additional attribute value
 	 */
 	@Nullable
@@ -115,7 +113,7 @@ public interface Token extends UserDetails {
 
 	/**
 	 * Get the encoded authentication token, e.g. for token forwarding to another app.
-	 *
+	 * <p>
 	 * Never expose this token via log or via HTTP.
 	 *
 	 * @return token
@@ -125,18 +123,28 @@ public interface Token extends UserDetails {
 	/**
 	 * Exchange a token into a token from another service instance
 	 *
-	 * @param tokenRequest
-	 *            request data
-	 * @throws URISyntaxException
-	 *             in case of wron URLs
+	 * @param tokenRequest request data
 	 * @return requested token
+	 * @throws URISyntaxException in case of wron URLs
 	 */
 	String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException;
 
 	/**
-	 * Returns list of scopes with appId prefix, e.g. "&lt;my-xsapp!123&gt;.Display"
-	 * 
+	 * Returns list of scopes with appId prefix, e.g. "&lt;my-xsapp!123&gt;.Display".
+	 *
 	 * @return all scopes
 	 */
 	Collection<String> getScopes();
+
+	/**
+	 * Returns by default list of scopes {@link #getScopes()}.
+	 *
+	 * The default behavior can be adapted as part of
+	 * {@link com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter} class
+	 *
+	 * @return all authorities, e.g. scopes
+	 */
+	@Override
+	@Nullable
+	Collection<? extends GrantedAuthority> getAuthorities();
 }

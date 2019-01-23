@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,13 @@ package sample.spring.xsuaa;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
@@ -38,11 +42,27 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		// @formatter:off
-		http.authorizeRequests().antMatchers("/hello-token").hasAuthority("openid").
-		anyRequest().authenticated().and()
-				.oauth2ResourceServer().jwt()
-				.jwtAuthenticationConverter(new TokenAuthenticationConverter(xsuaaServiceConfiguration));
+		http
+			.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // session is created by approuter
+			.and()
+				.authorizeRequests()
+				.antMatchers("/hello-token").hasAuthority("openid")
+				.anyRequest().authenticated()
+			.and()
+				.oauth2ResourceServer()
+				.jwt()
+				.jwtAuthenticationConverter(getJwtAuthenticationConverter());
 		// @formatter:on
+	}
+
+	/**
+	 * Customizes how GrantedAuthority are derived from a Jwt
+	 */
+	Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
+		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
+//		converter.setLocalScopeAsAuthorities(true);
+		return converter;
 	}
 
 	@Bean
