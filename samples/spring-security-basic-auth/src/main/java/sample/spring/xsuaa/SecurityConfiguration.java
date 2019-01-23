@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,13 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
@@ -47,17 +50,29 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		TokenBrokerResolver tokenBrokerResolver = new TokenBrokerResolver(xsuaaServiceConfiguration, cacheManager.getCache("token"), AuthenticationMethod.BASIC);
+
 		// @formatter:off
-		http.authorizeRequests().antMatchers("/hello-token").hasAuthority("openid").
-			anyRequest().authenticated().and().
-				sessionManagement().
-				sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-			.oauth2ResourceServer()
+		http.authorizeRequests()
+				.antMatchers("/hello-token").hasAuthority("openid")
+				.anyRequest().authenticated()
+			.and()
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.and()
+				.oauth2ResourceServer()
 				.bearerTokenResolver(tokenBrokerResolver)
 				.jwt()
-				  .jwtAuthenticationConverter(new TokenAuthenticationConverter(xsuaaServiceConfiguration));
+				.jwtAuthenticationConverter(jwtAuthenticationConverter());
 		// @formatter:on
 	}
+
+	@Bean
+	Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
+		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
+//		converter.setLocalScopeAsAuthorities(true);
+		return converter;
+	}
+
 
 	@Bean
 	JwtDecoder jwtDecoder() {
@@ -65,7 +80,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	XsuaaServiceConfigurationDefault config() {
+	XsuaaServiceConfigurationDefault xsuaaConfig() {
 		return new XsuaaServiceConfigurationDefault();
 	}
 }

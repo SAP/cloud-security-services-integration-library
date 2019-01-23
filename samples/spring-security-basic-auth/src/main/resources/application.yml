@@ -1,9 +1,3 @@
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: 
 server:
   port: 9999
 debug: true  
