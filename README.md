@@ -4,7 +4,7 @@ Authentication services provided by the xsuaa service on [SAP Cloud Platform](ht
 ## Web Flow for Authentication
 Typical UI5 applications consist of a server providing the HTML content and one or more application serving REST APIs used by the application. Web application use the OAuth Authorization Code Flow for interactive authentication:
 1. A user accesses the web application using a browser or mobile device
-1. The web application (in typical SAP Cloud Platform applications, this is an approuter) acts as OAuth client and redirects to the OAuth server for authorization
+1. The web application (in typical SAP Cloud Platform applications, this is an application router) acts as OAuth client and redirects to the OAuth server for authorization
 1. Upon authentication, the web application uses the code issued by the authorization server to request an access token
 1. The web application uses the access token to request data from the OAuth resource server. The OAuth resource server validates the token using online or offline validation.
 
