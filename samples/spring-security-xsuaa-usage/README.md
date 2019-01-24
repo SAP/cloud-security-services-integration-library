@@ -1,9 +1,9 @@
 # Description
-This sample uses the SAP Approuter as web server and forwards requests to a Java Spring backend application running on the CF community Java buildpack.
-In a typcal UI5 application, the approuter would server HTML files and REST data would be provided by a backend application. To focus on the security part, UI5 has been omitted.
+This sample uses the SAP application router as a web server and forwards requests to a Java Spring back-end application running on the CF community Java buildpack.
+In a typcal UI5 application, the application router server HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
 
 # Coding
-This sample is using the spring-security project. As of version 5 of spring-security, this includes the OAuth resource-server functionality.The security configuration needs to configure JWT for authentication.
+This sample is using the spring-security project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure JWT for authentication.
 
 
 Configure the OAuth resource server by:
@@ -74,7 +74,7 @@ public Map<String, String> message(@AuthenticationPrincipal Token token) {
     return result;
 }
 ```
-# Deployment on Cloud Foundry or SAP HANA Advanced
+# Deployment on Cloud Foundry or SAP HANA XS Advanced
 To deploy the application, the following steps are required:
 - Download the approuter
 - Compile the Java application
@@ -83,7 +83,7 @@ To deploy the application, the following steps are required:
 - Deploy the application
 - Access the application
 
-## Download the approuter
+## Download the application router
 The [Application Router](./approuter/package.json) is used to provide a single entry point to a business application that consists of several different apps (microservices). It dispatches requests to backend microservices and acts as a reverse proxy. The rules that determine which request should be forwarded to which _destinations_ are called _routes_. The application router can be configured to authenticate the users and propagate the user information. Finally, the application router can serve static content.
 
 ## Compile the Java application
