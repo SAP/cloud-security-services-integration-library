@@ -109,4 +109,25 @@ public Map<String, String> message() {
 }
 ```
 
+> Note: make sure that you've imported the right Token: `com.sap.cloud.security.xsuaa.token.Token`.
 
+
+### Check authorization within a method
+
+```java
+@GetMapping(@AuthenticationPrincipal Token token)
+public ResponseEntity<YourDto> readAll() {
+    if (!token.getAuthorities().contains(new SimpleGrantedAuthority("Display"))) {
+        throw new NotAuthorizedException("This operation requires \"Display\" scope");
+    }
+}
+
+...
+
+@ResponseStatus(HttpStatus.FORBIDDEN) //set status code to '403'
+class NotAuthorizedException extends RuntimeException {
+    public NotAuthorizedException(String message) {
+        super(message);
+    }
+}
+```
