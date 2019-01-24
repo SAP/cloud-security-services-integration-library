@@ -1,6 +1,6 @@
 # Description
-This sample uses the SAP Approuter as web server and forwards requests to a Java backend application running on the SAP Java buildpack.
-In a typcal UI5 application, the approuter would server HTML files and REST data would be provided by a backend application. To focus on the security part, UI5 has been omitted.
+This sample uses the SAP application router as a web server and forwards requests to a Java back-end application running on the SAP Java buildpack.
+In a typcal UI5 application, the application router server HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
 
 # Coding
 The web.xml of the application must use auth-method with value XSUAA. This enables authentication of requests using incoming OAuth authentication tokens.
@@ -70,7 +70,7 @@ public class HelloTokenServlet extends HttpServlet {
 	}
 }
 ```
-# Deployment on Cloud Foundry or SAP HANA Advanced
+# Deployment on Cloud Foundry or SAP HANA XS Advanced
 To deploy the application, the following steps are required:
 - Download the approuter
 - Compile the Java application
@@ -78,7 +78,7 @@ To deploy the application, the following steps are required:
 - Configure the manifest
 - Deploy the application
 - Access the application
-## Download the approuter
+## Download the application router
 The [Application Router](./approuter/package.json) is used to provide a single entry point to a business application that consists of several different apps (microservices). It dispatches requests to backend microservices and acts as a reverse proxy. The rules that determine which request should be forwarded to which _destinations_ are called _routes_. The application router can be configured to authenticate the users and propagate the user information. Finally, the application router can serve static content.
 *  Run `npm install`
 
