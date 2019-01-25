@@ -25,8 +25,10 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 	}
 
 	/**
-	 * Overwrites the dispatcher used to match incoming requests to mock responses. The default dispatcher simply serves a fixed sequence of responses
-	 * from a queue; custom dispatchers can vary the response based on timing or the content of the request.
+	 * Overwrites the dispatcher used to match incoming requests to mock responses.
+	 * The default dispatcher simply serves a fixed sequence of responses from a
+	 * queue; custom dispatchers can vary the response based on timing or the
+	 * content of the request.
 	 *
 	 * @param dispatcher
 	 *            the dispatcher to be used
@@ -69,7 +71,8 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 		try {
 			mockWebServer.start();
 			this.started = true;
-			logger.warn(">>>>>>>>>>>Started Xsuaa mock Server that provides public keys for offline JWT Token validation. NEVER run in productive environment!<<<<<<");
+			logger.warn(
+					">>>>>>>>>>>Started Xsuaa mock Server that provides public keys for offline JWT Token validation. NEVER run in productive environment!<<<<<<");
 		} catch (IOException e) {
 			throw new RuntimeException("Could not start XSUAA mock webserver" + mockWebServer, e);
 		}

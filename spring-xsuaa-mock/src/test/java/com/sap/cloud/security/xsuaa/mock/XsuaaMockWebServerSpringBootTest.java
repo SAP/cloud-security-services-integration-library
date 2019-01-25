@@ -31,15 +31,18 @@ public class XsuaaMockWebServerSpringBootTest {
 
 	@Test
 	public void xsuaaMockStarted() throws URISyntaxException {
-		ResponseEntity<String> response = restTemplate.getForEntity(new URI(xsuaaMockServerUrl + "/token_keys"), String.class);
+		ResponseEntity<String> response = restTemplate.getForEntity(new URI(xsuaaMockServerUrl + "/token_keys"),
+				String.class);
 		Assert.assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
 		Assert.assertThat(response.getBody(), notNullValue());
 	}
 
 	@Test
 	public void xsuaaMockReturnsTestDomainTokenKeys() throws Exception {
-		ResponseEntity<String> response = restTemplate.getForEntity(new URI(xsuaaMockServerUrl + "/testdomain/token_keys"), String.class);
-		String testdomainTokenKeys = IOUtils.resourceToString("/mock/testdomain_token_keys.json", StandardCharsets.UTF_8);
+		ResponseEntity<String> response = restTemplate
+				.getForEntity(new URI(xsuaaMockServerUrl + "/testdomain/token_keys"), String.class);
+		String testdomainTokenKeys = IOUtils.resourceToString("/mock/testdomain_token_keys.json",
+				StandardCharsets.UTF_8);
 		Assert.assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
 		Assert.assertThat(response.getBody(), containsString("keys"));
 		Assert.assertThat(response.getBody(), containsString("legacy-token-key-testdomain"));
@@ -48,12 +51,14 @@ public class XsuaaMockWebServerSpringBootTest {
 
 	@Test(expected = HttpClientErrorException.class)
 	public void xsuaaMockReturnsNotFound() throws URISyntaxException {
-		ResponseEntity<String> response = restTemplate.getForEntity(new URI(xsuaaMockServerUrl + "/anyNotSupportedPath"), String.class);
+		ResponseEntity<String> response = restTemplate
+				.getForEntity(new URI(xsuaaMockServerUrl + "/anyNotSupportedPath"), String.class);
 	}
 
 	@Test
 	public void xsuaaMockReturnsCustomResponse() throws URISyntaxException {
-		ResponseEntity<String> response = restTemplate.getForEntity(new URI(xsuaaMockServerUrl + "/customdomain/token_keys"), String.class);
+		ResponseEntity<String> response = restTemplate
+				.getForEntity(new URI(xsuaaMockServerUrl + "/customdomain/token_keys"), String.class);
 		Assert.assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
 		Assert.assertThat(response.getBody(), containsString("legacy-token-key-customdomain"));
 	}
