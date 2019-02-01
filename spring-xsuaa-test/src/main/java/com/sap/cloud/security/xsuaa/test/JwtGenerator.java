@@ -22,7 +22,7 @@ import com.nimbusds.jwt.JWTParser;
  */
 public class JwtGenerator {
 
-	public static final Date NO_EXPIRE_DATE = new Date(Long.MAX_VALUE);
+	public static final Date NO_EXPIRE_DATE = new GregorianCalendar(2190, 12, 31).getTime();
 	public static final int NO_EXPIRE = Integer.MAX_VALUE;
 	public static final String CLIENT_ID = "sb-xsapplication!t895";
 	public static final String IDENTITY_ZONE_ID = "uaa"; // must be 'uaa' to make use of mockserver (see
