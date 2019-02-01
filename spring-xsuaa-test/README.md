@@ -22,12 +22,22 @@ This includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) 
 
 ## Configuration
 
-### Maven Dependency
+### Maven Dependencies
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa-test</artifactId>
     <version>1.2.0</version>
+</dependency>
+<dependency>
+    <groupId>commons-io</groupId>
+    <artifactId>commons-io</artifactId>
+    <version>2.6</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-oauth2-jose</artifactId>
+    <version>5.1.1.RELEASE</version>
 </dependency>
 ```
 
