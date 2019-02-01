@@ -25,17 +25,21 @@ public class JwtGenerator {
 	public static final Date NO_EXPIRE_DATE = new GregorianCalendar(2190, 12, 31).getTime();
 	public static final int NO_EXPIRE = Integer.MAX_VALUE;
 	public static final String CLIENT_ID = "sb-xsapplication!t895";
-	public static final String IDENTITY_ZONE_ID = "uaa"; // must be 'uaa' to make use of mockserver (see
+	public static final String AUD = "xsapplication";
+	// must be 'uaa' to make use of mockserver (see
 	// XsuaaServiceConfigurationDefault.getTokenKeyUrl)
+	public static final String IDENTITY_ZONE_ID = "uaa";
 	private static final String PRIVATE_KEY_FILE = "/privateKey.txt";
 	private final String clientId;
 	private final String identityZone;
-	private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:saml2-bearer"; // see
-	// TokenImpl.GRANTTYPE_SAML2BEARER;
+	// see TokenImpl.GRANTTYPE_SAML2BEARER;
+	private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	private String[] scopes;
 	private String userName = "testuser";
 	private String jwtHeaderKeyId;
 	public Map<String, List<String>> attributes = new HashMap<>();
+	private Map<String, Object> customClaims = new LinkedHashMap();
+	private boolean deriveAudiences = false;
 
 	/**
 	 * @param clientId
@@ -103,6 +107,31 @@ public class JwtGenerator {
 	}
 
 	/**
+	 * Adds additional custom claims.
+	 *
+	 * @param customClaims
+	 *            the claims that should be part of the token
+	 * @return the JwtGenerator itself
+	 */
+	public JwtGenerator addCustomClaims(Map<String, Object> customClaims) {
+		this.customClaims.putAll(customClaims);
+		return this;
+	}
+
+	/**
+	 * Derives audiences claim ("aud") from scopes. For example in case e.g.
+	 * "xsappid.scope".
+	 *
+	 * @param shallDeriveAudiences
+	 *            if true, audiences are automatically set
+	 * @return the JwtGenerator itself
+	 */
+	public JwtGenerator deriveAudiences(boolean shallDeriveAudiences) {
+		this.deriveAudiences = shallDeriveAudiences;
+		return this;
+	}
+
+	/**
 	 * Returns an encoded JWT token for the "Authorization" REST header
 	 *
 	 * @return jwt token String with "Bearer " prefix
@@ -127,11 +156,31 @@ public class JwtGenerator {
 
 		if (scopes != null && scopes.length > 0) {
 			claimsSetBuilder.claim("scope", scopes);
+			if (deriveAudiences) {
+				claimsSetBuilder.audience(deriveAudiencesFromScopes(scopes));
+			}
 		}
 		if (attributes.size() > 0) {
 			claimsSetBuilder.claim("xs.user.attributes", attributes);
 		}
+		for (Map.Entry<String, Object> customClaim : customClaims.entrySet()) {
+			claimsSetBuilder.claim(customClaim.getKey(), customClaim.getValue());
+		}
+
 		return createFromClaims(claimsSetBuilder.build().toString(), jwtHeaderKeyId);
+	}
+
+	private List<String> deriveAudiencesFromScopes(String[] scopes) {
+		List<String> audiences = new ArrayList<>();
+		for (String scope : scopes) {
+			if (scope.contains(".")) {
+				String aud = scope.substring(0, scope.indexOf("."));
+				if (!audiences.contains(aud)) {
+					audiences.add(aud);
+				}
+			}
+		}
+		return audiences;
 	}
 
 	/**

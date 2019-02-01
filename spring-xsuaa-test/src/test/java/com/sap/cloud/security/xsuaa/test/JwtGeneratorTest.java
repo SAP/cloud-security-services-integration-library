@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.startsWith;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
@@ -27,9 +28,10 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void testBasicJwtToken() {
-		Jwt jwt = new JwtGenerator().getToken();
+		Jwt jwt = new JwtGenerator().deriveAudiences(true).getToken();
 		assertThat(jwt.getClaimAsString("zid"), equalTo("uaa"));
 		assertThat(jwt.getExpiresAt(), not(equals(nullValue())));
+		assertThat(jwt.getAudience(), is(nullValue()));
 	}
 
 	@Test
@@ -98,5 +100,24 @@ public class JwtGeneratorTest {
 		Jwt jwtFromFile = JwtGenerator.createFromFile("/token_cc.txt");
 
 		assertThat(jwtTokenFromTemplate, equalTo(jwtFromFile.getTokenValue()));
+	}
+
+	@Test
+	public void testTokenWithCustomClaims() throws IOException {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("myCustomClaim", "myCustomClaimValue");
+		Jwt jwt = jwtGenerator.addCustomClaims(claims).getToken();
+
+		assertThat(jwt.getClaimAsString("myCustomClaim"), equalTo("myCustomClaimValue"));
+	}
+
+	@Test
+	public void testTokenWithAudienceClaims() throws IOException {
+
+		Jwt jwt = jwtGenerator.addScopes("openid", "app1.scope", "app2.sub.scope", "app2.scope").deriveAudiences(true).getToken();
+
+		assertThat(jwt.getAudience().size(), equalTo(2));
+		assertThat(jwt.getAudience(), hasItem("app1"));
+		assertThat(jwt.getAudience(), hasItem("app2"));
 	}
 }
