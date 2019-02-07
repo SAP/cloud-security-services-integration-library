@@ -12,7 +12,7 @@ This includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) 
 
  All of them are returned as [`Jwt`](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/oauth2/jwt/Jwt.html), which offers you a `getTokenValue()` method that returns the encoded and signed Jwt token. You need to prefix this one with `Bearer ` in case you like to provide it via `Authorization` header to your application.
 
- > In most cases the Jwt gets Base64 encoded and signed with this [private key](/src/main/resources/privateKey.txt).
+ > In most cases the Jwt gets Base64 encoded and signed with this [private key](src/main/resources/privateKey.txt).
 
 
 ## Requirements
@@ -43,3 +43,12 @@ This includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) 
 
 ## Usage
 Find examples on how to use the `JwtGenerator` [here](src/test/java/com/sap/cloud/security/xsuaa/test/JwtGeneratorTest.java).
+
+### Troubleshoot
+
+#### Jwt validation fails because of missing audience
+```
+DEBUG .o.s.r.w.BearerTokenAuthenticationFilter : Authentication request for failed: org.springframework.security.oauth2.core.OAuth2AuthenticationException: An error occurred while attempting to decode the Jwt: Missing audience
+```
+
+This can have different causes. The first one is obvious, your JWT token lacks of `aud` claim which contains the application names of the scopes. Make sure, that you've configured the `JwtGenerator` appropriately. Secondly make sure, that the xs application name, your scopes are prefixed with, is provided either via `VCAP_SERVICES` system environment variable or via properties e.g. `xsuaa.xsappname=xsapplication!t895`
