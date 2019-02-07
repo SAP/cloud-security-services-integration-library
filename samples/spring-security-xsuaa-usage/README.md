@@ -37,7 +37,7 @@ XsuaaServiceConfigurationDefault xsuaaServiceConfiguration;
         // @formatter:on
     }
     
-    Converter<Jwt, AbstractAuthenticationToken> getJwtAuthoritiesConverter() {
+    Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
         TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
         converter.setLocalScopeAsAuthorities(true);
         return converter;
