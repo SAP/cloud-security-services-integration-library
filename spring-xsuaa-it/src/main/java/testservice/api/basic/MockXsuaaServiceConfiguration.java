@@ -10,6 +10,7 @@ public class MockXsuaaServiceConfiguration implements XsuaaServiceConfiguration 
 	String url;
 	private String appId;
 	private String uaadomain;
+
 	public MockXsuaaServiceConfiguration(String url, String appId) throws MalformedURLException {
 		this.url = url;
 		this.appId = appId;
@@ -18,7 +19,7 @@ public class MockXsuaaServiceConfiguration implements XsuaaServiceConfiguration 
 
 	@Override
 	public String getClientId() {
-		return "sb-"+appId;
+		return "sb-" + appId;
 	}
 
 	@Override

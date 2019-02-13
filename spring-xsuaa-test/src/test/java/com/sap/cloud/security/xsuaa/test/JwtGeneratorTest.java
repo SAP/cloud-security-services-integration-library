@@ -114,7 +114,8 @@ public class JwtGeneratorTest {
 	@Test
 	public void testTokenWithAudienceClaims() throws IOException {
 
-		Jwt jwt = jwtGenerator.addScopes("openid", "app1.scope", "app2.sub.scope", "app2.scope").deriveAudiences(true).getToken();
+		Jwt jwt = jwtGenerator.addScopes("openid", "app1.scope", "app2.sub.scope", "app2.scope").deriveAudiences(true)
+				.getToken();
 
 		assertThat(jwt.getAudience().size(), equalTo(2));
 		assertThat(jwt.getAudience(), hasItem("app1"));

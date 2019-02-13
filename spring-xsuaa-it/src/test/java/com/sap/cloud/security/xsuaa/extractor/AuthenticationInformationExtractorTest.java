@@ -55,7 +55,8 @@ public class AuthenticationInformationExtractorTest {
 	}
 
 	/**
-	 * Test method for {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(javax.servlet.http.HttpServletRequest)}.
+	 * Test method for
+	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(javax.servlet.http.HttpServletRequest)}.
 	 */
 	@Test(expected = RuntimeException.class)
 	public void getSubdomainWithoutRequest() {
@@ -64,7 +65,8 @@ public class AuthenticationInformationExtractorTest {
 	}
 
 	/**
-	 * Test method for {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(javax.servlet.http.HttpServletRequest)}.
+	 * Test method for
+	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(javax.servlet.http.HttpServletRequest)}.
 	 */
 	@Test
 	public void withoutSubdomainParameters() {
@@ -72,10 +74,9 @@ public class AuthenticationInformationExtractorTest {
 		assertThat(subdomain).isEmpty();
 	}
 
-
-
 	/**
-	 * Test method for {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(javax.servlet.http.HttpServletRequest)}.
+	 * Test method for
+	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(javax.servlet.http.HttpServletRequest)}.
 	 */
 	@Test
 	public void validSubDomain() {
@@ -86,7 +87,8 @@ public class AuthenticationInformationExtractorTest {
 	}
 
 	/**
-	 * Test method for {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getAuthenticationMethods(javax.servlet.http.HttpServletRequest)}.
+	 * Test method for
+	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getAuthenticationMethods(javax.servlet.http.HttpServletRequest)}.
 	 */
 	@Test
 	public void getAuthenticationMethods() {

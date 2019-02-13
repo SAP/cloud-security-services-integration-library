@@ -6,7 +6,6 @@ package com.sap.cloud.security.xsuaa.extractor;
  */
 public interface TokenBroker {
 
-
 	/**
 	 * Exchange clientid, client secret against a OAuth token
 	 * 
@@ -20,8 +19,8 @@ public interface TokenBroker {
 	 * @throws TokenBrokerException
 	 *             TokenBrokerException
 	 */
-	public String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret) throws TokenBrokerException;
-
+	public String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret)
+			throws TokenBrokerException;
 
 	/**
 	 * Exchange username, password, client id, client secret against a token
@@ -40,6 +39,7 @@ public interface TokenBroker {
 	 * @throws TokenBrokerException
 	 *             TokenBrokerException
 	 */
-	public String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret, String username, String password) throws TokenBrokerException;
+	public String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret,
+			String username, String password) throws TokenBrokerException;
 
 }

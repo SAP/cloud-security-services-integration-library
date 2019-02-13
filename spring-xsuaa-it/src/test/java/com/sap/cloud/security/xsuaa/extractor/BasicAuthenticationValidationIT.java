@@ -41,33 +41,46 @@ public class BasicAuthenticationValidationIT {
 
 	@Test
 	public void testToken_testdomain() throws Exception {
-		SecurityConfiguration.tokenBrokerResolver.setAuthenticationConfig(new DefaultAuthenticationInformationExtractor(AuthenticationMethod.OAUTH2));
+		SecurityConfiguration.tokenBrokerResolver
+				.setAuthenticationConfig(new DefaultAuthenticationInformationExtractor(AuthenticationMethod.OAUTH2));
 
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain")))).andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain")))).andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
+				.andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
+				.andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
 	}
 
 	@Test
 	public void testToken_testdomain_basic() throws Exception {
-		SecurityConfiguration.tokenBrokerResolver.setAuthenticationConfig(new DefaultAuthenticationInformationExtractor(AuthenticationMethod.BASIC));
-		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.user", "basic.password"))).andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
-		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.user", "basic.password"))).andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
- 		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.2user","basic.password"))).andExpect(status().is4xxClientError());
-		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.user","basic.2password"))).andExpect(status().is4xxClientError());
+		SecurityConfiguration.tokenBrokerResolver
+				.setAuthenticationConfig(new DefaultAuthenticationInformationExtractor(AuthenticationMethod.BASIC));
+		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.user", "basic.password")))
+				.andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
+		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.user", "basic.password")))
+				.andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
+		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.2user", "basic.password")))
+				.andExpect(status().is4xxClientError());
+		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.user", "basic.2password")))
+				.andExpect(status().is4xxClientError());
 
 	}
 
 	@Test
 	public void testToken_testdomain_client_credentials() throws Exception {
-		SecurityConfiguration.tokenBrokerResolver.setAuthenticationConfig(new DefaultAuthenticationInformationExtractor(AuthenticationMethod.CLIENT_CREDENTIALS));
-		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("sb-java-hello-world", "basic.clientsecret"))).andExpect(status().isOk()).andExpect(content().string(containsString("client/sb-java-hello-world")));
+		SecurityConfiguration.tokenBrokerResolver.setAuthenticationConfig(
+				new DefaultAuthenticationInformationExtractor(AuthenticationMethod.CLIENT_CREDENTIALS));
+		this.mvc.perform(
+				get("/user").with(new BasicTokenRequestPostProcessor("sb-java-hello-world", "basic.clientsecret")))
+				.andExpect(status().isOk()).andExpect(content().string(containsString("client/sb-java-hello-world")));
 
 	}
 
 	@Test
 	public void testToken_testdomain_basic_fail() throws Exception {
-		SecurityConfiguration.tokenBrokerResolver.setAuthenticationConfig(new DefaultAuthenticationInformationExtractor(AuthenticationMethod.OAUTH2));
-		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.user", "basic.password"))).andExpect(status().is4xxClientError());
+		SecurityConfiguration.tokenBrokerResolver
+				.setAuthenticationConfig(new DefaultAuthenticationInformationExtractor(AuthenticationMethod.OAUTH2));
+		this.mvc.perform(get("/user").with(new BasicTokenRequestPostProcessor("basic.user", "basic.password")))
+				.andExpect(status().is4xxClientError());
 	}
 
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {

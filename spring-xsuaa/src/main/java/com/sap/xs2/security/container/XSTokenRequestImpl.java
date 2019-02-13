@@ -39,7 +39,8 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 	 * 
 	 * @param uaabaseUrl
 	 *            - uaa base url
-	 * @throws URISyntaxException when uaabaseUrl could not be parsed as URI
+	 * @throws URISyntaxException
+	 *             when uaabaseUrl could not be parsed as URI
 	 */
 	public XSTokenRequestImpl(String uaabaseUrl) throws URISyntaxException {
 		this.tokenEndpoint = new URI(uaabaseUrl + "/oauth/token");
@@ -120,7 +121,8 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 	 * @return this mutable object
 	 */
 	public XSTokenRequest setAdditionalAuthorizationAttributes(Map<String, String> additionalAuthorizationAttributes) {
-		this.additionalAuthorizationAttributes = (additionalAuthorizationAttributes == null) ? null : new HashMap<>(additionalAuthorizationAttributes);
+		this.additionalAuthorizationAttributes = (additionalAuthorizationAttributes == null) ? null
+				: new HashMap<>(additionalAuthorizationAttributes);
 		return this;
 	}
 

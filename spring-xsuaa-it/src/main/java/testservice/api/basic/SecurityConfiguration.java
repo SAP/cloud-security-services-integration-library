@@ -34,15 +34,15 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
 import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
 @Profile({ "test.api.basic" })
 @EnableWebSecurity
 @EnableCaching
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	public static TokenBrokerResolver tokenBrokerResolver; //make static for tests
+	public static TokenBrokerResolver tokenBrokerResolver; // make static for tests
 
 	@Value("${mockxsuaaserver.url}")
 	String mockServerUrl;
@@ -52,7 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		tokenBrokerResolver =  new TokenBrokerResolver(getXsuaaServiceConfiguration(), cacheManager.getCache("token"),
+		tokenBrokerResolver = new TokenBrokerResolver(getXsuaaServiceConfiguration(), cacheManager.getCache("token"),
 				AuthenticationMethod.BASIC);
 		// @formatter:off
 		http.authorizeRequests()
@@ -68,7 +68,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(getXsuaaServiceConfiguration());
 		return converter;
 	}
-
 
 	@Bean
 	XsuaaServiceConfiguration getXsuaaServiceConfiguration() throws MalformedURLException {

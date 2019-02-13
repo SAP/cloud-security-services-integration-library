@@ -13,10 +13,9 @@ public class UserInfoTestEndUser {
 	@Before
 	public void setup() throws Exception {
 		correctEnduserInfo = UserInfoTestUtil.createFromJwtFile("/correctEndUserToken.txt", "java-hello-world");
-		correctEnduserInfoWithUaaUser = UserInfoTestUtil.createFromJwtFile("/correctEndUserTokenUaaUser.txt", "java-hello-world");
+		correctEnduserInfoWithUaaUser = UserInfoTestUtil.createFromJwtFile("/correctEndUserTokenUaaUser.txt",
+				"java-hello-world");
 	}
-
-
 
 	@Test(expected = UserInfoException.class)
 	public void requestTokenForClientTestNoUaaUserScope() throws XSUserInfoException {

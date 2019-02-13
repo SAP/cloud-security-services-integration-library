@@ -22,7 +22,8 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 /**
- * Class providing access to common user related attributes extracted from the JWT token.
+ * Class providing access to common user related attributes extracted from the
+ * JWT token.
  *
  */
 public class UserInfo implements XSUserInfo {
@@ -54,7 +55,6 @@ public class UserInfo implements XSUserInfo {
 	public static final String GRANTTYPE_USERTOKEN = "user_token";
 	public static final String EXTERNAL_CONTEXT = "ext_ctx";
 
-
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private String xsappname = null;
@@ -82,7 +82,8 @@ public class UserInfo implements XSUserInfo {
 	@Override
 	public String getLogonName() throws UserInfoException {
 		if (getGrantType().equals(GRANTTYPE_CLIENTCREDENTIAL)) {
-			throw new UserInfoException("Method getLogonName is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
+			throw new UserInfoException(
+					"Method getLogonName is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
 		}
 		return getJsonValueInternal(USER_NAME);
 	}
@@ -97,7 +98,8 @@ public class UserInfo implements XSUserInfo {
 	@Override
 	public String getGivenName() throws UserInfoException {
 		if (getGrantType().equals(GRANTTYPE_CLIENTCREDENTIAL)) {
-			throw new UserInfoException("Method getGivenName is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
+			throw new UserInfoException(
+					"Method getGivenName is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
 		}
 		return getExternalAttributeWithFallback(GIVEN_NAME);
 	}
@@ -112,7 +114,8 @@ public class UserInfo implements XSUserInfo {
 	@Override
 	public String getFamilyName() throws UserInfoException {
 		if (getGrantType().equals(GRANTTYPE_CLIENTCREDENTIAL)) {
-			throw new UserInfoException("Method getFamilyName is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
+			throw new UserInfoException(
+					"Method getFamilyName is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
 		}
 		return getExternalAttributeWithFallback(FAMILY_NAME);
 	}
@@ -198,7 +201,8 @@ public class UserInfo implements XSUserInfo {
 	@Override
 	public String getEmail() throws UserInfoException {
 		if (getGrantType().equals(GRANTTYPE_CLIENTCREDENTIAL)) {
-			throw new UserInfoException("Method getEmail is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
+			throw new UserInfoException(
+					"Method getEmail is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
 		}
 		return getJsonValueInternal(EMAIL);
 	}
@@ -253,7 +257,11 @@ public class UserInfo implements XSUserInfo {
 	@Override
 	public String getToken(String namespace, String name) throws UserInfoException {
 		if (!(getGrantType().equals(GRANTTYPE_CLIENTCREDENTIAL)) && hasAttributes() && isInForeignMode()) {
-			throw new UserInfoException("The SecurityContext has been initialized with an access token of a\n" + "foreign OAuth Client Id and/or Identity Zone. Furthermore, the\n" + "access token contains attributes. Due to the fact that we want to\n" + "restrict attribute access to the application that provided the \n" + "attributes, the getToken function does not return a valid token");
+			throw new UserInfoException("The SecurityContext has been initialized with an access token of a\n"
+					+ "foreign OAuth Client Id and/or Identity Zone. Furthermore, the\n"
+					+ "access token contains attributes. Due to the fact that we want to\n"
+					+ "restrict attribute access to the application that provided the \n"
+					+ "attributes, the getToken function does not return a valid token");
 		}
 		if (!namespace.equals(SYSTEM)) {
 			throw new UserInfoException("Invalid namespace " + namespace);
@@ -261,7 +269,8 @@ public class UserInfo implements XSUserInfo {
 		if (name.equals(HDB)) {
 			String token = null;
 			if (this.jwt.getClaimAsMap(EXTERNAL_CONTEXT) != null)
-				token = ((net.minidev.json.JSONObject) this.jwt.getClaimAsMap(EXTERNAL_CONTEXT)).getAsString(HDB_NAMEDUSER_SAML);
+				token = ((net.minidev.json.JSONObject) this.jwt.getClaimAsMap(EXTERNAL_CONTEXT))
+						.getAsString(HDB_NAMEDUSER_SAML);
 			else
 				token = getJsonValueInternal(HDB_NAMEDUSER_SAML);
 
@@ -283,7 +292,8 @@ public class UserInfo implements XSUserInfo {
 	@Override
 	public String[] getAttribute(String attributeName) throws UserInfoException {
 		if (getGrantType().equals(GRANTTYPE_CLIENTCREDENTIAL)) {
-			throw new UserInfoException("Method getAttribute is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
+			throw new UserInfoException(
+					"Method getAttribute is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
 		}
 		return getMultiValueAttributeFromExtObject(attributeName, XS_USER_ATTRIBUTES);
 	}
@@ -298,7 +308,8 @@ public class UserInfo implements XSUserInfo {
 	@Override
 	public boolean hasAttributes() throws UserInfoException {
 		if (getGrantType().equals(GRANTTYPE_CLIENTCREDENTIAL)) {
-			throw new UserInfoException("Method hasAttributes is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
+			throw new UserInfoException(
+					"Method hasAttributes is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
 		}
 
 		Map<String, Object> attributeData;
@@ -359,7 +370,8 @@ public class UserInfo implements XSUserInfo {
 	@Override
 	public boolean checkLocalScope(String scope) throws UserInfoException {
 		if (xsappname == null) {
-			throw new UserInfoException("Property xsappname not found in VCAP_SERVICES, must be declared in xs-security.json");
+			throw new UserInfoException(
+					"Property xsappname not found in VCAP_SERVICES, must be declared in xs-security.json");
 		}
 		return checkScope(xsappname + "." + scope);
 	}
@@ -417,7 +429,8 @@ public class UserInfo implements XSUserInfo {
 		return data;
 	}
 
-	private String[] getMultiValueAttributeFromExtObject(String attributeName, String objectName) throws UserInfoException {
+	private String[] getMultiValueAttributeFromExtObject(String attributeName, String objectName)
+			throws UserInfoException {
 		String[] attributeValues = null;
 		if (jwt.containsClaim(EXTERNAL_CONTEXT)) {
 			JSONObject jsonExtern = (JSONObject) jwt.getClaimAsMap(EXTERNAL_CONTEXT);
@@ -435,7 +448,8 @@ public class UserInfo implements XSUserInfo {
 		return attributeValues;
 	}
 
-	private String[] getMultiValueAttributeFromObject(String attributeName, String objectName) throws UserInfoException {
+	private String[] getMultiValueAttributeFromObject(String attributeName, String objectName)
+			throws UserInfoException {
 		String[] attributeValues = new String[0];
 		Map<String, Object> jsonObject = jwt.getClaimAsMap(objectName);
 		if (jsonObject == null) {
@@ -462,7 +476,8 @@ public class UserInfo implements XSUserInfo {
 	@Override
 	public String getOrigin() throws UserInfoException {
 		if (getGrantType().equals(GRANTTYPE_CLIENTCREDENTIAL)) {
-			throw new UserInfoException("Method getOrigin is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
+			throw new UserInfoException(
+					"Method getOrigin is not supported for grant type " + GRANTTYPE_CLIENTCREDENTIAL);
 		}
 		return getJsonValueInternal(ORIGIN);
 	}
@@ -485,7 +500,8 @@ public class UserInfo implements XSUserInfo {
 			}
 			authorities = azStringBuilder.toString();
 		}
-		// check whether token endpoint has the correct subdomain, if not replace it with the subdomain of the token
+		// check whether token endpoint has the correct subdomain, if not replace it
+		// with the subdomain of the token
 		String tokenSubdomain = getSubdomain();
 		String tokenRequestSubdomain = getSubdomain(tokenRequest.getTokenEndpoint().toString());
 		if (tokenSubdomain != null && tokenRequestSubdomain != null && !tokenSubdomain.equals(tokenRequestSubdomain)) {
@@ -494,7 +510,8 @@ public class UserInfo implements XSUserInfo {
 		// request the token based on the type
 		switch (tokenRequest.getType()) {
 		case XSTokenRequest.TYPE_USER_TOKEN:
-			return requestTokenNamedUser(tokenRequest.getClientId(), tokenRequest.getClientSecret(), tokenRequest.getTokenEndpoint().toString(), authorities);
+			return requestTokenNamedUser(tokenRequest.getClientId(), tokenRequest.getClientSecret(),
+					tokenRequest.getTokenEndpoint().toString(), authorities);
 		case XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN:
 			return requestTokenTechnicalUser(tokenRequest, authorities);
 		default:
@@ -503,9 +520,11 @@ public class UserInfo implements XSUserInfo {
 	}
 
 	private String requestTokenTechnicalUser(XSTokenRequest tokenRequest, String authorities) throws UserInfoException {
-		// note: consistency checks (clientid, clientsecret and url) have already been executed
+		// note: consistency checks (clientid, clientsecret and url) have already been
+		// executed
 		// build uri for client credentials flow
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenRequest.getTokenEndpoint()).queryParam("grant_type", "client_credentials");
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenRequest.getTokenEndpoint())
+				.queryParam("grant_type", "client_credentials");
 		if (authorities != null) {
 			builder.queryParam("authorities", authorities);
 		}
@@ -520,15 +539,19 @@ public class UserInfo implements XSUserInfo {
 		RestTemplate rt = new RestTemplate();
 		ResponseEntity<Map> responseEntity = rt.postForEntity(builder.build().encode().toUri(), entity, Map.class);
 		if (responseEntity.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-			throw new UserInfoException("Call to /oauth/token was not successful (grant_type: client_credentials). Client credentials invalid");
+			throw new UserInfoException(
+					"Call to /oauth/token was not successful (grant_type: client_credentials). Client credentials invalid");
 		}
 		if (responseEntity.getStatusCode() != HttpStatus.OK) {
-			throw new UserInfoException("Call to /oauth/token was not successful (grant_type: client_credentials). HTTP status code: " + responseEntity.getStatusCode());
+			throw new UserInfoException(
+					"Call to /oauth/token was not successful (grant_type: client_credentials). HTTP status code: "
+							+ responseEntity.getStatusCode());
 		}
 		return responseEntity.getBody().get("access_token").toString();
 	}
 
-	private String requestTokenNamedUser(String serviceClientId, String serviceClientSecret, String serviceUaaUrl, String authorities) throws UserInfoException {
+	private String requestTokenNamedUser(String serviceClientId, String serviceClientSecret, String serviceUaaUrl,
+			String authorities) throws UserInfoException {
 		// consistency checks
 		if (serviceClientId == null || serviceClientSecret == null) {
 			throw new UserInfoException("Invalid service credentials: Missing clientid/clientsecret.");
@@ -540,7 +563,9 @@ public class UserInfo implements XSUserInfo {
 			throw new UserInfoException("JWT token does not include scope 'uaa.user'.");
 		}
 		// build uri for user token flow
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl).queryParam("grant_type", "user_token").queryParam("response_type", "token").queryParam("client_id", serviceClientId);
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl)
+				.queryParam("grant_type", "user_token").queryParam("response_type", "token")
+				.queryParam("client_id", serviceClientId);
 		if (authorities != null) {
 			builder.queryParam("authorities", authorities);
 		}
@@ -553,15 +578,19 @@ public class UserInfo implements XSUserInfo {
 		RestTemplate rt = new RestTemplate();
 		ResponseEntity<Map> responseEntity = rt.postForEntity(builder.build().encode().toUri(), entity, Map.class);
 		if (responseEntity.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-			throw new UserInfoException("Call to /oauth/token was not successful (grant_type: user_token). Bearer token invalid, requesting client does not have grant_type=user_token or no scopes were granted.");
+			throw new UserInfoException(
+					"Call to /oauth/token was not successful (grant_type: user_token). Bearer token invalid, requesting client does not have grant_type=user_token or no scopes were granted.");
 
 		}
 		if (responseEntity.getStatusCode() != HttpStatus.OK) {
-			throw new UserInfoException("Call to /oauth/token was not successful (grant_type: user_token). HTTP status code: " + responseEntity.getStatusCode());
+			throw new UserInfoException(
+					"Call to /oauth/token was not successful (grant_type: user_token). HTTP status code: "
+							+ responseEntity.getStatusCode());
 
 		}
 		// build uri for refresh token flow
-		builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl).queryParam("grant_type", "refresh_token").queryParam("refresh_token", responseEntity.getBody().get("refresh_token").toString());
+		builder = UriComponentsBuilder.fromHttpUrl(serviceUaaUrl).queryParam("grant_type", "refresh_token")
+				.queryParam("refresh_token", responseEntity.getBody().get("refresh_token").toString());
 		// build http headers
 		headers.clear();
 		String credentials = serviceClientId + ":" + serviceClientSecret;
@@ -572,16 +601,20 @@ public class UserInfo implements XSUserInfo {
 		// request the token
 		responseEntity = rt.postForEntity(builder.build().encode().toUri(), entity, Map.class);
 		if (responseEntity.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-			throw new UserInfoException("Call to /oauth/token was not successful (grant_type: refresh_token). Client credentials invalid");
+			throw new UserInfoException(
+					"Call to /oauth/token was not successful (grant_type: refresh_token). Client credentials invalid");
 		}
 		if (responseEntity.getStatusCode() != HttpStatus.OK) {
-			throw new UserInfoException("Call to /oauth/token was not successful (grant_type: refresh_token). HTTP status code: " + responseEntity.getStatusCode());
+			throw new UserInfoException(
+					"Call to /oauth/token was not successful (grant_type: refresh_token). HTTP status code: "
+							+ responseEntity.getStatusCode());
 		}
 		return responseEntity.getBody().get("access_token").toString();
 	}
 
 	@Deprecated
-	public String requestTokenForClient(String serviceClientId, String serviceClientSecret, String serviceUaaUrl) throws UserInfoException {
+	public String requestTokenForClient(String serviceClientId, String serviceClientSecret, String serviceUaaUrl)
+			throws UserInfoException {
 		String url = serviceUaaUrl != null ? serviceUaaUrl + "/oauth/token" : null;
 		return requestTokenNamedUser(serviceClientId, serviceClientSecret, url, null);
 	}
@@ -615,7 +648,9 @@ public class UserInfo implements XSUserInfo {
 		if (uri == null || subdomain == null || !uri.getHost().contains(".")) {
 			return null;
 		}
-		UriComponentsBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme()).host(subdomain + uri.getHost().substring(uri.getHost().indexOf("."))).port(uri.getPort()).path(uri.getPath());
+		UriComponentsBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme())
+				.host(subdomain + uri.getHost().substring(uri.getHost().indexOf("."))).port(uri.getPort())
+				.path(uri.getPath());
 		return uri.resolve(builder.build().toString());
 	}
 
