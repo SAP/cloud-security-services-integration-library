@@ -26,12 +26,11 @@ public class JwtGenerator {
 	public static final int NO_EXPIRE = Integer.MAX_VALUE;
 	public static final String CLIENT_ID = "sb-xsapplication!t895";
 	public static final String AUD = "xsapplication";
-	// must be 'uaa' to make use of mockserver (see
-	// XsuaaServiceConfigurationDefault.getTokenKeyUrl)
-	public static final String IDENTITY_ZONE_ID = "uaa";
+	public static final String DEFAULT_IDENTITY_ZONE_ID = "uaa";
 	private static final String PRIVATE_KEY_FILE = "/privateKey.txt";
 	private final String clientId;
-	private final String identityZone;
+	private String identityZoneId;
+	private String subdomain = "";
 	// see TokenImpl.GRANTTYPE_SAML2BEARER;
 	private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	private String[] scopes;
@@ -42,12 +41,36 @@ public class JwtGenerator {
 	private boolean deriveAudiences = false;
 
 	/**
-	 * @param clientId
-	 *            the client ID that will be used for any created token
+	 * Specifies clientId of the JWT token claim.
+	 *
+	 * @param clientId,
+	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
+	 *            value of the JWT token claims "client_id" and "cid". A token is
+	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
+	 *            service configuration (VCAP_SERVICES).
 	 */
 	public JwtGenerator(String clientId) {
 		this.clientId = clientId;
-		this.identityZone = IDENTITY_ZONE_ID;
+		this.identityZoneId = DEFAULT_IDENTITY_ZONE_ID;
+	}
+
+	/**
+	 * Overwrites some default values of the JWT token claims.
+	 *
+	 * @param clientId
+	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
+	 *            value of the JWT token claims "client_id" and "cid". A token is
+	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
+	 *            service configuration (VCAP_SERVICES).
+	 * @param subdomain
+	 *            of the subaccount, e.g. d012345trial. This defines the value of
+	 *            the claim "zdn". Furthermore the identity-zone-id claim "zid" is
+	 *            derived from that.
+	 */
+	public JwtGenerator(String clientId, String subdomain) {
+		this.clientId = clientId;
+		this.subdomain = subdomain;
+		this.identityZoneId = subdomain + "-id";
 	}
 
 	public JwtGenerator() {
@@ -186,12 +209,20 @@ public class JwtGenerator {
 	/**
 	 * Creates a Jwt from a template file, which contains the claims. Optionally,
 	 * configure the "keyId" header via {@link #setJwtHeaderKeyId(String)}
-	 * <p>
-	 * This replaces these placeholders - "$exp" with a date, that will not expire -
-	 * "$clientid" with the configured client id {@link #JwtGenerator(String)} -
-	 * "$zid" with "uaa" - "$username" with the configured user name
-	 * {@link #setUserName(String)}
-	 *
+	 * 
+	 * This replaces these placeholders:
+	 * <ul>
+	 * <li>"$exp" with a date, that will not expire</li>
+	 * <li>"$clientid" with the configured client id
+	 * {@link #JwtGenerator(String)}</li>
+	 * <li>"$zdn" with the configured subdomain
+	 * {@link #JwtGenerator(String, String)}</li>
+	 * <li>"$zid" with "uaa" or with the configured subdomain
+	 * {@link #JwtGenerator(String,String)}</li>
+	 * <li>"$username" with the configured user name {@link #setUserName(String)}
+	 * </li>
+	 * </ul>
+	 * 
 	 * @param pathToTemplate
 	 *            classpath resource
 	 * @return a jwt
@@ -238,12 +269,13 @@ public class JwtGenerator {
 				.issueTime(new Date())
 				.expirationTime(JwtGenerator.NO_EXPIRE_DATE)
 				.claim("client_id", clientId)
-				.claim("origin", "userIdp")
 				.claim("cid", clientId)
+				.claim("origin", "userIdp")
 				.claim("user_name", userName)
 				.claim("user_id", "D012345")
 				.claim("email", userName + "@test.org")
-				.claim("zid", identityZone)
+				.claim("zdn", subdomain)
+				.claim("zid", identityZoneId)
 				.claim("grant_type", GRANT_TYPE);
 	}
 
@@ -255,7 +287,8 @@ public class JwtGenerator {
 	private String replacePlaceholders(String claims) {
 		claims = claims.replace("$exp", String.valueOf(NO_EXPIRE));
 		claims = claims.replace("$clientid", clientId);
-		claims = claims.replace("$zid", identityZone);
+		claims = claims.replace("$zdn", subdomain);
+		claims = claims.replace("$zid", identityZoneId);
 		claims = claims.replace("$username", userName);
 
 		return claims;

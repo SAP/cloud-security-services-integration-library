@@ -4,6 +4,7 @@ import static com.sap.cloud.security.xsuaa.test.TestConstants.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.startsWith;
 
 import java.io.IOException;
@@ -18,18 +19,20 @@ import net.minidev.json.JSONArray;
 
 public class JwtGeneratorTest {
 	private JwtGenerator jwtGenerator;
-	private static final String MY_CLIENT_ID = "client Id";
+	private static final String MY_CLIENT_ID = "sb-clientId!20";
 	private static final String MY_USER_NAME = "UserName";
+	private static final String MY_SUBDOMAIN = "my-subaccount-subdomain";
 
 	@Before
 	public void setUp() {
-		jwtGenerator = new JwtGenerator(MY_CLIENT_ID);
+		jwtGenerator = new JwtGenerator(MY_CLIENT_ID, MY_SUBDOMAIN);
 	}
 
 	@Test
 	public void testBasicJwtToken() {
 		Jwt jwt = new JwtGenerator().deriveAudiences(true).getToken();
-		assertThat(jwt.getClaimAsString("zid"), equalTo("uaa"));
+		assertThat(jwt.getClaimAsString("zid"), equalTo(JwtGenerator.DEFAULT_IDENTITY_ZONE_ID));
+		assertThat(jwt.getClaimAsString("zdn"), isEmptyString());
 		assertThat(jwt.getExpiresAt(), not(equals(nullValue())));
 		assertThat(jwt.getAudience(), is(nullValue()));
 	}
@@ -39,7 +42,9 @@ public class JwtGeneratorTest {
 		jwtGenerator.setUserName(MY_USER_NAME);
 		Jwt jwt = jwtGenerator.getToken();
 		assertThat(jwt.getClaimAsString("client_id"), equalTo(MY_CLIENT_ID));
-		assertThat(jwt.getClaimAsString("zid"), equalTo(JwtGenerator.IDENTITY_ZONE_ID));
+		assertThat(jwt.getClaimAsString("cid"), equalTo(MY_CLIENT_ID));
+		assertThat(jwt.getClaimAsString("zid"), startsWith(MY_SUBDOMAIN));
+		assertThat(jwt.getClaimAsString("zdn"), equalTo(MY_SUBDOMAIN));
 		assertThat(jwt.getClaimAsString("user_name"), equalTo(MY_USER_NAME));
 		assertThat(jwt.getClaimAsString("email"), startsWith(MY_USER_NAME));
 		assertThat(jwt.getExpiresAt(), not(equals(nullValue())));
@@ -82,7 +87,8 @@ public class JwtGeneratorTest {
 		Jwt jwt = jwtGenerator.createFromTemplate("/claims_template.txt");
 
 		assertThat(jwt.getClaimAsString("client_id"), equalTo(MY_CLIENT_ID));
-		assertThat(jwt.getClaimAsString("zid"), equalTo(JwtGenerator.IDENTITY_ZONE_ID));
+		assertThat(jwt.getClaimAsString("zid"), startsWith(MY_SUBDOMAIN));
+		assertThat(jwt.getClaimAsString("zdn"), equalTo(MY_SUBDOMAIN));
 		assertThat(jwt.getClaimAsString("user_name"), equalTo(MY_USER_NAME));
 		assertThat(jwt.getClaimAsString("email"), startsWith(MY_USER_NAME));
 

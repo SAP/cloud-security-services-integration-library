@@ -16,9 +16,9 @@
 package testservice.api.basic;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -34,25 +34,23 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
 import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
+import com.sap.cloud.security.xsuaa.mock.MockXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
 @Profile({ "test.api.basic" })
 @EnableWebSecurity
 @EnableCaching
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	public static TokenBrokerResolver tokenBrokerResolver; //make static for tests
-
-	@Value("${mockxsuaaserver.url}")
-	String mockServerUrl;
+	public static TokenBrokerResolver tokenBrokerResolver; // make static for tests
 
 	@Autowired
 	CacheManager cacheManager;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		tokenBrokerResolver =  new TokenBrokerResolver(getXsuaaServiceConfiguration(), cacheManager.getCache("token"),
+		tokenBrokerResolver = new TokenBrokerResolver(getXsuaaServiceConfiguration(), cacheManager.getCache("token"),
 				AuthenticationMethod.BASIC);
 		// @formatter:off
 		http.authorizeRequests()
@@ -69,14 +67,30 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return converter;
 	}
 
-
 	@Bean
-	XsuaaServiceConfiguration getXsuaaServiceConfiguration() throws MalformedURLException {
-		return new MockXsuaaServiceConfiguration(mockServerUrl, "java-hello-world");
+	XsuaaServiceConfiguration getXsuaaServiceConfiguration() {
+		return new MySecurityConfiguration();
 	}
 
 	@Bean
 	JwtDecoder jwtDecoder() throws MalformedURLException {
 		return new XsuaaJwtDecoderBuilder(getXsuaaServiceConfiguration()).build();
+	}
+
+	private class MySecurityConfiguration extends MockXsuaaServiceConfiguration {
+
+		@Override
+		public String getClientSecret() {
+			return "mysecret-basic";
+		}
+
+		@Override
+		public String getUaaDomain() {
+			try {
+				return new URL(getUaaUrl()).getHost();
+			} catch (MalformedURLException e) {
+				return null;
+			}
+		}
 	}
 }
