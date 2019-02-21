@@ -50,8 +50,19 @@ org.springframework.boot.env.EnvironmentPostProcessor=<<your package>>.XsuaaMock
 ```
 
 
-And finally you need to configure the `spring.security.oauth2.resourceserver.jwt.jwk-set-uri`, the `xsuaa.url` and the `xsuaa.identityzoneid` properties in the same way as done in this [`application-uaamock.properties`](src/test/resources/application-uaamock.properties) file.
-
+And finally you need to configure the `spring.security.oauth2.resourceserver.jwt.jwk-set-uri` and the `xsuaa.url` properties in the same way as done in this [`application-uaamock.properties`](src/test/resources/application-uaamock.properties) file.
 
 ### Extendability
 Note: it is possible to extend the dispatcher and pass this to the `XsuaaMockWebServer` constructor. An example `XsuaaMockPostProcessor` implementation can be found [here](src/test/java/com/sap/cloud/security/xsuaa/mock/XsuaaMockPostProcessor.java).
+
+### Multitenancy
+From version `1.3.0` and higher you can configure the `JwtGenerator` with a dedicated **subdomain** of a subaccount, e.g. `testdomain` and the header with a **keyId**:
+```java
+String yourSubdomain = "testdomain";
+String yourClientId = "sb-xsapp!20";
+String jwtTokenHeaderKeyId = "legacy-token-key-" + yourSubdomain;
+
+String jwtToken = new JwtGenerator(yourClientId, yourSubdomain).setJwtHeaderKeyId(jwtTokenHeaderKeyId).getToken().getTokenValue();
+```
+
+When configuring [`MockXsuaaServiceConfiguration`](src/main/java/com/sap/cloud/security/xsuaa/mock/MockXsuaaServiceConfiguration) instead of [`XsuaaServiceConfigurationDefault`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfigurationDefault.java) the `getTokenKeyUrl()` considers the `subdomain` from the token. Then your Mock Web Server can provide different token keys for different domains e.g. `testdomain`.

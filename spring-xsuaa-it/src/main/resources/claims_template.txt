@@ -30,7 +30,7 @@
   "iat": 1532416849,
   "exp": $exp,
   "iss": "http://paas.localhost:8080/uaa/oauth/token",
-  "zid": "paas",
+  "zid": "$zid",
   "aud": [],
   "az_attr": {"external_id":"abcd1234"}
 }
