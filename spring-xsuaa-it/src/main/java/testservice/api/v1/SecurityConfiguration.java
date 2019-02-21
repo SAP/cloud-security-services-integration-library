@@ -38,7 +38,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http.authorizeRequests()
-				.antMatchers("/user/**").hasAuthority("Display")
+				.antMatchers("/**").hasAuthority("Display")
 				.anyRequest().denyAll()
 			.and().oauth2ResourceServer()
 			.jwt()
