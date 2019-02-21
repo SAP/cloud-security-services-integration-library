@@ -27,6 +27,11 @@
 	</dependencyManagement>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.sap.cloud.security.xsuaa</groupId>
+			<artifactId>spring-xsuaa</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency> <!-- XsuaaMockWebServer WebServer for offline Token validation-->
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-resource-server</artifactId>

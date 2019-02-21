@@ -14,7 +14,7 @@
   "iat": 1442912244,
   "exp": $exp,
   "iss": "http://localhost:8080/uaa/oauth/token",
-  "zid": "11-22-33-$zdn",
+  "zid": "$zid",
   "aud": [
   ],
   "ext_attr": {
