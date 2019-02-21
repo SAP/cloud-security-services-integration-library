@@ -32,7 +32,9 @@
   "exp": $exp,
   "iss": "http://paas.localhost:8080/uaa/oauth/token",
   "zid": "$zid",
-  "zdn": "$zdn",
   "aud": [],
-  "az_attr": {"external_id":"abcd1234"}
+  "az_attr": {"external_id":"abcd1234"},
+  "ext_attr": {
+      "zdn": "$zdn"
+  }
 }
