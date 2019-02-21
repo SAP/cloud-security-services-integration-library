@@ -30,7 +30,7 @@ public class JwtGenerator {
 	private static final String PRIVATE_KEY_FILE = "/privateKey.txt";
 	private final String clientId;
 	private String identityZoneId;
-	private String subdomain = "";
+	String subdomain = "";
 	// see TokenImpl.GRANTTYPE_SAML2BEARER;
 	private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	private String[] scopes;
@@ -274,6 +274,7 @@ public class JwtGenerator {
 				.claim("user_name", userName)
 				.claim("user_id", "D012345")
 				.claim("email", userName + "@test.org")
+				.claim("ext_attr", new ExternalAttrClaim())
 				.claim("zdn", subdomain)
 				.claim("zid", identityZoneId)
 				.claim("grant_type", GRANT_TYPE);
@@ -331,5 +332,9 @@ public class JwtGenerator {
 			throw new IllegalArgumentException("token can not be parsed. ", e);
 		}
 		return jwt;
+	}
+
+	class ExternalAttrClaim {
+		public String zdn = subdomain;
 	}
 }

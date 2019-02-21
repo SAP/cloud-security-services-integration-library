@@ -32,9 +32,9 @@ public class JwtGeneratorTest {
 	public void testBasicJwtToken() {
 		Jwt jwt = new JwtGenerator().deriveAudiences(true).getToken();
 		assertThat(jwt.getClaimAsString("zid"), equalTo(JwtGenerator.DEFAULT_IDENTITY_ZONE_ID));
-		assertThat(jwt.getClaimAsString("zdn"), isEmptyString());
 		assertThat(jwt.getExpiresAt(), not(equals(nullValue())));
 		assertThat(jwt.getAudience(), is(nullValue()));
+		assertThat(getExternalAttributeFromClaim(jwt, "zdn"), isEmptyString());
 	}
 
 	@Test
@@ -44,9 +44,9 @@ public class JwtGeneratorTest {
 		assertThat(jwt.getClaimAsString("client_id"), equalTo(MY_CLIENT_ID));
 		assertThat(jwt.getClaimAsString("cid"), equalTo(MY_CLIENT_ID));
 		assertThat(jwt.getClaimAsString("zid"), startsWith(MY_SUBDOMAIN));
-		assertThat(jwt.getClaimAsString("zdn"), equalTo(MY_SUBDOMAIN));
 		assertThat(jwt.getClaimAsString("user_name"), equalTo(MY_USER_NAME));
 		assertThat(jwt.getClaimAsString("email"), startsWith(MY_USER_NAME));
+		assertThat(getExternalAttributeFromClaim(jwt, "zdn"), equalTo(MY_SUBDOMAIN));
 		assertThat(jwt.getExpiresAt(), not(equals(nullValue())));
 		assertThat(jwt.getTokenValue(), not(startsWith("Bearer ")));
 	}
@@ -88,9 +88,9 @@ public class JwtGeneratorTest {
 
 		assertThat(jwt.getClaimAsString("client_id"), equalTo(MY_CLIENT_ID));
 		assertThat(jwt.getClaimAsString("zid"), startsWith(MY_SUBDOMAIN));
-		assertThat(jwt.getClaimAsString("zdn"), equalTo(MY_SUBDOMAIN));
 		assertThat(jwt.getClaimAsString("user_name"), equalTo(MY_USER_NAME));
 		assertThat(jwt.getClaimAsString("email"), startsWith(MY_USER_NAME));
+		assertThat(getExternalAttributeFromClaim(jwt, "zdn"), equalTo(MY_SUBDOMAIN));
 
 		assertThat(jwt.getClaimAsStringList("scope"), hasItems("openid", "testScope", "testApp.localScope"));
 
@@ -125,5 +125,10 @@ public class JwtGeneratorTest {
 		assertThat(jwt.getAudience().size(), equalTo(2));
 		assertThat(jwt.getAudience(), hasItem("app1"));
 		assertThat(jwt.getAudience(), hasItem("app2"));
+	}
+
+	private String getExternalAttributeFromClaim(Jwt jwt, String attributeName) {
+		Map<String, Object> externalAttribute = jwt.getClaimAsMap("ext_attr");
+		return externalAttribute == null ? null : (String) externalAttribute.get(attributeName);
 	}
 }
