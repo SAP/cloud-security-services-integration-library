@@ -13,7 +13,8 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.Token;
 
 /**
- * Validate audience using audience field content. in case this field is empty, the audience is derived from the scope field
+ * Validate audience using audience field content. in case this field is empty,
+ * the audience is derived from the scope field
  *
  */
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
@@ -34,13 +35,15 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 			if (allowedAudiences.contains(xsuaaServiceConfiguration.getAppId())) {
 				return OAuth2TokenValidatorResult.success();
 			} else {
-				return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, "Missing audience " + xsuaaServiceConfiguration.getAppId(), null));
+				return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
+						"Missing audience " + xsuaaServiceConfiguration.getAppId(), null));
 			}
 		}
 	}
 
 	/**
-	 * Retrieve audiences from token. In case the audience list is empty, take audiences based on the scope names.
+	 * Retrieve audiences from token. In case the audience list is empty, take
+	 * audiences based on the scope names.
 	 *
 	 * @param token
 	 * @return (empty) list of audiences

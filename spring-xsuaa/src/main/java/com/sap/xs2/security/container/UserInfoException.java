@@ -1,4 +1,5 @@
 package com.sap.xs2.security.container;
+
 import com.sap.xsa.security.container.XSUserInfoException;
 
 public class UserInfoException extends XSUserInfoException {

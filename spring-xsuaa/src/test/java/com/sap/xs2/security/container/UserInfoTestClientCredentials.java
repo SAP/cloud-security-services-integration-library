@@ -42,7 +42,6 @@ public class UserInfoTestClientCredentials {
 		Assert.assertNull(infoCc.getOrigin()); // not in samlUserInfo
 	}
 
-
 	@Test(expected = UserInfoException.class)
 	public void getAttributeCc() throws XSUserInfoException {
 		infoCc.getAttribute("cost center");

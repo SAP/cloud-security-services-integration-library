@@ -43,7 +43,7 @@ public class TokenBrokerTestConfiguration {
 						if ("myuser".equals(username) && "mypass".equals(password) && "myclient!t1".equals(clientId)
 								&& "top.secret".equals(clientSecret))
 							return "token_pwd";
-					} 
+					}
 					if ("https://other.auth.com/oauth/token".equals(tokenURL)) {
 						if ("myuser".equals(username) && "mypass".equals(password) && "myclient!t1".equals(clientId)
 								&& "top.secret".equals(clientSecret))
