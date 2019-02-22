@@ -85,7 +85,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 ```java
 @GetMapping("/hello-token")
-@PreAuthorize("hasAuthority('Display')
+@PreAuthorize("hasAuthority('Display')")
 public Map<String, String> message() {
     ...
 }
