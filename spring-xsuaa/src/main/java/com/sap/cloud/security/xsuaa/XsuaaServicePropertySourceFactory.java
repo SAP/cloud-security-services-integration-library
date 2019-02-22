@@ -34,8 +34,9 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	public final String CLIENT_SECRET = "xsuaa.clientsecret";
 	public final String URL = "xsuaa.url";
 	public final String UAA_DOMAIN = "xsuaa.uaadomain";
-	
-	private static final String[] XSUAA_ATTRIBUTES = new String[] { "clientid", "clientsecret", "identityzoneid", "sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname" };
+
+	private static final String[] XSUAA_ATTRIBUTES = new String[] { "clientid", "clientsecret", "identityzoneid",
+			"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname" };
 
 	private Properties configurationProperties = null;
 
@@ -46,7 +47,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
 		XsuaaServicesParser vcapServicesParser = null;
 		if (configurationProperties == null) {
-			if (resource != null && resource.getResource().getFilename().length()>0) {
+			if (resource != null && resource.getResource().getFilename().length() > 0) {
 				vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
 			} else {
 				vcapServicesParser = new XsuaaServicesParser();
@@ -58,15 +59,14 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	}
 
 	protected Properties getConfigurationProperties(XsuaaServicesParser vcapServicesParser) throws IOException {
-	try{
-		Properties newConfigurationProperties = new Properties();
-		for (String attributeName : XSUAA_ATTRIBUTES) {
-			vcapServicesParser.getAttribute(attributeName).ifPresent(attributeValue -> newConfigurationProperties.put(XSUAA_PREFIX + attributeName, attributeValue));
-		}
-		return newConfigurationProperties;
-	}
-		catch(net.minidev.json.parser.ParseException ex)
-		{
+		try {
+			Properties newConfigurationProperties = new Properties();
+			for (String attributeName : XSUAA_ATTRIBUTES) {
+				vcapServicesParser.getAttribute(attributeName).ifPresent(
+						attributeValue -> newConfigurationProperties.put(XSUAA_PREFIX + attributeName, attributeValue));
+			}
+			return newConfigurationProperties;
+		} catch (net.minidev.json.parser.ParseException ex) {
 			throw new IOException(ex);
 		}
 	}

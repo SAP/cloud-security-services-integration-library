@@ -61,7 +61,8 @@ public class TokenAuthenticationConverterTest {
 
 	@Test
 	public void extractCustomAuthoritiesWithScopes() {
-		TokenAuthenticationConverter tokenConverterCustom = new MyTokenAuthenticationConverter(xsAppName, "cost-center", "country");
+		TokenAuthenticationConverter tokenConverterCustom = new MyTokenAuthenticationConverter(xsAppName, "cost-center",
+				"country");
 
 		Jwt jwt = new JwtGenerator()
 				.addScopes(scopeAdmin)
@@ -80,7 +81,7 @@ public class TokenAuthenticationConverterTest {
 	@Test
 	public void authoritiesHaveLocalScopesWithoutAppIdPrefix() {
 		String scopeWithNamespace = xsAppName + ".iot.Delete";
-		String scopeWithOtherAppId = "anyAppId!200."+ xsAppName + ".iot.Delete";
+		String scopeWithOtherAppId = "anyAppId!200." + xsAppName + ".iot.Delete";
 
 		Jwt jwt = new JwtGenerator()
 				.addScopes(xsAppName + "." + scopeAdmin, scopeRead, scopeWithNamespace, scopeWithOtherAppId)

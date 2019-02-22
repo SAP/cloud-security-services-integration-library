@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = { "xsuaa.url=${mockxsuaaserver.url}"}, classes = {
+@SpringBootTest(properties = { "xsuaa.url=${mockxsuaaserver.url}" }, classes = {
 		XsuaaMockWebServer.class, XsuaaRequestDispatcher.class, MockXsuaaServiceConfiguration.class })
 public class ApplicationTest {
 

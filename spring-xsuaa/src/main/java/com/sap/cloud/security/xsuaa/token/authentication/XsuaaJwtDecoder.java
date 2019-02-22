@@ -46,7 +46,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	private JwtDecoder getDecoder(String zid, String subdomain) {
 		String url = xsuaaServiceConfiguration.getTokenKeyUrl(zid, subdomain);
 		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(url);
-		OAuth2TokenValidator<Jwt> validators = new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(), new XsuaaAudienceValidator(xsuaaServiceConfiguration));
+		OAuth2TokenValidator<Jwt> validators = new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(),
+				new XsuaaAudienceValidator(xsuaaServiceConfiguration));
 		decoder.setJwtValidator(validators);
 		return decoder;
 	}

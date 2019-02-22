@@ -21,7 +21,9 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 /**
  * Analyse authentication header and obtain token from UAA
  * 
- * For using this feature also in multi tenancy mode request-parameter {@code X-Identity-Zone-Subdomain} must be set or the AuthenticationInformationExtractor needs to be implemented).
+ * For using this feature also in multi tenancy mode request-parameter
+ * {@code X-Identity-Zone-Subdomain} must be set or the
+ * AuthenticationInformationExtractor needs to be implemented).
  *
  */
 public class TokenBrokerResolver implements BearerTokenResolver {
@@ -52,8 +54,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	 * @param authenticationConfig
 	 *            configured AuthenticationMethodConfiguration
 	 */
-	
-	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache, TokenBroker tokenBroker, AuthenticationInformationExtractor authenticationConfig) {
+
+	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache, TokenBroker tokenBroker,
+			AuthenticationInformationExtractor authenticationConfig) {
 		this.configuration = configuration;
 		this.tokenCache = tokenCache;
 		this.tokenBroker = tokenBroker;
@@ -62,13 +65,15 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		this.authenticationConfig = authenticationConfig;
 	}
 
-	public  TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache,AuthenticationMethod...authenticationMethods)
-	{
-		this(configuration,tokenCache, new UaaTokenBroker(),new DefaultAuthenticationInformationExtractor(authenticationMethods));
+	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache,
+			AuthenticationMethod... authenticationMethods) {
+		this(configuration, tokenCache, new UaaTokenBroker(),
+				new DefaultAuthenticationInformationExtractor(authenticationMethods));
 	}
-	
+
 	private void checkTypes(List<AuthenticationMethod> authenticationMethods) {
-		if (authenticationMethods.contains(AuthenticationMethod.BASIC) && authenticationMethods.contains(AuthenticationMethod.CLIENT_CREDENTIALS)) {
+		if (authenticationMethods.contains(AuthenticationMethod.BASIC)
+				&& authenticationMethods.contains(AuthenticationMethod.CLIENT_CREDENTIALS)) {
 			throw new IllegalArgumentException("Use either CLIENT_CREDENTIALS or BASIC");
 		}
 	}
@@ -91,7 +96,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		Optional<String> subdomainResult = authenticationConfig.getSubdomain(request);
 		String oauthTokenUrl;
 		if (subdomainResult.isPresent()) {
-			oauthTokenUrl = TokenUrlUtils.getMultiTenancyUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain, subdomainResult.get());
+			oauthTokenUrl = TokenUrlUtils.getMultiTenancyUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain,
+					subdomainResult.get());
 		} else {
 			oauthTokenUrl = TokenUrlUtils.getOauthTokenUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain);
 		}
@@ -104,7 +110,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		return null;
 	}
 
-	private String getBrokerToken(AuthenticationMethod credentialType, Enumeration<String> headers, String oauthTokenUrl) throws TokenBrokerException {
+	private String getBrokerToken(AuthenticationMethod credentialType, Enumeration<String> headers,
+			String oauthTokenUrl) throws TokenBrokerException {
 		while (headers.hasMoreElements()) {
 			String header = headers.nextElement();
 			switch (credentialType) {
@@ -123,10 +130,12 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				if (basicCredential != null) {
 					final String[] credentialDetails = obtainCredentialDetails(basicCredential);
 					if (credentialDetails.length == 2) {
-						String cacheKey = createSecureHash(oauthTokenUrl, clientId, clientSecret, credentialDetails[0], credentialDetails[1]);
+						String cacheKey = createSecureHash(oauthTokenUrl, clientId, clientSecret, credentialDetails[0],
+								credentialDetails[1]);
 						String storedToken = tokenCache.get(cacheKey, String.class);
 						if (storedToken == null) {
-							String token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl, clientId, clientSecret, credentialDetails[0], credentialDetails[1]);
+							String token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl, clientId,
+									clientSecret, credentialDetails[0], credentialDetails[1]);
 							tokenCache.put(cacheKey, token);
 							return token;
 						} else {
@@ -143,7 +152,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 						String cacheKey = createSecureHash(oauthTokenUrl, credentialDetails[0], credentialDetails[1]);
 						String storedToken = tokenCache.get(cacheKey, String.class);
 						if (storedToken == null) {
-							String token = tokenBroker.getAccessTokenFromClientCredentials(oauthTokenUrl, credentialDetails[0], credentialDetails[1]);
+							String token = tokenBroker.getAccessTokenFromClientCredentials(oauthTokenUrl,
+									credentialDetails[0], credentialDetails[1]);
 							tokenCache.put(cacheKey, token);
 							return token;
 						} else {
@@ -173,8 +183,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		MessageDigest messageDigest;
 		try {
 			messageDigest = MessageDigest.getInstance("SHA-256");
-			for(String k: keys)
-			{
+			for (String k : keys) {
 				messageDigest.update(k.getBytes(StandardCharsets.UTF_8));
 			}
 			byte[] hash = messageDigest.digest();
@@ -195,6 +204,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		}
 		return null;
 	}
+
 	public AuthenticationInformationExtractor getAuthenticationConfig() {
 		return authenticationConfig;
 	}

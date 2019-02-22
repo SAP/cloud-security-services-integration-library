@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -31,22 +30,24 @@ public class XsuaaServicesParser {
 
 	public XsuaaServicesParser() {
 		vcapServices = System.getenv().get(VCAP_SERVICES);
-        if (StringUtils.isEmpty(vcapServices)) {
+		if (StringUtils.isEmpty(vcapServices)) {
 			logger.warn("Cannot find environment " + VCAP_SERVICES);
-        }
+		}
 	}
 
-	public XsuaaServicesParser(InputStream is ) throws IOException {
-		vcapServices = IOUtils.toString(is,Charsets.toCharset("utf-8"));
-        if (StringUtils.isEmpty(vcapServices)) {
+	public XsuaaServicesParser(InputStream is) throws IOException {
+		vcapServices = IOUtils.toString(is, Charsets.toCharset("utf-8"));
+		if (StringUtils.isEmpty(vcapServices)) {
 			logger.warn("Cannot find environment " + VCAP_SERVICES);
-        }
+		}
 	}
+
 	/**
 	 * @param name
 	 *            the attribute name
 	 * @return associated value to given tag name or null if attribute not found
-	 * @throws ParseException  in case of configuration errors
+	 * @throws ParseException
+	 *             in case of configuration errors
 	 */
 	public Optional<String> getAttribute(String name) throws ParseException {
 
@@ -54,21 +55,21 @@ public class XsuaaServicesParser {
 			return Optional.empty();
 		}
 
-			JSONObject vcap = (JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(vcapServices);
-			JSONObject xsuaaBinding = searchXSuaaBinding(vcap);
+		JSONObject vcap = (JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(vcapServices);
+		JSONObject xsuaaBinding = searchXSuaaBinding(vcap);
 
-			if (Objects.nonNull(xsuaaBinding) && xsuaaBinding.containsKey(CREDENTIALS)) {
-				JSONObject credentials = (JSONObject) xsuaaBinding.get(CREDENTIALS);
-				return Optional.ofNullable(credentials.getAsString(name));
-			}
+		if (Objects.nonNull(xsuaaBinding) && xsuaaBinding.containsKey(CREDENTIALS)) {
+			JSONObject credentials = (JSONObject) xsuaaBinding.get(CREDENTIALS);
+			return Optional.ofNullable(credentials.getAsString(name));
+		}
 
 		return Optional.empty();
 	}
 
-	private JSONObject searchXSuaaBinding(final JSONObject jsonObject)  {
+	private JSONObject searchXSuaaBinding(final JSONObject jsonObject) {
 		for (@SuppressWarnings("unchecked")
 		String tag : jsonObject.keySet()) {
-			JSONObject foundObject = getJSONObjectFromTag((JSONArray)jsonObject.get(tag));
+			JSONObject foundObject = getJSONObjectFromTag((JSONArray) jsonObject.get(tag));
 			if (foundObject != null) {
 				return foundObject;
 			}
@@ -76,7 +77,7 @@ public class XsuaaServicesParser {
 		return null;
 	}
 
-	private JSONObject getJSONObjectFromTag(final JSONArray jsonArray)  {
+	private JSONObject getJSONObjectFromTag(final JSONArray jsonArray) {
 		JSONObject xsuaaBinding = null;
 		for (int i = 0; i < jsonArray.size(); i++) {
 			JSONObject binding = (JSONObject) jsonArray.get(i);

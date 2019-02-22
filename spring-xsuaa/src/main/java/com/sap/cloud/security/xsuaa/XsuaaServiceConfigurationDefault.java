@@ -27,7 +27,6 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Value("${xsuaa.xsappname:}")
 	private String appid;
 
-	
 	/*
 	 * (non-Javadoc)
 	 * 

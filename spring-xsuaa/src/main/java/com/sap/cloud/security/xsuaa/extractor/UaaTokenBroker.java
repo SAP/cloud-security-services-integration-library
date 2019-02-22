@@ -16,11 +16,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
 @Component
 public class UaaTokenBroker implements TokenBroker {
 
 	private final static Log logger = LogFactory.getLog(UaaTokenBroker.class);
-	
+
 	private final RestTemplate restTemplate;
 
 	public UaaTokenBroker(RestTemplate restTemplate) {
@@ -31,10 +32,11 @@ public class UaaTokenBroker implements TokenBroker {
 	public UaaTokenBroker() {
 		this(new RestTemplate());
 	}
-	
+
 	@Override
-	@Cacheable(cacheManager="xsuaa.tokenbroker")
-	public String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret) throws TokenBrokerException {
+	@Cacheable(cacheManager = "xsuaa.tokenbroker")
+	public String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret)
+			throws TokenBrokerException {
 
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -56,16 +58,18 @@ public class UaaTokenBroker implements TokenBroker {
 			return (String) exchange.getBody().get("access_token");
 		} catch (HttpClientErrorException ex) {
 			logger.warn("Cannot obtain Token from given client credentials");
-			throw new TokenBrokerException("Error obtaining access token:"+ ex.getStatusText()+ " "+ex.getResponseBodyAsString());
-		}
-		catch (HttpServerErrorException ex) {
+			throw new TokenBrokerException(
+					"Error obtaining access token:" + ex.getStatusText() + " " + ex.getResponseBodyAsString());
+		} catch (HttpServerErrorException ex) {
 			logger.warn("Cannot obtain Token from given client credentials");
-			throw new TokenBrokerException("Error obtaining access token from server:"+ ex.getStatusText()+ " "+ex.getResponseBodyAsString());
+			throw new TokenBrokerException("Error obtaining access token from server:" + ex.getStatusText() + " "
+					+ ex.getResponseBodyAsString());
 		}
 	}
 
 	@Override
-	public String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret, String username, String password) throws TokenBrokerException {
+	public String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret,
+			String username, String password) throws TokenBrokerException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			String credentials = clientId + ":" + clientSecret;
@@ -89,11 +93,12 @@ public class UaaTokenBroker implements TokenBroker {
 
 		} catch (HttpClientErrorException ex) {
 			logger.warn("Cannot obtain Token from given password credentials");
-			throw new TokenBrokerException("Error obtaining access token:"+ ex.getStatusText()+ " "+ex.getResponseBodyAsString());
-		}
-		catch (HttpServerErrorException ex) {
+			throw new TokenBrokerException(
+					"Error obtaining access token:" + ex.getStatusText() + " " + ex.getResponseBodyAsString());
+		} catch (HttpServerErrorException ex) {
 			logger.warn("Cannot obtain Token from given password credentials");
-			throw new TokenBrokerException("Error obtaining access token from server:"+ ex.getStatusText()+ " "+ex.getResponseBodyAsString());
+			throw new TokenBrokerException("Error obtaining access token from server:" + ex.getStatusText() + " "
+					+ ex.getResponseBodyAsString());
 		}
 	}
 

@@ -86,7 +86,9 @@ public interface XSTokenRequest {
 	/**
 	 * Set the requested token type
 	 * 
-	 * @param type type of token request: TYPE_USER_TOKEN  or TYPE_CLIENT_CREDENTIAL_TOKEN 
+	 * @param type
+	 *            type of token request: TYPE_USER_TOKEN or
+	 *            TYPE_CLIENT_CREDENTIAL_TOKEN
 	 * @return this mutable object
 	 */
 	public XSTokenRequest setType(int type);
@@ -100,7 +102,8 @@ public interface XSTokenRequest {
 	/**
 	 * Set the token endpoint URI
 	 * 
-	 * @param tokenEndpoint url of token endpoint
+	 * @param tokenEndpoint
+	 *            url of token endpoint
 	 * @return this mutable object
 	 */
 	public XSTokenRequest setTokenEndpoint(URI tokenEndpoint);

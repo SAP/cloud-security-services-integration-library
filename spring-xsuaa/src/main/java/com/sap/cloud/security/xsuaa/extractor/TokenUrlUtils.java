@@ -12,7 +12,6 @@ import java.util.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 public final class TokenUrlUtils {
 
 	private final static Log logger = LogFactory.getLog(TokenUrlUtils.class);
@@ -23,8 +22,9 @@ public final class TokenUrlUtils {
 	/**
 	 * Retrieves the URL for the token request
 	 * <p>
+	 * 
 	 * @param endpoint
-	 * 			  endpoint
+	 *            endpoint
 	 * @param uaaUrl
 	 *            UAA-URL from VCAP-Services
 	 * @param uaaDomain
@@ -32,10 +32,11 @@ public final class TokenUrlUtils {
 	 * @param uaaSubDomain
 	 *            UAA-Subdomain in case of Multi tenancy
 	 * 
-	 * @return token request URL 
+	 * @return token request URL
 	 */
 
-	public static String getMultiTenancyUrl(final String endpoint, final String uaaUrl, final String uaaDomain, final String uaaSubDomain) {
+	public static String getMultiTenancyUrl(final String endpoint, final String uaaUrl, final String uaaDomain,
+			final String uaaSubDomain) {
 		Objects.requireNonNull(uaaUrl, "URL must not be null");
 		Objects.requireNonNull(uaaDomain, "Domain must not be null");
 		Objects.requireNonNull(endpoint, "Endpoint must not be null");
@@ -50,7 +51,8 @@ public final class TokenUrlUtils {
 		return TokenUrlUtils.getMultiTenancyUrl(endpoint, uaaUrl, uaaDomain, null);
 	}
 
-	private static String getUrl(final String endpoint, final String uaaUrl, final String uaaDomain, String tenantSubDomain) {
+	private static String getUrl(final String endpoint, final String uaaUrl, final String uaaDomain,
+			String tenantSubDomain) {
 
 		Objects.requireNonNull(uaaUrl, "UAA-URL must not be null");
 		Objects.requireNonNull(uaaDomain, "Domain must not be null");
@@ -58,7 +60,7 @@ public final class TokenUrlUtils {
 		Objects.requireNonNull(endpoint, "Endpoint must not be null");
 
 		String tenantUaaDomain = tenantSubDomain + "." + uaaDomain;
-		
+
 		URL url;
 		try {
 			url = new URL(uaaUrl);
@@ -81,7 +83,6 @@ public final class TokenUrlUtils {
 		}
 		return url.getHost();
 	}
-
 
 	public static boolean isUrl(String url) {
 		if (isEmpty(url)) {
