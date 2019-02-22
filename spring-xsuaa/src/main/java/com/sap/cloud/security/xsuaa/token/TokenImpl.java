@@ -242,7 +242,9 @@ public class TokenImpl implements Token {
 		Assert.notNull(tokenRequest, "tokenRequest argument is required");
 		Assert.isTrue(tokenRequest.isValid(), "tokenRequest is not valid");
 
-		RestTemplate restTemplate = tokenRequest instanceof XSTokenRequestImpl ? ((XSTokenRequestImpl) tokenRequest).getRestTemplate() : null;
+		RestTemplate restTemplate = tokenRequest instanceof XSTokenRequestImpl
+				? ((XSTokenRequestImpl) tokenRequest).getRestTemplate()
+				: null;
 
 		XsuaaTokenExchanger tokenExchanger = new XsuaaTokenExchanger(restTemplate, this);
 		try {
@@ -261,14 +263,14 @@ public class TokenImpl implements Token {
 
 	/**
 	 * Check if the authentication token contains a claim, e.g. "email".
+	 * 
 	 * @param claim
-	 *			name of the claim
+	 *            name of the claim
 	 * @return true: attribute exists
 	 */
 	public boolean hasClaim(String claim) {
 		return jwt.containsClaim(claim);
 	}
-
 
 	/**
 	 * For custom access to the claims of the authentication token.

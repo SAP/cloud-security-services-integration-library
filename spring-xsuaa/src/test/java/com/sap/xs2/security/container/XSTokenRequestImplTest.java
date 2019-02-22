@@ -69,8 +69,12 @@ public class XSTokenRequestImplTest {
 		assertNull(request.getAdditionalAuthorizationAttributes().get(null));
 		assertNotNull(request.getAdditionalAuthorizationAttributes());
 		/*
-		 * assertEquals("bar", request.getAdditionalAuthorizationAttributes().get("foo")); assertEquals("value",
-		 * request.getAdditionalAuthorizationAttributes().get("key")); assertFalse(request.getAdditionalAuthorizationAttributes().containsKey("hugo"));
+		 * assertEquals("bar",
+		 * request.getAdditionalAuthorizationAttributes().get("foo"));
+		 * assertEquals("value",
+		 * request.getAdditionalAuthorizationAttributes().get("key"));
+		 * assertFalse(request.getAdditionalAuthorizationAttributes().containsKey("hugo"
+		 * ));
 		 */
 	}
 }

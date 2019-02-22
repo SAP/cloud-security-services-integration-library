@@ -16,7 +16,7 @@ public class UserInfoTestUser {
 
 	private UserInfo infoUser = null;
 	private UserInfo infoUserNoAttr = null;
-	
+
 	@Before
 	public void setup() throws Exception {
 		infoUser = UserInfoTestUtil.createFromJwtFile("/token_user.txt", "java-hello-world");
@@ -168,7 +168,6 @@ public class UserInfoTestUser {
 		Assert.assertTrue(infoUser.getAppToken().equals(infoUser.getToken("SYSTEM", "JobScheduler")));
 	}
 
-
 	@Test(expected = UserInfoException.class)
 	public void getAttributeNotExisting() throws XSUserInfoException {
 		infoUserNoAttr.getAttribute("cost center");
@@ -183,5 +182,5 @@ public class UserInfoTestUser {
 	public void testFailAdditionalAuthAttrNoAttr() throws XSUserInfoException {
 		Assert.assertEquals("abcd1234", infoUserNoAttr.getAdditionalAuthAttribute("external_id"));
 	}
-	
+
 }

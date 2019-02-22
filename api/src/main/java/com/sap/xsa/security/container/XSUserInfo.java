@@ -6,7 +6,6 @@
  */
 package com.sap.xsa.security.container;
 
-
 /**
  * API for OAuth resource servers to extract authentication and authorization
  * information from the OAuth token.
@@ -14,9 +13,9 @@ package com.sap.xsa.security.container;
 public interface XSUserInfo {
 
 	/**
-	 * User name used for authentication, e.g. an email address or other
-	 * identifier. A user might exist in multiple identity providers. The
-	 * following information is required to to uniquely identify a user: - -
+	 * User name used for authentication, e.g. an email address or other identifier.
+	 * A user might exist in multiple identity providers. The following information
+	 * is required to to uniquely identify a user: - -
 	 * 
 	 * 
 	 * - username: name of the user in an identity provider
@@ -29,7 +28,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String getLogonName() throws XSUserInfoException; 
+	public String getLogonName() throws XSUserInfoException;
 
 	/**
 	 * Given name of the user.
@@ -50,9 +49,10 @@ public interface XSUserInfo {
 	public String getFamilyName() throws XSUserInfoException;
 
 	/**
-	 * Return the user origin. The origin is an alias that refers to a user store in which the user is persisted.
-	 * For example, users that are authenticated by the UAA itself with a username/password combination
-	 * have their origin set to the value uaa.
+	 * Return the user origin. The origin is an alias that refers to a user store in
+	 * which the user is persisted. For example, users that are authenticated by the
+	 * UAA itself with a username/password combination have their origin set to the
+	 * value uaa.
 	 *
 	 * @return user origin
 	 * @throws XSUserInfoException
@@ -68,7 +68,7 @@ public interface XSUserInfo {
 	 *             if attribute is not available in the authentication token
 	 */
 	String getIdentityZone() throws XSUserInfoException;
-	
+
 	/**
 	 * Return subaccount identifier
 	 * 
@@ -170,8 +170,8 @@ public interface XSUserInfo {
 
 	/**
 	 * Return additional authentication attributes included by the OAuth client
-	 * component. Note: this is data controlled by the requester of a token.
-	 * Might be not trustworthy.
+	 * component. Note: this is data controlled by the requester of a token. Might
+	 * be not trustworthy.
 	 * 
 	 * @param attributeName
 	 *            name of the authentication attribute
@@ -222,7 +222,5 @@ public interface XSUserInfo {
 	 *             if attribute is not available in the authentication token
 	 */
 	public String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException;
-
-
 
 }
