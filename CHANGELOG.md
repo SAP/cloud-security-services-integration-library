@@ -1,6 +1,9 @@
 # Change Log 
 
 All notable changes to this project will be documented in this file.
+## 1.3.0
+* JwtGenerator offers enhancement options: custom claims and audience
+* Test framework support for multi tenancy
 
 ## 1.2.0
 * Eases enhancement of TokenAuthenticationConverter ([issue 23](https://github.com/SAP/cloud-security-xsuaa-integration/issues/23))
