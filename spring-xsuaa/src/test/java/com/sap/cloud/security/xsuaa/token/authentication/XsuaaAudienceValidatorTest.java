@@ -20,9 +20,15 @@ public class XsuaaAudienceValidatorTest {
 
 	private Jwt tokenWithAudience;
 	private Jwt tokenWithoutAudience;
+	private Jwt cloneTokenWithoutAudience;
+	private Jwt cloneTokenWithAudience;
+
+
 	private XsuaaServiceConfiguration serviceConfigurationSameClientId;
 	private XsuaaServiceConfiguration serviceConfigurationOtherGrantedClientId;
 	private XsuaaServiceConfiguration serviceConfigurationUnGrantedClientId;
+	private XsuaaServiceConfiguration serviceConfigurationBrokerPlan;
+
 	private JWTClaimsSet.Builder claimsBuilder;
 
 	@Before
@@ -30,9 +36,11 @@ public class XsuaaAudienceValidatorTest {
 		serviceConfigurationSameClientId = new DummyXsuaaServiceConfiguration("sb-test1!t1", "test1!t1");
 		serviceConfigurationOtherGrantedClientId = new DummyXsuaaServiceConfiguration("sb-test2!t1", "test2!t1");
 		serviceConfigurationUnGrantedClientId = new DummyXsuaaServiceConfiguration("sb-test3!t1", "test3!t1");
-
+		serviceConfigurationBrokerPlan = new DummyXsuaaServiceConfiguration("sb-test3!b1", "test3!b1");
 		tokenWithAudience = new JwtGenerator().createFromTemplate("/audience_1.txt");
 		tokenWithoutAudience = new JwtGenerator().createFromTemplate("/audience_2.txt");
+		cloneTokenWithAudience = new JwtGenerator().createFromTemplate("/audience_3.txt");
+		cloneTokenWithoutAudience = new JwtGenerator().createFromTemplate("/audience_4.txt");
 
 		claimsBuilder = new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE_DATE);
 	}
@@ -118,6 +126,18 @@ public class XsuaaAudienceValidatorTest {
 		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationOtherGrantedClientId)
 				.validate(tokenWithoutAudienceAndScopes);
 		Assert.assertTrue(result.hasErrors());
+	}
+	@Test
+	public void testBrokerCloneWithAudience() {
+		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationBrokerPlan)
+				.validate(cloneTokenWithAudience);
+		Assert.assertFalse(result.hasErrors());
+	}
+	@Test
+	public void testBrokerCloneWithoutAudience() {
+		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationBrokerPlan)
+				.validate(cloneTokenWithAudience);
+		Assert.assertFalse(result.hasErrors());
 	}
 
 	class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration {
