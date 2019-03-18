@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 ## 1.3.1
-* Broker plan validation failed due to incorrectaudience validation
+* Broker plan validation failed due to incorrect audience validation
 ## 1.3.0
 * JwtGenerator offers enhancement options: custom claims and audience
 * Test framework support for multi tenancy

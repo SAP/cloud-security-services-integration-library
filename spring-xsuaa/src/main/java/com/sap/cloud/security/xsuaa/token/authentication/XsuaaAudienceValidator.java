@@ -28,8 +28,9 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	public OAuth2TokenValidatorResult validate(Jwt token) {
 		// case 1 : token issued by own client (or master)
 		if (xsuaaServiceConfiguration.getClientId().equals(token.getClaimAsString("client_id"))
-		|| (xsuaaServiceConfiguration.getAppId().contains("!b") && token.getClaimAsString("client_id").contains("|") && token.getClaimAsString("client_id").endsWith("|"+xsuaaServiceConfiguration.getAppId())))
-		{
+				|| (xsuaaServiceConfiguration.getAppId().contains("!b")
+						&& token.getClaimAsString("client_id").contains("|")
+						&& token.getClaimAsString("client_id").endsWith("|" + xsuaaServiceConfiguration.getAppId()))) {
 			return OAuth2TokenValidatorResult.success();
 		} else {
 			// case 2: foreign token
