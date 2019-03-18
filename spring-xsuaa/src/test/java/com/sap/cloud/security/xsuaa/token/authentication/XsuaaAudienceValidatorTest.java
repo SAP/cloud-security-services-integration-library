@@ -23,7 +23,6 @@ public class XsuaaAudienceValidatorTest {
 	private Jwt cloneTokenWithoutAudience;
 	private Jwt cloneTokenWithAudience;
 
-
 	private XsuaaServiceConfiguration serviceConfigurationSameClientId;
 	private XsuaaServiceConfiguration serviceConfigurationOtherGrantedClientId;
 	private XsuaaServiceConfiguration serviceConfigurationUnGrantedClientId;
@@ -127,12 +126,14 @@ public class XsuaaAudienceValidatorTest {
 				.validate(tokenWithoutAudienceAndScopes);
 		Assert.assertTrue(result.hasErrors());
 	}
+
 	@Test
 	public void testBrokerCloneWithAudience() {
 		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationBrokerPlan)
 				.validate(cloneTokenWithAudience);
 		Assert.assertFalse(result.hasErrors());
 	}
+
 	@Test
 	public void testBrokerCloneWithoutAudience() {
 		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationBrokerPlan)
