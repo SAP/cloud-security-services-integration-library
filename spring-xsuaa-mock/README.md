@@ -25,6 +25,13 @@ The default implementation offers already valid *token_keys* for JWT tokens, tha
 Add the following class, which makes sure, that the Xsuaa mock web server is only started in case a dedicated profile e.g. `uaamock` is active. Make sure that this profile (`uaamock`) is never active in production!
 
 ```java
+import com.sap.cloud.security.xsuaa.mock.XsuaaMockWebServer;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.env.EnvironmentPostProcessor;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Profiles;
+
 public class XsuaaMockPostProcessor implements EnvironmentPostProcessor, DisposableBean {
 
     private final XsuaaMockWebServer mockAuthorizationServer = new XsuaaMockWebServer();
