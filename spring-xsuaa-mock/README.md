@@ -17,7 +17,7 @@ The default implementation offers already valid *token_keys* for JWT tokens, tha
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa-mock</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
