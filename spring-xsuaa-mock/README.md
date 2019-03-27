@@ -72,4 +72,4 @@ String jwtTokenHeaderKeyId = "legacy-token-key-" + yourSubdomain;
 String jwtToken = new JwtGenerator(yourClientId, yourSubdomain).setJwtHeaderKeyId(jwtTokenHeaderKeyId).getToken().getTokenValue();
 ```
 
-When configuring [`MockXsuaaServiceConfiguration`](src/main/java/com/sap/cloud/security/xsuaa/mock/MockXsuaaServiceConfiguration) instead of [`XsuaaServiceConfigurationDefault`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfigurationDefault.java) the `getTokenKeyUrl()` considers the `subdomain` from the token. Then your Mock Web Server can provide different token keys for different domains e.g. `testdomain`.
+When configuring [`MockXsuaaServiceConfiguration`](src/main/java/com/sap/cloud/security/xsuaa/mock/MockXsuaaServiceConfiguration.java) instead of [`XsuaaServiceConfigurationDefault`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfigurationDefault.java) the `getTokenKeyUrl()` considers the `subdomain` from the token. Then your Mock Web Server can provide different token keys for different domains e.g. `testdomain`.
