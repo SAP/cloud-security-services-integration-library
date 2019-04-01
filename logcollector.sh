@@ -25,6 +25,6 @@ hash cf 2>/dev/null || { echo >&2 "cf command line client not found, please inst
 #login to the correct API endpoint
 cf login || { echo -e >&2 "\nScript aborted due to failed login. Please check your credentials and try again."; exit 1; }
 
-echo -e "\nSuccessfully logged in, will continue...\n"
+echo -e "\nSuccessfully logged in, will continue..."
 
-cf app "$1" --guid &>/dev/null || { echo >&2 "App $1 not found, did you target the correct space?"; exit 1; }
+cf app "$1" --guid &>/dev/null || { echo -e >&2 "\nApp $1 not found, did you target the correct space?"; exit 1; }
