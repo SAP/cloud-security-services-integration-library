@@ -27,9 +27,4 @@ cf login || { echo -e >&2 "\nScript aborted due to failed login. Please check yo
 
 echo -e "\nSuccessfully logged in, will continue...\n"
 
-cf app "$1" --guid >/dev/null || { echo >&2 "App $1 not found, did you target the correct space?"; exit 1; }
-cf app "$2" --guid >/dev/null || { echo >&2 "Approuter $2 not found, did you target the correct space?"; exit 1; }
-
-
-
-
+cf app "$1" --guid &>/dev/null || { echo >&2 "App $1 not found, did you target the correct space?"; exit 1; }
