@@ -3,6 +3,14 @@
 #functions
 usage() { echo >&2 -e "Usage: ./logcollector.sh <app-name> [<approuter-name]>]"; exit 0; }
 
+checkappname() {
+	cf app "$1" --guid &>/dev/null || { echo -e >&2 "\nApp/Approuter $1 not found, did you target the correct space?"; exit 1; }
+}       
+
+#Variables
+appname="$1"
+
+
 #Check number of args
 if [[ $# -eq 0 || $# -gt 2 ]]
 then
@@ -27,4 +35,10 @@ cf login || { echo -e >&2 "\nScript aborted due to failed login. Please check yo
 
 echo -e "\nSuccessfully logged in, will continue..."
 
-cf app "$1" --guid &>/dev/null || { echo -e >&2 "\nApp $1 not found, did you target the correct space?"; exit 1; }
+checkappname "$1"
+
+if [[ -n $2 ]]
+then
+	checkappname "$2"
+	approutername="$2"
+fi
