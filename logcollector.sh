@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+echo -e "\nLogging in...\n"
+
 #functions
 usage() { echo >&2 -e "Usage: ./logcollector.sh <app-name> [<approuter-name]>]"; exit 0; }
 
@@ -9,7 +11,7 @@ checkappname() {
 
 #Variables
 appname="$1"
-
+approutername="$1-approuter"
 
 #Check number of args
 if [[ $# -eq 0 || $# -gt 2 ]]
