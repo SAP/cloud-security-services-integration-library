@@ -11,7 +11,6 @@ checkappname() {
 appname="$1"
 approutername="$2"
 logszip="$HOME/logcollection.zip"
-logstxt="/tmp/logcollection.txt"
 
 if [[ -n $3 ]]
 then
@@ -39,7 +38,7 @@ hash cf 2>/dev/null || { echo >&2 "cf command line client not found, please inst
 
 #login to the correct API endpoint
 echo -e "\nLogging in...\n"
-cf login || { echo -e >&2 "\nScript aborted due to failed login. Please check your credentials and try again."; exit 1; }
+#cf login || { echo -e >&2 "\nScript aborted due to failed login. Please check your credentials and try again."; exit 1; }
 
 echo -e "\nSuccessfully logged in, will continue..."
 
@@ -63,12 +62,7 @@ read -rp "When you are done please press ENTER to collect the logs..."
 
 echo -e "\nCollecting the logs..."
 
-echo -e "Approuter logs:\n\n" >"$logstxt"
-cf logs "$approutername" --recent >>"$logstxt"
-echo -e "App logs:\n\n" >>"$logstxt"
-cf logs "$appname" --recent >>"$logstxt"
-zip "$logszip" "$logstxt" >/dev/null
-rm "$logstxt"
+{ echo -e "Approuter logs:\n\n"; cf logs "$approutername" --recent; echo -e "\n\nApp logs:\n\n"; cf logs "$appname" --recent; } | zip -q "$logszip" -
 
 #Unsetting env variables and restarting apps
 echo -e "\nRestoring log levels...\n"
