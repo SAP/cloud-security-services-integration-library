@@ -18,7 +18,7 @@ then
 fi
 
 #Check number of args
-if [[ $# -eq 0 || $# -gt 3 ]]
+if [[ $# -lt 2 || $# -gt 3 ]]
 then
 	usage
 	exit 1
