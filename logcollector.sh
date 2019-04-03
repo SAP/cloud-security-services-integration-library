@@ -38,7 +38,7 @@ hash cf 2>/dev/null || { echo >&2 "cf command line client not found, please inst
 
 #login to the correct API endpoint
 echo -e "\nLogging in...\n"
-#cf login || { echo -e >&2 "\nScript aborted due to failed login. Please check your credentials and try again."; exit 1; }
+cf login || { echo -e >&2 "\nScript aborted due to failed login. Please check your credentials and try again."; exit 1; }
 
 echo -e "\nSuccessfully logged in, will continue..."
 
