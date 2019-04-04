@@ -38,16 +38,14 @@ hash cf 2>/dev/null || { echo >&2 "cf command line client not found, please inst
 
 #login to the correct API endpoint
 echo -e "\nLogging in...\n"
-#cf login || { echo -e >&2 "\nScript aborted due to failed login. Please check your credentials and try again."; exit 1; }
+cf login || { echo -e >&2 "\nScript aborted due to failed login. Please check your credentials and try again."; exit 1; }
 
 echo -e "\nSuccessfully logged in, will continue...\n"
 
 checkappname "$appname"
 checkappname "$approutername"
 
-#echo -e "This will restart your application \e[36m\e[1m$appname\e[0m and your application router \e[36m\e[1m$approutername\e[0m. Are you sure (y/n)?"
-#read -r answer
-printf "This will restart your application \e[36m\e[1m%s\e[0m and your application router \e[36m\e[1m%s\e[0m twice. Are you sure (y/n)?" "$appname" "$approutername"
+printf "\nThis will restart your application \e[36m\e[1m%s\e[0m and your application router \e[36m\e[1m%s\e[0m twice. Are you sure (y/n)?" "$appname" "$approutername"
 read -rs -n 1 -p "" answer
 if [ "$answer" != "${answer#[Yy]}" ]
 then
