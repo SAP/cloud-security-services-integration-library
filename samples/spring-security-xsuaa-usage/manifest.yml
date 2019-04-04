@@ -1,0 +1,32 @@
+---
+# Configuration:
+# configured for EU10. For other landscapes, please adopt LANDSCAPE_APPS_DOMAIN in ../vars.yml
+# If the route is occupied, you might need to change ID in in ../vars.yml
+applications:
+# Application sap-java-buildpack-api-usage
+- name: spring-security-xsuaa-usage
+  instances: 1
+  memory: 896M
+  routes:
+    - route: spring-security-xsuaa-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
+  path: target/spring-security-xsuaa-usage.jar
+  services:
+    - xsuaa-authentication
+
+# Application Router as web server
+- name: approuter-spring-security-xsuaa-usage
+  path: approuter
+  buildpack: nodejs_buildpack
+  memory: 128M
+  routes:
+    - route: spring-security-xsuaa-usage-web-((ID)).((LANDSCAPE_APPS_DOMAIN))
+  services:
+    - xsuaa-authentication
+  env:
+    destinations: >
+      [
+        {"name":"token-destination",
+         "url":"https://spring-security-xsuaa-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))",
+         "forwardAuthToken": true}
+      ]
+...
