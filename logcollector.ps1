@@ -56,3 +56,27 @@ cf set-env "$approutername" XS_APP_LOG_LEVEL DEBUG
 cf set-env "$appname" SAP_EXT_TRC stdout
 cf set-env "$appname" SAP_EXT_TRL 3
 cf set-env "$appname" DEBUG xssec*
+
+Write-Host "`nThis will restart your application " -NoNewline; Write-Host "$appname" -ForegroundColor Cyan -NoNewline; Write-Host " and your application router " -NoNewline; Write-Host "$approutername" -ForegroundColor Cyan -NoNewline; Write-Host " twice."
+$Title = ""
+$Info = "Are you sure?"
+$options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Yes", "&No")
+[int]$defaultchoice = 1
+$opt = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+switch($opt){
+    0 {
+        Write-Output "`nRestart the app and the approuter...`n"
+        cf restart "$approutername"
+        cf restart "$appname"
+    }
+    1 {
+        Write-Output "`nAborted. Please make sure that it is safe to restart your application before executing the script again."
+        exit
+    }
+}
+
+#Creating, collecting and compressing the logs
+Write-Host "Now please repeat your scenario (e.g. try to login to your app or similar)...`n" -ForegroundColor Cyan
+Read-Host -Prompt "When you are done please press ENTER to collect the logs:"
+
+Write-Output "`nCollecting the logs..."
