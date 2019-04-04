@@ -11,7 +11,7 @@ Then you can replay your scenario. After that the script restores the log levels
 ## Requirements
 - Powershell or Bash
 
-## How to
+## How to use
 1. Download the script according to your shell (Windows: [logcollector.ps1](logcollector.ps1), Bash on *nix: [logcollector.sh](logcollector.sh); Right-click -> save-link-as)
 
 1. Open your shell and navigate to the script path
