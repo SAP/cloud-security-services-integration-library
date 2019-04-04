@@ -68,7 +68,7 @@ cf restart "$appname"
 
 #Creating, collecting and compressing the logs
 echo -e "\n\e[36m\e[1mNow please repeat your scenario (e.g. try to login to your app or similar)...\e[0m\n"
-read -rp "When you are done please press ENTER to collect the logs..."
+read -rp "When you are done please press ENTER to collect the logs:"
 
 echo -e "\nCollecting the logs..."
 
