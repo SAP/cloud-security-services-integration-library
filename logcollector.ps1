@@ -105,6 +105,6 @@ cf restart "$approutername"
 cf restart "$appname"
 
 #End
-Write-Host "`nAll done." -ForegroundColor Green -NoNewline
+Write-Host "`nAll done. " -ForegroundColor Green -NoNewline
 Write-Host "Your file is here: "
 Resolve-Path $logszip
