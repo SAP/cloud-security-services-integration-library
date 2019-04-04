@@ -13,7 +13,8 @@
     https://github.com/SAP/cloud-security-xsuaa-integration/troubleshooting/logcollector
 #>
 
-if ( ($args.Count -lt 2) -Or ($args.Count -gt 3) ) {
+if (($args.Count -lt 2) -Or ($args.Count -gt 3))
+{
     Write-Output "Usage: .\logcollector.ps1 <app-name> <approuter-name> [output-file]`nIf no output file is specified $HOME\logcollection.zip will be used."
     break
 }
@@ -24,15 +25,18 @@ $approutername = $args[1]
 
 #Write-Output $args.Count
 
-if ( -Not  $args[2] ){
+if (-Not  $args[2])
+{
     $logszip="$HOME\logcollection.zip"
 }
 
-function checkappname() {
+function checkappname()
+{
     cf app "$args" --guid *> $null
-	if (-Not $?) {
+    if (-Not $?) 
+    {
         Write-Output "`nApp/Approuter `"$args`" not found, did you target the correct space?"
-        }
+    }
     break
 }
 
@@ -50,3 +54,14 @@ Write-Output "`nSuccessfully logged in, will continue..."
 
 checkappname "$appname"
 checkappname "$approutername"
+
+#Set the enviroment variables and restart the apps
+Write-Output "`nSetting log levels...`n"
+cf set-env "$approutername" XS_APP_LOG_LEVEL DEBUG
+cf set-env "$appname" SAP_EXT_TRC stdout
+cf set-env "$appname" SAP_EXT_TRL 3
+cf set-env "$appname" DEBUG xssec*
+
+Write-Output "`nRestart the app and the approuter...`n"
+cf restart "$approutername"
+cf restart "$appname"
