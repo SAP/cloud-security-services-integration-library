@@ -43,7 +43,7 @@ if (-Not (Get-Command cf)) {
 }
 #login to the correct API endpoint
 Write-Output "`nLogging in...`n"
-#cf login
+cf login
 
 Write-Output "`nSuccessfully logged in, will continue..."
 
