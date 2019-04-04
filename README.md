@@ -47,7 +47,7 @@ git clone https://github.com/SAP/cloud-security-xsuaa-integration
 cd cloud-security-xsuaa-integration
 mvn package
 ```
-*Note:* Use this is you want to enahnce this xsuaa integration libraries. The buid results are also available on maven central. 
+*Note:* Use this is you want to enhance this xsuaa integration libraries. The buid results are also available on maven central. 
 
 # Limitations
 Libraries and information provided here is around the topic of integrating with the xsuaa service. General integration into other OAuth authorization servers is not the primary focus.
