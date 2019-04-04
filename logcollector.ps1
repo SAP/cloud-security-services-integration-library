@@ -13,8 +13,7 @@
     https://github.com/SAP/cloud-security-xsuaa-integration/troubleshooting/logcollector
 #>
 
-if (($args.Count -lt 2) -Or ($args.Count -gt 3))
-{
+if (($args.Count -lt 2) -Or ($args.Count -gt 3)) {
     Write-Output "Usage: .\logcollector.ps1 <app-name> <approuter-name> [output-file]`nIf no output file is specified $HOME\logcollection.zip will be used."
     break
 }
@@ -25,24 +24,20 @@ $approutername = $args[1]
 
 #Write-Output $args.Count
 
-if (-Not  $args[2])
-{
+if (-Not  $args[2]) {
     $logszip="$HOME\logcollection.zip"
 }
 
-function checkappname()
-{
+function checkappname() {
     cf app "$args" --guid *> $null
-    if (-Not $?) 
-    {
+    if (-Not $?) {
         Write-Output "`nApp/Approuter `"$args`" not found, did you target the correct space?"
+        break
     }
-    break
 }
 
 #Checking if cf-cli is installed
-if ( -Not (Get-Command cf) )
-{
+if (-Not (Get-Command cf)) {
     Write-Output "cf command line client not found, please install cf cli first (https://github.com/cloudfoundry/cli#downloads)."
     break
 }
@@ -61,7 +56,3 @@ cf set-env "$approutername" XS_APP_LOG_LEVEL DEBUG
 cf set-env "$appname" SAP_EXT_TRC stdout
 cf set-env "$appname" SAP_EXT_TRL 3
 cf set-env "$appname" DEBUG xssec*
-
-Write-Output "`nRestart the app and the approuter...`n"
-cf restart "$approutername"
-cf restart "$appname"
