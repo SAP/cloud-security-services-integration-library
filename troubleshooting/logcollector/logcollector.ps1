@@ -36,7 +36,7 @@ function cflogin() {
     cf login
     if (-Not $?) {
         Write-Host "You need to login to continue. Aborting..."
-        exit
+        break
     }
 }
 
