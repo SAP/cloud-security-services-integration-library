@@ -1,40 +1,38 @@
 <#
-.DESCRIPTION
-  This script changes the log levels of given cloud foundry applications, collect the logs, outputs them to one zip file and resets the log levels again. See https://github.com/SAP/cloud-security-xsuaa-integration/troubleshooting/logcollector/ for more information.
-.USAGE
-  ./logcollector.ps1 my-cf-app my-cf-app-router my-output.zip
-.PARAM
-    appname
-    approutername
-    [logszip]
-.OPTIONS
-    -h
-.LINK  
-    https://github.com/SAP/cloud-security-xsuaa-integration/troubleshooting/logcollector
+.Description
+    This script changes the log levels of given cloud foundry applications, collect the logs, outputs them to one zip file and resets the log levels again.
+.Link
+    https://github.com/SAP/cloud-security-xsuaa-integration/troubleshooting/logcollector/
+.Parameter appname
+    Specifies the name of your application.
+.Parameter approutername
+    Specifies the name of your application router.
+.Parameter logszip
+    Specifies the location of the output zip file. $HOME\logcollection.zip is the default.
 #>
 
-if (($args.Count -lt 2) -Or ($args.Count -gt 3)) {
-    Write-Host "Usage: .\logcollector.ps1 <app-name> <approuter-name> [output-file]`nIf no output file is specified $HOME\logcollection.zip will be used."
-    break
-}
+param(
+    [Parameter(Mandatory=$True, HelpMessage="Enter application name.", Position=0)]
+    [String]$appname,
+    [Parameter(Mandatory=$True, HelpMessage="Enter application router name.", Position=1)]
+    [String]$approutername,
+    [Parameter(Mandatory=$false, HelpMessage="Enter path to output zip file.", Position=2)]
+    [String]$logszip="$HOME\logcollection.zip"
+)
 
-#Variables
-$appname = $args[0]
-$approutername = $args[1]
-
-#Write-Output $args.Count
-
-if (-Not  $args[2]) {
-    $logszip="$HOME\logcollection.zip"
-} else {
-    $logszip = $args[2]
-}
-
+#Functions
 function checkappname() {
     cf app "$args" --guid *> $null
     if (-Not $?) {
         Write-Host "`nApp/Approuter `"$args`" not found, did you target the correct space?"
         break
+    }
+}
+function cflogin() {
+    cf login
+    if (-Not $?) {
+        Write-Host "You need to login to continue. Aborting..."
+        exit
     }
 }
 
@@ -43,15 +41,15 @@ if (-Not (Get-Command cf)) {
     Write-Host "cf command line client not found, please install cf cli first (https://github.com/cloudfoundry/cli#downloads)."
     break
 }
+
 #login to the correct API endpoint
 Write-Host "`nLogging in...`n"
-cf login
-
+cflogin
 Write-Host "`nSuccessfully logged in, will continue..."
-
 checkappname "$appname"
 checkappname "$approutername"
 
+#Check for restart the apps
 Write-Host "`nThis will restart your application " -NoNewline; Write-Host "$appname" -ForegroundColor Cyan -NoNewline; Write-Host " and your application router " -NoNewline; Write-Host "$approutername" -ForegroundColor Cyan -NoNewline; Write-Host " twice."
 $Title = ""
 $Info = "Are you sure?"
