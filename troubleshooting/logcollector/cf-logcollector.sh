@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 #functions
-usage() { echo -e >&2 "Usage: ./logcollector.sh <app-name> <approuter-name> [output-file]\nIf no output file is specified $HOME/logcollection.zip will be used."; exit 0; }
+usage() { echo -e >&2 "Usage: ./cf-logcollector.sh <app-name> <approuter-name> [output-file]\nIf no output file is specified $HOME/logcollection.zip will be used."; exit 0; }
 
 checkappname() {
 	cf app "$1" --guid &>/dev/null || { echo -e >&2 "\nApp/Approuter \"$1\" not found, did you target the correct space?"; exit 1; }
