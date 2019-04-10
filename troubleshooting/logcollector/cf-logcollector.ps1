@@ -10,9 +10,9 @@
 .Parameter Logs
     Specifies the location of the output zip file. $HOME\logcollection.zip is the default.
 .Example
-    .\logcollector.ps1 my-sample-app my-sample-approuter logs.zip
+    .\cf-logcollector.ps1 my-sample-app my-sample-approuter logs.zip
 .Example
-    .\logcollector.ps1 -App myapp -Approuter myapprouter -Logs logs.zip
+    .\cf-logcollector.ps1 -App myapp -Approuter myapprouter -Logs logs.zip
 #>
 
 param(
