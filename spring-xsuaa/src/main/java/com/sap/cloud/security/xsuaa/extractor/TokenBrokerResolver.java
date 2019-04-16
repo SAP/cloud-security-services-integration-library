@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cache.Cache;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.util.StringUtils;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
@@ -105,7 +106,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		for (AuthenticationMethod credentialType : authenticationMethods) {
 			Enumeration<String> headers = request.getHeaders(AUTHORIZATION_HEADER);
 			String token = getBrokerToken(credentialType, headers, oauthTokenUrl);
-			return token;
+			if (!StringUtils.isEmpty(token)) {
+				return token;
+			}
 		}
 		return null;
 	}
