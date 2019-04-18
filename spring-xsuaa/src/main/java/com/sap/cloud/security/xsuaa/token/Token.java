@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Date;
 
 public interface Token extends UserDetails {
 	String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
@@ -157,4 +158,11 @@ public interface Token extends UserDetails {
 	 */
 	@Override
 	Collection<? extends GrantedAuthority> getAuthorities();
+
+	/**
+	 * Returns date of when jwt token expires.
+	 *
+	 * @return expiration date
+	 */
+	Date getExpirationDate();
 }
