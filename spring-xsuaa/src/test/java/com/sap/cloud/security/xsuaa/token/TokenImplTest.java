@@ -35,10 +35,10 @@ public class TokenImplTest {
 	private Jwt jwtCC;
 	private Jwt jwtCCNoAttributes;
 	private JWTClaimsSet.Builder claimsSetBuilder = null;
-	private String xsAppName = "my-app-name!400";
+	private String xsAppName = "my-app-name!t400";
 	private String scopeRead = xsAppName + "." + "Read";
 	private String scopeWrite = xsAppName + "." + "Write";
-	private String scopeOther = "other-app-name!777.Other";
+	private String scopeOther = "other-app-name!t777.Other";
 	private String userName = "testUser";
 	private String zoneId = "e2f7fbdb-0326-40e6-940f-dfddad057ff3";
 
@@ -74,6 +74,7 @@ public class TokenImplTest {
 		assertThat(token.isAccountNonExpired(), is(true));
 		assertThat(token.getAuthorities().size(), is(0));
 		assertThat(token.isEnabled(), is(false));
+		assertThat(token.getExpirationDate(), is(JwtGenerator.NO_EXPIRE_DATE));
 		assertThat(token.getAdditionalAuthAttribute("any"), nullValue());
 	}
 

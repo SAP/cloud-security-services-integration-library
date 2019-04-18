@@ -3,6 +3,7 @@ package com.sap.cloud.security.xsuaa.token;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +55,7 @@ public class TokenImpl implements Token {
 	 * @param jwt
 	 *            token
 	 * @param appId
-	 *            app name
+	 *            e.g. myapp!t123
 	 */
 	protected TokenImpl(Jwt jwt, String appId) {
 		this.appId = appId;
@@ -64,6 +65,10 @@ public class TokenImpl implements Token {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return this.authorities;
+	}
+
+	@Override public Date getExpirationDate() {
+		return jwt.getExpiresAt() != null ? Date.from(jwt.getExpiresAt()) : null;
 	}
 
 	@Override
