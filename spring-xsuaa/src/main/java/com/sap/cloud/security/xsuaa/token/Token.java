@@ -142,7 +142,7 @@ public interface Token extends UserDetails {
 
 	/**
 	 * Returns list of scopes with appId prefix, e.g.
-	 * "&lt;my-xsapp!123&gt;.Display".
+	 * "&lt;my-app!t123&gt;.Display".
 	 *
 	 * @return all scopes
 	 */
