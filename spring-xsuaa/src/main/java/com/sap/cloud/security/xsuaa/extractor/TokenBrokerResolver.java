@@ -17,6 +17,7 @@ import org.springframework.cache.Cache;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.springframework.util.StringUtils;
 
 /**
  * Analyse authentication header and obtain token from UAA
@@ -105,7 +106,10 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		for (AuthenticationMethod credentialType : authenticationMethods) {
 			Enumeration<String> headers = request.getHeaders(AUTHORIZATION_HEADER);
 			String token = getBrokerToken(credentialType, headers, oauthTokenUrl);
-			return token;
+			// TODO add test case in BasicCredentialExtractorTest
+			if (!StringUtils.isEmpty(token)) {
+				return token;
+			}
 		}
 		return null;
 	}
