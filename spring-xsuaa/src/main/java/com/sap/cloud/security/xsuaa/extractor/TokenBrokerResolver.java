@@ -106,7 +106,6 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		for (AuthenticationMethod credentialType : authenticationMethods) {
 			Enumeration<String> headers = request.getHeaders(AUTHORIZATION_HEADER);
 			String token = getBrokerToken(credentialType, headers, oauthTokenUrl);
-			// TODO add test case in BasicCredentialExtractorTest
 			if (!StringUtils.isEmpty(token)) {
 				return token;
 			}
