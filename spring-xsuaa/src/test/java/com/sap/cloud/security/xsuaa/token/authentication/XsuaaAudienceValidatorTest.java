@@ -1,5 +1,8 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,9 +56,18 @@ public class XsuaaAudienceValidatorTest {
 
 	@Test
 	public void testSameClientIdWithoutAudience() {
-		OAuth2TokenValidatorResult result2 = new XsuaaAudienceValidator(serviceConfigurationSameClientId)
+		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationSameClientId)
 				.validate(tokenWithoutAudience);
-		Assert.assertFalse(result2.hasErrors());
+		Assert.assertFalse(result.hasErrors());
+	}
+
+	@Test
+	public void testExtractAudiencesFromTokenScopes() {
+		Jwt token = new JwtGenerator().addScopes("test1!t1.read","test2!t1.read","test2!t1.write").getToken();
+		List<String> audiences = new XsuaaAudienceValidator(serviceConfigurationSameClientId).getAllowedAudiences(token);
+		Assert.assertThat(audiences.size(), is(2));
+		Assert.assertThat(audiences, hasItem("test1!t1"));
+		Assert.assertThat(audiences, hasItem("test2!t1"));
 	}
 
 	@Test
