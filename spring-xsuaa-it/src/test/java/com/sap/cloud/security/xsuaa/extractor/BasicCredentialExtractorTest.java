@@ -43,30 +43,9 @@ public class BasicCredentialExtractorTest {
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 		request = new MockHttpServletRequest();
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@After
-	public void tearDown() throws Exception {
 	}
 
 	@Test
@@ -88,27 +67,6 @@ public class BasicCredentialExtractorTest {
 		request.addHeader("X-Identity-Zone-Subdomain", "other");
 		String token = extractor.resolve(request);
 		assertThat(token).isEqualTo("other_token_pwd");
-	}
-
-	private XsuaaServiceConfigurationDummy getXsuaaServiceConfiguration() {
-		XsuaaServiceConfigurationDummy cfg = new XsuaaServiceConfigurationDummy();
-		cfg.appId = "a1!123";
-		cfg.clientId = "myclient!t1";
-		cfg.clientSecret = "top.secret";
-		cfg.uaaDomain = "auth.com";
-		cfg.uaaUrl = "https://mydomain.auth.com";
-		return cfg;
-	}
-
-	public AuthenticationInformationExtractor authenticationMethods(AuthenticationMethod... methods) {
-		return new DefaultAuthenticationInformationExtractor() {
-
-			@Override
-			public List<AuthenticationMethod> getAuthenticationMethods(HttpServletRequest request) {
-				return Arrays.asList(methods);
-			}
-		};
-
 	}
 
 	@Test
@@ -137,7 +95,7 @@ public class BasicCredentialExtractorTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void invalidCombinedCredentials() {
+	public void testInvalidCombinedCredentials() {
 
 		AuthenticationInformationExtractor invalidCombination = new DefaultAuthenticationInformationExtractor() {
 
@@ -156,16 +114,47 @@ public class BasicCredentialExtractorTest {
 	}
 
 	@Test
-	public void combinedCredentials() {
+	public void testCombinedCredentials() {
 		request.addHeader("Authorization", "Bearer "
 				+ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
 
 		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache, tokenBroker,
-				authenticationMethods(AuthenticationMethod.OAUTH2, AuthenticationMethod.OAUTH2));
+				authenticationMethods(AuthenticationMethod.OAUTH2, AuthenticationMethod.BASIC));
 
 		String token = extractor.resolve(request);
 		assertThat(token).isEqualTo(
 				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
 	}
 
+	@Test
+	public void testCombinedCredentials_shouldTakeBasicAsFallback() {
+		request.addHeader("Authorization", "basic " + Base64.getEncoder().encodeToString("myuser:mypass".getBytes()));
+
+		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache, tokenBroker,
+				authenticationMethods(AuthenticationMethod.BASIC, AuthenticationMethod.OAUTH2));
+
+		String token = extractor.resolve(request);
+		assertThat(token).isEqualTo("token_pwd");
+	}
+
+	private XsuaaServiceConfigurationDummy getXsuaaServiceConfiguration() {
+		XsuaaServiceConfigurationDummy cfg = new XsuaaServiceConfigurationDummy();
+		cfg.appId = "a1!123";
+		cfg.clientId = "myclient!t1";
+		cfg.clientSecret = "top.secret";
+		cfg.uaaDomain = "auth.com";
+		cfg.uaaUrl = "https://mydomain.auth.com";
+		return cfg;
+	}
+
+	public AuthenticationInformationExtractor authenticationMethods(AuthenticationMethod... methods) {
+		return new DefaultAuthenticationInformationExtractor() {
+
+			@Override
+			public List<AuthenticationMethod> getAuthenticationMethods(HttpServletRequest request) {
+				return Arrays.asList(methods);
+			}
+		};
+
+	}
 }
