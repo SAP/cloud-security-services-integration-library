@@ -75,7 +75,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 				}
 			}
 		}
-		return allAudiences.stream().distinct().collect(Collectors.toList());
+		return allAudiences.stream().distinct().filter(value -> !value.isEmpty()).collect(Collectors.toList());
 	}
 
 	private List<String> getScopes(Jwt token) {

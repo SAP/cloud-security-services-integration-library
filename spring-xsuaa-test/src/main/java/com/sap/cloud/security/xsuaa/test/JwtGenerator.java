@@ -198,9 +198,10 @@ public class JwtGenerator {
 		for (String scope : scopes) {
 			if (scope.contains(".")) {
 				String aud = scope.substring(0, scope.indexOf("."));
-				if (!audiences.contains(aud)) {
-					audiences.add(aud);
+				if (aud.isEmpty() || audiences.contains(aud)) {
+					break;
 				}
+				audiences.add(aud);
 			}
 		}
 		return audiences;

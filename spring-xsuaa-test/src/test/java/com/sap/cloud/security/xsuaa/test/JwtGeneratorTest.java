@@ -109,7 +109,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void testTokenWithCustomClaims() throws IOException {
+	public void testTokenWithCustomClaims() {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("myCustomClaim", "myCustomClaimValue");
 		Jwt jwt = jwtGenerator.addCustomClaims(claims).getToken();
@@ -118,9 +118,9 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void testTokenWithAudienceClaims() throws IOException {
+	public void testTokenWithDerivedAudienceClaim() {
 
-		Jwt jwt = jwtGenerator.addScopes("openid", "app1.scope", "app2.sub.scope", "app2.scope").deriveAudiences(true)
+		Jwt jwt = jwtGenerator.addScopes("openid", "app1.scope", "app2.sub.scope", "app2.scope", ".scopeWithoutAppId").deriveAudiences(true)
 				.getToken();
 
 		assertThat(jwt.getAudience().size(), equalTo(2));
