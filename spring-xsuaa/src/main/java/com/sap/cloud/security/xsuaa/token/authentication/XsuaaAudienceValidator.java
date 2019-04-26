@@ -2,15 +2,15 @@ package com.sap.cloud.security.xsuaa.token.authentication;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.token.Token;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.token.Token;
 
 /**
  * Validate audience using audience field content. in case this field is empty,
@@ -34,7 +34,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 			return OAuth2TokenValidatorResult.success();
 		} else {
 			// case 2: foreign token
-			List<String> allowedAudiences = allowedAudiences(token);
+			List<String> allowedAudiences = getAllowedAudiences(token);
 			if (allowedAudiences.contains(xsuaaServiceConfiguration.getAppId())) {
 				return OAuth2TokenValidatorResult.success();
 			} else {
@@ -51,7 +51,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	 * @param token
 	 * @return (empty) list of audiences
 	 */
-	private List<String> allowedAudiences(Jwt token) {
+	List<String> getAllowedAudiences(Jwt token) {
 		List<String> allAudiences = new ArrayList<>();
 		List<String> tokenAudiences = token.getAudience();
 
@@ -75,7 +75,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 				}
 			}
 		}
-		return allAudiences;
+		return allAudiences.stream().distinct().collect(Collectors.toList());
 	}
 
 	private List<String> getScopes(Jwt token) {
