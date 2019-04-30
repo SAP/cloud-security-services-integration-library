@@ -1,6 +1,9 @@
 # Change Log 
 
 All notable changes to this project will be documented in this file.
+## 1.4.0
+* API method to query token validity
+* Bugfix in basic authentication support: allow  usage of JWT token or basic authentication with one configuration
 ## 1.3.1
 * Broker plan validation failed due to incorrect audience validation
 ## 1.3.0
