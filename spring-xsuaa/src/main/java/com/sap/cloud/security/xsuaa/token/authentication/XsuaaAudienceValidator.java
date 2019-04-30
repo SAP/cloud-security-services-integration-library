@@ -18,7 +18,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
  *
  */
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
-	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
+	protected XsuaaServiceConfiguration xsuaaServiceConfiguration;
+
 
 	public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
@@ -51,7 +52,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	 * @param token
 	 * @return (empty) list of audiences
 	 */
-	List<String> getAllowedAudiences(Jwt token) {
+	static List<String> getAllowedAudiences(Jwt token) {
 		List<String> allAudiences = new ArrayList<>();
 		List<String> tokenAudiences = token.getAudience();
 
@@ -78,7 +79,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 		return allAudiences.stream().distinct().filter(value -> !value.isEmpty()).collect(Collectors.toList());
 	}
 
-	private List<String> getScopes(Jwt token) {
+	static List<String> getScopes(Jwt token) {
 		List<String> scopes = null;
 		scopes = token.getClaimAsStringList(Token.CLAIM_SCOPES);
 		return scopes != null ? scopes : new ArrayList<>();

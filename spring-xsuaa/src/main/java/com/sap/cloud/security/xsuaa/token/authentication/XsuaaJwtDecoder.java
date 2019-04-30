@@ -1,6 +1,8 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -23,14 +25,22 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 	Cache<String, JwtDecoder> cache;
 	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
+	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
 
-	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidity, int cacheSize) {
+	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidity, int cacheSize, OAuth2TokenValidator<Jwt> audienceTokenValidator) {
 		cache = Caffeine.newBuilder().expireAfterWrite(5, TimeUnit.SECONDS).maximumSize(cacheSize).build();
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
+		// configure token validators
+		tokenValidators.add(new JwtTimestampValidator());
+		if (audienceTokenValidator != null)
+			tokenValidators.add(audienceTokenValidator); // default
+		else {
+			tokenValidators.add(new XsuaaAudienceValidator(xsuaaServiceConfiguration));
+		}
 	}
 
 	@Override
-	public Jwt decode(String token) throws JwtException {
+	public Jwt decode(String token) {
 		try {
 			JWT jwt = JWTParser.parse(token);
 			String subdomain = getSubdomain(jwt);
@@ -43,12 +53,10 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 	}
 
-	private JwtDecoder getDecoder(String zid, String subdomain) {
+	protected JwtDecoder getDecoder(String zid, String subdomain) {
 		String url = xsuaaServiceConfiguration.getTokenKeyUrl(zid, subdomain);
 		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(url);
-		OAuth2TokenValidator<Jwt> validators = new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(),
-				new XsuaaAudienceValidator(xsuaaServiceConfiguration));
-		decoder.setJwtValidator(validators);
+		decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(tokenValidators));
 		return decoder;
 	}
 
