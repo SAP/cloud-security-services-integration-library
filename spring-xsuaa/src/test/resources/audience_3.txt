@@ -1,5 +1,5 @@
 {
- "client_id":"sb-clone1!b22|test3!b1",
+ "cid":"sb-clone1!b22|test3!b1",
  "exp":$exp,
  "scope":["test1!t1.read","test2!t1.write"],
  "user_name":"testUser",

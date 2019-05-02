@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.Assert;
 
 /**
  * Validate audience using audience field content. in case this field is empty,
@@ -27,11 +28,14 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
+		String client_id = token.getClaimAsString(Token.CLIENT_ID);
+		Assert.hasText(client_id, "token must contain 'cid' (client_id)");
+
 		// case 1 : token issued by own client (or master)
-		if (xsuaaServiceConfiguration.getClientId().equals(token.getClaimAsString("client_id"))
+		if (xsuaaServiceConfiguration.getClientId().equals(client_id)
 				|| (xsuaaServiceConfiguration.getAppId().contains("!b")
-						&& token.getClaimAsString("client_id").contains("|")
-						&& token.getClaimAsString("client_id").endsWith("|" + xsuaaServiceConfiguration.getAppId()))) {
+						&& client_id.contains("|")
+						&& client_id.endsWith("|" + xsuaaServiceConfiguration.getAppId()))) {
 			return OAuth2TokenValidatorResult.success();
 		} else {
 			// case 2: foreign token
