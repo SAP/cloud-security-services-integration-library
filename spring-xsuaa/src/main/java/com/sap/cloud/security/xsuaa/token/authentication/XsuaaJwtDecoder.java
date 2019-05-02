@@ -2,6 +2,7 @@ package com.sap.cloud.security.xsuaa.token.authentication;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -27,16 +28,17 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
 	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
 
-	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidity, int cacheSize, OAuth2TokenValidator<Jwt> cloneTokenValidator) {
+	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidity, int cacheSize, OAuth2TokenValidator<Jwt>... tokenValidators) {
 		cache = Caffeine.newBuilder().expireAfterWrite(5, TimeUnit.SECONDS).maximumSize(cacheSize).build();
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 		// configure token validators
-		tokenValidators.add(new JwtTimestampValidator());
-		tokenValidators.add(new XsuaaAudienceValidator(xsuaaServiceConfiguration));
-		if (cloneTokenValidator != null)
-			tokenValidators.add(cloneTokenValidator); // default
-		else {
-			tokenValidators.add(new XsuaaCloneTokenValidator(xsuaaServiceConfiguration.getClientId(), xsuaaServiceConfiguration.getAppId()));
+		this.tokenValidators.add(new JwtTimestampValidator());
+
+		if(tokenValidators == null) {
+			this.tokenValidators.add(new XsuaaAudienceValidator(xsuaaServiceConfiguration));
+			this.tokenValidators.add(new XsuaaCloneTokenValidator(xsuaaServiceConfiguration.getClientId(), xsuaaServiceConfiguration.getAppId()));
+		} else {
+			this.tokenValidators.addAll(Arrays.asList(tokenValidators));
 		}
 	}
 
