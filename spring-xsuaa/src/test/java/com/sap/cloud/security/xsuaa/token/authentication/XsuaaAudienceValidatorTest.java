@@ -23,7 +23,6 @@ public class XsuaaAudienceValidatorTest {
 
 	private Jwt tokenWithAudience;
 	private Jwt tokenWithoutAudience;
-	private Jwt cloneTokenWithoutAudience;
 	private Jwt cloneTokenWithAudience;
 
 	private XsuaaServiceConfiguration serviceConfigurationSameClientId;
@@ -42,7 +41,6 @@ public class XsuaaAudienceValidatorTest {
 		tokenWithAudience = new JwtGenerator().createFromTemplate("/audience_1.txt");
 		tokenWithoutAudience = new JwtGenerator().createFromTemplate("/audience_2.txt");
 		cloneTokenWithAudience = new JwtGenerator().createFromTemplate("/audience_3.txt");
-		cloneTokenWithoutAudience = new JwtGenerator().createFromTemplate("/audience_4.txt");
 
 		claimsBuilder = new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE_DATE);
 		claimsBuilder.claim(Token.CLIENT_ID, "sb-test1!t1");
@@ -148,22 +146,8 @@ public class XsuaaAudienceValidatorTest {
 	}
 
 	@Test
-	public void testBrokerCloneWithAudience_new() {
-		OAuth2TokenValidatorResult result = new XsuaaCloneTokenValidator(serviceConfigurationBrokerPlan.getClientId(), serviceConfigurationBrokerPlan.getAppId())
-				.validate(cloneTokenWithAudience);
-		Assert.assertFalse(result.hasErrors());
-	}
-
-	@Test
 	public void testBrokerCloneWithoutAudience() {
 		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationBrokerPlan)
-				.validate(cloneTokenWithAudience);
-		Assert.assertFalse(result.hasErrors());
-	}
-
-	@Test
-	public void testBrokerCloneWithoutAudience_new() {
-		OAuth2TokenValidatorResult result = new XsuaaCloneTokenValidator(serviceConfigurationBrokerPlan.getClientId(), serviceConfigurationBrokerPlan.getAppId())
 				.validate(cloneTokenWithAudience);
 		Assert.assertFalse(result.hasErrors());
 	}
