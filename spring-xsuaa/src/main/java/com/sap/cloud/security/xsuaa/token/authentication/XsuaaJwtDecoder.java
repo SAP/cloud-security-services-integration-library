@@ -27,15 +27,16 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
 	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
 
-	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidity, int cacheSize, OAuth2TokenValidator<Jwt> audienceTokenValidator) {
+	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidity, int cacheSize, OAuth2TokenValidator<Jwt> cloneTokenValidator) {
 		cache = Caffeine.newBuilder().expireAfterWrite(5, TimeUnit.SECONDS).maximumSize(cacheSize).build();
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 		// configure token validators
 		tokenValidators.add(new JwtTimestampValidator());
-		if (audienceTokenValidator != null)
-			tokenValidators.add(audienceTokenValidator); // default
+		tokenValidators.add(new XsuaaAudienceValidator(xsuaaServiceConfiguration));
+		if (cloneTokenValidator != null)
+			tokenValidators.add(cloneTokenValidator); // default
 		else {
-			tokenValidators.add(new XsuaaAudienceValidator(xsuaaServiceConfiguration));
+			tokenValidators.add(new XsuaaCloneTokenValidator(xsuaaServiceConfiguration.getClientId(), xsuaaServiceConfiguration.getAppId()));
 		}
 	}
 
