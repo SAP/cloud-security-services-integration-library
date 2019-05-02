@@ -23,6 +23,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 
 
 	public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+		Assert.notNull(xsuaaServiceConfiguration, "'xsuaaServiceConfiguration' is required");
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 	}
 
@@ -35,8 +36,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 		}
 
 		// case: foreign token (don't validate broker clone token)
-		if (!(xsuaaServiceConfiguration.getClientId().equals(client_id)
-				|| (client_id.contains("!b")))) {
+		if (!(xsuaaServiceConfiguration.getClientId().equals(client_id) || (client_id.contains("!b")))) {
 			List<String> allowedAudiences = getAllowedAudiences(token);
 			if (allowedAudiences.contains(xsuaaServiceConfiguration.getAppId())) {
 				return OAuth2TokenValidatorResult.success();

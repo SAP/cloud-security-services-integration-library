@@ -29,13 +29,11 @@ public class XsuaaCloneTokenValidator implements OAuth2TokenValidator<Jwt> {
 			OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
 					"Jwt token must contain 'cid' (client_id)", null));
 		}
-		if (brokerClientId.equals(client_id) || (brokerXsAppName.contains("!b") && client_id.contains("|"))) { // is clone token
-			if (!client_id.endsWith("|" + brokerXsAppName)) {  // clone appId matches broker master
+		if (!brokerClientId.equals(client_id) && (brokerXsAppName.contains("!b") && client_id.contains("|"))) { // is clone token
+			if (!client_id.endsWith("|" + brokerXsAppName)) {  // must match to 'xsappname' of xsuaa instance (plan: 'broker')
 				return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
-						"Clone token 'cid' must match to 'xsappname' of xsuaa instance (plan: 'broker'): "
-								+ brokerXsAppName, null));
+						"Unexpected 'cid' (client id)", null));
 			}
-
 		}
 		return OAuth2TokenValidatorResult.success();
 	}

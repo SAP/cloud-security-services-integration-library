@@ -1,12 +1,8 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import java.util.List;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
@@ -15,7 +11,7 @@ public class XsuaaJwtDecoderBuilder {
 	private XsuaaServiceConfiguration configuration;
 	int decoderCacheValidity = 900;
 	int decoderCacheSize = 100;
-	OAuth2TokenValidator<Jwt> cloneTokenValidator;
+	OAuth2TokenValidator<Jwt>[] tokenValidators;
 
 	/**
 	 * Utility for building a JWT decoder configuration
@@ -33,7 +29,7 @@ public class XsuaaJwtDecoderBuilder {
 	 * @return JwtDecoder
 	 */
 	public JwtDecoder build() {
-		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize, cloneTokenValidator);
+		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize, tokenValidators);
 	}
 
 	/**
@@ -67,8 +63,8 @@ public class XsuaaJwtDecoderBuilder {
 	 *
 	 * @return this
 	 */
-	public XsuaaJwtDecoderBuilder withCompatibleTokenAudienceValidator(String brokerClientId, String brokerXsAppName) {
-		this.cloneTokenValidator = new XsuaaCloneTokenValidator(brokerClientId, brokerXsAppName);
+	public XsuaaJwtDecoderBuilder withTokenValidators(OAuth2TokenValidator<Jwt>... tokenValidators) {
+		this.tokenValidators = tokenValidators;
 		return this;
 	}
 
