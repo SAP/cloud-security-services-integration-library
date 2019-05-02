@@ -1,7 +1,11 @@
 package com.sap.xs2.security.container;
 
+import com.sap.cloud.security.xsuaa.token.AuthenticationToken;
+import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 
 import com.sap.cloud.security.xsuaa.token.Token;
@@ -44,4 +48,16 @@ public class SecurityContext {
 		return (Token) principal;
 	}
 
+	static public void init(String appId , Jwt token, boolean extractLocalScopesOnly) {
+		TokenAuthenticationConverter authenticationConverter = new TokenAuthenticationConverter(appId);
+		authenticationConverter.setLocalScopeAsAuthorities(extractLocalScopesOnly);
+		Authentication authentication = authenticationConverter.convert(token);
+
+		SecurityContextHolder.createEmptyContext();
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
+
+	static public void clear() {
+		SecurityContextHolder.clearContext();
+	}
 }
