@@ -7,6 +7,6 @@
  "email":"testUser@testOrg",
  "zid":"demo",
  "grant_type":"password",
- "aud":["b22|test3!b1.read"],
+ "aud":["clone1!b22|test3!b1"],
  "iat": 1532416849
 }
