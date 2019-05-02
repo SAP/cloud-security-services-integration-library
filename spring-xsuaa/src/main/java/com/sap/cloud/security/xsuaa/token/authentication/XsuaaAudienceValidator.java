@@ -29,16 +29,14 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
 		String client_id = token.getClaimAsString(Token.CLIENT_ID);
-		Assert.hasText(client_id, "token must contain 'cid' (client_id)");
+		if(client_id == null) {
+			OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
+					"Jwt token must contain 'cid' (client_id)", null));
+		}
 
-		// case 1 : token issued by own client (or master)
-		if (xsuaaServiceConfiguration.getClientId().equals(client_id)
-				|| (xsuaaServiceConfiguration.getAppId().contains("!b")
-						&& client_id.contains("|")
-						&& client_id.endsWith("|" + xsuaaServiceConfiguration.getAppId()))) {
-			return OAuth2TokenValidatorResult.success();
-		} else {
-			// case 2: foreign token
+		// case: foreign token (don't validate broker clone token)
+		if (!(xsuaaServiceConfiguration.getClientId().equals(client_id)
+				|| (client_id.contains("!b")))) {
 			List<String> allowedAudiences = getAllowedAudiences(token);
 			if (allowedAudiences.contains(xsuaaServiceConfiguration.getAppId())) {
 				return OAuth2TokenValidatorResult.success();
@@ -47,6 +45,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 						"Missing audience " + xsuaaServiceConfiguration.getAppId(), null));
 			}
 		}
+		return OAuth2TokenValidatorResult.success();
 	}
 
 	/**
