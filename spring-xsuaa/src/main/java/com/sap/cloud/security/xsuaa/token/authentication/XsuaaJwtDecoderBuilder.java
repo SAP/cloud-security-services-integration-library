@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 public class XsuaaJwtDecoderBuilder {
 
 	private XsuaaServiceConfiguration configuration;
-	int decoderCacheValidity = 900;
+	int decoderCacheValidity = 900; // in seconds
 	int decoderCacheSize = 100;
 	OAuth2TokenValidator<Jwt>[] tokenValidators;
 
@@ -33,8 +33,7 @@ public class XsuaaJwtDecoderBuilder {
 	}
 
 	/**
-	 * Decoders cache the signing keys. Overwrite the cache time (default: 900
-	 * seconds).
+	 * Decoders cache the signing keys. Overwrite the cache time (default: 900 seconds).
 	 *
 	 * @param timeInSeconds
 	 *            time to cache the signing keys
