@@ -45,6 +45,7 @@ public class XsuaaAudienceValidatorTest {
 		cloneTokenWithoutAudience = new JwtGenerator().createFromTemplate("/audience_4.txt");
 
 		claimsBuilder = new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE_DATE);
+		claimsBuilder.claim(Token.CLIENT_ID, "sb-test1!t1");
 	}
 
 	@Test

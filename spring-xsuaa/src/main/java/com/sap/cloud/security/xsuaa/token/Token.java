@@ -13,6 +13,7 @@ public interface Token extends UserDetails {
 	String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
 	String CLAIM_SCOPES = "scope";
 	String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
+	String CLIENT_ID = "cid";
 
 	/**
 	 * Subaccount identifier, which can be used as tenant guid
