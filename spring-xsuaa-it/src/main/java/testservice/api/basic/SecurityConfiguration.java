@@ -73,7 +73,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	JwtDecoder jwtDecoder() throws MalformedURLException {
+	JwtDecoder jwtDecoder() {
 		return new XsuaaJwtDecoderBuilder(getXsuaaServiceConfiguration()).build();
 	}
 
