@@ -67,7 +67,7 @@ public class InitializeSecurityContextTest {
 		Assert.assertThat(authorities, not(hasItem(new SimpleGrantedAuthority("Other"))));
 
 		// test principal (Token)
-		Token token = (Token)authentication.getPrincipal();
+		Token token = (Token)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		assertThat(token.getAuthorities(), is(authorities));
 		assertThat(token.getClientId(), is(CLIENT_ID));
 	}
