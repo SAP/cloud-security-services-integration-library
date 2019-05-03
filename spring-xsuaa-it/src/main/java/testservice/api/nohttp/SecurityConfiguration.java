@@ -17,14 +17,10 @@ package testservice.api.nohttp;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.mock.MockXsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 @Profile({ "test.api.nohttp" })
@@ -39,12 +35,6 @@ public class SecurityConfiguration {
 	@Bean
 	JwtDecoder jwtDecoder() {
 		return new XsuaaJwtDecoderBuilder(getXsuaaServiceConfiguration()).build();
-	}
-
-	Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
-		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(getXsuaaServiceConfiguration());
-		converter.setLocalScopeAsAuthorities(true);
-		return converter;
 	}
 
 }
