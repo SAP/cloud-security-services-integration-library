@@ -47,7 +47,8 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
 		XsuaaServicesParser vcapServicesParser = null;
 		if (configurationProperties == null) {
-			if (resource != null && resource.getResource().getFilename().length() > 0) {
+			if (resource != null && resource.getResource().getFilename() != null
+					&& !resource.getResource().getFilename().isEmpty()) {
 				vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
 			} else {
 				vcapServicesParser = new XsuaaServicesParser();
