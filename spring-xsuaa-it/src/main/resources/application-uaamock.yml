@@ -1,0 +1,3 @@
+spring.security.oauth2.resourceserver.jwt.jwk-set-uri: ${mockxsuaaserver.url}/token_keys
+xsuaa:
+  url: '${mockxsuaaserver.url}'
