@@ -152,7 +152,7 @@ public class XsuaaAudienceValidatorTest {
 		Assert.assertFalse(result.hasErrors());
 	}
 
-	class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration {
+	public static class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration {
 
 		String clientId;
 		String xsAppId;

@@ -20,12 +20,21 @@ import org.springframework.util.Assert;
  */
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	protected XsuaaServiceConfiguration xsuaaServiceConfiguration;
+	private String brokerClientId;
+	private String brokerXsAppName;
 
 
 	public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+		this(xsuaaServiceConfiguration, xsuaaServiceConfiguration.getClientId(), xsuaaServiceConfiguration.getAppId());
+	}
+
+	public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration, String brokerClientId, String brokerXsAppName) {
 		Assert.notNull(xsuaaServiceConfiguration, "'xsuaaServiceConfiguration' is required");
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
+		this.brokerClientId = brokerClientId;
+		this.brokerXsAppName = brokerXsAppName;
 	}
+
 
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
@@ -35,8 +44,14 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 					"Jwt token must contain 'cid' (client_id)", null));
 		}
 
-		// case: foreign token (don't validate broker clone token)
-		if (!(xsuaaServiceConfiguration.getClientId().equals(client_id) || (client_id.contains("!b")))) {
+		// case 1 : token issued by own client (or master)
+		if (brokerClientId.equals(client_id)
+				|| (brokerXsAppName.contains("!b")
+				&& client_id.contains("|")
+				&& client_id.endsWith("|" + brokerXsAppName))) {
+			return OAuth2TokenValidatorResult.success();
+		} else {
+			// case 2: foreign token
 			List<String> allowedAudiences = getAllowedAudiences(token);
 			if (allowedAudiences.contains(xsuaaServiceConfiguration.getAppId())) {
 				return OAuth2TokenValidatorResult.success();
@@ -45,8 +60,8 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 						"Missing audience " + xsuaaServiceConfiguration.getAppId(), null));
 			}
 		}
-		return OAuth2TokenValidatorResult.success();
 	}
+
 
 	/**
 	 * Retrieve audiences from token. In case the audience list is empty, take

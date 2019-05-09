@@ -36,7 +36,6 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 		if(tokenValidators == null) {
 			this.tokenValidators.add(new XsuaaAudienceValidator(xsuaaServiceConfiguration));
-			this.tokenValidators.add(new XsuaaCloneTokenValidator(xsuaaServiceConfiguration.getClientId(), xsuaaServiceConfiguration.getAppId()));
 		} else {
 			this.tokenValidators.addAll(Arrays.asList(tokenValidators));
 		}
