@@ -28,7 +28,7 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 ```
 
 
-### Setup
+### Setup Security Context for HTTP requests
 Configure the OAuth resource server
 
 ```java
@@ -79,17 +79,55 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 > You can access them via Spring `@Value` annotation e.g. `@Value("${xsuaa.xsappname:}") String appId`.
 > For testing purposes you can overwrite them, for example, as part of a *.properties file.
 
-## Usage
+### Setup Security Context for non-HTTP requests
+In case of non-HTTP requests, you may need to initialize the Spring `SecurityContext` with a JWT token you've received from a message / event or you've requested from XSUAA directly.
 
-### Check authorization on method level
+Configure the `JwtDecoder` bean using the `XsuaaJwtDecoderBuilder` class
 
-```java
-@GetMapping("/hello-token")
-@PreAuthorize("hasAuthority('Display')")
-public Map<String, String> message() {
-    ...
+```
+@Configuration
+@PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = {""})
+public class SecurityConfiguration {
+
+    @Autowired
+    XsuaaServiceConfigurationDefault xsuaaServiceConfiguration;
+
+    @Bean
+    JwtDecoder jwtDecoder() {
+        return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration).build();
+    }
+
+    @Bean
+    XsuaaServiceConfigurationDefault xsuaaConfig() {
+        return new XsuaaServiceConfigurationDefault();
+    }
 }
 ```
+
+Then, initialize the `SecurityContext`
+```
+@Autowired
+JwtDecoder jwtDecoder;
+
+@Value("${xsuaa.xsappname}")
+String xsappname;
+
+public void onEvent(String myEncodedJwtToken) {
+    Jwt jwtToken = jwtDecoder.decode(myEncodedJwtToken);
+    SecurityContext.init(xsappname, myEncodedJwtToken, true);
+    try {
+        // ... handle event
+    } finally {
+        SecurityContext.clear();
+    }
+}
+```
+
+In detail `com.sap.xs2.security.container.SecurityContext` wraps the Spring `SecurityContext`, which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
+
+Note that Spring `SecurityContext` is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) more information on how to propagate the context.
+
+## Usage
 
 ### Access user/token information
 In the Java coding, use the `Token` to extract user information:
@@ -131,3 +169,15 @@ class NotAuthorizedException extends RuntimeException {
     }
 }
 ```
+
+### Check authorization on method level
+Spring Security supports authorization semantics at the method level. As prerequisite you need to enable global Method Security as explained in [Baeldung tutorial: Introduction to Spring Method Security](https://www.baeldung.com/spring-security-method-security).
+
+```java
+@GetMapping("/hello-token")
+@PreAuthorize("hasAuthority('Display')")
+public Map<String, String> message() {
+    ...
+}
+```
+
