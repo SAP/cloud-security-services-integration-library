@@ -18,7 +18,6 @@ import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 import net.minidev.json.JSONObject;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
@@ -26,39 +25,38 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 	Cache<String, ReactiveJwtDecoder> cache;
 	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
+	private static final String EXT_ATTR = "ext_attr";
+	private static final String ZDN = "zdn";
+	private static final String ZID = "zid";
+
 	ReactiveXsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidity, int cacheSize) {
 		cache = Caffeine.newBuilder().expireAfterWrite(5, TimeUnit.SECONDS).maximumSize(cacheSize).build();
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 	}
 
-	private static final String EXT_ATTR = "ext_attr";
-	private static final String ZDN = "zdn";
-
 	@Override
 	public Mono<Jwt> decode(String token) throws JwtException {
-		Mono<JWT> jwt = Mono.just(token).map(RENAME_LATER -> {
-			try {
-				return JWTParser.parse(RENAME_LATER);
-			} catch (ParseException e) {
-				Exceptions.propagate(e);
-			}
-			return null;
-		});
 
-		return Mono.zip(jwt.map(jwt2 -> {
+		return Mono.just(token).flatMap(RENAME_LATER -> {
+			try {
+				return Mono.just(JWTParser.parse(RENAME_LATER));
+			} catch (ParseException e) {
+				throw new JwtException("Error initializing JWT  decoder:" + e.getMessage());
+			}
+		}).zipWhen(jwt -> Mono.just(jwt).map(jwt2 -> {
 			try {
 				return this.getSubdomain(jwt2);
 			} catch (ParseException e) {
-				return null;
+				throw new JwtException("Error initializing JWT  decoder:" + e.getMessage());
 			}
-		}), jwt.map(jwt2 -> {
+		}), (jwt, subdomain) -> {
+
 			try {
-				return jwt2.getJWTClaimsSet().getStringClaim("zid");
+				String zoneId = jwt.getJWTClaimsSet().getStringClaim(ZID);
+				return cache.get(subdomain, k -> this.getDecoder(zoneId, subdomain));
 			} catch (ParseException e) {
-				return null;
+				throw new JwtException("Error initializing JWT  decoder:" + e.getMessage());
 			}
-		})).map(tuple -> {
-			return cache.get(tuple.getT1(), k -> this.getDecoder(tuple.getT2(), tuple.getT1()));
 		}).flatMap(decoder -> decoder.decode(token));
 	}
 
@@ -74,6 +72,7 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 	private ReactiveJwtDecoder getDecoder(String zid, String subdomain) {
 		String url = xsuaaServiceConfiguration.getTokenKeyUrl(zid, subdomain);
 		NimbusReactiveJwtDecoder decoder = new NimbusReactiveJwtDecoder(url);
+
 		OAuth2TokenValidator<Jwt> validators = new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(),
 				new XsuaaAudienceValidator(xsuaaServiceConfiguration));
 		decoder.setJwtValidator(validators);
