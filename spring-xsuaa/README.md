@@ -125,7 +125,7 @@ public void onEvent(String myEncodedJwtToken) {
 
 In detail `com.sap.xs2.security.container.SecurityContext` wraps the Spring `SecurityContext`, which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
 
-Note that Spring `SecurityContext` is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) more information on how to propagate the context.
+Note that Spring `SecurityContext` is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
 
 ## Usage
 
