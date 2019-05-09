@@ -2,6 +2,7 @@ package com.sap.xs2.security.container;
 
 import com.sap.cloud.security.xsuaa.token.AuthenticationToken;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,10 +37,14 @@ public class SecurityContext {
 	 * Obtain the Token object from the Spring SecurityContext
 	 *
 	 * @return Token object
+	 * @throws AccessDeniedException  in case there is no token, user is not authenticated
 	 */
 	static public Token getToken() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		Assert.state(authentication != null, "Access forbidden: not authenticated");
+
+		if(authentication == null) {
+			throw new AccessDeniedException("Access forbidden: not authenticated");
+		}
 
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Assert.state(principal != null, "Principal must not be null");
