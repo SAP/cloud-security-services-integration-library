@@ -37,21 +37,15 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 	@Override
 	public Mono<Jwt> decode(String token) throws JwtException {
 
-		return Mono.just(token).flatMap(RENAME_LATER -> {
+		return Mono.just(token).map(jwtToken -> {
 			try {
-				return Mono.just(JWTParser.parse(RENAME_LATER));
+				return JWTParser.parse(jwtToken);
 			} catch (ParseException e) {
 				throw new JwtException("Error initializing JWT  decoder:" + e.getMessage());
 			}
-		}).zipWhen(jwt -> Mono.just(jwt).map(jwt2 -> {
+		}).map(jwt -> {
 			try {
-				return this.getSubdomain(jwt2);
-			} catch (ParseException e) {
-				throw new JwtException("Error initializing JWT  decoder:" + e.getMessage());
-			}
-		}), (jwt, subdomain) -> {
-
-			try {
+				String subdomain = this.getSubdomain(jwt);
 				String zoneId = jwt.getJWTClaimsSet().getStringClaim(ZID);
 				return cache.get(subdomain, k -> this.getDecoder(zoneId, subdomain));
 			} catch (ParseException e) {
