@@ -3,6 +3,7 @@ package com.sap.cloud.security.xsuaa.token.authentication;
 import java.util.Date;
 
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.Token;
 import org.junit.Assert;
@@ -10,16 +11,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 
-public class XsuaaCloneTokenValidatorTest {
+public class XsuaaAudienceValidatorForCloneTokenTest {
 
 	private JWTClaimsSet.Builder claimsBuilder;
 	private String XSUAA_BROKER_XSAPPNAME = "brokerplanmasterapp!b123";
 	private String XSUAA_BROKER_CLIENT_ID = "sb-" + XSUAA_BROKER_XSAPPNAME;
-	private XsuaaCloneTokenValidator cut;
+	private XsuaaAudienceValidator cut;
 
 	@Before
 	public void setup() {
-		cut = new XsuaaCloneTokenValidator(XSUAA_BROKER_CLIENT_ID, XSUAA_BROKER_XSAPPNAME);
+		XsuaaServiceConfiguration serviceConfiguration = new XsuaaAudienceValidatorTest.DummyXsuaaServiceConfiguration("sb-test1!t1", "test1!t1");
+		cut = new XsuaaAudienceValidator(serviceConfiguration, XSUAA_BROKER_CLIENT_ID, XSUAA_BROKER_XSAPPNAME);
 
 		claimsBuilder = new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE_DATE);
 		claimsBuilder.claim(Token.CLIENT_ID, "sb-clone1!b22|" + XSUAA_BROKER_XSAPPNAME);
@@ -49,11 +51,4 @@ public class XsuaaCloneTokenValidatorTest {
 		Assert.assertTrue(result.hasErrors());
 	}
 
-	@Test
-	public void applicationTokenClientId_shouldBeIgnored() {
-		claimsBuilder.claim(Token.CLIENT_ID, "sb-anyapp!t22");
-
-		OAuth2TokenValidatorResult result = cut.validate(JwtGenerator.createFromClaims(claimsBuilder.build()));
-		Assert.assertFalse(result.hasErrors());
-	}
 }
