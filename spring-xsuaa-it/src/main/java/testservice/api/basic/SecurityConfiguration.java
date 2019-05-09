@@ -38,9 +38,9 @@ import com.sap.cloud.security.xsuaa.mock.MockXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
-@Profile({ "test.api.basic" })
 @EnableWebSecurity
 @EnableCaching
+@Profile({ "test.api.basic" })
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	public static TokenBrokerResolver tokenBrokerResolver; // make static for tests
@@ -62,7 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		// @formatter:on
 	}
 
-	Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() throws MalformedURLException {
+	Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
 		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(getXsuaaServiceConfiguration());
 		return converter;
 	}
@@ -73,7 +73,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	JwtDecoder jwtDecoder() throws MalformedURLException {
+	JwtDecoder jwtDecoder() {
 		return new XsuaaJwtDecoderBuilder(getXsuaaServiceConfiguration()).build();
 	}
 

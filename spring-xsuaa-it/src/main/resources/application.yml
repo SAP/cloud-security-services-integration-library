@@ -1,2 +1,5 @@
 server:
   port: 9999
+xsuaa:
+  xsappname: 'java-hello-world'
+  clientid: 'sb-java-hello-world'
