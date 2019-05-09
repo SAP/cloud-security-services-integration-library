@@ -30,8 +30,8 @@ import com.sap.cloud.security.xsuaa.mock.MockXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
-@Profile({ "test.api.v1" })
 @EnableWebSecurity
+@Profile({ "test.api.v1" })
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
