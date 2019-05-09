@@ -21,6 +21,7 @@ import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 import net.minidev.json.JSONObject;
+import org.springframework.util.Assert;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
 
@@ -42,7 +43,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	}
 
 	@Override
-	public Jwt decode(String token) {
+	public Jwt decode(String token) throws JwtException {
+		Assert.notNull(token, "token is required");
 		try {
 			JWT jwt = JWTParser.parse(token);
 			String subdomain = getSubdomain(jwt);
@@ -51,7 +53,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			JwtDecoder decoder = cache.get(subdomain, k -> this.getDecoder(zid, subdomain));
 			return decoder.decode(token);
 		} catch (ParseException ex) {
-			throw new JwtException("Error initializing JWT  decoder:" + ex.getMessage());
+			throw new JwtException("Error initializing JWT decoder:" + ex.getMessage());
 		}
 	}
 

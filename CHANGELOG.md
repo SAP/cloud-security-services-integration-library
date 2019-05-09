@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 * API method to query [token validity](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/Token.java#L167)
 * Bugfix in basic authentication support: allow  usage of JWT token or basic authentication with one configuration
 * Allows overwrite / enhancement of XSUAA jwt token validators
+* Allow applications to initialize of Spring SecurityContext for non HTTP requests. As documented [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/spring-xsuaa/README.md)
 
 ## 1.3.1
 * Broker plan validation failed due to incorrect audience validation
