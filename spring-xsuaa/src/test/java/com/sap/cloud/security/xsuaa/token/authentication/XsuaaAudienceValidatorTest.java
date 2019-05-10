@@ -11,6 +11,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 
@@ -119,6 +121,9 @@ public class XsuaaAudienceValidatorTest {
 		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationOtherGrantedClientId)
 				.validate(tokenWithoutAudienceButScopes);
 		Assert.assertTrue(result.hasErrors());
+		List<OAuth2Error> errors = new ArrayList<>(result.getErrors());
+		Assert.assertThat(errors.get(0).getDescription(), is("Jwt token audience matches none of these: [test2!t1]"));
+		Assert.assertThat(errors.get(0).getErrorCode(), is(OAuth2ErrorCodes.INVALID_CLIENT));
 	}
 
 	@Test
