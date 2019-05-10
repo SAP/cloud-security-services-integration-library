@@ -64,8 +64,10 @@ public class XsuaaAudienceValidatorTest {
 
 	@Test
 	public void testExtractAudiencesFromTokenScopes() {
-		Jwt token = new JwtGenerator().addScopes("test1!t1.read","test2!t1.read","test2!t1.write", ".scopeWithoutAppId").getToken();
-		List<String> audiences = new XsuaaAudienceValidator(serviceConfigurationSameClientId).getAllowedAudiences(token);
+		Jwt token = new JwtGenerator()
+				.addScopes("test1!t1.read", "test2!t1.read", "test2!t1.write", ".scopeWithoutAppId").getToken();
+		List<String> audiences = new XsuaaAudienceValidator(serviceConfigurationSameClientId)
+				.getAllowedAudiences(token);
 		Assert.assertThat(audiences.size(), is(2));
 		Assert.assertThat(audiences, hasItem("test1!t1"));
 		Assert.assertThat(audiences, hasItem("test2!t1"));

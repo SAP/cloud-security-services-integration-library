@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -33,7 +32,8 @@ public class XsuaaJwtDecoderBuilder {
 	}
 
 	/**
-	 * Decoders cache the signing keys. Overwrite the cache time (default: 900 seconds).
+	 * Decoders cache the signing keys. Overwrite the cache time (default: 900
+	 * seconds).
 	 *
 	 * @param timeInSeconds
 	 *            time to cache the signing keys
@@ -58,7 +58,8 @@ public class XsuaaJwtDecoderBuilder {
 	}
 
 	/**
-	 * Configures clone token validator, in case of two xsuaa bindings (application and broker plan).
+	 * Configures clone token validator, in case of two xsuaa bindings (application
+	 * and broker plan).
 	 *
 	 * @return this
 	 */

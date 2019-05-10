@@ -142,8 +142,7 @@ public interface Token extends UserDetails {
 	String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException;
 
 	/**
-	 * Returns list of scopes with appId prefix, e.g.
-	 * "&lt;my-app!t123&gt;.Display".
+	 * Returns list of scopes with appId prefix, e.g. "&lt;my-app!t123&gt;.Display".
 	 *
 	 * @return all scopes
 	 */

@@ -29,13 +29,15 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
 	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
 
-	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize, OAuth2TokenValidator<Jwt>... tokenValidators) {
-		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize).build();
+	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
+			OAuth2TokenValidator<Jwt>... tokenValidators) {
+		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
+				.build();
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 		// configure token validators
 		this.tokenValidators.add(new JwtTimestampValidator());
 
-		if(tokenValidators == null) {
+		if (tokenValidators == null) {
 			this.tokenValidators.add(new XsuaaAudienceValidator(xsuaaServiceConfiguration));
 		} else {
 			this.tokenValidators.addAll(Arrays.asList(tokenValidators));

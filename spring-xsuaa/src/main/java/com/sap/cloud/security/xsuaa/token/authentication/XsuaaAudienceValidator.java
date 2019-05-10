@@ -23,57 +23,57 @@ import org.springframework.util.Assert;
  * the audience is derived from the scope field
  */
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
-    protected XsuaaServiceConfiguration xsuaaServiceConfiguration;
-    private Map<String, String> appIdClientIdMap = new HashMap<>();
-    private final Log logger = LogFactory.getLog(XsuaaServicesParser.class);
+	protected XsuaaServiceConfiguration xsuaaServiceConfiguration;
+	private Map<String, String> appIdClientIdMap = new HashMap<>();
+	private final Log logger = LogFactory.getLog(XsuaaServicesParser.class);
 
-    public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-        Assert.notNull(xsuaaServiceConfiguration, "'xsuaaServiceConfiguration' is required");
-        this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
-        appIdClientIdMap.put(xsuaaServiceConfiguration.getAppId(), xsuaaServiceConfiguration.getClientId());
-    }
+	public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+		Assert.notNull(xsuaaServiceConfiguration, "'xsuaaServiceConfiguration' is required");
+		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
+		appIdClientIdMap.put(xsuaaServiceConfiguration.getAppId(), xsuaaServiceConfiguration.getClientId());
+	}
 
-    public void configureAnotherXsuaaInstance(String appId, String clientId) {
-        Assert.notNull(appId, "'appId' is required");
-        Assert.notNull(clientId, "'clientId' is required");
-        appIdClientIdMap.putIfAbsent(appId, clientId);
-        logger.info(String.format("configured XsuaaAudienceValidator with appId %s and clientId %s", appId, clientId));
-    }
+	public void configureAnotherXsuaaInstance(String appId, String clientId) {
+		Assert.notNull(appId, "'appId' is required");
+		Assert.notNull(clientId, "'clientId' is required");
+		appIdClientIdMap.putIfAbsent(appId, clientId);
+		logger.info(String.format("configured XsuaaAudienceValidator with appId %s and clientId %s", appId, clientId));
+	}
 
-    @Override
-    public OAuth2TokenValidatorResult validate(Jwt token) {
-        String tokenClientId = token.getClaimAsString(Token.CLIENT_ID);
-        if (tokenClientId == null) {
-            OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
-                    "Jwt token must contain 'cid' (client_id)", null));
-        }
-        List<String> allowedAudiences = getAllowedAudiences(token);
+	@Override
+	public OAuth2TokenValidatorResult validate(Jwt token) {
+		String tokenClientId = token.getClaimAsString(Token.CLIENT_ID);
+		if (tokenClientId == null) {
+			OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
+					"Jwt token must contain 'cid' (client_id)", null));
+		}
+		List<String> allowedAudiences = getAllowedAudiences(token);
 
-        for (Map.Entry<String, String> xsuaaConfig : appIdClientIdMap.entrySet()) {
-            if (checkMatch(xsuaaConfig.getKey(), xsuaaConfig.getValue(), tokenClientId, allowedAudiences)) {
-                return OAuth2TokenValidatorResult.success();
-            }
-        }
-        return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
-                "Jwt token audience matches none of these: " + appIdClientIdMap.keySet().toString(), null));
-    }
+		for (Map.Entry<String, String> xsuaaConfig : appIdClientIdMap.entrySet()) {
+			if (checkMatch(xsuaaConfig.getKey(), xsuaaConfig.getValue(), tokenClientId, allowedAudiences)) {
+				return OAuth2TokenValidatorResult.success();
+			}
+		}
+		return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
+				"Jwt token audience matches none of these: " + appIdClientIdMap.keySet().toString(), null));
+	}
 
-    private boolean checkMatch(String appId, String clientId, String tokenClientId, List<String> allowedAudiences) {
-        // case 1 : token issued by own client (or master)
-        if (clientId.equals(tokenClientId)
-                || (appId.contains("!b")
-                && tokenClientId.contains("|")
-                && tokenClientId.endsWith("|" + appId))) {
-            return true;
-        } else {
-            // case 2: foreign token
-            if (allowedAudiences.contains(xsuaaServiceConfiguration.getAppId())) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
+	private boolean checkMatch(String appId, String clientId, String tokenClientId, List<String> allowedAudiences) {
+		// case 1 : token issued by own client (or master)
+		if (clientId.equals(tokenClientId)
+				|| (appId.contains("!b")
+						&& tokenClientId.contains("|")
+						&& tokenClientId.endsWith("|" + appId))) {
+			return true;
+		} else {
+			// case 2: foreign token
+			if (allowedAudiences.contains(xsuaaServiceConfiguration.getAppId())) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
 
 	/**
 	 * Retrieve audiences from token. In case the audience list is empty, take

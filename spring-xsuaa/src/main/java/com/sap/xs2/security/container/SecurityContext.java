@@ -37,12 +37,13 @@ public class SecurityContext {
 	 * Obtain the Token object from the Spring SecurityContext
 	 *
 	 * @return Token object
-	 * @throws AccessDeniedException  in case there is no token, user is not authenticated
+	 * @throws AccessDeniedException
+	 *             in case there is no token, user is not authenticated
 	 */
 	static public Token getToken() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		if(authentication == null) {
+		if (authentication == null) {
 			throw new AccessDeniedException("Access forbidden: not authenticated");
 		}
 
@@ -53,7 +54,7 @@ public class SecurityContext {
 		return (Token) principal;
 	}
 
-	static public void init(String appId , Jwt token, boolean extractLocalScopesOnly) {
+	static public void init(String appId, Jwt token, boolean extractLocalScopesOnly) {
 		TokenAuthenticationConverter authenticationConverter = new TokenAuthenticationConverter(appId);
 		authenticationConverter.setLocalScopeAsAuthorities(extractLocalScopesOnly);
 		Authentication authentication = authenticationConverter.convert(token);
