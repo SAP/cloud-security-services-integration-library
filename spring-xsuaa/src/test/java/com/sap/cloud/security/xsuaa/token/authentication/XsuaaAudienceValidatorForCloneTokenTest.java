@@ -26,7 +26,8 @@ public class XsuaaAudienceValidatorForCloneTokenTest {
 
 	@Before
 	public void setup() {
-		XsuaaServiceConfiguration serviceConfiguration = new XsuaaAudienceValidatorTest.DummyXsuaaServiceConfiguration("sb-test1!t1", "test1!t1");
+		XsuaaServiceConfiguration serviceConfiguration = new XsuaaAudienceValidatorTest.DummyXsuaaServiceConfiguration(
+				"sb-test1!t1", "test1!t1");
 		cut = new XsuaaAudienceValidator(serviceConfiguration);
 		cut.configureAnotherXsuaaInstance(XSUAA_BROKER_XSAPPNAME, XSUAA_BROKER_CLIENT_ID);
 
@@ -57,7 +58,8 @@ public class XsuaaAudienceValidatorForCloneTokenTest {
 		Assert.assertTrue(result.hasErrors());
 
 		List<OAuth2Error> errors = new ArrayList<>(result.getErrors());
-		Assert.assertThat(errors.get(0).getDescription(), is("Jwt token audience matches none of these: [test1!t1, brokerplanmasterapp!b123]"));
+		Assert.assertThat(errors.get(0).getDescription(),
+				is("Jwt token audience matches none of these: [test1!t1, brokerplanmasterapp!b123]"));
 		Assert.assertThat(errors.get(0).getErrorCode(), is(OAuth2ErrorCodes.INVALID_CLIENT));
 	}
 

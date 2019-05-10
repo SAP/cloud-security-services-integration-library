@@ -67,7 +67,8 @@ public class TokenImpl implements Token {
 		return this.authorities;
 	}
 
-	@Override public Date getExpirationDate() {
+	@Override
+	public Date getExpirationDate() {
 		return jwt.getExpiresAt() != null ? Date.from(jwt.getExpiresAt()) : null;
 	}
 
