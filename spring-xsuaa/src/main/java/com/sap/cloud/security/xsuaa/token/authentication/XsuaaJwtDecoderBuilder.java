@@ -1,18 +1,20 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 public class XsuaaJwtDecoderBuilder {
 
 	private XsuaaServiceConfiguration configuration;
-	int decoderCacheValidity = 900;
+	int decoderCacheValidity = 900; // in seconds
 	int decoderCacheSize = 100;
+	OAuth2TokenValidator<Jwt>[] tokenValidators;
 
 	/**
 	 * Utility for building a JWT decoder configuration
-	 * 
+	 *
 	 * @param configuration
 	 *            of the Xsuaa service
 	 */
@@ -22,11 +24,11 @@ public class XsuaaJwtDecoderBuilder {
 
 	/**
 	 * Assembles a JwtDecoder
-	 * 
+	 *
 	 * @return JwtDecoder
 	 */
 	public JwtDecoder build() {
-		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize);
+		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize, tokenValidators);
 	}
 
 	/**
@@ -52,6 +54,17 @@ public class XsuaaJwtDecoderBuilder {
 	 */
 	public XsuaaJwtDecoderBuilder withDecoderCacheSize(int size) {
 		this.decoderCacheSize = size;
+		return this;
+	}
+
+	/**
+	 * Configures clone token validator, in case of two xsuaa bindings (application
+	 * and broker plan).
+	 *
+	 * @return this
+	 */
+	public XsuaaJwtDecoderBuilder withTokenValidators(OAuth2TokenValidator<Jwt>... tokenValidators) {
+		this.tokenValidators = tokenValidators;
 		return this;
 	}
 
