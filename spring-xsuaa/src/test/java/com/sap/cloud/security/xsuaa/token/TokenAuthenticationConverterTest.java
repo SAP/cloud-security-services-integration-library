@@ -81,7 +81,7 @@ public class TokenAuthenticationConverterTest {
 	@Test
 	public void authoritiesHaveLocalScopesWithoutAppIdPrefix() {
 		String scopeWithNamespace = xsAppName + ".iot.Delete";
-		String scopeWithOtherAppId = "anyAppId!200." + xsAppName + ".iot.Delete";
+		String scopeWithOtherAppId = "anyAppId!t200." + xsAppName + ".Delete";
 
 		Jwt jwt = new JwtGenerator()
 				.addScopes(xsAppName + "." + scopeAdmin, scopeRead, scopeWithNamespace, scopeWithOtherAppId)

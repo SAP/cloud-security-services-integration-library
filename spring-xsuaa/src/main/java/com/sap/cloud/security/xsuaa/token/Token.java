@@ -13,6 +13,7 @@ public interface Token extends UserDetails {
 	String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
 	String CLAIM_SCOPES = "scope";
 	String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
+	String CLIENT_ID = "cid";
 
 	/**
 	 * Subaccount identifier, which can be used as tenant guid
@@ -141,8 +142,7 @@ public interface Token extends UserDetails {
 	String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException;
 
 	/**
-	 * Returns list of scopes with appId prefix, e.g.
-	 * "&lt;my-app!t123&gt;.Display".
+	 * Returns list of scopes with appId prefix, e.g. "&lt;my-app!t123&gt;.Display".
 	 *
 	 * @return all scopes
 	 */
