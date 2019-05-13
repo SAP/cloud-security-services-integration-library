@@ -23,13 +23,11 @@ import org.springframework.util.Assert;
  * the audience is derived from the scope field
  */
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
-	protected XsuaaServiceConfiguration xsuaaServiceConfiguration;
 	private Map<String, String> appIdClientIdMap = new HashMap<>();
 	private final Log logger = LogFactory.getLog(XsuaaServicesParser.class);
 
 	public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		Assert.notNull(xsuaaServiceConfiguration, "'xsuaaServiceConfiguration' is required");
-		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 		appIdClientIdMap.put(xsuaaServiceConfiguration.getAppId(), xsuaaServiceConfiguration.getClientId());
 	}
 
@@ -67,7 +65,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 			return true;
 		} else {
 			// case 2: foreign token
-			if (allowedAudiences.contains(xsuaaServiceConfiguration.getAppId())) {
+			if (allowedAudiences.contains(appId)) {
 				return true;
 			} else {
 				return false;
