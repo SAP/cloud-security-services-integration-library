@@ -32,7 +32,12 @@ public class XsuaaJwtDecoderBuilder {
 	public JwtDecoder build() {
 		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize, tokenValidators);
 	}
-
+	
+	/**
+	 * Assembles a ReactiveJwtDecoder
+	 *
+	 * @return ReactiveJwtDecoder
+	 */
 	public ReactiveJwtDecoder buildAsReactive() {
 		return new ReactiveXsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize);
 	}
