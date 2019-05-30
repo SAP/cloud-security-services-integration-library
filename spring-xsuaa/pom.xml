@@ -13,6 +13,11 @@
 	<artifactId>spring-xsuaa</artifactId>
 	<name>spring-xsuaa</name>
 	<packaging>jar</packaging>
+	
+	<properties>
+    <caffeine.version>2.6.2</caffeine.version>
+    <servlet.version>3.1.0</servlet.version>
+  </properties>
 
 	<dependencies>
 		<dependency>
@@ -39,16 +44,6 @@
 			<scope>provided</scope>
 			<version>${servlet.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.ben-manes.caffeine</groupId>
-			<artifactId>caffeine</artifactId>
-			<version>${caffeine.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -59,14 +54,8 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-jwt</artifactId>
-			<version>1.0.9.RELEASE</version>
+			<version>1.0.10.RELEASE</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.6</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
@@ -171,9 +160,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<properties>
-		<caffeine.version>2.6.2</caffeine.version>
-		<servlet.version>3.1.0</servlet.version>
-	</properties>
 </project>
