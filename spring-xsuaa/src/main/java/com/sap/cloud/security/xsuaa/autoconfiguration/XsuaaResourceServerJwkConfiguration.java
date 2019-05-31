@@ -3,7 +3,7 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 import java.io.File;
 import java.io.IOException;
 
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -39,8 +39,18 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceBindings;
  * Spring Security Jwt validators as well as the XSUAA-specific validators.
  * @See: org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerJwkConfiguration
  */
+
+// This is what we would prefer but OAuth2ResourceServerJwtConfiguration 
+// is not a public class. :(
+//@AutoConfigureBefore(OAuth2ResourceServerJwtConfiguration.class)
+
+// Instead we will add ourselves before OAuth2ResourceServerAutoConfiguration.
+// OAuth2ResourceServerAutoConfiguration will be evaluated before 
+// OAuth2ResourceServerJwtConfiguration which exposes the JwtDecoder.
+// And since we want to expose our own one, we add ourselves before.
+
 @Configuration
-@AutoConfigureAfter(OAuth2ResourceServerAutoConfiguration.class)
+@AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class)
 @ConditionalOnClass(OAuth2ResourceServerProperties.class)
 class XsuaaResourceServerJwkConfiguration {
 

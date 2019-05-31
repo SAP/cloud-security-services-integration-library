@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkConfiguration,\
+com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaDefaultConfigurations
