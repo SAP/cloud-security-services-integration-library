@@ -73,7 +73,7 @@ public class ClientCredentialsTokenFlow {
     }
 
     /**
-     * Adds the OAuth 2.0 client ID to the request.<br/>
+     * Adds the OAuth 2.0 client ID to the request.<br>
      * The ID needs to be that of the OAuth client that 
      * requests the token.
      * @param clientId - the ID of the OAuth 2.0 client requesting the token.
@@ -85,7 +85,7 @@ public class ClientCredentialsTokenFlow {
     }
 
     /**
-     * Adds the OAuth 2.0 client's secret to this request.<br/>
+     * Adds the OAuth 2.0 client's secret to this request.<br>
      * The secret needs to be the one of the client that requests the token.
      * @param clientSecret - the secret of the OAuth 2.0 client requesting the token.  
      * @return this builder.
@@ -96,7 +96,7 @@ public class ClientCredentialsTokenFlow {
     }
 
     /**
-     * Adds additional authorization attributes to the request. <br/>
+     * Adds additional authorization attributes to the request. <br>
      * Clients can use this to request additional attributes in the 
      * {@code 'az_attr'} claim of the returned token.
      * @param additionalAuthorizationAttributes - the additional attributes.

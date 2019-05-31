@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * A user token flow builder class. <br/>
+ * A user token flow builder class. <br>
  * Applications retrieve an instance of this builder from 
  * {@link XsuaaTokenFlows} and then create the flow request
  * using a builder pattern.
@@ -123,7 +123,7 @@ public class UserTokenFlow {
     }
     
     /**
-     * Adds additional authorization attributes to the request. <br/>
+     * Adds additional authorization attributes to the request. <br>
      * Clients can use this to request additional attributes in the 
      * {@code 'az_attr'} claim of the returned token.
      * @param additionalAuthorizationAttributes - the additional attributes.
@@ -139,7 +139,7 @@ public class UserTokenFlow {
      * Note, that in a standard flow, only the refresh token would be returned.
      * 
      * @return the JWT instance returned by XSUAA.
-     * @throws TokenFlowException
+     * @throws TokenFlowException in case of an error.
      */
     public Jwt execute() throws TokenFlowException {
         

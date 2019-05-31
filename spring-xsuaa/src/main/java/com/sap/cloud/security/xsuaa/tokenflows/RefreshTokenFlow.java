@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * A refresh token flow builder. <br/>
+ * A refresh token flow builder. <br>
  * Applications can use this flow exchange a given
  * refresh token for a (refreshed) JWT token.
  */

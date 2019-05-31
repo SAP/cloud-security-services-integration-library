@@ -122,7 +122,7 @@ public class XsuaaToken extends Jwt {
      *  <li> <b>subaccount id:</b> identifier for the subaccount, see {@link #getSubaccountId()}.
      * </ul>
      * 
-     * @see {@link #getUniqueUserName()}
+     * @see #getUniqueUserName()
      *
      * @return the user logon name if present.
      */
@@ -152,9 +152,9 @@ public class XsuaaToken extends Jwt {
      * The following information is required to uniquely identify a user: <br> 
      * 
      * <ul> 
-     *  <li> <b>user logon name:</b> name of the user in an identity provider, see {@link #getUserLogonName()}.
-     *  <li> <b>origin:</b> alias to an identity provider, see {@link #getOrigin()}.
-     *  <li> <b>subaccount id:</b> identifier for the subaccount, see {@link #getSubaccountId()}
+     *  <li> <b>user logon name:</b> name of the user in an identity provider, see {@code #getUserLogonName()}.
+     *  <li> <b>origin:</b> alias to an identity provider, see {@code #getOrigin()}.
+     *  <li> <b>subaccount id:</b> identifier for the subaccount, see {@code #getSubaccountId()}
      * </ul>
      *
      * If one of this information is not available or wrongly formed, null will be returned.

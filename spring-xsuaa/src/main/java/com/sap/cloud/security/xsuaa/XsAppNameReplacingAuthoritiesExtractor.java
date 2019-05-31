@@ -25,9 +25,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
  * XSAppName prefixes and the human-readable replacements. E.g.:
  * 
  * <pre> 
- * Converter<Jwt, AbstractAuthenticationToken> grantedAuthoritiesExtractor() {
+ * Converter&lt;Jwt, AbstractAuthenticationToken&gt; grantedAuthoritiesExtractor() {
  * 
- *   Map<String, String> replacements = new HashMap<>();
+ *   Map&lt;String, String&gt; replacements = new HashMap&lt;&gt;();
  *   replacements.put(my-application-demo!t12291, "my.");
  *   replacements.put(foreign-app!b12291, "foreign.");
  *   

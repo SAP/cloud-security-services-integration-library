@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
  * A bean that can be {@code @Autowired} by applications to get access to
  * token flow builders. The token flow builders allow for the execution of
  * a client credentials flow (to get a technical user token) and a user token
- * flow (to get an exchange token with different scopes). <br/>
+ * flow (to get an exchange token with different scopes). <br>
  * 
  * This class uses a RestTemplate which it passes on to the builders.
  */
@@ -28,6 +28,7 @@ public class XsuaaTokenFlows {
 	 * Create a new instance of this bean with the given RestTemplate.
 	 * Applications should {@code @Autowire} instances of this bean.
 	 * @param restTemplate the RestTemplate instance that will be used to send the token exchange request.
+	 * @param tokenDecoder the {@link TokenDecoder} instance used internally to decode a Jwt token.
 	 */
 	public XsuaaTokenFlows(RestTemplate restTemplate, TokenDecoder tokenDecoder) {
 	    Assert.notNull(restTemplate,"RestTemplate must not be null.");
@@ -41,9 +42,8 @@ public class XsuaaTokenFlows {
 	 * Creates a new User Token Flow builder object. The token passed needs to 
 	 * contain the scope {@code uaa.user}, otherwise an exception will be thrown
 	 * when the flow is executed. <br>
-	 * 	 * Token, authorize and key set endpoints will be derived relative to the base URI.
-	 * 	 * 
-	 * @param token - the JWT token to be exchanged for a token for a different OAuth 2.0 client. 
+	 * Token, authorize and key set endpoints will be derived relative to the base URI.
+	 *   
 	 * @param xsuaaBaseUri - the base URI of XSUAA that the flow will be executed against. 
 	 * @return the {@link UserTokenFlow} builder object.
 	 */
@@ -64,8 +64,7 @@ public class XsuaaTokenFlows {
      *  <li>{@code https://oauth.server.com/oauth/token}</li>
      *  <li>{@code https://oauth.server.com/oauth/authorize}</li>
      *  <li>{@code https://oauth.server.com/.well-known/jwks.json}</li>  
-     * </ul>
-     * @param token             - the JWT token to be exchanged for a token for a different OAuth 2.0 client. 
+     * </ul> 
      * @param tokenEndpoint     - the token endpoint URI of XSUAA that the flow will be executed against.
      * @param authorizeEndpoint - the authorize endpoint URI of XSUAA.
      * @param keySetEndpoint    - the key set endpoint URI of XSUAA. 
@@ -117,7 +116,6 @@ public class XsuaaTokenFlows {
      * Creates a new Refresh Token Flow builder object.<br>
      * Token, authorize and key set endpoints will be derived relative to the base URI.
      * 
-     * @param refreshToken - the refresh token to be exchanged for a JWT token by XSUAA.
      * @param xsuaaBaseUri - the base URI of XSUAA that the flow will be executed against.  
      * @return the {@link ClientCredentialsTokenFlow} builder object.
      */
@@ -134,7 +132,6 @@ public class XsuaaTokenFlows {
      *  <li>{@code https://oauth.server.com/oauth/authorize}</li>
      *  <li>{@code https://oauth.server.com/.well-known/jwks.json}</li>  
      * </ul>
-     * @param refreshToken      - the refresh token to be exchanged for a JWT token by XSUAA.
      * @param tokenEndpoint     - the token endpoint URI of XSUAA that the flow will be executed against.
      * @param authorizeEndpoint - the authorize endpoint URI of XSUAA.
      * @param keySetEndpoint    - the key set endpoint URI of XSUAA.  
