@@ -28,6 +28,10 @@ public class DefaultSpringSecurityAuthoritiesExtractorTests {
         assertNotNull("Granted authorities are null but should not be. ", grantedAuthorities);
         assertEquals("Number of authorities does not match number of scopes in JWT.", grantedAuthorities.size(), scopes.size());
        
+        assertAuthoritiesMatchScopes(scopes, grantedAuthorities);
+    }
+
+    private void assertAuthoritiesMatchScopes(List<String> scopes, Collection<GrantedAuthority> grantedAuthorities) {
         int expectedNumberOfMatches = 0;
         for (GrantedAuthority grantedAuthority : grantedAuthorities) {
             String authority = grantedAuthority.getAuthority();

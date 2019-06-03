@@ -138,7 +138,7 @@ public class TestController {
         String clientId = xsuaaBindingInfo.getCredentials().getClientId();
         String clientSecret = xsuaaBindingInfo.getCredentials().getClientSecret();
         
-        Jwt ccfToken = xsuaaTokenFlows.clientCredentialsFlow(URI.create(baseUrl))
+        Jwt ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow(URI.create(baseUrl))
                 .client(clientId)
                 .secret(clientSecret)
                 .execute();

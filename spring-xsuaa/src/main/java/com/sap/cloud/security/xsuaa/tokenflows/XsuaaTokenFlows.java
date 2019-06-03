@@ -87,7 +87,7 @@ public class XsuaaTokenFlows {
 	 * @param xsuaaBaseUri - the base URI of XSUAA that the flow will be executed against. 
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
-	public ClientCredentialsTokenFlow clientCredentialsFlow(URI xsuaaBaseUri) {
+	public ClientCredentialsTokenFlow clientCredentialsTokenFlow(URI xsuaaBaseUri) {
         Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");        
 	    return new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, xsuaaBaseUri);
 	}
@@ -105,7 +105,7 @@ public class XsuaaTokenFlows {
      * @param keySetEndpoint    - the key set endpoint URI of XSUAA.  
      * @return the {@link ClientCredentialsTokenFlow} builder object.
      */
-    public ClientCredentialsTokenFlow clientCredentialsFlow(URI tokenEndpoint, URI authorizeEndpoint, URI keySetEndpoint) {
+    public ClientCredentialsTokenFlow clientCredentialsTokenFlow(URI tokenEndpoint, URI authorizeEndpoint, URI keySetEndpoint) {
         Assert.notNull(tokenEndpoint, "Token endpoint URI must not be null.");
         Assert.notNull(authorizeEndpoint, "Authorize endpoint URI must not be null.");
         Assert.notNull(keySetEndpoint, "Key set endpoint URI must not be null.");       

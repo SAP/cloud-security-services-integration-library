@@ -28,7 +28,7 @@ public class NimbusTokenDecoder implements TokenDecoder {
     @Override
     public Jwt decode(String encodedValue) {
         if (nimbusDecoder == null) {
-            throw new IllegalStateException("Nimbus decoder not properly initialized. Make sure setJwksUri() is called before calling decode()");
+            throw new IllegalStateException("Nimbus decoder not properly initialized. Make sure setJwksUri() is called before calling decode().");
         }
         return this.nimbusDecoder.decode(encodedValue);
     }
