@@ -1,6 +1,20 @@
 # Change Log 
 
 All notable changes to this project will be documented in this file.
+
+## 2.0.0
+* Entirely overhauled and simplified API.
+* Support for token flows of Client Credentials, Authorization Code, Refresh Token and User Token Grant.
+* Token Flow creation using builder pattern.
+* Auto-Configuration support that automatically adds 
+   * additional token validators 
+   * `XsuaaServiceBindings`  as `@Autowired` bean.
+   * `XsuaaTokenFlows`  as `@Autowired` bean.
+* XsuaaToken now inherits from standard `Jwt` token and can be used both as a wrapper or replacement for `Jwt`.
+* Added `DefaultSpringSecurityAuthoritiesExtractor` and `XsAppNameReplacingAuthoritiesExtractor` to deal more gracefully with XsAppName prefixes in token scopes.
+* Better integration with Spring / Spring Boot
+* Unit tested token flows
+
 ## 1.4.0
 * API method to query [token validity](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/Token.java#L167)
 * Bugfix in basic authentication support: allow  usage of JWT token or basic authentication with one configuration

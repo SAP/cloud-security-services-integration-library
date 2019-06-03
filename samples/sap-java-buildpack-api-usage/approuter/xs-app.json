@@ -1,7 +1,0 @@
-{
-  "routes": [{
-    "source": "^/",
-    "target": "/hello-token",
-    "destination": "sap-java-buildpack-api-usage-destination"
-  }]
-}
