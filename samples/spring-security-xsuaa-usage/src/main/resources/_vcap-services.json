@@ -1,0 +1,36 @@
+{
+    "xsuaa": [
+      {
+        "label": "xsuaa",
+        "provider": null,
+        "plan": "application",
+        "name": "xsuaa-authentication",
+        "tags": [
+          "xsuaa"
+        ],
+        "instance_name": "xsuaa-authentication",
+        "binding_name": null,
+        "credentials": {
+          <YOUR CREDENTIALS FROM VCAP_SERVICES>
+        },
+        "syslog_drain_url": null,
+        "volume_mounts": []
+      },
+      {
+        "label": "xsuaa",
+        "provider": null,
+        "plan": "application",
+        "name": "another-xsuaa-instance",
+        "tags": [
+          "xsuaa"
+        ],
+        "instance_name": "another-xsuaa-instance",
+        "binding_name": null,
+        "credentials": {
+          <YOUR CREDENTIALS FROM VCAP_SERVICES>
+        },
+        "syslog_drain_url": null,
+        "volume_mounts": []
+      }
+    ]
+}
