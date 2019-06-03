@@ -13,6 +13,7 @@
 
 	<artifactId>spring-xsuaa</artifactId>
 	<name>spring-xsuaa</name>
+	<version>2.0.0</version>
 	<packaging>jar</packaging>
 
 	<dependencies>
@@ -69,7 +70,7 @@
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>spring-xsuaa-test</artifactId>
-			<version>${project.version}</version>
+			<version>1.4.0</version>
 			<scope>test</scope>
 		</dependency>
 
