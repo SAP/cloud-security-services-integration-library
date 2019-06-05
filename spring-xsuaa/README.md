@@ -1,6 +1,20 @@
 # XSUAA Security 
 
-# Integration with Spring Security OAuth 2.0 Resource Server
+   * [Integration with Spring Security OAuth 2.0 Resource Server](#integration-with-spring-security-oauth-20-resource-server)
+   * [Configuration](#configuration)
+      * [Maven Dependencies](#maven-dependencies)
+      * [Setup Security Context for HTTP requests](#setup-security-context-for-http-requests)
+      * [Advanced Security Configurations](#advanced-security-configurations)
+         * [Exchanging the Standard JWT Implementation](#exchanging-the-standard-jwt-implementation)
+         * [Simplifying Token Scope Names](#simplifying-token-scope-names)
+         * [Reference Of Configuration Options](#reference-of-configuration-options)
+         * [Setup Security Context for non-HTTP requests](#setup-security-context-for-non-http-requests)
+      * [Usage](#usage)
+         * [Exchanging Tokens with XsuaaTokenFlows](#exchanging-tokens-with-xsuaatokenflows)
+         * [Accessing XSUAA Binding Information using XsuaaServiceBindings](#accessing-xsuaa-binding-information-using-xsuaaservicebindings)
+         * [Programmatically Checking Authorities](#programmatically-checking-authorities)
+         * [Authorization Checks Using Global Method Security](#authorization-checks-using-global-method-security)
+         * [Auto-Configuration](#auto-configuration)# Integration with Spring Security OAuth 2.0 Resource Server
 
 This library integrates with the [spring-security](https://github.com/spring-projects/spring-security/) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. A Spring Boot application using Spring Security OAuth 2.0 uses a security configuration that enables the resource server and configures authentication using JWT tokens. This configuration is partially done in a Java class (usually called `WebSecurityConfigurations`) and in the application's `application.yml`.
 
@@ -468,7 +482,8 @@ public class WebSecurityConfigurations extends WebSecurityConfigurerAdapter {
 In case of non-HTTP requests (e.g. an Event from an event bus), you may need to initialize the Spring `SecurityContext` with a JWT token you've received from a message / event or you've requested from XSUAA directly.
 
 Then, initialize the `SecurityContext`
-```
+
+```java
 @Autowired
 JwtDecoder jwtDecoder;
 
