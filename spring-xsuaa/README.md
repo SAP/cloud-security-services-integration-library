@@ -14,7 +14,9 @@
          * [Accessing XSUAA Binding Information using XsuaaServiceBindings](#accessing-xsuaa-binding-information-using-xsuaaservicebindings)
          * [Programmatically Checking Authorities](#programmatically-checking-authorities)
          * [Authorization Checks Using Global Method Security](#authorization-checks-using-global-method-security)
-         * [Auto-Configuration](#auto-configuration)# Integration with Spring Security OAuth 2.0 Resource Server
+         * [Auto-Configuration](#auto-configuration)
+
+# Integration with Spring Security OAuth 2.0 Resource Server
 
 This library integrates with the [spring-security](https://github.com/spring-projects/spring-security/) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. A Spring Boot application using Spring Security OAuth 2.0 uses a security configuration that enables the resource server and configures authentication using JWT tokens. This configuration is partially done in a Java class (usually called `WebSecurityConfigurations`) and in the application's `application.yml`.
 
@@ -158,7 +160,7 @@ public class WebSecurityConfigurations extends WebSecurityConfigurerAdapter {
 
 With this minimal configuration, you can allow access to the `/actuator/health` endpoint, and enforce that access to `/v1/address` is only allowed if 
 1. there is a JWT token, and that 
-1. the the respective scope is given in the JWT token.
+2. the the respective scope is given in the JWT token.
 
 This is the simplest configuration that you can use. In the next section we present a little more advanced configurations.
 
