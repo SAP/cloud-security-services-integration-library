@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 * Added `DefaultSpringSecurityAuthoritiesExtractor` and `XsAppNameReplacingAuthoritiesExtractor` to deal more gracefully with XsAppName prefixes in token scopes.
 * Better integration with Spring / Spring Boot
 * Unit tested token flows
+* Test Coverage over 95%
 
 ## 1.4.0
 * API method to query [token validity](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/Token.java#L167)
