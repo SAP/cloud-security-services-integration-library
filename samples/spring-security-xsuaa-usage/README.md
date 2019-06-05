@@ -27,7 +27,7 @@ mvn clean package
 ## Create the XSUAA Service Instance
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
 ```shell
-spring-security-xsuaa-usage$ cf create-service xsuaa application xsuaa-authentication -c xs-security.json
+cf create-service xsuaa application xsuaa-authentication -c xs-security.json
 ```
 ## Configuration the manifest
 The [manifest-variables.yml](./manifest-variables.yml) contains hosts and paths that you might need to adopt.
