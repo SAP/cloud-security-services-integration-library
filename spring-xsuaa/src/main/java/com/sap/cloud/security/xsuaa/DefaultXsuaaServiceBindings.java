@@ -47,6 +47,9 @@ public class DefaultXsuaaServiceBindings implements XsuaaServiceBindings {
     private Environment environment;
     private File vcapServicesFile;
     
+    public static long getSerialVersionUid() {
+        return serialVersionUID;
+    } 
     
     public DefaultXsuaaServiceBindings(Environment environment) {
         Assert.notNull(environment, "Environment must not be null.");
@@ -63,7 +66,7 @@ public class DefaultXsuaaServiceBindings implements XsuaaServiceBindings {
         Assert.notNull(vcapServicesFile, "File must not be null.");
         Assert.isTrue(vcapServicesFile.exists(), String.format("File %s does not exist", vcapServicesFile.getAbsolutePath()));
         
-        this. vcapServicesFile = vcapServicesFile;
+        this.vcapServicesFile = vcapServicesFile;
     }
 
     private String readVcapJsonFromFile(File vcapServicesFile) {
@@ -91,12 +94,8 @@ public class DefaultXsuaaServiceBindings implements XsuaaServiceBindings {
         if(environment != null) {
             vcapServicesJson = environment.getProperty(VCAP_SERVICES);
         }
-        else if (vcapServicesFile != null) {
+        else {
             vcapServicesJson = readVcapJsonFromFile(vcapServicesFile);
-        }
-                
-        if(vcapServicesJson == null) {
-            throw new RuntimeException("Unable to parse XSUAA service binding information from environment. Check your environment for VCAP_SERVICES variable.");
         }
         
         try {
@@ -115,7 +114,7 @@ public class DefaultXsuaaServiceBindings implements XsuaaServiceBindings {
             
             return bindings;
             
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Unable to parse XSUAA service binding information from environment.", e);
         }
     }
@@ -130,6 +129,7 @@ public class DefaultXsuaaServiceBindings implements XsuaaServiceBindings {
         private String instanceName;
         private List<String> tags = new ArrayList<>();
         private String bindingName;
+        private String provider;
         private Credentials credentials;
         
         public static long getSerialVersionUid() {
@@ -170,6 +170,11 @@ public class DefaultXsuaaServiceBindings implements XsuaaServiceBindings {
         public Credentials getCredentials() {
             return credentials;
         }
+        
+        @Override
+        public String getProvider() {
+            return provider;
+        }
 
         public void setLabel(String label) {
             this.label = label;
@@ -199,6 +204,10 @@ public class DefaultXsuaaServiceBindings implements XsuaaServiceBindings {
         public void setCredentials(Credentials credentials) {
             this.credentials = credentials;
         }
+
+        public void setProvider(String provider) {
+            this.provider = provider;
+        }
     }
     
     @JsonNaming(PropertyNamingStrategy.LowerCaseStrategy.class)
@@ -217,6 +226,7 @@ public class DefaultXsuaaServiceBindings implements XsuaaServiceBindings {
         private String tenantId;
         private String baseUrl;
         private String verificationKey;
+        private String apiUrl;
         
         public static long getSerialVersionUid() {
             return serialVersionUID;
@@ -278,6 +288,11 @@ public class DefaultXsuaaServiceBindings implements XsuaaServiceBindings {
         public String getVerificationKey() {
             return verificationKey;
         }
+        
+        @Override
+        public String getApiUrl() {
+            return apiUrl;
+        }
 
         public void setXsAppName(String xsAppName) {
             this.xsAppName = xsAppName;
@@ -323,6 +338,10 @@ public class DefaultXsuaaServiceBindings implements XsuaaServiceBindings {
 
         public void setVerificationKey(String verificationKey) {
             this.verificationKey = verificationKey;
+        }
+        
+        public void setApiUrl(String apiUrl) {
+            this.apiUrl = apiUrl;
         }
     }
 }

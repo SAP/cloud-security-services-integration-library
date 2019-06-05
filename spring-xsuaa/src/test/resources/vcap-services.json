@@ -4,11 +4,11 @@
         "label": "xsuaa",
         "provider": null,
         "plan": "application",
-        "name": "xsuaa-authentication",
+        "name": "xsuaa-authentication-1",
         "tags": [
           "xsuaa"
         ],
-        "instance_name": "xsuaa-authentication",
+        "instance_name": "xsuaa-authentication-1",
         "binding_name": null,
         "credentials": {
           "tenantmode": "dedicated",
@@ -31,27 +31,28 @@
         "label": "xsuaa",
         "provider": null,
         "plan": "application",
-        "name": "another-xsuaa-instance",
+        "name": "xsuaa-authentication-2",
         "tags": [
           "xsuaa"
         ],
-        "instance_name": "another-xsuaa-instance",
+        "instance_name": "xsuaa-authentication-2",
         "binding_name": null,
         "credentials": {
-          "uaadomain": "authentication.eu10.hana.ondemand.com",
-          "tenantmode": "shared",
+          "tenantmode": "dedicated",
           "sburl": "https://internal-xsuaa.authentication.eu10.hana.ondemand.com",
           "clientid": "YOUR-CLIENT-ID",
-          "verificationkey": "-----BEGIN PUBLIC KEY-----...YOUR KEY...-----END PUBLIC KEY-----",
           "xsappname": "YOUR-XS-APP-NAME",
+          "clientsecret": "YOUR-CLIENT-SECRET",
+          "url": "https://YOUR-TENANT.authentication.eu10.hana.ondemand.com",
+          "uaadomain": "authentication.eu10.hana.ondemand.com",
+          "verificationkey": "-----BEGIN PUBLIC KEY-----...YOUR KEY...-----END PUBLIC KEY-----",
+          "apiurl": "https://api.authentication.eu10.hana.ondemand.com",
           "identityzone": "YOUR-TENANT",
           "identityzoneid": "d22b9a7f-53b2-4f88-8298-cc51f86e7f68",
-          "clientsecret": "YOUR-CLIENT-SECRET",
-          "tenantid": "d22b9a7f-53b2-4f88-8298-cc51f86e7f68",
-          "url": "https://YOUR-TENANT.authentication.eu10.hana.ondemand.com"
+          "tenantid": "d22b9a7f-53b2-4f88-8298-cc51f86e7f68"
         },
         "syslog_drain_url": null,
         "volume_mounts": []
       }
-    ]
+   ]
 }
