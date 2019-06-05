@@ -273,24 +273,16 @@ public class XsuaaToken extends Jwt {
 
     private String[] getStringListAttributeFromClaim(String attributeName, String claimName) {
         
-        // TODO: this is horrible JSON coding! Fix it.
-        
         Map<String, Object> claimObject = getClaimAsMap(claimName);
         if (claimObject == null) {
             logger.debug("Claim %s not found. Returning null.", claimName);
             return null;
         }
         
-        JSONArray jsonArray = (JSONArray) claimObject.get(attributeName);
-        if(jsonArray == null) {
+        String[]attributeValues = (String[]) claimObject.get(attributeName);
+        if(attributeValues == null) {
             logger.debug("Attribute %s in claim %s not found. Returning null.", attributeName, claimName);
             return null;
-        }
-        
-        String[] attributeValues = new String[jsonArray.size()];
-        
-        for (int i = 0; i < jsonArray.size(); i++) {
-            attributeValues[i] = (String) jsonArray.get(i);
         }
         
         return attributeValues;
