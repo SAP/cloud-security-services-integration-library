@@ -547,6 +547,70 @@ String clientId = xsuaaBindingInfo.getCredentials().getClientId();
 String clientSecret = xsuaaBindingInfo.getCredentials().getClientSecret();
 ```
 
+`XsuaaServiceBinding` looks for XSUAA binding information in the application's environment at startup and will fail, if the binding information is not present.
+
+To run your application offline and making the binding information available easily, applications can place a file called `vcap-services.json` into their `src/main/resources` folder and simply dump the VCAP_SERVICES contents from Cloud Foundry there like this:
+
+```json
+{
+    "xsuaa": [
+      {
+        "label": "xsuaa",
+        "provider": null,
+        "plan": "application",
+        "name": "xsuaa-authentication",
+        "tags": [
+          "xsuaa"
+        ],
+        "instance_name": "xsuaa-authentication",
+        "binding_name": null,
+        "credentials": {
+          "tenantmode": "dedicated",
+          "sburl": "https://internal-xsuaa.authentication.eu10.hana.ondemand.com",
+          "clientid": "YOUR-CLIENT-ID",
+          "xsappname": "YOUR-XS-APP-NAME",
+          "clientsecret": "YOUR-CLIENT-SECRET",
+          "url": "https://YOUR-TENANT.authentication.eu10.hana.ondemand.com",
+          "uaadomain": "authentication.eu10.hana.ondemand.com",
+          "verificationkey": "-----BEGIN PUBLIC KEY-----...YOUR KEY...-----END PUBLIC KEY-----",
+          "apiurl": "https://api.authentication.eu10.hana.ondemand.com",
+          "identityzone": "YOUR-TENANT",
+          "identityzoneid": "d22b9a7f-53b2-4f88-8298-cc51f86e7f68",
+          "tenantid": "d22b9a7f-53b2-4f88-8298-cc51f86e7f68"
+        },
+        "syslog_drain_url": null,
+        "volume_mounts": []
+      },
+      {
+        "label": "xsuaa",
+        "provider": null,
+        "plan": "application",
+        "name": "another-xsuaa-instance",
+        "tags": [
+          "xsuaa"
+        ],
+        "instance_name": "another-xsuaa-instance",
+        "binding_name": null,
+        "credentials": {
+          "uaadomain": "authentication.eu10.hana.ondemand.com",
+          "tenantmode": "shared",
+          "sburl": "https://internal-xsuaa.authentication.eu10.hana.ondemand.com",
+          "clientid": "YOUR-CLIENT-ID",
+          "verificationkey": "-----BEGIN PUBLIC KEY-----...YOUR KEY...-----END PUBLIC KEY-----",
+          "xsappname": "YOUR-XS-APP-NAME",
+          "identityzone": "YOUR-TENANT",
+          "identityzoneid": "d22b9a7f-53b2-4f88-8298-cc51f86e7f68",
+          "clientsecret": "YOUR-CLIENT-SECRET",
+          "tenantid": "d22b9a7f-53b2-4f88-8298-cc51f86e7f68",
+          "url": "https://YOUR-TENANT.authentication.eu10.hana.ondemand.com"
+        },
+        "syslog_drain_url": null,
+        "volume_mounts": []
+      }
+    ]
+}
+```
+
 ### Programmatically Checking Authorities
 
 Usually, authorities are checked declaratively (either using `hasScope(...)` in `WebSecurityConfiguration` or using Global Method Security annotations). However, in case you really need to access the scopes of the JWT token programmatically, you can do so as follows:
