@@ -67,7 +67,7 @@ public class TestController {
      * @return the requested address.
      * @throws Exception in case of an internal error.
      */
-    @RequestMapping(value = "/v1/address", method = RequestMethod.GET)
+    @RequestMapping(value = "/v1/sayHello", method = RequestMethod.GET)
     public String sayHello(@AuthenticationPrincipal Jwt jwt) throws Exception {
         
         logger.info("Got the JWT: " + jwt);
