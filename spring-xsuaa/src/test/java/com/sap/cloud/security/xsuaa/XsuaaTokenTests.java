@@ -19,9 +19,7 @@ import org.junit.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 public class XsuaaTokenTests {
-
-    private static final String[] EXTERNAL_CONTEXT_ATTRIB_VALUE = new String[]{ "1", "2", "3"};
-    private static final String EXTERNAL_CONTEXT_ATTRIB = "ExternalContextAttrib";
+    
     Jwt mockJwt;
     XsuaaToken token;
     Map<String, Object> headers; 
@@ -40,6 +38,8 @@ public class XsuaaTokenTests {
     private static final String ADDITIONAL_AZ_ATTRIB = "AdditionalAuthZAttributes";
     private static final String ADDITIONAL_AZ_ATTRIBUTE_VALUE = "AdditionalAuthzAttrribute";
     private static final String CLONE_SERVICE_INSTANCE_ID = "CloneServiceInstanceId";
+    private static final String[] EXTERNAL_CONTEXT_ATTRIB_VALUE = new String[]{ "1", "2", "3"};
+    private static final String EXTERNAL_CONTEXT_ATTRIB = "ExternalContextAttrib";
     
     private static Map<String, Object> externalAttributes = new HashMap<String, Object>();
     
@@ -180,6 +180,15 @@ public class XsuaaTokenTests {
         String givenName = token.getGivenName();
         assertNotNull("Given name must not be null.", givenName);
         assertEquals("Given name not as expected.", GIVEN_NAME, givenName);
+        
+        externalAttributes.remove(XsuaaTokenClaims.CLAIM_GIVEN_NAME);
+        claims.put(XsuaaTokenClaims.CLAIM_GIVEN_NAME, "givenNameFromDirectClaim");
+        mockJwt = buildMockJwt(headers, claims);
+        token = new XsuaaToken(mockJwt);
+        givenName = token.getGivenName();
+        
+        assertNotNull("Given name must not be null.", givenName);
+        assertEquals("Given name not as expected.", "givenNameFromDirectClaim", givenName);
     }
 
     @Test
@@ -187,6 +196,15 @@ public class XsuaaTokenTests {
         String familyName = token.getFamilyName();
         assertNotNull("Family name must not be null.", familyName);
         assertEquals("Family name not as expected.", FAMILY_NAME, familyName);
+        
+        externalAttributes.remove(XsuaaTokenClaims.CLAIM_FAMILY_NAME);
+        claims.put(XsuaaTokenClaims.CLAIM_FAMILY_NAME, "familyNameFromDirectClaim");
+        mockJwt = buildMockJwt(headers, claims);
+        token = new XsuaaToken(mockJwt);
+        familyName = token.getFamilyName();
+        
+        assertNotNull("Family name must not be null.", familyName);
+        assertEquals("Family name not as expected.", "familyNameFromDirectClaim", familyName);
     }
 
     @Test
@@ -202,6 +220,24 @@ public class XsuaaTokenTests {
         assertNotNull("XS User Attributes must not be null.", xsUserAttribute);
         assertEquals("XS User Attributes size incorrect.", EXTERNAL_CONTEXT_ATTRIB_VALUE.length, xsUserAttribute.length);
         List<String> xsUserAttributes = Arrays.asList(xsUserAttribute);
+        for(String attrib : EXTERNAL_CONTEXT_ATTRIB_VALUE) {
+            assertTrue("Could not find all expected xs user attributes.", xsUserAttributes.contains(attrib));
+        }
+        
+        externalAttributes.remove(EXTERNAL_CONTEXT_ATTRIB);
+        claims.put(XsuaaTokenClaims.CLAIM_EXTERNAL_ATTR, externalAttributes);
+        
+        Map<String, Object> map = new HashMap<>();
+        map.put(EXTERNAL_CONTEXT_ATTRIB, EXTERNAL_CONTEXT_ATTRIB_VALUE);
+        
+        claims.put("xs.user.attributes", map);
+        mockJwt = buildMockJwt(headers, claims);
+        token = new XsuaaToken(mockJwt);
+        xsUserAttribute = token.getXSUserAttribute(EXTERNAL_CONTEXT_ATTRIB);
+        assertNotNull("XS User Attributes must not be null.", xsUserAttribute);
+        assertEquals("XS User Attributes size incorrect.", EXTERNAL_CONTEXT_ATTRIB_VALUE.length, xsUserAttribute.length);
+        
+        xsUserAttributes = Arrays.asList(xsUserAttribute);
         for(String attrib : EXTERNAL_CONTEXT_ATTRIB_VALUE) {
             assertTrue("Could not find all expected xs user attributes.", xsUserAttributes.contains(attrib));
         }

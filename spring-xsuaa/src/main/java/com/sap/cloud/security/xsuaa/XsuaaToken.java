@@ -26,8 +26,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import net.minidev.json.JSONArray;
-
 /**
  * Custom XSUAA token implementation.
  * <p>
