@@ -241,6 +241,9 @@ public class XsuaaTokenTests {
         for(String attrib : EXTERNAL_CONTEXT_ATTRIB_VALUE) {
             assertTrue("Could not find all expected xs user attributes.", xsUserAttributes.contains(attrib));
         }
+        
+        xsUserAttribute = token.getXSUserAttribute("someUnknown");
+        
     }
 
     @Test
