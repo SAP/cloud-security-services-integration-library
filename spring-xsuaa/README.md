@@ -671,7 +671,8 @@ As the name implies, this happens automatically when you reference `spring-xsuaa
 
 `spring-xsuaa`'s auto-configuration exposes the `XsuaaTokenFlows` and `XsuaaServiceBindings` beans and also a customized `JwtDecoder` instance that also validates a Jwt token's audience against the OAuth `clientId`, `clientSecret` and `XsAppName` that are found in the XSUAA binding information within the environment of the application.
 
-The two auto-configuration classes are `XsuaaResourceServerJwkConfiguration` and `XsuaaDefaultConfigurations`.
+The two auto-configuration classes are [`XsuaaResourceServerJwkConfiguration`](./src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaResourceServerJwkConfiguration.java) and [`XsuaaDefaultConfigurations`](./src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaDefaultConfigurations.java).
+
 They declare all beans with the `@ConditionalOnMissingBean` annotation, which allows an application to expose their own versions and override the `spring-xsuaa` default, if necessary.
 
 With this mechanism, an application has ultimate flexibility while at the same time profiting from meaningful defaults that simply plug in "magically" under the hood.
