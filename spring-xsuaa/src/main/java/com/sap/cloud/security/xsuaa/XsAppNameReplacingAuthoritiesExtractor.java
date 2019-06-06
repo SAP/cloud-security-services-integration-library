@@ -69,7 +69,7 @@ public class XsAppNameReplacingAuthoritiesExtractor extends JwtAuthenticationCon
      */
     public XsAppNameReplacingAuthoritiesExtractor() {
         replacementStrings = new HashMap<String, String>();
-        replacementStrings.put(".*![ibtu].*\\.", "");
+        replacementStrings.put(".*\\.", ""); // remove evth. until the last dot.
     }
     
     /**
@@ -78,8 +78,9 @@ public class XsAppNameReplacingAuthoritiesExtractor extends JwtAuthenticationCon
      * @param replacementStrings the mapping of XSAppNames to replacements.
      */
     public XsAppNameReplacingAuthoritiesExtractor(Map<String, String> replacementStrings) {
-        if(replacementStrings == null)
+        if(replacementStrings == null) {
             throw new IllegalArgumentException("Error! Replacement Strings map must not be null");
+        }
         
         this.replacementStrings = replacementStrings;
     }
@@ -90,8 +91,7 @@ public class XsAppNameReplacingAuthoritiesExtractor extends JwtAuthenticationCon
         List<String> authorities = new ArrayList<>(scopes.size());
         
         for(String scope : scopes) {
-            for (Entry<String, String> entry : replacementStrings.entrySet())
-            {
+            for (Entry<String, String> entry : replacementStrings.entrySet()) {
                 authorities.add(SCOPE_PREFIX + scope.replaceAll(entry.getKey(), entry.getValue()));
             }
         }

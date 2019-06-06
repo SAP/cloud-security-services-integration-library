@@ -2,10 +2,11 @@ package com.sap.cloud.security.xsuaa;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,6 +35,28 @@ public class XsAppNameReplacingAuthoritiesExtractorTests {
             new XsAppNameReplacingAuthoritiesExtractor(null);
         }).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Replacement Strings map must not be null"); 
     }
+    
+    @Test
+    public final void test_extractAuthorities_withDefaultPrefixReplacement() {
+        XsAppNameReplacingAuthoritiesExtractor extractor = new XsAppNameReplacingAuthoritiesExtractor();
+        
+        List<String> scopes = Arrays.asList("sb-12345!b1245|xsAppName!b1245.read_broker", "sb-12345!b1245|xsAppName!b1245.write_broker", "xsAppName!b1245.read_foreign", "xsAppName!b1245.write_foreign");
+        Jwt mockJwt = buildMockJwt(scopes);
+        
+        Collection<GrantedAuthority> authorities = extractor.extractAuthorities(mockJwt);
+        assertNotNull("Authorities must not be null", authorities);
+        assertEquals("Authorities size does not match number of scopes.", scopes.size(), authorities.size());
+       
+        List<String> authorityStrings = new ArrayList<String>(authorities.size());
+        for(GrantedAuthority authority : authorities) {
+            authorityStrings.add(authority.getAuthority());
+        }
+        
+        assertTrue(authorityStrings.contains("SCOPE_read_broker"));
+        assertTrue(authorityStrings.contains("SCOPE_write_broker"));
+        assertTrue(authorityStrings.contains("SCOPE_read_foreign"));
+        assertTrue(authorityStrings.contains("SCOPE_write_foreign"));
+    }
 
     @Test
     public final void test_extractAuthorities() {
@@ -43,7 +66,12 @@ public class XsAppNameReplacingAuthoritiesExtractorTests {
         XsAppNameReplacingAuthoritiesExtractor extractor = new XsAppNameReplacingAuthoritiesExtractor();
         Collection<GrantedAuthority> grantedAuthorities = extractor.extractAuthorities(mockJwt);
         
+        assertNotNull("Authorities must not be null.", grantedAuthorities);
         assertEquals("Number of granted authorities should equal number of scopes.", grantedAuthorities.size(), scopes.size());
+        for(GrantedAuthority authority : grantedAuthorities) {
+            assertTrue("Authorities should contain SCOPE_ prefix.", authority.getAuthority().startsWith("SCOPE_"));
+            assertTrue("Authority not contained in scopes", scopes.contains(authority.getAuthority().replaceFirst("SCOPE_", "")));
+        }
     }
     
     @Test
