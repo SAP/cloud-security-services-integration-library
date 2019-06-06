@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.util.Assert;
 
 import com.sap.cloud.security.xsuaa.DefaultXsuaaServiceBindings;
 import com.sap.cloud.security.xsuaa.XsuaaAudienceValidator;
@@ -52,11 +53,12 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceBindings;
 @Configuration
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class)
 @ConditionalOnClass(OAuth2ResourceServerProperties.class)
-class XsuaaResourceServerJwkConfiguration {
+public class XsuaaResourceServerJwkConfiguration {
 
     private final OAuth2ResourceServerProperties properties;
 
-    XsuaaResourceServerJwkConfiguration(OAuth2ResourceServerProperties properties) {
+    public XsuaaResourceServerJwkConfiguration(OAuth2ResourceServerProperties properties) {
+        Assert.notNull(properties, "Properties must not be null.");
         this.properties = properties;
     }
 
@@ -101,7 +103,7 @@ class XsuaaResourceServerJwkConfiguration {
         return new DefaultXsuaaServiceBindings(vcapFile);
     }
     
-    static class MissingVcapServicesFileCondition implements Condition {
+    public static class MissingVcapServicesFileCondition implements Condition {
 
         @Override
         public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
