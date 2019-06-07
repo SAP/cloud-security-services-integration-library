@@ -85,9 +85,13 @@ public class XsuaaResourceServerJwkConfiguration {
         OAuth2TokenValidator<Jwt> defaultValidators = JwtValidators.createDefaultWithIssuer(oidcIssuerLocation);
         OAuth2TokenValidator<Jwt> xsuaaAudienceValidator = new XsuaaAudienceValidator(xsuaaServiceBindings);
         OAuth2TokenValidator<Jwt> combinedValidators = new DelegatingOAuth2TokenValidator<>(defaultValidators, xsuaaAudienceValidator);
-        NimbusJwtDecoderJwkSupport jwtDecoder = (NimbusJwtDecoderJwkSupport) JwtDecoders.fromOidcIssuerLocation(oidcIssuerLocation);
+        NimbusJwtDecoderJwkSupport jwtDecoder = nimbusJwtDecoderFromOidcIssuerLocation(oidcIssuerLocation);
         jwtDecoder.setJwtValidator(combinedValidators);
         return jwtDecoder;
+    }
+    
+    protected NimbusJwtDecoderJwkSupport nimbusJwtDecoderFromOidcIssuerLocation(String oidcIssuerLocation) {
+        return (NimbusJwtDecoderJwkSupport) JwtDecoders.fromOidcIssuerLocation(oidcIssuerLocation);
     }
     
     @Bean

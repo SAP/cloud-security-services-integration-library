@@ -60,24 +60,24 @@ public class XsuaaResourceServerJwkConfigurationTests {
         });
     }
     
-// Currently cannot be tested properly. Requires a local OAuth 2.0 server
-// that provides a properly implemented OIDC endpoint.
-//    
-//    @Test
-//    public final void test_jwtDecoderByIssuerUri() {
-//        // positive test: jwk-set-uri is set. Should provide a bean.
-//        contextRunner.withPropertyValues("spring.security.oauth2.resourceserver.jwt.issuer-uri=https://authentication.eu10.hana.ondemand.com")
-//                      .run((context) -> {
-//                         assertThat(context).hasBean("jwtDecoderByIssuerUri");
-//                         assertThat(context.getBean("jwtDecoderByIssuerUri")).isInstanceOf(JwtDecoder.class);
-//                         assertThat(context.getBean(JwtDecoder.class)).isNotNull();
-//                      });
-//        
-//        // negative test: jwk-set-uri is NOT set. Should NOT provide a bean.
-//        contextRunner.run((context) -> {
-//           assertThat(context).doesNotHaveBean("jwtDecoderByIssuerUri");
-//        });
-//    }
+    @Test
+    public final void test_jwtDecoderByIssuerUri() {
+        
+        ApplicationContextRunner contextRunner = new ApplicationContextRunner().withConfiguration(AutoConfigurations.of(OAuth2ResourceServerPropertiesExposing.class, 
+                                                                                                                        XsuaaResourceServerJwkConfigurationSubclass.class));
+        // positive test: jwk-set-uri is set. Should provide a bean.
+        contextRunner.withPropertyValues("spring.security.oauth2.resourceserver.jwt.issuer-uri=https://authentication.eu10.hana.ondemand.com")
+                      .run((context) -> {
+                         assertThat(context).hasBean("jwtDecoderByIssuerUri");
+                         assertThat(context.getBean("jwtDecoderByIssuerUri")).isInstanceOf(JwtDecoder.class);
+                         assertThat(context.getBean(JwtDecoder.class)).isNotNull();
+                      });
+        
+        // negative test: jwk-set-uri is NOT set. Should NOT provide a bean.
+        contextRunner.run((context) -> {
+           assertThat(context).doesNotHaveBean("jwtDecoderByIssuerUri");
+        });
+    }
 
     @Test
     public final void test_xsuaaServiceBindings() {
