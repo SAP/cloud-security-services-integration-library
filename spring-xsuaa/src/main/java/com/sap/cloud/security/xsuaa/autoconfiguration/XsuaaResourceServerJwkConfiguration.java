@@ -4,15 +4,17 @@ import java.io.File;
 import java.io.IOException;
 
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionMessage;
+import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnResource;
+import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.IssuerUriCondition;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -103,11 +105,18 @@ public class XsuaaResourceServerJwkConfiguration {
         return new DefaultXsuaaServiceBindings(vcapFile);
     }
     
-    public static class MissingVcapServicesFileCondition implements Condition {
-
+    public static class MissingVcapServicesFileCondition extends SpringBootCondition {
+        
         @Override
-        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-            return !context.getResourceLoader().getResource("vcap-services.json").exists();
+        public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
+            
+            ConditionMessage.Builder message = ConditionMessage.forCondition("XSUAA VCAP_SERVICES JSON File Missing Condition");
+            
+            if (context.getResourceLoader().getResource("vcap-services.json").exists()) {
+                return ConditionOutcome.noMatch(message.foundExactly("vcap-services.json file"));
+            }
+            
+            return ConditionOutcome.match(message.didNotFind("vcap-services.json file").atAll());
         }
     }
 }
