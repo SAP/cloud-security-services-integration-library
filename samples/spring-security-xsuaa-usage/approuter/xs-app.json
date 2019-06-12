@@ -1,7 +1,14 @@
 {
-  "routes": [{
-    "source": "^/",
-    "target": "/hello-token",
-    "destination": "token-destination"
-  }]
+  "routes": [
+    {
+      "source": "^/v1",
+      "target": "/v1",
+      "destination": "token-destination"
+    },
+    {
+      "source": "^/v2",
+      "target": "/v2",
+      "destination": "token-destination"
+    }
+  ]
 }

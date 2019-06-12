@@ -1,23 +1,47 @@
 {
 	"xsappname": "spring-security-xsuaa-usage",
 	"tenant-mode": "dedicated",
-	"scopes": 
-	[
-		{
-			"name": "$XSAPPNAME.Display",
-			"description": "With this scope, information can be read."
-		}
-	],
-
-	"role-templates": 
-	[
-		{
-			"name": "AccessRole",
-			"description": "Role to call the  sap-java-buildpack-api-usage service",
-			"scope-references": 
-			[
-				"$XSAPPNAME.Display"
-			]
-		}
-	]
+	"scopes"        : [
+    {
+      "name"        : "$XSAPPNAME.Read",
+      "description" : "Read Permissions."
+    },
+    {
+      "name"        : "$XSAPPNAME.Write",
+      "description" : "Write permissions."
+    }
+  ],
+  "role-templates": [
+    {
+      "name"             : "Viewer",
+      "description"      : "View Data",
+      "scope-references" : [
+        "$XSAPPNAME.Read"
+      ]
+    },
+    {
+      "name"                 : "Modifier",
+      "description"          : "Modify Data",
+      "scope-references"     : [
+        "$XSAPPNAME.Read",
+        "$XSAPPNAME.Write"
+      ]
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "Viewer",
+      "description": "Viewer (read)",
+      "role-template-references": [
+        "$XSAPPNAME.Viewer"
+      ]
+    },
+    {
+      "name": "Modifier",
+      "description": "Modifier (read, write)",
+      "role-template-references": [
+        "$XSAPPNAME.Modifier"
+      ]
+    }
+  ]
 }  

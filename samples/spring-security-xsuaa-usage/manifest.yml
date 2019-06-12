@@ -1,9 +1,9 @@
 ---
 # Configuration:
 # configured for EU10. For other landscapes, please adopt LANDSCAPE_APPS_DOMAIN in ../vars.yml
-# If the route is occupied, you might need to change ID in in ../vars.yml
+# If the route is occupied, you might need to change ID in ../vars.yml
 applications:
-# Application sap-java-buildpack-api-usage
+# The sample application.
 - name: spring-security-xsuaa-usage
   instances: 1
   memory: 896M

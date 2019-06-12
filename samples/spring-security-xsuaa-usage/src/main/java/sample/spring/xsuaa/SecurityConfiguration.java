@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -32,7 +33,8 @@ import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "" })
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
@@ -47,7 +49,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // session is created by approuter
 			.and()
 				.authorizeRequests()
-				.antMatchers("/hello-token").hasAuthority("openid")
+				.antMatchers("/v1/sayHello").hasAuthority("Read")
+				.antMatchers("/v2/*").hasAuthority("Read")
 				.anyRequest().authenticated()
 			.and()
 				.oauth2ResourceServer()
@@ -61,7 +64,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	 */
 	Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
 		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
-//		converter.setLocalScopeAsAuthorities(true);
+		converter.setLocalScopeAsAuthorities(true);
 		return converter;
 	}
 
