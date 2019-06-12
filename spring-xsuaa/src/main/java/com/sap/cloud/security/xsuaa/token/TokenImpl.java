@@ -53,8 +53,6 @@ public class TokenImpl implements Token {
 	/**
 	 * @param jwt
 	 *            token
-	 * @param appId
-	 *            e.g. myapp!t123
 	 */
 	public TokenImpl(Jwt jwt) {
 		this.jwt = jwt;
