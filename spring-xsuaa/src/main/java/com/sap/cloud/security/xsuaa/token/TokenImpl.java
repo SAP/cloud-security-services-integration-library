@@ -47,7 +47,6 @@ public class TokenImpl implements Token {
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
 
 	private final Log logger = LogFactory.getLog(getClass());
-	private String appId = null;
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();
 	private Jwt jwt;
 
@@ -57,8 +56,7 @@ public class TokenImpl implements Token {
 	 * @param appId
 	 *            e.g. myapp!t123
 	 */
-	protected TokenImpl(Jwt jwt, String appId) {
-		this.appId = appId;
+	public TokenImpl(Jwt jwt) {
 		this.jwt = jwt;
 	}
 
