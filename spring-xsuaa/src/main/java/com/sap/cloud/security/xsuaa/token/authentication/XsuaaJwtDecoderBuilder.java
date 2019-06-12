@@ -61,6 +61,7 @@ public class XsuaaJwtDecoderBuilder {
 	 * Configures clone token validator, in case of two xsuaa bindings (application
 	 * and broker plan).
 	 *
+	 * @param tokenValidators the token validators
 	 * @return this
 	 */
 	public XsuaaJwtDecoderBuilder withTokenValidators(OAuth2TokenValidator<Jwt>... tokenValidators) {

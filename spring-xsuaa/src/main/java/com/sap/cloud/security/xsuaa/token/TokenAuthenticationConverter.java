@@ -16,6 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.springframework.util.Assert;
 
 /**
  * An authentication converter that removes the ugly application id prefix (e.g. my-application-demo!t1229)
@@ -38,6 +39,7 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 	/**
 	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor}
 	 * instance as default authorities extractor.
+     * @param appId e.g. myXsAppname!t123
 	 */
 	public TokenAuthenticationConverter(String appId) {
 		authoritiesExtractor = new DefaultAuthoritiesExtractor();
@@ -47,6 +49,9 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 	/**
 	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor}
 	 * instance as default authorities extractor.
+     *
+     * @param xsuaaServiceConfiguration the xsuaa configuration
+     * @deprecated use {@link TokenAuthenticationConverter#TokenAuthenticationConverter(String)} instead
 	 */
 	public TokenAuthenticationConverter(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		new TokenAuthenticationConverter(xsuaaServiceConfiguration.getAppId());
@@ -69,6 +74,7 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 	 *            e.g. "Display".
 	 */
 	public void setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {
+        Assert.state(appId != null, "appId must be provided via the constructor");
 		authoritiesExtractor = new LocalAuthoritiesExtractor(appId);
 	}
 
