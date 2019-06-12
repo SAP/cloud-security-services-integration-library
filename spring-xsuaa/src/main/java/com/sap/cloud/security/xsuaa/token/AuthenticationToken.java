@@ -8,16 +8,13 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 
 public class AuthenticationToken extends JwtAuthenticationToken {
 
-	String appId;
-
-	public AuthenticationToken(String appId, Jwt jwt, Collection<GrantedAuthority> authorities) {
+	public AuthenticationToken(Jwt jwt, Collection<GrantedAuthority> authorities) {
 		super(jwt, authorities);
-		this.appId = appId;
 	}
 
 	@Override
 	public Object getPrincipal() {
-		TokenImpl token = new TokenImpl(getToken(), appId);
+		TokenImpl token = new TokenImpl(getToken());
 		token.setAuthorities(this.getAuthorities());
 		return token;
 	}

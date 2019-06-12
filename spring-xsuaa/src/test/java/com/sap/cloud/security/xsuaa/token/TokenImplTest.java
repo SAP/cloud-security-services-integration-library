@@ -106,7 +106,7 @@ public class TokenImplTest {
 		authorities.add(new SimpleGrantedAuthority(scopeRead));
 		authorities.add(new SimpleGrantedAuthority(scopeOther));
 
-		TokenImpl token = new TokenImpl(jwtSaml, xsAppName);
+		TokenImpl token = new TokenImpl(jwtSaml);
 		token.setAuthorities(authorities);
 
 		Collection<GrantedAuthority> actAuthorities = (Collection<GrantedAuthority>) token.getAuthorities();
@@ -195,21 +195,21 @@ public class TokenImplTest {
 
 	@Test
 	public void getPrincipalNameReturnUniqueLogonNameWithOrigin() {
-		Token token = new TokenImpl(jwtSaml, xsAppName);
+		Token token = new TokenImpl(jwtSaml);
 		UserDetails principal = token;
 		Assert.assertEquals("user/useridp/Mustermann", principal.getUsername());
 	}
 
 	@Test
 	public void getPrincipalNameReturnUniqueClientId() {
-		Token token = new TokenImpl(jwtCC, xsAppName);
+		Token token = new TokenImpl(jwtCC);
 		Assert.assertEquals("sb-java-hello-world", token.getClientId());
 		Assert.assertEquals("client/sb-java-hello-world", token.getUsername());
 	}
 
 	@Test
 	public void getXsUserAttributeValues() {
-		Token token = new TokenImpl(jwtSaml, xsAppName);
+		Token token = new TokenImpl(jwtSaml);
 		String[] userAttrValues = token.getXSUserAttribute("cost-center");
 		assertThat(userAttrValues.length, is(2));
 		assertThat(userAttrValues[0], is("0815"));
@@ -276,7 +276,7 @@ public class TokenImplTest {
 
 	private Token createToken(JWTClaimsSet.Builder claimsBuilder) {
 		Jwt jwt = JwtGenerator.createFromClaims(claimsBuilder.build());
-		return new TokenImpl(jwt, xsAppName);
+		return new TokenImpl(jwt);
 	}
 
 	private static class SamlExternalAttrClaim {
