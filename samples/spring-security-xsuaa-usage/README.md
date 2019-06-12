@@ -60,8 +60,3 @@ After deployment, the AppRouter will trigger authentication automatically when y
 * `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v2/clientCredentialsToken` - executes a Client Credentials Token flow.
 * `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v2/printXsuaaBindingInformation` - prints the XSUAA service binding information from the environment.
 
-## Locally Running the Application - TODO
-
-The application can be run locally, but in order to do so, you need the XSUAA binding information in the application's environment. Using tools like Eclipse of IntelliJ Idea this is easy. But there is also an easier way:
-
-Simply rename the `_vcap-services.json` file in `src/main/resources` to `vcap-services.json` and dump your `VCAP_SERVICES` from Cloud Foundry in the file. `spring-xsuaa` will pick up the file, if it is present and load the environment from there.

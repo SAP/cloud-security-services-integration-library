@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>spring-xsuaa</artifactId>
-			<version>1.4.0</version> <!-- TODO change-->
+			<version>1.4.0</version>
 		</dependency>
 
 	</dependencies>
