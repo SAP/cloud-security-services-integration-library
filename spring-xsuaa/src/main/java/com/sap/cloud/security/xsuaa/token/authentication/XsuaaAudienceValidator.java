@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Validate audience using audience field content. in case this field is empty,
@@ -41,8 +42,8 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
 		String tokenClientId = token.getClaimAsString(Token.CLIENT_ID);
-		if (tokenClientId == null) {
-			OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
+		if (StringUtils.isEmpty(tokenClientId)) {
+			return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
 					"Jwt token must contain 'cid' (client_id)", null));
 		}
 		List<String> allowedAudiences = getAllowedAudiences(token);
