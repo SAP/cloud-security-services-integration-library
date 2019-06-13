@@ -1,6 +1,7 @@
 package com.sap.cloud.security.xsuaa.token;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -170,11 +171,11 @@ public class TokenImplTest {
 		assertThat(token.toString(), is(token.getUsername()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void getUserNameReturnsErrorWhenOriginContainsDelimeter() {
 		claimsSetBuilder.claim(TokenImpl.CLAIM_ORIGIN, "my/Idp");
 		token = createToken(claimsSetBuilder);
-		token.getUsername();
+		assertNull(token.getUsername());
 	}
 
 	@Test
@@ -183,14 +184,14 @@ public class TokenImplTest {
 		assertThat(uniqueUserName, is("user/origin/name"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void getUniquePrincipalNameRaisesErrorWhenOriginIsNull() {
-		TokenImpl.getUniquePrincipalName(null, "name");
+		assertNull(TokenImpl.getUniquePrincipalName(null, "name"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void getUniquePrincipalNameRaisesErrorWhenLogonNameIsNull() {
-		TokenImpl.getUniquePrincipalName("origin", null);
+		assertNull(TokenImpl.getUniquePrincipalName("origin", null));
 	}
 
 	@Test

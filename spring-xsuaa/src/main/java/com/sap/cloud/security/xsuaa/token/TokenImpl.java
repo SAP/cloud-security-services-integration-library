@@ -8,23 +8,31 @@ import java.util.List;
 import java.util.Map;
 
 import com.sap.xs2.security.container.XSTokenRequestImpl;
+import net.minidev.json.JSONArray;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimAccessor;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.util.Assert;
 
 import com.sap.xsa.security.container.XSTokenRequest;
 import com.sap.xsa.security.container.XSUserInfoException;
 
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
 import org.springframework.web.client.RestTemplate;
 
-public class TokenImpl implements Token {
+/**
+ * Custom XSUAA token implementation.
+ *
+ * This class inherits Spring Security's standard Jwt implementation
+ * and can be used interchangeably with it.
+ */
+public class TokenImpl extends Jwt implements Token {
+
+	private static final Log logger = LogFactory.getLog(TokenImpl.class);
 
 	static final String GRANTTYPE_SAML2BEARER = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
@@ -46,16 +54,14 @@ public class TokenImpl implements Token {
 	static final String CLAIM_EXTERNAL_ATTR = "ext_attr";
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
 
-	private final Log logger = LogFactory.getLog(getClass());
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();
-	private Jwt jwt;
 
 	/**
 	 * @param jwt
 	 *            token
 	 */
 	public TokenImpl(Jwt jwt) {
-		this.jwt = jwt;
+		super(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getHeaders(), jwt.getClaims());
 	}
 
 	@Override
@@ -65,7 +71,7 @@ public class TokenImpl implements Token {
 
 	@Override
 	public Date getExpirationDate() {
-		return jwt.getExpiresAt() != null ? Date.from(jwt.getExpiresAt()) : null;
+		return getExpiresAt() != null ? Date.from(getExpiresAt()) : null;
 	}
 
 	@Override
@@ -85,7 +91,7 @@ public class TokenImpl implements Token {
 	@Override
 	public boolean isAccountNonExpired() {
 		JwtTimestampValidator validator = new JwtTimestampValidator();
-		return !validator.validate(jwt).hasErrors();
+		return !validator.validate(this).hasErrors();
 	}
 
 	@Override
@@ -96,7 +102,7 @@ public class TokenImpl implements Token {
 	@Override
 	public boolean isCredentialsNonExpired() {
 		JwtTimestampValidator validator = new JwtTimestampValidator();
-		return validator.validate(jwt).hasErrors();
+		return validator.validate(this).hasErrors();
 	}
 
 	@Override
@@ -109,15 +115,28 @@ public class TokenImpl implements Token {
 	 *
 	 * @param origin
 	 *            of the access token
-	 * @param logonName
+	 * @param userLoginName
 	 *            of the access token
 	 * @return unique principal name
 	 */
-	public static String getUniquePrincipalName(String origin, String logonName) {
-		Assert.notNull(origin, "Origin required");
-		Assert.notNull(logonName, "LogonName required");
-		Assert.doesNotContain(origin, "/", CLAIM_ORIGIN + " must not contain '/' characters");
-		return String.format(UNIQUE_USER_NAME_FORMAT, origin, logonName);
+	@Nullable
+	public static String getUniquePrincipalName(String origin, String userLoginName) {
+		if (origin == null) {
+			logger.warn("Origin claim not set in JWT. Cannot create unique user name. Returning null.");
+			return null;
+		}
+
+		if (userLoginName == null) {
+			logger.warn("User login name claim not set in JWT. Cannot create unique user name. Returning null.");
+			return null;
+		}
+
+		if (origin.contains("/")) {
+			logger.warn("Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returing null.");
+			return null;
+		}
+
+		return String.format(UNIQUE_USER_NAME_FORMAT, origin, userLoginName);
 	}
 
 	/**
@@ -127,56 +146,51 @@ public class TokenImpl implements Token {
 	@Override
 	@Nullable
 	public String getLogonName() {
-		raiseMethodUnsupportedWhenClientCredentialGrantType("getLogonName");
-		return jwt.getClaimAsString(CLAIM_USER_NAME);
+		return getClaimAsString(CLAIM_USER_NAME);
 	}
 
 	@Override
 	@Nullable
 	public String getClientId() {
-		return jwt.getClaimAsString(CLAIM_CLIENT_ID);
+		return getClaimAsString(CLAIM_CLIENT_ID);
 	}
 
 	@Override
 	public String getGivenName() {
-		raiseMethodUnsupportedWhenClientCredentialGrantType("getGivenName");
-		String externalAttribute = getExternalAttribute(CLAIM_GIVEN_NAME);
-		return externalAttribute != null ? externalAttribute : jwt.getClaimAsString(CLAIM_GIVEN_NAME);
+		String externalAttribute = getStringAttributeFromClaim(CLAIM_GIVEN_NAME, CLAIM_EXTERNAL_ATTR);
+		return externalAttribute != null ? externalAttribute : getClaimAsString(CLAIM_GIVEN_NAME);
 	}
 
 	@Override
 	@Nullable
 	public String getFamilyName() {
-		raiseMethodUnsupportedWhenClientCredentialGrantType("getFamilyName");
-		String externalAttribute = getExternalAttribute(CLAIM_FAMILY_NAME);
-		return externalAttribute != null ? externalAttribute : jwt.getClaimAsString(CLAIM_FAMILY_NAME);
+		String externalAttribute = getStringAttributeFromClaim(CLAIM_FAMILY_NAME, CLAIM_EXTERNAL_ATTR);
+		return externalAttribute != null ? externalAttribute : getClaimAsString(CLAIM_FAMILY_NAME);
 	}
 
 	@Override
 	public String getEmail() {
-		raiseMethodUnsupportedWhenClientCredentialGrantType("getEmail");
-		return jwt.getClaimAsString(CLAIM_EMAIL);
+		return getClaimAsString(CLAIM_EMAIL);
 	}
 
 	@Override
 	public String getOrigin() {
-		raiseMethodUnsupportedWhenClientCredentialGrantType("getOrigin");
-		return jwt.getClaimAsString(CLAIM_ORIGIN);
+		return getClaimAsString(CLAIM_ORIGIN);
 	}
 
 	@Override
 	public String getGrantType() {
-		return jwt.getClaimAsString(CLAIM_GRANT_TYPE);
+		return getClaimAsString(CLAIM_GRANT_TYPE);
 	}
 
 	@Override
 	public String getSubaccountId() {
-		return jwt.getClaimAsString(CLAIM_ZONE_ID);
+		return getClaimAsString(CLAIM_ZONE_ID);
 	}
 
 	@Override
 	public String getSubdomain() {
-		return getExternalAttribute(CLAIM_ZDN);
+		return getStringAttributeFromClaim(CLAIM_ZDN, CLAIM_EXTERNAL_ATTR);
 	}
 
 	@Override
@@ -187,56 +201,23 @@ public class TokenImpl implements Token {
 	@Nullable
 	@Override
 	public String[] getXSUserAttribute(String attributeName) {
-		raiseMethodUnsupportedWhenClientCredentialGrantType("getAttribute");
-		return getMultiValueAttributeFromExtClaim(attributeName, CLAIM_XS_USER_ATTRIBUTES);
+		String[] attributeValue = getStringListAttributeFromClaim(attributeName, CLAIM_EXTERNAL_CONTEXT);
+		return attributeValue != null ? attributeValue : getStringListAttributeFromClaim(attributeName, CLAIM_XS_USER_ATTRIBUTES);
 	}
 
 	@Override
 	public String getAdditionalAuthAttribute(String attributeName) {
-		return getAttributeFromClaim(attributeName, CLAIM_ADDITIONAL_AZ_ATTR);
-	}
-
-	@Nullable
-	private String[] getMultiValueAttributeFromExtClaim(String attributeName, String claimName) {
-		String[] attributeValues = null;
-		if (hasClaim(CLAIM_EXTERNAL_CONTEXT)) {
-			JSONObject jsonExtern = (JSONObject) jwt.getClaimAsMap(CLAIM_EXTERNAL_CONTEXT);
-			JSONObject jsonObject = (JSONObject) jsonExtern.get(claimName);
-			JSONArray jsonArray = (JSONArray) jsonObject.get(attributeName);
-			int length = jsonArray != null ? jsonArray.size() : 0;
-			attributeValues = new String[length];
-			for (int i = 0; i < length; i++) {
-				attributeValues[i] = (String) jsonArray.get(i);
-			}
-		} else if (hasClaim(claimName)) {
-			return getMultiValueAttributeFromClaim(attributeName, claimName);
-		}
-		return attributeValues;
-	}
-
-	private String[] getMultiValueAttributeFromClaim(String attributeName, String claimName) {
-		String[] attributeValues = new String[0];
-		Map<String, Object> jsonObject = jwt.getClaimAsMap(claimName);
-		Assert.state(jsonObject != null, "Invalid value of " + claimName);
-		JSONArray jsonArray = (JSONArray) jsonObject.get(attributeName);
-		if (jsonArray != null) {
-			int length = jsonArray.size();
-			attributeValues = new String[length];
-			for (int i = 0; i < length; i++) {
-				attributeValues[i] = (String) jsonArray.get(i);
-			}
-		}
-		return attributeValues;
+		return getStringAttributeFromClaim(attributeName, CLAIM_ADDITIONAL_AZ_ATTR);
 	}
 
 	@Override
 	public String getCloneServiceInstanceId() {
-		return getExternalAttribute(CLAIM_SERVICEINSTANCEID);
+		return getStringAttributeFromClaim(CLAIM_SERVICEINSTANCEID, CLAIM_EXTERNAL_ATTR);
 	}
 
 	@Override
 	public String getAppToken() {
-		return jwt.getTokenValue();
+		return getTokenValue();
 	}
 
 	@Override
@@ -252,14 +233,14 @@ public class TokenImpl implements Token {
 		try {
 			return tokenExchanger.requestToken(tokenRequest);
 		} catch (XSUserInfoException e) {
-			logger.error("Error occured during token request", e);
+			logger.error("Error occurred during token request", e);
 			return null;
 		}
 	}
 
 	@Override
 	public Collection<String> getScopes() {
-		List<String> scopesList = jwt.getClaimAsStringList(Token.CLAIM_SCOPES);
+		List<String> scopesList = getClaimAsStringList(Token.CLAIM_SCOPES);
 		return scopesList != null ? scopesList : Collections.emptyList();
 	}
 
@@ -271,16 +252,17 @@ public class TokenImpl implements Token {
 	 * @return true: attribute exists
 	 */
 	public boolean hasClaim(String claim) {
-		return jwt.containsClaim(claim);
+		return containsClaim(claim);
 	}
 
 	/**
 	 * For custom access to the claims of the authentication token.
 	 * 
-	 * @return
+	 * @return this
+	 * @deprecated with version 1.5 as TokenImpl inherits from {@link Jwt} which implements {@link JwtClaimAccessor}
 	 */
 	ClaimAccessor getClaimAccessor() {
-		return jwt;
+		return this;
 	}
 
 	void setAuthorities(Collection<GrantedAuthority> authorities) {
@@ -288,18 +270,34 @@ public class TokenImpl implements Token {
 		this.authorities = authorities;
 	}
 
-	private void raiseMethodUnsupportedWhenClientCredentialGrantType(String method) {
-		String errorMessage = "Method %s() is not supported for grant type GRANTTYPE_CLIENTCREDENTIAL";
-		Assert.state(getGrantType() != GRANTTYPE_CLIENTCREDENTIAL, String.format(errorMessage, method));
+	private String getStringAttributeFromClaim(String attributeName, String claimName) {
+		Map<String, Object> attribute = getClaimAsMap(claimName);
+		return attribute == null ? null : (String) attribute.get(attributeName);
 	}
 
-	private String getExternalAttribute(String attributeName) {
-		return getAttributeFromClaim(attributeName, CLAIM_EXTERNAL_ATTR);
-	}
+	private String[] getStringListAttributeFromClaim(String attributeName, String claimName) {
+		String[] attributeValues = null;
 
-	private String getAttributeFromClaim(String attributeName, String claimName) {
-		Map<String, Object> externalAttribute = jwt.getClaimAsMap(claimName);
-		return externalAttribute == null ? null : (String) externalAttribute.get(attributeName);
-	}
+		Map<String, Object> claimMap = getClaimAsMap(claimName);
+		if (claimMap == null) {
+			logger.debug(String.format("Claim %s not found. Returning null.", claimName));
+			return attributeValues;
+		}
 
+		// convert JSONArray to String[]
+		JSONArray attributeJsonArray = (JSONArray) claimMap.get(attributeName);
+		if (attributeJsonArray != null) {
+			attributeValues = new String[attributeJsonArray.size()];
+			for (int i = 0; i < attributeJsonArray.size(); i++) {
+				attributeValues[i] = (String) attributeJsonArray.get(i);
+			}
+		}
+
+		if(attributeValues == null) {
+			logger.debug(String.format("Attribute %s in claim %s not found. Returning null.", attributeName, claimName));
+			return attributeValues;
+		}
+
+		return attributeValues;
+	}
 }
