@@ -16,86 +16,99 @@ public interface Token extends UserDetails {
 	String CLIENT_ID = "cid";
 
 	/**
-	 * Subaccount identifier, which can be used as tenant guid
+	 * Returns the subaccount identifier, which can be used as tenant GUID.
 	 *
-	 * @return subaccount identifier
+	 * @return the subaccount identifier.
 	 */
 	String getSubaccountId();
 
 	/**
-	 * Subdomain of this subaccount
+	 * Returns the subdomain of the calling tenant's subaccount.
 	 *
-	 * @return subdomain
+	 * @return the subdomain of the tenant the JWT belongs to.
 	 */
 	public String getSubdomain();
 
 	/**
-	 * Client identifier of the authentication token
+	 * Returns the OAuth client identifier of the authentication token if present.
 	 *
-	 * @return client id
+	 * @return the OAuth client ID.
 	 */
 	String getClientId();
 
 	/**
-	 * OAuth Grant Type used for this token
+	 * Returns the OAuth2.0 grant type used for retrieving / creating this token.
 	 *
-	 * @return grant type
+	 * @return the grant type
 	 */
 	String getGrantType();
 
 	/**
-	 * User name used for authentication, e.g. an email address or other identifier.
-	 * A user might exist in multiple identity providers. The following information
-	 * is required to to uniquely identify a user: - username: name of the user in
-	 * an identity provider - origin: alias to an identity provider - subaccount id:
-	 * identifier for the subaccount
+	 * Returns a unique user name of a user, using information from the JWT.
+	 * For tokens that were issued as a result of a client credentials flow, the
+	 * OAuth client ID will be returned in a special format.
+	 * The following information is required to uniquely identify a user: <br>
 	 *
-	 * @return user name
+	 * <ul>
+	 *  <li> <b>user login name:</b> name of the user in an identity provider, provided by this method.
+	 *  <li> <b>origin:</b> alias to an identity provider, see {@link #getOrigin()}.
+	 *  <li> <b>subaccount id:</b> identifier for the subaccount, see {@link #getSubaccountId()}.
+	 * </ul>
+	 *
+	 * @return unique principal name or null if it can not be determined.
 	 */
 	@Nullable
 	String getLogonName();
 
 	/**
-	 * Given name of the user.
+	 * Returns the given name of the user if present.
+	 * Will try to find it first in the {@code ext_attr.given_name} claim
+	 * before trying to find a {@code given_name} claim.
 	 *
-	 * @return given name
+	 * @return the given name if present.
 	 */
 	@Nullable
 	String getGivenName();
 
 	/**
-	 * Family name of the user.
+	 * Returns the family name of the user if present.
+	 * Will try to find it first in the {@code ext_attr.family_name} claim
+	 * before trying to find a {@code family_name} claim.
 	 *
-	 * @return family name
+	 * @return the family name if present.
 	 */
 	@Nullable
 	String getFamilyName();
 
 	/**
-	 * Email address of the user.
+	 * Returns the email address of the user, if present.
 	 *
-	 * @return email address
+	 * @return The email address if present.
 	 */
 	@Nullable
 	String getEmail();
 
 	/**
-	 * Return the user origin. The origin is an alias that refers to a user store in
+	 * Returns the user origin. The origin is an alias that refers to a user store in
 	 * which the user is persisted. For example, users that are authenticated by the
-	 * UAA itself with a username/password combination have their origin set to the
+	 * UAA itself with a username / password combination have their origin set to the
 	 * value "uaa".
 	 *
-	 * @return user origin
+	 * May be null in case this JWT was not created with OAuth 2.0 client credentials flow.
+	 *
+	 * @return the user origin if present.
 	 */
 	@Nullable
 	String getOrigin();
 
 	/**
-	 * User attribute
+	 * Returns the value of an attribute from the 'xs.user.attributes' claim.
+	 * Will first try to find the attribute in 'ext_ctx' claim.
 	 *
-	 * @param attributeName
-	 *            name of the attribute
-	 * @return attribute values array
+	 * @param attributeName name of the attribute inside
+	 *                      'ext_ctx' or 'xs.user.attributes'.
+	 *
+	 * @return the attribute values array or null if there exists no such attribute.
 	 */
 	@Nullable
 	String[] getXSUserAttribute(String attributeName);
@@ -107,15 +120,17 @@ public interface Token extends UserDetails {
 	 *
 	 * @param attributeName
 	 *            name of the authentication attribute
-	 * @return additional attribute value
+	 * @return additional attribute value if present.
 	 */
 	@Nullable
 	String getAdditionalAuthAttribute(String attributeName);
 
 	/**
-	 * In case of xsuaa broker plan tokens, it contains the service instance id
+	 * Returns the XSUAA clone instance ID, if present.
+	 * This will only be set for tokens that were issued by an
+	 * XSUAA with plan broker. Contains the service instance id if present.
 	 *
-	 * @return service instance id
+	 * @return the XSUAA clone service instance id if present.
 	 */
 	@Nullable
 	String getCloneServiceInstanceId();
@@ -162,7 +177,8 @@ public interface Token extends UserDetails {
 	/**
 	 * Returns date of when jwt token expires.
 	 *
-	 * @return expiration date
+	 * @return expiration date if present
 	 */
+	@Nullable
 	Date getExpirationDate();
 }
