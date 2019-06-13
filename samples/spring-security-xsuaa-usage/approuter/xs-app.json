@@ -3,11 +3,7 @@
     {
       "source": "^/v1",
       "target": "/v1",
-      "destination": "token-destination"
-    },
-    {
-      "source": "^/v2",
-      "target": "/v2",
+      "csrfProtection": false,
       "destination": "token-destination"
     }
   ]

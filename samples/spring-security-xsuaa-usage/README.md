@@ -52,11 +52,8 @@ Further up-to-date information you can get on sap.help.com:
 ## Access the application
 After deployment, the AppRouter will trigger authentication automatically when you access one of the following URLs:
 
-* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - provides user token details, but only if token matches.
-* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v2/sayHello` - prints a welcome message, but only if token matches.
-* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/method` - executes a method secured with Spring Global Method Security.
-* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/readData` - reads data via Global Method Security.
-* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/writeData` - writes data via Global Method Security.
-* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v2/clientCredentialsToken` - executes a Client Credentials Token flow.
-* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v2/printXsuaaBindingInformation` - prints the XSUAA service binding information from the environment.
+* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - GET request that provides user token details, but only if token matches.
+* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/method` - GET request to executes a method secured with Spring Global Method Security.
+* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/readData` - GET request to read data via Global Method Security.
+* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/writeData` -POST request to write data via Global Method Security.
 

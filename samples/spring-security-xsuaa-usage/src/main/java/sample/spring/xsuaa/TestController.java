@@ -69,24 +69,6 @@ public class TestController {
     }
 
     /**
-     * Returns the address of the address service.
-     * Uses a JWT retrieved from the security context of Spring Security.
-     *
-     * @param jwt the JWT from the request injected by Spring Security.
-     * @return the requested address.
-     * @throws Exception in case of an internal error.
-     */
-    @GetMapping(value = "/v2/sayHello")
-    public String sayHello(@AuthenticationPrincipal Jwt jwt) {
-
-        logger.info("Got the JWT: " + jwt);
-
-        logger.info(jwt.toString());
-
-        return "Hello Jwt-Protected World!";
-    }
-
-    /**
      * An endpoint showing how to use Spring method security.
      * Only if the request principal has the given scope will the
      * method be called. Otherwise a 403 error will be returned.
@@ -94,7 +76,7 @@ public class TestController {
     @GetMapping(value = "/v1/method")
     @PreAuthorize("hasAuthority('Read')")
     public String callMethodRemotely() {
-        return "Method called!";
+        return "Read-protected method called!";
     }
 
     /**
@@ -119,6 +101,7 @@ public class TestController {
      */
     @PostMapping(value = "/v1/writeData")
     public void writeToDataService() {
+        logger.info("Try writing data.");
         dataService.writeData("Spring Rocks!");
     }
 
