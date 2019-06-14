@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration
