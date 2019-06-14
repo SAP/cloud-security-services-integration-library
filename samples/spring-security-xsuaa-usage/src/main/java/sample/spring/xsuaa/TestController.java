@@ -41,8 +41,8 @@ public class TestController {
     private DataService dataService;
 
     /**
-     * Returns the address of the address service.
-     * Uses a JWT retrieved from the security context of Spring Security.
+     * Returns the detailed information of the XSUAA JWT token.
+     * Uses a Token retrieved from the security context of Spring Security.
      *
      * @param token the XSUAA token from the request injected by Spring Security.
      * @return the requested address.
@@ -66,6 +66,24 @@ public class TestController {
         result.put("scopes", String.valueOf(token.getScopes()));
 
         return result;
+    }
+
+    /**
+     * Returns some generic information from the JWT token.
+     * Uses a Jwt retrieved from the security context of Spring Security.
+     *
+     * @param jwt the JWT from the request injected by Spring Security.
+     * @return the requested address.
+     * @throws Exception in case of an internal error.
+     */
+    @GetMapping(value = "/v2/sayHello")
+    public String sayHello(@AuthenticationPrincipal Jwt jwt) {
+
+        logger.info("Got the JWT: " + jwt);
+
+        logger.info(jwt.toString());
+
+        return "Hello Jwt-Protected World!";
     }
 
     /**
