@@ -1,9 +1,9 @@
 package com.sap.cloud.security.xsuaa;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Properties;
 
+import net.minidev.json.parser.ParseException;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
@@ -66,7 +66,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 						attributeValue -> newConfigurationProperties.put(XSUAA_PREFIX + attributeName, attributeValue));
 			}
 			return newConfigurationProperties;
-		} catch (net.minidev.json.parser.ParseException ex) {
+		} catch (ParseException ex) {
 			throw new IOException(ex);
 		}
 	}
