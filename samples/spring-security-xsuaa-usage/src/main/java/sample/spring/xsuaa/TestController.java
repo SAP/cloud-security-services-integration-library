@@ -12,26 +12,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TestController {
 
     private static final Logger logger = LoggerFactory.getLogger(TestController.class);
-
-    //    /**
-    //     * The injected factory for XSUAA token flows.
-    //     */
-    //    @Autowired
-    //    private XsuaaTokenFlows xsuaaTokenFlows;
-    //
-    //    /**
-    //     * The injected XSUAA service binding information from environment.
-    //     */
-    //    @Autowired
-    //    private XsuaaServiceBindings xsuaaServiceBindings;
 
     /**
      * A (fake) data layer showing global method security features of Spring Security
@@ -123,50 +109,4 @@ public class TestController {
         dataService.writeData("Spring Rocks!");
     }
 
-    //    /**
-    //     * REST endpoint showing how to fetch a Client Credentials Token from XSUAA using the
-    //     * XsuaaTokenFlows bean injected by Spring and exposed by the (new) XSUAA client library
-    //     * implementation.
-    //     * @param jwt - the Jwt as a result of authentication.
-    //     * @return the Client Credentials Token fetched from XSUAA. Don't do this in production!
-    //     * @throws Exception in case of any errors.
-    //     */
-    //    @GetMapping(value = "/v2/clientCredentialsToken")
-    //    public Jwt fetchClientCredentialsToken(@AuthenticationPrincipal Jwt jwt) throws Exception {
-    //
-    //        Map<String, XsuaaBindingInfo> bindings = xsuaaServiceBindings.getXsuaaBindingInformation();
-    //
-    //        XsuaaBindingInfo xsuaaBindingInfo = bindings.get("xsuaa-authentication");
-    //
-    //        String baseUrl = xsuaaBindingInfo.getCredentials().getBaseUrl();
-    //        String clientId = xsuaaBindingInfo.getCredentials().getClientId();
-    //        String clientSecret = xsuaaBindingInfo.getCredentials().getClientSecret();
-    //
-    //        Jwt ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow(URI.create(baseUrl))
-    //                .client(clientId)
-    //                .secret(clientSecret)
-    //                .execute();
-    //
-    //        logger.info("CCF Token: {}", ccfToken.getTokenValue());
-    //
-    //        return ccfToken;
-    //    }
-    //
-    //    /**
-    //     * Prints the XSUAA service instance binding information from environment.
-    //     * @param jwt - the Jwt as a result of authentication.
-    //     * @return the XSUAA service instance binding information from environment.
-    //     * @throws Exception in case of any errors.
-    //     */
-    //    @GetMapping(value = "/v2/printXsuaaBindingInformation")
-    //    public String printXsuaaServiceBindingsInformation(@AuthenticationPrincipal Jwt jwt) throws Exception {
-    //
-    //        Map<String, XsuaaBindingInfo> bindings = xsuaaServiceBindings.getXsuaaBindingInformation();
-    //
-    //        ObjectMapper mapper = new ObjectMapper();
-    //        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(bindings);
-    //        logger.info("Parsed XSUAA Configurations from Environment: ");
-    //        logger.info(json);
-    //        return json;
-    //    }
 }

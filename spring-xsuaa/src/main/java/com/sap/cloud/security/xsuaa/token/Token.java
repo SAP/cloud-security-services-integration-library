@@ -44,15 +44,17 @@ public interface Token extends UserDetails {
 	String getGrantType();
 
 	/**
-	 * Returns a unique user name of a user, using information from the JWT.
-	 * For tokens that were issued as a result of a client credentials flow, the
-	 * OAuth client ID will be returned in a special format.
-	 * The following information is required to uniquely identify a user: <br>
+	 * Returns a unique user name of a user, using information from the JWT. For
+	 * tokens that were issued as a result of a client credentials flow, the OAuth
+	 * client ID will be returned in a special format. The following information is
+	 * required to uniquely identify a user: <br>
 	 *
 	 * <ul>
-	 *  <li> <b>user login name:</b> name of the user in an identity provider, provided by this method.
-	 *  <li> <b>origin:</b> alias to an identity provider, see {@link #getOrigin()}.
-	 *  <li> <b>subaccount id:</b> identifier for the subaccount, see {@link #getSubaccountId()}.
+	 * <li><b>user login name:</b> name of the user in an identity provider,
+	 * provided by this method.
+	 * <li><b>origin:</b> alias to an identity provider, see {@link #getOrigin()}.
+	 * <li><b>subaccount id:</b> identifier for the subaccount, see
+	 * {@link #getSubaccountId()}.
 	 * </ul>
 	 *
 	 * @return unique principal name or null if it can not be determined.
@@ -61,9 +63,9 @@ public interface Token extends UserDetails {
 	String getLogonName();
 
 	/**
-	 * Returns the given name of the user if present.
-	 * Will try to find it first in the {@code ext_attr.given_name} claim
-	 * before trying to find a {@code given_name} claim.
+	 * Returns the given name of the user if present. Will try to find it first in
+	 * the {@code ext_attr.given_name} claim before trying to find a
+	 * {@code given_name} claim.
 	 *
 	 * @return the given name if present.
 	 */
@@ -71,9 +73,9 @@ public interface Token extends UserDetails {
 	String getGivenName();
 
 	/**
-	 * Returns the family name of the user if present.
-	 * Will try to find it first in the {@code ext_attr.family_name} claim
-	 * before trying to find a {@code family_name} claim.
+	 * Returns the family name of the user if present. Will try to find it first in
+	 * the {@code ext_attr.family_name} claim before trying to find a
+	 * {@code family_name} claim.
 	 *
 	 * @return the family name if present.
 	 */
@@ -89,12 +91,13 @@ public interface Token extends UserDetails {
 	String getEmail();
 
 	/**
-	 * Returns the user origin. The origin is an alias that refers to a user store in
-	 * which the user is persisted. For example, users that are authenticated by the
-	 * UAA itself with a username / password combination have their origin set to the
-	 * value "uaa".
+	 * Returns the user origin. The origin is an alias that refers to a user store
+	 * in which the user is persisted. For example, users that are authenticated by
+	 * the UAA itself with a username / password combination have their origin set
+	 * to the value "uaa".
 	 *
-	 * May be null in case this JWT was not created with OAuth 2.0 client credentials flow.
+	 * May be null in case this JWT was not created with OAuth 2.0 client
+	 * credentials flow.
 	 *
 	 * @return the user origin if present.
 	 */
@@ -102,11 +105,11 @@ public interface Token extends UserDetails {
 	String getOrigin();
 
 	/**
-	 * Returns the value of an attribute from the 'xs.user.attributes' claim.
-	 * Will first try to find the attribute in 'ext_ctx' claim.
+	 * Returns the value of an attribute from the 'xs.user.attributes' claim. Will
+	 * first try to find the attribute in 'ext_ctx' claim.
 	 *
-	 * @param attributeName name of the attribute inside
-	 *                      'ext_ctx' or 'xs.user.attributes'.
+	 * @param attributeName
+	 *            name of the attribute inside 'ext_ctx' or 'xs.user.attributes'.
 	 *
 	 * @return the attribute values array or null if there exists no such attribute.
 	 */
@@ -126,9 +129,9 @@ public interface Token extends UserDetails {
 	String getAdditionalAuthAttribute(String attributeName);
 
 	/**
-	 * Returns the XSUAA clone instance ID, if present.
-	 * This will only be set for tokens that were issued by an
-	 * XSUAA with plan broker. Contains the service instance id if present.
+	 * Returns the XSUAA clone instance ID, if present. This will only be set for
+	 * tokens that were issued by an XSUAA with plan broker. Contains the service
+	 * instance id if present.
 	 *
 	 * @return the XSUAA clone service instance id if present.
 	 */

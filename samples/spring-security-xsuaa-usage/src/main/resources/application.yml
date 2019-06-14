@@ -1,16 +1,4 @@
 ---
-spring:
-  # Runtime Application Name
-  application:
-    name: xsuaa-usage-sample
-
-  # Spring Security Configurations Pointing to XSUAA
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: https://authentication.eu10.hana.ondemand.com/token_keys
-        
 # Setting Log Levels          
 logging.level:
   com.sap: DEBUG                      # set SAP-class loggers to DEBUG.

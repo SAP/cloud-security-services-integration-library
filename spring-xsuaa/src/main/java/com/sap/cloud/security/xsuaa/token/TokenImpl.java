@@ -27,8 +27,8 @@ import org.springframework.web.client.RestTemplate;
 /**
  * Custom XSUAA token implementation.
  *
- * This class inherits Spring Security's standard Jwt implementation
- * and can be used interchangeably with it.
+ * This class inherits Spring Security's standard Jwt implementation and can be
+ * used interchangeably with it.
  */
 public class TokenImpl extends Jwt implements Token {
 
@@ -132,7 +132,8 @@ public class TokenImpl extends Jwt implements Token {
 		}
 
 		if (origin.contains("/")) {
-			logger.warn("Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returing null.");
+			logger.warn(
+					"Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returing null.");
 			return null;
 		}
 
@@ -202,7 +203,8 @@ public class TokenImpl extends Jwt implements Token {
 	@Override
 	public String[] getXSUserAttribute(String attributeName) {
 		String[] attributeValue = getStringListAttributeFromClaim(attributeName, CLAIM_EXTERNAL_CONTEXT);
-		return attributeValue != null ? attributeValue : getStringListAttributeFromClaim(attributeName, CLAIM_XS_USER_ATTRIBUTES);
+		return attributeValue != null ? attributeValue
+				: getStringListAttributeFromClaim(attributeName, CLAIM_XS_USER_ATTRIBUTES);
 	}
 
 	@Override
@@ -259,7 +261,8 @@ public class TokenImpl extends Jwt implements Token {
 	 * For custom access to the claims of the authentication token.
 	 * 
 	 * @return this
-	 * @deprecated with version 1.5 as TokenImpl inherits from {@link Jwt} which implements {@link JwtClaimAccessor}
+	 * @deprecated with version 1.5 as TokenImpl inherits from {@link Jwt} which
+	 *             implements {@link JwtClaimAccessor}
 	 */
 	ClaimAccessor getClaimAccessor() {
 		return this;
@@ -293,7 +296,7 @@ public class TokenImpl extends Jwt implements Token {
 			}
 		}
 
-		if(attributeValues == null) {
+		if (attributeValues == null) {
 			logger.debug("Attribute '{}' in claim '{}' not found. Returning null.", attributeName, claimName);
 			return attributeValues;
 		}
