@@ -54,7 +54,7 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 	 *             instead
 	 */
 	public TokenAuthenticationConverter(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-		new TokenAuthenticationConverter(xsuaaServiceConfiguration.getAppId());
+		this(xsuaaServiceConfiguration.getAppId());
 	}
 
 	@Override
