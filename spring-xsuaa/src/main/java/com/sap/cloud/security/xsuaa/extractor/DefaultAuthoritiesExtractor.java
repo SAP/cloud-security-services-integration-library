@@ -13,21 +13,21 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 
 public class DefaultAuthoritiesExtractor extends JwtAuthenticationConverter implements AuthoritiesExtractor {
 
-    public Collection<GrantedAuthority> getAuthorities(Jwt jwt) {
-        return extractAuthorities(jwt);
-    }
+	public Collection<GrantedAuthority> getAuthorities(Jwt jwt) {
+		return extractAuthorities(jwt);
+	}
 
-    @Override
-    protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-        List<String> scopes = jwt.getClaimAsStringList(Token.CLAIM_SCOPES);
+	@Override
+	protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
+		List<String> scopes = jwt.getClaimAsStringList(Token.CLAIM_SCOPES);
 
-        if (scopes == null) {
-            return Collections.emptyList();
-        }
+		if (scopes == null) {
+			return Collections.emptyList();
+		}
 
-        return scopes.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-    }
+		return scopes.stream()
+				.map(SimpleGrantedAuthority::new)
+				.collect(Collectors.toList());
+	}
 
 }

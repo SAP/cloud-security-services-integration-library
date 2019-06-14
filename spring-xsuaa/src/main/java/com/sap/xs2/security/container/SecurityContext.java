@@ -1,9 +1,7 @@
 package com.sap.xs2.security.container;
 
-import com.sap.cloud.security.xsuaa.token.AuthenticationToken;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
