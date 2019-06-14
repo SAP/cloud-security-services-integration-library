@@ -30,7 +30,7 @@ public class XsuaaServicesParser {
 	public XsuaaServicesParser() {
 		vcapServices = System.getenv().get(VCAP_SERVICES);
 		if (StringUtils.isEmpty(vcapServices)) {
-			logger.warn("Cannot find {} environment variable." + VCAP_SERVICES);
+			logger.warn("Cannot find {} environment variable.", VCAP_SERVICES);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class XsuaaServicesParser {
 	public Optional<String> getAttribute(String name) throws ParseException {
 
 		if (StringUtils.isEmpty(vcapServices)) {
-			logger.warn("VCAP_SERVICES could not be load");
+			logger.warn("VCAP_SERVICES could not be load.");
 			return Optional.empty();
 		}
 
