@@ -9,8 +9,8 @@ import java.util.Map;
 
 import com.sap.xs2.security.container.XSTokenRequestImpl;
 import net.minidev.json.JSONArray;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.ClaimAccessor;
@@ -32,7 +32,7 @@ import org.springframework.web.client.RestTemplate;
  */
 public class TokenImpl extends Jwt implements Token {
 
-	private static final Log logger = LogFactory.getLog(TokenImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(TokenImpl.class);
 
 	static final String GRANTTYPE_SAML2BEARER = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
@@ -280,7 +280,7 @@ public class TokenImpl extends Jwt implements Token {
 
 		Map<String, Object> claimMap = getClaimAsMap(claimName);
 		if (claimMap == null) {
-			logger.debug(String.format("Claim %s not found. Returning null.", claimName));
+			logger.debug("Claim '{}' not found. Returning null.", claimName);
 			return attributeValues;
 		}
 
@@ -294,7 +294,7 @@ public class TokenImpl extends Jwt implements Token {
 		}
 
 		if(attributeValues == null) {
-			logger.debug(String.format("Attribute %s in claim %s not found. Returning null.", attributeName, claimName));
+			logger.debug("Attribute '{}' in claim '{}' not found. Returning null.", attributeName, claimName);
 			return attributeValues;
 		}
 
