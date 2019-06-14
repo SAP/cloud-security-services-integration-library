@@ -5,6 +5,11 @@
       "target": "/v1",
       "csrfProtection": false,
       "destination": "token-destination"
+    },
+    {
+      "source": "^/v2",
+      "target": "/v2",
+      "destination": "token-destination"
     }
   ]
 }
