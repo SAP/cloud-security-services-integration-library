@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -36,7 +35,8 @@ public class XsuaaJwtDecoderBuilder {
 	 * @return JwtDecoder
 	 */
 	public JwtDecoder build() {
-		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = new DelegatingOAuth2TokenValidator<>(defaultTokenValidators,
+		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = new DelegatingOAuth2TokenValidator<>(
+				defaultTokenValidators,
 				xsuaaTokenValidators);
 		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize, combinedTokenValidators);
 	}

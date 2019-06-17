@@ -26,67 +26,68 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = { XsuaaResourceServerJwkAutoConfiguration.class, XsuaaAutoConfiguration.class })
 public class XsuaaResourceServerJwkAutoConfigurationTest {
 
-    // create an ApplicationContextRunner that will create a context with the configuration under test.
-    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withConfiguration(
-                    AutoConfigurations.of(XsuaaResourceServerJwkAutoConfiguration.class, XsuaaAutoConfiguration.class));
+	// create an ApplicationContextRunner that will create a context with the
+	// configuration under test.
+	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+			.withConfiguration(
+					AutoConfigurations.of(XsuaaResourceServerJwkAutoConfiguration.class, XsuaaAutoConfiguration.class));
 
-    @Autowired
-    private ApplicationContext context;
+	@Autowired
+	private ApplicationContext context;
 
-    @Test
-    public final void autoConfigurationActive() {
-        contextRunner.run((context) -> {
-            assertThat(context.containsBean("xsuaaJwtDecoder"), is(true));
-            assertThat(context.getBean("xsuaaJwtDecoder"), instanceOf(XsuaaJwtDecoder.class));
-            assertThat(context.getBean(JwtDecoder.class), is(not(nullValue())));
-            assertThat(context.getBean(JwtDecoder.class), instanceOf(XsuaaJwtDecoder.class));
-        });
-    }
+	@Test
+	public final void autoConfigurationActive() {
+		contextRunner.run((context) -> {
+			assertThat(context.containsBean("xsuaaJwtDecoder"), is(true));
+			assertThat(context.getBean("xsuaaJwtDecoder"), instanceOf(XsuaaJwtDecoder.class));
+			assertThat(context.getBean(JwtDecoder.class), is(not(nullValue())));
+			assertThat(context.getBean(JwtDecoder.class), instanceOf(XsuaaJwtDecoder.class));
+		});
+	}
 
-    @Test
-    public final void autoConfigurationActiveInclProperties() {
-        contextRunner
-                .withPropertyValues("spring.xsuaa.auto:true").run((context) -> {
-            assertThat(context.containsBean("xsuaaJwtDecoder"), is(true));
-            assertThat(context.getBean("xsuaaJwtDecoder"), instanceOf(XsuaaJwtDecoder.class));
-            assertThat(context.getBean(JwtDecoder.class), is(not(nullValue())));
-        });
-    }
+	@Test
+	public final void autoConfigurationActiveInclProperties() {
+		contextRunner
+				.withPropertyValues("spring.xsuaa.auto:true").run((context) -> {
+					assertThat(context.containsBean("xsuaaJwtDecoder"), is(true));
+					assertThat(context.getBean("xsuaaJwtDecoder"), instanceOf(XsuaaJwtDecoder.class));
+					assertThat(context.getBean(JwtDecoder.class), is(not(nullValue())));
+				});
+	}
 
-    @Test
-    public void autoConfigurationDisabledByProperty() {
-        contextRunner.withPropertyValues("spring.xsuaa.auto:false").run((context) -> {
-            assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));
-        });
-    }
+	@Test
+	public void autoConfigurationDisabledByProperty() {
+		contextRunner.withPropertyValues("spring.xsuaa.auto:false").run((context) -> {
+			assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));
+		});
+	}
 
-    @Test
-    public final void autoConfigurationWithoutXsuaaServiceConfigurationOnClasspathInactive() {
-        contextRunner.withClassLoader(
-                new FilteredClassLoader(Jwt.class)) // make sure XsuaaServiceConfiguration.class is not on the classpath
-                .run((context) -> {
-                    assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));
-                });
-    }
+	@Test
+	public final void autoConfigurationWithoutXsuaaServiceConfigurationOnClasspathInactive() {
+		contextRunner.withClassLoader(
+				new FilteredClassLoader(Jwt.class)) // make sure XsuaaServiceConfiguration.class is not on the classpath
+				.run((context) -> {
+					assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));
+				});
+	}
 
-    @Test
-    public final void userConfigurationCanOverrideDefaultBeans() {
-        contextRunner.withUserConfiguration(UserConfiguration.class)
-                .run((context) -> {
-                    assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));
-                    assertThat(context.containsBean("customJwtDecoder"), is(true));
-                    assertThat(context.getBean("customJwtDecoder"),
-                            instanceOf(NimbusJwtDecoderJwkSupport.class));
-                });
-    }
+	@Test
+	public final void userConfigurationCanOverrideDefaultBeans() {
+		contextRunner.withUserConfiguration(UserConfiguration.class)
+				.run((context) -> {
+					assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));
+					assertThat(context.containsBean("customJwtDecoder"), is(true));
+					assertThat(context.getBean("customJwtDecoder"),
+							instanceOf(NimbusJwtDecoderJwkSupport.class));
+				});
+	}
 
-    @Configuration
-    public static class UserConfiguration {
+	@Configuration
+	public static class UserConfiguration {
 
-        @Bean
-        public JwtDecoder customJwtDecoder() {
-            return new NimbusJwtDecoderJwkSupport("http://localhost:8080/uaa/oauth/token_keys");
-        }
-    }
+		@Bean
+		public JwtDecoder customJwtDecoder() {
+			return new NimbusJwtDecoderJwkSupport("http://localhost:8080/uaa/oauth/token_keys");
+		}
+	}
 }
