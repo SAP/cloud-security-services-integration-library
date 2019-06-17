@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Properties;
 
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
 /**
+ * Part of Auto Configuration {@link XsuaaAutoConfiguration}
+ *
  * <h2>Example Usage</h2>
  * 
  * <pre class="code">
@@ -22,8 +25,6 @@ import org.springframework.core.io.support.PropertySourceFactory;
  * 
  * &#64;Value("${xsuaa.url:}")
  * </pre>
- * 
- *
  *
  */
 public class XsuaaServicePropertySourceFactory implements PropertySourceFactory {
