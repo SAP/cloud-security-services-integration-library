@@ -1,47 +1,33 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-
 import net.minidev.json.JSONObject;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.util.Assert;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
 
 	Cache<String, JwtDecoder> cache;
 	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
-	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
+	private OAuth2TokenValidator<Jwt> tokenValidators;
 
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
-			OAuth2TokenValidator<Jwt>... tokenValidators) {
+			OAuth2TokenValidator<Jwt> tokenValidators) {
 		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
 				.build();
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
-		// configure token validators
-		this.tokenValidators.add(new JwtTimestampValidator());
-
-		if (tokenValidators == null) {
-			this.tokenValidators.add(new XsuaaAudienceValidator(xsuaaServiceConfiguration));
-		} else {
-			this.tokenValidators.addAll(Arrays.asList(tokenValidators));
-		}
+		this.tokenValidators = tokenValidators;
 	}
 
 	@Override
@@ -62,7 +48,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	protected JwtDecoder getDecoder(String zid, String subdomain) {
 		String url = xsuaaServiceConfiguration.getTokenKeyUrl(zid, subdomain);
 		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(url);
-		decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(tokenValidators));
+		decoder.setJwtValidator(tokenValidators);
 		return decoder;
 	}
 
