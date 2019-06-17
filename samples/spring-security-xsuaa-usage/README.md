@@ -14,7 +14,6 @@ Configure the OAuth resource server by:
 
 ```java
 @EnableWebSecurity
-@PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "" })
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -41,16 +40,6 @@ XsuaaServiceConfigurationDefault xsuaaServiceConfiguration;
         TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
         converter.setLocalScopeAsAuthorities(true);
         return converter;
-    }
-
-    @Bean
-    JwtDecoder jwtDecoder() {
-        return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration).build();
-    }
-
-    @Bean
-    XsuaaServiceConfigurationDefault xsuaaConfig() {
-        return new XsuaaServiceConfigurationDefault();
     }
 }
 ```
