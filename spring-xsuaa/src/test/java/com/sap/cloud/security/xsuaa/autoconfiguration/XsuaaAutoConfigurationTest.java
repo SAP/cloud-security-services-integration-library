@@ -70,8 +70,7 @@ public class XsuaaAutoConfigurationTest {
 
     @Test
     public final void autoConfigurationWithoutJwtOnClasspathInactive() {
-        contextRunner.withClassLoader(new FilteredClassLoader(
-                Jwt.class)) // make sure XsuaaServiceConfiguration.class is not on the classpath.
+        contextRunner.withClassLoader(new FilteredClassLoader(Jwt.class)) // removes Jwt.class from classpath
                 .run((context) -> {
                     assertThat(context.containsBean("xsuaaServiceConfiguration"), is(false));
                 });
