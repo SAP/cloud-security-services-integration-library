@@ -66,7 +66,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	 * Customizes how GrantedAuthority are derived from a Jwt
 	 */
 	Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
-		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration.getAppId());
+		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
 		converter.setLocalScopeAsAuthorities(true);
 		return converter;
 	}
