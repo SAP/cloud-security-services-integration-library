@@ -14,25 +14,14 @@ public class DataService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
-     * Reads data from the data layer.
-     * User requires scope {@code Read}
-     * for this to succeed.
-     */
-    @PreAuthorize("hasAuthority('Read')")
-    String readData() {
-        logger.info("Reading data.");
-        return "You got the data";
-    }
-
-    /**
-     * Writes data to the data layer.
-     * User requires scope {@code Write}
+     * Reads sensitive data from the data layer.
+     * User requires scope {@code Admin}
      * for this to succeed.
      *
-     * @param data the data to be written.
      */
-    @PreAuthorize("hasAuthority('Write')")
-    void writeData(String data) {
-        logger.info("Writing data: {}", data);
+    @PreAuthorize("hasAuthority('Admin')")
+    String readSensitiveData() {
+        logger.info("Reading sensitive data.");
+        return "You got the sensitive data";
     }
 }

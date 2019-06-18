@@ -40,7 +40,7 @@ cf push --vars-file ../vars.yml
 ```
 
 ## Cockpit administration tasks
-Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection(s) such as `Viewer` or `Modifier` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
+Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection(s) such as `Viewer` or `Administrator` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
 
 ![](../SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
 
@@ -54,8 +54,7 @@ After deployment, the AppRouter will trigger authentication automatically when y
 
 * `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - GET request that provides XSUAA user token details, but only if token matches.
 * `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/method` - GET request to executes a method secured with Spring Global Method Security.
-* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/readData` - GET request to read data via Global Method Security.
-* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/writeData` -POST request to write data via Global Method Security.
+* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/readData` - GET request to read sensitive data via Global Method Security.
 * `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v2/sayHello` - GET request that provides generic Jwt info, but only if token matches.
 
 

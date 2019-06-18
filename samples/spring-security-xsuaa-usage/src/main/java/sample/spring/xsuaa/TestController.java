@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -88,25 +87,17 @@ public class TestController {
      * The {@link DataService} interface uses annotated methods
      * and when the {@link DataService} gets injected as a bean
      * Spring Security wraps it with a security-enforcing wrapper.
-     * The result is, that the {@link DataService#readData()} method
+     * The result is, that the {@link DataService#readSensitiveData()} method
      * will only be called if the proper scopes are available.
      *
-     * @return the data read from the {@link DataService} or fails
+     * @return the sensitive data read from the {@link DataService} or fails
      * with an access denied error.
+     *
      * @see {@link DataService}.
      */
     @GetMapping(value = "/v1/readData")
     public String readFromDataService() {
-        return dataService.readData();
-    }
-
-    /**
-     * Write case showing method level security.
-     */
-    @PostMapping(value = "/v1/writeData")
-    public void writeToDataService() {
-        logger.info("Try writing data.");
-        dataService.writeData("Spring Rocks!");
+        return dataService.readSensitiveData();
     }
 
 }
