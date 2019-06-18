@@ -7,8 +7,8 @@
       "description" : "Read Permissions."
     },
     {
-      "name"        : "$XSAPPNAME.Write",
-      "description" : "Write permissions."
+      "name"        : "$XSAPPNAME.Admin",
+      "description" : "Admin permissions."
     }
   ],
   "role-templates": [
@@ -20,11 +20,11 @@
       ]
     },
     {
-      "name"                 : "Modifier",
-      "description"          : "Modify Data",
+      "name"                 : "Administrator",
+      "description"          : "View Sensitive Data",
       "scope-references"     : [
         "$XSAPPNAME.Read",
-        "$XSAPPNAME.Write"
+        "$XSAPPNAME.Admin"
       ]
     }
   ],
@@ -37,10 +37,10 @@
       ]
     },
     {
-      "name": "Modifier",
-      "description": "Modifier (read, write)",
+      "name": "Administrator",
+      "description": "Administrator (read all)",
       "role-template-references": [
-        "$XSAPPNAME.Modifier"
+        "$XSAPPNAME.Administrator"
       ]
     }
   ]

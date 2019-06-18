@@ -1,9 +1,9 @@
 {
+  "welcomeFile": "index.html",
   "routes": [
     {
       "source": "^/v1",
       "target": "/v1",
-      "csrfProtection": false,
       "destination": "token-destination"
     },
     {
