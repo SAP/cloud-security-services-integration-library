@@ -48,10 +48,10 @@ public class TokenImplTest {
 		claimsSetBuilder = new JWTClaimsSet.Builder()
 				.issueTime(new Date())
 				.expirationTime(JwtGenerator.NO_EXPIRE_DATE)
-				.claim(TokenImpl.CLAIM_USER_NAME, userName).claim(TokenImpl.CLAIM_EMAIL, userName + "@test.org")
-				.claim(TokenImpl.CLAIM_ZONE_ID, zoneId).claim(TokenImpl.CLAIM_CLIENT_ID, "sb-java-hello-world")
-				.claim(TokenImpl.CLAIM_ORIGIN, "userIdp")
-				.claim(TokenImpl.CLAIM_GRANT_TYPE, TokenImpl.GRANTTYPE_SAML2BEARER);
+				.claim(TokenClaims.CLAIM_USER_NAME, userName).claim(TokenClaims.CLAIM_EMAIL, userName + "@test.org")
+				.claim(TokenClaims.CLAIM_ZONE_ID, zoneId).claim(TokenClaims.CLAIM_CLIENT_ID, "sb-java-hello-world")
+				.claim(TokenClaims.CLAIM_ORIGIN, "userIdp")
+				.claim(TokenClaims.CLAIM_GRANT_TYPE, TokenImpl.GRANTTYPE_SAML2BEARER);
 
 		jwtSaml = new JwtGenerator().createFromTemplate("/saml.txt");
 		jwtCC = JwtGenerator.createFromFile("/token_cc.txt");
@@ -134,7 +134,7 @@ public class TokenImplTest {
 
 	@Test
 	public void getZoneIdAsTenantGuid() {
-		claimsSetBuilder.claim(TokenImpl.CLAIM_ZONE_ID, zoneId);
+		claimsSetBuilder.claim(TokenClaims.CLAIM_ZONE_ID, zoneId);
 
 		token = createToken(claimsSetBuilder);
 
@@ -143,7 +143,7 @@ public class TokenImplTest {
 
 	@Test
 	public void getAuthoritiesNoScopeClaimReturnsEmptyList() {
-		claimsSetBuilder.claim(Token.CLAIM_SCOPES, new ArrayList<>());
+		claimsSetBuilder.claim(TokenClaims.CLAIM_SCOPES, new ArrayList<>());
 
 		token = createToken(claimsSetBuilder);
 
@@ -173,7 +173,7 @@ public class TokenImplTest {
 
 	@Test
 	public void getUserNameReturnsErrorWhenOriginContainsDelimeter() {
-		claimsSetBuilder.claim(TokenImpl.CLAIM_ORIGIN, "my/Idp");
+		claimsSetBuilder.claim(TokenClaims.CLAIM_ORIGIN, "my/Idp");
 		token = createToken(claimsSetBuilder);
 		assertNull(token.getUsername());
 	}

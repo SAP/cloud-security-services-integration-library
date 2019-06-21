@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
+
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,18 +40,8 @@ public class TokenImpl extends Jwt implements Token {
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>
 
-	static final String CLAIM_USER_NAME = "user_name";
-	static final String CLAIM_GIVEN_NAME = "given_name";
-	static final String CLAIM_FAMILY_NAME = "family_name";
-	static final String CLAIM_EMAIL = "email";
-	static final String CLAIM_CLIENT_ID = "cid";
-	static final String CLAIM_ORIGIN = "origin";
-	static final String CLAIM_GRANT_TYPE = "grant_type";
-	static final String CLAIM_ZDN = "zdn";
-	static final String CLAIM_AUDIENCE = "aud";
-	static final String CLAIM_ZONE_ID = "zid";
-	static final String CLAIM_SERVICEINSTANCEID = "serviceinstanceid";
 
+	static final String CLAIM_SERVICEINSTANCEID = "serviceinstanceid";
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	static final String CLAIM_EXTERNAL_ATTR = "ext_attr";
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
@@ -204,7 +196,7 @@ public class TokenImpl extends Jwt implements Token {
 	public String[] getXSUserAttribute(String attributeName) {
 		String[] attributeValue = getStringListAttributeFromClaim(attributeName, CLAIM_EXTERNAL_CONTEXT);
 		return attributeValue != null ? attributeValue
-				: getStringListAttributeFromClaim(attributeName, CLAIM_XS_USER_ATTRIBUTES);
+				: getStringListAttributeFromClaim(attributeName, TokenClaims.CLAIM_XS_USER_ATTRIBUTES);
 	}
 
 	@Override
@@ -242,7 +234,7 @@ public class TokenImpl extends Jwt implements Token {
 
 	@Override
 	public Collection<String> getScopes() {
-		List<String> scopesList = getClaimAsStringList(Token.CLAIM_SCOPES);
+		List<String> scopesList = getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
 		return scopesList != null ? scopesList : Collections.emptyList();
 	}
 
