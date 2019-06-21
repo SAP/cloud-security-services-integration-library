@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServicesParser;
 import com.sap.cloud.security.xsuaa.token.Token;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -41,7 +42,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
-		String tokenClientId = token.getClaimAsString(Token.CLIENT_ID);
+		String tokenClientId = token.getClaimAsString(TokenClaims.CLAIM_CLIENT_ID);
 		if (StringUtils.isEmpty(tokenClientId)) {
 			return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
 					"Jwt token must contain 'cid' (client_id)", null));
@@ -110,7 +111,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 
 	static List<String> getScopes(Jwt token) {
 		List<String> scopes = null;
-		scopes = token.getClaimAsStringList(Token.CLAIM_SCOPES);
+		scopes = token.getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
 		return scopes != null ? scopes : new ArrayList<>();
 	}
 }

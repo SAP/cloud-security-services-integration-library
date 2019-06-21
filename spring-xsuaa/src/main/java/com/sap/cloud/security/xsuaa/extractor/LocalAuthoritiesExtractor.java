@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sap.cloud.security.xsuaa.token.Token;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -29,7 +30,7 @@ public class LocalAuthoritiesExtractor implements AuthoritiesExtractor {
 	}
 
 	protected Collection<String> getScopes(Jwt jwt) {
-		List<String> scopes = jwt.getClaimAsStringList(Token.CLAIM_SCOPES);
+		List<String> scopes = jwt.getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
 		if (scopes == null) {
 			return Collections.emptyList();
 		}

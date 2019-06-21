@@ -10,10 +10,20 @@ import java.util.Collection;
 import java.util.Date;
 
 public interface Token extends UserDetails {
+	/*
+	* @deprecated use instead {@link TokenClaims.CLAIM_XS_USER_ATTRIBUTES}
+	 */
 	String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
+	/*
+	 * @deprecated use instead {@link TokenClaims.CLAIM_SCOPES}
+	 */
 	String CLAIM_SCOPES = "scope";
-	String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
+	/*
+	 * @deprecated use instead {@link TokenClaims.CLAIM_CLIENT_ID}
+	 */
 	String CLIENT_ID = "cid";
+
+	String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
 
 	/**
 	 * Returns the subaccount identifier, which can be used as tenant GUID.
