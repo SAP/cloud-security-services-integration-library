@@ -30,7 +30,8 @@ public class JwtGenerator {
 	private static final String PRIVATE_KEY_FILE = "/privateKey.txt";
 	private final String clientId;
 	private String identityZoneId;
-	String subdomain = "";
+	private String subdomain = "";
+	private String jku;
 	// see TokenImpl.GRANTTYPE_SAML2BEARER;
 	private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	private String[] scopes;
@@ -169,6 +170,18 @@ public class JwtGenerator {
 	}
 
 	/**
+	 * Sets the url which is used to retrieve the verification keys
+	 *
+	 * @param jku
+	 * 		the url to retrieve the keys
+	 * @return the JwtGenerator itself
+	 */
+	public JwtGenerator setJku(String jku) {
+		this.jku = jku;
+		return this;
+	}
+
+	/**
 	 * Builds a basic Jwt with the given clientId, userName, scopes, user attributes
 	 * claims and the keyId header.
 	 *
@@ -190,7 +203,7 @@ public class JwtGenerator {
 			claimsSetBuilder.claim(customClaim.getKey(), customClaim.getValue());
 		}
 
-		return createFromClaims(claimsSetBuilder.build().toString(), jwtHeaderKeyId);
+		return createFromClaims(claimsSetBuilder.build().toString(), jwtHeaderKeyId, jku);
 	}
 
 	private List<String> deriveAudiencesFromScopes(String[] scopes) {
@@ -233,7 +246,7 @@ public class JwtGenerator {
 	public Jwt createFromTemplate(String pathToTemplate) throws IOException {
 		String claimsFromTemplate = IOUtils.resourceToString(pathToTemplate, StandardCharsets.UTF_8);
 		String claimsWithReplacements = replacePlaceholders(claimsFromTemplate);
-		return createFromClaims(claimsWithReplacements, jwtHeaderKeyId);
+		return createFromClaims(claimsWithReplacements, jwtHeaderKeyId, jku);
 	}
 
 	/**
@@ -257,7 +270,7 @@ public class JwtGenerator {
 	 * @return a jwt
 	 */
 	public static Jwt createFromClaims(JWTClaimsSet claimsSet) {
-		return createFromClaims(claimsSet.toString(), null);
+		return createFromClaims(claimsSet.toString(), null, null);
 	}
 
 	/**
@@ -281,8 +294,8 @@ public class JwtGenerator {
 				.claim("grant_type", GRANT_TYPE);
 	}
 
-	private static Jwt createFromClaims(String claims, String jwtHeaderKeyId) {
-		String token = signAndEncodeToken(claims, jwtHeaderKeyId);
+	private static Jwt createFromClaims(String claims, String jwtHeaderKeyId, String jku) {
+		String token = signAndEncodeToken(claims, jwtHeaderKeyId, jku);
 		return convertTokenToOAuthJwt(token);
 	}
 
@@ -296,13 +309,15 @@ public class JwtGenerator {
 		return claims;
 	}
 
-	private static String signAndEncodeToken(String claims, String keyId) {
+	private static String signAndEncodeToken(String claims, String keyId, String jku) {
 		RsaSigner signer = new RsaSigner(readPrivateKeyFromFile());
 
-		Map<String, String> headers = Collections.emptyMap();
+		Map<String, String> headers = new HashMap<>();
 		if (keyId != null) {
-			headers = new HashMap<>();
 			headers.put("kid", keyId);
+		}
+		if (jku != null) {
+			headers.put("jku", jku);
 		}
 
 		org.springframework.security.jwt.Jwt jwt = JwtHelper.encode(claims, signer, headers);

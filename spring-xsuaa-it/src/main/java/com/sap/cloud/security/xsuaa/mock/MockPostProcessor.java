@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.mock;
 
+import static com.sap.cloud.security.xsuaa.mock.XsuaaMockWebServer.MOCK_XSUAA_URL;
+
 import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.DisposableBean;
@@ -31,7 +33,7 @@ public class MockPostProcessor implements EnvironmentPostProcessor, DisposableBe
 		this.mockAuthorizationServer.destroy();
 	}
 
-	private static class MyDispatcher extends XsuaaRequestDispatcher {
+	private class MyDispatcher extends XsuaaRequestDispatcher {
 
 		@Override
 		public MockResponse dispatch(RecordedRequest request) {
@@ -53,10 +55,16 @@ public class MockPostProcessor implements EnvironmentPostProcessor, DisposableBe
 						&& body.contains("username=basic.user") && body.contains("password=basic.password")) {
 
 					try {
+						// hack to get the jku as autowiring initialized MockXsuaaServiceConfiguration
+						// does not work
+						String jku = mockAuthorizationServer.getProperty(MOCK_XSUAA_URL) + "/" + "testdomain"
+								+ "/token_keys";
+
 						return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 								.setResponseCode(HttpStatus.OK.value())
 								.setBody(String.format("{\"access_token\": \"%s\"}",
-										JWTUtil.createJWT("/password.txt", "testdomain")));
+										JWTUtil.createJWT("/password.txt", "testdomain",
+												jku)));
 					} catch (Exception e) {
 						e.printStackTrace();
 						getResponse(RESPONSE_500, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -67,9 +75,14 @@ public class MockPostProcessor implements EnvironmentPostProcessor, DisposableBe
 						&& body.contains("grant_type=client_credentials")) {
 
 					try {
+						// hack to get the jku as autowiring initialized MockXsuaaServiceConfiguration
+						// does not work
+						String jku = mockAuthorizationServer.getProperty(MOCK_XSUAA_URL) + "/" + "testdomain"
+								+ "/token_keys";
 						return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 								.setResponseCode(HttpStatus.OK.value()).setBody(String.format(
-										"{\"access_token\": \"%s\"}", JWTUtil.createJWT("/cc.txt", "testdomain")));
+										"{\"access_token\": \"%s\"}",
+										JWTUtil.createJWT("/cc.txt", "testdomain", jku)));
 					} catch (Exception e) {
 						e.printStackTrace();
 						getResponse(RESPONSE_500, HttpStatus.INTERNAL_SERVER_ERROR);

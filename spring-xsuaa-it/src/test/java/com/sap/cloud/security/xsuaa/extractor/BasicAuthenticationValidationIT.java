@@ -18,6 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.mock.JWTUtil;
 
 import testservice.api.XsuaaITApplication;
@@ -28,7 +29,8 @@ import testservice.api.basic.TestController;
 @SpringBootTest(properties = {
 		"xsuaa.xsappname=java-hello-world",
 		"xsuaa.clientid=sb-java-hello-world",
-		"xsuaa.url=${mockxsuaaserver.url}" }, classes = { XsuaaITApplication.class, SecurityConfiguration.class,
+		"xsuaa.url=${mockxsuaaserver.url}",
+		"xsuaa.uaadomain=localhost" }, classes = { XsuaaITApplication.class, SecurityConfiguration.class,
 				TestController.class })
 @AutoConfigureMockMvc
 @ActiveProfiles("test.api.basic")
@@ -37,14 +39,23 @@ public class BasicAuthenticationValidationIT {
 	@Autowired
 	MockMvc mvc;
 
+	@Autowired
+	XsuaaServiceConfiguration serviceConfiguration;
+
+	String subdomain;
+
 	@Test
 	public void testToken_testdomain() throws Exception {
+		subdomain = "testdomain";
+
 		SecurityConfiguration.tokenBrokerResolver
 				.setAuthenticationConfig(new DefaultAuthenticationInformationExtractor(AuthenticationMethod.OAUTH2));
 
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+				subdomain, getJku()))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+				subdomain, getJku()))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user/useridp/Mustermann")));
 	}
 
@@ -112,4 +123,9 @@ public class BasicAuthenticationValidationIT {
 	private static BearerTokenRequestPostProcessor bearerToken(String token) {
 		return new BearerTokenRequestPostProcessor(token);
 	}
+
+	private String getJku() {
+		return serviceConfiguration.getTokenKeyUrl(null, subdomain);
+	}
+
 }

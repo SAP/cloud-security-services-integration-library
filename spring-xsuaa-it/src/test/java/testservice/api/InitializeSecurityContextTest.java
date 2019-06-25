@@ -25,10 +25,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.mock.XsuaaRequestDispatcher;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.xs2.security.container.SecurityContext;
@@ -37,7 +40,8 @@ import testservice.api.nohttp.MyEventHandler;
 import testservice.api.nohttp.SecurityConfiguration;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class })
+@SpringBootTest(properties = {
+		"xsuaa.uaadomain=localhost"}, classes = { SecurityConfiguration.class, MyEventHandler.class })
 @ActiveProfiles({ "test.api.nohttp", "uaamock" })
 public class InitializeSecurityContextTest {
 	@Value("${xsuaa.clientid}")
@@ -52,9 +56,14 @@ public class InitializeSecurityContextTest {
 	@Autowired
 	MyEventHandler eventHandler;
 
+	@Autowired
+	XsuaaServiceConfiguration serviceConfiguration;
+
 	@Test
 	public void initializeSecurityContext_succeeds() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
+				.setJku(serviceConfiguration.getTokenKeyUrl(null, "subdomain"))
+				.setJwtHeaderKeyId("legacy-token-key")
 				.addScopes("openid", xsappname + ".Display", "otherXSAPP.Display")
 				.deriveAudiences(true).getToken().getTokenValue();
 
@@ -81,12 +90,35 @@ public class InitializeSecurityContextTest {
 
 	@Test
 	public void clearSecurityContext_succeeds() {
-		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true).getToken().getTokenValue();
+		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
+				.setJku(serviceConfiguration.getTokenKeyUrl(null, "subdomain"))
+				.setJwtHeaderKeyId("legacy-token-key").getToken().getTokenValue();
 
 		SecurityContext.init(xsappname, jwtDecoder.decode(jwt), true);
 		SecurityContext.clear();
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication(), is(nullValue()));
+	}
+
+	@Test
+	public void cacheHit() {
+		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
+				.setJku(serviceConfiguration.getTokenKeyUrl(null, "subdomain"))
+				.setJwtHeaderKeyId("legacy-token-key").getToken().getTokenValue();
+
+		jwtDecoder.decode(jwt);
+		int callCountAfterFirstCall = XsuaaRequestDispatcher.getCallCount();
+
+		jwtDecoder.decode(jwt);
+		Assert.assertEquals(callCountAfterFirstCall, XsuaaRequestDispatcher.getCallCount());
+	}
+
+	@Test(expected = JwtException.class)
+	public void missingJkuFails() {
+		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
+				.setJwtHeaderKeyId("legacy-token-key").getToken().getTokenValue();
+
+		jwtDecoder.decode(jwt);
 	}
 
 	@Test(expected = JwtValidationException.class)
@@ -97,7 +129,8 @@ public class InitializeSecurityContextTest {
 		customClaims.put("exp", Date.from(justOutdated)); // token should be expired
 		customClaims.put("iat", Date.from(justOutdated.minusSeconds(1000))); // issuedAt must be before expiredAt
 		String jwt = new JwtGenerator(clientId, "subdomain").addCustomClaims(customClaims).deriveAudiences(true)
-				.getToken().getTokenValue();
+				.setJku(serviceConfiguration.getTokenKeyUrl(null, "subdomain"))
+				.setJwtHeaderKeyId("legacy-token-key").getToken().getTokenValue();
 
 		jwtDecoder.decode(jwt);
 	}
@@ -106,6 +139,8 @@ public class InitializeSecurityContextTest {
 	public void callEventWithSufficientAuthorization_succeeds() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
 				.addScopes("openid", xsappname + ".Display")
+				.setJku(serviceConfiguration.getTokenKeyUrl(null, "subdomain"))
+				.setJwtHeaderKeyId("legacy-token-key")
 				.deriveAudiences(true).getToken().getTokenValue();
 
 		eventHandler.onEvent(jwt);
@@ -114,6 +149,8 @@ public class InitializeSecurityContextTest {
 	@Test(expected = AccessDeniedException.class)
 	public void callEventWithInsufficientAuthorization_raisesAccessDeniedException() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
+				.setJku(serviceConfiguration.getTokenKeyUrl(null, "subdomain"))
+				.setJwtHeaderKeyId("legacy-token-key")
 				.deriveAudiences(true).getToken().getTokenValue();
 
 		eventHandler.onEvent(jwt);

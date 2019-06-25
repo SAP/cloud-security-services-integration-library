@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.mock.JWTUtil;
 
 import testservice.api.XsuaaITApplication;
@@ -28,7 +29,8 @@ import testservice.api.v1.TestController;
 @SpringBootTest(properties = {
 		"xsuaa.xsappname=java-hello-world",
 		"xsuaa.clientid=sb-java-hello-world",
-		"xsuaa.url=${mockxsuaaserver.url}" }, classes = { XsuaaITApplication.class,
+		"xsuaa.url=${mockxsuaaserver.url}",
+		"xsuaa.uaadomain=localhost" }, classes = { XsuaaITApplication.class,
 				testservice.api.v1.SecurityConfiguration.class, TestController.class })
 @AutoConfigureMockMvc
 @ActiveProfiles("test.api.v1")
@@ -40,33 +42,44 @@ public class XsuaaTokenValidationIT {
 	@Value("${mockxsuaaserver.url}")
 	String mockServerUrl;
 
+	@Autowired
+	XsuaaServiceConfiguration serviceConfiguration;
+
+	String subdomain;
+
 	@Test
 	public void testToken_testdomain() throws Exception {
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
+		subdomain = "testdomain";
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+				subdomain, getJku()))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+				subdomain, getJku()))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
 	public void testToken_otherdomain() throws Exception {
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain"))))
+		subdomain = "otherdomain";
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+				subdomain, getJku()))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
 	public void test_Scope() throws Exception {
-		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain"))))
-				.andExpect(status().isOk());
+		subdomain = "otherdomain";
+		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+				subdomain, getJku())))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void test_requesttoken() throws Exception {
-		String fqHost = new URL(mockServerUrl).getHost();
-		String hostname = fqHost.substring(0, fqHost.indexOf("."));
+		subdomain = new URL(mockServerUrl).getHost();
 
 		this.mvc.perform(
-				get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt", hostname, "legacy-token-key"))))
+				get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+						subdomain, "legacy-token-key", getJku()))))
 				.andExpect(status().isOk()).andExpect(content().string("cc_token"));
 	}
 
@@ -86,5 +99,9 @@ public class XsuaaTokenValidationIT {
 
 	private static BearerTokenRequestPostProcessor bearerToken(String token) {
 		return new BearerTokenRequestPostProcessor(token);
+	}
+
+	private String getJku() {
+		return serviceConfiguration.getTokenKeyUrl(null, subdomain);
 	}
 }

@@ -14,7 +14,7 @@ import okhttp3.mockwebserver.MockWebServer;
 public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements DisposableBean {
 
 	public static final String MOCK_XSUAA_PROPERTY_SOURCE_NAME = "mockxsuaaserver";
-	private static final String MOCK_XSUAA_URL = "mockxsuaaserver.url";
+	public static final String MOCK_XSUAA_URL = "mockxsuaaserver.url";
 
 	private static final Log logger = LogFactory.getLog(XsuaaMockWebServer.class);
 
