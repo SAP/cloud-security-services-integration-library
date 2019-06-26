@@ -27,7 +27,7 @@ This includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa-test</artifactId>
-    <version>1.2.0</version>
+    <version>1.5.0</version>
 </dependency>
 <dependency>
     <groupId>commons-io</groupId>
