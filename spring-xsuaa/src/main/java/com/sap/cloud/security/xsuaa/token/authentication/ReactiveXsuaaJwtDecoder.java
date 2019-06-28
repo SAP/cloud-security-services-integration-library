@@ -1,6 +1,9 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -23,20 +26,30 @@ import reactor.core.publisher.Mono;
 public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 
 	Cache<String, ReactiveJwtDecoder> cache;
-	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
+	private final XsuaaServiceConfiguration xsuaaServiceConfiguration;
+	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
 
 	private static final String EXT_ATTR = "ext_attr";
 	private static final String ZDN = "zdn";
 	private static final String ZID = "zid";
-
-	ReactiveXsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidity, int cacheSize) {
+	
+	//var arg it is only being converted to a List<OAuth2TokenValidator<Jwt>>, therefore its type safe.
+	@SafeVarargs
+	ReactiveXsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidity, int cacheSize,
+			OAuth2TokenValidator<Jwt>... tokenValidators) {
 		cache = Caffeine.newBuilder().expireAfterWrite(5, TimeUnit.SECONDS).maximumSize(cacheSize).build();
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
+
+		this.tokenValidators.add(new JwtTimestampValidator());
+		if (tokenValidators == null) {
+			this.tokenValidators.add(new XsuaaAudienceValidator(xsuaaServiceConfiguration));
+		} else {
+			this.tokenValidators.addAll(Arrays.asList(tokenValidators));
+		}
 	}
 
 	@Override
 	public Mono<Jwt> decode(String token) throws JwtException {
-
 		return Mono.just(token).map(jwtToken -> {
 			try {
 				return JWTParser.parse(jwtToken);
@@ -66,10 +79,7 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 	private ReactiveJwtDecoder getDecoder(String zid, String subdomain) {
 		String url = xsuaaServiceConfiguration.getTokenKeyUrl(zid, subdomain);
 		NimbusReactiveJwtDecoder decoder = new NimbusReactiveJwtDecoder(url);
-
-		OAuth2TokenValidator<Jwt> validators = new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(),
-				new XsuaaAudienceValidator(xsuaaServiceConfiguration));
-		decoder.setJwtValidator(validators);
+		decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(tokenValidators));
 		return decoder;
 	}
 
