@@ -53,9 +53,9 @@
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-core</artifactId>
-			<version>3.2.8.RELEASE</version>
+			<version>${reactor.version}</version>
+			<optional>true</optional>
 		</dependency>
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -181,5 +181,6 @@
 	<properties>
 		<caffeine.version>2.6.2</caffeine.version>
 		<servlet.version>3.1.0</servlet.version>
+		<reactor.version>3.2.8.RELEASE</reactor.version>
 	</properties>
 </project>
