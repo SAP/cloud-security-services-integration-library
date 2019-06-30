@@ -41,11 +41,10 @@ public class JwtGeneratorTest {
 	public void testParameterizedJwtToken() {
 		jwtGenerator.setUserName(MY_USER_NAME);
 		Jwt jwt = jwtGenerator.getToken();
-		assertThat(jwt.getClaimAsString("client_id"), equalTo(MY_CLIENT_ID));
-		assertThat(jwt.getClaimAsString("cid"), equalTo(MY_CLIENT_ID));
-		assertThat(jwt.getClaimAsString("zid"), startsWith(MY_SUBDOMAIN));
-		assertThat(jwt.getClaimAsString("user_name"), equalTo(MY_USER_NAME));
-		assertThat(jwt.getClaimAsString("email"), startsWith(MY_USER_NAME));
+		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_CLIENT_ID), equalTo(MY_CLIENT_ID));
+		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_ZONE_ID), startsWith(MY_SUBDOMAIN));
+		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_USER_NAME), equalTo(MY_USER_NAME));
+		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_EMAIL), startsWith(MY_USER_NAME));
 		assertThat(getExternalAttributeFromClaim(jwt, "zdn"), equalTo(MY_SUBDOMAIN));
 		assertThat(jwt.getExpiresAt(), not(equals(nullValue())));
 		assertThat(jwt.getTokenValue(), not(startsWith("Bearer ")));
@@ -120,7 +119,8 @@ public class JwtGeneratorTest {
 	@Test
 	public void testTokenWithDerivedAudienceClaim() {
 
-		Jwt jwt = jwtGenerator.addScopes("openid", "app1.scope", "app2.sub.scope", "app2.scope", ".scopeWithoutAppId").deriveAudiences(true)
+		Jwt jwt = jwtGenerator.addScopes("openid", "app1.scope", "app2.sub.scope", "app2.scope", ".scopeWithoutAppId")
+				.deriveAudiences(true)
 				.getToken();
 
 		assertThat(jwt.getAudience().size(), equalTo(2));

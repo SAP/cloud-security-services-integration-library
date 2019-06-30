@@ -1,19 +1,23 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.sap.cloud.security.xsuaa.extractor.AuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.extractor.DefaultAuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 
 public class TokenAuthenticationConverterTest {
 	private String xsAppName = "my-app-name!400";
@@ -61,8 +65,9 @@ public class TokenAuthenticationConverterTest {
 
 	@Test
 	public void extractCustomAuthoritiesWithScopes() {
-		TokenAuthenticationConverter tokenConverterCustom = new MyTokenAuthenticationConverter(xsAppName, "cost-center",
-				"country");
+		TokenAuthenticationConverter tokenConverterCustom = new TokenAuthenticationConverter(
+				new MyAuthoritiesExtractor(xsAppName, "cost-center",
+						"country"));
 
 		Jwt jwt = new JwtGenerator()
 				.addScopes(scopeAdmin)
@@ -95,30 +100,39 @@ public class TokenAuthenticationConverterTest {
 		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority("Read")));
 	}
 
-	private static class MyTokenAuthenticationConverter extends TokenAuthenticationConverter {
-		protected String[] xsUserAttributes;
+	private static class MyAuthoritiesExtractor implements AuthoritiesExtractor {
+		private String[] xsUserAttributes;
+		private AuthoritiesExtractor authoritiesExtractor;
 
-		public MyTokenAuthenticationConverter(String appId, String... xsUserAttributes) {
-			super(appId);
+		public MyAuthoritiesExtractor(String... xsUserAttributes) {
+			authoritiesExtractor = new DefaultAuthoritiesExtractor();
 			this.xsUserAttributes = xsUserAttributes;
 		}
 
 		@Override
-		protected Collection<String> getCustomAuthorities(Token token) {
-			Set<String> newAuthorities = new HashSet<>();
+		public Collection<GrantedAuthority> getAuthorities(Jwt jwt) {
+			Collection<GrantedAuthority> authorities = authoritiesExtractor.getAuthorities(jwt);
+			authorities.addAll(getCustomAuthorities(new TokenImpl(jwt)));
+			return authorities;
+		}
+
+		private Collection<GrantedAuthority> getCustomAuthorities(Token token) {
+			Set<GrantedAuthority> newAuthorities = new HashSet<>();
 			for (String attribute : xsUserAttributes) {
 				String[] xsUserAttributeValues = token.getXSUserAttribute(attribute);
 				if (xsUserAttributeValues != null) {
 					for (String xsUserAttributeValue : xsUserAttributeValues) {
-						newAuthorities.add(getSidForAttributeValue(attribute, xsUserAttributeValue));
+						newAuthorities.add(new SimpleGrantedAuthority(
+								getSidForAttributeValue(attribute, xsUserAttributeValue)));
 					}
 				}
 			}
 			return newAuthorities;
 		}
 
-		public static String getSidForAttributeValue(String attributeName, String attributeValue) {
+		private static String getSidForAttributeValue(String attributeName, String attributeValue) {
 			return "ATTR:" + attributeName.toUpperCase() + "=" + attributeValue;
 		}
+
 	}
 }

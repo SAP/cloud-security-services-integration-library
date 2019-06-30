@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import net.minidev.json.JSONArray;
@@ -19,7 +18,7 @@ import net.minidev.json.parser.ParseException;
 
 public class XsuaaServicesParser {
 
-	private final Log logger = LogFactory.getLog(XsuaaServicesParser.class);
+	private final Logger logger = LoggerFactory.getLogger(XsuaaServicesParser.class);
 
 	private static final String TAGS = "tags";
 	private static final String CREDENTIALS = "credentials";
@@ -31,14 +30,14 @@ public class XsuaaServicesParser {
 	public XsuaaServicesParser() {
 		vcapServices = System.getenv().get(VCAP_SERVICES);
 		if (StringUtils.isEmpty(vcapServices)) {
-			logger.warn("Cannot find environment " + VCAP_SERVICES);
+			logger.warn("Cannot find {} environment variable.", VCAP_SERVICES);
 		}
 	}
 
 	public XsuaaServicesParser(InputStream is) throws IOException {
 		vcapServices = IOUtils.toString(is, Charsets.toCharset("utf-8"));
 		if (StringUtils.isEmpty(vcapServices)) {
-			logger.warn("Cannot find environment " + VCAP_SERVICES);
+			logger.warn("Cannot parse inputStream to extract XSUAA properties.");
 		}
 	}
 
@@ -52,6 +51,7 @@ public class XsuaaServicesParser {
 	public Optional<String> getAttribute(String name) throws ParseException {
 
 		if (StringUtils.isEmpty(vcapServices)) {
+			logger.warn("VCAP_SERVICES could not be load.");
 			return Optional.empty();
 		}
 
@@ -60,7 +60,11 @@ public class XsuaaServicesParser {
 
 		if (Objects.nonNull(xsuaaBinding) && xsuaaBinding.containsKey(CREDENTIALS)) {
 			JSONObject credentials = (JSONObject) xsuaaBinding.get(CREDENTIALS);
-			return Optional.ofNullable(credentials.getAsString(name));
+			Optional<String> attributeString = Optional.ofNullable(credentials.getAsString(name));
+			if (attributeString.isPresent()) {
+				logger.info("XSUAA VCAP_SERVICES has no attribute with name '{}'.", name);
+			}
+			return attributeString;
 		}
 
 		return Optional.empty();
