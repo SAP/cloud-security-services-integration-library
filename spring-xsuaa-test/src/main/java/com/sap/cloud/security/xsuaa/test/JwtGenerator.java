@@ -193,7 +193,7 @@ public class JwtGenerator {
 	 * Sets the url which is used to retrieve the verification keys
 	 *
 	 * @param jku
-	 * 		the url to retrieve the keys
+	 *            the url to retrieve the keys
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator setJku(String jku) {

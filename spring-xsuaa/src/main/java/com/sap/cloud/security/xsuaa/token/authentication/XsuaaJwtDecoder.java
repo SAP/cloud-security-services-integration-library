@@ -26,10 +26,8 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
-
 public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Log logger = LogFactory.getLog(XsuaaJwtDecoder.class);
-
 
 	Cache<String, JwtDecoder> cache;
 	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
@@ -69,11 +67,9 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			canVerifyWithOnlineKey(jku, kid, uaadomain);
 			validateJKU(jku, uaadomain);
 			return verifyWithOnlineKey(token, jku, kid);
-		}
-		catch(JwtValidationException ex) {
+		} catch (JwtValidationException ex) {
 			throw ex;
-		}
-		catch (JwtException ex) {
+		} catch (JwtException ex) {
 			throw new JwtException("JWT verification failed:" + ex.getMessage());
 		}
 	}
