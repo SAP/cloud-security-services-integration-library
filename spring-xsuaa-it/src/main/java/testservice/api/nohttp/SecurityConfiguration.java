@@ -18,11 +18,9 @@ package testservice.api.nohttp;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.mock.MockXsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
 @Configuration
 // @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
@@ -33,10 +31,4 @@ public class SecurityConfiguration {
 	XsuaaServiceConfiguration getXsuaaServiceConfiguration() {
 		return new MockXsuaaServiceConfiguration();
 	}
-
-	@Bean
-	JwtDecoder jwtDecoder() {
-		return new XsuaaJwtDecoderBuilder(getXsuaaServiceConfiguration()).build();
-	}
-
 }

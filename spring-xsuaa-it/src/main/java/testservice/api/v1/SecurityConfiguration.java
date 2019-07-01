@@ -23,12 +23,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.mock.MockXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
 @EnableWebSecurity
 @Profile({ "test.api.v1" })
@@ -55,11 +53,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Bean
 	XsuaaServiceConfiguration getXsuaaServiceConfiguration() {
 		return new MockXsuaaServiceConfiguration();
-	}
-
-	@Bean
-	JwtDecoder jwtDecoder() {
-		return new XsuaaJwtDecoderBuilder(getXsuaaServiceConfiguration()).build();
 	}
 
 }

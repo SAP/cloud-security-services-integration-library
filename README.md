@@ -41,13 +41,13 @@ See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an ex
 # Download and Installation
 Build results are published to maven central: https://search.maven.org/search?q=com.sap.cloud.security 
 
-To download and install the this project clone this repository via:
+To download and install this project clone this repository via:
 ```
 git clone https://github.com/SAP/cloud-security-xsuaa-integration
 cd cloud-security-xsuaa-integration
-mvn package
+mvn clean install
 ```
-*Note:* Use this is you want to enhance this xsuaa integration libraries. The buid results are also available on maven central. 
+*Note:* Use this if you want to enhance this xsuaa integration libraries. The build results are also available on maven central.
 
 # Limitations
 Libraries and information provided here is around the topic of integrating with the xsuaa service. General integration into other OAuth authorization servers is not the primary focus.

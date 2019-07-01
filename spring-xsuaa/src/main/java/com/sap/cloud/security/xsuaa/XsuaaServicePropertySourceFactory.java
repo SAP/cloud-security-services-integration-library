@@ -3,6 +3,7 @@ package com.sap.cloud.security.xsuaa;
 import java.io.IOException;
 import java.util.Properties;
 
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import net.minidev.json.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,8 @@ import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
 /**
+ * Part of Auto Configuration {@link XsuaaAutoConfiguration}
+ *
  * <h2>Example Usage</h2>
  * 
  * <pre class="code">
@@ -24,18 +27,16 @@ import org.springframework.core.io.support.PropertySourceFactory;
  * 
  * &#64;Value("${xsuaa.url:}")
  * </pre>
- * 
- *
  *
  */
 public class XsuaaServicePropertySourceFactory implements PropertySourceFactory {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	protected static final String XSUAA_PREFIX = "xsuaa.";
 	private static final String XSUAA_PROPERTYIES_KEY = "xsuaa";
-	public final String CLIENT_ID = "xsuaa.clientid";
-	public final String CLIENT_SECRET = "xsuaa.clientsecret";
-	public final String URL = "xsuaa.url";
-	public final String UAA_DOMAIN = "xsuaa.uaadomain";
+	public static final String CLIENT_ID = "xsuaa.clientid";
+	public static final String CLIENT_SECRET = "xsuaa.clientsecret";
+	public static final String URL = "xsuaa.url";
+	public static final String UAA_DOMAIN = "xsuaa.uaadomain";
 
 	private static final String[] XSUAA_ATTRIBUTES = new String[] { "clientid", "clientsecret", "identityzoneid",
 			"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname" };
