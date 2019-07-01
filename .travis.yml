@@ -1,12 +1,12 @@
 language: java
 
 jdk:
-- oraclejdk8
+  - oraclejdk8
 
 os:
-- linux
+  - linux
 
 script:
-- ./mvn clean verify
-- cd spring-xsuaa-it
-- ./mvn clean verify
+  - ./mvn clean verify
+  - cd spring-xsuaa-it
+  - ./mvn clean verify
