@@ -4,18 +4,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.util.Assert;
@@ -31,21 +28,14 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 	Cache<String, JwtDecoder> cache;
 	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
-	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
+	private OAuth2TokenValidator<Jwt> tokenValidators;
 
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
-			OAuth2TokenValidator<Jwt>... tokenValidators) {
+			OAuth2TokenValidator<Jwt> tokenValidators) {
 		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
 				.build();
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
-		// configure token validators
-		this.tokenValidators.add(new JwtTimestampValidator());
-
-		if (tokenValidators == null) {
-			this.tokenValidators.add(new XsuaaAudienceValidator(xsuaaServiceConfiguration));
-		} else {
-			this.tokenValidators.addAll(Arrays.asList(tokenValidators));
-		}
+		this.tokenValidators = tokenValidators;
 	}
 
 	@Override
@@ -114,7 +104,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 	private JwtDecoder getDecoder(String jku) {
 		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jku);
-		decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(tokenValidators));
+		decoder.setJwtValidator(tokenValidators);
 		return decoder;
 	}
 }

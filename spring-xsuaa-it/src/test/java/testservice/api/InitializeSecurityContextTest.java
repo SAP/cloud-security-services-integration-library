@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +43,8 @@ import testservice.api.nohttp.SecurityConfiguration;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {
-		"xsuaa.uaadomain=localhost" }, classes = { SecurityConfiguration.class, MyEventHandler.class })
+		"xsuaa.uaadomain=localhost" }, classes = { SecurityConfiguration.class, MyEventHandler.class, XsuaaAutoConfiguration.class,
+		XsuaaResourceServerJwkAutoConfiguration.class })
 @ActiveProfiles({ "test.api.nohttp", "uaamock" })
 public class InitializeSecurityContextTest {
 	@Value("${xsuaa.clientid}")
