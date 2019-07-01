@@ -66,7 +66,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		String uaadomain = xsuaaServiceConfiguration.getUaaDomain();
 
 		try {
-			canDoOnlineVerification(jku, kid, uaadomain);
+			canVerifyWithOnlineKey(jku, kid, uaadomain);
 			validateJKU(jku, uaadomain);
 			return verifyWithOnlineKey(token, jku, kid);
 		}
@@ -78,7 +78,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 	}
 
-	private void canDoOnlineVerification(String jku, String kid, String uaadomain) {
+	private void canVerifyWithOnlineKey(String jku, String kid, String uaadomain) {
 		if (jku != null && kid != null && uaadomain != null) {
 			return;
 		}
@@ -91,7 +91,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		if (uaadomain == null)
 			nullParams.add("uaadomain");
 
-		throw new JwtException(String.format("Cannot do online verification, %s is null",
+		throw new JwtException(String.format("Cannot verify with online key, %s is null",
 				String.join(", ", nullParams)));
 	}
 
