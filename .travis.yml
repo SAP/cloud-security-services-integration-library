@@ -1,8 +1,5 @@
 language: java
 
-jdk:
-- oraclejdk8
-
 script:
   - mvn clean verify
   - cd spring-xsuaa-it
