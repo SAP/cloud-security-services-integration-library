@@ -23,7 +23,7 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>1.2.0</version>
+    <version>1.5.0</version>
 </dependency>
 ```
 

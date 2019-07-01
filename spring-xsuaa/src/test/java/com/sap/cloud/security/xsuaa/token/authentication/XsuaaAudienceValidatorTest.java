@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+import com.sap.cloud.security.xsuaa.token.Token;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,11 +20,6 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.cloud.security.xsuaa.token.Token;
 
 public class XsuaaAudienceValidatorTest {
 
@@ -45,7 +45,7 @@ public class XsuaaAudienceValidatorTest {
 		cloneTokenWithAudience = new JwtGenerator().createFromTemplate("/audience_3.txt");
 
 		claimsBuilder = new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE_DATE);
-		claimsBuilder.claim(Token.CLIENT_ID, "sb-test1!t1");
+		claimsBuilder.claim(TokenClaims.CLAIM_CLIENT_ID, "sb-test1!t1");
 	}
 
 	@Test
@@ -105,7 +105,7 @@ public class XsuaaAudienceValidatorTest {
 	public void testOtherGrantedClientIdWithoutAudienceButScopes() {
 		List<String> scopes = new ArrayList<String>();
 		scopes.add("test2!t1.Display");
-		claimsBuilder.claim(Token.CLAIM_SCOPES, scopes);
+		claimsBuilder.claim(TokenClaims.CLAIM_SCOPES, scopes);
 
 		Jwt tokenWithoutAudienceButScopes = JwtGenerator.createFromClaims(claimsBuilder.build());
 		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationOtherGrantedClientId)
@@ -117,7 +117,7 @@ public class XsuaaAudienceValidatorTest {
 	public void testOtherGrantedClientIdWithoutAudienceAndMatchingScopes() {
 		List<String> scopes = new ArrayList<String>();
 		scopes.add("test3!t1.Display");
-		claimsBuilder.claim(Token.CLAIM_SCOPES, scopes);
+		claimsBuilder.claim(TokenClaims.CLAIM_SCOPES, scopes);
 
 		Jwt tokenWithoutAudienceButScopes = JwtGenerator.createFromClaims(claimsBuilder.build());
 		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationOtherGrantedClientId)
@@ -138,10 +138,19 @@ public class XsuaaAudienceValidatorTest {
 
 	@Test
 	public void testOtherGrantedClientIdWithoutAudienceAndEmptyScopes() {
-		claimsBuilder.claim(Token.CLAIM_SCOPES, "[]");
+		claimsBuilder.claim(TokenClaims.CLAIM_SCOPES, "[]");
 		Jwt tokenWithoutAudienceAndScopes = JwtGenerator.createFromClaims(claimsBuilder.build());
 		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationOtherGrantedClientId)
 				.validate(tokenWithoutAudienceAndScopes);
+		Assert.assertTrue(result.hasErrors());
+	}
+
+	@Test
+	public void testTokenWithoutClientId() {
+		claimsBuilder.claim(TokenClaims.CLAIM_CLIENT_ID, "");
+		Jwt tokenWithoutClientId = JwtGenerator.createFromClaims(claimsBuilder.build());
+		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationSameClientId)
+				.validate(tokenWithoutClientId);
 		Assert.assertTrue(result.hasErrors());
 	}
 

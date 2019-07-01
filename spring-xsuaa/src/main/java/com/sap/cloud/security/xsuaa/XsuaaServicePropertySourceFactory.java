@@ -1,10 +1,12 @@
 package com.sap.cloud.security.xsuaa;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Properties;
 
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
+import net.minidev.json.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
@@ -28,7 +30,7 @@ import org.springframework.core.io.support.PropertySourceFactory;
  *
  */
 public class XsuaaServicePropertySourceFactory implements PropertySourceFactory {
-
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	protected static final String XSUAA_PREFIX = "xsuaa.";
 	private static final String XSUAA_PROPERTYIES_KEY = "xsuaa";
 	public final String CLIENT_ID = "xsuaa.clientid";
@@ -39,7 +41,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	private static final String[] XSUAA_ATTRIBUTES = new String[] { "clientid", "clientsecret", "identityzoneid",
 			"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname" };
 
-	private Properties configurationProperties = null;
+	private Properties xsuaaProperties = null;
 
 	public XsuaaServicePropertySourceFactory() {
 	}
@@ -47,27 +49,27 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	@Override
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
 		XsuaaServicesParser vcapServicesParser = null;
-		if (configurationProperties == null) {
+		if (xsuaaProperties == null) {
 			if (resource != null && resource.getResource().getFilename().length() > 0) {
 				vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
 			} else {
 				vcapServicesParser = new XsuaaServicesParser();
 			}
-			configurationProperties = getConfigurationProperties(vcapServicesParser);
+			xsuaaProperties = getConfigurationProperties(vcapServicesParser);
 		}
-
-		return new PropertiesPropertySource(XSUAA_PROPERTYIES_KEY, configurationProperties);
+		return new PropertiesPropertySource(XSUAA_PROPERTYIES_KEY, xsuaaProperties);
 	}
 
 	protected Properties getConfigurationProperties(XsuaaServicesParser vcapServicesParser) throws IOException {
 		try {
-			Properties newConfigurationProperties = new Properties();
+			Properties xsuaaProperties = new Properties();
 			for (String attributeName : XSUAA_ATTRIBUTES) {
 				vcapServicesParser.getAttribute(attributeName).ifPresent(
-						attributeValue -> newConfigurationProperties.put(XSUAA_PREFIX + attributeName, attributeValue));
+						attributeValue -> xsuaaProperties.put(XSUAA_PREFIX + attributeName, attributeValue));
 			}
-			return newConfigurationProperties;
-		} catch (net.minidev.json.parser.ParseException ex) {
+			logger.info("Extracted {} XSUAA properties", xsuaaProperties.size());
+			return xsuaaProperties;
+		} catch (ParseException ex) {
 			throw new IOException(ex);
 		}
 	}

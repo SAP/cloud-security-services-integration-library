@@ -5,7 +5,7 @@
 
 	<groupId>com.sap.cloud.security.xsuaa</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.4.0</version>
+	<version>1.5.0</version>
 	<packaging>pom</packaging>
 
 	<name>parent</name>
@@ -105,7 +105,7 @@
 								<execution>
 									<phase>process-sources</phase>
 									<goals>
-										<goal>format</goal>
+										<goal>format</goal> <!-- run with mvn formatter:format -->
 									</goals>
 								</execution>
 							</executions>

@@ -9,14 +9,16 @@ import java.util.stream.Collectors;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServicesParser;
 import com.sap.cloud.security.xsuaa.token.Token;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Validate audience using audience field content. in case this field is empty,
@@ -24,7 +26,7 @@ import org.springframework.util.Assert;
  */
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	private Map<String, String> appIdClientIdMap = new HashMap<>();
-	private final Log logger = LogFactory.getLog(XsuaaServicesParser.class);
+	private final Logger logger = LoggerFactory.getLogger(XsuaaServicesParser.class);
 
 	public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		Assert.notNull(xsuaaServiceConfiguration, "'xsuaaServiceConfiguration' is required");
@@ -35,14 +37,14 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 		Assert.notNull(appId, "'appId' is required");
 		Assert.notNull(clientId, "'clientId' is required");
 		appIdClientIdMap.putIfAbsent(appId, clientId);
-		logger.info(String.format("configured XsuaaAudienceValidator with appId %s and clientId %s", appId, clientId));
+		logger.info("configured XsuaaAudienceValidator with appId {} and clientId {}", appId, clientId);
 	}
 
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
-		String tokenClientId = token.getClaimAsString(Token.CLIENT_ID);
-		if (tokenClientId == null) {
-			OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
+		String tokenClientId = token.getClaimAsString(TokenClaims.CLAIM_CLIENT_ID);
+		if (StringUtils.isEmpty(tokenClientId)) {
+			return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
 					"Jwt token must contain 'cid' (client_id)", null));
 		}
 		List<String> allowedAudiences = getAllowedAudiences(token);
@@ -109,7 +111,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 
 	static List<String> getScopes(Jwt token) {
 		List<String> scopes = null;
-		scopes = token.getClaimAsStringList(Token.CLAIM_SCOPES);
+		scopes = token.getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
 		return scopes != null ? scopes : new ArrayList<>();
 	}
 }
