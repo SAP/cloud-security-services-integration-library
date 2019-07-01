@@ -33,10 +33,10 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	protected static final String XSUAA_PREFIX = "xsuaa.";
 	private static final String XSUAA_PROPERTYIES_KEY = "xsuaa";
-	public final String CLIENT_ID = "xsuaa.clientid";
-	public final String CLIENT_SECRET = "xsuaa.clientsecret";
-	public final String URL = "xsuaa.url";
-	public final String UAA_DOMAIN = "xsuaa.uaadomain";
+	public static final String CLIENT_ID = "xsuaa.clientid";
+	public static final String CLIENT_SECRET = "xsuaa.clientsecret";
+	public static final String URL = "xsuaa.url";
+	public static final String UAA_DOMAIN = "xsuaa.uaadomain";
 
 	private static final String[] XSUAA_ATTRIBUTES = new String[] { "clientid", "clientsecret", "identityzoneid",
 			"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname" };
