@@ -10,16 +10,11 @@ public class MockXsuaaServiceConfiguration extends XsuaaServiceConfigurationDefa
 	private String mockXsuaaServerUrl;
 
 	@Override
-	public String getTokenKeyUrl(String zid, String subdomain) {
-		if (!mockXsuaaServerUrl.isEmpty() && mockXsuaaServerUrl == getUaaUrl()) {
-			return getUaaUrl() + "/" + subdomain + "/token_keys";
-		}
-		return super.getTokenKeyUrl(zid, subdomain);
-	}
-
-	@Override
 	public String getUaaDomain() {
-		return "localhost";
+		if (!mockXsuaaServerUrl.isEmpty() && mockXsuaaServerUrl == getUaaUrl()) {
+			return "localhost";
+		}
+		return super.getUaaDomain();
 	}
 
 }

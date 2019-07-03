@@ -31,6 +31,8 @@ public interface XsuaaServiceConfiguration {
 	 * @param subdomain
 	 *            of the subaccount
 	 * @return token key endpoint
+	 *
+	 * @deprecated Xsuaa version 2.8.0 provides jwt token key url (jku) as part of the JWT. This method gets deleted with version 2.0.0.
 	 */
 	String getTokenKeyUrl(String zid, String subdomain);
 
