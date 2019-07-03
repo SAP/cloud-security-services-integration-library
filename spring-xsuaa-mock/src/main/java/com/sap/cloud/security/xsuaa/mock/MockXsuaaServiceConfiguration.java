@@ -16,4 +16,10 @@ public class MockXsuaaServiceConfiguration extends XsuaaServiceConfigurationDefa
 		}
 		return super.getTokenKeyUrl(zid, subdomain);
 	}
+
+	@Override
+	public String getUaaDomain() {
+		return "localhost";
+	}
+
 }

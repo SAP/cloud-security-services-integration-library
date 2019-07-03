@@ -41,8 +41,7 @@ import testservice.api.nohttp.MyEventHandler;
 import testservice.api.nohttp.SecurityConfiguration;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {
-		"xsuaa.uaadomain=localhost" }, classes = { SecurityConfiguration.class, MyEventHandler.class,
+@SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
 				XsuaaAutoConfiguration.class,
 				XsuaaResourceServerJwkAutoConfiguration.class })
 @ActiveProfiles({ "test.api.nohttp", "uaamock" })
