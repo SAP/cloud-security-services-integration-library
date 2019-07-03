@@ -23,8 +23,8 @@ import com.nimbusds.jwt.JWTParser;
 public class JwtGenerator {
 
 	/**
-	 * Do not want to introduce circular reference to spring-xsuaa.
-	 * duplicate of com.sap.cloud.security.xsuaa.token.TokenClaims
+	 * Do not want to introduce circular reference to spring-xsuaa. duplicate of
+	 * com.sap.cloud.security.xsuaa.token.TokenClaims
 	 */
 	public final class TokenClaims {
 		private TokenClaims() {
@@ -231,7 +231,7 @@ public class JwtGenerator {
 	}
 
 	private static String createJku(String subdomain) {
-		String subdomainPart =  subdomain != null && !subdomain.equals("") ? "/" + subdomain : "";
+		String subdomainPart = subdomain != null && !subdomain.equals("") ? "/" + subdomain : "";
 		return "http://localhost:" + MOCK_XSUAA_PORT + subdomainPart + "/token_keys";
 	}
 

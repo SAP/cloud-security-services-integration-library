@@ -40,7 +40,6 @@ public class TokenImpl extends Jwt implements Token {
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>
 
-
 	static final String CLAIM_SERVICEINSTANCEID = "serviceinstanceid";
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	static final String CLAIM_EXTERNAL_ATTR = "ext_attr";

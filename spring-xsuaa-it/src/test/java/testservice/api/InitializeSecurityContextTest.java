@@ -42,8 +42,8 @@ import testservice.api.nohttp.SecurityConfiguration;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
-				XsuaaAutoConfiguration.class,
-				XsuaaResourceServerJwkAutoConfiguration.class })
+		XsuaaAutoConfiguration.class,
+		XsuaaResourceServerJwkAutoConfiguration.class })
 @ActiveProfiles({ "test.api.nohttp", "uaamock" })
 public class InitializeSecurityContextTest {
 	@Value("${xsuaa.clientid}")
