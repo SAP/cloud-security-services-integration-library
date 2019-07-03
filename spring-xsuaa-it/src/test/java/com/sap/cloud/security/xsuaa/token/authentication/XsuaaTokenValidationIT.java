@@ -28,7 +28,8 @@ import testservice.api.v1.TestController;
 @SpringBootTest(properties = {
 		"xsuaa.xsappname=java-hello-world",
 		"xsuaa.clientid=sb-java-hello-world",
-		"xsuaa.url=${mockxsuaaserver.url}" }, classes = { XsuaaITApplication.class,
+		"xsuaa.url=${mockxsuaaserver.url}",
+		"xsuaa.uaadomain=localhost" }, classes = { XsuaaITApplication.class,
 				testservice.api.v1.SecurityConfiguration.class, TestController.class })
 @AutoConfigureMockMvc
 @ActiveProfiles("test.api.v1")
@@ -62,8 +63,7 @@ public class XsuaaTokenValidationIT {
 
 	@Test
 	public void test_requesttoken() throws Exception {
-		String fqHost = new URL(mockServerUrl).getHost();
-		String hostname = fqHost.substring(0, fqHost.indexOf("."));
+		String hostname = new URL(mockServerUrl).getHost();
 
 		this.mvc.perform(
 				get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt", hostname, "legacy-token-key"))))

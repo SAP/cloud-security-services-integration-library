@@ -18,7 +18,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Value("${xsuaa.url:}")
 	private String uaaUrl;
 
-	@Value("${xsuaa.uaadomain:}")
+	@Value("${xsuaa.uaadomain:#{null}}")
 	private String uaadomain;
 
 	@Value("${xsuaa.identityzoneid:}")
