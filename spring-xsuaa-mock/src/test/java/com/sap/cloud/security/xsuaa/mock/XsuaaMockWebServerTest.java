@@ -22,7 +22,6 @@ public class XsuaaMockWebServerTest {
 		InetAddress address = InetAddress.getLocalHost();
 		String url = (String) xsuaaMockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME);
 		url = url.toLowerCase();
-		url = url.replace("127.0.0.1", "localhost");
 		url = url.replace(address.getCanonicalHostName().toLowerCase(), "localhost");
 		Assert.assertThat(url, startsWith("http://localhost"));
 	}

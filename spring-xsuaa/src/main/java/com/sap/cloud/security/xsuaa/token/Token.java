@@ -11,7 +11,7 @@ import java.util.Date;
 
 public interface Token extends UserDetails {
 	/*
-	* @deprecated use instead {@link TokenClaims.CLAIM_XS_USER_ATTRIBUTES}
+	 * @deprecated use instead {@link TokenClaims.CLAIM_XS_USER_ATTRIBUTES}
 	 */
 	String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
 	/*

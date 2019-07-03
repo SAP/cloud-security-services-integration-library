@@ -7,8 +7,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 /**
- * Internal class used to expose the {@link Token} implementation as the standard Principal for Spring
- * Security Jwt handling.
+ * Internal class used to expose the {@link Token} implementation as the
+ * standard Principal for Spring Security Jwt handling.
  *
  * @see TokenAuthenticationConverter
  * @see TokenImpl
