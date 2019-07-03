@@ -62,10 +62,8 @@ public class XsuaaTokenValidationIT {
 
 	@Test
 	public void test_requesttoken() throws Exception {
-		String hostname = new URL(mockServerUrl).getHost();
-
 		this.mvc.perform(
-				get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt", hostname, "legacy-token-key"))))
+				get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa", "legacy-token-key"))))
 				.andExpect(status().isOk()).andExpect(content().string("cc_token"));
 	}
 

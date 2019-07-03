@@ -66,7 +66,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 
 	private String getUrl(MockWebServer mockWebServer) {
 		String url = mockWebServer.url("").url().toExternalForm();
-		return url.substring(0, url.length() - 1);
+		return url.substring(0, url.length() - 1).replace("127.0.0.1", "localhost");
 	}
 
 	private void intializeMockXsuaa(MockWebServer mockWebServer) {
