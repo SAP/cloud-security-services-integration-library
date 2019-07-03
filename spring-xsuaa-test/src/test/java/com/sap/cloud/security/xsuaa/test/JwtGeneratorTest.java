@@ -100,6 +100,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void testTokenFromFile() throws IOException {
+		jwtGenerator.setJku(null).setJwtHeaderKeyId(null);
 		Jwt jwtFromTemplate = jwtGenerator.createFromTemplate("/claims_template.txt");
 		String jwtTokenFromTemplate = jwtFromTemplate.getTokenValue();
 		Jwt jwtFromFile = JwtGenerator.createFromFile("/token_cc.txt");
