@@ -14,11 +14,13 @@ import okhttp3.mockwebserver.MockWebServer;
 public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements DisposableBean {
 
 	public static final String MOCK_XSUAA_PROPERTY_SOURCE_NAME = "mockxsuaaserver";
-	private static final String MOCK_XSUAA_URL = "mockxsuaaserver.url";
+	public static final String MOCK_XSUAA_URL = "mockxsuaaserver.url";
+	// must match the port defined in JwtGenerator
+	private static final int MOCK_XSUAA_PORT = 33195;
 
 	private static final Log logger = LogFactory.getLog(XsuaaMockWebServer.class);
 
-	private boolean started;
+	private static boolean started;
 
 	public XsuaaMockWebServer() {
 		super(MOCK_XSUAA_PROPERTY_SOURCE_NAME, createMockWebServer(new XsuaaRequestDispatcher()));
@@ -64,12 +66,12 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 
 	private String getUrl(MockWebServer mockWebServer) {
 		String url = mockWebServer.url("").url().toExternalForm();
-		return url.substring(0, url.length() - 1);
+		return url.substring(0, url.length() - 1).replace("127.0.0.1", "localhost");
 	}
 
 	private void intializeMockXsuaa(MockWebServer mockWebServer) {
 		try {
-			mockWebServer.start();
+			mockWebServer.start(MOCK_XSUAA_PORT);
 			this.started = true;
 			logger.warn(
 					">>>>>>>>>>>Started Xsuaa mock Server that provides public keys for offline JWT Token validation. NEVER run in productive environment!<<<<<<");

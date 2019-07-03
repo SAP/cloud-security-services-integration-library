@@ -21,9 +21,11 @@ public class XsuaaRequestDispatcher extends Dispatcher {
 	protected static final String PATH_TOKEN_KEYS_TEMPLATE = "/mock/token_keys_template.json";
 	protected static final String PATH_PUBLIC_KEY = "/mock/publicKey.txt";
 	protected final Log logger = LogFactory.getLog(XsuaaRequestDispatcher.class);
+	private static int callCount = 0;
 
 	@Override
 	public MockResponse dispatch(RecordedRequest request) {
+		callCount++;
 		if ("/testdomain/token_keys".equals(request.getPath())) {
 			String subdomain = "testdomain";
 			return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, "legacy-token-key-" + subdomain);
@@ -71,4 +73,7 @@ public class XsuaaRequestDispatcher extends Dispatcher {
 		return getResponse(RESPONSE_500 + ": " + message, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
+	public static int getCallCount() {
+		return callCount;
+	}
 }

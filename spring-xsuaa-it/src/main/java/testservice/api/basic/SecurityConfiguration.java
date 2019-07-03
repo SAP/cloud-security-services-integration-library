@@ -77,13 +77,5 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			return "mysecret-basic";
 		}
 
-		@Override
-		public String getUaaDomain() {
-			try {
-				return new URL(getUaaUrl()).getHost();
-			} catch (MalformedURLException e) {
-				return null;
-			}
-		}
 	}
 }

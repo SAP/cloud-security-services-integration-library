@@ -18,7 +18,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Value("${xsuaa.url:}")
 	private String uaaUrl;
 
-	@Value("${xsuaa.uaadomain:}")
+	@Value("${xsuaa.uaadomain:#{null}}")
 	private String uaadomain;
 
 	@Value("${xsuaa.identityzoneid:}")
@@ -39,6 +39,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 
 	@Override
 	public String getTokenKeyUrl(String zid, String subdomain) {
+		// Please note this method is deprecated and will be deleted with version 2.0
 		if ("uaa".equals(zid)) {
 			return uaaUrl + "/token_keys";
 		} else {
