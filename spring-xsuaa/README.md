@@ -79,7 +79,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 ### Setup Security Context for non-HTTP requests
 In case of non-HTTP requests, you may need to initialize the Spring `SecurityContext` with a JWT token you've received from a message / event or you've requested from XSUAA directly:
 
-```
+```java
 @Autowired
 JwtDecoder jwtDecoder;
 
