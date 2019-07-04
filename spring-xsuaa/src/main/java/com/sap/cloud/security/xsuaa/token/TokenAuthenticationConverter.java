@@ -56,7 +56,7 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 
 	@Override
 	public AbstractAuthenticationToken convert(Jwt jwt) {
-		return new AuthenticationToken(jwt, authoritiesExtractor.getAuthorities(new TokenImpl(jwt)));
+		return new AuthenticationToken(jwt, authoritiesExtractor.getAuthorities(new XsuaaToken(jwt)));
 	}
 
 	/**

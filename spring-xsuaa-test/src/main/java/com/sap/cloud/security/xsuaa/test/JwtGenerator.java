@@ -55,7 +55,7 @@ public class JwtGenerator {
 	private String identityZoneId;
 	private String subdomain = "";
 	private String jku;
-	// see TokenImpl.GRANTTYPE_SAML2BEARER
+	// see XsuaaToken.GRANTTYPE_SAML2BEARER
 	private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	private String[] scopes;
 	private String userName = "testuser";

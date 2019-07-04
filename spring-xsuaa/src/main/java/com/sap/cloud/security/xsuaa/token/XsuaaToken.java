@@ -32,9 +32,9 @@ import org.springframework.web.client.RestTemplate;
  * This class inherits Spring Security's standard Jwt implementation and can be
  * used interchangeably with it.
  */
-public class TokenImpl extends Jwt implements Token {
+public class XsuaaToken extends Jwt implements Token {
 
-	private static final Logger logger = LoggerFactory.getLogger(TokenImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(XsuaaToken.class);
 
 	static final String GRANTTYPE_SAML2BEARER = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
@@ -51,7 +51,7 @@ public class TokenImpl extends Jwt implements Token {
 	 * @param jwt
 	 *            token
 	 */
-	public TokenImpl(Jwt jwt) {
+	protected XsuaaToken(Jwt jwt) {
 		super(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getHeaders(), jwt.getClaims());
 	}
 
@@ -252,7 +252,7 @@ public class TokenImpl extends Jwt implements Token {
 	 * For custom access to the claims of the authentication token.
 	 * 
 	 * @return this
-	 * @deprecated with version 1.5 as TokenImpl inherits from {@link Jwt} which
+	 * @deprecated with version 1.5 as XsuaaToken inherits from {@link Jwt} which
 	 *             implements {@link JwtClaimAccessor}
 	 */
 	ClaimAccessor getClaimAccessor() {
