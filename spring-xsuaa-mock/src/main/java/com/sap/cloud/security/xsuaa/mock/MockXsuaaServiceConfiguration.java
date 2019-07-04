@@ -11,10 +11,18 @@ public class MockXsuaaServiceConfiguration extends XsuaaServiceConfigurationDefa
 
 	@Override
 	public String getUaaDomain() {
-		if (!mockXsuaaServerUrl.isEmpty() && mockXsuaaServerUrl == getUaaUrl()) {
+		if (!mockXsuaaServerUrl.isEmpty()) {
 			return "localhost";
 		}
 		return super.getUaaDomain();
+	}
+
+	@Override
+	public String getUaaUrl() {
+		if (!mockXsuaaServerUrl.isEmpty()) {
+			return mockXsuaaServerUrl;
+		}
+		return super.getUaaUrl();
 	}
 
 }
