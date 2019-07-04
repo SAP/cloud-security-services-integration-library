@@ -86,7 +86,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			if (jkuUri.getHost() == null) {
 				throw new JwtException("JKU of token is not valid");
 			} else if (!jkuUri.getHost().endsWith(uaadomain)) {
-				logger.error(String.format("Do not trust jku '%s' because it does not match uaa domain '%s'",
+				logger.warn(String.format("Error: Do not trust jku '%s' because it does not match uaa domain '%s'",
 						jku, uaadomain));
 				throw new JwtException("JKU of token header is not trusted");
 			}
