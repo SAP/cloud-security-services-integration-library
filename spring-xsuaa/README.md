@@ -25,6 +25,15 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
     <artifactId>spring-xsuaa</artifactId>
     <version>1.5.0</version>
 </dependency>
+<dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-autoconfigure</artifactId> <!--
+</dependency>
+<dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-to-slf4j</artifactId>
+    <version>2.11.2</version>
+</dependency>
 ```
 
 ### Auto-configuration

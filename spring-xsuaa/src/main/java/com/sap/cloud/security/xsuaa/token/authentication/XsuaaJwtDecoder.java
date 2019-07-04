@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -24,17 +24,17 @@ import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
-	private final Log logger = LogFactory.getLog(XsuaaJwtDecoder.class);
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	Cache<String, JwtDecoder> cache;
-	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
+	private String uaaDomain;
 	private OAuth2TokenValidator<Jwt> tokenValidators;
 
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
 			OAuth2TokenValidator<Jwt> tokenValidators) {
 		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
 				.build();
-		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
+		this.uaaDomain = xsuaaServiceConfiguration.getUaaDomain();
 		this.tokenValidators = tokenValidators;
 	}
 
@@ -46,21 +46,20 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		try {
 			jwt = JWTParser.parse(token);
 		} catch (ParseException ex) {
-			throw new JwtException("Error initializing JWT decoder:" + ex.getMessage());
+			throw new JwtException("Error initializing JWT decoder: " + ex.getMessage());
 		}
 
 		String jku = (String) jwt.getHeader().toJSONObject().getOrDefault("jku", null);
 		String kid = (String) jwt.getHeader().toJSONObject().getOrDefault("kid", null);
-		String uaadomain = xsuaaServiceConfiguration.getUaaDomain();
 
 		try {
-			canVerifyWithOnlineKey(jku, kid, uaadomain);
-			validateJKU(jku, uaadomain);
+			canVerifyWithOnlineKey(jku, kid, uaaDomain);
+			validateJKU(jku, uaaDomain);
 			return verifyWithOnlineKey(token, jku, kid);
 		} catch (JwtValidationException ex) {
 			throw ex;
 		} catch (JwtException ex) {
-			throw new JwtException("JWT verification failed:" + ex.getMessage());
+			throw new JwtException("JWT verification failed: " + ex.getMessage());
 		}
 	}
 
@@ -77,7 +76,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		if (uaadomain == null)
 			nullParams.add("uaadomain");
 
-		throw new JwtException(String.format("Cannot verify with online key, %s is null",
+		throw new JwtException(String.format("Cannot verify with online token key, %s is null",
 				String.join(", ", nullParams)));
 	}
 
@@ -87,12 +86,12 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			if (jkuUri.getHost() == null) {
 				throw new JwtException("JKU of token is not valid");
 			} else if (!jkuUri.getHost().endsWith(uaadomain)) {
-				logger.warn(String.format("Error: Do not trust jku '%s' because it does not match uaa domain '%s'",
+				logger.error(String.format("Do not trust jku '%s' because it does not match uaa domain '%s'",
 						jku, uaadomain));
-				throw new JwtException("JKU of token is not trusted");
+				throw new JwtException("JKU of token header is not trusted");
 			}
 		} catch (URISyntaxException e) {
-			throw new JwtException("JKU of token is not valid");
+			throw new JwtException("JKU of token header is not valid");
 		}
 	}
 
