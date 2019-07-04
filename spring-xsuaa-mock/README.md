@@ -19,6 +19,10 @@ The default implementation offers already valid *token_keys* for JWT tokens, tha
     <artifactId>spring-xsuaa-mock</artifactId>
     <version>1.5.0</version>
 </dependency>
+<dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-autoconfigure</artifactId> <!--
+</dependency>
 ```
 
 ### Setup Mock Web Server
@@ -56,8 +60,9 @@ Then you have to register this class to `META-INF/spring.factories`:
 org.springframework.boot.env.EnvironmentPostProcessor=<<your package>>.XsuaaMockPostProcessor
 ```
 
+### XSUAA Service Configuration
 
-And finally you need to configure the `spring.security.oauth2.resourceserver.jwt.jwk-set-uri` and the `xsuaa.url` properties in the same way as done in this [`application-uaamock.properties`](src/test/resources/application-uaamock.properties) file.
+From version `1.5.0` on the [`MockXsuaaServiceConfiguration`](src/main/java/com/sap/cloud/security/xsuaa/mock/MockXsuaaServiceConfiguration.java) is auto-configured. This class overwrites Xsuaa url and uaadomain to point to the Xsuaa Mock Web Server. This is relevant for validating the `jku` URI that is provided as part of the JSON Web Signature (JWS). The `jku` of the Jwt token issued by the `JwtGenerator` references the public key URI of the `XsuaaMockWebServer` used for generating the signature.
 
 ### Extendability
 Note: it is possible to extend the dispatcher and pass this to the `XsuaaMockWebServer` constructor. An example `XsuaaMockPostProcessor` implementation can be found [here](src/test/java/com/sap/cloud/security/xsuaa/mock/XsuaaMockPostProcessor.java).
@@ -72,4 +77,4 @@ String jwtTokenHeaderKeyId = "legacy-token-key-" + yourSubdomain;
 String jwtToken = new JwtGenerator(yourClientId, yourSubdomain).setJwtHeaderKeyId(jwtTokenHeaderKeyId).getToken().getTokenValue();
 ```
 
-When configuring [`MockXsuaaServiceConfiguration`](src/main/java/com/sap/cloud/security/xsuaa/mock/MockXsuaaServiceConfiguration.java) instead of [`XsuaaServiceConfigurationDefault`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfigurationDefault.java) the `getTokenKeyUrl()` considers the `subdomain` from the token. Then your Mock Web Server can provide different token keys for different domains e.g. `testdomain`.
+Then your Mock Web Server can provide different token keys for different domains e.g. `testdomain`.

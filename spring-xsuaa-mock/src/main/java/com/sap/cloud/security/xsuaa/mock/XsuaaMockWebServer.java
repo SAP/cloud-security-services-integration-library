@@ -75,8 +75,8 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 			this.started = true;
 			logger.warn(
 					">>>>>>>>>>>Started Xsuaa mock Server that provides public keys for offline JWT Token validation. NEVER run in productive environment!<<<<<<");
-		} catch (IOException e) {
-			throw new RuntimeException("Could not start XSUAA mock webserver" + mockWebServer, e);
+		} catch (IllegalStateException | IOException e) {
+			throw new RuntimeException("Could not start XSUAA mock webserver (localhost:33195). Make sure that it is not yet started in another process.", e);
 		}
 	}
 }
