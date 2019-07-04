@@ -2,15 +2,12 @@ package com.sap.cloud.security.xsuaa.extractor;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sap.cloud.security.xsuaa.token.Token;
-import com.sap.cloud.security.xsuaa.token.TokenClaims;
+import com.sap.cloud.security.xsuaa.token.TokenImpl;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 public class LocalAuthoritiesExtractor implements AuthoritiesExtractor {
 
@@ -21,7 +18,7 @@ public class LocalAuthoritiesExtractor implements AuthoritiesExtractor {
 	}
 
 	@Override
-	public Collection<GrantedAuthority> getAuthorities(Jwt jwt) {
+	public Collection<GrantedAuthority> getAuthorities(TokenImpl jwt) {
 		Collection<String> scopeAuthorities = getScopes(jwt);
 
 		Stream<String> authorities = Stream.of(scopeAuthorities).flatMap(Collection::stream);
@@ -29,8 +26,8 @@ public class LocalAuthoritiesExtractor implements AuthoritiesExtractor {
 		return authorities.map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 	}
 
-	protected Collection<String> getScopes(Jwt jwt) {
-		List<String> scopes = jwt.getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
+	protected Collection<String> getScopes(TokenImpl jwt) {
+		Collection<String> scopes = jwt.getScopes();
 		if (scopes == null) {
 			return Collections.emptyList();
 		}

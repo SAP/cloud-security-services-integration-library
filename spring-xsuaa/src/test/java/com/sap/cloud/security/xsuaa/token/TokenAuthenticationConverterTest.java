@@ -110,9 +110,9 @@ public class TokenAuthenticationConverterTest {
 		}
 
 		@Override
-		public Collection<GrantedAuthority> getAuthorities(Jwt jwt) {
-			Collection<GrantedAuthority> authorities = authoritiesExtractor.getAuthorities(jwt);
-			authorities.addAll(getCustomAuthorities(new TokenImpl(jwt)));
+		public Collection<GrantedAuthority> getAuthorities(TokenImpl token) {
+			Collection<GrantedAuthority> authorities = authoritiesExtractor.getAuthorities(token);
+			authorities.addAll(getCustomAuthorities(token));
 			return authorities;
 		}
 

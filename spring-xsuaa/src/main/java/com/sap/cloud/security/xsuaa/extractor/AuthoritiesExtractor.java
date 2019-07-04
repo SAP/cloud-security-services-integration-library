@@ -2,9 +2,8 @@ package com.sap.cloud.security.xsuaa.extractor;
 
 import java.util.Collection;
 
-import com.sap.cloud.security.xsuaa.token.Token;
+import com.sap.cloud.security.xsuaa.token.TokenImpl;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 public interface AuthoritiesExtractor {
 	/**
@@ -18,5 +17,5 @@ public interface AuthoritiesExtractor {
 	 *            the Jwt to extract the authorities from.
 	 * @return the collection of granted authorities.
 	 */
-	Collection<GrantedAuthority> getAuthorities(Jwt jwt);
+	Collection<GrantedAuthority> getAuthorities(TokenImpl jwt);
 }
