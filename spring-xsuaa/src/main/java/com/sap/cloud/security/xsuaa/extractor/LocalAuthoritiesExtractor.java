@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sap.cloud.security.xsuaa.token.TokenImpl;
+import com.sap.cloud.security.xsuaa.token.XsuaaToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -18,7 +18,7 @@ public class LocalAuthoritiesExtractor implements AuthoritiesExtractor {
 	}
 
 	@Override
-	public Collection<GrantedAuthority> getAuthorities(TokenImpl jwt) {
+	public Collection<GrantedAuthority> getAuthorities(XsuaaToken jwt) {
 		Collection<String> scopeAuthorities = getScopes(jwt);
 
 		Stream<String> authorities = Stream.of(scopeAuthorities).flatMap(Collection::stream);
@@ -26,7 +26,7 @@ public class LocalAuthoritiesExtractor implements AuthoritiesExtractor {
 		return authorities.map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 	}
 
-	protected Collection<String> getScopes(TokenImpl jwt) {
+	protected Collection<String> getScopes(XsuaaToken jwt) {
 		Collection<String> scopes = jwt.getScopes();
 		if (scopes == null) {
 			return Collections.emptyList();

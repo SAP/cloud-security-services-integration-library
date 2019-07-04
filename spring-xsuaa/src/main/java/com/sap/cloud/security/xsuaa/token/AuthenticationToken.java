@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
  * standard Principal for Spring Security Jwt handling.
  *
  * @see TokenAuthenticationConverter
- * @see TokenImpl
+ * @see XsuaaToken
  */
 public class AuthenticationToken extends JwtAuthenticationToken {
 
@@ -23,7 +23,7 @@ public class AuthenticationToken extends JwtAuthenticationToken {
 	public Object getPrincipal() {
 		// Here is where the actual magic happens.
 		// The Jwt is exchanged for another implementation.
-		TokenImpl token = new TokenImpl(getToken());
+		XsuaaToken token = new XsuaaToken(getToken());
 		token.setAuthorities(this.getAuthorities());
 		return token;
 	}

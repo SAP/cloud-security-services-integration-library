@@ -110,7 +110,7 @@ public class TokenAuthenticationConverterTest {
 		}
 
 		@Override
-		public Collection<GrantedAuthority> getAuthorities(TokenImpl token) {
+		public Collection<GrantedAuthority> getAuthorities(XsuaaToken token) {
 			Collection<GrantedAuthority> authorities = authoritiesExtractor.getAuthorities(token);
 			authorities.addAll(getCustomAuthorities(token));
 			return authorities;
