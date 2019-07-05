@@ -25,90 +25,90 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = { XsuaaAutoConfiguration.class, XsuaaMockAutoConfiguration.class })
 public class XsuaaMockAutoConfigurationTest {
 
-    // create an ApplicationContextRunner that will create a context with the
-    // configuration under test.
-    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withPropertyValues("mockxsuaaserver.url:http://localhost:12345")
-            .withConfiguration(AutoConfigurations.of(XsuaaAutoConfiguration.class, XsuaaMockAutoConfiguration.class));
+	// create an ApplicationContextRunner that will create a context with the
+	// configuration under test.
+	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+			.withPropertyValues("mockxsuaaserver.url:http://localhost:12345")
+			.withConfiguration(AutoConfigurations.of(XsuaaAutoConfiguration.class, XsuaaMockAutoConfiguration.class));
 
-    @Autowired
-    private ApplicationContext context;
+	@Autowired
+	private ApplicationContext context;
 
-    @Test
-    public final void autoConfigurationActive() {
-        contextRunner.run((context) -> {
-            assertThat(context.containsBean("xsuaaMockServiceConfiguration"), is(true));
-            assertThat(context.getBean("xsuaaMockServiceConfiguration"),
-                    instanceOf(MockXsuaaServiceConfiguration.class));
-            assertThat(context.getBean("xsuaaServiceConfiguration"),
-                    instanceOf(XsuaaServiceConfigurationDefault.class));
-            assertThat(context.getBean(XsuaaServiceConfiguration.class),
-                    instanceOf(MockXsuaaServiceConfiguration.class));
-        });
-    }
+	@Test
+	public final void autoConfigurationActive() {
+		contextRunner.run((context) -> {
+			assertThat(context.containsBean("xsuaaMockServiceConfiguration"), is(true));
+			assertThat(context.getBean("xsuaaMockServiceConfiguration"),
+					instanceOf(MockXsuaaServiceConfiguration.class));
+			assertThat(context.getBean("xsuaaServiceConfiguration"),
+					instanceOf(XsuaaServiceConfigurationDefault.class));
+			assertThat(context.getBean(XsuaaServiceConfiguration.class),
+					instanceOf(MockXsuaaServiceConfiguration.class));
+		});
+	}
 
-    @Test
-    public final void autoConfigurationActiveInclProperties() {
-        contextRunner
-                .withPropertyValues("spring.xsuaa.mock.auto:true").run((context) -> {
-            assertThat(context.containsBean("xsuaaMockServiceConfiguration"), is(true));
-            assertThat(context.getBean(XsuaaServiceConfiguration.class),
-                    instanceOf(MockXsuaaServiceConfiguration.class));
-        });
-    }
+	@Test
+	public final void autoConfigurationActiveInclProperties() {
+		contextRunner
+				.withPropertyValues("spring.xsuaa.mock.auto:true").run((context) -> {
+					assertThat(context.containsBean("xsuaaMockServiceConfiguration"), is(true));
+					assertThat(context.getBean(XsuaaServiceConfiguration.class),
+							instanceOf(MockXsuaaServiceConfiguration.class));
+				});
+	}
 
-    @Test
-    public void autoConfigurationDisabledByProperty() {
-        contextRunner.withPropertyValues("spring.xsuaa.mock.auto:false").run((context) -> {
-            assertThat(context.containsBean("xsuaaMockServiceConfiguration"), is(false));
-            assertThat(context.getBean(XsuaaServiceConfiguration.class),
-                    instanceOf(XsuaaServiceConfigurationDefault.class));
-        });
-    }
+	@Test
+	public void autoConfigurationDisabledByProperty() {
+		contextRunner.withPropertyValues("spring.xsuaa.mock.auto:false").run((context) -> {
+			assertThat(context.containsBean("xsuaaMockServiceConfiguration"), is(false));
+			assertThat(context.getBean(XsuaaServiceConfiguration.class),
+					instanceOf(XsuaaServiceConfigurationDefault.class));
+		});
+	}
 
-    @Test
-    public void autoConfigurationDisabledWhenNoMockWebServerRunning() {
-        ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-                .withConfiguration(
-                        AutoConfigurations.of(XsuaaAutoConfiguration.class, XsuaaMockAutoConfiguration.class));
+	@Test
+	public void autoConfigurationDisabledWhenNoMockWebServerRunning() {
+		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+				.withConfiguration(
+						AutoConfigurations.of(XsuaaAutoConfiguration.class, XsuaaMockAutoConfiguration.class));
 
-        contextRunner.withPropertyValues("spring.xsuaa.mock.auto:false").run((context) -> {
-            assertThat(context.containsBean("xsuaaMockServiceConfiguration"), is(false));
-            assertThat(context.getBean(XsuaaServiceConfiguration.class),
-                    instanceOf(XsuaaServiceConfigurationDefault.class));
-        });
-    }
+		contextRunner.withPropertyValues("spring.xsuaa.mock.auto:false").run((context) -> {
+			assertThat(context.containsBean("xsuaaMockServiceConfiguration"), is(false));
+			assertThat(context.getBean(XsuaaServiceConfiguration.class),
+					instanceOf(XsuaaServiceConfigurationDefault.class));
+		});
+	}
 
-    @Test
-    public final void autoConfigurationWithoutJwtOnClasspathInactive() {
-        contextRunner.withClassLoader(new FilteredClassLoader(Jwt.class)) // removes Jwt.class from classpath
-                .run((context) -> {
-                    assertThat(context.containsBean("xsuaaServiceConfiguration"), is(false));
-                });
-    }
+	@Test
+	public final void autoConfigurationWithoutJwtOnClasspathInactive() {
+		contextRunner.withClassLoader(new FilteredClassLoader(Jwt.class)) // removes Jwt.class from classpath
+				.run((context) -> {
+					assertThat(context.containsBean("xsuaaServiceConfiguration"), is(false));
+				});
+	}
 
-    @Test
-    public final void userConfigurationCanOverrideDefaultBeans() {
-        contextRunner.withUserConfiguration(UserConfiguration.class)
-                .run((context) -> {
-                    assertThat(context.containsBean("xsuaaMockServiceConfiguration"), is(false));
-                    assertThat(context.containsBean("customServiceConfiguration"), is(true));
-                    assertThat(context.getBean(XsuaaServiceConfiguration.class),
-                            instanceOf(CustomXsuaaConfiguration.class));
-                });
-    }
+	@Test
+	public final void userConfigurationCanOverrideDefaultBeans() {
+		contextRunner.withUserConfiguration(UserConfiguration.class)
+				.run((context) -> {
+					assertThat(context.containsBean("xsuaaMockServiceConfiguration"), is(false));
+					assertThat(context.containsBean("customServiceConfiguration"), is(true));
+					assertThat(context.getBean(XsuaaServiceConfiguration.class),
+							instanceOf(CustomXsuaaConfiguration.class));
+				});
+	}
 
-    @Configuration
-    public static class UserConfiguration {
+	@Configuration
+	public static class UserConfiguration {
 
-        @Bean
-        public MockXsuaaServiceConfiguration customServiceConfiguration() {
-            return new CustomXsuaaConfiguration();
-        }
-    }
+		@Bean
+		public MockXsuaaServiceConfiguration customServiceConfiguration() {
+			return new CustomXsuaaConfiguration();
+		}
+	}
 
-    static class CustomXsuaaConfiguration extends MockXsuaaServiceConfiguration {
+	static class CustomXsuaaConfiguration extends MockXsuaaServiceConfiguration {
 
-    }
+	}
 
 }
