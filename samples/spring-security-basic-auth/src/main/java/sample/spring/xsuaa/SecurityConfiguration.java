@@ -15,6 +15,7 @@
  */
 package sample.spring.xsuaa;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -27,7 +28,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
 import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
@@ -37,7 +37,7 @@ import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	XsuaaServiceConfigurationDefault xsuaaServiceConfiguration;
+	XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
 	@Autowired
 	CacheManager cacheManager;
