@@ -32,7 +32,7 @@ public class XsuaaJwtDecoderBuilder {
 	public JwtDecoder build() {
 		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize, tokenValidators);
 	}
-	
+
 	/**
 	 * Assembles a ReactiveJwtDecoder
 	 *
@@ -74,7 +74,8 @@ public class XsuaaJwtDecoderBuilder {
 	 *
 	 * @return this
 	 */
-	//var arg it is only being assigned to a OAuth2TokenValidator<Jwt>[], therefore its type safe.
+	// var arg it is only being assigned to a OAuth2TokenValidator<Jwt>[], therefore
+	// its type safe.
 	@SuppressWarnings("unchecked")
 	public XsuaaJwtDecoderBuilder withTokenValidators(OAuth2TokenValidator<Jwt>... tokenValidators) {
 		this.tokenValidators = tokenValidators;

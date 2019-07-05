@@ -120,7 +120,8 @@ public class JwtGeneratorTest {
 	@Test
 	public void testTokenWithDerivedAudienceClaim() {
 
-		Jwt jwt = jwtGenerator.addScopes("openid", "app1.scope", "app2.sub.scope", "app2.scope", ".scopeWithoutAppId").deriveAudiences(true)
+		Jwt jwt = jwtGenerator.addScopes("openid", "app1.scope", "app2.sub.scope", "app2.scope", ".scopeWithoutAppId")
+				.deriveAudiences(true)
 				.getToken();
 
 		assertThat(jwt.getAudience().size(), equalTo(2));
