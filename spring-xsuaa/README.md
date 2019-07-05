@@ -56,7 +56,7 @@ Configure the OAuth resource server
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     
     @Autowired
-    XsuaaServiceConfigurationDefault xsuaaServiceConfiguration;
+    XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
