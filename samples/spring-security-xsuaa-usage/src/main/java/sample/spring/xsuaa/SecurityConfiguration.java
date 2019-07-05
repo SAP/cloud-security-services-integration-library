@@ -15,29 +15,27 @@
  */
 package sample.spring.xsuaa;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
-import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
-@EnableWebSecurity
-@PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "" })
+@Configuration
+@EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	XsuaaServiceConfigurationDefault xsuaaServiceConfiguration;
+	XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -47,7 +45,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // session is created by approuter
 			.and()
 				.authorizeRequests()
-				.antMatchers("/hello-token").hasAuthority("openid")
+				.antMatchers("/v1/sayHello").hasAuthority("Read")
+				.antMatchers("/v2/*").hasAuthority("Read")
 				.anyRequest().authenticated()
 			.and()
 				.oauth2ResourceServer()
@@ -61,17 +60,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	 */
 	Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
 		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
-//		converter.setLocalScopeAsAuthorities(true);
+		converter.setLocalScopeAsAuthorities(true);
 		return converter;
 	}
 
-	@Bean
-	JwtDecoder jwtDecoder() {
-		return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration).build();
-	}
-
-	@Bean
-	XsuaaServiceConfigurationDefault config() {
-		return new XsuaaServiceConfigurationDefault();
-	}
 }

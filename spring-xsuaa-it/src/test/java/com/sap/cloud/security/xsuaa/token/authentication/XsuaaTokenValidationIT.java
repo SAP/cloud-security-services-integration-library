@@ -5,8 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.net.URL;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,11 +60,8 @@ public class XsuaaTokenValidationIT {
 
 	@Test
 	public void test_requesttoken() throws Exception {
-		String fqHost = new URL(mockServerUrl).getHost();
-		String hostname = fqHost.substring(0, fqHost.indexOf("."));
-
 		this.mvc.perform(
-				get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt", hostname, "legacy-token-key"))))
+				get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa", "legacy-token-key"))))
 				.andExpect(status().isOk()).andExpect(content().string("cc_token"));
 	}
 

@@ -1,6 +1,7 @@
 package com.sap.cloud.security.xsuaa.token;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -28,7 +29,7 @@ import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 
-public class TokenImplTest {
+public class XsuaaTokenTest {
 
 	private Token token;
 	private Jwt jwtSaml;
@@ -47,10 +48,10 @@ public class TokenImplTest {
 		claimsSetBuilder = new JWTClaimsSet.Builder()
 				.issueTime(new Date())
 				.expirationTime(JwtGenerator.NO_EXPIRE_DATE)
-				.claim(TokenImpl.CLAIM_USER_NAME, userName).claim(TokenImpl.CLAIM_EMAIL, userName + "@test.org")
-				.claim(TokenImpl.CLAIM_ZONE_ID, zoneId).claim(TokenImpl.CLAIM_CLIENT_ID, "sb-java-hello-world")
-				.claim(TokenImpl.CLAIM_ORIGIN, "userIdp")
-				.claim(TokenImpl.CLAIM_GRANT_TYPE, TokenImpl.GRANTTYPE_SAML2BEARER);
+				.claim(TokenClaims.CLAIM_USER_NAME, userName).claim(TokenClaims.CLAIM_EMAIL, userName + "@test.org")
+				.claim(TokenClaims.CLAIM_ZONE_ID, zoneId).claim(TokenClaims.CLAIM_CLIENT_ID, "sb-java-hello-world")
+				.claim(TokenClaims.CLAIM_ORIGIN, "userIdp")
+				.claim(TokenClaims.CLAIM_GRANT_TYPE, XsuaaToken.GRANTTYPE_SAML2BEARER);
 
 		jwtSaml = new JwtGenerator().createFromTemplate("/saml.txt");
 		jwtCC = JwtGenerator.createFromFile("/token_cc.txt");
@@ -63,7 +64,7 @@ public class TokenImplTest {
 
 		assertThat(token.getPassword(), nullValue());
 		assertThat(token.getClientId(), is("sb-java-hello-world"));
-		assertThat(token.getGrantType(), is(TokenImpl.GRANTTYPE_SAML2BEARER));
+		assertThat(token.getGrantType(), is(XsuaaToken.GRANTTYPE_SAML2BEARER));
 		assertThat(token.getOrigin(), is("userIdp"));
 		assertThat(token.getLogonName(), is(userName));
 		assertThat(token.getFamilyName(), nullValue());
@@ -106,7 +107,7 @@ public class TokenImplTest {
 		authorities.add(new SimpleGrantedAuthority(scopeRead));
 		authorities.add(new SimpleGrantedAuthority(scopeOther));
 
-		TokenImpl token = new TokenImpl(jwtSaml, xsAppName);
+		XsuaaToken token = new XsuaaToken(jwtSaml);
 		token.setAuthorities(authorities);
 
 		Collection<GrantedAuthority> actAuthorities = (Collection<GrantedAuthority>) token.getAuthorities();
@@ -133,7 +134,7 @@ public class TokenImplTest {
 
 	@Test
 	public void getZoneIdAsTenantGuid() {
-		claimsSetBuilder.claim(TokenImpl.CLAIM_ZONE_ID, zoneId);
+		claimsSetBuilder.claim(TokenClaims.CLAIM_ZONE_ID, zoneId);
 
 		token = createToken(claimsSetBuilder);
 
@@ -142,7 +143,7 @@ public class TokenImplTest {
 
 	@Test
 	public void getAuthoritiesNoScopeClaimReturnsEmptyList() {
-		claimsSetBuilder.claim(Token.CLAIM_SCOPES, new ArrayList<>());
+		claimsSetBuilder.claim(TokenClaims.CLAIM_SCOPES, new ArrayList<>());
 
 		token = createToken(claimsSetBuilder);
 
@@ -170,46 +171,46 @@ public class TokenImplTest {
 		assertThat(token.toString(), is(token.getUsername()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void getUserNameReturnsErrorWhenOriginContainsDelimeter() {
-		claimsSetBuilder.claim(TokenImpl.CLAIM_ORIGIN, "my/Idp");
+		claimsSetBuilder.claim(TokenClaims.CLAIM_ORIGIN, "my/Idp");
 		token = createToken(claimsSetBuilder);
-		token.getUsername();
+		assertNull(token.getUsername());
 	}
 
 	@Test
 	public void getUniquePrincipalNameForOriginAndName() {
-		String uniqueUserName = TokenImpl.getUniquePrincipalName("origin", "name");
+		String uniqueUserName = XsuaaToken.getUniquePrincipalName("origin", "name");
 		assertThat(uniqueUserName, is("user/origin/name"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void getUniquePrincipalNameRaisesErrorWhenOriginIsNull() {
-		TokenImpl.getUniquePrincipalName(null, "name");
+		assertNull(XsuaaToken.getUniquePrincipalName(null, "name"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void getUniquePrincipalNameRaisesErrorWhenLogonNameIsNull() {
-		TokenImpl.getUniquePrincipalName("origin", null);
+		assertNull(XsuaaToken.getUniquePrincipalName("origin", null));
 	}
 
 	@Test
 	public void getPrincipalNameReturnUniqueLogonNameWithOrigin() {
-		Token token = new TokenImpl(jwtSaml, xsAppName);
+		Token token = new XsuaaToken(jwtSaml);
 		UserDetails principal = token;
 		Assert.assertEquals("user/useridp/Mustermann", principal.getUsername());
 	}
 
 	@Test
 	public void getPrincipalNameReturnUniqueClientId() {
-		Token token = new TokenImpl(jwtCC, xsAppName);
+		Token token = new XsuaaToken(jwtCC);
 		Assert.assertEquals("sb-java-hello-world", token.getClientId());
 		Assert.assertEquals("client/sb-java-hello-world", token.getUsername());
 	}
 
 	@Test
 	public void getXsUserAttributeValues() {
-		Token token = new TokenImpl(jwtSaml, xsAppName);
+		Token token = new XsuaaToken(jwtSaml);
 		String[] userAttrValues = token.getXSUserAttribute("cost-center");
 		assertThat(userAttrValues.length, is(2));
 		assertThat(userAttrValues[0], is("0815"));
@@ -218,7 +219,7 @@ public class TokenImplTest {
 
 	@Test
 	public void getServiceInstanceIdFromExtAttr() {
-		claimsSetBuilder.claim(TokenImpl.CLAIM_EXTERNAL_ATTR, new SamlExternalAttrClaim());
+		claimsSetBuilder.claim(XsuaaToken.CLAIM_EXTERNAL_ATTR, new SamlExternalAttrClaim());
 
 		token = createToken(claimsSetBuilder);
 		assertThat(token.getCloneServiceInstanceId(), is("abcd1234"));
@@ -226,7 +227,7 @@ public class TokenImplTest {
 
 	@Test
 	public void getSubdomainFromExtAttr() {
-		claimsSetBuilder.claim(TokenImpl.CLAIM_EXTERNAL_ATTR, new SamlExternalAttrClaim());
+		claimsSetBuilder.claim(XsuaaToken.CLAIM_EXTERNAL_ATTR, new SamlExternalAttrClaim());
 
 		token = createToken(claimsSetBuilder);
 		assertThat(token.getSubdomain(), is("testsubdomain"));
@@ -234,7 +235,7 @@ public class TokenImplTest {
 
 	@Test
 	public void getSomeAdditionalAttributeValueFromAuthorizationAttr() {
-		claimsSetBuilder.claim(TokenImpl.CLAIM_ADDITIONAL_AZ_ATTR, new AdditionalAuthorizationAttrClaim());
+		claimsSetBuilder.claim(XsuaaToken.CLAIM_ADDITIONAL_AZ_ATTR, new AdditionalAuthorizationAttrClaim());
 
 		token = createToken(claimsSetBuilder);
 		assertThat(token.getAdditionalAuthAttribute("external_group"), is("domain\\group1"));
@@ -276,7 +277,7 @@ public class TokenImplTest {
 
 	private Token createToken(JWTClaimsSet.Builder claimsBuilder) {
 		Jwt jwt = JwtGenerator.createFromClaims(claimsBuilder.build());
-		return new TokenImpl(jwt, xsAppName);
+		return new XsuaaToken(jwt);
 	}
 
 	private static class SamlExternalAttrClaim {

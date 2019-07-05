@@ -20,7 +20,6 @@ Configure the OAuth resource server by:
 ```java
 @EnableWebSecurity
 @EnableCaching
-@PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "" })
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
    @Autowired
@@ -52,15 +51,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return converter;
    }
 
-   @Bean
-   JwtDecoder jwtDecoder() {
-        return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration).build();
-   }
-
-   @Bean
-   XsuaaServiceConfigurationDefault xsuaaConfig() {
-        return new XsuaaServiceConfigurationDefault();
-   }
 }
 ```
 
@@ -83,6 +73,7 @@ In the Java coding, use the `Token` to extract user information:
       return result;
    }
 ```
+
 # Deployment on Cloud Foundry or SAP HANA Advanced
 To deploy the application, the following steps are required:
 - Compile the Java application
@@ -94,13 +85,15 @@ To deploy the application, the following steps are required:
 ## Compile the Java application
 Run maven to package the application
 ```shell
-spring-security-basic-auth$ mvn package
+mvn clean package
 ```
+
 ## Create the xsuaa service instance
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
 ```shell
-spring-security-xsuaa-usage$ cf create-service xsuaa application xsuaa-authentication -c xs-security.json
+cf create-service xsuaa application xsuaa-basic -c xs-security.json
 ```
+
 ## Configuration the manifest
 The [vars](../vars.yml) contains hosts and paths that need to be adopted.
 
@@ -108,7 +101,7 @@ The [vars](../vars.yml) contains hosts and paths that need to be adopted.
 Deploy the application using cf push. It will expect 1 GB of free memory quota.
 
 ```shell
-spring-security-basic-auth$ cf push --vars-file ../vars.yml
+cf push --vars-file ../vars.yml
 ```
 
 ## Access the application
@@ -116,6 +109,7 @@ After deployment, the spring service can be called with basic authentication.
 ```shell
 curl -i --user "<SAP ID Service User>:<SAP ID Service Password>" https://spring-security-basic-auth-<ID>.<LANDSCAPE_APPS_DOMAIN>/hello-token
 ```
+
 You will get a response like:
 ```
 {

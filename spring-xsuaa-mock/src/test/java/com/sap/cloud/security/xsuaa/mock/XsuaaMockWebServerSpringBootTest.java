@@ -6,10 +6,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.mock.autoconfiguration.XsuaaMockAutoConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -21,17 +24,19 @@ import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("uaamock")
-@SpringBootTest(classes = { XsuaaMockWebServer.class, XsuaaRequestDispatcher.class })
+@SpringBootTest(classes = { XsuaaMockWebServer.class, XsuaaRequestDispatcher.class,
+		MockXsuaaServiceConfiguration.class })
 public class XsuaaMockWebServerSpringBootTest {
 
 	RestTemplate restTemplate = new RestTemplate();
 
-	@Value("${xsuaa.url}")
-	private String xsuaaMockServerUrl;
+	@Autowired
+	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
 	@Test
 	public void xsuaaMockStarted() throws URISyntaxException {
-		ResponseEntity<String> response = restTemplate.getForEntity(new URI(xsuaaMockServerUrl + "/token_keys"),
+		ResponseEntity<String> response = restTemplate.getForEntity(
+				new URI(xsuaaServiceConfiguration.getUaaUrl() + "/token_keys"),
 				String.class);
 		Assert.assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
 		Assert.assertThat(response.getBody(), notNullValue());
@@ -40,7 +45,7 @@ public class XsuaaMockWebServerSpringBootTest {
 	@Test
 	public void xsuaaMockReturnsTestDomainTokenKeys() throws Exception {
 		ResponseEntity<String> response = restTemplate
-				.getForEntity(new URI(xsuaaMockServerUrl + "/testdomain/token_keys"), String.class);
+				.getForEntity(new URI(xsuaaServiceConfiguration.getUaaUrl() + "/testdomain/token_keys"), String.class);
 		String testdomainTokenKeys = IOUtils.resourceToString("/mock/testdomain_token_keys.json",
 				StandardCharsets.UTF_8);
 		Assert.assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
@@ -52,13 +57,14 @@ public class XsuaaMockWebServerSpringBootTest {
 	@Test(expected = HttpClientErrorException.class)
 	public void xsuaaMockReturnsNotFound() throws URISyntaxException {
 		ResponseEntity<String> response = restTemplate
-				.getForEntity(new URI(xsuaaMockServerUrl + "/anyNotSupportedPath"), String.class);
+				.getForEntity(new URI(xsuaaServiceConfiguration.getUaaUrl() + "/anyNotSupportedPath"), String.class);
 	}
 
 	@Test
 	public void xsuaaMockReturnsCustomResponse() throws URISyntaxException {
 		ResponseEntity<String> response = restTemplate
-				.getForEntity(new URI(xsuaaMockServerUrl + "/customdomain/token_keys"), String.class);
+				.getForEntity(new URI(xsuaaServiceConfiguration.getUaaUrl() + "/customdomain/token_keys"),
+						String.class);
 		Assert.assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
 		Assert.assertThat(response.getBody(), containsString("legacy-token-key-customdomain"));
 	}

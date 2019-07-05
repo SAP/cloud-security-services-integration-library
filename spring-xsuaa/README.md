@@ -23,9 +23,28 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>1.2.0</version>
+    <version>1.5.0</version>
+</dependency>
+<dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-autoconfigure</artifactId> <!--
+</dependency>
+<dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-to-slf4j</artifactId>
+    <version>2.11.2</version>
 </dependency>
 ```
+
+### Auto-configuration
+The Xsuaa integration libraries auto-configures beans, that are required to initialize the Spring Boot application as OAuth resource server.
+
+Auto-configuration class | Description
+---- | --------
+XsuaaAutoConfiguration | Adds `xsuaa.*` properties to Spring's Environment. The properties are by default parsed from `VCAP_SERVICES` system environment variables and can be overwritten by properties such as `xsuaa.xsappname` e.g. for testing purposes. Furthermore it exposes a `XsuaaServiceConfiguration` bean that can be used to access xsuaa service information.  Alternatively you can access them with `@Value` annotation e.g. `@Value("${xsuaa.xsappname:}") String appId`.
+XsuaaResourceServerJwkAutoConfiguration | Configures a `JwtDecoder` bean with a JWK (JSON Web Keys) endpoint from where to download the tenant (subdomain) specific public key.
+
+You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 
 
 ### Setup Security Context for HTTP requests
@@ -34,11 +53,10 @@ Configure the OAuth resource server
 ```java
 @Configuration
 @EnableWebSecurity
-@PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = {""})
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     
     @Autowired
-    XsuaaServiceConfigurationDefault xsuaaServiceConfiguration;
+    XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -63,49 +81,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return converter;
     }
 
-    @Bean
-    JwtDecoder jwtDecoder() {
-        return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration).build();
-    }
-
-    @Bean
-    XsuaaServiceConfigurationDefault xsuaaConfig() {
-        return new XsuaaServiceConfigurationDefault();
-    }
 }
 ```
 
-> Note: with `XsuaaServicePropertySourceFactory` the VCAP_SERVICES properties are read from the system environment variable and mapped to properties such as `xsuaa.xsappname`.
-> You can access them via Spring `@Value` annotation e.g. `@Value("${xsuaa.xsappname:}") String appId`.
-> For testing purposes you can overwrite them, for example, as part of a *.properties file.
 
 ### Setup Security Context for non-HTTP requests
-In case of non-HTTP requests, you may need to initialize the Spring `SecurityContext` with a JWT token you've received from a message / event or you've requested from XSUAA directly.
+In case of non-HTTP requests, you may need to initialize the Spring `SecurityContext` with a JWT token you've received from a message / event or you've requested from XSUAA directly:
 
-Configure the `JwtDecoder` bean using the `XsuaaJwtDecoderBuilder` class
-
-```
-@Configuration
-@PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = {""})
-public class SecurityConfiguration {
-
-    @Autowired
-    XsuaaServiceConfigurationDefault xsuaaServiceConfiguration;
-
-    @Bean
-    JwtDecoder jwtDecoder() {
-        return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration).build();
-    }
-
-    @Bean
-    XsuaaServiceConfigurationDefault xsuaaConfig() {
-        return new XsuaaServiceConfigurationDefault();
-    }
-}
-```
-
-Then, initialize the `SecurityContext`
-```
+```java
 @Autowired
 JwtDecoder jwtDecoder;
 

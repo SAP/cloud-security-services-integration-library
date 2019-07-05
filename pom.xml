@@ -5,7 +5,7 @@
 
 	<groupId>com.sap.cloud.security.xsuaa</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.4.0</version>
+	<version>1.5.0</version>
 	<packaging>pom</packaging>
 
 	<name>parent</name>
@@ -52,6 +52,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<spring.core.version>5.1.1.RELEASE</spring.core.version>
+		<spring.boot.version>2.1.5.RELEASE</spring.boot.version>
 		<junit.version>4.12</junit.version>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -104,7 +105,7 @@
 								<execution>
 									<phase>process-sources</phase>
 									<goals>
-										<goal>format</goal>
+										<goal>format</goal> <!-- run with mvn formatter:format -->
 									</goals>
 								</execution>
 							</executions>

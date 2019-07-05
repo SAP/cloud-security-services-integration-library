@@ -1,45 +1,68 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import com.sap.cloud.security.xsuaa.extractor.AuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.extractor.DefaultAuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.springframework.util.Assert;
 
 /**
- * Converter for xsuaa jwt token that stores authorization data like scopes
- * inside the token.
+ * An authentication converter that removes the ugly application id prefix (e.g.
+ * my-application-demo!t1229) from the scopes in the JWT.
+ *
  */
 public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-	protected String appId;
-	protected boolean provideLocalScopesOnly;
+	private AuthoritiesExtractor authoritiesExtractor;
+	private String appId;
 
+	/**
+	 * Creates a new converter with the given {@link AuthoritiesExtractor}.
+	 * 
+	 * @param authoritiesExtractor
+	 *            - the extractor used to turn Jwt scopes into Spring Security
+	 *            authorities.
+	 */
+	public TokenAuthenticationConverter(AuthoritiesExtractor authoritiesExtractor) {
+		this.authoritiesExtractor = authoritiesExtractor;
+	}
+
+	/**
+	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor}
+	 * instance as default authorities extractor.
+	 * 
+	 * @param appId
+	 *            e.g. myXsAppname!t123
+	 */
 	public TokenAuthenticationConverter(String appId) {
+		authoritiesExtractor = new DefaultAuthoritiesExtractor();
 		this.appId = appId;
 	}
 
+	/**
+	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor}
+	 * instance as default authorities extractor.
+	 *
+	 * @param xsuaaServiceConfiguration
+	 *            the xsuaa configuration
+	 */
 	public TokenAuthenticationConverter(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-		this.appId = xsuaaServiceConfiguration.getAppId();
-		this.provideLocalScopesOnly = false;
+		this(xsuaaServiceConfiguration.getAppId());
 	}
 
 	@Override
 	public AbstractAuthenticationToken convert(Jwt jwt) {
-		return new AuthenticationToken(appId, jwt, extractAuthorities(jwt));
+		return new AuthenticationToken(jwt, authoritiesExtractor.getAuthorities(new XsuaaToken(jwt)));
 	}
 
 	/**
 	 * This method allows to overwrite the default behavior of the
-	 * {@link Token#getAuthorities()} implementation.
+	 * {@link Token#getAuthorities()} implementation. Creates a new converter with a
+	 * new {@link LocalAuthoritiesExtractor}
 	 *
 	 * @param extractLocalScopesOnly
 	 *            true when {@link Token#getAuthorities()} should only extract local
@@ -48,34 +71,9 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 	 *            e.g. "Display".
 	 */
 	public void setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {
-		this.provideLocalScopesOnly = extractLocalScopesOnly;
+		Assert.state(appId != null,
+				"For local Scope extraction 'appId' must be provided to `TokenAuthenticationConverter`");
+		authoritiesExtractor = new LocalAuthoritiesExtractor(appId);
 	}
 
-	protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-		Collection<String> scopeAuthorities = getScopes(jwt);
-		Collection<String> customAuthorities = getCustomAuthorities(new TokenImpl(jwt, appId));
-
-		Stream<String> authorities = Stream.of(scopeAuthorities, customAuthorities).flatMap(Collection::stream);
-		return authorities.map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-	}
-
-	protected Collection<String> getCustomAuthorities(Token token) {
-		return Collections.emptyList();
-	}
-
-	protected Collection<String> getScopes(Jwt jwt) {
-		List<String> scopesList = jwt.getClaimAsStringList(Token.CLAIM_SCOPES);
-		if (scopesList == null) {
-			return Collections.emptyList();
-		}
-		if (provideLocalScopesOnly == true) {
-			return scopesList.stream()
-					.filter(scope -> scope.startsWith(appId + "."))
-					.map(scope -> scope.replaceFirst(appId + ".", ""))
-					.collect(Collectors.toList());
-		} else {
-			return scopesList.stream().collect(Collectors.toList());
-		}
-
-	}
 }

@@ -1,11 +1,22 @@
 # Change Log 
 
 All notable changes to this project will be documented in this file.
+
+## 1.5.0
+* Supports `jku` URI which is provided as part of the JSON Web Signature (JWS). The `jku` of the Jwt token header references the public key URI of the Xsuaa OAuth Authorization Server, and needs to match to the `xsuaa.uaadomain`.
+* Completely customizable auto-configurations so that apps can override the spring-xsuaa defaults:
+  * auto-configuration for Xsuaa OAuth Authorization Server is documented [here](spring-xsuaa#auto-configuration).
+  * auto-configuration for Xsuaa Mock Server configuration can be found [here](spring-xsuaa-mock/src/main/java/com/sap/cloud/security/xsuaa/mock/autoconfiguration/XsuaaMockAutoConfiguration.java).
+* Uses apache slf4j Logger for better log analysis on Cloud Foundry. This is provided with org.springframework.boot:spring-boot-starter-logging.
+* Improves and enhances [sample application](samples/spring-security-xsuaa-usage).
+* Renames class `TokenImpl` to `XsuaaToken`. Furthermore for convenience `XsuaaToken` subclasses `org.springframework.security.oauth2.jwt.Jwt`.
+* Subclassing of `TokenAuthenticationConverter` is no longer allowed, instead `TokenAuthenticationConverter` can be configured with your own `AuthoritiesExtractor` implementation (an example can be found [here](spring-xsuaa/src/test/java/com/sap/cloud/security/xsuaa/token/TokenAuthenticationConverterTest.java#L103)).
+
 ## 1.4.0
-* API method to query [token validity](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/Token.java#L167)
+* API method to query [token validity](spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/Token.java#L167)
 * Bugfix in basic authentication support: allow  usage of JWT token or basic authentication with one configuration
 * Allows overwrite / enhancement of XSUAA jwt token validators
-* Allow applications to initialize of Spring SecurityContext for non HTTP requests. As documented [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/spring-xsuaa/README.md)
+* Allow applications to initialize of Spring SecurityContext for non HTTP requests. As documented [here](spring-xsuaa/README.md)
 
 ## 1.3.1
 * Broker plan validation failed due to incorrect audience validation

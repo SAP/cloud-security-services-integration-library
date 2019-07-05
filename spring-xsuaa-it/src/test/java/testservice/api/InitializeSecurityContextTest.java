@@ -25,10 +25,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
+import com.sap.cloud.security.xsuaa.mock.XsuaaRequestDispatcher;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.xs2.security.container.SecurityContext;
@@ -37,7 +41,9 @@ import testservice.api.nohttp.MyEventHandler;
 import testservice.api.nohttp.SecurityConfiguration;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class })
+@SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
+		XsuaaAutoConfiguration.class,
+		XsuaaResourceServerJwkAutoConfiguration.class })
 @ActiveProfiles({ "test.api.nohttp", "uaamock" })
 public class InitializeSecurityContextTest {
 	@Value("${xsuaa.clientid}")
@@ -87,6 +93,26 @@ public class InitializeSecurityContextTest {
 		SecurityContext.clear();
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication(), is(nullValue()));
+	}
+
+	@Test
+	public void cacheHit() {
+		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
+				.setJwtHeaderKeyId("legacy-token-key").getToken().getTokenValue();
+
+		jwtDecoder.decode(jwt);
+		int callCountAfterFirstCall = XsuaaRequestDispatcher.getCallCount();
+
+		jwtDecoder.decode(jwt);
+		Assert.assertEquals(callCountAfterFirstCall, XsuaaRequestDispatcher.getCallCount());
+	}
+
+	@Test(expected = JwtException.class)
+	public void missingJkuFails() {
+		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
+				.setJwtHeaderKeyId("legacy-token-key").setJku(null).getToken().getTokenValue();
+
+		jwtDecoder.decode(jwt);
 	}
 
 	@Test(expected = JwtValidationException.class)

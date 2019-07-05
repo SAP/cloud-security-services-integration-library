@@ -215,7 +215,7 @@ public class XsuaaTokenExchanger {
 	}
 
 	protected boolean checkScope(String scope) {
-		List<String> scopes = ((TokenImpl) token).getClaimAccessor().getClaimAsStringList(TokenImpl.CLAIM_SCOPES);
+		List<String> scopes = ((XsuaaToken) token).getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
 		return scopes.contains(scope);
 	}
 
