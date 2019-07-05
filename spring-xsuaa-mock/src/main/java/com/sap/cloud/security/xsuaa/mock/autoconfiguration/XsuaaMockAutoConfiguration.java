@@ -21,21 +21,21 @@ import org.springframework.security.oauth2.jwt.Jwt;
  *
  * <p>
  * can be disabled
- * with @EnableAutoConfiguration(exclude={XsuaaMockAutoConfiguration.class}) or with
- * property spring.xsuaa.mock.auto = false
+ * with @EnableAutoConfiguration(exclude={XsuaaMockAutoConfiguration.class}) or
+ * with property spring.xsuaa.mock.auto = false
  */
 @Configuration
 @ConditionalOnClass(Jwt.class)
 @ConditionalOnProperty(prefix = "spring.xsuaa.mock", name = "auto", havingValue = "true", matchIfMissing = true)
 public class XsuaaMockAutoConfiguration {
-		Logger logger = LoggerFactory.getLogger(getClass());
+	Logger logger = LoggerFactory.getLogger(getClass());
 
-		@Bean
-		@Primary
-		@ConditionalOnProperty(name = "mockxsuaaserver.url", matchIfMissing = false)
-		@ConditionalOnMissingBean(MockXsuaaServiceConfiguration.class)
-		public XsuaaServiceConfiguration xsuaaMockServiceConfiguration() {
-			logger.info("auto-configure MockXsuaaServiceConfiguration");
-			return new MockXsuaaServiceConfiguration();
-		}
+	@Bean
+	@Primary
+	@ConditionalOnProperty(name = "mockxsuaaserver.url", matchIfMissing = false)
+	@ConditionalOnMissingBean(MockXsuaaServiceConfiguration.class)
+	public XsuaaServiceConfiguration xsuaaMockServiceConfiguration() {
+		logger.info("auto-configure MockXsuaaServiceConfiguration");
+		return new MockXsuaaServiceConfiguration();
+	}
 }
