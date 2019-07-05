@@ -3,6 +3,8 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -28,6 +30,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 @ConditionalOnProperty(prefix = "spring.xsuaa", name = "auto", havingValue = "true", matchIfMissing = true)
 public class XsuaaAutoConfiguration {
 
+	private static final Logger logger = LoggerFactory.getLogger(XsuaaAutoConfiguration.class);
+
 	@Configuration
 	@PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "" })
 	@ConditionalOnProperty(prefix = "spring.xsuaa", name = "multiple-bindings", havingValue = "false", matchIfMissing = true)
@@ -36,6 +40,7 @@ public class XsuaaAutoConfiguration {
 		@Bean
 		@ConditionalOnMissingBean(XsuaaServiceConfiguration.class)
 		public XsuaaServiceConfiguration xsuaaServiceConfiguration() {
+			logger.info("auto-configures XsuaaServiceConfigurationDefault");
 			return new XsuaaServiceConfigurationDefault();
 		}
 	}

@@ -33,3 +33,5 @@ bin
 *.iws
 *.iml
 *.ipr
+
+vim.exe.stackdump

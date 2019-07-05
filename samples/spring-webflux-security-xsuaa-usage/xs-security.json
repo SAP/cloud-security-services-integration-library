@@ -1,0 +1,29 @@
+{
+	"xsappname": "spring-webflux-security-xsuaa-usage",
+	"tenant-mode": "dedicated",
+	"scopes":
+	[{
+		"name": "$XSAPPNAME.Display",
+		"description": "With this scope, information can be read."
+	}
+	],
+
+	"role-templates":
+	[{
+		"name": "AccessRole",
+		"description": "Role to call the spring-webflux-security-xsuaa-usage service",
+		"scope-references":
+		[
+			"$XSAPPNAME.Display"
+		]
+	}
+	],
+	"role-collections": [{
+		"name": "Webflux_API_Viewer",
+		"description": "Role Collection to call the spring-webflux-security-xsuaa-usage service",
+		"role-template-references": [
+			"$XSAPPNAME.AccessRole"
+		]
+	}
+	]
+}

@@ -2,6 +2,8 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -32,11 +34,13 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which
 																	// specifies JwtDecoder
 public class XsuaaResourceServerJwkAutoConfiguration {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Bean
 	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	@ConditionalOnMissingBean
 	public JwtDecoder xsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+		logger.info("auto-configures JwtDecoder");
 		return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration).build();
 	}
 }
