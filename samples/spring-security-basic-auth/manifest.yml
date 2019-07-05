@@ -10,7 +10,7 @@ applications:
     - route: spring-security-basic-auth-((ID)).((LANDSCAPE_APPS_DOMAIN))
   path: target/spring-security-basic-auth.jar
   services:
-    - xsuaa-authentication
+    - xsuaa-basic
 
 
 ...

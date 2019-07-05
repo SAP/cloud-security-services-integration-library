@@ -14,7 +14,7 @@ applications:
   path: target/sap-java-buildpack-api-usage.war
   buildpack: sap_java_buildpack
   services:
-    - xsuaa-authentication
+    - xsuaa-buildpack
 # Application Router as web server
 - name: approuter-sap-java-buildpack-api-usage
   path: approuter
@@ -23,7 +23,7 @@ applications:
   routes:
     - route: approuter-sap-java-buildpack-api-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
   services:
-    - xsuaa-authentication
+    - xsuaa-buildpack
   env:
     destinations: >
       [
