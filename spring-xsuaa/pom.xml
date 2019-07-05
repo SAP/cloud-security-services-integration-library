@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -49,7 +50,12 @@
 			<artifactId>caffeine</artifactId>
 			<version>${caffeine.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-core</artifactId>
+			<version>${reactor.version}</version>
+			<optional>true</optional>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -175,5 +181,6 @@
 	<properties>
 		<caffeine.version>2.6.2</caffeine.version>
 		<servlet.version>3.1.0</servlet.version>
+		<reactor.version>3.2.8.RELEASE</reactor.version>
 	</properties>
 </project>

@@ -1,9 +1,11 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 public class XsuaaJwtDecoderBuilder {
 
@@ -29,6 +31,15 @@ public class XsuaaJwtDecoderBuilder {
 	 */
 	public JwtDecoder build() {
 		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize, tokenValidators);
+	}
+	
+	/**
+	 * Assembles a ReactiveJwtDecoder
+	 *
+	 * @return ReactiveJwtDecoder
+	 */
+	public ReactiveJwtDecoder buildAsReactive() {
+		return new ReactiveXsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize, tokenValidators);
 	}
 
 	/**
@@ -63,6 +74,8 @@ public class XsuaaJwtDecoderBuilder {
 	 *
 	 * @return this
 	 */
+	//var arg it is only being assigned to a OAuth2TokenValidator<Jwt>[], therefore its type safe.
+	@SuppressWarnings("unchecked")
 	public XsuaaJwtDecoderBuilder withTokenValidators(OAuth2TokenValidator<Jwt>... tokenValidators) {
 		this.tokenValidators = tokenValidators;
 		return this;
