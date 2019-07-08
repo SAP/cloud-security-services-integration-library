@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +39,7 @@ public class XsuaaResourceServerJwkAutoConfiguration {
 
 	@Bean
 	@ConditionalOnBean(XsuaaServiceConfiguration.class)
+	@ConditionalOnMissingClass({ "reactor.core.publisher.Mono", "reactor.core.publisher.Flux" })
 	@ConditionalOnMissingBean
 	public JwtDecoder xsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		logger.info("auto-configures JwtDecoder");

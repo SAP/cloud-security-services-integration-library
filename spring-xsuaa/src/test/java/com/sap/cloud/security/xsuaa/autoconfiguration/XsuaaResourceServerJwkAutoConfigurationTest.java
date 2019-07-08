@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { XsuaaResourceServerJwkAutoConfiguration.class, XsuaaAutoConfiguration.class })
@@ -28,12 +31,20 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 
 	// create an ApplicationContextRunner that will create a context with the
 	// configuration under test.
-	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withConfiguration(
-					AutoConfigurations.of(XsuaaResourceServerJwkAutoConfiguration.class, XsuaaAutoConfiguration.class));
+	private ApplicationContextRunner contextRunner;
 
 	@Autowired
 	private ApplicationContext context;
+
+	@Before
+	public void setup() {
+		contextRunner = new ApplicationContextRunner()
+				.withConfiguration(
+						AutoConfigurations.of(XsuaaResourceServerJwkAutoConfiguration.class,
+								XsuaaAutoConfiguration.class))
+				.withClassLoader(
+						new FilteredClassLoader(Mono.class, Flux.class));
+	}
 
 	@Test
 	public final void autoConfigurationActive() {
@@ -65,7 +76,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 	@Test
 	public final void autoConfigurationWithoutXsuaaServiceConfigurationOnClasspathInactive() {
 		contextRunner.withClassLoader(
-				new FilteredClassLoader(Jwt.class)) // make sure XsuaaServiceConfiguration.class is not on the classpath
+				new FilteredClassLoader(Jwt.class)) // make sure Jwt.class is not on the classpath
 				.run((context) -> {
 					assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));
 				});
@@ -80,6 +91,18 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 					assertThat(context.getBean("customJwtDecoder"),
 							instanceOf(NimbusJwtDecoderJwkSupport.class));
 				});
+	}
+
+	@Test
+	public void autoConfigurationDisabledWhenSpringReactorIsActive() {
+		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+				.withConfiguration(
+						AutoConfigurations.of(XsuaaResourceServerJwkAutoConfiguration.class,
+								XsuaaAutoConfiguration.class));
+
+		contextRunner.run((context) -> {
+			assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));
+		});
 	}
 
 	@Configuration
