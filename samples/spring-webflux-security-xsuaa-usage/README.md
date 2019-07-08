@@ -41,3 +41,7 @@ cf push --vars-file ../vars.yml
 After deployment, the AppRouter will trigger authentication automatically when you access one of the following URLs:
 
 * `https://spring-webflux-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - produces Http response with content-type `application/json; UTF-8` and the body containing the claims of the JWT or an error message
+
+Direct access to the microservice (without the AppRouter) will return an error:
+
+* `https://spring-webflux-security-xsuaa-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - produces a error with `401` (unauthenticated) status code, as it calls the service without `Authorization` header.
