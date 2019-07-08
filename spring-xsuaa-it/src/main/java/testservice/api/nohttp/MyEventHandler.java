@@ -2,6 +2,7 @@ package testservice.api.nohttp;
 
 import java.util.Collection;
 
+import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class MyEventHandler {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MyEventHandler.class);
 
 	@Value("${xsuaa.xsappname}")
-	String xsappname;
+	String appId;
 
 	@Autowired
 	JwtDecoder jwtDecoder;
@@ -30,7 +31,18 @@ public class MyEventHandler {
 	public void onEvent(String myEncodedJwtToken) {
 		if (myEncodedJwtToken != null) {
 			Jwt jwtToken = jwtDecoder.decode(myEncodedJwtToken);
-			SecurityContext.init(xsappname, jwtToken, true);
+			SecurityContext.init(appId, jwtToken, true);
+		}
+		try {
+			handleEvent();
+		} finally {
+			SecurityContext.clear();
+		}
+	}
+
+	public void onEvent2(String myEncodedJwtToken) {
+		if (myEncodedJwtToken != null) {
+			SecurityContext.init(myEncodedJwtToken, jwtDecoder, new LocalAuthoritiesExtractor(appId));
 		}
 		try {
 			handleEvent();

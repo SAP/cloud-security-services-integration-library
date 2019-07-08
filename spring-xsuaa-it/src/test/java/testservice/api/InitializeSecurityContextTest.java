@@ -137,6 +137,15 @@ public class InitializeSecurityContextTest {
 		eventHandler.onEvent(jwt);
 	}
 
+	@Test
+	public void callEventWithSufficientAuthorization_succeeds_2() {
+		String jwt = new JwtGenerator(clientId, "subdomain")
+				.addScopes("openid", xsappname + ".Display")
+				.deriveAudiences(true).getToken().getTokenValue();
+
+		eventHandler.onEvent2(jwt);
+	}
+
 	@Test(expected = AccessDeniedException.class)
 	public void callEventWithInsufficientAuthorization_raisesAccessDeniedException() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
@@ -146,8 +155,21 @@ public class InitializeSecurityContextTest {
 	}
 
 	@Test(expected = AccessDeniedException.class)
+	public void callEventWithInsufficientAuthorization_raisesAccessDeniedException_2() {
+		String jwt = new JwtGenerator(clientId, "subdomain")
+				.deriveAudiences(true).getToken().getTokenValue();
+
+		eventHandler.onEvent2(jwt);
+	}
+
+	@Test(expected = AccessDeniedException.class)
 	public void callEventWithNoJwtToken_raisesAccessDeniedException() {
 		eventHandler.onEvent(null);
+	}
+
+	@Test(expected = AccessDeniedException.class)
+	public void callEventWithNoJwtToken_raisesAccessDeniedException_2() {
+		eventHandler.onEvent2(null);
 	}
 
 }

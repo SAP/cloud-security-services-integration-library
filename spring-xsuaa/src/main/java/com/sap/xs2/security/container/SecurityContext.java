@@ -1,13 +1,15 @@
 package com.sap.xs2.security.container;
 
+import com.sap.cloud.security.xsuaa.extractor.AuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
-
-import com.sap.cloud.security.xsuaa.token.Token;
 
 public class SecurityContext {
 	/**
@@ -52,10 +54,46 @@ public class SecurityContext {
 		return (Token) principal;
 	}
 
+	/**
+	 * Initializes the Spring SecurityContext and extracts the authorities.
+	 *
+	 * @param appId
+	 *            the application id e.g. myXsAppname!t123
+	 * @param token
+	 *            the jwt token
+	 * @param extractLocalScopesOnly
+	 *            true when {@link Token#getAuthorities()} should only extract local
+	 *            scopes. Local scopes means that non-application specific scopes
+	 *            are filtered out and scopes are returned without appId prefix,
+	 *            e.g. "Display".
+	 */
 	static public void init(String appId, Jwt token, boolean extractLocalScopesOnly) {
-		TokenAuthenticationConverter authenticationConverter = new TokenAuthenticationConverter(appId);
-		authenticationConverter.setLocalScopeAsAuthorities(extractLocalScopesOnly);
+		TokenAuthenticationConverter authenticationConverter = new TokenAuthenticationConverter(
+				new LocalAuthoritiesExtractor(appId));
 		Authentication authentication = authenticationConverter.convert(token);
+
+		SecurityContextHolder.createEmptyContext();
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
+
+	/**
+	 * Initializes the Spring SecurityContext and extracts the authorities. With
+	 * version 1.5.0 you can configure your own {@link AuthoritiesExtractor} to
+	 * specify how to extract the authorities.
+	 *
+	 * @param encodedJwtToken
+	 *            the jwt token that is decoded with the given JwtDecoder
+	 * @param jwtDecoder
+	 *            hte decoder
+	 * @param authoritiesExtractor
+	 *            the extractor used to turn Jwt scopes into Spring Security
+	 *            authorities.
+	 */
+	static public void init(String encodedJwtToken, JwtDecoder jwtDecoder, AuthoritiesExtractor authoritiesExtractor) {
+		Jwt jwtToken = jwtDecoder.decode(encodedJwtToken);
+
+		TokenAuthenticationConverter authenticationConverter = new TokenAuthenticationConverter(authoritiesExtractor);
+		Authentication authentication = authenticationConverter.convert(jwtToken);
 
 		SecurityContextHolder.createEmptyContext();
 		SecurityContextHolder.getContext().setAuthentication(authentication);
