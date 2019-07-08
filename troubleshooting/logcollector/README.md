@@ -16,14 +16,18 @@ Then you can replay your scenario. After that the script restores the log levels
 
 1. Open your shell and navigate to the script path
 
-1. Execute the script with:
+1. Execute the script with the following commands: (Keep in mind that this will restart your application and app-router twice!)
     - Powershell: 
         ```
-        .\logcollector.ps1 <your-application-name> <your-application-router-name> [path-to-output-zipfile]
+        .\cf-logcollector.ps1 <your-application-name> <your-application-router-name> [path-to-output-zipfile]
         ```
     - Bash: 
         ```
-        ./logcollector.sh <your-application-name> <your-application-router-name> [path-to-output-zipfile]
+        chmod +x cf-logcollector.sh
+        ./cf-logcollector.sh <your-application-name> <your-application-router-name> [path-to-output-zipfile]
         ```
 1. Follow the steps in the script
 1. The location of the *.zip file will be printed to your output
+
+## Troubleshooting Information
+For more information about troubleshooting the XSUAA, please visit the [SAP Help Portal](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/1b3e89e915b349c1aa3896ac8c6becd6.html) or take a look at our [Guided Answers](https://ga.support.sap.com/dtp/viewer/index.html#/tree/2212/actions/28290).
