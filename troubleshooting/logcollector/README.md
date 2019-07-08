@@ -16,7 +16,7 @@ Then you can replay your scenario. After that the script restores the log levels
 
 1. Open your shell and navigate to the script path
 
-1. Execute the script with:
+1. Execute the script with the following commands: (Keep in mind that this will restart your application and app-router twice!)
     - Powershell: 
         ```
         .\cf-logcollector.ps1 <your-application-name> <your-application-router-name> [path-to-output-zipfile]
