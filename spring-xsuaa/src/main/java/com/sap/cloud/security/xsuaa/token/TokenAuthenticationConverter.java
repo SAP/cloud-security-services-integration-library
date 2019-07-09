@@ -71,9 +71,13 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 	 *            e.g. "Display".
 	 */
 	public void setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {
-		Assert.state(appId != null,
-				"For local Scope extraction 'appId' must be provided to `TokenAuthenticationConverter`");
-		authoritiesExtractor = new LocalAuthoritiesExtractor(appId);
+		if (extractLocalScopesOnly) {
+			Assert.state(appId != null,
+					"For local Scope extraction 'appId' must be provided to `TokenAuthenticationConverter`");
+			authoritiesExtractor = new LocalAuthoritiesExtractor(appId);
+		} else {
+			authoritiesExtractor = new DefaultAuthoritiesExtractor();
+		}
 	}
 
 }
