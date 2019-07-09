@@ -38,6 +38,8 @@ See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an ex
 - [spring-xsuaa-mock](./spring-xsuaa-mock) offers a Mock web server to provide token keys for offline token validation in case xsuaa service (OAuth resource-server) is not in place. Its use is only intended for unit tests and when running your Spring boot application on a Webserver locally.
 - [spring-xsuaa-test](./spring-xsuaa-test) offers test utilities to generate custom JWT tokens for the purpose of tests.
 
+Find [here](https://github.com/SAP/cloud-application-security-sample/tree/master/spring-security-basis) a more sophisticated sample.
+
 # Download and Installation
 Build results are published to maven central: https://search.maven.org/search?q=com.sap.cloud.security 
 
