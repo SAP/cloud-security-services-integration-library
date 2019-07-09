@@ -28,13 +28,15 @@ public class ReactiveSecurityContextTest {
 	@Test
 	@Ignore
 	public void authenticated() {
-		Jwt jwt = new XsuaaToken(new JwtGenerator().getToken());
+		XsuaaToken jwt = new XsuaaToken(new JwtGenerator().setUserName("user").getToken());
 		SecurityContext expectedContext = new SecurityContextImpl(
 				new TestingAuthenticationToken("user", jwt, "ROLE_USER"));
 		ReactiveSecurityContextHolder.withSecurityContext(Mono.just(expectedContext));
 		Mono<XsuaaToken> tokenMono = ReactiveSecurityContext.getToken();
 
-		StepVerifier.create(tokenMono).verifyComplete();
+		StepVerifier.create(tokenMono)
+				.expectNext(jwt)
+				.verifyComplete();
 	}
 
 }

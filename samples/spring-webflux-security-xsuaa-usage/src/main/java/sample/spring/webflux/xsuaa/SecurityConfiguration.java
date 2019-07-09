@@ -21,7 +21,8 @@ public class SecurityConfiguration {
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
-		http.authorizeExchange().anyExchange().authenticated().and().oauth2ResourceServer().jwt()
+		http.authorizeExchange().anyExchange().authenticated()
+				.and().oauth2ResourceServer().jwt()
 				.jwtAuthenticationConverter(new ReactiveTokenAuthenticationConverter(xsuaaServiceConfiguration))
 				.jwtDecoder(new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration).buildAsReactive());
 		return http.build();
