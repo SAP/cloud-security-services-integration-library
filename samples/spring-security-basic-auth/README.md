@@ -1,5 +1,5 @@
 # Description
-In some situations, the client does not support OAuth protocols so you need to fall back to basic authentication. This sample uses a implementation of the [bearerTokenResolver](https://docs.spring.io/spring-security/site/docs/5.1.1.RELEASE/api/org/springframework/security/oauth2/server/resource/web/BearerTokenResolver.html). Depending on the configuration, this resolver will
+In some situations, the client does not support OAuth protocols so you need to fall back to basic authentication. This sample uses a implementation of the [BearerTokenResolver](https://docs.spring.io/spring-security/site/docs/5.1.1.RELEASE/api/org/springframework/security/oauth2/server/resource/web/BearerTokenResolver.html). Depending on the configuration, this resolver will
 - Support OAuth JWT tokens
 - exchange incoming credentials using the OAuth password grant flow
 - exchange incoming credentials using the OAuth client credential flow
