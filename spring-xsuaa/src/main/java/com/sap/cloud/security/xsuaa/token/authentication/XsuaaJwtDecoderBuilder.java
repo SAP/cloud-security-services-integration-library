@@ -14,6 +14,7 @@ public class XsuaaJwtDecoderBuilder {
 	int decoderCacheSize;
 	OAuth2TokenValidator<Jwt> xsuaaTokenValidators;
 	OAuth2TokenValidator<Jwt> defaultTokenValidators;
+	PostValidationAction postValidationAction;
 
 	/**
 	 * Utility for building a JWT decoder configuration
@@ -38,7 +39,8 @@ public class XsuaaJwtDecoderBuilder {
 		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = new DelegatingOAuth2TokenValidator<>(
 				defaultTokenValidators,
 				xsuaaTokenValidators);
-		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize, combinedTokenValidators);
+		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
+				combinedTokenValidators, postValidationAction);
 	}
 
 	/**
@@ -64,6 +66,18 @@ public class XsuaaJwtDecoderBuilder {
 	 */
 	public XsuaaJwtDecoderBuilder withDecoderCacheSize(int size) {
 		this.decoderCacheSize = size;
+		return this;
+	}
+
+	/**
+	 * Sets the PostValidationAction which is executed after successful verification and validation of the token.
+	 *
+	 * @param postValidationAction
+	 *           the PostValidationAction
+	 * @return this
+	 */
+	public XsuaaJwtDecoderBuilder withPostValidationAction(PostValidationAction postValidationAction) {
+		this.postValidationAction = postValidationAction;
 		return this;
 	}
 

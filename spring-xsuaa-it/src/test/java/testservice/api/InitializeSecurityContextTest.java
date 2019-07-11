@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +25,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
 import com.sap.cloud.security.xsuaa.mock.XsuaaRequestDispatcher;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.Token;
+import com.sap.cloud.security.xsuaa.token.authentication.PostValidationAction;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import com.sap.xs2.security.container.SecurityContext;
 
 import testservice.api.nohttp.MyEventHandler;
@@ -56,7 +61,20 @@ public class InitializeSecurityContextTest {
 	JwtDecoder jwtDecoder;
 
 	@Autowired
+	XsuaaServiceConfiguration serviceConfiguration;
+
+	boolean postActionExecuted;
+	JwtDecoder jwtDecoderWithPostAction;
+
+	@Autowired
 	MyEventHandler eventHandler;
+
+	@Before
+	public void setUp() {
+		postActionExecuted = false;
+		jwtDecoderWithPostAction = new XsuaaJwtDecoderBuilder(serviceConfiguration).
+				withPostValidationAction(token -> postActionExecuted = true).build();
+	}
 
 	@Test
 	public void initializeSecurityContext_succeeds() {
@@ -105,6 +123,27 @@ public class InitializeSecurityContextTest {
 
 		jwtDecoder.decode(jwt);
 		Assert.assertEquals(callCountAfterFirstCall, XsuaaRequestDispatcher.getCallCount());
+	}
+
+	@Test
+	public void postValidationActionIsExecutedIfSuccess() {
+		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
+				.setJwtHeaderKeyId("legacy-token-key").getToken().getTokenValue();
+
+		jwtDecoderWithPostAction.decode(jwt);
+		Assert.assertTrue(postActionExecuted);
+	}
+
+	@Test
+	public void postValidationActionIsNotExecutedIfFail() {
+		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
+				.setJwtHeaderKeyId("legacy-token-key").setJku(null).getToken().getTokenValue();
+		try {
+			jwtDecoderWithPostAction.decode(jwt);
+			Assert.fail();
+		} catch (JwtException e) {
+			Assert.assertFalse(postActionExecuted);
+		}
 	}
 
 	@Test(expected = JwtException.class)

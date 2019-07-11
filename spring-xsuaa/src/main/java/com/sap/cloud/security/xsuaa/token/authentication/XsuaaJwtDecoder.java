@@ -29,13 +29,15 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	Cache<String, JwtDecoder> cache;
 	private String uaaDomain;
 	private OAuth2TokenValidator<Jwt> tokenValidators;
+	private PostValidationAction postValidationAction;
 
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
-			OAuth2TokenValidator<Jwt> tokenValidators) {
+			OAuth2TokenValidator<Jwt> tokenValidators, PostValidationAction postValidationAction) {
 		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
 				.build();
 		this.uaaDomain = xsuaaServiceConfiguration.getUaaDomain();
 		this.tokenValidators = tokenValidators;
+		this.postValidationAction = postValidationAction;
 	}
 
 	@Override
@@ -56,7 +58,12 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			canVerifyWithOnlineKey(jku, kid, uaaDomain);
 			jku = changeJkuToHttpIfLocal(jku);
 			validateJKU(jku, uaaDomain);
-			return verifyWithOnlineKey(token, jku, kid);
+			Jwt verifiedToken = verifyWithOnlineKey(token, jku, kid);
+
+			if (postValidationAction != null) {
+				postValidationAction.apply(verifiedToken);
+			}
+			return verifiedToken;
 		} catch (JwtValidationException ex) {
 			throw ex;
 		} catch (JwtException ex) {
