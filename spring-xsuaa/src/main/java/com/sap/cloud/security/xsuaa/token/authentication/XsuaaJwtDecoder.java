@@ -54,6 +54,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 		try {
 			canVerifyWithOnlineKey(jku, kid, uaaDomain);
+			jku = changeJkuToHttpIfLocal(jku);
 			validateJKU(jku, uaaDomain);
 			return verifyWithOnlineKey(token, jku, kid);
 		} catch (JwtValidationException ex) {
@@ -61,6 +62,14 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		} catch (JwtException ex) {
 			throw new JwtException("JWT verification failed: " + ex.getMessage());
 		}
+	}
+
+	// special case: Use http if xsuaa is local docker instance as https does not work
+	private String changeJkuToHttpIfLocal(String jku) {
+		if (jku.contains(":8080")) {
+			return jku.replace("https", "http");
+		}
+		return jku;
 	}
 
 	private void canVerifyWithOnlineKey(String jku, String kid, String uaadomain) {
