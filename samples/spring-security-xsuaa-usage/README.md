@@ -66,6 +66,68 @@ cf logs spring-security-xsuaa-usage --recent
 
 > Note: https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN> points to the url of the AppRouter. Get all app routes with `cf apps`.
 
+## Exchanging Tokens with `XsuaaTokenFlows`
+
+XSUAA introduces a new API to support the following token flows:
+
+* Authorization Code Grant
+* User Token Grant
+* Client Credentials Token Grant
+* Refresh Token Grant
+
+Authorization Code Grant is a flow that involves the browser and is therefore triggered by an API gateway (e.g. AppRouter). The other flows, however, may need to be triggered programmatically, e.g. to exchange one token for another or refresh a token, if it is about to expire.
+
+To that end, we now provide the `XsuaaTokenFlows` class, which serves as a factory for the different flows. This deprecates the existing `XsuaaToken.requestToken(XSTokenRequest)` API.
+
+The flows themselves provide a builder-pattern API that allows applications to easily create and execute each flow, guiding developers to only set properties that are relevant for the respective token flow.
+
+To consume the `XsuaaTokenFlows` class, you simply need to `@Autowire` it like this:
+```java
+@Autowired
+private XsuaaTokenFlows xsuaaTokenFlows;
+```
+
+Then, to create a **client credentials token flow** very easily by the following code:
+
+```java
+Jwt ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow(URI.create(baseUrl))
+                .client(clientId)
+                .secret(clientSecret)
+                .execute();
+```
+
+In case you have a refresh_token value and want to refresh an existing token with it, you can do the following:
+
+```java
+Jwt refreshToken = xsuaaTokenFlows.refreshTokenFlow(URI.create(baseUrl))
+                    .refreshToken("Your refresh token goes here. You get this from the OAuth server.")
+                    .client(clientId)
+                    .secret(clientSecret)
+                    .execute();
+
+logger.info("Got the refreshed token: {}", refreshToken.getTokenValue());
+logger.info("You could now inject this into Spring's SecurityContext, using: SecurityContextHolder.getContext().setAuthentication(...).");
+```
+
+Finally, to create a **user token flow** (to exchange one Jwt token for another), you can do the following:
+
+```java
+Jwt userToken = xsuaaTokenFlows.userTokenFlow(URI.create(baseUrl))
+                  .token(jwt)
+                  .client(clientId)
+                  .secret(clientSecret)
+                  .attributes(additionalAttributes) //this is optional!
+                  .execute();
+
+logger.info("Got the exchanged token for 3rd party service (clientId: {}) : {}", clientId, userToken.getTokenValue());
+logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ", userToken.getTokenValue());
+```
+
+Make sure to read the API documentation of the `XsuaaTokenFlows` API, to understand what the individual token flows' parameters are for.
+Also note, that the **user token flow** requires an input token that has the scope `uaa.user` to succeed. 
+
+Have a look at [`TestController.java`](./src/main/java/sample/spring/xsuaa/TestController.java) for sample code.
+
 ## Clean-Up
 
 Finally delete your application and your service instances using the following commands:
