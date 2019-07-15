@@ -45,8 +45,8 @@ echo -e "\nSuccessfully logged in, will continue...\n"
 checkappname "$appname"
 checkappname "$approutername"
 
-printf "\nThis will restart your application \e[36m\e[1m%s\e[0m and your application router \e[36m\e[1m%s\e[0m twice. \nAre you sure (y/n)?" "$appname" "$approutername"
-read -rs -n 1 -p "" answer
+printf "\nThis will restart your application \e[36m\e[1m%s\e[0m and your application router \e[36m\e[1m%s\e[0m twice. \nAre you sure (Yy/Nn)?" "$appname" "$approutername"
+read -r -p "" answer
 if [ "$answer" != "${answer#[Yy]}" ]
 then
     true
