@@ -3,7 +3,6 @@ package com.sap.cloud.security.xsuaa.extractor;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
@@ -15,9 +14,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cache.Cache;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.util.StringUtils;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import org.springframework.util.StringUtils;
 
 /**
  * Analyse authentication header and obtain token from UAA

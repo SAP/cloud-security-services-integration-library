@@ -27,6 +27,9 @@ import com.sap.xsa.security.container.XSTokenRequest;
 
 import net.minidev.json.JSONObject;
 
+/**
+ * @deprecated in favor of XsuaaTokenFlows API.
+ */
 public class XsuaaTokenExchanger {
 	Token token;
 	RestTemplate restTemplate;

@@ -9,6 +9,9 @@ package com.sap.xsa.security.container;
 import java.net.URI;
 import java.util.Map;
 
+/**
+ * @deprecated in favor of XsuaaTokenFlows API.
+ */
 public interface XSTokenRequest {
 
 	public static final int TYPE_USER_TOKEN = 0;
