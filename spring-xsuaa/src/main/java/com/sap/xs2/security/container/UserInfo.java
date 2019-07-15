@@ -32,7 +32,6 @@ public class UserInfo implements XSUserInfo {
 	private static final String GIVEN_NAME = "given_name";
 	private static final String FAMILY_NAME = "family_name";
 	private static final String EMAIL = "email";
-	private static final String EXP = "exp";
 	private static final String CID = "cid";
 	private static final String ORIGIN = "origin";
 	private static final String GRANT_TYPE = "grant_type";
@@ -44,8 +43,7 @@ public class UserInfo implements XSUserInfo {
 	private static final String SERVICEINSTANCEID = "serviceinstanceid";
 	private static final String ZDN = "zdn";
 	private static final String SYSTEM = "SYSTEM";
-	private static final String HDB = "HDB";
-	private static final String ISSUER = "iss";
+	private static final String HDB = "HDB";	
 	public static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
 	public static final String SCOPE = "scope";
 	public static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
