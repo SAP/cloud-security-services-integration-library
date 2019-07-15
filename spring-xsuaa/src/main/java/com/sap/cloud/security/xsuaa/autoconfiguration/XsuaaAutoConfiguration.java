@@ -47,12 +47,12 @@ public class XsuaaAutoConfiguration {
 	
 	/**
 	 * Creates a new {@link XsuaaTokenFlows} bean that applications
-	 * can autowire into their classes to perform a programmatic
+	 * can auto-wire into their controllers to perform a programmatic
 	 * token flow exchange.
 	 *  
-	 * @param restTemplate
-	 * @param decoder
-	 * @return
+	 * @param restTemplate - the {@link RestTemplate} to use for the token flow exchange.
+	 * @param decoder - the decoder used for the tokens retrieved via the token flows.
+	 * @return the {@link XsuaaTokenFlows} API.
 	 */
 	@Bean
     @ConditionalOnMissingBean
@@ -62,7 +62,7 @@ public class XsuaaAutoConfiguration {
     
     /**
      * Creates a {@link VariableKeySetUriTokenDecoder} instance 
-     * based on a {@link NimbusJwtDecoderJwkSupport} 
+     * based on a {@code NimbusJwtDecoderJwkSupport} 
      * implementation which is used by the {@link XsuaaTokenFlows} bean.
      * @return the {@link VariableKeySetUriTokenDecoder} instance.
      */
