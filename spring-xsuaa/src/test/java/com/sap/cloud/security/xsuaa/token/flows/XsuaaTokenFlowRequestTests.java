@@ -1,10 +1,12 @@
-package com.sap.cloud.security.xsuaa.tokenflows;
+package com.sap.cloud.security.xsuaa.token.flows;
 
 import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
 
 import org.junit.Test;
+
+import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowRequest;
 
 public class XsuaaTokenFlowRequestTests {
 

@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.tokenflows;
+package com.sap.cloud.security.xsuaa.token.flows;
 
 import java.net.URI;
 

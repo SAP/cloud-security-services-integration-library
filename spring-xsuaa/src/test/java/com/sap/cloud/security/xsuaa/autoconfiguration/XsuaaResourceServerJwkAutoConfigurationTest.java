@@ -30,7 +30,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 	// configuration under test.
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(
-					AutoConfigurations.of(XsuaaResourceServerJwkAutoConfiguration.class, XsuaaAutoConfiguration.class));
+					AutoConfigurations.of(XsuaaAutoConfiguration.class, XsuaaResourceServerJwkAutoConfiguration.class));
 
 	@Autowired
 	private ApplicationContext context;

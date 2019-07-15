@@ -1,8 +1,8 @@
-package com.sap.cloud.security.xsuaa.tokenflows;
+package com.sap.cloud.security.xsuaa.token.flows;
 
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.addAcceptHeader;
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.addAuthorizationBearerHeader;
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
+import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addAcceptHeader;
+import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addAuthorizationBearerHeader;
+import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.net.URI;
@@ -21,6 +21,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sap.cloud.security.xsuaa.token.flows.TokenFlowException;
+import com.sap.cloud.security.xsuaa.token.flows.UserTokenFlow;
 
 public class UserTokenFlowTests {
     
