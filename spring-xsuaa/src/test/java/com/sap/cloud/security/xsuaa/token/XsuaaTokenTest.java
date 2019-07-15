@@ -9,6 +9,7 @@ import static org.mockito.Mockito.eq;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
 import java.util.*;
 
 import org.junit.Assert;
@@ -26,12 +27,13 @@ import org.springframework.web.client.RestTemplate;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+import com.sap.cloud.security.xsuaa.token.flows.TokenDecoderMock;
 import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 public class XsuaaTokenTest {
 
-	private Token token;
+	private XsuaaToken token;
 	private Jwt jwtSaml;
 	private Jwt jwtCC;
 	private Jwt jwtCCNoAttributes;
@@ -93,7 +95,7 @@ public class XsuaaTokenTest {
 		Jwt jwt = JwtGenerator.createFromClaims(claimsSetBuilder.build());
 
 		AuthenticationToken authToken = (AuthenticationToken) converter.convert(jwt);
-		token = (Token) authToken.getPrincipal();
+		token = (XsuaaToken) authToken.getPrincipal();
 
 		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) token.getAuthorities();
 		assertThat(authorities.size(), is(2));
@@ -251,7 +253,8 @@ public class XsuaaTokenTest {
 	public void requestClientCredentialsToken() throws URISyntaxException {
 		// prepare response
 		Map<String, String> ccToken = new HashMap<>();
-		ccToken.put("access_token", "cc_token");
+		Jwt mockJwt = buildMockJwt();
+		ccToken.put("access_token", mockJwt.getTokenValue());
 
 		// mock rest call
 		// http://myuaa.com/oauth/token?grant_type=client_credentials&authorities=%7B%22az_attr%22:%7B%22a%22:%22b%22,%22c%22:%22d%22%7D%7D
@@ -261,6 +264,7 @@ public class XsuaaTokenTest {
 				.thenReturn(response);
 
 		token = createToken(claimsSetBuilder);
+		token.tokenFlowsTokenDecoder = new TokenDecoderMock(mockJwt);
 
 		String mockServerUrl = "http://myuaa.com";
 		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);
@@ -272,10 +276,20 @@ public class XsuaaTokenTest {
 		azMape.put("c", "d");
 		tokenRequest.setAdditionalAuthorizationAttributes(azMape);
 
-		assertThat(token.requestToken(tokenRequest), is("cc_token"));
+		assertThat(token.requestToken(tokenRequest), is("mock.jwt.value"));
 	}
-
-	private Token createToken(JWTClaimsSet.Builder claimsBuilder) {
+	
+	private Jwt buildMockJwt() {
+        Map<String, Object> jwtHeaders = new HashMap<String, Object>();
+        jwtHeaders.put("dummyHeader", "dummyHeaderValue");
+        
+        Map<String, Object> jwtClaims = new HashMap<String, Object>();
+        jwtClaims.put("dummyClaim", "dummyClaimValue");
+        
+        return new Jwt("mock.jwt.value", Instant.now(), Instant.now().plusMillis(100000), jwtHeaders, jwtClaims);
+    }
+	
+	private XsuaaToken createToken(JWTClaimsSet.Builder claimsBuilder) {
 		Jwt jwt = JwtGenerator.createFromClaims(claimsBuilder.build());
 		return new XsuaaToken(jwt);
 	}
