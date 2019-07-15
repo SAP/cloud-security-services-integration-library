@@ -66,6 +66,7 @@
 		<module>spring-xsuaa-it</module>
 		<module>spring-xsuaa-test</module>
 		<module>spring-xsuaa-mock</module>
+        <module>spring-xsuaa-starter</module>
 	</modules>
 
 	<dependencyManagement>
