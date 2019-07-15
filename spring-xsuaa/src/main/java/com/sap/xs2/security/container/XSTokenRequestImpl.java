@@ -28,13 +28,14 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 	@Deprecated
 	public static final int TYPE_CLIENT_CREDENTIALS_TOKEN = 1;
 
+	private URI uaaBaseURI;
 	private URI tokenEndpoint;
 
 	private int type;
 	private String clientId;
 	private String clientSecret;
 	private RestTemplate restTemplate;
-
+	
 	private Map<String, String> additionalAuthorizationAttributes;
 
 	/**
@@ -46,6 +47,7 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 	 *             when uaabaseUrl could not be parsed as URI
 	 */
 	public XSTokenRequestImpl(String uaabaseUrl) throws URISyntaxException {
+		this.uaaBaseURI = URI.create(uaabaseUrl);
 		this.tokenEndpoint = new URI(uaabaseUrl + "/oauth/token");
 	}
 
@@ -204,4 +206,8 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 		return restTemplate;
 	}
 
+	@Override
+	public URI getBaseURI() {
+		return uaaBaseURI;
+	}
 }

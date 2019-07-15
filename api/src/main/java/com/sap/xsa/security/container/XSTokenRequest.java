@@ -110,5 +110,11 @@ public interface XSTokenRequest {
 	 * @return this mutable object
 	 */
 	public XSTokenRequest setTokenEndpoint(URI tokenEndpoint);
-
+	
+	
+	/**
+	 * Returns the XSUAA base URI.
+	 * @return the XSUAA base URI.
+	 */
+	public URI getBaseURI();
 }
