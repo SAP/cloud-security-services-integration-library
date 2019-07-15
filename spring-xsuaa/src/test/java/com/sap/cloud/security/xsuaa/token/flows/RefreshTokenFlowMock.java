@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.tokenflows;
+package com.sap.cloud.security.xsuaa.token.flows;
 
 import static org.junit.Assert.assertTrue;
 
@@ -6,6 +6,11 @@ import java.net.URI;
 
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
+
+import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
+import com.sap.cloud.security.xsuaa.token.flows.RefreshTokenFlow;
+import com.sap.cloud.security.xsuaa.token.flows.TokenFlowException;
+import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
 
 public class RefreshTokenFlowMock extends RefreshTokenFlow {
 

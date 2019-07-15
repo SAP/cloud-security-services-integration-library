@@ -30,6 +30,9 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 
 	// create an ApplicationContextRunner that will create a context with the
 	// configuration under test.
+	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+			.withConfiguration(
+					AutoConfigurations.of(XsuaaAutoConfiguration.class, XsuaaResourceServerJwkAutoConfiguration.class));
 	private WebApplicationContextRunner contextRunner;
 
 	@Autowired

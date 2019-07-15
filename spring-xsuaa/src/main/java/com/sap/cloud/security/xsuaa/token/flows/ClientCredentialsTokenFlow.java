@@ -1,8 +1,8 @@
-package com.sap.cloud.security.xsuaa.tokenflows;
+package com.sap.cloud.security.xsuaa.token.flows;
 
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.addAcceptHeader;
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.addBasicAuthHeader;
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
+import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addAcceptHeader;
+import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addBasicAuthHeader;
+import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 import java.net.URI;
 import java.util.Map;
