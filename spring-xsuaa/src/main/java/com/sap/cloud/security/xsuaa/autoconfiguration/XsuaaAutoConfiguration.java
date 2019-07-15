@@ -5,6 +5,10 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.sap.cloud.security.xsuaa.tokenflows.NimbusTokenDecoder;
+import com.sap.cloud.security.xsuaa.tokenflows.VariableKeySetUriTokenDecoder;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -13,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
@@ -44,4 +49,43 @@ public class XsuaaAutoConfiguration {
 			return new XsuaaServiceConfigurationDefault();
 		}
 	}
+
+	/**
+	 * Creates a new {@link XsuaaTokenFlows} bean that applications
+	 * can autowire into their classes to perform a programmatic
+	 * token flow exchange.
+	 *
+	 * @param restTemplate
+	 * @param decoder
+	 * @return
+	 */
+	@Bean
+    @ConditionalOnMissingBean
+    public XsuaaTokenFlows xsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder decoder) {
+        return new XsuaaTokenFlows(restTemplate, decoder);
+    }
+
+    /**
+     * Creates a {@link VariableKeySetUriTokenDecoder} instance
+     * based on a {@link NimbusJwtDecoderJwkSupport}
+     * implementation which is used by the {@link XsuaaTokenFlows} bean.
+     * @return the {@link VariableKeySetUriTokenDecoder} instance.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public VariableKeySetUriTokenDecoder xsuaaTokenDecoder() {
+        return new NimbusTokenDecoder();
+    }
+
+    /**
+     * Creates a {@link RestTemplate} instance
+     * if the application has not yet defined any
+     * yet.
+     * @return the {@link RestTemplate} instance.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public RestTemplate xsuaaTokenFlowRestTemplate() {
+        return new RestTemplate();
+    }
 }

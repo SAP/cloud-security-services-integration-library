@@ -29,14 +29,14 @@ public class RefreshTokenFlow {
     private RestTemplate restTemplate;
     private XsuaaTokenFlowRequest request;
     private String refreshToken;
-    private TokenDecoder tokenDecoder;
+    private VariableKeySetUriTokenDecoder tokenDecoder;
     
     /**
      * Creates a new instance. 
      * @param restTemplate - the {@link RestTemplate} used to execute the final request.
      * @param xsuaaBaseUri - the base URI of XSUAA. Based on the base URI the tokenEndpoint, authorize and key set URI will be derived.
      */
-    RefreshTokenFlow(RestTemplate restTemplate, TokenDecoder tokenDecoder, URI xsuaaBaseUri) {
+    RefreshTokenFlow(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder, URI xsuaaBaseUri) {
         Assert.notNull(restTemplate, "RestTemplate must not be null.");
         Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
         Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
@@ -57,7 +57,7 @@ public class RefreshTokenFlow {
      * @param authorizeEndpoint - the authorize endpoint URI. 
      * @param keySetEndpoint    - the key set endpoint URI. 
      */
-    RefreshTokenFlow(RestTemplate restTemplate, TokenDecoder tokenDecoder, URI tokenEndpoint, URI authorizeEndpoint, URI keySetEndpoint) {
+    RefreshTokenFlow(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder, URI tokenEndpoint, URI authorizeEndpoint, URI keySetEndpoint) {
         Assert.notNull(restTemplate, "RestTemplate must not be null.");
         Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
         Assert.notNull(tokenEndpoint, "Token endpoint URI must not be null.");
