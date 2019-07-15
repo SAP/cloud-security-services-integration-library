@@ -6,11 +6,11 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 
 /**
- * A default {@link TokenDecoder} implementation 
+ * A default {@link VariableKeySetUriTokenDecoder} implementation 
  * using {@link NimbusJwtDecoderJwkSupport} as 
  * the implementation class.
  */
-public class NimbusTokenDecoder implements TokenDecoder {
+public class NimbusTokenDecoder implements VariableKeySetUriTokenDecoder {
 
     private NimbusJwtDecoderJwkSupport nimbusDecoder;
     
