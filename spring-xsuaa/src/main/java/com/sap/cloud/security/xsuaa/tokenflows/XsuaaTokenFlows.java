@@ -22,15 +22,15 @@ import org.springframework.web.client.RestTemplate;
 public class XsuaaTokenFlows {
     
     private RestTemplate restTemplate;
-    private TokenDecoder tokenDecoder;
+    private VariableKeySetUriTokenDecoder tokenDecoder;
 	
 	/**
 	 * Create a new instance of this bean with the given RestTemplate.
 	 * Applications should {@code @Autowire} instances of this bean.
 	 * @param restTemplate the RestTemplate instance that will be used to send the token exchange request.
-	 * @param tokenDecoder the {@link TokenDecoder} instance used internally to decode a Jwt token.
+	 * @param tokenDecoder the {@link VariableKeySetUriTokenDecoder} instance used internally to decode a Jwt token.
 	 */
-	public XsuaaTokenFlows(RestTemplate restTemplate, TokenDecoder tokenDecoder) {
+	public XsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder) {
 	    Assert.notNull(restTemplate,"RestTemplate must not be null.");
 	    Assert.notNull(tokenDecoder,"TokenDecoder must not be null.");
 	    
