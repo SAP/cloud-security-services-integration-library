@@ -71,8 +71,7 @@ public class XsuaaServicesParser {
 	}
 
 	private JSONObject searchXSuaaBinding(final JSONObject jsonObject) {
-		for (@SuppressWarnings("unchecked")
-		String tag : jsonObject.keySet()) {
+		for (String tag : jsonObject.keySet()) {
 			JSONObject foundObject = getJSONObjectFromTag((JSONArray) jsonObject.get(tag));
 			if (foundObject != null) {
 				return foundObject;

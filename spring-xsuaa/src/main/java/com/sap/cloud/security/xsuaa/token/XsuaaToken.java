@@ -33,6 +33,7 @@ import org.springframework.web.client.RestTemplate;
  * used interchangeably with it.
  */
 public class XsuaaToken extends Jwt implements Token {
+	private static final long serialVersionUID = -836947635254353927L;
 
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaToken.class);
 
@@ -214,24 +215,6 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	@Override
-	public String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException {
-		Assert.notNull(tokenRequest, "tokenRequest argument is required");
-		Assert.isTrue(tokenRequest.isValid(), "tokenRequest is not valid");
-
-		RestTemplate restTemplate = tokenRequest instanceof XSTokenRequestImpl
-				? ((XSTokenRequestImpl) tokenRequest).getRestTemplate()
-				: null;
-
-		XsuaaTokenExchanger tokenExchanger = new XsuaaTokenExchanger(restTemplate, this);
-		try {
-			return tokenExchanger.requestToken(tokenRequest);
-		} catch (XSUserInfoException e) {
-			logger.error("Error occurred during token request", e);
-			return null;
-		}
-	}
-
-	@Override
 	public Collection<String> getScopes() {
 		List<String> scopesList = getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
 		return scopesList != null ? scopesList : Collections.emptyList();
@@ -246,17 +229,6 @@ public class XsuaaToken extends Jwt implements Token {
 	 */
 	public boolean hasClaim(String claim) {
 		return containsClaim(claim);
-	}
-
-	/**
-	 * For custom access to the claims of the authentication token.
-	 * 
-	 * @return this
-	 * @deprecated with version 1.5 as XsuaaToken inherits from {@link Jwt} which
-	 *             implements {@link JwtClaimAccessor}
-	 */
-	ClaimAccessor getClaimAccessor() {
-		return this;
 	}
 
 	void setAuthorities(Collection<GrantedAuthority> authorities) {
@@ -293,5 +265,45 @@ public class XsuaaToken extends Jwt implements Token {
 		}
 
 		return attributeValues;
+	}
+	
+	/**
+	 * Exchange a token into a token from another service instance
+	 * <p>
+	 * @deprecated in favor of the XsuaaTokenFlows API.
+	 *
+	 * @param tokenRequest
+	 *            request data
+	 * @return requested token
+	 * @throws URISyntaxException
+	 *             in case of wron URLs
+	 */
+	@Override
+	public String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException {
+		Assert.notNull(tokenRequest, "tokenRequest argument is required");
+		Assert.isTrue(tokenRequest.isValid(), "tokenRequest is not valid");
+
+		RestTemplate restTemplate = tokenRequest instanceof XSTokenRequestImpl
+				? ((XSTokenRequestImpl) tokenRequest).getRestTemplate()
+				: null;
+
+		XsuaaTokenExchanger tokenExchanger = new XsuaaTokenExchanger(restTemplate, this);
+		try {
+			return tokenExchanger.requestToken(tokenRequest);
+		} catch (XSUserInfoException e) {
+			logger.error("Error occurred during token request", e);
+			return null;
+		}
+	}
+	
+	/**
+	 * For custom access to the claims of the authentication token.
+	 * 
+	 * @return this
+	 * @deprecated with version 1.5 as XsuaaToken inherits from {@link Jwt} which
+	 *             implements {@link JwtClaimAccessor}
+	 */
+	ClaimAccessor getClaimAccessor() {
+		return this;
 	}
 }

@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
  * @see XsuaaToken
  */
 public class AuthenticationToken extends JwtAuthenticationToken {
+	private static final long serialVersionUID = -3779129534612771294L;
 
 	public AuthenticationToken(Jwt jwt, Collection<GrantedAuthority> authorities) {
 		super(jwt, authorities);

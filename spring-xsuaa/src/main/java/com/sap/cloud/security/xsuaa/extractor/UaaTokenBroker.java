@@ -53,6 +53,8 @@ public class UaaTokenBroker implements TokenBroker {
 
 			// Note the body object as first parameter!
 			HttpEntity<?> httpEntity = new HttpEntity<Object>(body, headers);
+			
+			@SuppressWarnings("rawtypes")
 			ResponseEntity<Map> exchange = restTemplate.exchange(tokenURL, HttpMethod.POST, httpEntity, Map.class);
 
 			return (String) exchange.getBody().get("access_token");
@@ -87,6 +89,8 @@ public class UaaTokenBroker implements TokenBroker {
 
 			// Note the body object as first parameter!
 			HttpEntity<?> httpEntity = new HttpEntity<Object>(body, headers);
+			
+			@SuppressWarnings("rawtypes")
 			ResponseEntity<Map> exchange = restTemplate.exchange(tokenURL, HttpMethod.POST, httpEntity, Map.class);
 
 			return (String) exchange.getBody().get("access_token");
