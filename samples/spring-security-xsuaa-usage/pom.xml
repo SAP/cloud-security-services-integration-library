@@ -18,6 +18,12 @@
 	<name>spring-security-xsuaa-usage</name>
 
 	<properties>
+		<!-- 
+			Fix to trick Eclipse into not complaining with an "Unknown" issue 
+      		in first line of the pom.xml. 
+      		See: https://stackoverflow.com/questions/56142369/why-am-i-getting-unknown-error-in-line-1-of-pom-xml 
+      	-->
+    	<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
