@@ -3,9 +3,9 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
-import com.sap.cloud.security.xsuaa.tokenflows.NimbusTokenDecoder;
-import com.sap.cloud.security.xsuaa.tokenflows.VariableKeySetUriTokenDecoder;
-import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
+import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
+import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

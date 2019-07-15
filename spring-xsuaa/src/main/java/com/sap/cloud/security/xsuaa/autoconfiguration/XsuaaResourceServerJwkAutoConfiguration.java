@@ -29,8 +29,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 @Configuration
 @ConditionalOnClass(Jwt.class)
 @ConditionalOnProperty(prefix = "spring.xsuaa", name = "auto", havingValue = "true", matchIfMissing = true)
-@AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which
-																	// specifies JwtDecoder
+@AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which specifies JwtDecoder
 public class XsuaaResourceServerJwkAutoConfiguration {
 
 	@Bean

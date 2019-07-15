@@ -4,7 +4,7 @@
  * v. 2 except as noted otherwise in the LICENSE file
  * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
  */
-package com.sap.cloud.security.xsuaa.tokenflows;
+package com.sap.cloud.security.xsuaa.token.flows;
 
 import java.net.URI;
 import java.util.HashMap;

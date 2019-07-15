@@ -9,9 +9,9 @@ import static org.junit.Assert.assertThat;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
-import com.sap.cloud.security.xsuaa.tokenflows.NimbusTokenDecoder;
-import com.sap.cloud.security.xsuaa.tokenflows.VariableKeySetUriTokenDecoder;
-import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
+import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
+import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

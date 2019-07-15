@@ -1,8 +1,10 @@
-package com.sap.cloud.security.xsuaa.tokenflows;
+package com.sap.cloud.security.xsuaa.token.flows;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import com.sap.cloud.security.xsuaa.token.flows.TokenFlowException;
 
 public class TokenFlowExceptionTests {
    
