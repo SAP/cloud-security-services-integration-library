@@ -16,18 +16,34 @@ import org.springframework.util.Assert;
  *
  */
 public class TokenAuthenticationConverter extends AbstractAuthenticationConverter{
-
+	protected String appId;
 
 	public TokenAuthenticationConverter(AuthoritiesExtractor authoritiesExtractor) {
 		super(authoritiesExtractor);
 	}
 
+	/**
+	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor}
+	 * instance as default authorities extractor.
+	 *
+	 * @param appId
+	 *         e.g. myXsAppname!t123
+	 */
 	public TokenAuthenticationConverter(String appId) {
-		super(appId);
+		super(new DefaultAuthoritiesExtractor());
+		this.appId = appId;
 	}
 
+	/**
+	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor}
+	 * instance as default authorities extractor.
+	 *
+	 * @param xsuaaServiceConfiguration
+	 *            the xsuaa configuration
+	 */
 	public TokenAuthenticationConverter(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-		super(xsuaaServiceConfiguration);
+		super(new DefaultAuthoritiesExtractor());
+		this.appId = xsuaaServiceConfiguration.getAppId();
 	}
 
 	@Override
