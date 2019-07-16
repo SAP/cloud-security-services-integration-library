@@ -15,43 +15,19 @@ import org.springframework.util.Assert;
  * my-application-demo!t1229) from the scopes in the JWT.
  *
  */
-public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+public class TokenAuthenticationConverter extends AbstractAuthenticationConverter{
 
-	private AuthoritiesExtractor authoritiesExtractor;
-	private String appId;
 
-	/**
-	 * Creates a new converter with the given {@link AuthoritiesExtractor}.
-	 * 
-	 * @param authoritiesExtractor
-	 *            - the extractor used to turn Jwt scopes into Spring Security
-	 *            authorities.
-	 */
 	public TokenAuthenticationConverter(AuthoritiesExtractor authoritiesExtractor) {
-		this.authoritiesExtractor = authoritiesExtractor;
+		super(authoritiesExtractor);
 	}
 
-	/**
-	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor}
-	 * instance as default authorities extractor.
-	 * 
-	 * @param appId
-	 *            e.g. myXsAppname!t123
-	 */
 	public TokenAuthenticationConverter(String appId) {
-		authoritiesExtractor = new DefaultAuthoritiesExtractor();
-		this.appId = appId;
+		super(appId);
 	}
 
-	/**
-	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor}
-	 * instance as default authorities extractor.
-	 *
-	 * @param xsuaaServiceConfiguration
-	 *            the xsuaa configuration
-	 */
 	public TokenAuthenticationConverter(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-		this(xsuaaServiceConfiguration.getAppId());
+		super(xsuaaServiceConfiguration);
 	}
 
 	@Override
