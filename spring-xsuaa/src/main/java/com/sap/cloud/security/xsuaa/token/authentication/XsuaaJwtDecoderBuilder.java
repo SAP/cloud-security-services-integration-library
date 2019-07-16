@@ -9,12 +9,12 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 
 public class XsuaaJwtDecoderBuilder {
 
-	private XsuaaServiceConfiguration configuration;
-	int decoderCacheValidity; // in seconds
-	int decoderCacheSize;
-	OAuth2TokenValidator<Jwt> xsuaaTokenValidators;
-	OAuth2TokenValidator<Jwt> defaultTokenValidators;
-	PostValidationAction postValidationAction;
+	protected XsuaaServiceConfiguration configuration;
+	protected int decoderCacheValidity; // in seconds
+	protected int decoderCacheSize;
+	protected OAuth2TokenValidator<Jwt> xsuaaTokenValidators;
+	protected OAuth2TokenValidator<Jwt> defaultTokenValidators;
+	protected PostValidationAction postValidationAction;
 
 	/**
 	 * Utility for building a JWT decoder configuration

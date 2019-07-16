@@ -24,18 +24,18 @@ import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	Cache<String, JwtDecoder> cache;
-	private String uaaDomain;
-	private OAuth2TokenValidator<Jwt> tokenValidators;
-	private PostValidationAction postValidationAction;
+	protected OAuth2TokenValidator<Jwt> tokenValidators;
+	protected PostValidationAction postValidationAction;
+	protected XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
-	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
+	protected XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
 			OAuth2TokenValidator<Jwt> tokenValidators, PostValidationAction postValidationAction) {
 		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
 				.build();
-		this.uaaDomain = xsuaaServiceConfiguration.getUaaDomain();
+		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 		this.tokenValidators = tokenValidators;
 		this.postValidationAction = postValidationAction;
 	}
@@ -51,12 +51,12 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			throw new JwtException("Error initializing JWT decoder: " + ex.getMessage());
 		}
 
-		String jku = (String) jwt.getHeader().toJSONObject().getOrDefault("jku", null);
-		String kid = (String) jwt.getHeader().toJSONObject().getOrDefault("kid", null);
+		String jku = getJku(jwt);
+		String kid = getKid(jwt);
+		String uaaDomain = getUaaDomain(jwt);
 
 		try {
 			canVerifyWithOnlineKey(jku, kid, uaaDomain);
-			jku = changeJkuToHttpIfLocal(jku);
 			validateJKU(jku, uaaDomain);
 			Jwt verifiedToken = verifyWithOnlineKey(token, jku, kid);
 
@@ -71,12 +71,16 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 	}
 
-	// special case: Use http if xsuaa is local docker instance as https does not work
-	private String changeJkuToHttpIfLocal(String jku) {
-		if (jku.contains(":8080")) {
-			return jku.replace("https", "http");
-		}
-		return jku;
+	protected String getJku(JWT jwt) {
+		return (String) jwt.getHeader().toJSONObject().getOrDefault("jku", null);
+	}
+
+	protected String getKid(JWT jwt) {
+		return (String) jwt.getHeader().toJSONObject().getOrDefault("kid", null);
+	}
+
+	protected String getUaaDomain(JWT jwt) {
+		return xsuaaServiceConfiguration.getUaaDomain();
 	}
 
 	private void canVerifyWithOnlineKey(String jku, String kid, String uaadomain) {

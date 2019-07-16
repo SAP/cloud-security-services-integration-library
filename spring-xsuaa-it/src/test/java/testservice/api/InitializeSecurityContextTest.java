@@ -25,7 +25,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
@@ -38,7 +37,6 @@ import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAuto
 import com.sap.cloud.security.xsuaa.mock.XsuaaRequestDispatcher;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.Token;
-import com.sap.cloud.security.xsuaa.token.authentication.PostValidationAction;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import com.sap.xs2.security.container.SecurityContext;
 
@@ -72,8 +70,8 @@ public class InitializeSecurityContextTest {
 	@Before
 	public void setUp() {
 		postActionExecuted = false;
-		jwtDecoderWithPostAction = new XsuaaJwtDecoderBuilder(serviceConfiguration).
-				withPostValidationAction(token -> postActionExecuted = true).build();
+		jwtDecoderWithPostAction = new XsuaaJwtDecoderBuilder(serviceConfiguration)
+				.withPostValidationAction(token -> postActionExecuted = true).build();
 	}
 
 	@Test
