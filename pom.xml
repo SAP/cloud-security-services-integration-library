@@ -69,6 +69,12 @@
     <module>spring-xsuaa-test</module>
     <module>spring-xsuaa-mock</module>
     <module>spring-xsuaa-starter</module>
+    <!-- Uncomment to build Application Samples as well -->
+    <!--
+    <module>samples/spring-security-xsuaa-usage</module>
+    <module>samples/sap-java-buildpack-api-usage</module>
+    <module>samples/spring-security-basic-auth</module>
+     -->
   </modules>
 
   <dependencyManagement>
