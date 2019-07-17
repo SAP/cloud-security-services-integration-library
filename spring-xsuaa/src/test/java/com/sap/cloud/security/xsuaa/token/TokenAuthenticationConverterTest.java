@@ -35,7 +35,7 @@ public class TokenAuthenticationConverterTest {
 		tokenConverterLocalScopesOnly = new TokenAuthenticationConverter(xsAppName);
 		tokenConverterLocalScopesOnly.setLocalScopeAsAuthorities(true);
 
-		tokenConverterOauth2 = new OAuth2AuthenticationConverter(xsAppName);
+		tokenConverterOauth2 = new OAuth2AuthenticationConverter(new DefaultAuthoritiesExtractor());
 	}
 
 	@Test
