@@ -61,21 +61,13 @@
         <groupId>com.sap.cloud.security.xsuaa</groupId>
         <artifactId>spring-xsuaa-mock</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.sap.cloud.security.xsuaa</groupId>
-        <artifactId>spring-xsuaa-it</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.sap.cloud.security.xsuaa</groupId>
-        <artifactId>xsuaa-spring-boot-starter</artifactId>
-        <version>${project.version}</version>
+        <scope>test</scope> <!-- Assumption: xsuaa-mock is mostly used for tests. If applications need it at compile time, they can set the scope to 'compile' explicitly. -->
       </dependency>
       <dependency>
         <groupId>com.sap.cloud.security.xsuaa</groupId>
         <artifactId>spring-xsuaa-test</artifactId>
         <version>${project.version}</version>
+        <scope>test</scope> <!-- Assumption: xsuaa-mock is mostly used for tests. If applications need it at compile time, they can set the scope to 'compile' explicitly. -->
       </dependency>
     </dependencies>
   </dependencyManagement>
