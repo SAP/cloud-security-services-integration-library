@@ -6,7 +6,7 @@
   <artifactId>bom</artifactId>
   <version>1.5.0</version>
   <packaging>pom</packaging>
-  
+
   <name>XSUAA Client Libraries Bill Of Material (BOM)</name>
   <description>Bill of material of modules provided by the XSUAA client libraries.</description>
 
@@ -49,6 +49,11 @@
     <dependencies>
       <dependency>
         <groupId>com.sap.cloud.security.xsuaa</groupId>
+        <artifactId>xsuaa-spring-boot-starter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sap.cloud.security.xsuaa</groupId>
         <artifactId>api</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -71,7 +76,7 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-  
+
   <modules>
     <module>..</module>
   </modules>
