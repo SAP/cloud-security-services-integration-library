@@ -45,8 +45,8 @@ echo -e "\nSuccessfully logged in, will continue...\n"
 checkappname "$appname"
 checkappname "$approutername"
 
-printf "\nThis will restart your application \e[36m\e[1m%s\e[0m and your application router \e[36m\e[1m%s\e[0m twice. \nAre you sure (y/n)?" "$appname" "$approutername"
-read -rs -n 1 -p "" answer
+printf "\nThis will restart your application \033[36m\033[1m%s\033[0m and your application router \033[36m\033[1m%s\033[0m twice. \nAre you sure (Yy/Nn)?" "$appname" "$approutername"
+read -r -p "" answer
 if [ "$answer" != "${answer#[Yy]}" ]
 then
     true
@@ -67,12 +67,16 @@ cf restart "$approutername"
 cf restart "$appname"
 
 #Creating, collecting and compressing the logs
-echo -e "\n\e[36m\e[1mNow please repeat your scenario (e.g. try to login to your app or similar)...\e[0m\n"
+echo -e "\n\033[36m\033[1mNow please repeat your scenario (e.g. try to login to your app or similar)...\033[0m\n"
 read -rp "When you are done please press ENTER to collect the logs:"
 
 echo -e "\nCollecting the logs..."
 
-{ echo -e "Approuter logs:\n\n"; cf logs "$approutername" --recent; echo -e "\n\nApp logs:\n\n"; cf logs "$appname" --recent; } | zip -q "$logszip" -
+{ echo -e "Approuter logs:\n\n"; cf logs "$approutername" --recent; echo -e "\n\nApp logs:\n\n"; cf logs "$appname" --recent; } > /tmp/cflogsoutput
+
+zip -q "$logszip" /tmp/cflogsoutput
+
+rm /tmp/cflogsoutput
 
 #Unsetting env variables and restarting apps
 echo -e "\nRestoring log levels...\n"
@@ -86,4 +90,4 @@ cf restart "$approutername"
 cf restart "$appname"
 
 #End
-echo -e "\n\e[32m\e[1mAll done.\e[0m Your file is here:" && readlink -f "$logszip"
+echo -e "\n\033[32m\033[1mAll done.\033[0m Your file is here: " && echo "$logszip"
