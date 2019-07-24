@@ -1,9 +1,13 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -27,15 +31,38 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	Cache<String, JwtDecoder> cache;
-	private String uaaDomain;
 	private OAuth2TokenValidator<Jwt> tokenValidators;
+	private Collection<PostValidationAction> postValidationActions;
+	private TokenInfoExtractor tokenInfoExtractor;
 
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
 			OAuth2TokenValidator<Jwt> tokenValidators) {
 		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
 				.build();
-		this.uaaDomain = xsuaaServiceConfiguration.getUaaDomain();
 		this.tokenValidators = tokenValidators;
+
+		this.tokenInfoExtractor = new TokenInfoExtractor() {
+			@Override
+			public String getJku(JWT jwt) {
+				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_JKU, null);
+			}
+
+			@Override
+			public String getKid(JWT jwt) {
+				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_KID, null);
+			}
+
+			@Override
+			public String getUaaDomain(JWT jwt) {
+				return xsuaaServiceConfiguration.getUaaDomain();
+			}
+		};
+	}
+
+	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
+			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
+		this(xsuaaServiceConfiguration, cacheValidityInSeconds, cacheSize, tokenValidators);
+		this.postValidationActions = postValidationActions;
 	}
 
 	@Override
@@ -49,13 +76,19 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			throw new JwtException("Error initializing JWT decoder: " + ex.getMessage());
 		}
 
-		String jku = (String) jwt.getHeader().toJSONObject().getOrDefault("jku", null);
-		String kid = (String) jwt.getHeader().toJSONObject().getOrDefault("kid", null);
+		String jku = tokenInfoExtractor.getJku(jwt);
+		String kid = tokenInfoExtractor.getKid(jwt);
+		String uaaDomain = tokenInfoExtractor.getUaaDomain(jwt);
 
 		try {
 			canVerifyWithOnlineKey(jku, kid, uaaDomain);
 			validateJKU(jku, uaaDomain);
-			return verifyWithOnlineKey(token, jku, kid);
+			Jwt verifiedToken = verifyWithOnlineKey(token, jku, kid);
+
+			if (postValidationActions != null) {
+				postValidationActions.forEach(act -> act.perform(verifiedToken));
+			}
+			return verifiedToken;
 		} catch (JwtValidationException ex) {
 			throw ex;
 		} catch (JwtException ex) {
@@ -105,5 +138,9 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jku);
 		decoder.setJwtValidator(tokenValidators);
 		return decoder;
+	}
+
+	public void setTokenInfoExtractor(TokenInfoExtractor tokenInfoExtractor) {
+		this.tokenInfoExtractor = tokenInfoExtractor;
 	}
 }

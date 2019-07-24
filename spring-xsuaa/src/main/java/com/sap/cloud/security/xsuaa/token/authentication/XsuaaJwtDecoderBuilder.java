@@ -1,5 +1,8 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -14,6 +17,7 @@ public class XsuaaJwtDecoderBuilder {
 	int decoderCacheSize;
 	OAuth2TokenValidator<Jwt> xsuaaTokenValidators;
 	OAuth2TokenValidator<Jwt> defaultTokenValidators;
+	Collection<PostValidationAction> postValidationActions;
 
 	/**
 	 * Utility for building a JWT decoder configuration
@@ -38,7 +42,8 @@ public class XsuaaJwtDecoderBuilder {
 		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = new DelegatingOAuth2TokenValidator<>(
 				defaultTokenValidators,
 				xsuaaTokenValidators);
-		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize, combinedTokenValidators);
+		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
+				combinedTokenValidators, postValidationActions);
 	}
 
 	/**
@@ -64,6 +69,19 @@ public class XsuaaJwtDecoderBuilder {
 	 */
 	public XsuaaJwtDecoderBuilder withDecoderCacheSize(int size) {
 		this.decoderCacheSize = size;
+		return this;
+	}
+
+	/**
+	 * Sets the PostValidationActions that are executed after successful
+	 * verification and validation of the token.
+	 *
+	 * @param postValidationActions
+	 *            the PostValidationActions
+	 * @return this
+	 */
+	public XsuaaJwtDecoderBuilder withPostValidationActions(PostValidationAction... postValidationActions) {
+		this.postValidationActions = Arrays.asList(postValidationActions);
 		return this;
 	}
 
