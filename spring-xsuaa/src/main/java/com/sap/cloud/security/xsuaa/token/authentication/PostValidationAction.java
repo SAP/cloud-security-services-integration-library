@@ -4,5 +4,5 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 public interface PostValidationAction {
 
-    void apply(Jwt token);
+    void perform(Jwt token);
 }

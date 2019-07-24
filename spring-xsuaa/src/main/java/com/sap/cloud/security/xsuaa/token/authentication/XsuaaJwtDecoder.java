@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -24,20 +25,38 @@ import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	Cache<String, JwtDecoder> cache;
-	protected OAuth2TokenValidator<Jwt> tokenValidators;
-	protected PostValidationAction postValidationAction;
-	protected XsuaaServiceConfiguration xsuaaServiceConfiguration;
+	private OAuth2TokenValidator<Jwt> tokenValidators;
+	private Collection<PostValidationAction> postValidationActions;
+	private TokenInfoExtractor tokenInfoExtractor;
 
-	protected XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
-			OAuth2TokenValidator<Jwt> tokenValidators, PostValidationAction postValidationAction) {
+	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
+			OAuth2TokenValidator<Jwt> tokenValidators) {
 		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
 				.build();
-		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 		this.tokenValidators = tokenValidators;
-		this.postValidationAction = postValidationAction;
+
+		this.tokenInfoExtractor = new TokenInfoExtractor() {
+			@Override public String getJku(JWT jwt) {
+				return (String) jwt.getHeader().toJSONObject().getOrDefault("jku", null);
+			}
+
+			@Override public String getKid(JWT jwt) {
+				return (String) jwt.getHeader().toJSONObject().getOrDefault("kid", null);
+			}
+
+			@Override public String getUaaDomain(JWT jwt) {
+				return xsuaaServiceConfiguration.getUaaDomain();
+			}
+		};
+	}
+
+	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
+			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
+		this(xsuaaServiceConfiguration, cacheValidityInSeconds, cacheSize, tokenValidators);
+		this.postValidationActions = postValidationActions;
 	}
 
 	@Override
@@ -51,17 +70,17 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			throw new JwtException("Error initializing JWT decoder: " + ex.getMessage());
 		}
 
-		String jku = getJku(jwt);
-		String kid = getKid(jwt);
-		String uaaDomain = getUaaDomain(jwt);
+		String jku = tokenInfoExtractor.getJku(jwt);
+		String kid = tokenInfoExtractor.getKid(jwt);
+		String uaaDomain = tokenInfoExtractor.getUaaDomain(jwt);
 
 		try {
 			canVerifyWithOnlineKey(jku, kid, uaaDomain);
 			validateJKU(jku, uaaDomain);
 			Jwt verifiedToken = verifyWithOnlineKey(token, jku, kid);
 
-			if (postValidationAction != null) {
-				postValidationAction.apply(verifiedToken);
+			if (postValidationActions != null ) {
+				postValidationActions.forEach(act -> act.perform(verifiedToken));
 			}
 			return verifiedToken;
 		} catch (JwtValidationException ex) {
@@ -69,18 +88,6 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		} catch (JwtException ex) {
 			throw new JwtException("JWT verification failed: " + ex.getMessage());
 		}
-	}
-
-	protected String getJku(JWT jwt) {
-		return (String) jwt.getHeader().toJSONObject().getOrDefault("jku", null);
-	}
-
-	protected String getKid(JWT jwt) {
-		return (String) jwt.getHeader().toJSONObject().getOrDefault("kid", null);
-	}
-
-	protected String getUaaDomain(JWT jwt) {
-		return xsuaaServiceConfiguration.getUaaDomain();
 	}
 
 	private void canVerifyWithOnlineKey(String jku, String kid, String uaadomain) {
@@ -125,5 +132,9 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jku);
 		decoder.setJwtValidator(tokenValidators);
 		return decoder;
+	}
+
+	public void setTokenInfoExtractor(TokenInfoExtractor tokenInfoExtractor) {
+		this.tokenInfoExtractor = tokenInfoExtractor;
 	}
 }

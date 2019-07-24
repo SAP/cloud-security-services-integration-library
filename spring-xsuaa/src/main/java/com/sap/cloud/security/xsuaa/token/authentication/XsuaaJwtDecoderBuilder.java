@@ -1,5 +1,8 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -9,12 +12,12 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 
 public class XsuaaJwtDecoderBuilder {
 
-	protected XsuaaServiceConfiguration configuration;
-	protected int decoderCacheValidity; // in seconds
-	protected int decoderCacheSize;
-	protected OAuth2TokenValidator<Jwt> xsuaaTokenValidators;
-	protected OAuth2TokenValidator<Jwt> defaultTokenValidators;
-	protected PostValidationAction postValidationAction;
+	private XsuaaServiceConfiguration configuration;
+	int decoderCacheValidity; // in seconds
+	int decoderCacheSize;
+	OAuth2TokenValidator<Jwt> xsuaaTokenValidators;
+	OAuth2TokenValidator<Jwt> defaultTokenValidators;
+	Collection<PostValidationAction> postValidationActions;
 
 	/**
 	 * Utility for building a JWT decoder configuration
@@ -40,7 +43,7 @@ public class XsuaaJwtDecoderBuilder {
 				defaultTokenValidators,
 				xsuaaTokenValidators);
 		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
-				combinedTokenValidators, postValidationAction);
+				combinedTokenValidators, postValidationActions);
 	}
 
 	/**
@@ -70,14 +73,27 @@ public class XsuaaJwtDecoderBuilder {
 	}
 
 	/**
-	 * Sets the PostValidationAction which is executed after successful verification and validation of the token.
+	 * Sets the PostValidationAction that is executed after successful verification and validation of the token.
 	 *
 	 * @param postValidationAction
 	 *           the PostValidationAction
 	 * @return this
 	 */
 	public XsuaaJwtDecoderBuilder withPostValidationAction(PostValidationAction postValidationAction) {
-		this.postValidationAction = postValidationAction;
+		postValidationActions = new ArrayList<>();
+		postValidationActions.add(postValidationAction);
+		return this;
+	}
+
+	/**
+	 * Sets the PostValidationActions that are executed after successful verification and validation of the token.
+	 *
+	 * @param postValidationActions
+	 *           the PostValidationActions
+	 * @return this
+	 */
+	public XsuaaJwtDecoderBuilder withPostValidationActions(Collection<PostValidationAction> postValidationActions) {
+		this.postValidationActions = postValidationActions;
 		return this;
 	}
 

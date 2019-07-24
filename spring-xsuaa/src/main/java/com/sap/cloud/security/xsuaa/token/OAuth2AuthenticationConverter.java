@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_CLIENT_ID;
+
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -13,7 +15,7 @@ import com.sap.cloud.security.xsuaa.extractor.AuthoritiesExtractor;
  * An authentication converter that sets a OAuth2Authentication object.
  * Required to keep compatibility with UAA.
  */
-public class OAuth2AuthenticationConverter extends AbstractAuthenticationConverter {
+public class OAuth2AuthenticationConverter extends TokenAuthenticationConverter {
 
 
 	public OAuth2AuthenticationConverter(AuthoritiesExtractor authoritiesExtractor) {
@@ -22,15 +24,12 @@ public class OAuth2AuthenticationConverter extends AbstractAuthenticationConvert
 
 	@Override
 	public OAuth2Authentication convert(Jwt jwt) {
-		XsuaaToken token = new XsuaaToken(jwt);
-		AuthorizationRequest authorizationRequest = new AuthorizationRequest(token.getClientId(),
-				authoritiesExtractor.getAuthorities(token).stream()
-						.map(object -> Objects.toString(object, null))
-						.collect(Collectors.toList()));
+		AuthenticationToken authenticationToken = (AuthenticationToken) super.convert(jwt);
+		String clientId = jwt.getClaimAsString(CLAIM_CLIENT_ID);
+		AuthorizationRequest authorizationRequest = new AuthorizationRequest(clientId, null);
 		authorizationRequest.setApproved(true);
-		authorizationRequest.setAuthorities(authoritiesExtractor.getAuthorities(token));
+		authorizationRequest.setAuthorities(authenticationToken.getAuthorities());
 
-		return new OAuth2Authentication(authorizationRequest.createOAuth2Request(),
-				new AuthenticationToken(jwt, authoritiesExtractor.getAuthorities(new XsuaaToken(jwt))));
+		return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), authenticationToken);
 	}
 }

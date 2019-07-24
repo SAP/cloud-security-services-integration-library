@@ -23,7 +23,6 @@ public class TokenAuthenticationConverterTest {
 	private String xsAppName = "my-app-name!400";
 	private TokenAuthenticationConverter tokenConverterDefault;
 	private TokenAuthenticationConverter tokenConverterLocalScopesOnly;
-	private OAuth2AuthenticationConverter tokenConverterOauth2;
 	String scopeAdmin = xsAppName + "." + "Admin";
 	String scopeRead = xsAppName + "." + "Read";
 	String scopeOther = "other-app!234" + "." + "Other";
@@ -34,8 +33,6 @@ public class TokenAuthenticationConverterTest {
 
 		tokenConverterLocalScopesOnly = new TokenAuthenticationConverter(xsAppName);
 		tokenConverterLocalScopesOnly.setLocalScopeAsAuthorities(true);
-
-		tokenConverterOauth2 = new OAuth2AuthenticationConverter(new DefaultAuthoritiesExtractor());
 	}
 
 	@Test
@@ -137,17 +134,5 @@ public class TokenAuthenticationConverterTest {
 			return "ATTR:" + attributeName.toUpperCase() + "=" + attributeValue;
 		}
 
-	}
-
-
-	@Test
-	public void extractAuthoritiesWithScopesOAuth2Authenticaiton() {
-		Jwt jwt = new JwtGenerator().addScopes(scopeAdmin, scopeRead, scopeOther).getToken();
-
-		AbstractAuthenticationToken authenticationToken = tokenConverterOauth2.convert(jwt);
-		assertThat(authenticationToken.getAuthorities().size(), is(3));
-		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority(scopeRead)));
-		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority(scopeAdmin)));
-		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority(scopeOther)));
 	}
 }
