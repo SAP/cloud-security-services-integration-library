@@ -47,7 +47,7 @@ public class XsuaaJwtDecoderTest {
 	public void setUp() {
 		postActionExecuted = false;
 		jwtDecoderWithPostAction = new XsuaaJwtDecoderBuilder(serviceConfiguration)
-				.withPostValidationAction(token -> postActionExecuted = true).build();
+				.withPostValidationActions(token -> postActionExecuted = true).build();
 	}
 
 	@Test
