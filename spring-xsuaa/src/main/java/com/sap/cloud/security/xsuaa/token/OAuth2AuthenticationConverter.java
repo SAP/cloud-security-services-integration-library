@@ -12,11 +12,10 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import com.sap.cloud.security.xsuaa.extractor.AuthoritiesExtractor;
 
 /**
- * An authentication converter that sets a OAuth2Authentication object.
- * Required to keep compatibility with UAA.
+ * An authentication converter that sets a OAuth2Authentication object. Required
+ * to keep compatibility with UAA.
  */
 public class OAuth2AuthenticationConverter extends TokenAuthenticationConverter {
-
 
 	public OAuth2AuthenticationConverter(AuthoritiesExtractor authoritiesExtractor) {
 		super(authoritiesExtractor);

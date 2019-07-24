@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
@@ -73,27 +73,15 @@ public class XsuaaJwtDecoderBuilder {
 	}
 
 	/**
-	 * Sets the PostValidationAction that is executed after successful verification and validation of the token.
-	 *
-	 * @param postValidationAction
-	 *           the PostValidationAction
-	 * @return this
-	 */
-	public XsuaaJwtDecoderBuilder withPostValidationAction(PostValidationAction postValidationAction) {
-		postValidationActions = new ArrayList<>();
-		postValidationActions.add(postValidationAction);
-		return this;
-	}
-
-	/**
-	 * Sets the PostValidationActions that are executed after successful verification and validation of the token.
+	 * Sets the PostValidationActions that are executed after successful
+	 * verification and validation of the token.
 	 *
 	 * @param postValidationActions
-	 *           the PostValidationActions
+	 *            the PostValidationActions
 	 * @return this
 	 */
-	public XsuaaJwtDecoderBuilder withPostValidationActions(Collection<PostValidationAction> postValidationActions) {
-		this.postValidationActions = postValidationActions;
+	public XsuaaJwtDecoderBuilder withPostValidationActions(PostValidationAction... postValidationActions) {
+		this.postValidationActions = Arrays.asList(postValidationActions);
 		return this;
 	}
 
