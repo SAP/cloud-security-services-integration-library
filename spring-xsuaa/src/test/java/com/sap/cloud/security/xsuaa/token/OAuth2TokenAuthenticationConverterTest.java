@@ -38,5 +38,6 @@ public class OAuth2TokenAuthenticationConverterTest {
 		assertThat(authenticationToken.getAuthorities(), hasItem(new SimpleGrantedAuthority(scopeOther)));
 
 		assertTrue(authenticationToken instanceof OAuth2Authentication);
+		assertThat(((OAuth2Authentication) authenticationToken).getOAuth2Request().getScope(), hasItem(scopeRead));
 	}
 }
