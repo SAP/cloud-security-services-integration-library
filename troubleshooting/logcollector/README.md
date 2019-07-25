@@ -3,7 +3,7 @@
 ## Description
 The logcollector scripts help you setting the right log levels for troubleshooting your application and application-router.
 
-Therefore it logs you in to your Cloud Foundry Space, sets the log levels for a given application and application router to the values recommended [here](https://wiki.wdf.sap.corp/wiki/display/NWCUIAMSIM/Increase+log+verbosity+for+detailed+error+analysis) and restarts the given apps.
+Therefore it logs you in to your Cloud Foundry Space, sets the log levels for a given application and application router to the values recommended [here (step 12)](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/f22d5100b3a243af88e3edf5311754fc.html) and restarts the given apps.
 Then you can replay your scenario. After that the script restores the log levels and restarts the apps again to make sure the changes take effect. It zips the aggregated logs in one file and prints the location to the output.
 
 

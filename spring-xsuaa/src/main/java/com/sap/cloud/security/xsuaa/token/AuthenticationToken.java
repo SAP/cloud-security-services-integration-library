@@ -15,17 +15,25 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
  */
 public class AuthenticationToken extends JwtAuthenticationToken {
 
+	private Token token;
+
 	public AuthenticationToken(Jwt jwt, Collection<GrantedAuthority> authorities) {
 		super(jwt, authorities);
-	}
 
-	@Override
-	public Object getPrincipal() {
 		// Here is where the actual magic happens.
 		// The Jwt is exchanged for another implementation.
 		XsuaaToken token = new XsuaaToken(getToken());
 		token.setAuthorities(this.getAuthorities());
+		this.token = token;
+	}
+
+	@Override
+	public Object getPrincipal() {
 		return token;
 	}
 
+	@Override
+	public String getName() {
+		return token.getUsername();
+	}
 }

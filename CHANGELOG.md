@@ -1,7 +1,9 @@
 # Change Log 
 
 All notable changes to this project will be documented in this file.
-
+## 1.6.0
+* Add OAuth2AuthenticationConverter that can be used to set an authentication object of type OAuth2Authentication.
+* Enables to execute post validation actions that are executed after successful token validation.
 ## 1.5.0
 * Supports `jku` URI which is provided as part of the JSON Web Signature (JWS). The `jku` of the Jwt token header references the public key URI of the Xsuaa OAuth Authorization Server, and needs to match to the `xsuaa.uaadomain`.
 * Completely customizable auto-configurations so that apps can override the spring-xsuaa defaults:

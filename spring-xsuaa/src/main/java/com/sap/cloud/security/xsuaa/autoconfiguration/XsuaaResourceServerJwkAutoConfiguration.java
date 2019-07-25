@@ -17,6 +17,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
+
 /**
  * {@link EnableAutoConfiguration Auto-configuration} that exposes a
  * {@link JwtDecoder}, which has the standard Spring Security Jwt validators as
