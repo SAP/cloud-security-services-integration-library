@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import org.junit.Test;
@@ -22,7 +23,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = XsuaaAutoConfiguration.class)
+@SpringBootTest(classes = { XsuaaAutoConfiguration.class, DummyXsuaaServiceConfiguration.class })
 public class XsuaaAutoConfigurationTest {
 
 	// create an ApplicationContextRunner that will create a context with the
@@ -84,7 +85,7 @@ public class XsuaaAutoConfigurationTest {
 					assertThat(context.containsBean("xsuaaServiceConfiguration"), is(false));
 					assertThat(context.containsBean("customServiceConfiguration"), is(true));
 					assertThat(context.getBean("customServiceConfiguration"),
-							instanceOf(CustomXsuaaConfiguration.class));
+							instanceOf(DummyXsuaaServiceConfiguration.class));
 				});
 	}
 
@@ -93,40 +94,7 @@ public class XsuaaAutoConfigurationTest {
 
 		@Bean
 		public XsuaaServiceConfiguration customServiceConfiguration() {
-			return new CustomXsuaaConfiguration();
-		}
-	}
-
-	static class CustomXsuaaConfiguration implements XsuaaServiceConfiguration {
-
-		@Override
-		public String getClientId() {
-			return null;
-		}
-
-		@Override
-		public String getClientSecret() {
-			return null;
-		}
-
-		@Override
-		public String getUaaUrl() {
-			return null;
-		}
-
-		@Override
-		public String getTokenKeyUrl(String zid, String subdomain) {
-			return null;
-		}
-
-		@Override
-		public String getAppId() {
-			return null;
-		}
-
-		@Override
-		public String getUaaDomain() {
-			return null;
+			return new DummyXsuaaServiceConfiguration();
 		}
 	}
 }

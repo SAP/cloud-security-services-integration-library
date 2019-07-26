@@ -7,9 +7,9 @@ import java.util.Date;
 import java.util.List;
 
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,8 +27,7 @@ public class XsuaaAudienceValidatorForCloneTokenTest {
 
 	@Before
 	public void setup() {
-		XsuaaServiceConfiguration serviceConfiguration = new XsuaaAudienceValidatorTest.DummyXsuaaServiceConfiguration(
-				"sb-test1!t1", "test1!t1");
+		XsuaaServiceConfiguration serviceConfiguration = new DummyXsuaaServiceConfiguration("sb-test1!t1", "test1!t1");
 		cut = new XsuaaAudienceValidator(serviceConfiguration);
 		cut.configureAnotherXsuaaInstance(XSUAA_BROKER_XSAPPNAME, XSUAA_BROKER_CLIENT_ID);
 
