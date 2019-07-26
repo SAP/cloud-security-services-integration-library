@@ -7,32 +7,17 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 ## Configuration
 
 ### Maven Dependencies
+As of version `1.6.0` you can make use of XSUAA Spring Boot Starter:
+
 ```xml
 <dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-oauth2-jose</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-config</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-oauth2-resource-server</artifactId>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
 </dependency>
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
-    <artifactId>spring-xsuaa</artifactId>
-    <version>1.5.0</version>
-</dependency>
-<dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-autoconfigure</artifactId> <!--
-</dependency>
-<dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-to-slf4j</artifactId>
-    <version>2.11.2</version>
+    <artifactId>xsuaa-spring-boot-starter</artifactId>
+    <version>${project.version}</version>
 </dependency>
 ```
 
