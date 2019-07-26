@@ -89,17 +89,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 In case of non-HTTP requests, you may need to initialize the Spring `SecurityContext` with a JWT token you've received from a message / event or you've requested from XSUAA directly:
 
 ```java
+@Autowired 
+XsuaaServiceConfiguration xsuaaServiceConfiguration;
+
 @Autowired
 JwtDecoder jwtDecoder;
 
-@Value("${xsuaa.xsappname}")
-String xsappname;
-
 public void onEvent(String myEncodedJwtToken) {
-    Jwt jwtToken = jwtDecoder.decode(myEncodedJwtToken);
-    SecurityContext.init(xsappname, myEncodedJwtToken, true);
+    if (myEncodedJwtToken != null) {
+        SecurityContext.init(myEncodedJwtToken, jwtDecoder, new LocalAuthoritiesExtractor(xsuaaServiceConfiguration.getAppId()));
+    }
     try {
-        // ... handle event
+        handleEvent();
     } finally {
         SecurityContext.clear();
     }
