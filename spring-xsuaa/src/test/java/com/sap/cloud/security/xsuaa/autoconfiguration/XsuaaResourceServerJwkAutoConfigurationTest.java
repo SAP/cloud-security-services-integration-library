@@ -47,7 +47,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 	}
 
 	@Test
-	public final void autoConfigurationActive() {
+	public void autoConfigurationActive() {
 		contextRunner.run((context) -> {
 			assertThat(context.containsBean("xsuaaJwtDecoder"), is(true));
 			assertThat(context.getBean("xsuaaJwtDecoder"), instanceOf(XsuaaJwtDecoder.class));
@@ -57,7 +57,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 	}
 
 	@Test
-	public final void autoConfigurationActiveInclProperties() {
+	public void autoConfigurationActiveInclProperties() {
 		contextRunner
 				.withPropertyValues("spring.xsuaa.auto:true").run((context) -> {
 					assertThat(context.containsBean("xsuaaJwtDecoder"), is(true));
@@ -74,7 +74,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 	}
 
 	@Test
-	public final void autoConfigurationWithoutXsuaaServiceConfigurationOnClasspathInactive() {
+	public void autoConfigurationWithoutXsuaaServiceConfigurationOnClasspathInactive() {
 		contextRunner.withClassLoader(
 				new FilteredClassLoader(Jwt.class)) // make sure Jwt.class is not on the classpath
 				.run((context) -> {
@@ -83,7 +83,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 	}
 
 	@Test
-	public final void userConfigurationCanOverrideDefaultBeans() {
+	public void userConfigurationCanOverrideDefaultBeans() {
 		contextRunner.withUserConfiguration(UserConfiguration.class)
 				.run((context) -> {
 					assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));

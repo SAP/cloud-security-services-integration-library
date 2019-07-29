@@ -41,28 +41,28 @@ public class XsuaaAutoConfigurationTest {
 	private ApplicationContext context;
 
 	@Test
-	public final void configures_xsuaaTokenFlows() {
+	public void configures_xsuaaTokenFlows() {
 		assertThat(context.getBean("xsuaaTokenFlows")).isNotNull();
 		assertThat(context.getBean("xsuaaTokenFlows")).isInstanceOf(XsuaaTokenFlows.class);
 		assertThat(context.getBean(XsuaaTokenFlows.class)).isNotNull();
 	}
 
 	@Test
-	public final void configures_xsuaaTokenDecoder() {
+	public void configures_xsuaaTokenDecoder() {
 		assertThat(context.getBean("xsuaaTokenDecoder")).isNotNull();
 		assertThat(context.getBean("xsuaaTokenDecoder")).isInstanceOf(VariableKeySetUriTokenDecoder.class);
 		assertThat(context.getBean(VariableKeySetUriTokenDecoder.class)).isNotNull();
 	}
 
 	@Test
-	public final void configures_xsuaaTokenFlowRestTemplate() {
+	public void configures_xsuaaTokenFlowRestTemplate() {
 		assertThat(context.getBean("xsuaaTokenFlowRestTemplate")).isNotNull();
 		assertThat(context.getBean("xsuaaTokenFlowRestTemplate")).isInstanceOf(RestTemplate.class);
 		assertThat(context.getBean(RestTemplate.class)).isNotNull();
 	}
 
 	@Test
-	public final void configures_xsuaaServiceConfiguration() {
+	public void configures_xsuaaServiceConfiguration() {
 		contextRunner.run((context) -> {
 			assertThat(context).hasSingleBean(XsuaaServiceConfigurationDefault.class);
 			assertThat(context).hasBean("xsuaaServiceConfiguration");
@@ -70,7 +70,7 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public final void configures_xsuaaServiceConfiguration_withProperties() {
+	public void configures_xsuaaServiceConfiguration_withProperties() {
 		contextRunner
 				.withPropertyValues("spring.xsuaa.auto:true")
 				.withPropertyValues("spring.xsuaa.multiple-bindings:false").run((context) -> {
@@ -96,7 +96,7 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public final void autoConfigurationInactive_if_noJwtOnClasspath() {
+	public void autoConfigurationInactive_if_noJwtOnClasspath() {
 		contextRunner.withClassLoader(new FilteredClassLoader(Jwt.class)) // removes Jwt.class from classpath
 				.run((context) -> {
 					assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration");
@@ -107,7 +107,7 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public final void userConfigurationCanOverrideDefaultBeans() {
+	public void userConfigurationCanOverrideDefaultBeans() {
 		contextRunner.withUserConfiguration(UserConfiguration.class)
 				.run((context) -> {
 					assertThat(context).hasSingleBean(DummyXsuaaServiceConfiguration.class);
