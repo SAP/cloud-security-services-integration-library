@@ -278,17 +278,17 @@ public class XsuaaTokenTest {
 
 		assertThat(token.requestToken(tokenRequest), is("mock.jwt.value"));
 	}
-	
+
 	private Jwt buildMockJwt() {
-        Map<String, Object> jwtHeaders = new HashMap<String, Object>();
-        jwtHeaders.put("dummyHeader", "dummyHeaderValue");
-        
-        Map<String, Object> jwtClaims = new HashMap<String, Object>();
-        jwtClaims.put("dummyClaim", "dummyClaimValue");
-        
-        return new Jwt("mock.jwt.value", Instant.now(), Instant.now().plusMillis(100000), jwtHeaders, jwtClaims);
-    }
-	
+		Map<String, Object> jwtHeaders = new HashMap<String, Object>();
+		jwtHeaders.put("dummyHeader", "dummyHeaderValue");
+
+		Map<String, Object> jwtClaims = new HashMap<String, Object>();
+		jwtClaims.put("dummyClaim", "dummyClaimValue");
+
+		return new Jwt("mock.jwt.value", Instant.now(), Instant.now().plusMillis(100000), jwtHeaders, jwtClaims);
+	}
+
 	private XsuaaToken createToken(JWTClaimsSet.Builder claimsBuilder) {
 		Jwt jwt = JwtGenerator.createFromClaims(claimsBuilder.build());
 		return new XsuaaToken(jwt);

@@ -59,7 +59,7 @@ public class XsuaaToken extends Jwt implements Token {
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
 
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();
-	
+
 	VariableKeySetUriTokenDecoder tokenFlowsTokenDecoder = new NimbusTokenDecoder();
 
 	/**
@@ -280,10 +280,11 @@ public class XsuaaToken extends Jwt implements Token {
 
 		return attributeValues;
 	}
-	
+
 	/**
 	 * Exchange a token into a token from another service instance
 	 * <p>
+	 * 
 	 * @deprecated in favor of the XsuaaTokenFlows API.
 	 *
 	 * @param tokenRequest
@@ -294,89 +295,97 @@ public class XsuaaToken extends Jwt implements Token {
 	 */
 	@Override
 	public String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException {
-// Original coding (replaced by new API implementation):
-//		
-//		Assert.notNull(tokenRequest, "tokenRequest argument is required");
-//		Assert.isTrue(tokenRequest.isValid(), "tokenRequest is not valid");
-//
-//		RestTemplate restTemplate = tokenRequest instanceof XSTokenRequestImpl
-//				? ((XSTokenRequestImpl) tokenRequest).getRestTemplate()
-//				: null;
-//
-//		XsuaaTokenExchanger tokenExchanger = new XsuaaTokenExchanger(restTemplate, this);
-//		try {
-//			return tokenExchanger.requestToken(tokenRequest);
-//		} catch (XSUserInfoException e) {
-//			logger.error("Error occurred during token request", e);
-//			return null;
-//		}
-		
+		// Original coding (replaced by new API implementation):
+		//
+		// Assert.notNull(tokenRequest, "tokenRequest argument is required");
+		// Assert.isTrue(tokenRequest.isValid(), "tokenRequest is not valid");
+		//
+		// RestTemplate restTemplate = tokenRequest instanceof XSTokenRequestImpl
+		// ? ((XSTokenRequestImpl) tokenRequest).getRestTemplate()
+		// : null;
+		//
+		// XsuaaTokenExchanger tokenExchanger = new XsuaaTokenExchanger(restTemplate,
+		// this);
+		// try {
+		// return tokenExchanger.requestToken(tokenRequest);
+		// } catch (XSUserInfoException e) {
+		// logger.error("Error occurred during token request", e);
+		// return null;
+		// }
+
 		Assert.notNull(tokenRequest, "TokenRequest argument is required");
 		Assert.isTrue(tokenRequest.isValid(), "TokenRequest is not valid");
-		
+
 		switch (tokenRequest.getType()) {
 		case XSTokenRequest.TYPE_USER_TOKEN:
 			return performUserTokenFlow(tokenRequest);
 		case XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN:
 			return performClientCredentialsFlow(tokenRequest);
 		default:
-			throw new UnsupportedOperationException("Found unsupported XSTokenRequest type. The only supported types are XSTokenRequest.TYPE_USER_TOKEN and XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN.");
+			throw new UnsupportedOperationException(
+					"Found unsupported XSTokenRequest type. The only supported types are XSTokenRequest.TYPE_USER_TOKEN and XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN.");
 		}
 	}
-	
+
 	private String performClientCredentialsFlow(XSTokenRequest request) {
-		
-		RestTemplate restTemplate = (request instanceof XSTokenRequestImpl) ? ((XSTokenRequestImpl) request).getRestTemplate() : new RestTemplate();
-		
+
+		RestTemplate restTemplate = (request instanceof XSTokenRequestImpl)
+				? ((XSTokenRequestImpl) request).getRestTemplate()
+				: new RestTemplate();
+
 		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder);
-		
+
 		String baseUrl = request.getBaseURI().toString();
-        String clientId = request.getClientId();
-        String clientSecret = request.getClientSecret();
-        
-        Jwt ccfToken;
+		String clientId = request.getClientId();
+		String clientSecret = request.getClientSecret();
+
+		Jwt ccfToken;
 		try {
 			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow(URI.create(baseUrl))
-			        .client(clientId)
-			        .secret(clientSecret)
-			        .execute();
+					.client(clientId)
+					.secret(clientSecret)
+					.execute();
 		} catch (TokenFlowException e) {
 			throw new RuntimeException("Error performing Client Credentials Flow. See exception cause.", e);
 		}
- 
-        logger.info("Got the Client Credentials Flow Token: {}", ccfToken.getTokenValue());
-        
-        return ccfToken.getTokenValue();
+
+		logger.info("Got the Client Credentials Flow Token: {}", ccfToken.getTokenValue());
+
+		return ccfToken.getTokenValue();
 	}
-	
+
 	private String performUserTokenFlow(XSTokenRequest request) {
-		
-		RestTemplate restTemplate = (request instanceof XSTokenRequestImpl) ? ((XSTokenRequestImpl) request).getRestTemplate() : new RestTemplate();
-		
+
+		RestTemplate restTemplate = (request instanceof XSTokenRequestImpl)
+				? ((XSTokenRequestImpl) request).getRestTemplate()
+				: new RestTemplate();
+
 		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder);
-		
+
 		String baseUrl = request.getBaseURI().toString();
-        String clientId = request.getClientId();
-        String clientSecret = request.getClientSecret();
-        
-        Jwt userToken;
+		String clientId = request.getClientId();
+		String clientSecret = request.getClientSecret();
+
+		Jwt userToken;
 		try {
 			userToken = xsuaaTokenFlows.userTokenFlow(URI.create(baseUrl))
 					.token(this)
 					.attributes(request.getAdditionalAuthorizationAttributes())
-			        .client(clientId)
-			        .secret(clientSecret)
-			        .execute();
+					.client(clientId)
+					.secret(clientSecret)
+					.execute();
 		} catch (TokenFlowException e) {
 			throw new RuntimeException("Error performing User Token Flow. See exception cause.", e);
 		}
- 
-        logger.info("Got the exchanged token for 3rd party service (clientId: {}) : {}", clientId, userToken.getTokenValue());
-        logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ", userToken.getTokenValue());
-                
-        return userToken.getTokenValue();
+
+		logger.info("Got the exchanged token for 3rd party service (clientId: {}) : {}", clientId,
+				userToken.getTokenValue());
+		logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ",
+				userToken.getTokenValue());
+
+		return userToken.getTokenValue();
 	}
-	
+
 	/**
 	 * For custom access to the claims of the authentication token.
 	 * 

@@ -183,10 +183,11 @@ public interface Token extends UserDetails {
 	 */
 	@Nullable
 	Date getExpirationDate();
-	
+
 	/**
 	 * Exchange a token into a token from another service instance
 	 * <p>
+	 * 
 	 * @deprecated in favor of the XsuaaTokenFlows API.
 	 *
 	 * @param tokenRequest

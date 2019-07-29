@@ -35,7 +35,7 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 	private String clientId;
 	private String clientSecret;
 	private RestTemplate restTemplate;
-	
+
 	private Map<String, String> additionalAuthorizationAttributes;
 
 	/**

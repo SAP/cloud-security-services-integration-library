@@ -39,32 +39,32 @@ public class XsuaaAutoConfigurationTest {
 
 	@Autowired
 	private ApplicationContext context;
-
-
+	
+	
 	@Test
     public final void test_xsuaaTokenFlows() {
         assertThat(context.getBean("xsuaaTokenFlows")).isNotNull();
         assertThat(context.getBean("xsuaaTokenFlows")).isInstanceOf(XsuaaTokenFlows.class);
         assertThat(context.getBean(XsuaaTokenFlows.class)).isNotNull();
     }
-
+    
     @Test
     public final void test_xsuaaTokenDecoder() {
         assertThat(context.getBean("xsuaaTokenDecoder")).isNotNull();
         assertThat(context.getBean("xsuaaTokenDecoder")).isInstanceOf(VariableKeySetUriTokenDecoder.class);
-        assertThat(context.getBean(VariableKeySetUriTokenDecoder.class)).isNotNull();
+        assertThat(context.getBean(VariableKeySetUriTokenDecoder.class)).isNotNull(); 
     }
 
     @Test
     public final void test_xsuaaTokenFlowRestTemplate() {
         assertThat(context.getBean("xsuaaTokenFlowRestTemplate")).isNotNull();
         assertThat(context.getBean("xsuaaTokenFlowRestTemplate")).isInstanceOf(RestTemplate.class);
-        assertThat(context.getBean(RestTemplate.class)).isNotNull();
+        assertThat(context.getBean(RestTemplate.class)).isNotNull();       
     }
-
+    
     @Test
     public final void test_configurationIsInactive_if_noJwtOnClasspath() {
-
+        
         // check that the beans are there, if Jwt.class is on the classpath.
         // Note: this is a safety check, to make sure that the test below succeeds really
         //       as a result of Jwt.class being missing from the classpath.
@@ -73,7 +73,7 @@ public class XsuaaAutoConfigurationTest {
                          assertThat(context).hasBean("xsuaaTokenDecoder");
                          assertThat(context).hasBean("xsuaaTokenFlowRestTemplate");
                       });
-
+        
         // check that the beans are NOT there, if Jwt.class is filtered out of the classpath.
         contextRunner.withClassLoader(new FilteredClassLoader(Jwt.class)) // make sure Jwt.class is not on the classpath.
                      .run((context) -> {
@@ -82,20 +82,20 @@ public class XsuaaAutoConfigurationTest {
                         assertThat(context).doesNotHaveBean("xsuaaTokenFlowRestTemplate");
                       });
     }
-
+        
     @Test
-    public final void test_userConfigurationsCanOverrideDefaultBeans() {
+    public final void test_userConfigurationsCanOverrideDefaultBeans() { 
         contextRunner.withUserConfiguration(UserConfiguration.class)
         .run((context) -> {
             assertThat(context).hasSingleBean(XsuaaTokenFlows.class);
             assertThat(context).hasSingleBean(VariableKeySetUriTokenDecoder.class);
             assertThat(context).hasSingleBean(RestTemplate.class);
-
+            
             UserConfiguration customConfig = context.getBean(UserConfiguration.class);
             XsuaaTokenFlows expectedCustomTokenFlows = customConfig.userDefinedXsuaaTokenFlows(customConfig.userDefinedXsuaaTokenFlowRestTemplate(), customConfig.userDefinedXsuaaTokenDecoder());
             VariableKeySetUriTokenDecoder expectedCustomTokenDecoder = customConfig.userDefinedXsuaaTokenDecoder();
             RestTemplate expectedCustomRestTemplate = customConfig.userDefinedXsuaaTokenFlowRestTemplate();
-
+            
             assertThat(context.getBean(XsuaaTokenFlows.class)).isSameAs(expectedCustomTokenFlows);
             assertThat(context.getBean(VariableKeySetUriTokenDecoder.class)).isSameAs(expectedCustomTokenDecoder);
             assertThat(context.getBean(RestTemplate.class)).isSameAs(expectedCustomRestTemplate);
@@ -211,7 +211,6 @@ public class XsuaaAutoConfigurationTest {
 		@Override
 		public String getUaaDomain() {
 			return null;
-			return new DummyXsuaaServiceConfiguration();
 		}
 	}
 }

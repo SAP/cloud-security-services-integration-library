@@ -43,7 +43,7 @@ public class UserInfo implements XSUserInfo {
 	private static final String SERVICEINSTANCEID = "serviceinstanceid";
 	private static final String ZDN = "zdn";
 	private static final String SYSTEM = "SYSTEM";
-	private static final String HDB = "HDB";	
+	private static final String HDB = "HDB";
 	public static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
 	public static final String SCOPE = "scope";
 	public static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";

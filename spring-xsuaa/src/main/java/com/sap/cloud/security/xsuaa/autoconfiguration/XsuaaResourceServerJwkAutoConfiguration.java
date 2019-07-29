@@ -30,7 +30,8 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
 @Configuration
 @ConditionalOnClass(Jwt.class)
 @ConditionalOnProperty(prefix = "spring.xsuaa", name = "auto", havingValue = "true", matchIfMissing = true)
-@AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which specifies JwtDecoder
+@AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which
+																	// specifies JwtDecoder
 public class XsuaaResourceServerJwkAutoConfiguration {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
