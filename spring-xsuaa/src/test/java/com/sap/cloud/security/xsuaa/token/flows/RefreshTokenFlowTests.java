@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.XsuaaRestClientDefault;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpEntity;
@@ -56,83 +57,43 @@ public class RefreshTokenFlowTests {
 
 	@Test
 	public void test_constructor_withBaseURI() throws TokenFlowException {
-		new RefreshTokenFlow(restTemplate, tokenDecoder, TestConstants.xsuaaBaseUri);
+		createTokenFlow();
 	}
 
-	@Test
-	public void test_constructor_withEndpointURIs() throws TokenFlowException {
-		new RefreshTokenFlow(restTemplate, tokenDecoder, TestConstants.tokenEndpointUri,
-				TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
-	}
-
-	@Test
-	public void test_constructor_throwsOnNullValues() {
-		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(null, tokenDecoder, TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RestTemplate");
-
-		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(restTemplate, null, TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("TokenDecoder");
-
-		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(restTemplate, tokenDecoder, null, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("Token endpoint");
-
-		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(restTemplate, tokenDecoder, TestConstants.tokenEndpointUri, null,
-					TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("Authorize");
-
-		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(restTemplate, tokenDecoder, TestConstants.tokenEndpointUri,
-					TestConstants.authorizeEndpointUri, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("Key set");
+	private RefreshTokenFlow createTokenFlow() {
+		return new RefreshTokenFlow(restTemplate, tokenDecoder, new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 	}
 
 	@Test
 	public void test_execute_throwsIfMandatoryFieldsNotSet() {
 
 		assertThatThrownBy(() -> {
-			RefreshTokenFlow tokenFlow = new RefreshTokenFlow(restTemplate, tokenDecoder,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			RefreshTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.execute();
 		}).isInstanceOf(TokenFlowException.class);
 
 		assertThatThrownBy(() -> {
-			RefreshTokenFlow tokenFlow = new RefreshTokenFlow(restTemplate, tokenDecoder,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			RefreshTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.client(clientId)
 					.secret(clientSecret)
 					.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Refresh token not set");
 
 		assertThatThrownBy(() -> {
-			RefreshTokenFlow tokenFlow = new RefreshTokenFlow(restTemplate, tokenDecoder,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			RefreshTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.refreshToken("dummy")
 					.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Refresh token flow request is not valid");
 
 		assertThatThrownBy(() -> {
-			RefreshTokenFlow tokenFlow = new RefreshTokenFlow(restTemplate, tokenDecoder,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			RefreshTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.client(null)
 					.secret(clientSecret)
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
 
 		assertThatThrownBy(() -> {
-			RefreshTokenFlow tokenFlow = new RefreshTokenFlow(restTemplate, tokenDecoder,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			RefreshTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.client(clientId)
 					.secret(null)
 					.execute();
@@ -153,7 +114,7 @@ public class RefreshTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.OK);
 
 		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(restTemplateMock, tokenDecoderMock,
-				TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 		tokenFlow.refreshToken(refreshToken)
 				.client(clientId)
 				.secret(clientSecret)
@@ -177,7 +138,7 @@ public class RefreshTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
 
 		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(restTemplateMock, tokenDecoderMock,
-				TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
 			tokenFlow.refreshToken(refreshToken)
@@ -202,7 +163,7 @@ public class RefreshTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.CONFLICT);
 
 		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(restTemplateMock, tokenDecoderMock,
-				TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
 			tokenFlow.refreshToken(refreshToken)

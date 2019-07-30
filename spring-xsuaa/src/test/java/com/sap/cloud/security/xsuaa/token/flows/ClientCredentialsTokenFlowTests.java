@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.XsuaaRestClientDefault;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpEntity;
@@ -55,80 +56,48 @@ public class ClientCredentialsTokenFlowTests {
 
 	@Test
 	public void test_constructor_withBaseURI() throws TokenFlowException {
-		new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, TestConstants.xsuaaBaseUri);
+		createTokenFlow();
 	}
 
-	@Test
-	public void test_constructor_withEndpointURIs() throws TokenFlowException {
-		new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, TestConstants.tokenEndpointUri,
-				TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+	private ClientCredentialsTokenFlow createTokenFlow() {
+		return new ClientCredentialsTokenFlow(restTemplate, tokenDecoder,
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 	}
 
 	@Test
 	public void test_constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(null, tokenDecoder, TestConstants.xsuaaBaseUri);
+			new ClientCredentialsTokenFlow(null, tokenDecoder, new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RestTemplate");
 
 		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(restTemplate, null, TestConstants.xsuaaBaseUri);
+			new ClientCredentialsTokenFlow(restTemplate, null, new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("TokenDecoder");
 
 		assertThatThrownBy(() -> {
 			new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("XSUAA base URI");
-
-		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(null, tokenDecoder, TestConstants.tokenEndpointUri,
-					TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RestTemplate");
-
-		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(restTemplate, null, TestConstants.tokenEndpointUri,
-					TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("TokenDecoder");
-
-		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, null, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("Token");
-
-		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, TestConstants.tokenEndpointUri, null,
-					TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("Authorize");
-
-		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, TestConstants.tokenEndpointUri,
-					TestConstants.authorizeEndpointUri, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("Key set");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("UaaRestClient");
 	}
 
 	@Test
 	public void test_execute_throwsIfMandatoryFieldsNotSet() {
 
 		assertThatThrownBy(() -> {
-			ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplate, tokenDecoder,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.client(null)
 					.secret(TestConstants.clientSecret)
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
 
 		assertThatThrownBy(() -> {
-			ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplate, tokenDecoder,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.client(TestConstants.clientId)
 					.secret(null)
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client secret");
 
 		assertThatThrownBy(() -> {
-			ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplate, tokenDecoder,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Client credentials flow request is not valid");
 	}
@@ -145,7 +114,7 @@ public class ClientCredentialsTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.OK);
 
 		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-				TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 
 		tokenFlow.client(clientId)
 				.secret(clientSecret)
@@ -166,7 +135,7 @@ public class ClientCredentialsTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
 
 		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-				TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
 			tokenFlow.client(clientId)
@@ -187,7 +156,7 @@ public class ClientCredentialsTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.CONFLICT);
 
 		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-				TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
 			tokenFlow.client(clientId)
@@ -217,7 +186,7 @@ public class ClientCredentialsTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.OK);
 
 		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-				TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 		tokenFlow.client(clientId)
 				.secret(clientSecret)
 				.attributes(additionalAuthorities)

@@ -7,6 +7,7 @@ import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buil
 import java.net.URI;
 import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.UaaRestClient;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,52 +35,24 @@ public class ClientCredentialsTokenFlow {
 
 	/**
 	 * Creates a new instance.
-	 * 
+	 *
 	 * @param restTemplate
 	 *            - the {@link RestTemplate} used to execute the final request.
-	 * @param xsuaaBaseUri
-	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
-	 *            authorize and key set URI will be derived.
+	 * @param tokenDecoder
+	 * 			  - the token decoder
+	 * @param uaaRestClient
+	 *            - provides the UAA endpoints.
 	 */
 	ClientCredentialsTokenFlow(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder,
-			URI xsuaaBaseUri) {
+			UaaRestClient uaaRestClient) {
 		Assert.notNull(restTemplate, "RestTemplate must not be null.");
-		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
 		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
+		Assert.notNull(uaaRestClient, "UaaRestClient must not be null.");
 
 		this.restTemplate = restTemplate;
 		this.tokenDecoder = tokenDecoder;
 
-		URI tokenEndpoint = UriComponentsBuilder.fromUri(xsuaaBaseUri).path("/oauth/token").build().toUri();
-		URI authorizeEndpoint = UriComponentsBuilder.fromUri(xsuaaBaseUri).path("/oauth/authorize").build().toUri();
-		URI keySetEndpoint = UriComponentsBuilder.fromUri(xsuaaBaseUri).path("/token_keys").build().toUri();
-
-		this.request = new XsuaaTokenFlowRequest(tokenEndpoint, authorizeEndpoint, keySetEndpoint);
-	}
-
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param restTemplate
-	 *            - the {@link RestTemplate} used to execute the final request.
-	 * @param tokenEndpoint
-	 *            - the token endpoint URI.
-	 * @param authorizeEndpoint
-	 *            - the authorize endpoint URI.
-	 * @param keySetEndpoint
-	 *            - the key set endpoint URI.
-	 */
-	ClientCredentialsTokenFlow(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder, URI tokenEndpoint,
-			URI authorizeEndpoint, URI keySetEndpoint) {
-		Assert.notNull(restTemplate, "RestTemplate must not be null.");
-		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
-		Assert.notNull(tokenEndpoint, "Token endpoint URI must not be null.");
-		Assert.notNull(authorizeEndpoint, "Authorize endpoint URI must not be null.");
-		Assert.notNull(keySetEndpoint, "Key set endpoint URI must not be null.");
-
-		this.restTemplate = restTemplate;
-		this.tokenDecoder = tokenDecoder;
-		this.request = new XsuaaTokenFlowRequest(tokenEndpoint, authorizeEndpoint, keySetEndpoint);
+		this.request = new XsuaaTokenFlowRequest(uaaRestClient);
 	}
 
 	/**

@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.XsuaaRestClientDefault;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpEntity;
@@ -65,74 +66,39 @@ public class UserTokenFlowTests {
 
 	@Test
 	public void test_constructor_withBaseURI() throws TokenFlowException {
-		new UserTokenFlow(restTemplate, refreshTokenFlowMock, TestConstants.xsuaaBaseUri);
+		createTokenFlow();
 	}
 
-	@Test
-	public void test_constructor_withEndpointURIs() throws TokenFlowException {
-		new UserTokenFlow(restTemplate, refreshTokenFlowMock, TestConstants.tokenEndpointUri,
-				TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+	private UserTokenFlow createTokenFlow() {
+		return new UserTokenFlow(restTemplate, refreshTokenFlowMock, new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 	}
 
 	@Test
 	public void test_constructor_throwsOnNullValues() {
 
 		assertThatThrownBy(() -> {
-			new UserTokenFlow(null, refreshTokenFlowMock, TestConstants.xsuaaBaseUri);
+			new UserTokenFlow(null, refreshTokenFlowMock, new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RestTemplate");
 
 		assertThatThrownBy(() -> {
-			new UserTokenFlow(restTemplate, null, TestConstants.xsuaaBaseUri);
+			new UserTokenFlow(restTemplate, null, new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RefreshTokenFlow");
 
 		assertThatThrownBy(() -> {
 			new UserTokenFlow(restTemplate, refreshTokenFlowMock, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("XSUAA base URI");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("UaaRestClient");
 
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(null, refreshTokenFlowMock, TestConstants.tokenEndpointUri,
-					TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RestTemplate");
-
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(restTemplate, null, TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RefreshTokenFlow");
-
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(restTemplate, refreshTokenFlowMock, null, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("Token endpoint");
-
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(restTemplate, refreshTokenFlowMock, TestConstants.tokenEndpointUri, null,
-					TestConstants.keySetEndpointUri);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("Authorize");
-
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(restTemplate, refreshTokenFlowMock, TestConstants.tokenEndpointUri,
-					TestConstants.authorizeEndpointUri, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("Key set");
 	}
 
 	@Test
 	public void test_execute_throwsIfTokenDoesNotContainUaaUserScope() {
 
 		assertThatThrownBy(() -> {
-			new UserTokenFlow(restTemplate, refreshTokenFlowMock, TestConstants.xsuaaBaseUri)
+			new UserTokenFlow(restTemplate, refreshTokenFlowMock, new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri))
 					.token(invalidMockJwt)
 					.client(clientId)
 					.secret(clientSecret)
 					.execute();
-		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("JWT token does not include scope 'uaa.user'");
-
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(restTemplate, refreshTokenFlowMock, TestConstants.tokenEndpointUri,
-					TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri)
-							.token(invalidMockJwt)
-							.client(clientId)
-							.secret(clientSecret)
-							.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("JWT token does not include scope 'uaa.user'");
 	}
 
@@ -140,42 +106,32 @@ public class UserTokenFlowTests {
 	public void test_execute_throwsIfMandatoryFieldsNotSet() {
 
 		assertThatThrownBy(() -> {
-			UserTokenFlow tokenFlow = new UserTokenFlow(restTemplate, refreshTokenFlowMock,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			UserTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.execute();
 		}).isInstanceOf(TokenFlowException.class);
 
 		assertThatThrownBy(() -> {
-			UserTokenFlow tokenFlow = new UserTokenFlow(restTemplate, refreshTokenFlowMock,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			UserTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.token(validMockJwt)
 					.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("User token flow request is not valid");
 
 		assertThatThrownBy(() -> {
-			UserTokenFlow tokenFlow = new UserTokenFlow(restTemplate, refreshTokenFlowMock,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			UserTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.client(clientId)
 					.secret(clientSecret)
 					.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("User token not set");
 
 		assertThatThrownBy(() -> {
-			UserTokenFlow tokenFlow = new UserTokenFlow(restTemplate, refreshTokenFlowMock,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			UserTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.client(null)
 					.secret(clientSecret)
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
 
 		assertThatThrownBy(() -> {
-			UserTokenFlow tokenFlow = new UserTokenFlow(restTemplate, refreshTokenFlowMock,
-					TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri,
-					TestConstants.keySetEndpointUri);
+			UserTokenFlow tokenFlow = createTokenFlow();
 			tokenFlow.client(clientId)
 					.secret(null)
 					.execute();
@@ -197,7 +153,7 @@ public class UserTokenFlowTests {
 				validMockJwt.getTokenValue(), HttpStatus.OK);
 
 		UserTokenFlow tokenFlow = new UserTokenFlow(restTemplateMock, refreshTokenFlowMock,
-				TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 		tokenFlow.token(validMockJwt)
 				.client(clientId)
 				.secret(clientSecret)
@@ -222,7 +178,7 @@ public class UserTokenFlowTests {
 				validMockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
 
 		UserTokenFlow tokenFlow = new UserTokenFlow(restTemplateMock, refreshTokenFlowMock,
-				TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
 			tokenFlow.token(validMockJwt)
@@ -248,7 +204,7 @@ public class UserTokenFlowTests {
 				validMockJwt.getTokenValue(), HttpStatus.CONFLICT);
 
 		UserTokenFlow tokenFlow = new UserTokenFlow(restTemplateMock, refreshTokenFlowMock,
-				TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
 			tokenFlow.token(validMockJwt)
@@ -281,7 +237,7 @@ public class UserTokenFlowTests {
 				validMockJwt.getTokenValue(), HttpStatus.OK);
 
 		UserTokenFlow tokenFlow = new UserTokenFlow(restTemplateMock, refreshTokenFlowMock,
-				TestConstants.tokenEndpointUri, TestConstants.authorizeEndpointUri, TestConstants.keySetEndpointUri);
+				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
 		tokenFlow.token(validMockJwt)
 				.client(clientId)
 				.secret(clientSecret)

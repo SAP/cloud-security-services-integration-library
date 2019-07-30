@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.sap.xsa.security.container.XSTokenRequest;
-import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -201,12 +200,10 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 	 *
 	 * @return the custom restTemplate or null
 	 */
-	@Nullable
 	public RestTemplate getRestTemplate() {
 		return restTemplate;
 	}
 
-	@Override
 	public URI getBaseURI() {
 		return uaaBaseURI;
 	}

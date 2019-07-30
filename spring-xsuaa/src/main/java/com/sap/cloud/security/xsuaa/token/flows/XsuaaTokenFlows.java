@@ -8,6 +8,8 @@ package com.sap.cloud.security.xsuaa.token.flows;
 
 import java.net.URI;
 
+import com.sap.cloud.security.xsuaa.UaaRestClient;
+import com.sap.cloud.security.xsuaa.XsuaaRestClientDefault;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
@@ -57,40 +59,10 @@ public class XsuaaTokenFlows {
 	public UserTokenFlow userTokenFlow(URI xsuaaBaseUri) {
 		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
 
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(restTemplate, tokenDecoder, xsuaaBaseUri);
+		UaaRestClient xsuaaRestClient = new XsuaaRestClientDefault(xsuaaBaseUri);
+		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(restTemplate, tokenDecoder, xsuaaRestClient);
 
-		return new UserTokenFlow(restTemplate, refreshTokenFlow, xsuaaBaseUri);
-	}
-
-	/**
-	 * Creates a new User Token Flow builder object. The token passed needs to
-	 * contain the scope {@code uaa.user}, otherwise an exception will be thrown
-	 * when the flow is executed. <br>
-	 * The endpoint URIs are explicitly given, e.g.
-	 * <ul>
-	 * <li>{@code https://oauth.server.com/oauth/token}</li>
-	 * <li>{@code https://oauth.server.com/oauth/authorize}</li>
-	 * <li>{@code https://oauth.server.com/.well-known/jwks.json}</li>
-	 * </ul>
-	 * 
-	 * @param tokenEndpoint
-	 *            - the token endpoint URI of XSUAA that the flow will be executed
-	 *            against.
-	 * @param authorizeEndpoint
-	 *            - the authorize endpoint URI of XSUAA.
-	 * @param keySetEndpoint
-	 *            - the key set endpoint URI of XSUAA.
-	 * @return the {@link UserTokenFlow} builder object.
-	 */
-	public UserTokenFlow userTokenFlow(URI tokenEndpoint, URI authorizeEndpoint, URI keySetEndpoint) {
-		Assert.notNull(tokenEndpoint, "Token endpoint URI must not be null.");
-		Assert.notNull(authorizeEndpoint, "Authorize endpoint URI must not be null.");
-		Assert.notNull(keySetEndpoint, "Key set endpoint URI must not be null.");
-
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(restTemplate, tokenDecoder, tokenEndpoint,
-				authorizeEndpoint, keySetEndpoint);
-
-		return new UserTokenFlow(restTemplate, refreshTokenFlow, tokenEndpoint, authorizeEndpoint, keySetEndpoint);
+		return new UserTokenFlow(restTemplate, refreshTokenFlow, xsuaaRestClient);
 	}
 
 	/**
@@ -104,34 +76,9 @@ public class XsuaaTokenFlows {
 	 */
 	public ClientCredentialsTokenFlow clientCredentialsTokenFlow(URI xsuaaBaseUri) {
 		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
-		return new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, xsuaaBaseUri);
-	}
 
-	/**
-	 * Creates a new Client Credentials Flow builder object.<br>
-	 * The endpoint URIs are explicitly given, e.g.
-	 * <ul>
-	 * <li>{@code https://oauth.server.com/oauth/token}</li>
-	 * <li>{@code https://oauth.server.com/oauth/authorize}</li>
-	 * <li>{@code https://oauth.server.com/.well-known/jwks.json}</li>
-	 * </ul>
-	 * 
-	 * @param tokenEndpoint
-	 *            - the token endpoint URI of XSUAA that the flow will be executed
-	 *            against.
-	 * @param authorizeEndpoint
-	 *            - the authorize endpoint URI of XSUAA.
-	 * @param keySetEndpoint
-	 *            - the key set endpoint URI of XSUAA.
-	 * @return the {@link ClientCredentialsTokenFlow} builder object.
-	 */
-	public ClientCredentialsTokenFlow clientCredentialsTokenFlow(URI tokenEndpoint, URI authorizeEndpoint,
-			URI keySetEndpoint) {
-		Assert.notNull(tokenEndpoint, "Token endpoint URI must not be null.");
-		Assert.notNull(authorizeEndpoint, "Authorize endpoint URI must not be null.");
-		Assert.notNull(keySetEndpoint, "Key set endpoint URI must not be null.");
-		return new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, tokenEndpoint, authorizeEndpoint,
-				keySetEndpoint);
+		UaaRestClient xsuaaRestClient = new XsuaaRestClientDefault(xsuaaBaseUri);
+		return new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, xsuaaRestClient);
 	}
 
 	/**
@@ -145,31 +92,8 @@ public class XsuaaTokenFlows {
 	 */
 	public RefreshTokenFlow refreshTokenFlow(URI xsuaaBaseUri) {
 		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
-		return new RefreshTokenFlow(restTemplate, tokenDecoder, xsuaaBaseUri);
-	}
 
-	/**
-	 * Creates a new Refresh Token Flow builder object.<br>
-	 * The endpoint URIs are explicitly given, e.g.
-	 * <ul>
-	 * <li>{@code https://oauth.server.com/oauth/token}</li>
-	 * <li>{@code https://oauth.server.com/oauth/authorize}</li>
-	 * <li>{@code https://oauth.server.com/.well-known/jwks.json}</li>
-	 * </ul>
-	 * 
-	 * @param tokenEndpoint
-	 *            - the token endpoint URI of XSUAA that the flow will be executed
-	 *            against.
-	 * @param authorizeEndpoint
-	 *            - the authorize endpoint URI of XSUAA.
-	 * @param keySetEndpoint
-	 *            - the key set endpoint URI of XSUAA.
-	 * @return the {@link ClientCredentialsTokenFlow} builder object.
-	 */
-	public RefreshTokenFlow refreshTokenFlow(URI tokenEndpoint, URI authorizeEndpoint, URI keySetEndpoint) {
-		Assert.notNull(tokenEndpoint, "Token endpoint URI must not be null.");
-		Assert.notNull(authorizeEndpoint, "Authorize endpoint URI must not be null.");
-		Assert.notNull(keySetEndpoint, "Key set endpoint URI must not be null.");
-		return new RefreshTokenFlow(restTemplate, tokenDecoder, tokenEndpoint, authorizeEndpoint, keySetEndpoint);
+		UaaRestClient xsuaaRestClient = new XsuaaRestClientDefault(xsuaaBaseUri);
+		return new RefreshTokenFlow(restTemplate, tokenDecoder, xsuaaRestClient);
 	}
 }

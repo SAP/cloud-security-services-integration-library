@@ -10,18 +10,17 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.UaaRestClient;
+import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.util.Assert;
 
 /**
  * An internal token exchange request capturing data by the token flow builders
  * {@link ClientCredentialsTokenFlow} and {@link UserTokenFlow}.
  */
-class XsuaaTokenFlowRequest {
+class XsuaaTokenFlowRequest implements XSTokenRequest {
 
-	private URI tokenEndpoint;
-	private URI authorizeEndpoint;
-	private URI keySetEndpoint;
-
+	private UaaRestClient restClient;
 	private String clientId;
 	private String clientSecret;
 	private Map<String, String> additionalAuthorizationAttributes;
@@ -29,119 +28,109 @@ class XsuaaTokenFlowRequest {
 	/**
 	 * Creates a new token exchange request.
 	 * 
-	 * @param tokenEndpoint
-	 *            - the endpoint URI of the XSUAA where to exchange the token.
+	 * @param restClient
+	 *            - contains the endpoint URIs of the XSUAA where to exchange the token.
 	 */
-	XsuaaTokenFlowRequest(URI tokenEndpoint, URI authorizeEndpoint, URI keySetEndpoint) {
-		Assert.notNull(tokenEndpoint, "Token endpoint URI must not be null.");
-		Assert.notNull(authorizeEndpoint, "Authorize endpoint URI must not be null.");
-		Assert.notNull(keySetEndpoint, "Key set endpoint URI must not be null.");
-		this.tokenEndpoint = tokenEndpoint;
-		this.authorizeEndpoint = authorizeEndpoint;
-		this.keySetEndpoint = keySetEndpoint;
+	XsuaaTokenFlowRequest(UaaRestClient restClient) {
+		Assert.notNull(restClient.getTokenEndpoint(), "Token endpoint URI must not be null.");
+		Assert.notNull(restClient.getAuthorizeEndpoint(), "Authorize endpoint URI must not be null.");
+		Assert.notNull(restClient.getJwksUri(), "Key set endpoint URI must not be null.");
+
+		this.restClient = restClient;
 	}
 
-	/**
-	 * Returns the token exchange endpoint URI. For example
-	 * {@code https://<server>:<port>/uaa/oauth/token}.
-	 * 
-	 * @return the token exchange endpoint URI.
-	 */
-	URI getTokenEndpoint() {
-		return this.tokenEndpoint;
+	@Override
+	public URI getTokenEndpoint() {
+		return this.restClient.getTokenEndpoint();
 	}
 
 	/**
 	 * Returns the endpoint to authorize scopes. For example
 	 * {@code https://<server>:<port>/uaa/oauth/authorize}.
-	 * 
+	 *
 	 * @return the endpoint to authorize scopes.
 	 */
 	URI getAuthorizeEndpoint() {
-		return this.authorizeEndpoint;
+		return this.restClient.getAuthorizeEndpoint();
 	}
 
 	/**
 	 * Returns the endpoint to fetch the public key set from. For example
 	 * {@code https://<server>:<port>/.well-known/jwks.json}.
-	 * 
+	 *
 	 * @return the endpoint to fetch the public key set from.
 	 */
 	URI getKeySetEndpoint() {
-		return this.keySetEndpoint;
+		return this.restClient.getJwksUri();
 	}
 
-	/**
-	 * Returns the OAuth 2.0 client ID of the token flow request.
-	 * 
-	 * @return the client ID or {@code null} if not set.
-	 */
-	String getClientId() {
+	@Override
+	public String getClientId() {
 		return this.clientId;
 	}
 
-	/**
-	 * Sets the OAuth 2.0 client ID for this request.
-	 * 
-	 * @param clientId
-	 *            - the client ID.
-	 */
-	void setClientId(String clientId) {
+	public XSTokenRequest setClientId(String clientId) {
 		Assert.notNull(clientId, "OAuth 2.0 client ID must not be null.");
 		this.clientId = clientId;
+		return this;
 	}
 
 	/**
 	 * Returns the OAuth 2.0 client secret of the token flow request.
-	 * 
+	 *
 	 * @return the client secret or {@code null} if not set.
 	 */
-	String getClientSecret() {
+	@Override
+	public String getClientSecret() {
 		return this.clientSecret;
 	}
 
-	/**
-	 * Sets the OAuth 2.0 client secret of this request.
-	 * 
-	 * @param clientSecret
-	 *            - the client secret.
-	 */
-	void setClientSecret(String clientSecret) {
+	public XSTokenRequest setClientSecret(String clientSecret) {
 		Assert.notNull(clientSecret, "OAuth 2.0 client secret must not be null.");
 		this.clientSecret = clientSecret;
+		return this;
 	}
 
-	/**
-	 * Returns the list of requested additional authorization attributes, or null if
-	 * no additional authorization attributes have been set.
-	 * 
-	 * @return the list of requested additional authorization attributes, or null if
-	 *         no additional authorization attributes have been set.
-	 */
-	Map<String, String> getAdditionalAuthorizationAttributes() {
+	@Override
+	public Map<String, String> getAdditionalAuthorizationAttributes() {
 		return additionalAuthorizationAttributes;
 	}
 
-	/**
-	 * Sets the requested additional authorization attributes for this token
-	 * exchange request. Applications can use this to add additional authorization
-	 * attributes to the exchanged access token.
-	 * 
-	 * @param additionalAuthorizationAttributes
-	 *            - the additional authorization attributes the exchanged token
-	 *            should contain.
-	 */
-	void setAdditionalAuthorizationAttributes(Map<String, String> additionalAuthorizationAttributes) {
+	@Override
+	public XSTokenRequest setAdditionalAuthorizationAttributes(Map<String, String> additionalAuthorizationAttributes) {
 		this.additionalAuthorizationAttributes = new HashMap<>(additionalAuthorizationAttributes);
+		return this;
+	}
+
+	@Override
+	// TODO delete?
+	public URI getBaseURI() {
+		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
+	}
+
+	@Override
+	public XSTokenRequest setType(int type) {
+		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
+	}
+
+	@Override
+	public int getType() {
+		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
+	}
+
+	@Override
+	public XSTokenRequest setTokenEndpoint(URI tokenUri) {
+		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
 	}
 
 	/**
 	 * Checks if all necessary fields of this request have been set.
-	 * 
+	 *
 	 * @return {@code true}, if the request has all mandatory fields set.
 	 *         {@code false} otherwise.
 	 */
-	boolean isValid() {
-		return (tokenEndpoint != null) && (clientId != null) && (clientSecret != null);
+	@Override
+	public boolean isValid() {
+		return (getTokenEndpoint() != null) && (clientId != null) && (clientSecret != null);
 	}
 }

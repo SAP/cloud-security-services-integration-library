@@ -32,10 +32,6 @@ public class XsuaaTokenFlowsTests {
 		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt));
 		RefreshTokenFlow flow = xsuaaTokenFlows.refreshTokenFlow(URI.create("http://base/"));
 		assertNotNull("RefreshTokenFlow must not be null.", flow);
-
-		flow = xsuaaTokenFlows.refreshTokenFlow(URI.create("http://token/"), URI.create("http://authz/"),
-				URI.create("http://token_keys/"));
-		assertNotNull("RefreshTokenFlow must not be null.", flow);
 	}
 
 	@Test
@@ -43,20 +39,12 @@ public class XsuaaTokenFlowsTests {
 		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt));
 		UserTokenFlow flow = xsuaaTokenFlows.userTokenFlow(URI.create("http://base/"));
 		assertNotNull("UserTokenFlow must not be null.", flow);
-
-		flow = xsuaaTokenFlows.userTokenFlow(URI.create("http://token/"), URI.create("http://authz/"),
-				URI.create("http://token_keys/"));
-		assertNotNull("UserTokenFlow must not be null.", flow);
 	}
 
 	@Test
 	public void test_startClientCredentialsFlow() {
 		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt));
 		ClientCredentialsTokenFlow flow = xsuaaTokenFlows.clientCredentialsTokenFlow(URI.create("http://base/"));
-		assertNotNull("ClientCredentialsTokenFlow must not be null.", flow);
-
-		flow = xsuaaTokenFlows.clientCredentialsTokenFlow(URI.create("http://token/"), URI.create("http://authz/"),
-				URI.create("http://token_keys/"));
 		assertNotNull("ClientCredentialsTokenFlow must not be null.", flow);
 	}
 
