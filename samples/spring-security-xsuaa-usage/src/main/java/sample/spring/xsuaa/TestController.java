@@ -31,13 +31,13 @@ public class TestController {
      */
     @Autowired
     private XsuaaTokenFlows xsuaaTokenFlows;
-
+    
     /**
      * The XSUAA binding information from the environment.
      */
     @Autowired
     private XsuaaServiceConfiguration xsuaaBindindInformation;
-
+    
     /**
      * A (fake) data layer showing global method security features of Spring Security
      * in combination with tokens from XSUAA.
@@ -54,7 +54,7 @@ public class TestController {
      * @throws Exception in case of an internal error.
      */
     @GetMapping(value = "/v1/sayHello")
-    public Map<String, String> sayHello(@AuthenticationPrincipal Token token) {
+    public Map<String, String> sayHello(@AuthenticationPrincipal Token token) { // TODO XsuaaToken
 
         logger.info("Got the Xsuaa token: " + token);
         logger.info(token.toString());
@@ -139,96 +139,96 @@ public class TestController {
     public String readFromDataService() {
         return dataService.readSensitiveData();
     }
-
+    
     /**
-     * REST endpoint showing how to fetch a Client Credentials Token from XSUAA using the
-     * {@link XsuaaTokenFlows} bean injected by Spring and exposed by the XSUAA client library
-     * implementation.
+     * REST endpoint showing how to fetch a Client Credentials Token from XSUAA using the 
+     * {@link XsuaaTokenFlows} bean injected by Spring and exposed by the XSUAA client library 
+     * implementation. 
      * @param jwt - the Jwt as a result of authentication.
      * @return the Client Credentials Token fetched from XSUAA. Don't do this in production!
      * @throws Exception in case of any errors.
      */
-    @RequestMapping(value = "/v1/clientCredentialsToken", method = RequestMethod.GET)
-    public Jwt fetchClientCredentialsToken(@AuthenticationPrincipal Jwt jwt) throws Exception {
-
+    @RequestMapping(value = "/v3/clientCredentialsToken", method = RequestMethod.GET)
+    public Jwt fetchClientCredentialsToken(@AuthenticationPrincipal Jwt jwt) throws Exception { 
+        
         String baseUrl = xsuaaBindindInformation.getUaaUrl();
         String clientId = xsuaaBindindInformation.getClientId();
         String clientSecret = xsuaaBindindInformation.getClientSecret();
-
+        
         Jwt ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow(URI.create(baseUrl))
                 .client(clientId)
                 .secret(clientSecret)
                 .execute();
-
+ 
         logger.info("Got the Client Credentials Flow Token: {}", ccfToken.getTokenValue());
-
+        
         return ccfToken;
     }
-
+    
     /**
-     * REST endpoint showing how to retrieve a refreshed token from XSUAA using the
-     * {@link XsuaaTokenFlows} bean injected by Spring and exposed by the XSUAA client library
-     * implementation.
+     * REST endpoint showing how to retrieve a refreshed token from XSUAA using the 
+     * {@link XsuaaTokenFlows} bean injected by Spring and exposed by the XSUAA client library 
+     * implementation. 
      * @param jwt - the Jwt as a result of authentication.
      * @return the Client Credentials Token fetched from XSUAA. Don't do this in production!
      * @throws Exception in case of any errors.
      */
-    @RequestMapping(value = "/v1/refreshToken", method = RequestMethod.GET)
+    @RequestMapping(value = "/v3/refreshToken", method = RequestMethod.GET)
     public Jwt refreshToken(@AuthenticationPrincipal Jwt jwt) throws Exception {
 
         String baseUrl = xsuaaBindindInformation.getUaaUrl();
         String clientId = xsuaaBindindInformation.getClientId();
         String clientSecret = xsuaaBindindInformation.getClientSecret();
-
+        
         Jwt refreshToken = xsuaaTokenFlows.refreshTokenFlow(URI.create(baseUrl))
         		.refreshToken("Your refresh token goes here. You get this from the OAuth server.")
                 .client(clientId)
                 .secret(clientSecret)
                 .execute();
-
+ 
         logger.info("Got the refreshed token: {}", refreshToken.getTokenValue());
         logger.info("You could now inject this into Spring's SecurityContext, using: SecurityContextHolder.getContext().setAuthentication(...).");
-
+                
         return refreshToken;
     }
-
+    
     /**
      * REST endpoint showing how to exchange a token from XSUAA for another one intended for another service.
-     * This endpoint shows how to use the {@link XsuaaTokenFlows} bean injected by Spring and exposed by the XSUAA client
+     * This endpoint shows how to use the {@link XsuaaTokenFlows} bean injected by Spring and exposed by the XSUAA client 
      * library implementation.
      * <p>
      * The idea behind a user token exchange is to separate service-specific access scopes into separate tokens.
      * For example, if Service A has scopes specific to its functionality and Service B has other scopes, the intention is
      * that there is no single Jwt token that contains all of these scopes.<br>
-     * Rather the intention is to have a Jwt token to call Service A (containing just the scopes of Service A),
-     * and another one to call Service B (containing just the scopes of Service B). An application calling Service A and
+     * Rather the intention is to have a Jwt token to call Service A (containing just the scopes of Service A), 
+     * and another one to call Service B (containing just the scopes of Service B). An application calling Service A and 
      * B on behalf of a user therefore has to exchange the user's Jwt token against a token for Service A and B respectively
      * before calling these services. This scenario is handled by the user token flow.
      * <p>
      * <b>Note:</b> In order to be able to exchange the token, the input token needs to contain the scope {@code uaa.user}.<br>
-     * Note also, that the client ID and client secret are the credentials injected by the service you are exchanging the token for.
+     * Note also, that the client ID and client secret are the credentials injected by the service you are exchanging the token for.  
      *
-     *
+     * 
      * @param jwt - the Jwt as a result of authentication.
      * @return the Client Credentials Token fetched from XSUAA. Don't do this in production!
      * @throws Exception in case of any errors.
      */
-    @RequestMapping(value = "/v1/userTokenFlow", method = RequestMethod.GET)
-    public Jwt userTokenFlow(@AuthenticationPrincipal Jwt jwt) throws Exception {
-
+    @RequestMapping(value = "/v3/userTokenFlow", method = RequestMethod.GET)
+    public Jwt userTokenFlow(@AuthenticationPrincipal Jwt jwt) throws Exception { 
+        
         String baseUrl = xsuaaBindindInformation.getUaaUrl();
         String clientId = "Client ID of service you want to exchange the token for. Should have been injected into your environment.";
         String clientSecret = "Client secret of service you want to exchange the token for. Should have been injected into your environment.";
-
+        
         Jwt userToken = xsuaaTokenFlows.userTokenFlow(URI.create(baseUrl))
         		.token(jwt)
                 .client(clientId)
                 .secret(clientSecret)
                 .execute();
-
+ 
         logger.info("Got the exchanged token for 3rd party service (clientId: {}) : {}", clientId, userToken.getTokenValue());
         logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ", userToken.getTokenValue());
-
+                
         return userToken;
     }
 }
