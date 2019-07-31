@@ -15,6 +15,8 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
+import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,19 +33,17 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 
 	// create an ApplicationContextRunner that will create a context with the
 	// configuration under test.
-	private ApplicationContextRunner contextRunner;
+	private WebApplicationContextRunner contextRunner;
 
 	@Autowired
 	private ApplicationContext context;
 
 	@Before
 	public void setup() {
-		contextRunner = new ApplicationContextRunner()
+		contextRunner = new WebApplicationContextRunner()
 				.withConfiguration(
 						AutoConfigurations.of(XsuaaResourceServerJwkAutoConfiguration.class,
-								XsuaaAutoConfiguration.class))
-				.withClassLoader(
-						new FilteredClassLoader(Mono.class, Flux.class));
+								XsuaaAutoConfiguration.class));
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 
 	@Test
 	public void autoConfigurationDisabledWhenSpringReactorIsActive() {
-		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+		ReactiveWebApplicationContextRunner contextRunner = new ReactiveWebApplicationContextRunner()
 				.withConfiguration(
 						AutoConfigurations.of(XsuaaResourceServerJwkAutoConfiguration.class,
 								XsuaaAutoConfiguration.class));
