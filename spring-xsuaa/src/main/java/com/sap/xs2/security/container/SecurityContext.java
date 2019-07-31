@@ -2,19 +2,18 @@ package com.sap.xs2.security.container;
 
 import com.sap.cloud.security.xsuaa.extractor.AuthoritiesExtractor;
 import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.util.Assert;
 
 public class SecurityContext {
 	/**
-	 * Obtain the UserInfo object from the Spring SecurityContext
+	 * Obtain the UserInfo object from the Spring Security Context
 	 *
 	 * @return UserInfo object
 	 * @throws UserInfoException
@@ -35,30 +34,22 @@ public class SecurityContext {
 	}
 
 	/**
-	 * Obtain the Token object from the Spring SecurityContext
+	 * Obtain the Token object from the Spring Security Context
 	 *
 	 * @return Token object
 	 * @throws AccessDeniedException
 	 *             in case there is no token, user is not authenticated
 	 *             <p>
 	 *             Note: This method is introduced with xsuaa spring client lib.
+	 * @deprecated method is moved to {@link SpringSecurityContext#getToken()}
 	 */
+	@Deprecated
 	static public Token getToken() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-		if (authentication == null) {
-			throw new AccessDeniedException("Access forbidden: not authenticated");
-		}
-
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Assert.state(principal != null, "Principal must not be null");
-		Assert.state(principal instanceof Token, "Unexpected principal type");
-
-		return (Token) principal;
+		return SpringSecurityContext.getToken();
 	}
 
 	/**
-	 * Initializes the Spring SecurityContext and extracts the authorities.
+	 * Initializes the Spring Security Context and extracts the authorities.
 	 *
 	 * @param appId
 	 *            the application id e.g. myXsAppname!t123
@@ -69,10 +60,11 @@ public class SecurityContext {
 	 *            scopes. Local scopes means that non-application specific scopes
 	 *            are filtered out and scopes are returned without appId prefix,
 	 *            e.g. "Display".
-	 * @deprecated use
-	 *             {@link SecurityContext#init(String, JwtDecoder, AuthoritiesExtractor)}
+	 * @deprecated use method
+	 *             {@link SpringSecurityContext#init(String, JwtDecoder, AuthoritiesExtractor)}
 	 *             instead
 	 */
+	@Deprecated
 	static public void init(String appId, Jwt token, boolean extractLocalScopesOnly) {
 		TokenAuthenticationConverter authenticationConverter = new TokenAuthenticationConverter(
 				new LocalAuthoritiesExtractor(appId));
@@ -83,37 +75,13 @@ public class SecurityContext {
 	}
 
 	/**
-	 * Initializes the Spring SecurityContext and extracts the authorities. With
-	 * version 1.5.0 you can configure your own {@link AuthoritiesExtractor} to
-	 * specify how to extract the authorities.
-	 *
-	 * @param encodedJwtToken
-	 *            the jwt token that is decoded with the given JwtDecoder
-	 * @param xsuaaJwtDecoder
-	 *            the decoder of type
-	 *            {@link com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder}
-	 * @param authoritiesExtractor
-	 *            the extractor used to turn Jwt scopes into Spring Security
-	 *            authorities.
-	 */
-	static public void init(String encodedJwtToken, JwtDecoder xsuaaJwtDecoder,
-			AuthoritiesExtractor authoritiesExtractor) {
-		Assert.isInstanceOf(XsuaaJwtDecoder.class, xsuaaJwtDecoder,
-				"Passed JwtDecoder instance must be of type 'XsuaaJwtDecoder'");
-		Jwt jwtToken = xsuaaJwtDecoder.decode(encodedJwtToken);
-
-		TokenAuthenticationConverter authenticationConverter = new TokenAuthenticationConverter(authoritiesExtractor);
-		Authentication authentication = authenticationConverter.convert(jwtToken);
-
-		SecurityContextHolder.createEmptyContext();
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-	}
-
-	/**
-	 * Cleans up the Spring SecurityContext and release thread locals for Garbage
+	 * Cleans up the Spring Security Context and release thread locals for Garbage
 	 * Collector to avoid memory leaks resources.
+	 *
+	 * @deprecated method is moved to {@link SpringSecurityContext#clear()}
 	 */
+	@Deprecated
 	static public void clear() {
-		SecurityContextHolder.clearContext();
+		SpringSecurityContext.clear();
 	}
 }

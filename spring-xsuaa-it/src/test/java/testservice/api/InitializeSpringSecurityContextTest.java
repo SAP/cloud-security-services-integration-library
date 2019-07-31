@@ -32,10 +32,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
+import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
 import com.sap.cloud.security.xsuaa.mock.XsuaaRequestDispatcher;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 import com.sap.cloud.security.xsuaa.token.Token;
-import com.sap.xs2.security.container.SecurityContext;
 
 import testservice.api.nohttp.MyEventHandler;
 import testservice.api.nohttp.SecurityConfiguration;
@@ -45,12 +46,12 @@ import testservice.api.nohttp.SecurityConfiguration;
 		XsuaaAutoConfiguration.class,
 		XsuaaResourceServerJwkAutoConfiguration.class })
 @ActiveProfiles({ "test.api.nohttp", "uaamock" })
-public class InitializeSecurityContextTest {
+public class InitializeSpringSecurityContextTest {
 	@Value("${xsuaa.clientid}")
 	String clientId;
 
 	@Value("${xsuaa.xsappname}")
-	String xsappname;
+	String appId;
 
 	@Autowired
 	JwtDecoder jwtDecoder;
@@ -61,12 +62,12 @@ public class InitializeSecurityContextTest {
 	@Test
 	public void initializeSecurityContext_succeeds() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
-				.addScopes("openid", xsappname + ".Display", "otherXSAPP.Display")
+				.addScopes("openid", appId + ".Display", "otherXSAPP.Display")
 				.deriveAudiences(true).getToken().getTokenValue();
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication(), is(nullValue()));
 
-		SecurityContext.init(xsappname, jwtDecoder.decode(jwt), true);
+		SpringSecurityContext.init(jwt, jwtDecoder, new LocalAuthoritiesExtractor(appId));
 
 		// test authentication - isAuthenticated()
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -89,8 +90,8 @@ public class InitializeSecurityContextTest {
 	public void clearSecurityContext_succeeds() {
 		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true).getToken().getTokenValue();
 
-		SecurityContext.init(xsappname, jwtDecoder.decode(jwt), true);
-		SecurityContext.clear();
+		SpringSecurityContext.init(jwt, jwtDecoder, new LocalAuthoritiesExtractor(appId));
+		SpringSecurityContext.clear();
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication(), is(nullValue()));
 	}
@@ -131,7 +132,7 @@ public class InitializeSecurityContextTest {
 	@Test
 	public void callEventWithSufficientAuthorization_succeeds() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
-				.addScopes("openid", xsappname + ".Display")
+				.addScopes("openid", appId + ".Display")
 				.deriveAudiences(true).getToken().getTokenValue();
 
 		eventHandler.onEvent(jwt);
@@ -140,10 +141,10 @@ public class InitializeSecurityContextTest {
 	@Test
 	public void callEventWithSufficientAuthorization_succeeds_2() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
-				.addScopes("openid", xsappname + ".Display")
+				.addScopes("openid", appId + ".Display")
 				.deriveAudiences(true).getToken().getTokenValue();
 
-		eventHandler.onEvent2(jwt);
+		eventHandler.onEvent(jwt);
 	}
 
 	@Test(expected = AccessDeniedException.class)
@@ -159,7 +160,7 @@ public class InitializeSecurityContextTest {
 		String jwt = new JwtGenerator(clientId, "subdomain")
 				.deriveAudiences(true).getToken().getTokenValue();
 
-		eventHandler.onEvent2(jwt);
+		eventHandler.onEvent(jwt);
 	}
 
 	@Test(expected = AccessDeniedException.class)
@@ -169,7 +170,7 @@ public class InitializeSecurityContextTest {
 
 	@Test(expected = AccessDeniedException.class)
 	public void callEventWithNoJwtToken_raisesAccessDeniedException_2() {
-		eventHandler.onEvent2(null);
+		eventHandler.onEvent(null);
 	}
 
 }
