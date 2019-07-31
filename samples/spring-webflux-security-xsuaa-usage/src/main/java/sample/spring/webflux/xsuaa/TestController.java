@@ -13,15 +13,15 @@ import reactor.core.publisher.Mono;
 @RestController
 public class TestController {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestController.class);
-
     @GetMapping("/v1/sayHello")
     public Mono<ResponseEntity<String>> sayHello() {
         ResponseEntity.BodyBuilder unAuthenticated = ResponseEntity.status(HttpStatus.UNAUTHORIZED);
+
         return ReactiveSecurityContext.getToken()
                 .doOnError(throwable -> Mono.just(unAuthenticated))
                 .flatMap(token -> {
-                    return Mono.just(ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN)
+                    return Mono.just(ResponseEntity.ok()
+                            .contentType(MediaType.TEXT_PLAIN)
                             .body("Authorities: " + token.getAuthorities()));
                 });
     }
