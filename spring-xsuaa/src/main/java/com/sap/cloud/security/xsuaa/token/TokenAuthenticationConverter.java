@@ -11,9 +11,9 @@ import org.springframework.util.Assert;
 
 /**
  * An authentication converter that extracts authorization related information
- * from the Jwt token. For example the{@link LocalAuthoritiesExtractor}can
- * remove the ugly application id prefix (e.g.my-application-demo!t1229)from the
- * scopes in the JWT.
+ * from the Jwt token. For example the{@link LocalAuthoritiesExtractor} can
+ * remove the ugly application id prefix (e.g.my-application-demo!t1229) from
+ * the scopes in the JWT.
  */
 public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 

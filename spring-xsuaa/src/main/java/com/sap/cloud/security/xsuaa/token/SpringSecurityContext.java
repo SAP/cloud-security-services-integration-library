@@ -12,7 +12,8 @@ import org.springframework.util.Assert;
 public class SpringSecurityContext {
 
 	/**
-	 * Obtain the Token object from the Spring Security Context {@link SecurityContextHolder}
+	 * Obtain the Token object from the Spring Security Context
+	 * {@link SecurityContextHolder}
 	 *
 	 * @return Token object
 	 * @throws AccessDeniedException
@@ -35,15 +36,14 @@ public class SpringSecurityContext {
 	}
 
 	/**
-	 * Initializes the Spring Security Context {@link SecurityContextHolder} and extracts the authorities.
-	 * With version 1.5.0 you can configure your own {@link AuthoritiesExtractor} to
-	 * specify how to extract the authorities.
+	 * Initializes the Spring Security Context {@link SecurityContextHolder} and
+	 * extracts the authorities. With version 1.5.0 you can configure your own
+	 * {@link AuthoritiesExtractor} to specify how to extract the authorities.
 	 *
 	 * @param encodedJwtToken
 	 *            the jwt token that is decoded with the given JwtDecoder
 	 * @param xsuaaJwtDecoder
-	 *            the decoder of type
-	 *            {@link XsuaaJwtDecoder}
+	 *            the decoder of type {@link XsuaaJwtDecoder}
 	 * @param authoritiesExtractor
 	 *            the extractor used to turn Jwt scopes into Spring Security
 	 *            authorities.
@@ -62,8 +62,8 @@ public class SpringSecurityContext {
 	}
 
 	/**
-	 * Cleans up the Spring Security Context {@link SecurityContextHolder} and release thread locals for Garbage Collector
-	 * to avoid memory leaks resources.
+	 * Cleans up the Spring Security Context {@link SecurityContextHolder} and
+	 * release thread locals for Garbage Collector to avoid memory leaks resources.
 	 */
 	static public void clear() {
 		SecurityContextHolder.clearContext();
