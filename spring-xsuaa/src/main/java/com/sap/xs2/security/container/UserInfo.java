@@ -257,7 +257,7 @@ public class UserInfo implements XSUserInfo {
 	@Override
 	public String getToken(String namespace, String name) throws UserInfoException {
 		if (!(getGrantType().equals(GRANTTYPE_CLIENTCREDENTIAL)) && hasAttributes() && isInForeignMode()) {
-			throw new UserInfoException("The SecurityContext has been initialized with an access token of a\n"
+			throw new UserInfoException("The Spring Security Context has been initialized with an access token of a\n"
 					+ "foreign OAuth Client Id and/or Identity Zone. Furthermore, the\n"
 					+ "access token contains attributes. Due to the fact that we want to\n"
 					+ "restrict attribute access to the application that provided the \n"

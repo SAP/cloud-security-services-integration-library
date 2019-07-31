@@ -86,29 +86,30 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
 ### Setup Security Context for non-HTTP requests
-In case of non-HTTP requests, you may need to initialize the Spring `SecurityContext` with a JWT token you've received from a message / event or you've requested from XSUAA directly:
+In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message / event or you've requested from XSUAA directly:
 
 ```java
+@Autowired 
+XsuaaServiceConfiguration xsuaaServiceConfiguration;
+
 @Autowired
 JwtDecoder jwtDecoder;
 
-@Value("${xsuaa.xsappname}")
-String xsappname;
-
 public void onEvent(String myEncodedJwtToken) {
-    Jwt jwtToken = jwtDecoder.decode(myEncodedJwtToken);
-    SecurityContext.init(xsappname, myEncodedJwtToken, true);
+    if (myEncodedJwtToken != null) {
+        SpringSecurityContext.init(myEncodedJwtToken, jwtDecoder, new LocalAuthoritiesExtractor(xsuaaServiceConfiguration.getAppId()));
+    }
     try {
-        // ... handle event
+        handleEvent();
     } finally {
-        SecurityContext.clear();
+        SpringSecurityContext.clear();
     }
 }
 ```
 
-In detail `com.sap.xs2.security.container.SecurityContext` wraps the Spring `SecurityContext`, which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
+In detail `com.sap.cloud.security.xsuaa.token.SpringSecurityContext` wraps the Spring Security Context (namely `SecurityContextHolder.getContext()`), which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
 
-Note that Spring `SecurityContext` is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
+Note that Spring Security Context is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
 
 ## Usage
 
@@ -125,7 +126,7 @@ public Map<String, String> message(@AuthenticationPrincipal Token token) {
 Or alternatively:
 ```java
 public Map<String, String> message() {
-    Token token = SecurityContext.getToken();
+    Token token = SpringSecurityContext.getToken();
     token.getGivenName();
 }
 ```

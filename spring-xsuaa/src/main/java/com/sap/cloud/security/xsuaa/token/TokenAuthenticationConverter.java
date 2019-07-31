@@ -1,19 +1,19 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.extractor.AuthoritiesExtractor;
 import com.sap.cloud.security.xsuaa.extractor.DefaultAuthoritiesExtractor;
 import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.util.Assert;
 
 /**
- * An authentication converter that removes the ugly application id prefix (e.g.
- * my-application-demo!t1229) from the scopes in the JWT.
- *
+ * An authentication converter that extracts authorization related information
+ * from the Jwt token. For example the{@link LocalAuthoritiesExtractor} can
+ * remove the ugly application id prefix (e.g.my-application-demo!t1229) from
+ * the scopes in the JWT.
  */
 public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
@@ -22,7 +22,7 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 
 	/**
 	 * Creates a new converter with the given {@link AuthoritiesExtractor}.
-	 * 
+	 *
 	 * @param authoritiesExtractor
 	 *            - the extractor used to turn Jwt scopes into Spring Security
 	 *            authorities.
@@ -34,7 +34,7 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 	/**
 	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor}
 	 * instance as default authorities extractor.
-	 * 
+	 *
 	 * @param appId
 	 *            e.g. myXsAppname!t123
 	 */
