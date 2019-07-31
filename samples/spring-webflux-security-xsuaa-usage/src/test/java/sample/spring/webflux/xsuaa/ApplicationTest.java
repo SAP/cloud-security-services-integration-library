@@ -1,3 +1,4 @@
+package sample.spring.webflux.xsuaa;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
