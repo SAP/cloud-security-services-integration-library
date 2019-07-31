@@ -64,8 +64,8 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 			} catch (ParseException e) {
 				throw new JwtException("Error initializing JWT decoder:" + e.getMessage());
 			}
-		}).flatMap(decoder -> decoder.decode(token)).doOnSuccess( jwt ->
-				postValidationActions.forEach(act -> act.perform(jwt)));
+		}).flatMap(decoder -> decoder.decode(token))
+				.doOnSuccess(jwt -> postValidationActions.forEach(act -> act.perform(jwt)));
 	}
 
 	protected String getSubdomain(JWT jwt) throws ParseException {
