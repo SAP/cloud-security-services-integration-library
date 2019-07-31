@@ -14,7 +14,7 @@
 
 	<groupId>com.sap.cloud.security.samples</groupId>
 	<artifactId>spring-security-xsuaa-usage</artifactId>
-	<version>1.5.0</version>
+	<version>1.6.0</version>
 	<name>spring-security-xsuaa-usage</name>
 
 	<properties>
@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>spring-xsuaa</artifactId>
-			<version>1.5.0</version>
+			<version>1.6.0</version>
 		</dependency>
 
 	</dependencies>
