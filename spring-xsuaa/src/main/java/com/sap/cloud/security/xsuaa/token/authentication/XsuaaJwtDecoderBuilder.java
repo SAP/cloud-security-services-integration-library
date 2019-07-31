@@ -58,7 +58,7 @@ public class XsuaaJwtDecoderBuilder {
 				defaultTokenValidators,
 				xsuaaTokenValidators);
 		return new ReactiveXsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
-				combinedTokenValidators);
+				combinedTokenValidators, postValidationActions);
 	}
 
 	/**

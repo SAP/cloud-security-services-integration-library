@@ -1,9 +1,7 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -28,6 +26,7 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 	Cache<String, ReactiveJwtDecoder> cache;
 	private final XsuaaServiceConfiguration xsuaaServiceConfiguration;
 	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
+	private Collection<PostValidationAction> postValidationActions;
 
 	private static final String EXT_ATTR = "ext_attr";
 	private static final String ZDN = "zdn";
@@ -35,9 +34,8 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 
 	// var arg it is only being converted to a List<OAuth2TokenValidator<Jwt>>,
 	// therefore its type safe.
-	@SafeVarargs
 	ReactiveXsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidity, int cacheSize,
-			OAuth2TokenValidator<Jwt>... tokenValidators) {
+			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
 		cache = Caffeine.newBuilder().expireAfterWrite(5, TimeUnit.SECONDS).maximumSize(cacheSize).build();
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 
@@ -47,6 +45,7 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 		} else {
 			this.tokenValidators.addAll(Arrays.asList(tokenValidators));
 		}
+		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.EMPTY_LIST;
 	}
 
 	@Override
@@ -55,17 +54,18 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 			try {
 				return JWTParser.parse(jwtToken);
 			} catch (ParseException e) {
-				throw new JwtException("Error initializing JWT  decoder:" + e.getMessage());
+				throw new JwtException("Error initializing JWT decoder:" + e.getMessage());
 			}
-		}).map(jwt -> {
+		}).map(jwtToken -> {
 			try {
-				String subdomain = this.getSubdomain(jwt);
-				String zoneId = jwt.getJWTClaimsSet().getStringClaim(ZID);
+				String subdomain = this.getSubdomain(jwtToken);
+				String zoneId = jwtToken.getJWTClaimsSet().getStringClaim(ZID);
 				return cache.get(subdomain, k -> this.getDecoder(zoneId, subdomain));
 			} catch (ParseException e) {
-				throw new JwtException("Error initializing JWT  decoder:" + e.getMessage());
+				throw new JwtException("Error initializing JWT decoder:" + e.getMessage());
 			}
-		}).flatMap(decoder -> decoder.decode(token));
+		}).flatMap(decoder -> decoder.decode(token)).doOnSuccess( jwt ->
+				postValidationActions.forEach(act -> act.perform(jwt)));
 	}
 
 	protected String getSubdomain(JWT jwt) throws ParseException {
