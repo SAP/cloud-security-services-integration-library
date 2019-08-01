@@ -116,7 +116,7 @@ Further up-to-date information you can get on sap.help.com:
 - [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
 
 ## Access the application
-After deployment, the application router will trigger authentication. If you have assigned the role-collection provided in the [xs-security.json](./xs-security.json) to your user, you will see an output like:
+After deployment, the application router will trigger authentication. If you have assigned the role-collection provided in the [xs-security.json](./xs-security.json) to your user, you will see an output like when calling `https://approuter-sap-java-buildpack-api-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>`:
 
 ```
 Client ID: sap-java-buildpack-api-usage!t5721
@@ -130,3 +130,11 @@ If not you should get a `403` status code (Forbidden).
 
 > Note: you can find the route of your approuter application using `cf app approuter-sap-java-buildpack-api-usage`.
 
+### Clean-Up
+
+Finally delete your application and your service instances using the following commands:
+```
+cf delete -f sap-java-buildpack-api-usage
+cf delete -f approuter-sap-java-buildpack-api-usage
+cf delete-service -f xsuaa-buildpack
+```

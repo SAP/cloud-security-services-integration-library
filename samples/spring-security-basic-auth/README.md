@@ -125,4 +125,11 @@ You will get a response like:
 }
 ```
 
+### Clean-Up
+
+Finally delete your application and your service instances using the following commands:
+```
+cf delete -f spring-security-basic-auth
+cf delete-service -f xsuaa-basic
+```
 
