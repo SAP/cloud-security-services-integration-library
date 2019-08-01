@@ -25,19 +25,26 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
     <artifactId>spring-xsuaa</artifactId>
     <version>1.6.0</version>
 </dependency>
-<dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-autoconfigure</artifactId> <!--
-</dependency>
-<dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
+<dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-to-slf4j</artifactId>
     <version>2.11.2</version>
 </dependency>
 ```
 
+**Or, if you like to leverage auto-configuration:**
+
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>xsuaa-spring-boot-starter</artifactId>
+    <version>1.6.0</version>
+</dependency>
+```
+
 ### Auto-configuration
-The Xsuaa integration libraries auto-configures beans, that are required to initialize the Spring Boot application as OAuth resource server.
+As auto-configuration requires Spring Boot specific dependencies, it is enabled when using `xsuaa-spring-boot-starter` Spring Boot Starter. 
+Then, xsuaa integration libraries auto-configures beans, that are required to initialize the Spring Boot application as OAuth resource server.
 
 Auto-configuration class | Description
 ---- | --------
@@ -164,4 +171,14 @@ public Map<String, String> message() {
     ...
 }
 ```
+
+## Troubleshoot
+
+- Compile error when upgrading from version `1.5.0` to `1.6.0`:  
+  ```
+  java.lang.IllegalStateException: Failed to load ApplicationContext
+     Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'springSecurityFilterChain' defined in class path resource [org/springframework/security/config/annotation/web/configuration/WebSecurityConfiguration.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [javax.servlet.Filter]: Factory method 'springSecurityFilterChain' threw exception; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.oauth2.jwt.JwtDecoder' available
+   ```  
+   As of version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage auto-configuration.
+   Make use of the Xsuaa Spring Boot Starter dependency as explained [here](README.md#maven-dependencies).     
 
