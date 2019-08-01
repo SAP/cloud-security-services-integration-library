@@ -8,6 +8,8 @@ import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+
 import org.springframework.security.oauth2.jwt.JwtValidators;
 
 public class XsuaaJwtDecoderBuilder {
@@ -43,6 +45,19 @@ public class XsuaaJwtDecoderBuilder {
 				defaultTokenValidators,
 				xsuaaTokenValidators);
 		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
+				combinedTokenValidators, postValidationActions);
+	}
+
+	/**
+	 * Assembles a ReactiveJwtDecoder
+	 *
+	 * @return ReactiveJwtDecoder
+	 */
+	public ReactiveJwtDecoder buildAsReactive() {
+		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = new DelegatingOAuth2TokenValidator<>(
+				defaultTokenValidators,
+				xsuaaTokenValidators);
+		return new ReactiveXsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
 				combinedTokenValidators, postValidationActions);
 	}
 
@@ -93,12 +108,15 @@ public class XsuaaJwtDecoderBuilder {
 	 *            the token validators
 	 * @return this
 	 */
+	// var arg it is only being assigned to a OAuth2TokenValidator<Jwt>[], therefore
+	// its type safe.
+	@SuppressWarnings("unchecked")
 	public XsuaaJwtDecoderBuilder withTokenValidators(OAuth2TokenValidator<Jwt>... tokenValidators) {
 		this.xsuaaTokenValidators = new DelegatingOAuth2TokenValidator<>(tokenValidators);
 		return this;
 	}
 
-	public XsuaaJwtDecoderBuilder withDefaultValidators(OAuth2TokenValidator<Jwt>... defaultTokenValidators) {
+	XsuaaJwtDecoderBuilder withDefaultValidators(OAuth2TokenValidator<Jwt>... defaultTokenValidators) {
 		this.defaultTokenValidators = new DelegatingOAuth2TokenValidator<>(defaultTokenValidators);
 		return this;
 	}

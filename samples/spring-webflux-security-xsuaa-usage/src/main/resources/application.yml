@@ -1,0 +1,8 @@
+---
+# Setting Log Levels          
+logging.level:
+  com.sap: DEBUG                      # set SAP-class loggers to DEBUG.
+  org.springframework: ERROR          # set to DEBUG to see all beans loaded and auto-config conditions met.
+  org.springframework.security: DEBUG # set to ERROR for production setups. 
+  org.springframework.webflux: DEBUG      # set to ERROR for production setups.
+  sample.spring.webflux.xsuaa: INFO

@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -62,7 +63,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
 			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
 		this(xsuaaServiceConfiguration, cacheValidityInSeconds, cacheSize, tokenValidators);
-		this.postValidationActions = postValidationActions;
+
+		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.EMPTY_LIST;
 	}
 
 	@Override
@@ -85,9 +87,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			validateJKU(jku, uaaDomain);
 			Jwt verifiedToken = verifyWithOnlineKey(token, jku, kid);
 
-			if (postValidationActions != null) {
-				postValidationActions.forEach(act -> act.perform(verifiedToken));
-			}
+			postValidationActions.forEach(act -> act.perform(verifiedToken));
+
 			return verifiedToken;
 		} catch (JwtValidationException ex) {
 			throw ex;
@@ -100,7 +101,6 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		if (jku != null && kid != null && uaadomain != null) {
 			return;
 		}
-
 		List<String> nullParams = new ArrayList<>();
 		if (jku == null)
 			nullParams.add("jku");

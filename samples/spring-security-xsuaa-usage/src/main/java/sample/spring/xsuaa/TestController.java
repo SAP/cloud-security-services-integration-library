@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.sap.cloud.security.xsuaa.token.Token;
-import com.sap.cloud.security.xsuaa.token.XsuaaToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

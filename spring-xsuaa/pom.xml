@@ -61,6 +61,12 @@
 			<version>${caffeine.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-core</artifactId>
+			<version>${reactor.version}</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.security.oauth</groupId>
 			<artifactId>spring-security-oauth2</artifactId>
 			<version>2.3.6.RELEASE</version>
@@ -113,6 +119,13 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-test</artifactId>
+			<version>LATEST</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -207,5 +220,6 @@
 	<properties>
 		<caffeine.version>2.6.2</caffeine.version>
 		<servlet.version>3.1.0</servlet.version>
+		<reactor.version>3.2.8.RELEASE</reactor.version>
 	</properties>
 </project>
