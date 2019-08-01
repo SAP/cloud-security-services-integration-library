@@ -25,7 +25,8 @@ public class OAuth2AuthenticationConverter extends TokenAuthenticationConverter 
 	public OAuth2Authentication convert(Jwt jwt) {
 		AuthenticationToken authenticationToken = (AuthenticationToken) super.convert(jwt);
 		String clientId = jwt.getClaimAsString(CLAIM_CLIENT_ID);
-		AuthorizationRequest authorizationRequest = new AuthorizationRequest(clientId, null);
+		AuthorizationRequest authorizationRequest = new AuthorizationRequest(clientId,
+				authenticationToken.getAuthorities().stream().map(Objects::toString).collect(Collectors.toList()));
 		authorizationRequest.setApproved(true);
 		authorizationRequest.setAuthorities(authenticationToken.getAuthorities());
 

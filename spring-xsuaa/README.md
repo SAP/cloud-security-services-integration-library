@@ -23,21 +23,28 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
 </dependency>
-<dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-autoconfigure</artifactId> <!--
-</dependency>
-<dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
+<dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-to-slf4j</artifactId>
     <version>2.11.2</version>
 </dependency>
 ```
 
+**Or, if you like to leverage auto-configuration:**
+
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>xsuaa-spring-boot-starter</artifactId>
+    <version>1.6.0</version>
+</dependency>
+```
+
 ### Auto-configuration
-The Xsuaa integration libraries auto-configures beans, that are required to initialize the Spring Boot application as OAuth resource server.
+As auto-configuration requires Spring Boot specific dependencies, it is enabled when using `xsuaa-spring-boot-starter` Spring Boot Starter. 
+Then, xsuaa integration libraries auto-configures beans, that are required to initialize the Spring Boot application as OAuth resource server.
 
 Auto-configuration class | Description
 ---- | --------
@@ -86,29 +93,30 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
 ### Setup Security Context for non-HTTP requests
-In case of non-HTTP requests, you may need to initialize the Spring `SecurityContext` with a JWT token you've received from a message / event or you've requested from XSUAA directly:
+In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message / event or you've requested from XSUAA directly:
 
 ```java
+@Autowired 
+XsuaaServiceConfiguration xsuaaServiceConfiguration;
+
 @Autowired
 JwtDecoder jwtDecoder;
 
-@Value("${xsuaa.xsappname}")
-String xsappname;
-
 public void onEvent(String myEncodedJwtToken) {
-    Jwt jwtToken = jwtDecoder.decode(myEncodedJwtToken);
-    SecurityContext.init(xsappname, myEncodedJwtToken, true);
+    if (myEncodedJwtToken != null) {
+        SpringSecurityContext.init(myEncodedJwtToken, jwtDecoder, new LocalAuthoritiesExtractor(xsuaaServiceConfiguration.getAppId()));
+    }
     try {
-        // ... handle event
+        handleEvent();
     } finally {
-        SecurityContext.clear();
+        SpringSecurityContext.clear();
     }
 }
 ```
 
-In detail `com.sap.xs2.security.container.SecurityContext` wraps the Spring `SecurityContext`, which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
+In detail `com.sap.cloud.security.xsuaa.token.SpringSecurityContext` wraps the Spring Security Context (namely `SecurityContextHolder.getContext()`), which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
 
-Note that Spring `SecurityContext` is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
+Note that Spring Security Context is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
 
 ## Usage
 
@@ -125,7 +133,7 @@ public Map<String, String> message(@AuthenticationPrincipal Token token) {
 Or alternatively:
 ```java
 public Map<String, String> message() {
-    Token token = SecurityContext.getToken();
+    Token token = SpringSecurityContext.getToken();
     token.getGivenName();
 }
 ```
@@ -163,4 +171,14 @@ public Map<String, String> message() {
     ...
 }
 ```
+
+## Troubleshoot
+
+- Compile error when upgrading from version `1.5.0` to `1.6.0`:  
+  ```
+  java.lang.IllegalStateException: Failed to load ApplicationContext
+     Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'springSecurityFilterChain' defined in class path resource [org/springframework/security/config/annotation/web/configuration/WebSecurityConfiguration.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [javax.servlet.Filter]: Factory method 'springSecurityFilterChain' threw exception; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.oauth2.jwt.JwtDecoder' available
+   ```  
+   As of version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage auto-configuration.
+   Make use of the Xsuaa Spring Boot Starter dependency as explained [here](README.md#maven-dependencies).     
 

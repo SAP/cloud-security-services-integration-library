@@ -9,9 +9,9 @@ import java.util.Date;
 import java.util.List;
 
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.junit.Assert;
 import org.junit.Before;
@@ -168,45 +168,4 @@ public class XsuaaAudienceValidatorTest {
 		Assert.assertFalse(result.hasErrors());
 	}
 
-	public static class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration {
-
-		String clientId;
-		String xsAppId;
-
-		public DummyXsuaaServiceConfiguration(String clientId, String xsAppId) {
-			this.clientId = clientId;
-			this.xsAppId = xsAppId;
-		}
-
-		@Override
-		public String getClientId() {
-			return clientId;
-		}
-
-		@Override
-		public String getClientSecret() {
-			return null;
-		}
-
-		@Override
-		public String getUaaUrl() {
-			return null;
-		}
-
-		@Override
-		public String getTokenKeyUrl(String zid, String subdomain) {
-			return null;
-		}
-
-		@Override
-		public String getAppId() {
-			return xsAppId;
-		}
-
-		@Override
-		public String getUaaDomain() {
-			return null;
-		}
-
-	}
 }

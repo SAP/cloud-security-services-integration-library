@@ -5,7 +5,7 @@
 
 	<groupId>com.sap.cloud.security.xsuaa</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.5.0</version>
+	<version>1.6.0</version>
 	<packaging>pom</packaging>
 
 	<name>parent</name>
@@ -65,6 +65,7 @@
 		<module>spring-xsuaa-it</module>
 		<module>spring-xsuaa-test</module>
 		<module>spring-xsuaa-mock</module>
+		<module>spring-xsuaa-starter</module>
 	</modules>
 
 	<dependencyManagement>
