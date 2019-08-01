@@ -1,21 +1,11 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
-import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addAcceptHeader;
-import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addBasicAuthHeader;
-import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAuthorities;
+import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.Assert;
 
 import java.net.URI;
 import java.util.Map;
-
-import com.sap.cloud.security.xsuaa.OAuthServerEndpointsProvider;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * A client credentials flow builder class. Applications retrieve an instance of
@@ -23,36 +13,26 @@ import org.springframework.web.util.UriComponentsBuilder;
  * using a builder pattern.
  */
 public class ClientCredentialsTokenFlow {
-
-	private static final String ACCESS_TOKEN = "access_token";
-	private static final String GRANT_TYPE = "grant_type";
-	private static final String CLIENT_CREDENTIALS = "client_credentials";
-	private static final String AUTHORITIES = "authorities";
-
-	private RestTemplate restTemplate;
+	private OAuth2Server oAuth2Server;
 	private XsuaaTokenFlowRequest request;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param restTemplate
-	 *            - the {@link RestTemplate} used to execute the final request.
+	 * @param oAuth2Server
+	 *            - the {@link OAuth2Server} used to execute the final request.
 	 * @param tokenDecoder
 	 * 			  - the token decoder
-	 * @param oAuthServerEndpointsProvider
-	 *            - provides the OAuth server endpoints.
 	 */
-	ClientCredentialsTokenFlow(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder,
-			OAuthServerEndpointsProvider oAuthServerEndpointsProvider) {
-		Assert.notNull(restTemplate, "RestTemplate must not be null.");
+	ClientCredentialsTokenFlow(OAuth2Server oAuth2Server, VariableKeySetUriTokenDecoder tokenDecoder) {
+		Assert.notNull(oAuth2Server, "OAuth2Server must not be null.");
 		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
-		Assert.notNull(oAuthServerEndpointsProvider, "OAuthServerEndpointsProvider must not be null.");
 
-		this.restTemplate = restTemplate;
+		this.oAuth2Server = oAuth2Server;
 		this.tokenDecoder = tokenDecoder;
 
-		this.request = new XsuaaTokenFlowRequest(oAuthServerEndpointsProvider);
+		this.request = new XsuaaTokenFlowRequest(oAuth2Server);
 	}
 
 	/**
@@ -103,10 +83,10 @@ public class ClientCredentialsTokenFlow {
 	 *             in case of token flow errors.
 	 */
 	public Jwt execute() throws TokenFlowException {
-
 		checkRequest(request);
 
-		return requestTechnicalUserToken(request);
+		String encodedJwtTokenValue = oAuth2Server.requestTechnicalUserToken(request.getAdditionalAuthorizationAttributes(), request.getClientId(), request.getClientSecret());
+		return decode(encodedJwtTokenValue, request.getKeySetEndpoint());
 	}
 
 	/**
@@ -126,69 +106,6 @@ public class ClientCredentialsTokenFlow {
 	}
 
 	/**
-	 * Requests the client credentials token from XSUAA.
-	 * 
-	 * @param request
-	 *            - the token request.
-	 * @return the JWT token returned by XSUAA.
-	 * @throws TokenFlowException
-	 *             in case of an error during the flow.
-	 */
-	private Jwt requestTechnicalUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
-
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(request.getTokenEndpoint());
-
-		// add grant type to URI
-		builder.queryParam(GRANT_TYPE, CLIENT_CREDENTIALS);
-
-		String authorities = buildAuthorities(request); // returns JSON!
-		if (authorities != null) {
-			builder.queryParam(AUTHORITIES, authorities); // places JSON inside the URI !?!
-		}
-
-		HttpHeaders headers = createHeadersForTechnicalUserTokenExchange(request);
-
-		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-
-		URI requestUri = builder.build().encode().toUri();
-
-		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> responseEntity = restTemplate.postForEntity(requestUri, requestEntity, Map.class);
-
-		HttpStatus responseStatusCode = responseEntity.getStatusCode();
-
-		if (responseStatusCode == HttpStatus.UNAUTHORIZED) {
-			throw new TokenFlowException(String.format(
-					"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful (grant_type: client_credentials). Client credentials invalid.",
-					responseStatusCode));
-		}
-
-		if (responseEntity.getStatusCode() != HttpStatus.OK) {
-			throw new TokenFlowException(String.format(
-					"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful (grant_type: client_credentials).",
-					responseStatusCode));
-		}
-
-		String encodedJwtTokenValue = responseEntity.getBody().get(ACCESS_TOKEN).toString();
-
-		return decode(encodedJwtTokenValue, request.getKeySetEndpoint());
-	}
-
-	/**
-	 * Creates a set of headers required for the token exchange with XSUAA.
-	 * 
-	 * @param request
-	 *            - the token flow request.
-	 * @return the set of headers.
-	 */
-	private HttpHeaders createHeadersForTechnicalUserTokenExchange(XsuaaTokenFlowRequest request) {
-		HttpHeaders headers = new HttpHeaders();
-		addAcceptHeader(headers);
-		addBasicAuthHeader(headers, request.getClientId(), request.getClientSecret());
-		return headers;
-	}
-
-	/**
 	 * Decodes the returned JWT value.
 	 * 
 	 * @param encodedToken
@@ -197,7 +114,7 @@ public class ClientCredentialsTokenFlow {
 	 * @throws TokenFlowException
 	 *             in case of an exception decoding the token.
 	 */
-	private Jwt decode(String encodedToken, URI keySetEndpoint) throws TokenFlowException {
+	private Jwt decode(String encodedToken, URI keySetEndpoint) {
 
 		tokenDecoder.setJwksURI(keySetEndpoint);
 		// validation is not required by the one who retrieves the token,

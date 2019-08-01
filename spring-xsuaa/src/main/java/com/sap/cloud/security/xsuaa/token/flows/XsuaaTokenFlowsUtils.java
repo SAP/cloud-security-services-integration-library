@@ -17,7 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * A utilities class providing static functions required to build the XSUAA
  * token flow REST requests.
  */
-class XsuaaTokenFlowsUtils {
+// TODO set to protected
+public class XsuaaTokenFlowsUtils {
 
 	private static final String BASIC_AUTH_HEADER_FORMAT = "Basic %s";
 	private static final String CREDENTIALS_FORMAT = "%s:%s";
