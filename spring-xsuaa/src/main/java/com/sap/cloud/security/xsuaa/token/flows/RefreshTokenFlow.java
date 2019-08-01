@@ -6,7 +6,7 @@ import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addB
 import java.net.URI;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.UaaRestClient;
+import com.sap.cloud.security.xsuaa.OAuthServerEndpointsProvider;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -39,17 +39,17 @@ public class RefreshTokenFlow {
 	 *            - the {@link RestTemplate} used to execute the final request.
 	 * @param tokenDecoder
 	 * 			  - the token decoder
-	 * @param uaaRestClient
+	 * @param oAuthServerEndpointsProvider
 	 *            - provides the UAA endpoints.
 	 */
-	RefreshTokenFlow(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder, UaaRestClient uaaRestClient) {
+	RefreshTokenFlow(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder, OAuthServerEndpointsProvider oAuthServerEndpointsProvider) {
 		Assert.notNull(restTemplate, "RestTemplate must not be null.");
 		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
-		Assert.notNull(uaaRestClient, "UaaRestClient must not be null.");
+		Assert.notNull(oAuthServerEndpointsProvider, "OAuthServerEndpointsProvider must not be null.");
 
 		this.restTemplate = restTemplate;
 		this.tokenDecoder = tokenDecoder;
-		this.request = new XsuaaTokenFlowRequest(uaaRestClient);
+		this.request = new XsuaaTokenFlowRequest(oAuthServerEndpointsProvider);
 	}
 
 	/**

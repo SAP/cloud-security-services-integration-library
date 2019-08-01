@@ -2,7 +2,7 @@ package com.sap.cloud.security.xsuaa;
 
 import java.net.URI;
 
-public interface UaaRestClient {
+public interface OAuthServerEndpointsProvider {
 
 	/**
 	 * Returns token endpoint URI.

@@ -5,7 +5,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 
-public class XsuaaRestClientDefault implements UaaRestClient {
+public class XsuaaDefaultEndpoints implements OAuthServerEndpointsProvider {
 	private URI baseUri;
 	private final static String TOKEN_ENDPOINT = "/oauth/token";
 	private final static String AUTHORIZE_ENDPOINT = "/oauth/authorize";
@@ -14,12 +14,12 @@ public class XsuaaRestClientDefault implements UaaRestClient {
 	/**
 	 * Creates a new XsuaaRestClient.
 	 *
-	 * @param uaaUrl - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
+	 * @param baseUri - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
 	 *                                 authorize and key set URI (JWKS) will be derived.
 	 */
-	public XsuaaRestClientDefault(URI uaaUrl) {
-		Assert.notNull(uaaUrl, "XSUAA base URI must not be null.");
-		this.baseUri = uaaUrl;
+	public XsuaaDefaultEndpoints(URI baseUri) {
+		Assert.notNull(baseUri, "XSUAA base URI must not be null.");
+		this.baseUri = baseUri;
 	}
 
 	@Override public URI getTokenEndpoint() {

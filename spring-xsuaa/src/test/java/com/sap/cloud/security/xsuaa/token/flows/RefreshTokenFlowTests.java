@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.XsuaaRestClientDefault;
+import com.sap.cloud.security.xsuaa.XsuaaDefaultEndpoints;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpEntity;
@@ -18,11 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
-import com.sap.cloud.security.xsuaa.token.flows.RefreshTokenFlow;
-import com.sap.cloud.security.xsuaa.token.flows.TokenFlowException;
-import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
 
 public class RefreshTokenFlowTests {
 
@@ -61,7 +56,7 @@ public class RefreshTokenFlowTests {
 	}
 
 	private RefreshTokenFlow createTokenFlow() {
-		return new RefreshTokenFlow(restTemplate, tokenDecoder, new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
+		return new RefreshTokenFlow(restTemplate, tokenDecoder, new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 	}
 
 	@Test
@@ -114,7 +109,7 @@ public class RefreshTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.OK);
 
 		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(restTemplateMock, tokenDecoderMock,
-				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
+				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		tokenFlow.refreshToken(refreshToken)
 				.client(clientId)
 				.secret(clientSecret)
@@ -138,7 +133,7 @@ public class RefreshTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
 
 		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(restTemplateMock, tokenDecoderMock,
-				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
+				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
 			tokenFlow.refreshToken(refreshToken)
@@ -163,7 +158,7 @@ public class RefreshTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.CONFLICT);
 
 		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(restTemplateMock, tokenDecoderMock,
-				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
+				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
 			tokenFlow.refreshToken(refreshToken)

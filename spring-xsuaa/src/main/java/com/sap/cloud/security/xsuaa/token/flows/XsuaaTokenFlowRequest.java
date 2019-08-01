@@ -10,7 +10,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.UaaRestClient;
+import com.sap.cloud.security.xsuaa.OAuthServerEndpointsProvider;
 import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.util.Assert;
 
@@ -20,7 +20,7 @@ import org.springframework.util.Assert;
  */
 class XsuaaTokenFlowRequest implements XSTokenRequest {
 
-	private UaaRestClient restClient;
+	private OAuthServerEndpointsProvider oAuthServerEndpointsProvider;
 	private String clientId;
 	private String clientSecret;
 	private Map<String, String> additionalAuthorizationAttributes;
@@ -28,20 +28,20 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	/**
 	 * Creates a new token exchange request.
 	 * 
-	 * @param restClient
+	 * @param oAuthServerEndpointsProvider
 	 *            - contains the endpoint URIs of the XSUAA where to exchange the token.
 	 */
-	XsuaaTokenFlowRequest(UaaRestClient restClient) {
-		Assert.notNull(restClient.getTokenEndpoint(), "Token endpoint URI must not be null.");
-		Assert.notNull(restClient.getAuthorizeEndpoint(), "Authorize endpoint URI must not be null.");
-		Assert.notNull(restClient.getJwksUri(), "Key set endpoint URI must not be null.");
+	XsuaaTokenFlowRequest(OAuthServerEndpointsProvider oAuthServerEndpointsProvider) {
+		Assert.notNull(oAuthServerEndpointsProvider.getTokenEndpoint(), "Token endpoint URI must not be null.");
+		Assert.notNull(oAuthServerEndpointsProvider.getAuthorizeEndpoint(), "Authorize endpoint URI must not be null.");
+		Assert.notNull(oAuthServerEndpointsProvider.getJwksUri(), "Key set endpoint URI must not be null.");
 
-		this.restClient = restClient;
+		this.oAuthServerEndpointsProvider = oAuthServerEndpointsProvider;
 	}
 
 	@Override
 	public URI getTokenEndpoint() {
-		return this.restClient.getTokenEndpoint();
+		return this.oAuthServerEndpointsProvider.getTokenEndpoint();
 	}
 
 	/**
@@ -51,7 +51,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * @return the endpoint to authorize scopes.
 	 */
 	URI getAuthorizeEndpoint() {
-		return this.restClient.getAuthorizeEndpoint();
+		return this.oAuthServerEndpointsProvider.getAuthorizeEndpoint();
 	}
 
 	/**
@@ -61,7 +61,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * @return the endpoint to fetch the public key set from.
 	 */
 	URI getKeySetEndpoint() {
-		return this.restClient.getJwksUri();
+		return this.oAuthServerEndpointsProvider.getJwksUri();
 	}
 
 	@Override

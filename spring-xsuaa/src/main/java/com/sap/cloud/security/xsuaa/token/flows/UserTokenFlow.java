@@ -8,7 +8,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.UaaRestClient;
+import com.sap.cloud.security.xsuaa.OAuthServerEndpointsProvider;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -48,17 +48,17 @@ public class UserTokenFlow {
 	 *            - the {@link RestTemplate} used to execute the final request.
 	 * @param refreshTokenFlow
 	 * 			  - the refresh token flow
-	 * @param uaaRestClient
+	 * @param oAuthServerEndpointsProvider
 	 *            - provides the UAA endpoints.
 	 */
-	UserTokenFlow(RestTemplate restTemplate, RefreshTokenFlow refreshTokenFlow, UaaRestClient uaaRestClient) {
+	UserTokenFlow(RestTemplate restTemplate, RefreshTokenFlow refreshTokenFlow, OAuthServerEndpointsProvider oAuthServerEndpointsProvider) {
 		Assert.notNull(restTemplate, "RestTemplate must not be null.");
 		Assert.notNull(refreshTokenFlow, "RefreshTokenFlow must not be null.");
-		Assert.notNull(uaaRestClient, "UaaRestClient must not be null.");
+		Assert.notNull(oAuthServerEndpointsProvider, "OAuthServerEndpointsProvider must not be null.");
 
 		this.restTemplate = restTemplate;
 		this.refreshTokenFlow = refreshTokenFlow;
-		this.request = new XsuaaTokenFlowRequest(uaaRestClient);
+		this.request = new XsuaaTokenFlowRequest(oAuthServerEndpointsProvider);
 	}
 
 	/**

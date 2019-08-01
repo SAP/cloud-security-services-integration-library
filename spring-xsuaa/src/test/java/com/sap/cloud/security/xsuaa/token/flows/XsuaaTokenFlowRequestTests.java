@@ -5,14 +5,14 @@ import static org.junit.Assert.assertThat;
 
 import java.net.URI;
 
-import com.sap.cloud.security.xsuaa.XsuaaRestClientDefault;
+import com.sap.cloud.security.xsuaa.XsuaaDefaultEndpoints;
 import org.junit.Test;
 
 public class XsuaaTokenFlowRequestTests {
 
 	@Test
 	public void initialize() {
-		XsuaaTokenFlowRequest request = new XsuaaTokenFlowRequest(new XsuaaRestClientDefault(URI.create("https://oauth.server.com")));
+		XsuaaTokenFlowRequest request = new XsuaaTokenFlowRequest(new XsuaaDefaultEndpoints(URI.create("https://oauth.server.com")));
 		String clientId = "clientId";
 		String clientSecret = "clientSecret";
 

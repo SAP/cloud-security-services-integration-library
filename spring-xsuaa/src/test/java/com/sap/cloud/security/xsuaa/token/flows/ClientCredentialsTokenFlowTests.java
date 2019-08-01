@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.XsuaaRestClientDefault;
+import com.sap.cloud.security.xsuaa.XsuaaDefaultEndpoints;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpEntity;
@@ -21,10 +21,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sap.cloud.security.xsuaa.token.flows.ClientCredentialsTokenFlow;
-import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
-import com.sap.cloud.security.xsuaa.token.flows.TokenFlowException;
-import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
 
 public class ClientCredentialsTokenFlowTests {
 
@@ -61,22 +57,22 @@ public class ClientCredentialsTokenFlowTests {
 
 	private ClientCredentialsTokenFlow createTokenFlow() {
 		return new ClientCredentialsTokenFlow(restTemplate, tokenDecoder,
-				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
+				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 	}
 
 	@Test
 	public void test_constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(null, tokenDecoder, new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
+			new ClientCredentialsTokenFlow(null, tokenDecoder, new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RestTemplate");
 
 		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(restTemplate, null, new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
+			new ClientCredentialsTokenFlow(restTemplate, null, new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("TokenDecoder");
 
 		assertThatThrownBy(() -> {
 			new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("UaaRestClient");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuthServerEndpointsProvider");
 	}
 
 	@Test
@@ -114,7 +110,7 @@ public class ClientCredentialsTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.OK);
 
 		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
+				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
 		tokenFlow.client(clientId)
 				.secret(clientSecret)
@@ -135,7 +131,7 @@ public class ClientCredentialsTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
 
 		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
+				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
 			tokenFlow.client(clientId)
@@ -156,7 +152,7 @@ public class ClientCredentialsTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.CONFLICT);
 
 		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
+				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
 			tokenFlow.client(clientId)
@@ -186,7 +182,7 @@ public class ClientCredentialsTokenFlowTests {
 				mockJwt.getTokenValue(), HttpStatus.OK);
 
 		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-				new XsuaaRestClientDefault(TestConstants.xsuaaBaseUri));
+				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		tokenFlow.client(clientId)
 				.secret(clientSecret)
 				.attributes(additionalAuthorities)

@@ -8,8 +8,8 @@ package com.sap.cloud.security.xsuaa.token.flows;
 
 import java.net.URI;
 
-import com.sap.cloud.security.xsuaa.UaaRestClient;
-import com.sap.cloud.security.xsuaa.XsuaaRestClientDefault;
+import com.sap.cloud.security.xsuaa.OAuthServerEndpointsProvider;
+import com.sap.cloud.security.xsuaa.XsuaaDefaultEndpoints;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
@@ -59,10 +59,10 @@ public class XsuaaTokenFlows {
 	public UserTokenFlow userTokenFlow(URI xsuaaBaseUri) {
 		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
 
-		UaaRestClient xsuaaRestClient = new XsuaaRestClientDefault(xsuaaBaseUri);
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(restTemplate, tokenDecoder, xsuaaRestClient);
+		OAuthServerEndpointsProvider oAuthServerEndpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUri);
+		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(restTemplate, tokenDecoder, oAuthServerEndpointsProvider);
 
-		return new UserTokenFlow(restTemplate, refreshTokenFlow, xsuaaRestClient);
+		return new UserTokenFlow(restTemplate, refreshTokenFlow, oAuthServerEndpointsProvider);
 	}
 
 	/**
@@ -77,8 +77,8 @@ public class XsuaaTokenFlows {
 	public ClientCredentialsTokenFlow clientCredentialsTokenFlow(URI xsuaaBaseUri) {
 		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
 
-		UaaRestClient xsuaaRestClient = new XsuaaRestClientDefault(xsuaaBaseUri);
-		return new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, xsuaaRestClient);
+		OAuthServerEndpointsProvider oAuthServerEndpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUri);
+		return new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, oAuthServerEndpointsProvider);
 	}
 
 	/**
@@ -93,7 +93,7 @@ public class XsuaaTokenFlows {
 	public RefreshTokenFlow refreshTokenFlow(URI xsuaaBaseUri) {
 		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
 
-		UaaRestClient xsuaaRestClient = new XsuaaRestClientDefault(xsuaaBaseUri);
-		return new RefreshTokenFlow(restTemplate, tokenDecoder, xsuaaRestClient);
+		OAuthServerEndpointsProvider oAuthServerEndpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUri);
+		return new RefreshTokenFlow(restTemplate, tokenDecoder, oAuthServerEndpointsProvider);
 	}
 }
