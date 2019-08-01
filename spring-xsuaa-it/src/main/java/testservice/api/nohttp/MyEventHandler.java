@@ -14,6 +14,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
+import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 import com.sap.xs2.security.container.SecurityContext;
 
 @Service
@@ -22,25 +24,36 @@ public class MyEventHandler {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MyEventHandler.class);
 
 	@Value("${xsuaa.xsappname}")
-	String xsappname;
+	String appId;
 
 	@Autowired
 	JwtDecoder jwtDecoder;
 
-	public void onEvent(String myEncodedJwtToken) {
+	public void onEvent_deprecated(String myEncodedJwtToken) {
 		if (myEncodedJwtToken != null) {
 			Jwt jwtToken = jwtDecoder.decode(myEncodedJwtToken);
-			SecurityContext.init(xsappname, jwtToken, true);
+			SecurityContext.init(appId, jwtToken, true);
 		}
 		try {
 			handleEvent();
 		} finally {
-			SecurityContext.clear();
+			SpringSecurityContext.clear();
+		}
+	}
+
+	public void onEvent(String myEncodedJwtToken) {
+		if (myEncodedJwtToken != null) {
+			SpringSecurityContext.init(myEncodedJwtToken, jwtDecoder, new LocalAuthoritiesExtractor(appId));
+		}
+		try {
+			handleEvent();
+		} finally {
+			SpringSecurityContext.clear();
 		}
 	}
 
 	void handleEvent() {
-		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) SecurityContext.getToken()
+		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) SpringSecurityContext.getToken()
 				.getAuthorities();
 		if (!authorities.contains(new SimpleGrantedAuthority("Display"))) {
 			throw new AccessDeniedException("Missing Authorization.");
