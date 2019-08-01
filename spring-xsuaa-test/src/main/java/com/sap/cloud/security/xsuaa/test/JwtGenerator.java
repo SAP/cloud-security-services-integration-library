@@ -43,14 +43,14 @@ public class JwtGenerator {
 		static final String CLAIM_EXTERNAL_ATTR = "ext_attr";
 	}
 
-    public final class TokenHeaders {
-        private TokenHeaders() {
-            throw new IllegalStateException("Utility class");
-        }
+	public final class TokenHeaders {
+		private TokenHeaders() {
+			throw new IllegalStateException("Utility class");
+		}
 
-        static final String JKU = "jku";
-        static final String KID = "kid";
-    }
+		static final String JKU = "jku";
+		static final String KID = "kid";
+	}
 
 	// must match the port defined in XsuaaMockWebServer
 	private static final int MOCK_XSUAA_PORT = 33195;
@@ -315,19 +315,19 @@ public class JwtGenerator {
 		return createFromClaims(claimsSet.toString(), Collections.EMPTY_MAP);
 	}
 
-
-    /**
-     * Creates an individual Jwt based on the provided set of claims.
-     *
-     * @param claimsSet
-     *            that can be created with Nimbus JOSE + JWT JWTClaimsSet.Builder
-     * @param tokenHeaders
-     *            that contains a set of headers that should be included in the final jwt.
-     * @return a jwt
-     */
-    public static Jwt createFromClaims(JWTClaimsSet claimsSet, Map<String, String> tokenHeaders) {
-        return createFromClaims(claimsSet.toString(), tokenHeaders);
-    }
+	/**
+	 * Creates an individual Jwt based on the provided set of claims.
+	 *
+	 * @param claimsSet
+	 *            that can be created with Nimbus JOSE + JWT JWTClaimsSet.Builder
+	 * @param tokenHeaders
+	 *            that contains a set of headers that should be included in the
+	 *            final jwt.
+	 * @return a jwt
+	 */
+	public static Jwt createFromClaims(JWTClaimsSet claimsSet, Map<String, String> tokenHeaders) {
+		return createFromClaims(claimsSet.toString(), tokenHeaders);
+	}
 
 	/**
 	 * Builds a basic set of claims
@@ -348,30 +348,30 @@ public class JwtGenerator {
 				.claim(TokenClaims.CLAIM_GRANT_TYPE, GRANT_TYPE);
 	}
 
-    /**
-     * Builds a basic set of claims
-     *
-     * @return a basic set of claims
-     */
-    public Map<String, String> getBasicHeaders() {
-        return getHeaderMap(jwtHeaderKeyId, createJku(subdomain));
-    }
+	/**
+	 * Builds a basic set of claims
+	 *
+	 * @return a basic set of claims
+	 */
+	public Map<String, String> getBasicHeaders() {
+		return getHeaderMap(jwtHeaderKeyId, createJku(subdomain));
+	}
 
 	private static Jwt createFromClaims(String claims, Map<String, String> headers) {
 		String token = signAndEncodeToken(claims, headers);
 		return convertTokenToOAuthJwt(token);
 	}
 
-	private static Map<String, String> getHeaderMap(String jwtHeaderKeyId, String jku){
-        Map<String, String> headers = new HashMap<>();
-        if (jwtHeaderKeyId != null) {
-            headers.put("kid", jwtHeaderKeyId);
-        }
-        if (jku != null) {
-            headers.put("jku", jku);
-        }
-        return headers;
-    }
+	private static Map<String, String> getHeaderMap(String jwtHeaderKeyId, String jku) {
+		Map<String, String> headers = new HashMap<>();
+		if (jwtHeaderKeyId != null) {
+			headers.put("kid", jwtHeaderKeyId);
+		}
+		if (jku != null) {
+			headers.put("jku", jku);
+		}
+		return headers;
+	}
 
 	private String replacePlaceholders(String claims) {
 		claims = claims.replace("$exp", String.valueOf(NO_EXPIRE));

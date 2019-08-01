@@ -1,12 +1,11 @@
 package sample.spring.webflux.xsuaa.mock;
 
+import com.sap.cloud.security.xsuaa.mock.XsuaaMockWebServer;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Profiles;
-
-import com.sap.cloud.security.xsuaa.mock.XsuaaMockWebServer;
 
 public class XsuaaMockPostProcessor implements EnvironmentPostProcessor, DisposableBean {
 
