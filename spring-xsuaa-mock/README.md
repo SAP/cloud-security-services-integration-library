@@ -78,3 +78,11 @@ String jwtToken = new JwtGenerator(yourClientId, yourSubdomain).setJwtHeaderKeyI
 ```
 
 Then your Mock Web Server can provide different token keys for different domains e.g. `testdomain`.
+
+### Fetch fake tokens
+
+From version `1.6.0` and higher, you can fetch fake jwt tokens from the URL `/fake_token`.
+By default the clientId will be fetched from the property `xsuaa.clientid` but can also be set for the generated token using the query parameter `cid`. (e.g. `/fake_token?cid=client_id`).
+`zid` and `zdn` can also be set via the query parameters `zid` and `zdn`.
+
+Usually a fake token is fetched using this schema: `/fake_token?zid=tenantid&zdn=subdomain`.

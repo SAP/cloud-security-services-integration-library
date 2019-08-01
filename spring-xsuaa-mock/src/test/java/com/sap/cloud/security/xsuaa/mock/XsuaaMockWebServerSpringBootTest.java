@@ -7,13 +7,11 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.mock.autoconfiguration.XsuaaMockAutoConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,5 +65,14 @@ public class XsuaaMockWebServerSpringBootTest {
 						String.class);
 		Assert.assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
 		Assert.assertThat(response.getBody(), containsString("legacy-token-key-customdomain"));
+	}
+
+	@Test
+	public void xsuaaMockReturnsFakeToken() throws Exception {
+		ResponseEntity<String> response = restTemplate
+				.getForEntity(new URI(xsuaaServiceConfiguration.getUaaUrl() + "/fake_token"),
+						String.class);
+		Assert.assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
+		Assert.assertThat(response.getBody(), not(isEmptyOrNullString()));
 	}
 }

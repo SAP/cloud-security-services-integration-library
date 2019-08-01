@@ -1,10 +1,12 @@
 package com.sap.cloud.security.xsuaa.mock;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertySource;
 import org.springframework.util.Assert;
 
@@ -24,6 +26,20 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 
 	public XsuaaMockWebServer() {
 		super(MOCK_XSUAA_PROPERTY_SOURCE_NAME, createMockWebServer(new XsuaaRequestDispatcher()));
+	}
+
+	public XsuaaMockWebServer(ConfigurableEnvironment configurableEnvironment) {
+		super(MOCK_XSUAA_PROPERTY_SOURCE_NAME, createMockWebServer(new XsuaaRequestDispatcher(getXsuaaClientId(configurableEnvironment))));
+	}
+
+	private static String getXsuaaClientId(ConfigurableEnvironment environment) {
+		for (PropertySource propertySource : environment.getPropertySources()) {
+			String propertyName = "xsuaa.clientid";
+			if (propertySource.containsProperty(propertyName)) {
+				return Objects.requireNonNull(propertySource.getProperty(propertyName)).toString();
+			}
+		}
+		return null;
 	}
 
 	/**

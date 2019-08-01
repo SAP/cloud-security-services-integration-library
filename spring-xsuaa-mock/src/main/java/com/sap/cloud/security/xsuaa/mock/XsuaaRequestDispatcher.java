@@ -3,6 +3,8 @@ package com.sap.cloud.security.xsuaa.mock;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,6 +25,15 @@ public class XsuaaRequestDispatcher extends Dispatcher {
 	protected final Log logger = LogFactory.getLog(XsuaaRequestDispatcher.class);
 	private static int callCount = 0;
 
+	private String cid;
+
+	public XsuaaRequestDispatcher() {
+	}
+
+	public XsuaaRequestDispatcher(String cid) {
+		this.cid = cid;
+	}
+
 	@Override
 	public MockResponse dispatch(RecordedRequest request) {
 		callCount++;
@@ -32,6 +43,14 @@ public class XsuaaRequestDispatcher extends Dispatcher {
 		}
 		if (request.getPath().endsWith("/token_keys")) {
 			return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, "legacy-token-key");
+		}
+		if (request.getPath().contains("/fake_token")) {
+			String cid = request.getRequestUrl().queryParameter(TokenClaims.CLAIM_CLIENT_ID);
+			cid = cid == null ? this.cid : cid;
+			String zdn = request.getRequestUrl().queryParameter(TokenClaims.CLAIM_ZDN);
+			String zid = request.getRequestUrl().queryParameter(TokenClaims.CLAIM_ZONE_ID);
+
+			return getResponse(new JwtGenerator(cid, zdn, zid).getToken().getTokenValue(), HttpStatus.OK);
 		}
 		return getResponse(RESPONSE_404, HttpStatus.NOT_FOUND);
 	}

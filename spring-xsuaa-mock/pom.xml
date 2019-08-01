@@ -69,6 +69,12 @@
 			<version>2.6</version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- for fake jwt generation -->
+		<dependency>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>spring-xsuaa-test</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-all</artifactId>
