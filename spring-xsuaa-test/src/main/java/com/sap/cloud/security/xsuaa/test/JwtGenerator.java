@@ -43,6 +43,15 @@ public class JwtGenerator {
 		static final String CLAIM_EXTERNAL_ATTR = "ext_attr";
 	}
 
+    public final class TokenHeaders {
+        private TokenHeaders() {
+            throw new IllegalStateException("Utility class");
+        }
+
+        static final String JKU = "jku";
+        static final String KID = "kid";
+    }
+
 	// must match the port defined in XsuaaMockWebServer
 	private static final int MOCK_XSUAA_PORT = 33195;
 
@@ -93,9 +102,13 @@ public class JwtGenerator {
 	 *            derived from that.
 	 */
 	public JwtGenerator(String clientId, String subdomain) {
+		this(clientId, subdomain, subdomain + "-id");
+	}
+
+	public JwtGenerator(String clientId, String subdomain, String identityZoneId) {
 		this.clientId = clientId;
 		this.subdomain = subdomain;
-		this.identityZoneId = subdomain + "-id";
+		this.identityZoneId = identityZoneId;
 		this.jku = createJku(subdomain);
 	}
 
@@ -227,7 +240,7 @@ public class JwtGenerator {
 		for (Map.Entry<String, Object> customClaim : customClaims.entrySet()) {
 			claimsSetBuilder.claim(customClaim.getKey(), customClaim.getValue());
 		}
-		return createFromClaims(claimsSetBuilder.build().toString(), jwtHeaderKeyId, jku);
+		return createFromClaims(claimsSetBuilder.build().toString(), getHeaderMap(jwtHeaderKeyId, jku));
 	}
 
 	private static String createJku(String subdomain) {
@@ -252,7 +265,7 @@ public class JwtGenerator {
 	/**
 	 * Creates a Jwt from a template file, which contains the claims. Optionally,
 	 * configure the "keyId" header via {@link #setJwtHeaderKeyId(String)}
-	 * 
+	 *
 	 * This replaces these placeholders:
 	 * <ul>
 	 * <li>"$exp" with a date, that will not expire</li>
@@ -265,7 +278,7 @@ public class JwtGenerator {
 	 * <li>"$username" with the configured user name {@link #setUserName(String)}
 	 * </li>
 	 * </ul>
-	 * 
+	 *
 	 * @param pathToTemplate
 	 *            classpath resource
 	 * @return a jwt
@@ -275,7 +288,7 @@ public class JwtGenerator {
 	public Jwt createFromTemplate(String pathToTemplate) throws IOException {
 		String claimsFromTemplate = IOUtils.resourceToString(pathToTemplate, StandardCharsets.UTF_8);
 		String claimsWithReplacements = replacePlaceholders(claimsFromTemplate);
-		return createFromClaims(claimsWithReplacements, jwtHeaderKeyId, jku);
+		return createFromClaims(claimsWithReplacements, getHeaderMap(jwtHeaderKeyId, jku));
 	}
 
 	/**
@@ -299,15 +312,29 @@ public class JwtGenerator {
 	 * @return a jwt
 	 */
 	public static Jwt createFromClaims(JWTClaimsSet claimsSet) {
-		return createFromClaims(claimsSet.toString(), null, null);
+		return createFromClaims(claimsSet.toString(), Collections.EMPTY_MAP);
 	}
+
+
+    /**
+     * Creates an individual Jwt based on the provided set of claims.
+     *
+     * @param claimsSet
+     *            that can be created with Nimbus JOSE + JWT JWTClaimsSet.Builder
+     * @param tokenHeaders
+     *            that contains a set of headers that should be included in the final jwt.
+     * @return a jwt
+     */
+    public static Jwt createFromClaims(JWTClaimsSet claimsSet, Map<String, String> tokenHeaders) {
+        return createFromClaims(claimsSet.toString(), tokenHeaders);
+    }
 
 	/**
 	 * Builds a basic set of claims
 	 *
 	 * @return a basic set of claims
 	 */
-	private JWTClaimsSet.Builder getBasicClaimSet() {
+	public JWTClaimsSet.Builder getBasicClaimSet() {
 		return new JWTClaimsSet.Builder()
 				.issueTime(new Date())
 				.expirationTime(JwtGenerator.NO_EXPIRE_DATE)
@@ -321,10 +348,30 @@ public class JwtGenerator {
 				.claim(TokenClaims.CLAIM_GRANT_TYPE, GRANT_TYPE);
 	}
 
-	private static Jwt createFromClaims(String claims, String jwtHeaderKeyId, String jku) {
-		String token = signAndEncodeToken(claims, jwtHeaderKeyId, jku);
+    /**
+     * Builds a basic set of claims
+     *
+     * @return a basic set of claims
+     */
+    public Map<String, String> getBasicHeaders() {
+        return getHeaderMap(jwtHeaderKeyId, createJku(subdomain));
+    }
+
+	private static Jwt createFromClaims(String claims, Map<String, String> headers) {
+		String token = signAndEncodeToken(claims, headers);
 		return convertTokenToOAuthJwt(token);
 	}
+
+	private static Map<String, String> getHeaderMap(String jwtHeaderKeyId, String jku){
+        Map<String, String> headers = new HashMap<>();
+        if (jwtHeaderKeyId != null) {
+            headers.put("kid", jwtHeaderKeyId);
+        }
+        if (jku != null) {
+            headers.put("jku", jku);
+        }
+        return headers;
+    }
 
 	private String replacePlaceholders(String claims) {
 		claims = claims.replace("$exp", String.valueOf(NO_EXPIRE));
@@ -336,18 +383,10 @@ public class JwtGenerator {
 		return claims;
 	}
 
-	private static String signAndEncodeToken(String claims, String keyId, String jku) {
+	private static String signAndEncodeToken(String claims, Map<String, String> tokenHeaders) {
 		RsaSigner signer = new RsaSigner(readPrivateKeyFromFile());
 
-		Map<String, String> headers = new HashMap<>();
-		if (keyId != null) {
-			headers.put("kid", keyId);
-		}
-		if (jku != null) {
-			headers.put("jku", jku);
-		}
-
-		org.springframework.security.jwt.Jwt jwt = JwtHelper.encode(claims, signer, headers);
+		org.springframework.security.jwt.Jwt jwt = JwtHelper.encode(claims, signer, tokenHeaders);
 
 		return jwt.getEncoded();
 	}
