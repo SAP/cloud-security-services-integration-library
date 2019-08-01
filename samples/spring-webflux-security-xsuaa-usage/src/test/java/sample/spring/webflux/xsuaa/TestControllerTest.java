@@ -1,5 +1,7 @@
 package sample.spring.webflux.xsuaa;
 
+import static org.hamcrest.CoreMatchers.startsWith;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,7 @@ import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@AutoConfigureWebTestClient
+@AutoConfigureWebTestClient(timeout = "2500000")
 public class TestControllerTest {
 
 	@Autowired
@@ -23,11 +25,20 @@ public class TestControllerTest {
 
 	@Test
 	public void unauthorizedRequest() {
-		JwtGenerator jwtGenerator = new JwtGenerator();
+		JwtGenerator jwtGenerator = new JwtGenerator("WrongClientId");
 
 		webClient.method(HttpMethod.GET).uri("/v1/sayHello").contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header(HttpHeaders.AUTHORIZATION, jwtGenerator.getTokenForAuthorizationHeader()).exchange()
 				.expectStatus().isUnauthorized();
+	}
+
+	@Test
+	public void authorizedRequest() {
+		JwtGenerator jwtGenerator = new JwtGenerator().addScopes(JwtGenerator.CLIENT_ID + ".Display");
+
+		webClient.method(HttpMethod.GET).uri("/v1/sayHello").contentType(MediaType.APPLICATION_JSON_UTF8)
+				.header(HttpHeaders.AUTHORIZATION, jwtGenerator.getTokenForAuthorizationHeader()).exchange()
+				.expectStatus().is2xxSuccessful().expectBody(String.class).value(startsWith("Authorities:"));
 	}
 
 }
