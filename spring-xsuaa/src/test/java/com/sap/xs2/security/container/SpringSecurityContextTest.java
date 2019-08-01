@@ -33,8 +33,6 @@ public class SpringSecurityContextTest {
 	private static final String SUBDOMAIN_2 = "subdomain-2";
 	private static final String CLIENT_ID = "sb-xsappname!t123";
 
-	ExecutorService executor = Executors.newFixedThreadPool(10);
-
 	@Before
 	public void setup() {
 		token_1 = new JwtGenerator(CLIENT_ID, SUBDOMAIN_1).getToken();
@@ -69,6 +67,8 @@ public class SpringSecurityContextTest {
 	@Test
 	public void setSecurityContext() throws InterruptedException, ExecutionException {
 		SpringSecurityContextTest.countThreads = 0;
+
+		ExecutorService executor = Executors.newFixedThreadPool(10);
 
 		Future<Token> future_1 = executor.submit(() -> {
 			initSecurityContextWithToken(token_1);
