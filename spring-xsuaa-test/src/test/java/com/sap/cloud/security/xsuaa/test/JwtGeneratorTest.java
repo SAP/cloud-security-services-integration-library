@@ -1,16 +1,16 @@
 package com.sap.cloud.security.xsuaa.test;
 
 import static com.sap.cloud.security.xsuaa.test.TestConstants.*;
-import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenClaims;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -127,6 +127,21 @@ public class JwtGeneratorTest {
 		assertThat(jwt.getAudience().size(), equalTo(2));
 		assertThat(jwt.getAudience(), hasItem("app1"));
 		assertThat(jwt.getAudience(), hasItem("app2"));
+	}
+
+	@Test
+	public void testTokenWithCustomClaimsAndHeaders() {
+		JwtGenerator jwtGenerator = new JwtGenerator("clientId", "subdomain", "tenantId");
+		JWTClaimsSet.Builder builder = jwtGenerator.getBasicClaimSet();
+		builder.claim(TokenClaims.CLAIM_USER_NAME, "new_testuser");
+
+		Map<String, String> map = jwtGenerator.getBasicHeaders();
+
+		Jwt jwt = JwtGenerator.createFromClaims(builder.build(), map);
+
+		assertThat(jwt.getHeaders(), hasEntry(TokenHeaders.JKU, "http://localhost:33195/subdomain/token_keys"));
+		assertThat(jwt.getHeaders(), hasEntry(TokenHeaders.KID, "legacy-token-key"));
+		assertThat(jwt.getClaims(), hasEntry(TokenClaims.CLAIM_USER_NAME, "new_testuser"));
 	}
 
 	private String getExternalAttributeFromClaim(Jwt jwt, String attributeName) {
