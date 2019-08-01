@@ -11,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureWebTestClient
@@ -21,8 +23,11 @@ public class TestControllerTest {
 
 	@Test
 	public void unauthorizedRequest() {
+		JwtGenerator jwtGenerator = new JwtGenerator();
+
 		webClient.method(HttpMethod.GET).uri("/v1/sayHello").contentType(MediaType.APPLICATION_JSON_UTF8)
-				.header(HttpHeaders.AUTHORIZATION, "invalidToken").exchange().expectStatus().isUnauthorized();
+				.header(HttpHeaders.AUTHORIZATION, jwtGenerator.getTokenForAuthorizationHeader()).exchange()
+				.expectStatus().isUnauthorized();
 	}
 
 }
