@@ -116,7 +116,7 @@ public class XsuaaJwtDecoderBuilder {
 		return this;
 	}
 
-	public XsuaaJwtDecoderBuilder withDefaultValidators(OAuth2TokenValidator<Jwt>... defaultTokenValidators) {
+	XsuaaJwtDecoderBuilder withDefaultValidators(OAuth2TokenValidator<Jwt>... defaultTokenValidators) {
 		this.defaultTokenValidators = new DelegatingOAuth2TokenValidator<>(defaultTokenValidators);
 		return this;
 	}

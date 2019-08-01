@@ -39,12 +39,7 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize).build();
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 
-		this.tokenValidators.add(new JwtTimestampValidator());
-		if (tokenValidators == null) {
-			this.tokenValidators.add(new XsuaaAudienceValidator(xsuaaServiceConfiguration));
-		} else {
-			this.tokenValidators.addAll(Arrays.asList(tokenValidators));
-		}
+		this.tokenValidators.addAll(Arrays.asList(tokenValidators));
 		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.EMPTY_LIST;
 	}
 
