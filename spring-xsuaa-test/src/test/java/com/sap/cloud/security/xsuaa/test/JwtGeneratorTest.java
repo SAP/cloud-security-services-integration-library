@@ -144,6 +144,18 @@ public class JwtGeneratorTest {
 		assertThat(jwt.getClaims(), hasEntry(TokenClaims.CLAIM_USER_NAME, "new_testuser"));
 	}
 
+	@Test
+	public void testBasicJwtTokenWithIdentityZoneId() {
+		JwtGenerator jwtGenerator = new JwtGenerator("clientId", "subdomain", "tenantId");
+		Jwt jwt = jwtGenerator.getToken();
+
+		assertThat(jwt.getHeaders(), hasEntry(TokenHeaders.JKU, "http://localhost:33195/subdomain/token_keys"));
+		assertThat(jwt.getHeaders(), hasEntry(TokenHeaders.KID, "legacy-token-key"));
+		assertThat(jwt.getClaims(), hasEntry(TokenClaims.CLAIM_CLIENT_ID, "clientId"));
+		assertThat(jwt.getClaims(), hasEntry(TokenClaims.CLAIM_ZDN, "subdomain"));
+		assertThat(jwt.getClaims(), hasEntry(TokenClaims.CLAIM_ZONE_ID, "tenantId"));
+	}
+
 	private String getExternalAttributeFromClaim(Jwt jwt, String attributeName) {
 		Map<String, Object> externalAttribute = jwt.getClaimAsMap("ext_attr");
 		return externalAttribute == null ? null : (String) externalAttribute.get(attributeName);
