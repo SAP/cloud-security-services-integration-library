@@ -41,7 +41,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	public String getTokenKeyUrl(String zid, String subdomain) {
 		// Please note this method is deprecated and will be deleted with version 2.0
 		if ("uaa".equals(zid)) {
-			return uaaUrl + "/token_keys";
+			return getUaaUrl() + "/token_keys";
 		} else {
 			return String.format("https://%s.%s/token_keys", subdomain, uaadomain);
 		}
