@@ -10,7 +10,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.OAuthServerEndpointsProvider;
+import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
 import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.util.Assert;
 
@@ -20,7 +20,7 @@ import org.springframework.util.Assert;
  */
 class XsuaaTokenFlowRequest implements XSTokenRequest {
 
-	private OAuthServerEndpointsProvider oAuthServerEndpointsProvider;
+	private OAuth2ServerEndpointsProvider oAuth2ServerEndpointsProvider;
 	private String clientId;
 	private String clientSecret;
 	private Map<String, String> additionalAuthorizationAttributes;
@@ -28,20 +28,20 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	/**
 	 * Creates a new token exchange request.
 	 * 
-	 * @param oAuthServerEndpointsProvider
+	 * @param oAuth2ServerEndpointsProvider
 	 *            - contains the endpoint URIs of the XSUAA where to exchange the token.
 	 */
-	XsuaaTokenFlowRequest(OAuthServerEndpointsProvider oAuthServerEndpointsProvider) {
-		Assert.notNull(oAuthServerEndpointsProvider.getTokenEndpoint(), "Token endpoint URI must not be null.");
-		Assert.notNull(oAuthServerEndpointsProvider.getAuthorizeEndpoint(), "Authorize endpoint URI must not be null.");
-		Assert.notNull(oAuthServerEndpointsProvider.getJwksUri(), "Key set endpoint URI must not be null.");
+	XsuaaTokenFlowRequest(OAuth2ServerEndpointsProvider oAuth2ServerEndpointsProvider) {
+		Assert.notNull(oAuth2ServerEndpointsProvider.getTokenEndpoint(), "Token endpoint URI must not be null.");
+		Assert.notNull(oAuth2ServerEndpointsProvider.getAuthorizeEndpoint(), "Authorize endpoint URI must not be null.");
+		Assert.notNull(oAuth2ServerEndpointsProvider.getJwksUri(), "Key set endpoint URI must not be null.");
 
-		this.oAuthServerEndpointsProvider = oAuthServerEndpointsProvider;
+		this.oAuth2ServerEndpointsProvider = oAuth2ServerEndpointsProvider;
 	}
 
 	@Override
 	public URI getTokenEndpoint() {
-		return this.oAuthServerEndpointsProvider.getTokenEndpoint();
+		return this.oAuth2ServerEndpointsProvider.getTokenEndpoint();
 	}
 
 	/**
@@ -51,7 +51,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * @return the endpoint to authorize scopes.
 	 */
 	URI getAuthorizeEndpoint() {
-		return this.oAuthServerEndpointsProvider.getAuthorizeEndpoint();
+		return this.oAuth2ServerEndpointsProvider.getAuthorizeEndpoint();
 	}
 
 	/**
@@ -61,7 +61,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * @return the endpoint to fetch the public key set from.
 	 */
 	URI getKeySetEndpoint() {
-		return this.oAuthServerEndpointsProvider.getJwksUri();
+		return this.oAuth2ServerEndpointsProvider.getJwksUri();
 	}
 
 	@Override
@@ -100,12 +100,6 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	public XSTokenRequest setAdditionalAuthorizationAttributes(Map<String, String> additionalAuthorizationAttributes) {
 		this.additionalAuthorizationAttributes = new HashMap<>(additionalAuthorizationAttributes);
 		return this;
-	}
-
-	@Override
-	// TODO delete?
-	public URI getBaseURI() {
-		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
 	}
 
 	@Override

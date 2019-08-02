@@ -1,20 +1,13 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
-import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addAcceptHeader;
-import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addBasicAuthHeader;
-
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.OAuthServerEndpointsProvider;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
+import com.sap.cloud.security.xsuaa.backend.OAuth2ServerException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * A refresh token flow builder. <br>
@@ -27,29 +20,26 @@ public class RefreshTokenFlow {
 	private static final String REFRESH_TOKEN = "refresh_token";
 	private static final String GRANT_TYPE = "grant_type";
 
-	private RestTemplate restTemplate;
 	private XsuaaTokenFlowRequest request;
 	private String refreshToken;
+	private OAuth2Server oAuth2Server;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
 
 	/**
 	 * Creates a new instance.
-	 * 
-	 * @param restTemplate
-	 *            - the {@link RestTemplate} used to execute the final request.
+	 *
+	 * @param oAuth2Server
+	 *            - the {@link OAuth2Server} used to execute the final request.
 	 * @param tokenDecoder
 	 * 			  - the token decoder
-	 * @param oAuthServerEndpointsProvider
-	 *            - provides the UAA endpoints.
 	 */
-	RefreshTokenFlow(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder, OAuthServerEndpointsProvider oAuthServerEndpointsProvider) {
-		Assert.notNull(restTemplate, "RestTemplate must not be null.");
+	RefreshTokenFlow(OAuth2Server oAuth2Server, VariableKeySetUriTokenDecoder tokenDecoder) {
+		Assert.notNull(oAuth2Server, "OAuth2Server must not be null.");
 		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
-		Assert.notNull(oAuthServerEndpointsProvider, "OAuthServerEndpointsProvider must not be null.");
 
-		this.restTemplate = restTemplate;
+		this.oAuth2Server = oAuth2Server;
 		this.tokenDecoder = tokenDecoder;
-		this.request = new XsuaaTokenFlowRequest(oAuthServerEndpointsProvider);
+		this.request = new XsuaaTokenFlowRequest(oAuth2Server.getEndpointsProvider());
 	}
 
 	/**
@@ -140,51 +130,16 @@ public class RefreshTokenFlow {
 	 *             in case of an error in the flow.
 	 */
 	private Jwt refreshToken(String refreshToken, XsuaaTokenFlowRequest request) throws TokenFlowException {
+		Map<String, String> requestParameter = new HashMap<>();
+		requestParameter.put(GRANT_TYPE, REFRESH_TOKEN);
 
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(request.getTokenEndpoint());
-		builder.queryParam(GRANT_TYPE, REFRESH_TOKEN)
-				.queryParam(REFRESH_TOKEN, refreshToken);
-
-		HttpHeaders headers = createRefreshTokenHeaders(request);
-
-		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-
-		URI requestUri = builder.build().encode().toUri();
-
-		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> responseEntity = restTemplate.postForEntity(requestUri, requestEntity, Map.class);
-
-		HttpStatus responseStatusCode = responseEntity.getStatusCode();
-
-		if (responseStatusCode == HttpStatus.UNAUTHORIZED) {
-			throw new TokenFlowException(String.format(
-					"Error refreshing token. Received status code %s. Call to XSUAA was not successful (grant_type: refresh_token). Client credentials invalid.",
-					responseStatusCode));
+		try {
+			Map refreshedToken = oAuth2Server.requestToken(requestParameter, request.getClientId(), request.getClientSecret());
+			String encodedJwtTokenValue = refreshedToken.get(ACCESS_TOKEN).toString();
+			return decode(encodedJwtTokenValue, request.getKeySetEndpoint());
+		} catch (OAuth2ServerException e) {
+			throw new TokenFlowException(String.format("Error refreshing token with grant_type %s: %s", REFRESH_TOKEN, e.getMessage()));
 		}
-
-		if (responseStatusCode != HttpStatus.OK) {
-			throw new TokenFlowException(String.format(
-					"Error refreshing token. Received status code %s. Call to XSUAA was not successful (grant_type: refresh_token).",
-					responseStatusCode));
-		}
-
-		String encodedJwtToken = responseEntity.getBody().get(ACCESS_TOKEN).toString();
-
-		return decode(encodedJwtToken, request.getKeySetEndpoint());
-	}
-
-	/**
-	 * Creates the set of headers required for the refresh token flow.
-	 * 
-	 * @param request
-	 *            - the token flow request.
-	 * @return the set of HTTP headers.
-	 */
-	private HttpHeaders createRefreshTokenHeaders(XsuaaTokenFlowRequest request) {
-		HttpHeaders headers = new HttpHeaders();
-		addAcceptHeader(headers);
-		addBasicAuthHeader(headers, request.getClientId(), request.getClientSecret());
-		return headers;
 	}
 
 	/**

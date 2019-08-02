@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.net.URI;
 
 import com.sap.cloud.security.xsuaa.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,13 +15,13 @@ public class RefreshTokenFlowMock extends RefreshTokenFlow {
 	Jwt mockJwt;
 
 	public RefreshTokenFlowMock(Jwt mockJwt) {
-		super(new RestTemplate(), new NimbusTokenDecoder(), new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+		super(createOAuthServer(null), new NimbusTokenDecoder());
 		this.mockJwt = mockJwt;
 	}
 
-	public RefreshTokenFlowMock(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder,
+	public RefreshTokenFlowMock(OAuth2Server auth2Server, VariableKeySetUriTokenDecoder tokenDecoder,
 			URI xsuaaBaseUri) {
-		super(restTemplate, tokenDecoder, new XsuaaDefaultEndpoints(xsuaaBaseUri));
+		super(createOAuthServer(xsuaaBaseUri), tokenDecoder);
 	}
 
 	@Override
@@ -31,5 +32,9 @@ public class RefreshTokenFlowMock extends RefreshTokenFlow {
 
 	public void validateCallstate() {
 		assertTrue("RefreshTokenFlow's execute() method was not called. Must be called to fetch token.", executeCalled);
+	}
+
+	static OAuth2Server createOAuthServer(URI xsuaaBaseUri) {
+		return new OAuth2Server(new RestTemplate(), new XsuaaDefaultEndpoints(xsuaaBaseUri != null ? xsuaaBaseUri : TestConstants.xsuaaBaseUri));
 	}
 }

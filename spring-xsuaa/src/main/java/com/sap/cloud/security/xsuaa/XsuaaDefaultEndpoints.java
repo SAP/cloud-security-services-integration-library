@@ -1,11 +1,12 @@
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
 import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 
-public class XsuaaDefaultEndpoints implements OAuthServerEndpointsProvider {
+public class XsuaaDefaultEndpoints implements OAuth2ServerEndpointsProvider {
 	private URI baseUri;
 	private final static String TOKEN_ENDPOINT = "/oauth/token";
 	private final static String AUTHORIZE_ENDPOINT = "/oauth/authorize";

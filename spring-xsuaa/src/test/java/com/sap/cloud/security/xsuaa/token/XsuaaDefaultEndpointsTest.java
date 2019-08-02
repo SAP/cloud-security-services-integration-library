@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import com.sap.cloud.security.xsuaa.OAuthServerEndpointsProvider;
+import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
 import com.sap.cloud.security.xsuaa.XsuaaDefaultEndpoints;
 import org.junit.Test;
 
@@ -13,7 +13,7 @@ public class XsuaaDefaultEndpointsTest {
 
 	@Test
 	public void initialize() {
-		OAuthServerEndpointsProvider client = new XsuaaDefaultEndpoints(URI.create("http://localhost:8080/uaa"));
+		OAuth2ServerEndpointsProvider client = new XsuaaDefaultEndpoints(URI.create("http://localhost:8080/uaa"));
 
 		assertThat(client.getAuthorizeEndpoint().toString(), is("http://localhost:8080/uaa/oauth/authorize"));
 		assertThat(client.getTokenEndpoint().toString(), is("http://localhost:8080/uaa/oauth/token"));
@@ -22,7 +22,7 @@ public class XsuaaDefaultEndpointsTest {
 
 	@Test
 	public void initializeWithEndingPathDelimiter() {
-		OAuthServerEndpointsProvider client = new XsuaaDefaultEndpoints(URI.create("http://localhost:8080/uaa/"));
+		OAuth2ServerEndpointsProvider client = new XsuaaDefaultEndpoints(URI.create("http://localhost:8080/uaa/"));
 
 		assertThat(client.getAuthorizeEndpoint().toString(), is("http://localhost:8080/uaa/oauth/authorize"));
 		assertThat(client.getTokenEndpoint().toString(), is("http://localhost:8080/uaa/oauth/token"));

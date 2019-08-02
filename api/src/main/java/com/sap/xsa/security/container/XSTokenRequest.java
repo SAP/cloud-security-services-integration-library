@@ -117,10 +117,4 @@ public interface XSTokenRequest {
 	 */
 	public XSTokenRequest setTokenEndpoint(URI tokenEndpoint);
 
-	/**
-	 * Returns the XSUAA base URI.
-	 *
-	 * @return the XSUAA base URI.
-	 */
-	public URI getBaseURI();
 }

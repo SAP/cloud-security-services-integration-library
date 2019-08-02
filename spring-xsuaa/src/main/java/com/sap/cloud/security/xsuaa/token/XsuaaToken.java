@@ -328,14 +328,16 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	private String performClientCredentialsFlow(XSTokenRequest request) {
-
 		RestTemplate restTemplate = (request instanceof XSTokenRequestImpl)
 				? ((XSTokenRequestImpl) request).getRestTemplate()
 				: new RestTemplate();
 
+		String baseUrl = (request instanceof XSTokenRequestImpl)
+				? ((XSTokenRequestImpl) request).getBaseURI().toString()
+				: request.getTokenEndpoint().getHost(); // TODO remove /oauth/token from URI
+
 		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder);
 
-		String baseUrl = request.getBaseURI().toString();
 		String clientId = request.getClientId();
 		String clientSecret = request.getClientSecret();
 
@@ -360,9 +362,12 @@ public class XsuaaToken extends Jwt implements Token {
 				? ((XSTokenRequestImpl) request).getRestTemplate()
 				: new RestTemplate();
 
+		String baseUrl = (request instanceof XSTokenRequestImpl)
+				? ((XSTokenRequestImpl) request).getBaseURI().toString()
+				: request.getTokenEndpoint().getHost(); // TODO remove /oauth/token from URI
+
 		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder);
 
-		String baseUrl = request.getBaseURI().toString();
 		String clientId = request.getClientId();
 		String clientSecret = request.getClientSecret();
 

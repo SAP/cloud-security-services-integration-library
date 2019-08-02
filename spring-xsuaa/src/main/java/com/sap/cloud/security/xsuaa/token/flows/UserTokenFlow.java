@@ -1,22 +1,15 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
-import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addAcceptHeader;
-import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addAuthorizationBearerHeader;
-import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAuthorities;
+import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
+import com.sap.cloud.security.xsuaa.backend.OAuth2ServerException;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.Assert;
 
-import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.OAuthServerEndpointsProvider;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 /**
  * A user token flow builder class. <br>
@@ -36,29 +29,26 @@ public class UserTokenFlow {
 	private static final String GRANT_TYPE = "grant_type";
 	private static final String AUTHORITIES = "authorities";
 
-	private RestTemplate restTemplate;
 	private XsuaaTokenFlowRequest request;
 	private Jwt token;
 	private RefreshTokenFlow refreshTokenFlow;
+	private OAuth2Server oAuth2Server;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param restTemplate
-	 *            - the {@link RestTemplate} used to execute the final request.
+	 * @param oAuth2Server
+	 *            - the {@link OAuth2Server} used to execute the final request.
 	 * @param refreshTokenFlow
 	 * 			  - the refresh token flow
-	 * @param oAuthServerEndpointsProvider
-	 *            - provides the UAA endpoints.
 	 */
-	UserTokenFlow(RestTemplate restTemplate, RefreshTokenFlow refreshTokenFlow, OAuthServerEndpointsProvider oAuthServerEndpointsProvider) {
-		Assert.notNull(restTemplate, "RestTemplate must not be null.");
+	UserTokenFlow(OAuth2Server oAuth2Server, RefreshTokenFlow refreshTokenFlow) {
+		Assert.notNull(oAuth2Server, "OAuth2Server must not be null.");
 		Assert.notNull(refreshTokenFlow, "RefreshTokenFlow must not be null.");
-		Assert.notNull(oAuthServerEndpointsProvider, "OAuthServerEndpointsProvider must not be null.");
 
-		this.restTemplate = restTemplate;
+		this.oAuth2Server = oAuth2Server;
 		this.refreshTokenFlow = refreshTokenFlow;
-		this.request = new XsuaaTokenFlowRequest(oAuthServerEndpointsProvider);
+		this.request = new XsuaaTokenFlowRequest(oAuth2Server.getEndpointsProvider());
 	}
 
 	/**
@@ -133,7 +123,6 @@ public class UserTokenFlow {
 	 *             in case of an error.
 	 */
 	public Jwt execute() throws TokenFlowException {
-
 		checkRequest(request);
 
 		return requestUserToken(request);
@@ -149,7 +138,6 @@ public class UserTokenFlow {
 	 *             been set.
 	 */
 	private void checkRequest(XsuaaTokenFlowRequest request) throws TokenFlowException {
-
 		if (token == null) {
 			throw new TokenFlowException(
 					"User token not set. Make sure to have called the token() method on UserTokenFlow builder.");
@@ -177,38 +165,23 @@ public class UserTokenFlow {
 	 *             in case of an error during the flow.
 	 */
 	private Jwt requestUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
+		Map<String, String> requestParameter = new HashMap<>();
 
-		// build uri for user token flow
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(request.getTokenEndpoint());
-
-		builder.queryParam(GRANT_TYPE, USER_TOKEN)
-				.queryParam(RESPONSE_TYPE, TOKEN)
-				.queryParam(CLIENT_ID, request.getClientId());
+		requestParameter.put(GRANT_TYPE, USER_TOKEN);
+		requestParameter.put(RESPONSE_TYPE, TOKEN);
+		requestParameter.put(CLIENT_ID, request.getClientId());
 
 		String authorities = buildAuthorities(request);
 		if (authorities != null) {
-			builder.queryParam(AUTHORITIES, authorities);
+			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI !?!
 		}
 
-		HttpHeaders headers = createUserTokenExchangeHeaders();
-
-		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-		URI requestUri = builder.build().encode().toUri();
-
-		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> responseEntity = restTemplate.postForEntity(requestUri, requestEntity, Map.class);
-
-		HttpStatus responseStatusCode = responseEntity.getStatusCode();
-		if (responseStatusCode == HttpStatus.UNAUTHORIZED) {
-			throw new TokenFlowException(String.format(
-					"Error exchanging token. Received status code %s. Call to XSUAA was not successful (grant_type: user_token). Client credentials invalid.",
-					responseStatusCode));
-		}
-
-		if (responseStatusCode != HttpStatus.OK) {
-			throw new TokenFlowException(String.format(
-					"Error exchanging token. Received status code %s. Call to XSUAA was not successful (grant_type: user_token).",
-					responseEntity.getStatusCode()));
+		String refreshToken = null;
+		try {
+			Map clientCredentialsToken = oAuth2Server.requestToken(requestParameter, token.getTokenValue());
+			refreshToken = clientCredentialsToken.get(REFRESH_TOKEN).toString();
+		} catch (OAuth2ServerException e) {
+			throw new TokenFlowException(String.format("Error requesting token with grant_type %s: %s", USER_TOKEN, e.getMessage()));
 		}
 
 		// Now we have a response, that contains a refresh-token. Following the
@@ -233,8 +206,6 @@ public class UserTokenFlow {
 		// Service A might now pretend to be Service B and might for example
 		// retrieve a client-credentials token on behalf of Service B.
 
-		String refreshToken = responseEntity.getBody().get(REFRESH_TOKEN).toString();
-
 		refreshTokenFlow.refreshToken(refreshToken)
 				.client(request.getClientId())
 				.secret(request.getClientSecret());
@@ -242,17 +213,7 @@ public class UserTokenFlow {
 		return refreshTokenFlow.execute();
 	}
 
-	/**
-	 * Creates the set of HTTP headers necessary for the user token flow request.
-	 * 
-	 * @return the HTTP headers.
-	 */
-	private HttpHeaders createUserTokenExchangeHeaders() {
-		HttpHeaders headers = new HttpHeaders();
-		addAcceptHeader(headers);
-		addAuthorizationBearerHeader(headers, token);
-		return headers;
-	}
+
 
 	/**
 	 * Checks if a given scope is contained inside the given token.

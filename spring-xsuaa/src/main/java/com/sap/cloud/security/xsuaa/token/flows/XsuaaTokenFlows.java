@@ -8,8 +8,9 @@ package com.sap.cloud.security.xsuaa.token.flows;
 
 import java.net.URI;
 
-import com.sap.cloud.security.xsuaa.OAuthServerEndpointsProvider;
+import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
 import com.sap.cloud.security.xsuaa.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
@@ -59,10 +60,10 @@ public class XsuaaTokenFlows {
 	public UserTokenFlow userTokenFlow(URI xsuaaBaseUri) {
 		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
 
-		OAuthServerEndpointsProvider oAuthServerEndpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUri);
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(restTemplate, tokenDecoder, oAuthServerEndpointsProvider);
+		OAuth2Server oAuth2Server = createOAuth2Server(xsuaaBaseUri);
+		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(oAuth2Server, tokenDecoder);
 
-		return new UserTokenFlow(restTemplate, refreshTokenFlow, oAuthServerEndpointsProvider);
+		return new UserTokenFlow(oAuth2Server, refreshTokenFlow);
 	}
 
 	/**
@@ -77,8 +78,7 @@ public class XsuaaTokenFlows {
 	public ClientCredentialsTokenFlow clientCredentialsTokenFlow(URI xsuaaBaseUri) {
 		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
 
-		OAuthServerEndpointsProvider oAuthServerEndpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUri);
-		return new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, oAuthServerEndpointsProvider);
+		return new ClientCredentialsTokenFlow(createOAuth2Server(xsuaaBaseUri), tokenDecoder);
 	}
 
 	/**
@@ -93,7 +93,11 @@ public class XsuaaTokenFlows {
 	public RefreshTokenFlow refreshTokenFlow(URI xsuaaBaseUri) {
 		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
 
-		OAuthServerEndpointsProvider oAuthServerEndpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUri);
-		return new RefreshTokenFlow(restTemplate, tokenDecoder, oAuthServerEndpointsProvider);
+		return new RefreshTokenFlow(createOAuth2Server(xsuaaBaseUri), tokenDecoder);
+	}
+
+	OAuth2Server createOAuth2Server(URI xsuaaBaseUri) {
+		OAuth2ServerEndpointsProvider oAuth2ServerEndpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUri);
+		return new OAuth2Server(restTemplate, oAuth2ServerEndpointsProvider);
 	}
 }

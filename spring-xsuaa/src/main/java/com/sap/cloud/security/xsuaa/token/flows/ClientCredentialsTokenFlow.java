@@ -1,11 +1,16 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
 import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
+import com.sap.cloud.security.xsuaa.backend.OAuth2ServerException;
+import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
+
+import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 /**
  * A client credentials flow builder class. Applications retrieve an instance of
@@ -13,9 +18,15 @@ import java.util.Map;
  * using a builder pattern.
  */
 public class ClientCredentialsTokenFlow {
-	private OAuth2Server oAuth2Server;
+
+	private static final String ACCESS_TOKEN = "access_token";
+	private static final String GRANT_TYPE = "grant_type";
+	private static final String CLIENT_CREDENTIALS = "client_credentials";
+	private static final String AUTHORITIES = "authorities";
+
 	private XsuaaTokenFlowRequest request;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
+	private OAuth2Server oAuth2Server;
 
 	/**
 	 * Creates a new instance.
@@ -32,7 +43,7 @@ public class ClientCredentialsTokenFlow {
 		this.oAuth2Server = oAuth2Server;
 		this.tokenDecoder = tokenDecoder;
 
-		this.request = new XsuaaTokenFlowRequest(oAuth2Server);
+		this.request = new XsuaaTokenFlowRequest(oAuth2Server.getEndpointsProvider());
 	}
 
 	/**
@@ -85,8 +96,7 @@ public class ClientCredentialsTokenFlow {
 	public Jwt execute() throws TokenFlowException {
 		checkRequest(request);
 
-		String encodedJwtTokenValue = oAuth2Server.requestTechnicalUserToken(request.getAdditionalAuthorizationAttributes(), request.getClientId(), request.getClientSecret());
-		return decode(encodedJwtTokenValue, request.getKeySetEndpoint());
+		return requestTechnicalUserToken(request);
 	}
 
 	/**
@@ -102,6 +112,34 @@ public class ClientCredentialsTokenFlow {
 		if (!request.isValid()) {
 			throw new TokenFlowException(
 					"Client credentials flow request is not valid. Make sure all mandatory fields are set.");
+		}
+	}
+
+	/**
+	 * Requests the client credentials token from XSUAA.
+	 *
+	 * @param request
+	 *            - the token request.
+	 * @return the JWT token returned by XSUAA.
+	 * @throws TokenFlowException
+	 *             in case of an error during the flow.
+	 */
+	@Nullable
+	private Jwt requestTechnicalUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
+		Map<String, String> requestParameter = new HashMap<>();
+		requestParameter.put(GRANT_TYPE, CLIENT_CREDENTIALS);
+
+		String authorities = buildAuthorities(request);
+		if (authorities != null) {
+			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI !?!
+		}
+
+		try {
+			Map clientCredentialsToken = oAuth2Server.requestToken(requestParameter, request.getClientId(), request.getClientSecret());
+			String encodedJwtTokenValue = clientCredentialsToken.get(ACCESS_TOKEN).toString();
+			return decode(encodedJwtTokenValue, request.getKeySetEndpoint());
+		} catch (OAuth2ServerException e) {
+			throw new TokenFlowException(String.format("Error requesting token with grant_type %s: %s", CLIENT_CREDENTIALS, e.getMessage()));
 		}
 	}
 
