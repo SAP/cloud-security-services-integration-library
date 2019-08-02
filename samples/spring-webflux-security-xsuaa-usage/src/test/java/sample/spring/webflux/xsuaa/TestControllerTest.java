@@ -1,5 +1,6 @@
 package sample.spring.webflux.xsuaa;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.Assert;
 
 import static org.hamcrest.CoreMatchers.startsWith;
 
@@ -21,6 +23,9 @@ public class TestControllerTest {
 
 	@Autowired
 	private WebTestClient webClient;
+
+	@Autowired
+	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
 	@Test
 	public void unauthorizedRequest() {
@@ -33,11 +38,16 @@ public class TestControllerTest {
 
 	@Test
 	public void authorizedRequest() {
-		JwtGenerator jwtGenerator = new JwtGenerator().addScopes(JwtGenerator.CLIENT_ID + ".Display");
+		JwtGenerator jwtGenerator = new JwtGenerator().addScopes(getGlobalScope("Read"));
 
 		webClient.method(HttpMethod.GET).uri("/v1/sayHello").contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header(HttpHeaders.AUTHORIZATION, jwtGenerator.getTokenForAuthorizationHeader()).exchange()
 				.expectStatus().is2xxSuccessful().expectBody(String.class).value(startsWith("Authorities:"));
+	}
+
+	private String getGlobalScope(String localScope) {
+		Assert.hasText(xsuaaServiceConfiguration.getAppId(), "make sure that xsuaa.xsappname is configured properly.");
+		return xsuaaServiceConfiguration.getAppId() + "." + localScope;
 	}
 
 }

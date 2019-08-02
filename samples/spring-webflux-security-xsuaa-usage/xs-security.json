@@ -3,7 +3,7 @@
   "tenant-mode": "dedicated",
   "scopes": [
     {
-      "name": "$XSAPPNAME.Display",
+      "name": "$XSAPPNAME.Read",
       "description": "With this scope, information can be read."
     }
   ],
@@ -12,7 +12,7 @@
       "name": "AccessRole",
       "description": "Role to call the spring-webflux-security-xsuaa-usage service",
       "scope-references": [
-        "$XSAPPNAME.Display"
+        "$XSAPPNAME.Read"
       ]
     }
   ],

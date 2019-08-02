@@ -37,6 +37,17 @@ Deploy the application using cf push. It will expect 1 GB of free memory quota.
 cf push --vars-file ../vars.yml
 ```
 
+
+## Cockpit administration tasks: Assign Role to your User
+Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection(s) such as `Webflux_API_Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
+
+![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
+
+Further up-to-date information you can get on sap.help.com:
+- [Maintain Role Collections](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/d5f1612d8230448bb6c02a7d9c8ac0d1.html)
+- [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
+
+
 ## Access the application
 After deployment, the AppRouter will trigger authentication automatically when you access one of the following URLs:
 
@@ -45,3 +56,12 @@ After deployment, the AppRouter will trigger authentication automatically when y
 Direct access to the microservice (without the AppRouter) will return an error:
 
 * `https://spring-webflux-security-xsuaa-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - produces a error with `401` (unauthenticated) status code, as it calls the service without `Authorization` header.
+
+## Clean-Up
+
+Finally delete your application and your service instances using the following commands:
+```
+cf delete -f spring-webflux-security-xsuaa-usage
+cf delete -f approuter-spring-webflux-security-xsuaa-usage
+cf delete-service -f xsuaa-webflux
+```

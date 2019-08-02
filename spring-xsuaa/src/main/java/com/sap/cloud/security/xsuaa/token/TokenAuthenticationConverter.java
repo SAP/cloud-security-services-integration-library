@@ -61,16 +61,16 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 
 	/**
 	 * This method allows to overwrite the default behavior of the
-	 * {@link Token#getAuthorities()} implementation. Creates a new converter with a
-	 * new {@link LocalAuthoritiesExtractor}
+	 * {@link Token#getAuthorities()} implementation.
 	 *
 	 * @param extractLocalScopesOnly
 	 *            true when {@link Token#getAuthorities()} should only extract local
 	 *            scopes. Local scopes means that non-application specific scopes
 	 *            are filtered out and scopes are returned without appId prefix,
-	 *            e.g. "Display".
+	 *            e.g. "Display". Creates a new converter with a new
+	 *            {@link LocalAuthoritiesExtractor}
 	 */
-	public void setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {
+	public TokenAuthenticationConverter setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {
 		if (extractLocalScopesOnly) {
 			Assert.state(appId != null,
 					"For local Scope extraction 'appId' must be provided to `TokenAuthenticationConverter`");
@@ -78,6 +78,7 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 		} else {
 			authoritiesExtractor = new DefaultAuthoritiesExtractor();
 		}
+		return this;
 	}
 
 }
