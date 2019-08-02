@@ -95,7 +95,7 @@ public class TestController {
      *
      * @see {@link DataService}.
      */
-    @GetMapping(value = "/v1/readData")
+    @GetMapping(value = "/v1/getAdminData")
     public String readFromDataService() {
         return dataService.readSensitiveData();
     }

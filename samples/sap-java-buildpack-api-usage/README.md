@@ -130,7 +130,7 @@ If not you should get a `403` status code (Forbidden).
 
 > Note: you can find the route of your approuter application using `cf app approuter-sap-java-buildpack-api-usage`.
 
-### Clean-Up
+## Clean-Up
 
 Finally delete your application and your service instances using the following commands:
 ```

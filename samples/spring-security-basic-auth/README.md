@@ -125,7 +125,7 @@ You will get a response like:
 }
 ```
 
-### Clean-Up
+## Clean-Up
 
 Finally delete your application and your service instances using the following commands:
 ```
