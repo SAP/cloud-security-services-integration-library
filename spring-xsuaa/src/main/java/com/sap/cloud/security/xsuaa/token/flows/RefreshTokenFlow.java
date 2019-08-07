@@ -1,11 +1,13 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.backend.ClientCredentials;
+import com.sap.cloud.security.xsuaa.backend.OAuth2AccessToken;
 import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
+import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
 import com.sap.cloud.security.xsuaa.backend.OAuth2ServerException;
+import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 
@@ -16,16 +18,13 @@ import org.springframework.util.Assert;
  */
 public class RefreshTokenFlow {
 
-	private static final String ACCESS_TOKEN = "access_token";
-	private static final String REFRESH_TOKEN = "refresh_token";
-	private static final String GRANT_TYPE = "grant_type";
-
-	private XsuaaTokenFlowRequest request;
+	private XSTokenRequest request;
 	private String refreshToken;
 	private OAuth2Server oAuth2Server;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
+    private OAuth2ServerEndpointsProvider endpointsProvider;
 
-	/**
+    /**
 	 * Creates a new instance.
 	 *
 	 * @param oAuth2Server
@@ -33,14 +32,16 @@ public class RefreshTokenFlow {
 	 * @param tokenDecoder
 	 * 			  - the token decoder
 	 */
-	RefreshTokenFlow(OAuth2Server oAuth2Server, VariableKeySetUriTokenDecoder tokenDecoder) {
-		Assert.notNull(oAuth2Server, "OAuth2Server must not be null.");
-		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
+	RefreshTokenFlow(OAuth2Server oAuth2Server, VariableKeySetUriTokenDecoder tokenDecoder, OAuth2ServerEndpointsProvider endpointsProvider) {
+        Assert.notNull(oAuth2Server, "OAuth2Server must not be null.");
+        Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
+        Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");
 
-		this.oAuth2Server = oAuth2Server;
-		this.tokenDecoder = tokenDecoder;
-		this.request = new XsuaaTokenFlowRequest(oAuth2Server.getEndpointsProvider());
-	}
+        this.oAuth2Server = oAuth2Server;
+        this.tokenDecoder = tokenDecoder;
+        this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
+        this.endpointsProvider = endpointsProvider;
+    }
 
 	/**
 	 * Sets the mandatory refresh token to be exchanged for a (refreshed) JWT.
@@ -105,7 +106,7 @@ public class RefreshTokenFlow {
 	 *             in case not all mandatory fields of the token flow request have
 	 *             been set.
 	 */
-	private void checkRequest(XsuaaTokenFlowRequest request) throws TokenFlowException {
+	private void checkRequest(XSTokenRequest request) throws TokenFlowException {
 
 		if (refreshToken == null) {
 			throw new TokenFlowException(
@@ -129,16 +130,12 @@ public class RefreshTokenFlow {
 	 * @throws TokenFlowException
 	 *             in case of an error in the flow.
 	 */
-	private Jwt refreshToken(String refreshToken, XsuaaTokenFlowRequest request) throws TokenFlowException {
-		Map<String, String> requestParameter = new HashMap<>();
-		requestParameter.put(GRANT_TYPE, REFRESH_TOKEN);
-
+	private Jwt refreshToken(String refreshToken, XSTokenRequest request) throws TokenFlowException {
 		try {
-			Map refreshedToken = oAuth2Server.requestToken(requestParameter, request.getClientId(), request.getClientSecret());
-			String encodedJwtTokenValue = refreshedToken.get(ACCESS_TOKEN).toString();
-			return decode(encodedJwtTokenValue, request.getKeySetEndpoint());
+			OAuth2AccessToken accessToken = oAuth2Server.retrieveAccessTokenViaRefreshToken(request.getTokenEndpoint(), new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken);
+			return decode(accessToken.getValue(), endpointsProvider.getJwksUri());
 		} catch (OAuth2ServerException e) {
-			throw new TokenFlowException(String.format("Error refreshing token with grant_type %s: %s", REFRESH_TOKEN, e.getMessage()));
+			throw new TokenFlowException(String.format("Error refreshing token with grant_type 'refresh_token': %s", e.getMessage()));
 		}
 	}
 
@@ -151,7 +148,7 @@ public class RefreshTokenFlow {
 	 * @throws TokenFlowException
 	 *             in case of a decoding error.
 	 */
-	private Jwt decode(String encodedToken, URI keySetEndpoint) throws TokenFlowException {
+	private Jwt decode(String encodedToken, URI keySetEndpoint) {
 
 		tokenDecoder.setJwksURI(keySetEndpoint);
 		// validation is not required by the one who retrieves the token,

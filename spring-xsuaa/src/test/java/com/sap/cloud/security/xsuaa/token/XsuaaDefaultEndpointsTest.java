@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.token;
 
 import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
-import com.sap.cloud.security.xsuaa.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
 import org.junit.Test;
 
 import java.net.URI;

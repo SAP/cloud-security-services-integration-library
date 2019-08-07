@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
@@ -21,30 +23,28 @@ import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
 public class XsuaaTokenFlowsTests {
 
 	Jwt mockJwt = buildMockJwt(Arrays.asList("read", "write"));
+	private XsuaaTokenFlows cut = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt), new XsuaaDefaultEndpoints(URI.create("http://base/")));
 
-	@Test
-	public void test_constructor() {
-		new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt));
+	@Before
+	public void setup() {
+		cut = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt), new XsuaaDefaultEndpoints(URI.create("http://base/")));
 	}
 
 	@Test
 	public void test_startRefreshTokenFlow() {
-		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt));
-		RefreshTokenFlow flow = xsuaaTokenFlows.refreshTokenFlow(URI.create("http://base/"));
+		RefreshTokenFlow flow = cut.refreshTokenFlow();
 		assertNotNull("RefreshTokenFlow must not be null.", flow);
 	}
 
 	@Test
 	public void test_startUserTokenFlow() {
-		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt));
-		UserTokenFlow flow = xsuaaTokenFlows.userTokenFlow(URI.create("http://base/"));
+		UserTokenFlow flow = cut.userTokenFlow();
 		assertNotNull("UserTokenFlow must not be null.", flow);
 	}
 
 	@Test
 	public void test_startClientCredentialsFlow() {
-		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt));
-		ClientCredentialsTokenFlow flow = xsuaaTokenFlows.clientCredentialsTokenFlow(URI.create("http://base/"));
+		ClientCredentialsTokenFlow flow = cut.clientCredentialsTokenFlow();
 		assertNotNull("ClientCredentialsTokenFlow must not be null.", flow);
 	}
 

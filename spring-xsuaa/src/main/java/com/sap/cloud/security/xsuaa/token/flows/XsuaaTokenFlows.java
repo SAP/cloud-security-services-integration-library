@@ -6,10 +6,7 @@
  */
 package com.sap.cloud.security.xsuaa.token.flows;
 
-import java.net.URI;
-
 import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
-import com.sap.cloud.security.xsuaa.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
@@ -26,6 +23,7 @@ public class XsuaaTokenFlows {
 
 	private RestTemplate restTemplate;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
+	private OAuth2ServerEndpointsProvider endpointsProvider;
 
 	/**
 	 * Create a new instance of this bean with the given RestTemplate. Applications
@@ -38,12 +36,14 @@ public class XsuaaTokenFlows {
 	 *            the {@link VariableKeySetUriTokenDecoder} instance used internally
 	 *            to decode a Jwt token.
 	 */
-	public XsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder) {
+	public XsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder, OAuth2ServerEndpointsProvider endpointsProvider) {
 		Assert.notNull(restTemplate, "RestTemplate must not be null.");
 		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
+		Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");
 
 		this.restTemplate = restTemplate;
 		this.tokenDecoder = tokenDecoder;
+		this.endpointsProvider = endpointsProvider;
 	}
 
 	/**
@@ -53,17 +53,13 @@ public class XsuaaTokenFlows {
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
 	 * 
-	 * @param xsuaaBaseUri
-	 *            - the base URI of XSUAA that the flow will be executed against.
 	 * @return the {@link UserTokenFlow} builder object.
 	 */
-	public UserTokenFlow userTokenFlow(URI xsuaaBaseUri) {
-		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
+	public UserTokenFlow userTokenFlow() {
+		OAuth2Server oAuth2Server = createOAuth2Server();
+		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(oAuth2Server, tokenDecoder, endpointsProvider);
 
-		OAuth2Server oAuth2Server = createOAuth2Server(xsuaaBaseUri);
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(oAuth2Server, tokenDecoder);
-
-		return new UserTokenFlow(oAuth2Server, refreshTokenFlow);
+		return new UserTokenFlow(oAuth2Server, refreshTokenFlow, endpointsProvider);
 	}
 
 	/**
@@ -71,14 +67,10 @@ public class XsuaaTokenFlows {
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
 	 * 
-	 * @param xsuaaBaseUri
-	 *            - the base URI of XSUAA that the flow will be executed against.
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
-	public ClientCredentialsTokenFlow clientCredentialsTokenFlow(URI xsuaaBaseUri) {
-		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
-
-		return new ClientCredentialsTokenFlow(createOAuth2Server(xsuaaBaseUri), tokenDecoder);
+	public ClientCredentialsTokenFlow clientCredentialsTokenFlow() {
+		return new ClientCredentialsTokenFlow(createOAuth2Server(), tokenDecoder, endpointsProvider);
 	}
 
 	/**
@@ -86,18 +78,13 @@ public class XsuaaTokenFlows {
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
 	 * 
-	 * @param xsuaaBaseUri
-	 *            - the base URI of XSUAA that the flow will be executed against.
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
-	public RefreshTokenFlow refreshTokenFlow(URI xsuaaBaseUri) {
-		Assert.notNull(xsuaaBaseUri, "XSUAA base URI must not be null.");
-
-		return new RefreshTokenFlow(createOAuth2Server(xsuaaBaseUri), tokenDecoder);
+	public RefreshTokenFlow refreshTokenFlow() {
+		return new RefreshTokenFlow(createOAuth2Server(), tokenDecoder, endpointsProvider);
 	}
 
-	OAuth2Server createOAuth2Server(URI xsuaaBaseUri) {
-		OAuth2ServerEndpointsProvider oAuth2ServerEndpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUri);
-		return new OAuth2Server(restTemplate, oAuth2ServerEndpointsProvider);
+	OAuth2Server createOAuth2Server() {
+		return new OAuth2Server(restTemplate);
 	}
 }

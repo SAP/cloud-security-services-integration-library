@@ -7,7 +7,7 @@
 //import java.util.HashMap;
 //import java.util.Map;
 //
-//import com.sap.cloud.security.xsuaa.XsuaaDefaultEndpoints;
+//import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
 //import org.junit.Before;
 //import org.junit.Test;
 //import org.springframework.http.HttpEntity;

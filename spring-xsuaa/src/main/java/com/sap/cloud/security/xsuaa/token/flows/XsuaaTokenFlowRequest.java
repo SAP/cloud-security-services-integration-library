@@ -1,16 +1,9 @@
-/**
- * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
- * This file is licensed under the Apache Software License,
- * v. 2 except as noted otherwise in the LICENSE file
- * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
- */
 package com.sap.cloud.security.xsuaa.token.flows;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
 import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.util.Assert;
 
@@ -20,48 +13,24 @@ import org.springframework.util.Assert;
  */
 class XsuaaTokenFlowRequest implements XSTokenRequest {
 
-	private OAuth2ServerEndpointsProvider oAuth2ServerEndpointsProvider;
 	private String clientId;
+	private URI tokenServerEndpoint;
 	private String clientSecret;
 	private Map<String, String> additionalAuthorizationAttributes;
 
 	/**
 	 * Creates a new token exchange request.
 	 * 
-	 * @param oAuth2ServerEndpointsProvider
-	 *            - contains the endpoint URIs of the XSUAA where to exchange the token.
+	 * @param oAuth2ServerTokenEndpoint
+	 *            - contains
 	 */
-	XsuaaTokenFlowRequest(OAuth2ServerEndpointsProvider oAuth2ServerEndpointsProvider) {
-		Assert.notNull(oAuth2ServerEndpointsProvider.getTokenEndpoint(), "Token endpoint URI must not be null.");
-		Assert.notNull(oAuth2ServerEndpointsProvider.getAuthorizeEndpoint(), "Authorize endpoint URI must not be null.");
-		Assert.notNull(oAuth2ServerEndpointsProvider.getJwksUri(), "Key set endpoint URI must not be null.");
-
-		this.oAuth2ServerEndpointsProvider = oAuth2ServerEndpointsProvider;
+	XsuaaTokenFlowRequest(URI oAuth2ServerTokenEndpoint) {
+		this.tokenServerEndpoint = oAuth2ServerTokenEndpoint;
 	}
 
 	@Override
 	public URI getTokenEndpoint() {
-		return this.oAuth2ServerEndpointsProvider.getTokenEndpoint();
-	}
-
-	/**
-	 * Returns the endpoint to authorize scopes. For example
-	 * {@code https://<server>:<port>/uaa/oauth/authorize}.
-	 *
-	 * @return the endpoint to authorize scopes.
-	 */
-	URI getAuthorizeEndpoint() {
-		return this.oAuth2ServerEndpointsProvider.getAuthorizeEndpoint();
-	}
-
-	/**
-	 * Returns the endpoint to fetch the public key set from. For example
-	 * {@code https://<server>:<port>/.well-known/jwks.json}.
-	 *
-	 * @return the endpoint to fetch the public key set from.
-	 */
-	URI getKeySetEndpoint() {
-		return this.oAuth2ServerEndpointsProvider.getJwksUri();
+		return this.tokenServerEndpoint;
 	}
 
 	@Override

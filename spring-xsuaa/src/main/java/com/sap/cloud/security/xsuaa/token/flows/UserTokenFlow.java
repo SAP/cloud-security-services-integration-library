@@ -1,10 +1,16 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
+import com.sap.cloud.security.xsuaa.backend.ClientCredentials;
+import com.sap.cloud.security.xsuaa.backend.OAuth2AccessToken;
 import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
+import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
 import com.sap.cloud.security.xsuaa.backend.OAuth2ServerException;
+import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,17 +25,11 @@ import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buil
  */
 public class UserTokenFlow {
 
-	private static final String REFRESH_TOKEN = "refresh_token";
-	private static final String CLIENT_ID = "client_id";
-	private static final String TOKEN = "token";
-	private static final String RESPONSE_TYPE = "response_type";
-	private static final String USER_TOKEN = "user_token";
 	private static final String UAA_USER_SCOPE = "uaa.user";
 	private static final String SCOPE_CLAIM = "scope";
-	private static final String GRANT_TYPE = "grant_type";
 	private static final String AUTHORITIES = "authorities";
 
-	private XsuaaTokenFlowRequest request;
+	private XSTokenRequest request;
 	private Jwt token;
 	private RefreshTokenFlow refreshTokenFlow;
 	private OAuth2Server oAuth2Server;
@@ -42,13 +42,14 @@ public class UserTokenFlow {
 	 * @param refreshTokenFlow
 	 * 			  - the refresh token flow
 	 */
-	UserTokenFlow(OAuth2Server oAuth2Server, RefreshTokenFlow refreshTokenFlow) {
+	UserTokenFlow(OAuth2Server oAuth2Server, RefreshTokenFlow refreshTokenFlow, OAuth2ServerEndpointsProvider endpointsProvider) {
 		Assert.notNull(oAuth2Server, "OAuth2Server must not be null.");
 		Assert.notNull(refreshTokenFlow, "RefreshTokenFlow must not be null.");
+		Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");
 
 		this.oAuth2Server = oAuth2Server;
 		this.refreshTokenFlow = refreshTokenFlow;
-		this.request = new XsuaaTokenFlowRequest(oAuth2Server.getEndpointsProvider());
+		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
 	}
 
 	/**
@@ -137,7 +138,7 @@ public class UserTokenFlow {
 	 *             in case not all mandatory fields of the token flow request have
 	 *             been set.
 	 */
-	private void checkRequest(XsuaaTokenFlowRequest request) throws TokenFlowException {
+	private void checkRequest(XSTokenRequest request) throws TokenFlowException {
 		if (token == null) {
 			throw new TokenFlowException(
 					"User token not set. Make sure to have called the token() method on UserTokenFlow builder.");
@@ -164,24 +165,20 @@ public class UserTokenFlow {
 	 * @throws TokenFlowException
 	 *             in case of an error during the flow.
 	 */
-	private Jwt requestUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
-		Map<String, String> requestParameter = new HashMap<>();
-
-		requestParameter.put(GRANT_TYPE, USER_TOKEN);
-		requestParameter.put(RESPONSE_TYPE, TOKEN);
-		requestParameter.put(CLIENT_ID, request.getClientId());
+	private Jwt requestUserToken(XSTokenRequest request) throws TokenFlowException {
+		Map<String, String> optionalParameter = new HashMap<>();
 
 		String authorities = buildAuthorities(request);
 		if (authorities != null) {
-			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI !?!
+			optionalParameter.put(AUTHORITIES, authorities); // places JSON inside the URI !?!
 		}
 
 		String refreshToken = null;
 		try {
-			Map clientCredentialsToken = oAuth2Server.requestToken(requestParameter, token.getTokenValue());
-			refreshToken = clientCredentialsToken.get(REFRESH_TOKEN).toString();
+			OAuth2AccessToken accessToken = oAuth2Server.retrieveAccessTokenViaUserTokenGrant(request.getTokenEndpoint(), new ClientCredentials(request.getClientId(), request.getClientSecret()), token.getTokenValue(), optionalParameter);
+			refreshToken = accessToken.getRefreshToken().get();
 		} catch (OAuth2ServerException e) {
-			throw new TokenFlowException(String.format("Error requesting token with grant_type %s: %s", USER_TOKEN, e.getMessage()));
+			throw new TokenFlowException(String.format("Error requesting token with grant_type 'user_token': %s", e.getMessage()));
 		}
 
 		// Now we have a response, that contains a refresh-token. Following the

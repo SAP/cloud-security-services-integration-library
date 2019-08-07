@@ -18,6 +18,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.token.flows.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
@@ -29,14 +31,11 @@ import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
-import com.sap.cloud.security.xsuaa.token.flows.TokenFlowException;
-import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
-import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
 import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 import net.minidev.json.JSONArray;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Custom XSUAA token implementation.
@@ -59,6 +58,7 @@ public class XsuaaToken extends Jwt implements Token {
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
 
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();
+	private XsuaaTokenFlows xsuaaTokenFlows = null;
 
 	VariableKeySetUriTokenDecoder tokenFlowsTokenDecoder = new NimbusTokenDecoder();
 
@@ -295,26 +295,17 @@ public class XsuaaToken extends Jwt implements Token {
 	 */
 	@Override
 	public String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException {
-		// Original coding (replaced by new API implementation):
-		//
-		// Assert.notNull(tokenRequest, "tokenRequest argument is required");
-		// Assert.isTrue(tokenRequest.isValid(), "tokenRequest is not valid");
-		//
-		// RestTemplate restTemplate = tokenRequest instanceof XSTokenRequestImpl
-		// ? ((XSTokenRequestImpl) tokenRequest).getRestTemplate()
-		// : null;
-		//
-		// XsuaaTokenExchanger tokenExchanger = new XsuaaTokenExchanger(restTemplate,
-		// this);
-		// try {
-		// return tokenExchanger.requestToken(tokenRequest);
-		// } catch (XSUserInfoException e) {
-		// logger.error("Error occurred during token request", e);
-		// return null;
-		// }
-
 		Assert.notNull(tokenRequest, "TokenRequest argument is required");
 		Assert.isTrue(tokenRequest.isValid(), "TokenRequest is not valid");
+
+		RestTemplate restTemplate = (tokenRequest instanceof XSTokenRequestImpl)
+				? ((XSTokenRequestImpl) tokenRequest).getRestTemplate()
+				: new RestTemplate();
+
+		URI baseUrl = URI.create(tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(), ""));
+
+		// initialize token flows api
+		xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder, new XsuaaDefaultEndpoints(baseUrl));
 
 		switch (tokenRequest.getType()) {
 		case XSTokenRequest.TYPE_USER_TOKEN:
@@ -327,23 +318,14 @@ public class XsuaaToken extends Jwt implements Token {
 		}
 	}
 
-	private String performClientCredentialsFlow(XSTokenRequest request) {
-		RestTemplate restTemplate = (request instanceof XSTokenRequestImpl)
-				? ((XSTokenRequestImpl) request).getRestTemplate()
-				: new RestTemplate();
-
-		String baseUrl = (request instanceof XSTokenRequestImpl)
-				? ((XSTokenRequestImpl) request).getBaseURI().toString()
-				: request.getTokenEndpoint().getHost(); // TODO remove /oauth/token from URI
-
-		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder);
-
-		String clientId = request.getClientId();
-		String clientSecret = request.getClientSecret();
+	private String performClientCredentialsFlow(XSTokenRequest tokenRequest) {
+		String clientId = tokenRequest.getClientId();
+		String clientSecret = tokenRequest.getClientSecret();
 
 		Jwt ccfToken;
 		try {
-			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow(URI.create(baseUrl))
+			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
+//					.subdomain(todo) // TODO
 					.client(clientId)
 					.secret(clientSecret)
 					.execute();
@@ -357,24 +339,13 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	private String performUserTokenFlow(XSTokenRequest request) {
-
-		RestTemplate restTemplate = (request instanceof XSTokenRequestImpl)
-				? ((XSTokenRequestImpl) request).getRestTemplate()
-				: new RestTemplate();
-
-		String baseUrl = (request instanceof XSTokenRequestImpl)
-				? ((XSTokenRequestImpl) request).getBaseURI().toString()
-				: request.getTokenEndpoint().getHost(); // TODO remove /oauth/token from URI
-
-		XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder);
-
 		String clientId = request.getClientId();
 		String clientSecret = request.getClientSecret();
 
 		Jwt userToken;
 		try {
-			userToken = xsuaaTokenFlows.userTokenFlow(URI.create(baseUrl))
-					.token(this)
+			userToken = xsuaaTokenFlows.userTokenFlow()
+					.token(this) // internally make sure that endpoint is set
 					.attributes(request.getAdditionalAuthorizationAttributes())
 					.client(clientId)
 					.secret(clientSecret)

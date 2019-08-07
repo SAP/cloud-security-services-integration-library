@@ -2,6 +2,7 @@ package com.sap.cloud.security.xsuaa.token.flows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sap.xsa.security.container.XSTokenRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +25,7 @@ class XsuaaTokenFlowsUtils {
 	 *         additional authorities set.
 	 * @throws TokenFlowException
 	 */
-	static String buildAuthorities(XsuaaTokenFlowRequest request) throws TokenFlowException {
+	static String buildAuthorities(XSTokenRequest request) throws TokenFlowException {
 		if (request.getAdditionalAuthorizationAttributes() == null) {
 			return null;
 		}

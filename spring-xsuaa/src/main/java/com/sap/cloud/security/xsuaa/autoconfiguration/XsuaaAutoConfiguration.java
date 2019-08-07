@@ -3,6 +3,7 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
+import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
 import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
 import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
@@ -13,6 +14,7 @@ import com.sap.cloud.security.xsuaa.tokenflows.VariableKeySetUriTokenDecoder;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,6 +23,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
+
+import java.net.URI;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
@@ -92,8 +96,9 @@ public class XsuaaAutoConfiguration {
         return new RestTemplate();
     }
 	@ConditionalOnMissingBean
-	public XsuaaTokenFlows xsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder decoder) {
-		return new XsuaaTokenFlows(restTemplate, decoder);
+	@ConditionalOnBean(XsuaaServiceConfiguration.class)
+	public XsuaaTokenFlows xsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder decoder, XsuaaServiceConfiguration serviceConfiguration) {
+		return new XsuaaTokenFlows(restTemplate, decoder, new XsuaaDefaultEndpoints(URI.create(serviceConfiguration.getUaaUrl())));
 	}
 
 	/**

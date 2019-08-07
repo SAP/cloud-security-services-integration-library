@@ -26,7 +26,7 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 
 	@Override
 	public String getUaaUrl() {
-		return null;
+		return "https://subdomain.authentication.eu10.hana.ondemand.com";
 	}
 
 	@Override

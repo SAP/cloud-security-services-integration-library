@@ -12,6 +12,7 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.*;
 
+import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -252,9 +253,10 @@ public class XsuaaTokenTest {
 	@Test
 	public void requestClientCredentialsToken() throws URISyntaxException {
 		// prepare response
-		Map<String, String> ccToken = new HashMap<>();
+		Map<String, Object> ccToken = new HashMap<>();
 		Jwt mockJwt = buildMockJwt();
-		ccToken.put("access_token", mockJwt.getTokenValue());
+		ccToken.put(OAuth2Server.ACCESS_TOKEN, mockJwt.getTokenValue());
+		ccToken.put(OAuth2Server.EXPIRES_IN, 43199);
 
 		// mock rest call
 		// http://myuaa.com/oauth/token?grant_type=client_credentials&authorities=%7B%22az_attr%22:%7B%22a%22:%22b%22,%22c%22:%22d%22%7D%7D

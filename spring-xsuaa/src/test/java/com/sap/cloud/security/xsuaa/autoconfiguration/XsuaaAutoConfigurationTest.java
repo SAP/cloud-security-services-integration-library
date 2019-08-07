@@ -3,6 +3,7 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
+import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
 import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
 import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
@@ -23,6 +24,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
+
+import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -148,8 +151,8 @@ public class XsuaaAutoConfigurationTest {
 
 		@Bean
 		public XsuaaTokenFlows userDefinedXsuaaTokenFlows(RestTemplate restTemplate,
-				VariableKeySetUriTokenDecoder decoder) {
-			return new XsuaaTokenFlows(restTemplate, decoder);
+				VariableKeySetUriTokenDecoder decoder, XsuaaServiceConfiguration serviceConfiguration) {
+			return new XsuaaTokenFlows(restTemplate, decoder, new XsuaaDefaultEndpoints(URI.create(serviceConfiguration.getUaaUrl())));
 		}
 	}
 }

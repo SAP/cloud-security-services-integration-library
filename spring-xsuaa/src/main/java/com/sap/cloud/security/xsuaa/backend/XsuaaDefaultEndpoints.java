@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa;
+package com.sap.cloud.security.xsuaa.backend;
 
 import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
 import org.springframework.util.Assert;
