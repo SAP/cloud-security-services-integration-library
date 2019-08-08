@@ -11,6 +11,9 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * TOOD extract interface, e.g. OAuth2TokenService
+ */
 public class OAuth2Server {
 
 	private RestTemplate restTemplate;
@@ -19,8 +22,8 @@ public class OAuth2Server {
 	public static final String EXPIRES_IN = "expires_in";
 	public static final String REFRESH_TOKEN = "refresh_token";
 
-	public static final String RESPONSE_TYPE = "response_type"; // TODO: still required?
-	public static final String RESPONSE_TYPE_TOKEN = "token"; // TODO: still required?
+//	public static final String RESPONSE_TYPE = "response_type"; // TODO: still required?
+//	public static final String RESPONSE_TYPE_TOKEN = "token"; // TODO: still required?
 
 	public static final String GRANT_TYPE = "grant_type";
 	public static final String GRANT_TYPE_USER_TOKEN = "user_token";
@@ -37,7 +40,7 @@ public class OAuth2Server {
 	 * Requests access token from OAuth Server with client credentials, e.g. as documented here
 	 * https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token
 	 *
-	 * @return the returned OAuth2AccessToken.
+	 * @return the OAuth2AccessToken.
 	 * @throws OAuth2ServerException in case of an error during the http request.
 	 */
 	public OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri, ClientCredentials credentials,
@@ -45,12 +48,12 @@ public class OAuth2Server {
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS);
 
-		optionalParameters.forEach((key, value) -> parameters.putIfAbsent(key, value));
+		optionalParameters.forEach(parameters::putIfAbsent);
 
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
 
 		// add query parameters to URI
-		parameters.forEach((key, value) -> builder.queryParam(key, value));
+		parameters.forEach(builder::queryParam);
 
 		// build header
 		HttpHeaders headers = createHeadersWithAuthorization(credentials);
@@ -65,7 +68,7 @@ public class OAuth2Server {
 	 * Requests user token from OAuth Server, e.g. as documented here
 	 * https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token
 	 *
-	 * @return the returned token info map.
+	 * @return the OAuth2AccessToken.
 	 * @throws OAuth2ServerException in case of an error during the http request.
 	 */
 	public OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri, ClientCredentials clientCredentials, String token, Map<String, String> optionalParameters)
@@ -73,14 +76,14 @@ public class OAuth2Server {
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_USER_TOKEN);
 		parameters.put(PARAMETER_CLIENT_ID, clientCredentials.getClientId());
-		parameters.put(RESPONSE_TYPE, RESPONSE_TYPE_TOKEN); // required?
+//		parameters.put(RESPONSE_TYPE, RESPONSE_TYPE_TOKEN); // TODO required?
 
-		optionalParameters.forEach((key, value) -> parameters.putIfAbsent(key, value));
+		optionalParameters.forEach(parameters::putIfAbsent);
 
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
 
 		// add query parameters to URI
-		parameters.forEach((key, value) -> builder.queryParam(key, value));
+		parameters.forEach(builder::queryParam);
 
 		// build header
 		HttpHeaders headers = createHeadersWithAuthorization(token);
@@ -106,7 +109,7 @@ public class OAuth2Server {
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
 
 		// add query parameters to URI
-		parameters.forEach((key, value) -> builder.queryParam(key, value));
+		parameters.forEach(builder::queryParam);
 
 		// build header
 		HttpHeaders headers = createHeadersWithAuthorization(credentials);
@@ -118,7 +121,7 @@ public class OAuth2Server {
 	}
 
 	private OAuth2AccessToken requestAccessToken(URI requestUri, HttpEntity<Void> requestEntity)
-			throws HttpClientErrorException, OAuth2ServerException {
+			throws OAuth2ServerException {
 
 		ResponseEntity<Map> responseEntity = null;
 		try {
@@ -142,17 +145,17 @@ public class OAuth2Server {
 		Map<String, String> accessTokenMap = responseEntity.getBody();
 
 		String accessToken = accessTokenMap.get(ACCESS_TOKEN);
-		long expires_in = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
+		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
 		String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
-		return new OAuth2AccessToken(accessToken, refreshToken, expires_in);
+		return new OAuth2AccessToken(accessToken, refreshToken, expiresIn);
 	}
 
 	/**
-	 * Creates a set of headers required for the token exchange with XSUAA.
+	 * Creates the set of HTTP headers with client-credentials basic authentication header.
 	 *
-	 * @return the set of headers.
+	 * @return the HTTP headers.
 	 */
-	static private HttpHeaders createHeadersWithAuthorization(ClientCredentials credentials) {
+	private static HttpHeaders createHeadersWithAuthorization(ClientCredentials credentials) {
 		HttpHeaders headers = new HttpHeaders();
 		addAcceptHeader(headers);
 		addBasicAuthHeader(headers, credentials);
@@ -160,11 +163,11 @@ public class OAuth2Server {
 	}
 
 	/**
-	 * Creates the set of HTTP headers necessary for the user token flow request.
+	 * Creates the set of HTTP headers with Authorization Bearer header.
 	 *
 	 * @return the HTTP headers.
 	 */
-	static private HttpHeaders createHeadersWithAuthorization(String token) {
+	private static HttpHeaders createHeadersWithAuthorization(String token) {
 		HttpHeaders headers = new HttpHeaders();
 		addAcceptHeader(headers);
 		addAuthorizationBearerHeader(headers, token);

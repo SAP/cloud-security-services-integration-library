@@ -31,6 +31,8 @@ public class RefreshTokenFlow {
 	 *            - the {@link OAuth2Server} used to execute the final request.
 	 * @param tokenDecoder
 	 * 			  - the token decoder
+	 * @param endpointsProvider
+	 *            - the endpoints provider
 	 */
 	RefreshTokenFlow(OAuth2Server oAuth2Server, VariableKeySetUriTokenDecoder tokenDecoder, OAuth2ServerEndpointsProvider endpointsProvider) {
         Assert.notNull(oAuth2Server, "OAuth2Server must not be null.");
@@ -90,7 +92,6 @@ public class RefreshTokenFlow {
 	 *             refreshed.
 	 */
 	public Jwt execute() throws TokenFlowException {
-
 		checkRequest(request);
 
 		return refreshToken(refreshToken, request);
@@ -107,7 +108,6 @@ public class RefreshTokenFlow {
 	 *             been set.
 	 */
 	private void checkRequest(XSTokenRequest request) throws TokenFlowException {
-
 		if (refreshToken == null) {
 			throw new TokenFlowException(
 					"Refresh token not set. Make sure to have called the refreshToken() method on RefreshTokenFlow builder.");
@@ -140,23 +140,20 @@ public class RefreshTokenFlow {
 	}
 
 	/**
-	 * Decodes the received encoded JWT token.
-	 * 
-	 * @param encodedToken
-	 *            the encoded JWT token value.
-	 * @return the decoded JWT instance.
-	 * @throws TokenFlowException
-	 *             in case of a decoding error.
+	 * Decodes the returned JWT value.
+	 * validation is not required by the one who retrieves the token,
+	 * but by the one who receives it (e.g. the service it is sent to).
+	 * Hence, here we only decode, but do not validate.
+	 * decoder.setJwtValidator(new
+	 * DelegatingOAuth2TokenValidator<>(tokenValidators));
+	 *
+	 * @param encodedToken - the encoded JWT token value.
+	 * @return the decoded JWT.
+	 * @throws TokenFlowException in case of an exception decoding the token.
 	 */
 	private Jwt decode(String encodedToken, URI keySetEndpoint) {
-
+		// TODO not a good idea as singleton bean instance
 		tokenDecoder.setJwksURI(keySetEndpoint);
-		// validation is not required by the one who retrieves the token,
-		// but by the one who receives it (e.g. the service it is sent to).
-		// Hence, here we only decode, but do not validate.
-		// decoder.setJwtValidator(new
-		// DelegatingOAuth2TokenValidator<>(tokenValidators));
-		Jwt jwt = tokenDecoder.decode(encodedToken);
-		return jwt;
+		return tokenDecoder.decode(encodedToken);
 	}
 }

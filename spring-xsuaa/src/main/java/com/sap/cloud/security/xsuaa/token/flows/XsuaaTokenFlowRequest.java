@@ -20,9 +20,8 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 
 	/**
 	 * Creates a new token exchange request.
-	 * 
-	 * @param oAuth2ServerTokenEndpoint
-	 *            - contains
+	 *
+	 * @param oAuth2ServerTokenEndpoint - the URI of the token endpoint.
 	 */
 	XsuaaTokenFlowRequest(URI oAuth2ServerTokenEndpoint) {
 		this.tokenServerEndpoint = oAuth2ServerTokenEndpoint;

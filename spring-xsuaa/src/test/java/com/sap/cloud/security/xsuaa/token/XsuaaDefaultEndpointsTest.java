@@ -13,7 +13,7 @@ public class XsuaaDefaultEndpointsTest {
 
 	@Test
 	public void initialize() {
-		OAuth2ServerEndpointsProvider client = new XsuaaDefaultEndpoints(URI.create("http://localhost:8080/uaa"));
+		OAuth2ServerEndpointsProvider client = new XsuaaDefaultEndpoints("http://localhost:8080/uaa");
 
 		assertThat(client.getAuthorizeEndpoint().toString(), is("http://localhost:8080/uaa/oauth/authorize"));
 		assertThat(client.getTokenEndpoint().toString(), is("http://localhost:8080/uaa/oauth/token"));
@@ -22,7 +22,7 @@ public class XsuaaDefaultEndpointsTest {
 
 	@Test
 	public void initializeWithEndingPathDelimiter() {
-		OAuth2ServerEndpointsProvider client = new XsuaaDefaultEndpoints(URI.create("http://localhost:8080/uaa/"));
+		OAuth2ServerEndpointsProvider client = new XsuaaDefaultEndpoints("http://localhost:8080/uaa/");
 
 		assertThat(client.getAuthorizeEndpoint().toString(), is("http://localhost:8080/uaa/oauth/authorize"));
 		assertThat(client.getTokenEndpoint().toString(), is("http://localhost:8080/uaa/oauth/token"));

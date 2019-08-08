@@ -15,6 +15,8 @@ import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ADDITIONAL_AZ
  */
 class XsuaaTokenFlowsUtils {
 
+	XsuaaTokenFlowsUtils() {}
+
 	/**
 	 * Builds the additional authorities claim of the JWT. Returns null, if the
 	 * request does not have any additional authorities set.
@@ -44,8 +46,7 @@ class XsuaaTokenFlowsUtils {
 		Map<String, Object> additionalAuthorizationAttributes = new HashMap<>();
 		additionalAuthorizationAttributes.put(CLAIM_ADDITIONAL_AZ_ATTR, additionalAuthorities);
 
-		ObjectMapper mapper = new ObjectMapper();
-		String additionalAuthorizationAttributesJson = mapper.writeValueAsString(additionalAuthorizationAttributes);
+		String additionalAuthorizationAttributesJson = new ObjectMapper().writeValueAsString(additionalAuthorizationAttributes);
 		return additionalAuthorizationAttributesJson;
 	}
 }

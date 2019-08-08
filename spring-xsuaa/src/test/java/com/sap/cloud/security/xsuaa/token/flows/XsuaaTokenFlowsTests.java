@@ -23,11 +23,11 @@ import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
 public class XsuaaTokenFlowsTests {
 
 	Jwt mockJwt = buildMockJwt(Arrays.asList("read", "write"));
-	private XsuaaTokenFlows cut = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt), new XsuaaDefaultEndpoints(URI.create("http://base/")));
+	private XsuaaTokenFlows cut = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt), new XsuaaDefaultEndpoints("http://base/"));
 
 	@Before
 	public void setup() {
-		cut = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt), new XsuaaDefaultEndpoints(URI.create("http://base/")));
+		cut = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt), new XsuaaDefaultEndpoints("http://base/"));
 	}
 
 	@Test

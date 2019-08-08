@@ -152,7 +152,7 @@ public class XsuaaAutoConfigurationTest {
 		@Bean
 		public XsuaaTokenFlows userDefinedXsuaaTokenFlows(RestTemplate restTemplate,
 				VariableKeySetUriTokenDecoder decoder, XsuaaServiceConfiguration serviceConfiguration) {
-			return new XsuaaTokenFlows(restTemplate, decoder, new XsuaaDefaultEndpoints(URI.create(serviceConfiguration.getUaaUrl())));
+			return new XsuaaTokenFlows(restTemplate, decoder, new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
 		}
 	}
 }

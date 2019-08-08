@@ -38,6 +38,6 @@ public class OAuth2AccessToken {
 	}
 
 	public Optional<String> getRefreshToken() {
-		return Optional.of(refreshToken);
+		return Optional.ofNullable(refreshToken);
 	}
 }

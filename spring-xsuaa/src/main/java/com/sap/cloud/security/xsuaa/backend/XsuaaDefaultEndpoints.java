@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa.backend;
 
-import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
 import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -21,6 +20,17 @@ public class XsuaaDefaultEndpoints implements OAuth2ServerEndpointsProvider {
 	public XsuaaDefaultEndpoints(URI baseUri) {
 		Assert.notNull(baseUri, "XSUAA base URI must not be null.");
 		this.baseUri = baseUri;
+	}
+
+	/**
+	 * Creates a new XsuaaRestClient.
+	 *
+	 * @param baseUri - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
+	 *                                 authorize and key set URI (JWKS) will be derived.
+	 */
+	public XsuaaDefaultEndpoints(String baseUri) {
+		Assert.notNull(baseUri, "XSUAA base URI must not be null.");
+		this.baseUri = URI.create(baseUri);
 	}
 
 	@Override public URI getTokenEndpoint() {

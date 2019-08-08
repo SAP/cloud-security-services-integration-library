@@ -35,7 +35,6 @@ import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 import net.minidev.json.JSONArray;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Custom XSUAA token implementation.
@@ -302,7 +301,7 @@ public class XsuaaToken extends Jwt implements Token {
 				? ((XSTokenRequestImpl) tokenRequest).getRestTemplate()
 				: new RestTemplate();
 
-		URI baseUrl = URI.create(tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(), ""));
+		String baseUrl = tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(), "");
 
 		// initialize token flows api
 		xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder, new XsuaaDefaultEndpoints(baseUrl));

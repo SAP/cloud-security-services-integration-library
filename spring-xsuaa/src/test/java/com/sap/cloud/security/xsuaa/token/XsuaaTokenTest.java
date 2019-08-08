@@ -281,6 +281,39 @@ public class XsuaaTokenTest {
 		assertThat(token.requestToken(tokenRequest), is("mock.jwt.value"));
 	}
 
+	@Test
+	public void requestUserToken() throws URISyntaxException {
+		// prepare response
+		Map<String, Object> userToken = new HashMap<>();
+		Jwt mockJwt = buildMockJwt();
+		userToken.put(OAuth2Server.ACCESS_TOKEN, mockJwt.getTokenValue());
+		userToken.put(OAuth2Server.EXPIRES_IN, 43199);
+		userToken.put(OAuth2Server.REFRESH_TOKEN, "a07356ec2e5449329ab6dd6728623bda");
+
+		// mock rest call
+		// http://myuaa.com/oauth/token?grant_type=client_credentials&authorities=%7B%22az_attr%22:%7B%22a%22:%22b%22,%22c%22:%22d%22%7D%7D
+		RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
+		ResponseEntity<Map> response = new ResponseEntity<>(userToken, HttpStatus.OK);
+		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
+				.thenReturn(response);
+
+		claimsSetBuilder.claim(TokenClaims.CLAIM_SCOPES, new String[]{"uaa.user"});
+		token = createToken(claimsSetBuilder);
+		token.tokenFlowsTokenDecoder = new TokenDecoderMock(mockJwt);
+
+		String mockServerUrl = "http://myuaa.com";
+		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);
+		tokenRequest.setRestTemplate(mockRestTemplate);
+		tokenRequest.setClientId("c1").setClientSecret("s1").setType(XSTokenRequest.TYPE_USER_TOKEN);
+
+		Map<String, String> azMape = new HashMap<>();
+		azMape.put("a", "b");
+		azMape.put("c", "d");
+		tokenRequest.setAdditionalAuthorizationAttributes(azMape);
+
+		assertThat(token.requestToken(tokenRequest), is("mock.jwt.value"));
+	}
+
 	private Jwt buildMockJwt() {
 		Map<String, Object> jwtHeaders = new HashMap<String, Object>();
 		jwtHeaders.put("dummyHeader", "dummyHeaderValue");
@@ -288,7 +321,7 @@ public class XsuaaTokenTest {
 		Map<String, Object> jwtClaims = new HashMap<String, Object>();
 		jwtClaims.put("dummyClaim", "dummyClaimValue");
 
-		return new Jwt("mock.jwt.value", Instant.now(), Instant.now().plusMillis(100000), jwtHeaders, jwtClaims);
+		return new Jwt("mock.jwt.value", Instant.now(), Instant.now().plusMillis(43199), jwtHeaders, jwtClaims);
 	}
 
 	private XsuaaToken createToken(JWTClaimsSet.Builder claimsBuilder) {
