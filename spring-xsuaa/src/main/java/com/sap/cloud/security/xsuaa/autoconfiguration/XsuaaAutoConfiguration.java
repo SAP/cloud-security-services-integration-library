@@ -24,7 +24,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
