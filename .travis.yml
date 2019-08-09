@@ -2,3 +2,11 @@ language: java
 
 script:
   - mvn clean verify
+  - cd /samples/sap-java-buildpack-api-usage
+  - mvn clean verify
+  - cd /samples/spring-security-basic-auth
+  - mvn clean verify
+  - cd /samples/spring-security-xsuaa-usage
+  - mvn clean verify
+  - cd /samples/spring-webflux-security-xsuaa-usage
+  - mvn clean verify
