@@ -1,9 +1,7 @@
-package com.sap.xs2.security.container;
+package com.sap.cloud.security.xsuaa.token;
 
 import com.sap.cloud.security.xsuaa.extractor.DefaultAuthoritiesExtractor;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
-import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +39,7 @@ public class SpringSecurityContextTest {
 
 	@Test(expected = AccessDeniedException.class) // Access forbidden: not authenticated
 	public void getSecurityContextRaiseAccessDeniedExceptionIfNotInitialized() {
-		SecurityContext.getToken();
+		SpringSecurityContext.getToken();
 	}
 
 	@Test(expected = IllegalArgumentException.class) // Passed JwtDecoder instance must be of type 'XsuaaJwtDecoder'
@@ -72,11 +70,11 @@ public class SpringSecurityContextTest {
 
 		Future<Token> future_1 = executor.submit(() -> {
 			initSecurityContextWithToken(token_1);
-			return SecurityContext.getToken();
+			return SpringSecurityContext.getToken();
 		});
 		Future<Token> future_2 = executor.submit(() -> {
 			initSecurityContextWithToken(token_2);
-			return SecurityContext.getToken();
+			return SpringSecurityContext.getToken();
 		});
 
 		while (!future_1.isDone() || !future_2.isDone()) {
