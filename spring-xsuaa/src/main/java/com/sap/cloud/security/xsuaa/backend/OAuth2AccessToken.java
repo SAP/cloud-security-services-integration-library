@@ -32,7 +32,7 @@ public class OAuth2AccessToken {
 		return new Date(timeInMilliSeconds);
 	}
 
-	//for testing only
+	// for testing only
 	Date getCurrentTime() {
 		return new Date();
 	}

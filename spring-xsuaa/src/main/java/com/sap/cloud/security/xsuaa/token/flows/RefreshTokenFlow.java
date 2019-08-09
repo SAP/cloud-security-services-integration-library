@@ -22,28 +22,29 @@ public class RefreshTokenFlow {
 	private String refreshToken;
 	private OAuth2Server oAuth2Server;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
-    private OAuth2ServerEndpointsProvider endpointsProvider;
+	private OAuth2ServerEndpointsProvider endpointsProvider;
 
-    /**
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param oAuth2Server
 	 *            - the {@link OAuth2Server} used to execute the final request.
 	 * @param tokenDecoder
-	 * 			  - the token decoder
+	 *            - the token decoder
 	 * @param endpointsProvider
 	 *            - the endpoints provider
 	 */
-	RefreshTokenFlow(OAuth2Server oAuth2Server, VariableKeySetUriTokenDecoder tokenDecoder, OAuth2ServerEndpointsProvider endpointsProvider) {
-        Assert.notNull(oAuth2Server, "OAuth2Server must not be null.");
-        Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
-        Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");
+	RefreshTokenFlow(OAuth2Server oAuth2Server, VariableKeySetUriTokenDecoder tokenDecoder,
+			OAuth2ServerEndpointsProvider endpointsProvider) {
+		Assert.notNull(oAuth2Server, "OAuth2Server must not be null.");
+		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
+		Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");
 
-        this.oAuth2Server = oAuth2Server;
-        this.tokenDecoder = tokenDecoder;
-        this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
-        this.endpointsProvider = endpointsProvider;
-    }
+		this.oAuth2Server = oAuth2Server;
+		this.tokenDecoder = tokenDecoder;
+		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
+		this.endpointsProvider = endpointsProvider;
+	}
 
 	/**
 	 * Sets the mandatory refresh token to be exchanged for a (refreshed) JWT.
@@ -132,24 +133,27 @@ public class RefreshTokenFlow {
 	 */
 	private Jwt refreshToken(String refreshToken, XSTokenRequest request) throws TokenFlowException {
 		try {
-			OAuth2AccessToken accessToken = oAuth2Server.retrieveAccessTokenViaRefreshToken(request.getTokenEndpoint(), new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken);
+			OAuth2AccessToken accessToken = oAuth2Server.retrieveAccessTokenViaRefreshToken(request.getTokenEndpoint(),
+					new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken);
 			return decode(accessToken.getValue(), endpointsProvider.getJwksUri());
 		} catch (OAuth2ServerException e) {
-			throw new TokenFlowException(String.format("Error refreshing token with grant_type 'refresh_token': %s", e.getMessage()));
+			throw new TokenFlowException(
+					String.format("Error refreshing token with grant_type 'refresh_token': %s", e.getMessage()));
 		}
 	}
 
 	/**
-	 * Decodes the returned JWT value.
-	 * validation is not required by the one who retrieves the token,
-	 * but by the one who receives it (e.g. the service it is sent to).
-	 * Hence, here we only decode, but do not validate.
+	 * Decodes the returned JWT value. validation is not required by the one who
+	 * retrieves the token, but by the one who receives it (e.g. the service it is
+	 * sent to). Hence, here we only decode, but do not validate.
 	 * decoder.setJwtValidator(new
 	 * DelegatingOAuth2TokenValidator<>(tokenValidators));
 	 *
-	 * @param encodedToken - the encoded JWT token value.
+	 * @param encodedToken
+	 *            - the encoded JWT token value.
 	 * @return the decoded JWT.
-	 * @throws TokenFlowException in case of an exception decoding the token.
+	 * @throws TokenFlowException
+	 *             in case of an exception decoding the token.
 	 */
 	private Jwt decode(String encodedToken, URI keySetEndpoint) {
 		// TODO not a good idea as singleton bean instance

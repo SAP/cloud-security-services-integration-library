@@ -25,14 +25,16 @@ public interface XSTokenRequest {
 	public boolean isValid();
 
 	/**
-	 * Returns the OAuth 2.0 client ID, if set, that will be used to authenticate the client
+	 * Returns the OAuth 2.0 client ID, if set, that will be used to authenticate
+	 * the client
 	 *
 	 * @return the client ID or {@code null} if not set.
 	 */
 	public String getClientId();
 
 	/**
-	 * Sets the OAuth 2.0 client ID to be used for authentication during the token request
+	 * Sets the OAuth 2.0 client ID to be used for authentication during the token
+	 * request
 	 *
 	 * @param clientId
 	 *            a string, no more than 255 characters identifying a valid client
@@ -42,15 +44,16 @@ public interface XSTokenRequest {
 	public XSTokenRequest setClientId(String clientId);
 
 	/**
-	 * Returns the OAuth 2.0 client secret, if set, that will be used to authenticate the
-	 * client
+	 * Returns the OAuth 2.0 client secret, if set, that will be used to
+	 * authenticate the client
 	 *
 	 * @return the client secret or {@code null} if not set.
 	 */
 	public String getClientSecret();
 
 	/**
-	 * Sets the OAuth 2.0 client secret to be used for authentication during the token request
+	 * Sets the OAuth 2.0 client secret to be used for authentication during the
+	 * token request
 	 *
 	 * @param clientSecret
 	 *            a string representing the password for a valid client on the UAA

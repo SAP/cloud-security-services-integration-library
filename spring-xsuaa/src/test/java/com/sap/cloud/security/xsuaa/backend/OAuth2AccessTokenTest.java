@@ -21,7 +21,7 @@ public class OAuth2AccessTokenTest {
 		assertThat(accessToken.getExpiredAtDate().getTime(), is(1565090305752L));
 	}
 
-	//for testing only
+	// for testing only
 	Date getCurrentTime() {
 		return new Date();
 	}
@@ -35,7 +35,8 @@ public class OAuth2AccessTokenTest {
 			this.mockDate = mockDate;
 		}
 
-		@Override Date getCurrentTime() {
+		@Override
+		Date getCurrentTime() {
 			return mockDate;
 		}
 	}

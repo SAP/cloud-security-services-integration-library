@@ -1,200 +1,228 @@
-//package com.sap.cloud.security.xsuaa.token.flows;
+// package com.sap.cloud.security.xsuaa.token.flows;
 //
-//import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
-//import static org.assertj.core.api.Assertions.assertThatThrownBy;
+// import static
+// com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
+// import static org.assertj.core.api.Assertions.assertThatThrownBy;
 //
-//import java.net.URI;
-//import java.time.Instant;
-//import java.util.HashMap;
-//import java.util.Map;
+// import java.net.URI;
+// import java.time.Instant;
+// import java.util.HashMap;
+// import java.util.Map;
 //
-//import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
-//import org.junit.Before;
-//import org.junit.Test;
-//import org.springframework.http.HttpEntity;
-//import org.springframework.http.HttpHeaders;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.security.oauth2.jwt.Jwt;
-//import org.springframework.web.client.RestTemplate;
-//import org.springframework.web.util.UriComponentsBuilder;
+// import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
+// import org.junit.Before;
+// import org.junit.Test;
+// import org.springframework.http.HttpEntity;
+// import org.springframework.http.HttpHeaders;
+// import org.springframework.http.HttpStatus;
+// import org.springframework.security.oauth2.jwt.Jwt;
+// import org.springframework.web.client.RestTemplate;
+// import org.springframework.web.util.UriComponentsBuilder;
 //
-//import com.fasterxml.jackson.core.JsonProcessingException;
+// import com.fasterxml.jackson.core.JsonProcessingException;
 //
-//public class ClientCredentialsTokenFlowTests {
+// public class ClientCredentialsTokenFlowTests {
 //
-//	private RestTemplate restTemplate;
-//	private VariableKeySetUriTokenDecoder tokenDecoder;
-//	private TokenDecoderMock tokenDecoderMock;
-//	private Jwt mockJwt;
-//	private String clientId = "clientId";
-//	private String clientSecret = "clientSecret";
+// private RestTemplate restTemplate;
+// private VariableKeySetUriTokenDecoder tokenDecoder;
+// private TokenDecoderMock tokenDecoderMock;
+// private Jwt mockJwt;
+// private String clientId = "clientId";
+// private String clientSecret = "clientSecret";
 //
-//	@Before
-//	public void setup() {
-//		this.restTemplate = new RestTemplate();
-//		this.tokenDecoder = new NimbusTokenDecoder();
+// @Before
+// public void setup() {
+// this.restTemplate = new RestTemplate();
+// this.tokenDecoder = new NimbusTokenDecoder();
 //
-//		this.mockJwt = buildMockJwt();
-//		this.tokenDecoderMock = new TokenDecoderMock(mockJwt);
-//	}
+// this.mockJwt = buildMockJwt();
+// this.tokenDecoderMock = new TokenDecoderMock(mockJwt);
+// }
 //
-//	private Jwt buildMockJwt() {
-//		Map<String, Object> jwtHeaders = new HashMap<String, Object>();
-//		jwtHeaders.put("dummyHeader", "dummyHeaderValue");
+// private Jwt buildMockJwt() {
+// Map<String, Object> jwtHeaders = new HashMap<String, Object>();
+// jwtHeaders.put("dummyHeader", "dummyHeaderValue");
 //
-//		Map<String, Object> jwtClaims = new HashMap<String, Object>();
-//		jwtClaims.put("dummyClaim", "dummyClaimValue");
+// Map<String, Object> jwtClaims = new HashMap<String, Object>();
+// jwtClaims.put("dummyClaim", "dummyClaimValue");
 //
-//		return new Jwt("mockJwtValue", Instant.now(), Instant.now().plusMillis(100000), jwtHeaders, jwtClaims);
-//	}
+// return new Jwt("mockJwtValue", Instant.now(),
+// Instant.now().plusMillis(100000), jwtHeaders, jwtClaims);
+// }
 //
-//	@Test
-//	public void test_constructor_withBaseURI() throws TokenFlowException {
-//		createTokenFlow();
-//	}
+// @Test
+// public void test_constructor_withBaseURI() throws TokenFlowException {
+// createTokenFlow();
+// }
 //
-//	private ClientCredentialsTokenFlow createTokenFlow() {
-//		return new ClientCredentialsTokenFlow(restTemplate, tokenDecoder,
-//				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-//	}
+// private ClientCredentialsTokenFlow createTokenFlow() {
+// return new ClientCredentialsTokenFlow(restTemplate, tokenDecoder,
+// new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+// }
 //
-//	@Test
-//	public void test_constructor_throwsOnNullValues() {
-//		assertThatThrownBy(() -> {
-//			new ClientCredentialsTokenFlow(null, tokenDecoder, new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-//		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RestTemplate");
+// @Test
+// public void test_constructor_throwsOnNullValues() {
+// assertThatThrownBy(() -> {
+// new ClientCredentialsTokenFlow(null, tokenDecoder, new
+// XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+// }).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RestTemplate");
 //
-//		assertThatThrownBy(() -> {
-//			new ClientCredentialsTokenFlow(restTemplate, null, new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-//		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("TokenDecoder");
+// assertThatThrownBy(() -> {
+// new ClientCredentialsTokenFlow(restTemplate, null, new
+// XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+// }).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("TokenDecoder");
 //
-//		assertThatThrownBy(() -> {
-//			new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, null);
-//		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServerEndpointsProvider");
-//	}
+// assertThatThrownBy(() -> {
+// new ClientCredentialsTokenFlow(restTemplate, tokenDecoder, null);
+// }).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServerEndpointsProvider");
+// }
 //
-//	@Test
-//	public void test_execute_throwsIfMandatoryFieldsNotSet() {
+// @Test
+// public void test_execute_throwsIfMandatoryFieldsNotSet() {
 //
-//		assertThatThrownBy(() -> {
-//			ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
-//			tokenFlow.client(null)
-//					.secret(TestConstants.clientSecret)
-//					.execute();
-//		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
+// assertThatThrownBy(() -> {
+// ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
+// tokenFlow.client(null)
+// .secret(TestConstants.clientSecret)
+// .execute();
+// }).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client
+// ID");
 //
-//		assertThatThrownBy(() -> {
-//			ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
-//			tokenFlow.client(TestConstants.clientId)
-//					.secret(null)
-//					.execute();
-//		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client secret");
+// assertThatThrownBy(() -> {
+// ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
+// tokenFlow.client(TestConstants.clientId)
+// .secret(null)
+// .execute();
+// }).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client
+// secret");
 //
-//		assertThatThrownBy(() -> {
-//			ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
-//			tokenFlow.execute();
-//		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Client credentials flow request is not valid");
-//	}
+// assertThatThrownBy(() -> {
+// ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
+// tokenFlow.execute();
+// }).isInstanceOf(TokenFlowException.class).hasMessageContaining("Client
+// credentials flow request is not valid");
+// }
 //
-//	@Test
-//	public void test_execute() throws TokenFlowException {
+// @Test
+// public void test_execute() throws TokenFlowException {
 //
-//		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId, clientSecret);
+// HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
+// clientSecret);
 //
-//		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-//				.queryParam("grant_type", "client_credentials").build().toUri();
+// URI expectedURI =
+// UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
+// .queryParam("grant_type", "client_credentials").build().toUri();
 //
-//		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI, expectedRequest, Map.class,
-//				mockJwt.getTokenValue(), HttpStatus.OK);
+// RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
+// expectedRequest, Map.class,
+// mockJwt.getTokenValue(), HttpStatus.OK);
 //
-//		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-//				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+// ClientCredentialsTokenFlow tokenFlow = new
+// ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
+// new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 //
-//		tokenFlow.client(clientId)
-//				.secret(clientSecret)
-//				.execute();
+// tokenFlow.client(clientId)
+// .secret(clientSecret)
+// .execute();
 //
-//		restTemplateMock.validateCallstate();
-//		tokenDecoderMock.validateCallstate();
-//	}
+// restTemplateMock.validateCallstate();
+// tokenDecoderMock.validateCallstate();
+// }
 //
-//	@Test
-//	public void test_execute_throwsIfHttpStatusUnauthorized() {
+// @Test
+// public void test_execute_throwsIfHttpStatusUnauthorized() {
 //
-//		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId, clientSecret);
-//		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-//				.queryParam("grant_type", "client_credentials").build().toUri();
+// HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
+// clientSecret);
+// URI expectedURI =
+// UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
+// .queryParam("grant_type", "client_credentials").build().toUri();
 //
-//		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI, expectedRequest, Map.class,
-//				mockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
+// RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
+// expectedRequest, Map.class,
+// mockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
 //
-//		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-//				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+// ClientCredentialsTokenFlow tokenFlow = new
+// ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
+// new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 //
-//		assertThatThrownBy(() -> {
-//			tokenFlow.client(clientId)
-//					.secret(clientSecret)
-//					.execute();
-//		}).isInstanceOf(TokenFlowException.class)
-//				.hasMessageContaining(String.format("Received status code %s", HttpStatus.UNAUTHORIZED));
-//	}
+// assertThatThrownBy(() -> {
+// tokenFlow.client(clientId)
+// .secret(clientSecret)
+// .execute();
+// }).isInstanceOf(TokenFlowException.class)
+// .hasMessageContaining(String.format("Received status code %s",
+// HttpStatus.UNAUTHORIZED));
+// }
 //
-//	@Test
-//	public void test_execute_throwsIfHttpStatusIsNotOK() {
+// @Test
+// public void test_execute_throwsIfHttpStatusIsNotOK() {
 //
-//		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId, clientSecret);
-//		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-//				.queryParam("grant_type", "client_credentials").build().toUri();
+// HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
+// clientSecret);
+// URI expectedURI =
+// UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
+// .queryParam("grant_type", "client_credentials").build().toUri();
 //
-//		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI, expectedRequest, Map.class,
-//				mockJwt.getTokenValue(), HttpStatus.CONFLICT);
+// RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
+// expectedRequest, Map.class,
+// mockJwt.getTokenValue(), HttpStatus.CONFLICT);
 //
-//		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-//				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+// ClientCredentialsTokenFlow tokenFlow = new
+// ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
+// new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 //
-//		assertThatThrownBy(() -> {
-//			tokenFlow.client(clientId)
-//					.secret(clientSecret)
-//					.execute();
-//		}).isInstanceOf(TokenFlowException.class)
-//				.hasMessageContaining(String.format("Received status code %s", HttpStatus.CONFLICT));
-//	}
+// assertThatThrownBy(() -> {
+// tokenFlow.client(clientId)
+// .secret(clientSecret)
+// .execute();
+// }).isInstanceOf(TokenFlowException.class)
+// .hasMessageContaining(String.format("Received status code %s",
+// HttpStatus.CONFLICT));
+// }
 //
-//	@Test
-//	public void test_execute_withAdditionalAuthorities() throws TokenFlowException, JsonProcessingException {
+// @Test
+// public void test_execute_withAdditionalAuthorities() throws
+// TokenFlowException, JsonProcessingException {
 //
-//		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId, clientSecret);
+// HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
+// clientSecret);
 //
-//		Map<String, String> additionalAuthorities = new HashMap<String, String>();
-//		additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
-//		String authorities = buildAdditionalAuthoritiesJson(additionalAuthorities); // returns JSON!
+// Map<String, String> additionalAuthorities = new HashMap<String, String>();
+// additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
+// String authorities = buildAdditionalAuthoritiesJson(additionalAuthorities);
+// // returns JSON!
 //
-//		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-//				.queryParam("grant_type", "client_credentials")
-//				.queryParam("authorities", authorities)
-//				.build()
-//				.encode()
-//				.toUri();
+// URI expectedURI =
+// UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
+// .queryParam("grant_type", "client_credentials")
+// .queryParam("authorities", authorities)
+// .build()
+// .encode()
+// .toUri();
 //
-//		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI, expectedRequest, Map.class,
-//				mockJwt.getTokenValue(), HttpStatus.OK);
+// RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
+// expectedRequest, Map.class,
+// mockJwt.getTokenValue(), HttpStatus.OK);
 //
-//		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
-//				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-//		tokenFlow.client(clientId)
-//				.secret(clientSecret)
-//				.attributes(additionalAuthorities)
-//				.execute();
+// ClientCredentialsTokenFlow tokenFlow = new
+// ClientCredentialsTokenFlow(restTemplateMock, tokenDecoderMock,
+// new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+// tokenFlow.client(clientId)
+// .secret(clientSecret)
+// .attributes(additionalAuthorities)
+// .execute();
 //
-//		restTemplateMock.validateCallstate();
-//		tokenDecoderMock.validateCallstate();
-//	}
+// restTemplateMock.validateCallstate();
+// tokenDecoderMock.validateCallstate();
+// }
 //
-//	private HttpEntity<Void> buildExpectedRequest(String clientId, String clientSecret) {
-//		HttpHeaders headers = new HttpHeaders();
-//		addAcceptHeader(headers);
-//		addBasicAuthHeader(headers, clientId, clientSecret);
-//		HttpEntity<Void> expectedRequest = new HttpEntity<>(headers);
-//		return expectedRequest;
-//	}
-//}
+// private HttpEntity<Void> buildExpectedRequest(String clientId, String
+// clientSecret) {
+// HttpHeaders headers = new HttpHeaders();
+// addAcceptHeader(headers);
+// addBasicAuthHeader(headers, clientId, clientSecret);
+// HttpEntity<Void> expectedRequest = new HttpEntity<>(headers);
+// return expectedRequest;
+// }
+// }

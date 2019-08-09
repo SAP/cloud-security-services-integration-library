@@ -36,7 +36,8 @@ public class XsuaaTokenFlows {
 	 *            the {@link VariableKeySetUriTokenDecoder} instance used internally
 	 *            to decode a Jwt token.
 	 */
-	public XsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder, OAuth2ServerEndpointsProvider endpointsProvider) {
+	public XsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder,
+			OAuth2ServerEndpointsProvider endpointsProvider) {
 		Assert.notNull(restTemplate, "RestTemplate must not be null.");
 		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
 		Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");

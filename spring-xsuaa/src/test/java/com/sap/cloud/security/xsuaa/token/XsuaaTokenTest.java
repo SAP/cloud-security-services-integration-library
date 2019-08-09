@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.*;
 
 import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
+import com.sap.cloud.security.xsuaa.backend.TokenFlowsConstants;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -255,8 +256,8 @@ public class XsuaaTokenTest {
 		// prepare response
 		Map<String, Object> ccToken = new HashMap<>();
 		Jwt mockJwt = buildMockJwt();
-		ccToken.put(OAuth2Server.ACCESS_TOKEN, mockJwt.getTokenValue());
-		ccToken.put(OAuth2Server.EXPIRES_IN, 43199);
+		ccToken.put(TokenFlowsConstants.ACCESS_TOKEN, mockJwt.getTokenValue());
+		ccToken.put(TokenFlowsConstants.EXPIRES_IN, 43199);
 
 		// mock rest call
 		// http://myuaa.com/oauth/token?grant_type=client_credentials&authorities=%7B%22az_attr%22:%7B%22a%22:%22b%22,%22c%22:%22d%22%7D%7D
@@ -286,9 +287,9 @@ public class XsuaaTokenTest {
 		// prepare response
 		Map<String, Object> userToken = new HashMap<>();
 		Jwt mockJwt = buildMockJwt();
-		userToken.put(OAuth2Server.ACCESS_TOKEN, mockJwt.getTokenValue());
-		userToken.put(OAuth2Server.EXPIRES_IN, 43199);
-		userToken.put(OAuth2Server.REFRESH_TOKEN, "a07356ec2e5449329ab6dd6728623bda");
+		userToken.put(TokenFlowsConstants.ACCESS_TOKEN, mockJwt.getTokenValue());
+		userToken.put(TokenFlowsConstants.EXPIRES_IN, 43199);
+		userToken.put(TokenFlowsConstants.REFRESH_TOKEN, "a07356ec2e5449329ab6dd6728623bda");
 
 		// mock rest call
 		// http://myuaa.com/oauth/token?grant_type=client_credentials&authorities=%7B%22az_attr%22:%7B%22a%22:%22b%22,%22c%22:%22d%22%7D%7D
@@ -297,7 +298,7 @@ public class XsuaaTokenTest {
 		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(response);
 
-		claimsSetBuilder.claim(TokenClaims.CLAIM_SCOPES, new String[]{"uaa.user"});
+		claimsSetBuilder.claim(TokenClaims.CLAIM_SCOPES, new String[] { "uaa.user" });
 		token = createToken(claimsSetBuilder);
 		token.tokenFlowsTokenDecoder = new TokenDecoderMock(mockJwt);
 

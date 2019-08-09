@@ -14,8 +14,9 @@ public class XsuaaDefaultEndpoints implements OAuth2ServerEndpointsProvider {
 	/**
 	 * Creates a new XsuaaRestClient.
 	 *
-	 * @param baseUri - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
-	 *                                 authorize and key set URI (JWKS) will be derived.
+	 * @param baseUri
+	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
+	 *            authorize and key set URI (JWKS) will be derived.
 	 */
 	public XsuaaDefaultEndpoints(URI baseUri) {
 		Assert.notNull(baseUri, "XSUAA base URI must not be null.");
@@ -25,23 +26,27 @@ public class XsuaaDefaultEndpoints implements OAuth2ServerEndpointsProvider {
 	/**
 	 * Creates a new XsuaaRestClient.
 	 *
-	 * @param baseUri - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
-	 *                                 authorize and key set URI (JWKS) will be derived.
+	 * @param baseUri
+	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
+	 *            authorize and key set URI (JWKS) will be derived.
 	 */
 	public XsuaaDefaultEndpoints(String baseUri) {
 		Assert.notNull(baseUri, "XSUAA base URI must not be null.");
 		this.baseUri = URI.create(baseUri);
 	}
 
-	@Override public URI getTokenEndpoint() {
+	@Override
+	public URI getTokenEndpoint() {
 		return UriComponentsBuilder.fromUri(baseUri).path(TOKEN_ENDPOINT).build().toUri();
 	}
 
-	@Override public URI getAuthorizeEndpoint() {
+	@Override
+	public URI getAuthorizeEndpoint() {
 		return UriComponentsBuilder.fromUri(baseUri).path(AUTHORIZE_ENDPOINT).build().toUri();
 	}
 
-	@Override public URI getJwksUri() {
+	@Override
+	public URI getJwksUri() {
 		return UriComponentsBuilder.fromUri(baseUri).path(KEYSET_ENDPOINT).build().toUri();
 	}
 }

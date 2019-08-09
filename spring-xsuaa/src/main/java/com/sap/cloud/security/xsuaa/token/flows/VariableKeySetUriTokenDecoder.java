@@ -37,8 +37,8 @@ public interface VariableKeySetUriTokenDecoder {
 	 * @param token
 	 *            the JWT value
 	 * @return a {@link Jwt}
-	 * @throws JwtException (runtime)
-	 *             if an error occurs while attempting to decode the JWT
+	 * @throws JwtException
+	 *             (runtime) if an error occurs while attempting to decode the JWT
 	 */
 	Jwt decode(String token);
 }

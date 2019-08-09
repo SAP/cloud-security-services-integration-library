@@ -10,45 +10,27 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-/**
- * TOOD extract interface, e.g. OAuth2TokenService
- */
-public class OAuth2Server {
+import static com.sap.cloud.security.xsuaa.backend.TokenFlowsConstants.*;
+
+public class OAuth2Server implements OAuth2TokenService {
 
 	private RestTemplate restTemplate;
-
-	public static final String ACCESS_TOKEN = "access_token";
-	public static final String EXPIRES_IN = "expires_in";
-	public static final String REFRESH_TOKEN = "refresh_token";
-
-//	public static final String RESPONSE_TYPE = "response_type"; // TODO: still required?
-//	public static final String RESPONSE_TYPE_TOKEN = "token"; // TODO: still required?
-
-	public static final String GRANT_TYPE = "grant_type";
-	public static final String GRANT_TYPE_USER_TOKEN = "user_token";
-	public static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
-	public static final String GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
-
-	public static final String PARAMETER_CLIENT_ID = "client_id";
 
 	public OAuth2Server(RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
 	}
 
-	/**
-	 * Requests access token from OAuth Server with client credentials, e.g. as documented here
-	 * https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token
-	 *
-	 * @return the OAuth2AccessToken.
-	 * @throws OAuth2ServerException in case of an error during the http request.
-	 */
-	public OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri, ClientCredentials credentials,
-			Map<String, String> optionalParameters) throws OAuth2ServerException {
+	@Override
+	public OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
+			ClientCredentials clientCredentials,
+			Optional<Map<String, String>> optionalParameters) throws OAuth2ServerException {
+
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS);
 
-		optionalParameters.forEach(parameters::putIfAbsent);
+		optionalParameters.orElse(new HashMap<String, String>(0)).forEach(parameters::putIfAbsent);
 
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
 
@@ -56,29 +38,24 @@ public class OAuth2Server {
 		parameters.forEach(builder::queryParam);
 
 		// build header
-		HttpHeaders headers = createHeadersWithAuthorization(credentials);
+		HttpHeaders headers = createHeadersWithAuthorization(clientCredentials);
 		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
 		URI requestUri = builder.build().encode().toUri();
 
-		return requestAccessToken(requestUri,requestEntity);
+		return requestAccessToken(requestUri, requestEntity);
 	}
 
-	/**
-	 * Requests user token from OAuth Server, e.g. as documented here
-	 * https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token
-	 *
-	 * @return the OAuth2AccessToken.
-	 * @throws OAuth2ServerException in case of an error during the http request.
-	 */
-	public OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri, ClientCredentials clientCredentials, String token, Map<String, String> optionalParameters)
+	@Deprecated
+	@Override
+	public OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
+			ClientCredentials clientCredentials, String token, Optional<Map<String, String>> optionalParameters)
 			throws OAuth2ServerException {
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_USER_TOKEN);
 		parameters.put(PARAMETER_CLIENT_ID, clientCredentials.getClientId());
-//		parameters.put(RESPONSE_TYPE, RESPONSE_TYPE_TOKEN); // TODO required?
 
-		optionalParameters.forEach(parameters::putIfAbsent);
+		optionalParameters.orElse(new HashMap<String, String>(0)).forEach(parameters::putIfAbsent);
 
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
 
@@ -93,14 +70,9 @@ public class OAuth2Server {
 		return requestAccessToken(requestUri, requestEntity);
 	}
 
-	/**
-	 * Requests access token from OAuth Server with refresh-token, e.g. as documented here
-	 * https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token
-	 *
-	 * @return the OAuth2AccessToken
-	 * @throws OAuth2ServerException in case of an error during the http request.
-	 */
-	public OAuth2AccessToken retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri, ClientCredentials credentials,
+	@Override
+	public OAuth2AccessToken retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri,
+			ClientCredentials clientCredentials,
 			String refreshToken) throws OAuth2ServerException {
 
 		Map<String, String> parameters = new HashMap<>();
@@ -112,12 +84,12 @@ public class OAuth2Server {
 		parameters.forEach(builder::queryParam);
 
 		// build header
-		HttpHeaders headers = createHeadersWithAuthorization(credentials);
+		HttpHeaders headers = createHeadersWithAuthorization(clientCredentials);
 		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
 		URI requestUri = builder.build().encode().toUri();
 
-		return requestAccessToken(requestUri,requestEntity);
+		return requestAccessToken(requestUri, requestEntity);
 	}
 
 	private OAuth2AccessToken requestAccessToken(URI requestUri, HttpEntity<Void> requestEntity)
@@ -151,7 +123,8 @@ public class OAuth2Server {
 	}
 
 	/**
-	 * Creates the set of HTTP headers with client-credentials basic authentication header.
+	 * Creates the set of HTTP headers with client-credentials basic authentication
+	 * header.
 	 *
 	 * @return the HTTP headers.
 	 */
@@ -179,7 +152,8 @@ public class OAuth2Server {
 	/**
 	 * Adds the {@code  Accept: application/json} header to the set of headers.
 	 *
-	 * @param headers - the set of headers to add the header to.
+	 * @param headers
+	 *            - the set of headers to add the header to.
 	 */
 	static void addAcceptHeader(HttpHeaders headers) {
 		headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
@@ -189,8 +163,10 @@ public class OAuth2Server {
 	 * Adds the {@code  Authorization: Basic <credentials>} header to the set of
 	 * headers.
 	 *
-	 * @param headers     - the set of headers to add the header to.
-	 * @param credentials - the client credentials used for authentication.
+	 * @param headers
+	 *            - the set of headers to add the header to.
+	 * @param credentials
+	 *            - the client credentials used for authentication.
 	 */
 	static void addBasicAuthHeader(HttpHeaders headers, ClientCredentials credentials) {
 		final String BASIC_AUTH_HEADER_FORMAT = "Basic %s";
@@ -205,8 +181,10 @@ public class OAuth2Server {
 	/**
 	 * Adds the {@code  Authorization: Bearer <token>} header to the set of headers.
 	 *
-	 * @param headers - the set of headers to add the header to.
-	 * @param token   - the token which should be part of the header.
+	 * @param headers
+	 *            - the set of headers to add the header to.
+	 * @param token
+	 *            - the token which should be part of the header.
 	 */
 	static void addAuthorizationBearerHeader(HttpHeaders headers, String token) {
 		final String AUTHORIZATION_BEARER_TOKEN_FORMAT = "Bearer %s";

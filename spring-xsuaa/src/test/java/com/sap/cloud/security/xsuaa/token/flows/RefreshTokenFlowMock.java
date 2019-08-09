@@ -15,7 +15,8 @@ public class RefreshTokenFlowMock extends RefreshTokenFlow {
 	Jwt mockJwt;
 
 	public RefreshTokenFlowMock(Jwt mockJwt) {
-		super(new OAuth2Server(new RestTemplate()), new NimbusTokenDecoder(), new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+		super(new OAuth2Server(new RestTemplate()), new NimbusTokenDecoder(),
+				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		this.mockJwt = mockJwt;
 	}
 

@@ -24,7 +24,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
 
-
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
  * the XSUAA client library.
@@ -96,7 +95,8 @@ public class XsuaaAutoConfiguration {
     }
 	@ConditionalOnMissingBean
 	@ConditionalOnBean(XsuaaServiceConfiguration.class)
-	public XsuaaTokenFlows xsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder decoder, XsuaaServiceConfiguration serviceConfiguration) {
+	public XsuaaTokenFlows xsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder decoder,
+			XsuaaServiceConfiguration serviceConfiguration) {
 		return new XsuaaTokenFlows(restTemplate, decoder, new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
 	}
 

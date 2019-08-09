@@ -297,11 +297,15 @@ public class XsuaaToken extends Jwt implements Token {
 		Assert.notNull(tokenRequest, "TokenRequest argument is required");
 		Assert.isTrue(tokenRequest.isValid(), "TokenRequest is not valid");
 
-		RestTemplate restTemplate = (tokenRequest instanceof XSTokenRequestImpl)
-				? ((XSTokenRequestImpl) tokenRequest).getRestTemplate()
-				: new RestTemplate();
+		RestTemplate restTemplate = new RestTemplate();
 
-		String baseUrl = tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(), "");
+		if (tokenRequest instanceof XSTokenRequestImpl
+				&& ((XSTokenRequestImpl) tokenRequest).getRestTemplate() != null) {
+			restTemplate = ((XSTokenRequestImpl) tokenRequest).getRestTemplate();
+		}
+
+		String baseUrl = tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(),
+				"");
 
 		// initialize token flows api
 		xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder, new XsuaaDefaultEndpoints(baseUrl));
@@ -324,7 +328,7 @@ public class XsuaaToken extends Jwt implements Token {
 		Jwt ccfToken;
 		try {
 			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
-//					.subdomain(todo) // TODO
+					// .subdomain(todo) // TODO
 					.client(clientId)
 					.secret(clientSecret)
 					.execute();
