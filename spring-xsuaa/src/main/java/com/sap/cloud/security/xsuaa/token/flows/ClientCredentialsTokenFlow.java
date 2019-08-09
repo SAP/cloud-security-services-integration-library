@@ -24,26 +24,26 @@ public class ClientCredentialsTokenFlow {
 
 	private XSTokenRequest request;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
-	private OAuth2Server oAuth2Server;
+	private OAuth2TokenService tokenService;
 	private OAuth2ServerEndpointsProvider endpointsProvider;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param oAuth2Server
-	 *            - the {@link OAuth2Server} used to execute the final request.
+	 * @param tokenService
+	 *            - the {@link OAuth2TokenService} used to execute the final request.
 	 * @param tokenDecoder
 	 *            - the token decoder
 	 * @param endpointsProvider
 	 *            - the endpoints provider
 	 */
-	ClientCredentialsTokenFlow(OAuth2Server oAuth2Server, VariableKeySetUriTokenDecoder tokenDecoder,
+	ClientCredentialsTokenFlow(OAuth2TokenService tokenService, VariableKeySetUriTokenDecoder tokenDecoder,
 			OAuth2ServerEndpointsProvider endpointsProvider) {
-		Assert.notNull(oAuth2Server, "OAuth2Server must not be null.");
+		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
 		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
 		Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");
 
-		this.oAuth2Server = oAuth2Server;
+		this.tokenService = tokenService;
 		this.tokenDecoder = tokenDecoder;
 		this.endpointsProvider = endpointsProvider;
 
@@ -139,7 +139,7 @@ public class ClientCredentialsTokenFlow {
 		}
 
 		try {
-			OAuth2AccessToken accessToken = oAuth2Server
+			OAuth2AccessToken accessToken = tokenService
 					.retrieveAccessTokenViaClientCredentialsGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
 							Optional.ofNullable(requestParameter));

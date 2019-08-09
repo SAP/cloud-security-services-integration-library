@@ -1,13 +1,8 @@
-/**
- * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
- * This file is licensed under the Apache Software License,
- * v. 2 except as noted otherwise in the LICENSE file
- * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
- */
 package com.sap.cloud.security.xsuaa.token.flows;
 
 import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
 import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
+import com.sap.cloud.security.xsuaa.backend.OAuth2TokenService;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
@@ -57,10 +52,10 @@ public class XsuaaTokenFlows {
 	 * @return the {@link UserTokenFlow} builder object.
 	 */
 	public UserTokenFlow userTokenFlow() {
-		OAuth2Server oAuth2Server = createOAuth2Server();
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(oAuth2Server, tokenDecoder, endpointsProvider);
+		OAuth2TokenService tokenService = initializeTokenService();
+		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(tokenService, tokenDecoder, endpointsProvider);
 
-		return new UserTokenFlow(oAuth2Server, refreshTokenFlow, endpointsProvider);
+		return new UserTokenFlow(tokenService, refreshTokenFlow, endpointsProvider);
 	}
 
 	/**
@@ -71,7 +66,7 @@ public class XsuaaTokenFlows {
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
 	public ClientCredentialsTokenFlow clientCredentialsTokenFlow() {
-		return new ClientCredentialsTokenFlow(createOAuth2Server(), tokenDecoder, endpointsProvider);
+		return new ClientCredentialsTokenFlow(initializeTokenService(), tokenDecoder, endpointsProvider);
 	}
 
 	/**
@@ -82,10 +77,10 @@ public class XsuaaTokenFlows {
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
 	public RefreshTokenFlow refreshTokenFlow() {
-		return new RefreshTokenFlow(createOAuth2Server(), tokenDecoder, endpointsProvider);
+		return new RefreshTokenFlow(initializeTokenService(), tokenDecoder, endpointsProvider);
 	}
 
-	OAuth2Server createOAuth2Server() {
+	OAuth2TokenService initializeTokenService() {
 		return new OAuth2Server(restTemplate);
 	}
 }

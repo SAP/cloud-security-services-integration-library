@@ -27,25 +27,25 @@ public class UserTokenFlow {
 	private XSTokenRequest request;
 	private Jwt token;
 	private RefreshTokenFlow refreshTokenFlow;
-	private OAuth2Server oAuth2Server;
+	private OAuth2TokenService tokenService;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param oAuth2Server
-	 *            - the {@link OAuth2Server} used to execute the final request.
+	 * @param tokenService
+	 *            - the {@link OAuth2TokenService} used to execute the final request.
 	 * @param refreshTokenFlow
 	 *            - the refresh token flow
 	 * @param endpointsProvider
 	 *            - the endpoints provider
 	 */
-	UserTokenFlow(OAuth2Server oAuth2Server, RefreshTokenFlow refreshTokenFlow,
+	UserTokenFlow(OAuth2TokenService tokenService, RefreshTokenFlow refreshTokenFlow,
 			OAuth2ServerEndpointsProvider endpointsProvider) {
-		Assert.notNull(oAuth2Server, "OAuth2Server must not be null.");
+		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
 		Assert.notNull(refreshTokenFlow, "RefreshTokenFlow must not be null.");
 		Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");
 
-		this.oAuth2Server = oAuth2Server;
+		this.tokenService = tokenService;
 		this.refreshTokenFlow = refreshTokenFlow;
 		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
 	}
@@ -174,7 +174,7 @@ public class UserTokenFlow {
 
 		String refreshToken = null;
 		try {
-			OAuth2AccessToken accessToken = oAuth2Server
+			OAuth2AccessToken accessToken = tokenService
 					.retrieveAccessTokenViaUserTokenGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
 							token.getTokenValue(), Optional.ofNullable(optionalParameter));
