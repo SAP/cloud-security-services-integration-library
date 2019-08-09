@@ -32,7 +32,7 @@ import testservice.api.basic.TestController;
 				TestController.class })
 @AutoConfigureMockMvc
 @ActiveProfiles("test.api.basic")
-public class BasicAuthenticationValidationIT {
+public class BasicAuthenticationValidationTest {
 
 	@Autowired
 	MockMvc mvc;
