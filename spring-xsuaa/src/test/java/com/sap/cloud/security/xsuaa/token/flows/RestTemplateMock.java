@@ -1,19 +1,20 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class RestTemplateMock extends RestTemplate {
 
@@ -74,11 +75,15 @@ public class RestTemplateMock extends RestTemplate {
 		switch (responseContents) {
 		case ACCESS_TOKEN:
 			responseBody.put("access_token", mockJwtValue);
+			responseBody.put("expires_in", "40000");
 		case REFRESH_TOKEN:
 			responseBody.put("refresh_token", "dummyRefreshTokenValue");
 		}
-
-		return (ResponseEntity<T>) new ResponseEntity(responseBody, mockHttpStatus);
+		if (mockHttpStatus.is2xxSuccessful()) {
+			return (ResponseEntity<T>) new ResponseEntity(responseBody, mockHttpStatus);
+		} else {
+			throw new HttpClientErrorException(mockHttpStatus);
+		}
 	}
 
 	public void validateCallstate() {
