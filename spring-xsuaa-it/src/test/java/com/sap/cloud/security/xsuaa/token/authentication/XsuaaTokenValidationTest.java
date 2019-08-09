@@ -24,7 +24,7 @@ import testservice.api.v1.TestController;
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {
 		"xsuaa.xsappname=java-hello-world",
-		"xsuaa.clientid=sb-java-hello-world"}, classes = { XsuaaITApplication.class,
+		"xsuaa.clientid=sb-java-hello-world" }, classes = { XsuaaITApplication.class,
 				testservice.api.v1.SecurityConfiguration.class, TestController.class })
 @AutoConfigureMockMvc
 @ActiveProfiles("test.api.v1")

@@ -10,8 +10,8 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 /**
- * Encapsulates the {@link TokenAuthenticationConverter} that extracts authorization related
- * information from the Jwt token. For example
+ * Encapsulates the {@link TokenAuthenticationConverter} that extracts
+ * authorization related information from the Jwt token. For example
  * the{@link LocalAuthoritiesExtractor} can remove the ugly application id
  * prefix (e.g.my-application-demo!t1229) from the scopes in the JWT.
  */
