@@ -330,6 +330,7 @@ public class XsuaaToken extends Jwt implements Token {
 			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
 					// .subdomain(todo) // TODO
 					.client(clientId)
+					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
 					.secret(clientSecret)
 					.execute();
 		} catch (TokenFlowException e) {
@@ -341,15 +342,15 @@ public class XsuaaToken extends Jwt implements Token {
 		return ccfToken.getTokenValue();
 	}
 
-	private String performUserTokenFlow(XSTokenRequest request) {
-		String clientId = request.getClientId();
-		String clientSecret = request.getClientSecret();
+	private String performUserTokenFlow(XSTokenRequest tokenRequest) {
+		String clientId = tokenRequest.getClientId();
+		String clientSecret = tokenRequest.getClientSecret();
 
 		Jwt userToken;
 		try {
 			userToken = xsuaaTokenFlows.userTokenFlow()
 					.token(this) // internally make sure that endpoint is set
-					.attributes(request.getAdditionalAuthorizationAttributes())
+					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
 					.client(clientId)
 					.secret(clientSecret)
 					.execute();
