@@ -25,7 +25,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,8 +43,8 @@ import com.sap.xsa.security.container.XSTokenRequest;
 @Profile({ "test.api.basic" })
 public class TestController {
 
-	@Value("${mockxsuaaserver.url}")
-	String mockServerUrl;
+	@Autowired
+	XsuaaServiceConfiguration serviceConfiguration;
 
 	@GetMapping("/")
 	public String index(@AuthenticationPrincipal Jwt jwt) {
@@ -66,7 +67,7 @@ public class TestController {
 
 	@GetMapping("/requesttoken")
 	public String requestToken(@AuthenticationPrincipal Token token) throws URISyntaxException {
-		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);
+		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(serviceConfiguration.getUaaUrl());
 		tokenRequest.setClientId("c1").setClientSecret("s1").setType(XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN);
 		Map<String, String> azMape = new HashMap<>();
 		azMape.put("a", "b");

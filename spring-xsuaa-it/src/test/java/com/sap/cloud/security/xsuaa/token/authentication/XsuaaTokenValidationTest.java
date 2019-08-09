@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -25,18 +24,14 @@ import testservice.api.v1.TestController;
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {
 		"xsuaa.xsappname=java-hello-world",
-		"xsuaa.clientid=sb-java-hello-world",
-		"xsuaa.url=${mockxsuaaserver.url}" }, classes = { XsuaaITApplication.class,
+		"xsuaa.clientid=sb-java-hello-world"}, classes = { XsuaaITApplication.class,
 				testservice.api.v1.SecurityConfiguration.class, TestController.class })
 @AutoConfigureMockMvc
 @ActiveProfiles("test.api.v1")
-public class XsuaaTokenValidationIT {
+public class XsuaaTokenValidationTest {
 
 	@Autowired
 	MockMvc mvc;
-
-	@Value("${mockxsuaaserver.url}")
-	String mockServerUrl;
 
 	@Test
 	public void testToken_testdomain() throws Exception {
