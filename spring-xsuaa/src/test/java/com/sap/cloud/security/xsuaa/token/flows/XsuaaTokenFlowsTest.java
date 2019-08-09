@@ -20,7 +20,7 @@ import com.sap.cloud.security.xsuaa.token.flows.RefreshTokenFlow;
 import com.sap.cloud.security.xsuaa.token.flows.UserTokenFlow;
 import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
 
-public class XsuaaTokenFlowsTests {
+public class XsuaaTokenFlowsTest {
 
 	Jwt mockJwt = buildMockJwt(Arrays.asList("read", "write"));
 	private XsuaaTokenFlows cut = new XsuaaTokenFlows(new RestTemplate(), new TokenDecoderMock(mockJwt),

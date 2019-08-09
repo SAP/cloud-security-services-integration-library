@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.sap.cloud.security.xsuaa.token.flows.TokenFlowException;
 
-public class TokenFlowExceptionTests {
+public class TokenFlowExceptionTest {
 
 	static final String MESSAGE = "Message";
 	static final Exception CAUSE = new Exception();

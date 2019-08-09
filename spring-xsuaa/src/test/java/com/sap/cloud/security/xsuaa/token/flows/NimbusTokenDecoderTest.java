@@ -7,7 +7,7 @@ import org.junit.Test;
 import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
 import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
 
-public class NimbusTokenDecoderTests {
+public class NimbusTokenDecoderTest {
 
 	@Test
 	public void test_constructor() {

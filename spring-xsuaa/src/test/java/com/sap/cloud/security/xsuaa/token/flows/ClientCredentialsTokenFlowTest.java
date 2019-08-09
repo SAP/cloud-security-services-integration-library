@@ -22,7 +22,7 @@ import java.util.Map;
 import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class ClientCredentialsTokenFlowTests {
+public class ClientCredentialsTokenFlowTest {
 
 	private OAuth2TokenService tokenService;
 	private VariableKeySetUriTokenDecoder tokenDecoder;

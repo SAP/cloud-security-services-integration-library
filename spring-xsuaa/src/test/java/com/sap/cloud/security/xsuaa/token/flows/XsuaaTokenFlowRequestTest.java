@@ -8,7 +8,7 @@ import java.net.URI;
 import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
 import org.junit.Test;
 
-public class XsuaaTokenFlowRequestTests {
+public class XsuaaTokenFlowRequestTest {
 
 	@Test
 	public void initialize() {
