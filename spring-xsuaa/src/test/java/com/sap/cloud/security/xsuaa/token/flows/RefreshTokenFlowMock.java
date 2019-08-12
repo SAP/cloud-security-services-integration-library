@@ -4,8 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 
-import com.sap.cloud.security.xsuaa.backend.OAuth2Service;
-import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.OAuth2Service;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
 

@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
-import com.sap.cloud.security.xsuaa.backend.*;
+import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -31,7 +31,8 @@ public class ClientCredentialsTokenFlow {
 	 * Creates a new instance.
 	 *
 	 * @param tokenService
-	 *            - the {@link OAuth2TokenService} used to execute the final request.
+	 *            - the {@link OAuth2TokenService} used to execute the final
+	 *            request.
 	 * @param tokenDecoder
 	 *            - the token decoder
 	 * @param endpointsProvider
@@ -142,7 +143,7 @@ public class ClientCredentialsTokenFlow {
 			OAuth2AccessToken accessToken = tokenService
 					.retrieveAccessTokenViaClientCredentialsGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
-							Optional.ofNullable(requestParameter));
+							requestParameter);
 			return decode(accessToken.getValue(), endpointsProvider.getJwksUri());
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(

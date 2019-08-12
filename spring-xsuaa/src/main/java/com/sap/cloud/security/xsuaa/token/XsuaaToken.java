@@ -10,7 +10,6 @@ import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_USER_NAME;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ZDN;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ZONE_ID;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.token.flows.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import com.sap.cloud.security.xsuaa.backend.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;

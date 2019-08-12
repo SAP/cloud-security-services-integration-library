@@ -2,23 +2,17 @@ package com.sap.cloud.security.xsuaa.token.flows;
 
 import static org.junit.Assert.*;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
-
-import com.sap.cloud.security.xsuaa.token.flows.ClientCredentialsTokenFlow;
-import com.sap.cloud.security.xsuaa.token.flows.RefreshTokenFlow;
-import com.sap.cloud.security.xsuaa.token.flows.UserTokenFlow;
-import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
 
 public class XsuaaTokenFlowsTest {
 

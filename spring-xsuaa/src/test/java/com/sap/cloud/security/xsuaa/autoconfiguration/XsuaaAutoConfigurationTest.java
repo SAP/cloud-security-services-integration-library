@@ -3,11 +3,7 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
-import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
-import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
-import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
-
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
 import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
 import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;

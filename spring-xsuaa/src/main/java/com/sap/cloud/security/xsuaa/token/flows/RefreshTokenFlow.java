@@ -2,7 +2,7 @@ package com.sap.cloud.security.xsuaa.token.flows;
 
 import java.net.URI;
 
-import com.sap.cloud.security.xsuaa.backend.*;
+import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
@@ -24,7 +24,8 @@ public class RefreshTokenFlow {
 	 * Creates a new instance.
 	 *
 	 * @param tokenService
-	 *            - the {@link OAuth2TokenService} used to execute the final request.
+	 *            - the {@link OAuth2TokenService} used to execute the final
+	 *            request.
 	 * @param tokenDecoder
 	 *            - the token decoder
 	 * @param endpointsProvider

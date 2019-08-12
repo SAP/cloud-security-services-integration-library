@@ -1,9 +1,9 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sap.cloud.security.xsuaa.backend.OAuth2Service;
-import com.sap.cloud.security.xsuaa.backend.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.OAuth2Service;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpEntity;
@@ -64,13 +64,11 @@ public class ClientCredentialsTokenFlowTest {
 	@Test
 	public void test_constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(null, tokenDecoder, new
-					XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+			new ClientCredentialsTokenFlow(null, tokenDecoder, new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
 		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(tokenService, null, new
-					XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+			new ClientCredentialsTokenFlow(tokenService, null, new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("TokenDecoder");
 
 		assertThatThrownBy(() -> {
@@ -107,16 +105,15 @@ public class ClientCredentialsTokenFlowTest {
 		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
 				clientSecret);
 
-		URI expectedURI =
-				UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-						.queryParam("grant_type", "client_credentials").build().toUri();
+		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
+				.queryParam("grant_type", "client_credentials").build().toUri();
 
 		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
 				expectedRequest, Map.class,
 				mockJwt.getTokenValue(), HttpStatus.OK);
 
-		ClientCredentialsTokenFlow tokenFlow = new
-				ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock), tokenDecoderMock,
+		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock),
+				tokenDecoderMock,
 				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
 		tokenFlow.client(clientId)
@@ -132,16 +129,15 @@ public class ClientCredentialsTokenFlowTest {
 
 		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
 				clientSecret);
-		URI expectedURI =
-				UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-						.queryParam("grant_type", "client_credentials").build().toUri();
+		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
+				.queryParam("grant_type", "client_credentials").build().toUri();
 
 		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
 				expectedRequest, Map.class,
 				mockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
 
-		ClientCredentialsTokenFlow tokenFlow = new
-				ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock), tokenDecoderMock,
+		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock),
+				tokenDecoderMock,
 				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
@@ -158,16 +154,15 @@ public class ClientCredentialsTokenFlowTest {
 
 		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
 				clientSecret);
-		URI expectedURI =
-				UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-						.queryParam("grant_type", "client_credentials").build().toUri();
+		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
+				.queryParam("grant_type", "client_credentials").build().toUri();
 
 		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
 				expectedRequest, Map.class,
 				mockJwt.getTokenValue(), HttpStatus.CONFLICT);
 
-		ClientCredentialsTokenFlow tokenFlow = new
-				ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock), tokenDecoderMock,
+		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock),
+				tokenDecoderMock,
 				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
@@ -180,8 +175,7 @@ public class ClientCredentialsTokenFlowTest {
 	}
 
 	@Test
-	public void test_execute_withAdditionalAuthorities() throws
-			TokenFlowException, JsonProcessingException {
+	public void test_execute_withAdditionalAuthorities() throws TokenFlowException, JsonProcessingException {
 
 		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
 				clientSecret);
@@ -191,20 +185,19 @@ public class ClientCredentialsTokenFlowTest {
 		String authorities = buildAdditionalAuthoritiesJson(additionalAuthorities);
 		// returns JSON!
 
-		URI expectedURI =
-				UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-						.queryParam("grant_type", "client_credentials")
-						.queryParam("authorities", authorities)
-						.build()
-						.encode()
-						.toUri();
+		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
+				.queryParam("grant_type", "client_credentials")
+				.queryParam("authorities", authorities)
+				.build()
+				.encode()
+				.toUri();
 
 		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
 				expectedRequest, Map.class,
 				mockJwt.getTokenValue(), HttpStatus.OK);
 
-		ClientCredentialsTokenFlow tokenFlow = new
-				ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock), tokenDecoderMock,
+		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock),
+				tokenDecoderMock,
 				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		tokenFlow.client(clientId)
 				.secret(clientSecret)
@@ -215,8 +208,7 @@ public class ClientCredentialsTokenFlowTest {
 		tokenDecoderMock.validateCallstate();
 	}
 
-	private HttpEntity<Void> buildExpectedRequest(String clientId, String
-			clientSecret) {
+	private HttpEntity<Void> buildExpectedRequest(String clientId, String clientSecret) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
 		headers.add("Authorization", "Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0");

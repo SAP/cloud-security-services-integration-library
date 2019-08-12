@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
-import com.sap.cloud.security.xsuaa.backend.*;
+import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
@@ -33,7 +33,8 @@ public class UserTokenFlow {
 	 * Creates a new instance.
 	 *
 	 * @param tokenService
-	 *            - the {@link OAuth2TokenService} used to execute the final request.
+	 *            - the {@link OAuth2TokenService} used to execute the final
+	 *            request.
 	 * @param refreshTokenFlow
 	 *            - the refresh token flow
 	 * @param endpointsProvider
@@ -177,7 +178,7 @@ public class UserTokenFlow {
 			OAuth2AccessToken accessToken = tokenService
 					.retrieveAccessTokenViaUserTokenGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
-							token.getTokenValue(), Optional.ofNullable(optionalParameter));
+							token.getTokenValue(), optionalParameter);
 
 			if (accessToken.getRefreshToken().isPresent()) {
 				refreshToken = accessToken.getRefreshToken().get();
