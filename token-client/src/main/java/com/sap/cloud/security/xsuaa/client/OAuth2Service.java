@@ -87,7 +87,7 @@ public class OAuth2Service implements OAuth2TokenService {
 			@NonNull String refreshToken) throws OAuth2ServiceException {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
 		Assert.notNull(clientCredentials, "clientCredentials is required");
-		Assert.notNull(refreshToken, "token is required");
+		Assert.notNull(refreshToken, "refreshToken is required");
 
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
