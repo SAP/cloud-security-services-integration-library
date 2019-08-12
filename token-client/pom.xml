@@ -10,7 +10,7 @@
 		<version>1.6.0</version>
 	</parent>
 
-	<artifactId>spring-xsuaa</artifactId>
+	<artifactId>token-client</artifactId>
 	<name>token-client</name>
 	<packaging>jar</packaging>
 
@@ -136,10 +136,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<properties>
-		<caffeine.version>2.6.2</caffeine.version>
-		<servlet.version>3.1.0</servlet.version>
-		<reactor.version>3.2.8.RELEASE</reactor.version>
-	</properties>
 </project>
