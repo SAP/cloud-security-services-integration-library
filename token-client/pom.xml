@@ -10,6 +10,7 @@
 		<version>1.6.0</version>
 	</parent>
 
+	<groupId>com.sap.cloud.security.xsuaa</groupId>
 	<artifactId>token-client</artifactId>
 	<name>token-client</name>
 	<packaging>jar</packaging>
@@ -45,7 +46,6 @@
 			<version>2.23.0</version>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 
 	<build>
