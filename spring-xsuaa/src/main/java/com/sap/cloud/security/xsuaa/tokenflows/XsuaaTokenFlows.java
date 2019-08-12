@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.token.flows;
+package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2Service;

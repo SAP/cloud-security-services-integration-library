@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.token.flows;
+package com.sap.cloud.security.xsuaa.tokenflows;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -6,8 +6,6 @@ import static org.junit.Assert.assertTrue;
 import java.net.URI;
 
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
 
 public class TokenDecoderMock implements VariableKeySetUriTokenDecoder {
 

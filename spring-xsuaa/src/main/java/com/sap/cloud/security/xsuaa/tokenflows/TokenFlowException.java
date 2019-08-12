@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.token.flows;
+package com.sap.cloud.security.xsuaa.tokenflows;
 
 /**
  * Exception thrown to signal issues during a token flow execution.

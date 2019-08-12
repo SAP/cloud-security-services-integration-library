@@ -6,9 +6,9 @@ import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
-import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
-import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
+import com.sap.cloud.security.xsuaa.tokenflows.NimbusTokenDecoder;
+import com.sap.cloud.security.xsuaa.tokenflows.VariableKeySetUriTokenDecoder;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -59,7 +59,7 @@ public class XsuaaAutoConfiguration {
 	 * @param restTemplate
 	 *            - the {@link RestTemplate} to use for the token flow exchange.
 	 * @param decoder
-	 *            - the decoder used for the tokens retrieved via the token flows.
+	 *            - the decoder used for the tokens retrieved via the token tokenflows.
 	 * @return the {@link XsuaaTokenFlows} API.
 	 */
 	@Bean

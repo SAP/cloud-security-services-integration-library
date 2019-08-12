@@ -28,7 +28,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.cloud.security.xsuaa.token.flows.TokenDecoderMock;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenDecoderMock;
 import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 

@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.token.flows;
+package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sap.cloud.security.xsuaa.client.OAuth2Service;
@@ -19,7 +19,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
+import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ClientCredentialsTokenFlowTest {

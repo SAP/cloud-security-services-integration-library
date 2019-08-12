@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.token.flows.*;
+import com.sap.cloud.security.xsuaa.tokenflows.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
@@ -306,7 +306,7 @@ public class XsuaaToken extends Jwt implements Token {
 		String baseUrl = tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(),
 				"");
 
-		// initialize token flows api
+		// initialize token tokenflows api
 		xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder, new XsuaaDefaultEndpoints(baseUrl));
 
 		switch (tokenRequest.getType()) {

@@ -1,11 +1,8 @@
-package com.sap.cloud.security.xsuaa.token.flows;
+package com.sap.cloud.security.xsuaa.tokenflows;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.Test;
-
-import com.sap.cloud.security.xsuaa.token.flows.NimbusTokenDecoder;
-import com.sap.cloud.security.xsuaa.token.flows.VariableKeySetUriTokenDecoder;
 
 public class NimbusTokenDecoderTest {
 

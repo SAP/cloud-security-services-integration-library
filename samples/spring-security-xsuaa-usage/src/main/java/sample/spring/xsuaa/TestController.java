@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.token.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.Token;
-import com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlows;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
 @RestController
 public class TestController {
@@ -26,7 +25,7 @@ public class TestController {
     private static final Logger logger = LoggerFactory.getLogger(TestController.class);
 
     /**
-     * The injected factory for XSUAA token flows.
+     * The injected factory for XSUAA token tokenflows.
      */
     @Autowired
     private XsuaaTokenFlows xsuaaTokenFlows;

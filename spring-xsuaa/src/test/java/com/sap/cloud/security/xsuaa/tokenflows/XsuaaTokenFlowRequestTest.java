@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.token.flows;
+package com.sap.cloud.security.xsuaa.tokenflows;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

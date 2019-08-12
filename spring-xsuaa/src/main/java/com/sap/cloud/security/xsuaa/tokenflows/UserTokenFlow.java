@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.token.flows;
+package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.xsa.security.container.XSTokenRequest;
@@ -8,9 +8,8 @@ import org.springframework.util.Assert;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import static com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAuthorities;
+import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 /**
  * A user token flow builder class. <br>

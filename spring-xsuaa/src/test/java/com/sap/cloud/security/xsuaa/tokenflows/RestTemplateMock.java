@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.token.flows;
+package com.sap.cloud.security.xsuaa.tokenflows;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;

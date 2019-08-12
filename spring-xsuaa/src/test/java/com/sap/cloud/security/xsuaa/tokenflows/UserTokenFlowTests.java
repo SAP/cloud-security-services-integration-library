@@ -1,11 +1,11 @@
-// package com.sap.cloud.security.xsuaa.token.flows;
+// package com.sap.cloud.security.xsuaa.tokenflows;
 //
 // import static
-// com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addAcceptHeader;
+// com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.addAcceptHeader;
 // import static
-// com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.addAuthorizationBearerHeader;
+// com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.addAuthorizationBearerHeader;
 // import static
-// com.sap.cloud.security.xsuaa.token.flows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
+// com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 // import static org.assertj.core.api.Assertions.assertThatThrownBy;
 //
 // import java.net.URI;
