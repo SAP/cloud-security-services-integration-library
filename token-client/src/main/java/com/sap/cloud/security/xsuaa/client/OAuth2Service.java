@@ -1,6 +1,9 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import org.springframework.http.*;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -12,27 +15,30 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.sap.cloud.security.xsuaa.client.TokenFlowsConstants.*;
-import static com.sap.cloud.security.xsuaa.client.TokenFlowsConstants.GRANT_TYPE;
-import static com.sap.cloud.security.xsuaa.client.TokenFlowsConstants.GRANT_TYPE_CLIENT_CREDENTIALS;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS;
 
 public class OAuth2Service implements OAuth2TokenService {
 
 	private RestTemplate restTemplate;
 
-	public OAuth2Service(RestTemplate restTemplate) {
+	public OAuth2Service(@NonNull RestTemplate restTemplate) {
+		Assert.notNull(restTemplate, "restTemplate is required");
 		this.restTemplate = restTemplate;
 	}
 
 	@Override
-	public OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
-			ClientCredentials clientCredentials,
-			Optional<Map<String, String>> optionalParameters) throws OAuth2ServiceException {
+	public OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(@NonNull URI tokenEndpointUri,
+			@NonNull ClientCredentials clientCredentials,
+			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
+		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
+		Assert.notNull(clientCredentials, "clientCredentials is required");
 
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS);
 
-		optionalParameters.orElse(new HashMap<String, String>(0)).forEach(parameters::putIfAbsent);
+		Optional.ofNullable(optionalParameters).orElse(new HashMap<String, String>(0)).forEach(parameters::putIfAbsent);
 
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
 
@@ -48,16 +54,19 @@ public class OAuth2Service implements OAuth2TokenService {
 		return requestAccessToken(requestUri, requestEntity);
 	}
 
-	@Deprecated
 	@Override
-	public OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
-			ClientCredentials clientCredentials, String token, Optional<Map<String, String>> optionalParameters)
+	public OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(@NonNull URI tokenEndpointUri,
+			@NonNull ClientCredentials clientCredentials, @NonNull String token, @Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
+		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
+		Assert.notNull(clientCredentials, "clientCredentials is required");
+		Assert.notNull(token, "token is required");
+
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_USER_TOKEN);
 		parameters.put(PARAMETER_CLIENT_ID, clientCredentials.getClientId());
 
-		optionalParameters.orElse(new HashMap<String, String>(0)).forEach(parameters::putIfAbsent);
+		Optional.ofNullable(optionalParameters).orElse(new HashMap<String, String>(0)).forEach(parameters::putIfAbsent);
 
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
 
@@ -73,9 +82,12 @@ public class OAuth2Service implements OAuth2TokenService {
 	}
 
 	@Override
-	public OAuth2AccessToken retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri,
-			ClientCredentials clientCredentials,
-			String refreshToken) throws OAuth2ServiceException {
+	public OAuth2AccessToken retrieveAccessTokenViaRefreshToken(@NonNull URI tokenEndpointUri,
+			@NonNull ClientCredentials clientCredentials,
+			@NonNull String refreshToken) throws OAuth2ServiceException {
+		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
+		Assert.notNull(clientCredentials, "clientCredentials is required");
+		Assert.notNull(refreshToken, "token is required");
 
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);

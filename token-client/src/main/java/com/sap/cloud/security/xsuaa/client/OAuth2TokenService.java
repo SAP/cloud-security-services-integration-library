@@ -27,7 +27,7 @@ public interface OAuth2TokenService {
 	 */
 	OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
 			ClientCredentials clientCredentials,
-			Optional<Map<String, String>> optionalParameters) throws OAuth2ServiceException;
+			Map<String, String> optionalParameters) throws OAuth2ServiceException;
 
 	/**
 	 * Exchanges user access token from OAuth Server with user access token. This
@@ -52,7 +52,7 @@ public interface OAuth2TokenService {
 	 */
 	@Deprecated
 	OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
-			ClientCredentials clientCredentials, String token, Optional<Map<String, String>> optionalParameters)
+			ClientCredentials clientCredentials, String token, Map<String, String> optionalParameters)
 			throws OAuth2ServiceException;
 
 	/**

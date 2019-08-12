@@ -1,8 +1,8 @@
 package com.sap.cloud.security.xsuaa.client;
 
-public class TokenFlowsConstants {
+public class OAuth2TokenServiceConstants {
 
-	private TokenFlowsConstants() {
+	private OAuth2TokenServiceConstants() {
 		throw new IllegalStateException("Utility class");
 	}
 
