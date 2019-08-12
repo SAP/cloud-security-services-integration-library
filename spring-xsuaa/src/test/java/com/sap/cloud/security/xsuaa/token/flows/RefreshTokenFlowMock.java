@@ -4,8 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 
+import com.sap.cloud.security.xsuaa.backend.OAuth2Service;
 import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,12 +15,12 @@ public class RefreshTokenFlowMock extends RefreshTokenFlow {
 	Jwt mockJwt;
 
 	public RefreshTokenFlowMock(Jwt mockJwt) {
-		super(new OAuth2Server(new RestTemplate()), new NimbusTokenDecoder(),
+		super(new OAuth2Service(new RestTemplate()), new NimbusTokenDecoder(),
 				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		this.mockJwt = mockJwt;
 	}
 
-	public RefreshTokenFlowMock(OAuth2Server auth2Server, VariableKeySetUriTokenDecoder tokenDecoder,
+	public RefreshTokenFlowMock(OAuth2Service auth2Server, VariableKeySetUriTokenDecoder tokenDecoder,
 			URI xsuaaBaseUri) {
 		super(auth2Server, tokenDecoder, new XsuaaDefaultEndpoints(xsuaaBaseUri));
 	}

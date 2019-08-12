@@ -93,7 +93,7 @@
 //
 // assertThatThrownBy(() -> {
 // new UserTokenFlow(restTemplate, refreshTokenFlowMock, null);
-// }).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServerEndpointsProvider");
+// }).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
 //
 // }
 //

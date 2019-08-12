@@ -18,7 +18,7 @@ public class RefreshTokenFlow {
 	private String refreshToken;
 	private OAuth2TokenService tokenService;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
-	private OAuth2ServerEndpointsProvider endpointsProvider;
+	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	/**
 	 * Creates a new instance.
@@ -31,10 +31,10 @@ public class RefreshTokenFlow {
 	 *            - the endpoints provider
 	 */
 	RefreshTokenFlow(OAuth2TokenService tokenService, VariableKeySetUriTokenDecoder tokenDecoder,
-			OAuth2ServerEndpointsProvider endpointsProvider) {
+			OAuth2ServiceEndpointsProvider endpointsProvider) {
 		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
 		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
-		Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");
+		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
 
 		this.tokenService = tokenService;
 		this.tokenDecoder = tokenDecoder;
@@ -132,7 +132,7 @@ public class RefreshTokenFlow {
 			OAuth2AccessToken accessToken = tokenService.retrieveAccessTokenViaRefreshToken(request.getTokenEndpoint(),
 					new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken);
 			return decode(accessToken.getValue(), endpointsProvider.getJwksUri());
-		} catch (OAuth2ServerException e) {
+		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format("Error refreshing token with grant_type 'refresh_token': %s", e.getMessage()));
 		}

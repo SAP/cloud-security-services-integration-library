@@ -2,7 +2,7 @@ package com.sap.cloud.security.xsuaa.backend;
 
 import java.net.URI;
 
-public interface OAuth2ServerEndpointsProvider {
+public interface OAuth2ServiceEndpointsProvider {
 
 	/**
 	 * Returns token endpoint URI.

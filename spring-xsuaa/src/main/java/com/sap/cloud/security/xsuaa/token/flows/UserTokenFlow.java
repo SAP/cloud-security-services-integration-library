@@ -40,10 +40,10 @@ public class UserTokenFlow {
 	 *            - the endpoints provider
 	 */
 	UserTokenFlow(OAuth2TokenService tokenService, RefreshTokenFlow refreshTokenFlow,
-			OAuth2ServerEndpointsProvider endpointsProvider) {
+			OAuth2ServiceEndpointsProvider endpointsProvider) {
 		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
 		Assert.notNull(refreshTokenFlow, "RefreshTokenFlow must not be null.");
-		Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");
+		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
 
 		this.tokenService = tokenService;
 		this.refreshTokenFlow = refreshTokenFlow;
@@ -213,7 +213,7 @@ public class UserTokenFlow {
 				throw new TokenFlowException(
 						"Error requesting token with grant_type 'user_token': response does not provide 'refresh_token'");
 			}
-		} catch (OAuth2ServerException e) {
+		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format("Error requesting token with grant_type 'user_token': %s", e.getMessage()));
 		}

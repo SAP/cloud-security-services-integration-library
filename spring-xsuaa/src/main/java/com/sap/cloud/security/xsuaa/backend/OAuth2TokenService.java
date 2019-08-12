@@ -22,12 +22,12 @@ public interface OAuth2TokenService {
 	 *            optional request parameters, can be null.
 	 *
 	 * @return the OAuth2AccessToken.
-	 * @throws OAuth2ServerException
+	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
 	OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
 			ClientCredentials clientCredentials,
-			Optional<Map<String, String>> optionalParameters) throws OAuth2ServerException;
+			Optional<Map<String, String>> optionalParameters) throws OAuth2ServiceException;
 
 	/**
 	 * Exchanges user access token from OAuth Server with user access token. This
@@ -46,14 +46,14 @@ public interface OAuth2TokenService {
 	 *            optional request parameters, can be null.
 	 *
 	 * @return the OAuth2AccessToken.
-	 * @throws OAuth2ServerException
+	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 * @deprecated instead use jwt bearer.
 	 */
 	@Deprecated
 	OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
 			ClientCredentials clientCredentials, String token, Optional<Map<String, String>> optionalParameters)
-			throws OAuth2ServerException;
+			throws OAuth2ServiceException;
 
 	/**
 	 * Requests access token from OAuth Server with refresh-token
@@ -68,9 +68,9 @@ public interface OAuth2TokenService {
 	 *            {link #OAuth2AccessToken}.
 	 *
 	 * @return the OAuth2AccessToken
-	 * @throws OAuth2ServerException
+	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
 	OAuth2AccessToken retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri, ClientCredentials clientCredentials,
-			String refreshToken) throws OAuth2ServerException;
+			String refreshToken) throws OAuth2ServiceException;
 }

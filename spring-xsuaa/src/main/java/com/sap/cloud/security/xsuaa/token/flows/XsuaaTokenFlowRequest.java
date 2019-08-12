@@ -14,23 +14,23 @@ import org.springframework.util.Assert;
 class XsuaaTokenFlowRequest implements XSTokenRequest {
 
 	private String clientId;
-	private URI tokenServerEndpoint;
+	private URI tokenServiceEndpoint;
 	private String clientSecret;
 	private Map<String, String> additionalAuthorizationAttributes;
 
 	/**
 	 * Creates a new token exchange request.
 	 *
-	 * @param oAuth2ServerTokenEndpoint
-	 *            - the URI of the token endpoint.
+	 * @param tokenServiceEndpoint
+	 *            - the URI of the OAuth server token endpoint.
 	 */
-	XsuaaTokenFlowRequest(URI oAuth2ServerTokenEndpoint) {
-		this.tokenServerEndpoint = oAuth2ServerTokenEndpoint;
+	XsuaaTokenFlowRequest(URI tokenServiceEndpoint) {
+		this.tokenServiceEndpoint = tokenServiceEndpoint;
 	}
 
 	@Override
 	public URI getTokenEndpoint() {
-		return this.tokenServerEndpoint;
+		return this.tokenServiceEndpoint;
 	}
 
 	@Override

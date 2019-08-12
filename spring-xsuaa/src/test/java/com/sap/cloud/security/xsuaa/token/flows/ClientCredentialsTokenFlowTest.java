@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
+import com.sap.cloud.security.xsuaa.backend.OAuth2Service;
 import com.sap.cloud.security.xsuaa.backend.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
 import org.junit.Before;
@@ -33,7 +33,7 @@ public class ClientCredentialsTokenFlowTest {
 
 	@Before
 	public void setup() {
-		this.tokenService = new OAuth2Server(new RestTemplate());
+		this.tokenService = new OAuth2Service(new RestTemplate());
 		this.tokenDecoder = new NimbusTokenDecoder();
 
 		this.mockJwt = buildMockJwt();
@@ -75,7 +75,7 @@ public class ClientCredentialsTokenFlowTest {
 
 		assertThatThrownBy(() -> {
 			new ClientCredentialsTokenFlow(tokenService, tokenDecoder, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServerEndpointsProvider");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
 	}
 
 	@Test
@@ -116,7 +116,7 @@ public class ClientCredentialsTokenFlowTest {
 				mockJwt.getTokenValue(), HttpStatus.OK);
 
 		ClientCredentialsTokenFlow tokenFlow = new
-				ClientCredentialsTokenFlow(new OAuth2Server(restTemplateMock), tokenDecoderMock,
+				ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock), tokenDecoderMock,
 				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
 		tokenFlow.client(clientId)
@@ -141,7 +141,7 @@ public class ClientCredentialsTokenFlowTest {
 				mockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
 
 		ClientCredentialsTokenFlow tokenFlow = new
-				ClientCredentialsTokenFlow(new OAuth2Server(restTemplateMock), tokenDecoderMock,
+				ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock), tokenDecoderMock,
 				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
@@ -167,7 +167,7 @@ public class ClientCredentialsTokenFlowTest {
 				mockJwt.getTokenValue(), HttpStatus.CONFLICT);
 
 		ClientCredentialsTokenFlow tokenFlow = new
-				ClientCredentialsTokenFlow(new OAuth2Server(restTemplateMock), tokenDecoderMock,
+				ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock), tokenDecoderMock,
 				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
 		assertThatThrownBy(() -> {
@@ -204,7 +204,7 @@ public class ClientCredentialsTokenFlowTest {
 				mockJwt.getTokenValue(), HttpStatus.OK);
 
 		ClientCredentialsTokenFlow tokenFlow = new
-				ClientCredentialsTokenFlow(new OAuth2Server(restTemplateMock), tokenDecoderMock,
+				ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock), tokenDecoderMock,
 				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		tokenFlow.client(clientId)
 				.secret(clientSecret)

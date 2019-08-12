@@ -12,7 +12,6 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.*;
 
-import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
 import com.sap.cloud.security.xsuaa.backend.TokenFlowsConstants;
 import org.junit.Assert;
 import org.junit.Before;

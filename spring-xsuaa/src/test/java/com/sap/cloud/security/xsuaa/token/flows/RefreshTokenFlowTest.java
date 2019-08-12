@@ -1,6 +1,6 @@
 //package com.sap.cloud.security.xsuaa.token.flows;
 //
-//import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
+//import com.sap.cloud.security.xsuaa.backend.OAuth2Service;
 //import com.sap.cloud.security.xsuaa.backend.OAuth2TokenService;
 //import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
 //import org.junit.Before;
@@ -33,7 +33,7 @@
 //
 //	@Before
 //	public void setup() {
-//		this.tokenService = new OAuth2Server(new RestTemplate());
+//		this.tokenService = new OAuth2Service(new RestTemplate());
 //		this.tokenDecoder = new NimbusTokenDecoder();
 //		this.refreshToken = "dummyRefreshToken";
 //
@@ -114,7 +114,7 @@
 //				expectedRequest, Map.class,
 //				mockJwt.getTokenValue(), HttpStatus.OK);
 //
-//		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(new OAuth2Server(restTemplateMock),
+//		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(new OAuth2Service(restTemplateMock),
 //				tokenDecoderMock,
 //				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 //		tokenFlow.refreshToken(refreshToken)
@@ -143,7 +143,7 @@
 //				expectedRequest, Map.class,
 //				mockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
 //
-//		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(new OAuth2Server(restTemplateMock),
+//		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(new OAuth2Service(restTemplateMock),
 //				tokenDecoderMock,
 //				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 //
@@ -173,7 +173,7 @@
 //				expectedRequest, Map.class,
 //				mockJwt.getTokenValue(), HttpStatus.CONFLICT);
 //
-//		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(new OAuth2Server(restTemplateMock),
+//		RefreshTokenFlow tokenFlow = new RefreshTokenFlow(new OAuth2Service(restTemplateMock),
 //				tokenDecoderMock,
 //				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 //

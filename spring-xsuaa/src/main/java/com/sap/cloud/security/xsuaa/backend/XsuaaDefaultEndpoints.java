@@ -5,7 +5,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 
-public class XsuaaDefaultEndpoints implements OAuth2ServerEndpointsProvider {
+public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private URI baseUri;
 	private final static String TOKEN_ENDPOINT = "/oauth/token";
 	private final static String AUTHORIZE_ENDPOINT = "/oauth/authorize";

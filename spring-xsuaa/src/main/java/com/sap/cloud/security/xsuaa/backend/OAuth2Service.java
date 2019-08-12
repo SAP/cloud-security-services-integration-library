@@ -14,18 +14,18 @@ import java.util.Optional;
 
 import static com.sap.cloud.security.xsuaa.backend.TokenFlowsConstants.*;
 
-public class OAuth2Server implements OAuth2TokenService {
+public class OAuth2Service implements OAuth2TokenService {
 
 	private RestTemplate restTemplate;
 
-	public OAuth2Server(RestTemplate restTemplate) {
+	public OAuth2Service(RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
 	}
 
 	@Override
 	public OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
 			ClientCredentials clientCredentials,
-			Optional<Map<String, String>> optionalParameters) throws OAuth2ServerException {
+			Optional<Map<String, String>> optionalParameters) throws OAuth2ServiceException {
 
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS);
@@ -50,7 +50,7 @@ public class OAuth2Server implements OAuth2TokenService {
 	@Override
 	public OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
 			ClientCredentials clientCredentials, String token, Optional<Map<String, String>> optionalParameters)
-			throws OAuth2ServerException {
+			throws OAuth2ServiceException {
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_USER_TOKEN);
 		parameters.put(PARAMETER_CLIENT_ID, clientCredentials.getClientId());
@@ -73,7 +73,7 @@ public class OAuth2Server implements OAuth2TokenService {
 	@Override
 	public OAuth2AccessToken retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri,
 			ClientCredentials clientCredentials,
-			String refreshToken) throws OAuth2ServerException {
+			String refreshToken) throws OAuth2ServiceException {
 
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
@@ -93,7 +93,7 @@ public class OAuth2Server implements OAuth2TokenService {
 	}
 
 	private OAuth2AccessToken requestAccessToken(URI requestUri, HttpEntity<Void> requestEntity)
-			throws OAuth2ServerException {
+			throws OAuth2ServiceException {
 
 		ResponseEntity<Map> responseEntity = null;
 		try {
@@ -101,16 +101,16 @@ public class OAuth2Server implements OAuth2TokenService {
 		} catch (HttpClientErrorException ex) {
 			HttpStatus responseStatusCode = ex.getStatusCode();
 			if (responseStatusCode == HttpStatus.UNAUTHORIZED) {
-				throw new OAuth2ServerException(String.format(
+				throw new OAuth2ServiceException(String.format(
 						"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful. Client credentials invalid.",
 						responseStatusCode));
 			}
 			if (!responseStatusCode.is2xxSuccessful()) {
-				throw new OAuth2ServerException(String.format(
+				throw new OAuth2ServiceException(String.format(
 						"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful.",
 						responseStatusCode));
 			}
-			throw new OAuth2ServerException(String.format(
+			throw new OAuth2ServiceException(String.format(
 					"Error retrieving JWT token. Call to XSUAA was not successful: %s",
 					ex.getMessage()));
 		}

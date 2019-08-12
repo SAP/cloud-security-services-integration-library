@@ -5,7 +5,6 @@ import static org.junit.Assert.assertThat;
 
 import java.net.URI;
 
-import com.sap.cloud.security.xsuaa.backend.XsuaaDefaultEndpoints;
 import org.junit.Test;
 
 public class XsuaaTokenFlowRequestTest {

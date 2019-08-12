@@ -25,7 +25,7 @@ public class ClientCredentialsTokenFlow {
 	private XSTokenRequest request;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
 	private OAuth2TokenService tokenService;
-	private OAuth2ServerEndpointsProvider endpointsProvider;
+	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	/**
 	 * Creates a new instance.
@@ -38,10 +38,10 @@ public class ClientCredentialsTokenFlow {
 	 *            - the endpoints provider
 	 */
 	ClientCredentialsTokenFlow(OAuth2TokenService tokenService, VariableKeySetUriTokenDecoder tokenDecoder,
-			OAuth2ServerEndpointsProvider endpointsProvider) {
+			OAuth2ServiceEndpointsProvider endpointsProvider) {
 		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
 		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
-		Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");
+		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
 
 		this.tokenService = tokenService;
 		this.tokenDecoder = tokenDecoder;
@@ -144,7 +144,7 @@ public class ClientCredentialsTokenFlow {
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
 							Optional.ofNullable(requestParameter));
 			return decode(accessToken.getValue(), endpointsProvider.getJwksUri());
-		} catch (OAuth2ServerException e) {
+		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format("Error requesting user token with grant_type 'client_credentials': %s",
 							e.getMessage()));

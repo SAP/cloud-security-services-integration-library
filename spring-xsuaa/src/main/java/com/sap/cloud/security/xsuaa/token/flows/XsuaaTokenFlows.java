@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.token.flows;
 
-import com.sap.cloud.security.xsuaa.backend.OAuth2ServerEndpointsProvider;
-import com.sap.cloud.security.xsuaa.backend.OAuth2Server;
+import com.sap.cloud.security.xsuaa.backend.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.backend.OAuth2Service;
 import com.sap.cloud.security.xsuaa.backend.OAuth2TokenService;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
@@ -18,7 +18,7 @@ public class XsuaaTokenFlows {
 
 	private RestTemplate restTemplate;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
-	private OAuth2ServerEndpointsProvider endpointsProvider;
+	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	/**
 	 * Create a new instance of this bean with the given RestTemplate. Applications
@@ -32,10 +32,10 @@ public class XsuaaTokenFlows {
 	 *            to decode a Jwt token.
 	 */
 	public XsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder tokenDecoder,
-			OAuth2ServerEndpointsProvider endpointsProvider) {
+			OAuth2ServiceEndpointsProvider endpointsProvider) {
 		Assert.notNull(restTemplate, "RestTemplate must not be null.");
 		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
-		Assert.notNull(endpointsProvider, "OAuth2ServerEndpointsProvider must not be null.");
+		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
 
 		this.restTemplate = restTemplate;
 		this.tokenDecoder = tokenDecoder;
@@ -81,6 +81,6 @@ public class XsuaaTokenFlows {
 	}
 
 	OAuth2TokenService initializeTokenService() {
-		return new OAuth2Server(restTemplate);
+		return new OAuth2Service(restTemplate);
 	}
 }
