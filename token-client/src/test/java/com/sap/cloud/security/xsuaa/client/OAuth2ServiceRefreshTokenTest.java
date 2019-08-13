@@ -46,7 +46,7 @@ public class OAuth2ServiceRefreshTokenTest {
 
 		responseMap = new HashMap<>();
 		responseMap.putIfAbsent(REFRESH_TOKEN, "2170b564228448c6aed8b1ddfdb8bf53-r");
-		responseMap.putIfAbsent(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0"); 
+		responseMap.putIfAbsent(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0");
 		responseMap.putIfAbsent(OAuth2TokenServiceConstants.EXPIRES_IN, "43199");
 	}
 
@@ -94,7 +94,10 @@ public class OAuth2ServiceRefreshTokenTest {
 		HttpEntity expectedRequest = new HttpEntity(expectedHeaders);
 
 		Mockito.when(mockRestTemplate
-				.postForEntity(eq(createUriWithParameters("refresh_token=d2faefe7ea834ba895d20730f106128c-r&grant_type=refresh_token")), eq(expectedRequest),
+				.postForEntity(
+						eq(createUriWithParameters(
+								"refresh_token=d2faefe7ea834ba895d20730f106128c-r&grant_type=refresh_token")),
+						eq(expectedRequest),
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 

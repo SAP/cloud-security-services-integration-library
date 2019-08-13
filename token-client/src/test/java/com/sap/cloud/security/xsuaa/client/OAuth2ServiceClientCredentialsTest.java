@@ -92,7 +92,8 @@ public class OAuth2ServiceClientCredentialsTest {
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientCredentials,
+		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
+				clientCredentials,
 				null);
 		assertThat(accessToken.getValue(), is(responseMap.get(ACCESS_TOKEN)));
 		assertNotNull(accessToken.getExpiredAtDate());
@@ -100,27 +101,32 @@ public class OAuth2ServiceClientCredentialsTest {
 
 	@Test
 	public void retrieveToken_withOptionalParamaters() {
-		Mockito.when(mockRestTemplate.postForEntity(eq(createUriWithParameters("grant_type=client_credentials&add-param-1=value1&add-param-2=value2")), any(HttpEntity.class), eq(Map.class)))
+		Mockito.when(mockRestTemplate.postForEntity(
+				eq(createUriWithParameters("grant_type=client_credentials&add-param-1=value1&add-param-2=value2")),
+				any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		Map<String, String> additionalParameters = new HashMap<>();
 		additionalParameters.put("add-param-1", "value1");
 		additionalParameters.put("add-param-2", "value2");
 
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientCredentials,
+		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
+				clientCredentials,
 				additionalParameters);
 		assertThat(accessToken.getValue(), is(responseMap.get(ACCESS_TOKEN)));
 	}
 
 	@Test
 	public void retrieveToken_requiredParametersCanNotBeOverwritten() {
-		Mockito.when(mockRestTemplate.postForEntity(eq(createUriWithParameters("grant_type=client_credentials")), any(HttpEntity.class), eq(Map.class)))
+		Mockito.when(mockRestTemplate.postForEntity(eq(createUriWithParameters("grant_type=client_credentials")),
+				any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		Map<String, String> overwrittenGrantType = new HashMap<>();
 		overwrittenGrantType.put(OAuth2TokenServiceConstants.GRANT_TYPE, "overwrite-obligatory-param");
 
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientCredentials,
+		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
+				clientCredentials,
 				overwrittenGrantType);
 		assertThat(accessToken.getValue(), is(responseMap.get(ACCESS_TOKEN)));
 	}
