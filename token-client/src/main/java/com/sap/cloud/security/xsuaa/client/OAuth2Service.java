@@ -56,7 +56,8 @@ public class OAuth2Service implements OAuth2TokenService {
 
 	@Override
 	public OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(@NonNull URI tokenEndpointUri,
-			@NonNull ClientCredentials clientCredentials, @NonNull String token, @Nullable Map<String, String> optionalParameters)
+			@NonNull ClientCredentials clientCredentials, @NonNull String token,
+			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
 		Assert.notNull(clientCredentials, "clientCredentials is required");

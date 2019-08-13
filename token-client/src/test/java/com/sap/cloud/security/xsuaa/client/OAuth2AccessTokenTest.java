@@ -34,6 +34,7 @@ public class OAuth2AccessTokenTest {
 			super(accessToken, expiredInSeconds);
 			this.mockDate = mockDate;
 		}
+
 		Date getCurrentTime() {
 			return mockDate;
 		}

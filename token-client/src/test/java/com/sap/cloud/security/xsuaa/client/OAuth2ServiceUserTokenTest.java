@@ -46,7 +46,7 @@ public class OAuth2ServiceUserTokenTest {
 
 		responseMap = new HashMap<>();
 		responseMap.putIfAbsent(REFRESH_TOKEN, "2170b564228448c6aed8b1ddfdb8bf53-r");
-		responseMap.putIfAbsent(ACCESS_TOKEN, "4d841646fcc340f59b1b7b43df4b050d"); //opaque access token
+		responseMap.putIfAbsent(ACCESS_TOKEN, "4d841646fcc340f59b1b7b43df4b050d"); // opaque access token
 		responseMap.putIfAbsent(OAuth2TokenServiceConstants.EXPIRES_IN, "43199");
 	}
 
@@ -94,7 +94,8 @@ public class OAuth2ServiceUserTokenTest {
 		HttpEntity expectedRequest = new HttpEntity(expectedHeaders);
 
 		Mockito.when(mockRestTemplate
-				.postForEntity(eq(createUriWithParameters("grant_type=user_token&client_id=clientid")), eq(expectedRequest),
+				.postForEntity(eq(createUriWithParameters("grant_type=user_token&client_id=clientid")),
+						eq(expectedRequest),
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
@@ -107,7 +108,10 @@ public class OAuth2ServiceUserTokenTest {
 
 	@Test
 	public void retrieveToken_withOptionalParamaters() {
-		Mockito.when(mockRestTemplate.postForEntity(eq(createUriWithParameters("grant_type=user_token&add-param-1=value1&add-param-2=value2&client_id=clientid")), any(HttpEntity.class), eq(Map.class)))
+		Mockito.when(mockRestTemplate.postForEntity(
+				eq(createUriWithParameters(
+						"grant_type=user_token&add-param-1=value1&add-param-2=value2&client_id=clientid")),
+				any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		Map<String, String> additionalParameters = new HashMap<>();
@@ -121,7 +125,9 @@ public class OAuth2ServiceUserTokenTest {
 
 	@Test
 	public void retrieveToken_requiredParametersCanNotBeOverwritten() {
-		Mockito.when(mockRestTemplate.postForEntity(eq(createUriWithParameters("grant_type=user_token&client_id=clientid")), any(HttpEntity.class), eq(Map.class)))
+		Mockito.when(
+				mockRestTemplate.postForEntity(eq(createUriWithParameters("grant_type=user_token&client_id=clientid")),
+						any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		Map<String, String> overwrittenGrantType = new HashMap<>();
