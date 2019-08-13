@@ -1,6 +1,5 @@
 package sample.spring.xsuaa;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public class TestController {
      * The XSUAA binding information from the environment.
      */
     @Autowired
-    private XsuaaServiceConfiguration xsuaaBindindInformation;
+    private XsuaaServiceConfiguration xsuaaServiceConfiguration;
     
     /**
      * A (fake) data layer showing global method security features of Spring Security
@@ -52,7 +51,7 @@ public class TestController {
      * @throws Exception in case of an internal error.
      */
     @GetMapping(value = "/v1/sayHello")
-    public Map<String, String> sayHello(@AuthenticationPrincipal Token token) { // TODO XsuaaToken
+    public Map<String, String> sayHello(@AuthenticationPrincipal Token token) {
 
         logger.info("Got the Xsuaa token: " + token);
         logger.info(token.toString());
@@ -87,26 +86,6 @@ public class TestController {
         logger.info(jwt.toString());
 
         return "Hello Jwt-Protected World!";
-    }
-
-    /**
-     * Returns some generic information from the XsuaaToken.<br>
-     * Uses a XsuaaToken retrieved from the security context of Spring Security.
-     * <p>
-     * <b>Note:</b> XsuaaToken is just a Jwt, it is derived from it, and adds a few more convenience methods.
-     *
-     * @param jwt the JWT from the request injected by Spring Security.
-     * @return the requested address.
-     * @throws Exception in case of an internal error.
-     */
-    @GetMapping(value = "/v3/sayHello")
-    public String sayHello(@AuthenticationPrincipal XsuaaToken xsuaaToken) {
-
-        logger.info("Got the JWT (with XSUAA convenience on top): " + xsuaaToken);
-
-        logger.info(xsuaaToken.toString());
-
-        return "Hello Jwt-Protected XSUAA World! Notice: an XsuaaToken is still a Jwt!";
     }
 
     /**
@@ -149,11 +128,10 @@ public class TestController {
     @RequestMapping(value = "/v3/clientCredentialsToken", method = RequestMethod.GET)
     public Jwt fetchClientCredentialsToken(@AuthenticationPrincipal Jwt jwt) throws Exception { 
         
-        String baseUrl = xsuaaBindindInformation.getUaaUrl();
-        String clientId = xsuaaBindindInformation.getClientId();
-        String clientSecret = xsuaaBindindInformation.getClientSecret();
+        String clientId = xsuaaServiceConfiguration.getClientId();
+        String clientSecret = xsuaaServiceConfiguration.getClientSecret();
         
-        Jwt ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow(URI.create(baseUrl))
+        Jwt ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
                 .client(clientId)
                 .secret(clientSecret)
                 .execute();
@@ -174,11 +152,10 @@ public class TestController {
     @RequestMapping(value = "/v3/refreshToken", method = RequestMethod.GET)
     public Jwt refreshToken(@AuthenticationPrincipal Jwt jwt) throws Exception {
 
-        String baseUrl = xsuaaBindindInformation.getUaaUrl();
-        String clientId = xsuaaBindindInformation.getClientId();
-        String clientSecret = xsuaaBindindInformation.getClientSecret();
+        String clientId = xsuaaServiceConfiguration.getClientId();
+        String clientSecret = xsuaaServiceConfiguration.getClientSecret();
         
-        Jwt refreshToken = xsuaaTokenFlows.refreshTokenFlow(URI.create(baseUrl))
+        Jwt refreshToken = xsuaaTokenFlows.refreshTokenFlow()
         		.refreshToken("Your refresh token goes here. You get this from the OAuth server.")
                 .client(clientId)
                 .secret(clientSecret)
@@ -214,11 +191,10 @@ public class TestController {
     @RequestMapping(value = "/v3/userTokenFlow", method = RequestMethod.GET)
     public Jwt userTokenFlow(@AuthenticationPrincipal Jwt jwt) throws Exception { 
         
-        String baseUrl = xsuaaBindindInformation.getUaaUrl();
         String clientId = "Client ID of service you want to exchange the token for. Should have been injected into your environment.";
         String clientSecret = "Client secret of service you want to exchange the token for. Should have been injected into your environment.";
         
-        Jwt userToken = xsuaaTokenFlows.userTokenFlow(URI.create(baseUrl))
+        Jwt userToken = xsuaaTokenFlows.userTokenFlow()
         		.token(jwt)
                 .client(clientId)
                 .secret(clientSecret)
