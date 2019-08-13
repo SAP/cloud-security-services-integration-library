@@ -3,6 +3,7 @@ package com.sap.cloud.security.xsuaa.token;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 
@@ -13,6 +14,7 @@ import java.time.Instant;
 import java.util.*;
 
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
+import com.sap.cloud.security.xsuaa.tokenflows.VariableKeySetUriTokenDecoder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +30,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.cloud.security.xsuaa.tokenflows.TokenDecoderMock;
 import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 
@@ -266,7 +267,9 @@ public class XsuaaTokenTest {
 				.thenReturn(response);
 
 		token = createToken(claimsSetBuilder);
-		token.tokenFlowsTokenDecoder = new TokenDecoderMock(mockJwt);
+
+		token.tokenFlowsTokenDecoder = Mockito.mock(VariableKeySetUriTokenDecoder.class);
+		Mockito.when(token.tokenFlowsTokenDecoder.decode(anyString())).thenReturn(mockJwt);
 
 		String mockServerUrl = "http://myuaa.com";
 		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);
@@ -299,7 +302,8 @@ public class XsuaaTokenTest {
 
 		claimsSetBuilder.claim(TokenClaims.CLAIM_SCOPES, new String[] { "uaa.user" });
 		token = createToken(claimsSetBuilder);
-		token.tokenFlowsTokenDecoder = new TokenDecoderMock(mockJwt);
+		token.tokenFlowsTokenDecoder = Mockito.mock(VariableKeySetUriTokenDecoder.class);
+		Mockito.when(token.tokenFlowsTokenDecoder.decode(anyString())).thenReturn(mockJwt);
 
 		String mockServerUrl = "http://myuaa.com";
 		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);

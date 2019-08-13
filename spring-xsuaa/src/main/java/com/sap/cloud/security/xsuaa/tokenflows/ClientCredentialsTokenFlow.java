@@ -135,7 +135,7 @@ public class ClientCredentialsTokenFlow {
 
 		if (authorities != null) {
 			requestParameter = new HashMap();
-			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI !?!
+			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI
 		}
 
 		try {

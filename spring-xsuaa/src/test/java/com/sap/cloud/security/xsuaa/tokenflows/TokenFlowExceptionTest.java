@@ -10,7 +10,7 @@ public class TokenFlowExceptionTest {
 	static final Exception CAUSE = new Exception();
 
 	@Test
-	public void test_constructors() {
+	public void constructors() {
 
 		TokenFlowException ex = new TokenFlowException();
 		assertNull("Exception should not have any message.", ex.getMessage());

@@ -1,205 +1,135 @@
-// package com.sap.cloud.security.xsuaa.tokenflows;
-//
-// import com.sap.cloud.security.xsuaa.client.OAuth2Service;
-// import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-// import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-// import org.junit.Before;
-// import org.junit.Test;
-// import org.springframework.http.HttpEntity;
-// import org.springframework.http.HttpHeaders;
-// import org.springframework.http.HttpStatus;
-// import org.springframework.http.MediaType;
-// import org.springframework.security.oauth2.jwt.Jwt;
-// import org.springframework.web.client.RestTemplate;
-// import org.springframework.web.util.UriComponentsBuilder;
-//
-// import java.net.URI;
-// import java.time.Instant;
-// import java.util.HashMap;
-// import java.util.Map;
-//
-// import static org.assertj.core.api.Assertions.assertThatThrownBy;
-//
-// public class RefreshTokenFlowTest {
-//
-// private OAuth2TokenService tokenService;
-// private VariableKeySetUriTokenDecoder tokenDecoder;
-// private String refreshToken;
-//
-// private TokenDecoderMock tokenDecoderMock;
-// private Jwt mockJwt;
-// private String clientId = "clientId";
-// private String clientSecret = "clientSecret";
-//
-// @Before
-// public void setup() {
-// this.tokenService = new OAuth2Service(new RestTemplate());
-// this.tokenDecoder = new NimbusTokenDecoder();
-// this.refreshToken = "dummyRefreshToken";
-//
-// this.mockJwt = buildMockJwt();
-// this.tokenDecoderMock = new TokenDecoderMock(mockJwt);
-// }
-//
-// private Jwt buildMockJwt() {
-// Map<String, Object> jwtHeaders = new HashMap<String, Object>();
-// jwtHeaders.put("dummyHeader", "dummyHeaderValue");
-//
-// Map<String, Object> jwtClaims = new HashMap<String, Object>();
-// jwtClaims.put("dummyClaim", "dummyClaimValue");
-//
-// return new Jwt("mockJwtValue", Instant.now(),
-// Instant.now().plusMillis(100000), jwtHeaders, jwtClaims);
-// }
-//
-// @Test
-// public void test_constructor_withBaseURI() throws TokenFlowException {
-// createTokenFlow();
-// }
-//
-// private RefreshTokenFlow createTokenFlow() {
-// return new RefreshTokenFlow(tokenService, tokenDecoder, new
-// XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-// }
-//
-// @Test
-// public void test_execute_throwsIfMandatoryFieldsNotSet() {
-//
-// assertThatThrownBy(() -> {
-// RefreshTokenFlow tokenFlow = createTokenFlow();
-// tokenFlow.execute();
-// }).isInstanceOf(TokenFlowException.class);
-//
-// assertThatThrownBy(() -> {
-// RefreshTokenFlow tokenFlow = createTokenFlow();
-// tokenFlow.client(clientId)
-// .secret(clientSecret)
-// .execute();
-// }).isInstanceOf(TokenFlowException.class).hasMessageContaining("Refresh token
-// not set");
-//
-// assertThatThrownBy(() -> {
-// RefreshTokenFlow tokenFlow = createTokenFlow();
-// tokenFlow.refreshToken("dummy")
-// .execute();
-// }).isInstanceOf(TokenFlowException.class).hasMessageContaining("Refresh token
-// flow request is not valid");
-//
-// assertThatThrownBy(() -> {
-// RefreshTokenFlow tokenFlow = createTokenFlow();
-// tokenFlow.client(null)
-// .secret(clientSecret)
-// .execute();
-// }).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client
-// ID");
-//
-// assertThatThrownBy(() -> {
-// RefreshTokenFlow tokenFlow = createTokenFlow();
-// tokenFlow.client(clientId)
-// .secret(null)
-// .execute();
-// }).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client
-// secret");
-// }
-//
-// @Test
-// public void test_execute() throws TokenFlowException {
-//
-// HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
-// clientSecret);
-//
-// URI expectedRequestURI =
-// UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-// .queryParam("refresh_token", refreshToken)
-// .queryParam("grant_type", "refresh_token")
-// .build().toUri();
-//
-// RestTemplateMock restTemplateMock = new RestTemplateMock(expectedRequestURI,
-// expectedRequest, Map.class,
-// mockJwt.getTokenValue(), HttpStatus.OK);
-//
-// RefreshTokenFlow tokenFlow = new RefreshTokenFlow(new
-// OAuth2Service(restTemplateMock),
-// tokenDecoderMock,
-// new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-// tokenFlow.refreshToken(refreshToken)
-// .client(clientId)
-// .secret(clientSecret)
-// .execute();
-//
-// restTemplateMock.validateCallstate();
-// tokenDecoderMock.validateCallstate();
-// }
-//
-// @Test
-// public void test_execute_throwsIfHttpStatusUnauthorized() throws
-// TokenFlowException {
-//
-// HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
-// clientSecret);
-//
-// URI expectedRequestURI =
-// UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-// .queryParam("grant_type", "refresh_token")
-// .queryParam("refresh_token", refreshToken)
-// .build().toUri();
-//
-// RestTemplateMock restTemplateMock = new RestTemplateMock(expectedRequestURI,
-// expectedRequest, Map.class,
-// mockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
-//
-// RefreshTokenFlow tokenFlow = new RefreshTokenFlow(new
-// OAuth2Service(restTemplateMock),
-// tokenDecoderMock,
-// new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-//
-// assertThatThrownBy(() -> {
-// tokenFlow.refreshToken(refreshToken)
-// .client(clientId)
-// .secret(clientSecret)
-// .execute();
-// }).isInstanceOf(TokenFlowException.class)
-// .hasMessageContaining(String.format("Received status code %s",
-// HttpStatus.UNAUTHORIZED));
-// }
-//
-// @Test
-// public void test_execute_throwsIfHttpStatusIsNotOK() {
-//
-// HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
-// clientSecret);
-//
-// URI expectedRequestURI =
-// UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-// .queryParam("grant_type", "refresh_token")
-// .queryParam("refresh_token", refreshToken)
-// .build().toUri();
-//
-// RestTemplateMock restTemplateMock = new RestTemplateMock(expectedRequestURI,
-// expectedRequest, Map.class,
-// mockJwt.getTokenValue(), HttpStatus.CONFLICT);
-//
-// RefreshTokenFlow tokenFlow = new RefreshTokenFlow(new
-// OAuth2Service(restTemplateMock),
-// tokenDecoderMock,
-// new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-//
-// assertThatThrownBy(() -> {
-// tokenFlow.refreshToken(refreshToken)
-// .client(clientId)
-// .secret(clientSecret)
-// .execute();
-// }).isInstanceOf(TokenFlowException.class)
-// .hasMessageContaining(String.format("Received status code %s",
-// HttpStatus.CONFLICT));
-// }
-//
-// private HttpEntity<Void> buildExpectedRequest(String clientId, String
-// clientSecret) {
-// HttpHeaders headers = new HttpHeaders();
-// headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
-// headers.add("Authorization", "Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0");
-// HttpEntity<Void> expectedRequest = new HttpEntity<>(headers);
-// return expectedRequest;
-// }
-// }
+package com.sap.cloud.security.xsuaa.tokenflows;
+
+import com.sap.cloud.security.xsuaa.client.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.security.oauth2.jwt.Jwt;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class RefreshTokenFlowTest {
+
+	@Mock
+	private OAuth2TokenService mockTokenService;
+
+	@Mock
+	private VariableKeySetUriTokenDecoder mockTokenDecoder;
+
+	private Jwt mockJwt;
+	private ClientCredentials clientCredentials;
+	private RefreshTokenFlow cut;
+
+	private static final String JWT_ACCESS_TOKEN = "4bfad399ca10490da95c2b5eb4451d53";
+	private static final String REFRESH_TOKEN = "99e2cecfa54f4957a782f07168915b69-r";
+
+	@Before
+	public void setup() {
+		this.mockJwt = buildMockJwt();
+		this.clientCredentials = new ClientCredentials("clientCredentials.getClientId()",
+				"clientCredentials.getClientSecret()");
+		this.cut = new RefreshTokenFlow(mockTokenService, mockTokenDecoder,
+				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+
+		Mockito.when(mockTokenDecoder.decode(JWT_ACCESS_TOKEN)).thenReturn(mockJwt);
+	}
+
+	private Jwt buildMockJwt() {
+		Map<String, Object> jwtHeaders = new HashMap<String, Object>();
+		jwtHeaders.put("dummyHeader", "dummyHeaderValue");
+
+		Map<String, Object> jwtClaims = new HashMap<String, Object>();
+		jwtClaims.put("dummyClaim", "dummyClaimValue");
+
+		return new Jwt("mockJwtValue", Instant.now(),
+				Instant.now().plusMillis(100000), jwtHeaders, jwtClaims);
+	}
+
+	@Test
+	public void constructor_throwsOnNullValues() {
+		assertThatThrownBy(() -> {
+			new RefreshTokenFlow(null, mockTokenDecoder,
+					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
+
+		assertThatThrownBy(() -> {
+			new RefreshTokenFlow(mockTokenService, null,
+					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("TokenDecoder");
+
+		assertThatThrownBy(() -> {
+			new RefreshTokenFlow(mockTokenService, mockTokenDecoder, null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
+	}
+
+	@Test
+	public void execute_throwsIfMandatoryFieldsNotSet() {
+		assertThatThrownBy(() -> {
+			cut.execute();
+		}).isInstanceOf(TokenFlowException.class);
+
+		assertThatThrownBy(() -> {
+			cut.client(clientCredentials.getClientId())
+					.secret(clientCredentials.getClientSecret())
+					.execute();
+		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Refresh token not set");
+
+		assertThatThrownBy(() -> {
+			cut.client(null)
+					.secret(clientCredentials.getClientSecret())
+					.execute();
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
+
+		assertThatThrownBy(() -> {
+			cut.client(clientCredentials.getClientId())
+					.secret(null)
+					.execute();
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client secret");
+	}
+
+	@Test
+	public void execute() throws TokenFlowException {
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231);
+
+		Mockito.when(mockTokenService
+				.retrieveAccessTokenViaRefreshToken(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+						eq(REFRESH_TOKEN)))
+				.thenReturn(accessToken);
+
+		Jwt jwt = cut.client(clientCredentials.getClientId())
+				.secret(clientCredentials.getClientSecret())
+				.refreshToken(REFRESH_TOKEN)
+				.execute();
+
+		assertThat(jwt, is(mockJwt));
+	}
+
+	@Test
+	public void execute_throwsIfServiceRaisesException() {
+		Mockito.when(mockTokenService
+				.retrieveAccessTokenViaRefreshToken(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+						eq(REFRESH_TOKEN)))
+				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
+
+		assertThatThrownBy(() -> {
+			cut.client(clientCredentials.getClientId())
+					.secret(clientCredentials.getClientSecret())
+					.refreshToken(REFRESH_TOKEN)
+					.execute();
+		}).isInstanceOf(TokenFlowException.class)
+				.hasMessageContaining(
+						"Error refreshing token with grant_type 'refresh_token': exception executed REST call");
+	}
+
+}

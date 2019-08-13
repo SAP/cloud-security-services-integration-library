@@ -59,7 +59,7 @@ public class XsuaaAutoConfiguration {
 	 * @param restTemplate
 	 *            - the {@link RestTemplate} to use for the token flow exchange.
 	 * @param decoder
-	 *            - the decoder used for the tokens retrieved via the token tokenflows.
+	 *            - the decoder used for the tokens retrieved via the token flows.
 	 * @return the {@link XsuaaTokenFlows} API.
 	 */
 	@Bean

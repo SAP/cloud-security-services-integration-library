@@ -306,7 +306,7 @@ public class XsuaaToken extends Jwt implements Token {
 		String baseUrl = tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(),
 				"");
 
-		// initialize token tokenflows api
+		// initialize token flows api
 		xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder, new XsuaaDefaultEndpoints(baseUrl));
 
 		switch (tokenRequest.getType()) {

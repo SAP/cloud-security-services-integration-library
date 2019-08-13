@@ -1,43 +1,46 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sap.cloud.security.xsuaa.client.OAuth2Service;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ClientCredentialsTokenFlowTest {
 
-	private OAuth2TokenService tokenService;
-	private VariableKeySetUriTokenDecoder tokenDecoder;
-	private TokenDecoderMock tokenDecoderMock;
+	@Mock
+	private OAuth2TokenService mockTokenService;
+
+	@Mock
+	private VariableKeySetUriTokenDecoder mockTokenDecoder;
+
 	private Jwt mockJwt;
-	private String clientId = "clientId";
-	private String clientSecret = "clientSecret";
+	private ClientCredentials clientCredentials;
+	private ClientCredentialsTokenFlow cut;
+
+	private static final String JWT_ACCESS_TOKEN = "4bfad399ca10490da95c2b5eb4451d53";
 
 	@Before
 	public void setup() {
-		this.tokenService = new OAuth2Service(new RestTemplate());
-		this.tokenDecoder = new NimbusTokenDecoder();
-
 		this.mockJwt = buildMockJwt();
-		this.tokenDecoderMock = new TokenDecoderMock(mockJwt);
+		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
+		this.cut = new ClientCredentialsTokenFlow(mockTokenService, mockTokenDecoder,
+				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+
+		Mockito.when(mockTokenDecoder.decode(JWT_ACCESS_TOKEN)).thenReturn(mockJwt);
 	}
 
 	private Jwt buildMockJwt() {
@@ -52,167 +55,91 @@ public class ClientCredentialsTokenFlowTest {
 	}
 
 	@Test
-	public void test_constructor_withBaseURI() throws TokenFlowException {
-		createTokenFlow();
-	}
-
-	private ClientCredentialsTokenFlow createTokenFlow() {
-		return new ClientCredentialsTokenFlow(tokenService, tokenDecoder,
-				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-	}
-
-	@Test
-	public void test_constructor_throwsOnNullValues() {
+	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(null, tokenDecoder, new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+			new ClientCredentialsTokenFlow(null, mockTokenDecoder,
+					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
 		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(tokenService, null, new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+			new ClientCredentialsTokenFlow(mockTokenService, null,
+					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("TokenDecoder");
 
 		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(tokenService, tokenDecoder, null);
+			new ClientCredentialsTokenFlow(mockTokenService, mockTokenDecoder, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
 	}
 
 	@Test
-	public void test_execute_throwsIfMandatoryFieldsNotSet() {
-
+	public void execute_throwsIfMandatoryFieldsNotSet() {
 		assertThatThrownBy(() -> {
-			ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
-			tokenFlow.client(null)
+			cut.client(null)
 					.secret(TestConstants.clientSecret)
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
 
 		assertThatThrownBy(() -> {
-			ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
-			tokenFlow.client(TestConstants.clientId)
+			cut.client(TestConstants.clientId)
 					.secret(null)
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client secret");
 
 		assertThatThrownBy(() -> {
-			ClientCredentialsTokenFlow tokenFlow = createTokenFlow();
-			tokenFlow.execute();
+			cut.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Client credentials flow request is not valid");
 	}
 
 	@Test
-	public void test_execute() throws TokenFlowException {
+	public void execute() throws TokenFlowException {
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231);
 
-		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
-				clientSecret);
+		Mockito.when(mockTokenService
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+						isNull()))
+				.thenReturn(accessToken);
 
-		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-				.queryParam("grant_type", "client_credentials").build().toUri();
-
-		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
-				expectedRequest, Map.class,
-				mockJwt.getTokenValue(), HttpStatus.OK);
-
-		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock),
-				tokenDecoderMock,
-				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-
-		tokenFlow.client(clientId)
-				.secret(clientSecret)
+		Jwt jwt = cut.client(clientCredentials.getClientId())
+				.secret(clientCredentials.getClientSecret())
 				.execute();
 
-		restTemplateMock.validateCallstate();
-		tokenDecoderMock.validateCallstate();
+		assertThat(jwt, is(mockJwt));
 	}
 
 	@Test
-	public void test_execute_throwsIfHttpStatusUnauthorized() {
-
-		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
-				clientSecret);
-		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-				.queryParam("grant_type", "client_credentials").build().toUri();
-
-		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
-				expectedRequest, Map.class,
-				mockJwt.getTokenValue(), HttpStatus.UNAUTHORIZED);
-
-		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock),
-				tokenDecoderMock,
-				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+	public void execute_throwsIfServiceRaisesException() {
+		Mockito.when(mockTokenService
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+						isNull()))
+				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
-			tokenFlow.client(clientId)
-					.secret(clientSecret)
+			cut.client(clientCredentials.getClientId())
+					.secret(clientCredentials.getClientSecret())
 					.execute();
 		}).isInstanceOf(TokenFlowException.class)
-				.hasMessageContaining(String.format("Received status code %s",
-						HttpStatus.UNAUTHORIZED));
+				.hasMessageContaining(
+						"Error requesting user token with grant_type 'client_credentials': exception executed REST call");
 	}
 
 	@Test
-	public void test_execute_throwsIfHttpStatusIsNotOK() {
-
-		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
-				clientSecret);
-		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-				.queryParam("grant_type", "client_credentials").build().toUri();
-
-		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
-				expectedRequest, Map.class,
-				mockJwt.getTokenValue(), HttpStatus.CONFLICT);
-
-		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock),
-				tokenDecoderMock,
-				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-
-		assertThatThrownBy(() -> {
-			tokenFlow.client(clientId)
-					.secret(clientSecret)
-					.execute();
-		}).isInstanceOf(TokenFlowException.class)
-				.hasMessageContaining(String.format("Received status code %s",
-						HttpStatus.CONFLICT));
-	}
-
-	@Test
-	public void test_execute_withAdditionalAuthorities() throws TokenFlowException, JsonProcessingException {
-
-		HttpEntity<Void> expectedRequest = buildExpectedRequest(clientId,
-				clientSecret);
+	public void execute_withAdditionalAuthorities() throws TokenFlowException {
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231);
 
 		Map<String, String> additionalAuthorities = new HashMap<String, String>();
 		additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
-		String authorities = buildAdditionalAuthoritiesJson(additionalAuthorities);
-		// returns JSON!
 
-		URI expectedURI = UriComponentsBuilder.fromUri(TestConstants.tokenEndpointUri)
-				.queryParam("grant_type", "client_credentials")
-				.queryParam("authorities", authorities)
-				.build()
-				.encode()
-				.toUri();
+		Mockito.when(mockTokenService
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+						isNotNull()))
+				.thenReturn(accessToken);
 
-		RestTemplateMock restTemplateMock = new RestTemplateMock(expectedURI,
-				expectedRequest, Map.class,
-				mockJwt.getTokenValue(), HttpStatus.OK);
-
-		ClientCredentialsTokenFlow tokenFlow = new ClientCredentialsTokenFlow(new OAuth2Service(restTemplateMock),
-				tokenDecoderMock,
-				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-		tokenFlow.client(clientId)
-				.secret(clientSecret)
+		Jwt jwt = cut.client(clientCredentials.getClientId())
+				.secret(clientCredentials.getClientSecret())
 				.attributes(additionalAuthorities)
 				.execute();
 
-		restTemplateMock.validateCallstate();
-		tokenDecoderMock.validateCallstate();
+		assertThat(jwt, is(mockJwt));
 	}
 
-	private HttpEntity<Void> buildExpectedRequest(String clientId, String clientSecret) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
-		headers.add("Authorization", "Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0");
-		HttpEntity<Void> expectedRequest = new HttpEntity<>(headers);
-		return expectedRequest;
-	}
 }
