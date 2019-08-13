@@ -15,11 +15,11 @@ public class ClientCredentials {
 		this.clientSecret = clientSecret;
 	}
 
-	public String getClientSecret() {
+	public String getSecret() {
 		return clientSecret;
 	}
 
-	public String getClientId() {
+	public String getId() {
 		return clientId;
 	}
 }
