@@ -1,10 +1,12 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +111,12 @@ public class UserTokenFlow {
 	 */
 	public UserTokenFlow attributes(Map<String, String> additionalAuthorizationAttributes) {
 		this.request.setAdditionalAuthorizationAttributes(additionalAuthorizationAttributes);
+		return this;
+	}
+
+	public UserTokenFlow subdomain(String subdomain) {
+		this.request.setTokenEndpoint(XsuaaDefaultEndpoints.replaceSubdomain(request.getTokenEndpoint(), subdomain));
+		this.refreshTokenFlow.subdomain(subdomain);
 		return this;
 	}
 

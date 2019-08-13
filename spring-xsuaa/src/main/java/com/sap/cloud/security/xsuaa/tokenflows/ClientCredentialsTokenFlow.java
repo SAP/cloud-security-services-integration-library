@@ -90,6 +90,11 @@ public class ClientCredentialsTokenFlow {
 		return this;
 	}
 
+	public ClientCredentialsTokenFlow subdomain(String subdomain) {
+		this.request.setTokenEndpoint(XsuaaDefaultEndpoints.replaceSubdomain(request.getTokenEndpoint(), subdomain));
+		return this;
+	}
+
 	/**
 	 * Executes the token flow and returns a JWT token from XSUAA.
 	 *
@@ -169,4 +174,6 @@ public class ClientCredentialsTokenFlow {
 		tokenDecoder.setJwksURI(keySetEndpoint);
 		return tokenDecoder.decode(encodedToken);
 	}
+
+
 }

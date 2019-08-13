@@ -83,7 +83,8 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 
 	@Override
 	public XSTokenRequest setTokenEndpoint(URI tokenUri) {
-		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
+		this.tokenServiceEndpoint = tokenUri;
+		return this;
 	}
 
 	/**

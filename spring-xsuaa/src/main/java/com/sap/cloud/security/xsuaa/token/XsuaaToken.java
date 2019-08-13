@@ -292,6 +292,7 @@ public class XsuaaToken extends Jwt implements Token {
 	 *             in case of wron URLs
 	 */
 	@Override
+	@Deprecated
 	public String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException {
 		Assert.notNull(tokenRequest, "TokenRequest argument is required");
 		Assert.isTrue(tokenRequest.isValid(), "TokenRequest is not valid");
@@ -327,7 +328,7 @@ public class XsuaaToken extends Jwt implements Token {
 		Jwt ccfToken;
 		try {
 			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
-					// .subdomain(todo) // TODO
+					.subdomain(this.getSubdomain())
 					.client(clientId)
 					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
 					.secret(clientSecret)
@@ -348,7 +349,8 @@ public class XsuaaToken extends Jwt implements Token {
 		Jwt userToken;
 		try {
 			userToken = xsuaaTokenFlows.userTokenFlow()
-					.token(this) // internally make sure that endpoint is set
+					.subdomain(this.getSubdomain())
+					.token(this)
 					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
 					.client(clientId)
 					.secret(clientSecret)
@@ -372,6 +374,7 @@ public class XsuaaToken extends Jwt implements Token {
 	 * @deprecated with version 1.5 as XsuaaToken inherits from {@link Jwt} which
 	 *             implements {@link JwtClaimAccessor}
 	 */
+	@Deprecated
 	ClaimAccessor getClaimAccessor() {
 		return this;
 	}

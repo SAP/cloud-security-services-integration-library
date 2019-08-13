@@ -80,6 +80,11 @@ public class RefreshTokenFlow {
 		return this;
 	}
 
+	public RefreshTokenFlow subdomain(String subdomain) {
+		this.request.setTokenEndpoint(XsuaaDefaultEndpoints.replaceSubdomain(request.getTokenEndpoint(), subdomain));
+		return this;
+	}
+
 	/**
 	 * Executes the refresh token flow against XSUAA.
 	 * 
