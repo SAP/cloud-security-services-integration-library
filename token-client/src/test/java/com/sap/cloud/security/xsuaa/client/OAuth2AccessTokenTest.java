@@ -10,10 +10,6 @@ import static org.junit.Assert.assertThat;
 
 public class OAuth2AccessTokenTest {
 
-	@Before
-	public void setup() {
-	}
-
 	@Test
 	public void getExpiredDateFromAccessToken() {
 		Date mockDate = new Date(1565047106752L);
