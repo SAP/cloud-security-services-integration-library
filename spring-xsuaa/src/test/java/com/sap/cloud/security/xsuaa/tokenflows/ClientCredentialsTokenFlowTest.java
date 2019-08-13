@@ -99,8 +99,8 @@ public class ClientCredentialsTokenFlowTest {
 						isNull()))
 				.thenReturn(accessToken);
 
-		Jwt jwt = cut.client(clientCredentials.getClientId())
-				.secret(clientCredentials.getClientSecret())
+		Jwt jwt = cut.client(clientCredentials.getId())
+				.secret(clientCredentials.getSecret())
 				.execute();
 
 		assertThat(jwt, is(mockJwt));
@@ -114,8 +114,8 @@ public class ClientCredentialsTokenFlowTest {
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getClientId())
-					.secret(clientCredentials.getClientSecret())
+			cut.client(clientCredentials.getId())
+					.secret(clientCredentials.getSecret())
 					.execute();
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
@@ -134,8 +134,8 @@ public class ClientCredentialsTokenFlowTest {
 						isNotNull()))
 				.thenReturn(accessToken);
 
-		Jwt jwt = cut.client(clientCredentials.getClientId())
-				.secret(clientCredentials.getClientSecret())
+		Jwt jwt = cut.client(clientCredentials.getId())
+				.secret(clientCredentials.getSecret())
 				.attributes(additionalAuthorities)
 				.execute();
 

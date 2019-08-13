@@ -37,8 +37,8 @@ public class RefreshTokenFlowTest {
 	@Before
 	public void setup() {
 		this.mockJwt = buildMockJwt();
-		this.clientCredentials = new ClientCredentials("clientCredentials.getClientId()",
-				"clientCredentials.getClientSecret()");
+		this.clientCredentials = new ClientCredentials("clientCredentials.getId()",
+				"clientCredentials.getSecret()");
 		this.cut = new RefreshTokenFlow(mockTokenService, mockTokenDecoder,
 				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 
@@ -80,19 +80,19 @@ public class RefreshTokenFlowTest {
 		}).isInstanceOf(TokenFlowException.class);
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getClientId())
-					.secret(clientCredentials.getClientSecret())
+			cut.client(clientCredentials.getId())
+					.secret(clientCredentials.getSecret())
 					.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Refresh token not set");
 
 		assertThatThrownBy(() -> {
 			cut.client(null)
-					.secret(clientCredentials.getClientSecret())
+					.secret(clientCredentials.getSecret())
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getClientId())
+			cut.client(clientCredentials.getId())
 					.secret(null)
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client secret");
@@ -107,8 +107,8 @@ public class RefreshTokenFlowTest {
 						eq(REFRESH_TOKEN)))
 				.thenReturn(accessToken);
 
-		Jwt jwt = cut.client(clientCredentials.getClientId())
-				.secret(clientCredentials.getClientSecret())
+		Jwt jwt = cut.client(clientCredentials.getId())
+				.secret(clientCredentials.getSecret())
 				.refreshToken(REFRESH_TOKEN)
 				.execute();
 
@@ -123,8 +123,8 @@ public class RefreshTokenFlowTest {
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getClientId())
-					.secret(clientCredentials.getClientSecret())
+			cut.client(clientCredentials.getId())
+					.secret(clientCredentials.getSecret())
 					.refreshToken(REFRESH_TOKEN)
 					.execute();
 		}).isInstanceOf(TokenFlowException.class)

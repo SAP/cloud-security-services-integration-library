@@ -97,18 +97,18 @@ public class UserTokenFlowTest {
 		}).isInstanceOf(TokenFlowException.class);
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getClientId())
+			cut.client(clientCredentials.getId())
 					.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("User token not set");
 
 		assertThatThrownBy(() -> {
 			cut.client(null)
-					.secret(clientCredentials.getClientSecret())
+					.secret(clientCredentials.getSecret())
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getClientId())
+			cut.client(clientCredentials.getId())
 					.secret(null)
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client secret");
@@ -121,8 +121,8 @@ public class UserTokenFlowTest {
 			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow,
 					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri))
 							.token(invalidMockJwt)
-							.client(clientCredentials.getClientId())
-							.secret(clientCredentials.getClientSecret())
+							.client(clientCredentials.getId())
+							.secret(clientCredentials.getSecret())
 							.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("JWT token does not include scope 'uaa.user'");
 	}
@@ -136,8 +136,8 @@ public class UserTokenFlowTest {
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getClientId())
-					.secret(clientCredentials.getClientSecret())
+			cut.client(clientCredentials.getId())
+					.secret(clientCredentials.getSecret())
 					.token(mockJwt)
 					.execute();
 		}).isInstanceOf(TokenFlowException.class)
@@ -155,8 +155,8 @@ public class UserTokenFlowTest {
 						isNull()))
 				.thenReturn(accessToken);
 
-		Jwt jwt = cut.client(clientCredentials.getClientId())
-				.secret(clientCredentials.getClientSecret())
+		Jwt jwt = cut.client(clientCredentials.getId())
+				.secret(clientCredentials.getSecret())
 				.token(mockJwt)
 				.execute();
 
@@ -176,8 +176,8 @@ public class UserTokenFlowTest {
 						isNotNull()))
 				.thenReturn(accessToken);
 
-		Jwt jwt = cut.client(clientCredentials.getClientId())
-				.secret(clientCredentials.getClientSecret())
+		Jwt jwt = cut.client(clientCredentials.getId())
+				.secret(clientCredentials.getSecret())
 				.token(mockJwt)
 				.attributes(additionalAuthorities)
 				.execute();
