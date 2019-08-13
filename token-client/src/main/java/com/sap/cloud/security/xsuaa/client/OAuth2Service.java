@@ -64,7 +64,7 @@ public class OAuth2Service implements OAuth2TokenService {
 
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_USER_TOKEN);
-		parameters.put(PARAMETER_CLIENT_ID, clientCredentials.getClientId());
+		parameters.put(PARAMETER_CLIENT_ID, clientCredentials.getId());
 
 		Optional.ofNullable(optionalParameters).orElse(new HashMap<String, String>(0)).forEach(parameters::putIfAbsent);
 
@@ -187,7 +187,7 @@ public class OAuth2Service implements OAuth2TokenService {
 		final String CREDENTIALS_FORMAT = "%s:%s";
 
 		String credentialsString = String
-				.format(CREDENTIALS_FORMAT, credentials.getClientId(), credentials.getClientSecret());
+				.format(CREDENTIALS_FORMAT, credentials.getId(), credentials.getSecret());
 		String base64Creds = Base64.getEncoder().encodeToString(credentialsString.getBytes(StandardCharsets.UTF_8));
 		headers.add(HttpHeaders.AUTHORIZATION, String.format(BASIC_AUTH_HEADER_FORMAT, base64Creds));
 	}
