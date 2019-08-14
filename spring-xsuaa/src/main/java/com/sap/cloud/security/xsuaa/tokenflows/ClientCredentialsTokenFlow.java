@@ -175,5 +175,4 @@ public class ClientCredentialsTokenFlow {
 		return tokenDecoder.decode(encodedToken);
 	}
 
-
 }

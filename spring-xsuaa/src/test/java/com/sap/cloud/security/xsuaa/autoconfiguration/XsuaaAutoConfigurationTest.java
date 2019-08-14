@@ -3,10 +3,8 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.tokenflows.NimbusTokenDecoder;
 import com.sap.cloud.security.xsuaa.tokenflows.VariableKeySetUriTokenDecoder;
-import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -38,24 +35,10 @@ public class XsuaaAutoConfigurationTest {
 	private ApplicationContext context;
 
 	@Test
-	public void configures_xsuaaTokenFlows() {
-		assertThat(context.getBean("xsuaaTokenFlows")).isNotNull();
-		assertThat(context.getBean("xsuaaTokenFlows")).isInstanceOf(XsuaaTokenFlows.class);
-		assertThat(context.getBean(XsuaaTokenFlows.class)).isNotNull();
-	}
-
-	@Test
 	public void configures_xsuaaTokenDecoder() {
 		assertThat(context.getBean("xsuaaTokenDecoder")).isNotNull();
 		assertThat(context.getBean("xsuaaTokenDecoder")).isInstanceOf(VariableKeySetUriTokenDecoder.class);
 		assertThat(context.getBean(VariableKeySetUriTokenDecoder.class)).isNotNull();
-	}
-
-	@Test
-	public void configures_xsuaaTokenFlowRestTemplate() {
-		assertThat(context.getBean("xsuaaTokenFlowRestTemplate")).isNotNull();
-		assertThat(context.getBean("xsuaaTokenFlowRestTemplate")).isInstanceOf(RestTemplate.class);
-		assertThat(context.getBean(RestTemplate.class)).isNotNull();
 	}
 
 	@Test
@@ -97,9 +80,7 @@ public class XsuaaAutoConfigurationTest {
 		contextRunner.withClassLoader(new FilteredClassLoader(Jwt.class)) // removes Jwt.class from classpath
 				.run((context) -> {
 					assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration");
-					assertThat(context).doesNotHaveBean("xsuaaTokenFlows");
 					assertThat(context).doesNotHaveBean("xsuaaTokenDecoder");
-					assertThat(context).doesNotHaveBean("xsuaaTokenFlowRestTemplate");
 				});
 	}
 
@@ -111,23 +92,14 @@ public class XsuaaAutoConfigurationTest {
 					assertThat(context).doesNotHaveBean(XsuaaServiceConfigurationDefault.class);
 					assertThat(context).hasBean("userDefinedServiceConfiguration");
 
-					assertThat(context).hasSingleBean(XsuaaTokenFlows.class);
-					assertThat(context).hasBean("userDefinedXsuaaTokenFlows");
-					assertThat(context).doesNotHaveBean("xsuaaTokenFlows");
-
 					assertThat(context).hasSingleBean(VariableKeySetUriTokenDecoder.class);
 					assertThat(context).hasBean("userDefinedXsuaaTokenDecoder");
 					assertThat(context).doesNotHaveBean("xsuaaTokenDecoder");
-
-					assertThat(context).hasSingleBean(RestTemplate.class);
-					assertThat(context).hasBean("userDefinedXsuaaTokenFlowRestTemplate");
-					assertThat(context).doesNotHaveBean("xsuaaTokenFlowRestTemplate");
 				});
 	}
 
 	@Configuration
 	public static class UserConfiguration {
-
 		@Bean
 		public XsuaaServiceConfiguration userDefinedServiceConfiguration() {
 			return new DummyXsuaaServiceConfiguration();
@@ -136,18 +108,6 @@ public class XsuaaAutoConfigurationTest {
 		@Bean
 		public VariableKeySetUriTokenDecoder userDefinedXsuaaTokenDecoder() {
 			return new NimbusTokenDecoder();
-		}
-
-		@Bean
-		public RestTemplate userDefinedXsuaaTokenFlowRestTemplate() {
-			return new RestTemplate();
-		}
-
-		@Bean
-		public XsuaaTokenFlows userDefinedXsuaaTokenFlows(RestTemplate restTemplate,
-				VariableKeySetUriTokenDecoder decoder, XsuaaServiceConfiguration serviceConfiguration) {
-			return new XsuaaTokenFlows(restTemplate, decoder,
-					new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
 		}
 	}
 }

@@ -15,17 +15,18 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.WebApplicationContext;
+
+import static org.springframework.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
  * the XSUAA client library.
  * <p>
- * Activates when there is a bean of type {@link Jwt} configured in the context.
+ * Activates when there is a class of type {@link Jwt} on the classpath.
  *
  * <p>
  * can be disabled
@@ -53,24 +54,6 @@ public class XsuaaAutoConfiguration {
 	}
 
 	/**
-	 * Creates a new {@link XsuaaTokenFlows} bean that applications can auto-wire
-	 * into their controllers to perform a programmatic token flow exchange.
-	 *
-	 * @param restTemplate
-	 *            - the {@link RestTemplate} to use for the token flow exchange.
-	 * @param decoder
-	 *            - the decoder used for the tokens retrieved via the token flows.
-	 * @return the {@link XsuaaTokenFlows} API.
-	 */
-	@Bean
-	@ConditionalOnMissingBean
-	@ConditionalOnBean(XsuaaServiceConfiguration.class)
-	public XsuaaTokenFlows xsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder decoder,
-			XsuaaServiceConfiguration serviceConfiguration) {
-		return new XsuaaTokenFlows(restTemplate, decoder, new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
-	}
-
-	/**
 	 * Creates a {@link VariableKeySetUriTokenDecoder} instance based on a
 	 * {@code NimbusJwtDecoderJwkSupport} implementation which is used by the
 	 * {@link XsuaaTokenFlows} bean.
@@ -78,20 +61,11 @@ public class XsuaaAutoConfiguration {
 	 * @return the {@link VariableKeySetUriTokenDecoder} instance.
 	 */
 	@Bean
+	@Scope(SCOPE_PROTOTYPE)
 	@ConditionalOnMissingBean
 	public VariableKeySetUriTokenDecoder xsuaaTokenDecoder() {
+		logger.info("auto-configures NimbusTokenDecoder");
 		return new NimbusTokenDecoder();
 	}
 
-	/**
-	 * Creates a {@link RestTemplate} instance if the application has not yet
-	 * defined any yet.
-	 *
-	 * @return the {@link RestTemplate} instance.
-	 */
-	@Bean
-	@ConditionalOnMissingBean
-	public RestTemplate xsuaaTokenFlowRestTemplate() {
-		return new RestTemplate();
-	}
 }
