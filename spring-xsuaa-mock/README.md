@@ -62,7 +62,7 @@ org.springframework.boot.env.EnvironmentPostProcessor=<<your package>>.XsuaaMock
 
 ### XSUAA Service Configuration
 
-From version `1.5.0` on the [`MockXsuaaServiceConfiguration`](src/main/java/com/sap/cloud/security/xsuaa/mock/MockXsuaaServiceConfiguration.java) is auto-configured. This class overwrites Xsuaa url and uaadomain to point to the Xsuaa Mock Web Server. This is relevant for validating the `jku` URI that is provided as part of the JSON Web Signature (JWS). The `jku` of the Jwt token issued by the `JwtGenerator` references the public key URI of the `XsuaaMockWebServer` used for generating the signature.
+From version `1.5.0` on the [`MockXsuaaServiceConfiguration`](src/main/java/com/sap/cloud/security/xsuaa/mock/MockXsuaaServiceConfiguration.java) is auto-configured [here](src/main/java/com/sap/cloud/security/xsuaa/mock/autoconfiguration/XsuaaMockAutoConfiguration.java). This class overwrites Xsuaa url and uaadomain to point to the Xsuaa Mock Web Server. This is relevant for validating the `jku` URI that is provided as part of the JSON Web Signature (JWS). The `jku` of the Jwt token issued by the `JwtGenerator` references the public key URI of the `XsuaaMockWebServer` used for generating the signature.
 
 ### Extendability
 Note: it is possible to extend the dispatcher and pass this to the `XsuaaMockWebServer` constructor. An example `XsuaaMockPostProcessor` implementation can be found [here](src/test/java/com/sap/cloud/security/xsuaa/mock/XsuaaMockPostProcessor.java).
