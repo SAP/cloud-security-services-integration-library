@@ -11,7 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestOperations;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -38,11 +38,11 @@ public class DefaultOAuth2TokenServiceRefreshTokenTest {
 	Map<String, String> responseMap;
 
 	@Mock
-	RestTemplate mockRestTemplate;
+	RestOperations mockRestOperations;
 
 	@Before
 	public void setup() {
-		cut = new DefaultOAuth2TokenService(mockRestTemplate);
+		cut = new DefaultOAuth2TokenService(mockRestOperations);
 		clientCredentials = new ClientCredentials("clientid", "mysecretpassword");
 		tokenEndpoint = URI.create("https://subdomain.myauth.server.com/oauth/token");
 
@@ -53,7 +53,7 @@ public class DefaultOAuth2TokenServiceRefreshTokenTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void initialize_throwsIfRestTemplateIsNull() {
+	public void initialize_throwsIfRestOperationsIsNull() {
 		new DefaultOAuth2TokenService(null);
 	}
 
@@ -74,7 +74,7 @@ public class DefaultOAuth2TokenServiceRefreshTokenTest {
 
 	@Test(expected = OAuth2ServiceException.class)
 	public void retrieveToken_throwsIfHttpStatusUnauthorized() {
-		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
+		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
 				refreshToken);
@@ -82,7 +82,7 @@ public class DefaultOAuth2TokenServiceRefreshTokenTest {
 
 	@Test(expected = OAuth2ServiceException.class)
 	public void retrieveToken_throwsIfHttpStatusNotOk() {
-		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
+		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
 				refreshToken);
@@ -95,7 +95,7 @@ public class DefaultOAuth2TokenServiceRefreshTokenTest {
 		expectedHeaders.add(HttpHeaders.AUTHORIZATION, "Basic Y2xpZW50aWQ6bXlzZWNyZXRwYXNzd29yZA==");
 		HttpEntity expectedRequest = new HttpEntity(expectedHeaders);
 
-		Mockito.when(mockRestTemplate
+		Mockito.when(mockRestOperations
 				.postForEntity(
 						eq(createUriWithParameters(
 								"refresh_token=" + refreshToken + "&grant_type=refresh_token")),

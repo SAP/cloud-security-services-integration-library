@@ -11,7 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestOperations;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -37,11 +37,11 @@ public class DefaultOAuth2TokenServiceUserTokenTest {
 	private static final String userTokenToBeExchanged = "65a84cd45c554c6993ea26cb8f9cf3a2";
 
 	@Mock
-	RestTemplate mockRestTemplate;
+	RestOperations mockRestOperations;
 
 	@Before
 	public void setup() {
-		cut = new DefaultOAuth2TokenService(mockRestTemplate);
+		cut = new DefaultOAuth2TokenService(mockRestOperations);
 		clientCredentials = new ClientCredentials("clientid", "mysecretpassword");
 		tokenEndpoint = URI.create("https://subdomain.myauth.server.com/oauth/token");
 
@@ -52,7 +52,7 @@ public class DefaultOAuth2TokenServiceUserTokenTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void initialize_throwsIfRestTemplateIsNull() {
+	public void initialize_throwsIfRestOperationsIsNull() {
 		new DefaultOAuth2TokenService(null);
 	}
 
@@ -73,7 +73,7 @@ public class DefaultOAuth2TokenServiceUserTokenTest {
 
 	@Test(expected = OAuth2ServiceException.class)
 	public void retrieveToken_throwsIfHttpStatusUnauthorized() {
-		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
+		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 		cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
 				userTokenToBeExchanged, null);
@@ -81,7 +81,7 @@ public class DefaultOAuth2TokenServiceUserTokenTest {
 
 	@Test(expected = OAuth2ServiceException.class)
 	public void retrieveToken_throwsIfHttpStatusNotOk() {
-		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
+		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 		cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
 				userTokenToBeExchanged, null);
@@ -94,7 +94,7 @@ public class DefaultOAuth2TokenServiceUserTokenTest {
 		expectedHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer " + userTokenToBeExchanged);
 		HttpEntity expectedRequest = new HttpEntity(expectedHeaders);
 
-		Mockito.when(mockRestTemplate
+		Mockito.when(mockRestOperations
 				.postForEntity(eq(createUriWithParameters("grant_type=user_token&client_id=clientid")),
 						eq(expectedRequest),
 						eq(Map.class)))
@@ -109,7 +109,7 @@ public class DefaultOAuth2TokenServiceUserTokenTest {
 
 	@Test
 	public void retrieveToken_withOptionalParamaters() {
-		Mockito.when(mockRestTemplate.postForEntity(
+		Mockito.when(mockRestOperations.postForEntity(
 				eq(createUriWithParameters(
 						"add-param-1=value1&add-param-2=value2&grant_type=user_token&client_id=clientid")),
 				any(HttpEntity.class), eq(Map.class)))
@@ -127,7 +127,7 @@ public class DefaultOAuth2TokenServiceUserTokenTest {
 	@Test
 	public void retrieveToken_requiredParametersCanNotBeOverwritten() {
 		Mockito.when(
-				mockRestTemplate.postForEntity(eq(createUriWithParameters("grant_type=user_token&client_id=clientid")),
+				mockRestOperations.postForEntity(eq(createUriWithParameters("grant_type=user_token&client_id=clientid")),
 						any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
