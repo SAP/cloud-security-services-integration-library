@@ -1,17 +1,18 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import java.net.URI;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
-	private URI baseUri;
+	private final URI baseUri;
 	private final static String TOKEN_ENDPOINT = "/oauth/token";
 	private final static String AUTHORIZE_ENDPOINT = "/oauth/authorize";
 	private final static String KEYSET_ENDPOINT = "/token_keys";
@@ -70,10 +71,10 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	static public URI replaceSubdomain(@NonNull URI uri, @Nullable String subdomain) {
 		Assert.notNull(uri, "the uri parameter must not be null");
 		if (StringUtils.hasText(subdomain) && uri.getHost().contains(".")) {
-			UriComponentsBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme())
+			UriBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme())
 					.host(subdomain + uri.getHost().substring(uri.getHost().indexOf("."))).port(uri.getPort())
 					.path(uri.getPath());
-			return uri.resolve(builder.build().toString());
+			return uri.resolve(builder.build());
 		}
 		logger.warn("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
 		return uri;
