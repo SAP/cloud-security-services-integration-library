@@ -19,6 +19,7 @@ import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.ACCESS_TOKEN;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.REFRESH_TOKEN;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.EXPIRES_IN;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -29,7 +30,8 @@ import static org.mockito.Mockito.eq;
 @RunWith(MockitoJUnitRunner.class)
 public class OAuth2ServiceRefreshTokenTest {
 
-	String refreshToken = "d2faefe7ea834ba895d20730f106128c-r";
+	private static String refreshToken = "d2faefe7ea834ba895d20730f106128c-r";
+
 	OAuth2TokenService cut;
 	ClientCredentials clientCredentials;
 	URI tokenEndpoint;
@@ -45,9 +47,9 @@ public class OAuth2ServiceRefreshTokenTest {
 		tokenEndpoint = URI.create("https://subdomain.myauth.server.com/oauth/token");
 
 		responseMap = new HashMap<>();
-		responseMap.putIfAbsent(REFRESH_TOKEN, "2170b564228448c6aed8b1ddfdb8bf53-r");
-		responseMap.putIfAbsent(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0");
-		responseMap.putIfAbsent(OAuth2TokenServiceConstants.EXPIRES_IN, "43199");
+		responseMap.put(REFRESH_TOKEN, "2170b564228448c6aed8b1ddfdb8bf53-r");
+		responseMap.put(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0");
+		responseMap.put(EXPIRES_IN, "43199");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -96,7 +98,7 @@ public class OAuth2ServiceRefreshTokenTest {
 		Mockito.when(mockRestTemplate
 				.postForEntity(
 						eq(createUriWithParameters(
-								"refresh_token=d2faefe7ea834ba895d20730f106128c-r&grant_type=refresh_token")),
+								"refresh_token=" + refreshToken + "&grant_type=refresh_token")),
 						eq(expectedRequest),
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));

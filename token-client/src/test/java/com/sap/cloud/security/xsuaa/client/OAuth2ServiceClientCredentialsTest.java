@@ -102,7 +102,7 @@ public class OAuth2ServiceClientCredentialsTest {
 	@Test
 	public void retrieveToken_withOptionalParamaters() {
 		Mockito.when(mockRestTemplate.postForEntity(
-				eq(createUriWithParameters("grant_type=client_credentials&add-param-1=value1&add-param-2=value2")),
+				eq(createUriWithParameters("add-param-1=value1&grant_type=client_credentials&add-param-2=value2")),
 				any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
