@@ -92,11 +92,11 @@ public class ClientCredentialsTokenFlowTest {
 
 	@Test
 	public void execute() throws TokenFlowException {
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231);
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231, null);
 
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						isNull()))
+						isNull(), isNull()))
 				.thenReturn(accessToken);
 
 		Jwt jwt = cut.client(clientCredentials.getId())
@@ -110,7 +110,7 @@ public class ClientCredentialsTokenFlowTest {
 	public void execute_throwsIfServiceRaisesException() {
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						isNull()))
+						isNull(), isNull()))
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
@@ -124,14 +124,14 @@ public class ClientCredentialsTokenFlowTest {
 
 	@Test
 	public void execute_withAdditionalAuthorities() throws TokenFlowException {
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231);
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231, null);
 
 		Map<String, String> additionalAuthorities = new HashMap<String, String>();
 		additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
 
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						isNotNull()))
+						isNull(), isNotNull()))
 				.thenReturn(accessToken);
 
 		Jwt jwt = cut.client(clientCredentials.getId())

@@ -14,7 +14,7 @@ import org.springframework.util.Assert;
  */
 public class RefreshTokenFlow {
 
-	private XSTokenRequest request;
+	private XsuaaTokenFlowRequest request;
 	private String refreshToken;
 	private OAuth2TokenService tokenService;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
@@ -81,7 +81,7 @@ public class RefreshTokenFlow {
 	}
 
 	public RefreshTokenFlow subdomain(String subdomain) {
-		this.request.setTokenEndpoint(XsuaaDefaultEndpoints.replaceSubdomain(request.getTokenEndpoint(), subdomain));
+		request.setSubdomain(subdomain);
 		return this;
 	}
 
@@ -133,10 +133,10 @@ public class RefreshTokenFlow {
 	 * @throws TokenFlowException
 	 *             in case of an error in the flow.
 	 */
-	private Jwt refreshToken(String refreshToken, XSTokenRequest request) throws TokenFlowException {
+	private Jwt refreshToken(String refreshToken, XsuaaTokenFlowRequest request) throws TokenFlowException {
 		try {
 			OAuth2AccessToken accessToken = tokenService.retrieveAccessTokenViaRefreshToken(request.getTokenEndpoint(),
-					new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken);
+					new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken, request.getSubdomain());
 			return decode(accessToken.getValue(), endpointsProvider.getJwksUri());
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(

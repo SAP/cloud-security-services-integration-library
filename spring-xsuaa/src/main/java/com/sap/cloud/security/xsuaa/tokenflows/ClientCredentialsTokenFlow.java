@@ -21,7 +21,7 @@ public class ClientCredentialsTokenFlow {
 
 	private static final String AUTHORITIES = "authorities";
 
-	private XSTokenRequest request;
+	private XsuaaTokenFlowRequest request;
 	private VariableKeySetUriTokenDecoder tokenDecoder;
 	private OAuth2TokenService tokenService;
 	private OAuth2ServiceEndpointsProvider endpointsProvider;
@@ -86,12 +86,12 @@ public class ClientCredentialsTokenFlow {
 	 * @return this builder.
 	 */
 	public ClientCredentialsTokenFlow attributes(Map<String, String> additionalAuthorizationAttributes) {
-		this.request.setAdditionalAuthorizationAttributes(additionalAuthorizationAttributes);
+		request.setAdditionalAuthorizationAttributes(additionalAuthorizationAttributes);
 		return this;
 	}
 
 	public ClientCredentialsTokenFlow subdomain(String subdomain) {
-		this.request.setTokenEndpoint(XsuaaDefaultEndpoints.replaceSubdomain(request.getTokenEndpoint(), subdomain));
+		request.setSubdomain(subdomain);
 		return this;
 	}
 
@@ -134,7 +134,7 @@ public class ClientCredentialsTokenFlow {
 	 *             in case of an error during the flow.
 	 */
 	@Nullable
-	private Jwt requestTechnicalUserToken(XSTokenRequest request) throws TokenFlowException {
+	private Jwt requestTechnicalUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
 		Map requestParameter = null;
 		String authorities = buildAuthorities(request);
 
@@ -147,7 +147,7 @@ public class ClientCredentialsTokenFlow {
 			OAuth2AccessToken accessToken = tokenService
 					.retrieveAccessTokenViaClientCredentialsGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
-							requestParameter);
+							request.getSubdomain(), requestParameter);
 			return decode(accessToken.getValue(), endpointsProvider.getJwksUri());
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(

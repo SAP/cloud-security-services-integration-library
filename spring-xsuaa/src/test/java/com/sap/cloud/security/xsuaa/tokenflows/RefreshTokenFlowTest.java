@@ -100,11 +100,11 @@ public class RefreshTokenFlowTest {
 
 	@Test
 	public void execute() throws TokenFlowException {
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231);
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231, null);
 
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaRefreshToken(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						eq(REFRESH_TOKEN)))
+						eq(REFRESH_TOKEN), isNull()))
 				.thenReturn(accessToken);
 
 		Jwt jwt = cut.client(clientCredentials.getId())
@@ -119,7 +119,7 @@ public class RefreshTokenFlowTest {
 	public void execute_throwsIfServiceRaisesException() {
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaRefreshToken(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						eq(REFRESH_TOKEN)))
+						eq(REFRESH_TOKEN), isNull()))
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {

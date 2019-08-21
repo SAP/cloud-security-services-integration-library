@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.sap.xsa.security.container.XSTokenRequest;
+import com.sun.istack.internal.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -15,6 +17,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 
 	private String clientId;
 	private URI tokenServiceEndpoint;
+	private String subdomain;
 	private String clientSecret;
 	private Map<String, String> additionalAuthorizationAttributes;
 
@@ -71,20 +74,29 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 		return this;
 	}
 
+	/**
+	 * @deprecated in favor of @link{XsuaaTokenFlows} API
+	 */
 	@Override
 	public XSTokenRequest setType(int type) {
 		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
 	}
 
+	/**
+	 * @deprecated in favor of @link{XsuaaTokenFlows} API
+	 */
 	@Override
 	public int getType() {
 		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
 	}
 
+
+	/**
+	 * @deprecated in favor of @link{{@link #setSubdomain} )}}
+	 */
 	@Override
 	public XSTokenRequest setTokenEndpoint(URI tokenUri) {
-		this.tokenServiceEndpoint = tokenUri;
-		return this;
+		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
 	}
 
 	/**
@@ -96,5 +108,30 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	@Override
 	public boolean isValid() {
 		return (getTokenEndpoint() != null) && (clientId != null) && (clientSecret != null);
+	}
+
+	/**
+	 * Get the Identity Zone this request goes to by providing the subdomain (tenant).
+	 *
+	 * @return subdomain or null in case no subdomain is specified
+	 */
+	@Nullable
+	public String getSubdomain() {
+		return this.subdomain;
+	}
+
+	/**
+	 * Set the Subdomain the token is requested for.
+	 *
+	 * @param subdomain
+	 * 	 indicates what Identity Zone this request goes to by
+	 * 	 supplying a subdomain (tenant).
+	 *
+	 * @return this mutable object
+	 *
+	 */
+	public XSTokenRequest setSubdomain(String subdomain) {
+		this.subdomain = subdomain;
+		return this;
 	}
 }

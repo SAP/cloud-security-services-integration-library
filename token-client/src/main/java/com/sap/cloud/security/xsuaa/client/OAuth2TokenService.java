@@ -75,7 +75,7 @@ public interface OAuth2TokenService {
 	 *            the refresh token that was returned along with the access token
 	 *            {link #OAuth2AccessToken}.
 	 * @param subdomain
-	 *            * optionally indicates what Identity Zone this request goes to by
+	 *            optionally indicates what Identity Zone this request goes to by
 	 *            supplying a subdomain (tenant).
 	 * @return the OAuth2AccessToken
 	 * @throws OAuth2ServiceException

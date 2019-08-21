@@ -9,6 +9,8 @@ package com.sap.xsa.security.container;
 import java.net.URI;
 import java.util.Map;
 
+import com.sun.istack.internal.Nullable;
+
 /**
  * Represents a token exchange request.
  */
@@ -87,7 +89,6 @@ public interface XSTokenRequest {
 	 *
 	 * @return the type of the requested token
 	 *
-	 * @deprecated in favor of XsuaaTokenFlows API
 	 */
 	public int getType();
 
@@ -99,13 +100,12 @@ public interface XSTokenRequest {
 	 *            TYPE_CLIENT_CREDENTIAL_TOKEN
 	 * @return this mutable object
 	 *
-	 * @deprecated in favor of XsuaaTokenFlows API
 	 */
 	public XSTokenRequest setType(int type);
 
 	/**
 	 * Returns the token exchange endpoint URI. For example
-	 * {@code https://<server>:<port>/uaa/oauth/token}.
+	 * {@code https://<server>:<port>/oauth/token}.
 	 *
 	 * @return the token exchange endpoint URI.
 	 */
@@ -119,5 +119,8 @@ public interface XSTokenRequest {
 	 * @return this mutable object
 	 */
 	public XSTokenRequest setTokenEndpoint(URI tokenEndpoint);
+
+
+
 
 }

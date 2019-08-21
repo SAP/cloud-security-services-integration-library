@@ -25,7 +25,7 @@ public class UserTokenFlow {
 	private static final String SCOPE_CLAIM = "scope";
 	private static final String AUTHORITIES = "authorities";
 
-	private XSTokenRequest request;
+	private XsuaaTokenFlowRequest request;
 	private Jwt token;
 	private RefreshTokenFlow refreshTokenFlow;
 	private OAuth2TokenService tokenService;
@@ -115,7 +115,7 @@ public class UserTokenFlow {
 	}
 
 	public UserTokenFlow subdomain(String subdomain) {
-		this.request.setTokenEndpoint(XsuaaDefaultEndpoints.replaceSubdomain(request.getTokenEndpoint(), subdomain));
+		this.request.setSubdomain(subdomain);
 		this.refreshTokenFlow.subdomain(subdomain);
 		return this;
 	}
@@ -171,7 +171,7 @@ public class UserTokenFlow {
 	 * @throws TokenFlowException
 	 *             in case of an error during the flow.
 	 */
-	private Jwt requestUserToken(XSTokenRequest request) throws TokenFlowException {
+	private Jwt requestUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
 		Map<String, String> optionalParameter = null;
 		String authorities = buildAuthorities(request);
 
@@ -185,7 +185,7 @@ public class UserTokenFlow {
 			OAuth2AccessToken accessToken = tokenService
 					.retrieveAccessTokenViaUserTokenGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
-							token.getTokenValue(), optionalParameter);
+							token.getTokenValue(), request.getSubdomain(), optionalParameter);
 
 			if (accessToken.getRefreshToken().isPresent()) {
 				refreshToken = accessToken.getRefreshToken().get();

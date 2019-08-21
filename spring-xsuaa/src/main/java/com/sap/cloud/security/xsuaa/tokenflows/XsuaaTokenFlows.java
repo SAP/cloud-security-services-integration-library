@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2Service;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
@@ -81,6 +81,6 @@ public class XsuaaTokenFlows {
 	}
 
 	OAuth2TokenService initializeTokenService() {
-		return new OAuth2Service(restTemplate);
+		return new XsuaaOAuth2TokenService(restTemplate);
 	}
 }
