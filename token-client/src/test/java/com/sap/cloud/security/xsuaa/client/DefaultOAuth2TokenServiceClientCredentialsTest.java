@@ -27,7 +27,7 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.any;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OAuth2ServiceClientCredentialsTest {
+public class DefaultOAuth2TokenServiceClientCredentialsTest {
 
 	OAuth2TokenService cut;
 	ClientCredentials clientCredentials;
@@ -39,7 +39,7 @@ public class OAuth2ServiceClientCredentialsTest {
 
 	@Before
 	public void setup() {
-		cut = new OAuth2Service(mockRestTemplate);
+		cut = new DefaultOAuth2TokenService(mockRestTemplate);
 		clientCredentials = new ClientCredentials("clientid", "mysecretpassword");
 		tokenEndpoint = URI.create("https://subdomain.myauth.server.com/oauth/token");
 
@@ -50,7 +50,7 @@ public class OAuth2ServiceClientCredentialsTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void initialize_throwsIfRestTemplateIsNull() {
-		new OAuth2Service(null);
+		new DefaultOAuth2TokenService(null);
 	}
 
 	@Test
