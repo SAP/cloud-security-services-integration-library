@@ -19,6 +19,7 @@ import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.ACCESS_TOKEN;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.REFRESH_TOKEN;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.EXPIRES_IN;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -33,7 +34,7 @@ public class OAuth2ServiceUserTokenTest {
 	ClientCredentials clientCredentials;
 	URI tokenEndpoint;
 	Map<String, String> responseMap;
-	String userTokenToBeExchanged = "65a84cd45c554c6993ea26cb8f9cf3a2";
+	private static final String userTokenToBeExchanged = "65a84cd45c554c6993ea26cb8f9cf3a2";
 
 	@Mock
 	RestTemplate mockRestTemplate;
@@ -45,9 +46,9 @@ public class OAuth2ServiceUserTokenTest {
 		tokenEndpoint = URI.create("https://subdomain.myauth.server.com/oauth/token");
 
 		responseMap = new HashMap<>();
-		responseMap.putIfAbsent(REFRESH_TOKEN, "2170b564228448c6aed8b1ddfdb8bf53-r");
-		responseMap.putIfAbsent(ACCESS_TOKEN, "4d841646fcc340f59b1b7b43df4b050d"); // opaque access token
-		responseMap.putIfAbsent(OAuth2TokenServiceConstants.EXPIRES_IN, "43199");
+		responseMap.put(REFRESH_TOKEN, "2170b564228448c6aed8b1ddfdb8bf53-r");
+		responseMap.put(ACCESS_TOKEN, "4d841646fcc340f59b1b7b43df4b050d"); // opaque access token
+		responseMap.put(EXPIRES_IN, "43199");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -90,7 +91,7 @@ public class OAuth2ServiceUserTokenTest {
 	public void retrieveToken() {
 		HttpHeaders expectedHeaders = new HttpHeaders();
 		expectedHeaders.add(HttpHeaders.ACCEPT, "application/json");
-		expectedHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer 65a84cd45c554c6993ea26cb8f9cf3a2");
+		expectedHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer " + userTokenToBeExchanged);
 		HttpEntity expectedRequest = new HttpEntity(expectedHeaders);
 
 		Mockito.when(mockRestTemplate
@@ -110,7 +111,7 @@ public class OAuth2ServiceUserTokenTest {
 	public void retrieveToken_withOptionalParamaters() {
 		Mockito.when(mockRestTemplate.postForEntity(
 				eq(createUriWithParameters(
-						"grant_type=user_token&add-param-1=value1&add-param-2=value2&client_id=clientid")),
+						"add-param-1=value1&add-param-2=value2&grant_type=user_token&client_id=clientid")),
 				any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 

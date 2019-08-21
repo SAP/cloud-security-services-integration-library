@@ -1,38 +1,25 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.junit.Assert.assertThat;
 
 import java.util.Date;
-import static org.hamcrest.CoreMatchers.is;
+import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertThat;
+import org.hamcrest.number.OrderingComparison;
+import org.junit.Test;
 
 public class OAuth2AccessTokenTest {
 
 	@Test
 	public void getExpiredDateFromAccessToken() {
-		Date mockDate = new Date(1565047106752L);
-		OAuth2AccessToken accessToken = new OAuth2AccessTokenMock("e9511922b5e64c49ba0eedcc8d772e76", 43199, mockDate);
-		assertThat(accessToken.getExpiredAtDate().getTime(), is(1565090305752L));
-	}
+		long expireInSeconds = 43199;
+		Date minExpireDate = new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expireInSeconds));
+		OAuth2AccessToken accessToken = new OAuth2AccessToken("e9511922b5e64c49ba0eedcc8d772e76", expireInSeconds,
+				null);
+		Date maxExpireDate = new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expireInSeconds));
 
-	// for testing only
-	Date getCurrentTime() {
-		return new Date();
-	}
-
-	private static class OAuth2AccessTokenMock extends OAuth2AccessToken {
-
-		private Date mockDate;
-
-		public OAuth2AccessTokenMock(String accessToken, long expiredInSeconds, Date mockDate) {
-			super(accessToken, expiredInSeconds);
-			this.mockDate = mockDate;
-		}
-
-		Date getCurrentTime() {
-			return mockDate;
-		}
+		assertThat(accessToken.getExpiredAtDate(), allOf(OrderingComparison.greaterThanOrEqualTo(minExpireDate),
+				OrderingComparison.lessThanOrEqualTo(maxExpireDate)));
 	}
 }

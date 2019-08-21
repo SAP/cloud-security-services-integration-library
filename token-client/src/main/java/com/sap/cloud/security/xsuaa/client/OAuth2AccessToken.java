@@ -2,19 +2,21 @@ package com.sap.cloud.security.xsuaa.client;
 
 import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 public class OAuth2AccessToken {
-	protected String refreshToken;
-	protected String accessToken;
-	protected long expiredInSeconds;
+	private String refreshToken;
+	private String accessToken;
+	private long expiredTimeMillis;
 
-	public OAuth2AccessToken(String accessToken, long expiredInSeconds) {
+	public OAuth2AccessToken(String accessToken, long expiredInSeconds, @Nullable String refreshToken) {
+		Assert.hasText(accessToken, "accessToken is required");
+
 		this.accessToken = accessToken;
-		this.expiredInSeconds = expiredInSeconds;
-	}
-
-	public OAuth2AccessToken(String accessToken, String refreshToken, long expiredInSeconds) {
-		this(accessToken, expiredInSeconds);
+		this.expiredTimeMillis = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expiredInSeconds);
 		this.refreshToken = refreshToken;
 	}
 
@@ -23,18 +25,7 @@ public class OAuth2AccessToken {
 	}
 
 	public Date getExpiredAtDate() {
-		return calculateDate(expiredInSeconds);
-	}
-
-	private Date calculateDate(long expiredInSeconds) {
-		long timeInMilliSeconds = getCurrentTime().getTime();
-		timeInMilliSeconds += expiredInSeconds * 1000;
-		return new Date(timeInMilliSeconds);
-	}
-
-	// for testing only
-	Date getCurrentTime() {
-		return new Date();
+		return new Date(expiredTimeMillis);
 	}
 
 	public Optional<String> getRefreshToken() {

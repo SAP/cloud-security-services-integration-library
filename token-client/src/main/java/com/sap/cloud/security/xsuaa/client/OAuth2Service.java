@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE;
@@ -35,23 +34,13 @@ public class OAuth2Service implements OAuth2TokenService {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 
-		Map<String, String> parameters = new HashMap<>();
+		Map<String, String> parameters = copy(optionalParameters);
 		parameters.put(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS);
-
-		Optional.ofNullable(optionalParameters).orElse(new HashMap<String, String>(0)).forEach(parameters::putIfAbsent);
-
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
-
-		// add query parameters to URI
-		parameters.forEach(builder::queryParam);
 
 		// build header
 		HttpHeaders headers = createHeadersWithAuthorization(clientCredentials);
-		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-		URI requestUri = builder.build().encode().toUri();
-
-		return requestAccessToken(requestUri, requestEntity);
+		return requestAccessToken(tokenEndpointUri, headers, parameters);
 	}
 
 	@Override
@@ -63,23 +52,14 @@ public class OAuth2Service implements OAuth2TokenService {
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 		Assert.notNull(token, "token is required");
 
-		Map<String, String> parameters = new HashMap<>();
+		Map<String, String> parameters = copy(optionalParameters);
 		parameters.put(GRANT_TYPE, GRANT_TYPE_USER_TOKEN);
 		parameters.put(PARAMETER_CLIENT_ID, clientCredentials.getId());
 
-		Optional.ofNullable(optionalParameters).orElse(new HashMap<String, String>(0)).forEach(parameters::putIfAbsent);
-
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
-
-		// add query parameters to URI
-		parameters.forEach(builder::queryParam);
-
 		// build header
 		HttpHeaders headers = createHeadersWithAuthorization(token);
-		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-		URI requestUri = builder.build().encode().toUri();
-		return requestAccessToken(requestUri, requestEntity);
+		return requestAccessToken(tokenEndpointUri, headers, parameters);
 	}
 
 	@Override
@@ -93,23 +73,25 @@ public class OAuth2Service implements OAuth2TokenService {
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
 		parameters.put(REFRESH_TOKEN, refreshToken);
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
-
-		// add query parameters to URI
-		parameters.forEach(builder::queryParam);
 
 		// build header
 		HttpHeaders headers = createHeadersWithAuthorization(clientCredentials);
-		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-		URI requestUri = builder.build().encode().toUri();
-
-		return requestAccessToken(requestUri, requestEntity);
+		return requestAccessToken(tokenEndpointUri, headers, parameters);
 	}
 
-	private OAuth2AccessToken requestAccessToken(URI requestUri, HttpEntity<Void> requestEntity)
-			throws OAuth2ServiceException {
+	private OAuth2AccessToken requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
+			Map<String, String> parameters) {
 
+		// Create URI
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
+		parameters.forEach(builder::queryParam);
+		URI requestUri = builder.build().encode().toUri();
+
+		// Create entity
+		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> responseEntity = null;
 		try {
 			responseEntity = restTemplate.postForEntity(requestUri, requestEntity, Map.class);
@@ -129,12 +111,23 @@ public class OAuth2Service implements OAuth2TokenService {
 					"Error retrieving JWT token. Call to XSUAA was not successful: %s",
 					ex.getMessage()));
 		}
+
+		@SuppressWarnings("unchecked")
 		Map<String, String> accessTokenMap = responseEntity.getBody();
 
 		String accessToken = accessTokenMap.get(ACCESS_TOKEN);
 		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
 		String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
-		return new OAuth2AccessToken(accessToken, refreshToken, expiresIn);
+		return new OAuth2AccessToken(accessToken, expiresIn, refreshToken);
+	}
+
+	/**
+	 * Create a copy of the given map or an new empty map
+	 * 
+	 * @return a new Map that contains all entries of the optional map
+	 */
+	private static Map<String, String> copy(Map<String, String> map) {
+		return map == null ? new HashMap<>() : new HashMap<>(map);
 	}
 
 	/**

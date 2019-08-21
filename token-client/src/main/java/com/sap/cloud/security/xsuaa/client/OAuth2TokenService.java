@@ -2,7 +2,6 @@ package com.sap.cloud.security.xsuaa.client;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Retrieves OAuth2 Access Tokens as documented here:
