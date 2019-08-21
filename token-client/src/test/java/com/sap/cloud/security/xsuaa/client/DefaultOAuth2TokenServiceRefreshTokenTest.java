@@ -28,115 +28,86 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OAuth2ServiceUserTokenTest {
+public class DefaultOAuth2TokenServiceRefreshTokenTest {
+
+	private static String refreshToken = "d2faefe7ea834ba895d20730f106128c-r";
 
 	OAuth2TokenService cut;
 	ClientCredentials clientCredentials;
 	URI tokenEndpoint;
 	Map<String, String> responseMap;
-	private static final String userTokenToBeExchanged = "65a84cd45c554c6993ea26cb8f9cf3a2";
 
 	@Mock
 	RestTemplate mockRestTemplate;
 
 	@Before
 	public void setup() {
-		cut = new OAuth2Service(mockRestTemplate);
+		cut = new DefaultOAuth2TokenService(mockRestTemplate);
 		clientCredentials = new ClientCredentials("clientid", "mysecretpassword");
 		tokenEndpoint = URI.create("https://subdomain.myauth.server.com/oauth/token");
 
 		responseMap = new HashMap<>();
 		responseMap.put(REFRESH_TOKEN, "2170b564228448c6aed8b1ddfdb8bf53-r");
-		responseMap.put(ACCESS_TOKEN, "4d841646fcc340f59b1b7b43df4b050d"); // opaque access token
+		responseMap.put(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0");
 		responseMap.put(EXPIRES_IN, "43199");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void initialize_throwsIfRestTemplateIsNull() {
-		new OAuth2Service(null);
+		new DefaultOAuth2TokenService(null);
 	}
 
 	@Test
 	public void retrieveToken_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			cut.retrieveAccessTokenViaUserTokenGrant(null, clientCredentials, userTokenToBeExchanged, null);
+			cut.retrieveAccessTokenViaRefreshToken(null, clientCredentials, refreshToken);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
 
 		assertThatThrownBy(() -> {
-			cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, null, userTokenToBeExchanged, null);
+			cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, null, refreshToken);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientCredentials");
 
 		assertThatThrownBy(() -> {
-			cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials, null, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
+			cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials, null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("refreshToken");
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
 	public void retrieveToken_throwsIfHttpStatusUnauthorized() {
 		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
-		cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
-				userTokenToBeExchanged, null);
+		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
+				refreshToken);
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
 	public void retrieveToken_throwsIfHttpStatusNotOk() {
 		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
-		cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
-				userTokenToBeExchanged, null);
+		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
+				refreshToken);
 	}
 
 	@Test
 	public void retrieveToken() {
 		HttpHeaders expectedHeaders = new HttpHeaders();
 		expectedHeaders.add(HttpHeaders.ACCEPT, "application/json");
-		expectedHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer " + userTokenToBeExchanged);
+		expectedHeaders.add(HttpHeaders.AUTHORIZATION, "Basic Y2xpZW50aWQ6bXlzZWNyZXRwYXNzd29yZA==");
 		HttpEntity expectedRequest = new HttpEntity(expectedHeaders);
 
 		Mockito.when(mockRestTemplate
-				.postForEntity(eq(createUriWithParameters("grant_type=user_token&client_id=clientid")),
+				.postForEntity(
+						eq(createUriWithParameters(
+								"refresh_token=" + refreshToken + "&grant_type=refresh_token")),
 						eq(expectedRequest),
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
-				userTokenToBeExchanged, null);
+		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
+				refreshToken);
 		assertThat(accessToken.getRefreshToken().get(), is(responseMap.get(REFRESH_TOKEN)));
 		assertThat(accessToken.getValue(), is(responseMap.get(ACCESS_TOKEN)));
 		assertNotNull(accessToken.getExpiredAtDate());
-	}
-
-	@Test
-	public void retrieveToken_withOptionalParamaters() {
-		Mockito.when(mockRestTemplate.postForEntity(
-				eq(createUriWithParameters(
-						"add-param-1=value1&add-param-2=value2&grant_type=user_token&client_id=clientid")),
-				any(HttpEntity.class), eq(Map.class)))
-				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
-
-		Map<String, String> additionalParameters = new HashMap<>();
-		additionalParameters.put("add-param-1", "value1");
-		additionalParameters.put("add-param-2", "value2");
-
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
-				userTokenToBeExchanged, additionalParameters);
-		assertThat(accessToken.getRefreshToken().get(), is(responseMap.get(REFRESH_TOKEN)));
-	}
-
-	@Test
-	public void retrieveToken_requiredParametersCanNotBeOverwritten() {
-		Mockito.when(
-				mockRestTemplate.postForEntity(eq(createUriWithParameters("grant_type=user_token&client_id=clientid")),
-						any(HttpEntity.class), eq(Map.class)))
-				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
-
-		Map<String, String> overwrittenGrantType = new HashMap<>();
-		overwrittenGrantType.put(OAuth2TokenServiceConstants.GRANT_TYPE, "overwrite-obligatory-param");
-
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
-				userTokenToBeExchanged, overwrittenGrantType);
-		assertThat(accessToken.getRefreshToken().get(), is(responseMap.get(REFRESH_TOKEN)));
 	}
 
 	private URI createUriWithParameters(String queryParameterList) {

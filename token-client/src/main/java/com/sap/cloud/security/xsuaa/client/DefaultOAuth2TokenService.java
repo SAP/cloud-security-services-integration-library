@@ -18,11 +18,11 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS;
 
-public class OAuth2Service implements OAuth2TokenService {
+public class DefaultOAuth2TokenService implements OAuth2TokenService {
 
 	private RestTemplate restTemplate;
 
-	public OAuth2Service(@NonNull RestTemplate restTemplate) {
+	public DefaultOAuth2TokenService(@NonNull RestTemplate restTemplate) {
 		Assert.notNull(restTemplate, "restTemplate is required");
 		this.restTemplate = restTemplate;
 	}
