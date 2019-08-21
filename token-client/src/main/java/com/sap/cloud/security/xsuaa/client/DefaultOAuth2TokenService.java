@@ -5,7 +5,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -20,11 +20,11 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GR
 
 public class DefaultOAuth2TokenService implements OAuth2TokenService {
 
-	private RestTemplate restTemplate;
+	private RestOperations restOperations;
 
-	public DefaultOAuth2TokenService(@NonNull RestTemplate restTemplate) {
-		Assert.notNull(restTemplate, "restTemplate is required");
-		this.restTemplate = restTemplate;
+	public DefaultOAuth2TokenService(@NonNull RestOperations restOperations) {
+		Assert.notNull(restOperations, "restOperations is required");
+		this.restOperations = restOperations;
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class DefaultOAuth2TokenService implements OAuth2TokenService {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> responseEntity = null;
 		try {
-			responseEntity = restTemplate.postForEntity(requestUri, requestEntity, Map.class);
+			responseEntity = restOperations.postForEntity(requestUri, requestEntity, Map.class);
 		} catch (HttpClientErrorException ex) {
 			HttpStatus responseStatusCode = ex.getStatusCode();
 			if (responseStatusCode == HttpStatus.UNAUTHORIZED) {
