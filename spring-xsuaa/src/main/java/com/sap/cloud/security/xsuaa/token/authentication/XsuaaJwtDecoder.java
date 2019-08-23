@@ -37,8 +37,9 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	private TokenInfoExtractor tokenInfoExtractor;
 
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
-			OAuth2TokenValidator<Jwt> tokenValidators) {
-		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
+			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
+
+		this.cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
 				.build();
 		this.tokenValidators = tokenValidators;
 
@@ -58,11 +59,6 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 				return xsuaaServiceConfiguration.getUaaDomain();
 			}
 		};
-	}
-
-	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
-			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
-		this(xsuaaServiceConfiguration, cacheValidityInSeconds, cacheSize, tokenValidators);
 
 		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.EMPTY_LIST;
 	}
