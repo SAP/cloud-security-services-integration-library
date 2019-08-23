@@ -15,7 +15,6 @@
  */
 package testservice.api.v1;
 
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
@@ -24,11 +23,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.mock.MockXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
 @EnableWebSecurity
 @Profile({ "test.api.v1" })

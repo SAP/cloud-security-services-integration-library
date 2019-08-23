@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,6 +34,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;

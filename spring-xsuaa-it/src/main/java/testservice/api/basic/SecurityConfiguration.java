@@ -15,12 +15,6 @@
  */
 package testservice.api.basic;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
-import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
-import com.sap.cloud.security.xsuaa.mock.MockXsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -33,6 +27,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
+import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
+import com.sap.cloud.security.xsuaa.mock.MockXsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
 @EnableWebSecurity
 @EnableCaching
