@@ -37,8 +37,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 *            authorize and key set URI (JWKS) will be derived.
 	 */
 	public XsuaaDefaultEndpoints(String baseUri) {
-		Assert.notNull(baseUri, "XSUAA base URI must not be null.");
-		this.baseUri = URI.create(baseUri);
+		this(URI.create(baseUri));
 	}
 
 	@Override
