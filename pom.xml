@@ -61,6 +61,7 @@
 
 	<modules>
 		<module>api</module>
+		<module>token-client</module>
 		<module>spring-xsuaa</module>
 		<module>spring-xsuaa-it</module>
 		<module>spring-xsuaa-test</module>
