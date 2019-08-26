@@ -87,7 +87,10 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 		HttpEntity expectedRequest = new HttpEntity(expectedHeaders);
 
 		Mockito.when(mockRestOperations
-				.postForEntity(eq(createUriWithParameters("grant_type=client_credentials&client_secret=mysecretpassword&client_id=clientid")), eq(expectedRequest),
+				.postForEntity(
+						eq(createUriWithParameters(
+								"grant_type=client_credentials&client_secret=mysecretpassword&client_id=clientid")),
+						eq(expectedRequest),
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
@@ -101,7 +104,8 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 	@Test
 	public void retrieveToken_withOptionalParamaters() {
 		Mockito.when(mockRestOperations.postForEntity(
-				eq(createUriWithParameters("add-param-1=value1&add-param-2=value2&client_secret=mysecretpassword&grant_type=client_credentials&client_id=clientid")),
+				eq(createUriWithParameters(
+						"add-param-1=value1&add-param-2=value2&client_secret=mysecretpassword&grant_type=client_credentials&client_id=clientid")),
 				any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
@@ -117,7 +121,9 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 
 	@Test
 	public void retrieveToken_requiredParametersCanNotBeOverwritten() {
-		Mockito.when(mockRestOperations.postForEntity(eq(createUriWithParameters("grant_type=client_credentials&client_id=clientid&client_secret=mysecretpassword")),
+		Mockito.when(mockRestOperations.postForEntity(
+				eq(createUriWithParameters(
+						"grant_type=client_credentials&client_id=clientid&client_secret=mysecretpassword")),
 				any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 

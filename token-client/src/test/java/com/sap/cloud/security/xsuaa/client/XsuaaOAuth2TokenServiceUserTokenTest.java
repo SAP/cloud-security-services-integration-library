@@ -127,7 +127,8 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 	@Test
 	public void retrieveToken_requiredParametersCanNotBeOverwritten() {
 		Mockito.when(
-				mockRestOperations.postForEntity(eq(createUriWithParameters("grant_type=user_token&client_id=clientid")),
+				mockRestOperations.postForEntity(
+						eq(createUriWithParameters("grant_type=user_token&client_id=clientid")),
 						any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 

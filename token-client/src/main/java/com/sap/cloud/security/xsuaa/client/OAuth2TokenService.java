@@ -20,7 +20,8 @@ public interface OAuth2TokenService {
 	 *            the client id and secret of the OAuth client, the recipient of the
 	 *            token.
 	 * @param subdomain
-	 * 			  optionally indicates what Identity Zone this request goes to by supplying a subdomain (tenant).
+	 *            optionally indicates what Identity Zone this request goes to by
+	 *            supplying a subdomain (tenant).
 	 * @param optionalParameters
 	 *            optional request parameters, can be null.
 	 *
@@ -46,7 +47,8 @@ public interface OAuth2TokenService {
 	 *            the user bearer token, that represents an authenticated user that
 	 *            must have uaa.user scope.
 	 * @param subdomain
-	 * 			  optionally indicates what Identity Zone this request goes to by supplying a subdomain (tenant).
+	 *            optionally indicates what Identity Zone this request goes to by
+	 *            supplying a subdomain (tenant).
 	 * @param optionalParameters
 	 *            optional request parameters, can be null.
 	 *
@@ -57,7 +59,8 @@ public interface OAuth2TokenService {
 	 */
 	@Deprecated
 	OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
-			ClientCredentials clientCredentials, String token, @Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
+			ClientCredentials clientCredentials, String token, @Nullable String subdomain,
+			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException;
 
 	/**
@@ -72,10 +75,11 @@ public interface OAuth2TokenService {
 	 *            the refresh token that was returned along with the access token
 	 *            {link #OAuth2AccessToken}.
 	 * @param subdomain
-	 * 	 * 		  optionally indicates what Identity Zone this request goes to by supplying a subdomain (tenant).
+	 *            * optionally indicates what Identity Zone this request goes to by
+	 *            supplying a subdomain (tenant).
 	 * @return the OAuth2AccessToken
 	 * @throws OAuth2ServiceException
-	 *            in case of an error during the http request.
+	 *             in case of an error during the http request.
 	 */
 	OAuth2AccessToken retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri, ClientCredentials clientCredentials,
 			String refreshToken, @Nullable String subdomain) throws OAuth2ServiceException;

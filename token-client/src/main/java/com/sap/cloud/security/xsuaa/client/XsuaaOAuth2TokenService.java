@@ -35,7 +35,8 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	@Override
 	public OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(@NonNull URI tokenEndpointUri,
 			@NonNull ClientCredentials clientCredentials,
-			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
+			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
+			throws OAuth2ServiceException {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 

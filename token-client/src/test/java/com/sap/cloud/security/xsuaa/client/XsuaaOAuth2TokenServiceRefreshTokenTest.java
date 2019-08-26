@@ -97,7 +97,8 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 		Mockito.when(mockRestOperations
 				.postForEntity(
 						eq(createUriWithParameters(
-								"refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=mysecretpassword&client_id=clientid")),
+								"refresh_token=" + refreshToken
+										+ "&grant_type=refresh_token&client_secret=mysecretpassword&client_id=clientid")),
 						eq(expectedRequest),
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
