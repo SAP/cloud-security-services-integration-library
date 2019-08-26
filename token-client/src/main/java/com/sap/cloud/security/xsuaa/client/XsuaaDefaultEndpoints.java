@@ -16,7 +16,6 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final static String TOKEN_ENDPOINT = "/oauth/token";
 	private final static String AUTHORIZE_ENDPOINT = "/oauth/authorize";
 	private final static String KEYSET_ENDPOINT = "/token_keys";
-	private static Logger logger = LoggerFactory.getLogger(XsuaaDefaultEndpoints.class);
 
 	/**
 	 * Creates a new XsuaaRestClient.
@@ -57,26 +56,4 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 		return UriComponentsBuilder.fromUri(baseUri).path(KEYSET_ENDPOINT).build().toUri();
 	}
 
-	/**
-	 * Utility method that replaces the subdomain of the URI with the given
-	 * subdomain.
-	 *
-	 * @param uri
-	 *            the URI to be replaced.
-	 * @param subdomain
-	 *            of the tenant.
-	 * @return the URI with the replaced subdomain or the passed URI in case a
-	 *         replacement was not possible.
-	 */
-	static public URI replaceSubdomain(@NonNull URI uri, @Nullable String subdomain) {
-		Assert.notNull(uri, "the uri parameter must not be null");
-		if (StringUtils.hasText(subdomain) && uri.getHost().contains(".")) {
-			UriBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme())
-					.host(subdomain + uri.getHost().substring(uri.getHost().indexOf("."))).port(uri.getPort())
-					.path(uri.getPath());
-			return uri.resolve(builder.build());
-		}
-		logger.warn("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
-		return uri;
-	}
 }

@@ -1,11 +1,15 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
+import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -21,6 +25,7 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GR
 public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 	private RestOperations restOperations;
+	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 
 	public XsuaaOAuth2TokenService(@NonNull RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations is required");
@@ -30,7 +35,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	@Override
 	public OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(@NonNull URI tokenEndpointUri,
 			@NonNull ClientCredentials clientCredentials,
-			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
+			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 
@@ -42,12 +47,12 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build header
 		HttpHeaders headers = createHeadersWithoutAuthorization();
 
-		return requestAccessToken(tokenEndpointUri, headers, parameters);
+		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
 	}
 
 	@Override
 	public OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(@NonNull URI tokenEndpointUri,
-			@NonNull ClientCredentials clientCredentials, @NonNull String token,
+			@NonNull ClientCredentials clientCredentials, @NonNull String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
@@ -61,13 +66,13 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build header
 		HttpHeaders headers = createHeadersWithAuthorization(token);
 
-		return requestAccessToken(tokenEndpointUri, headers, parameters);
+		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
 	}
 
 	@Override
 	public OAuth2AccessToken retrieveAccessTokenViaRefreshToken(@NonNull URI tokenEndpointUri,
 			@NonNull ClientCredentials clientCredentials,
-			@NonNull String refreshToken) throws OAuth2ServiceException {
+			@NonNull String refreshToken, String subdomain) throws OAuth2ServiceException {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 		Assert.notNull(refreshToken, "refreshToken is required");
@@ -81,7 +86,30 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build header
 		HttpHeaders headers = createHeadersWithoutAuthorization();
 
-		return requestAccessToken(tokenEndpointUri, headers, parameters);
+		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
+	}
+
+	/**
+	 * Utility method that replaces the subdomain of the URI with the given
+	 * subdomain.
+	 *
+	 * @param uri
+	 *            the URI to be replaced.
+	 * @param subdomain
+	 *            of the tenant.
+	 * @return the URI with the replaced subdomain or the passed URI in case a
+	 *         replacement was not possible.
+	 */
+	static URI replaceSubdomain(@NonNull URI uri, @Nullable String subdomain) {
+		Assert.notNull(uri, "the uri parameter must not be null");
+		if (StringUtils.hasText(subdomain) && uri.getHost().contains(".")) {
+			UriBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme())
+					.host(subdomain + uri.getHost().substring(uri.getHost().indexOf("."))).port(uri.getPort())
+					.path(uri.getPath());
+			return uri.resolve(builder.build());
+		}
+		logger.warn("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
+		return uri;
 	}
 
 	private OAuth2AccessToken requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
