@@ -92,13 +92,12 @@ public class DefaultOAuth2TokenServiceRefreshTokenTest {
 	public void retrieveToken() {
 		HttpHeaders expectedHeaders = new HttpHeaders();
 		expectedHeaders.add(HttpHeaders.ACCEPT, "application/json");
-		expectedHeaders.add(HttpHeaders.AUTHORIZATION, "Basic Y2xpZW50aWQ6bXlzZWNyZXRwYXNzd29yZA==");
 		HttpEntity expectedRequest = new HttpEntity(expectedHeaders);
 
 		Mockito.when(mockRestOperations
 				.postForEntity(
 						eq(createUriWithParameters(
-								"refresh_token=" + refreshToken + "&grant_type=refresh_token")),
+								"refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=mysecretpassword&client_id=clientid")),
 						eq(expectedRequest),
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));

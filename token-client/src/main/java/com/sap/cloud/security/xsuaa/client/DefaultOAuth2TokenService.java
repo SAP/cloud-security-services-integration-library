@@ -36,9 +36,11 @@ public class DefaultOAuth2TokenService implements OAuth2TokenService {
 
 		Map<String, String> parameters = copy(optionalParameters);
 		parameters.put(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS);
+		parameters.put(CLIENT_ID, clientCredentials.getId());
+		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
 
 		// build header
-		HttpHeaders headers = createHeadersWithAuthorization(clientCredentials);
+		HttpHeaders headers = createHeadersWithoutAuthorization();
 
 		return requestAccessToken(tokenEndpointUri, headers, parameters);
 	}
@@ -73,9 +75,11 @@ public class DefaultOAuth2TokenService implements OAuth2TokenService {
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
 		parameters.put(REFRESH_TOKEN, refreshToken);
+		parameters.put(CLIENT_ID, clientCredentials.getId());
+		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
 
 		// build header
-		HttpHeaders headers = createHeadersWithAuthorization(clientCredentials);
+		HttpHeaders headers = createHeadersWithoutAuthorization();
 
 		return requestAccessToken(tokenEndpointUri, headers, parameters);
 	}
@@ -136,10 +140,9 @@ public class DefaultOAuth2TokenService implements OAuth2TokenService {
 	 *
 	 * @return the HTTP headers.
 	 */
-	private static HttpHeaders createHeadersWithAuthorization(ClientCredentials credentials) {
+	private static HttpHeaders createHeadersWithoutAuthorization() {
 		HttpHeaders headers = new HttpHeaders();
 		addAcceptHeader(headers);
-		addBasicAuthHeader(headers, credentials);
 		return headers;
 	}
 
@@ -165,25 +168,6 @@ public class DefaultOAuth2TokenService implements OAuth2TokenService {
 	 */
 	static void addAcceptHeader(HttpHeaders headers) {
 		headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-	}
-
-	/**
-	 * Adds the {@code  Authorization: Basic <credentials>} header to the set of
-	 * headers.
-	 *
-	 * @param headers
-	 *            - the set of headers to add the header to.
-	 * @param credentials
-	 *            - the client credentials used for authentication.
-	 */
-	static void addBasicAuthHeader(HttpHeaders headers, ClientCredentials credentials) {
-		final String BASIC_AUTH_HEADER_FORMAT = "Basic %s";
-		final String CREDENTIALS_FORMAT = "%s:%s";
-
-		String credentialsString = String
-				.format(CREDENTIALS_FORMAT, credentials.getId(), credentials.getSecret());
-		String base64Creds = Base64.getEncoder().encodeToString(credentialsString.getBytes(StandardCharsets.UTF_8));
-		headers.add(HttpHeaders.AUTHORIZATION, String.format(BASIC_AUTH_HEADER_FORMAT, base64Creds));
 	}
 
 	/**

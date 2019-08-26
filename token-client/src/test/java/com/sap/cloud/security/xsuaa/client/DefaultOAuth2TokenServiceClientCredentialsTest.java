@@ -84,11 +84,10 @@ public class DefaultOAuth2TokenServiceClientCredentialsTest {
 	public void retrieveToken() {
 		HttpHeaders expectedHeaders = new HttpHeaders();
 		expectedHeaders.add(HttpHeaders.ACCEPT, "application/json");
-		expectedHeaders.add(HttpHeaders.AUTHORIZATION, "Basic Y2xpZW50aWQ6bXlzZWNyZXRwYXNzd29yZA==");
 		HttpEntity expectedRequest = new HttpEntity(expectedHeaders);
 
 		Mockito.when(mockRestOperations
-				.postForEntity(eq(createUriWithParameters("grant_type=client_credentials")), eq(expectedRequest),
+				.postForEntity(eq(createUriWithParameters("grant_type=client_credentials&client_secret=mysecretpassword&client_id=clientid")), eq(expectedRequest),
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
@@ -102,7 +101,7 @@ public class DefaultOAuth2TokenServiceClientCredentialsTest {
 	@Test
 	public void retrieveToken_withOptionalParamaters() {
 		Mockito.when(mockRestOperations.postForEntity(
-				eq(createUriWithParameters("add-param-1=value1&grant_type=client_credentials&add-param-2=value2")),
+				eq(createUriWithParameters("add-param-1=value1&add-param-2=value2&client_secret=mysecretpassword&grant_type=client_credentials&client_id=clientid")),
 				any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
@@ -118,7 +117,7 @@ public class DefaultOAuth2TokenServiceClientCredentialsTest {
 
 	@Test
 	public void retrieveToken_requiredParametersCanNotBeOverwritten() {
-		Mockito.when(mockRestOperations.postForEntity(eq(createUriWithParameters("grant_type=client_credentials")),
+		Mockito.when(mockRestOperations.postForEntity(eq(createUriWithParameters("grant_type=client_credentials&client_id=clientid&client_secret=mysecretpassword")),
 				any(HttpEntity.class), eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
