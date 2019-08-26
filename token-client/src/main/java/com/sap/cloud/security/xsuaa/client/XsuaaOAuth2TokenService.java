@@ -18,11 +18,11 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS;
 
-public class DefaultOAuth2TokenService implements OAuth2TokenService {
+public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 	private RestOperations restOperations;
 
-	public DefaultOAuth2TokenService(@NonNull RestOperations restOperations) {
+	public XsuaaOAuth2TokenService(@NonNull RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
 	}

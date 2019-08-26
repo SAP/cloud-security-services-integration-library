@@ -1,9 +1,5 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,12 +18,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.ACCESS_TOKEN;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.REFRESH_TOKEN;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.EXPIRES_IN;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.eq;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DefaultOAuth2TokenServiceClientCredentialsTest {
+public class XsuaaOAuth2TokenServiceRefreshTokenTest {
+
+	private static String refreshToken = "d2faefe7ea834ba895d20730f106128c-r";
 
 	OAuth2TokenService cut;
 	ClientCredentials clientCredentials;
@@ -39,45 +42,50 @@ public class DefaultOAuth2TokenServiceClientCredentialsTest {
 
 	@Before
 	public void setup() {
-		cut = new DefaultOAuth2TokenService(mockRestOperations);
+		cut = new XsuaaOAuth2TokenService(mockRestOperations);
 		clientCredentials = new ClientCredentials("clientid", "mysecretpassword");
 		tokenEndpoint = URI.create("https://subdomain.myauth.server.com/oauth/token");
 
 		responseMap = new HashMap<>();
-		responseMap.putIfAbsent(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0");
-		responseMap.putIfAbsent(OAuth2TokenServiceConstants.EXPIRES_IN, "43199");
+		responseMap.put(REFRESH_TOKEN, "2170b564228448c6aed8b1ddfdb8bf53-r");
+		responseMap.put(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0");
+		responseMap.put(EXPIRES_IN, "43199");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void initialize_throwsIfRestOperationsIsNull() {
-		new DefaultOAuth2TokenService(null);
+		new XsuaaOAuth2TokenService(null);
 	}
 
 	@Test
 	public void retrieveToken_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			cut.retrieveAccessTokenViaClientCredentialsGrant(null, clientCredentials, null);
+			cut.retrieveAccessTokenViaRefreshToken(null, clientCredentials, refreshToken);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
 
 		assertThatThrownBy(() -> {
-			cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, null, null);
+			cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, null, refreshToken);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientCredentials");
+
+		assertThatThrownBy(() -> {
+			cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials, null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("refreshToken");
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
 	public void retrieveToken_throwsIfHttpStatusUnauthorized() {
 		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
-		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientCredentials,
-				null);
+		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
+				refreshToken);
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
 	public void retrieveToken_throwsIfHttpStatusNotOk() {
 		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
-		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientCredentials,
-				null);
+		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
+				refreshToken);
 	}
 
 	@Test
@@ -87,47 +95,18 @@ public class DefaultOAuth2TokenServiceClientCredentialsTest {
 		HttpEntity expectedRequest = new HttpEntity(expectedHeaders);
 
 		Mockito.when(mockRestOperations
-				.postForEntity(eq(createUriWithParameters("grant_type=client_credentials&client_secret=mysecretpassword&client_id=clientid")), eq(expectedRequest),
+				.postForEntity(
+						eq(createUriWithParameters(
+								"refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=mysecretpassword&client_id=clientid")),
+						eq(expectedRequest),
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
-				clientCredentials,
-				null);
+		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
+				refreshToken);
+		assertThat(accessToken.getRefreshToken().get(), is(responseMap.get(REFRESH_TOKEN)));
 		assertThat(accessToken.getValue(), is(responseMap.get(ACCESS_TOKEN)));
 		assertNotNull(accessToken.getExpiredAtDate());
-	}
-
-	@Test
-	public void retrieveToken_withOptionalParamaters() {
-		Mockito.when(mockRestOperations.postForEntity(
-				eq(createUriWithParameters("add-param-1=value1&add-param-2=value2&client_secret=mysecretpassword&grant_type=client_credentials&client_id=clientid")),
-				any(HttpEntity.class), eq(Map.class)))
-				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
-
-		Map<String, String> additionalParameters = new HashMap<>();
-		additionalParameters.put("add-param-1", "value1");
-		additionalParameters.put("add-param-2", "value2");
-
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
-				clientCredentials,
-				additionalParameters);
-		assertThat(accessToken.getValue(), is(responseMap.get(ACCESS_TOKEN)));
-	}
-
-	@Test
-	public void retrieveToken_requiredParametersCanNotBeOverwritten() {
-		Mockito.when(mockRestOperations.postForEntity(eq(createUriWithParameters("grant_type=client_credentials&client_id=clientid&client_secret=mysecretpassword")),
-				any(HttpEntity.class), eq(Map.class)))
-				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
-
-		Map<String, String> overwrittenGrantType = new HashMap<>();
-		overwrittenGrantType.put(OAuth2TokenServiceConstants.GRANT_TYPE, "overwrite-obligatory-param");
-
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
-				clientCredentials,
-				overwrittenGrantType);
-		assertThat(accessToken.getValue(), is(responseMap.get(ACCESS_TOKEN)));
 	}
 
 	private URI createUriWithParameters(String queryParameterList) {
