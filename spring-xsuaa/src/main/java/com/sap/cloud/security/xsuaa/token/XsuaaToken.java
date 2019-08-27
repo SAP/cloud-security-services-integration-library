@@ -226,10 +226,64 @@ public class XsuaaToken extends Jwt implements Token {
 		return getTokenValue();
 	}
 
+	/**
+	 * Exchange a token into a token from another service instance
+	 * <p>
+	 *
+	 * @deprecated in favor of the XsuaaTokenFlows API.
+	 *
+	 * @param tokenRequest
+	 *            request data
+	 * @return requested token
+	 * @throws URISyntaxException
+	 *             in case of wron URLs
+	 */
+	@Override
+	@Deprecated
+	public String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException {
+		Assert.notNull(tokenRequest, "TokenRequest argument is required");
+		Assert.isTrue(tokenRequest.isValid(), "TokenRequest is not valid");
+
+		RestTemplate restTemplate = new RestTemplate();
+
+		if (tokenRequest instanceof XSTokenRequestImpl
+				&& ((XSTokenRequestImpl) tokenRequest).getRestTemplate() != null) {
+			restTemplate = ((XSTokenRequestImpl) tokenRequest).getRestTemplate();
+		}
+
+		String baseUrl = tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(),
+				"");
+
+		// initialize token flows api
+		xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder, new XsuaaDefaultEndpoints(baseUrl));
+
+		switch (tokenRequest.getType()) {
+		case XSTokenRequest.TYPE_USER_TOKEN:
+			return performUserTokenFlow(tokenRequest);
+		case XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN:
+			return performClientCredentialsFlow(tokenRequest);
+		default:
+			throw new UnsupportedOperationException(
+					"Found unsupported XSTokenRequest type. The only supported types are XSTokenRequest.TYPE_USER_TOKEN and XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN.");
+		}
+	}
+
 	@Override
 	public Collection<String> getScopes() {
 		List<String> scopesList = getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
 		return scopesList != null ? scopesList : Collections.emptyList();
+	}
+
+	/**
+	 * For custom access to the claims of the authentication token.
+	 *
+	 * @return this
+	 * @deprecated with version 1.5 as XsuaaToken inherits from {@link Jwt} which
+	 *             implements {@link JwtClaimAccessor}
+	 */
+	@Deprecated
+	ClaimAccessor getClaimAccessor() {
+		return this;
 	}
 
 	/**
@@ -279,48 +333,6 @@ public class XsuaaToken extends Jwt implements Token {
 		return attributeValues;
 	}
 
-	/**
-	 * Exchange a token into a token from another service instance
-	 * <p>
-	 * 
-	 * @deprecated in favor of the XsuaaTokenFlows API.
-	 *
-	 * @param tokenRequest
-	 *            request data
-	 * @return requested token
-	 * @throws URISyntaxException
-	 *             in case of wron URLs
-	 */
-	@Override
-	@Deprecated
-	public String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException {
-		Assert.notNull(tokenRequest, "TokenRequest argument is required");
-		Assert.isTrue(tokenRequest.isValid(), "TokenRequest is not valid");
-
-		RestTemplate restTemplate = new RestTemplate();
-
-		if (tokenRequest instanceof XSTokenRequestImpl
-				&& ((XSTokenRequestImpl) tokenRequest).getRestTemplate() != null) {
-			restTemplate = ((XSTokenRequestImpl) tokenRequest).getRestTemplate();
-		}
-
-		String baseUrl = tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(),
-				"");
-
-		// initialize token flows api
-		xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder, new XsuaaDefaultEndpoints(baseUrl));
-
-		switch (tokenRequest.getType()) {
-		case XSTokenRequest.TYPE_USER_TOKEN:
-			return performUserTokenFlow(tokenRequest);
-		case XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN:
-			return performClientCredentialsFlow(tokenRequest);
-		default:
-			throw new UnsupportedOperationException(
-					"Found unsupported XSTokenRequest type. The only supported types are XSTokenRequest.TYPE_USER_TOKEN and XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN.");
-		}
-	}
-
 	private String performClientCredentialsFlow(XSTokenRequest tokenRequest) {
 		String clientId = tokenRequest.getClientId();
 		String clientSecret = tokenRequest.getClientSecret();
@@ -367,15 +379,4 @@ public class XsuaaToken extends Jwt implements Token {
 		return userToken.getTokenValue();
 	}
 
-	/**
-	 * For custom access to the claims of the authentication token.
-	 * 
-	 * @return this
-	 * @deprecated with version 1.5 as XsuaaToken inherits from {@link Jwt} which
-	 *             implements {@link JwtClaimAccessor}
-	 */
-	@Deprecated
-	ClaimAccessor getClaimAccessor() {
-		return this;
-	}
 }

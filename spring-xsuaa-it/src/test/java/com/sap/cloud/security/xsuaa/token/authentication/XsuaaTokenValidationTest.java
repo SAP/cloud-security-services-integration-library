@@ -58,7 +58,7 @@ public class XsuaaTokenValidationTest {
 	public void test_requesttoken() throws Exception {
 		this.mvc.perform(
 				get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa", "legacy-token-key"))))
-				.andExpect(status().isOk()).andExpect(content().string(startsWith("eyJhbGciOiJSUzI1NiIsInR5cCI6I")));
+				.andExpect(status().isOk()).andExpect(content().string("cc_token"));
 	}
 
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
