@@ -1,17 +1,23 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.xsuaa.client.*;
-import com.sap.cloud.security.xsuaa.token.TokenClaims;
-import com.sap.xsa.security.container.XSTokenRequest;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.util.Assert;
+import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
+import org.springframework.security.jwt.JwtHelper;
 
-import java.net.URI;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.util.Assert;
+
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.OAuth2AccessToken;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.xsa.security.container.XSTokenRequest;
 
 /**
  * A user token flow builder class. <br>
@@ -26,7 +32,7 @@ public class UserTokenFlow {
 	private static final String AUTHORITIES = "authorities";
 
 	private XsuaaTokenFlowRequest request;
-	private Jwt token;
+	private String token;
 	private RefreshTokenFlow refreshTokenFlow;
 	private OAuth2TokenService tokenService;
 
@@ -59,7 +65,7 @@ public class UserTokenFlow {
 	 *            - the JWT token.
 	 * @return this builder object.
 	 */
-	public UserTokenFlow token(Jwt token) {
+	public UserTokenFlow token(String token) {
 		Assert.notNull(token, "Token must not be null.");
 		this.token = token;
 		return this;
@@ -129,7 +135,7 @@ public class UserTokenFlow {
 	 * @throws TokenFlowException
 	 *             in case of an error.
 	 */
-	public Jwt execute() throws TokenFlowException {
+	public String execute() throws TokenFlowException {
 		checkRequest(request);
 
 		return requestUserToken(request);
@@ -171,7 +177,7 @@ public class UserTokenFlow {
 	 * @throws TokenFlowException
 	 *             in case of an error during the flow.
 	 */
-	private Jwt requestUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
+	private String requestUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
 		Map<String, String> optionalParameter = null;
 		String authorities = buildAuthorities(request);
 
@@ -185,7 +191,7 @@ public class UserTokenFlow {
 			OAuth2AccessToken accessToken = tokenService
 					.retrieveAccessTokenViaUserTokenGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
-							token.getTokenValue(), request.getSubdomain(), optionalParameter);
+							token, request.getSubdomain(), optionalParameter);
 
 			if (accessToken.getRefreshToken().isPresent()) {
 				refreshToken = accessToken.getRefreshToken().get();
@@ -236,8 +242,18 @@ public class UserTokenFlow {
 	 *            - the scope to check for.
 	 * @return {@code true} if the scope is contained, {@code false} otherwise.
 	 */
-	private boolean hasScope(Jwt token, String scope) {
-		List<String> scopes = token.getClaimAsStringList(SCOPE_CLAIM);
-		return scopes != null ? scopes.contains(scope) : false;
+	private boolean hasScope(String token, String scope) {
+		String claims = JwtHelper.decode(token).getClaims();
+		try {
+			JSONObject rootObject = new JSONObject(claims);
+			JSONArray scopesArray = rootObject.getJSONArray(SCOPE_CLAIM);
+			for (Iterator scopes = scopesArray.iterator(); scopes.hasNext();)
+				if (scopes.next().equals(scope)) {
+					return true;
+				}
+		} catch (JSONException e) {
+			return false;
+		}
+		return false;
 	}
 }

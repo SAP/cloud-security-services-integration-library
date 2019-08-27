@@ -58,8 +58,6 @@ public class XsuaaToken extends Jwt implements Token {
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();
 	private XsuaaTokenFlows xsuaaTokenFlows = null;
 
-	VariableKeySetUriTokenDecoder tokenFlowsTokenDecoder = new NimbusTokenDecoder();
-
 	/**
 	 * @param jwt
 	 *            token
@@ -255,7 +253,7 @@ public class XsuaaToken extends Jwt implements Token {
 				"");
 
 		// initialize token flows api
-		xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, tokenFlowsTokenDecoder, new XsuaaDefaultEndpoints(baseUrl));
+		xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, new XsuaaDefaultEndpoints(baseUrl));
 
 		switch (tokenRequest.getType()) {
 		case XSTokenRequest.TYPE_USER_TOKEN:
@@ -337,7 +335,7 @@ public class XsuaaToken extends Jwt implements Token {
 		String clientId = tokenRequest.getClientId();
 		String clientSecret = tokenRequest.getClientSecret();
 
-		Jwt ccfToken;
+		String ccfToken;
 		try {
 			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
 					.subdomain(this.getSubdomain())
@@ -349,20 +347,20 @@ public class XsuaaToken extends Jwt implements Token {
 			throw new RuntimeException("Error performing Client Credentials Flow. See exception cause.", e);
 		}
 
-		logger.info("Got the Client Credentials Flow Token: {}", ccfToken.getTokenValue());
+		logger.info("Got the Client Credentials Flow Token: {}", ccfToken);
 
-		return ccfToken.getTokenValue();
+		return ccfToken;
 	}
 
 	private String performUserTokenFlow(XSTokenRequest tokenRequest) {
 		String clientId = tokenRequest.getClientId();
 		String clientSecret = tokenRequest.getClientSecret();
 
-		Jwt userToken;
+		String userToken;
 		try {
 			userToken = xsuaaTokenFlows.userTokenFlow()
 					.subdomain(this.getSubdomain())
-					.token(this)
+					.token(this.getTokenValue())
 					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
 					.client(clientId)
 					.secret(clientSecret)
@@ -372,11 +370,11 @@ public class XsuaaToken extends Jwt implements Token {
 		}
 
 		logger.info("Got the exchanged token for 3rd party service (clientId: {}) : {}", clientId,
-				userToken.getTokenValue());
+				userToken);
 		logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ",
-				userToken.getTokenValue());
+				userToken);
 
-		return userToken.getTokenValue();
+		return userToken;
 	}
 
 }

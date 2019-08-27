@@ -120,7 +120,4 @@ public interface XSTokenRequest {
 	 */
 	public XSTokenRequest setTokenEndpoint(URI tokenEndpoint);
 
-
-
-
 }

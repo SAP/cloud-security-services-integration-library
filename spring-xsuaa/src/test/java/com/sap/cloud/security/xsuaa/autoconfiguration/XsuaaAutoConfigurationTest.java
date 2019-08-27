@@ -3,8 +3,7 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
-import com.sap.cloud.security.xsuaa.tokenflows.NimbusTokenDecoder;
-import com.sap.cloud.security.xsuaa.tokenflows.VariableKeySetUriTokenDecoder;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +32,6 @@ public class XsuaaAutoConfigurationTest {
 
 	@Autowired
 	private ApplicationContext context;
-
-	@Test
-	public void configures_xsuaaTokenDecoder() {
-		assertThat(context.getBean("xsuaaTokenDecoder")).isNotNull();
-		assertThat(context.getBean("xsuaaTokenDecoder")).isInstanceOf(VariableKeySetUriTokenDecoder.class);
-		assertThat(context.getBean(VariableKeySetUriTokenDecoder.class)).isNotNull();
-	}
 
 	@Test
 	public void configures_xsuaaServiceConfiguration() {
@@ -91,10 +83,6 @@ public class XsuaaAutoConfigurationTest {
 					assertThat(context).hasSingleBean(DummyXsuaaServiceConfiguration.class);
 					assertThat(context).doesNotHaveBean(XsuaaServiceConfigurationDefault.class);
 					assertThat(context).hasBean("userDefinedServiceConfiguration");
-
-					assertThat(context).hasSingleBean(VariableKeySetUriTokenDecoder.class);
-					assertThat(context).hasBean("userDefinedXsuaaTokenDecoder");
-					assertThat(context).doesNotHaveBean("xsuaaTokenDecoder");
 				});
 	}
 
@@ -103,11 +91,6 @@ public class XsuaaAutoConfigurationTest {
 		@Bean
 		public XsuaaServiceConfiguration userDefinedServiceConfiguration() {
 			return new DummyXsuaaServiceConfiguration();
-		}
-
-		@Bean
-		public VariableKeySetUriTokenDecoder userDefinedXsuaaTokenDecoder() {
-			return new NimbusTokenDecoder();
 		}
 	}
 }

@@ -1,19 +1,20 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ADDITIONAL_AZ_ATTR;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * A utilities class providing static functions required to build the XSUAA
  * token flow REST requests.
  */
 class XsuaaTokenFlowsUtils {
+
+	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 
 	XsuaaTokenFlowsUtils() {
 	}
@@ -36,19 +37,17 @@ class XsuaaTokenFlowsUtils {
 		try {
 			Map<String, String> additionalAuthorities = request.getAdditionalAuthorizationAttributes();
 			return buildAdditionalAuthoritiesJson(additionalAuthorities);
-		} catch (JsonProcessingException e) {
+		} catch (RuntimeException e) {
 			throw new TokenFlowException(
 					"Error mapping additional authorization attributes to JSON. See root cause exception. ", e);
 		}
 	}
 
-	static String buildAdditionalAuthoritiesJson(Map<String, String> additionalAuthorities)
-			throws JsonProcessingException {
+	static String buildAdditionalAuthoritiesJson(Map<String, String> additionalAuthorities) {
 		Map<String, Object> additionalAuthorizationAttributes = new HashMap<>();
 		additionalAuthorizationAttributes.put(CLAIM_ADDITIONAL_AZ_ATTR, additionalAuthorities);
 
-		String additionalAuthorizationAttributesJson = new ObjectMapper()
-				.writeValueAsString(additionalAuthorizationAttributes);
-		return additionalAuthorizationAttributesJson;
+		JSONObject additionalAuthorizationAttributesJson = new JSONObject(additionalAuthorizationAttributes);
+		return additionalAuthorizationAttributesJson.toString();
 	}
 }

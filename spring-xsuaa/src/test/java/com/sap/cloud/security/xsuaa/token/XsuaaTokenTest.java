@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.*;
 
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
-import com.sap.cloud.security.xsuaa.tokenflows.VariableKeySetUriTokenDecoder;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -268,9 +268,6 @@ public class XsuaaTokenTest {
 
 		token = createToken(claimsSetBuilder);
 
-		token.tokenFlowsTokenDecoder = Mockito.mock(VariableKeySetUriTokenDecoder.class);
-		Mockito.when(token.tokenFlowsTokenDecoder.decode(anyString())).thenReturn(mockJwt);
-
 		String mockServerUrl = "http://myuaa.com";
 		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);
 		tokenRequest.setRestTemplate(mockRestTemplate);
@@ -302,8 +299,6 @@ public class XsuaaTokenTest {
 
 		claimsSetBuilder.claim(TokenClaims.CLAIM_SCOPES, new String[] { "uaa.user" });
 		token = createToken(claimsSetBuilder);
-		token.tokenFlowsTokenDecoder = Mockito.mock(VariableKeySetUriTokenDecoder.class);
-		Mockito.when(token.tokenFlowsTokenDecoder.decode(anyString())).thenReturn(mockJwt);
 
 		String mockServerUrl = "http://myuaa.com";
 		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);

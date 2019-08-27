@@ -1,6 +1,7 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,14 +14,11 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(MockitoJUnitRunner.class)
 public class XsuaaTokenFlowsTest {
 
-	@Mock
-	private VariableKeySetUriTokenDecoder mockTokenDecoder;
-
 	private XsuaaTokenFlows cut;
 
 	@Before
 	public void setup() {
-		cut = new XsuaaTokenFlows(new RestTemplate(), mockTokenDecoder,
+		cut = new XsuaaTokenFlows(new RestTemplate(),
 				new XsuaaDefaultEndpoints("http://base/"));
 	}
 

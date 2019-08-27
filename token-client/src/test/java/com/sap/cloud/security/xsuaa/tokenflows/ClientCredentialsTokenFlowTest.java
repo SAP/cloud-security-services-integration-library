@@ -1,13 +1,13 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.xsuaa.client.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -19,83 +19,52 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RefreshTokenFlowTest {
+public class ClientCredentialsTokenFlowTest {
 
 	@Mock
 	private OAuth2TokenService mockTokenService;
 
-	@Mock
-	private VariableKeySetUriTokenDecoder mockTokenDecoder;
-
-	private Jwt mockJwt;
 	private ClientCredentials clientCredentials;
-	private RefreshTokenFlow cut;
+	private ClientCredentialsTokenFlow cut;
 
 	private static final String JWT_ACCESS_TOKEN = "4bfad399ca10490da95c2b5eb4451d53";
-	private static final String REFRESH_TOKEN = "99e2cecfa54f4957a782f07168915b69-r";
 
 	@Before
 	public void setup() {
-		this.mockJwt = buildMockJwt();
-		this.clientCredentials = new ClientCredentials("clientCredentials.getId()",
-				"clientCredentials.getSecret()");
-		this.cut = new RefreshTokenFlow(mockTokenService, mockTokenDecoder,
+		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
+		this.cut = new ClientCredentialsTokenFlow(mockTokenService,
 				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-
-		Mockito.when(mockTokenDecoder.decode(JWT_ACCESS_TOKEN)).thenReturn(mockJwt);
-	}
-
-	private Jwt buildMockJwt() {
-		Map<String, Object> jwtHeaders = new HashMap<String, Object>();
-		jwtHeaders.put("dummyHeader", "dummyHeaderValue");
-
-		Map<String, Object> jwtClaims = new HashMap<String, Object>();
-		jwtClaims.put("dummyClaim", "dummyClaimValue");
-
-		return new Jwt("mockJwtValue", Instant.now(),
-				Instant.now().plusMillis(100000), jwtHeaders, jwtClaims);
 	}
 
 	@Test
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(null, mockTokenDecoder,
+			new ClientCredentialsTokenFlow(null,
 					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
 		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(mockTokenService, null,
-					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("TokenDecoder");
-
-		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(mockTokenService, mockTokenDecoder, null);
+			new ClientCredentialsTokenFlow(mockTokenService, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
 	}
 
 	@Test
 	public void execute_throwsIfMandatoryFieldsNotSet() {
 		assertThatThrownBy(() -> {
-			cut.execute();
-		}).isInstanceOf(TokenFlowException.class);
-
-		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getId())
-					.secret(clientCredentials.getSecret())
-					.execute();
-		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Refresh token not set");
-
-		assertThatThrownBy(() -> {
 			cut.client(null)
-					.secret(clientCredentials.getSecret())
+					.secret(TestConstants.clientSecret)
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getId())
+			cut.client(TestConstants.clientId)
 					.secret(null)
 					.execute();
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client secret");
+
+		assertThatThrownBy(() -> {
+			cut.execute();
+		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Client credentials flow request is not valid");
 	}
 
 	@Test
@@ -103,33 +72,51 @@ public class RefreshTokenFlowTest {
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231, null);
 
 		Mockito.when(mockTokenService
-				.retrieveAccessTokenViaRefreshToken(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						eq(REFRESH_TOKEN), isNull()))
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+						isNull(), isNull()))
 				.thenReturn(accessToken);
 
-		Jwt jwt = cut.client(clientCredentials.getId())
+		String jwt = cut.client(clientCredentials.getId())
 				.secret(clientCredentials.getSecret())
-				.refreshToken(REFRESH_TOKEN)
 				.execute();
 
-		assertThat(jwt, is(mockJwt));
+		assertThat(jwt, is(accessToken.getValue()));
 	}
 
 	@Test
 	public void execute_throwsIfServiceRaisesException() {
 		Mockito.when(mockTokenService
-				.retrieveAccessTokenViaRefreshToken(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						eq(REFRESH_TOKEN), isNull()))
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+						isNull(), isNull()))
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
 			cut.client(clientCredentials.getId())
 					.secret(clientCredentials.getSecret())
-					.refreshToken(REFRESH_TOKEN)
 					.execute();
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
-						"Error refreshing token with grant_type 'refresh_token': exception executed REST call");
+						"Error requesting user token with grant_type 'client_credentials': exception executed REST call");
+	}
+
+	@Test
+	public void execute_withAdditionalAuthorities() throws TokenFlowException {
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231, null);
+
+		Map<String, String> additionalAuthorities = new HashMap<String, String>();
+		additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
+
+		Mockito.when(mockTokenService
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+						isNull(), isNotNull()))
+				.thenReturn(accessToken);
+
+		String jwt = cut.client(clientCredentials.getId())
+				.secret(clientCredentials.getSecret())
+				.attributes(additionalAuthorities)
+				.execute();
+
+		assertThat(jwt, is(accessToken.getValue()));
 	}
 
 }

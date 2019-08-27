@@ -4,9 +4,10 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.xsa.security.container.XSTokenRequest;
-import com.sun.istack.internal.Nullable;
+import com.sap.xsa.security.container.XSTokenRequest; // API
+import com.sun.istack.internal.NotNull;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -27,7 +28,8 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * @param tokenServiceEndpoint
 	 *            - the URI of the OAuth server token endpoint.
 	 */
-	XsuaaTokenFlowRequest(URI tokenServiceEndpoint) {
+	XsuaaTokenFlowRequest(@NotNull URI tokenServiceEndpoint) {
+		Assert.notNull(tokenServiceEndpoint, "tokenServiceEndpoint is required");
 		this.tokenServiceEndpoint = tokenServiceEndpoint;
 	}
 
@@ -90,7 +92,6 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
 	}
 
-
 	/**
 	 * @deprecated in favor of @link{{@link #setSubdomain} )}}
 	 */
@@ -111,7 +112,8 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	}
 
 	/**
-	 * Get the Identity Zone this request goes to by providing the subdomain (tenant).
+	 * Get the Identity Zone this request goes to by providing the subdomain
+	 * (tenant).
 	 *
 	 * @return subdomain or null in case no subdomain is specified
 	 */
@@ -124,8 +126,8 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * Set the Subdomain the token is requested for.
 	 *
 	 * @param subdomain
-	 * 	 indicates what Identity Zone this request goes to by
-	 * 	 supplying a subdomain (tenant).
+	 *            indicates what Identity Zone this request goes to by supplying a
+	 *            subdomain (tenant).
 	 *
 	 * @return this mutable object
 	 *

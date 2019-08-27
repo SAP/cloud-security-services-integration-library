@@ -31,7 +31,7 @@ public class TokenFlowException extends Exception {
 
 	/**
 	 * Creates a new exception instances.
-	 * 
+	 *
 	 * @param message
 	 *            - the error message.
 	 * @param cause

@@ -2,7 +2,6 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.tokenflows.VariableKeySetUriTokenDecoder;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,17 +39,14 @@ public class XsuaaTokenFlowAutoConfiguration {
 	 *
 	 * @param restTemplate
 	 *            - the {@link RestTemplate} to use for the token flow exchange.
-	 * @param decoder
-	 *            - the decoder used for the tokens retrieved via the token flows.
 	 * @return the {@link XsuaaTokenFlows} API.
 	 */
 	@Bean
-	@ConditionalOnBean({ VariableKeySetUriTokenDecoder.class, XsuaaServiceConfiguration.class })
+	@ConditionalOnBean({ XsuaaServiceConfiguration.class })
 	@ConditionalOnMissingBean
-	public XsuaaTokenFlows xsuaaTokenFlows(RestTemplate restTemplate, VariableKeySetUriTokenDecoder decoder,
-			XsuaaServiceConfiguration serviceConfiguration) {
+	public XsuaaTokenFlows xsuaaTokenFlows(RestTemplate restTemplate, XsuaaServiceConfiguration serviceConfiguration) {
 		logger.info("auto-configures XsuaaTokenFlows");
-		return new XsuaaTokenFlows(restTemplate, decoder, new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
+		return new XsuaaTokenFlows(restTemplate, new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
 	}
 
 	/**

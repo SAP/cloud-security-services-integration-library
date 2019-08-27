@@ -1,10 +1,7 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import java.net.URI;
-
 import com.sap.cloud.security.xsuaa.client.*;
-import com.sap.xsa.security.container.XSTokenRequest;
-import org.springframework.security.oauth2.jwt.Jwt;
+import com.sap.xsa.security.container.XSTokenRequest; //API
 import org.springframework.util.Assert;
 
 /**
@@ -17,8 +14,6 @@ public class RefreshTokenFlow {
 	private XsuaaTokenFlowRequest request;
 	private String refreshToken;
 	private OAuth2TokenService tokenService;
-	private VariableKeySetUriTokenDecoder tokenDecoder;
-	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	/**
 	 * Creates a new instance.
@@ -26,21 +21,15 @@ public class RefreshTokenFlow {
 	 * @param tokenService
 	 *            - the {@link OAuth2TokenService} used to execute the final
 	 *            request.
-	 * @param tokenDecoder
-	 *            - the token decoder
 	 * @param endpointsProvider
 	 *            - the endpoints provider
 	 */
-	RefreshTokenFlow(OAuth2TokenService tokenService, VariableKeySetUriTokenDecoder tokenDecoder,
-			OAuth2ServiceEndpointsProvider endpointsProvider) {
+	RefreshTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider) {
 		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
-		Assert.notNull(tokenDecoder, "TokenDecoder must not be null.");
 		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
 
 		this.tokenService = tokenService;
-		this.tokenDecoder = tokenDecoder;
 		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
-		this.endpointsProvider = endpointsProvider;
 	}
 
 	/**
@@ -88,13 +77,13 @@ public class RefreshTokenFlow {
 	/**
 	 * Executes the refresh token flow against XSUAA.
 	 * 
-	 * @return the refreshed JWT token or an exception in case the token could not
-	 *         be refreshed.
+	 * @return the refreshed OAuth access token returned by XSUAA or an exception in
+	 *         case the token could not be refreshed.
 	 * @throws TokenFlowException
 	 *             in case of an error during the flow, or when the token cannot be
 	 *             refreshed.
 	 */
-	public Jwt execute() throws TokenFlowException {
+	public String execute() throws TokenFlowException {
 		checkRequest(request);
 
 		return refreshToken(refreshToken, request);
@@ -129,37 +118,20 @@ public class RefreshTokenFlow {
 	 *            - the (opaque) refresh token.
 	 * @param request
 	 *            - the token flow request to execute.
-	 * @return the JWT received in exchange for the refresh token.
+	 * @return the encoded OAuth access token received in exchange for the refresh
+	 *         token.
 	 * @throws TokenFlowException
 	 *             in case of an error in the flow.
 	 */
-	private Jwt refreshToken(String refreshToken, XsuaaTokenFlowRequest request) throws TokenFlowException {
+	private String refreshToken(String refreshToken, XsuaaTokenFlowRequest request) throws TokenFlowException {
 		try {
 			OAuth2AccessToken accessToken = tokenService.retrieveAccessTokenViaRefreshToken(request.getTokenEndpoint(),
-					new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken, request.getSubdomain());
-			return decode(accessToken.getValue(), endpointsProvider.getJwksUri());
+					new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken,
+					request.getSubdomain());
+			return accessToken.getValue();
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format("Error refreshing token with grant_type 'refresh_token': %s", e.getMessage()));
 		}
-	}
-
-	/**
-	 * Decodes the returned JWT value. validation is not required by the one who
-	 * retrieves the token, but by the one who receives it (e.g. the service it is
-	 * sent to). Hence, here we only decode, but do not validate.
-	 * decoder.setJwtValidator(new
-	 * DelegatingOAuth2TokenValidator<>(tokenValidators));
-	 *
-	 * @param encodedToken
-	 *            - the encoded JWT token value.
-	 * @return the decoded JWT.
-	 * @throws TokenFlowException
-	 *             in case of an exception decoding the token.
-	 */
-	private Jwt decode(String encodedToken, URI keySetEndpoint) {
-		// TODO not a good idea as singleton bean instance
-		tokenDecoder.setJwksURI(keySetEndpoint);
-		return tokenDecoder.decode(encodedToken);
 	}
 }

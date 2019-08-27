@@ -1,16 +1,15 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.time.Instant;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,8 +27,8 @@ public class UserTokenFlowTest {
 	@Mock
 	RefreshTokenFlow mockRefreshTokenFlow;
 
-	private Jwt mockJwt;
-	private Jwt invalidMockJwt;
+	private String mockJwt;
+	private String invalidMockJwt;
 	private ClientCredentials clientCredentials;
 	private UserTokenFlow cut;
 
@@ -51,26 +50,12 @@ public class UserTokenFlowTest {
 		Mockito.when(mockRefreshTokenFlow.secret(anyString())).thenReturn(mockRefreshTokenFlow);
 	}
 
-	private Jwt buildMockJwt() {
-		Map<String, Object> jwtHeaders = new HashMap<String, Object>();
-		jwtHeaders.put("dummyHeader", "dummyHeaderValue");
-
-		Map<String, Object> jwtClaims = new HashMap<String, Object>();
-		jwtClaims.put("scope", Arrays.asList("uaa.user", "read", "write"));
-
-		return new Jwt("mockJwtValue", Instant.now(),
-				Instant.now().plusMillis(100000), jwtHeaders, jwtClaims);
+	private String buildMockJwt() {
+		return new JwtGenerator().addScopes("uaa.user").getToken().getTokenValue();
 	}
 
-	private Jwt buildInvalidMockJwt() {
-		Map<String, Object> jwtHeaders = new HashMap<String, Object>();
-		jwtHeaders.put("dummyHeader", "dummyHeaderValue");
-
-		Map<String, Object> jwtClaims = new HashMap<String, Object>();
-		jwtClaims.put("dummyClaim", "dummyClaimValue");
-
-		return new Jwt("mockJwtValue", Instant.now(),
-				Instant.now().plusMillis(100000), jwtHeaders, jwtClaims);
+	private String buildInvalidMockJwt() {
+		return new JwtGenerator().getToken().getTokenValue();
 	}
 
 	@Test
@@ -131,7 +116,7 @@ public class UserTokenFlowTest {
 	public void execute_throwsIfServiceRaisesException() {
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						eq(mockJwt.getTokenValue()),
+						eq(mockJwt),
 						isNull(), isNull()))
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
@@ -151,11 +136,11 @@ public class UserTokenFlowTest {
 
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						eq(mockJwt.getTokenValue()),
+						eq(mockJwt),
 						isNull(), isNull()))
 				.thenReturn(accessToken);
 
-		Jwt jwt = cut.client(clientCredentials.getId())
+		String jwt = cut.client(clientCredentials.getId())
 				.secret(clientCredentials.getSecret())
 				.token(mockJwt)
 				.execute();
@@ -170,13 +155,16 @@ public class UserTokenFlowTest {
 		Map<String, String> additionalAuthorities = new HashMap<String, String>();
 		additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
 
+		Map<String, String> additionalAuthoritiesParam = new HashMap<>();
+		additionalAuthoritiesParam.put("authorities", "{\"az_attr\":{\"DummyAttribute\":\"DummyAttributeValue\"}}");
+
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						eq(mockJwt.getTokenValue()),
-						isNull(), isNotNull()))
+						eq(mockJwt),
+						isNull(), eq(additionalAuthoritiesParam)))
 				.thenReturn(accessToken);
 
-		Jwt jwt = cut.client(clientCredentials.getId())
+		String jwt = cut.client(clientCredentials.getId())
 				.secret(clientCredentials.getSecret())
 				.token(mockJwt)
 				.attributes(additionalAuthorities)

@@ -2,10 +2,7 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 
 import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.tokenflows.NimbusTokenDecoder;
-import com.sap.cloud.security.xsuaa.tokenflows.VariableKeySetUriTokenDecoder;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -101,8 +98,8 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 
 		@Bean
 		public XsuaaTokenFlows userDefinedXsuaaTokenFlows(RestTemplate restTemplate,
-				VariableKeySetUriTokenDecoder decoder, XsuaaServiceConfiguration serviceConfiguration) {
-			return new XsuaaTokenFlows(restTemplate, decoder,
+				XsuaaServiceConfiguration serviceConfiguration) {
+			return new XsuaaTokenFlows(restTemplate,
 					new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
 		}
 	}
