@@ -2,13 +2,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import java.net.URI;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
