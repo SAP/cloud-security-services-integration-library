@@ -5,7 +5,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 
 import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestOperations;
 
 /**
  * A bean that can be {@code @Autowired} by applications to get access to token
@@ -17,23 +17,23 @@ import org.springframework.web.client.RestTemplate;
  */
 public class XsuaaTokenFlows {
 
-	private RestTemplate restTemplate;
+	private RestOperations restOperations;
 	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	/**
 	 * Create a new instance of this bean with the given RestTemplate. Applications
 	 * should {@code @Autowire} instances of this bean.
 	 * 
-	 * @param restTemplate
+	 * @param restOperations
 	 *            the RestTemplate instance that will be used to send the token
 	 *            exchange request.
 	 */
-	public XsuaaTokenFlows(RestTemplate restTemplate,
+	public XsuaaTokenFlows(RestOperations restOperations,
 			OAuth2ServiceEndpointsProvider endpointsProvider) {
-		Assert.notNull(restTemplate, "RestTemplate must not be null.");
+		Assert.notNull(restOperations, "RestOperations must not be null.");
 		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
 
-		this.restTemplate = restTemplate;
+		this.restOperations = restOperations;
 		this.endpointsProvider = endpointsProvider;
 	}
 
@@ -76,6 +76,6 @@ public class XsuaaTokenFlows {
 	}
 
 	OAuth2TokenService initializeTokenService() {
-		return new XsuaaOAuth2TokenService(restTemplate);
+		return new XsuaaOAuth2TokenService(restOperations);
 	}
 }

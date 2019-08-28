@@ -14,9 +14,8 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,24 +34,9 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 	private ApplicationContext context;
 
 	@Test
-	public void configures_xsuaaTokenFlows() {
-		assertThat(context.getBean("xsuaaTokenFlows")).isNotNull();
-		assertThat(context.getBean("xsuaaTokenFlows")).isInstanceOf(XsuaaTokenFlows.class);
-		assertThat(context.getBean(XsuaaTokenFlows.class)).isNotNull();
-	}
-
-	@Test
-	public void configures_xsuaaTokenFlowRestTemplate() {
-		assertThat(context.getBean("xsuaaTokenFlowRestTemplate")).isNotNull();
-		assertThat(context.getBean("xsuaaTokenFlowRestTemplate")).isInstanceOf(RestTemplate.class);
-		assertThat(context.getBean(RestTemplate.class)).isNotNull();
-	}
-
-	@Test
 	public void configures_xsuaaTokenFlows_withProperties() {
 		contextRunner
 				.withPropertyValues("spring.xsuaa.flows.auto:true").run((context) -> {
-					assertThat(context).hasSingleBean(RestTemplate.class);
 					assertThat(context).hasSingleBean(XsuaaTokenFlows.class);
 				});
 	}
@@ -60,17 +44,32 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 	@Test
 	public void autoConfigurationDisabledByProperty() {
 		contextRunner.withPropertyValues("spring.xsuaa.flows.auto:false").run((context) -> {
-			assertThat(context).doesNotHaveBean(RestTemplate.class);
 			assertThat(context).doesNotHaveBean(XsuaaTokenFlows.class);
 		});
 	}
 
 	@Test
-	public void autoConfigurationInactive_if_noJwtOnClasspath() {
-		contextRunner.withClassLoader(new FilteredClassLoader(Jwt.class)) // removes Jwt.class from classpath
+	public void autoConfigurationSkipped_without_XsuaaServiceConfiguration() {
+		contextRunner.withClassLoader(new FilteredClassLoader(XsuaaServiceConfiguration.class))
 				.run((context) -> {
 					assertThat(context).doesNotHaveBean("xsuaaTokenFlows");
-					assertThat(context).doesNotHaveBean("xsuaaTokenFlowRestTemplate");
+				});
+	}
+
+	@Test
+	public void autoConfigurationSkipped_without_RestOperations() {
+		new ApplicationContextRunner()
+				.withConfiguration(
+						AutoConfigurations.of(XsuaaTokenFlowAutoConfiguration.class)).run((context) -> {
+			assertThat(context).doesNotHaveBean("xsuaaTokenFlows");
+		});
+	}
+
+	@Test
+	public void autoConfigurationInactive_if_noXsuaaTokenFlowsOnClasspath() {
+		contextRunner.withClassLoader(new FilteredClassLoader(XsuaaTokenFlows.class))
+				.run((context) -> {
+					assertThat(context).doesNotHaveBean("xsuaaTokenFlows");
 				});
 	}
 
@@ -78,10 +77,6 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 	public void userConfigurationCanOverrideDefaultBeans() {
 		contextRunner.withUserConfiguration(XsuaaTokenFlowAutoConfigurationTest.UserConfiguration.class)
 				.run((context) -> {
-					assertThat(context).hasSingleBean(RestTemplate.class);
-					assertThat(context).hasBean("userDefinedXsuaaTokenFlowRestTemplate");
-					assertThat(context).doesNotHaveBean("xsuaaTokenFlowRestTemplate");
-
 					assertThat(context).hasSingleBean(XsuaaTokenFlows.class);
 					assertThat(context).hasBean("userDefinedXsuaaTokenFlows");
 					assertThat(context).doesNotHaveBean("xsuaaTokenFlows");
@@ -90,16 +85,10 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 
 	@Configuration
 	public static class UserConfiguration {
-
 		@Bean
-		public RestTemplate userDefinedXsuaaTokenFlowRestTemplate() {
-			return new RestTemplate();
-		}
-
-		@Bean
-		public XsuaaTokenFlows userDefinedXsuaaTokenFlows(RestTemplate restTemplate,
+		public XsuaaTokenFlows userDefinedXsuaaTokenFlows(RestOperations restOperations,
 				XsuaaServiceConfiguration serviceConfiguration) {
-			return new XsuaaTokenFlows(restTemplate,
+			return new XsuaaTokenFlows(restOperations,
 					new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
 		}
 	}

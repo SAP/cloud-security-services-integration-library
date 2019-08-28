@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimAccessor;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.xs2.security.container.XSTokenRequestImpl;
@@ -242,18 +243,18 @@ public class XsuaaToken extends Jwt implements Token {
 		Assert.notNull(tokenRequest, "TokenRequest argument is required");
 		Assert.isTrue(tokenRequest.isValid(), "TokenRequest is not valid");
 
-		RestTemplate restTemplate = new RestTemplate();
+		RestOperations restOperations = new RestTemplate();
 
 		if (tokenRequest instanceof XSTokenRequestImpl
 				&& ((XSTokenRequestImpl) tokenRequest).getRestTemplate() != null) {
-			restTemplate = ((XSTokenRequestImpl) tokenRequest).getRestTemplate();
+			restOperations = ((XSTokenRequestImpl) tokenRequest).getRestTemplate();
 		}
 
 		String baseUrl = tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(),
 				"");
 
 		// initialize token flows api
-		xsuaaTokenFlows = new XsuaaTokenFlows(restTemplate, new XsuaaDefaultEndpoints(baseUrl));
+		xsuaaTokenFlows = new XsuaaTokenFlows(restOperations, new XsuaaDefaultEndpoints(baseUrl));
 
 		switch (tokenRequest.getType()) {
 		case XSTokenRequest.TYPE_USER_TOKEN:

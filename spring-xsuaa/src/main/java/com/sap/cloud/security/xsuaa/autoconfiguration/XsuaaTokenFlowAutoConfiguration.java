@@ -12,22 +12,21 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestOperations;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
  * the XSUAA client library.
  * <p>
- * Activates when there is a class of type {@link Jwt} on the classpath.
+ * Activates when there is a class of type {@link XsuaaTokenFlows} on the classpath.
  *
  * <p>
  * can be disabled
  * with @EnableAutoConfiguration(exclude={XsuaaTokenFlowAutoConfiguration.class})
- * or with property spring.xsuaa.auto = false
+ * or with property spring.xsuaa.flows.auto = false
  */
 @Configuration
-@ConditionalOnClass(Jwt.class)
+@ConditionalOnClass(XsuaaTokenFlows.class)
 @ConditionalOnProperty(prefix = "spring.xsuaa.flows", name = "auto", havingValue = "true", matchIfMissing = true)
 public class XsuaaTokenFlowAutoConfiguration {
 
@@ -37,28 +36,17 @@ public class XsuaaTokenFlowAutoConfiguration {
 	 * Creates a new {@link XsuaaTokenFlows} bean that applications can auto-wire
 	 * into their controllers to perform a programmatic token flow exchange.
 	 *
-	 * @param restTemplate
-	 *            - the {@link RestTemplate} to use for the token flow exchange.
+	 * @param restOperations
+	 *            - the {@link RestOperations} to use for the token flow exchange.
+	 * @param serviceConfiguration
+	 * 	         - the {@link XsuaaServiceConfiguration} to configure the Xsuaa Base Url.
 	 * @return the {@link XsuaaTokenFlows} API.
 	 */
 	@Bean
-	@ConditionalOnBean({ XsuaaServiceConfiguration.class })
+	@ConditionalOnBean({ XsuaaServiceConfiguration.class, RestOperations.class })
 	@ConditionalOnMissingBean
-	public XsuaaTokenFlows xsuaaTokenFlows(RestTemplate restTemplate, XsuaaServiceConfiguration serviceConfiguration) {
+	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations restOperations, XsuaaServiceConfiguration serviceConfiguration) {
 		logger.info("auto-configures XsuaaTokenFlows");
-		return new XsuaaTokenFlows(restTemplate, new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
-	}
-
-	/**
-	 * Creates a {@link RestTemplate} instance if the application has not yet
-	 * defined any yet.
-	 *
-	 * @return the {@link RestTemplate} instance.
-	 */
-	@Bean
-	@ConditionalOnMissingBean
-	public RestTemplate xsuaaTokenFlowRestTemplate() {
-		logger.info("auto-configures RestTemplate (for xsuaa token flows)");
-		return new RestTemplate();
+		return new XsuaaTokenFlows(restOperations, new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
 	}
 }

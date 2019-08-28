@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -42,20 +44,29 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
+	public void configures_xsuaaRestTemplate() {
+		assertThat(context.getBean("xsuaaRestOperations")).isNotNull();
+		assertThat(context.getBean("xsuaaRestOperations")).isInstanceOf(RestOperations.class);
+		assertThat(context.getBean(RestOperations.class)).isNotNull();
+	}
+
+	@Test
 	public void configures_xsuaaServiceConfiguration_withProperties() {
 		contextRunner
 				.withPropertyValues("spring.xsuaa.auto:true")
 				.withPropertyValues("spring.xsuaa.multiple-bindings:false").run((context) -> {
 					assertThat(context.containsBean("xsuaaServiceConfiguration"), is(true));
-					assertThat(context.getBean("xsuaaServiceConfiguration"),
-							instanceOf(XsuaaServiceConfigurationDefault.class));
+					assertThat(context.getBean("xsuaaServiceConfiguration"), instanceOf(XsuaaServiceConfigurationDefault.class));
 					assertThat(context.getBean(XsuaaServiceConfiguration.class), is(not(nullValue())));
+
+					assertThat(context).hasSingleBean(RestTemplate.class);
 				});
 	}
 
 	@Test
 	public void autoConfigurationDisabledByProperty() {
 		contextRunner.withPropertyValues("spring.xsuaa.auto:false").run((context) -> {
+			assertThat(context).doesNotHaveBean(RestTemplate.class);
 			assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration");
 		});
 	}
@@ -73,6 +84,7 @@ public class XsuaaAutoConfigurationTest {
 				.run((context) -> {
 					assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration");
 					assertThat(context).doesNotHaveBean("xsuaaTokenDecoder");
+					assertThat(context).doesNotHaveBean("xsuaaRestOperations");
 				});
 	}
 
@@ -83,11 +95,20 @@ public class XsuaaAutoConfigurationTest {
 					assertThat(context).hasSingleBean(DummyXsuaaServiceConfiguration.class);
 					assertThat(context).doesNotHaveBean(XsuaaServiceConfigurationDefault.class);
 					assertThat(context).hasBean("userDefinedServiceConfiguration");
+
+					assertThat(context).hasSingleBean(RestTemplate.class);
+					assertThat(context).hasBean("userDefinedXsuaaRestOperations");
+					assertThat(context).doesNotHaveBean("xsuaaRestOperations");
 				});
 	}
 
 	@Configuration
 	public static class UserConfiguration {
+		@Bean
+		public RestTemplate userDefinedXsuaaRestOperations() {
+			return new RestTemplate();
+		}
+
 		@Bean
 		public XsuaaServiceConfiguration userDefinedServiceConfiguration() {
 			return new DummyXsuaaServiceConfiguration();
