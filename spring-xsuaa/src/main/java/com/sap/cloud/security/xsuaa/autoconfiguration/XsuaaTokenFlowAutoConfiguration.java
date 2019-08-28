@@ -18,7 +18,8 @@ import org.springframework.web.client.RestOperations;
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
  * the XSUAA client library.
  * <p>
- * Activates when there is a class of type {@link XsuaaTokenFlows} on the classpath.
+ * Activates when there is a class of type {@link XsuaaTokenFlows} on the
+ * classpath.
  *
  * <p>
  * can be disabled
@@ -39,13 +40,15 @@ public class XsuaaTokenFlowAutoConfiguration {
 	 * @param restOperations
 	 *            - the {@link RestOperations} to use for the token flow exchange.
 	 * @param serviceConfiguration
-	 * 	         - the {@link XsuaaServiceConfiguration} to configure the Xsuaa Base Url.
+	 *            - the {@link XsuaaServiceConfiguration} to configure the Xsuaa
+	 *            Base Url.
 	 * @return the {@link XsuaaTokenFlows} API.
 	 */
 	@Bean
 	@ConditionalOnBean({ XsuaaServiceConfiguration.class, RestOperations.class })
 	@ConditionalOnMissingBean
-	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations restOperations, XsuaaServiceConfiguration serviceConfiguration) {
+	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations restOperations,
+			XsuaaServiceConfiguration serviceConfiguration) {
 		logger.info("auto-configures XsuaaTokenFlows");
 		return new XsuaaTokenFlows(restOperations, new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
 	}

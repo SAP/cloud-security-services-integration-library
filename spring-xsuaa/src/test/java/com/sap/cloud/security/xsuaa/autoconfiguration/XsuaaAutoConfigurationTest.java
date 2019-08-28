@@ -56,7 +56,8 @@ public class XsuaaAutoConfigurationTest {
 				.withPropertyValues("spring.xsuaa.auto:true")
 				.withPropertyValues("spring.xsuaa.multiple-bindings:false").run((context) -> {
 					assertThat(context.containsBean("xsuaaServiceConfiguration"), is(true));
-					assertThat(context.getBean("xsuaaServiceConfiguration"), instanceOf(XsuaaServiceConfigurationDefault.class));
+					assertThat(context.getBean("xsuaaServiceConfiguration"),
+							instanceOf(XsuaaServiceConfigurationDefault.class));
 					assertThat(context.getBean(XsuaaServiceConfiguration.class), is(not(nullValue())));
 
 					assertThat(context).hasSingleBean(RestTemplate.class);

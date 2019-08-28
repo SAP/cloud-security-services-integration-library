@@ -60,9 +60,10 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 	public void autoConfigurationSkipped_without_RestOperations() {
 		new ApplicationContextRunner()
 				.withConfiguration(
-						AutoConfigurations.of(XsuaaTokenFlowAutoConfiguration.class)).run((context) -> {
-			assertThat(context).doesNotHaveBean("xsuaaTokenFlows");
-		});
+						AutoConfigurations.of(XsuaaTokenFlowAutoConfiguration.class))
+				.run((context) -> {
+					assertThat(context).doesNotHaveBean("xsuaaTokenFlows");
+				});
 	}
 
 	@Test

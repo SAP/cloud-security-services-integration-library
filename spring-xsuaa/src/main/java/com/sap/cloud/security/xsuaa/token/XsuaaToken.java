@@ -225,21 +225,9 @@ public class XsuaaToken extends Jwt implements Token {
 		return getTokenValue();
 	}
 
-	/**
-	 * Exchange a token into a token from another service instance
-	 * <p>
-	 *
-	 * @deprecated in favor of the XsuaaTokenFlows API.
-	 *
-	 * @param tokenRequest
-	 *            request data
-	 * @return requested token
-	 * @throws URISyntaxException
-	 *             in case of wron URLs
-	 */
 	@Override
 	@Deprecated
-	public String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException {
+	public String requestToken(XSTokenRequest tokenRequest) {
 		Assert.notNull(tokenRequest, "TokenRequest argument is required");
 		Assert.isTrue(tokenRequest.isValid(), "TokenRequest is not valid");
 
@@ -274,6 +262,17 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	/**
+	 * Check if the authentication token contains a claim, e.g. "email".
+	 * 
+	 * @param claim
+	 *            name of the claim
+	 * @return true: attribute exists
+	 */
+	public boolean hasClaim(String claim) {
+		return containsClaim(claim);
+	}
+
+	/**
 	 * For custom access to the claims of the authentication token.
 	 *
 	 * @return this
@@ -283,17 +282,6 @@ public class XsuaaToken extends Jwt implements Token {
 	@Deprecated
 	ClaimAccessor getClaimAccessor() {
 		return this;
-	}
-
-	/**
-	 * Check if the authentication token contains a claim, e.g. "email".
-	 * 
-	 * @param claim
-	 *            name of the claim
-	 * @return true: attribute exists
-	 */
-	public boolean hasClaim(String claim) {
-		return containsClaim(claim);
 	}
 
 	void setAuthorities(Collection<GrantedAuthority> authorities) {

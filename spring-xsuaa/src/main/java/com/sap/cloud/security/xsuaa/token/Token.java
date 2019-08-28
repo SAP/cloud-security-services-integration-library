@@ -159,6 +159,21 @@ public interface Token extends UserDetails {
 	String getAppToken();
 
 	/**
+	 * Exchange a token into a token from another service instance
+	 * <p>
+	 *
+	 * @deprecated in favor of the XsuaaTokenFlows API.
+	 *
+	 * @param tokenRequest
+	 *            request data
+	 * @return requested token
+	 * @throws URISyntaxException
+	 *             in case of wron URLs
+	 */
+	@Deprecated
+	String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException;
+
+	/**
 	 * Returns list of scopes with appId prefix, e.g. "&lt;my-app!t123&gt;.Display".
 	 *
 	 * @return all scopes
@@ -184,17 +199,4 @@ public interface Token extends UserDetails {
 	@Nullable
 	Date getExpirationDate();
 
-	/**
-	 * Exchange a token into a token from another service instance
-	 * <p>
-	 * 
-	 * @deprecated in favor of the XsuaaTokenFlows API.
-	 *
-	 * @param tokenRequest
-	 *            request data
-	 * @return requested token
-	 * @throws URISyntaxException
-	 *             in case of wron URLs
-	 */
-	String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException;
 }
