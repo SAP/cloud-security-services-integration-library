@@ -9,8 +9,6 @@ package com.sap.xsa.security.container;
 import java.net.URI;
 import java.util.Map;
 
-import com.sun.istack.internal.Nullable;
-
 /**
  * Represents a token exchange request.
  */
