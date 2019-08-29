@@ -12,8 +12,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 /**
- * As part of this Spring xsuaa library, we need to get rid of {@code com.sap.xs2.security.container} package.
- * It will be removed with version {@code 2.0.0}
+ * As part of this Spring xsuaa library, we need to get rid of
+ * {@code com.sap.xs2.security.container} package. It will be removed with
+ * version {@code 2.0.0}
  *
  * @deprecated use {@link SpringSecurityContext} class instead.
  */

@@ -6,6 +6,8 @@ import org.springframework.http.*;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
@@ -13,6 +15,7 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,15 +41,19 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 
-		Map<String, String> parameters = copy(optionalParameters);
+		// build parameters
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS);
 		parameters.put(CLIENT_ID, clientCredentials.getId());
 		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
+		if (optionalParameters != null) {
+			optionalParameters.forEach(parameters::putIfAbsent);
+		}
 
 		// build header
 		HttpHeaders headers = createHeadersWithoutAuthorization();
 
-		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
+		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	@Override
@@ -58,14 +65,18 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 		Assert.notNull(token, "token is required");
 
-		Map<String, String> parameters = copy(optionalParameters);
+		// build parameters
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_USER_TOKEN);
 		parameters.put(PARAMETER_CLIENT_ID, clientCredentials.getId());
+		if (optionalParameters != null) {
+			optionalParameters.forEach(parameters::putIfAbsent);
+		}
 
 		// build header
 		HttpHeaders headers = createHeadersWithAuthorization(token);
 
-		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
+		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	@Override
@@ -76,6 +87,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 		Assert.notNull(refreshToken, "refreshToken is required");
 
+		// build parameters
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
 		parameters.put(REFRESH_TOKEN, refreshToken);
@@ -85,7 +97,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build header
 		HttpHeaders headers = createHeadersWithoutAuthorization();
 
-		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
+		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	/**
@@ -112,15 +124,14 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	private OAuth2AccessToken requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
-			Map<String, String> parameters) {
+			MultiValueMap<String, String> parameters) {
 
 		// Create URI
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
-		parameters.forEach(builder::queryParam);
 		URI requestUri = builder.build().encode().toUri();
 
 		// Create entity
-		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(parameters, headers);
 
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> responseEntity = null;
@@ -153,12 +164,17 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	/**
-	 * Create a copy of the given map or an new empty map
+	 * Creates a copy of the given map or an new empty map of type MultiValueMap.
 	 * 
-	 * @return a new Map that contains all entries of the optional map
+	 * @return a new @link{MultiValueMap} that contains all entries of the optional
+	 *         map.
 	 */
-	private static Map<String, String> copy(Map<String, String> map) {
-		return map == null ? new HashMap<>() : new HashMap<>(map);
+	private static MultiValueMap<String, String> copyIntoForm(Map<String, String> parameters) {
+		MultiValueMap<String, String> formData = new LinkedMultiValueMap();
+		if (parameters != null) {
+			parameters.forEach(formData::add);
+		}
+		return formData;
 	}
 
 	/**
@@ -169,7 +185,8 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	 */
 	private static HttpHeaders createHeadersWithoutAuthorization() {
 		HttpHeaders headers = new HttpHeaders();
-		addAcceptHeader(headers);
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		return headers;
 	}
 
@@ -180,22 +197,13 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	 */
 	private static HttpHeaders createHeadersWithAuthorization(String token) {
 		HttpHeaders headers = new HttpHeaders();
-		addAcceptHeader(headers);
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		addAuthorizationBearerHeader(headers, token);
 		return headers;
 	}
 
 	/** common utilities **/
-
-	/**
-	 * Adds the {@code  Accept: application/json} header to the set of headers.
-	 *
-	 * @param headers
-	 *            - the set of headers to add the header to.
-	 */
-	static void addAcceptHeader(HttpHeaders headers) {
-		headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-	}
 
 	/**
 	 * Adds the {@code  Authorization: Bearer <token>} header to the set of headers.

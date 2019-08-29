@@ -17,9 +17,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.token.Token;
+import com.sap.cloud.security.xsuaa.tokenflows.ClientCredentialsTokenFlow;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 
@@ -74,6 +80,7 @@ public class TestController {
 	}
 
 	@GetMapping("/requesttoken")
+	@Deprecated
 	public String requestToken(@AuthenticationPrincipal Token token) throws URISyntaxException {
 		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(serviceConfiguration.getUaaUrl());
 		tokenRequest.setClientId("c1").setClientSecret("s1").setType(XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN);
@@ -82,6 +89,21 @@ public class TestController {
 		azMape.put("c", "d");
 		tokenRequest.setAdditionalAuthorizationAttributes(azMape);
 		String newToken = token.requestToken(tokenRequest);
+		return newToken;
+	}
+
+	@GetMapping("/clientCredentialsToken")
+	public String requestToken_new(@AuthenticationPrincipal Token token) throws TokenFlowException {
+		Map<String, String> azMape = new HashMap();
+		azMape.put("a", "b");
+		azMape.put("c", "d");
+
+		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(new RestTemplate(),
+				new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()), new ClientCredentials("c1", "s1"));
+		ClientCredentialsTokenFlow ccTokenFlow = tokenFlows.clientCredentialsTokenFlow().attributes(azMape)
+				.subdomain(token.getSubdomain());
+
+		String newToken = ccTokenFlow.execute();
 		return newToken;
 	}
 }

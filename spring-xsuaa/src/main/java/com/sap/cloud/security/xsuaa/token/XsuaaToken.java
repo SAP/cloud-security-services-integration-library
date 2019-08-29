@@ -10,7 +10,6 @@ import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_USER_NAME;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ZDN;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ZONE_ID;
 
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;

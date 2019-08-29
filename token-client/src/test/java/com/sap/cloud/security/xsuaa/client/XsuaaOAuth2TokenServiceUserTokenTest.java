@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 
@@ -89,14 +90,19 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 
 	@Test
 	public void retrieveToken() {
+		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
+		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
+		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID, clientCredentials.getId());
+
 		HttpHeaders expectedHeaders = new HttpHeaders();
 		expectedHeaders.add(HttpHeaders.ACCEPT, "application/json");
 		expectedHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer " + userTokenToBeExchanged);
 		HttpEntity expectedRequest = new HttpEntity(expectedHeaders);
 
 		Mockito.when(mockRestOperations
-				.postForEntity(eq(createUriWithParameters("grant_type=user_token&client_id=clientid")),
-						eq(expectedRequest),
+				.postForEntity(
+						eq(tokenEndpoint),
+						argThat(tokenHttpEntityMatcher),
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
@@ -109,15 +115,20 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 
 	@Test
 	public void retrieveToken_withOptionalParamaters() {
-		Mockito.when(mockRestOperations.postForEntity(
-				eq(createUriWithParameters(
-						"add-param-1=value1&add-param-2=value2&grant_type=user_token&client_id=clientid")),
-				any(HttpEntity.class), eq(Map.class)))
-				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
-
 		Map<String, String> additionalParameters = new HashMap<>();
 		additionalParameters.put("add-param-1", "value1");
 		additionalParameters.put("add-param-2", "value2");
+
+		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
+		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
+		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID, clientCredentials.getId());
+		tokenHttpEntityMatcher.addParameters(additionalParameters);
+
+		Mockito.when(mockRestOperations.postForEntity(
+				eq(tokenEndpoint),
+				argThat(tokenHttpEntityMatcher),
+				eq(Map.class)))
+				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
 				userTokenToBeExchanged, null, additionalParameters);
@@ -126,10 +137,15 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 
 	@Test
 	public void retrieveToken_requiredParametersCanNotBeOverwritten() {
+		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
+		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
+		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID, clientCredentials.getId());
+
 		Mockito.when(
 				mockRestOperations.postForEntity(
-						eq(createUriWithParameters("grant_type=user_token&client_id=clientid")),
-						any(HttpEntity.class), eq(Map.class)))
+						eq(tokenEndpoint),
+						argThat(tokenHttpEntityMatcher),
+						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		Map<String, String> overwrittenGrantType = new HashMap<>();
@@ -138,9 +154,5 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
 				userTokenToBeExchanged, null, overwrittenGrantType);
 		assertThat(accessToken.getRefreshToken().get(), is(responseMap.get(REFRESH_TOKEN)));
-	}
-
-	private URI createUriWithParameters(String queryParameterList) {
-		return URI.create(tokenEndpoint.toString() + "?" + queryParameterList);
 	}
 }
