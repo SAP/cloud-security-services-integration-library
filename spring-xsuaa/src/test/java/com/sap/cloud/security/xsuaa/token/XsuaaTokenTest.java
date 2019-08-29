@@ -3,7 +3,6 @@ package com.sap.cloud.security.xsuaa.token;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 
@@ -252,6 +251,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
+	@Deprecated
 	public void requestClientCredentialsToken() throws URISyntaxException {
 		// prepare response
 		Map<String, Object> ccToken = new HashMap<>();
@@ -282,6 +282,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
+	@Deprecated
 	public void requestUserToken() throws URISyntaxException {
 		// prepare response
 		Map<String, Object> userToken = new HashMap<>();

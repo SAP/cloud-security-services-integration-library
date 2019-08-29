@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,45 +25,30 @@ public class ClientCredentialsTokenFlowTest {
 
 	private ClientCredentials clientCredentials;
 	private ClientCredentialsTokenFlow cut;
+	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	private static final String JWT_ACCESS_TOKEN = "4bfad399ca10490da95c2b5eb4451d53";
 
 	@Before
 	public void setup() {
 		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
-		this.cut = new ClientCredentialsTokenFlow(mockTokenService,
-				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+		this.endpointsProvider = new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri);
+		this.cut = new ClientCredentialsTokenFlow(mockTokenService, endpointsProvider, clientCredentials);
 	}
 
 	@Test
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(null,
-					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+			new ClientCredentialsTokenFlow(null, endpointsProvider, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
 		assertThatThrownBy(() -> {
-			new ClientCredentialsTokenFlow(mockTokenService, null);
+			new ClientCredentialsTokenFlow(mockTokenService, null, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
-	}
-
-	@Test
-	public void execute_throwsIfMandatoryFieldsNotSet() {
-		assertThatThrownBy(() -> {
-			cut.client(null)
-					.secret(TestConstants.clientSecret)
-					.execute();
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
 
 		assertThatThrownBy(() -> {
-			cut.client(TestConstants.clientId)
-					.secret(null)
-					.execute();
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client secret");
-
-		assertThatThrownBy(() -> {
-			cut.execute();
-		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Client credentials flow request is not valid");
+			new ClientCredentialsTokenFlow(mockTokenService, endpointsProvider, null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientCredentials");
 	}
 
 	@Test
@@ -76,9 +60,7 @@ public class ClientCredentialsTokenFlowTest {
 						isNull(), isNull()))
 				.thenReturn(accessToken);
 
-		String jwt = cut.client(clientCredentials.getId())
-				.secret(clientCredentials.getSecret())
-				.execute();
+		String jwt = cut.execute();
 
 		assertThat(jwt, is(accessToken.getValue()));
 	}
@@ -91,9 +73,7 @@ public class ClientCredentialsTokenFlowTest {
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getId())
-					.secret(clientCredentials.getSecret())
-					.execute();
+			cut.execute();
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
 						"Error requesting user token with grant_type 'client_credentials': exception executed REST call");
@@ -111,9 +91,7 @@ public class ClientCredentialsTokenFlowTest {
 						isNull(), isNotNull()))
 				.thenReturn(accessToken);
 
-		String jwt = cut.client(clientCredentials.getId())
-				.secret(clientCredentials.getSecret())
-				.attributes(additionalAuthorities)
+		String jwt = cut.attributes(additionalAuthorities)
 				.execute();
 
 		assertThat(jwt, is(accessToken.getValue()));

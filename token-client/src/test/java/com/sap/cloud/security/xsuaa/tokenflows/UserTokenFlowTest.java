@@ -31,6 +31,7 @@ public class UserTokenFlowTest {
 	private String invalidMockJwt;
 	private ClientCredentials clientCredentials;
 	private UserTokenFlow cut;
+	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	private static final String JWT_ACCESS_TOKEN = "4bfad399ca10490da95c2b5eb4451d53";
 	private static final String REFRESH_TOKEN = "99e2cecfa54f4957a782f07168915b69-r";
@@ -40,14 +41,12 @@ public class UserTokenFlowTest {
 		this.mockJwt = buildMockJwt();
 		this.invalidMockJwt = buildInvalidMockJwt();
 		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
-		this.cut = new UserTokenFlow(mockTokenService, mockRefreshTokenFlow,
-				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+		this.endpointsProvider = new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri);
+		this.cut = new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, endpointsProvider, clientCredentials);
 
 		// configure Refresh Token Flow Mock
 		Mockito.when(mockRefreshTokenFlow.execute()).thenReturn(mockJwt);
 		Mockito.when(mockRefreshTokenFlow.refreshToken(anyString())).thenReturn(mockRefreshTokenFlow);
-		Mockito.when(mockRefreshTokenFlow.client(anyString())).thenReturn(mockRefreshTokenFlow);
-		Mockito.when(mockRefreshTokenFlow.secret(anyString())).thenReturn(mockRefreshTokenFlow);
 	}
 
 	private String buildMockJwt() {
@@ -61,18 +60,21 @@ public class UserTokenFlowTest {
 	@Test
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new UserTokenFlow(null, mockRefreshTokenFlow,
-					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+			new UserTokenFlow(null, mockRefreshTokenFlow, endpointsProvider, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
 		assertThatThrownBy(() -> {
 			new UserTokenFlow(mockTokenService, null,
-					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+					endpointsProvider, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RefreshTokenFlow");
 
 		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, null);
+			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, null, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
+
+		assertThatThrownBy(() -> {
+			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, endpointsProvider, null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientCredentials");
 	}
 
 	@Test
@@ -82,32 +84,16 @@ public class UserTokenFlowTest {
 		}).isInstanceOf(TokenFlowException.class);
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getId())
-					.execute();
+			cut.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("User token not set");
-
-		assertThatThrownBy(() -> {
-			cut.client(null)
-					.secret(clientCredentials.getSecret())
-					.execute();
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
-
-		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getId())
-					.secret(null)
-					.execute();
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client secret");
 	}
 
 	@Test
 	public void test_execute_throwsIfTokenDoesNotContainUaaUserScope() {
-
 		assertThatThrownBy(() -> {
 			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow,
-					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri))
+					endpointsProvider, clientCredentials)
 							.token(invalidMockJwt)
-							.client(clientCredentials.getId())
-							.secret(clientCredentials.getSecret())
 							.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("JWT token does not include scope 'uaa.user'");
 	}
@@ -121,9 +107,7 @@ public class UserTokenFlowTest {
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getId())
-					.secret(clientCredentials.getSecret())
-					.token(mockJwt)
+			cut.token(mockJwt)
 					.execute();
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
@@ -140,9 +124,7 @@ public class UserTokenFlowTest {
 						isNull(), isNull()))
 				.thenReturn(accessToken);
 
-		String jwt = cut.client(clientCredentials.getId())
-				.secret(clientCredentials.getSecret())
-				.token(mockJwt)
+		String jwt = cut.token(mockJwt)
 				.execute();
 
 		assertThat(jwt, is(mockJwt));
@@ -164,9 +146,7 @@ public class UserTokenFlowTest {
 						isNull(), eq(additionalAuthoritiesParam)))
 				.thenReturn(accessToken);
 
-		String jwt = cut.client(clientCredentials.getId())
-				.secret(clientCredentials.getSecret())
-				.token(mockJwt)
+		String jwt = cut.token(mockJwt)
 				.attributes(additionalAuthorities)
 				.execute();
 

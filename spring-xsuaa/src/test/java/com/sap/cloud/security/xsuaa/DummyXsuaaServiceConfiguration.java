@@ -16,12 +16,12 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 
 	@Override
 	public String getClientId() {
-		return clientId;
+		return clientId != null ? clientId : "clientId";
 	}
 
 	@Override
 	public String getClientSecret() {
-		return null;
+		return "secret";
 	}
 
 	@Override

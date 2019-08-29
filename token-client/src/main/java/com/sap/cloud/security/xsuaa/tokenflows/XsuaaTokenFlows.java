@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestOperations;
  */
 public class XsuaaTokenFlows {
 
+	private final ClientCredentials clientCredentials;
 	private RestOperations restOperations;
 	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
@@ -29,12 +31,14 @@ public class XsuaaTokenFlows {
 	 *            exchange request.
 	 */
 	public XsuaaTokenFlows(RestOperations restOperations,
-			OAuth2ServiceEndpointsProvider endpointsProvider) {
+			OAuth2ServiceEndpointsProvider endpointsProvider, ClientCredentials clientCredentials) {
 		Assert.notNull(restOperations, "RestOperations must not be null.");
 		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
+		Assert.notNull(clientCredentials, "ClientCredentials must not be null.");
 
 		this.restOperations = restOperations;
 		this.endpointsProvider = endpointsProvider;
+		this.clientCredentials = clientCredentials;
 	}
 
 	/**
@@ -48,9 +52,9 @@ public class XsuaaTokenFlows {
 	 */
 	public UserTokenFlow userTokenFlow() {
 		OAuth2TokenService tokenService = initializeTokenService();
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(tokenService, endpointsProvider);
+		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(tokenService, endpointsProvider, clientCredentials);
 
-		return new UserTokenFlow(tokenService, refreshTokenFlow, endpointsProvider);
+		return new UserTokenFlow(tokenService, refreshTokenFlow, endpointsProvider, clientCredentials);
 	}
 
 	/**
@@ -61,7 +65,7 @@ public class XsuaaTokenFlows {
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
 	public ClientCredentialsTokenFlow clientCredentialsTokenFlow() {
-		return new ClientCredentialsTokenFlow(initializeTokenService(), endpointsProvider);
+		return new ClientCredentialsTokenFlow(initializeTokenService(), endpointsProvider, clientCredentials);
 	}
 
 	/**
@@ -72,7 +76,7 @@ public class XsuaaTokenFlows {
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
 	public RefreshTokenFlow refreshTokenFlow() {
-		return new RefreshTokenFlow(initializeTokenService(), endpointsProvider);
+		return new RefreshTokenFlow(initializeTokenService(), endpointsProvider, clientCredentials);
 	}
 
 	OAuth2TokenService initializeTokenService() {

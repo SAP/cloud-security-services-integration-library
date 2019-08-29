@@ -46,16 +46,21 @@ public class UserTokenFlow {
 	 *            - the refresh token flow
 	 * @param endpointsProvider
 	 *            - the endpoints provider
+	 * @param clientCredentials
+	 *            - the OAuth client credentials
 	 */
 	UserTokenFlow(OAuth2TokenService tokenService, RefreshTokenFlow refreshTokenFlow,
-			OAuth2ServiceEndpointsProvider endpointsProvider) {
+			OAuth2ServiceEndpointsProvider endpointsProvider, ClientCredentials clientCredentials) {
 		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
 		Assert.notNull(refreshTokenFlow, "RefreshTokenFlow must not be null.");
 		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
+		Assert.notNull(clientCredentials, "ClientCredentials must not be null.");
 
 		this.tokenService = tokenService;
 		this.refreshTokenFlow = refreshTokenFlow;
 		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
+		this.request.setClientId(clientCredentials.getId());
+		this.request.setClientSecret(clientCredentials.getSecret());
 	}
 
 	/**
@@ -68,41 +73,6 @@ public class UserTokenFlow {
 	public UserTokenFlow token(String token) {
 		Assert.notNull(token, "Token must not be null.");
 		this.token = token;
-		return this;
-	}
-
-	/**
-	 * Sets the OAuth 2.0 client ID of the application that the exchanged token is
-	 * intended for.<br>
-	 *
-	 * <b>Note:</b> This is usually not the client ID of the application that
-	 * executes this flow, but that of an other application this application intends
-	 * to call with the exchanged token.
-	 *
-	 * @param clientId
-	 *            - the OAuth 2.0 client ID of the client for which the exchanged
-	 *            token is intended.
-	 * @return this builder object.
-	 */
-	public UserTokenFlow client(String clientId) {
-		request.setClientId(clientId);
-		return this;
-	}
-
-	/**
-	 * Sets the OAuth 2.0 client secret of the application that the exchanged token
-	 * is intended for.<br>
-	 *
-	 * <b>Note.</b> It is highly questionable that this is correct. The client
-	 * secret should not be known to the application executing this flow.
-	 *
-	 * @param clientSecret
-	 *            - the secret of the OAuth 2.0 client that the exchanged token is
-	 *            intended for.
-	 * @return this builder object.
-	 */
-	public UserTokenFlow secret(String clientSecret) {
-		request.setClientSecret(clientSecret);
 		return this;
 	}
 
@@ -197,10 +167,8 @@ public class UserTokenFlow {
 				refreshToken = accessToken.getRefreshToken().get();
 
 				// Now we have a response, that contains a refresh-token. Following the
-				// standard,
-				// we would now send that token to another service / OAuth 2.0 client and it
-				// would
-				// there be exchanged for a new JWT token.
+				// standard, we would now send that token to another service / OAuth 2.0 client
+				// and it would there be exchanged for a new JWT token.
 				// See:
 				// https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#user-token-grant
 
@@ -209,18 +177,8 @@ public class UserTokenFlow {
 				// We do that with the clientID and clientSecret of the service
 				// that should receive the exchanged token !!!
 				// This is NOT part of the standard user token exchange !!!
-				//
-				// Quite frankly it is highly questionable if this is secure.
-				// Because now, service A needs to know the OAuth 2.0 credentials
-				// of service B to get the exchanged token, when by the standard
-				// service A should only send the refresh-token to service B and
-				// have service B get the exchange token itself.
-				// Service A might now pretend to be Service B and might for example
-				// retrieve a client-credentials token on behalf of Service B.
 
-				refreshTokenFlow.refreshToken(refreshToken)
-						.client(request.getClientId())
-						.secret(request.getClientSecret());
+				refreshTokenFlow.refreshToken(refreshToken);
 
 				return refreshTokenFlow.execute();
 			} else {

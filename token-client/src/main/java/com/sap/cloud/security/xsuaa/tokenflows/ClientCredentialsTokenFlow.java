@@ -30,39 +30,19 @@ public class ClientCredentialsTokenFlow {
 	 *            request.
 	 * @param endpointsProvider
 	 *            - the endpoints provider
+	 * @param clientCredentials
+	 *            - the OAuth client credentials
 	 */
-	ClientCredentialsTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider) {
+	ClientCredentialsTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider,
+			ClientCredentials clientCredentials) {
 		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
 		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
+		Assert.notNull(clientCredentials, "ClientCredentials must not be null.");
 
 		this.tokenService = tokenService;
 		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
-	}
-
-	/**
-	 * Adds the OAuth 2.0 client ID to the request.<br>
-	 * The ID needs to be that of the OAuth client that requests the token.
-	 *
-	 * @param clientId
-	 *            - the ID of the OAuth 2.0 client requesting the token.
-	 * @return this builder.
-	 */
-	public ClientCredentialsTokenFlow client(String clientId) {
-		request.setClientId(clientId);
-		return this;
-	}
-
-	/**
-	 * Adds the OAuth 2.0 client's secret to this request.<br>
-	 * The secret needs to be the one of the client that requests the token.
-	 *
-	 * @param clientSecret
-	 *            - the secret of the OAuth 2.0 client requesting the token.
-	 * @return this builder.
-	 */
-	public ClientCredentialsTokenFlow secret(String clientSecret) {
-		request.setClientSecret(clientSecret);
-		return this;
+		this.request.setClientId(clientCredentials.getId());
+		this.request.setClientSecret(clientCredentials.getSecret());
 	}
 
 	/**

@@ -1,6 +1,8 @@
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.slf4j.Logger;
@@ -50,6 +52,9 @@ public class XsuaaTokenFlowAutoConfiguration {
 	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations restOperations,
 			XsuaaServiceConfiguration serviceConfiguration) {
 		logger.info("auto-configures XsuaaTokenFlows");
-		return new XsuaaTokenFlows(restOperations, new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()));
+		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl());
+		ClientCredentials clientCredentials = new ClientCredentials(serviceConfiguration.getClientId(),
+				serviceConfiguration.getClientSecret());
+		return new XsuaaTokenFlows(restOperations, endpointsProvider, clientCredentials);
 	}
 }

@@ -23,13 +23,24 @@ public class RefreshTokenFlow {
 	 *            request.
 	 * @param endpointsProvider
 	 *            - the endpoints provider
+	 * @param clientCredentials
+	 *            - the OAuth client credentials
 	 */
-	RefreshTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider) {
+	RefreshTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider,
+			ClientCredentials clientCredentials) {
 		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
 		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
+		Assert.notNull(clientCredentials, "ClientCredentials must not be null.");
 
 		this.tokenService = tokenService;
 		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
+		this.request.setClientId(clientCredentials.getId());
+		this.request.setClientSecret(clientCredentials.getSecret());
+	}
+
+	public RefreshTokenFlow subdomain(String subdomain) {
+		request.setSubdomain(subdomain);
+		return this;
 	}
 
 	/**
@@ -42,35 +53,6 @@ public class RefreshTokenFlow {
 	public RefreshTokenFlow refreshToken(String refreshToken) {
 		Assert.notNull(refreshToken, "RefreshToken must not be null.");
 		this.refreshToken = refreshToken;
-		return this;
-	}
-
-	/**
-	 * The OAuth 2.0 client ID used to authenticate to XSUAA.
-	 * 
-	 * @param clientId
-	 *            - the OAuth 2.0 client ID.
-	 * @return this builder object.
-	 */
-	public RefreshTokenFlow client(String clientId) {
-		request.setClientId(clientId);
-		return this;
-	}
-
-	/**
-	 * The OAuth 2.0 client secret used to authenticate to XSUAA.
-	 * 
-	 * @param clientSecret
-	 *            - the OAuth 2.0 client secret.
-	 * @return this builder object.
-	 */
-	public RefreshTokenFlow secret(String clientSecret) {
-		request.setClientSecret(clientSecret);
-		return this;
-	}
-
-	public RefreshTokenFlow subdomain(String subdomain) {
-		request.setSubdomain(subdomain);
 		return this;
 	}
 

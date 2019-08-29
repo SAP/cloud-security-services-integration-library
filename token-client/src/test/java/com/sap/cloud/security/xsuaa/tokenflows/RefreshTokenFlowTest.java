@@ -28,51 +28,36 @@ public class RefreshTokenFlowTest {
 
 	private static final String JWT_ACCESS_TOKEN = "4bfad399ca10490da95c2b5eb4451d53";
 	private static final String REFRESH_TOKEN = "99e2cecfa54f4957a782f07168915b69-r";
+	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	@Before
 	public void setup() {
-		this.clientCredentials = new ClientCredentials("clientCredentials.getId()",
-				"clientCredentials.getSecret()");
-		this.cut = new RefreshTokenFlow(mockTokenService,
-				new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
+		this.endpointsProvider = new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri);
+		this.cut = new RefreshTokenFlow(mockTokenService, endpointsProvider, clientCredentials);
 
 	}
 
 	@Test
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(null,
-					new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri));
+			new RefreshTokenFlow(null, endpointsProvider, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
 		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(mockTokenService, null);
+			new RefreshTokenFlow(mockTokenService, null, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
+
+		assertThatThrownBy(() -> {
+			new RefreshTokenFlow(mockTokenService, endpointsProvider, null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientCredentials");
 	}
 
 	@Test
 	public void execute_throwsIfMandatoryFieldsNotSet() {
 		assertThatThrownBy(() -> {
 			cut.execute();
-		}).isInstanceOf(TokenFlowException.class);
-
-		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getId())
-					.secret(clientCredentials.getSecret())
-					.execute();
 		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Refresh token not set");
-
-		assertThatThrownBy(() -> {
-			cut.client(null)
-					.secret(clientCredentials.getSecret())
-					.execute();
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client ID");
-
-		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getId())
-					.secret(null)
-					.execute();
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("client secret");
 	}
 
 	@Test
@@ -84,9 +69,7 @@ public class RefreshTokenFlowTest {
 						eq(REFRESH_TOKEN), isNull()))
 				.thenReturn(accessToken);
 
-		String jwt = cut.client(clientCredentials.getId())
-				.secret(clientCredentials.getSecret())
-				.refreshToken(REFRESH_TOKEN)
+		String jwt = cut.refreshToken(REFRESH_TOKEN)
 				.execute();
 
 		assertThat(jwt, is(accessToken.getValue()));
@@ -100,9 +83,7 @@ public class RefreshTokenFlowTest {
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
-			cut.client(clientCredentials.getId())
-					.secret(clientCredentials.getSecret())
-					.refreshToken(REFRESH_TOKEN)
+			cut.refreshToken(REFRESH_TOKEN)
 					.execute();
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(

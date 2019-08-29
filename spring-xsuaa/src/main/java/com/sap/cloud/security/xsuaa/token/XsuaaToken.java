@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.tokenflows.*;
 import org.slf4j.Logger;
@@ -242,7 +243,8 @@ public class XsuaaToken extends Jwt implements Token {
 				"");
 
 		// initialize token flows api
-		xsuaaTokenFlows = new XsuaaTokenFlows(restOperations, new XsuaaDefaultEndpoints(baseUrl));
+		xsuaaTokenFlows = new XsuaaTokenFlows(restOperations, new XsuaaDefaultEndpoints(baseUrl), new ClientCredentials(
+				tokenRequest.getClientId(), tokenRequest.getClientSecret()));
 
 		switch (tokenRequest.getType()) {
 		case XSTokenRequest.TYPE_USER_TOKEN:
@@ -328,9 +330,7 @@ public class XsuaaToken extends Jwt implements Token {
 		try {
 			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
 					.subdomain(this.getSubdomain())
-					.client(clientId)
 					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
-					.secret(clientSecret)
 					.execute();
 		} catch (TokenFlowException e) {
 			throw new RuntimeException("Error performing Client Credentials Flow. See exception cause.", e);
@@ -351,8 +351,6 @@ public class XsuaaToken extends Jwt implements Token {
 					.subdomain(this.getSubdomain())
 					.token(this.getTokenValue())
 					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
-					.client(clientId)
-					.secret(clientSecret)
 					.execute();
 		} catch (TokenFlowException e) {
 			throw new RuntimeException("Error performing User Token Flow. See exception cause.", e);
