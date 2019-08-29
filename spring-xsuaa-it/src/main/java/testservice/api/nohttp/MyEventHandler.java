@@ -29,6 +29,7 @@ public class MyEventHandler {
 	@Autowired
 	JwtDecoder jwtDecoder;
 
+	@Deprecated
 	public void onEvent_deprecated(String myEncodedJwtToken) {
 		if (myEncodedJwtToken != null) {
 			Jwt jwtToken = jwtDecoder.decode(myEncodedJwtToken);

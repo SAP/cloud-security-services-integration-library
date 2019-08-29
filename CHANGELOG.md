@@ -7,10 +7,11 @@ All notable changes to this project will be documented in this file.
 * Supports reactive ServerHttpSecurity (Spring webflux). Have a look at the (webflux sample application)[samples/spring-webflux-security-xsuaa-usage/README.md]
 * Some enhancements for XSUAA integration
 * To make sure that the Spring SecurityContext is always initialized with a validated token use `SpringSecurityContext.init()` method as documented [here](spring-xsuaa/README.md)
+* Use `SpringSecurityContext` instead of `SecurityContext`, which gets deprecated in this version. With version `2.0.0` we want to get rid of package `com.sap.xs2.security.container` in order to avoid Class Loader issues, when an application makes use of SAP-libraries using the SAP-internal container lib.
 
 ### Incompatible changes
-* As of version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage auto-configuration (see Troubleshoot section [here](spring-xsuaa/README.md))
-* To avoid issues, when an application makes use of SAP-libraries using the SAP-internal container lib, use `SpringSecurityContext` instead of `SecurityContext`.
+* As of version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage auto-configuration (see "Troubleshoot" section [here](spring-xsuaa/README.md#troubleshoot))
+
 
 ## 1.5.0
 * Supports `jku` URI which is provided as part of the JSON Web Signature (JWS). The `jku` of the Jwt token header references the public key URI of the Xsuaa OAuth Authorization Server, and needs to match to the `xsuaa.uaadomain`.

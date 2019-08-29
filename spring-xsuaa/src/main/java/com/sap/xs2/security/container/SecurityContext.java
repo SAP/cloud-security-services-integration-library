@@ -11,6 +11,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
+/**
+ * As part of this Spring xsuaa library, we need to get rid of {@code com.sap.xs2.security.container} package.
+ * It will be removed with version {@code 2.0.0}
+ *
+ * @deprecated use {@link SpringSecurityContext} class instead.
+ */
+@Deprecated
 public class SecurityContext {
 	/**
 	 * Obtain the UserInfo object from the Spring Security Context
@@ -20,7 +27,6 @@ public class SecurityContext {
 	 *             in case of error
 	 * @deprecated use {@link #getToken()} instead.
 	 */
-	@Deprecated
 	static public UserInfo getUserInfo() throws UserInfoException {
 		if (SecurityContextHolder.getContext().getAuthentication() != null) {
 			if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof UserInfo) {
@@ -43,7 +49,6 @@ public class SecurityContext {
 	 *             Note: This method is introduced with xsuaa spring client lib.
 	 * @deprecated method is moved to {@link SpringSecurityContext#getToken()}
 	 */
-	@Deprecated
 	static public Token getToken() {
 		return SpringSecurityContext.getToken();
 	}
@@ -64,7 +69,6 @@ public class SecurityContext {
 	 *             {@link SpringSecurityContext#init(String, JwtDecoder, AuthoritiesExtractor)}
 	 *             instead
 	 */
-	@Deprecated
 	static public void init(String appId, Jwt token, boolean extractLocalScopesOnly) {
 		TokenAuthenticationConverter authenticationConverter = new TokenAuthenticationConverter(
 				new LocalAuthoritiesExtractor(appId));
@@ -80,7 +84,6 @@ public class SecurityContext {
 	 *
 	 * @deprecated method is moved to {@link SpringSecurityContext#clear()}
 	 */
-	@Deprecated
 	static public void clear() {
 		SpringSecurityContext.clear();
 	}
