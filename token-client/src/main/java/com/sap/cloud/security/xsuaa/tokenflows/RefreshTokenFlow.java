@@ -3,7 +3,7 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 import org.springframework.util.Assert;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2AccessToken;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -66,11 +66,14 @@ public class RefreshTokenFlow {
 	 * 
 	 * @return the refreshed OAuth access token returned by XSUAA or an exception in
 	 *         case the token could not be refreshed.
+	 * @throws IllegalArgumentException
+	 *             - in case not all mandatory fields of the token flow request have
+	 *             been set.
 	 * @throws TokenFlowException
-	 *             in case of an error during the flow, or when the token cannot be
-	 *             refreshed.
+	 *             - in case of an error during the flow, or when the token cannot
+	 *             be refreshed.
 	 */
-	public String execute() throws TokenFlowException {
+	public OAuth2TokenResponse execute() throws IllegalArgumentException, TokenFlowException {
 		checkRequest(request);
 
 		return refreshToken(refreshToken, request);
@@ -82,18 +85,18 @@ public class RefreshTokenFlow {
 	 * 
 	 * @param request
 	 *            - the request to check.
-	 * @throws TokenFlowException
+	 * @throws IllegalArgumentException
 	 *             in case not all mandatory fields of the token flow request have
 	 *             been set.
 	 */
-	private void checkRequest(XSTokenRequest request) throws TokenFlowException {
+	private void checkRequest(XSTokenRequest request) throws IllegalArgumentException {
 		if (refreshToken == null) {
-			throw new TokenFlowException(
+			throw new IllegalArgumentException(
 					"Refresh token not set. Make sure to have called the refreshToken() method on RefreshTokenFlow builder.");
 		}
 
 		if (!request.isValid()) {
-			throw new TokenFlowException(
+			throw new IllegalArgumentException(
 					"Refresh token flow request is not valid. Make sure all mandatory fields are set.");
 		}
 	}
@@ -110,15 +113,17 @@ public class RefreshTokenFlow {
 	 * @throws TokenFlowException
 	 *             in case of an error in the flow.
 	 */
-	private String refreshToken(String refreshToken, XsuaaTokenFlowRequest request) throws TokenFlowException {
+	private OAuth2TokenResponse refreshToken(String refreshToken, XsuaaTokenFlowRequest request)
+			throws TokenFlowException {
 		try {
-			OAuth2AccessToken accessToken = tokenService.retrieveAccessTokenViaRefreshToken(request.getTokenEndpoint(),
+			OAuth2TokenResponse accessToken = tokenService.retrieveAccessTokenViaRefreshToken(
+					request.getTokenEndpoint(),
 					new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken,
 					request.getSubdomain());
-			return accessToken.getValue();
+			return accessToken;
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
-					String.format("Error refreshing token with grant_type 'refresh_token': %s", e.getMessage()));
+					String.format("Error refreshing token with grant_type 'refresh_token': %s", e.getMessage()), e);
 		}
 	}
 }

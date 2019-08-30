@@ -74,7 +74,7 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
-	public void retrieveToken_throwsIfHttpStatusUnauthorized() {
+	public void retrieveToken_throwsIfHttpStatusUnauthorized() throws OAuth2ServiceException {
 		Mockito.when(mockRestOperations.postForEntity(eq(tokenEndpoint), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
@@ -82,7 +82,7 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
-	public void retrieveToken_throwsIfHttpStatusNotOk() {
+	public void retrieveToken_throwsIfHttpStatusNotOk() throws OAuth2ServiceException {
 		Mockito.when(mockRestOperations.postForEntity(eq(tokenEndpoint), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
@@ -90,7 +90,7 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 	}
 
 	@Test
-	public void retrieveToken() {
+	public void retrieveToken() throws OAuth2ServiceException {
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
 		tokenHttpEntityMatcher.setClientCredentials(clientCredentials);
 		tokenHttpEntityMatcher.setGrantType(GRANT_TYPE_REFRESH_TOKEN);
@@ -103,10 +103,10 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
+		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials,
 				refreshToken, null);
-		assertThat(accessToken.getRefreshToken().get(), is(responseMap.get(REFRESH_TOKEN)));
-		assertThat(accessToken.getValue(), is(responseMap.get(ACCESS_TOKEN)));
+		assertThat(accessToken.getRefreshToken(), is(responseMap.get(REFRESH_TOKEN)));
+		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
 		assertNotNull(accessToken.getExpiredAtDate());
 	}
 }

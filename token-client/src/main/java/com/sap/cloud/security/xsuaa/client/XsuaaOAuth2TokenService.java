@@ -45,7 +45,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	@Override
-	public OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(@NonNull URI tokenEndpointUri,
+	public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@NonNull URI tokenEndpointUri,
 			@NonNull ClientCredentials clientCredentials,
 			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
@@ -68,7 +68,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	@Override
-	public OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(@NonNull URI tokenEndpointUri,
+	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@NonNull URI tokenEndpointUri,
 			@NonNull ClientCredentials clientCredentials, @NonNull String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
@@ -91,7 +91,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	@Override
-	public OAuth2AccessToken retrieveAccessTokenViaRefreshToken(@NonNull URI tokenEndpointUri,
+	public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(@NonNull URI tokenEndpointUri,
 			@NonNull ClientCredentials clientCredentials,
 			@NonNull String refreshToken, String subdomain) throws OAuth2ServiceException {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
@@ -134,8 +134,8 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		return uri;
 	}
 
-	private OAuth2AccessToken requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
-			MultiValueMap<String, String> parameters) {
+	private OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
+			MultiValueMap<String, String> parameters) throws OAuth2ServiceException {
 
 		// Create URI
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
@@ -167,11 +167,12 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 		@SuppressWarnings("unchecked")
 		Map<String, String> accessTokenMap = responseEntity.getBody();
+		logger.debug("Request Access Token: {}", responseEntity.getBody());
 
 		String accessToken = accessTokenMap.get(ACCESS_TOKEN);
 		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
 		String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
-		return new OAuth2AccessToken(accessToken, expiresIn, refreshToken);
+		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken);
 	}
 
 	/**

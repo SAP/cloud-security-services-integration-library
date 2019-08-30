@@ -9,13 +9,13 @@ import java.util.concurrent.TimeUnit;
 import org.hamcrest.number.OrderingComparison;
 import org.junit.Test;
 
-public class OAuth2AccessTokenTest {
+public class OAuth2TokenResponseTest {
 
 	@Test
 	public void getExpiredDateFromAccessToken() {
 		long expireInSeconds = 43199;
 		Date minExpireDate = new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expireInSeconds));
-		OAuth2AccessToken accessToken = new OAuth2AccessToken("e9511922b5e64c49ba0eedcc8d772e76", expireInSeconds,
+		OAuth2TokenResponse accessToken = new OAuth2TokenResponse("e9511922b5e64c49ba0eedcc8d772e76", expireInSeconds,
 				null);
 		Date maxExpireDate = new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expireInSeconds));
 

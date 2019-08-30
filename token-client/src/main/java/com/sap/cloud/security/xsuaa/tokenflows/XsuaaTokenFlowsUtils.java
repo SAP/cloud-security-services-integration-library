@@ -28,7 +28,7 @@ class XsuaaTokenFlowsUtils {
 	 *         additional authorities set.
 	 * @throws TokenFlowException
 	 */
-	static String buildAuthorities(XSTokenRequest request) throws TokenFlowException {
+	static String buildAuthorities(XSTokenRequest request) throws IllegalArgumentException {
 		if (request.getAdditionalAuthorizationAttributes() == null) {
 			return null;
 		}
@@ -37,7 +37,7 @@ class XsuaaTokenFlowsUtils {
 			Map<String, String> additionalAuthorities = request.getAdditionalAuthorizationAttributes();
 			return buildAdditionalAuthoritiesJson(additionalAuthorities);
 		} catch (RuntimeException e) {
-			throw new TokenFlowException(
+			throw new IllegalArgumentException(
 					"Error mapping additional authorization attributes to JSON. See root cause exception. ", e);
 		}
 	}

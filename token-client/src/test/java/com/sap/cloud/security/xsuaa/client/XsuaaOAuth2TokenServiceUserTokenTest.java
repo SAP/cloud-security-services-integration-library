@@ -73,7 +73,7 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
-	public void retrieveToken_throwsIfHttpStatusUnauthorized() {
+	public void retrieveToken_throwsIfHttpStatusUnauthorized() throws OAuth2ServiceException {
 		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 		cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
@@ -81,7 +81,7 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
-	public void retrieveToken_throwsIfHttpStatusNotOk() {
+	public void retrieveToken_throwsIfHttpStatusNotOk() throws OAuth2ServiceException {
 		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 		cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
@@ -89,7 +89,7 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 	}
 
 	@Test
-	public void retrieveToken() {
+	public void retrieveToken() throws OAuth2ServiceException {
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
 		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
 		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID, clientCredentials.getId());
@@ -106,15 +106,15 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
+		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
 				userTokenToBeExchanged, null, null);
-		assertThat(accessToken.getRefreshToken().get(), is(responseMap.get(REFRESH_TOKEN)));
-		assertThat(accessToken.getValue(), is(responseMap.get(ACCESS_TOKEN)));
+		assertThat(accessToken.getRefreshToken(), is(responseMap.get(REFRESH_TOKEN)));
+		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
 		assertNotNull(accessToken.getExpiredAtDate());
 	}
 
 	@Test
-	public void retrieveToken_withOptionalParamaters() {
+	public void retrieveToken_withOptionalParamaters() throws OAuth2ServiceException {
 		Map<String, String> additionalParameters = new HashMap<>();
 		additionalParameters.put("add-param-1", "value1");
 		additionalParameters.put("add-param-2", "value2");
@@ -130,13 +130,13 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 				eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
+		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
 				userTokenToBeExchanged, null, additionalParameters);
-		assertThat(accessToken.getRefreshToken().get(), is(responseMap.get(REFRESH_TOKEN)));
+		assertThat(accessToken.getRefreshToken(), is(responseMap.get(REFRESH_TOKEN)));
 	}
 
 	@Test
-	public void retrieveToken_requiredParametersCanNotBeOverwritten() {
+	public void retrieveToken_requiredParametersCanNotBeOverwritten() throws OAuth2ServiceException {
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
 		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
 		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID, clientCredentials.getId());
@@ -151,8 +151,8 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 		Map<String, String> overwrittenGrantType = new HashMap<>();
 		overwrittenGrantType.put(OAuth2TokenServiceConstants.GRANT_TYPE, "overwrite-obligatory-param");
 
-		OAuth2AccessToken accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
+		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientCredentials,
 				userTokenToBeExchanged, null, overwrittenGrantType);
-		assertThat(accessToken.getRefreshToken().get(), is(responseMap.get(REFRESH_TOKEN)));
+		assertThat(accessToken.getRefreshToken(), is(responseMap.get(REFRESH_TOKEN)));
 	}
 }

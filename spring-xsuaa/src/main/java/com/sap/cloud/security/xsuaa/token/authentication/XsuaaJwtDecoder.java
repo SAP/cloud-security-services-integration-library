@@ -131,7 +131,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		return decoder.decode(token);
 	}
 
-	// TODO
+	// TODO extract into separate class / bean
 	private JwtDecoder getDecoder(String jku) {
 		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jku);
 		decoder.setJwtValidator(tokenValidators);

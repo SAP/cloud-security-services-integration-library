@@ -13,7 +13,7 @@ import org.json.JSONObject;
 import org.springframework.util.Assert;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2AccessToken;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -102,10 +102,14 @@ public class UserTokenFlow {
 	 * Note, that in a standard flow, only the refresh token would be returned.
 	 *
 	 * @return the JWT instance returned by XSUAA.
+	 * @throws IllegalArgumentException
+	 *             - in case not all mandatory fields of the token flow request have
+	 *             been set.
 	 * @throws TokenFlowException
-	 *             in case of an error.
+	 *             - in case of an error during the flow, or when the token cannot
+	 *             be refreshed.
 	 */
-	public String execute() throws TokenFlowException {
+	public OAuth2TokenResponse execute() throws TokenFlowException {
 		checkRequest(request);
 
 		return requestUserToken(request);
@@ -116,24 +120,24 @@ public class UserTokenFlow {
 	 *
 	 * @param request
 	 *            - the token flow request.
-	 * @throws TokenFlowException
+	 * @throws IllegalArgumentException
 	 *             in case not all mandatory fields of the token flow request have
 	 *             been set.
 	 */
-	private void checkRequest(XSTokenRequest request) throws TokenFlowException {
+	private void checkRequest(XSTokenRequest request) throws IllegalArgumentException {
 		if (token == null) {
-			throw new TokenFlowException(
+			throw new IllegalArgumentException(
 					"User token not set. Make sure to have called the token() method on UserTokenFlow builder.");
 		}
 
 		boolean isUserToken = hasScope(token, UAA_USER_SCOPE);
 		if (!isUserToken) {
-			throw new TokenFlowException(
+			throw new IllegalArgumentException(
 					"JWT token does not include scope 'uaa.user'. Only user tokens can be exchanged for another user token.");
 		}
 
 		if (!request.isValid()) {
-			throw new TokenFlowException(
+			throw new IllegalArgumentException(
 					"User token flow request is not valid. Make sure all mandatory fields are set.");
 		}
 	}
@@ -147,7 +151,7 @@ public class UserTokenFlow {
 	 * @throws TokenFlowException
 	 *             in case of an error during the flow.
 	 */
-	private String requestUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
+	private OAuth2TokenResponse requestUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
 		Map<String, String> optionalParameter = null;
 		String authorities = buildAuthorities(request);
 
@@ -158,13 +162,13 @@ public class UserTokenFlow {
 
 		String refreshToken = null;
 		try {
-			OAuth2AccessToken accessToken = tokenService
+			OAuth2TokenResponse accessToken = tokenService
 					.retrieveAccessTokenViaUserTokenGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
 							token, request.getSubdomain(), optionalParameter);
 
-			if (accessToken.getRefreshToken().isPresent()) {
-				refreshToken = accessToken.getRefreshToken().get();
+			if (accessToken.getRefreshToken() != null) {
+				refreshToken = accessToken.getRefreshToken();
 
 				// Now we have a response, that contains a refresh-token. Following the
 				// standard, we would now send that token to another service / OAuth 2.0 client
@@ -187,7 +191,7 @@ public class UserTokenFlow {
 			}
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
-					String.format("Error requesting token with grant_type 'user_token': %s", e.getMessage()));
+					String.format("Error requesting token with grant_type 'user_token': %s", e.getMessage()), e);
 		}
 	}
 

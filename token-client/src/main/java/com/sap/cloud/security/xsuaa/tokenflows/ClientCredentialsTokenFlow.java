@@ -9,7 +9,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2AccessToken;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -73,10 +73,14 @@ public class ClientCredentialsTokenFlow {
 	 * Executes the token flow and returns a JWT token from XSUAA.
 	 *
 	 * @return the encoded OAuth access token returned by XSUAA.
+	 * @throws IllegalArgumentException
+	 *             - in case not all mandatory fields of the token flow request have
+	 *             been set.
 	 * @throws TokenFlowException
-	 *             in case of token flow errors.
+	 *             - in case of an error during the flow, or when the token cannot
+	 *             be refreshed.
 	 */
-	public String execute() throws TokenFlowException {
+	public OAuth2TokenResponse execute() throws IllegalArgumentException, TokenFlowException {
 		checkRequest(request);
 
 		return requestTechnicalUserToken(request);
@@ -88,12 +92,12 @@ public class ClientCredentialsTokenFlow {
 	 *
 	 * @param request
 	 *            - the token flow request.
-	 * @throws TokenFlowException
+	 * @throws IllegalArgumentException
 	 *             in case the request does not have all mandatory fields set.
 	 */
-	private void checkRequest(XSTokenRequest request) throws TokenFlowException {
+	private void checkRequest(XSTokenRequest request) throws IllegalArgumentException {
 		if (!request.isValid()) {
-			throw new TokenFlowException(
+			throw new IllegalArgumentException(
 					"Client credentials flow request is not valid. Make sure all mandatory fields are set.");
 		}
 	}
@@ -108,7 +112,7 @@ public class ClientCredentialsTokenFlow {
 	 *             in case of an error during the flow.
 	 */
 	@Nullable
-	private String requestTechnicalUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
+	private OAuth2TokenResponse requestTechnicalUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
 		Map requestParameter = null;
 		String authorities = buildAuthorities(request);
 
@@ -118,15 +122,16 @@ public class ClientCredentialsTokenFlow {
 		}
 
 		try {
-			OAuth2AccessToken accessToken = tokenService
+			OAuth2TokenResponse accessToken = tokenService
 					.retrieveAccessTokenViaClientCredentialsGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
 							request.getSubdomain(), requestParameter);
-			return accessToken.getValue();
+			return accessToken;
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format("Error requesting user token with grant_type 'client_credentials': %s",
-							e.getMessage()));
+							e.getMessage()),
+					e);
 		}
 	}
 }

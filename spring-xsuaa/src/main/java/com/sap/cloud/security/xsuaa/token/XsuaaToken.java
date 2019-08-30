@@ -326,7 +326,7 @@ public class XsuaaToken extends Jwt implements Token {
 			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
 					.subdomain(this.getSubdomain())
 					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
-					.execute();
+					.execute().getAccessToken();
 		} catch (TokenFlowException e) {
 			throw new RuntimeException("Error performing Client Credentials Flow. See exception cause.", e);
 		}
@@ -343,7 +343,7 @@ public class XsuaaToken extends Jwt implements Token {
 					.subdomain(this.getSubdomain())
 					.token(this.getTokenValue())
 					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
-					.execute();
+					.execute().getAccessToken();
 		} catch (TokenFlowException e) {
 			throw new RuntimeException("Error performing User Token Flow. See exception cause.", e);
 		}

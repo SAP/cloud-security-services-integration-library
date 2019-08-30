@@ -14,7 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2AccessToken;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -60,26 +60,26 @@ public class RefreshTokenFlowTest {
 	public void execute_throwsIfMandatoryFieldsNotSet() {
 		assertThatThrownBy(() -> {
 			cut.execute();
-		}).isInstanceOf(TokenFlowException.class).hasMessageContaining("Refresh token not set");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Refresh token not set");
 	}
 
 	@Test
-	public void execute() throws TokenFlowException {
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231, null);
+	public void execute() throws TokenFlowException, OAuth2ServiceException {
+		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
 
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaRefreshToken(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
 						eq(REFRESH_TOKEN), isNull()))
 				.thenReturn(accessToken);
 
-		String jwt = cut.refreshToken(REFRESH_TOKEN)
+		OAuth2TokenResponse jwt = cut.refreshToken(REFRESH_TOKEN)
 				.execute();
 
-		assertThat(jwt, is(accessToken.getValue()));
+		assertThat(jwt.getAccessToken(), is(accessToken.getAccessToken()));
 	}
 
 	@Test
-	public void execute_throwsIfServiceRaisesException() {
+	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaRefreshToken(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
 						eq(REFRESH_TOKEN), isNull()))

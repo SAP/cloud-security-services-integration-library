@@ -28,10 +28,6 @@ public class TokenFlowExceptionTest {
 		ex = new TokenFlowException(MESSAGE, CAUSE);
 		assertNotNull("Exception should have a message.", ex.getMessage());
 		assertNotNull("Exception should have a cause.", ex.getCause());
-
-		ex = new TokenFlowException(MESSAGE, CAUSE, false, false);
-		assertNotNull("Exception should have a message.", ex.getMessage());
-		assertNotNull("Exception should have a cause.", ex.getCause());
 	}
 
 }

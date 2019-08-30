@@ -18,7 +18,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2AccessToken;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -59,21 +59,21 @@ public class ClientCredentialsTokenFlowTest {
 	}
 
 	@Test
-	public void execute() throws TokenFlowException {
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231, null);
+	public void execute() throws TokenFlowException, OAuth2ServiceException {
+		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
 
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
 						isNull(), isNull()))
 				.thenReturn(accessToken);
 
-		String jwt = cut.execute();
+		OAuth2TokenResponse jwt = cut.execute();
 
-		assertThat(jwt, is(accessToken.getValue()));
+		assertThat(jwt.getAccessToken(), is(accessToken.getAccessToken()));
 	}
 
 	@Test
-	public void execute_throwsIfServiceRaisesException() {
+	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
 						isNull(), isNull()))
@@ -87,8 +87,8 @@ public class ClientCredentialsTokenFlowTest {
 	}
 
 	@Test
-	public void execute_withAdditionalAuthorities() throws TokenFlowException {
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(JWT_ACCESS_TOKEN, 441231, null);
+	public void execute_withAdditionalAuthorities() throws TokenFlowException, OAuth2ServiceException {
+		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
 
 		Map<String, String> additionalAuthorities = new HashMap<String, String>();
 		additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
@@ -98,10 +98,10 @@ public class ClientCredentialsTokenFlowTest {
 						isNull(), isNotNull()))
 				.thenReturn(accessToken);
 
-		String jwt = cut.attributes(additionalAuthorities)
+		OAuth2TokenResponse jwt = cut.attributes(additionalAuthorities)
 				.execute();
 
-		assertThat(jwt, is(accessToken.getValue()));
+		assertThat(jwt.getAccessToken(), is(accessToken.getAccessToken()));
 	}
 
 }

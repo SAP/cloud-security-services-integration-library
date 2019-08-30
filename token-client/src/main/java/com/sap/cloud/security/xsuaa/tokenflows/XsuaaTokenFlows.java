@@ -32,6 +32,24 @@ public class XsuaaTokenFlows implements Serializable {
 	 * @param restOperations
 	 *            the RestTemplate instance that will be used to send the token
 	 *            exchange request.
+	 * @param endpointsProvider
+	 *            the endpoint provider that serves the token endpoint.
+	 * @param clientCredentials
+	 *            the OAuth2.0 client id and secret
+	 *
+	 *            <pre>
+	 * {@code
+	 * String clientId     = "<<get your client id from your service binding>>";
+	 * String clientSecret = "<<get your client secret from your service binding>>";
+	 * String xsuaaBaseUrl = "<<get your xsuaa base url from service binding>>";
+	 *
+	 * OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUrl);
+	 * ClientCredentials clientCredentials = new ClientCredentials(clientId, clientSecret);
+	 * RestOperations restOperations = new RestTemplate();
+	 *
+	 * XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(restOperations, endpointsProvider, clientCredentials);
+	 * }
+	 *            </pre>
 	 */
 	public XsuaaTokenFlows(RestOperations restOperations,
 			OAuth2ServiceEndpointsProvider endpointsProvider, ClientCredentials clientCredentials) {
