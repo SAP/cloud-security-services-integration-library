@@ -43,6 +43,13 @@ public class RefreshTokenFlow {
 		this.request.setClientSecret(clientCredentials.getSecret());
 	}
 
+	/**
+	 * Sets the subdomain (tenant) the token is requested for.<br>
+	 *
+	 * @param subdomain
+	 *            - the subdomain.
+	 * @return this builder.
+	 */
 	public RefreshTokenFlow subdomain(String subdomain) {
 		request.setSubdomain(subdomain);
 		return this;

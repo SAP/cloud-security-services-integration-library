@@ -90,9 +90,28 @@ public class UserTokenFlow {
 		return this;
 	}
 
+	/**
+	 * Sets the subdomain (tenant) the token is requested for.<br>
+	 *
+	 * @param subdomain
+	 *            - the subdomain.
+	 * @return this builder.
+	 */
 	public UserTokenFlow subdomain(String subdomain) {
 		this.request.setSubdomain(subdomain);
 		this.refreshTokenFlow.subdomain(subdomain);
+		return this;
+	}
+
+	/**
+	 * Overwrites the OAuth 2.0 client ID the user token is requested for.<br>
+	 *
+	 * @param clientId
+	 *            - the ID of the OAuth 2.0 client requesting the token.
+	 * @return this builder.
+	 */
+	public UserTokenFlow clientId(String clientId) {
+		request.setClientId(clientId);
 		return this;
 	}
 

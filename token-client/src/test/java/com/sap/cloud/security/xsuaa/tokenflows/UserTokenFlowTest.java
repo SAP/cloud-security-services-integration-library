@@ -5,12 +5,15 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.times;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -136,6 +139,19 @@ public class UserTokenFlowTest {
 				.execute();
 
 		assertThat(jwt.getAccessToken(), is(mockJwt));
+	}
+
+	@Test(expected = NullPointerException.class)
+	@Ignore
+	public void execute_withDifferentClient() throws TokenFlowException, OAuth2ServiceException {
+		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
+
+		clientCredentials = new ClientCredentials("otherClientId", "otherSecret");
+
+		Mockito.verify(mockTokenService, times(1))
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+						isNull(), isNotNull());
+		// TODO test needs to be finalized
 	}
 
 	@Test
