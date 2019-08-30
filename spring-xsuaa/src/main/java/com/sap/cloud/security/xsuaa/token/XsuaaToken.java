@@ -1,16 +1,24 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_CLIENT_ID;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_EMAIL;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_FAMILY_NAME;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_GIVEN_NAME;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_GRANT_TYPE;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ORIGIN;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_USER_NAME;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ZDN;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ZONE_ID;
 
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.xs2.security.container.XSTokenRequestImpl;
-import net.minidev.json.JSONArray;
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.tokenflows.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
@@ -20,11 +28,13 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimAccessor;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.util.Assert;
-
-import com.sap.xsa.security.container.XSTokenRequest;
-import com.sap.xsa.security.container.XSUserInfoException;
-
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+
+import com.sap.xs2.security.container.XSTokenRequestImpl;
+import com.sap.xsa.security.container.XSTokenRequest;
+
+import net.minidev.json.JSONArray;
 
 /**
  * Custom XSUAA token implementation.
@@ -33,6 +43,7 @@ import org.springframework.web.client.RestTemplate;
  * used interchangeably with it.
  */
 public class XsuaaToken extends Jwt implements Token {
+	private static final long serialVersionUID = -836947635254353927L;
 
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaToken.class);
 
@@ -46,6 +57,7 @@ public class XsuaaToken extends Jwt implements Token {
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
 
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();
+	private XsuaaTokenFlows xsuaaTokenFlows = null;
 
 	/**
 	 * @param jwt
@@ -214,20 +226,32 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	@Override
-	public String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException {
-		Assert.notNull(tokenRequest, "tokenRequest argument is required");
-		Assert.isTrue(tokenRequest.isValid(), "tokenRequest is not valid");
+	public String requestToken(XSTokenRequest tokenRequest) {
+		Assert.notNull(tokenRequest, "TokenRequest argument is required");
+		Assert.isTrue(tokenRequest.isValid(), "TokenRequest is not valid");
 
-		RestTemplate restTemplate = tokenRequest instanceof XSTokenRequestImpl
-				? ((XSTokenRequestImpl) tokenRequest).getRestTemplate()
-				: null;
+		RestOperations restOperations = new RestTemplate();
 
-		XsuaaTokenExchanger tokenExchanger = new XsuaaTokenExchanger(restTemplate, this);
-		try {
-			return tokenExchanger.requestToken(tokenRequest);
-		} catch (XSUserInfoException e) {
-			logger.error("Error occurred during token request", e);
-			return null;
+		if (tokenRequest instanceof XSTokenRequestImpl
+				&& ((XSTokenRequestImpl) tokenRequest).getRestTemplate() != null) {
+			restOperations = ((XSTokenRequestImpl) tokenRequest).getRestTemplate();
+		}
+
+		String baseUrl = tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(),
+				"");
+
+		// initialize token flows api
+		xsuaaTokenFlows = new XsuaaTokenFlows(restOperations, new XsuaaDefaultEndpoints(baseUrl), new ClientCredentials(
+				tokenRequest.getClientId(), tokenRequest.getClientSecret()));
+
+		switch (tokenRequest.getType()) {
+		case XSTokenRequest.TYPE_USER_TOKEN:
+			return performUserTokenFlow(tokenRequest);
+		case XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN:
+			return performClientCredentialsFlow(tokenRequest);
+		default:
+			throw new UnsupportedOperationException(
+					"Found unsupported XSTokenRequest type. The only supported types are XSTokenRequest.TYPE_USER_TOKEN and XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN.");
 		}
 	}
 
@@ -250,11 +274,12 @@ public class XsuaaToken extends Jwt implements Token {
 
 	/**
 	 * For custom access to the claims of the authentication token.
-	 * 
+	 *
 	 * @return this
 	 * @deprecated with version 1.5 as XsuaaToken inherits from {@link Jwt} which
 	 *             implements {@link JwtClaimAccessor}
 	 */
+	@Deprecated
 	ClaimAccessor getClaimAccessor() {
 		return this;
 	}
@@ -294,4 +319,41 @@ public class XsuaaToken extends Jwt implements Token {
 
 		return attributeValues;
 	}
+
+	private String performClientCredentialsFlow(XSTokenRequest tokenRequest) {
+		String ccfToken;
+		try {
+			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
+					.subdomain(this.getSubdomain())
+					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
+					.execute().getAccessToken();
+		} catch (TokenFlowException e) {
+			throw new RuntimeException("Error performing Client Credentials Flow. See exception cause.", e);
+		}
+
+		logger.info("Got the Client Credentials Flow Token: {}", ccfToken);
+
+		return ccfToken;
+	}
+
+	private String performUserTokenFlow(XSTokenRequest tokenRequest) {
+		String userToken;
+		try {
+			userToken = xsuaaTokenFlows.userTokenFlow()
+					.subdomain(this.getSubdomain())
+					.token(this.getTokenValue())
+					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
+					.execute().getAccessToken();
+		} catch (TokenFlowException e) {
+			throw new RuntimeException("Error performing User Token Flow. See exception cause.", e);
+		}
+
+		logger.info("Got the exchanged token for 3rd party service (clientId: {}) : {}", tokenRequest.getClientId(),
+				userToken);
+		logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ",
+				userToken);
+
+		return userToken;
+	}
+
 }

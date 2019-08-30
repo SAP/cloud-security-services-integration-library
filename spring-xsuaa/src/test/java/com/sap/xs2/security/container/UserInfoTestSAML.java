@@ -4,8 +4,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.minidev.json.parser.ParseException;
-
 public class UserInfoTestSAML {
 
 	UserInfo samlUserInfo = null;

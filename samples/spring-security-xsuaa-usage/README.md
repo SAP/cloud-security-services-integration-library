@@ -58,11 +58,14 @@ After deployment, the AppRouter will trigger authentication automatically when y
 * `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/method` - GET request executes a method secured with Spring Global Method Security.
 * `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/getAdminData` - GET request to read sensitive data via Global Method Security. You will get a `403` (UNAUTHORIZED), in case you do not have `Admin` scope.
 * `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v2/sayHello` - GET request that logs generic Jwt info, but only if token matches. 
+* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v3/requestClientCredentialsToken` - GET request that requests the client credentials Jwt token and writes it into the log. 
+* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v3/requestUserToken` - GET request that exchanges a Jwt token for a potential different client. It returns a refresh token.
+* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v3/requestRefreshToken/<<your refresh token>>` - GET request that retrieves a Jwt token for a refresh token and writes it into the log. 
 
 Have a look into the logs with:
 ```
 cf logs spring-security-xsuaa-usage --recent
-``
+```
 
 > Note: https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN> points to the url of the AppRouter. Get all app routes with `cf apps`.
 

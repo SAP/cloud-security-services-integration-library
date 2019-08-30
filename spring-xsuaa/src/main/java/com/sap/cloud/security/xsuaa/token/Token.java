@@ -10,17 +10,23 @@ import java.util.Collection;
 import java.util.Date;
 
 public interface Token extends UserDetails {
-	/*
-	 * @deprecated use instead {@link TokenClaims.CLAIM_XS_USER_ATTRIBUTES}
+	/**
+	 * @deprecated use instead @link{TokenClaims.CLAIM_XS_USER_ATTRIBUTES}
+	 * @since 2.0.0
 	 */
+	@Deprecated
 	String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
-	/*
-	 * @deprecated use instead {@link TokenClaims.CLAIM_SCOPES}
+	/**
+	 * @deprecated use instead @link{TokenClaims.CLAIM_SCOPES}
+	 * @since 2.0.0
 	 */
+	@Deprecated
 	String CLAIM_SCOPES = "scope";
-	/*
-	 * @deprecated use instead {@link TokenClaims.CLAIM_CLIENT_ID}
+	/**
+	 * @deprecated use instead @link{TokenClaims.CLAIM_CLIENT_ID}
+	 * @since 2.0.0
 	 */
+	@Deprecated
 	String CLIENT_ID = "cid";
 
 	String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
@@ -160,6 +166,10 @@ public interface Token extends UserDetails {
 
 	/**
 	 * Exchange a token into a token from another service instance
+	 * <p>
+	 *
+	 * @deprecated in favor of the @link{XsuaaTokenFlows} API.
+	 * @since 2.0.0
 	 *
 	 * @param tokenRequest
 	 *            request data
@@ -167,6 +177,7 @@ public interface Token extends UserDetails {
 	 * @throws URISyntaxException
 	 *             in case of wron URLs
 	 */
+	@Deprecated
 	String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException;
 
 	/**
@@ -194,4 +205,5 @@ public interface Token extends UserDetails {
 	 */
 	@Nullable
 	Date getExpirationDate();
+
 }

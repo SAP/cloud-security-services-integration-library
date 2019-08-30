@@ -2,12 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.7.0
+* We now provide a new slim [`token-client`](/token-client/README.md) library with a `XsuaaTokenFlows` class, which serves as a factory for the different flows (user, refresh and client-credentials). This deprecates the existing `Token.requestToken(XSTokenRequest)` API. 
+  * The `token-client` library can be used by plain Java applications. 
+  * Auto-configuration is provided for Spring Boot applications only, when using XSUAA Spring Boot Starter. 
+
+* **ANNOUNCEMENT: Please be aware that with version `2.0.0` we want to get rid of package `com.sap.xs2.security.container` in order to avoid Class Loader issues, when an application makes use of SAP-libraries using the SAP-internal container lib.**
+
+
 ## 1.6.0
 * Provides spring starter for spring-xsuaa, which enables auto-configuration
 * Supports reactive ServerHttpSecurity (Spring webflux). Have a look at the (webflux sample application)[samples/spring-webflux-security-xsuaa-usage/README.md]
 * Some enhancements for XSUAA integration
 * To make sure that the Spring SecurityContext is always initialized with a validated token use `SpringSecurityContext.init()` method as documented [here](spring-xsuaa/README.md)
-* Use `SpringSecurityContext` instead of `SecurityContext`, which gets deprecated in this version. With version `2.0.0` we want to get rid of package `com.sap.xs2.security.container` in order to avoid Class Loader issues, when an application makes use of SAP-libraries using the SAP-internal container lib.
+* Use `SpringSecurityContext` instead of `SecurityContext`, which gets deprecated in this version. 
 
 ### Incompatible changes
 * As of version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage auto-configuration (see "Troubleshoot" section [here](spring-xsuaa/README.md#troubleshoot))

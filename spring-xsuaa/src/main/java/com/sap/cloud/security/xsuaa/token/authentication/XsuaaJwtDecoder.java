@@ -39,7 +39,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
 			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
 
-		this.cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
+		this.cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
+				.maximumSize(cacheSize)
 				.build();
 		this.tokenValidators = tokenValidators;
 
@@ -130,6 +131,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		return decoder.decode(token);
 	}
 
+	// TODO extract into separate class / bean
 	private JwtDecoder getDecoder(String jku) {
 		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jku);
 		decoder.setJwtValidator(tokenValidators);

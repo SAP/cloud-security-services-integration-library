@@ -29,7 +29,7 @@ public interface OAuth2TokenService {
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	OAuth2AccessToken retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
+	OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
 			ClientCredentials clientCredentials, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
 
@@ -58,7 +58,7 @@ public interface OAuth2TokenService {
 	 * @deprecated instead use jwt bearer.
 	 */
 	@Deprecated
-	OAuth2AccessToken retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
+	OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
 			ClientCredentials clientCredentials, String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException;
@@ -75,12 +75,12 @@ public interface OAuth2TokenService {
 	 *            the refresh token that was returned along with the access token
 	 *            {link #OAuth2AccessToken}.
 	 * @param subdomain
-	 *            * optionally indicates what Identity Zone this request goes to by
+	 *            optionally indicates what Identity Zone this request goes to by
 	 *            supplying a subdomain (tenant).
 	 * @return the OAuth2AccessToken
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	OAuth2AccessToken retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri, ClientCredentials clientCredentials,
+	OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri, ClientCredentials clientCredentials,
 			String refreshToken, @Nullable String subdomain) throws OAuth2ServiceException;
 }

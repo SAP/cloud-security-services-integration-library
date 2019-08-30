@@ -36,11 +36,13 @@ This includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) 
     <groupId>commons-io</groupId>
     <artifactId>commons-io</artifactId>
     <version>2.6</version>
+    <scope>test</scope>
 </dependency>
 <dependency>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-oauth2-jose</artifactId>
     <version>5.1.1.RELEASE</version>
+    <scope>test</scope>
 </dependency>
 ```
 

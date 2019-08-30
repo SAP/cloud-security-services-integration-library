@@ -1,15 +1,23 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import java.util.Objects;
+
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
-
-import java.util.Objects;
 
 public class ClientCredentials {
 
 	private final String clientSecret;
 	private final String clientId;
 
+	/**
+	 * Specifies the OAuth 2.0 client.<br>
+	 *
+	 * @param clientId
+	 *            - the ID of the OAuth 2.0 client requesting the token.
+	 * @param clientSecret
+	 *            - the secret of the OAuth 2.0 client requesting the token.
+	 */
 	public ClientCredentials(@NonNull String clientId, @NonNull String clientSecret) {
 		Assert.notNull(clientId, "clientId is required");
 		Assert.notNull(clientSecret, "clientSecret is required");

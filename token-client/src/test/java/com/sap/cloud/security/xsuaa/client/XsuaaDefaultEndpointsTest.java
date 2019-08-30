@@ -1,11 +1,9 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import org.junit.Test;
-
-import java.net.URI;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+
+import org.junit.Test;
 
 public class XsuaaDefaultEndpointsTest {
 	XsuaaDefaultEndpoints cut = new XsuaaDefaultEndpoints("https://subdomain.myauth.com");

@@ -16,7 +16,8 @@
       "name"             : "Viewer",
       "description"      : "View Data",
       "scope-references" : [
-        "$XSAPPNAME.Read"
+        "$XSAPPNAME.Read",
+        "uaa.user"
       ]
     },
     {

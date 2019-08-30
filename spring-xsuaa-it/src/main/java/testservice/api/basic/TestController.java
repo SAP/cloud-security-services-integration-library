@@ -69,7 +69,7 @@ public class TestController {
 	public String requestToken(@AuthenticationPrincipal Token token) throws URISyntaxException {
 		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(serviceConfiguration.getUaaUrl());
 		tokenRequest.setClientId("c1").setClientSecret("s1").setType(XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN);
-		Map<String, String> azMape = new HashMap<>();
+		Map<String, String> azMape = new HashMap();
 		azMape.put("a", "b");
 		azMape.put("c", "d");
 		tokenRequest.setAdditionalAuthorizationAttributes(azMape);

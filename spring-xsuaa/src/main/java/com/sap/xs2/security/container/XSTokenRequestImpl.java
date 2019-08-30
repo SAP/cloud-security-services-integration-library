@@ -15,9 +15,12 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.sap.xsa.security.container.XSTokenRequest;
-import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * @deprecated in favor of XsuaaTokenFlows API
+ */
+@Deprecated
 public class XSTokenRequestImpl implements XSTokenRequest {
 
 	@Deprecated
@@ -43,6 +46,7 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 	 *             when uaabaseUrl could not be parsed as URI
 	 */
 	public XSTokenRequestImpl(String uaabaseUrl) throws URISyntaxException {
+		URI uaaBaseURI = URI.create(uaabaseUrl);
 		this.tokenEndpoint = new URI(uaabaseUrl + "/oauth/token");
 	}
 
@@ -196,9 +200,7 @@ public class XSTokenRequestImpl implements XSTokenRequest {
 	 *
 	 * @return the custom restTemplate or null
 	 */
-	@Nullable
 	public RestTemplate getRestTemplate() {
 		return restTemplate;
 	}
-
 }

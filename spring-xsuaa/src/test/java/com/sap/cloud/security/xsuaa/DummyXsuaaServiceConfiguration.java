@@ -16,21 +16,21 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 
 	@Override
 	public String getClientId() {
-		return clientId;
+		return clientId != null ? clientId : "clientId";
 	}
 
 	@Override
 	public String getClientSecret() {
-		return null;
+		return "secret";
 	}
 
 	@Override
 	public String getUaaUrl() {
-		return null;
+		return "https://subdomain.authentication.eu10.hana.ondemand.com";
 	}
 
 	@Override
-	public String getTokenKeyUrl(String zid, String subdomain) {
+	public String getTokenKeyUrl(String identityZoneId, String subdomain) {
 		return null;
 	}
 

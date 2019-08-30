@@ -5,20 +5,21 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
  * the XSUAA client library.
  * <p>
- * Activates when there is a bean of type {@link Jwt} configured in the context.
+ * Activates when there is a class of type {@link Jwt} on the classpath.
  *
  * <p>
  * can be disabled
@@ -44,4 +45,18 @@ public class XsuaaAutoConfiguration {
 			return new XsuaaServiceConfigurationDefault();
 		}
 	}
+
+	/**
+	 * Creates a {@link RestOperations} instance if the application has not yet
+	 * defined any yet.
+	 *
+	 * @return the {@link RestOperations} instance.
+	 */
+	@Bean
+	@ConditionalOnMissingBean
+	public RestOperations xsuaaRestOperations() {
+		logger.info("auto-configures RestOperations for xsuaa requests)");
+		return new RestTemplate();
+	}
+
 }

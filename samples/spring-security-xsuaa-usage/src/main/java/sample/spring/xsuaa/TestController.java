@@ -3,7 +3,6 @@ package sample.spring.xsuaa;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.token.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
+import com.sap.cloud.security.xsuaa.token.Token;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
 @RestController
 public class TestController {
@@ -19,11 +24,21 @@ public class TestController {
     private static final Logger logger = LoggerFactory.getLogger(TestController.class);
 
     /**
+     * The injected factory for XSUAA token tokenflows.
+     */
+    private XsuaaTokenFlows tokenFlows;
+
+    /**
      * A (fake) data layer showing global method security features of Spring Security
      * in combination with tokens from XSUAA.
      */
-    @Autowired
     private DataService dataService;
+
+    @Autowired
+    public TestController(XsuaaTokenFlows tokenFlows, DataService dataService) {
+        this.tokenFlows = tokenFlows;
+        this.dataService = dataService;
+    }
 
     /**
      * Returns the detailed information of the XSUAA JWT token.
@@ -33,10 +48,10 @@ public class TestController {
      * @return the requested address.
      * @throws Exception in case of an internal error.
      */
-    @GetMapping(value = "/v1/sayHello")
+    @GetMapping("/v1/sayHello")
     public Map<String, String> sayHello(@AuthenticationPrincipal Token token) {
 
-        logger.info("Got the Xsuaa token: " + token);
+        logger.info("Got the Xsuaa token: {}", token.getAppToken());
         logger.info(token.toString());
 
         Map<String, String> result = new HashMap<>();
@@ -54,17 +69,17 @@ public class TestController {
     }
 
     /**
-     * Returns some generic information from the JWT token.
+     * Returns some generic information from the JWT token.<br>
      * Uses a Jwt retrieved from the security context of Spring Security.
      *
      * @param jwt the JWT from the request injected by Spring Security.
      * @return the requested address.
      * @throws Exception in case of an internal error.
      */
-    @GetMapping(value = "/v2/sayHello")
+    @GetMapping("/v2/sayHello")
     public String sayHello(@AuthenticationPrincipal Jwt jwt) {
 
-        logger.info("Got the JWT: " + jwt);
+        logger.info("Got the JWT: {}", jwt);
 
         logger.info(jwt.toString());
 
@@ -76,7 +91,7 @@ public class TestController {
      * Only if the request principal has the given scope will the
      * method be called. Otherwise a 403 error will be returned.
      */
-    @GetMapping(value = "/v1/method")
+    @GetMapping("/v1/method")
     @PreAuthorize("hasAuthority('Read')")
     public String callMethodRemotely() {
         return "Read-protected method called!";
@@ -95,9 +110,73 @@ public class TestController {
      *
      * @see {@link DataService}.
      */
-    @GetMapping(value = "/v1/getAdminData")
+    @GetMapping("/v1/getAdminData")
     public String readFromDataService() {
         return dataService.readSensitiveData();
+    }
+    
+    /**
+     * REST endpoint showing how to fetch a client credentials Token from XSUAA using the
+     * {@link XsuaaTokenFlows} API.
+     * @throws TokenFlowException in case of any errors.
+     */
+    @GetMapping("/v3/requestClientCredentialsToken")
+    public String requestClientCredentialsToken() throws TokenFlowException {
+
+        OAuth2TokenResponse clientCredentialsTokenResponse = tokenFlows.clientCredentialsTokenFlow().execute();
+        logger.info("Got the Client Credentials Token: {}", clientCredentialsTokenResponse.getAccessToken());
+
+        return "The client-credentials token (encoded) can be found in the logs 'cf logs spring-security-xsuaa-usage --recent'";
+    }
+
+    /**
+     * REST endpoint showing how to exchange an access token from XSUAA for another one intended for another service.
+     * This endpoint shows how to use the {@link XsuaaTokenFlows} API.
+     * <p>
+     * The idea behind a user token exchange is to separate service-specific access scopes into separate tokens.
+     * For example, if Service A has scopes specific to its functionality and Service B has other scopes, the intention is
+     * that there is no single Jwt token that contains all of these scopes.<br>
+     * Rather the intention is to have a Jwt token to call Service A (containing just the scopes of Service A),
+     * and another one to call Service B (containing just the scopes of Service B). An application calling Service A and
+     * B on behalf of a user therefore has to exchange the user's Jwt token against a token for Service A and B respectively
+     * before calling these services. This scenario is handled by the user token flow.
+     * <p>
+     * <b>Note:</b> In order to be able to exchange the token, the input token needs to contain the scope {@code uaa.user}.<br>
+     *
+     *
+     * @param jwt - the Jwt as a result of authentication.
+     * @throws TokenFlowException in case of any errors.
+     */
+    @GetMapping("/v3/requestUserToken")
+    public String requestUserToken(@AuthenticationPrincipal Jwt jwt) throws TokenFlowException {
+        OAuth2TokenResponse userTokenResponse = tokenFlows.userTokenFlow()
+                .token(jwt.getTokenValue())
+                .execute();
+
+        logger.info("Got the exchanged token for 3rd party service: {}", userTokenResponse);
+        logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ", userTokenResponse);
+
+        return "The refresh-token: " + userTokenResponse.getRefreshToken() + ". The access-token (encoded) can be found in the logs 'cf logs spring-security-xsuaa-usage --recent'";
+    }
+
+    /**
+     * REST endpoint showing how to retrieve an access token for a refresh token from XSUAA using the
+     * {@link XsuaaTokenFlows} API.
+     * @param jwt - the Jwt as a result of authentication.
+     * @param refreshToken - the refresh token an access token is requested
+     * @throws TokenFlowException in case of any errors.
+     */
+    @GetMapping("/v3/requestRefreshToken/{refreshToken}")
+    public String requestRefreshToken(@AuthenticationPrincipal Jwt jwt, @PathVariable("refreshToken") String refreshToken) throws TokenFlowException {
+
+        OAuth2TokenResponse refreshTokenResponse = tokenFlows.refreshTokenFlow()
+        		.refreshToken(refreshToken)
+                .execute();
+ 
+        logger.info("Got the access token for the refresh token: {}", refreshTokenResponse.getAccessToken());
+        logger.info("You could now inject this into Spring's SecurityContext, using: SpringSecurityContext.init(...).");
+
+        return "The exchanged access token (encoded) can be found in the logs 'cf logs spring-security-xsuaa-usage --recent'";
     }
 
 }

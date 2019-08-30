@@ -47,6 +47,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.authorizeRequests()
 				.antMatchers("/v1/sayHello").hasAuthority("Read")
 				.antMatchers("/v2/*").hasAuthority("Read")
+				.antMatchers("/v3/*").hasAuthority("Read")
 				.anyRequest().authenticated()
 			.and()
 				.oauth2ResourceServer()
