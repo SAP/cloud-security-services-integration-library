@@ -1,6 +1,7 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 

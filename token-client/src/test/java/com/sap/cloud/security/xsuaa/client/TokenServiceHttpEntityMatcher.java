@@ -1,6 +1,8 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.CLIENT_ID;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.CLIENT_SECRET;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE;
 
 import java.util.HashMap;
 import java.util.List;

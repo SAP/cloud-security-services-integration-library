@@ -1,8 +1,13 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.xsuaa.client.*;
-import com.sap.xsa.security.container.XSTokenRequest; //API
 import org.springframework.util.Assert;
+
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.OAuth2AccessToken;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.xsa.security.container.XSTokenRequest;
 
 /**
  * A refresh token flow builder. <br>

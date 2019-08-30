@@ -1,18 +1,17 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.client.RestTemplate;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertNotNull;
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 
 @RunWith(MockitoJUnitRunner.class)
 public class XsuaaTokenFlowsTest {

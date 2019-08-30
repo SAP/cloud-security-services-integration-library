@@ -1,9 +1,9 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import java.util.Objects;
+
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
-
-import java.util.Objects;
 
 public class ClientCredentials {
 

@@ -1,14 +1,19 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.xsuaa.client.*;
-import com.sap.xsa.security.container.XSTokenRequest;
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
+import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.OAuth2AccessToken;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.xsa.security.container.XSTokenRequest;
 
 /**
  * A client credentials flow builder class. Applications retrieve an instance of

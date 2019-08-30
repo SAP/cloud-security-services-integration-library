@@ -4,11 +4,11 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.xsa.security.container.XSTokenRequest; // API
-import com.sun.istack.internal.NotNull;
-
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import com.sap.xsa.security.container.XSTokenRequest;
+import com.sun.istack.internal.NotNull;
 
 /**
  * An internal token exchange request capturing data by the token flow builders

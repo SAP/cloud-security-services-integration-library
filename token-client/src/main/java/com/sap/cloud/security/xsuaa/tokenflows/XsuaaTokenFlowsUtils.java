@@ -1,12 +1,11 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.xsa.security.container.XSTokenRequest;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.sap.xsa.security.container.XSTokenRequest;
 
 /**
  * A utilities class providing static functions required to build the XSUAA

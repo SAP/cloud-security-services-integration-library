@@ -1,7 +1,6 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
-import org.springframework.security.jwt.JwtHelper;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,6 +9,7 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.security.jwt.JwtHelper;
 import org.springframework.util.Assert;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;

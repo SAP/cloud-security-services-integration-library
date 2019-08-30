@@ -1,12 +1,12 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
+
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 
 /**
  * A bean that can be {@code @Autowired} by applications to get access to token
