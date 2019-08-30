@@ -4,11 +4,11 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 import com.sap.xsa.security.container.XSTokenRequest;
-import com.sun.istack.internal.NotNull;
 
 /**
  * An internal token exchange request capturing data by the token flow builders
@@ -28,7 +28,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * @param tokenServiceEndpoint
 	 *            - the URI of the OAuth server token endpoint.
 	 */
-	XsuaaTokenFlowRequest(@NotNull URI tokenServiceEndpoint) {
+	XsuaaTokenFlowRequest(@NonNull URI tokenServiceEndpoint) {
 		Assert.notNull(tokenServiceEndpoint, "tokenServiceEndpoint is required");
 		this.tokenServiceEndpoint = tokenServiceEndpoint;
 	}

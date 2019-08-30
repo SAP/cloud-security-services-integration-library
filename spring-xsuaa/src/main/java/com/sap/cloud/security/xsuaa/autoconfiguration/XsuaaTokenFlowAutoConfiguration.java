@@ -33,7 +33,7 @@ import org.springframework.web.client.RestOperations;
 @ConditionalOnProperty(prefix = "spring.xsuaa.flows", name = "auto", havingValue = "true", matchIfMissing = true)
 public class XsuaaTokenFlowAutoConfiguration {
 
-	private static final Logger logger = LoggerFactory.getLogger(XsuaaAutoConfiguration.class);
+	private static final Logger logger = LoggerFactory.getLogger(XsuaaTokenFlowAutoConfiguration.class);
 
 	/**
 	 * Creates a new {@link XsuaaTokenFlows} bean that applications can auto-wire

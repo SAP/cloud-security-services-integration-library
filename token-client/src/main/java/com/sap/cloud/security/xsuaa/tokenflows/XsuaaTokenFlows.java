@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import java.io.Serializable;
+
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 
@@ -16,7 +18,8 @@ import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
  * 
  * This class uses a RestTemplate which it passes on to the builders.
  */
-public class XsuaaTokenFlows {
+public class XsuaaTokenFlows implements Serializable {
+	private static final long serialVersionUID = 2403173341950251507L;
 
 	private final ClientCredentials clientCredentials;
 	private RestOperations restOperations;

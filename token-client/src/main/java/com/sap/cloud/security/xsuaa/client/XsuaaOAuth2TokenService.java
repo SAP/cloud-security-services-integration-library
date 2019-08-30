@@ -126,7 +126,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(uri, "the uri parameter must not be null");
 		if (StringUtils.hasText(subdomain) && uri.getHost().contains(".")) {
 			UriBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme())
-					.host(subdomain + uri.getHost().substring(uri.getHost().indexOf("."))).port(uri.getPort())
+					.host(subdomain + uri.getHost().substring(uri.getHost().indexOf('.'))).port(uri.getPort())
 					.path(uri.getPath());
 			return uri.resolve(builder.build());
 		}

@@ -226,7 +226,6 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	@Override
-	@Deprecated
 	public String requestToken(XSTokenRequest tokenRequest) {
 		Assert.notNull(tokenRequest, "TokenRequest argument is required");
 		Assert.isTrue(tokenRequest.isValid(), "TokenRequest is not valid");
@@ -322,9 +321,6 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	private String performClientCredentialsFlow(XSTokenRequest tokenRequest) {
-		String clientId = tokenRequest.getClientId();
-		String clientSecret = tokenRequest.getClientSecret();
-
 		String ccfToken;
 		try {
 			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
@@ -341,9 +337,6 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	private String performUserTokenFlow(XSTokenRequest tokenRequest) {
-		String clientId = tokenRequest.getClientId();
-		String clientSecret = tokenRequest.getClientSecret();
-
 		String userToken;
 		try {
 			userToken = xsuaaTokenFlows.userTokenFlow()
@@ -355,7 +348,7 @@ public class XsuaaToken extends Jwt implements Token {
 			throw new RuntimeException("Error performing User Token Flow. See exception cause.", e);
 		}
 
-		logger.info("Got the exchanged token for 3rd party service (clientId: {}) : {}", clientId,
+		logger.info("Got the exchanged token for 3rd party service (clientId: {}) : {}", tokenRequest.getClientId(),
 				userToken);
 		logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ",
 				userToken);

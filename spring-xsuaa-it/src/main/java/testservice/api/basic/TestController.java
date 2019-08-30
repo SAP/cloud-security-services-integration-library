@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.Token;
-import com.sap.cloud.security.xsuaa.token.XsuaaToken;
 import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 
