@@ -61,7 +61,7 @@ public class XsuaaServicesParser {
 		if (Objects.nonNull(xsuaaBinding) && xsuaaBinding.containsKey(CREDENTIALS)) {
 			JSONObject credentials = (JSONObject) xsuaaBinding.get(CREDENTIALS);
 			Optional<String> attributeString = Optional.ofNullable(credentials.getAsString(name));
-			if (attributeString.isPresent()) {
+			if (!attributeString.isPresent()) {
 				logger.info("XSUAA VCAP_SERVICES has no attribute with name '{}'.", name);
 			}
 			return attributeString;
