@@ -74,7 +74,7 @@ In the Java coding, use the `Token` to extract user information:
    }
 ```
 
-# Deployment on Cloud Foundry or SAP HANA Advanced
+# Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
 - Compile the Java application
 - Create a xsuaa service instance

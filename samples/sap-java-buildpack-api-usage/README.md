@@ -71,7 +71,7 @@ public class HelloTokenServlet extends HttpServlet {
 }
 ```
 
-# Deployment on Cloud Foundry or SAP HANA XS Advanced
+# Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
 - Configure the Application Router
 - Compile the Java application
