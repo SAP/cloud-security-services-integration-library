@@ -1,7 +1,7 @@
 # Description
 This is a java Springboot application using the `spring-webflux` as the web framework and protected by the `spring-security-oauth2-resource-server` and the `cloud-security-xsuaa-integration`.
 
-# Deployment To Cloud Foundry or SAP HANA XS Advanced
+# Deployment To Cloud Foundry
 To deploy the application, the following steps are required:
 - Configure the Application Router
 - Compile the Java application
