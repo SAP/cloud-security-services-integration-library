@@ -104,18 +104,6 @@ public class UserTokenFlow {
 	}
 
 	/**
-	 * Overwrites the OAuth 2.0 client ID the user token is requested for.<br>
-	 *
-	 * @param clientId
-	 *            - the ID of the OAuth 2.0 client requesting the token.
-	 * @return this builder.
-	 */
-	public UserTokenFlow clientId(String clientId) {
-		request.setClientId(clientId);
-		return this;
-	}
-
-	/**
 	 * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT
 	 * token is returned. <br>
 	 * Note, that in a standard flow, only the refresh token would be returned.
