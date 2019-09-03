@@ -3,11 +3,9 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNotNull;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,8 +53,8 @@ public class UserTokenFlowTest {
 		this.cut = new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, endpointsProvider, clientCredentials);
 
 		// configure Refresh Token Flow Mock
-		Mockito.when(mockRefreshTokenFlow.execute()).thenReturn(new OAuth2TokenResponse(mockJwt, 4711, null));
-		Mockito.when(mockRefreshTokenFlow.refreshToken(anyString())).thenReturn(mockRefreshTokenFlow);
+		when(mockRefreshTokenFlow.execute()).thenReturn(new OAuth2TokenResponse(mockJwt, 4711, null));
+		when(mockRefreshTokenFlow.refreshToken(anyString())).thenReturn(mockRefreshTokenFlow);
 	}
 
 	private String buildMockJwt() {
@@ -111,11 +109,11 @@ public class UserTokenFlowTest {
 
 	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
-		Mockito.when(mockTokenService
+		when(mockTokenService
 				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
 						eq(mockJwt),
 						isNull(), isNull()))
-				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
+								.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
 			cut.token(mockJwt)
@@ -129,29 +127,37 @@ public class UserTokenFlowTest {
 	public void execute() throws TokenFlowException, OAuth2ServiceException {
 		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, REFRESH_TOKEN);
 
-		Mockito.when(mockTokenService
+		when(mockTokenService
 				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
 						eq(mockJwt),
 						isNull(), isNull()))
-				.thenReturn(accessToken);
+								.thenReturn(accessToken);
 
 		OAuth2TokenResponse jwt = cut.token(mockJwt)
 				.execute();
 
 		assertThat(jwt.getAccessToken(), is(mockJwt));
+
 	}
 
-	@Test(expected = NullPointerException.class)
-	@Ignore
-	public void execute_withDifferentClient() throws TokenFlowException, OAuth2ServiceException {
-		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
+	@Test
+	public void execute_withSubdomain() throws TokenFlowException, OAuth2ServiceException {
+		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, REFRESH_TOKEN);
+		String subdomain = "subdomain";
+		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(mockTokenService, endpointsProvider,
+				clientCredentials);
+		cut = new UserTokenFlow(mockTokenService, refreshTokenFlow, endpointsProvider, clientCredentials);
 
-		clientCredentials = new ClientCredentials("otherClientId", "otherSecret");
+		when(mockTokenService
+				.retrieveAccessTokenViaUserTokenGrant(any(), any(), any(), any(), any()))
+						.thenReturn(accessToken);
+
+		cut.subdomain(subdomain).token(mockJwt).execute();
 
 		Mockito.verify(mockTokenService, times(1))
-				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						isNull(), isNotNull());
-		// TODO test needs to be finalized
+				.retrieveAccessTokenViaUserTokenGrant(any(), any(), any(), eq(subdomain), any());
+		Mockito.verify(mockTokenService, times(1))
+				.retrieveAccessTokenViaRefreshToken(any(), any(), any(), eq(subdomain));
 	}
 
 	@Test
@@ -164,11 +170,11 @@ public class UserTokenFlowTest {
 		Map<String, String> additionalAuthoritiesParam = new HashMap<>();
 		additionalAuthoritiesParam.put("authorities", "{\"az_attr\":{\"DummyAttribute\":\"DummyAttributeValue\"}}");
 
-		Mockito.when(mockTokenService
+		when(mockTokenService
 				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
 						eq(mockJwt),
 						isNull(), eq(additionalAuthoritiesParam)))
-				.thenReturn(accessToken);
+								.thenReturn(accessToken);
 
 		OAuth2TokenResponse jwt = cut.token(mockJwt)
 				.attributes(additionalAuthorities)
