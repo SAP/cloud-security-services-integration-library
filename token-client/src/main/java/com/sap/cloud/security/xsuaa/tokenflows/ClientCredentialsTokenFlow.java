@@ -1,12 +1,10 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
@@ -14,6 +12,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.xsa.security.container.XSTokenRequest;
+
+import javax.annotation.Nullable;
 
 /**
  * A client credentials flow builder class. Applications retrieve an instance of
@@ -40,9 +40,9 @@ public class ClientCredentialsTokenFlow {
 	 */
 	ClientCredentialsTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider,
 			ClientCredentials clientCredentials) {
-		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
-		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
-		Assert.notNull(clientCredentials, "ClientCredentials must not be null.");
+		assertNotNull(tokenService, "OAuth2TokenService must not be null.");
+		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
+		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
 
 		this.tokenService = tokenService;
 		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());

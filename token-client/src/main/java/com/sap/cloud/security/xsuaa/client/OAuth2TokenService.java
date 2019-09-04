@@ -1,9 +1,8 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Map;
-
-import org.springframework.lang.Nullable;
 
 /**
  * Retrieves OAuth2 Access Tokens as documented here:

@@ -60,7 +60,7 @@ public class RefreshTokenFlowTest {
 	public void execute_throwsIfMandatoryFieldsNotSet() {
 		assertThatThrownBy(() -> {
 			cut.execute();
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Refresh token not set");
+		}).isInstanceOf(IllegalStateException.class).hasMessageContaining("Refresh token not set");
 	}
 
 	@Test

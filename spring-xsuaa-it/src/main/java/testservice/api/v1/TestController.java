@@ -23,6 +23,7 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.cloud.security.xsuaa.tokenflows.ClientCredentialsTokenFlow;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
@@ -99,7 +100,7 @@ public class TestController {
 		azMape.put("a", "b");
 		azMape.put("c", "d");
 
-		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(new RestTemplate(),
+		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(new XsuaaOAuth2TokenService(new RestTemplate()),
 				new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()), new ClientCredentials("c1", "s1"));
 		ClientCredentialsTokenFlow ccTokenFlow = tokenFlows.clientCredentialsTokenFlow().attributes(azMape)
 				.subdomain(token.getSubdomain());

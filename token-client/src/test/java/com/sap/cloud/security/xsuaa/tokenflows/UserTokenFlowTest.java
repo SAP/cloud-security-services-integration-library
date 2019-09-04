@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -89,11 +88,11 @@ public class UserTokenFlowTest {
 	public void execute_throwsIfMandatoryFieldsNotSet() {
 		assertThatThrownBy(() -> {
 			cut.execute();
-		}).isInstanceOf(IllegalArgumentException.class);
+		}).isInstanceOf(IllegalStateException.class);
 
 		assertThatThrownBy(() -> {
 			cut.execute();
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("User token not set");
+		}).isInstanceOf(IllegalStateException.class).hasMessageContaining("User token not set");
 	}
 
 	@Test
@@ -103,7 +102,7 @@ public class UserTokenFlowTest {
 					endpointsProvider, clientCredentials)
 							.token(invalidMockJwt)
 							.execute();
-		}).isInstanceOf(IllegalArgumentException.class)
+		}).isInstanceOf(IllegalStateException.class)
 				.hasMessageContaining("JWT token does not include scope 'uaa.user'");
 	}
 

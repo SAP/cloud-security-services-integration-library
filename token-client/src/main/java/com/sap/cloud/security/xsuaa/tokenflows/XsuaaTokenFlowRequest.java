@@ -1,14 +1,14 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import com.sap.xsa.security.container.XSTokenRequest;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-
-import com.sap.xsa.security.container.XSTokenRequest;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
  * An internal token exchange request capturing data by the token flow builders
@@ -28,8 +28,8 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * @param tokenServiceEndpoint
 	 *            - the URI of the OAuth server token endpoint.
 	 */
-	XsuaaTokenFlowRequest(@NonNull URI tokenServiceEndpoint) {
-		Assert.notNull(tokenServiceEndpoint, "tokenServiceEndpoint is required");
+	XsuaaTokenFlowRequest(@Nonnull URI tokenServiceEndpoint) {
+		assertNotNull(tokenServiceEndpoint, "tokenServiceEndpoint is required");
 		this.tokenServiceEndpoint = tokenServiceEndpoint;
 	}
 
@@ -44,7 +44,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	}
 
 	public XSTokenRequest setClientId(String clientId) {
-		Assert.notNull(clientId, "OAuth 2.0 client ID must not be null.");
+		assertNotNull(clientId, "OAuth 2.0 client ID must not be null.");
 		this.clientId = clientId;
 		return this;
 	}
@@ -60,7 +60,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	}
 
 	public XSTokenRequest setClientSecret(String clientSecret) {
-		Assert.notNull(clientSecret, "OAuth 2.0 client secret must not be null.");
+		assertNotNull(clientSecret, "OAuth 2.0 client secret must not be null.");
 		this.clientSecret = clientSecret;
 		return this;
 	}

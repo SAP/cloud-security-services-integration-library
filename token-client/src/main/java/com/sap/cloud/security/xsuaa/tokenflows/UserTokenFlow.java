@@ -10,7 +10,7 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.util.Assert;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
@@ -51,10 +51,10 @@ public class UserTokenFlow {
 	 */
 	UserTokenFlow(OAuth2TokenService tokenService, RefreshTokenFlow refreshTokenFlow,
 			OAuth2ServiceEndpointsProvider endpointsProvider, ClientCredentials clientCredentials) {
-		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
-		Assert.notNull(refreshTokenFlow, "RefreshTokenFlow must not be null.");
-		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
-		Assert.notNull(clientCredentials, "ClientCredentials must not be null.");
+		assertNotNull(tokenService, "OAuth2TokenService must not be null.");
+		assertNotNull(refreshTokenFlow, "RefreshTokenFlow must not be null.");
+		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
+		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
 
 		this.tokenService = tokenService;
 		this.refreshTokenFlow = refreshTokenFlow;
@@ -71,7 +71,7 @@ public class UserTokenFlow {
 	 * @return this builder object.
 	 */
 	public UserTokenFlow token(String token) {
-		Assert.notNull(token, "Token must not be null.");
+		assertNotNull(token, "Token must not be null.");
 		this.token = token;
 		return this;
 	}
@@ -109,7 +109,7 @@ public class UserTokenFlow {
 	 * Note, that in a standard flow, only the refresh token would be returned.
 	 *
 	 * @return the JWT instance returned by XSUAA.
-	 * @throws IllegalArgumentException
+	 * @throws IllegalStateException
 	 *             - in case not all mandatory fields of the token flow request have
 	 *             been set.
 	 * @throws TokenFlowException
@@ -128,18 +128,21 @@ public class UserTokenFlow {
 	 * @param request
 	 *            - the token flow request.
 	 * @throws IllegalArgumentException
-	 *             in case not all mandatory fields of the token flow request have
+	 *             - in case not all mandatory fields of the token flow request have
 	 *             been set.
+	 * @throws IllegalStateException
+	 *             - in case the user token has not been set or does not include
+	 *             scope 'uaa.user'
 	 */
 	private void checkRequest(XSTokenRequest request) throws IllegalArgumentException {
 		if (token == null) {
-			throw new IllegalArgumentException(
+			throw new IllegalStateException(
 					"User token not set. Make sure to have called the token() method on UserTokenFlow builder.");
 		}
 
 		boolean isUserToken = hasScope(token, UAA_USER_SCOPE);
 		if (!isUserToken) {
-			throw new IllegalArgumentException(
+			throw new IllegalStateException(
 					"JWT token does not include scope 'uaa.user'. Only user tokens can be exchanged for another user token.");
 		}
 

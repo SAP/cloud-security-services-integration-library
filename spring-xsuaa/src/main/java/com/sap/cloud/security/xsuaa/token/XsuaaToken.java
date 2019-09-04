@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.tokenflows.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,8 +243,10 @@ public class XsuaaToken extends Jwt implements Token {
 				"");
 
 		// initialize token flows api
-		xsuaaTokenFlows = new XsuaaTokenFlows(restOperations, new XsuaaDefaultEndpoints(baseUrl), new ClientCredentials(
-				tokenRequest.getClientId(), tokenRequest.getClientSecret()));
+		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(restOperations);
+		xsuaaTokenFlows = new XsuaaTokenFlows(oAuth2TokenService, new XsuaaDefaultEndpoints(baseUrl),
+				new ClientCredentials(
+						tokenRequest.getClientId(), tokenRequest.getClientSecret()));
 
 		switch (tokenRequest.getType()) {
 		case XSTokenRequest.TYPE_USER_TOKEN:

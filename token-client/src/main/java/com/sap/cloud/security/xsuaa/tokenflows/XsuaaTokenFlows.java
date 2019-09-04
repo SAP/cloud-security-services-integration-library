@@ -2,13 +2,11 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 
 import java.io.Serializable;
 
-import org.springframework.util.Assert;
-import org.springframework.web.client.RestOperations;
-
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
+
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
  * A bean that can be {@code @Autowired} by applications to get access to token
@@ -22,15 +20,15 @@ public class XsuaaTokenFlows implements Serializable {
 	private static final long serialVersionUID = 2403173341950251507L;
 
 	private final ClientCredentials clientCredentials;
-	private RestOperations restOperations;
-	private OAuth2ServiceEndpointsProvider endpointsProvider;
+	private final OAuth2TokenService oAuth2TokenService;
+	private final OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	/**
 	 * Create a new instance of this bean with the given RestTemplate. Applications
 	 * should {@code @Autowire} instances of this bean.
 	 * 
-	 * @param restOperations
-	 *            the RestTemplate instance that will be used to send the token
+	 * @param oAuth2TokenService
+	 *            the OAuth2TokenService that will be used to send the token
 	 *            exchange request.
 	 * @param endpointsProvider
 	 *            the endpoint provider that serves the token endpoint.
@@ -51,13 +49,13 @@ public class XsuaaTokenFlows implements Serializable {
 	 * }
 	 *            </pre>
 	 */
-	public XsuaaTokenFlows(RestOperations restOperations,
+	public XsuaaTokenFlows(OAuth2TokenService oAuth2TokenService,
 			OAuth2ServiceEndpointsProvider endpointsProvider, ClientCredentials clientCredentials) {
-		Assert.notNull(restOperations, "RestOperations must not be null.");
-		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
-		Assert.notNull(clientCredentials, "ClientCredentials must not be null.");
+		assertNotNull(oAuth2TokenService, "OAuth2TokenService must not be null.");
+		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null");
+		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
 
-		this.restOperations = restOperations;
+		this.oAuth2TokenService = oAuth2TokenService;
 		this.endpointsProvider = endpointsProvider;
 		this.clientCredentials = clientCredentials;
 	}
@@ -72,10 +70,10 @@ public class XsuaaTokenFlows implements Serializable {
 	 * @return the {@link UserTokenFlow} builder object.
 	 */
 	public UserTokenFlow userTokenFlow() {
-		OAuth2TokenService tokenService = initializeTokenService();
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(tokenService, endpointsProvider, clientCredentials);
+		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(oAuth2TokenService, endpointsProvider,
+				clientCredentials);
 
-		return new UserTokenFlow(tokenService, refreshTokenFlow, endpointsProvider, clientCredentials);
+		return new UserTokenFlow(oAuth2TokenService, refreshTokenFlow, endpointsProvider, clientCredentials);
 	}
 
 	/**
@@ -86,7 +84,7 @@ public class XsuaaTokenFlows implements Serializable {
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
 	public ClientCredentialsTokenFlow clientCredentialsTokenFlow() {
-		return new ClientCredentialsTokenFlow(initializeTokenService(), endpointsProvider, clientCredentials);
+		return new ClientCredentialsTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
 	}
 
 	/**
@@ -97,10 +95,7 @@ public class XsuaaTokenFlows implements Serializable {
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
 	public RefreshTokenFlow refreshTokenFlow() {
-		return new RefreshTokenFlow(initializeTokenService(), endpointsProvider, clientCredentials);
+		return new RefreshTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
 	}
 
-	OAuth2TokenService initializeTokenService() {
-		return new XsuaaOAuth2TokenService(restOperations);
-	}
 }
