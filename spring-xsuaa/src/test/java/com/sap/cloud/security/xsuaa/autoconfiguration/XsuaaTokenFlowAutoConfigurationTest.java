@@ -4,6 +4,7 @@ import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,7 +91,7 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 		@Bean
 		public XsuaaTokenFlows userDefinedXsuaaTokenFlows(RestOperations restOperations,
 				XsuaaServiceConfiguration serviceConfiguration) {
-			return new XsuaaTokenFlows(restOperations,
+			return new XsuaaTokenFlows(new XsuaaOAuth2TokenService(restOperations),
 					new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()), new ClientCredentials("id", "secret"));
 		}
 	}
