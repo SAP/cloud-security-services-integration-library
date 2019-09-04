@@ -3,15 +3,12 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertNotNull;
 
+import com.sap.cloud.security.xsuaa.client.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.client.RestTemplate;
-
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 
 @RunWith(MockitoJUnitRunner.class)
 public class XsuaaTokenFlowsTest {
@@ -19,27 +16,28 @@ public class XsuaaTokenFlowsTest {
 	private XsuaaTokenFlows cut;
 	private ClientCredentials clientCredentials;
 	private OAuth2ServiceEndpointsProvider endpointsProvider;
+	private OAuth2TokenService oAuth2TokenService;
 
 	@Before
 	public void setup() {
 		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
 		this.endpointsProvider = new XsuaaDefaultEndpoints("http://base/");
-		cut = new XsuaaTokenFlows(new RestTemplate(),
-				this.endpointsProvider, clientCredentials);
+		this.oAuth2TokenService = new XsuaaOAuth2TokenService(new RestTemplate());
+		cut = new XsuaaTokenFlows(oAuth2TokenService, this.endpointsProvider, clientCredentials);
 	}
 
 	@Test
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
 			new XsuaaTokenFlows(null, endpointsProvider, clientCredentials);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RestOperations");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
 		assertThatThrownBy(() -> {
-			new XsuaaTokenFlows(new RestTemplate(), null, clientCredentials);
+			new XsuaaTokenFlows(oAuth2TokenService, null, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
 
 		assertThatThrownBy(() -> {
-			new XsuaaTokenFlows(new RestTemplate(), endpointsProvider, null);
+			new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientCredentials");
 
 	}

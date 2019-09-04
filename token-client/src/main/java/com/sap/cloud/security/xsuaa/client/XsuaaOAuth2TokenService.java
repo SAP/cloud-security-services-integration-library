@@ -35,7 +35,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
-	private RestOperations restOperations;
+	private final RestOperations restOperations;
 	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 
 	public XsuaaOAuth2TokenService(@NonNull RestOperations restOperations) {

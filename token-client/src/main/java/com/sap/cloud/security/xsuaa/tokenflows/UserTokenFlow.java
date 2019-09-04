@@ -10,7 +10,7 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.util.Assert;
+import static com.sap.cloud.security.xsuaa.ObjectsUtil.assertNotNull;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
@@ -51,10 +51,10 @@ public class UserTokenFlow {
 	 */
 	UserTokenFlow(OAuth2TokenService tokenService, RefreshTokenFlow refreshTokenFlow,
 			OAuth2ServiceEndpointsProvider endpointsProvider, ClientCredentials clientCredentials) {
-		Assert.notNull(tokenService, "OAuth2TokenService must not be null.");
-		Assert.notNull(refreshTokenFlow, "RefreshTokenFlow must not be null.");
-		Assert.notNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
-		Assert.notNull(clientCredentials, "ClientCredentials must not be null.");
+		assertNotNull(tokenService, "OAuth2TokenService must not be null.");
+		assertNotNull(refreshTokenFlow, "RefreshTokenFlow must not be null.");
+		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
+		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
 
 		this.tokenService = tokenService;
 		this.refreshTokenFlow = refreshTokenFlow;
@@ -71,7 +71,7 @@ public class UserTokenFlow {
 	 * @return this builder object.
 	 */
 	public UserTokenFlow token(String token) {
-		Assert.notNull(token, "Token must not be null.");
+		assertNotNull(token, "Token must not be null.");
 		this.token = token;
 		return this;
 	}
