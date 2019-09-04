@@ -109,7 +109,7 @@ public class UserTokenFlow {
 	 * Note, that in a standard flow, only the refresh token would be returned.
 	 *
 	 * @return the JWT instance returned by XSUAA.
-	 * @throws IllegalArgumentException
+	 * @throws IllegalStateException
 	 *             - in case not all mandatory fields of the token flow request have
 	 *             been set.
 	 * @throws TokenFlowException
@@ -128,18 +128,21 @@ public class UserTokenFlow {
 	 * @param request
 	 *            - the token flow request.
 	 * @throws IllegalArgumentException
-	 *             in case not all mandatory fields of the token flow request have
+	 *             - in case not all mandatory fields of the token flow request have
 	 *             been set.
+	 * @throws IllegalStateException
+	 *             - in case the user token has not been set or does not include
+	 *             scope 'uaa.user'
 	 */
 	private void checkRequest(XSTokenRequest request) throws IllegalArgumentException {
 		if (token == null) {
-			throw new IllegalArgumentException(
+			throw new IllegalStateException(
 					"User token not set. Make sure to have called the token() method on UserTokenFlow builder.");
 		}
 
 		boolean isUserToken = hasScope(token, UAA_USER_SCOPE);
 		if (!isUserToken) {
-			throw new IllegalArgumentException(
+			throw new IllegalStateException(
 					"JWT token does not include scope 'uaa.user'. Only user tokens can be exchanged for another user token.");
 		}
 
