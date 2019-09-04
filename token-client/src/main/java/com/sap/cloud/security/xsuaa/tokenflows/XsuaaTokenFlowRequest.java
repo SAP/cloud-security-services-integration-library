@@ -1,9 +1,9 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.xsa.security.container.XSTokenRequest;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * @param tokenServiceEndpoint
 	 *            - the URI of the OAuth server token endpoint.
 	 */
-	XsuaaTokenFlowRequest(@NonNull URI tokenServiceEndpoint) {
+	XsuaaTokenFlowRequest(@Nonnull URI tokenServiceEndpoint) {
 		assertNotNull(tokenServiceEndpoint, "tokenServiceEndpoint is required");
 		this.tokenServiceEndpoint = tokenServiceEndpoint;
 	}

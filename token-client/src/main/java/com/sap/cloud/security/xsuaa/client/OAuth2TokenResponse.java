@@ -1,9 +1,8 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-import org.springframework.lang.Nullable;
 
 public class OAuth2TokenResponse {
 	private String refreshToken;
