@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import static com.sap.cloud.security.xsuaa.ObjectsUtil.assertNotNull;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 import java.util.HashMap;

@@ -4,18 +4,18 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class ObjectsUtilTest {
+public class AssertionsTest {
 
 	@Test
 	public void assertNotNull_throwsIllegalArgumentExceptionContainingMessage() {
 		String message = "A message";
 		assertThatThrownBy(() -> {
-			ObjectsUtil.assertNotNull(null, message);
+			Assertions.assertNotNull(null, message);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessage(message);
 	}
 
 	@Test
 	public void assertNotNull_doesNotThrow() {
-		ObjectsUtil.assertNotNull(new Object(), "Should not be thrown");
+		Assertions.assertNotNull(new Object(), "Should not be thrown");
 	}
 }

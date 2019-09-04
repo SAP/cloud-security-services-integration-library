@@ -7,7 +7,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.xsa.security.container.XSTokenRequest;
 
-import static com.sap.cloud.security.xsuaa.ObjectsUtil.assertNotNull;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
  * A refresh token flow builder. <br>

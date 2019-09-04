@@ -6,7 +6,7 @@ import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 
-import static com.sap.cloud.security.xsuaa.ObjectsUtil.assertNotNull;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
  * A bean that can be {@code @Autowired} by applications to get access to token

@@ -10,7 +10,7 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import static com.sap.cloud.security.xsuaa.ObjectsUtil.assertNotNull;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;

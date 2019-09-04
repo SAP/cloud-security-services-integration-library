@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.ObjectsUtil;
+import com.sap.cloud.security.xsuaa.Assertions;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -19,8 +19,8 @@ public class ClientCredentials {
 	 *            - the secret of the OAuth 2.0 client requesting the token.
 	 */
 	public ClientCredentials(@Nonnull String clientId, @Nonnull String clientSecret) {
-		ObjectsUtil.assertNotNull(clientId, "clientId is required");
-		ObjectsUtil.assertNotNull(clientSecret, "clientSecret is required");
+		Assertions.assertNotNull(clientId, "clientId is required");
+		Assertions.assertNotNull(clientSecret, "clientSecret is required");
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 	}

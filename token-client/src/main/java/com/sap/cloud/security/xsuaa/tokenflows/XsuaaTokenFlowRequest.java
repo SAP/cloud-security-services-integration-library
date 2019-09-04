@@ -8,7 +8,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.sap.cloud.security.xsuaa.ObjectsUtil.assertNotNull;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
  * An internal token exchange request capturing data by the token flow builders
