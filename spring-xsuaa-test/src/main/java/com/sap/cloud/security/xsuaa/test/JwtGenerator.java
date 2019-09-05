@@ -132,7 +132,7 @@ public class JwtGenerator {
 
 	/**
 	 *
-	 * @param port,
+	 * @param port
 	 * 			  the port that is used to connect to the XSUAA mock web server.
 	 */
 	public JwtGenerator(int port) {
