@@ -23,7 +23,6 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 
 	private static boolean started;
 
-
 	public XsuaaMockWebServer() {
 		this(MOCK_XSUAA_DEFAULT_PORT);
 	}
@@ -32,7 +31,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 	 * Overwrites the port the mock server listens to.
 	 *
 	 * @param port
-	 * 			the port the mock server listens to.
+	 *            the port the mock server listens to.
 	 */
 	public XsuaaMockWebServer(int port) {
 		super(MOCK_XSUAA_PROPERTY_SOURCE_NAME, createMockWebServer(new XsuaaRequestDispatcher()));

@@ -82,7 +82,7 @@ public class JwtGenerator {
 	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
 	 *            service configuration (VCAP_SERVICES).
 	 * @param port
-	 * 			  the port that is used to connect to the XSUAA mock web server.
+	 *            the port that is used to connect to the XSUAA mock web server.
 	 */
 	public JwtGenerator(String clientId, int port) {
 		this.clientId = clientId;
@@ -103,7 +103,6 @@ public class JwtGenerator {
 	public JwtGenerator(String clientId) {
 		this(clientId, MOCK_XSUAA_DEFAULT_PORT);
 	}
-
 
 	/**
 	 * Overwrites some default values of the JWT token claims.
@@ -133,7 +132,7 @@ public class JwtGenerator {
 	/**
 	 *
 	 * @param port
-	 * 			  the port that is used to connect to the XSUAA mock web server.
+	 *            the port that is used to connect to the XSUAA mock web server.
 	 */
 	public JwtGenerator(int port) {
 		this(CLIENT_ID, port);
