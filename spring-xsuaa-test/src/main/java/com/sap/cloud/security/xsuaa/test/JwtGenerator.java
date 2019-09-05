@@ -54,7 +54,7 @@ public class JwtGenerator {
 
 	// must match the port defined in XsuaaMockWebServer
 	private static final int MOCK_XSUAA_PORT = 33195;
-
+	private final int mockXsuaaPort;
 	public static final Date NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime();
 	public static final int NO_EXPIRE = Integer.MAX_VALUE;
 	public static final String CLIENT_ID = "sb-xsapplication!t895";
@@ -76,17 +76,34 @@ public class JwtGenerator {
 	/**
 	 * Specifies clientId of the JWT token claim.
 	 *
-	 * @param clientId,
+	 * @param clientId
+	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
+	 *            value of the JWT token claims "client_id" and "cid". A token is
+	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
+	 *            service configuration (VCAP_SERVICES).
+	 * @param port
+	 * 			  the port that is used to connect to the XSUAA mock web server.
+	 */
+	public JwtGenerator(String clientId, int port) {
+		this.clientId = clientId;
+		this.identityZoneId = DEFAULT_IDENTITY_ZONE_ID;
+		this.mockXsuaaPort = port;
+		this.jku = createJku(null, port);
+	}
+
+	/**
+	 * Specifies clientId of the JWT token claim.
+	 *
+	 * @param clientId
 	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
 	 *            value of the JWT token claims "client_id" and "cid". A token is
 	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
 	 *            service configuration (VCAP_SERVICES).
 	 */
 	public JwtGenerator(String clientId) {
-		this.clientId = clientId;
-		this.identityZoneId = DEFAULT_IDENTITY_ZONE_ID;
-		this.jku = createJku(null);
+		this(clientId, MOCK_XSUAA_PORT);
 	}
+
 
 	/**
 	 * Overwrites some default values of the JWT token claims.
@@ -109,7 +126,17 @@ public class JwtGenerator {
 		this.clientId = clientId;
 		this.subdomain = subdomain;
 		this.identityZoneId = identityZoneId;
-		this.jku = createJku(subdomain);
+		this.mockXsuaaPort = MOCK_XSUAA_PORT;
+		this.jku = createJku(subdomain, mockXsuaaPort);
+	}
+
+	/**
+	 *
+	 * @param port,
+	 * 			  the port that is used to connect to the XSUAA mock web server.
+	 */
+	public JwtGenerator(int port) {
+		this(CLIENT_ID, port);
 	}
 
 	public JwtGenerator() {
@@ -243,9 +270,9 @@ public class JwtGenerator {
 		return createFromClaims(claimsSetBuilder.build().toString(), getHeaderMap(jwtHeaderKeyId, jku));
 	}
 
-	private static String createJku(String subdomain) {
+	private static String createJku(String subdomain, int port) {
 		String subdomainPart = subdomain != null && !subdomain.equals("") ? "/" + subdomain : "";
-		return "http://localhost:" + MOCK_XSUAA_PORT + subdomainPart + "/token_keys";
+		return "http://localhost:" + port + subdomainPart + "/token_keys";
 	}
 
 	private List<String> deriveAudiencesFromScopes(String[] scopes) {
@@ -354,7 +381,7 @@ public class JwtGenerator {
 	 * @return a basic set of claims
 	 */
 	public Map<String, String> getBasicHeaders() {
-		return getHeaderMap(jwtHeaderKeyId, createJku(subdomain));
+		return getHeaderMap(jwtHeaderKeyId, createJku(subdomain, mockXsuaaPort));
 	}
 
 	private static Jwt createFromClaims(String claims, Map<String, String> headers) {
