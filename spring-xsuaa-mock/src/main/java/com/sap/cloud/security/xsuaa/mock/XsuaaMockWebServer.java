@@ -17,7 +17,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 	public static final String MOCK_XSUAA_URL = "mockxsuaaserver.url";
 	// must match the port defined in JwtGenerator
 	private static final int MOCK_XSUAA_DEFAULT_PORT = 33195;
-	private final int port;
+	private final int mockXsuaaPort;
 
 	private static final Log logger = LogFactory.getLog(XsuaaMockWebServer.class);
 
@@ -30,12 +30,12 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 	/**
 	 * Overwrites the port the mock server listens to.
 	 *
-	 * @param port
+	 * @param mockXsuaaPort
 	 *            the port the mock server listens to.
 	 */
-	public XsuaaMockWebServer(int port) {
+	public XsuaaMockWebServer(int mockXsuaaPort) {
 		super(MOCK_XSUAA_PROPERTY_SOURCE_NAME, createMockWebServer(new XsuaaRequestDispatcher()));
-		this.port = port;
+		this.mockXsuaaPort = mockXsuaaPort;
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 	 */
 	public XsuaaMockWebServer(Dispatcher dispatcher) {
 		super(MOCK_XSUAA_PROPERTY_SOURCE_NAME, createMockWebServer(dispatcher));
-		port = MOCK_XSUAA_DEFAULT_PORT;
+		mockXsuaaPort = MOCK_XSUAA_DEFAULT_PORT;
 	}
 
 	private static MockWebServer createMockWebServer(Dispatcher dispatcher) {
@@ -84,14 +84,14 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 
 	private void intializeMockXsuaa(MockWebServer mockWebServer) {
 		try {
-			mockWebServer.start(port);
+			mockWebServer.start(mockXsuaaPort);
 			this.started = true;
 			logger.warn(
 					">>>>>>>>>>>Started Xsuaa mock Server that provides public keys for offline JWT Token validation. NEVER run in productive environment!<<<<<<");
 		} catch (IllegalStateException | IOException e) {
 			throw new RuntimeException(
 					String.format("Could not start XSUAA mock webserver (localhost:%d). " +
-							"Make sure that it is not yet started in another process.", port),
+							"Make sure that it is not yet started in another process.", mockXsuaaPort),
 					e);
 		}
 	}
