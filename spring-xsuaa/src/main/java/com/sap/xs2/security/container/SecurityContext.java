@@ -16,7 +16,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
  * {@code com.sap.xs2.security.container} package. It will be removed with
  * version {@code 2.0.0}
  *
- * @deprecated use {@link SpringSecurityContext} class instead.
+ * @deprecated use {@link SpringSecurityContext} class instead. Will be removed with version 2.0.
  */
 @Deprecated
 public class SecurityContext {
