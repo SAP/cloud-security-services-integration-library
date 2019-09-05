@@ -1,6 +1,9 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -49,8 +52,17 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 		return getUriWithPathAppended(KEYSET_ENDPOINT);
 	}
 
-	private URI getUriWithPathAppended(String path) {
-		return UriComponentsBuilder.fromUri(baseUri).path(path).build().toUri();
+	private URI getUriWithPathAppended(String pathToAppend) {
+		try {
+			String newPath = baseUri.getPath() + pathToAppend;
+			return new URI(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(),
+					replaceDoubleSlashes(newPath), baseUri.getQuery(), baseUri.getFragment());
+		} catch (URISyntaxException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
+	private String replaceDoubleSlashes(String newPath) {
+		return newPath.replaceAll("//", "/");
+	}
 }
