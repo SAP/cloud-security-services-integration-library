@@ -36,17 +36,21 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 
 	@Override
 	public URI getTokenEndpoint() {
-		return UriComponentsBuilder.fromUri(baseUri).path(TOKEN_ENDPOINT).build().toUri();
+		return getUriWithPathAppended(TOKEN_ENDPOINT);
 	}
 
 	@Override
 	public URI getAuthorizeEndpoint() {
-		return UriComponentsBuilder.fromUri(baseUri).path(AUTHORIZE_ENDPOINT).build().toUri();
+		return getUriWithPathAppended(AUTHORIZE_ENDPOINT);
 	}
 
 	@Override
 	public URI getJwksUri() {
-		return UriComponentsBuilder.fromUri(baseUri).path(KEYSET_ENDPOINT).build().toUri();
+		return getUriWithPathAppended(KEYSET_ENDPOINT);
+	}
+
+	private URI getUriWithPathAppended(String path) {
+		return UriComponentsBuilder.fromUri(baseUri).path(path).build().toUri();
 	}
 
 }
