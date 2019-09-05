@@ -53,7 +53,7 @@ public class JwtGenerator {
 	}
 
 	// must match the port defined in XsuaaMockWebServer
-	private static final int MOCK_XSUAA_PORT = 33195;
+	private static final int MOCK_XSUAA_DEFAULT_PORT = 33195;
 	private final int mockXsuaaPort;
 	public static final Date NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime();
 	public static final int NO_EXPIRE = Integer.MAX_VALUE;
@@ -101,7 +101,7 @@ public class JwtGenerator {
 	 *            service configuration (VCAP_SERVICES).
 	 */
 	public JwtGenerator(String clientId) {
-		this(clientId, MOCK_XSUAA_PORT);
+		this(clientId, MOCK_XSUAA_DEFAULT_PORT);
 	}
 
 
@@ -126,7 +126,7 @@ public class JwtGenerator {
 		this.clientId = clientId;
 		this.subdomain = subdomain;
 		this.identityZoneId = identityZoneId;
-		this.mockXsuaaPort = MOCK_XSUAA_PORT;
+		this.mockXsuaaPort = MOCK_XSUAA_DEFAULT_PORT;
 		this.jku = createJku(subdomain, mockXsuaaPort);
 	}
 
