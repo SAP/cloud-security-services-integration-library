@@ -1,9 +1,9 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
-import org.springframework.util.Assert;
-import org.springframework.web.util.UriComponentsBuilder;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final URI baseUri;
@@ -19,7 +19,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 *            authorize and key set URI (JWKS) will be derived.
 	 */
 	public XsuaaDefaultEndpoints(URI baseUri) {
-		Assert.notNull(baseUri, "XSUAA base URI must not be null.");
+		assertNotNull(baseUri, "XSUAA base URI must not be null.");
 		this.baseUri = baseUri;
 	}
 
@@ -36,17 +36,30 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 
 	@Override
 	public URI getTokenEndpoint() {
-		return UriComponentsBuilder.fromUri(baseUri).path(TOKEN_ENDPOINT).build().toUri();
+		return getUriWithPathAppended(TOKEN_ENDPOINT);
 	}
 
 	@Override
 	public URI getAuthorizeEndpoint() {
-		return UriComponentsBuilder.fromUri(baseUri).path(AUTHORIZE_ENDPOINT).build().toUri();
+		return getUriWithPathAppended(AUTHORIZE_ENDPOINT);
 	}
 
 	@Override
 	public URI getJwksUri() {
-		return UriComponentsBuilder.fromUri(baseUri).path(KEYSET_ENDPOINT).build().toUri();
+		return getUriWithPathAppended(KEYSET_ENDPOINT);
 	}
 
+	private URI getUriWithPathAppended(String pathToAppend) {
+		try {
+			String newPath = baseUri.getPath() + pathToAppend;
+			return new URI(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(),
+					replaceDoubleSlashes(newPath), baseUri.getQuery(), baseUri.getFragment());
+		} catch (URISyntaxException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	private String replaceDoubleSlashes(String newPath) {
+		return newPath.replaceAll("//", "/");
+	}
 }
