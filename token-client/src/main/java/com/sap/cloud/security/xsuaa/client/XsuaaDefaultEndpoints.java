@@ -2,11 +2,8 @@ package com.sap.cloud.security.xsuaa.client;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 
-import org.springframework.util.Assert;
-import org.springframework.web.util.UriComponentsBuilder;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final URI baseUri;
@@ -22,7 +19,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 *            authorize and key set URI (JWKS) will be derived.
 	 */
 	public XsuaaDefaultEndpoints(URI baseUri) {
-		Assert.notNull(baseUri, "XSUAA base URI must not be null.");
+		assertNotNull(baseUri, "XSUAA base URI must not be null.");
 		this.baseUri = baseUri;
 	}
 
