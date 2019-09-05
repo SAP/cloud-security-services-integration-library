@@ -17,12 +17,12 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 	public static final String MOCK_XSUAA_URL = "mockxsuaaserver.url";
 	// must match the port defined in JwtGenerator
 	private static final int MOCK_XSUAA_DEFAULT_PORT = 33195;
+	private final int port;
 
 	private static final Log logger = LogFactory.getLog(XsuaaMockWebServer.class);
 
 	private static boolean started;
 
-	private final int port;
 
 	public XsuaaMockWebServer() {
 		this(MOCK_XSUAA_DEFAULT_PORT);
