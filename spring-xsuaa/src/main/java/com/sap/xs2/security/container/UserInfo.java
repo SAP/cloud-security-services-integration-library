@@ -24,6 +24,7 @@ import net.minidev.json.JSONObject;
 /**
  * Class providing access to common user related attributes extracted from the
  * JWT token.
+ * 
  * @deprecated will be removed with version 2.0
  */
 @Deprecated

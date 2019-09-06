@@ -18,7 +18,8 @@ import com.sap.xsa.security.container.XSTokenRequest;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * @deprecated in favor of XsuaaTokenFlows API. Will be removed with version 2.0.
+ * @deprecated in favor of XsuaaTokenFlows API. Will be removed with version
+ *             2.0.
  */
 @Deprecated
 public class XSTokenRequestImpl implements XSTokenRequest {

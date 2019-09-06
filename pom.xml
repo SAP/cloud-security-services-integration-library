@@ -184,6 +184,10 @@
 								<goals>
 									<goal>sign</goal>
 								</goals>
+								<configuration>
+									<!-- GPG keyname var set in the settings.xml maven file -->
+									<keyname>${gpg.keyname}</keyname>
+								</configuration>
 							</execution>
 						</executions>
 					</plugin>
@@ -191,7 +195,7 @@
 					<plugin>
 						<groupId>org.sonatype.plugins</groupId>
 						<artifactId>nexus-staging-maven-plugin</artifactId>
-						<version>1.6.7</version>
+						<version>1.6.8</version>
 						<extensions>true</extensions>
 						<configuration>
 							<serverId>ossrh</serverId>
