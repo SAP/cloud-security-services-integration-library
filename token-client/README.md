@@ -2,7 +2,7 @@
 
 ## Motivation
 
-This library serves as slim client for some XSUAA `/oauth/token` token endpoints as specified [here](https://docs.cloudfoundry.org/api/uaa/version/4.30.0/index.html#token). 
+This library serves as slim client for some XSUAA `/oauth/token` token endpoints as specified [here](https://docs.cloudfoundry.org/api/uaa/version/74.1.0/index.html#token). 
 Furthermore it introduces a new API to support the following token flows:
 
 * **User Token Flow**.  
