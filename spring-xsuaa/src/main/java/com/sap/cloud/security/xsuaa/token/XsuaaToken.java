@@ -33,7 +33,6 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 import net.minidev.json.JSONArray;
@@ -225,38 +224,6 @@ public class XsuaaToken extends Jwt implements Token {
 	@Override
 	public String getAppToken() {
 		return getTokenValue();
-	}
-
-	@Override
-	public String requestToken(XSTokenRequest tokenRequest) {
-		Assert.notNull(tokenRequest, "TokenRequest argument is required");
-		Assert.isTrue(tokenRequest.isValid(), "TokenRequest is not valid");
-
-		RestOperations restOperations = new RestTemplate();
-
-		if (tokenRequest instanceof XSTokenRequestImpl
-				&& ((XSTokenRequestImpl) tokenRequest).getRestTemplate() != null) {
-			restOperations = ((XSTokenRequestImpl) tokenRequest).getRestTemplate();
-		}
-
-		String baseUrl = tokenRequest.getTokenEndpoint().toString().replace(tokenRequest.getTokenEndpoint().getPath(),
-				"");
-
-		// initialize token flows api
-		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(restOperations);
-		xsuaaTokenFlows = new XsuaaTokenFlows(oAuth2TokenService, new XsuaaDefaultEndpoints(baseUrl),
-				new ClientCredentials(
-						tokenRequest.getClientId(), tokenRequest.getClientSecret()));
-
-		switch (tokenRequest.getType()) {
-		case XSTokenRequest.TYPE_USER_TOKEN:
-			return performUserTokenFlow(tokenRequest);
-		case XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN:
-			return performClientCredentialsFlow(tokenRequest);
-		default:
-			throw new UnsupportedOperationException(
-					"Found unsupported XSTokenRequest type. The only supported types are XSTokenRequest.TYPE_USER_TOKEN and XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN.");
-		}
 	}
 
 	@Override

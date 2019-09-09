@@ -20,7 +20,6 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
 
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,11 +32,17 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.token.Token;
-import com.sap.xs2.security.container.XSTokenRequestImpl;
-import com.sap.xsa.security.container.XSTokenRequest;
+import com.sap.cloud.security.xsuaa.tokenflows.ClientCredentialsTokenFlow;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
 @RestController
 @Profile({ "test.api.basic" })
@@ -66,14 +71,17 @@ public class TestController {
 	}
 
 	@GetMapping("/requesttoken")
-	public String requestToken(@AuthenticationPrincipal Token token) throws URISyntaxException {
-		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(serviceConfiguration.getUaaUrl());
-		tokenRequest.setClientId("c1").setClientSecret("s1").setType(XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN);
+	public String requestToken(@AuthenticationPrincipal Token token) throws TokenFlowException {
 		Map<String, String> azMape = new HashMap();
 		azMape.put("a", "b");
 		azMape.put("c", "d");
-		tokenRequest.setAdditionalAuthorizationAttributes(azMape);
-		String newToken = token.requestToken(tokenRequest);
-		return newToken;
+
+		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(new XsuaaOAuth2TokenService(new RestTemplate()),
+				new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()), new ClientCredentials("c1", "s1"));
+		ClientCredentialsTokenFlow ccTokenFlow = tokenFlows.clientCredentialsTokenFlow().attributes(azMape)
+				.subdomain(token.getSubdomain());
+
+		OAuth2TokenResponse newToken = ccTokenFlow.execute();
+		return newToken.getAccessToken();
 	}
 }

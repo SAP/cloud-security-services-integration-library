@@ -10,13 +10,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
 import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
-import com.sap.xs2.security.container.SecurityContext;
 
 @Service
 @Profile({ "test.api.nohttp" })
@@ -28,19 +26,6 @@ public class MyEventHandler {
 
 	@Autowired
 	JwtDecoder jwtDecoder;
-
-	@Deprecated
-	public void onEvent_deprecated(String myEncodedJwtToken) {
-		if (myEncodedJwtToken != null) {
-			Jwt jwtToken = jwtDecoder.decode(myEncodedJwtToken);
-			SecurityContext.init(appId, jwtToken, true);
-		}
-		try {
-			handleEvent();
-		} finally {
-			SpringSecurityContext.clear();
-		}
-	}
 
 	public void onEvent(String myEncodedJwtToken) {
 		if (myEncodedJwtToken != null) {

@@ -165,22 +165,6 @@ public interface Token extends UserDetails {
 	String getAppToken();
 
 	/**
-	 * Exchange a token into a token from another service instance
-	 * <p>
-	 *
-	 * @deprecated in favor of the @link{XsuaaTokenFlows} API.
-	 * @since 2.0.0
-	 *
-	 * @param tokenRequest
-	 *            request data
-	 * @return requested token
-	 * @throws URISyntaxException
-	 *             in case of wron URLs
-	 */
-	@Deprecated
-	String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException;
-
-	/**
 	 * Returns list of scopes with appId prefix, e.g. "&lt;my-app!t123&gt;.Display".
 	 *
 	 * @return all scopes

@@ -29,7 +29,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.xs2.security.container.XSTokenRequestImpl;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 public class XsuaaTokenTest {
@@ -248,70 +247,6 @@ public class XsuaaTokenTest {
 	public void getAppToken() {
 		token = createToken(claimsSetBuilder);
 		assertThat(token.getAppToken(), startsWith("eyJhbGciOiJSUzI1NiIsInR5"));
-	}
-
-	@Test
-	@Deprecated
-	public void requestClientCredentialsToken() throws URISyntaxException {
-		// prepare response
-		Map<String, Object> ccToken = new HashMap<>();
-		Jwt mockJwt = buildMockJwt();
-		ccToken.put(OAuth2TokenServiceConstants.ACCESS_TOKEN, mockJwt.getTokenValue());
-		ccToken.put(OAuth2TokenServiceConstants.EXPIRES_IN, 43199);
-
-		// mock rest call
-		// http://myuaa.com/oauth/token?grant_type=client_credentials&authorities=%7B%22az_attr%22:%7B%22a%22:%22b%22,%22c%22:%22d%22%7D%7D
-		RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
-		ResponseEntity<Map> response = new ResponseEntity<>(ccToken, HttpStatus.OK);
-		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
-				.thenReturn(response);
-
-		token = createToken(claimsSetBuilder);
-
-		String mockServerUrl = "http://myuaa.com";
-		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);
-		tokenRequest.setRestTemplate(mockRestTemplate);
-		tokenRequest.setClientId("c1").setClientSecret("s1").setType(XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN);
-
-		Map<String, String> azMape = new HashMap<>();
-		azMape.put("a", "b");
-		azMape.put("c", "d");
-		tokenRequest.setAdditionalAuthorizationAttributes(azMape);
-
-		assertThat(token.requestToken(tokenRequest), is("mock.jwt.value"));
-	}
-
-	@Test
-	@Deprecated
-	public void requestUserToken() throws URISyntaxException {
-		// prepare response
-		Map<String, Object> userToken = new HashMap<>();
-		Jwt mockJwt = buildMockJwt();
-		userToken.put(OAuth2TokenServiceConstants.ACCESS_TOKEN, mockJwt.getTokenValue());
-		userToken.put(OAuth2TokenServiceConstants.EXPIRES_IN, 43199);
-		userToken.put(OAuth2TokenServiceConstants.REFRESH_TOKEN, "a07356ec2e5449329ab6dd6728623bda");
-
-		// mock rest call
-		// http://myuaa.com/oauth/token?grant_type=client_credentials&authorities=%7B%22az_attr%22:%7B%22a%22:%22b%22,%22c%22:%22d%22%7D%7D
-		RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
-		ResponseEntity<Map> response = new ResponseEntity<>(userToken, HttpStatus.OK);
-		Mockito.when(mockRestTemplate.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
-				.thenReturn(response);
-
-		claimsSetBuilder.claim(TokenClaims.CLAIM_SCOPES, new String[] { "uaa.user" });
-		token = createToken(claimsSetBuilder);
-
-		String mockServerUrl = "http://myuaa.com";
-		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(mockServerUrl);
-		tokenRequest.setRestTemplate(mockRestTemplate);
-		tokenRequest.setClientId("c1").setClientSecret("s1").setType(XSTokenRequest.TYPE_USER_TOKEN);
-
-		Map<String, String> azMape = new HashMap<>();
-		azMape.put("a", "b");
-		azMape.put("c", "d");
-		tokenRequest.setAdditionalAuthorizationAttributes(azMape);
-
-		assertThat(token.requestToken(tokenRequest), is("mock.jwt.value"));
 	}
 
 	private Jwt buildMockJwt() {

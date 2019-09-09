@@ -54,16 +54,6 @@ public class XsuaaTokenValidationTest {
 	}
 
 	@Test
-	@Deprecated
-	public void test_requesttoken() throws Exception {
-		this.mvc.perform(
-				get("/requesttoken").with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa", "legacy-token-key"))))
-				.andExpect(status().isOk()).andExpect(
-						content().string(containsString(".ewogICJqdGkiOiAiOGU3YjNiMDAtNzc1MS00YjQ2LTliMWEtNWE0NmEyY")));
-	}
-
-	@Test
-	@Deprecated
 	public void test_clientcredentialstoken() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
