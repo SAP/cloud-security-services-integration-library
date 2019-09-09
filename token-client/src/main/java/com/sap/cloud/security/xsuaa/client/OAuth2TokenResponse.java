@@ -1,5 +1,8 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+
 import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -19,11 +22,24 @@ public class OAuth2TokenResponse {
 	 * An OAuth2 access token. This token will be a JSON Web Token suitable for
 	 * offline validation by OAuth2 Resource Servers.
 	 *
-	 * @return the access token
+	 * @return the encoded access token
 	 */
 	@Nullable
 	public String getAccessToken() {
 		return accessToken;
+	}
+
+	/**
+	 * A decoded OAuth2 access token.
+	 *
+	 * @return the decoded access token
+	 */
+	@Nullable
+	public DecodedJwt getDecodedAccessToken() {
+		if (accessToken == null) {
+			return null;
+		}
+		return new Base64JwtDecoder().decode(accessToken);
 	}
 
 	public Date getExpiredAtDate() {
