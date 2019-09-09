@@ -1,5 +1,8 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
+
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -8,7 +11,6 @@ import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 
@@ -18,15 +20,14 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
-import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
 public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 
 	Cache<String, ReactiveJwtDecoder> cache;
-	private final XsuaaServiceConfiguration xsuaaServiceConfiguration;
 	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
 	private Collection<PostValidationAction> postValidationActions;
+	private TokenInfoExtractor tokenInfoExtractor;
 
 	private static final String EXT_ATTR = "ext_attr";
 	private static final String ZDN = "zdn";
@@ -39,7 +40,23 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
 		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
 				.build();
-		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
+
+		this.tokenInfoExtractor = new TokenInfoExtractor() {
+			@Override
+			public String getJku(JWT jwt) {
+				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_JKU, null);
+			}
+
+			@Override
+			public String getKid(JWT jwt) {
+				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_KID, null);
+			}
+
+			@Override
+			public String getUaaDomain(JWT jwt) {
+				return xsuaaServiceConfiguration.getUaaDomain();
+			}
+		};
 
 		this.tokenValidators.addAll(Arrays.asList(tokenValidators));
 		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.EMPTY_LIST;
@@ -54,29 +71,14 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 				throw new JwtException("Error initializing JWT decoder:" + e.getMessage());
 			}
 		}).map(jwtToken -> {
-			try {
-				String subdomain = this.getSubdomain(jwtToken);
-				String zoneId = jwtToken.getJWTClaimsSet().getStringClaim(ZID);
-				return cache.get(subdomain, k -> this.getDecoder(zoneId, subdomain));
-			} catch (ParseException e) {
-				throw new JwtException("Error initializing JWT decoder:" + e.getMessage());
-			}
+			String cacheKey = tokenInfoExtractor.getJku(jwtToken) + tokenInfoExtractor.getKid(jwtToken);
+			return cache.get(cacheKey, k -> this.getDecoder(tokenInfoExtractor.getJku(jwtToken)));
 		}).flatMap(decoder -> decoder.decode(token))
 				.doOnSuccess(jwt -> postValidationActions.forEach(act -> act.perform(jwt)));
 	}
 
-	protected String getSubdomain(JWT jwt) throws ParseException {
-		String subdomain = "";
-		JSONObject extAttr = jwt.getJWTClaimsSet().getJSONObjectClaim(EXT_ATTR);
-		if (extAttr != null && extAttr.getAsString(ZDN) != null) {
-			subdomain = extAttr.getAsString(ZDN);
-		}
-		return subdomain;
-	}
-
-	private ReactiveJwtDecoder getDecoder(String zid, String subdomain) {
-		String url = xsuaaServiceConfiguration.getTokenKeyUrl(zid, subdomain);
-		NimbusReactiveJwtDecoder decoder = new NimbusReactiveJwtDecoder(url);
+	private ReactiveJwtDecoder getDecoder(String jku) {
+		NimbusReactiveJwtDecoder decoder = new NimbusReactiveJwtDecoder(jku);
 		decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(tokenValidators));
 		return decoder;
 	}

@@ -30,11 +30,6 @@ public class XsuaaServiceConfigurationTest {
 		Assert.assertEquals("https://auth.com", exampleBean.serviceConfiguration.getUaaUrl());
 		Assert.assertEquals("xs2.usertoken", exampleBean.serviceConfiguration.getClientId());
 		Assert.assertEquals("secret", exampleBean.serviceConfiguration.getClientSecret());
-		Assert.assertEquals("https://auth.com/token_keys",
-				exampleBean.serviceConfiguration.getTokenKeyUrl("uaa", null));
-		Assert.assertEquals("https://myhost.auth.com/token_keys",
-				exampleBean.serviceConfiguration.getTokenKeyUrl("zone", "myhost"));
-		Assert.assertEquals("java-hello-world", exampleBean.serviceConfiguration.getAppId());
 		Assert.assertEquals("auth.com", exampleBean.serviceConfiguration.getUaaDomain());
 	}
 

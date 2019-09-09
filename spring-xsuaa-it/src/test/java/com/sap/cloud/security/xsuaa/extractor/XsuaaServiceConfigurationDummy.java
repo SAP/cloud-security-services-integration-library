@@ -26,11 +26,6 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 	}
 
 	@Override
-	public String getTokenKeyUrl(String identityZoneId, String subdomain) {
-		return null;
-	}
-
-	@Override
 	public String getAppId() {
 		return appId;
 	}
