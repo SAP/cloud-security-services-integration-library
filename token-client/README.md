@@ -73,35 +73,39 @@ RestOperations restOperations = new RestTemplate();
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(restOperations, endpointsProvider, clientCredentials);
 ```
 
-Then, to create a **client credentials token flow** very easily by the following code:
+### Client Credentials Token Flow
+Obtain a client credentials token:
 
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.clientCredentialsTokenFlow()
+                                                    .subdomain(jwtToken.getSubdomain()) // this is optional 
                                                     .execute();
 ```
-
-In case you have a refresh_token value and want to refresh an existing token with it, you can do the following:
+### Refresh Token Flow
+In case you have a refresh token and want to obtain an access token:
 
 ```java
 OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
-                                        .refreshToken("<<Your refresh token goes here. You get this from the OAuth server.>>")
-                                        .execute();
+                              .refreshToken("<<Your refresh token goes here.>>")
+                              .subdomain(jwtToken.getSubdomain()) // this is optional 
+                              .execute();
 ```
-
-Finally, to create a **user token flow** (to exchange one Jwt token for another), you can do the following:
-
+### User Token Flow
+In order to exchange a user token for another user access token:
 ```java
 XsuaaToken jwtToken = SpringSecurityContext.getToken();
 
 OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
                 .token("<<Your current User access token goes here.>>")
-                .clientId("other's client id") // this is optional!
+                .clientId("other's client id") // this is optional
                 .subdomain(jwtToken.getSubdomain()) // this is optional      
-                .attributes(additionalAttributes) // this is optional!
+                .attributes(additionalAttributes) // this is optional
                 .execute();
 ```
 
 Make sure to read the API documentation of the `XsuaaTokenFlows` API, to understand what the individual token flows' parameters are for.
-Also note, that the **user token flow** requires an input token that has the scope `uaa.user` to succeed. 
+Also note, that the **user token flow** requires an input token that has the scope `uaa.user` to succeed.
 
+
+## Sample (Spring)
 Have a look at [`TestController.java`](/samples/spring-security-xsuaa-usage/src/main/java/sample/spring/xsuaa/TestController.java) for sample code.
