@@ -23,6 +23,16 @@ The SAP Java Buildpack integrates token validation into the tomcat server. Appli
 ### Sample
 See [sap-java-builpack-api-uage](samples/sap-java-buildpack-api-usage) for an example.
 
+## Token Exchange for Java applications
+Applications requiring access tokens (Jwt) use the Token Flows API defined in [token-client](./token-client) to obtain Jwt tokens for their clients (applications) or for their users.
+
+### Requirements
+- Java 8
+- maven 3.3.9 or later
+
+### Sample
+See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
+
 ## Token Validation for Java Spring Boot web applications
 Spring Boot provides OAuth resource servers. Application developers requiring authentication and authorization information in their application use the libraries defined in [spring-xsuaa](./spring-xsuaa) to obtain token information like user name and scopes.
 

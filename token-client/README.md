@@ -5,11 +5,14 @@
 This library serves as slim client for some XSUAA `/oauth/token` token endpoints as specified [here](https://docs.cloudfoundry.org/api/uaa/version/4.30.0/index.html#token). 
 Furthermore it introduces a new API to support the following token flows:
 
-* User Token Flow
-* Client Credentials Flow
-* Refresh Token Flow
+* **User Token Flow**.  
+The idea behind a User Token exchange is to separate service-specific access scopes into separate tokens. For example, if Service A has scopes specific to its functionality and Service B has other scopes, the intention is that there is no single Jwt token that contains all of these scopes.
+* **Client Credentials Flow**.  
+The Client Credentials ([RFC 6749, section 4.4](https://tools.ietf.org/html/rfc6749#section-4.4)) is used by clients to obtain an access token outside of the context of a user. It is used for non interactive applications (a CLI, a batch job, or for service-2-service communication) where the token is issued to the application itself, instead of an end user for accessing resources without principal propagation. 
+* **Refresh Token Flow**.  
+A Refresh Token ([RFC 6749, section 1.5](https://tools.ietf.org/html/rfc6749#section-1.5)) flow allows you to obtain a new access token in case the current one becomes invalid or expires.
 
-The Authorization Code Grant Flow involves the browser and is therefore triggered by an API gateway (e.g. Application Router). The other flows, however, may need to be triggered programmatically, e.g. to exchange one token for another or refresh a token, if it is about to expire. When you create a XSUAA service instance a OAuth client gets created and you receive the client credentials (client id and secret) when you bind your application with the XSUAA service instance. Having that in place you are ready to use the token flows in your Java application.
+> Note: The **Authorization Code Grant Flow** involves the browser and is therefore triggered by an API gateway (e.g. Application Router). The other flows, however, may need to be triggered programmatically, e.g. to exchange one token for another or refresh a token, if it is about to expire. When you create a XSUAA service instance a OAuth client gets created and you receive the client credentials (client id and secret) when you bind your application with the XSUAA service instance. Having that in place you are ready to use the token flows in your Java application.
 
 ## Configuration for Java Applications
 
