@@ -243,18 +243,6 @@ public class XsuaaToken extends Jwt implements Token {
 		return containsClaim(claim);
 	}
 
-	/**
-	 * For custom access to the claims of the authentication token.
-	 *
-	 * @return this
-	 * @deprecated with version 1.5 as XsuaaToken inherits from {@link Jwt} which
-	 *             implements {@link JwtClaimAccessor}
-	 */
-	@Deprecated
-	ClaimAccessor getClaimAccessor() {
-		return this;
-	}
-
 	void setAuthorities(Collection<GrantedAuthority> authorities) {
 		Assert.notNull(authorities, "authorities are required");
 		this.authorities = authorities;

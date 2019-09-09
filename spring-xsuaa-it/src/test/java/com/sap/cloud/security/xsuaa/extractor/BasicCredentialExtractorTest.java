@@ -21,6 +21,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+
 @RunWith(SpringRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { XsuaaServiceConfigurationDummy.class,
 		TokenBrokerTestConfiguration.class })
@@ -134,7 +136,7 @@ public class BasicCredentialExtractorTest {
 		assertThat(token).isEqualTo("token_pwd");
 	}
 
-	private XsuaaServiceConfigurationDummy getXsuaaServiceConfiguration() {
+	private XsuaaServiceConfiguration getXsuaaServiceConfiguration() {
 		XsuaaServiceConfigurationDummy cfg = new XsuaaServiceConfigurationDummy();
 		cfg.appId = "a1!123";
 		cfg.clientId = "myclient!t1";
