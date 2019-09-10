@@ -16,24 +16,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.tokenflows.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimAccessor;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.util.Assert;
-import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
-
-import com.sap.xsa.security.container.XSTokenRequest;
 
 import net.minidev.json.JSONArray;
 
@@ -58,7 +48,6 @@ public class XsuaaToken extends Jwt implements Token {
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
 
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();
-	private XsuaaTokenFlows xsuaaTokenFlows = null;
 
 	/**
 	 * @param jwt
@@ -277,42 +266,6 @@ public class XsuaaToken extends Jwt implements Token {
 		}
 
 		return attributeValues;
-	}
-
-	private String performClientCredentialsFlow(XSTokenRequest tokenRequest) {
-		String ccfToken;
-		try {
-			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
-					.subdomain(this.getSubdomain())
-					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
-					.execute().getAccessToken();
-		} catch (TokenFlowException e) {
-			throw new RuntimeException("Error performing Client Credentials Flow. See exception cause.", e);
-		}
-
-		logger.info("Got the Client Credentials Flow Token: {}", ccfToken);
-
-		return ccfToken;
-	}
-
-	private String performUserTokenFlow(XSTokenRequest tokenRequest) {
-		String userToken;
-		try {
-			userToken = xsuaaTokenFlows.userTokenFlow()
-					.subdomain(this.getSubdomain())
-					.token(this.getTokenValue())
-					.attributes(tokenRequest.getAdditionalAuthorizationAttributes())
-					.execute().getAccessToken();
-		} catch (TokenFlowException e) {
-			throw new RuntimeException("Error performing User Token Flow. See exception cause.", e);
-		}
-
-		logger.info("Got the exchanged token for 3rd party service (clientId: {}) : {}", tokenRequest.getClientId(),
-				userToken);
-		logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ",
-				userToken);
-
-		return userToken;
 	}
 
 }
