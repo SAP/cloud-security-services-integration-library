@@ -1,7 +1,6 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
-import org.springframework.security.jwt.JwtHelper;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,6 +16,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 /**
@@ -215,7 +215,7 @@ public class UserTokenFlow {
 	 * @return {@code true} if the scope is contained, {@code false} otherwise.
 	 */
 	private boolean hasScope(String token, String scope) {
-		String claims = JwtHelper.decode(token).getClaims();
+		String claims = new Base64JwtDecoder().decode(token).getPayload();
 		try {
 			JSONObject rootObject = new JSONObject(claims);
 			JSONArray scopesArray = rootObject.getJSONArray(SCOPE_CLAIM);
