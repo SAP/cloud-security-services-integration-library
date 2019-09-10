@@ -18,6 +18,6 @@ public class TestController {
 		return ReactiveSecurityContext.getToken()
 				.doOnError(throwable -> Mono.just(unAuthenticated))
 				.map(token -> ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN)
-						.body("Authorities: " + token.getAuthorities()));
+						.body("Scopes: " + token.getScopes()));
 	}
 }
