@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Assert;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
 
 @RunWith(SpringRunner.class)
@@ -42,7 +43,7 @@ public class TestControllerTest {
 
 		webClient.method(HttpMethod.GET).uri("/v1/sayHello").contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header(HttpHeaders.AUTHORIZATION, jwtGenerator.getTokenForAuthorizationHeader()).exchange()
-				.expectStatus().is2xxSuccessful().expectBody(String.class).value(startsWith("Authorities:"));
+				.expectStatus().is2xxSuccessful().expectBody(String.class).value(containsString(",\"scope\":[\"xsapplication!t895.Read\"],"));
 	}
 
 	private String getGlobalScope(String localScope) {
