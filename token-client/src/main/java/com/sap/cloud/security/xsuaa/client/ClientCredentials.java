@@ -1,7 +1,5 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.Assertions;
-
 import javax.annotation.Nonnull;
 import java.util.Objects;
 

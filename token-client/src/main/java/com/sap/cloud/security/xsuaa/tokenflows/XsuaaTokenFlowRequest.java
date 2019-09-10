@@ -21,6 +21,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	private String subdomain;
 	private String clientSecret;
 	private Map<String, String> additionalAuthorizationAttributes;
+	private static final String UNSUPPORTED_INTF_METHOD_INFO = "This XSTokenRequest method is no longer needed in context of new XsuaaTokenFlows API.";
 
 	/**
 	 * Creates a new token exchange request.
@@ -80,24 +81,27 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * @deprecated in favor of @link{XsuaaTokenFlows} API
 	 */
 	@Override
+	@Deprecated
 	public XSTokenRequest setType(int type) {
-		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
+		throw new AssertionError(UNSUPPORTED_INTF_METHOD_INFO);
 	}
 
 	/**
 	 * @deprecated in favor of @link{XsuaaTokenFlows} API
 	 */
 	@Override
+	@Deprecated
 	public int getType() {
-		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
+		throw new AssertionError(UNSUPPORTED_INTF_METHOD_INFO);
 	}
 
 	/**
 	 * @deprecated in favor of @link{{@link #setSubdomain} )}}
 	 */
 	@Override
+	@Deprecated
 	public XSTokenRequest setTokenEndpoint(URI tokenUri) {
-		throw new AssertionError("This method is no longer needed in context of new XsuaaTokenFlows API.");
+		throw new AssertionError(UNSUPPORTED_INTF_METHOD_INFO);
 	}
 
 	/**
