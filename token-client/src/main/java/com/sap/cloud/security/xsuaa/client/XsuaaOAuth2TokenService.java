@@ -29,6 +29,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -151,11 +152,15 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 			if (!ex.getStatusCode().is2xxSuccessful()) {
 				throw new OAuth2ServiceException(String.format(
 						"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful: %s",
-						ex.getStatusCode(), ex.getCause()));
+						ex.getStatusCode(), ex.getResponseBodyAsString()));
 			}
 			throw new OAuth2ServiceException(String.format(
 					"Error retrieving JWT token. Call to XSUAA was not successful: %s",
-					ex.getMessage()));
+					ex.getResponseBodyAsString()));
+		} catch (HttpServerErrorException ex) {
+			logger.warn("Error obtaining access token from server");
+			throw new OAuth2ServiceException(String.format("Error obtaining access token from server (%s): %s",
+					ex.getStatusCode(), ex.getResponseBodyAsString()));
 		}
 
 		@SuppressWarnings("unchecked")
