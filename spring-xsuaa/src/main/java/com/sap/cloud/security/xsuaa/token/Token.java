@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public interface Token extends UserDetails {
 
-	String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
+	static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
 
 	/**
 	 * Returns the subaccount identifier, which can be used as tenant GUID.

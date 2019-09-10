@@ -15,6 +15,8 @@ import reactor.core.publisher.Mono;
 public class ReactiveSecurityContext {
 	private static Logger logger = LoggerFactory.getLogger(ReactiveSecurityContext.class);
 
+	private ReactiveSecurityContext() {}
+
 	/**
 	 * Obtain the Token object from the Spring Reactive SecurityContext
 	 *
@@ -28,10 +30,7 @@ public class ReactiveSecurityContext {
 				.map(SecurityContext::getAuthentication)
 				.map(Authentication::getCredentials)
 				.map(credentials -> new XsuaaToken((Jwt) credentials))
-				.doOnSuccess(token -> {
-					String decodedJson = new Base64JwtDecoder().decode(token.getAppToken()).getPayload();
-					logger.info("Got Jwt token: " + decodedJson);
-				})
+				.doOnSuccess(token -> logger.info("Got Jwt token: {}", token.toString()))
 				.doOnError(throwable -> logger.error("ERROR to getToken", throwable));
 	}
 }
