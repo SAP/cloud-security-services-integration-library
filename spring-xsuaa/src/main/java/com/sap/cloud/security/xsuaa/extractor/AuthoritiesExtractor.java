@@ -2,8 +2,9 @@ package com.sap.cloud.security.xsuaa.extractor;
 
 import java.util.Collection;
 
-import com.sap.cloud.security.xsuaa.token.XsuaaToken;
 import org.springframework.security.core.GrantedAuthority;
+
+import com.sap.cloud.security.xsuaa.token.XsuaaToken;
 
 /**
  * Extracts the authorities from the Jwt token. Can use this method to map /

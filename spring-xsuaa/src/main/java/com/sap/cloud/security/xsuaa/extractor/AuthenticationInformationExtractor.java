@@ -3,10 +3,10 @@
  */
 package com.sap.cloud.security.xsuaa.extractor;
 
+import javax.servlet.http.HttpServletRequest;
+
 import java.util.List;
 import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
 
 public interface AuthenticationInformationExtractor {
 

@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
+import javax.servlet.http.HttpServletRequest;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -7,8 +9,6 @@ import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

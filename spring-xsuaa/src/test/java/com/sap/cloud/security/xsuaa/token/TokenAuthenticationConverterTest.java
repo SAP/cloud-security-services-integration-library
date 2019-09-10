@@ -9,15 +9,16 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.sap.cloud.security.xsuaa.extractor.AuthoritiesExtractor;
-import com.sap.cloud.security.xsuaa.extractor.DefaultAuthoritiesExtractor;
-import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+
+import com.sap.cloud.security.xsuaa.extractor.AuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.extractor.DefaultAuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 
 public class TokenAuthenticationConverterTest {
 	private String xsAppName = "my-app-name!400";
