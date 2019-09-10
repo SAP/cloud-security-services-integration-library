@@ -1,11 +1,11 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import java.util.Collection;
+import java.util.Date;
+
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.Date;
 
 public interface Token extends UserDetails {
 

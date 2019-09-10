@@ -7,6 +7,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.jwt.Jwt;
+
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
+
 import reactor.core.publisher.Mono;
 
 public class ReactiveSecurityContext {
@@ -25,7 +28,10 @@ public class ReactiveSecurityContext {
 				.map(SecurityContext::getAuthentication)
 				.map(Authentication::getCredentials)
 				.map(credentials -> new XsuaaToken((Jwt) credentials))
-				.doOnSuccess(token -> logger.info("Got Jwt token: " + token.toString()))
+				.doOnSuccess(token -> {
+					String decodedJson = new Base64JwtDecoder().decode(token.getAppToken()).getPayload();
+					logger.info("Got Jwt token: " + decodedJson);
+				})
 				.doOnError(throwable -> logger.error("ERROR to getToken", throwable));
 	}
 }

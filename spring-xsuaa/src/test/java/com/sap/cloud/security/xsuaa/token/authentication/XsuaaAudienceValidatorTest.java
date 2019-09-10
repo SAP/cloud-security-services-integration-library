@@ -8,11 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +15,12 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
+
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
 
 public class XsuaaAudienceValidatorTest {
 

@@ -4,7 +4,11 @@ import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
