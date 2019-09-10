@@ -2,8 +2,9 @@ package com.sap.cloud.security.xsuaa.extractor;
 
 /**
  *
- *
+ * @deprecated in favor of {@link com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows} API.
  */
+@Deprecated
 public interface TokenBroker {
 
 	/**
