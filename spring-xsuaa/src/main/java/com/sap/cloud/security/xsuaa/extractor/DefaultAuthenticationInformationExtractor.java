@@ -14,7 +14,7 @@ import java.util.Optional;
  * Default Implementation
  *
  */
-public class DefaultAuthenticationInformationExtractor implements AuthenticationInformationExtractor {
+class DefaultAuthenticationInformationExtractor implements AuthenticationInformationExtractor {
 
 	private static final String SUBDOMAIN_HEADER = "X-Identity-Zone-Subdomain";
 
@@ -22,21 +22,21 @@ public class DefaultAuthenticationInformationExtractor implements Authentication
 	private List<AuthenticationMethod> authenticationMethods = Arrays.asList(AuthenticationMethod.BASIC,
 			AuthenticationMethod.OAUTH2);
 
-	public DefaultAuthenticationInformationExtractor() {
+	DefaultAuthenticationInformationExtractor() {
 		super();
 		this.subDomain = null;
 	}
 
-	public DefaultAuthenticationInformationExtractor(String subDomain) {
+	DefaultAuthenticationInformationExtractor(String subDomain) {
 		super();
 		this.subDomain = subDomain;
 	}
 
-	public DefaultAuthenticationInformationExtractor(AuthenticationMethod... authenticationMethods) {
+	DefaultAuthenticationInformationExtractor(AuthenticationMethod... authenticationMethods) {
 		this(null, authenticationMethods);
 	}
 
-	public DefaultAuthenticationInformationExtractor(String subDomain, AuthenticationMethod... authenticationMethods) {
+	DefaultAuthenticationInformationExtractor(String subDomain, AuthenticationMethod... authenticationMethods) {
 		super();
 		this.subDomain = subDomain;
 		this.authenticationMethods = Arrays.asList(authenticationMethods);

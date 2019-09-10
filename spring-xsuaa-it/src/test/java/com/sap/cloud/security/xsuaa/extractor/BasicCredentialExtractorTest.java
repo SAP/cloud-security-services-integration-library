@@ -5,11 +5,11 @@ package com.sap.cloud.security.xsuaa.extractor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.servlet.http.HttpServletRequest;
-
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -55,7 +55,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	 *            configured AuthenticationMethodConfiguration
 	 */
 
-	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache, TokenBroker tokenBroker,
+	TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache, TokenBroker tokenBroker,
 			AuthenticationInformationExtractor authenticationConfig) {
 		this.configuration = configuration;
 		this.tokenCache = tokenCache;
