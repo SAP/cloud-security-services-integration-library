@@ -74,7 +74,7 @@ public class BasicCredentialExtractorTest {
 				authenticationMethods(AuthenticationMethod.CLIENT_CREDENTIALS));
 		request.addHeader("Authorization",
 				"basic " + Base64.getEncoder().encodeToString("client1234:secret1234".getBytes()));
-		request.addHeader("X-Identity-Zone-Subdomain", "true");
+		request.addHeader("X-Identity-Zone-Subdomain", "x-idz-subdomain");
 		request.setScheme("http");
 		request.setServerName("t1.cloudfoundry");
 		String token = extractor.resolve(request);
