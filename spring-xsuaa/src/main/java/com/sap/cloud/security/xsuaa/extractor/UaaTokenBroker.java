@@ -18,32 +18,38 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 
-/**
- * @deprecated in favor of {@link XsuaaOAuth2TokenService}
- */
-@Deprecated
 class UaaTokenBroker implements TokenBroker {
 
 	private final static Log logger = LogFactory.getLog(UaaTokenBroker.class);
 
 	private final RestTemplate restTemplate;
-	private XsuaaOAuth2TokenService oAuth2TokenService;
+	private OAuth2TokenService oAuth2TokenService;
 
-	UaaTokenBroker(RestTemplate restTemplate) {
+	/**
+	 * @deprecated in favor of {@link #UaaTokenBroker(OAuth2TokenService)}
+	 * @param restTemplate
+	 */
+	@Deprecated
+	public UaaTokenBroker(RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
 		this.oAuth2TokenService = new XsuaaOAuth2TokenService(restTemplate);
 	}
 
-	UaaTokenBroker() {
+	public UaaTokenBroker() {
 		this(new RestTemplate());
+	}
+
+	public UaaTokenBroker(OAuth2TokenService tokenService) {
+		this.restTemplate = new RestTemplate();
+		oAuth2TokenService = tokenService;
 	}
 
 	@Override
 	public String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret)
 			throws TokenBrokerException {
-
 		try {
 			return oAuth2TokenService.retrieveAccessTokenViaClientCredentialsGrant(
 					URI.create(tokenURL), new ClientCredentials(clientId, clientSecret), null, null).getAccessToken();
@@ -53,7 +59,6 @@ class UaaTokenBroker implements TokenBroker {
 	}
 
 	@Override
-	// TODO move to XsuaaOAuth2TokenService
 	public String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret,
 			String username, String password) throws TokenBrokerException {
 		try {
