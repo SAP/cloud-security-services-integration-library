@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import org.springframework.util.StringUtils;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 
 /**
  * Analyse authentication header and obtain token from UAA
@@ -40,8 +41,6 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 	private Cache tokenCache;
 	private TokenBroker tokenBroker;
-	private String uaaUrl;
-	private String uaaDomain;
 	private AuthenticationInformationExtractor authenticationConfig;
 
 	/**
@@ -53,18 +52,46 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	 *            Token-Broker for accessing the UAA
 	 * @param authenticationConfig
 	 *            configured AuthenticationMethodConfiguration
+	 * @deprecated in favor of
+	 *             {@link #TokenBrokerResolver(XsuaaServiceConfiguration, Cache, OAuth2TokenService, AuthenticationInformationExtractor)}
 	 */
-
-	TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache, TokenBroker tokenBroker,
+	@Deprecated
+	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache, TokenBroker tokenBroker,
 			AuthenticationInformationExtractor authenticationConfig) {
 		this.configuration = configuration;
 		this.tokenCache = tokenCache;
 		this.tokenBroker = tokenBroker;
-		this.uaaUrl = configuration.getUaaUrl();
-		this.uaaDomain = configuration.getUaaDomain();
 		this.authenticationConfig = authenticationConfig;
 	}
 
+	/**
+	 * @param configuration
+	 *            - Configuration properties from environment.
+	 * @param tokenCache
+	 *            - the Token-Cache.
+	 * @param tokenService
+	 *            - the {@link OAuth2TokenService} used to execute the final
+	 *            request.
+	 * @param authenticationConfig
+	 *            - configured AuthenticationMethodConfiguration.
+	 */
+	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache,
+			OAuth2TokenService tokenService,
+			AuthenticationInformationExtractor authenticationConfig) {
+		this.configuration = configuration;
+		this.tokenCache = tokenCache;
+		this.tokenBroker = new UaaTokenBroker(tokenService);
+		this.authenticationConfig = authenticationConfig;
+	}
+
+	/**
+	 * @param configuration
+	 *            Configuration properties from environment
+	 * @param tokenCache
+	 *            Token-Cache
+	 * @param authenticationMethods
+	 *            list of supported authentication methods
+	 */
 	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache,
 			AuthenticationMethod... authenticationMethods) {
 		this(configuration, tokenCache, new UaaTokenBroker(),
@@ -93,14 +120,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 		checkTypes(authenticationMethods);
 
-		Optional<String> subdomainResult = authenticationConfig.getSubdomain(request);
-		String oauthTokenUrl;
-		if (subdomainResult.isPresent()) {
-			oauthTokenUrl = TokenUrlUtils.getMultiTenancyUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain,
-					subdomainResult.get());
-		} else {
-			oauthTokenUrl = TokenUrlUtils.getOauthTokenUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain);
-		}
+		String oauthTokenUrl = getOAuthTokenUrl(request);
 
 		for (AuthenticationMethod credentialType : authenticationMethods) {
 			Enumeration<String> headers = request.getHeaders(AUTHORIZATION_HEADER);
@@ -110,6 +130,23 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			}
 		}
 		return null;
+	}
+
+	private String getOAuthTokenUrl(HttpServletRequest request) {
+		String uaaUrl = configuration.getUaaUrl();
+		String uaaDomain = configuration.getUaaDomain();
+
+		Optional<String> subdomainResult = authenticationConfig.getSubdomain(request);
+
+		String oauthTokenUrl;
+		if (subdomainResult.isPresent()) {
+			oauthTokenUrl = TokenUrlUtils.getMultiTenancyUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain,
+					subdomainResult.get());
+		} else {
+			oauthTokenUrl = TokenUrlUtils.getOauthTokenUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain);
+		}
+
+		return oauthTokenUrl;
 	}
 
 	private String getBrokerToken(AuthenticationMethod credentialType, Enumeration<String> headers,

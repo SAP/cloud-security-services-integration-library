@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.sap.cloud.security.xsuaa.extractor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,13 +20,7 @@ class DefaultAuthenticationInformationExtractor implements AuthenticationInforma
 			AuthenticationMethod.OAUTH2);
 
 	DefaultAuthenticationInformationExtractor() {
-		super();
 		this.subDomain = null;
-	}
-
-	DefaultAuthenticationInformationExtractor(String subDomain) {
-		super();
-		this.subDomain = subDomain;
 	}
 
 	DefaultAuthenticationInformationExtractor(AuthenticationMethod... authenticationMethods) {

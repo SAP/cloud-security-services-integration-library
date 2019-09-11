@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.sap.cloud.security.xsuaa.extractor;
 
 import javax.servlet.http.HttpServletRequest;
