@@ -29,7 +29,7 @@ public class TestController {
 
 	@GetMapping("/hello-token")
 	public Map<String, String> message(@AuthenticationPrincipal Token token) {
-		Map<String, String> result = new HashMap<>();
+		Map<String, String> result = new HashMap();
 		result.put("grant type", token.getGrantType());
 		result.put("client id", token.getClientId());
 		result.put("subaccount id", token.getSubaccountId());
