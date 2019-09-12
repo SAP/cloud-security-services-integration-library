@@ -1,21 +1,5 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.ACCESS_TOKEN;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.CLIENT_ID;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.CLIENT_SECRET;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.EXPIRES_IN;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_REFRESH_TOKEN;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.REFRESH_TOKEN;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -32,6 +16,13 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
 public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
@@ -54,8 +45,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build parameters
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS);
-		parameters.put(CLIENT_ID, clientCredentials.getId());
-		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
+		addClientCredentialsToParameters(clientCredentials, parameters);
 		if (optionalParameters != null) {
 			optionalParameters.forEach(parameters::putIfAbsent);
 		}
@@ -101,13 +91,37 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
 		parameters.put(REFRESH_TOKEN, refreshToken);
-		parameters.put(CLIENT_ID, clientCredentials.getId());
-		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
+		addClientCredentialsToParameters(clientCredentials, parameters);
 
 		// build header
 		HttpHeaders headers = createHeadersWithoutAuthorization();
 
 		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+	}
+
+	@Override
+	public OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(@NonNull URI tokenEndpoint,
+			@NonNull ClientCredentials clientCredentials, @NonNull String username, @NonNull String password,
+			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
+			throws OAuth2ServiceException {
+		Assert.notNull(tokenEndpoint, "tokenEndpoint is required");
+		Assert.notNull(clientCredentials, "clientCredentials are required");
+		Assert.notNull(username, "username is required");
+		Assert.notNull(password, "password is required");
+
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put(GRANT_TYPE, GRANT_TYPE_PASSWORD);
+		parameters.put(USERNAME, username);
+		parameters.put(PASSWORD, password);
+		addClientCredentialsToParameters(clientCredentials, parameters);
+
+		if (optionalParameters != null) {
+			optionalParameters.forEach(parameters::putIfAbsent);
+		}
+
+		HttpHeaders headers = createHeadersWithoutAuthorization();
+
+		return requestAccessToken(replaceSubdomain(tokenEndpoint, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	/**
@@ -170,7 +184,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 	/**
 	 * Creates a copy of the given map or an new empty map of type MultiValueMap.
-	 * 
+	 *
 	 * @return a new @link{MultiValueMap} that contains all entries of the optional
 	 *         map.
 	 */
@@ -206,6 +220,12 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		addAuthorizationBearerHeader(headers, token);
 		return headers;
+	}
+
+	private void addClientCredentialsToParameters(ClientCredentials clientCredentials,
+			Map<String, String> parameters) {
+		parameters.put(CLIENT_ID, clientCredentials.getId());
+		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
 	}
 
 	/** common utilities **/
