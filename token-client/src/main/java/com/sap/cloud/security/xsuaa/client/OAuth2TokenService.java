@@ -23,7 +23,6 @@ public interface OAuth2TokenService {
 	 *            supplying a subdomain (tenant).
 	 * @param optionalParameters
 	 *            optional request parameters, can be null.
-	 *
 	 * @return the OAuth2AccessToken.
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
@@ -50,7 +49,6 @@ public interface OAuth2TokenService {
 	 *            supplying a subdomain (tenant).
 	 * @param optionalParameters
 	 *            optional request parameters, can be null.
-	 *
 	 * @return the OAuth2AccessToken.
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
@@ -82,4 +80,26 @@ public interface OAuth2TokenService {
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri, ClientCredentials clientCredentials,
 			String refreshToken, @Nullable String subdomain) throws OAuth2ServiceException;
+
+	/**
+	 * @param tokenEndpointUri
+	 *            the token endpoint URI.
+	 * @param clientCredentials
+	 *            the client id and secret of the OAuth client, the recipient of the
+	 *            token.
+	 * @param username
+	 *            the username for the user trying to get a token
+	 * @param password
+	 *            the password for the user trying to get a token
+	 * @param subdomain
+	 *            optionally indicates what Identity Zone this request goes to by
+	 *            supplying a subdomain (tenant).
+	 * @param optionalParameters
+	 *            optional request parameters, can be null.
+	 * @return
+	 * @throws OAuth2ServiceException
+	 */
+	OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri, ClientCredentials clientCredentials,
+			String username, String password, String subdomain, Map<String, String> optionalParameters)
+			throws OAuth2ServiceException;
 }
