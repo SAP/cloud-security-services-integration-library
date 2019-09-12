@@ -96,10 +96,12 @@ public interface OAuth2TokenService {
 	 *            supplying a subdomain (tenant).
 	 * @param optionalParameters
 	 *            optional request parameters, can be null.
-	 * @return
+	 * @return the OAuth2AccessToken
 	 * @throws OAuth2ServiceException
+	 *             in case of an error during the http request.
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri, ClientCredentials clientCredentials,
-			String username, String password, String subdomain, Map<String, String> optionalParameters)
+			String username, String password, @Nullable String subdomain,
+			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException;
 }

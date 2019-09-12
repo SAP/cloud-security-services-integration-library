@@ -201,12 +201,6 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		return requestAccessToken(replaceSubdomain(tokenEndpoint, subdomain), headers, copyIntoForm(parameters));
 	}
 
-	private void addClientCredentials(ClientCredentials clientCredentials,
-			Map<String, String> parameters) {
-		parameters.put(CLIENT_ID, clientCredentials.getId());
-		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
-	}
-
 	/**
 	 * common utilities
 	 **/
@@ -248,5 +242,11 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
 		String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
 		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken);
+	}
+
+	private void addClientCredentials(ClientCredentials clientCredentials,
+			Map<String, String> parameters) {
+		parameters.put(CLIENT_ID, clientCredentials.getId());
+		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
 	}
 }
