@@ -114,7 +114,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		parameters.put(GRANT_TYPE, GRANT_TYPE_PASSWORD);
 		parameters.put(USERNAME, username);
 		parameters.put(PASSWORD, password);
-		addClientCredentials(clientCredentials, parameters);
+		addClientCredentialsToParameters(clientCredentials, parameters);
 
 		if (optionalParameters != null) {
 			optionalParameters.forEach(parameters::putIfAbsent);
