@@ -26,88 +26,12 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
 public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
-	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 	private final RestOperations restOperations;
+	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 
 	public XsuaaOAuth2TokenService(@NonNull RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
-	}
-
-	/**
-	 * Utility method that replaces the subdomain of the URI with the given
-	 * subdomain.
-	 *
-	 * @param uri
-	 *            the URI to be replaced.
-	 * @param subdomain
-	 *            of the tenant.
-	 * @return the URI with the replaced subdomain or the passed URI in case a
-	 *         replacement was not possible.
-	 */
-	static URI replaceSubdomain(@NonNull URI uri, @Nullable String subdomain) {
-		Assert.notNull(uri, "the uri parameter must not be null");
-		if (StringUtils.hasText(subdomain) && uri.getHost().contains(".")) {
-			UriBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme())
-					.host(subdomain + uri.getHost().substring(uri.getHost().indexOf('.'))).port(uri.getPort())
-					.path(uri.getPath());
-			return uri.resolve(builder.build());
-		}
-		logger.warn("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
-		return uri;
-	}
-
-	/**
-	 * Creates a copy of the given map or an new empty map of type MultiValueMap.
-	 *
-	 * @return a new @link{MultiValueMap} that contains all entries of the optional
-	 *         map.
-	 */
-	private static MultiValueMap<String, String> copyIntoForm(Map<String, String> parameters) {
-		MultiValueMap<String, String> formData = new LinkedMultiValueMap();
-		if (parameters != null) {
-			parameters.forEach(formData::add);
-		}
-		return formData;
-	}
-
-	/**
-	 * Creates the set of HTTP headers with client-credentials basic authentication
-	 * header.
-	 *
-	 * @return the HTTP headers.
-	 */
-	private static HttpHeaders createHeadersWithoutAuthorization() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		return headers;
-	}
-
-	/**
-	 * Creates the set of HTTP headers with Authorization Bearer header.
-	 *
-	 * @return the HTTP headers.
-	 */
-	private static HttpHeaders createHeadersWithAuthorization(String token) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		addAuthorizationBearerHeader(headers, token);
-		return headers;
-	}
-
-	/**
-	 * Adds the {@code  Authorization: Bearer <token>} header to the set of headers.
-	 *
-	 * @param headers
-	 *            - the set of headers to add the header to.
-	 * @param token
-	 *            - the token which should be part of the header.
-	 */
-	static void addAuthorizationBearerHeader(HttpHeaders headers, String token) {
-		final String AUTHORIZATION_BEARER_TOKEN_FORMAT = "Bearer %s";
-		headers.add(HttpHeaders.AUTHORIZATION, String.format(AUTHORIZATION_BEARER_TOKEN_FORMAT, token));
 	}
 
 	@Override
@@ -121,7 +45,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build parameters
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS);
-		addClientCredentials(clientCredentials, parameters);
+		addClientCredentialsToParameters(clientCredentials, parameters);
 		if (optionalParameters != null) {
 			optionalParameters.forEach(parameters::putIfAbsent);
 		}
@@ -167,7 +91,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
 		parameters.put(REFRESH_TOKEN, refreshToken);
-		addClientCredentials(clientCredentials, parameters);
+		addClientCredentialsToParameters(clientCredentials, parameters);
 
 		// build header
 		HttpHeaders headers = createHeadersWithoutAuthorization();
@@ -189,7 +113,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		parameters.put(GRANT_TYPE, GRANT_TYPE_PASSWORD);
 		parameters.put(USERNAME, username);
 		parameters.put(PASSWORD, password);
-		addClientCredentials(clientCredentials, parameters);
+		addClientCredentialsToParameters(clientCredentials, parameters);
 
 		if (optionalParameters != null) {
 			optionalParameters.forEach(parameters::putIfAbsent);
@@ -201,8 +125,27 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	/**
-	 * common utilities
-	 **/
+	 * Utility method that replaces the subdomain of the URI with the given
+	 * subdomain.
+	 *
+	 * @param uri
+	 *            the URI to be replaced.
+	 * @param subdomain
+	 *            of the tenant.
+	 * @return the URI with the replaced subdomain or the passed URI in case a
+	 *         replacement was not possible.
+	 */
+	static URI replaceSubdomain(@NonNull URI uri, @Nullable String subdomain) {
+		Assert.notNull(uri, "the uri parameter must not be null");
+		if (StringUtils.hasText(subdomain) && uri.getHost().contains(".")) {
+			UriBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme())
+					.host(subdomain + uri.getHost().substring(uri.getHost().indexOf('.'))).port(uri.getPort())
+					.path(uri.getPath());
+			return uri.resolve(builder.build());
+		}
+		logger.warn("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
+		return uri;
+	}
 
 	private OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
 			MultiValueMap<String, String> parameters) throws OAuth2ServiceException {
@@ -239,9 +182,64 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken);
 	}
 
-	private void addClientCredentials(ClientCredentials clientCredentials,
+	/**
+	 * Creates a copy of the given map or an new empty map of type MultiValueMap.
+	 *
+	 * @return a new @link{MultiValueMap} that contains all entries of the optional
+	 *         map.
+	 */
+	private static MultiValueMap<String, String> copyIntoForm(Map<String, String> parameters) {
+		MultiValueMap<String, String> formData = new LinkedMultiValueMap();
+		if (parameters != null) {
+			parameters.forEach(formData::add);
+		}
+		return formData;
+	}
+
+	/**
+	 * Creates the set of HTTP headers with client-credentials basic authentication
+	 * header.
+	 *
+	 * @return the HTTP headers.
+	 */
+	private static HttpHeaders createHeadersWithoutAuthorization() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		return headers;
+	}
+
+	/**
+	 * Creates the set of HTTP headers with Authorization Bearer header.
+	 *
+	 * @return the HTTP headers.
+	 */
+	private static HttpHeaders createHeadersWithAuthorization(String token) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		addAuthorizationBearerHeader(headers, token);
+		return headers;
+	}
+
+	private void addClientCredentialsToParameters(ClientCredentials clientCredentials,
 			Map<String, String> parameters) {
 		parameters.put(CLIENT_ID, clientCredentials.getId());
 		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
+	}
+
+	/** common utilities **/
+
+	/**
+	 * Adds the {@code  Authorization: Bearer <token>} header to the set of headers.
+	 *
+	 * @param headers
+	 *            - the set of headers to add the header to.
+	 * @param token
+	 *            - the token which should be part of the header.
+	 */
+	static void addAuthorizationBearerHeader(HttpHeaders headers, String token) {
+		final String AUTHORIZATION_BEARER_TOKEN_FORMAT = "Bearer %s";
+		headers.add(HttpHeaders.AUTHORIZATION, String.format(AUTHORIZATION_BEARER_TOKEN_FORMAT, token));
 	}
 }

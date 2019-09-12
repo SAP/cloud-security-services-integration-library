@@ -102,6 +102,6 @@ public interface OAuth2TokenService {
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri, ClientCredentials clientCredentials,
 			String username, String password, @Nullable String subdomain,
-			@Nullable Map<String, String> optionalParameters)
-			throws OAuth2ServiceException;
+			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
+
 }
