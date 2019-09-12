@@ -92,7 +92,7 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 	public void retrieveToken() throws OAuth2ServiceException {
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
 		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
-		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID, clientCredentials.getId());
+		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.CLIENT_ID, clientCredentials.getId());
 
 		HttpHeaders expectedHeaders = new HttpHeaders();
 		expectedHeaders.add(HttpHeaders.ACCEPT, "application/json");
@@ -121,7 +121,7 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
 		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
-		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID, clientCredentials.getId());
+		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.CLIENT_ID, clientCredentials.getId());
 		tokenHttpEntityMatcher.addParameters(additionalParameters);
 
 		Mockito.when(mockRestOperations.postForEntity(
@@ -139,7 +139,7 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 	public void retrieveToken_requiredParametersCanNotBeOverwritten() throws OAuth2ServiceException {
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
 		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
-		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID, clientCredentials.getId());
+		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.CLIENT_ID, clientCredentials.getId());
 
 		Mockito.when(
 				mockRestOperations.postForEntity(

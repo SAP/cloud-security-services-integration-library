@@ -7,7 +7,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -18,6 +17,7 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,7 +69,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build parameters
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_USER_TOKEN);
-		parameters.put(PARAMETER_CLIENT_ID, clientCredentials.getId());
+		parameters.put(CLIENT_ID, clientCredentials.getId());
 		if (optionalParameters != null) {
 			optionalParameters.forEach(parameters::putIfAbsent);
 		}
@@ -123,6 +123,29 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		HttpHeaders headers = createHeadersWithoutAuthorization();
 
 		return requestAccessToken(replaceSubdomain(tokenEndpoint, subdomain), headers, copyIntoForm(parameters));
+	}
+
+	@Override
+	public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
+			ClientCredentials clientCredentials, String assertion, @Nullable String subdomain,
+			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
+		Assert.notNull(tokenEndpointUri, "tokenEndpoint is required");
+		Assert.notNull(clientCredentials, "clientCredentials are required");
+		Assert.notNull(assertion, "assertion is required");
+
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put(GRANT_TYPE, GRANT_TYPE_JWT_BEARER);
+		parameters.put(ASSERTION, assertion);
+
+		addClientCredentialsToParameters(clientCredentials, parameters);
+
+		if (optionalParameters != null) {
+			optionalParameters.forEach(parameters::putIfAbsent);
+		}
+
+		HttpHeaders headers = createHeadersWithoutAuthorization();
+
+		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	/**
