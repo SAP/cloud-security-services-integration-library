@@ -126,5 +126,4 @@ public interface OAuth2TokenService {
 			ClientCredentials clientCredentials,
 			String assertion, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
-
 }

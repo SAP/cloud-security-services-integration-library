@@ -24,4 +24,5 @@ public class OAuth2TokenServiceConstants {
 
 	public static final String TOKEN_TYPE_OPAQUE = "opaque";
 
+	public static final String PARAMETER_CLIENT_ID = "client_id";
 }

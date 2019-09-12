@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -17,7 +18,6 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,7 +69,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build parameters
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_USER_TOKEN);
-		parameters.put(CLIENT_ID, clientCredentials.getId());
+		parameters.put(PARAMETER_CLIENT_ID, clientCredentials.getId());
 		if (optionalParameters != null) {
 			optionalParameters.forEach(parameters::putIfAbsent);
 		}
@@ -114,7 +114,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		parameters.put(GRANT_TYPE, GRANT_TYPE_PASSWORD);
 		parameters.put(USERNAME, username);
 		parameters.put(PASSWORD, password);
-		addClientCredentialsToParameters(clientCredentials, parameters);
+		addClientCredentials(clientCredentials, parameters);
 
 		if (optionalParameters != null) {
 			optionalParameters.forEach(parameters::putIfAbsent);
@@ -146,6 +146,12 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		HttpHeaders headers = createHeadersWithoutAuthorization();
 
 		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+	}
+
+	private void addClientCredentials(ClientCredentials clientCredentials,
+			Map<String, String> parameters) {
+		parameters.put(CLIENT_ID, clientCredentials.getId());
+		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
 	}
 
 	/**
@@ -186,18 +192,15 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		try {
 			responseEntity = restOperations.postForEntity(requestUri, requestEntity, Map.class);
 		} catch (HttpClientErrorException ex) {
-			if (!ex.getStatusCode().is2xxSuccessful()) {
-				throw new OAuth2ServiceException(String.format(
-						"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful: %s",
-						ex.getStatusCode(), ex.getResponseBodyAsString()));
-			}
-			throw new OAuth2ServiceException(String.format(
-					"Error retrieving JWT token. Call to XSUAA was not successful: %s",
-					ex.getResponseBodyAsString()));
+			String warningMsg = String.format(
+					"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful: %s",
+					ex.getStatusCode(), ex.getResponseBodyAsString());
+			throw new OAuth2ServiceException(warningMsg);
 		} catch (HttpServerErrorException ex) {
-			logger.warn("Error obtaining access token from server");
-			throw new OAuth2ServiceException(String.format("Error obtaining access token from server (%s): %s",
-					ex.getStatusCode(), ex.getResponseBodyAsString()));
+			String warningMsg = String.format("Server error while obtaining access token from XSUAA (%s): %s",
+					ex.getStatusCode(), ex.getResponseBodyAsString());
+			logger.error(warningMsg, ex);
+			throw new OAuth2ServiceException(warningMsg);
 		}
 
 		@SuppressWarnings("unchecked")
