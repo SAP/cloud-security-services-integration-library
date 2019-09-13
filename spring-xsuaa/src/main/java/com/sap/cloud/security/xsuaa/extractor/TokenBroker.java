@@ -9,7 +9,7 @@ import com.sap.cloud.security.xsuaa.client.ClientCredentials;
  *
  * @deprecated in favor of
  *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService}
- *             API.
+ *             API. Will be removed with version 3.0.0.
  */
 @Deprecated
 public interface TokenBroker {
@@ -50,7 +50,7 @@ public interface TokenBroker {
 	 * @throws TokenBrokerException
 	 *             TokenBrokerException
 	 * @deprecated in favor of
-	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService}
+	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaPasswordGrant(URI, ClientCredentials, String, String, String, Map)}
 	 */
 	public String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret,
 			String username, String password) throws TokenBrokerException;

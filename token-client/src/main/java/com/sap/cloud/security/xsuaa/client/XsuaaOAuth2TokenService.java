@@ -148,12 +148,6 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 
-	private void addClientCredentials(ClientCredentials clientCredentials,
-			Map<String, String> parameters) {
-		parameters.put(CLIENT_ID, clientCredentials.getId());
-		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
-	}
-
 	/**
 	 * Utility method that replaces the subdomain of the URI with the given
 	 * subdomain.

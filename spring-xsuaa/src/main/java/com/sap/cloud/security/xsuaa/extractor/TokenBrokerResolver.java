@@ -162,7 +162,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				return extractAuthorizationHeader(BEARER_TYPE, header);
 			case BASIC:
 				String basicAuthHeader = extractAuthorizationHeader(BASIC_CREDENTIAL, header);
-				ClientCredentials userCredentialsFromHeader = createCredentialsFromBasicAuthorizationHeader(basicAuthHeader);
+				ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(basicAuthHeader);
 				if (userCredentialsFromHeader != null) {
 					String cacheKey = createSecureHash(oauthTokenUrl, clientCredentials.toString(), userCredentialsFromHeader.toString());
 					String cachedToken = tokenCache.get(cacheKey, String.class);
@@ -178,7 +178,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				break;
 			case CLIENT_CREDENTIALS:
 				String clientCredentialsAuthHeader = extractAuthorizationHeader(BASIC_CREDENTIAL, header);
-				ClientCredentials clientCredentialsFromHeader = createCredentialsFromBasicAuthorizationHeader(clientCredentialsAuthHeader);
+				ClientCredentials clientCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(clientCredentialsAuthHeader);
 				if (clientCredentialsFromHeader != null) {
 					String cacheKey = createSecureHash(oauthTokenUrl, clientCredentialsFromHeader.toString());
 					String cachedToken = tokenCache.get(cacheKey, String.class);
@@ -201,7 +201,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	}
 
 	@Nullable
-	private ClientCredentials createCredentialsFromBasicAuthorizationHeader(@Nullable String basicAuthHeader) {
+	private ClientCredentials getCredentialsFromBasicAuthorizationHeader(@Nullable String basicAuthHeader) {
 		if(basicAuthHeader == null) {
 			return null;
 		}
