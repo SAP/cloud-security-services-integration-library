@@ -38,25 +38,20 @@ public class MockPostProcessor implements EnvironmentPostProcessor, DisposableBe
 			if ("/otherdomain/token_keys".equals(request.getPath())) {
 				return getResponseFromFile("/mock/otherdomain_token_keys.json", HttpStatus.OK);
 			}
-			if (request.getPath().equals("/oauth/token")) {
+			if (request.getPath().equals("/oauth/token") && "POST".equals(request.getMethod())) {
 				String body = request.getBody().readString(StandardCharsets.UTF_8);
-				if ("basic c2ItamF2YS1oZWxsby13b3JsZDpteXNlY3JldC1iYXNpYw=="
-						.equalsIgnoreCase(request.getHeader("authorization")) && "POST".equals(request.getMethod())
-						&& body.contains("username=basic.user") && body.contains("password=basic.password")) {
-
+				if (body.contains("grant_type=password") && body.contains("username=basic.user") && body.contains("password=basic.password")) {
 					try {
 						return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 								.setResponseCode(HttpStatus.OK.value())
-								.setBody(String.format("{\"access_token\": \"%s\"}",
+								.setBody(String.format("{\"expires_in\": 43199, \"access_token\": \"%s\"}",
 										JWTUtil.createJWT("/password.txt", "testdomain")));
 					} catch (Exception e) {
 						e.printStackTrace();
 						getResponse(RESPONSE_500, HttpStatus.INTERNAL_SERVER_ERROR);
 					}
 				}
-				if ("POST".equals(request.getMethod())
-						&& body.contains("grant_type=client_credentials")) {
-
+				if (body.contains("grant_type=client_credentials")) {
 					try {
 						return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 								.setResponseCode(HttpStatus.OK.value()).setBody(String.format(
