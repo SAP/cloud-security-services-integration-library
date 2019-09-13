@@ -16,7 +16,8 @@ applications:
 # Application Router as web server
 - name: approuter-spring-security-xsuaa-usage
   path: approuter
-  buildpack: nodejs_buildpack
+  buildpacks:
+    - nodejs_buildpack
   memory: 128M
   routes:
     - route: spring-security-xsuaa-usage-web-((ID)).((LANDSCAPE_APPS_DOMAIN))

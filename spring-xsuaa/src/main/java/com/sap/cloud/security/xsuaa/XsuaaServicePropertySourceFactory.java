@@ -3,14 +3,16 @@ package com.sap.cloud.security.xsuaa;
 import java.io.IOException;
 import java.util.Properties;
 
-import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
-import net.minidev.json.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
+
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
+
+import net.minidev.json.parser.ParseException;
 
 /**
  * Part of Auto Configuration {@link XsuaaAutoConfiguration}

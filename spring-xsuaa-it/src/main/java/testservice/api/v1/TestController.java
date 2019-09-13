@@ -1,9 +1,10 @@
 package testservice.api.v1;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,8 +29,6 @@ import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.cloud.security.xsuaa.tokenflows.ClientCredentialsTokenFlow;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
-import com.sap.xs2.security.container.XSTokenRequestImpl;
-import com.sap.xsa.security.container.XSTokenRequest;
 
 @RestController
 @Profile({ "test.api.v1" })
@@ -79,19 +78,6 @@ public class TestController {
 		assertThat(authorities, not(hasItem(new SimpleGrantedAuthority("openid"))));
 		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Display")));
 		assertThat(authorities, not(hasItem(new SimpleGrantedAuthority("Other"))));
-	}
-
-	@GetMapping("/requesttoken")
-	@Deprecated
-	public String requestToken(@AuthenticationPrincipal Token token) throws URISyntaxException {
-		XSTokenRequestImpl tokenRequest = new XSTokenRequestImpl(serviceConfiguration.getUaaUrl());
-		tokenRequest.setClientId("c1").setClientSecret("s1").setType(XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN);
-		Map<String, String> azMape = new HashMap();
-		azMape.put("a", "b");
-		azMape.put("c", "d");
-		tokenRequest.setAdditionalAuthorizationAttributes(azMape);
-		String newToken = token.requestToken(tokenRequest);
-		return newToken;
 	}
 
 	@GetMapping("/clientCredentialsToken")

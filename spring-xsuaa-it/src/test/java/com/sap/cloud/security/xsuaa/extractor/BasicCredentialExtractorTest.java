@@ -21,6 +21,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+
 @RunWith(SpringRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { XsuaaServiceConfigurationDummy.class,
 		TokenBrokerTestConfiguration.class })
@@ -72,7 +74,7 @@ public class BasicCredentialExtractorTest {
 				authenticationMethods(AuthenticationMethod.CLIENT_CREDENTIALS));
 		request.addHeader("Authorization",
 				"basic " + Base64.getEncoder().encodeToString("client1234:secret1234".getBytes()));
-		request.addHeader("X-Identity-Zone-Subdomain", "true");
+		request.addHeader("X-Identity-Zone-Subdomain", "x-idz-subdomain");
 		request.setScheme("http");
 		request.setServerName("t1.cloudfoundry");
 		String token = extractor.resolve(request);
@@ -134,7 +136,7 @@ public class BasicCredentialExtractorTest {
 		assertThat(token).isEqualTo("token_pwd");
 	}
 
-	private XsuaaServiceConfigurationDummy getXsuaaServiceConfiguration() {
+	private XsuaaServiceConfiguration getXsuaaServiceConfiguration() {
 		XsuaaServiceConfigurationDummy cfg = new XsuaaServiceConfigurationDummy();
 		cfg.appId = "a1!123";
 		cfg.clientId = "myclient!t1";

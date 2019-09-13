@@ -126,7 +126,7 @@ public class TestController {
         OAuth2TokenResponse clientCredentialsTokenResponse = tokenFlows.clientCredentialsTokenFlow().execute();
         logger.info("Got the Client Credentials Token: {}", clientCredentialsTokenResponse.getAccessToken());
 
-        return "The client-credentials token (encoded) can be found in the logs 'cf logs spring-security-xsuaa-usage --recent'";
+        return clientCredentialsTokenResponse.getDecodedAccessToken().getPayload();
     }
 
     /**
@@ -156,7 +156,9 @@ public class TestController {
         logger.info("Got the exchanged token for 3rd party service: {}", userTokenResponse);
         logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ", userTokenResponse);
 
-        return "The refresh-token: " + userTokenResponse.getRefreshToken() + ". The access-token (encoded) can be found in the logs 'cf logs spring-security-xsuaa-usage --recent'";
+        return "<p>The access-token (decoded):</p><p>" + userTokenResponse.getDecodedAccessToken().getPayload()
+                + "</p><p>The refresh-token: </p><p>" + userTokenResponse.getRefreshToken()
+                + "</p><p>The access-token (encoded) can be found in the logs 'cf logs spring-security-xsuaa-usage --recent'</p>";
     }
 
     /**
@@ -176,7 +178,7 @@ public class TestController {
         logger.info("Got the access token for the refresh token: {}", refreshTokenResponse.getAccessToken());
         logger.info("You could now inject this into Spring's SecurityContext, using: SpringSecurityContext.init(...).");
 
-        return "The exchanged access token (encoded) can be found in the logs 'cf logs spring-security-xsuaa-usage --recent'";
+        return refreshTokenResponse.getDecodedAccessToken().getPayload();
     }
 
 }

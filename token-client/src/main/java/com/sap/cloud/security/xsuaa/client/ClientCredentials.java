@@ -1,7 +1,5 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.Assertions;
-
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
@@ -50,4 +48,10 @@ public class ClientCredentials {
 	public int hashCode() {
 		return Objects.hash(clientSecret, clientId);
 	}
+
+	@Override
+	public String toString() {
+		return String.format("%s:%s", clientId, clientSecret);
+	}
+
 }

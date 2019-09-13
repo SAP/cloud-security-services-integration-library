@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>spring-security-basic-auth</artifactId>
-	<version>1.7.0</version>
+	<version>2.0.0</version>
 	<name>spring-security-basic-auth</name>
 
 	<properties>

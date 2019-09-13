@@ -2,7 +2,7 @@
 
 ## Motivation
 
-This library serves as slim client for some XSUAA `/oauth/token` token endpoints as specified [here](https://docs.cloudfoundry.org/api/uaa/version/4.30.0/index.html#token). 
+This library serves as slim client for some XSUAA `/oauth/token` token endpoints as specified [here](https://docs.cloudfoundry.org/api/uaa/version/74.1.0/index.html#token). 
 Furthermore it introduces a new API to support the following token flows:
 
 * **User Token Flow**.  
@@ -25,7 +25,7 @@ A Refresh Token ([RFC 6749, section 1.5](https://tools.ietf.org/html/rfc6749#sec
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>1.7.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 ## Configuration for Spring Boot Applications
@@ -36,7 +36,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>1.7.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 

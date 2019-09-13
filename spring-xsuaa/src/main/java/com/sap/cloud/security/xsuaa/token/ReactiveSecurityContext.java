@@ -7,10 +7,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.jwt.Jwt;
+
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
+
 import reactor.core.publisher.Mono;
 
 public class ReactiveSecurityContext {
 	private static Logger logger = LoggerFactory.getLogger(ReactiveSecurityContext.class);
+
+	private ReactiveSecurityContext() {}
 
 	/**
 	 * Obtain the Token object from the Spring Reactive SecurityContext
@@ -25,7 +30,7 @@ public class ReactiveSecurityContext {
 				.map(SecurityContext::getAuthentication)
 				.map(Authentication::getCredentials)
 				.map(credentials -> new XsuaaToken((Jwt) credentials))
-				.doOnSuccess(token -> logger.info("Got Jwt token: " + token.toString()))
+				.doOnSuccess(token -> logger.info("Got Jwt token: {}", token.toString()))
 				.doOnError(throwable -> logger.error("ERROR to getToken", throwable));
 	}
 }

@@ -1,18 +1,12 @@
-/**
- * 
- */
 package com.sap.cloud.security.xsuaa.extractor;
 
-import static org.springframework.util.StringUtils.isEmpty;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Objects;
+import java.net.URI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
-public final class TokenUrlUtils {
+final class TokenUrlUtils {
 
 	private final static Log logger = LogFactory.getLog(TokenUrlUtils.class);
 
@@ -22,78 +16,60 @@ public final class TokenUrlUtils {
 	/**
 	 * Retrieves the URL for the token request
 	 * <p>
-	 * 
+	 *
 	 * @param endpoint
 	 *            endpoint
 	 * @param uaaUrl
-	 *            UAA-URL from VCAP-Services
+	 *            UAA-URL from Xsuaa Service binding
 	 * @param uaaDomain
-	 *            UAA-Domain from VCAP-Services
+	 *            UAA-Domain from Xsuaa Service binding
 	 * @param uaaSubDomain
 	 *            UAA-Subdomain in case of Multi tenancy
-	 * 
+	 *
 	 * @return token request URL
 	 */
-
-	public static String getMultiTenancyUrl(final String endpoint, final String uaaUrl, final String uaaDomain,
+	static String getMultiTenancyUrl(final String endpoint, final String uaaUrl, final String uaaDomain,
 			final String uaaSubDomain) {
-		Objects.requireNonNull(uaaUrl, "URL must not be null");
-		Objects.requireNonNull(uaaDomain, "Domain must not be null");
-		Objects.requireNonNull(endpoint, "Endpoint must not be null");
+		Assert.notNull(endpoint, "Endpoint must not be null");
+		Assert.notNull(uaaUrl, "UAA URL must not be null");
+		Assert.notNull(uaaDomain, "UAA Domain must not be null");
+		Assert.notNull(uaaSubDomain, "UAA Subdomain must not be null");
 
-		if (uaaSubDomain == null) {
-			return uaaUrl + endpoint;
-		}
 		return TokenUrlUtils.getUrl(endpoint, uaaUrl, uaaDomain, uaaSubDomain);
 	}
 
-	public static String getOauthTokenUrl(final String endpoint, final String uaaUrl, final String uaaDomain) {
-		return TokenUrlUtils.getMultiTenancyUrl(endpoint, uaaUrl, uaaDomain, null);
+	/**
+	 * Retrieves the URL for the token request
+	 * <p>
+	 *
+	 * @param endpoint
+	 *            endpoint
+	 * @param uaaUrl
+	 *            UAA-URL from Xsuaa Service binding
+	 * @param uaaDomain
+	 *            UAA-URL from Xsuaa Service binding
+	 *
+	 * @return token request URL
+	 */
+	static String getOauthTokenUrl(final String endpoint, final String uaaUrl, final String uaaDomain) {
+		Assert.notNull(endpoint, "Endpoint must not be null");
+		Assert.notNull(uaaUrl, "UAA URL must not be null");
+		Assert.notNull(uaaDomain, "UAA Domain must not be null");
+		return uaaUrl + endpoint;
 	}
 
 	private static String getUrl(final String endpoint, final String uaaUrl, final String uaaDomain,
 			String tenantSubDomain) {
 
-		Objects.requireNonNull(uaaUrl, "UAA-URL must not be null");
-		Objects.requireNonNull(uaaDomain, "Domain must not be null");
-		Objects.requireNonNull(tenantSubDomain, "SubDomain must not be null");
-		Objects.requireNonNull(endpoint, "Endpoint must not be null");
-
 		String tenantUaaDomain = tenantSubDomain + "." + uaaDomain;
 
-		URL url;
-		try {
-			url = new URL(uaaUrl);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("Cannot create valid URL from given UAA-Url " + uaaUrl);
-		}
-		String protocol = url.getProtocol();
+		URI uri = URI.create(uaaUrl);
+
+		String protocol = uri.getScheme();
 
 		String tenantTokenUrl = String.format("%s://%s", protocol, tenantUaaDomain + endpoint);
 		logger.debug("Created tenant token URL " + tenantTokenUrl);
 		return tenantTokenUrl;
-	}
-
-	public static String getHost(String path) {
-		URL url;
-		try {
-			url = new URL(path);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("Cannot create valid URL from given Url " + path);
-		}
-		return url.getHost();
-	}
-
-	public static boolean isUrl(String url) {
-		if (isEmpty(url)) {
-			return false;
-		}
-		try {
-			new URL(url);
-			return true;
-		} catch (MalformedURLException e) {
-			return false;
-		}
 	}
 
 }

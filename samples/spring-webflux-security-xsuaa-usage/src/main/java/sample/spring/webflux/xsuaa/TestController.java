@@ -1,5 +1,6 @@
 package sample.spring.webflux.xsuaa;
 
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.token.ReactiveSecurityContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,6 +19,6 @@ public class TestController {
 		return ReactiveSecurityContext.getToken()
 				.doOnError(throwable -> Mono.just(unAuthenticated))
 				.map(token -> ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN)
-						.body("Authorities: " + token.getAuthorities()));
+						.body(new Base64JwtDecoder().decode(token.getAppToken()).getPayload()));
 	}
 }

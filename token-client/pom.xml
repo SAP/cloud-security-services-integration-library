@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.7.0</version>
+		<version>2.0.0</version>
 	</parent>
 
 	<artifactId>token-client</artifactId>
@@ -35,11 +35,6 @@
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20190722</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-jwt</artifactId>
-			<version>1.0.9.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>

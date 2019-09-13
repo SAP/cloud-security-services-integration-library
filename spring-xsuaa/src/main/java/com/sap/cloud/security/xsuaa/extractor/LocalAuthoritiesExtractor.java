@@ -5,9 +5,10 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sap.cloud.security.xsuaa.token.XsuaaToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import com.sap.cloud.security.xsuaa.token.XsuaaToken;
 
 public class LocalAuthoritiesExtractor implements AuthoritiesExtractor {
 

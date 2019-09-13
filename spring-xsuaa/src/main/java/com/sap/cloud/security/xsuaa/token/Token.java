@@ -1,35 +1,15 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import com.sap.xsa.security.container.XSTokenRequest;
+import java.util.Collection;
+import java.util.Date;
+
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Date;
-
 public interface Token extends UserDetails {
-	/**
-	 * @deprecated use instead @link{TokenClaims.CLAIM_XS_USER_ATTRIBUTES}
-	 * @since 2.0.0
-	 */
-	@Deprecated
-	String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
-	/**
-	 * @deprecated use instead @link{TokenClaims.CLAIM_SCOPES}
-	 * @since 2.0.0
-	 */
-	@Deprecated
-	String CLAIM_SCOPES = "scope";
-	/**
-	 * @deprecated use instead @link{TokenClaims.CLAIM_CLIENT_ID}
-	 * @since 2.0.0
-	 */
-	@Deprecated
-	String CLIENT_ID = "cid";
 
-	String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
+	static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
 
 	/**
 	 * Returns the subaccount identifier, which can be used as tenant GUID.
@@ -163,22 +143,6 @@ public interface Token extends UserDetails {
 	 * @return token
 	 */
 	String getAppToken();
-
-	/**
-	 * Exchange a token into a token from another service instance
-	 * <p>
-	 *
-	 * @deprecated in favor of the @link{XsuaaTokenFlows} API.
-	 * @since 2.0.0
-	 *
-	 * @param tokenRequest
-	 *            request data
-	 * @return requested token
-	 * @throws URISyntaxException
-	 *             in case of wron URLs
-	 */
-	@Deprecated
-	String requestToken(XSTokenRequest tokenRequest) throws URISyntaxException;
 
 	/**
 	 * Returns list of scopes with appId prefix, e.g. "&lt;my-app!t123&gt;.Display".
