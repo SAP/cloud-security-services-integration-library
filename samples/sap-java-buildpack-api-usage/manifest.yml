@@ -12,13 +12,15 @@ applications:
 
   host: 
   path: target/sap-java-buildpack-api-usage.war
-  buildpack: sap_java_buildpack
+  buildpacks:
+    - sap_java_buildpack
   services:
     - xsuaa-buildpack
 # Application Router as web server
 - name: approuter-sap-java-buildpack-api-usage
   path: approuter
-  buildpack: nodejs_buildpack
+  buildpacks:
+    - nodejs_buildpack
   memory: 128M
   routes:
     - route: approuter-sap-java-buildpack-api-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))

@@ -40,7 +40,8 @@ public class MockPostProcessor implements EnvironmentPostProcessor, DisposableBe
 			}
 			if (request.getPath().equals("/oauth/token") && "POST".equals(request.getMethod())) {
 				String body = request.getBody().readString(StandardCharsets.UTF_8);
-				if (body.contains("grant_type=password") && body.contains("username=basic.user") && body.contains("password=basic.password")) {
+				if (body.contains("grant_type=password") && body.contains("username=basic.user")
+						&& body.contains("password=basic.password")) {
 					try {
 						return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 								.setResponseCode(HttpStatus.OK.value())
