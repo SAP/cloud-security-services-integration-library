@@ -163,18 +163,14 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		try {
 			responseEntity = restOperations.postForEntity(requestUri, requestEntity, Map.class);
 		} catch (HttpClientErrorException ex) {
-			if (!ex.getStatusCode().is2xxSuccessful()) {
-				throw new OAuth2ServiceException(String.format(
-						"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful: %s",
-						ex.getStatusCode(), ex.getResponseBodyAsString()));
-			}
-			throw new OAuth2ServiceException(String.format(
-					"Error retrieving JWT token. Call to XSUAA was not successful: %s",
-					ex.getResponseBodyAsString()));
+			String warningMsg = String.format("Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful: %s",
+					ex.getStatusCode(), ex.getResponseBodyAsString());
+			throw new OAuth2ServiceException(warningMsg);
 		} catch (HttpServerErrorException ex) {
-			logger.warn("Error obtaining access token from server");
-			throw new OAuth2ServiceException(String.format("Error obtaining access token from server (%s): %s",
-					ex.getStatusCode(), ex.getResponseBodyAsString()));
+			String warningMsg = String.format("Server error while obtaining access token from XSUAA (%s): %s",
+					ex.getStatusCode(), ex.getResponseBodyAsString());
+			logger.error(warningMsg, ex);
+			throw new OAuth2ServiceException(warningMsg);
 		}
 
 		@SuppressWarnings("unchecked")
