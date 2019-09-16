@@ -15,10 +15,15 @@
  */
 package sample.spring.xsuaa;
 
+import java.util.concurrent.TimeUnit;
+
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -27,6 +32,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 
 import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
 import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
@@ -39,12 +45,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Autowired
 	XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
-	@Autowired
-	CacheManager cacheManager;
-
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		TokenBrokerResolver tokenBrokerResolver = new TokenBrokerResolver(xsuaaServiceConfiguration, cacheManager.getCache("token"), AuthenticationMethod.BASIC);
 
 		// @formatter:off
 		http.authorizeRequests()
@@ -55,11 +57,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 				.oauth2ResourceServer()
-				.bearerTokenResolver(tokenBrokerResolver)
+				.bearerTokenResolver(getTokenBrokerResolver())
 				.jwt()
 				.jwtAuthenticationConverter(jwtAuthenticationConverter());
 		// @formatter:on
 	}
+
+	BearerTokenResolver getTokenBrokerResolver() {
+		Cache cache = new CaffeineCache("token",
+				Caffeine.newBuilder()
+						.expireAfterWrite(15, TimeUnit.MINUTES)
+						.maximumSize(100).build(), false);
+
+		return new TokenBrokerResolver(xsuaaServiceConfiguration, cache, AuthenticationMethod.BASIC);
+	}
+
 
 	@Bean
 	Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
