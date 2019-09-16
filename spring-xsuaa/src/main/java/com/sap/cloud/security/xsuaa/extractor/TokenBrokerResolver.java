@@ -10,8 +10,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -31,7 +31,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
  */
 public class TokenBrokerResolver implements BearerTokenResolver {
 
-	private static final Log logger = LogFactory.getLog(TokenBrokerResolver.class);
+	private static final Logger logger = LoggerFactory.getLogger(TokenBrokerResolver.class);
 
 	private static final String BASIC_CREDENTIAL = "basic";
 	private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -171,6 +171,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 							userCredentialsFromHeader.toString());
 					String cachedToken = tokenCache.get(cacheKey, String.class);
 					if (cachedToken != null) {
+						logger.info("return (basic) access token for {} from cache", cacheKey);
 						return cachedToken;
 					} else {
 						String token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl,
@@ -190,6 +191,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					String cacheKey = createSecureHash(oauthTokenUrl, clientCredentialsFromHeader.toString());
 					String cachedToken = tokenCache.get(cacheKey, String.class);
 					if (cachedToken != null) {
+						logger.info("return (client-credentials) access token for {} from cache", cacheKey);
 						return cachedToken;
 					} else {
 						String token = tokenBroker
