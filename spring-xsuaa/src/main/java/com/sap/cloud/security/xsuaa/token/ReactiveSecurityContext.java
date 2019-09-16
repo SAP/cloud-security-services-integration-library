@@ -15,7 +15,8 @@ import reactor.core.publisher.Mono;
 public class ReactiveSecurityContext {
 	private static Logger logger = LoggerFactory.getLogger(ReactiveSecurityContext.class);
 
-	private ReactiveSecurityContext() {}
+	private ReactiveSecurityContext() {
+	}
 
 	/**
 	 * Obtain the Token object from the Spring Reactive SecurityContext
