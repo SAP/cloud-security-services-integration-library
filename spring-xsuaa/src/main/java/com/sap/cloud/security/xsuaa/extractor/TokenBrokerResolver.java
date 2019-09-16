@@ -10,8 +10,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -31,7 +31,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
  */
 public class TokenBrokerResolver implements BearerTokenResolver {
 
-	private static final Log logger = LogFactory.getLog(TokenBrokerResolver.class);
+	private static final Logger logger = LoggerFactory.getLogger(TokenBrokerResolver.class);
 
 	private static final String BASIC_CREDENTIAL = "basic";
 	private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -92,8 +92,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	 * @param tokenCache
 	 *            Token-Cache
 	 * @param authenticationMethods
-	 *            list of supported authentication methods.
-	 *            Choose either {@link AuthenticationMethod#BASIC} or {@link AuthenticationMethod#CLIENT_CREDENTIALS}.
+	 *            list of supported authentication methods. Choose either
+	 *            {@link AuthenticationMethod#BASIC} or
+	 *            {@link AuthenticationMethod#CLIENT_CREDENTIALS}.
 	 */
 	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache,
 			AuthenticationMethod... authenticationMethods) {
@@ -154,7 +155,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 	private String getBrokerToken(AuthenticationMethod credentialType, Enumeration<String> headers,
 			String oauthTokenUrl) throws TokenBrokerException {
-		ClientCredentials clientCredentials = new ClientCredentials(configuration.getClientId(), configuration.getClientSecret());
+		ClientCredentials clientCredentials = new ClientCredentials(configuration.getClientId(),
+				configuration.getClientSecret());
 		while (headers.hasMoreElements()) {
 			String header = headers.nextElement();
 			switch (credentialType) {
@@ -162,15 +164,20 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				return extractAuthorizationHeader(BEARER_TYPE, header);
 			case BASIC:
 				String basicAuthHeader = extractAuthorizationHeader(BASIC_CREDENTIAL, header);
-				ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(basicAuthHeader);
+				ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
+						basicAuthHeader);
 				if (userCredentialsFromHeader != null) {
-					String cacheKey = createSecureHash(oauthTokenUrl, clientCredentials.toString(), userCredentialsFromHeader.toString());
+					String cacheKey = createSecureHash(oauthTokenUrl, clientCredentials.toString(),
+							userCredentialsFromHeader.toString());
 					String cachedToken = tokenCache.get(cacheKey, String.class);
 					if (cachedToken != null) {
+						logger.info("return (basic) access token for {} from cache", cacheKey);
 						return cachedToken;
 					} else {
-						String token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl, clientCredentials.getId(),
-								clientCredentials.getSecret(), userCredentialsFromHeader.getId(), userCredentialsFromHeader.getSecret());
+						String token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl,
+								clientCredentials.getId(),
+								clientCredentials.getSecret(), userCredentialsFromHeader.getId(),
+								userCredentialsFromHeader.getSecret());
 						tokenCache.put(cacheKey, token);
 						return token;
 					}
@@ -178,11 +185,13 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				break;
 			case CLIENT_CREDENTIALS:
 				String clientCredentialsAuthHeader = extractAuthorizationHeader(BASIC_CREDENTIAL, header);
-				ClientCredentials clientCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(clientCredentialsAuthHeader);
+				ClientCredentials clientCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
+						clientCredentialsAuthHeader);
 				if (clientCredentialsFromHeader != null) {
 					String cacheKey = createSecureHash(oauthTokenUrl, clientCredentialsFromHeader.toString());
 					String cachedToken = tokenCache.get(cacheKey, String.class);
 					if (cachedToken != null) {
+						logger.info("return (client-credentials) access token for {} from cache", cacheKey);
 						return cachedToken;
 					} else {
 						String token = tokenBroker
@@ -202,14 +211,14 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 	@Nullable
 	private ClientCredentials getCredentialsFromBasicAuthorizationHeader(@Nullable String basicAuthHeader) {
-		if(basicAuthHeader == null) {
+		if (basicAuthHeader == null) {
 			return null;
 		}
 		byte[] decodedBytes = Base64.getDecoder().decode(basicAuthHeader.getBytes(StandardCharsets.UTF_8));
 		final String pair = new String(decodedBytes, StandardCharsets.UTF_8);
 		if (pair.contains(":")) {
 			final String[] credentialDetails = pair.split(":", 2);
-			if(credentialDetails.length == 2) {
+			if (credentialDetails.length == 2) {
 				return new ClientCredentials(credentialDetails[0], credentialDetails[1]);
 			}
 		}

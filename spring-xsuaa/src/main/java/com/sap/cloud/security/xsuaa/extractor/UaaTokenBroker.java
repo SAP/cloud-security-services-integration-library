@@ -12,7 +12,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 
 /**
- * @deprecated in favor of {@link #UaaTokenBroker(OAuth2TokenService)}. We are going to delete that in 3.0.0.
+ * @deprecated in favor of {@link #UaaTokenBroker(OAuth2TokenService)}. We are
+ *             going to delete that in 3.0.0.
  */
 class UaaTokenBroker implements TokenBroker {
 
@@ -52,7 +53,8 @@ class UaaTokenBroker implements TokenBroker {
 			String username, String password) throws TokenBrokerException {
 		try {
 			return oAuth2TokenService.retrieveAccessTokenViaPasswordGrant(
-					URI.create(tokenURL), new ClientCredentials(clientId, clientSecret), username, password, null, null).getAccessToken();
+					URI.create(tokenURL), new ClientCredentials(clientId, clientSecret), username, password, null, null)
+					.getAccessToken();
 		} catch (OAuth2ServiceException ex) {
 			logger.warn("Cannot obtain Token from given user / password.");
 			throw new TokenBrokerException("Cannot obtain Token from given user / password.", ex);
