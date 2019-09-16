@@ -1,85 +1,19 @@
 # Description
 In some situations, the client does not support OAuth protocols so you need to fall back to basic authentication. This sample uses a implementation of the [BearerTokenResolver](https://docs.spring.io/spring-security/site/docs/5.1.1.RELEASE/api/org/springframework/security/oauth2/server/resource/web/BearerTokenResolver.html). Depending on the configuration, this resolver will
-- Support OAuth JWT tokens
-- exchange incoming credentials using the OAuth password grant flow
-- exchange incoming credentials using the OAuth client credential flow
-
-Note: OAuth JWT tokens can be combined with either password grant or client credential flow.
+- Support OAuth JWT tokens and
+  - either exchange incoming credentials using the OAuth password grant flow
+  - or exchange incoming credentials using the OAuth client credential flow
 
 # Coding
-This sample is using the spring-security project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure JWT for authentication.
-
-Configure the OAuth resource server by:
-- Enable caching to avoid requesting new tokens for every call
-- setting the property source to integrate with xsuaa configuration properties
-- adding a bean for the configuration
-- using the xsuaa token converter
-- configuring the jwtDecoder
-- enable the bearerTokenResolver
-
-```java
-@EnableWebSecurity
-@EnableCaching
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-   @Autowired
-   XsuaaServiceConfigurationDefault xsuaaServiceConfiguration;
-
-   @Autowired
-   CacheManager cacheManager;
-   
-   @Override
-   protected void configure(HttpSecurity http) throws Exception {
-      TokenBrokerResolver tokenBrokerResolver = new TokenBrokerResolver(xsuaaServiceConfiguration, cacheManager.getCache("token"),AuthenticationMethod.BASIC);
-      
-      http
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-                .authorizeRequests()
-                .antMatchers("/hello-token").hasAuthority("openid")
-                .anyRequest().authenticated()
-            .and()
-                .oauth2ResourceServer()
-                .bearerTokenResolver(tokenBrokerResolver)
-                .jwt()
-                .jwtAuthenticationConverter(getJwtAuthoritiesConverter());
-   }
-   
-   Converter<Jwt, AbstractAuthenticationToken> getJwtAuthoritiesConverter() {
-        TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
-        converter.setLocalScopeAsAuthorities(true);
-        return converter;
-   }
-
-}
-```
-
-In the Java coding, use the `Token` to extract user information:
-
-```java
-   @GetMapping("/hello-token")
-   public Map<String, String> message(@AuthenticationPrincipal Token token) {
-      Map<String, String> result = new HashMap<>();
-      result.put("grant type", token.getGrantType());
-      result.put("client id", token.getClientId());
-      result.put("subaccount id", token.getSubaccountId());
-      result.put("logon name", token.getLogonName());
-      result.put("family name", token.getFamilyName());
-      result.put("given name", token.getGivenName());
-      result.put("email", token.getEmail());
-      result.put("authorities", String.valueOf(token.getAuthorities()));
-      result.put("scopes", String.valueOf(token.getScopes()));
-
-      return result;
-   }
-```
+This sample is using the spring-security project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. It enables caching using [`Caffeine`](https://github.com/ben-manes/caffeine) to avoid requesting new tokens from XSUAA for every incoming request.
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
 - Compile the Java application
-- Create a xsuaa service instance
-- Configure the manifest
+- Create a XSUAA service instance
+- Configure the manifest.yml
 - Deploy the application
+- Assign Role Collection to your user
 - Access the application
 
 ## Compile the Java application
@@ -88,7 +22,7 @@ Run maven to package the application
 mvn clean package
 ```
 
-## Create the xsuaa service instance
+## Create the XSUAA service instance
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
 ```shell
 cf create-service xsuaa application xsuaa-basic -c xs-security.json
@@ -103,6 +37,16 @@ Deploy the application using cf push. It will expect 1 GB of free memory quota.
 ```shell
 cf push --vars-file ../vars.yml
 ```
+
+## Cockpit administration tasks: Assign Role to your User
+Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection such as `BASIC_AUTH_API_Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
+
+![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
+
+Further up-to-date information you can get on sap.help.com:
+- [Maintain Role Collections](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/d5f1612d8230448bb6c02a7d9c8ac0d1.html)
+- [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
+
 
 ## Access the application
 After deployment, the spring service can be called with basic authentication.
@@ -120,8 +64,8 @@ You will get a response like:
   "logon name": "bob.jones@example.com",
   "email": "bob.jones@example.com",
   "grant type": "password",
-  "authorities": "[openid]",
-  "scopes": "[openid]"
+  "authorities": "[openid, spring-security-basic-auth!t19435.Display]",
+  "scopes": "[openid, spring-security-basic-auth!t19435.Display]"
 }
 ```
 

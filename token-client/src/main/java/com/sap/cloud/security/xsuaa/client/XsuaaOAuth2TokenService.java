@@ -163,7 +163,8 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		try {
 			responseEntity = restOperations.postForEntity(requestUri, requestEntity, Map.class);
 		} catch (HttpClientErrorException ex) {
-			String warningMsg = String.format("Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful: %s",
+			String warningMsg = String.format(
+					"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful: %s",
 					ex.getStatusCode(), ex.getResponseBodyAsString());
 			throw new OAuth2ServiceException(warningMsg);
 		} catch (HttpServerErrorException ex) {

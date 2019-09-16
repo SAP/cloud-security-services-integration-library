@@ -13,7 +13,7 @@ To deploy the application, the following steps are required:
 - Create an XSUAA service instance
 - Configure manifest.yml
 - Deploy the application
-- Assign Role to your user
+- Assign Role Collection to your user
 - Access the application
 
 ## Configure the Application Router
