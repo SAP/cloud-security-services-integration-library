@@ -1,7 +1,7 @@
 {
 	"xsappname": "spring-security-basic-auth",
 	"tenant-mode": "dedicated",
-	"scopes": 
+	"scopes":
 	[
 		{
 			"name": "$XSAPPNAME.Display",
@@ -9,12 +9,12 @@
 		}
 	],
 
-	"role-templates": 
+	"role-templates":
 	[
 		{
 			"name": "AccessRole",
 			"description": "Role to call the spring-security-basic-auth service",
-			"scope-references": 
+			"scope-references":
 			[
 				"$XSAPPNAME.Display"
 			]

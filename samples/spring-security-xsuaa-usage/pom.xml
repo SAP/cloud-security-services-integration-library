@@ -19,7 +19,7 @@
 
 	<properties>
 		<!-- 
-			Fix to trick Eclipse into not complaining with an "Unknown" issue 
+			Fix to trick Eclipse into not complaining with an "Unknown" issue
       		in first line of the pom.xml. 
       		See: https://stackoverflow.com/questions/56142369/why-am-i-getting-unknown-error-in-line-1-of-pom-xml 
       	-->

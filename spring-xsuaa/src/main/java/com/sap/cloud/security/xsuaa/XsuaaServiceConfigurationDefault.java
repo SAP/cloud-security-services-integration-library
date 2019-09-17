@@ -27,6 +27,12 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Value("${xsuaa.xsappname:}")
 	private String appid;
 
+	@Value("${xsuaa.key:}")
+	private String privateKey;
+
+	@Value("${xsuaa.certificate:}")
+	private String certificates;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -55,6 +61,16 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Override
 	public String getUaaDomain() {
 		return uaadomain;
+	}
+
+	@Override
+	public String getCertificates() {
+		return certificates;
+	}
+
+	@Override
+	public String getPrivateKey() {
+		return privateKey;
 	}
 
 }

@@ -35,6 +35,17 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		this.restOperations = restOperations;
 	}
 
+	public void testCertificate()
+			throws OAuth2ServiceException {
+		// TODO is it possible to check whether restOperation has SSLContext
+		// TODO "authentication" domain -> "authentication.cert"
+		// TODO delegation
+		URI uri = URI.create("https://d047491-show-headers.cert.cfapps.sap.hana.ondemand.com");
+		ResponseEntity<String> payload = restOperations.getForEntity(uri, String.class);
+		logger.info("print certificate {}", payload.getBody());
+		logger.info("contains x-forwarded-client-cert ? {}", payload.getBody().contains("x-forwarded-client-cert"));
+	}
+
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@NonNull URI tokenEndpointUri,
 			@NonNull ClientCredentials clientCredentials,

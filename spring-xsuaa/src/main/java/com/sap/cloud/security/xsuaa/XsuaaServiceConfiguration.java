@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa;
 
+import org.springframework.lang.Nullable;
+
 public interface XsuaaServiceConfiguration {
 	/**
 	 * Client id of xsuaa service instance
@@ -36,4 +38,20 @@ public interface XsuaaServiceConfiguration {
 	 * @return uaaDomain
 	 */
 	String getUaaDomain();
+
+	/**
+	 * PEM encoded certificate chain.
+	 *
+	 * @return certificates
+	 */
+	@Nullable
+	String getCertificates();
+
+	/**
+	 * Private key the certificate is signed with.
+	 *
+	 * @return private key
+	 */
+	@Nullable
+	String getPrivateKey();
 }

@@ -1,0 +1,20 @@
+{
+  "welcomeFile": "index.html",
+  "routes": [
+    {
+      "source": "^/v1",
+      "target": "/v1",
+      "destination": "token-destination"
+    },
+    {
+      "source": "^/v2",
+      "target": "/v2",
+      "destination": "token-destination"
+    },
+    {
+      "source": "^/v3",
+      "target": "/v3",
+      "destination": "token-destination"
+    }
+  ]
+}

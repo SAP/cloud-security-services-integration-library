@@ -1,0 +1,16 @@
+---
+# Configuration:
+# configured for EU10. For other landscapes, please adopt LANDSCAPE_APPS_DOMAIN in ../vars.yml
+# If the route is occupied, you might need to change ID in in ../vars.yml
+applications:
+- name: spring-security-ias
+  instances: 1
+  memory: 896M
+  routes:
+    - route: spring-security-ias-((ID)).((LANDSCAPE_APPS_DOMAIN))
+  path: target/spring-security-ias.jar
+  services:
+    - xsuaa-
+
+
+...

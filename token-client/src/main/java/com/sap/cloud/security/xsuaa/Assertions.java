@@ -10,4 +10,10 @@ public class Assertions {
 			throw new IllegalArgumentException(message);
 		}
 	}
+
+	public static void hasText(String string, String message) {
+		if (string == null || string.trim().isEmpty()) {
+			throw new IllegalArgumentException(message);
+		}
+	}
 }

@@ -38,4 +38,14 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 	public String getUaaDomain() {
 		return uaaDomain;
 	}
+
+	@Override
+	public String getCertificates() {
+		return null;
+	}
+
+	@Override
+	public String getPrivateKey() {
+		return null;
+	}
 }

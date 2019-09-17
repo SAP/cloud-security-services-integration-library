@@ -41,7 +41,8 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	public static final String UAA_DOMAIN = "xsuaa.uaadomain";
 
 	private static final String[] XSUAA_ATTRIBUTES = new String[] { "clientid", "clientsecret", "identityzoneid",
-			"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname" };
+			"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname", "certificate",
+			"key" };
 
 	private Properties xsuaaProperties = null;
 
