@@ -5,8 +5,6 @@ import java.net.URISyntaxException;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
-import org.springframework.lang.Nullable;
-
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final URI baseUri;
 	private static final String TOKEN_ENDPOINT = "/oauth/token";

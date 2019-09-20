@@ -6,8 +6,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -23,36 +21,30 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
+
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 	private final RestOperations restOperations;
 	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 
-	public XsuaaOAuth2TokenService(@NonNull RestOperations restOperations) {
+	public XsuaaOAuth2TokenService(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
 	}
 
-	public void testCertificate()
-			throws OAuth2ServiceException {
-		// TODO is it possible to check whether restOperation has SSLContext
-		// TODO "authentication" domain -> "authentication.cert"
-		// TODO delegation
-		URI uri = URI.create("https://d047491-show-headers.cert.cfapps.sap.hana.ondemand.com");
-		ResponseEntity<String> payload = restOperations.getForEntity(uri, String.class);
-		logger.info("print certificate {}", payload.getBody());
-		logger.info("contains x-forwarded-client-cert ? {}", payload.getBody().contains("x-forwarded-client-cert"));
-	}
-
 	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@NonNull URI tokenEndpointUri,
-			@NonNull ClientCredentials clientCredentials,
+	public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
+			ClientCredentials clientCredentials,
 			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
-		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assert.notNull(clientCredentials, "clientCredentials is required");
+		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
+		assertNotNull(clientCredentials, "clientCredentials is required");
 
 		// build parameters
 		Map<String, String> parameters = new HashMap<>();
@@ -69,13 +61,13 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@NonNull URI tokenEndpointUri,
-			@NonNull ClientCredentials clientCredentials, @NonNull String token, @Nullable String subdomain,
+	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
+			ClientCredentials clientCredentials, String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
-		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assert.notNull(clientCredentials, "clientCredentials is required");
-		Assert.notNull(token, "token is required");
+		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
+		assertNotNull(clientCredentials, "clientCredentials is required");
+		assertHasText(token, "token is required");
 
 		// build parameters
 		Map<String, String> parameters = new HashMap<>();
@@ -92,12 +84,12 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(@NonNull URI tokenEndpointUri,
-			@NonNull ClientCredentials clientCredentials,
-			@NonNull String refreshToken, String subdomain) throws OAuth2ServiceException {
-		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assert.notNull(clientCredentials, "clientCredentials is required");
-		Assert.notNull(refreshToken, "refreshToken is required");
+	public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri,
+			ClientCredentials clientCredentials,
+			String refreshToken, String subdomain) throws OAuth2ServiceException {
+		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
+		assertNotNull(clientCredentials, "clientCredentials is required");
+		assertHasText(refreshToken, "refreshToken is required");
 
 		// build parameters
 		Map<String, String> parameters = new HashMap<>();
@@ -112,14 +104,14 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(@NonNull URI tokenEndpoint,
-			@NonNull ClientCredentials clientCredentials, @NonNull String username, @NonNull String password,
+	public OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpoint,
+			ClientCredentials clientCredentials, String username, String password,
 			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
-		Assert.notNull(tokenEndpoint, "tokenEndpoint is required");
-		Assert.notNull(clientCredentials, "clientCredentials are required");
-		Assert.notNull(username, "username is required");
-		Assert.notNull(password, "password is required");
+		assertNotNull(tokenEndpoint, "tokenEndpoint is required");
+		assertNotNull(clientCredentials, "clientCredentials are required");
+		assertHasText(username, "username is required");
+		assertHasText(password, "password is required");
 
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(GRANT_TYPE, GRANT_TYPE_PASSWORD);
@@ -137,6 +129,42 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	/**
+	 * TODO currently fails with 400 (Bad Request)
+	 * @param tokenEndpointUri
+	 * @param clientCredentials
+	 * @param oidcToken
+	 * @param pemEncodedCertificate
+	 * @param subdomain
+	 * @param optionalParameters
+	 * @return
+	 * @throws OAuth2ServiceException
+	 */
+	@Nullable
+	public OAuth2TokenResponse retrieveDelegationAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
+			ClientCredentials clientCredentials, String oidcToken, String pemEncodedCertificate, @Nullable String subdomain,
+			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
+		assertNotNull(tokenEndpointUri, "tokenEndpoint is required");
+		assertNotNull(clientCredentials, "clientCredentials are required");
+		assertHasText(oidcToken, "oidcToken is required");
+		assertHasText(pemEncodedCertificate, "pemEncodedCertificate is required"); // w/o BEGIN CERTIFICATE ...
+
+		if(!testCertificate()) {
+			return null;
+		}
+		Map<String, String> parameters = new HashMap<>();
+		//parameters.put(GRANT_TYPE, GRANT_TYPE_JWT_BEARER);
+		parameters.put("master_client_id", clientCredentials.getId());
+		parameters.put("clone_certificate", pemEncodedCertificate);
+
+		if (optionalParameters != null) {
+			optionalParameters.forEach(parameters::putIfAbsent);
+		}
+
+		HttpHeaders headers = createHeadersWithAuthorization(oidcToken);
+		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+	}
+
+	/**
 	 * Utility method that replaces the subdomain of the URI with the given
 	 * subdomain.
 	 *
@@ -147,7 +175,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	 * @return the URI with the replaced subdomain or the passed URI in case a
 	 *         replacement was not possible.
 	 */
-	static URI replaceSubdomain(@NonNull URI uri, @Nullable String subdomain) {
+	static URI replaceSubdomain(URI uri, @Nullable String subdomain) {
 		Assert.notNull(uri, "the uri parameter must not be null");
 		if (StringUtils.hasText(subdomain) && uri.getHost().contains(".")) {
 			UriBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme())
@@ -193,6 +221,17 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
 		String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
 		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken);
+	}
+
+	private boolean testCertificate()
+			throws OAuth2ServiceException {
+		// TODO is it possible to check whether restOperation has SSLContext
+		// TODO "authentication" domain -> "authentication.cert"
+		// TODO delegation
+		URI uri = URI.create("https://d047491-show-headers.cert.cfapps.sap.hana.ondemand.com");
+		ResponseEntity<String> payload = restOperations.getForEntity(uri, String.class);
+
+		return payload.getBody().contains("x-forwarded-client-cert");
 	}
 
 	/**
@@ -255,4 +294,5 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		final String AUTHORIZATION_BEARER_TOKEN_FORMAT = "Bearer %s";
 		headers.add(HttpHeaders.AUTHORIZATION, String.format(AUTHORIZATION_BEARER_TOKEN_FORMAT, token));
 	}
+
 }

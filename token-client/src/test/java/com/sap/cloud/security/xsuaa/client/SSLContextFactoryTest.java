@@ -39,7 +39,7 @@ public class SSLContextFactoryTest {
 
 	@Test
 	/**
-	 * TODO: Certificates and key are going to expire at Sept. 2020.
+	 * TODO: Certificates and key are going to expire at Thu Sep 17 06:28:03 UTC 2020 !!!
 	 */
 	public void create() throws GeneralSecurityException, IOException {
 		assertThat(cut.create(certificates, rsaPrivateKey), is(notNullValue()));

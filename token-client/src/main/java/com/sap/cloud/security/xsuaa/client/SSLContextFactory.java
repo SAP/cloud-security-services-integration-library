@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import static com.sap.cloud.security.xsuaa.Assertions.hasText;
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -49,8 +49,8 @@ public class SSLContextFactory {
 
 	public SSLContext create(String x509Certificates, String rsaPrivateKey)
 			throws GeneralSecurityException, IOException {
-		hasText(x509Certificates, "x509Certificates are required");
-		hasText(rsaPrivateKey, "rsaPrivateKey is required");
+		assertHasText(x509Certificates, "x509Certificates are required");
+		assertHasText(rsaPrivateKey, "rsaPrivateKey is required");
 
 		SSLContext sslContext = createDefaultSSLContext();
 

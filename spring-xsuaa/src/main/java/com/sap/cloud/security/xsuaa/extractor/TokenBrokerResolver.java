@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
-import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 
 import java.nio.charset.StandardCharsets;
@@ -8,11 +7,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -26,11 +23,12 @@ import org.springframework.web.client.RestTemplate;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
 
 /**
  * Analyse authentication header and obtain token from UAA
@@ -183,14 +181,21 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			case OAUTH2_MUTUAL_TLS:
 				String oidcToken = extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
 				String pemEncodedCertificate = request.getHeader(FWD_CERT_HEADER);
-				String subdomain = parseSubdomainFromOIDCToken(oidcToken);
+				String subdomain = parseSubdomainFromOIDCToken(oidcToken); // TODO returns null as of now
+				XsuaaDefaultEndpoints endpoints = new XsuaaDefaultEndpoints(configuration.getUaaUrl());
 				try {
-					((XsuaaOAuth2TokenService) oAuth2TokenService).testCertificate();
+					OAuth2TokenResponse tokenResponse = ((XsuaaOAuth2TokenService) oAuth2TokenService)
+							.retrieveDelegationAccessTokenViaJwtBearerTokenGrant(
+									endpoints.getDelegationTokenEndpoint(),
+									clientCredentials,
+									oidcToken,
+									pemEncodedCertificate,
+									subdomain,
+									null);
+					return tokenResponse.getAccessToken();
 				} catch (OAuth2ServiceException e) {
 					logger.error("error calling 'delegation/oauth/token' endpoint", e);
 				}
-				// return oAuth2TokenService.retrieveAccessTokenViaJwtBearerTokenGrant();
-
 				break;
 			case OAUTH2:
 				return extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
