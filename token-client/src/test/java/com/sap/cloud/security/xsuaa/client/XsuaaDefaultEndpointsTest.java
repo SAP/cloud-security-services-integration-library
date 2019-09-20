@@ -29,6 +29,13 @@ public class XsuaaDefaultEndpointsTest {
 	}
 
 	@Test
+	public void getDelegationAuthorizeEndpoint() {
+		XsuaaDefaultEndpoints cut = createXsuaaDefaultEndpointProvider("https://subdomain.authentication.myauth.com");
+
+		assertThat(cut.getDelegationTokenEndpoint().toString(), is("https://subdomain.authentication.cert.myauth.com/delegation/oauth/token"));
+	}
+
+	@Test
 	public void withEndingPathDelimiter() {
 		OAuth2ServiceEndpointsProvider cut = createXsuaaDefaultEndpointProvider("http://localhost:8080/uaa/");
 
@@ -56,7 +63,7 @@ public class XsuaaDefaultEndpointsTest {
 		assertThat(cut.getJwksUri().toString(), is("http://localhost:8080/uaa/token_keys?abc=123"));
 	}
 
-	private OAuth2ServiceEndpointsProvider createXsuaaDefaultEndpointProvider(String baseUri) {
+	private XsuaaDefaultEndpoints createXsuaaDefaultEndpointProvider(String baseUri) {
 		return new XsuaaDefaultEndpoints(baseUri);
 	}
 }
