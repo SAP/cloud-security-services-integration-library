@@ -16,12 +16,12 @@
 #>
 
 param(
-    [Parameter(Mandatory=$True, HelpMessage="Enter application name.", Position=0)]
+    [Parameter(Mandatory = $True, HelpMessage = "Enter application name.", Position = 0)]
     [String]$App,
-    [Parameter(Mandatory=$True, HelpMessage="Enter application router name.", Position=1)]
+    [Parameter(Mandatory = $True, HelpMessage = "Enter application router name.", Position = 1)]
     [String]$Approuter,
-    [Parameter(Mandatory=$false, HelpMessage="Enter path to output zip file.", Position=2)]
-    [String]$Logs="$HOME\logcollection.zip"
+    [Parameter(Mandatory = $false, HelpMessage = "Enter path to output zip file.", Position = 2)]
+    [String]$Logs = "$HOME\logcollection.zip"
 )
 
 #Functions
@@ -47,9 +47,23 @@ if (-Not (Get-Command cf)) {
 }
 
 #login to the correct API endpoint
-Write-Host "`nLogging in...`n"
-cflogin
-Write-Host "`nSuccessfully logged in, will continue..."
+Write-Host "`n Did you log on and target the right space already?" -ForegroundColor Cyan -NoNewline;
+$Title = ""
+$Info = "Choose?"
+$options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Yes", "&No")
+[int]$defaultchoice = 0
+$opt = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+switch ($opt) {
+    0 {      
+        # just continue
+    }
+    1 {
+        Write-Host "`nLogging in...`n"
+        cflogin
+        Write-Host "`nSuccessfully logged in, will continue..."          
+    }
+}
+
 checkappname "$App"
 checkappname "$Approuter"
 
@@ -60,7 +74,7 @@ $Info = "Are you sure?"
 $options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Yes", "&No")
 [int]$defaultchoice = 1
 $opt = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-switch($opt){
+switch ($opt) {
     0 {
         break
     }
