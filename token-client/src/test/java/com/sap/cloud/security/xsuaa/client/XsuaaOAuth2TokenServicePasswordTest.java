@@ -173,20 +173,13 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 	}
 
 	private ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> captureRequestEntity() {
-		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = ArgumentCaptor
-				.forClass(HttpEntity.class);
-		Mockito.verify(mockRestOperations, times(1))
-				.postForEntity(
-						eq(tokenEndpoint),
-						requestEntityCaptor.capture(),
-						eq(Map.class));
-		return requestEntityCaptor;
+		return RequestCaptorFactory.createPostRequestCaptor(mockRestOperations, tokenEndpoint);
 	}
 
-	private String valueOfParameter(
-			String parameterKey, ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor) {
+	private String valueOfParameter(String tokenFormatParameterKey,
+			ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor) {
 		MultiValueMap<String, String> body = requestEntityCaptor.getValue().getBody();
-		return body.getFirst(parameterKey);
+		return body.getFirst(tokenFormatParameterKey);
 	}
 
 	private void throwExceptionOnPost(HttpStatus unauthorized) {
