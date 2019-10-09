@@ -62,16 +62,13 @@ private XsuaaTokenFlows xsuaaTokenFlows;
 
 Or, alternatively you can instantiate it like that
 ```java
-String clientId     = "<<client id from XSUAA service binding>>";
-String clientSecret = "<<client secret from XSUAA service binding>>";
-String xsuaaBaseUrl = "<<xsuaa base url from XSUAA service binding>>";
-
-OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUrl);
-ClientCredentials clientCredentials = new ClientCredentials(clientId, clientSecret);
+OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(<uaa_base_url>);
+ClientCredentials clientCredentials = new ClientCredentials(<client_id>, <client_secret>);
 RestOperations restOperations = new RestTemplate();
 
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(restOperations, endpointsProvider, clientCredentials);
 ```
+> The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. In case you leverage the spring-xsuaa library you can also use [`XsuaaServiceConfiguration`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfiguration.java) class.
 
 ### Client Credentials Token Flow
 Obtain a client credentials token:
@@ -86,7 +83,7 @@ In case you have a refresh token and want to obtain an access token:
 
 ```java
 OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
-                              .refreshToken("<<Your refresh token goes here.>>")
+                              .refreshToken("<refresh_token>")
                               .subdomain(jwtToken.getSubdomain()) // this is optional 
                               .execute();
 ```
@@ -96,8 +93,8 @@ In order to exchange a user token for another user access token:
 XsuaaToken jwtToken = SpringSecurityContext.getToken();
 
 OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
-                .token("<<Your current User access token goes here.>>")
-                .clientId("other's client id") // this is optional
+                .token(<access_token>)
+                .clientId(<client_id>) // this is optional
                 .subdomain(jwtToken.getSubdomain()) // this is optional      
                 .attributes(additionalAttributes) // this is optional
                 .execute();
