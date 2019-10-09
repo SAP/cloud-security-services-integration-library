@@ -42,14 +42,12 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 
-		// build parameters
-		Map<String, String> parameters = new ParameterBuilder()
+		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_CLIENT_CREDENTIALS)
 				.withClientCredentials(clientCredentials)
-				.withAdditionalParameters(optionalParameters)
+				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
-		// build header
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
 		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
@@ -64,14 +62,12 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 		Assert.notNull(token, "token is required");
 
-		// build parameters
-		Map<String, String> parameters = new ParameterBuilder()
+		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_USER_TOKEN)
 				.withClientId(clientCredentials.getId())
-				.withAdditionalParameters(optionalParameters)
+				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
-		// build header
 		HttpHeaders headers = httpHeadersFactory.createWithAuthorizationBearerHeader(token);
 
 		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
@@ -85,14 +81,12 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 		Assert.notNull(refreshToken, "refreshToken is required");
 
-		// build parameters
-		Map<String, String> parameters = new ParameterBuilder()
+		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_REFRESH_TOKEN)
 				.withRefreshToken(refreshToken)
 				.withClientCredentials(clientCredentials)
 				.buildAsMap();
 
-		// build header
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
 		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
@@ -108,12 +102,12 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(username, "username is required");
 		Assert.notNull(password, "password is required");
 
-		Map<String, String> parameters = new ParameterBuilder()
+		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_PASSWORD)
 				.withUsername(username)
 				.withPassword(password)
 				.withClientCredentials(clientCredentials)
-				.withAdditionalParameters(optionalParameters)
+				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
