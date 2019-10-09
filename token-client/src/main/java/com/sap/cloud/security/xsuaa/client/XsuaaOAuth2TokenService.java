@@ -50,7 +50,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 		HttpHeaders headers = httpHeadersFactory.createWithAuthorizationBearerHeader(token);
 
-		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
 	}
 
 	@Override
@@ -112,11 +112,11 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, parameters);
 	}
 
 	private OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
-			MultiValueMap<String, String> parameters) throws OAuth2ServiceException {
+			Map<String, String> parameters) throws OAuth2ServiceException {
 
 		// Create URI
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
@@ -126,7 +126,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		headers.getHeaders().forEach(h -> springHeaders.add(h.getName(), h.getValue()));
 
 		// Create entity
-		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(parameters, springHeaders);
+		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(copyIntoForm(parameters), springHeaders);
 
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> responseEntity = null;
