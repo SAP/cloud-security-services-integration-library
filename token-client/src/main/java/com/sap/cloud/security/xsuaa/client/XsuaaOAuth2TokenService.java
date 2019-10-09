@@ -1,11 +1,11 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -18,7 +18,6 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,10 +27,12 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 	private final RestOperations restOperations;
 	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
+	private final HttpHeadersFactory httpHeadersFactory;
 
 	public XsuaaOAuth2TokenService(@NonNull RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
+		this.httpHeadersFactory = new HttpHeadersFactory();
 	}
 
 	@Override
@@ -51,7 +52,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		}
 
 		// build header
-		HttpHeaders headers = createHeadersWithoutAuthorization();
+		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
 		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
@@ -74,7 +75,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		}
 
 		// build header
-		HttpHeaders headers = createHeadersWithAuthorization(token);
+		HttpHeaders headers = httpHeadersFactory.createWithAuthorizationBearerHeader(token);
 
 		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
@@ -94,7 +95,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		addClientCredentialsToParameters(clientCredentials, parameters);
 
 		// build header
-		HttpHeaders headers = createHeadersWithoutAuthorization();
+		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
 		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
@@ -119,7 +120,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 			optionalParameters.forEach(parameters::putIfAbsent);
 		}
 
-		HttpHeaders headers = createHeadersWithoutAuthorization();
+		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
 		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, copyIntoForm(parameters));
 	}
@@ -131,8 +132,11 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
 		URI requestUri = builder.build().encode().toUri();
 
+		org.springframework.http.HttpHeaders springHeaders = new org.springframework.http.HttpHeaders();
+		headers.getHeaders().forEach(h -> springHeaders.add(h.getName(), h.getValue()));
+
 		// Create entity
-		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(parameters, headers);
+		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(parameters, springHeaders);
 
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> responseEntity = null;
@@ -174,50 +178,10 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		return formData;
 	}
 
-	/**
-	 * Creates the set of HTTP headers with client-credentials basic authentication
-	 * header.
-	 *
-	 * @return the HTTP headers.
-	 */
-	private static HttpHeaders createHeadersWithoutAuthorization() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		return headers;
-	}
-
-	/**
-	 * Creates the set of HTTP headers with Authorization Bearer header.
-	 *
-	 * @return the HTTP headers.
-	 */
-	private static HttpHeaders createHeadersWithAuthorization(String token) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		addAuthorizationBearerHeader(headers, token);
-		return headers;
-	}
-
 	private void addClientCredentialsToParameters(ClientCredentials clientCredentials,
 			Map<String, String> parameters) {
 		parameters.put(CLIENT_ID, clientCredentials.getId());
 		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
 	}
 
-	/** common utilities **/
-
-	/**
-	 * Adds the {@code  Authorization: Bearer <token>} header to the set of headers.
-	 *
-	 * @param headers
-	 *            - the set of headers to add the header to.
-	 * @param token
-	 *            - the token which should be part of the header.
-	 */
-	private static void addAuthorizationBearerHeader(HttpHeaders headers, String token) {
-		final String AUTHORIZATION_BEARER_TOKEN_FORMAT = "Bearer %s";
-		headers.add(HttpHeaders.AUTHORIZATION, String.format(AUTHORIZATION_BEARER_TOKEN_FORMAT, token));
-	}
 }
