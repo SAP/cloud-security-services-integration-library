@@ -63,7 +63,7 @@ private XsuaaTokenFlows xsuaaTokenFlows;
 Or, alternatively you can instantiate it like that
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                                    new RestTemplate(), 
+                                    new XsuaaOAuth2TokenService(new RestTemplate()), 
                                     new XsuaaDefaultEndpoints(<uaa_base_url>), 
                                     new ClientCredentials(<client_id>, <client_secret>));
 ```
