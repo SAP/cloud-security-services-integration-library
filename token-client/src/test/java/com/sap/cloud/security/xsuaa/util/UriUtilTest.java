@@ -7,31 +7,31 @@ import java.net.URI;
 
 import org.junit.Test;
 
-public class URIUtilTest {
+public class UriUtilTest {
 
 	private URI tokenEndpointUri = URI.create("https://subdomain.myauth.com/mypath");
 
 	@Test
 	public void replaceSubdomain_replacesNothingWhenSubdomainIsNull() {
-		URI replacedURI = URIUtil.replaceSubdomain(tokenEndpointUri, null);
+		URI replacedURI = UriUtil.replaceSubdomain(tokenEndpointUri, null);
 		assertThat(replacedURI, is(tokenEndpointUri));
 	}
 
 	@Test
 	public void replaceSubdomain() {
-		URI replacedURI = URIUtil.replaceSubdomain(tokenEndpointUri, "newsubdomain");
+		URI replacedURI = UriUtil.replaceSubdomain(tokenEndpointUri, "newsubdomain");
 		assertThat(replacedURI.toString(), is("https://newsubdomain.myauth.com/mypath"));
 	}
 
 	@Test
 	public void replaceSubdomain_replacesNothingWhenSubdomainIsEmpty() {
-		URI replacedURI = URIUtil.replaceSubdomain(tokenEndpointUri, "");
+		URI replacedURI = UriUtil.replaceSubdomain(tokenEndpointUri, "");
 		assertThat(replacedURI, is(tokenEndpointUri));
 	}
 
 	@Test
 	public void replaceSubdomain_replacesNothingWhenUrlContainsNoSubdomain() {
-		URI replacedURI = URIUtil.replaceSubdomain(URI.create("http://localhost"), "newsubdomain");
+		URI replacedURI = UriUtil.replaceSubdomain(URI.create("http://localhost"), "newsubdomain");
 		assertThat(replacedURI.toString(), is("http://localhost"));
 	}
 }

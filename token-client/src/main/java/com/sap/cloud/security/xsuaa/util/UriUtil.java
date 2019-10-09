@@ -10,9 +10,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
-public class URIUtil {
+public class UriUtil {
 
-	private static final Logger logger = LoggerFactory.getLogger(URIUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(UriUtil.class);
 
 	/**
 	 * Utility method that replaces the subdomain of the URI with the given

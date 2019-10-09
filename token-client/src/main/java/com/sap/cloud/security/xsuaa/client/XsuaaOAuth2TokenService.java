@@ -2,7 +2,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
-import com.sap.cloud.security.xsuaa.util.URIUtil;
+import com.sap.cloud.security.xsuaa.util.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -54,7 +54,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build header
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build header
 		HttpHeaders headers = httpHeadersFactory.createWithAuthorizationBearerHeader(token);
 
-		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build header
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	@Override
@@ -122,7 +122,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	private OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
