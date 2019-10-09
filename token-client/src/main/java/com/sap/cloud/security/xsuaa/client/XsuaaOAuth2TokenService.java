@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
@@ -7,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
@@ -29,7 +29,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	private final HttpHeadersFactory httpHeadersFactory;
 
 	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations) {
-		Assert.notNull(restOperations, "restOperations is required");
+		Assertions.assertNotNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
 		this.httpHeadersFactory = new HttpHeadersFactory();
 	}
@@ -39,8 +39,8 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 			@Nonnull ClientCredentials clientCredentials,
 			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
-		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assert.notNull(clientCredentials, "clientCredentials is required");
+		Assertions.assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
+		Assertions.assertNotNull(clientCredentials, "clientCredentials is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_CLIENT_CREDENTIALS)
@@ -58,9 +58,9 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 			@Nonnull ClientCredentials clientCredentials, @Nonnull String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
-		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assert.notNull(clientCredentials, "clientCredentials is required");
-		Assert.notNull(token, "token is required");
+		Assertions.assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
+		Assertions.assertNotNull(clientCredentials, "clientCredentials is required");
+		Assertions.assertNotNull(token, "token is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_USER_TOKEN)
@@ -77,9 +77,9 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(@Nonnull URI tokenEndpointUri,
 			@Nonnull ClientCredentials clientCredentials,
 			@Nonnull String refreshToken, String subdomain) throws OAuth2ServiceException {
-		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assert.notNull(clientCredentials, "clientCredentials is required");
-		Assert.notNull(refreshToken, "refreshToken is required");
+		Assertions.assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
+		Assertions.assertNotNull(clientCredentials, "clientCredentials is required");
+		Assertions.assertNotNull(refreshToken, "refreshToken is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_REFRESH_TOKEN)
@@ -97,10 +97,10 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 			@Nonnull ClientCredentials clientCredentials, @Nonnull String username, @Nonnull String password,
 			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
-		Assert.notNull(tokenEndpoint, "tokenEndpoint is required");
-		Assert.notNull(clientCredentials, "clientCredentials are required");
-		Assert.notNull(username, "username is required");
-		Assert.notNull(password, "password is required");
+		Assertions.assertNotNull(tokenEndpoint, "tokenEndpoint is required");
+		Assertions.assertNotNull(clientCredentials, "clientCredentials are required");
+		Assertions.assertNotNull(username, "username is required");
+		Assertions.assertNotNull(password, "password is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_PASSWORD)
