@@ -18,7 +18,6 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
@@ -44,12 +43,11 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 
 		// build parameters
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS);
-		addClientCredentialsToParameters(clientCredentials, parameters);
-		if (optionalParameters != null) {
-			optionalParameters.forEach(parameters::putIfAbsent);
-		}
+		Map<String, String> parameters = new ParameterBuilder()
+				.withGrantType(GRANT_TYPE_CLIENT_CREDENTIALS)
+				.withClientCredentials(clientCredentials)
+				.withAdditionalParameters(optionalParameters)
+				.buildAsMap();
 
 		// build header
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
@@ -67,12 +65,11 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(token, "token is required");
 
 		// build parameters
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put(GRANT_TYPE, GRANT_TYPE_USER_TOKEN);
-		parameters.put(PARAMETER_CLIENT_ID, clientCredentials.getId());
-		if (optionalParameters != null) {
-			optionalParameters.forEach(parameters::putIfAbsent);
-		}
+		Map<String, String> parameters = new ParameterBuilder()
+				.withGrantType(GRANT_TYPE_USER_TOKEN)
+				.withClientId(clientCredentials.getId())
+				.withAdditionalParameters(optionalParameters)
+				.buildAsMap();
 
 		// build header
 		HttpHeaders headers = httpHeadersFactory.createWithAuthorizationBearerHeader(token);
@@ -89,10 +86,11 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(refreshToken, "refreshToken is required");
 
 		// build parameters
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put(GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
-		parameters.put(REFRESH_TOKEN, refreshToken);
-		addClientCredentialsToParameters(clientCredentials, parameters);
+		Map<String, String> parameters = new ParameterBuilder()
+				.withGrantType(GRANT_TYPE_REFRESH_TOKEN)
+				.withRefreshToken(refreshToken)
+				.withClientCredentials(clientCredentials)
+				.buildAsMap();
 
 		// build header
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
@@ -110,15 +108,13 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		Assert.notNull(username, "username is required");
 		Assert.notNull(password, "password is required");
 
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put(GRANT_TYPE, GRANT_TYPE_PASSWORD);
-		parameters.put(USERNAME, username);
-		parameters.put(PASSWORD, password);
-		addClientCredentialsToParameters(clientCredentials, parameters);
-
-		if (optionalParameters != null) {
-			optionalParameters.forEach(parameters::putIfAbsent);
-		}
+		Map<String, String> parameters = new ParameterBuilder()
+				.withGrantType(GRANT_TYPE_PASSWORD)
+				.withUsername(username)
+				.withPassword(password)
+				.withClientCredentials(clientCredentials)
+				.withAdditionalParameters(optionalParameters)
+				.buildAsMap();
 
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
@@ -176,12 +172,6 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 			parameters.forEach(formData::add);
 		}
 		return formData;
-	}
-
-	private void addClientCredentialsToParameters(ClientCredentials clientCredentials,
-			Map<String, String> parameters) {
-		parameters.put(CLIENT_ID, clientCredentials.getId());
-		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
 	}
 
 }
