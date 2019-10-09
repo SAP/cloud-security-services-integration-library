@@ -7,8 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -17,6 +15,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Map;
 
@@ -28,15 +28,15 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 	private final HttpHeadersFactory httpHeadersFactory;
 
-	public XsuaaOAuth2TokenService(@NonNull RestOperations restOperations) {
+	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
 		this.httpHeadersFactory = new HttpHeadersFactory();
 	}
 
 	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@NonNull URI tokenEndpointUri,
-			@NonNull ClientCredentials clientCredentials,
+	public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@Nonnull URI tokenEndpointUri,
+			@Nonnull ClientCredentials clientCredentials,
 			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
@@ -54,8 +54,8 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@NonNull URI tokenEndpointUri,
-			@NonNull ClientCredentials clientCredentials, @NonNull String token, @Nullable String subdomain,
+	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@Nonnull URI tokenEndpointUri,
+			@Nonnull ClientCredentials clientCredentials, @Nonnull String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
@@ -74,9 +74,9 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(@NonNull URI tokenEndpointUri,
-			@NonNull ClientCredentials clientCredentials,
-			@NonNull String refreshToken, String subdomain) throws OAuth2ServiceException {
+	public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(@Nonnull URI tokenEndpointUri,
+			@Nonnull ClientCredentials clientCredentials,
+			@Nonnull String refreshToken, String subdomain) throws OAuth2ServiceException {
 		Assert.notNull(tokenEndpointUri, "tokenEndpointUri is required");
 		Assert.notNull(clientCredentials, "clientCredentials is required");
 		Assert.notNull(refreshToken, "refreshToken is required");
@@ -93,8 +93,8 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(@NonNull URI tokenEndpoint,
-			@NonNull ClientCredentials clientCredentials, @NonNull String username, @NonNull String password,
+	public OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(@Nonnull URI tokenEndpoint,
+			@Nonnull ClientCredentials clientCredentials, @Nonnull String username, @Nonnull String password,
 			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
 		Assert.notNull(tokenEndpoint, "tokenEndpoint is required");
