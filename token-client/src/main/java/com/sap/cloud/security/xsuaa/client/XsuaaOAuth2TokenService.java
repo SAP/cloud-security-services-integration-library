@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.xsuaa.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -11,11 +12,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestOperations;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -54,7 +53,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build header
 		HttpHeaders headers = createHeadersWithoutAuthorization();
 
-		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	@Override
@@ -77,7 +76,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build header
 		HttpHeaders headers = createHeadersWithAuthorization(token);
 
-		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	@Override
@@ -97,7 +96,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		// build header
 		HttpHeaders headers = createHeadersWithoutAuthorization();
 
-		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	@Override
@@ -122,30 +121,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 
 		HttpHeaders headers = createHeadersWithoutAuthorization();
 
-		return requestAccessToken(replaceSubdomain(tokenEndpoint, subdomain), headers, copyIntoForm(parameters));
-	}
-
-	/**
-	 * Utility method that replaces the subdomain of the URI with the given
-	 * subdomain.
-	 *
-	 * @param uri
-	 *            the URI to be replaced.
-	 * @param subdomain
-	 *            of the tenant.
-	 * @return the URI with the replaced subdomain or the passed URI in case a
-	 *         replacement was not possible.
-	 */
-	static URI replaceSubdomain(@NonNull URI uri, @Nullable String subdomain) {
-		Assert.notNull(uri, "the uri parameter must not be null");
-		if (StringUtils.hasText(subdomain) && uri.getHost().contains(".")) {
-			UriBuilder builder = UriComponentsBuilder.newInstance().scheme(uri.getScheme())
-					.host(subdomain + uri.getHost().substring(uri.getHost().indexOf('.'))).port(uri.getPort())
-					.path(uri.getPath());
-			return uri.resolve(builder.build());
-		}
-		logger.warn("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
-		return uri;
+		return requestAccessToken(URIUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, copyIntoForm(parameters));
 	}
 
 	private OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
@@ -240,7 +216,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	 * @param token
 	 *            - the token which should be part of the header.
 	 */
-	static void addAuthorizationBearerHeader(HttpHeaders headers, String token) {
+	private static void addAuthorizationBearerHeader(HttpHeaders headers, String token) {
 		final String AUTHORIZATION_BEARER_TOKEN_FORMAT = "Bearer %s";
 		headers.add(HttpHeaders.AUTHORIZATION, String.format(AUTHORIZATION_BEARER_TOKEN_FORMAT, token));
 	}
