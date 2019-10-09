@@ -62,11 +62,10 @@ private XsuaaTokenFlows xsuaaTokenFlows;
 
 Or, alternatively you can instantiate it like that
 ```java
-OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(<uaa_base_url>);
-ClientCredentials clientCredentials = new ClientCredentials(<client_id>, <client_secret>);
-RestOperations restOperations = new RestTemplate();
-
-XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(restOperations, endpointsProvider, clientCredentials);
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+                                    new RestTemplate(), 
+                                    new XsuaaDefaultEndpoints(<uaa_base_url>), 
+                                    new ClientCredentials(<client_id>, <client_secret>));
 ```
 > The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. In case you leverage the spring-xsuaa library you can also use [`XsuaaServiceConfiguration`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfiguration.java) class.
 
