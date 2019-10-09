@@ -92,7 +92,7 @@ In order to exchange a user token for another user access token:
 XsuaaToken jwtToken = SpringSecurityContext.getToken();
 
 OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
-                .token(<access_token>)
+                .token(jwtToken)
                 .clientId(<client_id>) // this is optional
                 .subdomain(jwtToken.getSubdomain()) // this is optional      
                 .attributes(additionalAttributes) // this is optional
