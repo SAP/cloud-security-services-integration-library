@@ -131,9 +131,9 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	/**
 	 * TODO currently fails with 400 (Bad Request)
 	 * @param tokenEndpointUri
-	 * @param clientCredentials
+	 * @param clientCredentials contains id of master (extracted from VCAP_SERVICES system environment variable)
 	 * @param oidcToken
-	 * @param pemEncodedCertificate
+	 * @param pemEncodedCloneCertificate
 	 * @param subdomain
 	 * @param optionalParameters
 	 * @return
@@ -141,26 +141,28 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	 */
 	@Nullable
 	public OAuth2TokenResponse retrieveDelegationAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
-			ClientCredentials clientCredentials, String oidcToken, String pemEncodedCertificate, @Nullable String subdomain,
+			ClientCredentials clientCredentials, String oidcToken, String pemEncodedCloneCertificate, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
 		assertNotNull(tokenEndpointUri, "tokenEndpoint is required");
-		assertNotNull(clientCredentials, "clientCredentials are required");
+		assertNotNull(clientCredentials.getId(), "client ID is required (master)");
 		assertHasText(oidcToken, "oidcToken is required");
-		assertHasText(pemEncodedCertificate, "pemEncodedCertificate is required"); // w/o BEGIN CERTIFICATE ...
+		assertHasText(pemEncodedCloneCertificate, "pemEncodedCertificate is required"); // w/o BEGIN CERTIFICATE ...
 
 		if(!testCertificate()) {
 			return null;
 		}
 		Map<String, String> parameters = new HashMap<>();
-		//parameters.put(GRANT_TYPE, GRANT_TYPE_JWT_BEARER);
+
+		//parameters.put(GRANT_TYPE, GRANT_TYPE_JWT_BEARER); // default client_x509
 		parameters.put("master_client_id", clientCredentials.getId());
-		parameters.put("clone_certificate", pemEncodedCertificate);
+		parameters.put("clone_certificate", pemEncodedCloneCertificate);
 
 		if (optionalParameters != null) {
 			optionalParameters.forEach(parameters::putIfAbsent);
 		}
 
-		HttpHeaders headers = createHeadersWithAuthorization(oidcToken);
+		//HttpHeaders headers = createHeadersWithAuthorization(oidcToken);
+		HttpHeaders headers = createHeadersWithoutAuthorization();
 		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 

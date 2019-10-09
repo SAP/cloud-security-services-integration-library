@@ -26,8 +26,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.security.xsuaa.Assertions;
-
 /**
  * Requires
  * https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
