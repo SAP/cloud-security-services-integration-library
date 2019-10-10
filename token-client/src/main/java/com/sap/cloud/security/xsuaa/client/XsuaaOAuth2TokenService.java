@@ -3,6 +3,8 @@ package com.sap.cloud.security.xsuaa.client;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
+import com.sap.cloud.security.xsuaa.util.UriUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -20,6 +22,8 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
 public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
@@ -29,7 +33,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	private final HttpHeadersFactory httpHeadersFactory;
 
 	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations) {
-		Assertions.assertNotNull(restOperations, "restOperations is required");
+		assertNotNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
 		this.httpHeadersFactory = new HttpHeadersFactory();
 	}
@@ -51,27 +55,25 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 			ClientCredentials clientCredentials, String oidcToken, String pemEncodedCloneCertificate,
 			@Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
-		assertNotNull(tokenEndpointUri, "tokenEndpoint is required");
+		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
 		assertNotNull(clientCredentials.getId(), "client ID is required (master)");
 		assertHasText(oidcToken, "oidcToken is required");
-		assertHasText(pemEncodedCloneCertificate, "pemEncodedCertificate is required"); // w/o BEGIN CERTIFICATE ...
+		assertHasText(pemEncodedCloneCertificate, "pemEncodedCertificate is required (clone)"); // w/o BEGIN CERTIFICATE ...
 
 		if (!testCertificate()) {
 			return null;
 		}
-		Map<String, String> parameters = new HashMap<>();
 
-		// parameters.put(GRANT_TYPE, GRANT_TYPE_JWT_BEARER); // default client_x509
-		parameters.put("master_client_id", clientCredentials.getId());
-		parameters.put("clone_certificate", pemEncodedCloneCertificate);
+		Map<String, String> parameters = new RequestParameterBuilder()
+				//.withGrantType(GRANT_TYPE_JWT_BEARER) // default "client_x509"
+				.withCertificate(clientCredentials.getId(), pemEncodedCloneCertificate)
+				.withOptionalParameters(optionalParameters)
+				.buildAsMap();
 
-		if (optionalParameters != null) {
-			optionalParameters.forEach(parameters::putIfAbsent);
-		}
+		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
+		//HttpHeaders headers = httpHeadersFactory.createWithAuthorizationBearerHeader(oidcToken);
 
-		HttpHeaders headers = createHeadersWithoutAuthorization();
-		//HttpHeaders headers = createHeadersWithAuthorization(oidcToken);
-		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
+		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
 	}
 
 	@Override

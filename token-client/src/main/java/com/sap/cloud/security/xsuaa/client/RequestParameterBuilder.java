@@ -48,6 +48,12 @@ public class RequestParameterBuilder {
 		return this;
 	}
 
+	public RequestParameterBuilder withCertificate(String clientId, String pemEncodedCertificate) {
+		parameters.put(MASTER_CLIENT_ID, clientId);
+		parameters.put(CLONE_CERTIFICATE, pemEncodedCertificate);
+		return this;
+	}
+
 	public Map<String, String> buildAsMap() {
 		return parameters;
 	}

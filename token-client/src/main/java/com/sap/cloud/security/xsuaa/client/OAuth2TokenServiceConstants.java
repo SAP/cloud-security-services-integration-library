@@ -13,6 +13,8 @@ public class OAuth2TokenServiceConstants {
 	public static final String CLIENT_SECRET = "client_secret";
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
+	static final String MASTER_CLIENT_ID = "master_client_id";
+	static final String CLONE_CERTIFICATE = "clone_certificate";
 
 	public static final String GRANT_TYPE = "grant_type";
 	public static final String GRANT_TYPE_USER_TOKEN = "user_token";
