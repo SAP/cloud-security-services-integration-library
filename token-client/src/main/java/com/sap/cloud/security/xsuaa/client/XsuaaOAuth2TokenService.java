@@ -3,7 +3,6 @@ package com.sap.cloud.security.xsuaa.client;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
-import com.sap.cloud.security.xsuaa.util.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -16,13 +15,12 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
-public class XsuaaOAuth2TokenService implements OAuth2TokenService {
+public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private final RestOperations restOperations;
 	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
@@ -35,87 +33,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@Nonnull URI tokenEndpointUri,
-			@Nonnull ClientCredentials clientCredentials,
-			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
-			throws OAuth2ServiceException {
-		Assertions.assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assertions.assertNotNull(clientCredentials, "clientCredentials is required");
-
-		Map<String, String> parameters = new RequestParameterBuilder()
-				.withGrantType(GRANT_TYPE_CLIENT_CREDENTIALS)
-				.withClientCredentials(clientCredentials)
-				.withOptionalParameters(optionalParameters)
-				.buildAsMap();
-
-		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
-
-		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
-	}
-
-	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@Nonnull URI tokenEndpointUri,
-			@Nonnull ClientCredentials clientCredentials, @Nonnull String token, @Nullable String subdomain,
-			@Nullable Map<String, String> optionalParameters)
-			throws OAuth2ServiceException {
-		Assertions.assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assertions.assertNotNull(clientCredentials, "clientCredentials is required");
-		Assertions.assertNotNull(token, "token is required");
-
-		Map<String, String> parameters = new RequestParameterBuilder()
-				.withGrantType(GRANT_TYPE_USER_TOKEN)
-				.withClientId(clientCredentials.getId())
-				.withOptionalParameters(optionalParameters)
-				.buildAsMap();
-
-		HttpHeaders headers = httpHeadersFactory.createWithAuthorizationBearerHeader(token);
-
-		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
-	}
-
-	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(@Nonnull URI tokenEndpointUri,
-			@Nonnull ClientCredentials clientCredentials,
-			@Nonnull String refreshToken, String subdomain) throws OAuth2ServiceException {
-		Assertions.assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assertions.assertNotNull(clientCredentials, "clientCredentials is required");
-		Assertions.assertNotNull(refreshToken, "refreshToken is required");
-
-		Map<String, String> parameters = new RequestParameterBuilder()
-				.withGrantType(GRANT_TYPE_REFRESH_TOKEN)
-				.withRefreshToken(refreshToken)
-				.withClientCredentials(clientCredentials)
-				.buildAsMap();
-
-		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
-
-		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
-	}
-
-	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(@Nonnull URI tokenEndpoint,
-			@Nonnull ClientCredentials clientCredentials, @Nonnull String username, @Nonnull String password,
-			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
-			throws OAuth2ServiceException {
-		Assertions.assertNotNull(tokenEndpoint, "tokenEndpoint is required");
-		Assertions.assertNotNull(clientCredentials, "clientCredentials are required");
-		Assertions.assertNotNull(username, "username is required");
-		Assertions.assertNotNull(password, "password is required");
-
-		Map<String, String> parameters = new RequestParameterBuilder()
-				.withGrantType(GRANT_TYPE_PASSWORD)
-				.withUsername(username)
-				.withPassword(password)
-				.withClientCredentials(clientCredentials)
-				.withOptionalParameters(optionalParameters)
-				.buildAsMap();
-
-		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
-
-		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, parameters);
-	}
-
-	private OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
+	protected OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
 
 		// Create URI
@@ -160,7 +78,7 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 	 * @return a new @link{MultiValueMap} that contains all entries of the optional
 	 *         map.
 	 */
-	private static MultiValueMap<String, String> copyIntoForm(Map<String, String> parameters) {
+	private MultiValueMap<String, String> copyIntoForm(Map<String, String> parameters) {
 		MultiValueMap<String, String> formData = new LinkedMultiValueMap();
 		if (parameters != null) {
 			parameters.forEach(formData::add);
