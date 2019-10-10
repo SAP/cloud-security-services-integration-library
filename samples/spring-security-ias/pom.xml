@@ -39,6 +39,12 @@
 			<artifactId>xsuaa-spring-boot-starter</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency><!-- crypto lib required for parsing certificate -->
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.56</version>
+		</dependency>
+		<!-- test dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

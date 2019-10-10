@@ -163,8 +163,8 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 			optionalParameters.forEach(parameters::putIfAbsent);
 		}
 
-		// HttpHeaders headers = createHeadersWithoutAuthorization();
-		HttpHeaders headers = createHeadersWithAuthorization(oidcToken);
+		HttpHeaders headers = createHeadersWithoutAuthorization();
+		//HttpHeaders headers = createHeadersWithAuthorization(oidcToken);
 		return requestAccessToken(replaceSubdomain(tokenEndpointUri, subdomain), headers, copyIntoForm(parameters));
 	}
 

@@ -8,7 +8,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.security.Security;
+
 import org.apache.commons.io.IOUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,6 +23,8 @@ public class SSLContextFactoryTest {
 	@Before
 	public void setup() throws IOException {
 		cut = SSLContextFactory.getInstance();
+		Security.addProvider(new BouncyCastleProvider());
+
 		assertThat(cut, is(SSLContextFactory.getInstance())); // singleton
 
 		rsaPrivateKey = readFromFile("/privateRSAKey.txt");

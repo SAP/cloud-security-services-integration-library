@@ -10,7 +10,7 @@ applications:
     - route: spring-security-ias-((ID)).((LANDSCAPE_APPS_DOMAIN))
   path: target/spring-security-ias.jar
   services:
-    - xsuaa-
+    - xsuaa-ias
 
 
 ...
