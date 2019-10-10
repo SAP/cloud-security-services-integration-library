@@ -1,9 +1,10 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+
+import com.sap.cloud.security.xsuaa.util.UriUtil;
 
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final URI baseUri;
@@ -37,38 +38,21 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 
 	@Override
 	public URI getTokenEndpoint() {
-		return getUriWithPathAppended(TOKEN_ENDPOINT, false);
+		return UriUtil.expandPath(baseUri, TOKEN_ENDPOINT);
 	}
 
 	@Override
 	public URI getAuthorizeEndpoint() {
-		return getUriWithPathAppended(AUTHORIZE_ENDPOINT, false);
+		return UriUtil.expandPath(baseUri, AUTHORIZE_ENDPOINT);
 	}
 
 	@Override
 	public URI getJwksUri() {
-		return getUriWithPathAppended(KEYSET_ENDPOINT, false);
-	}
-
-	private URI getUriWithPathAppended(String pathToAppend, boolean useCertDomain) {
-		try {
-			String newPath = baseUri.getPath() + pathToAppend;
-			String newHost = baseUri.getHost();
-			if (useCertDomain == true && baseUri.getHost().contains(".authentication.")) {
-				newHost = baseUri.getHost().replace(".authentication.", ".authentication.cert.");
-			}
-			return new URI(baseUri.getScheme(), baseUri.getUserInfo(), newHost, baseUri.getPort(),
-					replaceDoubleSlashes(newPath), baseUri.getQuery(), baseUri.getFragment());
-		} catch (URISyntaxException e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
-	private String replaceDoubleSlashes(String newPath) {
-		return newPath.replaceAll("//", "/");
+		return UriUtil.expandPath(baseUri, KEYSET_ENDPOINT);
 	}
 
 	public URI getDelegationTokenEndpoint() {
-		return getUriWithPathAppended(DELEGATION_TOKEN_ENDPOINT, true);
+		URI newUri = UriUtil.expandPath(baseUri, DELEGATION_TOKEN_ENDPOINT);
+		return UriUtil.setCertDomain(newUri);
 	}
 }

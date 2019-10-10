@@ -1,6 +1,8 @@
 package com.sap.cloud.security.xsuaa.util;
 
-import com.sap.cloud.security.xsuaa.Assertions;
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +28,7 @@ public class UriUtil {
 	 *         replacement was not possible.
 	 */
 	public static URI replaceSubdomain(@Nonnull URI uri, @Nullable String subdomain) {
-		Assertions.assertNotNull(uri, "the uri parameter must not be null");
+		assertNotNull(uri, "the uri parameter must not be null");
 		if (hasText(subdomain) && hasSubdomain(uri)) {
 			String newHost = subdomain + uri.getHost().substring(uri.getHost().indexOf('.'));
 			try {
@@ -37,9 +39,58 @@ public class UriUtil {
 				throw new IllegalArgumentException(e);
 			}
 		}
-		logger.warn("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
+		logger.info("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
 		return uri;
 	}
+
+	/**
+	 * Utility method that sets the path of the URI.
+	 *
+	 * @param uri
+	 *            the URI to be replaced.
+	 * @param pathToAppend
+	 *            the path to append.
+	 * @return the URI with the path.
+	 */
+	public static URI expandPath(URI uri, String pathToAppend) {
+		assertNotNull(uri, "the uri parameter must not be null");
+		assertHasText(pathToAppend, "the path parameter must not be null or ''");
+		try {
+			String newPath = uri.getPath() + pathToAppend;
+			return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(),
+					replaceDoubleSlashes(newPath), uri.getQuery(), uri.getFragment());
+		} catch (URISyntaxException e) {
+			logger.error("Could not set path {} in given uri {}", pathToAppend, uri);
+			throw new IllegalStateException(e);
+		}
+	}
+
+	/**
+	 * Utility method that sets the "cert" in the URI host.
+	 *
+	 * @param uri
+	 *            the URI to be replaced.
+	 * @return the URI with the "cert" domain.
+	 */
+	public static URI setCertDomain(URI uri) {
+		assertNotNull(uri, "the uri parameter must not be null");
+		String newHost = uri.getHost();
+		try {
+			if (uri.getHost().contains(".authentication.")) {
+				newHost = newHost.replace(".authentication.", ".authentication.cert.");
+			}
+			return new URI(uri.getScheme(), uri.getUserInfo(), newHost, uri.getPort(),
+					uri.getPath(), uri.getQuery(), uri.getFragment());
+		} catch (URISyntaxException e) {
+			logger.error("Could not set cert domain in given uri {}", uri);
+			throw new IllegalStateException(e);
+		}
+	}
+
+	private static String replaceDoubleSlashes(String newPath) {
+		return newPath.replaceAll("//", "/");
+	}
+
 
 	private static boolean hasSubdomain(URI uri) {
 		return uri.getHost().contains(".");
