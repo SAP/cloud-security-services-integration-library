@@ -54,22 +54,23 @@ public class JwtGenerator {
 
 	// must match the port defined in XsuaaMockWebServer
 	private static final int MOCK_XSUAA_DEFAULT_PORT = 33195;
-	private final int mockXsuaaPort;
 	public static final Date NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime();
 	public static final int NO_EXPIRE = Integer.MAX_VALUE;
 	public static final String CLIENT_ID = "sb-xsapplication!t895";
 	public static final String DEFAULT_IDENTITY_ZONE_ID = "uaa";
 	private static final String PRIVATE_KEY_FILE = "/privateKey.txt";
-	private final String clientId;
-	private String identityZoneId;
-	private String subdomain = "";
-	private String jku;
 	// see XsuaaToken.GRANTTYPE_SAML2BEARER
 	private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:saml2-bearer";
+
+	private final String clientId;
+	private final String identityZoneId;
+	private final String subdomain;
+
+	private String jku;
 	private String[] scopes;
 	private String userName = "testuser";
 	private String jwtHeaderKeyId = "legacy-token-key";
-	public Map<String, List<String>> attributes = new HashMap<>();
+	private Map<String, List<String>> attributes = new HashMap<>();
 	private Map<String, Object> customClaims = new LinkedHashMap();
 	private boolean deriveAudiences = false;
 
@@ -86,9 +87,9 @@ public class JwtGenerator {
 	 */
 	public JwtGenerator(String clientId, int port) {
 		this.clientId = clientId;
+		this.subdomain = "";
 		this.identityZoneId = DEFAULT_IDENTITY_ZONE_ID;
-		this.mockXsuaaPort = port;
-		this.jku = createJku(null, port);
+		this.jku = createJku(subdomain, port);
 	}
 
 	/**
@@ -125,8 +126,7 @@ public class JwtGenerator {
 		this.clientId = clientId;
 		this.subdomain = subdomain;
 		this.identityZoneId = identityZoneId;
-		this.mockXsuaaPort = MOCK_XSUAA_DEFAULT_PORT;
-		this.jku = createJku(subdomain, mockXsuaaPort);
+		this.jku = createJku(subdomain, MOCK_XSUAA_DEFAULT_PORT);
 	}
 
 	/**
@@ -380,7 +380,7 @@ public class JwtGenerator {
 	 * @return a basic set of claims
 	 */
 	public Map<String, String> getBasicHeaders() {
-		return getHeaderMap(jwtHeaderKeyId, createJku(subdomain, mockXsuaaPort));
+		return getHeaderMap(jwtHeaderKeyId, jku);
 	}
 
 	private static Jwt createFromClaims(String claims, Map<String, String> headers) {

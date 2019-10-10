@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.0.0
+* Deleted package `com.sap.xs2.security.container` in order to avoid Class Loader issues, when an application makes use of SAP-libraries using the SAP-internal container lib like CAP. 
+  - As already mentioned use `SpringSecurityContext` class instead of `SecurityContext` class.
+* Removed deprecated methods:
+  - `XsuaaServiceConfiguration.getTokenUrl()`
+  - `XsuaaToken.getClaimAccessor()` is not required anymore as `Xsuaa` itself implements `JwtClaimAccessor `.
+* Deprecated `TokenBroker` interface and its implementation `UaaTokenBroker`, as this is going to be replaced with the `OAuth2TokenService` interface which is provided by the new `token-client` library. If you wish to configure / pass your `RestTemplate` you can pass an instance of `OAuth2TokenService`:  
+
+```java
+new TokenBrokerResolver( 
+  <<your configuration>>, 
+  <<your cache>>, 
+  new XsuaaOAuth2TokenService(<<your restTemplate>>), 
+  <<your authenticationInformationExtractor>>);
+```
+* `TokenUlrUtils` class is now package protected and will be deleted with version.
+* `token-client` library supports basically Password-Grant Access Tokens.
+
+
 ## 1.7.0
 * We now provide a new slim [`token-client`](/token-client/README.md) library with a `XsuaaTokenFlows` class, which serves as a factory for the different flows (user, refresh and client-credentials). This deprecates the existing `Token.requestToken(XSTokenRequest)` API. 
   * The `token-client` library can be used by plain Java applications. 
