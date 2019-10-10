@@ -1,8 +1,7 @@
 package com.sap.cloud.security.xsuaa.http;
 
 public enum MediaType {
-	APPLICATION_JSON("application/json"),
-	APPLICATION_FORM_URLENCODED("application/x-www-form-urlencoded");
+	APPLICATION_JSON("application/json"), APPLICATION_FORM_URLENCODED("application/x-www-form-urlencoded");
 
 	private final String value;
 

@@ -18,7 +18,8 @@ public class HttpHeadersFactory {
 	/**
 	 * Adds the {@code  Authorization: Bearer <token>} header to the set of headers.
 	 *
-	 * @param token - the token which should be part of the header.
+	 * @param token
+	 *            - the token which should be part of the header.
 	 * @return the builder instance.
 	 */
 	public HttpHeaders createWithAuthorizationBearerHeader(String token) {

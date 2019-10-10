@@ -126,8 +126,8 @@ public class XsuaaOAuth2TokenService implements OAuth2TokenService {
 		headers.getHeaders().forEach(h -> springHeaders.add(h.getName(), h.getValue()));
 
 		// Create entity
-		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(copyIntoForm(parameters), springHeaders);
-
+		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(copyIntoForm(parameters),
+				springHeaders);
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> responseEntity = null;
 		try {
