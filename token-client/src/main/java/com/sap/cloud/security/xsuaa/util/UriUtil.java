@@ -18,25 +18,21 @@ public class UriUtil {
 	 * Utility method that replaces the subdomain of the URI with the given
 	 * subdomain.
 	 *
-	 * @param uri
-	 *            the URI to be replaced.
-	 * @param subdomain
-	 *            of the tenant.
+	 * @param uri       the URI to be replaced.
+	 * @param subdomain of the tenant.
 	 * @return the URI with the replaced subdomain or the passed URI in case a
-	 *         replacement was not possible.
+	 * replacement was not possible.
 	 */
 	public static URI replaceSubdomain(@Nonnull URI uri, @Nullable String subdomain) {
 		Assertions.assertNotNull(uri, "the uri parameter must not be null");
 		if (hasText(subdomain) && hasSubdomain(uri)) {
 			String newHost = subdomain + uri.getHost().substring(uri.getHost().indexOf('.'));
 			try {
-				return uri.resolve(new URI(
-						uri.getScheme(), uri.getUserInfo(), newHost,
-						uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment()
-
-				));
+				return uri.resolve(new URI(uri.getScheme(), uri.getUserInfo(), newHost, uri.getPort(), uri.getPath(),
+						uri.getQuery(), uri.getFragment()));
 			} catch (URISyntaxException e) {
-				logger.error("Malformed uri {} or subdomain {}", uri, subdomain, e);
+				logger.error("Could not replace subdomain {} in given uri {}", subdomain, uri);
+				throw new IllegalArgumentException(e);
 			}
 		}
 		logger.warn("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
