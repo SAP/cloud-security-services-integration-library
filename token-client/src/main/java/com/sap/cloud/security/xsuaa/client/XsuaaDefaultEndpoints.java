@@ -54,7 +54,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 		try {
 			String newPath = baseUri.getPath() + pathToAppend;
 			String newHost = baseUri.getHost();
-			if(useCertDomain == true && baseUri.getHost().contains(".authentication.")) {
+			if (useCertDomain == true && baseUri.getHost().contains(".authentication.")) {
 				newHost = baseUri.getHost().replace(".authentication.", ".authentication.cert.");
 			}
 			return new URI(baseUri.getScheme(), baseUri.getUserInfo(), newHost, baseUri.getPort(),

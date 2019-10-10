@@ -32,7 +32,8 @@ public class XsuaaDefaultEndpointsTest {
 	public void getDelegationAuthorizeEndpoint() {
 		XsuaaDefaultEndpoints cut = createXsuaaDefaultEndpointProvider("https://subdomain.authentication.myauth.com");
 
-		assertThat(cut.getDelegationTokenEndpoint().toString(), is("https://subdomain.authentication.cert.myauth.com/delegation/oauth/token"));
+		assertThat(cut.getDelegationTokenEndpoint().toString(),
+				is("https://subdomain.authentication.cert.myauth.com/delegation/oauth/token"));
 	}
 
 	@Test

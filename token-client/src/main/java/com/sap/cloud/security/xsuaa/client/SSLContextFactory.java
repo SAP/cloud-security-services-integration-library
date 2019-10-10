@@ -27,8 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Requires
- * https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
+ * Requires https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
  * because Sun JCE does not support PKCS#8 algorithm.
  */
 public class SSLContextFactory {
