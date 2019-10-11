@@ -30,15 +30,16 @@ import org.slf4j.LoggerFactory;
  * because JDK JCE does not support PKCS#8 algorithm.
  *
  * Add the following maven dependency:
- * <pre>
+ * <pre>{@code
  * <dependency><!-- crypto lib required for parsing certificate -->
  * 		<groupId>org.bouncycastle</groupId>
  * 		<artifactId>bcprov-jdk15on</artifactId>
  * 		<version>1.56</version>
  * </dependency>
+ * }
  * </pre>
- * <pre>
  * And before creating the SSLContext using {@link #create(String, String)} you need to add the "BC" Provider.
+ * <pre>
  * {@code
  * Security.addProvider(new BouncyCastleProvider());
  * }
