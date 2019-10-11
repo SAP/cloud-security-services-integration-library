@@ -60,14 +60,34 @@ To consume the `XsuaaTokenFlows` class, you simply need to `@Autowire` it like t
 private XsuaaTokenFlows xsuaaTokenFlows;
 ```
 
-Or, alternatively you can instantiate it like that
+Or, alternatively you can instantiate it manually. The required parameters are described in the javadoc of `XsuaaTokenFlows`.
+With spring available it can be instantiated like that:
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                                    new XsuaaOAuth2TokenService(new RestTemplate()), 
-                                    new XsuaaDefaultEndpoints(<uaa_base_url>), 
+                                    new XsuaaOAuth2TokenService(new RestTemplate()),
+                                    new XsuaaDefaultEndpoints(<uaa_base_url>),
                                     new ClientCredentials(<client_id>, <client_secret>));
 ```
 > The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. In case you leverage the spring-xsuaa library you can also use [`XsuaaServiceConfiguration`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfiguration.java) class.
+
+### Usage without Spring
+As described above the XsuaaOAuth2TokenService uses the HTTP client from Spring-Web to perform requests.
+If Spring cannot be used, `XsuaaTokenFlows` can also be instantiated with the  `DefaultOAuth2TokenService` which
+usees of the [Apache HttpClient](https://hc.apache.org/):
+```java
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+                                    new DefaultOAuth2TokenService(), 
+                                    new XsuaaDefaultEndpoints(<uaa_base_url>), 
+                                    new ClientCredentials(<client_id>, <client_secret>));
+```
+For this to work your application needs to declare the following dependency:
+```xml
+<dependency>
+  <groupId>org.apache.httpcomponents</groupId>
+  <artifactId>httpclient</artifactId>
+</dependency>
+```
+The `DefaultOAuth2TokenService` can also be instantiated with a custom `CloseableHttpClient`.
 
 ### Client Credentials Token Flow
 Obtain a client credentials token:
