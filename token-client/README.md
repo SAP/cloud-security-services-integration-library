@@ -60,8 +60,7 @@ To consume the `XsuaaTokenFlows` class, you simply need to `@Autowire` it like t
 private XsuaaTokenFlows xsuaaTokenFlows;
 ```
 
-Or, alternatively you can instantiate it manually. The required parameters are described in the javadoc of `XsuaaTokenFlows`.
-With spring available it can be instantiated like that:
+Or, alternatively you can instantiate it manually. With Spring-Web available it can be instantiated like that:
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                                     new XsuaaOAuth2TokenService(new RestTemplate()),
