@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
@@ -61,34 +62,30 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	private OAuth2TokenResponse handleResponse(HttpResponse response) throws IOException {
-		String responseAsString = new BufferedReader(new InputStreamReader(response.getEntity().getContent()))
-				.lines().collect(Collectors.joining("\n"));
+		String responseAsString = convertToString(response);
 		Map<String, Object> accessTokenMap = new JSONObject(responseAsString).toMap();
 		logger.debug("Request Access Token: {}", accessTokenMap);
 		return convertToOAuth2TokenResponse(accessTokenMap);
 	}
 
-	private OAuth2TokenResponse convertToOAuth2TokenResponse(Map<String, Object> accessTokenMap)
-			throws OAuth2ServiceException {
-		Object accessToken = accessTokenMap.get(ACCESS_TOKEN);
-		Object expiresIn = accessTokenMap.get(EXPIRES_IN);
-		Object refreshToken = accessTokenMap.get(REFRESH_TOKEN);
-		throwExceptionIfNull(accessToken, expiresIn, refreshToken);
-		return new OAuth2TokenResponse(accessToken.toString(), Long.parseLong(expiresIn.toString()),
-				refreshToken.toString());
+	private String convertToString(HttpResponse response) throws IOException {
+		return new BufferedReader(new InputStreamReader(response.getEntity().getContent()))
+				.lines().collect(Collectors.joining(System.lineSeparator()));
 	}
 
-	private void throwExceptionIfNull(Object accessToken, Object expiresIn, Object refreshToken)
+	private OAuth2TokenResponse convertToOAuth2TokenResponse(Map<String, Object> accessTokenMap)
 			throws OAuth2ServiceException {
-		if (accessToken == null) {
-			throw new OAuth2ServiceException("Access token missing from server response");
-		}
-		if (expiresIn == null) {
-			throw new OAuth2ServiceException("Expires in missing from server response");
-		}
-		if (refreshToken == null) {
-			throw new OAuth2ServiceException("Refresh token missing from server response");
-		}
+		String accessToken = getParameter(accessTokenMap, ACCESS_TOKEN);
+		String refreshToken = getParameter(accessTokenMap, REFRESH_TOKEN);
+		String expiresIn = getParameter(accessTokenMap, EXPIRES_IN);
+		return new OAuth2TokenResponse(accessToken, Long.parseLong(expiresIn),
+				refreshToken);
+	}
+
+	private String getParameter(Map<String, Object> accessTokenMap, String accessToken) throws OAuth2ServiceException {
+		return Optional.ofNullable(accessTokenMap.get(accessToken))
+				.map(Object::toString)
+				.orElseThrow(() -> new OAuth2ServiceException(accessToken + " is missing from server response."));
 	}
 
 	private HttpPost createHttpPost(URI uri, HttpHeaders headers, Map<String, String> parameters)
