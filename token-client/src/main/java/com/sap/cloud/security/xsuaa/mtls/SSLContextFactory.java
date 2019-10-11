@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.cloud.security.xsuaa.mtls;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
@@ -14,12 +14,12 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
 import java.util.Collection;
 
 import org.slf4j.Logger;
@@ -27,7 +27,22 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Requires https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
- * because Sun JCE does not support PKCS#8 algorithm.
+ * because JDK JCE does not support PKCS#8 algorithm.
+ *
+ * Add the following maven dependency:
+ * <pre>
+ * <dependency><!-- crypto lib required for parsing certificate -->
+ * 		<groupId>org.bouncycastle</groupId>
+ * 		<artifactId>bcprov-jdk15on</artifactId>
+ * 		<version>1.56</version>
+ * </dependency>
+ * </pre>
+ * <pre>
+ * And before creating the SSLContext using {@link #create(String, String)} you need to add the "BC" Provider.
+ * {@code
+ * Security.addProvider(new BouncyCastleProvider());
+ * }
+ * </pre>
  */
 public class SSLContextFactory {
 	private static final char[] noPassword = "".toCharArray();
@@ -46,6 +61,11 @@ public class SSLContextFactory {
 			throws GeneralSecurityException, IOException {
 		assertHasText(x509Certificates, "x509Certificates are required");
 		assertHasText(rsaPrivateKey, "rsaPrivateKey is required");
+
+		if(Security.getProvider("BC") == null) {
+			logger.warn("This method requires BouncyCastleProvider for PKCS#8 support: Security.addProvider(new BouncyCastleProvider())");
+			throw new IllegalStateException("This method requires BouncyCastleProvider for PKCS#8 support: Security.addProvider(new BouncyCastleProvider())");
+		}
 
 		SSLContext sslContext = createDefaultSSLContext();
 

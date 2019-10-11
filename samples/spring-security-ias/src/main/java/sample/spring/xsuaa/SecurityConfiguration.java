@@ -33,7 +33,7 @@ import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor;
 import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
 import com.sap.cloud.security.xsuaa.extractor.DefaultAuthenticationInformationExtractor;
-import com.sap.cloud.security.xsuaa.client.SSLContextFactory;
+import com.sap.cloud.security.xsuaa.mtls.SSLContextFactory;
 import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 
