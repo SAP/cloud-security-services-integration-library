@@ -66,11 +66,11 @@ public class XsuaaMockWebServerTest {
 	@Test
 	public void restartDestroyedMockServer() throws Exception {
 		mockServer = new XsuaaMockWebServer();
-		String url = getLocalHostUrl(mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
+		mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME); //starts the mock server
 		mockServer.destroy();
 		//Thread.sleep(500);
 		mockServer = new XsuaaMockWebServer();
-		url = getLocalHostUrl(mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
+		String url = getLocalHostUrl(mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
 
 		Assert.assertThat(url, endsWith("" + XsuaaMockWebServer.MOCK_XSUAA_DEFAULT_PORT));
 	}

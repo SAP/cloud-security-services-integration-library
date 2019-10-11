@@ -21,7 +21,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 	static final int MOCK_XSUAA_DEFAULT_PORT = 33195;
 	private final int port;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaMockWebServer.class);
+	private static final Logger log = LoggerFactory.getLogger(XsuaaMockWebServer.class);
 
 	private static Map<Integer, String> startedWebServer = new HashMap<>();
 
@@ -71,7 +71,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 				intializeMockXsuaa(getSource(), port);
 			}
 			String url = startedWebServer.get(port);
-			LOGGER.info("return Mock Server url {} as property", url);
+			log.info("return Mock Server url {} as property", url);
 			return url;
 		} else {
 			return null;
@@ -81,7 +81,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 	@Override
 	public void destroy() throws Exception {
 		getSource().shutdown();
-		LOGGER.info("shutdown Mock Server on port {} ", port);
+		log.info("shutdown Mock Server on port {} ", port);
 		startedWebServer.remove(port);
 	}
 
@@ -94,7 +94,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 		try {
 			mockWebServer.start(port);
 			startedWebServer.put(port, getUrlAndStartIfNotStarted(mockWebServer));
-			LOGGER.warn(
+			log.warn(
 					">>>>>>>>>>>Started Xsuaa Mock Server ({}) that provides public keys for offline JWT Token validation. NEVER run in productive environment!<<<<<<", mockWebServer.url(""));
 		} catch (IllegalStateException | IOException e) {
 			throw new IllegalStateException(
