@@ -16,7 +16,7 @@ A Refresh Token ([RFC 6749, section 1.5](https://tools.ietf.org/html/rfc6749#sec
 
 ## Configuration for Java Applications
 
-#### Maven Dependencies, when using [Apache HttpClient](https://hc.apache.org/):
+#### Maven Dependencies, when using Apache Http Client:
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
@@ -30,8 +30,8 @@ A Refresh Token ([RFC 6749, section 1.5](https://tools.ietf.org/html/rfc6749#sec
 ```
 
 #### Initialization
-`XsuaaTokenFlows` is instantiated with the  `DefaultOAuth2TokenService` which
-uses of the [Apache HttpClient](https://hc.apache.org/):
+Instantiate `XsuaaTokenFlows` with the `DefaultOAuth2TokenService` which
+makes use of [Apache HttpClient](https://hc.apache.org/):
 
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
@@ -42,6 +42,8 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 The `DefaultOAuth2TokenService` can also be instantiated with a custom `CloseableHttpClient`.
 
 > The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. 
+
+## Configuration for Java/Spring Applications
 
 #### Maven Dependencies, when using Spring Web `RestTemplate`
 ```xml
@@ -58,7 +60,7 @@ The `DefaultOAuth2TokenService` can also be instantiated with a custom `Closeabl
 
 #### Initialization
 
-With Spring-Web available `XsuaaTokenFlows` can be instantiated like that:
+With Spring-Web available `XsuaaTokenFlows` can be instantiated with a `RestTemplate` of your choice like that:
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                                     new XsuaaOAuth2TokenService(new RestTemplate()),
@@ -136,5 +138,6 @@ Make sure to read the API documentation of the `XsuaaTokenFlows` API, to underst
 Also note, that the **user token flow** requires an input token that has the scope `uaa.user` to succeed.
 
 
-## Sample (Spring)
-Have a look at [`TestController.java`](/samples/spring-security-xsuaa-usage/src/main/java/sample/spring/xsuaa/TestController.java) for sample code.
+## Samples
+- [Java sample](/samples/java-token-client-usage)
+- [Spring Boot sample](/samples/spring-security-xsuaa-usage)
