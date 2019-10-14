@@ -2,13 +2,11 @@ package sample.spring.xsuaa;
 
 import javax.net.ssl.SSLContext;
 
-import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +83,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public RestTemplate restTemplate() throws Exception {
-		Security.addProvider(new BouncyCastleProvider());
 		SSLContext sslContext = SSLContextFactory.getInstance().create(xsuaaServiceConfiguration.getCertificates(), xsuaaServiceConfiguration.getPrivateKey());
 
 		SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);

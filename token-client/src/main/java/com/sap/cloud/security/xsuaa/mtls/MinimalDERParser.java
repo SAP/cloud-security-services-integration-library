@@ -23,9 +23,6 @@ class MinimalDERParser {
 		return new BigInteger(extractBytes(readLength()));
 	}
 
-	//
-	//
-	//
 	private byte[] extractBytes(int numBytes) throws IOException {
 		ensureRemainingSize(numBytes);
 		byte[] tmp = new byte[numBytes];

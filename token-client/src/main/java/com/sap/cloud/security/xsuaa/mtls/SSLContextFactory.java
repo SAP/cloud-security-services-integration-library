@@ -8,42 +8,26 @@ import javax.xml.bind.DatatypeConverter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.KeySpec;
+import java.security.spec.RSAPrivateCrtKeySpec;
 import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Requires https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
- * because JDK JCE does not support PKCS#8 algorithm.
- *
- * Add the following maven dependency:
- * <pre>{@code
- * <dependency><!-- crypto lib required for parsing certificate -->
- * 		<groupId>org.bouncycastle</groupId>
- * 		<artifactId>bcprov-jdk15on</artifactId>
- * 		<version>1.56</version>
- * </dependency>
- * }
- * </pre>
- * And before creating the SSLContext using {@link #create(String, String)} you need to add the "BC" Provider.
- * <pre>
- * {@code
- * Security.addProvider(new BouncyCastleProvider());
- * }
- * </pre>
+ * Creates a SSLContext (without Bouncy Castle crypto lib).
  */
 public class SSLContextFactory {
 	private static final char[] noPassword = "".toCharArray();
@@ -63,10 +47,10 @@ public class SSLContextFactory {
 		assertHasText(x509Certificates, "x509Certificates are required");
 		assertHasText(rsaPrivateKey, "rsaPrivateKey is required");
 
-		if(Security.getProvider("BC") == null) {
+		/*if(Security.getProvider("BC") == null) {
 			logger.warn("This method requires BouncyCastleProvider for PKCS#8 support: Security.addProvider(new BouncyCastleProvider())");
 			throw new IllegalStateException("This method requires BouncyCastleProvider for PKCS#8 support: Security.addProvider(new BouncyCastleProvider())");
-		}
+		}*/
 
 		SSLContext sslContext = createDefaultSSLContext();
 
@@ -100,17 +84,16 @@ public class SSLContextFactory {
 		return SSLContext.getInstance("TLS");
 	}
 
-	private PrivateKey getPrivateKeyFromString(final String rsaPrivateKey)
-			throws GeneralSecurityException {
+	private PrivateKey getPrivateKeyFromString(final String rsaPrivateKey) throws GeneralSecurityException {
 		String privateKeyPEM = rsaPrivateKey;
 		privateKeyPEM = privateKeyPEM.replace("-----BEGIN RSA PRIVATE KEY-----", "");
 		privateKeyPEM = privateKeyPEM.replace("-----END RSA PRIVATE KEY-----", "");
 		privateKeyPEM = privateKeyPEM.replace("\n", "");
 		logger.debug("privateKeyPem: '{}'", privateKeyPEM);
 
+		KeySpec keySpec = parseDERPrivateKey(DatatypeConverter.parseBase64Binary(privateKeyPEM));
+
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		PKCS8EncodedKeySpec keySpec =
-				new PKCS8EncodedKeySpec(DatatypeConverter.parseBase64Binary(privateKeyPEM));
 		RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
 
 		return privateKey;
@@ -127,4 +110,40 @@ public class SSLContextFactory {
 		return certificateArray;
 	}
 
+	private KeySpec parseDERPrivateKey(byte[] privateKeyDerEncoded)
+			throws GeneralSecurityException {
+		KeySpec keySpec;
+		MinimalDERParser parser = new MinimalDERParser(privateKeyDerEncoded);
+
+		try {
+			parser.getSequence();
+
+			BigInteger version = parser.getBigInteger();
+			if (!version.equals(BigInteger.ZERO)) {
+				throw new IllegalArgumentException("Only version 0 supported for PKCS1 decoding.");
+			}
+			BigInteger modulus = parser.getBigInteger();
+			BigInteger publicExponent = parser.getBigInteger();
+			BigInteger privateExponent = parser.getBigInteger();
+			BigInteger primeP = parser.getBigInteger();
+			BigInteger primeQ = parser.getBigInteger();
+			BigInteger primeExponentP = parser.getBigInteger();
+			BigInteger primeExponentQ = parser.getBigInteger();
+			BigInteger crtCoefficient = parser.getBigInteger();
+
+			keySpec = new RSAPrivateCrtKeySpec(
+					modulus,
+					publicExponent,
+					privateExponent,
+					primeP,
+					primeQ,
+					primeExponentP,
+					primeExponentQ,
+					crtCoefficient);
+		} catch (IOException e) {
+			logger.error("Exception during parsing DER encoded private key ({})", e.getMessage(), e);
+			throw new GeneralSecurityException("Exception during parsing DER encoded private key", e);
+		}
+		return keySpec;
+	}
 }

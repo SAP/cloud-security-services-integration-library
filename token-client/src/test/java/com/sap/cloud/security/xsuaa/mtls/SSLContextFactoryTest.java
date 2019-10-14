@@ -8,10 +8,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.security.Security;
 
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,21 +21,12 @@ public class SSLContextFactoryTest {
 
 	@Before
 	public void setup() throws IOException {
-		Security.addProvider(new BouncyCastleProvider());
 		cut = SSLContextFactory.getInstance();
 
 		assertThat(cut, is(SSLContextFactory.getInstance())); // singleton
 
 		rsaPrivateKey = readFromFile("/privateRSAKey.txt");
 		certificates = readFromFile("/certificates.txt");
-	}
-
-	@Test
-	public void create_throwsIllegalStateExceptionIfBouncyCastleProviderMissing() {
-		Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME);
-		assertThatThrownBy(() -> {
-			cut.create(certificates, rsaPrivateKey);
-		}).isInstanceOf(IllegalStateException.class).hasMessageContaining("This method requires BouncyCastleProvider for PKCS#8 support");
 	}
 
 	@Test
