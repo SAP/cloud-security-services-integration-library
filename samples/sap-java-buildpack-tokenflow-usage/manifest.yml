@@ -15,7 +15,7 @@ applications:
   buildpacks:
     - sap_java_buildpack
   services:
-    - xsuaa-buildpack
+    - xsuaa-tokenflow
 # Application Router as web server
 - name: approuter-sap-java-buildpack-tokenflow-usage
   path: approuter
@@ -25,7 +25,7 @@ applications:
   routes:
     - route: approuter-sap-java-buildpack-tokenflow-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
   services:
-    - xsuaa-buildpack
+    - xsuaa-tokenflow
   env:
     destinations: >
       [

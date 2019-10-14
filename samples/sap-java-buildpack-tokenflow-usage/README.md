@@ -106,7 +106,7 @@ mvn clean package
 ## Create the xsuaa service instance
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
 ```shell
-cf create-service xsuaa application xsuaa-buildpack -c xs-security.json
+cf create-service xsuaa application xsuaa-tokenflow -c xs-security.json
 ```
 
 ## Configuration the manifest
@@ -145,5 +145,5 @@ Finally delete your application and your service instances using the following c
 ```
 cf delete -f sap-java-buildpack-tokenflow-usage
 cf delete -f approuter-sap-java-buildpack-tokenflow-usage
-cf delete-service -f xsuaa-buildpack
+cf delete-service -f xsuaa-tokenflow
 ```
