@@ -15,7 +15,7 @@ import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockWebServer;
 
 /**
- * Starts always on localhost a mock
+ * Starts a mock for xsuaa (user account and authentication) service on localhost.
  */
 public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements DisposableBean {
 
@@ -38,6 +38,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 	 *
 	 * @param port
 	 *            the port the mock server should listen to. Use '0' in case you want to use a random port.
+	 *            Per specified port you can only start one mock web server instance.
 	 */
 	public XsuaaMockWebServer(int port) {
 		super(MOCK_XSUAA_PROPERTY_SOURCE_NAME, createMockWebServer(new XsuaaRequestDispatcher()));
@@ -89,12 +90,6 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 		startedWebServer.remove(port);
 	}
 
-	private static String getUrlAndStartIfNotStarted(MockWebServer mockWebServer) {
-		String url = mockWebServer.url("").url().toExternalForm();
-		url = UriComponentsBuilder.fromHttpUrl(url).host("localhost").build().toUriString();
-		return url;
-	}
-
 	private static void intializeMockXsuaa(MockWebServer mockWebServer, int port) {
 		try {
 			mockWebServer.start(port);
@@ -107,5 +102,11 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 							"Make sure that it is not yet started in another process.", port),
 					e);
 		}
+	}
+
+	private static String getUrlAndStartIfNotStarted(MockWebServer mockWebServer) {
+		String url = mockWebServer.url("").url().toExternalForm();
+		url = UriComponentsBuilder.fromHttpUrl(url).host("localhost").build().toUriString();
+		return url.substring(0, url.length() - 1); // removes trailing "/"
 	}
 }

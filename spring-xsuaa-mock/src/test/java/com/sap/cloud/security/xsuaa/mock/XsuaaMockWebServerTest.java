@@ -65,14 +65,14 @@ public class XsuaaMockWebServerTest {
 
 	@Test
 	public void restartDestroyedMockServer() throws Exception {
-		mockServer = new XsuaaMockWebServer();
+		mockServer = new XsuaaMockWebServer(7777);
 		mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME); //starts the mock server
 		mockServer.destroy();
-		Thread.sleep(500);
-		mockServer = new XsuaaMockWebServer();
+		Thread.sleep(1000);
+		mockServer = new XsuaaMockWebServer(7777);
 		String url = getLocalHostUrl(mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
 
-		Assert.assertThat(url, endsWith("" + XsuaaMockWebServer.MOCK_XSUAA_DEFAULT_PORT));
+		Assert.assertThat(url, equalTo("http://localhost:7777"));
 	}
 
 	private String getLocalHostUrl(Object urlProperty) throws UnknownHostException {
