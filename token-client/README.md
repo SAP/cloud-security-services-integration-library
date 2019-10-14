@@ -117,7 +117,7 @@ In case you have a refresh token and want to obtain an access token:
 
 ```java
 OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
-                              .refreshToken("<refresh_token>")
+                              .refreshToken(<refresh_token>)
                               .subdomain(jwtToken.getSubdomain()) // this is optional 
                               .execute();
 ```
