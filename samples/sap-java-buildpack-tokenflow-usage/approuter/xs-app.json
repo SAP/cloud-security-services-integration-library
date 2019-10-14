@@ -1,0 +1,7 @@
+{
+  "routes": [{
+    "source": "^/",
+    "target": "/hello-tokenflow",
+    "destination": "sap-java-buildpack-tokenflow-usage-destination"
+  }]
+}

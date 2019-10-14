@@ -1,0 +1,36 @@
+---
+# Configuration:
+# configured for EU10. For other landscapes, please adopt the destination
+# If the routes are occupied, you might need to change the host in sap-java-buildpack-tokenflow-usage, the host in approuter- sap-java-buildpack-tokenflow-usage and the url in the destination
+applications:
+# Application sap-java-buildpack-tokenflow-usage
+- name: sap-java-buildpack-tokenflow-usage
+  instances: 1
+  memory: 896M
+  routes:
+    - route: sap-java-buildpack-tokenflow-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
+
+  host: 
+  path: target/sap-java-buildpack-tokenflow-usage.war
+  buildpacks:
+    - sap_java_buildpack
+  services:
+    - xsuaa-buildpack
+# Application Router as web server
+- name: approuter-sap-java-buildpack-tokenflow-usage
+  path: approuter
+  buildpacks:
+    - nodejs_buildpack
+  memory: 128M
+  routes:
+    - route: approuter-sap-java-buildpack-tokenflow-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
+  services:
+    - xsuaa-buildpack
+  env:
+    destinations: >
+      [
+        {"name":"sap-java-buildpack-tokenflow-usage-destination",
+         "url":"https://sap-java-buildpack-tokenflow-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))",
+         "forwardAuthToken": true}
+      ]
+...
