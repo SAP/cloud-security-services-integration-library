@@ -1,18 +1,22 @@
 package com.sap.cloud.security.xsuaa.mock;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.core.env.PropertySource;
 import org.springframework.util.Assert;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockWebServer;
 
+/**
+ * Starts always on localhost a mock
+ */
 public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements DisposableBean {
 
 	public static final String MOCK_XSUAA_PROPERTY_SOURCE_NAME = "mockxsuaaserver";
@@ -23,7 +27,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 
 	private static final Logger log = LoggerFactory.getLogger(XsuaaMockWebServer.class);
 
-	private static Map<Integer, String> startedWebServer = new HashMap<>();
+	private static Map<Integer, String> startedWebServer = new ConcurrentHashMap<>();
 
 	public XsuaaMockWebServer() {
 		this(MOCK_XSUAA_DEFAULT_PORT);
@@ -87,7 +91,8 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 
 	private static String getUrlAndStartIfNotStarted(MockWebServer mockWebServer) {
 		String url = mockWebServer.url("").url().toExternalForm();
-		return url.substring(0, url.length() - 1).replace("127.0.0.1", "localhost");
+		url = UriComponentsBuilder.fromHttpUrl(url).host("localhost").build().toUriString();
+		return url;
 	}
 
 	private static void intializeMockXsuaa(MockWebServer mockWebServer, int port) {
