@@ -104,6 +104,18 @@ public class UserTokenFlow {
 	}
 
 	/**
+	 * Sets the pem encoed certificate to be forwarded.<br>
+	 *
+	 * @param certificate
+	 *            - the forwarded certificate (PEM encoded) to forward.
+	 * @return this builder.
+	 */
+	public UserTokenFlow forwardCertificate(String certificate) {
+		this.request.setCertificate(certificate);
+		return this;
+	}
+
+	/**
 	 * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT
 	 * token is returned. <br>
 	 * Note, that in a standard flow, only the refresh token would be returned.

@@ -20,6 +20,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	private URI tokenServiceEndpoint;
 	private String subdomain;
 	private String clientSecret;
+	private String certificate;
 	private Map<String, String> additionalAuthorizationAttributes;
 	private static final String UNSUPPORTED_INTF_METHOD_INFO = "This XSTokenRequest method is no longer needed in context of new XsuaaTokenFlows API.";
 
@@ -138,6 +139,34 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 */
 	public XSTokenRequest setSubdomain(String subdomain) {
 		this.subdomain = subdomain;
+		return this;
+	}
+
+	/**
+	 * Set the Certificate to be forwarded.
+	 *
+	 * @param certificate
+	 *            the pem encoded certificate to be forwarded.
+	 *
+	 * @return this mutable object
+	 *
+	 */
+	public XSTokenRequest setCertificate(String certificate) {
+		this.certificate = certificate;
+		return this;
+	}
+
+	/**
+	 * Get the Certificate to be forwarded.
+	 *
+	 * @param certificate
+	 *            the pem encoded certificate to be forwarded.
+	 *
+	 * @return this mutable object
+	 *
+	 */
+	public XSTokenRequest setCertificate(String certificate) {
+		this.certificate = certificate;
 		return this;
 	}
 }
