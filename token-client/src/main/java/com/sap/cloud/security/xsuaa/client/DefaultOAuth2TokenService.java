@@ -82,10 +82,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 				refreshToken);
 	}
 
-	private String getParameter(Map<String, Object> accessTokenMap, String accessToken) throws OAuth2ServiceException {
-		return Optional.ofNullable(accessTokenMap.get(accessToken))
-				.map(Object::toString)
-				.orElseThrow(() -> new OAuth2ServiceException(accessToken + " is missing from server response."));
+	private String getParameter(Map<String, Object> accessTokenMap, String key) {
+		return String.valueOf(accessTokenMap.get(key));
 	}
 
 	private HttpPost createHttpPost(URI uri, HttpHeaders headers, Map<String, String> parameters)
