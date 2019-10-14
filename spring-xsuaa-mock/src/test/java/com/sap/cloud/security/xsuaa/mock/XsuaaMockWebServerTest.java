@@ -68,7 +68,7 @@ public class XsuaaMockWebServerTest {
 		mockServer = new XsuaaMockWebServer();
 		mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME); //starts the mock server
 		mockServer.destroy();
-		//Thread.sleep(500);
+		Thread.sleep(500);
 		mockServer = new XsuaaMockWebServer();
 		String url = getLocalHostUrl(mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
 
