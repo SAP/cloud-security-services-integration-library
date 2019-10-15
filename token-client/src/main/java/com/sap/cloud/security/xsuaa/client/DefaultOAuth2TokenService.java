@@ -4,6 +4,7 @@ import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -19,7 +20,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
@@ -46,8 +46,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	private OAuth2TokenResponse executeRequest(HttpPost httpPost) throws OAuth2ServiceException {
-		try {
-			HttpResponse response = httpClient.execute(httpPost);
+		try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 				return handleResponse(response);
 			} else {
@@ -73,8 +72,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 				.lines().collect(Collectors.joining(System.lineSeparator()));
 	}
 
-	private OAuth2TokenResponse convertToOAuth2TokenResponse(Map<String, Object> accessTokenMap)
-			throws OAuth2ServiceException {
+	private OAuth2TokenResponse convertToOAuth2TokenResponse(Map<String, Object> accessTokenMap) {
 		String accessToken = getParameter(accessTokenMap, ACCESS_TOKEN);
 		String refreshToken = getParameter(accessTokenMap, REFRESH_TOKEN);
 		String expiresIn = getParameter(accessTokenMap, EXPIRES_IN);
