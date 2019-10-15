@@ -50,9 +50,10 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 				return handleResponse(response);
 			} else {
+				String responseBody = convertToString(response);
 				String message = String.format(
-						"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful!",
-						response.getStatusLine().getStatusCode());
+						"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful: %s",
+						response.getStatusLine().getStatusCode(), responseBody);
 				throw new OAuth2ServiceException(message);
 			}
 		} catch (IOException e) {
@@ -61,8 +62,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	private OAuth2TokenResponse handleResponse(HttpResponse response) throws IOException {
-		String responseAsString = convertToString(response);
-		Map<String, Object> accessTokenMap = new JSONObject(responseAsString).toMap();
+		String responseBody = convertToString(response);
+		Map<String, Object> accessTokenMap = new JSONObject(responseBody).toMap();
 		logger.debug("Request Access Token: {}", accessTokenMap);
 		return convertToOAuth2TokenResponse(accessTokenMap);
 	}
