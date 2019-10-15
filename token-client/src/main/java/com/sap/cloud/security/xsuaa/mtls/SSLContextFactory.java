@@ -4,7 +4,6 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.xml.bind.DatatypeConverter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,6 +20,7 @@ import java.security.cert.CertificateFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.KeySpec;
 import java.security.spec.RSAPrivateCrtKeySpec;
+import java.util.Base64;
 import java.util.Collection;
 
 import org.slf4j.Logger;
@@ -91,7 +91,7 @@ public class SSLContextFactory {
 		privateKeyPEM = privateKeyPEM.replace("\n", "");
 		logger.debug("privateKeyPem: '{}'", privateKeyPEM);
 
-		KeySpec keySpec = parseDERPrivateKey(DatatypeConverter.parseBase64Binary(privateKeyPEM));
+		KeySpec keySpec = parseDERPrivateKey(Base64.getDecoder().decode(privateKeyPEM));
 
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 		RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
