@@ -19,7 +19,7 @@
 	}
 	],
 	"role-collections": [{
-		"name": "Buildpack_API_Viewer",
+		"name": "Buildpack_Tokenflow_API_Viewer",
 		"description": "Role Collection to call the sap-java-buildpack-tokenflow-usage service",
 		"role-template-references": [
 			"$XSAPPNAME.AccessRole"

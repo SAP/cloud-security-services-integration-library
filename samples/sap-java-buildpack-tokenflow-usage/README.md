@@ -6,8 +6,6 @@ library.
 
 In a typcal UI5 application, the application router server HTML files and REST data would be provided by a 
 back-end application. To focus on the security part, UI5 has been omitted.
-		writeLine(response, "Access-Token: " + tokenResponse.getAccessToken());
-		writeLine(response, "Expired-At: " + tokenResponse.getExpiredAtDate());
 
 # Coding
 The [web.xml](src/main/webapp/WEB-INF/web.xml) of the application must use auth-method with value XSUAA. 
@@ -120,7 +118,7 @@ cf push --vars-file ../vars.yml
 ```
 
 ## Cockpit administration tasks: Assign Role to your User
-Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection(s) such as `Buildpack_API_Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
+Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection(s) such as `Tokenflow_Buildpack_API_Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
 
 ![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
 
