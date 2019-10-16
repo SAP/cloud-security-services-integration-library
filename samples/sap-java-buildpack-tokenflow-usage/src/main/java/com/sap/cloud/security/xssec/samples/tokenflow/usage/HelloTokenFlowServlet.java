@@ -28,8 +28,7 @@ public class HelloTokenFlowServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 * response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		response.setContentType("text/plain");
 
 		JSONObject jsonObject = createJsonObjectFromVCAPServices();
@@ -43,7 +42,9 @@ public class HelloTokenFlowServlet extends HttpServlet {
 		OAuth2TokenResponse tokenResponse = tokenFlows.clientCredentialsTokenFlow().execute();
 
 		writeLine(response, "Access-Token: " + tokenResponse.getAccessToken());
+		writeLine(response, "Access-Token-Payload: " + tokenResponse.getDecodedAccessToken().getPayload());
 		writeLine(response, "Expired-At: " + tokenResponse.getExpiredAtDate());
+
 	}
 
 	private String extractString(JSONObject jsonObject, String jsonPointer) {
