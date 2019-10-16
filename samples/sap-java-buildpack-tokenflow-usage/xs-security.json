@@ -1,4 +1,4 @@
 {
-	"xsappname": "sap-java-buildpack-tokenflow-usage",
+	"xsappname": "java-buildpack-tokenflow-usage",
 	"tenant-mode": "dedicated"
 }

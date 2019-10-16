@@ -1,17 +1,17 @@
 ---
 # Configuration:
 # configured for EU10. For other landscapes, please adopt the destination
-# If the routes are occupied, you might need to change the host in sap-java-buildpack-tokenflow-usage, the host in approuter- sap-java-buildpack-tokenflow-usage and the url in the destination
+# If the routes are occupied, you might need to change the host in java-buildpack-tokenflow-usage, the host in approuter- java-buildpack-tokenflow-usage and the url in the destination
 applications:
-# Application sap-java-buildpack-tokenflow-usage
-- name: sap-java-buildpack-tokenflow-usage
+# Application java-buildpack-tokenflow-usage
+- name: java-buildpack-tokenflow-usage
   instances: 1
   memory: 896M
   routes:
-    - route: sap-java-buildpack-tokenflow-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
+    - route: java-buildpack-tokenflow-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
 
   host: 
-  path: target/sap-java-buildpack-tokenflow-usage.war
+  path: target/java-buildpack-tokenflow-usage.war
   buildpacks:
     - java_buildpack
   services:
