@@ -1,29 +1,4 @@
 {
 	"xsappname": "sap-java-buildpack-tokenflow-usage",
-	"tenant-mode": "dedicated",
-	"scopes":
-	[{
-		"name": "$XSAPPNAME.Display",
-		"description": "With this scope, information can be read."
-	}
-	],
-
-	"role-templates":
-	[{
-		"name": "AccessRole",
-		"description": "Role to call the sap-java-buildpack-tokenflow-usage service",
-		"scope-references":
-		[
-			"$XSAPPNAME.Display"
-		]
-	}
-	],
-	"role-collections": [{
-		"name": "Buildpack_Tokenflow_API_Viewer",
-		"description": "Role Collection to call the sap-java-buildpack-tokenflow-usage service",
-		"role-template-references": [
-			"$XSAPPNAME.AccessRole"
-		]
-	}
-	]
+	"tenant-mode": "dedicated"
 }
