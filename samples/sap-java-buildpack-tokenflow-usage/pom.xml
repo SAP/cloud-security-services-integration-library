@@ -3,8 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.security.xssec.samples</groupId>
     <artifactId>sap-java-buildpack-tokenflow-usage</artifactId>
-    <version>2.0</version>
+    <version>1.0</version>
     <packaging>war</packaging>
+
+    <properties>
+        <xsuaa.client.version>2.0.0</xsuaa.client.version>
+        <apache.httpclient.version>4.5.8</apache.httpclient.version>
+        <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
+    </properties>
 
     <build>
         <plugins>
@@ -31,23 +37,23 @@
         <dependency>
             <groupId>com.sap.cloud.security.xsuaa</groupId>
             <artifactId>token-client</artifactId>
-            <version>2.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.8</version>
+            <version>${xsuaa.client.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.security.xsuaa</groupId>
             <artifactId>api</artifactId>
-            <version>2.0.0</version>
+            <version>${xsuaa.client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${apache.httpclient.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
+            <version>${javax.servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>
 
