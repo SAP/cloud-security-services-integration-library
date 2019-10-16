@@ -16,21 +16,4 @@ applications:
     - sap_java_buildpack
   services:
     - xsuaa-tokenflow
-# Application Router as web server
-- name: approuter-sap-java-buildpack-tokenflow-usage
-  path: approuter
-  buildpacks:
-    - nodejs_buildpack
-  memory: 128M
-  routes:
-    - route: approuter-sap-java-buildpack-tokenflow-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
-  services:
-    - xsuaa-tokenflow
-  env:
-    destinations: >
-      [
-        {"name":"sap-java-buildpack-tokenflow-usage-destination",
-         "url":"https://sap-java-buildpack-tokenflow-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))",
-         "forwardAuthToken": true}
-      ]
 ...
