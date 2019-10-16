@@ -27,13 +27,17 @@ public class OAuth2TokenResponseTest {
 	@Test
 	public void getExpiredFromAccessToken() {
 		long expireInSeconds = 47299;
-		Instant minExpireDate = Instant.now().plusSeconds(expireInSeconds);
+		Instant minExpireDate = getCurrentInstant().plusSeconds(expireInSeconds);
 
 		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(null, expireInSeconds, null);
 
-		Instant maxExpireDate = Instant.now().plusSeconds(expireInSeconds);
+		Instant maxExpireDate = getCurrentInstant().plusSeconds(expireInSeconds);
 
 		assertThat(accessToken.getExpiredAt(), allOf(OrderingComparison.greaterThanOrEqualTo(minExpireDate),
 				OrderingComparison.lessThanOrEqualTo(maxExpireDate)));
+	}
+
+	private Instant getCurrentInstant() {
+		return Instant.ofEpochMilli(System.currentTimeMillis());
 	}
 }
