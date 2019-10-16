@@ -74,6 +74,7 @@ public class XsuaaTokenTest {
 		assertThat(token.getAuthorities().size(), is(0));
 		assertThat(token.isEnabled(), is(false));
 		assertThat(token.getExpirationDate(), is(JwtGenerator.NO_EXPIRE_DATE));
+		assertThat(token.getExpiration(), is(JwtGenerator.NO_EXPIRE_DATE.toInstant()));
 		assertThat(token.getAdditionalAuthAttribute("any"), nullValue());
 	}
 

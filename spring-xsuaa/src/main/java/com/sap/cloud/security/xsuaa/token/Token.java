@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
 
@@ -164,10 +166,18 @@ public interface Token extends UserDetails {
 
 	/**
 	 * Returns date of when jwt token expires.
-	 *
+	 * @deprecated use {@link #getExpiration()}.
 	 * @return expiration date if present
 	 */
 	@Nullable
+	@Deprecated
 	Date getExpirationDate();
+
+	/**
+	 * Returns the moment in time when the token will be expired.
+	 * @return the expiration point in time if present.
+	 */
+	@Nullable
+	Instant getExpiration();
 
 }

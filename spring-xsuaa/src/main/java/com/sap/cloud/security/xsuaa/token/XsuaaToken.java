@@ -10,6 +10,9 @@ import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_USER_NAME;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ZDN;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ZONE_ID;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -61,9 +64,15 @@ public class XsuaaToken extends Jwt implements Token {
 		return this.authorities;
 	}
 
+
 	@Override
 	public Date getExpirationDate() {
 		return getExpiresAt() != null ? Date.from(getExpiresAt()) : null;
+	}
+
+	@Override
+	public Instant getExpiration() {
+		return getExpiresAt();
 	}
 
 	@Override
