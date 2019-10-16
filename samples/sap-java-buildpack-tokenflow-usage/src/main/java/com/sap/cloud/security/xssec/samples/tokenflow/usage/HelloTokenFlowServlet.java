@@ -4,7 +4,7 @@
  * v. 2 except as noted otherwise in the LICENSE file
  * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
  */
-package com.sap.cloud.security.xssec.samples.sapbuildpack;
+package com.sap.cloud.security.xssec.samples.tokenflow.usage;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
