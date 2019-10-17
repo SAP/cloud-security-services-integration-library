@@ -9,7 +9,6 @@ applications:
   memory: 896M
   routes:
     - route: java-tokenclient-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
-
   host: 
   path: target/java-tokenclient-usage.war
   buildpacks:
