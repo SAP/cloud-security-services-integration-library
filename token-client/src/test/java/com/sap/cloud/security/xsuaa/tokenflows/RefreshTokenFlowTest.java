@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,7 +37,7 @@ public class RefreshTokenFlowTest {
 	@Before
 	public void setup() {
 		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
-		this.endpointsProvider = new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri);
+		this.endpointsProvider = new XsuaaDefaultEndpoints(XSUAA_BASE_URI);
 		this.cut = new RefreshTokenFlow(mockTokenService, endpointsProvider, clientCredentials);
 
 	}
@@ -68,7 +69,7 @@ public class RefreshTokenFlowTest {
 		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
 
 		Mockito.when(mockTokenService
-				.retrieveAccessTokenViaRefreshToken(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						eq(REFRESH_TOKEN), isNull()))
 				.thenReturn(accessToken);
 
@@ -81,7 +82,7 @@ public class RefreshTokenFlowTest {
 	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		Mockito.when(mockTokenService
-				.retrieveAccessTokenViaRefreshToken(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						eq(REFRESH_TOKEN), isNull()))
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 

@@ -28,7 +28,7 @@ public class PasswordTokenFlowTest {
 		tokenService = Mockito.mock(OAuth2TokenService.class);
 		endpointsProvider = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 
-		when(endpointsProvider.getTokenEndpoint()).thenReturn(tokenEndpointUri);
+		when(endpointsProvider.getTokenEndpoint()).thenReturn(TOKEN_ENDPOINT_URI);
 
 		cut = new PasswordTokenFlow(tokenService, endpointsProvider, CLIENT_CREDENTIALS);
 	}
@@ -105,7 +105,7 @@ public class PasswordTokenFlowTest {
 		executeRequest();
 
 		Mockito.verify(tokenService, times(1))
-				.retrieveAccessTokenViaPasswordGrant(eq(tokenEndpointUri), eq(CLIENT_CREDENTIALS), eq(
+				.retrieveAccessTokenViaPasswordGrant(eq(TOKEN_ENDPOINT_URI), eq(CLIENT_CREDENTIALS), eq(
 						USERNAME),
 						eq(PASSWORD), any(), any());
 	}
@@ -144,14 +144,14 @@ public class PasswordTokenFlowTest {
 
 	private void returnValidResponse() throws OAuth2ServiceException {
 		OAuth2TokenResponse validResponse = new OAuth2TokenResponse(ACCESS_TOKEN, EXPIRED_IN, REFRESH_TOKEN);
-		when(tokenService.retrieveAccessTokenViaPasswordGrant(tokenEndpointUri, CLIENT_CREDENTIALS, USERNAME, PASSWORD,
+		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME, PASSWORD,
 				null, null))
 						.thenReturn(validResponse);
 	}
 
 	private void returnValidResponse(String accessToken) throws OAuth2ServiceException {
 		OAuth2TokenResponse validResponse = new OAuth2TokenResponse(accessToken, EXPIRED_IN, REFRESH_TOKEN);
-		when(tokenService.retrieveAccessTokenViaPasswordGrant(tokenEndpointUri, CLIENT_CREDENTIALS, USERNAME, PASSWORD,
+		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME, PASSWORD,
 				null, null))
 						.thenReturn(validResponse);
 	}

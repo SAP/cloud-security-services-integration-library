@@ -6,8 +6,8 @@ import java.net.URI;
 
 //@formatter:off
 interface TestConstants {
-	URI xsuaaBaseUri = URI.create("https://subdomain.authentication.eu10.hana.ondemand.com/");
-	URI tokenEndpointUri = URI.create("https://subdomain.authentication.eu10.hana.ondemand.com/oauth/token");
+	URI XSUAA_BASE_URI = URI.create("https://subdomain.authentication.eu10.hana.ondemand.com/");
+	URI TOKEN_ENDPOINT_URI = URI.create("https://subdomain.authentication.eu10.hana.ondemand.com/oauth/token");
 	ClientCredentials CLIENT_CREDENTIALS = new ClientCredentials("sb-spring-netflix-demo!t12291",
 			"2Tc2Xz7DNy4KiACwvunulmxF32w=");
 	String USERNAME = "Bob";
