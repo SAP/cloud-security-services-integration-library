@@ -104,4 +104,27 @@ public interface OAuth2TokenService {
 			String username, String password, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
 
+
+	/**
+	 * @param tokenEndpointUri
+	 *            the token endpoint URI.
+	 * @param clientCredentials
+	 *            the client id and secret of the OAuth client, the recipient of the
+	 *            token.
+	 * @param assertion
+	 *            the JWT token identifying representing the user to be
+	 *            authenticated
+	 * @param subdomain
+	 *            optionally indicates what Identity Zone this request goes to by
+	 *            supplying a subdomain (tenant).
+	 * @param optionalParameters
+	 *            optional request parameters, can be null.
+	 * @return the OAuth2AccessToken
+	 * @throws OAuth2ServiceException
+	 *             in case of an error during the http request.
+	 */
+	OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
+			ClientCredentials clientCredentials, String assertion, @Nullable String subdomain,
+			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
+
 }
