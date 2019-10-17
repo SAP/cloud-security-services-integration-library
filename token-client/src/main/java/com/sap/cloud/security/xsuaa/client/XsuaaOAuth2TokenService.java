@@ -1,8 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
-import com.sap.cloud.security.xsuaa.util.UriUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +15,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
-import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
@@ -34,46 +28,6 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations) {
 		assertNotNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
-	}
-
-	/**
-	 * @param tokenEndpointUri
-	 * @param clientCredentials
-	 *            contains id of master (extracted from VCAP_SERVICES system
-	 *            environment variable)
-	 * @param oidcToken
-	 * @param pemEncodedCloneCertificate
-	 * @param subdomain
-	 * @param optionalParameters
-	 * @return
-	 * @throws OAuth2ServiceException
-	 */
-	@Nullable
-	public OAuth2TokenResponse retrieveDelegationAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
-			ClientCredentials clientCredentials, String oidcToken, String pemEncodedCloneCertificate,
-			@Nullable String subdomain,
-			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
-		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		assertNotNull(clientCredentials.getId(), "client ID is required (master)");
-		assertHasText(oidcToken, "oidcToken is required");
-		assertHasText(pemEncodedCloneCertificate, "pemEncodedCertificate is required (clone)"); // w/o BEGIN CERTIFICATE ...
-
-		if (!testCertificate()) {
-			return null;
-		}
-
-		HashMap optionalParams = new HashMap();
-		optionalParams.put("assertion", oidcToken);
-		Map<String, String> parameters = new RequestParameterBuilder()
-				.withGrantType(GRANT_TYPE_JWT_BEARER) // default "client_x509"
-				.withCertificate(clientCredentials.getId(), pemEncodedCloneCertificate)
-				.withOptionalParameters(optionalParams)
-				.buildAsMap();
-
-		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
-		//HttpHeaders headers = httpHeadersFactory.createWithAuthorizationBearerHeader(oidcToken);
-
-		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
 	}
 
 	@Override
@@ -114,17 +68,6 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
 		String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
 		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken);
-	}
-
-	private boolean testCertificate()
-			throws OAuth2ServiceException {
-		// TODO is it possible to check whether restOperation has SSLContext
-		// TODO "authentication" domain -> "authentication.cert"
-		// TODO delegation
-		URI uri = URI.create("https://d047491-show-headers.cert.cfapps.sap.hana.ondemand.com");
-		ResponseEntity<String> payload = restOperations.getForEntity(uri, String.class);
-
-		return payload.getBody().contains("x-forwarded-client-cert");
 	}
 
 	/**

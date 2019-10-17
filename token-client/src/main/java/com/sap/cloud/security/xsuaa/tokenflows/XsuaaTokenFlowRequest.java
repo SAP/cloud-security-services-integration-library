@@ -96,11 +96,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 		throw new AssertionError(UNSUPPORTED_INTF_METHOD_INFO);
 	}
 
-	/**
-	 * @deprecated in favor of @link{{@link #setSubdomain} )}}
-	 */
 	@Override
-	@Deprecated
 	public XSTokenRequest setTokenEndpoint(URI tokenUri) {
 		throw new AssertionError(UNSUPPORTED_INTF_METHOD_INFO);
 	}
@@ -154,5 +150,15 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	public XSTokenRequest setCertificate(String certificate) {
 		this.certificate = certificate;
 		return this;
+	}
+
+	/**
+	 * Get the Certificate to be forwarded.
+	 *
+	 * @return certificate or null in case no certificate is specified
+	 */
+	@Nullable
+	public String getCertificate() {
+		return this.certificate;
 	}
 }

@@ -11,6 +11,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 import javax.annotation.Nullable;
@@ -26,6 +27,7 @@ public class ClientCredentialsTokenFlow {
 
 	private XsuaaTokenFlowRequest request;
 	private OAuth2TokenService tokenService;
+	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	/**
 	 * Creates a new instance.
@@ -45,6 +47,7 @@ public class ClientCredentialsTokenFlow {
 		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
 
 		this.tokenService = tokenService;
+		this.endpointsProvider = endpointsProvider;
 		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
 		this.request.setClientId(clientCredentials.getId());
 		this.request.setClientSecret(clientCredentials.getSecret());
@@ -77,6 +80,24 @@ public class ClientCredentialsTokenFlow {
 	}
 
 	/**
+	 * Sets the pem encoded certificate to be forwarded.<br>
+	 *
+	 * @param certificate
+	 *            - the forwarded certificate (PEM encoded) to forward.
+	 * @return this builder.
+	 * @throws IllegalArgumentException
+	 *             - in case endpointsProvider is not instance of {@link XsuaaDefaultEndpoints}.
+	 */
+	public ClientCredentialsTokenFlow forwardCertificate(String certificate) {
+		if(!(endpointsProvider instanceof XsuaaDefaultEndpoints)) {
+			throw new IllegalArgumentException("This feature is only supported by XSUAA, hence use XsuaaDefaultEndpoints as endpointProvider");
+		}
+		this.request.setCertificate(certificate);
+		this.request.setTokenEndpoint(((XsuaaDefaultEndpoints) endpointsProvider).getDelegationTokenEndpoint());
+		return this;
+	}
+
+	/**
 	 * Executes the token flow and returns a JWT token from XSUAA.
 	 *
 	 * @return the encoded OAuth access token returned by XSUAA.
@@ -90,6 +111,9 @@ public class ClientCredentialsTokenFlow {
 	public OAuth2TokenResponse execute() throws IllegalArgumentException, TokenFlowException {
 		checkRequest(request);
 
+		if(request.getCertificate() != null) {
+			requestTechnicalUserTokenWithX509ClientCertificate(request);
+		}
 		return requestTechnicalUserToken(request);
 	}
 
@@ -136,7 +160,33 @@ public class ClientCredentialsTokenFlow {
 			return accessToken;
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
-					String.format("Error requesting user token with grant_type 'client_credentials': %s",
+					String.format("Error requesting technical user token with grant_type 'client_credentials': %s",
+							e.getMessage()),
+					e);
+		}
+	}
+
+	private OAuth2TokenResponse requestTechnicalUserTokenWithX509ClientCertificate(XsuaaTokenFlowRequest request) throws TokenFlowException {
+		Map requestParameter = null;
+		String authorities = buildAuthorities(request);
+
+		if (authorities != null) {
+			requestParameter = new HashMap();
+			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI
+		}
+
+		try {
+			OAuth2TokenResponse accessToken = tokenService
+					.retrieveAccessTokenViaX509(
+							request.getTokenEndpoint(), // is delegation endpoint in this case
+							request.getClientId(),
+							request.getCertificate(),
+							request.getSubdomain(),
+							requestParameter);
+			return accessToken;
+		} catch (OAuth2ServiceException e) {
+			throw new TokenFlowException(
+					String.format("Error requesting technical user token with grant_type 'client_X509': %s",
 							e.getMessage()),
 					e);
 		}

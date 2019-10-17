@@ -61,7 +61,7 @@ public interface OAuth2TokenService {
 			throws OAuth2ServiceException;
 
 	/**
-	 * Requests access token from OAuth Server with refresh-token
+	 * Requests access token from OAuth Server with refresh-token.
 	 *
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
@@ -82,6 +82,8 @@ public interface OAuth2TokenService {
 			String refreshToken, @Nullable String subdomain) throws OAuth2ServiceException;
 
 	/**
+	 * Requests access token from OAuth Server with user / password.
+	 *
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
 	 * @param clientCredentials
@@ -102,6 +104,50 @@ public interface OAuth2TokenService {
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri, ClientCredentials clientCredentials,
 			String username, String password, @Nullable String subdomain,
+			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
+
+	/**
+	 * Requests client-credentials access token from OAuth Server with X509 client certificates.
+	 *
+	 * @param tokenEndpointUri the delegation token endpoint with cert domain
+	 * @param clientId of master (extracted from VCAP_SERVICES system
+	 *            environment variable)
+	 * @param pemEncodedCloneCertificate the clone certificate to forward
+	 * @param subdomain
+	 *            optionally indicates what Identity Zone this request goes to by
+	 *            supplying a subdomain (tenant).
+	 * @param optionalParameters
+	 *            optional request parameters, can be null.
+	 * @return the OAuth2AccessToken
+	 * @throws OAuth2ServiceException
+	 *             in case of an error during the http request.
+	 */
+	public OAuth2TokenResponse retrieveAccessTokenViaX509(URI tokenEndpointUri,
+			String clientId, String pemEncodedCloneCertificate,
+			@Nullable String subdomain,
+			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
+
+	/**
+	 * Requests jwt bearer access token from OAuth Server with X509 client certificates.
+	 *
+	 * @param tokenEndpointUri the delegation token endpoint with cert domain
+	 * @param clientId of master (extracted from VCAP_SERVICES system
+	 *            environment variable)
+	 * @param pemEncodedCloneCertificate the clone certificate to forward
+	 * @param oidcToken the oidc token that contains the user's principal information
+	 * @param subdomain
+	 *            optionally indicates what Identity Zone this request goes to by
+	 *            supplying a subdomain (tenant).
+	 * @param optionalParameters
+	 *            optional request parameters, can be null.
+	 * @return the OAuth2AccessToken
+	 * @throws OAuth2ServiceException
+	 *             in case of an error during the http request.
+	 */
+	public OAuth2TokenResponse retrieveAccessTokenViaX509AndJwtBearerGrant(URI tokenEndpointUri,
+			String clientId, String pemEncodedCloneCertificate,
+			String oidcToken,
+			@Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
 
 }

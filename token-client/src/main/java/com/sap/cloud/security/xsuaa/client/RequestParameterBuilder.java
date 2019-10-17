@@ -32,6 +32,14 @@ public class RequestParameterBuilder {
 		return this;
 	}
 
+	public RequestParameterBuilder withParameter(String name, String value) {
+		if(parameters.containsKey(name)) {
+			throw new IllegalArgumentException("Parameter '" + name + "' exists already.");
+		}
+		parameters.put(name, value);
+		return this;
+	}
+
 	public RequestParameterBuilder withOptionalParameters(Map<String, String> optionalParameters) {
 		Optional.ofNullable(optionalParameters).orElse(Collections.emptyMap())
 				.forEach((key, value) -> parameters.putIfAbsent(key, value));
@@ -45,12 +53,6 @@ public class RequestParameterBuilder {
 
 	public RequestParameterBuilder withPassword(String password) {
 		parameters.put(PASSWORD, password);
-		return this;
-	}
-
-	public RequestParameterBuilder withCertificate(String clientId, String pemEncodedCertificate) {
-		parameters.put(MASTER_CLIENT_ID, clientId);
-		parameters.put(CLONE_CERTIFICATE, pemEncodedCertificate);
 		return this;
 	}
 

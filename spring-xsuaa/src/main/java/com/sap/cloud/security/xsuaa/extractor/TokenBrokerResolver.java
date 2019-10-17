@@ -29,6 +29,8 @@ import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
 /**
  * Analyse authentication header and obtain token from UAA
@@ -53,7 +55,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	private Cache tokenCache;
 	private TokenBroker tokenBroker;
 	private AuthenticationInformationExtractor authenticationConfig;
-	private OAuth2TokenService oAuth2TokenService;
+	private XsuaaTokenFlows xsuaaTokenFlows;
 
 	/**
 	 * @param configuration
@@ -94,7 +96,10 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		this.tokenCache = tokenCache;
 		this.tokenBroker = new UaaTokenBroker(tokenService);
 		this.authenticationConfig = authenticationConfig;
-		this.oAuth2TokenService = tokenService;
+		this.xsuaaTokenFlows = new XsuaaTokenFlows(
+				tokenService,
+				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
+				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
 	}
 
 	/**
@@ -148,7 +153,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		if (authenticationMethods.contains(AuthenticationMethod.OAUTH2_MUTUAL_TLS)) {
 			if (authenticationMethods.contains(AuthenticationMethod.OAUTH2)) {
 				throw new IllegalArgumentException("Use either OAUTH2_MUTUAL_TLS or OAUTH2");
-			} else if (oAuth2TokenService == null) {
+			} else if (xsuaaTokenFlows == null) {
 				throw new IllegalArgumentException("Don't use deprecated constructor");
 			}
 		}
@@ -182,19 +187,15 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				String oidcToken = extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
 				String pemEncodedCertificate = request.getHeader(FWD_CERT_HEADER);
 				String subdomain = parseSubdomainFromOIDCToken(oidcToken); // TODO returns null as of now
-				XsuaaDefaultEndpoints endpoints = new XsuaaDefaultEndpoints(configuration.getUaaUrl());
 				try {
-					OAuth2TokenResponse tokenResponse = ((XsuaaOAuth2TokenService) oAuth2TokenService)
-							.retrieveDelegationAccessTokenViaJwtBearerTokenGrant(
-									endpoints.getDelegationTokenEndpoint(),
-									clientCredentials,
-									oidcToken,
-									pemEncodedCertificate,
-									subdomain,
-									null);
-					return tokenResponse.getAccessToken();
-				} catch (OAuth2ServiceException e) {
-					logger.error("error calling 'delegation/oauth/token' endpoint", e);
+					OAuth2TokenResponse response = xsuaaTokenFlows.userTokenFlow()
+																	.token(oidcToken)
+																	.subdomain(subdomain)
+																	.forwardCertificate(pemEncodedCertificate)
+																	.execute();
+					return response.getAccessToken();
+				} catch (TokenFlowException e) {
+					logger.error("Can not exchange OIDC token with jwt bearer token", e);
 				}
 				break;
 			case OAUTH2:
