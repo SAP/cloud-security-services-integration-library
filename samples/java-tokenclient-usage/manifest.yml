@@ -1,0 +1,19 @@
+---
+# Configuration:
+# configured for EU10. For other landscapes, please adopt the destination
+# If the routes are occupied, you might need to change the host in java-tokenclient-usage and the url in the destination
+applications:
+# Application java-tokenclient-usage
+- name: java-tokenclient-usage
+  instances: 1
+  memory: 896M
+  routes:
+    - route: java-tokenclient-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
+
+  host: 
+  path: target/java-tokenclient-usage.war
+  buildpacks:
+    - java_buildpack
+  services:
+    - xsuaa-token-client
+...

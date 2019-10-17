@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.security.xssec.samples</groupId>
-    <artifactId>java-buildpack-tokenflow-usage</artifactId>
+    <artifactId>java-tokenclient-usage</artifactId>
     <version>1.0</version>
     <packaging>war</packaging>
 
@@ -19,7 +19,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
-                    <warName>java-buildpack-tokenflow-usage</warName>
+                    <warName>java-tokenclient-usage</warName>
                 </configuration>
             </plugin>
             <plugin>
