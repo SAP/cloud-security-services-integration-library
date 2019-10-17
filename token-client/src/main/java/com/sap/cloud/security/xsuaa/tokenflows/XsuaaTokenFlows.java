@@ -92,10 +92,20 @@ public class XsuaaTokenFlows implements Serializable {
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
 	 * 
-	 * @return the {@link ClientCredentialsTokenFlow} builder object.
+	 * @return the {@link RefreshTokenFlow} builder object.
 	 */
 	public RefreshTokenFlow refreshTokenFlow() {
 		return new RefreshTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
 	}
 
+	/**
+	 * Creates a new Refresh Token Flow builder object.<br>
+	 * Token, authorize and key set endpoints will be derived relative to the base
+	 * URI.
+	 *
+	 * @return the {@link PasswordTokenFlow} builder object.
+	 */
+	public PasswordTokenFlow passwordTokenFlow() {
+		return new PasswordTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
+	}
 }
