@@ -155,18 +155,4 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 		this.certificate = certificate;
 		return this;
 	}
-
-	/**
-	 * Get the Certificate to be forwarded.
-	 *
-	 * @param certificate
-	 *            the pem encoded certificate to be forwarded.
-	 *
-	 * @return this mutable object
-	 *
-	 */
-	public XSTokenRequest setCertificate(String certificate) {
-		this.certificate = certificate;
-		return this;
-	}
 }

@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
@@ -18,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -64,10 +64,12 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 			return null;
 		}
 
+		HashMap optionalParams = new HashMap();
+		optionalParams.put("assertion", oidcToken);
 		Map<String, String> parameters = new RequestParameterBuilder()
-				//.withGrantType(GRANT_TYPE_JWT_BEARER) // default "client_x509"
+				.withGrantType(GRANT_TYPE_JWT_BEARER) // default "client_x509"
 				.withCertificate(clientCredentials.getId(), pemEncodedCloneCertificate)
-				.withOptionalParameters(optionalParameters)
+				.withOptionalParameters(optionalParams)
 				.buildAsMap();
 
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
