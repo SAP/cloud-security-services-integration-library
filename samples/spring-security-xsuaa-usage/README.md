@@ -1,5 +1,5 @@
 # Description
-This sample uses the SAP application router as a web server and forwards requests to a Java Spring back-end application running on Cloud Foundry.
+This sample uses the SAP application router as OAuth client and forwards as reverse proxy the requests to a Java Spring back-end application running on Cloud Foundry.
 In a typcal UI5 application, the application router serves HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
 
 # Coding
