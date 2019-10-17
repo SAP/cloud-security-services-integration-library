@@ -1,5 +1,5 @@
 # Description
-This sample uses the SAP application router as a web server and forwards requests to a Java Spring back-end application running on Cloud Foundry.
+This sample uses the SAP application router as OAuth client and forwards as reverse proxy the requests to a Java Spring back-end application running on Cloud Foundry.
 In a typcal UI5 application, the application router serves HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
 
 # Coding
@@ -32,7 +32,7 @@ Use the [xs-security.json](./xs-security.json) to define the authentication sett
 cf create-service xsuaa application xsuaa-authentication -c xs-security.json
 ```
 
-## Configuration the manifest
+## Configure the manifest
 The [vars](../vars.yml) contains hosts and paths that you might need to adopt.
 
 ## Deploy the application

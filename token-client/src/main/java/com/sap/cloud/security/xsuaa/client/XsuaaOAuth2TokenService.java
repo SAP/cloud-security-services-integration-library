@@ -30,12 +30,10 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private final RestOperations restOperations;
 	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
-	private final HttpHeadersFactory httpHeadersFactory;
 
 	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations) {
 		assertNotNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
-		this.httpHeadersFactory = new HttpHeadersFactory();
 	}
 
 	/**

@@ -22,7 +22,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { XsuaaAutoConfiguration.class, XsuaaMockAutoConfiguration.class })
+@SpringBootTest(classes = { XsuaaMockAutoConfiguration.class })
 public class XsuaaMockAutoConfigurationTest {
 
 	// create an ApplicationContextRunner that will create a context with the

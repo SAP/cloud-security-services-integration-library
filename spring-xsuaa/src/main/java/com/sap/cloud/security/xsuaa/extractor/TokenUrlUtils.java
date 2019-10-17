@@ -2,13 +2,13 @@ package com.sap.cloud.security.xsuaa.extractor;
 
 import java.net.URI;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 final class TokenUrlUtils {
 
-	private final static Log logger = LogFactory.getLog(TokenUrlUtils.class);
+	private final static Logger logger = LoggerFactory.getLogger(TokenUrlUtils.class);
 
 	private TokenUrlUtils() {
 	}
@@ -68,7 +68,7 @@ final class TokenUrlUtils {
 		String protocol = uri.getScheme();
 
 		String tenantTokenUrl = String.format("%s://%s", protocol, tenantUaaDomain + endpoint);
-		logger.debug("Created tenant token URL " + tenantTokenUrl);
+		logger.debug("Created tenant token URL {}.",tenantTokenUrl);
 		return tenantTokenUrl;
 	}
 

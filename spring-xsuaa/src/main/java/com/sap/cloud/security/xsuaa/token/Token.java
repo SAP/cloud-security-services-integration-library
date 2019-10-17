@@ -1,11 +1,12 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import java.util.Collection;
-import java.util.Date;
-
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Date;
 
 public interface Token extends UserDetails {
 
@@ -91,7 +92,7 @@ public interface Token extends UserDetails {
 	 * in which the user is persisted. For example, users that are authenticated by
 	 * the UAA itself with a username / password combination have their origin set
 	 * to the value "uaa".
-	 *
+	 * <p>
 	 * May be null in case this JWT was not created with OAuth 2.0 client
 	 * credentials flow.
 	 *
@@ -106,7 +107,6 @@ public interface Token extends UserDetails {
 	 *
 	 * @param attributeName
 	 *            name of the attribute inside 'ext_ctx' or 'xs.user.attributes'.
-	 *
 	 * @return the attribute values array or null if there exists no such attribute.
 	 */
 	@Nullable
@@ -153,7 +153,7 @@ public interface Token extends UserDetails {
 
 	/**
 	 * Returns by default list of scopes {@link #getScopes()}.
-	 *
+	 * <p>
 	 * The default behavior can be adapted as part of
 	 * {@link com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter} class
 	 *
@@ -166,8 +166,18 @@ public interface Token extends UserDetails {
 	 * Returns date of when jwt token expires.
 	 *
 	 * @return expiration date if present
+	 * @deprecated use {@link #getExpiration()}.
 	 */
 	@Nullable
+	@Deprecated
 	Date getExpirationDate();
+
+	/**
+	 * Returns the moment in time when the token will be expired.
+	 *
+	 * @return the expiration point in time if present.
+	 */
+	@Nullable
+	Instant getExpiration();
 
 }

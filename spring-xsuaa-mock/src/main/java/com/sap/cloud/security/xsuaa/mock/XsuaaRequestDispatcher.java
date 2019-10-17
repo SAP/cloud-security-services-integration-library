@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,7 +20,7 @@ public class XsuaaRequestDispatcher extends Dispatcher {
 	protected static final String RESPONSE_500 = "Xsuaa mock authorization server can't process request";
 	protected static final String PATH_TOKEN_KEYS_TEMPLATE = "/mock/token_keys_template.json";
 	protected static final String PATH_PUBLIC_KEY = "/mock/publicKey.txt";
-	protected final Log logger = LogFactory.getLog(XsuaaRequestDispatcher.class);
+	protected final Logger logger = LoggerFactory.getLogger(XsuaaRequestDispatcher.class);
 	private static int callCount = 0;
 
 	@Override

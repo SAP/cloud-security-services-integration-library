@@ -16,7 +16,36 @@ A Refresh Token ([RFC 6749, section 1.5](https://tools.ietf.org/html/rfc6749#sec
 
 ## Configuration for Java Applications
 
-### Maven Dependencies
+#### Maven Dependencies, when using Apache Http Client:
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client</artifactId>
+    <version>2.1.0</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.httpcomponents</groupId>
+  <artifactId>httpclient</artifactId>
+</dependency>
+```
+
+#### Initialization
+Instantiate `XsuaaTokenFlows` with the `DefaultOAuth2TokenService` which
+makes use of [Apache HttpClient](https://hc.apache.org/):
+
+```java
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+                                    new DefaultOAuth2TokenService(), 
+                                    new XsuaaDefaultEndpoints(<uaa_base_url>), 
+                                    new ClientCredentials(<client_id>, <client_secret>));
+```
+The `DefaultOAuth2TokenService` can also be instantiated with a custom `CloseableHttpClient`.
+
+> The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. 
+
+## Configuration for Java/Spring Applications
+
+#### Maven Dependencies, when using Spring Web `RestTemplate`
 ```xml
 <dependency>
     <groupId>org.springframework</groupId>
@@ -25,22 +54,34 @@ A Refresh Token ([RFC 6749, section 1.5](https://tools.ietf.org/html/rfc6749#sec
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
+
+#### Initialization
+
+With Spring-Web available `XsuaaTokenFlows` can be instantiated with a `RestTemplate` of your choice like that:
+```java
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+                                    new XsuaaOAuth2TokenService(new RestTemplate()),
+                                    new XsuaaDefaultEndpoints(<uaa_base_url>),
+                                    new ClientCredentials(<client_id>, <client_secret>));
+```
+> The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. In case you leverage the spring-xsuaa library you can also use [`XsuaaServiceConfiguration`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfiguration.java) class.
+
 ## Configuration for Spring Boot Applications
 
-### Maven Dependencies
+#### Maven Dependencies
 In context of a Spring Boot application you may like to leverage auto-configuration:
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 
-### Auto-configuration
+#### Auto-configuration
 As auto-configuration requires Spring Boot specific dependencies, it is enabled when using `xsuaa-spring-boot-starter` Spring Boot Starter. 
 Then, xsuaa integration libraries auto-configures beans, that are required to initialize the Token Flows API.
 
@@ -51,23 +92,17 @@ Auto-configuration class | Description
 
 You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 
-## Usage
-The flows themselves provide a builder-pattern API that allows applications to easily create and execute each flow, guiding developers to only set properties that are relevant for the respective token flow.
-
+#### Initialization
 To consume the `XsuaaTokenFlows` class, you simply need to `@Autowire` it like this:
+
 ```java
 @Autowired
 private XsuaaTokenFlows xsuaaTokenFlows;
 ```
 
-Or, alternatively you can instantiate it like that
-```java
-XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                                    new XsuaaOAuth2TokenService(new RestTemplate()), 
-                                    new XsuaaDefaultEndpoints(<uaa_base_url>), 
-                                    new ClientCredentials(<client_id>, <client_secret>));
-```
-> The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. In case you leverage the spring-xsuaa library you can also use [`XsuaaServiceConfiguration`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfiguration.java) class.
+## Usage
+The `XsuaaTokenFlows` provides a builder-pattern API that allows applications to easily create and execute each flow, guiding developers to only set properties that are relevant for the respective token flow.
+
 
 ### Client Credentials Token Flow
 Obtain a client credentials token:
@@ -82,7 +117,7 @@ In case you have a refresh token and want to obtain an access token:
 
 ```java
 OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
-                              .refreshToken("<refresh_token>")
+                              .refreshToken(<refresh_token>)
                               .subdomain(jwtToken.getSubdomain()) // this is optional 
                               .execute();
 ```
@@ -103,5 +138,6 @@ Make sure to read the API documentation of the `XsuaaTokenFlows` API, to underst
 Also note, that the **user token flow** requires an input token that has the scope `uaa.user` to succeed.
 
 
-## Sample (Spring)
-Have a look at [`TestController.java`](/samples/spring-security-xsuaa-usage/src/main/java/sample/spring/xsuaa/TestController.java) for sample code.
+## Samples
+- [Java sample](/samples/java-tokenclient-usage)
+- [Spring Boot sample](/samples/spring-security-xsuaa-usage)
