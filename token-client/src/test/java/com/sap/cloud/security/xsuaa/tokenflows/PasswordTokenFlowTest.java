@@ -8,10 +8,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 
+import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
@@ -19,15 +18,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PasswordTokenFlowTest {
-
-	private static final String USERNAME = "username";
-	private static final String PASSWORD = "password";
-	private static final URI TOKEN_ENDPOINT = TestConstants.xsuaaBaseUri;
-	private static final ClientCredentials CLIENT_CREDENTIALS = new ClientCredentials(TestConstants.clientId,
-			TestConstants.clientSecret);
-	private static final String ACCESS_TOKEN = "abc123";
-	private static final long EXPIRED_IN = 4223;
-	private static final String REFRESH_TOKEN = "cba321";
 
 	private OAuth2TokenService tokenService;
 	private OAuth2ServiceEndpointsProvider endpointsProvider;
@@ -38,7 +28,7 @@ public class PasswordTokenFlowTest {
 		tokenService = Mockito.mock(OAuth2TokenService.class);
 		endpointsProvider = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 
-		when(endpointsProvider.getTokenEndpoint()).thenReturn(TOKEN_ENDPOINT);
+		when(endpointsProvider.getTokenEndpoint()).thenReturn(tokenEndpointUri);
 
 		cut = new PasswordTokenFlow(tokenService, endpointsProvider, CLIENT_CREDENTIALS);
 	}
@@ -65,7 +55,7 @@ public class PasswordTokenFlowTest {
 	}
 
 	@Test
-	public void usernameIsMissing_throwsException() {
+	public void execute_usernameIsMissing_throwsException() {
 		PasswordTokenFlow passwordTokenFlow = new PasswordTokenFlow(tokenService, endpointsProvider,
 				CLIENT_CREDENTIALS);
 		assertThatThrownBy(() -> passwordTokenFlow.password(PASSWORD).execute())
@@ -74,7 +64,7 @@ public class PasswordTokenFlowTest {
 	}
 
 	@Test
-	public void passwordIsMissing_throwsException() {
+	public void execute_passwordIsMissing_throwsException() {
 		PasswordTokenFlow passwordTokenFlow = new PasswordTokenFlow(tokenService, endpointsProvider,
 				CLIENT_CREDENTIALS);
 		assertThatThrownBy(() -> passwordTokenFlow.username(USERNAME).execute())
@@ -83,7 +73,7 @@ public class PasswordTokenFlowTest {
 	}
 
 	@Test
-	public void requiredParametersGiven_returnsCorrectAccessTokenInResponse() throws Exception {
+	public void execute_returnsCorrectAccessTokenInResponse() throws Exception {
 		returnValidResponse();
 
 		OAuth2TokenResponse actualResponse = executeRequest();
@@ -92,17 +82,8 @@ public class PasswordTokenFlowTest {
 	}
 
 	@Test
-	public void requiredParametersGiven_returnsRefreshTokenInResponse() throws Exception {
-		returnValidResponse();
-
-		OAuth2TokenResponse actualResponse = executeRequest();
-
-		assertThat(actualResponse.getRefreshToken()).isEqualTo(REFRESH_TOKEN);
-	}
-
-	@Test
-	public void requiredParametersGiven_returnsDifferentAccessTokenInResponse() throws Exception {
-		String otherAccessToken = "effe123";
+	public void execute_ReturnsDifferentAccessTokenInResponse() throws Exception {
+		String otherAccessToken = "qwertyqwerty";
 		returnValidResponse(otherAccessToken);
 
 		OAuth2TokenResponse actualResponse = executeRequest();
@@ -111,27 +92,40 @@ public class PasswordTokenFlowTest {
 	}
 
 	@Test
-	public void givenRequiredParameters_areUsed() throws Exception {
+	public void execute_ReturnsRefreshTokenInResponse() throws Exception {
+		returnValidResponse();
+
+		OAuth2TokenResponse actualResponse = executeRequest();
+
+		assertThat(actualResponse.getRefreshToken()).isEqualTo(REFRESH_TOKEN);
+	}
+
+	@Test
+	public void allRequiredParametersAreUsed() throws Exception {
 		executeRequest();
 
 		Mockito.verify(tokenService, times(1))
-				.retrieveAccessTokenViaPasswordGrant(eq(TOKEN_ENDPOINT), eq(CLIENT_CREDENTIALS), eq(USERNAME),
+				.retrieveAccessTokenViaPasswordGrant(eq(tokenEndpointUri), eq(CLIENT_CREDENTIALS), eq(
+						USERNAME),
 						eq(PASSWORD), any(), any());
 	}
 
 	@Test
-	public void givenSubdomain_isUsed() throws Exception {
-		createValidRequest().subdomain("staging").execute();
+	public void subdomainIsUsed() throws Exception {
+		String newSubdomain = "staging";
+		createValidRequest().subdomain(newSubdomain).execute();
 
 		Mockito.verify(tokenService, times(1))
 				.retrieveAccessTokenViaPasswordGrant(any(), any(), any(),
-						any(), eq("staging"), any());
+						any(), eq(newSubdomain), any());
 	}
 
 	@Test
-	public void additionalParameters_areUsed() throws Exception {
-		Map<String, String> givenParameters = Maps.newHashMap("aKey", "aValue");
-		Map<String, String> equalParameters = Maps.newHashMap("aKey", "aValue");
+	public void additionalParametersAreUsed() throws Exception {
+		String key = "aKey";
+		String value = "aValue";
+		Map<String, String> givenParameters = Maps.newHashMap(key, value);
+		Map<String, String> equalParameters = Maps.newHashMap(key, value);
 
 		createValidRequest().optionalParameters(givenParameters).execute();
 
@@ -150,14 +144,14 @@ public class PasswordTokenFlowTest {
 
 	private void returnValidResponse() throws OAuth2ServiceException {
 		OAuth2TokenResponse validResponse = new OAuth2TokenResponse(ACCESS_TOKEN, EXPIRED_IN, REFRESH_TOKEN);
-		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT, CLIENT_CREDENTIALS, USERNAME, PASSWORD,
+		when(tokenService.retrieveAccessTokenViaPasswordGrant(tokenEndpointUri, CLIENT_CREDENTIALS, USERNAME, PASSWORD,
 				null, null))
 						.thenReturn(validResponse);
 	}
 
 	private void returnValidResponse(String accessToken) throws OAuth2ServiceException {
 		OAuth2TokenResponse validResponse = new OAuth2TokenResponse(accessToken, EXPIRED_IN, REFRESH_TOKEN);
-		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT, CLIENT_CREDENTIALS, USERNAME, PASSWORD,
+		when(tokenService.retrieveAccessTokenViaPasswordGrant(tokenEndpointUri, CLIENT_CREDENTIALS, USERNAME, PASSWORD,
 				null, null))
 						.thenReturn(validResponse);
 	}

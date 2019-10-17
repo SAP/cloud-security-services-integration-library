@@ -28,7 +28,7 @@ public class PasswordTokenFlow {
 
 	/**
 	 * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT
-	 * token is returned. <br>
+	 * token is returned.
 	 *
 	 * @return the JWT instance returned by XSUAA.
 	 * @throws IllegalStateException
@@ -83,8 +83,7 @@ public class PasswordTokenFlow {
 	 * Set the Subdomain the token is requested for.
 	 *
 	 * @param subdomain
-	 *            indicates what Identity Zone this request goes to by supplying a
-	 *            subdomain (tenant).
+	 *            - the subdomain.
 	 * @return this builder.
 	 */
 	public PasswordTokenFlow subdomain(String subdomain) {
