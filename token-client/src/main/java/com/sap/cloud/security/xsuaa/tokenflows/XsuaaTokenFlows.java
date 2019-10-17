@@ -5,7 +5,6 @@ import java.io.Serializable;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import sun.security.util.Password;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
