@@ -3,8 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.0.1
-* `token-client` library supports [Apache Http Client](https://hc.apache.org/) (without any Spring dependencies).
-* Fix CVE-2018-1000613 by removing unecessary dependencies ([issue 144](https://github.com/SAP/cloud-security-xsuaa-integration/issues/144)).
+* `token-client` library supports [Apache Http Client](https://hc.apache.org/) (without any Spring dependencies). Have also a look at the [java-tokenclient-usage sample application](/samples/java-tokenclient-usage).
+* Fix CVE-2018-1000613 by removing unnecessary dependencies ([issue 144](https://github.com/SAP/cloud-security-xsuaa-integration/issues/144)).
+* Makes `XsuaaMockWebServer` more robust.
 
 ## 2.0.0
 * Deleted package `com.sap.xs2.security.container` in order to avoid Class Loader issues, when an application makes use of SAP-libraries using the SAP-internal container lib like CAP. 

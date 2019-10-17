@@ -32,7 +32,7 @@ Use the [xs-security.json](./xs-security.json) to define the authentication sett
 cf create-service xsuaa application xsuaa-authentication -c xs-security.json
 ```
 
-## Configuration the manifest
+## Configure the manifest
 The [vars](../vars.yml) contains hosts and paths that you might need to adopt.
 
 ## Deploy the application

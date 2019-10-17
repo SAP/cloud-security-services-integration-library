@@ -139,5 +139,5 @@ Also note, that the **user token flow** requires an input token that has the sco
 
 
 ## Samples
-- [Java sample](/samples/java-token-client-usage)
+- [Java sample](/samples/java-tokenclient-usage)
 - [Spring Boot sample](/samples/spring-security-xsuaa-usage)

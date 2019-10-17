@@ -96,7 +96,7 @@ Use the [xs-security.json](./xs-security.json) to define the authentication sett
 cf create-service xsuaa application xsuaa-buildpack -c xs-security.json
 ```
 
-## Configuration the manifest
+## Configure the manifest
 The [vars](../vars.yml) contains hosts and paths that need to be adopted.
 
 ## Deploy the application
