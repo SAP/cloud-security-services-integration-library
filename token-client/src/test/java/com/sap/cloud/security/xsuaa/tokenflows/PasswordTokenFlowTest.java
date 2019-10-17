@@ -144,14 +144,16 @@ public class PasswordTokenFlowTest {
 
 	private void returnValidResponse() throws OAuth2ServiceException {
 		OAuth2TokenResponse validResponse = new OAuth2TokenResponse(ACCESS_TOKEN, EXPIRED_IN, REFRESH_TOKEN);
-		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME, PASSWORD,
+		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME,
+				PASSWORD,
 				null, null))
 						.thenReturn(validResponse);
 	}
 
 	private void returnValidResponse(String accessToken) throws OAuth2ServiceException {
 		OAuth2TokenResponse validResponse = new OAuth2TokenResponse(accessToken, EXPIRED_IN, REFRESH_TOKEN);
-		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME, PASSWORD,
+		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME,
+				PASSWORD,
 				null, null))
 						.thenReturn(validResponse);
 	}
