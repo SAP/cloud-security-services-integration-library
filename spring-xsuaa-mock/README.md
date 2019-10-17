@@ -21,7 +21,7 @@ The default implementation offers already valid *token_keys* for JWT tokens, tha
 </dependency>
 <dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
     <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-autoconfigure</artifactId> <!--
+    <artifactId>spring-boot-autoconfigure</artifactId>
 </dependency>
 ```
 
@@ -30,27 +30,21 @@ Add the following class, which makes sure, that the Xsuaa mock web server is onl
 
 ```java
 import com.sap.cloud.security.xsuaa.mock.XsuaaMockWebServer;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Profiles;
 
-public class XsuaaMockPostProcessor implements EnvironmentPostProcessor, DisposableBean {
+public class XsuaaMockPostProcessor implements EnvironmentPostProcessor {
 
-    private final XsuaaMockWebServer mockAuthorizationServer = new XsuaaMockWebServer();
+	private static final XsuaaMockWebServer mockAuthorizationServer = new XsuaaMockWebServer();
 
-    @Override
-    public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        if (environment.acceptsProfiles(Profiles.of("uaamock"))) {
-            environment.getPropertySources().addFirst(this.mockAuthorizationServer);
-        }
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        this.mockAuthorizationServer.destroy();
-    }
+	@Override
+	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+		if (environment.acceptsProfiles(Profiles.of("uaamock"))) {
+			environment.getPropertySources().addFirst(mockAuthorizationServer);
+		}
+	}
 }
 ```
 

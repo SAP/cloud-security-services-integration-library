@@ -2,7 +2,6 @@ package com.sap.cloud.security.xsuaa.mock;
 
 import java.nio.charset.StandardCharsets;
 
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -13,22 +12,13 @@ import org.springframework.http.MediaType;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 
-public class MockPostProcessor implements EnvironmentPostProcessor, DisposableBean {
+public class MockPostProcessor implements EnvironmentPostProcessor {
 
-	private final XsuaaMockWebServer mockAuthorizationServer;
-
-	public MockPostProcessor() {
-		mockAuthorizationServer = new XsuaaMockWebServer(new MyDispatcher());
-	}
+	private static final XsuaaMockWebServer mockAuthorizationServer = new XsuaaMockWebServer(new MyDispatcher());
 
 	@Override
 	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-		environment.getPropertySources().addFirst(this.mockAuthorizationServer);
-	}
-
-	@Override
-	public void destroy() throws Exception {
-		this.mockAuthorizationServer.destroy();
+		environment.getPropertySources().addFirst(mockAuthorizationServer);
 	}
 
 	private static class MyDispatcher extends XsuaaRequestDispatcher {

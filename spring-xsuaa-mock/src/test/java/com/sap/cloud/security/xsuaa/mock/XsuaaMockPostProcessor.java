@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa.mock;
 
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -10,24 +9,15 @@ import org.springframework.http.HttpStatus;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 
-public class XsuaaMockPostProcessor implements EnvironmentPostProcessor, DisposableBean {
+public class XsuaaMockPostProcessor implements EnvironmentPostProcessor {
 
-	private final XsuaaMockWebServer mockAuthorizationServer;
-
-	public XsuaaMockPostProcessor() {
-		mockAuthorizationServer = new XsuaaMockWebServer(new MyDispatcher());
-	}
+	private static final XsuaaMockWebServer mockAuthorizationServer = new XsuaaMockWebServer(new MyDispatcher());
 
 	@Override
 	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
 		if (environment.acceptsProfiles(Profiles.of("uaamock"))) {
-			environment.getPropertySources().addFirst(this.mockAuthorizationServer);
+			environment.getPropertySources().addFirst(mockAuthorizationServer);
 		}
-	}
-
-	@Override
-	public void destroy() throws Exception {
-		this.mockAuthorizationServer.destroy();
 	}
 
 	private static class MyDispatcher extends XsuaaRequestDispatcher {
