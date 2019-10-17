@@ -73,12 +73,23 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 				.lines().collect(Collectors.joining(System.lineSeparator()));
 	}
 
-	private OAuth2TokenResponse convertToOAuth2TokenResponse(Map<String, Object> accessTokenMap) {
+	private OAuth2TokenResponse convertToOAuth2TokenResponse(Map<String, Object> accessTokenMap)
+			throws OAuth2ServiceException {
 		String accessToken = getParameter(accessTokenMap, ACCESS_TOKEN);
 		String refreshToken = getParameter(accessTokenMap, REFRESH_TOKEN);
 		String expiresIn = getParameter(accessTokenMap, EXPIRES_IN);
-		return new OAuth2TokenResponse(accessToken, Long.parseLong(expiresIn),
+
+		return new OAuth2TokenResponse(accessToken, convertExpiresInToLong(expiresIn),
 				refreshToken);
+	}
+
+	private Long convertExpiresInToLong(String expiresIn) throws OAuth2ServiceException {
+		try {
+			return Long.parseLong(expiresIn);
+		} catch (NumberFormatException e) {
+			throw new OAuth2ServiceException(
+					String.format("Cannot convert expires_in from response (%s) to long", expiresIn));
+		}
 	}
 
 	private String getParameter(Map<String, Object> accessTokenMap, String key) {
