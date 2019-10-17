@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -48,7 +49,7 @@ public class UserTokenFlowTest {
 		this.mockJwt = buildMockJwt();
 		this.invalidMockJwt = buildInvalidMockJwt();
 		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
-		this.endpointsProvider = new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri);
+		this.endpointsProvider = new XsuaaDefaultEndpoints(XSUAA_BASE_URI);
 		this.cut = new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, endpointsProvider, clientCredentials);
 
 		// configure Refresh Token Flow Mock
@@ -109,7 +110,7 @@ public class UserTokenFlowTest {
 	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		when(mockTokenService
-				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+				.retrieveAccessTokenViaUserTokenGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						eq(mockJwt),
 						isNull(), isNull()))
 								.thenThrow(new OAuth2ServiceException("exception executed REST call"));
@@ -127,7 +128,7 @@ public class UserTokenFlowTest {
 		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, REFRESH_TOKEN);
 
 		when(mockTokenService
-				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+				.retrieveAccessTokenViaUserTokenGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						eq(mockJwt),
 						isNull(), isNull()))
 								.thenReturn(accessToken);
@@ -170,7 +171,7 @@ public class UserTokenFlowTest {
 		additionalAuthoritiesParam.put("authorities", "{\"az_attr\":{\"DummyAttribute\":\"DummyAttributeValue\"}}");
 
 		when(mockTokenService
-				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+				.retrieveAccessTokenViaUserTokenGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						eq(mockJwt),
 						isNull(), eq(additionalAuthoritiesParam)))
 								.thenReturn(accessToken);

@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertNotNull;
 
@@ -14,26 +15,24 @@ import org.springframework.web.client.RestTemplate;
 public class XsuaaTokenFlowsTest {
 
 	private XsuaaTokenFlows cut;
-	private ClientCredentials clientCredentials;
 	private OAuth2ServiceEndpointsProvider endpointsProvider;
 	private OAuth2TokenService oAuth2TokenService;
 
 	@Before
 	public void setup() {
-		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
-		this.endpointsProvider = new XsuaaDefaultEndpoints("http://base/");
+		this.endpointsProvider = new XsuaaDefaultEndpoints(XSUAA_BASE_URI);
 		this.oAuth2TokenService = new XsuaaOAuth2TokenService(new RestTemplate());
-		cut = new XsuaaTokenFlows(oAuth2TokenService, this.endpointsProvider, clientCredentials);
+		cut = new XsuaaTokenFlows(oAuth2TokenService, this.endpointsProvider, CLIENT_CREDENTIALS);
 	}
 
 	@Test
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new XsuaaTokenFlows(null, endpointsProvider, clientCredentials);
+			new XsuaaTokenFlows(null, endpointsProvider, CLIENT_CREDENTIALS);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
 		assertThatThrownBy(() -> {
-			new XsuaaTokenFlows(oAuth2TokenService, null, clientCredentials);
+			new XsuaaTokenFlows(oAuth2TokenService, null, CLIENT_CREDENTIALS);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
 
 		assertThatThrownBy(() -> {
@@ -58,5 +57,11 @@ public class XsuaaTokenFlowsTest {
 	public void startClientCredentialsFlow() {
 		ClientCredentialsTokenFlow flow = cut.clientCredentialsTokenFlow();
 		assertNotNull("ClientCredentialsTokenFlow must not be null.", flow);
+	}
+
+	@Test
+	public void startPasswordTokenFlow() {
+		PasswordTokenFlow flow = cut.passwordTokenFlow();
+		assertNotNull("PasswordTokenFlow must not be null.", flow);
 	}
 }

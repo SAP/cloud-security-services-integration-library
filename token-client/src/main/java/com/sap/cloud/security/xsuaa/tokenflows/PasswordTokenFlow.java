@@ -1,0 +1,111 @@
+package com.sap.cloud.security.xsuaa.tokenflows;
+
+import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.client.*;
+
+import javax.annotation.Nonnull;
+import java.util.Map;
+
+public class PasswordTokenFlow {
+	private final OAuth2TokenService tokenService;
+	private final OAuth2ServiceEndpointsProvider endpointsProvider;
+	private final ClientCredentials clientCredentials;
+	private String username;
+	private String password;
+	private String subdomain;
+	private Map<String, String> optionalParameters;
+
+	public PasswordTokenFlow(@Nonnull OAuth2TokenService tokenService,
+			@Nonnull OAuth2ServiceEndpointsProvider endpointsProvider,
+			@Nonnull ClientCredentials clientCredentials) {
+		Assertions.assertNotNull(tokenService, "OAuth2TokenService must not be null!");
+		Assertions.assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null!");
+		Assertions.assertNotNull(clientCredentials, "ClientCredentials must not be null!");
+		this.tokenService = tokenService;
+		this.endpointsProvider = endpointsProvider;
+		this.clientCredentials = clientCredentials;
+	}
+
+	/**
+	 * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT
+	 * token is returned.
+	 *
+	 * @return the JWT instance returned by XSUAA.
+	 * @throws IllegalStateException
+	 *             - in case not all mandatory fields of the token flow request have
+	 *             been set.
+	 * @throws TokenFlowException
+	 *             - in case of an error during the flow, or when the token cannot
+	 *             be obtained.
+	 */
+	public OAuth2TokenResponse execute() throws TokenFlowException {
+		checkParameter(username, "Username must be set!");
+		checkParameter(password, "Password must be set!");
+		try {
+			return tokenService
+					.retrieveAccessTokenViaPasswordGrant(endpointsProvider.getTokenEndpoint(), clientCredentials,
+							username, password, subdomain, optionalParameters);
+		} catch (OAuth2ServiceException e) {
+			throw new TokenFlowException(
+					String.format("Error requesting user token with grant_type 'client_credentials': %s",
+							e.getMessage()),
+					e);
+		}
+	}
+
+	/**
+	 * The password for the user trying to get a token. This is a required
+	 * parameter.
+	 *
+	 * @param password
+	 *            - the password.
+	 * @return this builder.
+	 */
+	public PasswordTokenFlow password(String password) {
+		this.password = password;
+		return this;
+	}
+
+	/**
+	 * The username for the user trying to get a token. This is a required
+	 * parameter.
+	 *
+	 * @param username
+	 *            - the username.
+	 * @return this builder.
+	 */
+	public PasswordTokenFlow username(String username) {
+		this.username = username;
+		return this;
+	}
+
+	/**
+	 * Set the Subdomain the token is requested for.
+	 *
+	 * @param subdomain
+	 *            - the subdomain.
+	 * @return this builder.
+	 */
+	public PasswordTokenFlow subdomain(String subdomain) {
+		this.subdomain = subdomain;
+		return this;
+	}
+
+	/**
+	 * Adds additional authorization attributes to the request.
+	 *
+	 * @param optionalParameters
+	 *            - the optional parameters.
+	 * @return this builder.
+	 */
+	public PasswordTokenFlow optionalParameters(Map<String, String> optionalParameters) {
+		this.optionalParameters = optionalParameters;
+		return this;
+	}
+
+	private void checkParameter(String parameter, String message) {
+		if (parameter == null) {
+			throw new IllegalStateException(message);
+		}
+	}
+}
