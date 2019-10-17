@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.mock;
 
+import static com.sap.cloud.security.xsuaa.mock.XsuaaMockWebServer.MOCK_XSUAA_DEFAULT_PORT;
+import static com.sap.cloud.security.xsuaa.mock.XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
@@ -23,7 +25,7 @@ public class XsuaaMockWebServerTest {
 	@Test
 	public void getPropertyShouldStartMockServerAndReturnUrl() throws UnknownHostException {
 		mockServer = new XsuaaMockWebServer(54321);
-		String url = getLocalHostUrl(mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
+		String url = getLocalHostUrl(mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME));
 
 		Assert.assertThat(url, equalTo("http://localhost:54321"));
 	}
@@ -31,10 +33,10 @@ public class XsuaaMockWebServerTest {
 	@Test
 	public void startAnotherMockServerAndReturnUrl() throws Exception {
 		mockServer = new XsuaaMockWebServer(12345);
-		String url = getLocalHostUrl(mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
+		String url = getLocalHostUrl(mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME));
 
 		XsuaaMockWebServer otherMockServer = new XsuaaMockWebServer(23456);
-		String otherUrl = getLocalHostUrl(otherMockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
+		String otherUrl = getLocalHostUrl(otherMockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME));
 		Assert.assertThat(otherUrl, equalTo("http://localhost:23456"));
 		Assert.assertThat(otherUrl, not(url));
 
@@ -44,7 +46,7 @@ public class XsuaaMockWebServerTest {
 	@Test
 	public void startMockServerAtRandomPortAndReturnUrl() throws UnknownHostException {
 		mockServer = new XsuaaMockWebServer(0);
-		String url = getLocalHostUrl(mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
+		String url = getLocalHostUrl(mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME));
 
 		Assert.assertThat(url, startsWith("http://localhost:"));
 	}
@@ -52,12 +54,12 @@ public class XsuaaMockWebServerTest {
 	@Test
 	public void dontStartMockServerIfAlreadyStarted() throws Exception {
 		mockServer = new XsuaaMockWebServer();
-		String url = getLocalHostUrl(mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
+		String url = getLocalHostUrl(mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME));
 
 		XsuaaMockWebServer mockServerSamePort = new XsuaaMockWebServer();
-		String urlSame = getLocalHostUrl(mockServerSamePort.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
+		String urlSame = getLocalHostUrl(mockServerSamePort.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME));
 
-		Assert.assertThat(url, endsWith("" + XsuaaMockWebServer.MOCK_XSUAA_DEFAULT_PORT));
+		Assert.assertThat(url, endsWith("" + MOCK_XSUAA_DEFAULT_PORT));
 		Assert.assertThat(url, equalTo(urlSame));
 
 		mockServerSamePort.destroy();
@@ -65,14 +67,26 @@ public class XsuaaMockWebServerTest {
 
 	@Test
 	public void restartDestroyedMockServer() throws Exception {
-		mockServer = new XsuaaMockWebServer(7777);
-		mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME); //starts the mock server
+		mockServer = new XsuaaMockWebServer();
+		mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); //starts the mock server
 		mockServer.destroy();
-		Thread.sleep(1000);
-		mockServer = new XsuaaMockWebServer(7777);
-		String url = getLocalHostUrl(mockServer.getProperty(XsuaaMockWebServer.MOCK_XSUAA_PROPERTY_SOURCE_NAME));
+		mockServer = new XsuaaMockWebServer();
+		String url = getLocalHostUrl(mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME));
 
-		Assert.assertThat(url, equalTo("http://localhost:7777"));
+		Assert.assertThat(url, endsWith("" + MOCK_XSUAA_DEFAULT_PORT));
+	}
+
+	@Test
+	public void destroyWebServerOnlyIfStarted() throws Exception {
+		mockServer = new XsuaaMockWebServer(4711);
+		mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); //starts the mock server
+
+		XsuaaMockWebServer otherMockServer = new XsuaaMockWebServer(4711);
+		otherMockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); //trys to start the mock server
+		otherMockServer.destroy(); // will not shutdown
+
+		XsuaaMockWebServer anotherMockServer = new XsuaaMockWebServer(4711);
+		anotherMockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); //trys to start the mock server
 	}
 
 	private String getLocalHostUrl(Object urlProperty) throws UnknownHostException {

@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.core.env.PropertySource;
 import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -17,13 +16,14 @@ import okhttp3.mockwebserver.MockWebServer;
 /**
  * Starts a mock for xsuaa (user account and authentication) service on localhost.
  */
-public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements DisposableBean {
+public class XsuaaMockWebServer extends PropertySource<MockWebServer> {
 
 	public static final String MOCK_XSUAA_PROPERTY_SOURCE_NAME = "mockxsuaaserver";
 	public static final String MOCK_XSUAA_URL = "mockxsuaaserver.url";
 	// must match the port defined in JwtGenerator
 	static final int MOCK_XSUAA_DEFAULT_PORT = 33195;
 	private final int port;
+	private boolean isStarted;
 
 	private static final Logger log = LoggerFactory.getLogger(XsuaaMockWebServer.class);
 
@@ -34,7 +34,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 	}
 
 	/**
-	 * Initializes a Mock Web Server object.
+	 * Initializes a Mock Web Server object on a given port.
 	 *
 	 * @param port
 	 *            the port the mock server should listen to. Use '0' in case you want to use a random port.
@@ -74,6 +74,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 		if ((name.equals(MOCK_XSUAA_URL) || name.equals(MOCK_XSUAA_PROPERTY_SOURCE_NAME))) {
 			if (!startedWebServer.containsKey(port)) {
 				intializeMockXsuaa(getSource(), port);
+				isStarted = true;
 			}
 			String url = startedWebServer.get(port);
 			log.info("return Mock Server url {} as property", url);
@@ -83,11 +84,16 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 		}
 	}
 
-	@Override
-	public void destroy() throws Exception {
-		getSource().shutdown();
-		log.info(">>>>>>>>>>> Stopped Xsuaa Mock Server (MockWebServer[{}]) ", port);
-		startedWebServer.remove(port);
+	/**
+	 * Shuts the server down, but only if it is started.
+	 * @throws IOException
+	 */
+	public void destroy() throws IOException {
+		if(isStarted) { // if XsuaaMockWebServer instance contains server (getSource()) which is started
+			getSource().shutdown(); // performs a shutdown only in case if getSource().started = true
+			log.info(">>>>>>>>>>> Stopped Xsuaa Mock Server (MockWebServer[{}]) ", port);
+			startedWebServer.remove(port);
+		}
 	}
 
 	private static void intializeMockXsuaa(MockWebServer mockWebServer, int port) {
@@ -99,8 +105,7 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> implements
 		} catch (IllegalStateException | IOException e) {
 			throw new IllegalStateException(
 					String.format("Could not start XSUAA Mock webserver (port:%d). " +
-							"Make sure that it is not yet started in another process.", port),
-					e);
+							"Make sure that it is not yet started in another process.", port), e);
 		}
 	}
 
