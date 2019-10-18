@@ -19,11 +19,9 @@ public class UaaTokenBroker implements TokenBroker {
 
 	private final static Logger logger = LoggerFactory.getLogger(UaaTokenBroker.class);
 
-	private final RestTemplate restTemplate;
 	private OAuth2TokenService oAuth2TokenService;
 
 	public UaaTokenBroker(RestTemplate restTemplate) {
-		this.restTemplate = restTemplate;
 		this.oAuth2TokenService = new XsuaaOAuth2TokenService(restTemplate);
 	}
 
@@ -32,7 +30,6 @@ public class UaaTokenBroker implements TokenBroker {
 	}
 
 	UaaTokenBroker(OAuth2TokenService tokenService) {
-		this.restTemplate = new RestTemplate();
 		oAuth2TokenService = tokenService;
 	}
 
