@@ -161,7 +161,7 @@ public class UserTokenFlow {
 	 *             - in case the user token has not been set or does not include
 	 *             scope 'uaa.user'
 	 */
-	private void checkRequest(XSTokenRequest request) throws IllegalArgumentException {
+	private void checkRequest(XsuaaTokenFlowRequest request) throws IllegalArgumentException {
 		if (token == null) {
 			throw new IllegalStateException(
 					"User token not set. Make sure to have called the token() method on UserTokenFlow builder.");
@@ -169,7 +169,7 @@ public class UserTokenFlow {
 
 		boolean isUserToken = hasScope(token, UAA_USER_SCOPE);
 		if (!isUserToken) {
-			if(((XsuaaTokenFlowRequest)request).getConsumerCertificate() == null) {
+			if(request.getConsumerCertificate() == null) {
 				throw new IllegalStateException(
 						"JWT token does not include scope 'uaa.user'. Only user tokens can be exchanged for another user token.");
 			}

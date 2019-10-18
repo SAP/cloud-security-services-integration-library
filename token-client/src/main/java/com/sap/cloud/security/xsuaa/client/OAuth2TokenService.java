@@ -146,7 +146,8 @@ public interface OAuth2TokenService {
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	public OAuth2TokenResponse retrieveAccessTokenViaX509AndJwtBearerGrant(URI delegationEndpointUri,
+	public OAuth2TokenResponse retrieveAccessTokenViaX509AndJwtBearerGrant(
+			URI delegationEndpointUri,
 			String clientId,
 			String consumerCertificate,
 			String oidcToken,

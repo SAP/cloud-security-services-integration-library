@@ -108,9 +108,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 			@Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
 
-		assertNotNull(delegationEndpointUri, "tokenEndpointUri is required");
-		assertNotNull(clientId, "clientId is required (master)");
-		assertHasText(consumerCertificate, "pemEncodedCertificate is required (clone)"); // w/o BEGIN CERTIFICATE ...
+		assertNotNull(delegationEndpointUri, "delegationEndpointUri is required");
+		assertNotNull(clientId, "clientId is required"); // master
+		assertHasText(consumerCertificate, "consumerCertificate is required"); // w/o BEGIN CERTIFICATE ...
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_CLIENT_X509) // default
@@ -125,20 +125,20 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	public OAuth2TokenResponse retrieveAccessTokenViaX509AndJwtBearerGrant(URI delegationEndpointUri,
-			String clientId, String consumerCertificate, String pemEncodedCloneCertificate,
+			String clientId, String consumerCertificate, String oidcToken,
 			@Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
 
-		assertNotNull(delegationEndpointUri, "tokenEndpointUri is required");
+		assertNotNull(delegationEndpointUri, "delegationEndpointUri is required");
 		assertNotNull(clientId, "clientId is required (master)");
-		assertHasText(pemEncodedCloneCertificate, "pemEncodedCertificate is required (clone)"); // w/o BEGIN CERTIFICATE ...
-		assertHasText(consumerCertificate, "oidcToken is required");
+		assertHasText(consumerCertificate, "consumerToken is required (clone)"); // w/o BEGIN CERTIFICATE ...
+		assertHasText(oidcToken, "oidcToken is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_JWT_BEARER)
-				.withParameter(ASSERTION, consumerCertificate)
+				.withParameter(ASSERTION, oidcToken)
 				.withParameter(MASTER_CLIENT_ID, clientId)
-				.withParameter(CLONE_CERTIFICATE, pemEncodedCloneCertificate)
+				.withParameter(CLONE_CERTIFICATE, consumerCertificate)
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 

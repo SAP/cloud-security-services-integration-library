@@ -184,13 +184,13 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			switch (credentialType) {
 			case OAUTH2_MUTUAL_TLS:
 				String oidcToken = extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
-				String pemEncodedCertificate = request.getHeader(FWD_CERT_HEADER);
+				String consumerCertificate = request.getHeader(FWD_CERT_HEADER);
 				String subdomain = parseSubdomainFromOIDCToken(oidcToken); // TODO returns null as of now
 				try {
 					OAuth2TokenResponse response = xsuaaTokenFlows.userTokenFlow()
 																	.token(oidcToken)
 																	.subdomain(subdomain)
-																	.consumerCertificate(pemEncodedCertificate)
+																	.consumerCertificate(consumerCertificate)
 																	.execute();
 					return response.getAccessToken();
 				} catch (TokenFlowException e) {
