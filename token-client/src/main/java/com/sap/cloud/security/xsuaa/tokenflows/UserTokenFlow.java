@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.xsa.security.container.XSTokenRequest;
@@ -167,8 +169,10 @@ public class UserTokenFlow {
 
 		boolean isUserToken = hasScope(token, UAA_USER_SCOPE);
 		if (!isUserToken) {
-			throw new IllegalStateException(
-					"JWT token does not include scope 'uaa.user'. Only user tokens can be exchanged for another user token.");
+			if(((XsuaaTokenFlowRequest)request).getConsumerCertificate() == null) {
+				throw new IllegalStateException(
+						"JWT token does not include scope 'uaa.user'. Only user tokens can be exchanged for another user token.");
+			}
 		}
 
 		if (!request.isValid()) {
@@ -249,7 +253,8 @@ public class UserTokenFlow {
 			return accessToken;
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
-					String.format("Error requesting technical user token with grant_type 'client_credentials': %s",
+					String.format("Error requesting technical user token with grant_type '%s': %s",
+							GRANT_TYPE_JWT_BEARER,
 							e.getMessage()),
 					e);
 		}

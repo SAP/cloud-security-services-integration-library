@@ -44,7 +44,7 @@ public class SSLContextFactory {
 
 	public SSLContext create(String x509Certificates, String rsaPrivateKey)
 			throws GeneralSecurityException, IOException {
-		assertHasText(x509Certificates, "x509Certificates are required");
+		assertHasText(x509Certificates, "x509Certificate is required");
 		assertHasText(rsaPrivateKey, "rsaPrivateKey is required");
 
 		/*if(Security.getProvider("BC") == null) {

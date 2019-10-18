@@ -98,7 +98,8 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 
 	@Override
 	public XSTokenRequest setTokenEndpoint(URI tokenUri) {
-		throw new AssertionError(UNSUPPORTED_INTF_METHOD_INFO);
+		tokenServiceEndpoint = tokenUri;
+		return this;
 	}
 
 	/**

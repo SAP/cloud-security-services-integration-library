@@ -33,7 +33,7 @@ public class SSLContextFactoryTest {
 	public void create_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
 			cut.create(null, rsaPrivateKey);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("x509Certificates");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("x509Certificate");
 
 		assertThatThrownBy(() -> {
 			cut.create(certificates, null);
