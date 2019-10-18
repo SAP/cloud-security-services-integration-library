@@ -103,40 +103,40 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, parameters);
 	}
 
-	public OAuth2TokenResponse retrieveAccessTokenViaX509(URI tokenEndpointUri,
-			String clientId, String pemEncodedCloneCertificate,
+	public OAuth2TokenResponse retrieveAccessTokenViaX509(URI delegationEndpointUri,
+			String clientId, String consumerCertificate,
 			@Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
 
-		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
+		assertNotNull(delegationEndpointUri, "tokenEndpointUri is required");
 		assertNotNull(clientId, "clientId is required (master)");
-		assertHasText(pemEncodedCloneCertificate, "pemEncodedCertificate is required (clone)"); // w/o BEGIN CERTIFICATE ...
+		assertHasText(consumerCertificate, "pemEncodedCertificate is required (clone)"); // w/o BEGIN CERTIFICATE ...
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_CLIENT_X509) // default
 				.withParameter(MASTER_CLIENT_ID, clientId)
-				.withParameter(CLONE_CERTIFICATE, pemEncodedCloneCertificate)
+				.withParameter(CLONE_CERTIFICATE, consumerCertificate)
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
+		return requestAccessToken(UriUtil.replaceSubdomain(delegationEndpointUri, subdomain), headers, parameters);
 	}
 
-	public OAuth2TokenResponse retrieveAccessTokenViaX509AndJwtBearerGrant(URI tokenEndpointUri,
-			String clientId, String oidcToken, String pemEncodedCloneCertificate,
+	public OAuth2TokenResponse retrieveAccessTokenViaX509AndJwtBearerGrant(URI delegationEndpointUri,
+			String clientId, String consumerCertificate, String pemEncodedCloneCertificate,
 			@Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
 
-		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
+		assertNotNull(delegationEndpointUri, "tokenEndpointUri is required");
 		assertNotNull(clientId, "clientId is required (master)");
 		assertHasText(pemEncodedCloneCertificate, "pemEncodedCertificate is required (clone)"); // w/o BEGIN CERTIFICATE ...
-		assertHasText(oidcToken, "oidcToken is required");
+		assertHasText(consumerCertificate, "oidcToken is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_JWT_BEARER)
-				.withParameter(ASSERTION, oidcToken)
+				.withParameter(ASSERTION, consumerCertificate)
 				.withParameter(MASTER_CLIENT_ID, clientId)
 				.withParameter(CLONE_CERTIFICATE, pemEncodedCloneCertificate)
 				.withOptionalParameters(optionalParameters)
@@ -144,7 +144,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 
 		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
+		return requestAccessToken(UriUtil.replaceSubdomain(delegationEndpointUri, subdomain), headers, parameters);
 	}
 
 	/**

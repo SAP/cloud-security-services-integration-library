@@ -110,16 +110,17 @@ public class UserTokenFlow {
 	 * Sets the pem encoded certificate to be forwarded.<br>
 	 *
 	 * @param certificate
-	 *            - the forwarded certificate (PEM encoded) to forward.
+	 *            - the consumer certificate (PEM encoded) to forward.
+	 *            You can get that from the x-forwarded-client-cert HTTP header.
 	 * @return this builder.
 	 * @throws IllegalArgumentException
 	 *             - in case endpointsProvider is not instance of {@link XsuaaDefaultEndpoints}.
 	 */
-	public UserTokenFlow forwardCertificate(String certificate) {
+	public UserTokenFlow consumerCertificate(String certificate) {
 		if(!(endpointsProvider instanceof XsuaaDefaultEndpoints)) {
 			throw new IllegalArgumentException("This feature is only supported by XSUAA, hence use XsuaaDefaultEndpoints as endpointProvider");
 		}
-		this.request.setCertificate(certificate);
+		this.request.setConsumerCertificate(certificate);
 		this.request.setTokenEndpoint(((XsuaaDefaultEndpoints) endpointsProvider).getDelegationTokenEndpoint());
 		return this;
 	}
@@ -140,8 +141,8 @@ public class UserTokenFlow {
 	public OAuth2TokenResponse execute() throws TokenFlowException {
 		checkRequest(request);
 
-		if(request.getCertificate() != null) {
-			requestUserTokenWithX509ClientCertificate(request);
+		if(request.getConsumerCertificate() != null) {
+			return requestUserTokenWithX509ClientCertificate(request);
 		}
 		return requestUserToken(request);
 	}
@@ -241,7 +242,7 @@ public class UserTokenFlow {
 					.retrieveAccessTokenViaX509AndJwtBearerGrant(
 							request.getTokenEndpoint(), // delegation endpoint in this case
 							request.getClientId(),
-							request.getCertificate(),
+							request.getConsumerCertificate(),
 							this.token,
 							request.getSubdomain(),
 							requestParameter);

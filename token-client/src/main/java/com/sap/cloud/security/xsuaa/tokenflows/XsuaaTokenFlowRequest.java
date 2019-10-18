@@ -147,7 +147,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * @return this mutable object
 	 *
 	 */
-	public XSTokenRequest setCertificate(String certificate) {
+	public XSTokenRequest setConsumerCertificate(String certificate) {
 		this.certificate = certificate;
 		return this;
 	}
@@ -158,7 +158,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 * @return certificate or null in case no certificate is specified
 	 */
 	@Nullable
-	public String getCertificate() {
+	public String getConsumerCertificate() {
 		return this.certificate;
 	}
 }

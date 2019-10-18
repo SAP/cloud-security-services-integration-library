@@ -109,12 +109,13 @@ public interface OAuth2TokenService {
 	/**
 	 * Requests client-credentials access token from OAuth Server with X509 client certificates.
 	 *
-	 * @param tokenEndpointUri the delegation token endpoint with cert domain
-	 * @param clientId of master (extracted from VCAP_SERVICES system
-	 *            environment variable)
-	 * @param pemEncodedCloneCertificate the clone certificate to forward
+	 * @param delegationEndpointUri the delegation token endpoint with cert domain
+	 * @param clientId
+	 * 			- the client id extracted from VCAP_SERVICES system
+	 *            environment variable
+	 * @param consumerCertificate the PEM encoded consumer certificate to forward
 	 * @param subdomain
-	 *            optionally indicates what Identity Zone this request goes to by
+	 *          - optionally indicates what Identity Zone this request goes to by
 	 *            supplying a subdomain (tenant).
 	 * @param optionalParameters
 	 *            optional request parameters, can be null.
@@ -122,18 +123,19 @@ public interface OAuth2TokenService {
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	public OAuth2TokenResponse retrieveAccessTokenViaX509(URI tokenEndpointUri,
-			String clientId, String pemEncodedCloneCertificate,
+	public OAuth2TokenResponse retrieveAccessTokenViaX509(URI delegationEndpointUri,
+			String clientId,
+			String consumerCertificate,
 			@Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
 
 	/**
-	 * Requests jwt bearer access token from OAuth Server with X509 client certificates.
+	 * Requests jwt bearer access token from OAuth Server with X509 client certificate.
 	 *
-	 * @param tokenEndpointUri the delegation token endpoint with cert domain
+	 * @param delegationEndpointUri the delegation token endpoint with cert domain
 	 * @param clientId of master (extracted from VCAP_SERVICES system
 	 *            environment variable)
-	 * @param pemEncodedCloneCertificate the clone certificate to forward
+	 * @param consumerCertificate the PEM encoded consumer certificate to forward
 	 * @param oidcToken the oidc token that contains the user's principal information
 	 * @param subdomain
 	 *            optionally indicates what Identity Zone this request goes to by
@@ -144,8 +146,9 @@ public interface OAuth2TokenService {
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	public OAuth2TokenResponse retrieveAccessTokenViaX509AndJwtBearerGrant(URI tokenEndpointUri,
-			String clientId, String pemEncodedCloneCertificate,
+	public OAuth2TokenResponse retrieveAccessTokenViaX509AndJwtBearerGrant(URI delegationEndpointUri,
+			String clientId,
+			String consumerCertificate,
 			String oidcToken,
 			@Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;

@@ -22,7 +22,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
@@ -191,7 +190,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					OAuth2TokenResponse response = xsuaaTokenFlows.userTokenFlow()
 																	.token(oidcToken)
 																	.subdomain(subdomain)
-																	.forwardCertificate(pemEncodedCertificate)
+																	.consumerCertificate(pemEncodedCertificate)
 																	.execute();
 					return response.getAccessToken();
 				} catch (TokenFlowException e) {
