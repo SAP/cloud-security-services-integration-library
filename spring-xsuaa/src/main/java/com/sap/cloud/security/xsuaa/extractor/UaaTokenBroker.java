@@ -12,10 +12,10 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 
 /**
- * @deprecated in favor of {@link #UaaTokenBroker(OAuth2TokenService)}. We are
+ * @deprecated in favor of {@link OAuth2TokenService}. We are
  *             going to delete that in 3.0.0.
  */
-class UaaTokenBroker implements TokenBroker {
+public class UaaTokenBroker implements TokenBroker {
 
 	private final static Logger logger = LoggerFactory.getLogger(UaaTokenBroker.class);
 
