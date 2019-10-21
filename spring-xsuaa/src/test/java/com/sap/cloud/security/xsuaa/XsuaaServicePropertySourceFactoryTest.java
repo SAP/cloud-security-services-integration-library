@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.token.authentication;
+package com.sap.cloud.security.xsuaa;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,12 +10,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
-import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
-
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = { ConfigurationTestBean.class, XsuaaServiceConfigurationDefault.class })
-public class XsuaaServiceConfigurationTest {
+public class XsuaaServicePropertySourceFactoryTest {
 
 	@Autowired
 	ConfigurationTestBean exampleBean;
@@ -58,11 +55,11 @@ class ConfigurationTestBean {
 	private String unknown;
 }
 
-@Configuration
+/*@Configuration
 @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "/vcap.json" })
 class UaaBindingData {
 
 	@Autowired
 	XsuaaServiceConfigurationDefault serviceConfiguration;
 
-}
+}*/
