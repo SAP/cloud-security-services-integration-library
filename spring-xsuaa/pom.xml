@@ -210,9 +210,4 @@
 		</plugins>
 	</build>
 
-	<properties>
-		<caffeine.version>2.6.2</caffeine.version>
-		<servlet.version>3.1.0</servlet.version>
-		<reactor.version>3.2.8.RELEASE</reactor.version>
-	</properties>
 </project>
