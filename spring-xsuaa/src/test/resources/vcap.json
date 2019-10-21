@@ -1,26 +1,4 @@
 {
-  "auditlog": [
-   {
-    "binding_name": null,
-    "credentials": {
-     "password": "geheim",
-     "url": "https://api.auditlog.cf.stagingaws.hanavlab.ondemand.com:8081",
-     "user": "xy"
-    },
-    "instance_name": "audit-xsuaa",
-    "label": "auditlog",
-    "name": "audit-xsuaa",
-    "plan": "standard",
-    "provider": null,
-    "syslog_drain_url": null,
-    "tags": [
-     "auditlog",
-     "audit log",
-     "xsa"
-    ],
-    "volume_mounts": []
-   }
-  ],
   "xsuaa": [
    {
     "binding_name": null,

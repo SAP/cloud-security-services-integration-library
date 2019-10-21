@@ -51,13 +51,30 @@
 		<project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<spring.core.version>5.1.1.RELEASE</spring.core.version>
-		<spring.boot.version>2.1.5.RELEASE</spring.boot.version>
-		<junit.version>4.12</junit.version>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
-		<spring.security.version>5.1.1.RELEASE</spring.security.version>
 		<maven.source.plugin.version>3.1.0</maven.source.plugin.version>
+		<!-- make sure that spring core and spring boot versions are compatible-->
+		<spring.core.version>5.1.10.RELEASE</spring.core.version>
+		<spring.boot.version>2.1.9.RELEASE</spring.boot.version>
+		<spring.security.version>5.1.1.RELEASE</spring.security.version>
+		<spring.security.oauth2.version>2.3.7.RELEASE</spring.security.oauth2.version>
+		<spring.security.jwt.version>1.0.10.RELEASE</spring.security.jwt.version>
+		<reactor.version>3.2.8.RELEASE</reactor.version>
+		<log4j.version>2.11.2</log4j.version>
+		<slf4j.api.version>1.7.28</slf4j.api.version>
+		<org.json.version>20190722</org.json.version>
+		<google.jsr305.version>3.0.2</google.jsr305.version>
+		<apache.httpclient.version>4.5.9</apache.httpclient.version>
+		<caffeine.version>2.6.1</caffeine.version>
+		<commons.io.version>2.6</commons.io.version>
+		<javax.servlet.api.version>3.0.1</javax.servlet.api.version>
+		<mockwebserver.version>3.9.1</mockwebserver.version>
+		<junit.version>4.12</junit.version>
+		<hamcrest.version>1.3</hamcrest.version>
+		<mockito.version>2.23.0</mockito.version>
+		<assertj.version>3.13.2</assertj.version>
+		<reactor.test.version>3.2.12.RELEASE</reactor.test.version>
 	</properties>
 
 	<modules>
@@ -72,6 +89,145 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- modules -->
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>token-client</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>spring-xsuaa</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>spring-xsuaa-test</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- spring -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring.boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-bom</artifactId>
+				<version>${spring.security.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security.oauth</groupId>
+				<artifactId>spring-security-oauth2</artifactId>
+				<version>${spring.security.oauth2.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-jwt</artifactId>
+				<version>${spring.security.jwt.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${spring.core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-web</artifactId>
+				<version>${spring.core.version}</version>
+			</dependency>
+			<!-- logging -->
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-to-slf4j</artifactId>
+				<version>${log4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.api.version}</version>
+			</dependency>
+			<!-- other -->
+			<dependency>
+				<groupId>org.json</groupId>
+				<artifactId>json</artifactId>
+				<version>${org.json.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.code.findbugs</groupId>
+				<artifactId>jsr305</artifactId>
+				<version>${google.jsr305.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>${apache.httpclient.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.ben-manes.caffeine</groupId>
+				<artifactId>caffeine</artifactId>
+				<version>${caffeine.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.projectreactor</groupId>
+				<artifactId>reactor-core</artifactId>
+				<version>${reactor.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons.io.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>javax.servlet-api</artifactId>
+				<version>${javax.servlet.api.version}</version>
+			</dependency>
+			<!--testing-->
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>mockwebserver</artifactId>
+				<version>${mockwebserver.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hamcrest</groupId>
+				<artifactId>hamcrest-all</artifactId>
+				<version>${hamcrest.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>${mockito.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.assertj</groupId>
+				<artifactId>assertj-core</artifactId>
+				<version>${assertj.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.projectreactor</groupId>
+				<artifactId>reactor-test</artifactId>
+				<version>${reactor.test.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-test</artifactId>
+				<version>${spring.boot.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

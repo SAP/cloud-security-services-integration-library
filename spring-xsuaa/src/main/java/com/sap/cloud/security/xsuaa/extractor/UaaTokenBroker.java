@@ -12,18 +12,16 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 
 /**
- * @deprecated in favor of {@link #UaaTokenBroker(OAuth2TokenService)}. We are
+ * @deprecated in favor of {@link OAuth2TokenService}. We are
  *             going to delete that in 3.0.0.
  */
-class UaaTokenBroker implements TokenBroker {
+public class UaaTokenBroker implements TokenBroker {
 
 	private final static Logger logger = LoggerFactory.getLogger(UaaTokenBroker.class);
 
-	private final RestTemplate restTemplate;
 	private OAuth2TokenService oAuth2TokenService;
 
 	public UaaTokenBroker(RestTemplate restTemplate) {
-		this.restTemplate = restTemplate;
 		this.oAuth2TokenService = new XsuaaOAuth2TokenService(restTemplate);
 	}
 
@@ -32,7 +30,6 @@ class UaaTokenBroker implements TokenBroker {
 	}
 
 	UaaTokenBroker(OAuth2TokenService tokenService) {
-		this.restTemplate = new RestTemplate();
 		oAuth2TokenService = tokenService;
 	}
 
