@@ -9,7 +9,7 @@
     <properties>
         <xsuaa.client.version>2.1.0</xsuaa.client.version>
         <apache.httpclient.version>4.5.8</apache.httpclient.version>
-        <javax.servlet.api.version>3.1.0</javax.servlet.api.version>
+        <javax.servlet.api.version>3.0.1</javax.servlet.api.version>
     </properties>
 
     <build>
