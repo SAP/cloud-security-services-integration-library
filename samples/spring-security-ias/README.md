@@ -31,7 +31,7 @@ mvn clean package
 ## Create the XSUAA service instance
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
 ```shell
-cf create-service xsuaa broker xsuaa-ias -c xs-security.json
+cf create-service xsuaa broker ks1-uaa -c xs-security.json
 ```
 
 > Note that your subaccount needs to be activated for certificates! 
@@ -75,6 +75,6 @@ You will get a response like:
 Finally delete your application and your service instances using the following commands:
 ```
 cf delete -f spring-security-ias
-cf delete-service -f xsuaa-ias
+cf delete-service -f ks1-uaa
 ```
 

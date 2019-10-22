@@ -8,9 +8,8 @@ applications:
   memory: 896M
   routes:
     - route: spring-security-ias-((ID)).((LANDSCAPE_APPS_DOMAIN))
+    - route: ks1-((ID)).cert.((LANDSCAPE_APPS_DOMAIN))
   path: target/spring-security-ias.jar
   services:
-    - xsuaa-ias
-
-
+    - ks1-uaa
 ...

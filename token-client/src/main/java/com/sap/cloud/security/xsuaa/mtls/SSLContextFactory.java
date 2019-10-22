@@ -89,6 +89,7 @@ public class SSLContextFactory {
 		privateKeyPEM = privateKeyPEM.replace("-----BEGIN RSA PRIVATE KEY-----", "");
 		privateKeyPEM = privateKeyPEM.replace("-----END RSA PRIVATE KEY-----", "");
 		privateKeyPEM = privateKeyPEM.replace("\n", "");
+		privateKeyPEM = privateKeyPEM.replace("\\n", "");
 		logger.debug("privateKeyPem: '{}'", privateKeyPEM);
 
 		KeySpec keySpec = parseDERPrivateKey(Base64.getDecoder().decode(privateKeyPEM));
@@ -101,7 +102,7 @@ public class SSLContextFactory {
 
 	private Certificate[] getCertificatesFromString(String certificates) throws CertificateException {
 		CertificateFactory factory = CertificateFactory.getInstance("X.509");
-		byte[] certificatesBytes = certificates.getBytes();
+		byte[] certificatesBytes = certificates.replace("\\n", "\n").getBytes();
 
 		Collection<Certificate> certificateList = (Collection<Certificate>) factory
 				.generateCertificates(new ByteArrayInputStream(certificatesBytes));
