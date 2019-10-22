@@ -1,14 +1,10 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -44,24 +40,9 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 				.build();
 		this.tokenValidators = tokenValidators;
 
-		this.tokenInfoExtractor = new TokenInfoExtractor() {
-			@Override
-			public String getJku(JWT jwt) {
-				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_JKU, null);
-			}
+		this.tokenInfoExtractor = new XsuaaTokenInfoExtractor(xsuaaServiceConfiguration.getUaaDomain());
 
-			@Override
-			public String getKid(JWT jwt) {
-				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_KID, null);
-			}
-
-			@Override
-			public String getUaaDomain(JWT jwt) {
-				return xsuaaServiceConfiguration.getUaaDomain();
-			}
-		};
-
-		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.EMPTY_LIST;
+		this.postValidationActions = postValidationActions != null ? postValidationActions : new ArrayList<>();
 	}
 
 	@Override
