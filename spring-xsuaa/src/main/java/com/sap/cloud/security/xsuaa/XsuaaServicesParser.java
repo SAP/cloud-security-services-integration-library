@@ -55,15 +55,15 @@ public class XsuaaServicesParser {
 	}
 
 	/**
-	 * Parses the VCAP_SERVICES for xsuaa tag and returns a requested attribute from
+	 * Parses the VCAP_SERVICES for xsuaa tag and returns a requested attribute/property from
 	 * credentials.
 	 * 
 	 * @param name
 	 *            the attribute name
-	 * @return associated value to given tag name or null if attribute not found
+	 * @return associated value to given tag name or null if attribute/property not found
 	 * @throws IOException
 	 *             in case of parse errors
-	 * @deprecated in favor of {@link }. Will be deleted with version 3.0.0.
+	 * @deprecated in favor of {@link #parseCredentials()}. Will be deleted with version 3.0.0.
 	 */
 	@Deprecated
 	public Optional<String> getAttribute(String name) throws IOException {
@@ -81,18 +81,20 @@ public class XsuaaServicesParser {
 	}
 
 	/**
-	 * @return associated value to given tag name or null if attribute not found
-	 * @throws ParseException
-	 *             in case of configuration errors
+	 * Parses the VCAP_SERVICES for xsuaa tag and returns all credential properties.
+	 *
+	 * @return Properties that contains all properties that belong to the xsuaa credentials object.
+	 * @throws IOException
+	 *             in case of parse errors.
 	 *
 	 */
 	public Properties parseCredentials() throws IOException {
 		Properties properties = new Properties();
-		JSONObject credentialsJSON = parseCredentials(vcapServices);
-		if (credentialsJSON != null) {
-			Set<String> keys = credentialsJSON.keySet();
+		JSONObject credentialsJsonObject = parseCredentials(vcapServices);
+		if (credentialsJsonObject != null) {
+			Set<String> keys = credentialsJsonObject.keySet();
 			for (String key : keys) {
-				properties.put(key, credentialsJSON.get(key).toString());
+				properties.put(key, credentialsJsonObject.get(key).toString());
 			}
 		}
 		return properties;
@@ -112,8 +114,7 @@ public class XsuaaServicesParser {
 				return (JSONObject) xsuaaBinding.get(CREDENTIALS);
 			}
 		} catch (ParseException ex) {
-			logger.warn("Error while parsing XSUAA credentials from VCAP_SERVICES: {}.", ex.getMessage());
-			return null;
+			throw new IOException("Error while parsing XSUAA credentials from VCAP_SERVICES: {}.", ex);
 		}
 		return null;
 	}
