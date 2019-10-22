@@ -1,5 +1,19 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.JwtValidationException;
+import org.springframework.util.Assert;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -8,42 +22,27 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.JwtValidationException;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
-import org.springframework.util.Assert;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-
 public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	Cache<String, JwtDecoder> cache;
-	private OAuth2TokenValidator<Jwt> tokenValidators;
+	private OAuth2TokenValidator<Jwt> tokenValidator;
 	private Collection<PostValidationAction> postValidationActions;
 	private TokenInfoExtractor tokenInfoExtractor;
+	private JwtDecoderFactory jwtDecoderFactory;
 
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
-			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
-
+			JwtDecoderFactory jwtDecoderFactory, OAuth2TokenValidator<Jwt> tokenValidator,
+			Collection<PostValidationAction> postValidationActions) {
 		this.cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
 				.maximumSize(cacheSize)
 				.build();
-		this.tokenValidators = tokenValidators;
-
+		this.jwtDecoderFactory = jwtDecoderFactory;
+		this.tokenValidator = tokenValidator;
 		this.tokenInfoExtractor = new XsuaaTokenInfoExtractor(xsuaaServiceConfiguration.getUaaDomain());
-
 		this.postValidationActions = postValidationActions != null ? postValidationActions : new ArrayList<>();
 	}
+
 
 	@Override
 	public Jwt decode(String token) throws JwtException {
@@ -112,11 +111,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		return decoder.decode(token);
 	}
 
-	// TODO extract into separate class / bean
 	private JwtDecoder getDecoder(String jku) {
-		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jku);
-		decoder.setJwtValidator(tokenValidators);
-		return decoder;
+		return jwtDecoderFactory.create(jku, tokenValidator);
 	}
 
 	public void setTokenInfoExtractor(TokenInfoExtractor tokenInfoExtractor) {

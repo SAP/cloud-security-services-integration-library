@@ -1,8 +1,6 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import java.util.Arrays;
-import java.util.Collection;
-
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -10,7 +8,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import java.util.Arrays;
+import java.util.Collection;
 
 public class XsuaaJwtDecoderBuilder {
 
@@ -21,6 +20,9 @@ public class XsuaaJwtDecoderBuilder {
 	OAuth2TokenValidator<Jwt> defaultTokenValidators;
 	Collection<PostValidationAction> postValidationActions;
 
+	private ReactiveJwtDecoderFactory reactiveJwtDecoderFactory;
+	private JwtDecoderFactory jwtDecoderFactory;
+
 	/**
 	 * Utility for building a JWT decoder configuration
 	 *
@@ -29,6 +31,8 @@ public class XsuaaJwtDecoderBuilder {
 	 */
 	public XsuaaJwtDecoderBuilder(XsuaaServiceConfiguration configuration) {
 		this.configuration = configuration;
+		this.reactiveJwtDecoderFactory = new DefaultReactiveJwtDecoderFactory();
+		this.jwtDecoderFactory = new DefaultJwtDecoderFactory();
 		withDefaultValidators(JwtValidators.createDefault());
 		withTokenValidators(new XsuaaAudienceValidator(configuration));
 		withDecoderCacheSize(100);
@@ -41,11 +45,16 @@ public class XsuaaJwtDecoderBuilder {
 	 * @return JwtDecoder
 	 */
 	public JwtDecoder build() {
-		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = new DelegatingOAuth2TokenValidator<>(
+		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = getCombinedTokenValidators();
+
+		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
+				jwtDecoderFactory, combinedTokenValidators, postValidationActions);
+	}
+
+	private DelegatingOAuth2TokenValidator<Jwt> getCombinedTokenValidators() {
+		return new DelegatingOAuth2TokenValidator<>(
 				defaultTokenValidators,
 				xsuaaTokenValidators);
-		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
-				combinedTokenValidators, postValidationActions);
 	}
 
 	/**
@@ -54,12 +63,12 @@ public class XsuaaJwtDecoderBuilder {
 	 * @return ReactiveJwtDecoder
 	 */
 	public ReactiveJwtDecoder buildAsReactive() {
-		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = new DelegatingOAuth2TokenValidator<>(
-				defaultTokenValidators,
-				xsuaaTokenValidators);
+		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = getCombinedTokenValidators();
 		return new ReactiveXsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
-				combinedTokenValidators, postValidationActions);
+				reactiveJwtDecoderFactory, combinedTokenValidators, postValidationActions);
 	}
+
+
 
 	/**
 	 * Decoders cache the signing keys. Overwrite the cache time (default: 900
@@ -118,6 +127,16 @@ public class XsuaaJwtDecoderBuilder {
 
 	XsuaaJwtDecoderBuilder withDefaultValidators(OAuth2TokenValidator<Jwt>... defaultTokenValidators) {
 		this.defaultTokenValidators = new DelegatingOAuth2TokenValidator<>(defaultTokenValidators);
+		return this;
+	}
+
+	public XsuaaJwtDecoderBuilder withReactiveJwtDecoderFactory(ReactiveJwtDecoderFactory reactiveJwtDecoderFactory) {
+		this.reactiveJwtDecoderFactory = reactiveJwtDecoderFactory;
+		return this;
+	}
+
+	public XsuaaJwtDecoderBuilder withJwtDecoderFactory(JwtDecoderFactory jwtDecoderFactory) {
+		this.jwtDecoderFactory = jwtDecoderFactory;
 		return this;
 	}
 }

@@ -1,35 +1,27 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.nimbusds.jwt.JWTParser;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import reactor.core.publisher.Mono;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-
-import reactor.core.publisher.Mono;
-
 public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 
+	private final ReactiveJwtDecoderFactory jwtDecoderFactory;
 	Cache<String, ReactiveJwtDecoder> cache;
-	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
+	private final OAuth2TokenValidator<Jwt> tokenValidator;
 	private Collection<PostValidationAction> postValidationActions;
 	private TokenInfoExtractor tokenInfoExtractor;
 
@@ -40,15 +32,14 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 	// var arg it is only being converted to a List<OAuth2TokenValidator<Jwt>>,
 	// therefore its type safe.
 	ReactiveXsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds,
-			int cacheSize,
-			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
+			int cacheSize, ReactiveJwtDecoderFactory jwtDecoderFactory, OAuth2TokenValidator<Jwt> tokenValidator,
+			Collection<PostValidationAction> postValidationActions) {
 		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS).maximumSize(cacheSize)
 				.build();
-
 		this.tokenInfoExtractor = new XsuaaTokenInfoExtractor(xsuaaServiceConfiguration.getUaaDomain());
-
-		this.tokenValidators.addAll(Arrays.asList(tokenValidators));
+		this.tokenValidator = tokenValidator;
 		this.postValidationActions = postValidationActions != null ? postValidationActions : new ArrayList<>();
+		this.jwtDecoderFactory = jwtDecoderFactory;
 	}
 
 	@Override
@@ -67,9 +58,7 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	private ReactiveJwtDecoder getDecoder(String jku) {
-		NimbusReactiveJwtDecoder decoder = new NimbusReactiveJwtDecoder(jku);
-		decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(tokenValidators));
-		return decoder;
+		return jwtDecoderFactory.create(jku, tokenValidator);
 	}
 
 }
