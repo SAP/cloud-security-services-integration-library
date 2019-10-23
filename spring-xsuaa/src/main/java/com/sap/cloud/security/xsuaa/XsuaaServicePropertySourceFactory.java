@@ -34,7 +34,7 @@ import net.minidev.json.parser.ParseException;
 public class XsuaaServicePropertySourceFactory implements PropertySourceFactory {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	protected static final String XSUAA_PREFIX = "xsuaa.";
-	private static final String XSUAA_PROPERTYIES_KEY = "xsuaa";
+	private static final String XSUAA_PROPERTIES_KEY = "xsuaa";
 	public static final String CLIENT_ID = "xsuaa.clientid";
 	public static final String CLIENT_SECRET = "xsuaa.clientsecret";
 	public static final String URL = "xsuaa.url";
@@ -61,7 +61,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 			}
 			xsuaaProperties = getConfigurationProperties(vcapServicesParser);
 		}
-		return new PropertiesPropertySource(XSUAA_PROPERTYIES_KEY, xsuaaProperties);
+		return new PropertiesPropertySource(XSUAA_PROPERTIES_KEY, xsuaaProperties);
 	}
 
 	protected Properties getConfigurationProperties(XsuaaServicesParser vcapServicesParser) throws IOException {

@@ -11,33 +11,32 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = { ConfigurationTestBean.class, XsuaaServiceConfigurationDefault.class })
+@ContextConfiguration(classes = { TestConfiguration.class, XsuaaServiceConfigurationDefault.class })
 public class XsuaaServicePropertySourceFactoryTest {
 
 	@Autowired
-	ConfigurationTestBean exampleBean;
+	TestConfiguration testConfiguration;
+
+	@Autowired
+	XsuaaServiceConfigurationDefault serviceConfiguration;
 
 	@Test
 	public void testInjectedPropertyValue() {
-		Assert.assertEquals("https://auth.com", exampleBean.xsuaaUrl);
-		Assert.assertEquals("xs2.usertoken", exampleBean.xsuaaClientId);
-		Assert.assertEquals("secret", exampleBean.xsuaaClientSecret);
-		Assert.assertEquals("auth.com", exampleBean.xsuaaDomain);
+		Assert.assertEquals("https://auth.com", testConfiguration.xsuaaUrl);
+		Assert.assertEquals("xs2.usertoken", testConfiguration.xsuaaClientId);
+		Assert.assertEquals("secret", testConfiguration.xsuaaClientSecret);
+		Assert.assertEquals("auth.com", testConfiguration.xsuaaDomain);
 
-		Assert.assertEquals("https://auth.com", exampleBean.serviceConfiguration.getUaaUrl());
-		Assert.assertEquals("xs2.usertoken", exampleBean.serviceConfiguration.getClientId());
-		Assert.assertEquals("secret", exampleBean.serviceConfiguration.getClientSecret());
-		Assert.assertEquals("auth.com", exampleBean.serviceConfiguration.getUaaDomain());
+		Assert.assertEquals("https://auth.com", serviceConfiguration.getUaaUrl());
+		Assert.assertEquals("xs2.usertoken", serviceConfiguration.getClientId());
+		Assert.assertEquals("secret", serviceConfiguration.getClientSecret());
+		Assert.assertEquals("auth.com", serviceConfiguration.getUaaDomain());
 	}
-
 }
 
 @Configuration
 @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "/vcap.json" })
-class ConfigurationTestBean {
-
-	@Autowired
-	XsuaaServiceConfigurationDefault serviceConfiguration;
+class TestConfiguration {
 
 	@Value("${xsuaa.url:}")
 	public String xsuaaUrl;
@@ -54,12 +53,3 @@ class ConfigurationTestBean {
 	@Value("${xsuaa.unknown:}")
 	private String unknown;
 }
-
-/*@Configuration
-@PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "/vcap.json" })
-class UaaBindingData {
-
-	@Autowired
-	XsuaaServiceConfigurationDefault serviceConfiguration;
-
-}*/
