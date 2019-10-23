@@ -271,6 +271,7 @@
 								</execution>
 							</executions>
 							<configuration>
+								<skipProvidedScope>true</skipProvidedScope>
 								<failBuildOnCVSS>7</failBuildOnCVSS>
 							</configuration>
 						</plugin>
