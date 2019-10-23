@@ -25,11 +25,11 @@ import java.util.concurrent.TimeUnit;
 public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	Cache<String, JwtDecoder> cache;
-	private OAuth2TokenValidator<Jwt> tokenValidator;
-	private Collection<PostValidationAction> postValidationActions;
+	private final Cache<String, JwtDecoder> cache;
+	private final OAuth2TokenValidator<Jwt> tokenValidator;
+	private final Collection<PostValidationAction> postValidationActions;
+	private final JwtDecoderFactory jwtDecoderFactory;
 	private TokenInfoExtractor tokenInfoExtractor;
-	private JwtDecoderFactory jwtDecoderFactory;
 
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
 			JwtDecoderFactory jwtDecoderFactory, OAuth2TokenValidator<Jwt> tokenValidator,
@@ -78,15 +78,17 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			return;
 		}
 		List<String> nullParams = new ArrayList<>();
-		if (jku == null)
-			nullParams.add("jku");
-		if (kid == null)
-			nullParams.add("kid");
-		if (uaadomain == null)
-			nullParams.add("uaadomain");
+		addNameIfNull(jku, "jku", nullParams);
+		addNameIfNull(kid, "kid", nullParams);
+		addNameIfNull(uaadomain, "uaadomain", nullParams);
 
 		throw new JwtException(String.format("Cannot verify with online token key, %s is null",
 				String.join(", ", nullParams)));
+	}
+
+	private void addNameIfNull(String param, String name, List<String> nullParams) {
+		if (param == null)
+			nullParams.add(name);
 	}
 
 	private void validateJKU(String jku, String uaadomain) {
@@ -106,12 +108,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 	private Jwt verifyWithOnlineKey(String token, String jku, String kid) {
 		String cacheKey = jku + kid;
-		JwtDecoder decoder = cache.get(cacheKey, k -> this.getDecoder(jku));
+		JwtDecoder decoder = cache.get(cacheKey, k -> jwtDecoderFactory.create(jku, tokenValidator));
 		return decoder.decode(token);
-	}
-
-	private JwtDecoder getDecoder(String jku) {
-		return jwtDecoderFactory.create(jku, tokenValidator);
 	}
 
 	public void setTokenInfoExtractor(TokenInfoExtractor tokenInfoExtractor) {
