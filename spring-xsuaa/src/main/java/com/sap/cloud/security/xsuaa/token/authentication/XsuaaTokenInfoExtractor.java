@@ -5,7 +5,7 @@ import com.nimbusds.jwt.JWT;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
 
-class XsuaaTokenInfoExtractor implements  TokenInfoExtractor {
+class XsuaaTokenInfoExtractor implements TokenInfoExtractor {
 
 	private final String uaaDomain;
 

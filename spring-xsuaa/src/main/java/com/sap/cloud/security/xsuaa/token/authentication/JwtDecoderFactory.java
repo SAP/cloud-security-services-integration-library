@@ -4,7 +4,20 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
-public interface JwtDecoderFactory  {
+import javax.annotation.Nonnull;
 
-	JwtDecoder create(String jku, OAuth2TokenValidator<Jwt> tokenValidator);
+public interface JwtDecoderFactory {
+
+	/**
+	 * Factory interface that is used by {@code XsuaaJwtDecoderBuilder} to create
+	 * the actual decoder instance.
+	 *
+	 * @param jku
+	 *            the public key URL of the authorization server.
+	 * @param tokenValidator
+	 *            is used to validate the token. To combine several validators use
+	 *            {@code DelegatingOAuth2TokenValidator}.
+	 * @return the {@code JwtDecoder}.
+	 */
+	JwtDecoder create(@Nonnull String jku, @Nonnull OAuth2TokenValidator<Jwt> tokenValidator);
 }

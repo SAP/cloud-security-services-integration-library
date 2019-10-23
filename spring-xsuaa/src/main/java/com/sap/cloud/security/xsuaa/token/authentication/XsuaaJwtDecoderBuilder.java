@@ -68,8 +68,6 @@ public class XsuaaJwtDecoderBuilder {
 				reactiveJwtDecoderFactory, combinedTokenValidators, postValidationActions);
 	}
 
-
-
 	/**
 	 * Decoders cache the signing keys. Overwrite the cache time (default: 900
 	 * seconds).

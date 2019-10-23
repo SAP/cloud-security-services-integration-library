@@ -43,7 +43,6 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		this.postValidationActions = postValidationActions != null ? postValidationActions : new ArrayList<>();
 	}
 
-
 	@Override
 	public Jwt decode(String token) throws JwtException {
 		Assert.notNull(token, "token is required");
