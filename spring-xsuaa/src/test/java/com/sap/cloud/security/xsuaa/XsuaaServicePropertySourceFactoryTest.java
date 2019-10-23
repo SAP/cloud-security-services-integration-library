@@ -21,17 +21,22 @@ public class XsuaaServicePropertySourceFactoryTest {
 	XsuaaServiceConfigurationDefault serviceConfiguration;
 
 	@Test
-	public void testInjectedPropertyValue() {
-		Assert.assertEquals("https://auth.com", testConfiguration.xsuaaUrl);
-		Assert.assertEquals("xs2.usertoken", testConfiguration.xsuaaClientId);
-		Assert.assertEquals("secret", testConfiguration.xsuaaClientSecret);
-		Assert.assertEquals("auth.com", testConfiguration.xsuaaDomain);
-
-		Assert.assertEquals("https://auth.com", serviceConfiguration.getUaaUrl());
+	public void testXsuaaServiceConfiguration() {
 		Assert.assertEquals("xs2.usertoken", serviceConfiguration.getClientId());
 		Assert.assertEquals("secret", serviceConfiguration.getClientSecret());
+		Assert.assertEquals("https://auth.com", serviceConfiguration.getUaaUrl());
 		Assert.assertEquals("auth.com", serviceConfiguration.getUaaDomain());
 	}
+
+	@Test
+	public void testInjectedPropertyValue() {
+		Assert.assertEquals("xs2.usertoken", testConfiguration.xsuaaClientId);
+		Assert.assertEquals("secret", testConfiguration.xsuaaClientSecret);
+		Assert.assertEquals("https://auth.com", testConfiguration.xsuaaUrl);
+		Assert.assertEquals("auth.com", testConfiguration.xsuaaDomain);
+		Assert.assertEquals("", testConfiguration.unknown);
+	}
+
 }
 
 @Configuration
@@ -51,5 +56,5 @@ class TestConfiguration {
 	public String xsuaaClientSecret;
 
 	@Value("${xsuaa.unknown:}")
-	private String unknown;
+	public String unknown;
 }
