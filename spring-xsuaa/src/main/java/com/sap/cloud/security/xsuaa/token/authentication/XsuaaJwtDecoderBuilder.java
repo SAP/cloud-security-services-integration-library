@@ -127,7 +127,7 @@ public class XsuaaJwtDecoderBuilder {
 	 * that is constructed with {@link #buildAsReactive()}
 	 *
 	 * @param restOperations
-	 *            the {@code RestOperations} instance.
+	 *            the {@link RestOperations} instance.
 	 * @return the builder itself.
 	 */
 	public XsuaaJwtDecoderBuilder withRestOperations(RestOperations restOperations) {
