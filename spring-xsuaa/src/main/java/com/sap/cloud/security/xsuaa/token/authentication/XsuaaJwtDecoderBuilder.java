@@ -122,11 +122,12 @@ public class XsuaaJwtDecoderBuilder {
 	}
 
 	/**
-	 * Sets the #{@code RestOperations} instance which is used by the JwtDecoder to
-	 * perform HTTP requests. This does not effect the #{@code ReactiveJwtDecoder}!
+	 * Sets the {@link RestOperations} instance which is used by the JwtDecoder to
+	 * perform HTTP requests. This does not effect the {@link ReactiveJwtDecoder}
+	 * that is constructed with {@link #buildAsReactive()}
 	 *
 	 * @param restOperations
-	 *            the #{@code RestOperations} instance.
+	 *            the {@code RestOperations} instance.
 	 * @return the builder itself.
 	 */
 	public XsuaaJwtDecoderBuilder withRestOperations(RestOperations restOperations) {
