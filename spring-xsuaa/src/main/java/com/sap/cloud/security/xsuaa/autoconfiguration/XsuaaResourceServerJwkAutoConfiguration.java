@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
+import org.springframework.web.client.RestOperations;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} that exposes a
@@ -41,11 +42,13 @@ public class XsuaaResourceServerJwkAutoConfiguration {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Bean
-	@ConditionalOnBean(XsuaaServiceConfiguration.class)
+	@ConditionalOnBean({XsuaaServiceConfiguration.class, RestOperations.class })
 	@ConditionalOnWebApplication(type = Type.SERVLET)
 	@ConditionalOnMissingBean
-	public JwtDecoder xsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+	public JwtDecoder xsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, RestOperations restOperations) {
 		logger.info("auto-configures JwtDecoder");
-		return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration).build();
+		return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration)
+				.withRestOperations(restOperations)
+				.build();
 	}
 }
