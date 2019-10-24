@@ -2,6 +2,7 @@ package com.sap.cloud.security.xsuaa.token.authentication;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -11,6 +12,7 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.springframework.web.client.RestOperations;
 
 public class XsuaaJwtDecoderBuilder {
 
@@ -20,6 +22,7 @@ public class XsuaaJwtDecoderBuilder {
 	OAuth2TokenValidator<Jwt> xsuaaTokenValidators;
 	OAuth2TokenValidator<Jwt> defaultTokenValidators;
 	Collection<PostValidationAction> postValidationActions;
+	private RestOperations restOperations;
 
 	/**
 	 * Utility for building a JWT decoder configuration
@@ -44,8 +47,10 @@ public class XsuaaJwtDecoderBuilder {
 		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = new DelegatingOAuth2TokenValidator<>(
 				defaultTokenValidators,
 				xsuaaTokenValidators);
-		return new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
+		XsuaaJwtDecoder jwtDecoder = new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
 				combinedTokenValidators, postValidationActions);
+		Optional.ofNullable(restOperations).ifPresent(jwtDecoder::setRestOperations);
+		return jwtDecoder;
 	}
 
 	/**
@@ -116,8 +121,22 @@ public class XsuaaJwtDecoderBuilder {
 		return this;
 	}
 
+	/**
+	 * Sets the #{@code RestOperations} instance which is used by the JwtDecoder to
+	 * perform HTTP requests. This does not effect the #{@code ReactiveJwtDecoder}!
+	 *
+	 * @param restOperations
+	 *            the #{@code RestOperations} instance.
+	 * @return the builder itself.
+	 */
+	public XsuaaJwtDecoderBuilder withRestOperations(RestOperations restOperations) {
+		this.restOperations = restOperations;
+		return this;
+	}
+
 	XsuaaJwtDecoderBuilder withDefaultValidators(OAuth2TokenValidator<Jwt>... defaultTokenValidators) {
 		this.defaultTokenValidators = new DelegatingOAuth2TokenValidator<>(defaultTokenValidators);
 		return this;
 	}
+
 }

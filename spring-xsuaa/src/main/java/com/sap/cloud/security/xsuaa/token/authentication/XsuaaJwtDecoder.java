@@ -6,10 +6,7 @@ import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -27,6 +24,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.springframework.web.client.RestOperations;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -35,6 +33,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	private OAuth2TokenValidator<Jwt> tokenValidators;
 	private Collection<PostValidationAction> postValidationActions;
 	private TokenInfoExtractor tokenInfoExtractor;
+	private RestOperations restOperations;
 
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
 			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
@@ -134,11 +133,16 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	// TODO extract into separate class / bean
 	private JwtDecoder getDecoder(String jku) {
 		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jku);
+		Optional.ofNullable(restOperations).ifPresent(decoder::setRestOperations);
 		decoder.setJwtValidator(tokenValidators);
 		return decoder;
 	}
 
 	public void setTokenInfoExtractor(TokenInfoExtractor tokenInfoExtractor) {
 		this.tokenInfoExtractor = tokenInfoExtractor;
+	}
+
+	public void setRestOperations(RestOperations restOperations) {
+		this.restOperations = restOperations;
 	}
 }
