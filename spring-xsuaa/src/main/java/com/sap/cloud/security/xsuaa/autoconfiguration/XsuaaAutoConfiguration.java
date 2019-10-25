@@ -50,7 +50,7 @@ public class XsuaaAutoConfiguration {
 		}
 	}
 
-	public static class PropertyConditions extends AllNestedConditions {
+	private static class PropertyConditions extends AllNestedConditions {
 
 		public PropertyConditions() {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
