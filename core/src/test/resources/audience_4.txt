@@ -1,0 +1,12 @@
+{
+ "cid":"sb-clone1!b22|test3!b1",
+ "exp":$exp,
+ "scope":["test1!t1.read","test2!t1.write"],
+ "user_name":"testUser",
+ "user_id":"1234",
+ "email":"testUser@testOrg",
+ "zid":"demo",
+ "grant_type":"password",
+ "aud":[],
+ "iat": 1532416849
+}

@@ -79,6 +79,7 @@
 
 	<modules>
 		<module>api</module>
+		<module>core</module>
 		<module>token-client</module>
 		<module>spring-xsuaa</module>
 		<module>spring-xsuaa-it</module>
