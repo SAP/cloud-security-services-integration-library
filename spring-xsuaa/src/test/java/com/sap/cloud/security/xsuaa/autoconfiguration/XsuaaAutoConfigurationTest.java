@@ -57,6 +57,7 @@ public class XsuaaAutoConfigurationTest {
 	public void configures_xsuaaServiceConfiguration_withProperties() {
 		contextRunner
 				.withPropertyValues("spring.xsuaa.auto:true")
+				.withPropertyValues("spring.xsuaa.disable-default-property-source:false")
 				.withPropertyValues("spring.xsuaa.multiple-bindings:false").run((context) -> {
 					assertThat(context.containsBean("xsuaaServiceConfiguration"), is(true));
 					assertThat(context.getBean("xsuaaServiceConfiguration"),
@@ -76,12 +77,19 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public void serviceConfigurationDisabledByProperty() {
+	public void serviceConfigurationDisabledByMultipleBindingsProperty() {
 		contextRunner.withPropertyValues("spring.xsuaa.multiple-bindings:true").run((context) -> {
 			assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration");
 		});
 	}
 
+	@Test
+	public void serviceConfigurationDisabledByDisableDefaultPropertySourceProperty() {
+		contextRunner.withPropertyValues("spring.xsuaa.disable-default-property-source:true").run((context) -> {
+			assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration");
+		});
+	}
+	
 	@Test
 	public void autoConfigurationInactive_if_noJwtOnClasspath() {
 		contextRunner.withClassLoader(new FilteredClassLoader(Jwt.class)) // removes Jwt.class from classpath
