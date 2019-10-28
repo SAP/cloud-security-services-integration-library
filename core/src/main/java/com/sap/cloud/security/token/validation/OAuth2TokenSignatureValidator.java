@@ -1,18 +1,5 @@
 package com.sap.cloud.security.token.validation;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.net.URI;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.sap.cloud.security.core.Assertions;
 import com.sap.cloud.security.core.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
@@ -21,7 +8,17 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 
-public class OAuth2TokenSignatureValidator { //TODO implement interface
+import java.net.URI;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+public class OAuth2TokenSignatureValidator implements Validator<DecodedJwt> {
 	Map<String, PublicKey> keyCache = new HashMap<>();
 	OAuth2ServiceConfiguration serviceConfiguration;
 	OAuth2TokenKeyService tokenKeyService;
@@ -33,7 +30,8 @@ public class OAuth2TokenSignatureValidator { //TODO implement interface
 		this.tokenKeyService = tokenKeyService;
 	}
 
-	public boolean validate(DecodedJwt token) { // TODO Decoded JWT
+	@Override
+	public ValidationResult validate(DecodedJwt token) { // TODO Decoded JWT
 		String kid = "key-id-1"; //TODO parse from JSON Header
 		String kty = "RS256"; //TODO parse from JSON Header
 		String jku = "https://authentication.stagingaws.hanavlab.ondemand.com/token_keys"; //TODO parse from JSON Header
@@ -45,15 +43,13 @@ public class OAuth2TokenSignatureValidator { //TODO implement interface
 				JSONWebKeySet jwks = tokenKeyService.retrieveTokenKeys(URI.create(jku));
 				publicKey = createPublicKey(jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, kid));
 			} catch (OAuth2ServiceException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-				e.printStackTrace();
-				return false;
+				return ValidationResults.createInvalid(e.getMessage());
 			}
 		}
 		try {
 			return verify("RSA", token.getPayload(), token.getSignature(), publicKey);
 		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
+			return ValidationResults.createInvalid(e.getMessage());
 		}
 
 	}
@@ -70,13 +66,18 @@ public class OAuth2TokenSignatureValidator { //TODO implement interface
 		}
 
 
-	private static boolean verify(String algorithm, String plainText, String signature, PublicKey publicKey) throws Exception {
+	private ValidationResult verify(String algorithm, String plainText, String signature, PublicKey publicKey) throws Exception {
 		Signature publicSignature = Signature.getInstance("SHA256withRSA"); //"SHA256withRSA"
 		publicSignature.initVerify(publicKey);
 		publicSignature.update(plainText.getBytes(UTF_8));
 
 		byte[] signatureBytes = Base64.getDecoder().decode(signature);
 
-		return publicSignature.verify(signatureBytes);
+		boolean isValid = publicSignature.verify(signatureBytes);
+		if (isValid) {
+			return ValidationResults.createValid();
+		} else {
+			return ValidationResults.createInvalid("Signature verification failed!");
+		}
 	}
 }

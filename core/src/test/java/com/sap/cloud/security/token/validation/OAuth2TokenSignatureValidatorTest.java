@@ -56,6 +56,6 @@ public class OAuth2TokenSignatureValidatorTest {
 	@Test
 	public void checkAccessTokenIsCorrect() {
 		DecodedJwt jwt = new Base64JwtDecoder().decode(accessToken);
-		assertThat(cut.validate(jwt), is(true));
+		assertThat(cut.validate(jwt).isValid(), is(true));
 	}
 }
