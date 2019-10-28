@@ -1,8 +1,8 @@
-package com.sap.cloud.security.token.client;
+package com.sap.cloud.security.xsuaa.client;
 
 import java.net.URI;
 
-import com.sap.cloud.security.token.jwt.JSONWebKeySet;
+import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 
 public interface OAuth2TokenKeyService {
 

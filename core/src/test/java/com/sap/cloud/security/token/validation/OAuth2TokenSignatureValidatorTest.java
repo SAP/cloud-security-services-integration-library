@@ -16,13 +16,12 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.sap.cloud.security.core.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.token.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.token.jwt.Base64JwtDecoder;
-import com.sap.cloud.security.token.jwt.DecodedJwt;
-import com.sap.cloud.security.token.jwt.JSONWebKey;
-import com.sap.cloud.security.token.jwt.JSONWebKeyImpl;
-import com.sap.cloud.security.token.jwt.JSONWebKeySet;
-
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
+import com.sap.cloud.security.xsuaa.jwt.JSONWebKeyImpl;
+import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 
 @Ignore
 public class OAuth2TokenSignatureValidatorTest {
@@ -48,7 +47,7 @@ public class OAuth2TokenSignatureValidatorTest {
 	private JSONWebKeySet createJSONWebKeySet() {
 		//TODO PublicKey publicKey =
 		JSONWebKey jsonWebKey = new JSONWebKeyImpl(
-				JSONWebKey.Type.RSA, "key-id-1", "RS256", pemEncodedPublicKey, null);
+				JSONWebKey.Type.RSA, "key-id-1", "RS256", pemEncodedPublicKey);
 		JSONWebKeySet keySet = new JSONWebKeySet();
 		keySet.put(jsonWebKey);
 		return keySet;

@@ -1,4 +1,4 @@
-package com.sap.cloud.security.token.jwt;
+package com.sap.cloud.security.xsuaa.jwt;
 
 public class JSONWebKeySet {
 	//TODO List of <JSONWebKey>

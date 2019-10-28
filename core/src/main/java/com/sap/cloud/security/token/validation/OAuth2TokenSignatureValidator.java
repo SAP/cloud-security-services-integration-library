@@ -3,19 +3,23 @@ package com.sap.cloud.security.token.validation;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URI;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.sap.cloud.security.core.Assertions;
 import com.sap.cloud.security.core.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.token.client.OAuth2ServiceException;
-import com.sap.cloud.security.token.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.token.jwt.DecodedJwt;
-import com.sap.cloud.security.token.jwt.JSONWebKey;
-import com.sap.cloud.security.token.jwt.JSONWebKeySet;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
+import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 
 public class OAuth2TokenSignatureValidator { //TODO implement interface
 	Map<String, PublicKey> keyCache = new HashMap<>();
@@ -39,8 +43,8 @@ public class OAuth2TokenSignatureValidator { //TODO implement interface
 		if (publicKey == null) {
 			try {
 				JSONWebKeySet jwks = tokenKeyService.retrieveTokenKeys(URI.create(jku));
-				publicKey = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, kid).getPublicKey();
-			} catch (OAuth2ServiceException e) {
+				publicKey = createPublicKey(jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, kid));
+			} catch (OAuth2ServiceException | NoSuchAlgorithmException | InvalidKeySpecException e) {
 				e.printStackTrace();
 				return false;
 			}
@@ -57,6 +61,13 @@ public class OAuth2TokenSignatureValidator { //TODO implement interface
 	private PublicKey lookupCache(String kid) {
 		return keyCache.get(kid);
 	}
+
+	private PublicKey createPublicKey(JSONWebKey webKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+			KeyFactory keyFactory = KeyFactory.getInstance(webKey.getType().value()); // "RSA"
+
+			X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(Base64.getDecoder().decode(webKey.getPublicKey()));
+			return keyFactory.generatePublic(keySpecX509);
+		}
 
 
 	private static boolean verify(String algorithm, String plainText, String signature, PublicKey publicKey) throws Exception {

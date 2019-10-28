@@ -1,9 +1,6 @@
-package com.sap.cloud.security.token.jwt;
+package com.sap.cloud.security.xsuaa.jwt;
 
 import javax.annotation.Nullable;
-
-import java.security.PublicKey;
-
 
 /**
  * see also JSON Web Key (JWK) specification:
@@ -58,8 +55,8 @@ public interface JSONWebKey {
 
 	/**
 	 * Returns the public key.
-	 *
 	 * @return the public key.
 	 */
-	public PublicKey getPublicKey();
+	public String getPublicKey();
+
 }

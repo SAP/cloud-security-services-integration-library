@@ -1,23 +1,19 @@
-package com.sap.cloud.security.token.jwt;
+package com.sap.cloud.security.xsuaa.jwt;
 
 import javax.annotation.Nullable;
-
-import java.security.PublicKey;
 
 public class JSONWebKeyImpl implements JSONWebKey {
 	JSONWebKey.Type type;
 	String keyId;
 	String algorithm;
 	String pemEncodedPublicKey;
-	PublicKey publicKey;
 
-	public JSONWebKeyImpl(JSONWebKey.Type type, String keyId, String algorithm, String pemEncodedPublicKey, PublicKey publicKey) {
+	public JSONWebKeyImpl(JSONWebKey.Type type, String keyId, String algorithm, String pemEncodedPublicKey) {
 		// TODO check required fields
 		this.type = type;
 		this.keyId = keyId;
 		this.algorithm = algorithm;
 		this.pemEncodedPublicKey = pemEncodedPublicKey;
-		this.publicKey = publicKey;
 	}
 
 	@Nullable @Override public String getAlgorithm() {
@@ -36,8 +32,17 @@ public class JSONWebKeyImpl implements JSONWebKey {
 		return pemEncodedPublicKey;
 	}
 
-	@Override public PublicKey getPublicKey() {
-		return publicKey;
+	@Override public String getPublicKey() {
+		return convertPEMKey(pemEncodedPublicKey);
+	}
+
+	public static String convertPEMKey(String pemEncodedKey) {
+		String key = pemEncodedKey;
+		key = key.replace("----BEGIN PUBLIC KEY-----", "");
+		key = key.replace("-----END PUBLIC KEY-----", "");
+		key = key.replace("\n", "");
+		key = key.replace("\\n", "");
+		return key;
 	}
 }
 
