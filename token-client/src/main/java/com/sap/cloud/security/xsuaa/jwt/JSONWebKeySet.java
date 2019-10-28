@@ -1,23 +1,54 @@
 package com.sap.cloud.security.xsuaa.jwt;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class JSONWebKeySet {
-	//TODO List of <JSONWebKey>
-	JSONWebKey jsonWebKey;
+
+	private Set<JSONWebKey> jsonWebKeys;
+
+	public JSONWebKeySet(Collection<JSONWebKey> jsonWebKeys) {
+		this.jsonWebKeys = jsonWebKeys.stream().collect(Collectors.toSet());
+	}
+
+	public JSONWebKeySet() {
+		jsonWebKeys = new HashSet<>();
+	}
+
 	public boolean isEmpty() {
-		throw new RuntimeException("JSONWebKeySet.isEmpty not yet implemented"); // TODO
+		return jsonWebKeys.isEmpty();
 	}
 
 	public boolean containsKeyByTypeAndId(JSONWebKey.Type keyType, String keyId) {
-		throw new RuntimeException("JSONWebKeySet.containsKeyByTypeAndId not yet implemented"); // TODO
+		return getTokenStreamWithTypeAndKeyId(keyType, keyId)
+				.findAny()
+				.isPresent();
 	}
 
+	@Nullable
 	public JSONWebKey getKeyByTypeAndId(JSONWebKey.Type keyType, String keyId) {
-		return jsonWebKey; // TODO
+		return getTokenStreamWithTypeAndKeyId(keyType, keyId)
+				.findFirst()
+				.orElse(null);
 	}
 
+	public boolean put(@Nonnull JSONWebKey jsonWebKey) {
+		if (containsKeyByTypeAndId(jsonWebKey.getType(), jsonWebKey.getId())) {
+			return false;
+		} else {
+			jsonWebKeys.add(jsonWebKey);
+			return true;
+		}
+	}
 
-	public boolean put(JSONWebKey jsonWebKey) {
-		this.jsonWebKey = jsonWebKey;
-		return true; // TODO
+	private Stream<JSONWebKey> getTokenStreamWithTypeAndKeyId(JSONWebKey.Type keyType, String keyId) {
+		return jsonWebKeys.stream()
+				.filter(jwk -> keyType.equals(jwk.getType()))
+				.filter(jwk -> keyId.equals(jwk.getId()));
 	}
 }
