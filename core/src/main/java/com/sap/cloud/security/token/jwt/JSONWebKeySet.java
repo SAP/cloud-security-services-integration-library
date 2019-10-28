@@ -1,8 +1,5 @@
 package com.sap.cloud.security.token.jwt;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
-
-@Ignore
 public class JSONWebKeySet {
 	//TODO List of <JSONWebKey>
 	JSONWebKey jsonWebKey;
