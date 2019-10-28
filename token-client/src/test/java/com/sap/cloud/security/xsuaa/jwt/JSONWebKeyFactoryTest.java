@@ -40,7 +40,7 @@ public class JSONWebKeyFactoryTest {
 		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1");
 		assertThat(jwk.getAlgorithm(), equalTo("RS256"));
 		assertThat(jwk.getType().value, equalTo("RSA"));
-		assertThat(jwk.getPublicKeyPemEncoded(), startsWith("----BEGIN PUBLIC KEY-----"));
+		assertThat(jwk.getPublicKeyPemEncoded(), startsWith("-----BEGIN PUBLIC KEY-----"));
 		assertThat(jwk.getId(), equalTo("key-id-1"));
 		assertThat(jwk.getPublicKey(), startsWith("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmNM3OXfZS0Uu8eYZXCgGW"));
 		assertThat(jwk.getPublicKey(), endsWith("kJEc3ZsX3Ft4OtqCkRXI5hUma+HwIDAQAB"));
