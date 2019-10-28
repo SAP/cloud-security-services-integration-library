@@ -29,14 +29,14 @@ public interface JSONWebKey {
 
 	/**
 	 * Returns a JSON Web e.g. RS256, see also specification here: https://tools.ietf.org/html/rfc7518
-	 * @returns the algorithm the JWT is signed.
+	 * @return the algorithm the JWT is signed.
 	 */
 	@Nullable
 	public String getAlgorithm();
 
 	/**
 	 * Returns the key type, e.g. "RSA".
-	 * @returns the key type.
+	 * @return the key type.
 	 */
 	@Nullable
 	public Type getType();
