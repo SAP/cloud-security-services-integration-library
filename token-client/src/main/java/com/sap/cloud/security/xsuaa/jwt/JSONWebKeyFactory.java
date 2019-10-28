@@ -1,20 +1,38 @@
 package com.sap.cloud.security.xsuaa.jwt;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.HashSet;
+import java.util.Set;
+
 public class JSONWebKeyFactory {
 
 	private JSONWebKeyFactory() {
 	}
 
 	public static JSONWebKeySet createFromJSON(String json) {
-		String kid = "key-id-1"; //TODO parse from JSON
-		String kty = "RSA"; //TODO parse from JSON
-		String alg = "RS256"; //TODO parse from JSON
-		String value = "----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmNM3OXfZS0Uu8eYZXCgG\\nWFgVWQX6MHnadYk3zHZ5PIPeDY3ApaSGpMEiVwn1cT6KUVHMLHcmz1gsNy74pCnm\\nCa22W7J3BoZulzR0A37ayMVrRHh3nffgySk8u581l02bvbcpab3e3EotSN5LixGT\\n1VWZvDbalXf6n5kq459NWL6ZzkEs20MrOEk5cLdnsigTQUHSKIQ5TpldyDkJMm2z\\nwOlrB2R984+QdlDFmoVH7Yaujxr2g0Z96u7W9Imik6wTiFc8W7eUXfhPGn7reVLq\\n1/5o2Nz0Jx0ejFHDwTGncs+k1RBS6DbpTOMr9tkJEc3ZsX3Ft4OtqCkRXI5hUma+\\nHwIDAQAB\\n-----END PUBLIC KEY-----"; //TODO parse from JSON
+		JSONArray keys = new JSONObject(json).getJSONArray("keys");
+		Set<JSONWebKey> jsonWebKeys = extractJsonWebKeys(keys);
+		return new JSONWebKeySet(jsonWebKeys);
+	}
 
-		JSONWebKeySet jwks = new JSONWebKeySet();
-		JSONWebKey jwk = new JSONWebKeyImpl(JSONWebKey.Type.valueOf(kty), kid, alg, value);
-		jwks.put(jwk);
-		return jwks;
+	private static Set<JSONWebKey> extractJsonWebKeys(JSONArray keys) {
+		Set<JSONWebKey> jsonWebKeys = new HashSet<>();
+		for (Object key : keys) {
+			if (key instanceof JSONObject) {
+				jsonWebKeys.add(createJSONWebKey((JSONObject) key));
+			}
+		}
+		return jsonWebKeys;
+	}
+
+	private static JSONWebKey createJSONWebKey(JSONObject key) {
+		String keyType = key.getString(JSONWebKeyConstants.KEY_TYPE_PARAMETER_NAME);
+		String algorithm = key.getString(JSONWebKeyConstants.ALGORITHM_PARAMETER_NAME);
+		String pemEncodedPublicKey = key.getString(JSONWebKeyConstants.VALUE_PARAMETER_NAME);
+		String keyId = key.getString(JSONWebKeyConstants.KEY_ID_PARAMETER_NAME);
+		return new JSONWebKeyImpl(JSONWebKey.Type.valueOf(keyType), keyId, algorithm, pemEncodedPublicKey);
 	}
 
 }

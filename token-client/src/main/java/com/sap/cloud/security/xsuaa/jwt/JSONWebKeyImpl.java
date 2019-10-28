@@ -38,8 +38,8 @@ public class JSONWebKeyImpl implements JSONWebKey {
 
 	public static String convertPEMKey(String pemEncodedKey) {
 		String key = pemEncodedKey;
-		key = key.replace("----BEGIN PUBLIC KEY-----", "");
-		key = key.replace("-----END PUBLIC KEY-----", "");
+		key = key.replace(JSONWebKeyConstants.BEGIN_PUBLIC_KEY, "");
+		key = key.replace(JSONWebKeyConstants.END_PUBLIC_KEY, "");
 		key = key.replace("\n", "");
 		key = key.replace("\\n", "");
 		return key;
