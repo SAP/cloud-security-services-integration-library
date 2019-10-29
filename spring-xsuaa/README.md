@@ -124,17 +124,17 @@ Note that Spring Security Context is thread-bound and is NOT propagated to child
 In the Java coding, use the `Token` to extract user information:
 
 ```java
-@GetMapping("/hello-token")
-public Map<String, String> message(@AuthenticationPrincipal Token token) {
-    token.getGivenName();
+@GetMapping("/getGivenName")
+public String getGivenName(@AuthenticationPrincipal Token token) {
+    return token.getGivenName();
 }
 ```
 
 Or alternatively:
 ```java
-public Map<String, String> message() {
+public String getGivenName() {
     Token token = SpringSecurityContext.getToken();
-    token.getGivenName();
+    return token.getGivenName();
 }
 ```
 
