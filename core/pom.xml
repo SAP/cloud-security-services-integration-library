@@ -57,6 +57,12 @@
 			<artifactId>assertj-core</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency> <!-- can be removed with slf4j-api 1.8 version -->
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>${slf4j.api.version}</version>
+			<scope>test</scope>
+		</dependency>
     </dependencies>
 
 	<build>
