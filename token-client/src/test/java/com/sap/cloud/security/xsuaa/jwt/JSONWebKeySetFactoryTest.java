@@ -15,7 +15,7 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class JSONWebKeyFactoryTest {
+public class JSONWebKeySetFactoryTest {
 
 	private String jsonWebKeySet;
 
@@ -26,7 +26,7 @@ public class JSONWebKeyFactoryTest {
 
 	@Test
 	public void containsKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
-		JSONWebKeySet jwks = JSONWebKeyFactory.createFromJSON(jsonWebKeySet);
+		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
 		assertThat(jwks.isEmpty(), equalTo(false));
 		assertThat(jwks.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-0"), equalTo(true));
 		assertThat(jwks.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1"), equalTo(true));
@@ -34,7 +34,7 @@ public class JSONWebKeyFactoryTest {
 
 	@Test
 	public void getKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
-		JSONWebKeySet jwks = JSONWebKeyFactory.createFromJSON(jsonWebKeySet);
+		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
 		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1");
 		assertThat(jwk.getAlgorithm(), equalTo("RS256"));
 		assertThat(jwk.getType().value, equalTo("RSA"));
@@ -46,7 +46,7 @@ public class JSONWebKeyFactoryTest {
 
 	@Test
 	public void getOtherKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
-		JSONWebKeySet jwks = JSONWebKeyFactory.createFromJSON(jsonWebKeySet);
+		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
 		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-0");
 		assertThat(jwk.getId(), equalTo("key-id-0"));
 

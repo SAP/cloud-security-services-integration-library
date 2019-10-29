@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.jwt;
 
+import com.sap.cloud.security.xsuaa.util.JSONWebKeyTestFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,12 +64,12 @@ public class JSONWebKeySetTest {
 	public void getKeyByTypeAndId_returnsKey_whenKeyHasBeenInserted() {
 		insertJsonWebKey();
 
-		assertThat(cut.getKeyByTypeAndId(JSONWebKeyTestFactory.KEY_TYPE, JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
+		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
 	}
 
 	@Test
 	public void getKeyByTypeAndId_returnsNull_onEmptyJSONWebKeySet() {
-		assertThat(cut.getKeyByTypeAndId(JSONWebKeyTestFactory.KEY_TYPE, JSON_WEB_KEY.getId())).isNull();
+		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), JSON_WEB_KEY.getId())).isNull();
 	}
 
 	@Test
@@ -85,7 +86,7 @@ public class JSONWebKeySetTest {
 
 		insertJsonWebKey();
 
-		assertThat(cut.getKeyByTypeAndId(JSONWebKeyTestFactory.KEY_TYPE, differentKeyId)).isNull();
+		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), differentKeyId)).isNull();
 	}
 
 	@Test
