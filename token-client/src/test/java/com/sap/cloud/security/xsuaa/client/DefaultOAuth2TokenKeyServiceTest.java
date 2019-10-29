@@ -39,6 +39,12 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	}
 
 	@Test
+	public void nullAsHttpClient_throwsException() {
+		assertThatThrownBy(() -> new DefaultOAuth2TokenKeyService(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
 	public void retrieveTokenKeys_tokenEndpointUriIsNull_throwsException()  {
 		assertThatThrownBy(() -> retrieveTokenKeys(null))
 				.isInstanceOf(IllegalArgumentException.class);

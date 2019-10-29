@@ -10,6 +10,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
+import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,7 +25,8 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		httpClient = HttpClients.createDefault();
 	}
 
-	public DefaultOAuth2TokenKeyService(CloseableHttpClient httpClient) {
+	public DefaultOAuth2TokenKeyService(@Nonnull CloseableHttpClient httpClient) {
+		Assertions.assertNotNull(httpClient, "httpClient is required");
 		this.httpClient = httpClient;
 	}
 
