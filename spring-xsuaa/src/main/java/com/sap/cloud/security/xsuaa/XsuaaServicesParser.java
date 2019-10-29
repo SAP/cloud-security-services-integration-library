@@ -55,15 +55,17 @@ public class XsuaaServicesParser {
 	}
 
 	/**
-	 * Parses the VCAP_SERVICES for xsuaa tag and returns a requested attribute/property from
-	 * credentials.
+	 * Parses the VCAP_SERVICES for xsuaa tag and returns a requested
+	 * attribute/property from credentials.
 	 * 
 	 * @param name
 	 *            the attribute name
-	 * @return associated value to given tag name or null if attribute/property not found
+	 * @return associated value to given tag name or null if attribute/property not
+	 *         found
 	 * @throws IOException
 	 *             in case of parse errors
-	 * @deprecated in favor of {@link #parseCredentials()}. Will be deleted with version 3.0.0.
+	 * @deprecated in favor of {@link #parseCredentials()}. Will be deleted with
+	 *             version 3.0.0.
 	 */
 	@Deprecated
 	public Optional<String> getAttribute(String name) throws IOException {
@@ -83,7 +85,8 @@ public class XsuaaServicesParser {
 	/**
 	 * Parses the VCAP_SERVICES for xsuaa tag and returns all credential properties.
 	 *
-	 * @return Properties that contains all properties that belong to the xsuaa credentials object.
+	 * @return Properties that contains all properties that belong to the xsuaa
+	 *         credentials object.
 	 * @throws IOException
 	 *             in case of parse errors.
 	 *

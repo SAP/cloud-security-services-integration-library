@@ -57,10 +57,12 @@ public class XsuaaAutoConfiguration {
 		}
 
 		@ConditionalOnProperty(prefix = "spring.xsuaa", name = "multiple-bindings", havingValue = "false", matchIfMissing = true)
-		static class MultipleBindingsCondition { }
+		static class MultipleBindingsCondition {
+		}
 
 		@ConditionalOnProperty(prefix = "spring.xsuaa", name = "disable-default-property-source", havingValue = "false", matchIfMissing = true)
-		static class DisableDefaultPropertySourceCondition { }
+		static class DisableDefaultPropertySourceCondition {
+		}
 
 	}
 
@@ -76,6 +78,5 @@ public class XsuaaAutoConfiguration {
 		logger.info("auto-configures RestOperations for xsuaa requests)");
 		return new RestTemplate();
 	}
-
 
 }

@@ -89,7 +89,7 @@ public class XsuaaAutoConfigurationTest {
 			assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration");
 		});
 	}
-	
+
 	@Test
 	public void autoConfigurationInactive_if_noJwtOnClasspath() {
 		contextRunner.withClassLoader(new FilteredClassLoader(Jwt.class)) // removes Jwt.class from classpath

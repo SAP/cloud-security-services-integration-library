@@ -12,8 +12,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 
 /**
- * @deprecated in favor of {@link OAuth2TokenService}. We are
- *             going to delete that in 3.0.0.
+ * @deprecated in favor of {@link OAuth2TokenService}. We are going to delete
+ *             that in 3.0.0.
  */
 public class UaaTokenBroker implements TokenBroker {
 
