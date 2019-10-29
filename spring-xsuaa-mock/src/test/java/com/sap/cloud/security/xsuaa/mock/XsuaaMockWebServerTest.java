@@ -68,7 +68,7 @@ public class XsuaaMockWebServerTest {
 	@Test
 	public void restartDestroyedMockServer() throws Exception {
 		mockServer = new XsuaaMockWebServer();
-		mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); //starts the mock server
+		mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); // starts the mock server
 		mockServer.destroy();
 		mockServer = new XsuaaMockWebServer();
 		String url = getLocalHostUrl(mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME));
@@ -79,19 +79,19 @@ public class XsuaaMockWebServerTest {
 	@Test
 	public void destroyWebServerOnlyIfStarted() throws Exception {
 		mockServer = new XsuaaMockWebServer(4711);
-		mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); //starts the mock server
+		mockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); // starts the mock server
 
 		XsuaaMockWebServer otherMockServer = new XsuaaMockWebServer(4711);
-		otherMockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); //trys to start the mock server
+		otherMockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); // trys to start the mock server
 		otherMockServer.destroy(); // will not shutdown
 
 		XsuaaMockWebServer anotherMockServer = new XsuaaMockWebServer(4711);
-		anotherMockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); //trys to start the mock server
+		anotherMockServer.getProperty(MOCK_XSUAA_PROPERTY_SOURCE_NAME); // trys to start the mock server
 	}
 
 	private String getLocalHostUrl(Object urlProperty) throws UnknownHostException {
 		InetAddress address = InetAddress.getLocalHost();
-		String url = ((String)urlProperty).toLowerCase();
+		String url = ((String) urlProperty).toLowerCase();
 		return url.replace(address.getCanonicalHostName().toLowerCase(), "localhost");
 	}
 }

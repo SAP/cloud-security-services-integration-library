@@ -42,10 +42,11 @@ public class XsuaaResourceServerJwkAutoConfiguration {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Bean
-	@ConditionalOnBean({XsuaaServiceConfiguration.class, RestOperations.class })
+	@ConditionalOnBean({ XsuaaServiceConfiguration.class, RestOperations.class })
 	@ConditionalOnWebApplication(type = Type.SERVLET)
 	@ConditionalOnMissingBean
-	public JwtDecoder xsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, RestOperations restOperations) {
+	public JwtDecoder xsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration,
+			RestOperations restOperations) {
 		logger.info("auto-configures JwtDecoder");
 		return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration)
 				.withRestOperations(restOperations)

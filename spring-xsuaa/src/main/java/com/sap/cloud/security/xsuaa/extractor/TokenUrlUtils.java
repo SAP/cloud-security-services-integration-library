@@ -7,8 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 /**
- * @deprecated in favor of {@link com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider}.
- * Will be deleted with version 3.0.0.
+ * @deprecated in favor of
+ *             {@link com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider}.
+ *             Will be deleted with version 3.0.0.
  */
 @Deprecated
 final class TokenUrlUtils {
@@ -73,7 +74,7 @@ final class TokenUrlUtils {
 		String protocol = uri.getScheme();
 
 		String tenantTokenUrl = String.format("%s://%s", protocol, tenantUaaDomain + endpoint);
-		logger.debug("Created tenant token URL {}.",tenantTokenUrl);
+		logger.debug("Created tenant token URL {}.", tenantTokenUrl);
 		return tenantTokenUrl;
 	}
 

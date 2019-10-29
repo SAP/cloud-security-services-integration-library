@@ -2,7 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.0.1
+## 2.2.0
+- [spring-xsuaa] `PropertySourceFactory` supports custom property sources and default can optionally be disabled with  `spring.xsuaa.disable-default-property-source=true`
+- [spring-xsuaa] Supports Spring Core `5.2.0.RELEASE`and Spring Boot `2.2.0.RELEASE`
+- [spring-xsuaa] Deprecates `TokenUrlUtils` in favor of `OAuth2ServiceEndpointsProvider`
+- Internally, we've cleaned up maven dependencies (converged versions) and 
+  - removed transient dependency of `spring-security-oauth2` to `jackson`.
+  - introduced `org.owasp.dependency-check-maven` which performs CVSS checks.
+- [token-client] supports password token flows as documented [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/token-client).
+
+## 2.1.0
 * `token-client` library supports [Apache Http Client](https://hc.apache.org/) (without any Spring dependencies). Have also a look at the [java-tokenclient-usage](/samples/java-tokenclient-usage) sample application.
 * Fix CVE-2018-1000613 by removing unnecessary dependencies ([issue 144](https://github.com/SAP/cloud-security-xsuaa-integration/issues/144)).
 * Makes `XsuaaMockWebServer` more robust.
