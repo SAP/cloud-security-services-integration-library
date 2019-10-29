@@ -14,7 +14,8 @@ import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockWebServer;
 
 /**
- * Starts a mock for xsuaa (user account and authentication) service on localhost.
+ * Starts a mock for xsuaa (user account and authentication) service on
+ * localhost.
  */
 public class XsuaaMockWebServer extends PropertySource<MockWebServer> {
 
@@ -37,8 +38,9 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> {
 	 * Initializes a Mock Web Server object on a given port.
 	 *
 	 * @param port
-	 *            the port the mock server should listen to. Use '0' in case you want to use a random port.
-	 *            Per specified port you can only start one mock web server instance.
+	 *            the port the mock server should listen to. Use '0' in case you
+	 *            want to use a random port. Per specified port you can only start
+	 *            one mock web server instance.
 	 */
 	public XsuaaMockWebServer(int port) {
 		super(MOCK_XSUAA_PROPERTY_SOURCE_NAME, createMockWebServer(new XsuaaRequestDispatcher()));
@@ -86,10 +88,11 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> {
 
 	/**
 	 * Shuts the server down, but only if it is started.
+	 * 
 	 * @throws IOException
 	 */
 	public void destroy() throws IOException {
-		if(isStarted) { // if XsuaaMockWebServer instance contains server (getSource()) which is started
+		if (isStarted) { // if XsuaaMockWebServer instance contains server (getSource()) which is started
 			getSource().shutdown(); // performs a shutdown only in case if getSource().started = true
 			log.info(">>>>>>>>>>> Stopped Xsuaa Mock Server (MockWebServer[{}]) ", port);
 			startedWebServer.remove(port);
@@ -101,11 +104,13 @@ public class XsuaaMockWebServer extends PropertySource<MockWebServer> {
 			mockWebServer.start(port);
 			startedWebServer.put(port, getUrlAndStartIfNotStarted(mockWebServer));
 			log.warn(
-					">>>>>>>>>>> Started Xsuaa Mock Server ({}) that provides public keys for offline JWT Token validation. NEVER run in productive environment!<<<<<<", mockWebServer.url(""));
+					">>>>>>>>>>> Started Xsuaa Mock Server ({}) that provides public keys for offline JWT Token validation. NEVER run in productive environment!<<<<<<",
+					mockWebServer.url(""));
 		} catch (IllegalStateException | IOException e) {
 			throw new IllegalStateException(
 					String.format("Could not start XSUAA Mock webserver (port:%d). " +
-							"Make sure that it is not yet started in another process.", port), e);
+							"Make sure that it is not yet started in another process.", port),
+					e);
 		}
 	}
 

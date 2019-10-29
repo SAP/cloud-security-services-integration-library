@@ -4,7 +4,7 @@ In a typcal UI5 application, the application router serves HTML files and REST d
 
 # Coding
 This sample is using the spring-security project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure JWT for authentication.
-Please see the [`spring-xsuaa` descriptions](../spring-xsuaa/README.md) for details.
+Please see the [`spring-xsuaa` descriptions](/spring-xsuaa/README.md) for details.
 
 # Deployment To Cloud Foundry
 To deploy the application, the following steps are required:

@@ -23,7 +23,7 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>2.1.0</version>
+    <version>2.3.0-SNAPSHOT</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
@@ -38,7 +38,7 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.1.0</version>
+    <version>2.3.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -124,17 +124,17 @@ Note that Spring Security Context is thread-bound and is NOT propagated to child
 In the Java coding, use the `Token` to extract user information:
 
 ```java
-@GetMapping("/hello-token")
-public Map<String, String> message(@AuthenticationPrincipal Token token) {
-    token.getGivenName();
+@GetMapping("/getGivenName")
+public String getGivenName(@AuthenticationPrincipal Token token) {
+    return token.getGivenName();
 }
 ```
 
 Or alternatively:
 ```java
-public Map<String, String> message() {
+public String getGivenName() {
     Token token = SpringSecurityContext.getToken();
-    token.getGivenName();
+    return token.getGivenName();
 }
 ```
 
