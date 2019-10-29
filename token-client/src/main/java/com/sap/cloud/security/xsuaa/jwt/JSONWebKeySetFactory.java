@@ -6,13 +6,13 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.Set;
 
-public class JSONWebKeyFactory {
+public class JSONWebKeySetFactory {
 
-	private JSONWebKeyFactory() {
+	private JSONWebKeySetFactory() {
 	}
 
 	public static JSONWebKeySet createFromJSON(String json) {
-		JSONArray keys = new JSONObject(json).getJSONArray("keys");
+		JSONArray keys = new JSONObject(json).getJSONArray(JSONWebKeyConstants.KEYS_PARAMETER_NAME);
 		Set<JSONWebKey> jsonWebKeys = extractJsonWebKeys(keys);
 		return new JSONWebKeySet(jsonWebKeys);
 	}
