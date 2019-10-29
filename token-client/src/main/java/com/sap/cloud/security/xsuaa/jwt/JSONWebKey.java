@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
  * https://tools.ietf.org/html/rfc7517
  */
 public interface JSONWebKey {
+
 	/**
 	 * https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1
 	 */

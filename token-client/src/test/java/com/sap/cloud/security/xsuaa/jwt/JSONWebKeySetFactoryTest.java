@@ -1,22 +1,21 @@
 package com.sap.cloud.security.xsuaa.jwt;
 
 
-import static org.hamcrest.CoreMatchers.endsWith;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
 
-public class JSONWebKeyFactoryTest {
+public class JSONWebKeySetFactoryTest {
 
 	private String jsonWebKeySet;
 
@@ -26,9 +25,8 @@ public class JSONWebKeyFactoryTest {
 	}
 
 	@Test
-	@Ignore
 	public void containsKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
-		JSONWebKeySet jwks = JSONWebKeyFactory.createFromJSON(jsonWebKeySet);
+		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
 		assertThat(jwks.isEmpty(), equalTo(false));
 		assertThat(jwks.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-0"), equalTo(true));
 		assertThat(jwks.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1"), equalTo(true));
@@ -36,20 +34,19 @@ public class JSONWebKeyFactoryTest {
 
 	@Test
 	public void getKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
-		JSONWebKeySet jwks = JSONWebKeyFactory.createFromJSON(jsonWebKeySet);
+		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
 		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1");
 		assertThat(jwk.getAlgorithm(), equalTo("RS256"));
 		assertThat(jwk.getType().value, equalTo("RSA"));
-		assertThat(jwk.getPublicKeyPemEncoded(), startsWith("-----BEGIN PUBLIC KEY-----"));
+		assertThat(jwk.getPublicKeyPemEncoded(), startsWith(JSONWebKeyConstants.BEGIN_PUBLIC_KEY));
 		assertThat(jwk.getId(), equalTo("key-id-1"));
 		assertThat(jwk.getPublicKey(), startsWith("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmNM3OXfZS0Uu8eYZXCgGW"));
 		assertThat(jwk.getPublicKey(), endsWith("kJEc3ZsX3Ft4OtqCkRXI5hUma+HwIDAQAB"));
 	}
 
 	@Test
-	@Ignore
 	public void getOtherKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
-		JSONWebKeySet jwks = JSONWebKeyFactory.createFromJSON(jsonWebKeySet);
+		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
 		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-0");
 		assertThat(jwk.getId(), equalTo("key-id-0"));
 

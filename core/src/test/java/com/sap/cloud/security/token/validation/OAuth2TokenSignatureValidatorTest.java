@@ -55,19 +55,12 @@ public class OAuth2TokenSignatureValidatorTest {
 
 	@Test
 	public void jsonWebSignatureMatchesJWKS() throws IOException {
-		assertThat(cut.validate(accessToken), is(true));
+		assertThat(cut.validate(accessToken).isValid(), is(true));
 	}
 
 	@Test
 	public void jsonWebSignatureDoesNotMatchJWKS() {
-		String[] tokenHeaderPayloadSignature = accessToken.split(Pattern.quote("."));
-		String[] otherHeaderPayloadSignature = otherToken.split(Pattern.quote("."));
-		String tokenWithOthersSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
-								.append(".")
-								.append(tokenHeaderPayloadSignature[1])
-								.append(".")
-								.append(otherHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(tokenWithOthersSignature), is(false));
+		assertThat(cut.validate(otherToken).isValid(), is(false));
 	}
 
 	@Test
@@ -79,7 +72,7 @@ public class OAuth2TokenSignatureValidatorTest {
 				.append(otherHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(tokenWithOthersSignature), is(false));
+		assertThat(cut.validate(tokenWithOthersSignature).isValid(), is(false));
 	}
 
 	@Test
@@ -91,13 +84,9 @@ public class OAuth2TokenSignatureValidatorTest {
 				.append(tokenHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(tokenWithOthersSignature), is(false));
+		assertThat(cut.validate(tokenWithOthersSignature).isValid(), is(false));
 	}
 
-	@Test
-	public void jwtWithAlgHeaderOnlyNotValid() {
-		assertThat(cut.validate(otherToken), is(false));
-	}
 
 	@Test
 	public void jwtWithoutSignatureNotValid() {
@@ -105,7 +94,7 @@ public class OAuth2TokenSignatureValidatorTest {
 		String tokenWithOthersSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
-		assertThat(cut.validate(tokenWithOthersSignature), is(false));
+		assertThat(cut.validate(tokenWithOthersSignature).isValid(), is(false));
 	}
 
 	@Test
@@ -117,7 +106,7 @@ public class OAuth2TokenSignatureValidatorTest {
 	@Test
 	public void validationFailsWhenTokenKeyCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
 		when(serviceMock.retrieveTokenKeys(any())).thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		assertThat(cut.validate(accessToken), is(false));
+		assertThat(cut.validate(accessToken).isValid(), is(false));
 	}
 
 	@Test

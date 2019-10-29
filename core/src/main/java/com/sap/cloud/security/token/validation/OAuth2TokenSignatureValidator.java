@@ -30,7 +30,7 @@ import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 
-public class : { //TODO implement interface
+public class OAuth2TokenSignatureValidator implements Validator<String> {
 	private Map<String, PublicKey> keyCache = new HashMap<>();
 	private OAuth2ServiceConfiguration serviceConfiguration;
 	private OAuth2TokenKeyService tokenKeyService;
@@ -45,7 +45,8 @@ public class : { //TODO implement interface
 		this.tokenUrlProvider = new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl());
 	}
 
-	public boolean validate(String token) {
+	@Override
+	public ValidationResult validate(String token) {
 		// DecodedJwt decodedJwt = new Base64JwtDecoder().decode(token);
 		String kid = "key-id-1"; //TODO parse from JSON Header e.g. decodedJwt.getHeader().getKeyId()
 		String alg = "RS256"; //TODO parse from JSON Header e.g. decodedJwt.getHeader().getAlgorithm()
@@ -55,14 +56,14 @@ public class : { //TODO implement interface
 
 		PublicKey publicKey = getPublicKey(kid, jku);
 		if (publicKey == null) {
-			return false;
+			return ValidationResults.createInvalid("There is no JSON Web Token Key to prove the identity of the JWT.");
 		}
 		try {
 			return verifySignature(token, alg, publicKey);
 		} catch (Exception e) {
 			LOGGER.error("Error during JSON Web Signature could not be verified.", e);
+			return ValidationResults.createInvalid(e.getMessage());
 		}
-		return false;
 	}
 
 	@Nullable
@@ -102,7 +103,7 @@ public class : { //TODO implement interface
 	}
 
 
-	private static boolean verifySignature(String token, String algorithm, PublicKey publicKey) throws
+	private ValidationResult verifySignature(String token, String algorithm, PublicKey publicKey) throws
 			SignatureException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
 		if(!"RS256".equalsIgnoreCase(algorithm)) {
 			throw new IllegalStateException("JWT token with signature algorithm " + algorithm + " can not be verified.");
@@ -120,8 +121,9 @@ public class : { //TODO implement interface
 		boolean isSignatureValid = publicSignature.verify(parseTokenSignature(tokenHeaderPayloadSignature[2]));
 		if(!isSignatureValid) {
 			LOGGER.error("Signature of JWT Token is not valid: the identity provided by the JSON Web Token Key can not be verified");
+			return ValidationResults.createInvalid("Signature verification failed!");
 		}
-		return isSignatureValid;
+		return ValidationResults.createValid();
 	}
 
 	private static byte[] parseTokenSignature(final String signature) throws UnsupportedEncodingException {
