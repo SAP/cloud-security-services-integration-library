@@ -103,10 +103,10 @@ public class OAuth2TokenSignatureValidator implements Validator<String> {
 	}
 
 
-	private ValidationResult verifySignature(String token, String algorithm, PublicKey publicKey) throws
+	private ValidationResult verifySignature(String token, String tokenAlgorithm, PublicKey publicKey) throws
 			SignatureException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
-		if(!"RS256".equalsIgnoreCase(algorithm)) {
-			throw new IllegalStateException("JWT token with signature algorithm " + algorithm + " can not be verified.");
+		if(!"RS256".equalsIgnoreCase(tokenAlgorithm)) {
+			throw new IllegalStateException("JWT token with signature algorithm " + tokenAlgorithm + " can not be verified.");
 		}
 		String[] tokenHeaderPayloadSignature = token.split(Pattern.quote("."));
 		if(tokenHeaderPayloadSignature.length != 3) {
