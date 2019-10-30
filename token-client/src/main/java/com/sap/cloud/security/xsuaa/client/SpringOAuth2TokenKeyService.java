@@ -3,8 +3,6 @@ package com.sap.cloud.security.xsuaa.client;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySetFactory;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
@@ -25,7 +23,6 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	@Override
 	public JSONWebKeySet retrieveTokenKeys(URI tokenKeysEndpointUri) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
-		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
 		try {
 			// TODO 30.10.19 c5295400: See if that even works?
 			ResponseEntity<String> response = restOperations.getForEntity(tokenKeysEndpointUri, String.class);
