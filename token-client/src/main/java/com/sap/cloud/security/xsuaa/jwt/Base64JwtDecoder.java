@@ -18,7 +18,7 @@ public final class Base64JwtDecoder {
 		String payload = base64Decode(parts[1]);
 		String signature = parts[2];
 
-		return new DecodedJwtImpl(header, payload, signature);
+		return new DecodedJwtImpl(jwt, header, payload, signature);
 	}
 
 	private String base64Decode(String encoded) {
@@ -31,11 +31,13 @@ public final class Base64JwtDecoder {
 		private String header;
 		private String payload;
 		private String signature;
+		private String encodedJwt;
 
-		DecodedJwtImpl(String header, String payload, String signature) {
+		DecodedJwtImpl(String encodedJwt, String header, String payload, String signature) {
 			this.header = header;
 			this.payload = payload;
 			this.signature = signature;
+			this.encodedJwt = encodedJwt;
 		}
 
 		@Override
@@ -51,6 +53,10 @@ public final class Base64JwtDecoder {
 		@Override
 		public String getSignature() {
 			return signature;
+		}
+
+		@Override public String getEncodedToken() {
+			return encodedJwt;
 		}
 	}
 }

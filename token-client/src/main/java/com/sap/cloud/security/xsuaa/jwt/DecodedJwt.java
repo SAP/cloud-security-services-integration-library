@@ -7,4 +7,6 @@ public interface DecodedJwt {
 	String getPayload();
 
 	String getSignature();
+
+	String getEncodedToken();
 }
