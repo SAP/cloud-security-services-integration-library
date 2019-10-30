@@ -1,9 +1,10 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySetFactory;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
-import org.apache.http.HttpResponse;
+import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySetFactory;
+import com.sap.cloud.security.xsuaa.util.HttpClientUtils;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -11,11 +12,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 import javax.annotation.Nonnull;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.stream.Collectors;
 
 public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
@@ -35,14 +33,21 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
 		try (CloseableHttpResponse response = httpClient.execute(request)) {
-			return JSONWebKeySetFactory.createFromJSON(convertToString(response));
+			String bodyAsString = HttpClientUtils.extractResponseBodyAsString(response);
+			int statusCode = response.getStatusLine().getStatusCode();
+			return handleResponse(bodyAsString, statusCode);
 		} catch (IOException e) {
-			throw new OAuth2ServiceException(e.getMessage());
+			throw new OAuth2ServiceException("Error retrieving token keys: " + e.getMessage());
 		}
 	}
 
-	private String convertToString(HttpResponse response) throws IOException {
-		return new BufferedReader(new InputStreamReader(response.getEntity().getContent()))
-				.lines().collect(Collectors.joining(System.lineSeparator()));
+	private JSONWebKeySet handleResponse(String bodyAsString, int statusCode) throws OAuth2ServiceException {
+		if (statusCode == HttpStatus.SC_OK) {
+			return JSONWebKeySetFactory.createFromJSON(bodyAsString);
+		} else {
+			throw OAuth2ServiceException
+					.createWithStatusCodeAndResponseBody("Error retrieving token keys", statusCode, bodyAsString);
+		}
 	}
+
 }

@@ -12,4 +12,11 @@ public class OAuth2ServiceException extends IOException {
 	public OAuth2ServiceException(String message) {
 		super(message);
 	}
+
+	public static OAuth2ServiceException createWithStatusCodeAndResponseBody(String message, int statusCode,
+			String responseBodyAsString) {
+		return new OAuth2ServiceException(
+				String.format("%s. Received status code %s. Call to XSUAA was not successful: %s",
+						message, statusCode, responseBodyAsString));
+	}
 }

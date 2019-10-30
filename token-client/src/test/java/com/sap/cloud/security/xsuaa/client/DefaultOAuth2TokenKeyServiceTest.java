@@ -4,6 +4,7 @@ import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -45,7 +46,20 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	}
 
 	@Test
-	public void retrieveTokenKeys_tokenEndpointUriIsNull_throwsException()  {
+
+	public void retrieveTokenKeys_responseNotOk_throwsException() throws IOException {
+		String errorDescription = "Something wen't wrong";
+		CloseableHttpResponse response = HttpClientTestFactory
+				.createHttpResponse("{message: " + errorDescription + "}", HttpStatus.SC_BAD_REQUEST);
+		when(httpClient.execute(any())).thenReturn(response);
+
+		assertThatThrownBy(() -> retrieveTokenKeys())
+				.isInstanceOf(OAuth2ServiceException.class)
+				.hasMessageContaining(errorDescription);
+	}
+
+	@Test
+	public void retrieveTokenKeys_tokenEndpointUriIsNull_throwsException() {
 		assertThatThrownBy(() -> retrieveTokenKeys(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
@@ -58,7 +72,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 		Mockito.verify(httpClient, times(1)).execute(any(HttpGet.class));
 	}
-	
+
 	@Test
 	public void retrieveTokenKeys_keySetAsResponse_containsBothKeys() throws IOException {
 		mockResponse();
@@ -79,9 +93,10 @@ public class DefaultOAuth2TokenKeyServiceTest {
 				.hasMessageContaining(errorMessage);
 	}
 
-	private void mockResponse() throws IOException {
-		CloseableHttpResponse webKeys = HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString);
-		when(httpClient.execute(any())).thenReturn(webKeys);
+	private CloseableHttpResponse mockResponse() throws IOException {
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString);
+		when(httpClient.execute(any())).thenReturn(response);
+		return response;
 	}
 
 	private JSONWebKeySet retrieveTokenKeys() throws OAuth2ServiceException {
