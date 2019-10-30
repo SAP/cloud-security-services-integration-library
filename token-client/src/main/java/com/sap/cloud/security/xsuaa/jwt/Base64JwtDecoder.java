@@ -1,9 +1,11 @@
 package com.sap.cloud.security.xsuaa.jwt;
 
 import com.sap.cloud.security.xsuaa.Assertions;
+import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Map;
 
 public final class Base64JwtDecoder {
 
@@ -32,12 +34,16 @@ public final class Base64JwtDecoder {
 		private String payload;
 		private String signature;
 		private String encodedJwt;
+		private final Map<String, Object> payloadMap;
+		private final Map<String, Object> headerMap;
 
 		DecodedJwtImpl(String encodedJwt, String header, String payload, String signature) {
 			this.header = header;
 			this.payload = payload;
 			this.signature = signature;
 			this.encodedJwt = encodedJwt;
+			this.headerMap = new JSONObject(header).toMap();
+			this.payloadMap = new JSONObject(payload).toMap();
 		}
 
 		@Override
@@ -57,6 +63,16 @@ public final class Base64JwtDecoder {
 
 		@Override public String getEncodedToken() {
 			return encodedJwt;
+		}
+
+		@Override
+		public Map<String, Object> getHeaderMap() {
+			return headerMap;
+		}
+
+		@Override
+		public Map<String, Object> getPayloadMap() {
+			return payloadMap;
 		}
 	}
 }

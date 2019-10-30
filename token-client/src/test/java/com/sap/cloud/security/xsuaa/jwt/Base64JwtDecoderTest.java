@@ -22,8 +22,10 @@ public class Base64JwtDecoderTest {
 		assertEquals(expectedDecodedJWTPayload, decodedJwt.getPayload());
 		assertEquals(expectedDecodedJWTHeader, decodedJwt.getHeader());
 		assertEquals(expectedDecodedJWTSignature, decodedJwt.getSignature());
+		assertEquals("e3c30e2474cd46609a262eda9d9dc26d", decodedJwt.getPayloadMap().get("jti"));
+		assertEquals("HS256", decodedJwt.getHeaderMap().get("alg"));
 	}
-
+	
 	@Test
 	public void itThrowsIfJwtDoesNotConsistOfThreeSegments() {
 		expectedException.expect(IllegalArgumentException.class);
