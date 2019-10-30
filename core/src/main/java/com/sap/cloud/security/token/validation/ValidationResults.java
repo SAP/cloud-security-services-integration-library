@@ -6,13 +6,13 @@ public class ValidationResults {
 
 	public static ValidationResult createInvalid(String errorMessage) {
 		ArrayList<ValidationError> validationErrors = new ArrayList<>();
-		validationErrors.add(new DefaultValidationError(errorMessage));
-		DefaultValidationResult validationResult = new DefaultValidationResult(validationErrors);
+		validationErrors.add(new ValidationErrorImpl(errorMessage));
+		ValidationResultImpl validationResult = new ValidationResultImpl(validationErrors);
 		return validationResult;
 	}
 
 	public static ValidationResult createValid() {
-		return new DefaultValidationResult(new ArrayList<>());
+		return new ValidationResultImpl(new ArrayList<>());
 	}
 
 }
