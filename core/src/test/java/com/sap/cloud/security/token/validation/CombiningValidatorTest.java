@@ -9,6 +9,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CombiningValidatorTest {
 
+	private static final String FIRST_ERROR_MESSAGE = "firstMessage";
+	private static final String SECOND_ERROR_MESSAGE = "secondMessage";
+
 	@Test
 	public void validate_containsNoValidators_validResult() {
 		Validator<Object> combinigValidator = CombiningValidator.builder().build();
@@ -43,32 +46,31 @@ public class CombiningValidatorTest {
 	}
 
 	@Test
-	public void validate_twoValidValidators_containsErrorMessages() {
-		String firstErrorMessage = "firstMessage";
-		String secondErrorMessage = "secondMessage";
+	public void validate_twoValidValidators_containsOnlyOneErrorMessages() {
 		Validator<Object> combinigValidator = CombiningValidator.builder()
-				.with(invalidValidator(firstErrorMessage))
-				.with(invalidValidator(secondErrorMessage))
+				.with(invalidValidator(FIRST_ERROR_MESSAGE))
+				.with(invalidValidator(SECOND_ERROR_MESSAGE)).build();
+
+		List<ValidationError> errors = getValidationErrors(combinigValidator);
+
+		assertThat(errors).size().isEqualTo(1);
+		List<String> errorMessages = errors.stream().map(ValidationError::getMessage).collect(Collectors.toList());
+		assertThat(errorMessages).containsExactly(FIRST_ERROR_MESSAGE);
+	}
+
+	@Test
+	public void validate_twoValidValidatorsWithValidateAll_containsBothErrorMessages() {
+		Validator<Object> combinigValidator = CombiningValidator.builder()
+				.with(invalidValidator(FIRST_ERROR_MESSAGE))
+				.with(invalidValidator(SECOND_ERROR_MESSAGE))
+				.validateAll()
 				.build();
 
 		List<ValidationError> errors = getValidationErrors(combinigValidator);
 
 		assertThat(errors).size().isEqualTo(2);
 		List<String> errorMessages = errors.stream().map(ValidationError::getMessage).collect(Collectors.toList());
-		assertThat(errorMessages).containsExactlyInAnyOrder(firstErrorMessage, secondErrorMessage);
-	}
-
-	@Test
-	public void validate_twoValidValidatorsWhichAreTheSameObject_onlyOneIsUsed() {
-		Validator<Object> invalidValidator = invalidValidator();
-		Validator<Object> combinigValidator = CombiningValidator.builder()
-				.with(invalidValidator)
-				.with(invalidValidator)
-				.build();
-
-		List<ValidationError> errors = getValidationErrors(combinigValidator);
-
-		assertThat(errors).size().isEqualTo(1);
+		assertThat(errorMessages).containsExactly(FIRST_ERROR_MESSAGE, SECOND_ERROR_MESSAGE);
 	}
 
 	private ValidationResult getValidationResult(Validator<Object> combinigValidator) {
@@ -88,6 +90,6 @@ public class CombiningValidatorTest {
 	}
 
 	private Validator<Object> invalidValidator() {
-		return invalidValidator("the error message");
+		return invalidValidator(FIRST_ERROR_MESSAGE);
 	}
 }
