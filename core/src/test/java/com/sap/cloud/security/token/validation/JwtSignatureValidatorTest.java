@@ -19,15 +19,17 @@ import org.mockito.Mockito;
 import com.sap.cloud.security.core.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeyImpl;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 
-public class OAuth2TokenSignatureValidatorTest {
+public class JwtSignatureValidatorTest {
 	private String pemEncodedPublicKey = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmNM3OXfZS0Uu8eYZXCgG\nWFgVWQX6MHnadYk3zHZ5PIPeDY3ApaSGpMEiVwn1cT6KUVHMLHcmz1gsNy74pCnm\nCa22W7J3BoZulzR0A37ayMVrRHh3nffgySk8u581l02bvbcpab3e3EotSN5LixGT\n1VWZvDbalXf6n5kq459NWL6ZzkEs20MrOEk5cLdnsigTQUHSKIQ5TpldyDkJMm2z\nwOlrB2R984+QdlDFmoVH7Yaujxr2g0Z96u7W9Imik6wTiFc8W7eUXfhPGn7reVLq\n1/5o2Nz0Jx0ejFHDwTGncs+k1RBS6DbpTOMr9tkJEc3ZsX3Ft4OtqCkRXI5hUma+\nHwIDAQAB\n-----END PUBLIC KEY-----";
 	private String accessToken;
 	private String otherToken; // contains alg header only, signature that does not match jwks
-	private OAuth2TokenSignatureValidator cut;
+	private JwtSignatureValidator cut;
 	private OAuth2TokenKeyService serviceMock;
 	private OAuth2ServiceConfiguration serviceConfigurationMock;
 
@@ -42,7 +44,7 @@ public class OAuth2TokenSignatureValidatorTest {
 		serviceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(serviceMock.retrieveTokenKeys(any())).thenReturn(createJSONWebKeySet());
 
-		cut = new OAuth2TokenSignatureValidator(serviceConfigurationMock, serviceMock);
+		cut = new JwtSignatureValidator(serviceConfigurationMock, serviceMock);
 	}
 
 	private JSONWebKeySet createJSONWebKeySet() {
@@ -55,12 +57,12 @@ public class OAuth2TokenSignatureValidatorTest {
 
 	@Test
 	public void jsonWebSignatureMatchesJWKS() throws IOException {
-		assertThat(cut.validate(accessToken).isValid(), is(true));
+		assertThat(cut.validate(decodedJwt(accessToken)).isValid(), is(true));
 	}
 
 	@Test
 	public void jsonWebSignatureDoesNotMatchJWKS() {
-		assertThat(cut.validate(otherToken).isValid(), is(false));
+		assertThat(cut.validate(decodedJwt(otherToken)).isValid(), is(false));
 	}
 
 	@Test
@@ -72,7 +74,7 @@ public class OAuth2TokenSignatureValidatorTest {
 				.append(otherHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(tokenWithOthersSignature).isValid(), is(false));
+		assertThat(cut.validate(decodedJwt(tokenWithOthersSignature)).isValid(), is(false));
 	}
 
 	@Test
@@ -84,9 +86,8 @@ public class OAuth2TokenSignatureValidatorTest {
 				.append(tokenHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(tokenWithOthersSignature).isValid(), is(false));
+		assertThat(cut.validate(decodedJwt(tokenWithOthersSignature)).isValid(), is(false));
 	}
-
 
 	@Test
 	public void jwtWithoutSignatureNotValid() {
@@ -94,7 +95,8 @@ public class OAuth2TokenSignatureValidatorTest {
 		String tokenWithOthersSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
-		assertThat(cut.validate(tokenWithOthersSignature).isValid(), is(false));
+
+		assertThat(cut.validate(tokenWithOthersSignature, "key-id-1", "RS256", "https://authentication.stagingaws.hanavlab.ondemand.com/token_keys" ).isValid(), is(false));
 	}
 
 	@Test
@@ -106,7 +108,7 @@ public class OAuth2TokenSignatureValidatorTest {
 	@Test
 	public void validationFailsWhenTokenKeyCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
 		when(serviceMock.retrieveTokenKeys(any())).thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		assertThat(cut.validate(accessToken).isValid(), is(false));
+		assertThat(cut.validate(decodedJwt(accessToken)).isValid(), is(false));
 	}
 
 	@Test
@@ -125,5 +127,9 @@ public class OAuth2TokenSignatureValidatorTest {
 	@Ignore
 	public void webTokenKeyOtherThanRSAIsNotSupported() {
 		// TODO implement
+	}
+
+	private DecodedJwt decodedJwt(String token) {
+		return Base64JwtDecoder.getInstance().decode(token);
 	}
 }

@@ -4,15 +4,29 @@ import com.sap.cloud.security.xsuaa.Assertions;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.regex.Pattern;
 
 public final class Base64JwtDecoder {
+	private static final Base64JwtDecoder instance = new Base64JwtDecoder();
+
+	/**
+	 * @deprecated in favor of the {@link #getInstance() method} and will become private with version 3.0.0
+	 */
+	@Deprecated
+	public Base64JwtDecoder() {
+		// becomes private with version 3.0.0
+	}
+
+	public static Base64JwtDecoder getInstance() {
+		return instance;
+	}
 
 	public DecodedJwt decode(String jwt) {
 		Assertions.assertNotNull(jwt, "JWT must not be null");
 
-		String[] parts = jwt.split("\\.");
+		String[] parts = jwt.split(Pattern.quote("."));
 		if (parts.length != 3) {
-			throw new IllegalArgumentException("Failed to split JWT into exactly 3 parts");
+			throw new IllegalArgumentException("JWT token does not consist of 'header'.'payload'.'signature'.");
 		}
 		String header = base64Decode(parts[0]);
 		String payload = base64Decode(parts[1]);
