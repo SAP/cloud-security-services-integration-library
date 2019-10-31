@@ -10,7 +10,8 @@ public class ValidationResultImpl implements ValidationResult {
 		this.validationErrors = validationErrors;
 	}
 
-	@Override public List<ValidationError> getErrors() {
+	@Override
+	public List<ValidationError> getErrors() {
 		return validationErrors;
 	}
 

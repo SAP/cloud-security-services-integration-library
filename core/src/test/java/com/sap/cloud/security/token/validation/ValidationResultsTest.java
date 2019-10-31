@@ -14,7 +14,7 @@ public class ValidationResultsTest {
 		assertThat(validationResult.isValid()).isFalse();
 		assertThat(validationResult.getErrors()).size().isOne();
 		ValidationError error = validationResult.getErrors().get(0);
-		assertThat(error.getMessage()).isEqualTo(errorMessage);
+		assertThat(error.getDescription()).isEqualTo(errorMessage);
 	}
 
 	@Test

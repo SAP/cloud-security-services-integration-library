@@ -8,7 +8,8 @@ public class ValidationErrorImpl implements ValidationError {
 		this.errorMessage = errorMessage;
 	}
 
-	@Override public String getMessage() {
+	@Override
+	public String getDescription() {
 		return errorMessage;
 	}
 }

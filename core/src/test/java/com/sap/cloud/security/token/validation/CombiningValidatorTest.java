@@ -54,7 +54,7 @@ public class CombiningValidatorTest {
 		List<ValidationError> errors = getValidationErrors(combinigValidator);
 
 		assertThat(errors).size().isEqualTo(1);
-		List<String> errorMessages = errors.stream().map(ValidationError::getMessage).collect(Collectors.toList());
+		List<String> errorMessages = errors.stream().map(ValidationError::getDescription).collect(Collectors.toList());
 		assertThat(errorMessages).containsExactly(FIRST_ERROR_MESSAGE);
 	}
 
@@ -69,7 +69,7 @@ public class CombiningValidatorTest {
 		List<ValidationError> errors = getValidationErrors(combinigValidator);
 
 		assertThat(errors).size().isEqualTo(2);
-		List<String> errorMessages = errors.stream().map(ValidationError::getMessage).collect(Collectors.toList());
+		List<String> errorMessages = errors.stream().map(ValidationError::getDescription).collect(Collectors.toList());
 		assertThat(errorMessages).containsExactly(FIRST_ERROR_MESSAGE, SECOND_ERROR_MESSAGE);
 	}
 
