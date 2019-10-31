@@ -1,11 +1,14 @@
 package com.sap.cloud.security.xsuaa.jwt;
 
 import com.sap.cloud.security.xsuaa.Assertions;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public final class Base64JwtDecoder {
 
@@ -42,8 +45,8 @@ public final class Base64JwtDecoder {
 			this.payload = payload;
 			this.signature = signature;
 			this.encodedJwt = encodedJwt;
-			this.headerMap = new JSONObject(header).toMap();
-			this.payloadMap = new JSONObject(payload).toMap();
+			this.headerMap = createMapFromJsonString(header);
+			this.payloadMap = createMapFromJsonString(payload);
 		}
 
 		@Override
@@ -52,8 +55,19 @@ public final class Base64JwtDecoder {
 		}
 
 		@Override
+		public String getHeaderValue(String name) {
+			Object value = headerMap.get(name);
+			return extractStringOrNull(value);
+		}
+
+		@Override
 		public String getPayload() {
 			return payload;
+		}
+
+		@Override public String getPayloadValue(String name) {
+			Object value = payloadMap.get(name);
+			return extractStringOrNull(value);
 		}
 
 		@Override
@@ -65,14 +79,18 @@ public final class Base64JwtDecoder {
 			return encodedJwt;
 		}
 
-		@Override
-		public Map<String, Object> getHeaderMap() {
-			return headerMap;
+		private Map<String, Object> createMapFromJsonString(String header) {
+			try {
+				JSONObject jsonObject = new JSONObject(header);
+				return jsonObject.toMap();
+			} catch (JSONException e) {
+				return new HashMap<>();
+			}
 		}
 
-		@Override
-		public Map<String, Object> getPayloadMap() {
-			return payloadMap;
+		private String extractStringOrNull(Object value) {
+			return Optional.ofNullable(value).map(Object::toString).orElse(null);
 		}
+
 	}
 }

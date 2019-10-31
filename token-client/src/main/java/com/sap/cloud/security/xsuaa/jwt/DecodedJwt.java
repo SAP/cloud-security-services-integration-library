@@ -1,16 +1,19 @@
 package com.sap.cloud.security.xsuaa.jwt;
 
-import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface DecodedJwt {
 
 	String getHeader();
 
-	Map<String, Object> getHeaderMap();
+	@Nullable
+	String getHeaderValue(@Nonnull String name);
 
 	String getPayload();
 
-	Map<String, Object> getPayloadMap();
+	@Nullable // TODO getClaimByName?
+	String getPayloadValue(@Nonnull String name);
 
 	String getSignature();
 
