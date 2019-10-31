@@ -18,7 +18,9 @@ public interface DecodedJwt {
 
 	/**
 	 * Returns the header vale as string for the given header name.
-	 * @param headerName the name of the header parameter.
+	 * 
+	 * @param headerName
+	 *            the name of the header parameter.
 	 * @return the value for the given header name.
 	 */
 	@Nullable
@@ -33,7 +35,9 @@ public interface DecodedJwt {
 
 	/**
 	 * Returns the value as string for the given claim.
-	 * @param claimName the name of the claim.
+	 * 
+	 * @param claimName
+	 *            the name of the claim.
 	 * @return the corresponding value of the given claim.
 	 */
 	@Nullable

@@ -16,7 +16,8 @@ public final class Base64JwtDecoder {
 	private static final Base64JwtDecoder instance = new Base64JwtDecoder();
 
 	/**
-	 * @deprecated in favor of the {@link #getInstance() method} and will become private with version 3.0.0
+	 * @deprecated in favor of the {@link #getInstance() method} and will become
+	 *             private with version 3.0.0
 	 */
 	@Deprecated
 	public Base64JwtDecoder() {
@@ -80,7 +81,8 @@ public final class Base64JwtDecoder {
 			return payload;
 		}
 
-		@Override public String getClaim(String claimName) {
+		@Override
+		public String getClaim(String claimName) {
 			Object value = payloadMap.get(claimName);
 			return extractStringOrNull(value);
 		}
@@ -90,7 +92,8 @@ public final class Base64JwtDecoder {
 			return signature;
 		}
 
-		@Override public String getEncodedToken() {
+		@Override
+		public String getEncodedToken() {
 			return encodedJwt;
 		}
 
