@@ -6,11 +6,13 @@ import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.springframework.http.HttpMethod;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,11 +21,13 @@ import java.nio.charset.StandardCharsets;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 public class DefaultOAuth2TokenKeyServiceTest {
 
+	public static final URI TOKEN_ENDPOINT_URI = URI.create("https://tokenKeys.io/token_keys");
 	private final String jsonWebKeysAsString;
 
 	private DefaultOAuth2TokenKeyService cut;
@@ -40,17 +44,16 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	}
 
 	@Test
-	public void nullAsHttpClient_throwsException() {
+	public void httpClient_isNull_throwsException() {
 		assertThatThrownBy(() -> new DefaultOAuth2TokenKeyService(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
-
 	public void retrieveTokenKeys_responseNotOk_throwsException() throws IOException {
 		String errorDescription = "Something wen't wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
-				.createHttpResponse("{message: " + errorDescription + "}", HttpStatus.SC_BAD_REQUEST);
+				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
 		when(httpClient.execute(any())).thenReturn(response);
 
 		assertThatThrownBy(() -> retrieveTokenKeys())
@@ -65,25 +68,6 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	}
 
 	@Test
-	public void retrieveTokenKeys_executesHttpGetRequest() throws IOException {
-		mockResponse();
-
-		retrieveTokenKeys();
-
-		Mockito.verify(httpClient, times(1)).execute(any(HttpGet.class));
-	}
-
-	@Test
-	public void retrieveTokenKeys_keySetAsResponse_containsBothKeys() throws IOException {
-		mockResponse();
-
-		JSONWebKeySet result = retrieveTokenKeys();
-
-		assertThat(result.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-0")).isTrue();
-		assertThat(result.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1")).isTrue();
-	}
-
-	@Test
 	public void retrieveTokenKeys_errorOccurs_throwsServiceException() throws IOException {
 		String errorMessage = "useful error message";
 		when(httpClient.execute(any())).thenThrow(new IOException(errorMessage));
@@ -93,6 +77,27 @@ public class DefaultOAuth2TokenKeyServiceTest {
 				.hasMessageContaining(errorMessage);
 	}
 
+	@Test
+	public void retrieveTokenKeys_executesHttpGetRequestWithCorrectURI() throws IOException {
+		mockResponse();
+
+		retrieveTokenKeys();
+
+		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()));
+
+	}
+
+	@Test
+	public void retrieveTokenKeys_keySetAsResponse_containsBothKeys() throws IOException {
+		mockResponse();
+
+		JSONWebKeySet result = retrieveTokenKeys();
+
+		assertThat(result.isEmpty()).isFalse();
+		assertThat(result.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-0")).isTrue();
+		assertThat(result.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1")).isTrue();
+	}
+
 	private CloseableHttpResponse mockResponse() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString);
 		when(httpClient.execute(any())).thenReturn(response);
@@ -100,10 +105,18 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	}
 
 	private JSONWebKeySet retrieveTokenKeys() throws OAuth2ServiceException {
-		return retrieveTokenKeys(URI.create("https://tokenKeys.io/token_keys"));
+		return retrieveTokenKeys(TOKEN_ENDPOINT_URI);
 	}
 
 	private JSONWebKeySet retrieveTokenKeys(URI uri) throws OAuth2ServiceException {
 		return cut.retrieveTokenKeys(uri);
+	}
+
+	private ArgumentMatcher<HttpUriRequest> isHttpGetAndContainsCorrectURI() {
+		return (httpGet) -> {
+			boolean hasCorrectURI = httpGet.getURI().equals(TOKEN_ENDPOINT_URI);
+			boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
+			return hasCorrectURI && correctMethod;
+		};
 	}
 }

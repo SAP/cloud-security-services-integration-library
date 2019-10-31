@@ -22,8 +22,10 @@ public class Base64JwtDecoderTest {
 		assertEquals(expectedDecodedJWTPayload, decodedJwt.getPayload());
 		assertEquals(expectedDecodedJWTHeader, decodedJwt.getHeader());
 		assertEquals(expectedDecodedJWTSignature, decodedJwt.getSignature());
+		assertEquals("HS256", decodedJwt.getHeaderValue("alg"));
+		assertEquals("e3c30e2474cd46609a262eda9d9dc26d", decodedJwt.getPayloadValue("jti"));
 	}
-
+	
 	@Test
 	public void itThrowsIfJwtDoesNotConsistOfThreeSegments() {
 		expectedException.expect(IllegalArgumentException.class);
@@ -43,5 +45,7 @@ public class Base64JwtDecoderTest {
 	public void deprecatedConstructor() {
 		DecodedJwt decodedJwt = new Base64JwtDecoder().decode("header..signature");
 		assertEquals("", decodedJwt.getPayload());
+		assertEquals(null, decodedJwt.getHeaderValue("alg"));
+		assertEquals(null, decodedJwt.getHeaderValue("jti"));
 	}
 }

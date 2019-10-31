@@ -2,11 +2,11 @@ package com.sap.cloud.security.token.validation;
 
 import java.util.List;
 
-public class DefaultValidationResult implements ValidationResult {
+public class ValidationResultImpl implements ValidationResult {
 
 	private final List<ValidationError> validationErrors;
 
-	public DefaultValidationResult(List<ValidationError> validationErrors) {
+	public ValidationResultImpl(List<ValidationError> validationErrors) {
 		this.validationErrors = validationErrors;
 	}
 

@@ -1,10 +1,10 @@
 package com.sap.cloud.security.token.validation;
 
-public class DefaultValidationError implements ValidationError {
+public class ValidationErrorImpl implements ValidationError {
 
 	private final String errorMessage;
 
-	public DefaultValidationError(String errorMessage) {
+	public ValidationErrorImpl(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
 

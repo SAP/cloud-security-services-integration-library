@@ -4,6 +4,9 @@ package com.sap.cloud.security.xsuaa.jwt;
  * A Jwt token consists of three parts, separated by ".":
  * header.payload.signature
  */
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public interface DecodedJwt {
 
 	/**
@@ -18,6 +21,9 @@ public interface DecodedJwt {
 	 *
 	 * @return the decoded payload.
 	 */
+	@Nullable
+	String getHeaderValue(@Nonnull String name);
+
 	String getPayload();
 
 	/**
@@ -25,6 +31,9 @@ public interface DecodedJwt {
 	 *
 	 * @return the decoded signature.
 	 */
+	@Nullable // TODO getClaimByName?
+	String getPayloadValue(@Nonnull String name);
+
 	String getSignature();
 
 	/**
