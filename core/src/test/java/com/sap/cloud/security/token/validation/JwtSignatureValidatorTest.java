@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token.validation;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,11 +62,6 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void jsonWebSignatureDoesNotMatchJWKS() {
-		assertThat(cut.validate(decodedJwt(otherToken)).isValid(), is(false));
-	}
-
-	@Test
 	public void jwtPayloadModifiedNotValid() {
 		String[] tokenHeaderPayloadSignature = accessToken.split(Pattern.quote("."));
 		String[] otherHeaderPayloadSignature = otherToken.split(Pattern.quote("."));
@@ -77,16 +73,24 @@ public class JwtSignatureValidatorTest {
 		assertThat(cut.validate(decodedJwt(tokenWithOthersSignature)).isValid(), is(false));
 	}
 
+
 	@Test
-	public void jwtHeaderModifiedNotValid() {
-		String[] tokenHeaderPayloadSignature = accessToken.split(Pattern.quote("."));
-		String[] otherHeaderPayloadSignature = otherToken.split(Pattern.quote("."));
-		String tokenWithOthersSignature = new StringBuilder(otherHeaderPayloadSignature[0])
-				.append(".")
-				.append(tokenHeaderPayloadSignature[1])
-				.append(".")
-				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(decodedJwt(tokenWithOthersSignature)).isValid(), is(false));
+	public void validate_throwsOnNullValues() {
+		assertThatThrownBy(() -> {
+			cut.validate(null, "key-id-1", "RS256", "https://myauth.com/token_keys" );
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
+
+		assertThatThrownBy(() -> {
+			cut.validate(accessToken, "", "RS256", "https://myauth.com/token_keys" );
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenKeyId");
+
+		assertThatThrownBy(() -> {
+			cut.validate(accessToken, "key-id-1", "", "https://myauth.com/token_keys" );
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenAlgorithm");
+
+		assertThatThrownBy(() -> {
+			cut.validate(accessToken, "key-id-1", "RS256", "" );
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenKeyUrl");
 	}
 
 	@Test

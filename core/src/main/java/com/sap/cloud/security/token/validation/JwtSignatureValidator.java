@@ -1,5 +1,7 @@
 package com.sap.cloud.security.token.validation;
 
+import static com.sap.cloud.security.core.Assertions.*;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotEmpty;
 import static java.nio.charset.StandardCharsets.*;
 
 import javax.annotation.Nullable;
@@ -38,8 +40,8 @@ public class JwtSignatureValidator implements Validator<DecodedJwt> {
 	private static Logger LOGGER = LoggerFactory.getLogger(JwtSignatureValidator.class);
 
 	public JwtSignatureValidator(OAuth2ServiceConfiguration xsuaaServiceConfiguration, OAuth2TokenKeyService tokenKeyService) {
-		Assertions.assertNotNull(xsuaaServiceConfiguration, "'xsuaaServiceConfiguration' is required");
-		Assertions.assertNotNull(tokenKeyService, "'tokenKeyService' is required");
+		assertNotNull(xsuaaServiceConfiguration, "'xsuaaServiceConfiguration' is required");
+		assertNotNull(tokenKeyService, "'tokenKeyService' is required");
 		this.serviceConfiguration = xsuaaServiceConfiguration;
 		this.tokenKeyService = tokenKeyService;
 		this.tokenUrlProvider = new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl());
@@ -47,14 +49,18 @@ public class JwtSignatureValidator implements Validator<DecodedJwt> {
 
 	@Override
 	public ValidationResult validate(DecodedJwt decodedJwt) {
-		String kid = "key-id-1"; //TODO parse from JSON Header e.g. decodedJwt.getHeader().getKeyId()
-		String alg = "RS256"; //TODO parse from JSON Header e.g. decodedJwt.getHeader().getAlgorithm()
-		String jku = "https://authentication.stagingaws.hanavlab.ondemand.com/token_keys"; //TODO parse from JSON Header e.g. decodedJwt.getHeader().getJsonKeyUrl()
-
-		return validate(decodedJwt.getEncodedToken(), kid, alg,jku);
+		return validate(decodedJwt.getEncodedToken(),
+				decodedJwt.getHeaderValue("kid"),
+				decodedJwt.getHeaderValue("alg"),
+				decodedJwt.getHeaderValue("jku"));
 	}
 
 	public ValidationResult validate(String token, String tokenKeyId, String tokenAlgorithm, String tokenKeyUrl) {
+		assertNotEmpty(token, "token must not be null / empty string.");
+		assertNotEmpty(tokenKeyId, "tokenKeyId must not be null / empty string.");
+		assertNotEmpty(tokenAlgorithm, "tokenAlgorithm must not be null / empty string.");
+		assertNotEmpty(tokenKeyUrl, "tokenKeyUrl must not be null / empty string.");
+
 		// TODO validate jku by validating with uaaDomain
 
 		PublicKey publicKey = getPublicKey(tokenKeyId, tokenKeyUrl);
