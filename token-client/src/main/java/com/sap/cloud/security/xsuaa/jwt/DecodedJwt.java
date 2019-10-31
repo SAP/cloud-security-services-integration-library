@@ -17,23 +17,33 @@ public interface DecodedJwt {
 	String getHeader();
 
 	/**
+	 * Returns the header vale as string for the given header name.
+	 * @param headerName the name of the header parameter.
+	 * @return the value for the given header name.
+	 */
+	@Nullable
+	String getHeaderValue(@Nonnull String headerName);
+
+	/**
 	 * Get the base64 decoded payload of the jwt as UTF-8 String.
 	 *
 	 * @return the decoded payload.
 	 */
-	@Nullable
-	String getHeaderValue(@Nonnull String name);
-
 	String getPayload();
+
+	/**
+	 * Returns the value as string for the given claim.
+	 * @param claimName the name of the claim.
+	 * @return the corresponding value of the given claim.
+	 */
+	@Nullable
+	String getClaim(@Nonnull String claimName);
 
 	/**
 	 * Get the encoded signature of the jwt.
 	 *
 	 * @return the decoded signature.
 	 */
-	@Nullable // TODO getClaimByName?
-	String getPayloadValue(@Nonnull String name);
-
 	String getSignature();
 
 	/**

@@ -70,8 +70,8 @@ public final class Base64JwtDecoder {
 		}
 
 		@Override
-		public String getHeaderValue(String name) {
-			Object value = headerMap.get(name);
+		public String getHeaderValue(String headerName) {
+			Object value = headerMap.get(headerName);
 			return extractStringOrNull(value);
 		}
 
@@ -80,8 +80,8 @@ public final class Base64JwtDecoder {
 			return payload;
 		}
 
-		@Override public String getPayloadValue(String name) {
-			Object value = payloadMap.get(name);
+		@Override public String getClaim(String claimName) {
+			Object value = payloadMap.get(claimName);
 			return extractStringOrNull(value);
 		}
 
