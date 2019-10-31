@@ -4,13 +4,7 @@ import com.sap.cloud.security.xsuaa.Assertions;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Pattern;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public final class Base64JwtDecoder {
 	private static final Base64JwtDecoder instance = new Base64JwtDecoder();
@@ -49,20 +43,22 @@ public final class Base64JwtDecoder {
 
 	static class DecodedJwtImpl implements DecodedJwt {
 
+		private final JSONParser headerJSONParser;
+		private final JSONParser payloadJSONParser;
+
 		private String header;
 		private String payload;
 		private String signature;
 		private String encodedJwt;
-		private final Map<String, Object> payloadMap;
-		private final Map<String, Object> headerMap;
 
 		DecodedJwtImpl(String encodedJwt, String header, String payload, String signature) {
 			this.header = header;
 			this.payload = payload;
 			this.signature = signature;
+
 			this.encodedJwt = encodedJwt;
-			this.headerMap = createMapFromJsonString(header);
-			this.payloadMap = createMapFromJsonString(payload);
+			this.headerJSONParser = new JSONParser(header);
+			this.payloadJSONParser = new JSONParser(payload);
 		}
 
 		@Override
@@ -72,8 +68,7 @@ public final class Base64JwtDecoder {
 
 		@Override
 		public String getHeaderValue(String headerName) {
-			Object value = headerMap.get(headerName);
-			return extractStringOrNull(value);
+			return headerJSONParser.getValueAsString(headerName);
 		}
 
 		@Override
@@ -83,8 +78,7 @@ public final class Base64JwtDecoder {
 
 		@Override
 		public String getClaim(String claimName) {
-			Object value = payloadMap.get(claimName);
-			return extractStringOrNull(value);
+			return payloadJSONParser.getValueAsString(claimName);
 		}
 
 		@Override
@@ -97,17 +91,14 @@ public final class Base64JwtDecoder {
 			return encodedJwt;
 		}
 
-		private Map<String, Object> createMapFromJsonString(String header) {
-			try {
-				JSONObject jsonObject = new JSONObject(header);
-				return jsonObject.toMap();
-			} catch (JSONException e) {
-				return new HashMap<>();
-			}
+		@Override
+		public String getTokenType() {
+			return headerJSONParser.getValueAsString("typ");
 		}
 
-		private String extractStringOrNull(Object value) {
-			return Optional.ofNullable(value).map(Object::toString).orElse(null);
+		@Override
+		public String getContentType() {
+			return headerJSONParser.getValueAsString("cty");
 		}
 
 	}

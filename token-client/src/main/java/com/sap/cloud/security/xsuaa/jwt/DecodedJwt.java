@@ -59,4 +59,17 @@ public interface DecodedJwt {
 	 * @return jwt token
 	 */
 	String getEncodedToken();
+
+	/**
+	 * The token type (typ) header parameter as defined in https://tools.ietf.org/html/rfc7516#section-4.1.11
+	 * @return the token type parameter string value.
+	 */
+	String getTokenType();
+
+	/**
+	 * The content type (cty) header parameter as defined in https://tools.ietf.org/html/rfc7516#section-4.1.12.
+	 * @return the content type parameter string value.
+	 */
+	String getContentType();
+
 }

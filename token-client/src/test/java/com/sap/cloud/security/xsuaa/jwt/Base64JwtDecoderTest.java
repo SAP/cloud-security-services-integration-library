@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class Base64JwtDecoderTest {
 
@@ -25,6 +26,21 @@ public class Base64JwtDecoderTest {
 		assertEquals("HS256", decodedJwt.getHeaderValue("alg"));
 		assertEquals("e3c30e2474cd46609a262eda9d9dc26d", decodedJwt.getClaim("jti"));
 	}
+
+	@Test
+	public void itReturnsTheExpectedTokenType() {
+		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(encodedJwt);
+
+		assertEquals(decodedJwt.getTokenType(), "JWT");
+	}
+
+	@Test
+	public void itReturnsNullwhenContentTypeIsOmitted() {
+		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(encodedJwt);
+
+		assertNull(decodedJwt.getContentType());
+	}
+
 
 	@Test
 	public void itThrowsIfJwtDoesNotConsistOfThreeSegments() {
