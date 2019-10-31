@@ -2,10 +2,12 @@ package com.sap.cloud.security.token.validation;
 
 import static com.sap.cloud.security.core.Assertions.*;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotEmpty;
+import static com.sap.cloud.security.xsuaa.jwt.JSONWebKeyConstants.*;
 import static java.nio.charset.StandardCharsets.*;
 
 import javax.annotation.Nullable;
 
+import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -22,53 +24,52 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.security.core.Assertions;
-import com.sap.cloud.security.core.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 
 public class JwtSignatureValidator implements Validator<DecodedJwt> {
 	private Map<String, PublicKey> keyCache = new HashMap<>();
-	private OAuth2ServiceConfiguration serviceConfiguration;
 	private OAuth2TokenKeyService tokenKeyService;
-	private OAuth2ServiceEndpointsProvider tokenUrlProvider;
+	private URI jwksUri;
 	private static Logger LOGGER = LoggerFactory.getLogger(JwtSignatureValidator.class);
 
-	public JwtSignatureValidator(OAuth2ServiceConfiguration xsuaaServiceConfiguration, OAuth2TokenKeyService tokenKeyService) {
-		assertNotNull(xsuaaServiceConfiguration, "'xsuaaServiceConfiguration' is required");
-		assertNotNull(tokenKeyService, "'tokenKeyService' is required");
-		this.serviceConfiguration = xsuaaServiceConfiguration;
+	public JwtSignatureValidator(OAuth2TokenKeyService tokenKeyService, OAuth2ServiceEndpointsProvider endpointsProvider) {
+		this(tokenKeyService, endpointsProvider.getJwksUri());
+	}
+
+	public JwtSignatureValidator(OAuth2TokenKeyService tokenKeyService, URI jwksUri) {
+		assertNotNull(tokenKeyService, "tokenKeyService must not be null.");
+		assertNotNull(jwksUri, "jwksUri must not be null.");
+
 		this.tokenKeyService = tokenKeyService;
-		this.tokenUrlProvider = new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl());
+		this.jwksUri = jwksUri;
 	}
 
 	@Override
 	public ValidationResult validate(DecodedJwt decodedJwt) {
 		return validate(decodedJwt.getEncodedToken(),
-				decodedJwt.getHeaderValue("kid"),
-				decodedJwt.getHeaderValue("alg"),
-				decodedJwt.getHeaderValue("jku"));
+				decodedJwt.getHeaderValue(ALGORITHM_PARAMETER_NAME),
+				decodedJwt.getHeaderValue(KEY_ID_PARAMETER_NAME));
 	}
 
-	public ValidationResult validate(String token, String tokenKeyId, String tokenAlgorithm, String tokenKeyUrl) {
+	public ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId) {
 		assertNotEmpty(token, "token must not be null / empty string.");
-		assertNotEmpty(tokenKeyId, "tokenKeyId must not be null / empty string.");
 		assertNotEmpty(tokenAlgorithm, "tokenAlgorithm must not be null / empty string.");
-		assertNotEmpty(tokenKeyUrl, "tokenKeyUrl must not be null / empty string.");
 
-		// TODO validate jku by validating with uaaDomain
+		/*if(!isTokenKeyUrlValid(tokenKeyUrl, serviceConfiguration.getUaaDomain())) {
+				return ValidationResults.createInvalid("JKU of token header is not trusted.");
+		}*/
 
-		PublicKey publicKey = getPublicKey(tokenKeyId, tokenKeyUrl);
+		PublicKey publicKey = getPublicKey(tokenKeyId != null ? tokenKeyId : JSONWebKey.DEFAULT_KEY_ID);
 		if (publicKey == null) {
 			return ValidationResults.createInvalid("There is no JSON Web Token Key to prove the identity of the JWT.");
 		}
 		try {
-			if(!isJwtSignatureValid(token, tokenAlgorithm, publicKey)) {
+			if(!isTokenSignatureValid(token, tokenAlgorithm, publicKey)) {
 				return ValidationResults.createInvalid("Signature verification failed.");
 			}
 		} catch (Exception e) {
@@ -79,18 +80,20 @@ public class JwtSignatureValidator implements Validator<DecodedJwt> {
 	}
 
 	@Nullable
-	private PublicKey getPublicKey(String kid, String jku) {
-		PublicKey publicKey = lookupCache(kid); // TODO kid + kty?
+	private PublicKey getPublicKey(String keyId) {
+		PublicKey publicKey = lookupCache(keyId); // TODO kid + kty?
 		if (publicKey == null) {
 			try {
-				JSONWebKeySet jwks = tokenKeyService.retrieveTokenKeys(tokenUrlProvider.getJwksUri());
-				JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, kid);  //TODO kid + kty?
-				publicKey = createPublicKeyFromString(jwk.getType(), jwk.getPublicKey());
-				keyCache.put(kid, publicKey); //TODO kid + kty?
+				JSONWebKeySet jwks = tokenKeyService.retrieveTokenKeys(jwksUri);
+				JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, keyId); // TODO what if kid is not supported?
+				if(jwk != null && jwk.getPublicKey() != null) {
+					publicKey = createPublicKeyFromString(jwk.getType(), jwk.getPublicKey());
+					keyCache.put(keyId, publicKey); //TODO kid + kty?
+				}
 			} catch (OAuth2ServiceException e) {
-				LOGGER.error("Error retrieving JSON Web Keys from Identity Service ({}).", tokenUrlProvider.getJwksUri(), e);
+				LOGGER.warn("Error retrieving JSON Web Keys from Identity Service ({}).", jwksUri, e);
 			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-				LOGGER.error("Error creating PublicKey from JSON Web Key received from Identity Service ({}).", tokenUrlProvider.getAuthorizeEndpoint(), e);
+				LOGGER.warn("Error creating PublicKey from JSON Web Key received from Identity Service ({}).", jwksUri, e);
 			}
 		}
 		return publicKey;
@@ -113,8 +116,7 @@ public class JwtSignatureValidator implements Validator<DecodedJwt> {
 		return keyFactory.generatePublic(keySpecX509);
 	}
 
-
-	private boolean isJwtSignatureValid(String token, String tokenAlgorithm, PublicKey publicKey) throws
+	private boolean isTokenSignatureValid(String token, String tokenAlgorithm, PublicKey publicKey) throws
 			SignatureException, InvalidKeyException, NoSuchAlgorithmException {
 		if(!"RS256".equalsIgnoreCase(tokenAlgorithm)) {
 			throw new IllegalStateException("JWT token with signature algorithm " + tokenAlgorithm + " can not be verified.");
@@ -133,8 +135,25 @@ public class JwtSignatureValidator implements Validator<DecodedJwt> {
 
 		boolean isSignatureValid = publicSignature.verify(decodedSignatureBytes);
 		if(!isSignatureValid) {
-			LOGGER.error("Signature of JWT Token is not valid: the identity provided by the JSON Web Token Key can not be verified");
+			LOGGER.warn("Error: Signature of JWT Token is not valid: the identity provided by the JSON Web Token Key can not be verified");
 		}
 		return isSignatureValid;
 	}
+
+	// TODO move to XsuaaIssuerValidator
+	/*private boolean isTokenKeyUrlValid(String jku, String identityServiceDomain) {
+		URI jkuUri;
+		try {
+			jkuUri = new URI(jku);
+		} catch (URISyntaxException e) {
+			LOGGER.warn("Error: JKU of token header '{}' is not a valid URI", jku);
+			return false;
+		}
+		if(!jkuUri.getHost().endsWith(identityServiceDomain)) {
+			LOGGER.warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'",
+					jku, identityServiceDomain);
+			return false;
+		}
+		return true;
+	}*/
 }

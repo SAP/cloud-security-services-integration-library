@@ -7,10 +7,10 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 
 import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -25,7 +25,7 @@ public class JSONWebKeySetFactoryTest {
 	}
 
 	@Test
-	public void containsKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
+	public void containsKey() {
 		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
 		assertThat(jwks.isEmpty(), equalTo(false));
 		assertThat(jwks.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-0"), equalTo(true));
@@ -33,7 +33,7 @@ public class JSONWebKeySetFactoryTest {
 	}
 
 	@Test
-	public void getKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
+	public void getKey() {
 		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
 		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1");
 		assertThat(jwk.getAlgorithm(), equalTo("RS256"));
@@ -45,10 +45,25 @@ public class JSONWebKeySetFactoryTest {
 	}
 
 	@Test
-	public void getOtherKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
+	public void getKeys() {
 		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
-		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-0");
-		assertThat(jwk.getId(), equalTo("key-id-0"));
+		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1");
+		assertThat(jwk.getAlgorithm(), equalTo("RS256"));
+		assertThat(jwk.getType().value, equalTo("RSA"));
+		assertThat(jwk.getPublicKeyPemEncoded(), startsWith(JSONWebKeyConstants.BEGIN_PUBLIC_KEY));
+		assertThat(jwk.getId(), equalTo("key-id-1"));
+		assertThat(jwk.getPublicKey(), startsWith("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmNM3OXfZS0Uu8eYZXCgGW"));
+		assertThat(jwk.getPublicKey(), endsWith("kJEc3ZsX3Ft4OtqCkRXI5hUma+HwIDAQAB"));
+	}
 
+	@Test
+	public void getIasKeys() throws IOException {
+		jsonWebKeySet = IOUtils.resourceToString("/iasJSONWebTokenKeys.json", StandardCharsets.UTF_8);
+		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
+		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, null);
+		assertThat(jwk.getType().value, equalTo("RSA"));
+		assertThat(jwk.getPublicKeyPemEncoded(), is(nullValue()));
+		assertThat(jwk.getId(), equalTo(JSONWebKey.DEFAULT_KEY_ID));
+		assertThat(jwk.getPublicKey(), is(nullValue()));
 	}
 }

@@ -47,8 +47,9 @@ public class JSONWebKeySet {
 	}
 
 	private Stream<JSONWebKey> getTokenStreamWithTypeAndKeyId(JSONWebKey.Type keyType, String keyId) {
+		String kid = keyId != null ? keyId : JSONWebKey.DEFAULT_KEY_ID;
 		return jsonWebKeys.stream()
 				.filter(jwk -> keyType.equals(jwk.getType()))
-				.filter(jwk -> keyId.equals(jwk.getId()));
+				.filter(jwk -> kid.equals(jwk.getId()));
 	}
 }

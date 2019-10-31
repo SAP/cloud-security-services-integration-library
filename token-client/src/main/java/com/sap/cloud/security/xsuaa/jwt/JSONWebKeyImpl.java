@@ -2,16 +2,18 @@ package com.sap.cloud.security.xsuaa.jwt;
 
 import javax.annotation.Nullable;
 
+import com.sap.cloud.security.xsuaa.Assertions;
+
 public class JSONWebKeyImpl implements JSONWebKey {
 	JSONWebKey.Type type;
 	String keyId;
 	String algorithm;
 	String pemEncodedPublicKey;
 
-	public JSONWebKeyImpl(JSONWebKey.Type type, String keyId, String algorithm, String pemEncodedPublicKey) {
-		// TODO check required fields
+	public JSONWebKeyImpl(JSONWebKey.Type type, String keyId, String algorithm, @Nullable String pemEncodedPublicKey) {
+		Assertions.assertNotNull(type, "type must be not null");
 		this.type = type;
-		this.keyId = keyId;
+		this.keyId = keyId != null ? keyId : JSONWebKey.DEFAULT_KEY_ID;
 		this.algorithm = algorithm;
 		this.pemEncodedPublicKey = pemEncodedPublicKey;
 	}
@@ -33,6 +35,9 @@ public class JSONWebKeyImpl implements JSONWebKey {
 	}
 
 	@Override public String getPublicKey() {
+		if(pemEncodedPublicKey == null) {
+			return null;
+		}
 		return convertPEMKey(pemEncodedPublicKey);
 	}
 

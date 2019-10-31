@@ -21,4 +21,7 @@ public class JSONWebKeyTestFactory {
 	public static JSONWebKey create() {
 		return new JSONWebKeyImpl(KEY_TYPE, KEY_ID, ALG, PUBLIC_KEY);
 	}
+	public static JSONWebKey createDefault() {
+		return new JSONWebKeyImpl(KEY_TYPE, JSONWebKey.DEFAULT_KEY_ID, ALG, PUBLIC_KEY);
+	}
 }

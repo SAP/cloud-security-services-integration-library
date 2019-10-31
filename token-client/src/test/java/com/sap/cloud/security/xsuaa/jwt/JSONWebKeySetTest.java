@@ -80,13 +80,23 @@ public class JSONWebKeySetTest {
 
 		assertThat(cut.getKeyByTypeAndId(differentKeyType, JSON_WEB_KEY.getId())).isNull();
 	}
+
 	@Test
-	public void getKeyByTypeAndId_returnsNull_whenKeyIdDoesNotMatch() {
+	public void getKeyByTypeAndId_returnsDefault_whenKeyIdDoesNotMatch() {
 		String differentKeyId = "differentKeyId";
 
 		insertJsonWebKey();
 
 		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), differentKeyId)).isNull();
+	}
+
+	@Test
+	public void getKeyByTypeAndId_returnsNull_whenKeyIdDoesNotMatch() {
+		insertJsonWebKey();
+
+		cut.put(JSONWebKeyTestFactory.createDefault());
+
+		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), JSONWebKey.DEFAULT_KEY_ID).getId().equals(JSONWebKey.DEFAULT_KEY_ID));
 	}
 
 	@Test

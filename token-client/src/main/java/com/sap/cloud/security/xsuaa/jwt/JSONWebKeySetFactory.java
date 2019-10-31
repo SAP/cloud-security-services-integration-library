@@ -28,10 +28,20 @@ public class JSONWebKeySetFactory {
 	}
 
 	private static JSONWebKey createJSONWebKey(JSONObject key) {
+		String algorithm = null;
+		String pemEncodedPublicKey = null;
+		String keyId = null;
+
 		String keyType = key.getString(JSONWebKeyConstants.KEY_TYPE_PARAMETER_NAME);
-		String algorithm = key.getString(JSONWebKeyConstants.ALGORITHM_PARAMETER_NAME);
-		String pemEncodedPublicKey = key.getString(JSONWebKeyConstants.VALUE_PARAMETER_NAME);
-		String keyId = key.getString(JSONWebKeyConstants.KEY_ID_PARAMETER_NAME);
+		if(key.has(JSONWebKeyConstants.ALGORITHM_PARAMETER_NAME)) {
+			algorithm = key.getString(JSONWebKeyConstants.ALGORITHM_PARAMETER_NAME);
+		}
+		if(key.has(JSONWebKeyConstants.VALUE_PARAMETER_NAME)) {
+			pemEncodedPublicKey = key.getString(JSONWebKeyConstants.VALUE_PARAMETER_NAME);
+		}
+		if(key.has(JSONWebKeyConstants.KEY_ID_PARAMETER_NAME)) {
+			keyId = key.getString(JSONWebKeyConstants.KEY_ID_PARAMETER_NAME);
+		}
 		return new JSONWebKeyImpl(JSONWebKey.Type.valueOf(keyType), keyId, algorithm, pemEncodedPublicKey);
 	}
 

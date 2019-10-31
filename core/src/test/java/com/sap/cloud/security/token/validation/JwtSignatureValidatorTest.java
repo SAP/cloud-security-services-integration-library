@@ -17,7 +17,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.sap.cloud.security.core.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
@@ -31,34 +31,46 @@ public class JwtSignatureValidatorTest {
 	private String accessToken;
 	private String otherToken; // contains alg header only, signature that does not match jwks
 	private JwtSignatureValidator cut;
-	private OAuth2TokenKeyService serviceMock;
-	private OAuth2ServiceConfiguration serviceConfigurationMock;
+	private OAuth2TokenKeyService tokenKeyServiceMock;
+	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	@Before
 	public void setup() throws IOException {
 		accessToken = IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8);
 		otherToken = IOUtils.resourceToString("/iasOIDCTokenAlgHeaderOnly.txt", StandardCharsets.UTF_8);
 
-		serviceConfigurationMock = Mockito.mock(OAuth2ServiceConfiguration.class);
-		when(serviceConfigurationMock.getUaaUrl()).thenReturn(URI.create("https://subdomain.myauth.com"));
+		endpointsProvider = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
+		when(endpointsProvider.getJwksUri()).thenReturn(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys"));
+		//when(serviceConfigurationMock.getUaaDomain()).thenReturn("stagingaws.hanavlab.ondemand.com");
 
-		serviceMock = Mockito.mock(OAuth2TokenKeyService.class);
-		when(serviceMock.retrieveTokenKeys(any())).thenReturn(createJSONWebKeySet());
+		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
+		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(createJSONWebKeySet());
 
-		cut = new JwtSignatureValidator(serviceConfigurationMock, serviceMock);
+		cut = new JwtSignatureValidator(tokenKeyServiceMock, endpointsProvider);
 	}
 
 	private JSONWebKeySet createJSONWebKeySet() {
 		JSONWebKey jsonWebKey = new JSONWebKeyImpl(
 				JSONWebKey.Type.RSA, "key-id-1", "RS256", pemEncodedPublicKey);
+		JSONWebKey jsonWebKeyDefault = new JSONWebKeyImpl(
+				JSONWebKey.Type.RSA, JSONWebKey.DEFAULT_KEY_ID, "RS256", null);
+
 		JSONWebKeySet keySet = new JSONWebKeySet();
 		keySet.put(jsonWebKey);
+		keySet.put(jsonWebKeyDefault);
 		return keySet;
 	}
 
 	@Test
 	public void jsonWebSignatureMatchesJWKS() throws IOException {
 		assertThat(cut.validate(decodedJwt(accessToken)).isValid(), is(true));
+	}
+
+	@Test
+	@Ignore // TODO
+	public void iasOIDCSignatureMatchesJWKS() throws IOException {
+		cut = new JwtSignatureValidator(tokenKeyServiceMock, URI.create("https://xs2security.accounts400.ondemand.com/oauth2/certs"));
+		assertThat(cut.validate(decodedJwt(otherToken)).isValid(), is(true));
 	}
 
 	@Test
@@ -77,20 +89,12 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validate_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			cut.validate(null, "key-id-1", "RS256", "https://myauth.com/token_keys" );
+			cut.validate(null, "key-id-1", "RS256");
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
 
 		assertThatThrownBy(() -> {
-			cut.validate(accessToken, "", "RS256", "https://myauth.com/token_keys" );
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenKeyId");
-
-		assertThatThrownBy(() -> {
-			cut.validate(accessToken, "key-id-1", "", "https://myauth.com/token_keys" );
+			cut.validate(accessToken, "", "key-id-1" );
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenAlgorithm");
-
-		assertThatThrownBy(() -> {
-			cut.validate(accessToken, "key-id-1", "RS256", "" );
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenKeyUrl");
 	}
 
 	@Test
@@ -100,7 +104,7 @@ public class JwtSignatureValidatorTest {
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
 
-		assertThat(cut.validate(tokenWithOthersSignature, "key-id-1", "RS256", "https://authentication.stagingaws.hanavlab.ondemand.com/token_keys" ).isValid(), is(false));
+		assertThat(cut.validate(tokenWithOthersSignature, "RS256","key-id-1" ).isValid(), is(false));
 	}
 
 	@Test
@@ -111,20 +115,8 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFailsWhenTokenKeyCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
-		when(serviceMock.retrieveTokenKeys(any())).thenThrow(new OAuth2ServiceException("Currently unavailable"));
+		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenThrow(new OAuth2ServiceException("Currently unavailable"));
 		assertThat(cut.validate(decodedJwt(accessToken)).isValid(), is(false));
-	}
-
-	@Test
-	@Ignore
-	public void validationFailsWhenTokenKeyUrlDoesNotMatchIdentityProviderDomain() {
-		// TODO implement
-	}
-
-	@Test
-	@Ignore
-	public void requiredParameters() {
-		// TODO implement
 	}
 
 	@Test

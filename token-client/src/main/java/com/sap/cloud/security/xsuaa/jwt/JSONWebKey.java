@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
  * https://tools.ietf.org/html/rfc7517
  */
 public interface JSONWebKey {
+	static final String DEFAULT_KEY_ID = "default-kid";
 
 	/**
 	 * https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1
@@ -29,7 +30,6 @@ public interface JSONWebKey {
 	 * Returns a JSON Web e.g. RS256, see also specification here: https://tools.ietf.org/html/rfc7518
 	 * @return the algorithm the JWT is signed.
 	 */
-	@Nullable
 	public String getAlgorithm();
 
 	/**
@@ -52,12 +52,14 @@ public interface JSONWebKey {
 	 * Starting with {@code -----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEF...}
 	 * @return the public key.
 	 */
+	@Nullable
 	public String getPublicKeyPemEncoded();
 
 	/**
 	 * Returns the public key.
 	 * @return the public key.
 	 */
+	@Nullable
 	public String getPublicKey();
 
 }
