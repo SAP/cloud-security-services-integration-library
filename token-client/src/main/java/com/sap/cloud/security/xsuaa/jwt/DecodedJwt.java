@@ -6,6 +6,10 @@ package com.sap.cloud.security.xsuaa.jwt;
  */
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public interface DecodedJwt {
 
@@ -38,10 +42,23 @@ public interface DecodedJwt {
 	 * 
 	 * @param claimName
 	 *            the name of the claim.
-	 * @return the corresponding value of the given claim.
+	 * @return the corresponding string value of the given claim.
 	 */
 	@Nullable
-	String getClaim(@Nonnull String claimName);
+	String getClaimAsString(@Nonnull String claimName);
+
+	boolean containsClaim(@Nonnull String claimName);
+
+	Map<String, Object> getClaimAsMap(@Nonnull String claimName);
+
+	List<String> getClaimAsStringList(@Nonnull String claimName);
+
+	/**
+	 * Returns list of scopes with appId prefix, e.g. "&lt;my-app!t123&gt;.Display".
+	 *
+	 * @return all scopes
+	 */
+	List<String> getScopes();
 
 	/**
 	 * Get the encoded signature of the jwt.
@@ -61,15 +78,10 @@ public interface DecodedJwt {
 	String getEncodedToken();
 
 	/**
-	 * The token type (typ) header parameter as defined in https://tools.ietf.org/html/rfc7516#section-4.1.11
-	 * @return the token type parameter string value.
+	 * Returns the moment in time when the token will be expired.
+	 *
+	 * @return the expiration point in time if present.
 	 */
-	String getTokenType();
-
-	/**
-	 * The content type (cty) header parameter as defined in https://tools.ietf.org/html/rfc7516#section-4.1.12.
-	 * @return the content type parameter string value.
-	 */
-	String getContentType();
+	Instant getExpiration();
 
 }

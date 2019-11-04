@@ -3,7 +3,10 @@ package com.sap.cloud.security.xsuaa.jwt;
 import com.sap.cloud.security.xsuaa.Assertions;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public final class Base64JwtDecoder {
@@ -77,8 +80,27 @@ public final class Base64JwtDecoder {
 		}
 
 		@Override
-		public String getClaim(String claimName) {
+		public String getClaimAsString(String claimName) {
 			return payloadJSONParser.getValueAsString(claimName);
+		}
+
+		@Override
+		public boolean containsClaim(String claim) {
+			return payloadJSONParser.contains(claim);
+		}
+
+		@Override
+		public Map<String, Object> getClaimAsMap(String claimName) {
+			return payloadJSONParser.getValueAsMap(claimName);
+		}
+
+		@Override
+		public List<String> getClaimAsStringList(String claimName) {
+			return payloadJSONParser.getValueAsList(claimName, String.class);
+		}
+
+		@Override public List<String> getScopes() {
+			return getClaimAsStringList("scopes");
 		}
 
 		@Override
@@ -91,14 +113,8 @@ public final class Base64JwtDecoder {
 			return encodedJwt;
 		}
 
-		@Override
-		public String getTokenType() {
-			return headerJSONParser.getValueAsString("typ");
-		}
-
-		@Override
-		public String getContentType() {
-			return headerJSONParser.getValueAsString("cty");
+		@Override public Instant getExpiration() {
+			return null;
 		}
 
 	}
