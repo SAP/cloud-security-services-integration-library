@@ -24,7 +24,6 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
-import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
 public class JwtSignatureValidatorTest {
 	private String accessToken;

@@ -14,12 +14,6 @@ public class TokenImpl implements Token {
 	private final DefaultJsonObject jsonPayloadParser;
 	private final String appToken;
 
-	public TokenImpl(String headerAsJsonString, String payloadAsJsonString, String appToken) {
-		jsonHeaderParser = new DefaultJsonObject(headerAsJsonString);
-		jsonPayloadParser = new DefaultJsonObject(payloadAsJsonString);
-		this.appToken = appToken;
-	}
-
 	public TokenImpl(DecodedJwt decodedJwt) {
 		jsonHeaderParser = new DefaultJsonObject(decodedJwt.getHeader());
 		jsonPayloadParser = new DefaultJsonObject(decodedJwt.getPayload());

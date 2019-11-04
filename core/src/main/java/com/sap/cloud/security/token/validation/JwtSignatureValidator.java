@@ -19,14 +19,12 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 
