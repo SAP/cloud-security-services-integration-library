@@ -1,5 +1,7 @@
-package com.sap.cloud.security.xsuaa.jwt;
+package com.sap.cloud.security.json;
 
+import com.sap.cloud.security.xsuaa.jwt.JSONParser;
+import com.sap.cloud.security.xsuaa.jwt.JSONParsingException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,7 +22,7 @@ public class JSONParserTest {
 	private JSONParser cut;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		cut = createJsonParser(KEY_1, STRING_VALUE);
 	}
 

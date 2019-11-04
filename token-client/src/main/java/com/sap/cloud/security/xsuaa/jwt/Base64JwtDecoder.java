@@ -3,10 +3,7 @@ package com.sap.cloud.security.xsuaa.jwt;
 import com.sap.cloud.security.xsuaa.Assertions;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.Base64;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 public final class Base64JwtDecoder {
@@ -46,9 +43,6 @@ public final class Base64JwtDecoder {
 
 	static class DecodedJwtImpl implements DecodedJwt {
 
-		private final JSONParser headerJSONParser;
-		private final JSONParser payloadJSONParser;
-
 		private String header;
 		private String payload;
 		private String signature;
@@ -60,8 +54,6 @@ public final class Base64JwtDecoder {
 			this.signature = signature;
 
 			this.encodedJwt = encodedJwt;
-			this.headerJSONParser = new JSONParser(header);
-			this.payloadJSONParser = new JSONParser(payload);
 		}
 
 		@Override
@@ -70,37 +62,8 @@ public final class Base64JwtDecoder {
 		}
 
 		@Override
-		public String getHeaderValue(String headerName) {
-			return headerJSONParser.getValueAsString(headerName);
-		}
-
-		@Override
 		public String getPayload() {
 			return payload;
-		}
-
-		@Override
-		public String getClaimAsString(String claimName) {
-			return payloadJSONParser.getValueAsString(claimName);
-		}
-
-		@Override
-		public boolean containsClaim(String claim) {
-			return payloadJSONParser.contains(claim);
-		}
-
-		@Override
-		public Map<String, Object> getClaimAsMap(String claimName) {
-			return payloadJSONParser.getValueAsMap(claimName);
-		}
-
-		@Override
-		public List<String> getClaimAsStringList(String claimName) {
-			return payloadJSONParser.getValueAsList(claimName, String.class);
-		}
-
-		@Override public List<String> getScopes() {
-			return getClaimAsStringList("scopes");
 		}
 
 		@Override
@@ -111,10 +74,6 @@ public final class Base64JwtDecoder {
 		@Override
 		public String getEncodedToken() {
 			return encodedJwt;
-		}
-
-		@Override public Instant getExpiration() {
-			return null;
 		}
 
 	}

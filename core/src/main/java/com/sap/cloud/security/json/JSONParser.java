@@ -1,6 +1,6 @@
-package com.sap.cloud.security.xsuaa.jwt;
-// TODO 04.11.19 c5295400: Move to core
+package com.sap.cloud.security.json;
 
+import com.sap.cloud.security.xsuaa.jwt.JSONParsingException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.jwt;
+package com.sap.cloud.security.json;
 
 public class JSONParsingException extends RuntimeException {
 

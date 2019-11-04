@@ -23,8 +23,6 @@ public class Base64JwtDecoderTest {
 		assertEquals(expectedDecodedJWTPayload, decodedJwt.getPayload());
 		assertEquals(expectedDecodedJWTHeader, decodedJwt.getHeader());
 		assertEquals(expectedDecodedJWTSignature, decodedJwt.getSignature());
-		assertEquals("HS256", decodedJwt.getHeaderValue("alg"));
-		assertEquals("e3c30e2474cd46609a262eda9d9dc26d", decodedJwt.getClaimAsString("jti"));
 	}
 
 	@Test
@@ -44,9 +42,7 @@ public class Base64JwtDecoderTest {
 	@Test
 	@Deprecated // will be deleted with version 3.0.0
 	public void deprecatedConstructor() {
-		DecodedJwt decodedJwt = new Base64JwtDecoder().decode("e30=..e30=");
+		DecodedJwt decodedJwt = new Base64JwtDecoder().decode("header..signature");
 		assertEquals("", decodedJwt.getPayload());
-		assertEquals(null, decodedJwt.getHeaderValue("alg"));
-		assertEquals(null, decodedJwt.getHeaderValue("jti"));
 	}
 }
