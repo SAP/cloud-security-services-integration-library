@@ -62,13 +62,13 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void jsonWebSignatureMatchesJWKS() throws IOException {
+	public void jsonWebSignatureMatchesJWKS() {
 		assertThat(cut.validate(decodedJwt(accessToken)).isValid(), is(true));
 	}
 
 	@Test
 	@Ignore // TODO
-	public void iasOIDCSignatureMatchesJWKS() throws IOException {
+	public void iasOIDCSignatureMatchesJWKS() {
 		cut = new JwtSignatureValidator(tokenKeyServiceMock, URI.create("https://xs2security.accounts400.ondemand.com/oauth2/certs"));
 		assertThat(cut.validate(decodedJwt(otherToken)).isValid(), is(true));
 	}

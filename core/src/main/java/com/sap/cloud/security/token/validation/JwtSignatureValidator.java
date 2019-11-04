@@ -1,7 +1,6 @@
 package com.sap.cloud.security.token.validation;
 
 import static com.sap.cloud.security.core.Assertions.*;
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotEmpty;
 import static com.sap.cloud.security.xsuaa.jwt.JSONWebKeyConstants.*;
 import static java.nio.charset.StandardCharsets.*;
 

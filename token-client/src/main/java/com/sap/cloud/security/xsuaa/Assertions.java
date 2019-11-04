@@ -1,7 +1,5 @@
 package com.sap.cloud.security.xsuaa;
 
-import org.apache.commons.codec.binary.StringUtils;
-
 public class Assertions {
 
 	private Assertions() {
