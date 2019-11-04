@@ -43,9 +43,6 @@ public final class Base64JwtDecoder {
 
 	static class DecodedJwtImpl implements DecodedJwt {
 
-		private final JSONParser headerJSONParser;
-		private final JSONParser payloadJSONParser;
-
 		private String header;
 		private String payload;
 		private String signature;
@@ -57,8 +54,6 @@ public final class Base64JwtDecoder {
 			this.signature = signature;
 
 			this.encodedJwt = encodedJwt;
-			this.headerJSONParser = new JSONParser(header);
-			this.payloadJSONParser = new JSONParser(payload);
 		}
 
 		@Override
@@ -67,18 +62,8 @@ public final class Base64JwtDecoder {
 		}
 
 		@Override
-		public String getHeaderValue(String headerName) {
-			return headerJSONParser.getValueAsString(headerName);
-		}
-
-		@Override
 		public String getPayload() {
 			return payload;
-		}
-
-		@Override
-		public String getClaim(String claimName) {
-			return payloadJSONParser.getValueAsString(claimName);
 		}
 
 		@Override
@@ -89,16 +74,6 @@ public final class Base64JwtDecoder {
 		@Override
 		public String getEncodedToken() {
 			return encodedJwt;
-		}
-
-		@Override
-		public String getTokenType() {
-			return headerJSONParser.getValueAsString("typ");
-		}
-
-		@Override
-		public String getContentType() {
-			return headerJSONParser.getValueAsString("cty");
 		}
 
 	}

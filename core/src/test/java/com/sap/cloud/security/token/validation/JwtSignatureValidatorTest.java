@@ -11,6 +11,8 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenImpl;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -48,14 +50,14 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void jsonWebSignatureMatchesJWKS() {
-		assertThat(cut.validate(decodedJwt(accessToken)).isValid(), is(true));
+		assertThat(cut.validate(token(accessToken)).isValid(), is(true));
 	}
 
 	@Test
 	public void iasOIDCSignatureMatchesJWKS() throws IOException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JSONWebKeySetFactory.createFromJSON(
 				IOUtils.resourceToString("/iasJSONWebTokenKeys.json", StandardCharsets.UTF_8)));
-		assertThat(cut.validate(decodedJwt(otherToken)).isValid(), is(true));
+		assertThat(cut.validate(token(otherToken)).isValid(), is(true));
 	}
 
 	@Test
@@ -67,7 +69,7 @@ public class JwtSignatureValidatorTest {
 				.append(otherHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(decodedJwt(tokenWithOthersSignature)).isValid(), is(false));
+		assertThat(cut.validate(token(tokenWithOthersSignature)).isValid(), is(false));
 	}
 
 
@@ -101,7 +103,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFailsWhenTokenKeyCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		assertThat(cut.validate(decodedJwt(accessToken)).isValid(), is(false));
+		assertThat(cut.validate(token(accessToken)).isValid(), is(false));
 	}
 
 	@Test
@@ -110,7 +112,7 @@ public class JwtSignatureValidatorTest {
 		// TODO implement
 	}
 
-	private DecodedJwt decodedJwt(String token) {
-		return Base64JwtDecoder.getInstance().decode(token);
+	private Token token(String token) {
+		return new TokenImpl(Base64JwtDecoder.getInstance().decode(token));
 	}
 }

@@ -4,8 +4,6 @@ package com.sap.cloud.security.xsuaa.jwt;
  * A Jwt token consists of three parts, separated by ".":
  * header.payload.signature
  */
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public interface DecodedJwt {
 
@@ -17,31 +15,11 @@ public interface DecodedJwt {
 	String getHeader();
 
 	/**
-	 * Returns the header vale as string for the given header name.
-	 * 
-	 * @param headerName
-	 *            the name of the header parameter.
-	 * @return the value for the given header name.
-	 */
-	@Nullable
-	String getHeaderValue(@Nonnull String headerName);
-
-	/**
 	 * Get the base64 decoded payload of the jwt as UTF-8 String.
 	 *
 	 * @return the decoded payload.
 	 */
 	String getPayload();
-
-	/**
-	 * Returns the value as string for the given claim.
-	 * 
-	 * @param claimName
-	 *            the name of the claim.
-	 * @return the corresponding value of the given claim.
-	 */
-	@Nullable
-	String getClaim(@Nonnull String claimName);
 
 	/**
 	 * Get the encoded signature of the jwt.
@@ -59,17 +37,5 @@ public interface DecodedJwt {
 	 * @return jwt token
 	 */
 	String getEncodedToken();
-
-	/**
-	 * The token type (typ) header parameter as defined in https://tools.ietf.org/html/rfc7516#section-4.1.11
-	 * @return the token type parameter string value.
-	 */
-	String getTokenType();
-
-	/**
-	 * The content type (cty) header parameter as defined in https://tools.ietf.org/html/rfc7516#section-4.1.12.
-	 * @return the content type parameter string value.
-	 */
-	String getContentType();
 
 }
