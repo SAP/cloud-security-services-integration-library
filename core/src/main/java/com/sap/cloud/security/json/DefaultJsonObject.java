@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.DateTimeException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +39,32 @@ public class DefaultJsonObject implements JsonObject {
 	@Override
 	public boolean contains(String key) {
 		return getJsonObject().has(key);
+	}
+
+	@Override
+	public Instant getAsInstant(String name) {
+		if (contains(name)) {
+			return getLong(name)
+					.map(this::convertToInstant)
+					.orElse(null);
+		}
+		return null;
+	}
+
+	private Optional<Long> getLong(String name) {
+		try {
+			return Optional.ofNullable(getJsonObject().getLong(name));
+		} catch (JSONException e) {
+			throw new JsonParsingException(e.getMessage());
+		}
+	}
+
+	private Instant convertToInstant(long epochSeconds) {
+		try {
+			return Instant.ofEpochSecond(epochSeconds);
+		} catch (DateTimeException | NumberFormatException e) {
+			throw new JsonParsingException(e.getMessage());
+		}
 	}
 
 	private <T> List<T> convertToList(JSONArray jsonArray, Class<T> type) {

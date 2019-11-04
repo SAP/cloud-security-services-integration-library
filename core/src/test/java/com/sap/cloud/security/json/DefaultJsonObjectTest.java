@@ -3,13 +3,17 @@ package com.sap.cloud.security.json;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DefaultJsonObjectTest {
+
+	public static final Instant FIRST_OF_APRIL = LocalDate.of(2019, 4, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
 
 	public static final String KEY_1 = "key-1";
 	public static final String KEY_2 = "key-2";
@@ -71,6 +75,26 @@ public class DefaultJsonObjectTest {
 		cut = createJsonParser(KEY_2, STRING_LIST_VALUE);
 
 		assertThatThrownBy(() -> cut.getAsList(KEY_2, Integer.class)).isInstanceOf(JsonParsingException.class);
+	}
+
+	@Test
+	public void getInstant_propertyExistsAndIsEpochTime_returnsInstant() {
+		cut = createJsonParser(KEY_1, String.valueOf(FIRST_OF_APRIL.getEpochSecond()));
+
+		Instant instant = cut.getAsInstant(KEY_1);
+
+		assertThat(instant).isEqualTo(Instant.from(FIRST_OF_APRIL));
+	}
+
+	@Test
+	public void getInstant_propertyDoesNotExist_returnsNull() {
+		assertThat(cut.getAsInstant("keyDoesNotExist")).isNull();
+	}
+
+	@Test
+	public void getInstant_propertyExistsButIsNotInEpochTime_throwsException() {
+		assertThatThrownBy(() -> cut.getAsInstant(KEY_1))
+				.isInstanceOf(JsonParsingException.class);
 	}
 
 	private DefaultJsonObject createJsonParser(String key, String value) {

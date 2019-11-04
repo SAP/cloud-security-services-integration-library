@@ -53,8 +53,7 @@ public class TokenImpl implements Token {
 	@Nullable
 	@Override
 	public Instant getExpiration() {
-		// TODO 04.11.19 c5295400: TODO
-		return null;
+		return jsonPayloadParser.getAsInstant("exp");
 	}
 
 	@Override
