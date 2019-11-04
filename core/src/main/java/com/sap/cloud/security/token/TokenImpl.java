@@ -1,6 +1,6 @@
 package com.sap.cloud.security.token;
 
-import com.sap.cloud.security.json.JSONParser;
+import com.sap.cloud.security.json.DefaultJsonObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -9,20 +9,20 @@ import java.util.List;
 
 public class TokenImpl implements Token {
 
-	private final JSONParser jsonHeaderParser;
-	private final JSONParser jsonPayloadParser;
+	private final DefaultJsonObject jsonHeaderParser;
+	private final DefaultJsonObject jsonPayloadParser;
 	private final String appToken;
 
 	public TokenImpl(String headerAsJsonString, String payloadAsJsonString, String appToken) {
-		jsonHeaderParser = new JSONParser(headerAsJsonString);
-		jsonPayloadParser = new JSONParser(payloadAsJsonString);
+		jsonHeaderParser = new DefaultJsonObject(headerAsJsonString);
+		jsonPayloadParser = new DefaultJsonObject(payloadAsJsonString);
 		this.appToken = appToken;
 	}
 
 	@Nullable
 	@Override
 	public String getHeaderValueAsString(@Nonnull String headerName) {
-		return jsonHeaderParser.getValueAsString(headerName);
+		return jsonHeaderParser.getAsString(headerName);
 	}
 
 	@Override
@@ -33,13 +33,13 @@ public class TokenImpl implements Token {
 	@Nullable
 	@Override
 	public String getClaimAsString(@Nonnull String claimName) {
-		return jsonPayloadParser.getValueAsString(claimName);
+		return jsonPayloadParser.getAsString(claimName);
 	}
 
 	@Nullable
 	@Override
 	public List<String> getClaimAsStringList(@Nonnull String claimName) {
-		return jsonPayloadParser.getValueAsList(claimName, String.class);
+		return jsonPayloadParser.getAsList(claimName, String.class);
 	}
 
 	@Nullable

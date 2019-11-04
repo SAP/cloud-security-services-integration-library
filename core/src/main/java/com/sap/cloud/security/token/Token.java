@@ -1,6 +1,6 @@
 package com.sap.cloud.security.token;
 
-import com.sap.cloud.security.json.JSONParsingException;
+import com.sap.cloud.security.json.JsonParsingException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,27 +20,34 @@ public interface Token {
 	String getHeaderValueAsString(@Nonnull String headerName);
 
 	/**
-	 * @param claimName the name of the claim.
+	 * @param claimName
+	 *            the name of the claim.
 	 * @return true when the claim with the given name is found.
 	 */
 	boolean containsClaim(@Nonnull String claimName);
 
 	/**
-	 * Extracts the value as string for the given claim. If the claim is not found, it will return null.
-	 * If the given claim is not a string, it will throw a {@link JSONParsingException}.
+	 * Extracts the value as string for the given claim. If the claim is not found,
+	 * it will return null. If the given claim is not a string, it will throw a
+	 * {@link JsonParsingException}.
+	 * 
 	 * @param claimName
 	 *            the name of the claim.
 	 * @return the corresponding string value of the given claim or null.
 	 *
-	 * @throws JSONParsingException if the json object identified by the given claim is not a string.
+	 * @throws JsonParsingException
+	 *             if the json object identified by the given claim is not a string.
 	 */
 	@Nullable
 	String getClaimAsString(@Nonnull String claimName);
 
 	/**
-	 * Extracts the value as a list of strings for the given claim. If the claim is not found, it will return null.
-	 * If the given calim is not a list of strings, it will throw a {@link JSONParsingException}.
-	 * @param claimName the name of the claim.
+	 * Extracts the value as a list of strings for the given claim. If the claim is
+	 * not found, it will return null. If the given calim is not a list of strings,
+	 * it will throw a {@link JsonParsingException}.
+	 * 
+	 * @param claimName
+	 *            the name of the claim.
 	 * @return the data of the given claim as a list of strings.
 	 */
 	@Nullable
@@ -48,6 +55,7 @@ public interface Token {
 
 	/**
 	 * Returns list of scopes.
+	 * 
 	 * @return all scopes
 	 */
 	@Nullable
