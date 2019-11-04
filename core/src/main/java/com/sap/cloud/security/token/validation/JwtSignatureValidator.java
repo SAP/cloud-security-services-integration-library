@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
 import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 
-public class JwtSignatureValidator implements Validator<DecodedJwt> {
+public class JwtSignatureValidator implements Validator<Token> {
 	private Map<String, PublicKey> keyCache = new HashMap<>();
 	private OAuth2TokenKeyService tokenKeyService;
 	private URI jwksUri;
@@ -50,8 +51,7 @@ public class JwtSignatureValidator implements Validator<DecodedJwt> {
 	}
 
 	@Override
-	public ValidationResult validate(DecodedJwt decodedJwt) {
-		TokenImpl token = new TokenImpl(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
+	public ValidationResult validate(Token token) {
 		return validate(token.getAppToken(),
 				token.getHeaderValueAsString(ALGORITHM_PARAMETER_NAME),
 				token.getHeaderValueAsString(KEY_ID_PARAMETER_NAME));

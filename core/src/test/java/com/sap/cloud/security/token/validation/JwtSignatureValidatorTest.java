@@ -11,6 +11,8 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenImpl;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -63,14 +65,14 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void jsonWebSignatureMatchesJWKS() {
-		assertThat(cut.validate(decodedJwt(accessToken)).isValid(), is(true));
+		assertThat(cut.validate(token(accessToken)).isValid(), is(true));
 	}
 
 	@Test
 	@Ignore // TODO
 	public void iasOIDCSignatureMatchesJWKS() {
 		cut = new JwtSignatureValidator(tokenKeyServiceMock, URI.create("https://xs2security.accounts400.ondemand.com/oauth2/certs"));
-		assertThat(cut.validate(decodedJwt(otherToken)).isValid(), is(true));
+		assertThat(cut.validate(token(otherToken)).isValid(), is(true));
 	}
 
 	@Test
@@ -82,7 +84,7 @@ public class JwtSignatureValidatorTest {
 				.append(otherHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(decodedJwt(tokenWithOthersSignature)).isValid(), is(false));
+		assertThat(cut.validate(token(tokenWithOthersSignature)).isValid(), is(false));
 	}
 
 
@@ -116,7 +118,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFailsWhenTokenKeyCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		assertThat(cut.validate(decodedJwt(accessToken)).isValid(), is(false));
+		assertThat(cut.validate(token(accessToken)).isValid(), is(false));
 	}
 
 	@Test
@@ -125,7 +127,9 @@ public class JwtSignatureValidatorTest {
 		// TODO implement
 	}
 
-	private DecodedJwt decodedJwt(String token) {
-		return Base64JwtDecoder.getInstance().decode(token);
+	private Token token(String token) {
+		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(token);
+		return new TokenImpl(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
 	}
+
 }
