@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.sap.cloud.security.token.TokenImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,9 +51,10 @@ public class JwtSignatureValidator implements Validator<DecodedJwt> {
 
 	@Override
 	public ValidationResult validate(DecodedJwt decodedJwt) {
-		return validate(decodedJwt.getEncodedToken(),
-				decodedJwt.getHeaderValue(ALGORITHM_PARAMETER_NAME),
-				decodedJwt.getHeaderValue(KEY_ID_PARAMETER_NAME));
+		TokenImpl token = new TokenImpl(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
+		return validate(token.getAppToken(),
+				token.getHeaderValueAsString(ALGORITHM_PARAMETER_NAME),
+				token.getHeaderValueAsString(KEY_ID_PARAMETER_NAME));
 	}
 
 	public ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId) {

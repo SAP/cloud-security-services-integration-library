@@ -1,6 +1,5 @@
 package com.sap.cloud.security.json;
 
-import com.sap.cloud.security.xsuaa.jwt.JSONParsingException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

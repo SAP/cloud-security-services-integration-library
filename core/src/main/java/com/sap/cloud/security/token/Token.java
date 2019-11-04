@@ -1,10 +1,11 @@
 package com.sap.cloud.security.token;
 
+import com.sap.cloud.security.json.JSONParsingException;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 public interface Token {
 
@@ -16,23 +17,32 @@ public interface Token {
 	 * @return the value for the given header name.
 	 */
 	@Nullable
-	String getHeaderValue(@Nonnull String headerName);
+	String getHeaderValueAsString(@Nonnull String headerName);
 
 	/**
-	 * Returns the value as string for the given claim.
-	 *
+	 * @param claimName the name of the claim.
+	 * @return true when the claim with the given name is found.
+	 */
+	boolean containsClaim(@Nonnull String claimName);
+
+	/**
+	 * Extracts the value as string for the given claim. If the claim is not found, it will return null.
+	 * If the given claim is not a string, it will throw a {@link JSONParsingException}.
 	 * @param claimName
 	 *            the name of the claim.
-	 * @return the corresponding string value of the given claim.
+	 * @return the corresponding string value of the given claim or null.
+	 *
+	 * @throws JSONParsingException if the json object identified by the given claim is not a string.
 	 */
 	@Nullable
 	String getClaimAsString(@Nonnull String claimName);
 
-	boolean containsClaim(@Nonnull String claimName);
-
-	@Nullable
-	Map<String, Object> getClaimAsMap(@Nonnull String claimName);
-
+	/**
+	 * Extracts the value as a list of strings for the given claim. If the claim is not found, it will return null.
+	 * If the given calim is not a list of strings, it will throw a {@link JSONParsingException}.
+	 * @param claimName the name of the claim.
+	 * @return the data of the given claim as a list of strings.
+	 */
 	@Nullable
 	List<String> getClaimAsStringList(@Nonnull String claimName);
 
@@ -59,6 +69,6 @@ public interface Token {
 	 *
 	 * @return jwt token
 	 */
-	String getEncodedToken();
+	String getAppToken();
 
 }

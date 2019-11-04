@@ -1,7 +1,5 @@
 package com.sap.cloud.security.json;
 
-import com.sap.cloud.security.xsuaa.jwt.JSONParser;
-import com.sap.cloud.security.xsuaa.jwt.JSONParsingException;
 import org.junit.Before;
 import org.junit.Test;
 
