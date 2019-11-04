@@ -2,6 +2,10 @@ package com.sap.cloud.security.xsuaa.jwt;
 
 import javax.annotation.Nullable;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+
 /**
  * see also JSON Web Key (JWK) specification:
  * https://tools.ietf.org/html/rfc7517
@@ -48,18 +52,10 @@ public interface JSONWebKey {
 	public String getId();
 
 	/**
-	 * Returns the PEM encoded public key.
-	 * Starting with {@code -----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEF...}
-	 * @return the public key.
-	 */
-	@Nullable
-	public String getPublicKeyPemEncoded();
-
-	/**
 	 * Returns the public key.
 	 * @return the public key.
 	 */
 	@Nullable
-	public String getPublicKey();
+	public PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException;
 
 }

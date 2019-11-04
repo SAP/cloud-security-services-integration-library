@@ -11,6 +11,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
+import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -22,12 +23,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
-import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
-import com.sap.cloud.security.xsuaa.jwt.JSONWebKeyImpl;
-import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
 
 public class JwtSignatureValidatorTest {
-	private String pemEncodedPublicKey = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmNM3OXfZS0Uu8eYZXCgG\nWFgVWQX6MHnadYk3zHZ5PIPeDY3ApaSGpMEiVwn1cT6KUVHMLHcmz1gsNy74pCnm\nCa22W7J3BoZulzR0A37ayMVrRHh3nffgySk8u581l02bvbcpab3e3EotSN5LixGT\n1VWZvDbalXf6n5kq459NWL6ZzkEs20MrOEk5cLdnsigTQUHSKIQ5TpldyDkJMm2z\nwOlrB2R984+QdlDFmoVH7Yaujxr2g0Z96u7W9Imik6wTiFc8W7eUXfhPGn7reVLq\n1/5o2Nz0Jx0ejFHDwTGncs+k1RBS6DbpTOMr9tkJEc3ZsX3Ft4OtqCkRXI5hUma+\nHwIDAQAB\n-----END PUBLIC KEY-----";
 	private String accessToken;
 	private String otherToken; // contains alg header only, signature that does not match jwks
 	private JwtSignatureValidator cut;
@@ -40,25 +37,13 @@ public class JwtSignatureValidatorTest {
 		otherToken = IOUtils.resourceToString("/iasOIDCTokenAlgHeaderOnly.txt", StandardCharsets.UTF_8);
 
 		endpointsProvider = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
-		when(endpointsProvider.getJwksUri()).thenReturn(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys"));
-		//when(serviceConfigurationMock.getUaaDomain()).thenReturn("stagingaws.hanavlab.ondemand.com");
+		when(endpointsProvider.getJwksUri()).thenReturn(URI.create("https://myauth.com/jwks_uri"));
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(createJSONWebKeySet());
+		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JSONWebKeySetFactory.createFromJSON(
+				IOUtils.resourceToString("/JSONWebTokenKeys.json", StandardCharsets.UTF_8)));
 
 		cut = new JwtSignatureValidator(tokenKeyServiceMock, endpointsProvider);
-	}
-
-	private JSONWebKeySet createJSONWebKeySet() {
-		JSONWebKey jsonWebKey = new JSONWebKeyImpl(
-				JSONWebKey.Type.RSA, "key-id-1", "RS256", pemEncodedPublicKey);
-		JSONWebKey jsonWebKeyDefault = new JSONWebKeyImpl(
-				JSONWebKey.Type.RSA, JSONWebKey.DEFAULT_KEY_ID, "RS256", null);
-
-		JSONWebKeySet keySet = new JSONWebKeySet();
-		keySet.put(jsonWebKey);
-		keySet.put(jsonWebKeyDefault);
-		return keySet;
 	}
 
 	@Test
@@ -67,9 +52,9 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	@Ignore // TODO
-	public void iasOIDCSignatureMatchesJWKS() {
-		cut = new JwtSignatureValidator(tokenKeyServiceMock, URI.create("https://xs2security.accounts400.ondemand.com/oauth2/certs"));
+	public void iasOIDCSignatureMatchesJWKS() throws IOException {
+		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JSONWebKeySetFactory.createFromJSON(
+				IOUtils.resourceToString("/iasJSONWebTokenKeys.json", StandardCharsets.UTF_8)));
 		assertThat(cut.validate(decodedJwt(otherToken)).isValid(), is(true));
 	}
 
@@ -121,7 +106,7 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	@Ignore
-	public void webTokenKeyOtherThanRSAIsNotSupported() {
+	public void validationFailsWhenTokenKeyTypeIsNotRSA256() {
 		// TODO implement
 	}
 

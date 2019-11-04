@@ -31,6 +31,8 @@ public class JSONWebKeySetFactory {
 		String algorithm = null;
 		String pemEncodedPublicKey = null;
 		String keyId = null;
+		String modulus = null;
+		String publicExponent = null;
 
 		String keyType = key.getString(JSONWebKeyConstants.KEY_TYPE_PARAMETER_NAME);
 		if(key.has(JSONWebKeyConstants.ALGORITHM_PARAMETER_NAME)) {
@@ -42,7 +44,13 @@ public class JSONWebKeySetFactory {
 		if(key.has(JSONWebKeyConstants.KEY_ID_PARAMETER_NAME)) {
 			keyId = key.getString(JSONWebKeyConstants.KEY_ID_PARAMETER_NAME);
 		}
-		return new JSONWebKeyImpl(JSONWebKey.Type.valueOf(keyType), keyId, algorithm, pemEncodedPublicKey);
+		if(key.has(JSONWebKeyConstants.RSA_KEY_MODULUS_PARAMETER_NAME)) {
+			modulus = key.getString(JSONWebKeyConstants.RSA_KEY_MODULUS_PARAMETER_NAME);
+		}
+		if(key.has(JSONWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME)) {
+			publicExponent = key.getString(JSONWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME);
+		}
+		return new JSONWebKeyImpl(JSONWebKey.Type.valueOf(keyType), keyId, algorithm, modulus, publicExponent, pemEncodedPublicKey);
 	}
 
 }

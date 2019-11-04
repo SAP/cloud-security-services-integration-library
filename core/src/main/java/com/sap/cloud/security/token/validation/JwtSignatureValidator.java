@@ -8,13 +8,11 @@ import javax.annotation.Nullable;
 
 import java.net.URI;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,7 +61,7 @@ public class JwtSignatureValidator implements Validator<DecodedJwt> {
 				return ValidationResults.createInvalid("JKU of token header is not trusted.");
 		}*/
 
-		PublicKey publicKey = getPublicKey(tokenKeyId != null ? tokenKeyId : JSONWebKey.DEFAULT_KEY_ID);
+		PublicKey publicKey = getPublicKey(JSONWebKey.Type.RSA, tokenKeyId != null ? tokenKeyId : JSONWebKey.DEFAULT_KEY_ID);
 		if (publicKey == null) {
 			return ValidationResults.createInvalid("There is no JSON Web Token Key to prove the identity of the JWT.");
 		}
@@ -79,15 +77,15 @@ public class JwtSignatureValidator implements Validator<DecodedJwt> {
 	}
 
 	@Nullable
-	private PublicKey getPublicKey(String keyId) {
-		PublicKey publicKey = lookupCache(keyId); // TODO kid + kty?
+	private PublicKey getPublicKey(JSONWebKey.Type keyType, String keyId) {
+		PublicKey publicKey = lookupCache(keyType, keyId);
 		if (publicKey == null) {
 			try {
 				JSONWebKeySet jwks = tokenKeyService.retrieveTokenKeys(jwksUri);
-				JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, keyId); // TODO what if kid is not supported?
-				if(jwk != null && jwk.getPublicKey() != null) {
-					publicKey = createPublicKeyFromString(jwk.getType(), jwk.getPublicKey());
-					keyCache.put(keyId, publicKey); //TODO kid + kty?
+				JSONWebKey jwk = jwks.getKeyByTypeAndId(keyType, keyId);
+				if(jwk != null) {
+					publicKey = jwk.getPublicKey();
+					saveToCache(keyType, keyId, publicKey);
 				}
 			} catch (OAuth2ServiceException e) {
 				LOGGER.warn("Error retrieving JSON Web Keys from Identity Service ({}).", jwksUri, e);
@@ -98,21 +96,12 @@ public class JwtSignatureValidator implements Validator<DecodedJwt> {
 		return publicKey;
 	}
 
-	private PublicKey lookupCache(String kid) {
-		return keyCache.get(kid);
+	private PublicKey lookupCache(JSONWebKey.Type keyType, @Nullable String keyId) {
+		return keyCache.get(keyType + "-" + keyId);
 	}
 
-	private PublicKey createPublicKeyFromString(JSONWebKey.Type webKeyType, String publicKey)
-			throws NoSuchAlgorithmException, InvalidKeySpecException {
-		if(webKeyType != JSONWebKey.Type.RSA) {
-			throw new IllegalStateException("JWT token with web key type " + webKeyType + " can not be verified.");
-		}
-		KeyFactory keyFactory = KeyFactory.getInstance(webKeyType.value()); // "RSA"
-
-		byte[] decodedKeyBytes = Base64.getDecoder().decode(publicKey);
-
-		X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(decodedKeyBytes);
-		return keyFactory.generatePublic(keySpecX509);
+	private void saveToCache(JSONWebKey.Type keyType, @Nullable String keyId, PublicKey publicKey) {
+		keyCache.put(keyType + "-" + keyId, publicKey);
 	}
 
 	private boolean isTokenSignatureValid(String token, String tokenAlgorithm, PublicKey publicKey) throws
