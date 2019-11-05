@@ -58,6 +58,12 @@ public class TokenImpl implements Token {
 		return jsonPayloadParser.getAsInstant(CLAIM_EXPIRATION);
 	}
 
+	@Nullable
+	@Override
+	public Instant getNotBefore() {
+		return jsonPayloadParser.getAsInstant(CLAIM_NOT_BEFORE);
+	}
+
 	@Override
 	public String getAppToken() {
 		return appToken;

@@ -70,6 +70,15 @@ public interface Token {
 	Instant getExpiration();
 
 	/**
+	 * Returns the moment in time before which the token must not
+	 * be accepted.
+	 *
+	 * @return the not before point in time if present.
+	 */
+	@Nullable
+	Instant getNotBefore();
+
+	/**
 	 * Get the original encoded access token.
 	 *
 	 * <p>

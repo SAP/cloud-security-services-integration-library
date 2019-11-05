@@ -23,4 +23,5 @@ public final class TokenClaims {
 	public static final String CLAIM_JKU = "jku";
 	public static final String CLAIM_KID = "kid";
 	public static final String CLAIM_EXPIRATION = "exp";
+	public static final String CLAIM_NOT_BEFORE = "nbf";
 }
