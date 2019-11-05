@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.token;
+package com.sap.cloud.security.token;
 
 /**
  * Class with public constants denoting custom XSUAA Jwt claims.
