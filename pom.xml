@@ -279,7 +279,7 @@
 							<configuration>
 								<skipProvidedScope>true</skipProvidedScope>
 								<failBuildOnCVSS>7</failBuildOnCVSS>
-								<suppressionFile>etc/suppression.xml</suppressionFile>
+								<suppressionFile>${project.basedir}/../etc/suppression.xml</suppressionFile>
 							</configuration>
 						</plugin>
 						<plugin>
