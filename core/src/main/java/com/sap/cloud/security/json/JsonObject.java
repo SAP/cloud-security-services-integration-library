@@ -47,7 +47,7 @@ public interface JsonObject {
 	 * @return the {@link Instant} object.
 	 * @throws JsonParsingException
 	 *             if the json object identified by the given property does not
-	 *             represent a date that can be converted to an {@link Instant}.
+	 *             represent a date in unix time.
 	 */
 	Instant getAsInstant(String name);
 

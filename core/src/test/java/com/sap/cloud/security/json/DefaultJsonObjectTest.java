@@ -79,7 +79,16 @@ public class DefaultJsonObjectTest {
 
 	@Test
 	public void getInstant_propertyExistsAndIsEpochTime_returnsInstant() {
-		cut = createJsonParser(KEY_1, String.valueOf(FIRST_OF_APRIL.getEpochSecond()));
+		cut = createJsonParser(KEY_1, "\"" + FIRST_OF_APRIL.getEpochSecond() + "\"");
+
+		Instant instant = cut.getAsInstant(KEY_1);
+
+		assertThat(instant).isEqualTo(Instant.from(FIRST_OF_APRIL));
+	}
+
+	@Test
+	public void getInstant_propertyExistsAndIsEpochTimeFormattedAsNumber_returnsInstant() {
+		cut = createJsonParser(KEY_1, FIRST_OF_APRIL.getEpochSecond());
 
 		Instant instant = cut.getAsInstant(KEY_1);
 
@@ -97,12 +106,12 @@ public class DefaultJsonObjectTest {
 				.isInstanceOf(JsonParsingException.class);
 	}
 
-	private DefaultJsonObject createJsonParser(String key, String value) {
+	private DefaultJsonObject createJsonParser(String key, Object value) {
 		String jsonString = createJsonObjectString(key, value);
 		return new DefaultJsonObject(jsonString);
 	}
 
-	private String createJsonObjectString(String key, String value) {
+	private String createJsonObjectString(String key, Object value) {
 		return String.format("{%s : %s}", key, value);
 	}
 }
