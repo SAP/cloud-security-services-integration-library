@@ -35,12 +35,16 @@ public class JwtExpirationValidator implements Validator<Token> {
 		if (isExpired(expiration)) {
 			return ValidationResults.createValid();
 		}
-		String errorDescription = String.format("Jwt token expired at %s, time now: %s", expiration, timeProvider.now());
+		String errorDescription = String.format("Jwt token expired at %s, time now: %s", expiration, now());
 		return ValidationResults.createInvalid(errorDescription);
 	}
 
+	private Instant now() {
+		return timeProvider.now();
+	}
+
 	private boolean isExpired(Instant expiration) {
-		return expiration.plus(clockSkewLeeway).isAfter(timeProvider.now());
+		return expiration.plus(clockSkewLeeway).isAfter(now());
 	}
 
 }

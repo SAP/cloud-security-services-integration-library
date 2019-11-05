@@ -7,10 +7,6 @@ import com.sap.cloud.security.token.Token;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class JwtNotBeforeValidator implements Validator<Token> {
 
@@ -36,7 +32,7 @@ public class JwtNotBeforeValidator implements Validator<Token> {
 	}
 
 	private ValidationResult checkNotBefore(Instant notBeforeTimestamp) {
-		if (now().isAfter(notBeforeTimestamp) || now().equals(notBeforeTimestamp)) {
+		if (now().isAfter(notBeforeTimestamp.minus(clockSkewLeeway))) {
 			return ValidationResults.createValid();
 		}
 		String errorDescription = String
