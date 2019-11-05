@@ -3,32 +3,26 @@ package com.sap.cloud.security.token.validation;
 import com.sap.cloud.security.token.Token;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAmount;
 
-import static java.time.ZoneOffset.*;
-import static java.time.temporal.ChronoUnit.*;
+import static com.sap.cloud.security.TestConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 public class JwtExpirationValidatorTest {
 
-	private static final TemporalAmount CLOCK_SKEW_LEEWAY = Duration.ofMinutes(1);
-	private static final Instant NOW = LocalDate.of(2019, 3, 3).atStartOfDay().toInstant(UTC);
 	private JwtExpirationValidator cut;
+	private MockTokenTestFactory tokenFactory;
 
 	@Before
 	public void setUp() {
 		cut = new JwtExpirationValidator(() -> NOW, CLOCK_SKEW_LEEWAY);
+		tokenFactory = new MockTokenTestFactory();
 	}
 
 	@Test
-	public void tokenLacksExpiration_isValid() {
-		Token token = createTokenWithExpirationAt(null);
+	public void token_LacksExpiration_isValid() {
+		Token token = tokenFactory.withExpiration(null).build();
 
 		ValidationResult validationResult = cut.validate(token);
 
@@ -36,9 +30,9 @@ public class JwtExpirationValidatorTest {
 	}
 
 	@Test
-	public void tokenExpiredYesterday_isNotValidAndContainsErrorDescriptionWithDates() {
-		Instant expiration = NOW.minus(1, DAYS);
-		Token token = createTokenWithExpirationAt(expiration);
+	public void tokenExpired_beforeClockSkewLeeway_isNotValidAndContainsErrorDescriptionWithDates() {
+		Instant expiration = NOW.minus(CLOCK_SKEW_LEEWAY);
+		Token token = tokenFactory.withExpiration(expiration).build();
 
 		ValidationResult validationResult = cut.validate(token);
 
@@ -49,8 +43,8 @@ public class JwtExpirationValidatorTest {
 	}
 
 	@Test
-	public void tokenExpiresTomorrow_isValid() {
-		Token token = createTokenWithExpirationAt(NOW.plus(1, DAYS));
+	public void tokenExpires_afterClockSkewLeeway_isValid() {
+		Token token = tokenFactory.withExpiration(NOW.plus(CLOCK_SKEW_LEEWAY)).build();
 
 		ValidationResult validationResult = cut.validate(token);
 
@@ -58,26 +52,13 @@ public class JwtExpirationValidatorTest {
 	}
 
 	@Test
-	public void tokenExpiredLongerThanClockSkewLeeway_isNotValid() {
-		Token token = createTokenWithExpirationAt(NOW.minus(CLOCK_SKEW_LEEWAY));
-
-		ValidationResult validationResult = cut.validate(token);
-
-		assertThat(validationResult.isValid()).isFalse();
-	}
-
-	@Test
-	public void tokenExpiredButJustInClockSkewLeeway_isValid() {
-		Token token = createTokenWithExpirationAt(NOW.minus(CLOCK_SKEW_LEEWAY).plus(1, SECONDS));
+	public void tokenExpired_butStillInClockSkewLeeway_isValid() {
+		tokenFactory = new MockTokenTestFactory();
+		Token token = tokenFactory.withExpiration(NOW.minus(CLOCK_SKEW_LEEWAY).plus(ONE_SECOND)).build();
 
 		ValidationResult validationResult = cut.validate(token);
 
 		assertThat(validationResult.isValid()).isTrue();
 	}
 
-	private Token createTokenWithExpirationAt(Instant dateInstant) {
-		Token token = Mockito.mock(Token.class);
-		when(token.getExpiration()).thenReturn(dateInstant);
-		return token;
-	}
 }
