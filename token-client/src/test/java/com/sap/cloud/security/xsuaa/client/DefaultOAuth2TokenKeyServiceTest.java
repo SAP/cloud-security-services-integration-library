@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
-import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
+import com.sap.cloud.security.xsuaa.jwt.JsonWebKey;
+import com.sap.cloud.security.xsuaa.jwt.JsonWebKeySet;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -91,11 +91,11 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	public void retrieveTokenKeys_keySetAsResponse_containsBothKeys() throws IOException {
 		mockResponse();
 
-		JSONWebKeySet result = retrieveTokenKeys();
+		JsonWebKeySet result = retrieveTokenKeys();
 
 		assertThat(result.isEmpty()).isFalse();
-		assertThat(result.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-0")).isTrue();
-		assertThat(result.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1")).isTrue();
+		assertThat(result.containsKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-0")).isTrue();
+		assertThat(result.containsKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1")).isTrue();
 	}
 
 	private CloseableHttpResponse mockResponse() throws IOException {
@@ -104,11 +104,11 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		return response;
 	}
 
-	private JSONWebKeySet retrieveTokenKeys() throws OAuth2ServiceException {
+	private JsonWebKeySet retrieveTokenKeys() throws OAuth2ServiceException {
 		return retrieveTokenKeys(TOKEN_ENDPOINT_URI);
 	}
 
-	private JSONWebKeySet retrieveTokenKeys(URI uri) throws OAuth2ServiceException {
+	private JsonWebKeySet retrieveTokenKeys(URI uri) throws OAuth2ServiceException {
 		return cut.retrieveTokenKeys(uri);
 	}
 

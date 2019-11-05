@@ -2,7 +2,6 @@ package com.sap.cloud.security.xsuaa.jwt;
 
 
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.asn1.pkcs.RSAPrivateKey;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,14 +10,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
-import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class JSONWebKeySetFactoryTest {
+public class JsonWebKeySetFactoryTest {
 
 	private String jsonWebKeySet;
 
@@ -29,16 +26,16 @@ public class JSONWebKeySetFactoryTest {
 
 	@Test
 	public void containsKey() {
-		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
+		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJSON(jsonWebKeySet);
 		assertThat(jwks.isEmpty(), equalTo(false));
-		assertThat(jwks.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-0"), equalTo(true));
-		assertThat(jwks.containsKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1"), equalTo(true));
+		assertThat(jwks.containsKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-0"), equalTo(true));
+		assertThat(jwks.containsKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1"), equalTo(true));
 	}
 
 	@Test
 	public void getKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
-		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
-		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1");
+		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJSON(jsonWebKeySet);
+		JsonWebKey jwk = jwks.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1");
 		assertThat(jwk.getAlgorithm(), equalTo("RS256"));
 		assertThat(jwk.getType().value, equalTo("RSA"));
 		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getType().value));
@@ -47,8 +44,8 @@ public class JSONWebKeySetFactoryTest {
 
 	@Test
 	public void getKeys() throws InvalidKeySpecException, NoSuchAlgorithmException {
-		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
-		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, "key-id-1");
+		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJSON(jsonWebKeySet);
+		JsonWebKey jwk = jwks.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1");
 		assertThat(jwk.getAlgorithm(), equalTo("RS256"));
 		assertThat(jwk.getType().value, equalTo("RSA"));
 		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getType().value));
@@ -58,10 +55,10 @@ public class JSONWebKeySetFactoryTest {
 	@Test
 	public void getIasKeys() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 		jsonWebKeySet = IOUtils.resourceToString("/iasJSONWebTokenKeys.json", StandardCharsets.UTF_8);
-		JSONWebKeySet jwks = JSONWebKeySetFactory.createFromJSON(jsonWebKeySet);
-		JSONWebKey jwk = jwks.getKeyByTypeAndId(JSONWebKey.Type.RSA, null);
+		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJSON(jsonWebKeySet);
+		JsonWebKey jwk = jwks.getKeyByTypeAndId(JsonWebKey.Type.RSA, null);
 		assertThat(jwk.getType().value, equalTo("RSA"));
 		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getType().value));
-		assertThat(jwk.getId(), equalTo(JSONWebKey.DEFAULT_KEY_ID));
+		assertThat(jwk.getId(), equalTo(JsonWebKey.DEFAULT_KEY_ID));
 	}
 }

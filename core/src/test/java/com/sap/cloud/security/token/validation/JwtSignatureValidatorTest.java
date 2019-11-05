@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
-import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySetFactory;
+import com.sap.cloud.security.xsuaa.jwt.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -41,7 +41,7 @@ public class JwtSignatureValidatorTest {
 		when(endpointsProvider.getJwksUri()).thenReturn(URI.create("https://myauth.com/jwks_uri"));
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JSONWebKeySetFactory.createFromJSON(
+		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJSON(
 				IOUtils.resourceToString("/JSONWebTokenKeys.json", StandardCharsets.UTF_8)));
 
 		cut = new JwtSignatureValidator(tokenKeyServiceMock, endpointsProvider);
@@ -54,7 +54,7 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void iasOIDCSignatureMatchesJWKS() throws IOException {
-		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JSONWebKeySetFactory.createFromJSON(
+		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJSON(
 				IOUtils.resourceToString("/iasJSONWebTokenKeys.json", StandardCharsets.UTF_8)));
 		assertThat(cut.validate(token(otherToken)).isValid(), is(true));
 	}

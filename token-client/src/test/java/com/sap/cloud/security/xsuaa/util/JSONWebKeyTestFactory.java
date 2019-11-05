@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.util;
 
-import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
-import com.sap.cloud.security.xsuaa.jwt.JSONWebKeyImpl;
+import com.sap.cloud.security.xsuaa.jwt.JsonWebKey;
+import com.sap.cloud.security.xsuaa.jwt.JsonWebKeyImpl;
 
 public class JSONWebKeyTestFactory {
 
@@ -15,15 +15,15 @@ public class JSONWebKeyTestFactory {
 			+ "HwIDAQAB\\n"
 			+ "-----END PUBLIC KEY-----";
 	private static final String ALG = "RS256";
-	private static final JSONWebKey.Type KEY_TYPE = JSONWebKey.Type.valueOf("RSA");
+	private static final JsonWebKey.Type KEY_TYPE = JsonWebKey.Type.valueOf("RSA");
 	private static final String KEY_ID = "key-id-1";
 	private static final String modulus = "j9XvbTYr3uXbkrAM10zQmOXkt4Gaj-SKZHbOK1y_eIdvrZge_LeSKVIgce6ZtC5b7F3HfJ1TAPy2kCSfusQ-P17egl6ka6-kMvPhDltWnurgAgfjDPnt6NckHxadut7L_-s9kd2L84GO-PznvcHGbc8ntTjtlgLmxDq-gZgCJKJqhWM3NYifUkLbbQT-c4dK6my-JtNyuye2fd2cR_G7IQE1UrZm7zqu9DttjN5A-R1eLYmtTuTC3xSHRCLVks6OyzIjzXP1TcyxXUvbwZWD6LpTidcapztRcwckO_AJHsztAvtC2hsPbl03lKzloHqQeRSEWVzRcgtK5ViRxcH7VQ";
 
-	public static JSONWebKey create() {
-		return new JSONWebKeyImpl(KEY_TYPE, KEY_ID, ALG, modulus, "AQAB",PUBLIC_KEY);
+	public static JsonWebKey create() {
+		return new JsonWebKeyImpl(KEY_TYPE, KEY_ID, ALG, modulus, "AQAB",PUBLIC_KEY);
 	}
 
-	public static JSONWebKey createDefault() {
-		return new JSONWebKeyImpl(KEY_TYPE, JSONWebKey.DEFAULT_KEY_ID, ALG, modulus, "AQAB", null);
+	public static JsonWebKey createDefault() {
+		return new JsonWebKeyImpl(KEY_TYPE, JsonWebKey.DEFAULT_KEY_ID, ALG, modulus, "AQAB", null);
 	}
 }

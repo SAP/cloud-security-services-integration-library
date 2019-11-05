@@ -8,15 +8,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class JSONWebKeySet {
+public class JsonWebKeySet {
 
-	private Set<JSONWebKey> jsonWebKeys;
+	private Set<JsonWebKey> jsonWebKeys;
 
-	public JSONWebKeySet(Collection<JSONWebKey> jsonWebKeys) {
+	public JsonWebKeySet(Collection<JsonWebKey> jsonWebKeys) {
 		this.jsonWebKeys = jsonWebKeys.stream().collect(Collectors.toSet());
 	}
 
-	public JSONWebKeySet() {
+	public JsonWebKeySet() {
 		jsonWebKeys = new HashSet<>();
 	}
 
@@ -24,20 +24,20 @@ public class JSONWebKeySet {
 		return jsonWebKeys.isEmpty();
 	}
 
-	public boolean containsKeyByTypeAndId(JSONWebKey.Type keyType, String keyId) {
+	public boolean containsKeyByTypeAndId(JsonWebKey.Type keyType, String keyId) {
 		return getTokenStreamWithTypeAndKeyId(keyType, keyId)
 				.findAny()
 				.isPresent();
 	}
 
 	@Nullable
-	public JSONWebKey getKeyByTypeAndId(JSONWebKey.Type keyType, String keyId) {
+	public JsonWebKey getKeyByTypeAndId(JsonWebKey.Type keyType, String keyId) {
 		return getTokenStreamWithTypeAndKeyId(keyType, keyId)
 				.findFirst()
 				.orElse(null);
 	}
 
-	public boolean put(@Nonnull JSONWebKey jsonWebKey) {
+	public boolean put(@Nonnull JsonWebKey jsonWebKey) {
 		if (containsKeyByTypeAndId(jsonWebKey.getType(), jsonWebKey.getId())) {
 			return false;
 		} else {
@@ -46,8 +46,8 @@ public class JSONWebKeySet {
 		}
 	}
 
-	private Stream<JSONWebKey> getTokenStreamWithTypeAndKeyId(JSONWebKey.Type keyType, String keyId) {
-		String kid = keyId != null ? keyId : JSONWebKey.DEFAULT_KEY_ID;
+	private Stream<JsonWebKey> getTokenStreamWithTypeAndKeyId(JsonWebKey.Type keyType, String keyId) {
+		String kid = keyId != null ? keyId : JsonWebKey.DEFAULT_KEY_ID;
 		return jsonWebKeys.stream()
 				.filter(jwk -> keyType.equals(jwk.getType()))
 				.filter(jwk -> kid.equals(jwk.getId()));

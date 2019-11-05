@@ -8,15 +8,15 @@ import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JSONWebKeySetTest {
+public class JsonWebKeySetTest {
 
-	public static final JSONWebKey JSON_WEB_KEY = JSONWebKeyTestFactory.create();
+	public static final JsonWebKey JSON_WEB_KEY = JSONWebKeyTestFactory.create();
 
-	private JSONWebKeySet cut;
+	private JsonWebKeySet cut;
 
 	@Before
 	public void setUp() {
-		cut = new JSONWebKeySet(new ArrayList<>());
+		cut = new JsonWebKeySet(new ArrayList<>());
 	}
 
 	@Test
@@ -40,7 +40,7 @@ public class JSONWebKeySetTest {
 
 	@Test
 	public void containsKeyByTypeAndId_isFalse_onEmptyJSONWebKeySet() {
-		assertThat(cut.containsKeyByTypeAndId(JSONWebKey.Type.RSA, JSON_WEB_KEY.getId())).isFalse();
+		assertThat(cut.containsKeyByTypeAndId(JsonWebKey.Type.RSA, JSON_WEB_KEY.getId())).isFalse();
 	}
 	@Test
 	public void containsKeyByTypeAndId_returnsFalse_whenKeyIdDoesNotMatch() {
@@ -53,7 +53,7 @@ public class JSONWebKeySetTest {
 
 	@Test
 	public void containsKeyByTypeAndId_returnsFalse_whenKeyTypeDoesNotMatch() {
-		JSONWebKey.Type differentKeyType = JSONWebKey.Type.APPLICATION_FORM_URLENCODED;
+		JsonWebKey.Type differentKeyType = JsonWebKey.Type.APPLICATION_FORM_URLENCODED;
 
 		insertJsonWebKey();
 
@@ -74,7 +74,7 @@ public class JSONWebKeySetTest {
 
 	@Test
 	public void getKeyByTypeAndId_returnsNull_whenKeyTypeDoesNotMatch() {
-		JSONWebKey.Type differentKeyType = JSONWebKey.Type.APPLICATION_FORM_URLENCODED;
+		JsonWebKey.Type differentKeyType = JsonWebKey.Type.APPLICATION_FORM_URLENCODED;
 
 		insertJsonWebKey();
 
@@ -96,7 +96,7 @@ public class JSONWebKeySetTest {
 
 		cut.put(JSONWebKeyTestFactory.createDefault());
 
-		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), JSONWebKey.DEFAULT_KEY_ID).getId().equals(JSONWebKey.DEFAULT_KEY_ID));
+		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), JsonWebKey.DEFAULT_KEY_ID).getId().equals(JsonWebKey.DEFAULT_KEY_ID));
 	}
 
 	@Test

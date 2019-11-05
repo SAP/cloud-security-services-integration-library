@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.jwt.JSONWebKey;
-import com.sap.cloud.security.xsuaa.jwt.JSONWebKeySet;
+import com.sap.cloud.security.xsuaa.jwt.JsonWebKey;
+import com.sap.cloud.security.xsuaa.jwt.JsonWebKeySet;
 
 public class JwtSignatureValidator implements Validator<Token> {
 	private Map<String, PublicKey> keyCache = new HashMap<>();
@@ -61,7 +61,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 				return ValidationResults.createInvalid("JKU of token header is not trusted.");
 		}*/
 
-		PublicKey publicKey = getPublicKey(JSONWebKey.Type.RSA, tokenKeyId != null ? tokenKeyId : JSONWebKey.DEFAULT_KEY_ID);
+		PublicKey publicKey = getPublicKey(JsonWebKey.Type.RSA, tokenKeyId != null ? tokenKeyId : JsonWebKey.DEFAULT_KEY_ID);
 		if (publicKey == null) {
 			return ValidationResults.createInvalid("There is no JSON Web Token Key to prove the identity of the JWT.");
 		}
@@ -77,12 +77,12 @@ public class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	@Nullable
-	private PublicKey getPublicKey(JSONWebKey.Type keyType, String keyId) {
+	private PublicKey getPublicKey(JsonWebKey.Type keyType, String keyId) {
 		PublicKey publicKey = lookupCache(keyType, keyId);
 		if (publicKey == null) {
 			try {
-				JSONWebKeySet jwks = tokenKeyService.retrieveTokenKeys(jwksUri);
-				JSONWebKey jwk = jwks.getKeyByTypeAndId(keyType, keyId);
+				JsonWebKeySet jwks = tokenKeyService.retrieveTokenKeys(jwksUri);
+				JsonWebKey jwk = jwks.getKeyByTypeAndId(keyType, keyId);
 				if(jwk != null) {
 					publicKey = jwk.getPublicKey();
 					saveToCache(keyType, keyId, publicKey);
@@ -96,11 +96,11 @@ public class JwtSignatureValidator implements Validator<Token> {
 		return publicKey;
 	}
 
-	private PublicKey lookupCache(JSONWebKey.Type keyType, @Nullable String keyId) {
+	private PublicKey lookupCache(JsonWebKey.Type keyType, @Nullable String keyId) {
 		return keyCache.get(keyType + "-" + keyId);
 	}
 
-	private void saveToCache(JSONWebKey.Type keyType, @Nullable String keyId, PublicKey publicKey) {
+	private void saveToCache(JsonWebKey.Type keyType, @Nullable String keyId, PublicKey publicKey) {
 		keyCache.put(keyType + "-" + keyId, publicKey);
 	}
 

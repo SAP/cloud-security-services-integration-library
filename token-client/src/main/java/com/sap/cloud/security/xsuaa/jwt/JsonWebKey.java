@@ -10,7 +10,7 @@ import java.security.spec.InvalidKeySpecException;
  * see also JSON Web Key (JWK) specification:
  * https://tools.ietf.org/html/rfc7517
  */
-public interface JSONWebKey {
+public interface JsonWebKey {
 	static final String DEFAULT_KEY_ID = "default-kid";
 
 	/**

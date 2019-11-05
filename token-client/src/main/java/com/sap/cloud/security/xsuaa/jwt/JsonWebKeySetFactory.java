@@ -6,19 +6,19 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.Set;
 
-public class JSONWebKeySetFactory {
+public class JsonWebKeySetFactory {
 
-	private JSONWebKeySetFactory() {
+	private JsonWebKeySetFactory() {
 	}
 
-	public static JSONWebKeySet createFromJSON(String json) {
+	public static JsonWebKeySet createFromJSON(String json) {
 		JSONArray keys = new JSONObject(json).getJSONArray(JSONWebKeyConstants.KEYS_PARAMETER_NAME);
-		Set<JSONWebKey> jsonWebKeys = extractJsonWebKeys(keys);
-		return new JSONWebKeySet(jsonWebKeys);
+		Set<JsonWebKey> jsonWebKeys = extractJsonWebKeys(keys);
+		return new JsonWebKeySet(jsonWebKeys);
 	}
 
-	private static Set<JSONWebKey> extractJsonWebKeys(JSONArray keys) {
-		Set<JSONWebKey> jsonWebKeys = new HashSet<>();
+	private static Set<JsonWebKey> extractJsonWebKeys(JSONArray keys) {
+		Set<JsonWebKey> jsonWebKeys = new HashSet<>();
 		for (Object key : keys) {
 			if (key instanceof JSONObject) {
 				jsonWebKeys.add(createJSONWebKey((JSONObject) key));
@@ -27,7 +27,7 @@ public class JSONWebKeySetFactory {
 		return jsonWebKeys;
 	}
 
-	private static JSONWebKey createJSONWebKey(JSONObject key) {
+	private static JsonWebKey createJSONWebKey(JSONObject key) {
 		String algorithm = null;
 		String pemEncodedPublicKey = null;
 		String keyId = null;
@@ -50,7 +50,7 @@ public class JSONWebKeySetFactory {
 		if(key.has(JSONWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME)) {
 			publicExponent = key.getString(JSONWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME);
 		}
-		return new JSONWebKeyImpl(JSONWebKey.Type.valueOf(keyType), keyId, algorithm, modulus, publicExponent, pemEncodedPublicKey);
+		return new JsonWebKeyImpl(JsonWebKey.Type.valueOf(keyType), keyId, algorithm, modulus, publicExponent, pemEncodedPublicKey);
 	}
 
 }

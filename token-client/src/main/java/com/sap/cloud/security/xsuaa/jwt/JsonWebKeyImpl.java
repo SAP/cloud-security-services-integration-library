@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa.jwt;
 
-import static com.sap.cloud.security.xsuaa.jwt.JSONWebKey.*;
 import static com.sap.cloud.security.xsuaa.jwt.JSONWebKeyConstants.*;
 
 import javax.annotation.Nullable;
@@ -17,7 +16,7 @@ import java.util.Base64;
 
 import com.sap.cloud.security.xsuaa.Assertions;
 
-public class JSONWebKeyImpl implements JSONWebKey {
+public class JsonWebKeyImpl implements JsonWebKey {
 	Type type;
 	String keyId;
 	String algorithm;
@@ -25,7 +24,7 @@ public class JSONWebKeyImpl implements JSONWebKey {
 	String modulus;
 	String publicExponent;
 
-	public JSONWebKeyImpl(Type type, @Nullable String keyId, @Nullable String algorithm, String modulus, String publicExponent, @Nullable String pemEncodedPublicKey) {
+	public JsonWebKeyImpl(Type type, @Nullable String keyId, @Nullable String algorithm, String modulus, String publicExponent, @Nullable String pemEncodedPublicKey) {
 		Assertions.assertNotNull(type, "type must be not null");
 		this.type = type;
 		this.keyId = keyId != null ? keyId : DEFAULT_KEY_ID;
@@ -66,7 +65,7 @@ public class JSONWebKeyImpl implements JSONWebKey {
 		return keyFactory.generatePublic(keySpec);
 	}
 
-	static PublicKey createPublicKeyFromPemEncodedPubliKey(JSONWebKeyImpl.Type type, String pemEncodedKey)
+	static PublicKey createPublicKeyFromPemEncodedPubliKey(JsonWebKeyImpl.Type type, String pemEncodedKey)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
 		byte[] decodedBytes = Base64.getMimeDecoder().decode(convertPEMKey(pemEncodedKey));
 
