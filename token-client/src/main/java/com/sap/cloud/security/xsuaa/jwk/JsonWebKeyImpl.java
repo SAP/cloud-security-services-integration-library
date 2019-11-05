@@ -1,6 +1,6 @@
-package com.sap.cloud.security.xsuaa.jwt;
+package com.sap.cloud.security.xsuaa.jwk;
 
-import static com.sap.cloud.security.xsuaa.jwt.JSONWebKeyConstants.*;
+import static com.sap.cloud.security.xsuaa.jwk.JSONWebKeyConstants.*;
 
 import javax.annotation.Nullable;
 
@@ -17,12 +17,12 @@ import java.util.Base64;
 import com.sap.cloud.security.xsuaa.Assertions;
 
 public class JsonWebKeyImpl implements JsonWebKey {
-	Type type;
-	String keyId;
-	String algorithm;
-	String pemEncodedPublicKey;
-	String modulus;
-	String publicExponent;
+	private Type type;
+	private String keyId;
+	private String algorithm;
+	private String pemEncodedPublicKey;
+	private String modulus;
+	private String publicExponent;
 
 	public JsonWebKeyImpl(Type type, @Nullable String keyId, @Nullable String algorithm, String modulus, String publicExponent, @Nullable String pemEncodedPublicKey) {
 		Assertions.assertNotNull(type, "type must be not null");

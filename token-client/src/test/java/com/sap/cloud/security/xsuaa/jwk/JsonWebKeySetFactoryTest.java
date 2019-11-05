@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.jwt;
+package com.sap.cloud.security.xsuaa.jwk;
 
 
 import org.apache.commons.io.IOUtils;
@@ -14,6 +14,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
+
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 
 public class JsonWebKeySetFactoryTest {
 

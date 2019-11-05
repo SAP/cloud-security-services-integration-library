@@ -2,7 +2,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import java.net.URI;
 
-import com.sap.cloud.security.xsuaa.jwt.JsonWebKeySet;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
 
 import javax.annotation.Nonnull;
 

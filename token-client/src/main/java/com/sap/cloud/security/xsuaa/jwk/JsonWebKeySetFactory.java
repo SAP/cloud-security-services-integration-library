@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.jwt;
+package com.sap.cloud.security.xsuaa.jwk;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

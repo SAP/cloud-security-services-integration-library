@@ -1,8 +1,8 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.jwt.JsonWebKeySet;
-import com.sap.cloud.security.xsuaa.jwt.JsonWebKeySetFactory;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;

@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.jwt.JsonWebKey;
-import com.sap.cloud.security.xsuaa.jwt.JsonWebKeySet;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;

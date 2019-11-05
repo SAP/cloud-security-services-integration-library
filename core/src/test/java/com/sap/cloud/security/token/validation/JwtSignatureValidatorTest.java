@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
-import com.sap.cloud.security.xsuaa.jwt.JsonWebKeySetFactory;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Ignore;

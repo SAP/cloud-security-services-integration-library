@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.jwt;
+package com.sap.cloud.security.xsuaa.jwk;
 
 import javax.annotation.Nullable;
 
@@ -7,17 +7,19 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
 /**
- * see also JSON Web Key (JWK) specification:
+ * See also JSON Web Key (JWK) specification:
  * https://tools.ietf.org/html/rfc7517
  */
 public interface JsonWebKey {
 	static final String DEFAULT_KEY_ID = "default-kid";
 
 	/**
+	 * This is represented by "kty" (Key Type) Parameter.
 	 * https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1
 	 */
 	public enum Type {
-		RSA("RSA"), APPLICATION_FORM_URLENCODED("application/x-www-form-urlencoded");
+		RSA("RSA"),
+		EC("EC"); // Eliptic curve
 
 		final String value;
 
@@ -37,7 +39,7 @@ public interface JsonWebKey {
 	public String getAlgorithm();
 
 	/**
-	 * Returns the key type, e.g. "RSA".
+	 * Returns the key type, e.g. Type.RSA.
 	 * @return the key type.
 	 */
 	@Nullable
@@ -52,7 +54,7 @@ public interface JsonWebKey {
 	public String getId();
 
 	/**
-	 * Returns the public key.
+	 * Returns the public key representation.
 	 * @return the public key.
 	 */
 	@Nullable

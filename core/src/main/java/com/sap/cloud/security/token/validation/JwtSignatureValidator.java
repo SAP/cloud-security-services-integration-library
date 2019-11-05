@@ -1,7 +1,7 @@
 package com.sap.cloud.security.token.validation;
 
 import static com.sap.cloud.security.core.Assertions.*;
-import static com.sap.cloud.security.xsuaa.jwt.JSONWebKeyConstants.*;
+import static com.sap.cloud.security.xsuaa.jwk.JSONWebKeyConstants.*;
 import static java.nio.charset.StandardCharsets.*;
 
 import javax.annotation.Nullable;
@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.jwt.JsonWebKey;
-import com.sap.cloud.security.xsuaa.jwt.JsonWebKeySet;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
 
 public class JwtSignatureValidator implements Validator<Token> {
 	private Map<String, PublicKey> keyCache = new HashMap<>();

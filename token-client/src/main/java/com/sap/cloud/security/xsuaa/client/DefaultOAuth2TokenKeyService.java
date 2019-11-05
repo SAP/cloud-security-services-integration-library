@@ -1,8 +1,8 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.jwt.JsonWebKeySet;
-import com.sap.cloud.security.xsuaa.jwt.JsonWebKeySetFactory;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
