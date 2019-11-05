@@ -1,7 +1,5 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -9,6 +7,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import com.sap.cloud.security.token.TokenClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -25,6 +24,8 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.web.client.RestOperations;
+
+import static com.sap.cloud.security.token.TokenClaims.*;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());

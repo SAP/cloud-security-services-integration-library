@@ -1,7 +1,5 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -25,6 +23,9 @@ import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 import reactor.core.publisher.Mono;
+
+import static com.sap.cloud.security.token.TokenClaims.CLAIM_JKU;
+import static com.sap.cloud.security.token.TokenClaims.CLAIM_KID;
 
 public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 

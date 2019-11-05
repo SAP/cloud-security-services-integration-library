@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.sap.cloud.security.token.TokenClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -18,7 +19,6 @@ import org.springframework.util.StringUtils;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServicesParser;
-import com.sap.cloud.security.xsuaa.token.TokenClaims;
 
 /**
  * Validate audience using audience field content. in case this field is empty,

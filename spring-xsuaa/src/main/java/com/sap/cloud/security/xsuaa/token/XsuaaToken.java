@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import com.sap.cloud.security.token.TokenClaims;
 import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import org.springframework.util.Assert;
 import java.time.Instant;
 import java.util.*;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.*;
 
 /**
  * Custom XSUAA token implementation.

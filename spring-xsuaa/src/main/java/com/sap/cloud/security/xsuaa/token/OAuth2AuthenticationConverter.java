@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_CLIENT_ID;
+import static com.sap.cloud.security.token.TokenClaims.CLAIM_CLIENT_ID;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
