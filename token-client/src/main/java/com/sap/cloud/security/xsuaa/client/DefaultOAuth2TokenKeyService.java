@@ -3,7 +3,7 @@ package com.sap.cloud.security.xsuaa.client;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
-import com.sap.cloud.security.xsuaa.util.HttpClientUtils;
+import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -33,7 +33,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
 		try (CloseableHttpResponse response = httpClient.execute(request)) {
-			String bodyAsString = HttpClientUtils.extractResponseBodyAsString(response);
+			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
 			int statusCode = response.getStatusLine().getStatusCode();
 			return handleResponse(bodyAsString, statusCode);
 		} catch (IOException e) {

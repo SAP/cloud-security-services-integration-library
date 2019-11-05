@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.util.HttpClientUtils;
+import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -50,7 +50,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 			if (statusCode == HttpStatus.SC_OK) {
 				return handleResponse(response);
 			} else {
-				String responseBodyAsString = HttpClientUtils.extractResponseBodyAsString(response);
+				String responseBodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
 				throw OAuth2ServiceException
 						.createWithStatusCodeAndResponseBody("Error retrieving JWT token", statusCode,
 								responseBodyAsString);
@@ -61,7 +61,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	private OAuth2TokenResponse handleResponse(HttpResponse response) throws IOException {
-		String responseBody = HttpClientUtils.extractResponseBodyAsString(response);
+		String responseBody = HttpClientUtil.extractResponseBodyAsString(response);
 		Map<String, Object> accessTokenMap = new JSONObject(responseBody).toMap();
 		logger.debug("Request Access Token: {}", accessTokenMap);
 		return convertToOAuth2TokenResponse(accessTokenMap);
