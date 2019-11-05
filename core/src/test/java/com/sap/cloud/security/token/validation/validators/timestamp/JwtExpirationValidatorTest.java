@@ -1,6 +1,9 @@
-package com.sap.cloud.security.token.validation;
+package com.sap.cloud.security.token.validation.validators.timestamp;
 
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.MockTokenTestFactory;
+import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.token.validation.validators.timestamp.JwtExpirationValidator;
 import org.junit.Before;
 import org.junit.Test;
 

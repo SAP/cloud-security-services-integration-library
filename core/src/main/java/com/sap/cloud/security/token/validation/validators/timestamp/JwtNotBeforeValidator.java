@@ -1,23 +1,23 @@
-package com.sap.cloud.security.token.validation;
+package com.sap.cloud.security.token.validation.validators.timestamp;
 
 import com.sap.cloud.security.core.DefaultTimeProvider;
 import com.sap.cloud.security.core.TimeProvider;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.token.validation.ValidationResults;
+import com.sap.cloud.security.token.validation.Validator;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 
 public class JwtNotBeforeValidator implements Validator<Token> {
-
-	public static final TemporalAmount CLOCK_SKEW_LEEWAY = Duration.ofMinutes(1);
 
 	private final TemporalAmount clockSkewLeeway;
 	private final TimeProvider timeProvider;
 
 	public JwtNotBeforeValidator() {
 		timeProvider = new DefaultTimeProvider();
-		clockSkewLeeway = CLOCK_SKEW_LEEWAY;
+		clockSkewLeeway = JwtTimestampValidator.CLOCK_SKEW_LEEWAY;
 	}
 
 	JwtNotBeforeValidator(TimeProvider timeProvider, TemporalAmount clockSkewLeeway) {

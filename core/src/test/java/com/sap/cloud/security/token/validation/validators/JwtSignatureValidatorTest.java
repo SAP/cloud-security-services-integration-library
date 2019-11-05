@@ -1,4 +1,4 @@
-package com.sap.cloud.security.token.validation;
+package com.sap.cloud.security.token.validation.validators;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
+import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;

@@ -1,23 +1,23 @@
-package com.sap.cloud.security.token.validation;
+package com.sap.cloud.security.token.validation.validators.timestamp;
 
 import com.sap.cloud.security.core.DefaultTimeProvider;
 import com.sap.cloud.security.core.TimeProvider;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.token.validation.ValidationResults;
+import com.sap.cloud.security.token.validation.Validator;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 
 public class JwtExpirationValidator implements Validator<Token> {
-
-	public static final TemporalAmount CLOCK_SKEW_LEEWAY = Duration.ofMinutes(1);
 
 	private final TemporalAmount clockSkewLeeway;
 	private TimeProvider timeProvider;
 
 	public JwtExpirationValidator() {
 		this.timeProvider = new DefaultTimeProvider();
-		clockSkewLeeway = CLOCK_SKEW_LEEWAY;
+		clockSkewLeeway = JwtTimestampValidator.CLOCK_SKEW_LEEWAY;
 	}
 
 	JwtExpirationValidator(TimeProvider timeProvider, TemporalAmount clockSkewLeeway) {

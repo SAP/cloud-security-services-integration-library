@@ -1,4 +1,4 @@
-package com.sap.cloud.security.token.validation;
+package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.core.Assertions.*;
 import static com.sap.cloud.security.xsuaa.jwk.JSONWebKeyConstants.*;
@@ -19,6 +19,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.token.validation.ValidationResults;
+import com.sap.cloud.security.token.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

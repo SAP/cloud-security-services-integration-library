@@ -1,7 +1,11 @@
-package com.sap.cloud.security.token.validation;
+package com.sap.cloud.security.token.validation.validators;
+
+import com.sap.cloud.security.token.validation.ValidationError;
+import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.token.validation.ValidationResultImpl;
+import com.sap.cloud.security.token.validation.Validator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
