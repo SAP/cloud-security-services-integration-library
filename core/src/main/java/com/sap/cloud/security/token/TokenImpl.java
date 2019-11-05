@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.List;
 
+import static com.sap.cloud.security.token.TokenClaims.*;
+
 public class TokenImpl implements Token {
 
 	private final DefaultJsonObject jsonHeaderParser;
@@ -47,13 +49,13 @@ public class TokenImpl implements Token {
 	@Nullable
 	@Override
 	public List<String> getScopes() {
-		return getClaimAsStringList("scopes");
+		return getClaimAsStringList(CLAIM_SCOPES);
 	}
 
 	@Nullable
 	@Override
 	public Instant getExpiration() {
-		return jsonPayloadParser.getAsInstant("exp");
+		return jsonPayloadParser.getAsInstant(CLAIM_EXPIRATION);
 	}
 
 	@Override
