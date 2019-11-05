@@ -8,39 +8,40 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 
-public class JwtTimestampValidator implements Validator<Token> {
+public class JwtNotBeforeValidator implements Validator<Token> {
 
 	public static final TemporalAmount CLOCK_SKEW_LEEWAY = Duration.ofMinutes(1);
 
 	private final TemporalAmount clockSkewLeeway;
 	private TimeProvider timeProvider;
 
-	public JwtTimestampValidator() {
+	public JwtNotBeforeValidator() {
 		this.timeProvider = new DefaultTimeProvider();
 		clockSkewLeeway = CLOCK_SKEW_LEEWAY;
 	}
 
-	JwtTimestampValidator(TimeProvider timeProvider, TemporalAmount clockSkewLeeway) {
+	JwtNotBeforeValidator(TimeProvider timeProvider, TemporalAmount clockSkewLeeway) {
 		this.timeProvider = timeProvider;
 		this.clockSkewLeeway = clockSkewLeeway;
 	}
 
 	@Override
 	public ValidationResult validate(Token token) {
-		Instant expiration = token.getExpiration();
-		return expiration == null ? ValidationResults.createValid() : checkExpirationDate(expiration);
+		Instant notBefore = token.getNotBefore();
+		return notBefore == null ? ValidationResults.createValid() : checkExpirationDate(notBefore);
 	}
 
-	private ValidationResult checkExpirationDate(Instant expiration) {
-		if (isExpired(expiration)) {
+	private ValidationResult checkExpirationDate(Instant notBeforeTimestamp) {
+		if (isAfter(notBeforeTimestamp)) {
 			return ValidationResults.createValid();
 		}
-		String errorDescription = String.format("Jwt token expired at %s, time now: %s", expiration, timeProvider.now());
+		String errorDescription = String
+				.format("Jwt cannot be accepted before %s, time now: %s", notBeforeTimestamp, timeProvider.now());
 		return ValidationResults.createInvalid(errorDescription);
 	}
 
-	private boolean isExpired(Instant expiration) {
-		return expiration.plus(clockSkewLeeway).isAfter(timeProvider.now());
+	private boolean isAfter(Instant notBeforeTimestamp) {
+		return notBeforeTimestamp.minus(clockSkewLeeway).isAfter(timeProvider.now());
 	}
 
 }
