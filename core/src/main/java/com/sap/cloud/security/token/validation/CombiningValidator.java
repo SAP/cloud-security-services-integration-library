@@ -1,11 +1,12 @@
 package com.sap.cloud.security.token.validation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * This is a special validator that combines several validators into one. To
- * create an instance use the {@link #builder} method. By default the validation
+ * create an instance use the {@link #builderFor} method. By default the validation
  * stops after one invalid result has been found. To not stop validating use
  * {@link CombiningValidatorBuilder#validateAll}.
  * 
@@ -39,7 +40,13 @@ public class CombiningValidator<T> implements Validator<T> {
 		return stopAfterFirstInvalidResult && !result.isValid();
 	}
 
-	public static <U> CombiningValidatorBuilder<U> builder() {
+	/**
+	 * Creates a {@link CombiningValidatorBuilder} object.
+	 * @param toBeValidatedType creates a builder for {@link Validator} objects that are
+	 *                          generic over {@link U}.
+	 * @return the builder.
+	 */
+	public static <U> CombiningValidatorBuilder<U> builderFor(Class<U> toBeValidatedType) {
 		return new CombiningValidatorBuilder<>();
 	}
 

@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token.validation;
 
+import com.sap.cloud.security.token.Token;
 import org.junit.Test;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_containsNoValidators_validResult() {
-		Validator<Object> combinigValidator = CombiningValidator.builder().build();
+		Validator<Object> combinigValidator = CombiningValidator.builderFor(Object.class).build();
 
 		ValidationResult validationResult = getValidationResult(combinigValidator);
 
@@ -23,7 +24,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoValidValidators_validResult() {
-		Validator<Object> combinigValidator = CombiningValidator.builder()
+		Validator<Object> combinigValidator = CombiningValidator.builderFor(Object.class)
 				.with(validValidator())
 				.with(validValidator())
 				.build();
@@ -35,7 +36,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoValidValidators_invalidResult() {
-		Validator<Object> combinigValidator = CombiningValidator.builder()
+		Validator<Object> combinigValidator = CombiningValidator.builderFor(Object.class)
 				.with(invalidValidator())
 				.with(invalidValidator())
 				.build();
@@ -47,7 +48,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoValidValidators_containsOnlyOneErrorMessages() {
-		Validator<Object> combinigValidator = CombiningValidator.builder()
+		Validator<Object> combinigValidator = CombiningValidator.builderFor(Object.class)
 				.with(invalidValidator(FIRST_ERROR_MESSAGE))
 				.with(invalidValidator(SECOND_ERROR_MESSAGE)).build();
 
@@ -60,7 +61,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoValidValidatorsWithValidateAll_containsBothErrorMessages() {
-		Validator<Object> combinigValidator = CombiningValidator.builder()
+		Validator<Object> combinigValidator = CombiningValidator.builderFor(Object.class)
 				.with(invalidValidator(FIRST_ERROR_MESSAGE))
 				.with(invalidValidator(SECOND_ERROR_MESSAGE))
 				.validateAll()
