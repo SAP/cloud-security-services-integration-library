@@ -26,7 +26,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 			// TODO 30.10.19 c5295400: See if that even works?
 			ResponseEntity<String> response = restOperations.getForEntity(tokenKeysEndpointUri, String.class);
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
-				return JsonWebKeySetFactory.createFromJSON(response.getBody());
+				return JsonWebKeySetFactory.createFromJson(response.getBody());
 			} else {
 				throw OAuth2ServiceException.createWithStatusCodeAndResponseBody("Error retrieving token keys",
 						response.getStatusCodeValue(), response.getBody());

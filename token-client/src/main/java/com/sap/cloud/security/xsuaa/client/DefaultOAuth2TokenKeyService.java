@@ -43,7 +43,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
 	private JsonWebKeySet handleResponse(String bodyAsString, int statusCode) throws OAuth2ServiceException {
 		if (statusCode == HttpStatus.SC_OK) {
-			return JsonWebKeySetFactory.createFromJSON(bodyAsString);
+			return JsonWebKeySetFactory.createFromJson(bodyAsString);
 		} else {
 			throw OAuth2ServiceException
 					.createWithStatusCodeAndResponseBody("Error retrieving token keys", statusCode, bodyAsString);

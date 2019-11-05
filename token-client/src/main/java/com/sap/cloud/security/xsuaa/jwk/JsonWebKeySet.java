@@ -2,22 +2,17 @@ package com.sap.cloud.security.xsuaa.jwk;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import java.util.HashMap;
+
+import com.sap.cloud.security.xsuaa.Assertions;
 
 public class JsonWebKeySet {
 
-	private Set<JsonWebKey> jsonWebKeys;
-
-	public JsonWebKeySet(Collection<JsonWebKey> jsonWebKeys) {
-		this.jsonWebKeys = jsonWebKeys.stream().collect(Collectors.toSet());
-	}
+	private HashMap<String, JsonWebKey> jsonWebKeys;
 
 	public JsonWebKeySet() {
-		jsonWebKeys = new HashSet<>();
+		jsonWebKeys = new HashMap<>();
 	}
 
 	public boolean isEmpty() {
@@ -25,31 +20,30 @@ public class JsonWebKeySet {
 	}
 
 	public boolean containsKeyByTypeAndId(JsonWebKey.Type keyType, String keyId) {
-		return getTokenStreamWithTypeAndKeyId(keyType, keyId)
-				.findAny()
-				.isPresent();
+		return jsonWebKeys.containsKey(String.valueOf(JsonWebKeyImpl.calculateUniqueId(keyType, keyId)));
 	}
 
 	@Nullable
-	public JsonWebKey getKeyByTypeAndId(JsonWebKey.Type keyType, String keyId) {
-		return getTokenStreamWithTypeAndKeyId(keyType, keyId)
-				.findFirst()
-				.orElse(null);
+	public JsonWebKey getKeyByTypeAndId(@Nonnull JsonWebKey.Type keyType, @Nonnull String keyId) {
+		return jsonWebKeys.get(String.valueOf(JsonWebKeyImpl.calculateUniqueId(keyType, keyId)));
 	}
 
 	public boolean put(@Nonnull JsonWebKey jsonWebKey) {
+		Assertions.assertNotNull(jsonWebKey, "jsonWebKey must not be null");
+
 		if (containsKeyByTypeAndId(jsonWebKey.getType(), jsonWebKey.getId())) {
 			return false;
 		} else {
-			jsonWebKeys.add(jsonWebKey);
+			jsonWebKeys.put(String.valueOf(jsonWebKey.hashCode()), jsonWebKey);
 			return true;
 		}
 	}
 
-	private Stream<JsonWebKey> getTokenStreamWithTypeAndKeyId(JsonWebKey.Type keyType, String keyId) {
-		String kid = keyId != null ? keyId : JsonWebKey.DEFAULT_KEY_ID;
-		return jsonWebKeys.stream()
-				.filter(jwk -> keyType.equals(jwk.getType()))
-				.filter(jwk -> kid.equals(jwk.getId()));
+	public void putAll(JsonWebKeySet jsonWebKeySet) {
+		jsonWebKeys.putAll(jsonWebKeySet.jsonWebKeys);
+	}
+
+	public void clear() {
+		jsonWebKeys.clear();
 	}
 }

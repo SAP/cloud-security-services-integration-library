@@ -1,8 +1,8 @@
 package com.sap.cloud.security.xsuaa.jwk;
 
-public class JSONWebKeyConstants {
+public class JsonWebKeyConstants {
 
-	private JSONWebKeyConstants() {}
+	private JsonWebKeyConstants() {}
 
 	static final String BEGIN_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----";
 	static final String END_PUBLIC_KEY = "-----END PUBLIC KEY-----";

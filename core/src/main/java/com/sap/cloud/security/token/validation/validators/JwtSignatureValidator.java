@@ -1,7 +1,8 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.core.Assertions.*;
-import static com.sap.cloud.security.xsuaa.jwk.JSONWebKeyConstants.*;
+import static com.sap.cloud.security.xsuaa.jwk.JsonWebKey.*;
+import static com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants.*;
 import static java.nio.charset.StandardCharsets.*;
 
 import javax.annotation.Nullable;
@@ -14,8 +15,6 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
@@ -32,7 +31,7 @@ import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
 
 public class JwtSignatureValidator implements Validator<Token> {
-	private Map<String, PublicKey> keyCache = new HashMap<>();
+	private JsonWebKeySet keyCache = new JsonWebKeySet();
 	private OAuth2TokenKeyService tokenKeyService;
 	private URI jwksUri;
 	private static Logger LOGGER = LoggerFactory.getLogger(JwtSignatureValidator.class);
@@ -64,7 +63,9 @@ public class JwtSignatureValidator implements Validator<Token> {
 				return ValidationResults.createInvalid("JKU of token header is not trusted.");
 		}*/
 
-		PublicKey publicKey = getPublicKey(JsonWebKey.Type.RSA, tokenKeyId != null ? tokenKeyId : JsonWebKey.DEFAULT_KEY_ID);
+		Type keyType = getKeyTypeForAlgorithm(tokenAlgorithm);
+
+		PublicKey publicKey = getPublicKey(keyType, tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID);
 		if (publicKey == null) {
 			return ValidationResults.createInvalid("There is no JSON Web Token Key to prove the identity of the JWT.");
 		}
@@ -79,46 +80,68 @@ public class JwtSignatureValidator implements Validator<Token> {
 		return ValidationResults.createValid();
 	}
 
+	private Type getKeyTypeForAlgorithm(String tokenAlgorithm) {
+		Type keyType;
+		switch (tokenAlgorithm) {
+		case "RS256":
+			keyType = Type.RSA;
+			break;
+		case "ES256":
+			keyType = Type.EC;
+			break;
+		default:
+			throw new IllegalStateException("JWT token with signature algorithm " + tokenAlgorithm + " can not be verified.");
+		}
+		return keyType;
+	}
+
 	@Nullable
-	private PublicKey getPublicKey(JsonWebKey.Type keyType, String keyId) {
+	private PublicKey getPublicKey(Type keyType, String keyId) {
 		PublicKey publicKey = lookupCache(keyType, keyId);
 		if (publicKey == null) {
-			try {
-				JsonWebKeySet jwks = tokenKeyService.retrieveTokenKeys(jwksUri);
-				JsonWebKey jwk = jwks.getKeyByTypeAndId(keyType, keyId);
-				if(jwk != null) {
-					publicKey = jwk.getPublicKey();
-					saveToCache(keyType, keyId, publicKey);
-				}
-			} catch (OAuth2ServiceException e) {
-				LOGGER.warn("Error retrieving JSON Web Keys from Identity Service ({}).", jwksUri, e);
-			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-				LOGGER.warn("Error creating PublicKey from JSON Web Key received from Identity Service ({}).", jwksUri, e);
-			}
+			retrieveTokenKeysAndFillCache();
 		}
-		return publicKey;
+		return lookupCache(keyType, keyId);
 	}
 
-	private PublicKey lookupCache(JsonWebKey.Type keyType, @Nullable String keyId) {
-		return keyCache.get(keyType + "-" + keyId);
+	private void retrieveTokenKeysAndFillCache() {
+		try {
+			JsonWebKeySet jwks = tokenKeyService.retrieveTokenKeys(jwksUri);
+			keyCache.putAll(jwks);
+		} catch (OAuth2ServiceException e) {
+			LOGGER.warn("Error retrieving JSON Web Keys from Identity Service ({}).", jwksUri, e);
+		}
 	}
 
-	private void saveToCache(JsonWebKey.Type keyType, @Nullable String keyId, PublicKey publicKey) {
-		keyCache.put(keyType + "-" + keyId, publicKey);
+	@Nullable
+	private PublicKey lookupCache(Type keyType, @Nullable String keyId) {
+		JsonWebKey key = keyCache.getKeyByTypeAndId(keyType, keyId);
+		try {
+			return key == null ? null : key.getPublicKey();
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			keyCache.clear();
+			LOGGER.warn("Error creating PublicKey from JSON Web Key received from Identity Service ({}).", jwksUri, e);
+		}
+		return null;
 	}
 
 	private boolean isTokenSignatureValid(String token, String tokenAlgorithm, PublicKey publicKey) throws
 			SignatureException, InvalidKeyException, NoSuchAlgorithmException {
-		if(!"RS256".equalsIgnoreCase(tokenAlgorithm)) {
+		Signature publicSignature;
+		if("RS256".equalsIgnoreCase(tokenAlgorithm)) {
+			publicSignature = Signature.getInstance("SHA256withRSA"); //RSASSA-PKCS1-v1_5 using SHA-256 according to https://tools.ietf.org/html/rfc7518#section-3
+		} else if("ES256".equalsIgnoreCase(tokenAlgorithm)) {
+			publicSignature = Signature.getInstance("SHA256withECDSA");
+		} else {
 			throw new IllegalStateException("JWT token with signature algorithm " + tokenAlgorithm + " can not be verified.");
 		}
+
 		String[] tokenHeaderPayloadSignature = token.split(Pattern.quote("."));
 		if(tokenHeaderPayloadSignature.length != 3) {
 			throw new IllegalArgumentException("JWT token does not consist of 'header'.'payload'.'signature'.");
 		}
 		String headerAndPayload = new StringBuilder( tokenHeaderPayloadSignature[0]).append( "." ).append(tokenHeaderPayloadSignature[1]).toString();
 
-		Signature publicSignature = Signature.getInstance("SHA256withRSA"); //RSASSA-PKCS1-v1_5 using SHA-256 according to https://tools.ietf.org/html/rfc7518#section-3
 		publicSignature.initVerify(publicKey);
 		publicSignature.update(headerAndPayload.getBytes( UTF_8)); // provide data
 

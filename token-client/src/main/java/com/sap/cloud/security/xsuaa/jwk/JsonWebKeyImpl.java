@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.jwk;
 
-import static com.sap.cloud.security.xsuaa.jwk.JSONWebKeyConstants.*;
+import static com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants.*;
 
 import javax.annotation.Nullable;
 
@@ -13,16 +13,18 @@ import java.security.spec.KeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Objects;
 
 import com.sap.cloud.security.xsuaa.Assertions;
 
 public class JsonWebKeyImpl implements JsonWebKey {
-	private Type type;
-	private String keyId;
-	private String algorithm;
-	private String pemEncodedPublicKey;
-	private String modulus;
-	private String publicExponent;
+	private final Type type;
+	private final String keyId;
+	private final String algorithm;
+	private final String pemEncodedPublicKey;
+	private final String modulus;
+	private final String publicExponent;
+	private PublicKey publicKey;
 
 	public JsonWebKeyImpl(Type type, @Nullable String keyId, @Nullable String algorithm, String modulus, String publicExponent, @Nullable String pemEncodedPublicKey) {
 		Assertions.assertNotNull(type, "type must be not null");
@@ -47,12 +49,17 @@ public class JsonWebKeyImpl implements JsonWebKey {
 	}
 
 	@Override public PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
-		if(pemEncodedPublicKey != null) {
-			return createPublicKeyFromPemEncodedPubliKey(type, pemEncodedPublicKey);
-		} else if (type == Type.RSA) {
-			return createRSAPublicKey(publicExponent, modulus);
+		if(publicKey != null) {
+			return publicKey;
 		}
-		throw new IllegalStateException("JWT token with web key type " + type + " can not be verified.");
+		if(pemEncodedPublicKey != null) {
+			publicKey = createPublicKeyFromPemEncodedPubliKey(type, pemEncodedPublicKey);
+		} else if (type == Type.RSA) {
+			publicKey = createRSAPublicKey(publicExponent, modulus);
+		} else {
+			throw new IllegalStateException("JWT token with web key type " + type + " can not be verified.");
+		}
+		return publicKey;
 	}
 
 	static PublicKey createRSAPublicKey(String publicExponent, String modulus)
@@ -79,6 +86,28 @@ public class JsonWebKeyImpl implements JsonWebKey {
 		key = key.replace(BEGIN_PUBLIC_KEY, "");
 		key = key.replace(END_PUBLIC_KEY, "");
 		return key;
+	}
+
+	@Override public int hashCode() {
+		return calculateUniqueId(type, keyId);
+	}
+
+	public static int calculateUniqueId(Type type, String keyId) {
+		return Objects.hash(type, keyId != null ? keyId : DEFAULT_KEY_ID);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		JsonWebKeyImpl that = (JsonWebKeyImpl) o;
+
+		if (getType() != that.getType())
+			return false;
+		return keyId.equals(that.keyId);
 	}
 
 }

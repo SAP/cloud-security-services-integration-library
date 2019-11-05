@@ -42,20 +42,20 @@ public class JwtSignatureValidatorTest {
 		when(endpointsProvider.getJwksUri()).thenReturn(URI.create("https://myauth.com/jwks_uri"));
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJSON(
+		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
 				IOUtils.resourceToString("/JSONWebTokenKeys.json", StandardCharsets.UTF_8)));
 
 		cut = new JwtSignatureValidator(tokenKeyServiceMock, endpointsProvider);
 	}
 
 	@Test
-	public void jsonWebSignatureMatchesJWKS() {
+	public void jsonRSASignatureMatchesJWKS() {
 		assertThat(cut.validate(token(accessToken)).isValid(), is(true));
 	}
 
 	@Test
-	public void iasOIDCSignatureMatchesJWKS() throws IOException {
-		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJSON(
+	public void iasOIDCRSASignatureMatchesJWKS() throws IOException {
+		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
 				IOUtils.resourceToString("/iasJSONWebTokenKeys.json", StandardCharsets.UTF_8)));
 		assertThat(cut.validate(token(otherToken)).isValid(), is(true));
 	}
@@ -71,7 +71,6 @@ public class JwtSignatureValidatorTest {
 				.append(tokenHeaderPayloadSignature[2]).toString();
 		assertThat(cut.validate(token(tokenWithOthersSignature)).isValid(), is(false));
 	}
-
 
 	@Test
 	public void validate_throwsOnNullValues() {
@@ -95,9 +94,10 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	@Ignore
-	public void takePublicKeyFromCache() {
-		// TODO implement
+	public void takePublicKeyFromCache() throws OAuth2ServiceException {
+		cut.validate(token(accessToken));
+		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenThrow(new OAuth2ServiceException("Currently unavailable"));
+		assertThat(cut.validate(token(accessToken)).isValid(), is(true));
 	}
 
 	@Test
@@ -110,6 +110,13 @@ public class JwtSignatureValidatorTest {
 	@Ignore
 	public void validationFailsWhenTokenKeyTypeIsNotRSA256() {
 		// TODO implement
+	}
+
+	@Test
+	@Ignore
+	public void jsonECSignatureMatchesJWKS() throws IOException {
+		String ecSignedToken = "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhdXRoMCJ9.4iVk3-Y0v4RT4_9IaQlp-8dZ_4fsTzIylgrPTDLrEvTHBTyVS3tgPbr2_IZfLETtiKRqCg0aQ5sh9eIsTTwB1g";
+		assertThat(cut.validate(ecSignedToken, "ES256", "key-id-1").isValid(), is(true));
 	}
 
 	private Token token(String token) {

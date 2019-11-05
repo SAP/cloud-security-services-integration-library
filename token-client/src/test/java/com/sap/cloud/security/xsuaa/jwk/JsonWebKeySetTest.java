@@ -1,25 +1,21 @@
 package com.sap.cloud.security.xsuaa.jwk;
 
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
-import com.sap.cloud.security.xsuaa.util.JSONWebKeyTestFactory;
+import com.sap.cloud.security.xsuaa.util.JsonWebKeyTestFactory;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
 
 import static com.sap.cloud.security.xsuaa.jwk.JsonWebKey.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JsonWebKeySetTest {
 
-	public static final JsonWebKey JSON_WEB_KEY = JSONWebKeyTestFactory.create();
+	public static final JsonWebKey JSON_WEB_KEY = JsonWebKeyTestFactory.create();
 
 	private JsonWebKeySet cut;
 
 	@Before
 	public void setUp() {
-		cut = new JsonWebKeySet(new ArrayList<>());
+		cut = new JsonWebKeySet();
 	}
 
 	@Test
@@ -29,14 +25,14 @@ public class JsonWebKeySetTest {
 
 	@Test
 	public void isEmpty_isFalse_whenKeyHasBeenInserted() {
-		insertJsonWebKey();
+		cut.put(JSON_WEB_KEY);
 
 		assertThat(cut.isEmpty()).isFalse();
 	}
 
 	@Test
 	public void containsKeyByTypeAndId_returnsTrue_whenKeyHasBeenInserted() {
-		insertJsonWebKey();
+		cut.put(JSON_WEB_KEY);
 
 		assertThat(cut.containsKeyByTypeAndId(JSON_WEB_KEY.getType(), JSON_WEB_KEY.getId())).isTrue();
 	}
@@ -45,11 +41,12 @@ public class JsonWebKeySetTest {
 	public void containsKeyByTypeAndId_isFalse_onEmptyJSONWebKeySet() {
 		assertThat(cut.containsKeyByTypeAndId(Type.RSA, JSON_WEB_KEY.getId())).isFalse();
 	}
+
 	@Test
 	public void containsKeyByTypeAndId_returnsFalse_whenKeyIdDoesNotMatch() {
 		String differentKeyId = "differentKeyId";
 
-		insertJsonWebKey();
+		cut.put(JSON_WEB_KEY);
 
 		assertThat(cut.containsKeyByTypeAndId(JSON_WEB_KEY.getType(), differentKeyId)).isFalse();
 	}
@@ -58,14 +55,14 @@ public class JsonWebKeySetTest {
 	public void containsKeyByTypeAndId_returnsFalse_whenKeyTypeDoesNotMatch() {
 		Type differentKeyType = Type.EC;
 
-		insertJsonWebKey();
+		cut.put(JSON_WEB_KEY);
 
 		assertThat(cut.containsKeyByTypeAndId(differentKeyType, JSON_WEB_KEY.getId())).isFalse();
 	}
 
 	@Test
 	public void getKeyByTypeAndId_returnsKey_whenKeyHasBeenInserted() {
-		insertJsonWebKey();
+		cut.put(JSON_WEB_KEY);
 
 		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
 	}
@@ -79,7 +76,7 @@ public class JsonWebKeySetTest {
 	public void getKeyByTypeAndId_returnsNull_whenKeyTypeDoesNotMatch() {
 		Type differentKeyType = Type.EC;
 
-		insertJsonWebKey();
+		cut.put(JSON_WEB_KEY);
 
 		assertThat(cut.getKeyByTypeAndId(differentKeyType, JSON_WEB_KEY.getId())).isNull();
 	}
@@ -88,37 +85,53 @@ public class JsonWebKeySetTest {
 	public void getKeyByTypeAndId_returnsDefault_whenKeyIdDoesNotMatch() {
 		String differentKeyId = "differentKeyId";
 
-		insertJsonWebKey();
+		cut.put(JSON_WEB_KEY);
 
 		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), differentKeyId)).isNull();
 	}
 
 	@Test
 	public void getKeyByTypeAndId_returnsNull_whenKeyIdDoesNotMatch() {
-		insertJsonWebKey();
+		cut.put(JSON_WEB_KEY);
 
-		cut.put(JSONWebKeyTestFactory.createDefault());
+		cut.put(JsonWebKeyTestFactory.createDefault());
 
 		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), DEFAULT_KEY_ID).getId().equals(DEFAULT_KEY_ID));
 	}
 
 	@Test
 	public void put_returnsTrue_whenKeyHasNotBeenInsertedYet() {
-		boolean inserted = insertJsonWebKey();
+		boolean inserted = cut.put(JSON_WEB_KEY);
 
 		assertThat(inserted).isTrue();
 	}
 
 	@Test
 	public void put_returnsFalse_whenKeyIsAlreadyInserted() {
-		insertJsonWebKey();
+		cut.put(JSON_WEB_KEY);
 
-		boolean inserted = insertJsonWebKey();
+		boolean inserted = cut.put(JSON_WEB_KEY);
 
 		assertThat(inserted).isFalse();
 	}
 
-	private boolean insertJsonWebKey() {
-		return cut.put(JSON_WEB_KEY);
+	@Test
+	public void putAll_overwrites_whenKeysAreAlreadyInserted() {
+		JsonWebKeySet other = new JsonWebKeySet();
+		other.put(JSON_WEB_KEY);
+		JsonWebKey JSON_WEB_KEY_DEFAULT = JsonWebKeyTestFactory.createDefault();
+		other.put(JSON_WEB_KEY_DEFAULT);
+
+		cut.put(JSON_WEB_KEY);
+
+		cut.putAll(other);
+		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
+		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY_DEFAULT.getType(), JSON_WEB_KEY_DEFAULT.getId())).isEqualTo(JSON_WEB_KEY_DEFAULT);
+	}
+
+	public void clear_removesAllEntries() {
+		cut.put(JSON_WEB_KEY);
+		cut.clear();
+		assertThat(cut.isEmpty()).isTrue();
 	}
 }
