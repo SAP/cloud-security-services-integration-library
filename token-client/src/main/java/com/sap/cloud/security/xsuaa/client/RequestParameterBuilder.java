@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
-public class RequestParameterBuilder {
+class RequestParameterBuilder {
 
 	private final Map<String, String> parameters = new HashMap<>();
 

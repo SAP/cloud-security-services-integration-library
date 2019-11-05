@@ -11,7 +11,6 @@ import org.springframework.web.client.RestOperations;
 import javax.annotation.Nonnull;
 import java.net.URI;
 
-// TODO 30.10.19 c5295400: Name?
 public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	private final RestOperations restOperations;
 

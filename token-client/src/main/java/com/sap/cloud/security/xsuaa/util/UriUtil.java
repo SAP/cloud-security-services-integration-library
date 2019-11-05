@@ -48,4 +48,20 @@ public class UriUtil {
 	private static boolean hasText(String string) {
 		return Optional.ofNullable(string).filter(str -> !str.trim().isEmpty()).isPresent();
 	}
+
+	@Nonnull
+	public static URI getUriWithPathAppended(URI baseUri, String pathToAppend) {
+		try {
+			String newPath = baseUri.getPath() + pathToAppend;
+			return new URI(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(),
+					replaceDoubleSlashes(newPath), baseUri.getQuery(), baseUri.getFragment());
+		} catch (URISyntaxException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	@Nonnull
+	private static String replaceDoubleSlashes(String newPath) {
+		return newPath.replaceAll("//", "/");
+	}
 }

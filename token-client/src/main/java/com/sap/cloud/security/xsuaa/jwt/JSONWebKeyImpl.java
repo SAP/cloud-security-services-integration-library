@@ -1,5 +1,8 @@
 package com.sap.cloud.security.xsuaa.jwt;
 
+import static com.sap.cloud.security.xsuaa.jwt.JSONWebKey.*;
+import static com.sap.cloud.security.xsuaa.jwt.JSONWebKeyConstants.*;
+
 import javax.annotation.Nullable;
 
 import java.math.BigInteger;
@@ -7,6 +10,7 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
@@ -14,17 +18,17 @@ import java.util.Base64;
 import com.sap.cloud.security.xsuaa.Assertions;
 
 public class JSONWebKeyImpl implements JSONWebKey {
-	JSONWebKey.Type type;
+	Type type;
 	String keyId;
 	String algorithm;
 	String pemEncodedPublicKey;
 	String modulus;
 	String publicExponent;
 
-	public JSONWebKeyImpl(JSONWebKey.Type type, @Nullable String keyId, @Nullable String algorithm, String modulus, String publicExponent, @Nullable String pemEncodedPublicKey) {
+	public JSONWebKeyImpl(Type type, @Nullable String keyId, @Nullable String algorithm, String modulus, String publicExponent, @Nullable String pemEncodedPublicKey) {
 		Assertions.assertNotNull(type, "type must be not null");
 		this.type = type;
-		this.keyId = keyId != null ? keyId : JSONWebKey.DEFAULT_KEY_ID;
+		this.keyId = keyId != null ? keyId : DEFAULT_KEY_ID;
 		this.algorithm = algorithm;
 		this.pemEncodedPublicKey = pemEncodedPublicKey;
 		this.publicExponent = publicExponent;
@@ -44,10 +48,9 @@ public class JSONWebKeyImpl implements JSONWebKey {
 	}
 
 	@Override public PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
-		if(type == JSONWebKey.Type.RSA) {
-			if(pemEncodedPublicKey != null) {
-				return createPublicKeyFromPemEncodedPubliKey(type, pemEncodedPublicKey);
-			}
+		if(pemEncodedPublicKey != null) {
+			return createPublicKeyFromPemEncodedPubliKey(type, pemEncodedPublicKey);
+		} else if (type == Type.RSA) {
 			return createRSAPublicKey(publicExponent, modulus);
 		}
 		throw new IllegalStateException("JWT token with web key type " + type + " can not be verified.");
@@ -55,28 +58,27 @@ public class JSONWebKeyImpl implements JSONWebKey {
 
 	static PublicKey createRSAPublicKey(String publicExponent, String modulus)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
-		KeyFactory keyFactory = KeyFactory.getInstance(JSONWebKey.Type.RSA.value());
 		BigInteger n = new BigInteger(1, Base64.getUrlDecoder().decode(modulus));
 		BigInteger e = new BigInteger(1, Base64.getUrlDecoder().decode(publicExponent));
-		RSAPublicKeySpec keySpec = new RSAPublicKeySpec(n, e);
+		KeySpec keySpec = new RSAPublicKeySpec(n, e);
+
+		KeyFactory keyFactory = KeyFactory.getInstance(Type.RSA.value());
 		return keyFactory.generatePublic(keySpec);
 	}
 
 	static PublicKey createPublicKeyFromPemEncodedPubliKey(JSONWebKeyImpl.Type type, String pemEncodedKey)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
-		byte[] decodedBytes = Base64.getDecoder().decode(convertPEMKey(pemEncodedKey));
+		byte[] decodedBytes = Base64.getMimeDecoder().decode(convertPEMKey(pemEncodedKey));
 
-		KeyFactory keyFactory = KeyFactory.getInstance(type.value());
 		X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(decodedBytes);
+		KeyFactory keyFactory = KeyFactory.getInstance(type.value());
 		return keyFactory.generatePublic(keySpecX509);
 	}
 
 	public static String convertPEMKey(String pemEncodedKey) {
 		String key = pemEncodedKey;
-		key = key.replace(JSONWebKeyConstants.BEGIN_PUBLIC_KEY, "");
-		key = key.replace(JSONWebKeyConstants.END_PUBLIC_KEY, "");
-		key = key.replace("\n", "");
-		key = key.replace("\\n", "");
+		key = key.replace(BEGIN_PUBLIC_KEY, "");
+		key = key.replace(END_PUBLIC_KEY, "");
 		return key;
 	}
 

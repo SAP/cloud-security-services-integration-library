@@ -52,7 +52,6 @@ public final class Base64JwtDecoder {
 			this.header = header;
 			this.payload = payload;
 			this.signature = signature;
-
 			this.encodedJwt = encodedJwt;
 		}
 
