@@ -13,7 +13,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.regex.Pattern;
 
@@ -24,25 +23,15 @@ import com.sap.cloud.security.token.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
+import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 
 public class JwtSignatureValidator implements Validator<Token> {
-	private JsonWebKeySet keyCache = new JsonWebKeySet();
-	private OAuth2TokenKeyService tokenKeyService;
+	private TokenKeyServiceWithCache tokenKeyService;
 	private URI jwksUri;
 	private static Logger LOGGER = LoggerFactory.getLogger(JwtSignatureValidator.class);
 
-	public JwtSignatureValidator(OAuth2TokenKeyService tokenKeyService, OAuth2ServiceEndpointsProvider endpointsProvider) {
-		this(tokenKeyService, endpointsProvider.getJwksUri());
-	}
-
-	public JwtSignatureValidator(OAuth2TokenKeyService tokenKeyService, URI jwksUri) {
+	public JwtSignatureValidator(TokenKeyServiceWithCache tokenKeyService) {
 		assertNotNull(tokenKeyService, "tokenKeyService must not be null.");
-		assertNotNull(jwksUri, "jwksUri must not be null.");
 
 		this.tokenKeyService = tokenKeyService;
 		this.jwksUri = jwksUri;
@@ -97,32 +86,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	@Nullable
 	private PublicKey getPublicKey(Type keyType, String keyId) {
-		PublicKey publicKey = lookupCache(keyType, keyId);
-		if (publicKey == null) {
-			retrieveTokenKeysAndFillCache();
-		}
-		return lookupCache(keyType, keyId);
-	}
-
-	private void retrieveTokenKeysAndFillCache() {
-		try {
-			JsonWebKeySet jwks = tokenKeyService.retrieveTokenKeys(jwksUri);
-			keyCache.putAll(jwks);
-		} catch (OAuth2ServiceException e) {
-			LOGGER.warn("Error retrieving JSON Web Keys from Identity Service ({}).", jwksUri, e);
-		}
-	}
-
-	@Nullable
-	private PublicKey lookupCache(Type keyType, @Nullable String keyId) {
-		JsonWebKey key = keyCache.getKeyByTypeAndId(keyType, keyId);
-		try {
-			return key == null ? null : key.getPublicKey();
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			keyCache.clear();
-			LOGGER.warn("Error creating PublicKey from JSON Web Key received from Identity Service ({}).", jwksUri, e);
-		}
-		return null;
+		return tokenKeyService.getPublicKey(keyType, keyId);
 	}
 
 	private boolean isTokenSignatureValid(String token, String tokenAlgorithm, PublicKey publicKey) throws

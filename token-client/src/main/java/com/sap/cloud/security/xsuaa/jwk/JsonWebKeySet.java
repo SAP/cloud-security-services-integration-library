@@ -4,12 +4,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import com.sap.cloud.security.xsuaa.Assertions;
 
 public class JsonWebKeySet {
 
-	private HashMap<String, JsonWebKey> jsonWebKeys;
+	private Map<String, JsonWebKey> jsonWebKeys;
 
 	public JsonWebKeySet() {
 		jsonWebKeys = new HashMap<>();
@@ -37,6 +38,10 @@ public class JsonWebKeySet {
 			jsonWebKeys.put(String.valueOf(jsonWebKey.hashCode()), jsonWebKey);
 			return true;
 		}
+	}
+
+	public Map<String, JsonWebKey> getAll() {
+		return jsonWebKeys;
 	}
 
 	public void putAll(JsonWebKeySet jsonWebKeySet) {

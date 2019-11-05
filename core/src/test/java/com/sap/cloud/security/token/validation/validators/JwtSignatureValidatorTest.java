@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
+import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -45,7 +46,7 @@ public class JwtSignatureValidatorTest {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
 				IOUtils.resourceToString("/JSONWebTokenKeys.json", StandardCharsets.UTF_8)));
 
-		cut = new JwtSignatureValidator(tokenKeyServiceMock, endpointsProvider);
+		cut = new JwtSignatureValidator(new TokenKeyServiceWithCache(tokenKeyServiceMock, endpointsProvider));
 	}
 
 	@Test
