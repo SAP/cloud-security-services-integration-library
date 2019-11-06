@@ -1,5 +1,7 @@
 package com.sap.cloud.security.core.config;
 
+import javax.annotation.Nullable;
+
 import java.net.URI;
 
 public interface OAuth2ServiceConfiguration {
@@ -21,14 +23,15 @@ public interface OAuth2ServiceConfiguration {
 	 * Base URL of the OAuth2 Identity service instance. In multi tenancy scenarios
 	 * this is the url where the service instance was created.
 	 *
-	 * @return base url
+	 * @return base url, e.g. https://paastenant.idservice.com
 	 */
-	URI getUaaUrl();
+	URI getUrl();
 
 	/**
-	 * Domain of the uaa authentication domain
+	 * Domain of the OAuth2 Identity service instance.
 	 *
-	 * @return uaaDomain
+	 * @return domain e.g. idservice.com
 	 */
-	String getUaaDomain();
+	@Nullable
+	String getDomain();
 }

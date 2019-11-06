@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import com.sap.cloud.security.core.Assertions;
+import static com.sap.cloud.security.core.Assertions.*;
+
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -29,10 +30,10 @@ public class JwtAudienceValidator implements Validator<Token> {
 	}
 
 	public void configureAnotherServiceInstance(String appId, String clientId) {
-		Assertions.assertNotNull(clientId, "'clientId' is required");
-		Assertions.assertNotNull(appId, "'appId' is required");
+		assertNotNull(appId, "appId must not be null");
+		assertNotNull(clientId, "clientId must not be null");
 		appIdClientIdMap.putIfAbsent(appId, clientId);
-		logger.info("configured XsuaaAudienceValidator with appId {} and clientId {}", appId, clientId);
+		logger.info("configured JwtAudienceValidator with appId {} and clientId {}", appId, clientId);
 	}
 
 	@Override
@@ -102,7 +103,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	}
 
 	static List<String> getScopes(Token token) {
-		List<String> scopes = token.getScopes();
+		List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 		return scopes != null ? scopes : new ArrayList<>();
 	}
 }

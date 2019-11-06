@@ -56,12 +56,6 @@ public class TokenImpl implements Token {
 
 	@Nullable
 	@Override
-	public List<String> getScopes() {
-		return getClaimAsStringList(SCOPES);
-	}
-
-	@Nullable
-	@Override
 	public Instant getExpiration() {
 		return payloadJsonObject.getAsInstant(EXPIRATION);
 	}

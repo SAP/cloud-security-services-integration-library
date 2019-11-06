@@ -54,14 +54,6 @@ public interface Token {
 	List<String> getClaimAsStringList(@Nonnull String claimName);
 
 	/**
-	 * Returns list of scopes.
-	 * 
-	 * @return all scopes
-	 */
-	@Nullable
-	List<String> getScopes();
-
-	/**
 	 * Returns the moment in time when the token will be expired.
 	 *
 	 * @return the expiration point in time if present.

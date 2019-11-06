@@ -6,7 +6,6 @@ import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 
 import static org.mockito.Mockito.when;
 
@@ -24,13 +23,13 @@ public class MockTokenBuilder {
 		return this;
 	}
 
-	public MockTokenBuilder withScopes(String... scopes) {
-		when(token.getScopes()).thenReturn(Arrays.asList(scopes));
+	public MockTokenBuilder withClientId(String clientId) {
+		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(clientId);
 		return this;
 	}
 
-	public MockTokenBuilder withClientId(String clientId) {
-		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(clientId);
+	public MockTokenBuilder withScopes(String... scopes) {
+		when(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).thenReturn(Arrays.asList(scopes));
 		return this;
 	}
 
