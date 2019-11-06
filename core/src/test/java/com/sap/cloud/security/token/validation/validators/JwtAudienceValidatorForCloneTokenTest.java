@@ -23,8 +23,8 @@ public class JwtAudienceValidatorForCloneTokenTest {
 
 	@Before
 	public void setup() {
-		cut = new JwtAudienceValidator("sb-test1!t1", "test1!t1");
-		cut.configureAnotherServiceInstance(XSUAA_BROKER_CLIENT_ID, XSUAA_BROKER_XSAPPNAME);
+		cut = new JwtAudienceValidator( "test1!t1", "sb-test1!t1");
+		cut.configureAnotherServiceInstance(XSUAA_BROKER_XSAPPNAME, XSUAA_BROKER_CLIENT_ID);
 
 		mockTokenBuilder = new MockTokenBuilder().withExpiration(JwtGenerator.NO_EXPIRE_DATE.toInstant());
 	}

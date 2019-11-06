@@ -31,10 +31,10 @@ public class JwtAudienceValidatorTest {
 		tokenWithoutAudience = createTokenFromTemplate("/audience_2.txt");
 		cloneTokenWithAudience = createTokenFromTemplate("/audience_3.txt");
 
-		jwtAudienceValidatorSameClientId = new JwtAudienceValidator("sb-test1!t1", "test1!t1");
-		jwtAudienceValidatorOtherGrantedClientId = new JwtAudienceValidator("sb-test2!t1", "test2!t1");
-		jwtAudienceValidatorGrantedClientId = new JwtAudienceValidator("sb-test3!t1", "test3!t1");
-		jwtAudienceValidatorBrokerPlan = new JwtAudienceValidator("sb-test3!b1", "test3!b1");
+		jwtAudienceValidatorSameClientId = new JwtAudienceValidator("test1!t1", "sb-test1!t1");
+		jwtAudienceValidatorOtherGrantedClientId = new JwtAudienceValidator("test2!t1", "sb-test2!t1");
+		jwtAudienceValidatorGrantedClientId = new JwtAudienceValidator("test3!t1", "sb-test3!t1");
+		jwtAudienceValidatorBrokerPlan = new JwtAudienceValidator("test3!b1", "sb-test3!b1");
 	}
 
 	@Before
@@ -80,7 +80,7 @@ public class JwtAudienceValidatorTest {
 
 	@Test
 	public void testOtherGrantedClientIdWithoutAudienceAndDot() {
-		ValidationResult result = new JwtAudienceValidator("sb-test4!t1", "test4!t1").validate(tokenWithAudience);
+		ValidationResult result = new JwtAudienceValidator("test4!t1", "sb-test4!t1").validate(tokenWithAudience);
 
 		assertThat(result.isValid()).isTrue();
 	}

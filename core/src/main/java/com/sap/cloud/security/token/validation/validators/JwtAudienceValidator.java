@@ -24,7 +24,11 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	private final Map<String, String> appIdClientIdMap = new HashMap<>();
 
-	public JwtAudienceValidator(String clientId, String appId) {
+	public JwtAudienceValidator(String appId, String clientId) {
+		configureAnotherServiceInstance(appId, clientId);
+	}
+
+	public void configureAnotherServiceInstance(String appId, String clientId) {
 		Assertions.assertNotNull(clientId, "'clientId' is required");
 		Assertions.assertNotNull(appId, "'appId' is required");
 		appIdClientIdMap.putIfAbsent(appId, clientId);
@@ -101,5 +105,4 @@ public class JwtAudienceValidator implements Validator<Token> {
 		List<String> scopes = token.getScopes();
 		return scopes != null ? scopes : new ArrayList<>();
 	}
-
 }
