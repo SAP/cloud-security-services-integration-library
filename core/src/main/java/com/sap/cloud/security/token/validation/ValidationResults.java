@@ -1,11 +1,16 @@
 package com.sap.cloud.security.token.validation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 
 /**
  * This is a factory class to easily create {@link ValidationResult} objects.
  */
 public class ValidationResults {
+
+	private static final Logger logger = LoggerFactory.getLogger(ValidationResults.class);
 
 	/**
 	 * Creates an invalid {@link ValidationResult} that contains one
@@ -17,6 +22,7 @@ public class ValidationResults {
 	 *         {@link ValidationError} with the given error description.
 	 */
 	public static ValidationResult createInvalid(String errorDescription) {
+		logger.warn(errorDescription);
 		ArrayList<ValidationError> validationErrors = new ArrayList<>();
 		validationErrors.add(new ValidationErrorImpl(errorDescription));
 		ValidationResultImpl validationResult = new ValidationResultImpl(validationErrors);
@@ -30,6 +36,7 @@ public class ValidationResults {
 	 * @return a valid validation result.
 	 */
 	public static ValidationResult createValid() {
+		logger.info("Valid validation result created");
 		return new ValidationResultImpl(new ArrayList<>());
 	}
 
