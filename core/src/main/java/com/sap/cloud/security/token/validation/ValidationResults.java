@@ -36,7 +36,6 @@ public class ValidationResults {
 	 * @return a valid validation result.
 	 */
 	public static ValidationResult createValid() {
-		logger.info("Valid validation result created");
 		return new ValidationResultImpl(new ArrayList<>());
 	}
 
