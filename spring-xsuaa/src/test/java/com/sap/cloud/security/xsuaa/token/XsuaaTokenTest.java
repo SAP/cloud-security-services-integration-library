@@ -47,10 +47,10 @@ public class XsuaaTokenTest {
 		claimsSetBuilder = new JWTClaimsSet.Builder()
 				.issueTime(new Date())
 				.expirationTime(JwtGenerator.NO_EXPIRE_DATE)
-				.claim(TokenClaims.USER_NAME, userName).claim(TokenClaims.EMAIL, userName + "@test.org")
-				.claim(TokenClaims.ZONE_ID, zoneId).claim(TokenClaims.CLIENT_ID, "sb-java-hello-world")
-				.claim(TokenClaims.ORIGIN, "userIdp")
-				.claim(TokenClaims.GRANT_TYPE, XsuaaToken.GRANTTYPE_SAML2BEARER);
+				.claim(TokenClaims.XSUAA.USER_NAME, userName).claim(TokenClaims.XSUAA.EMAIL, userName + "@test.org")
+				.claim(TokenClaims.XSUAA.ZONE_ID, zoneId).claim(TokenClaims.XSUAA.CLIENT_ID, "sb-java-hello-world")
+				.claim(TokenClaims.XSUAA.ORIGIN, "userIdp")
+				.claim(TokenClaims.XSUAA.GRANT_TYPE, XsuaaToken.GRANTTYPE_SAML2BEARER);
 
 		jwtSaml = new JwtGenerator().createFromTemplate("/saml.txt");
 		jwtCC = JwtGenerator.createFromFile("/token_cc.txt");
@@ -134,7 +134,7 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getZoneIdAsTenantGuid() {
-		claimsSetBuilder.claim(TokenClaims.ZONE_ID, zoneId);
+		claimsSetBuilder.claim(TokenClaims.XSUAA.ZONE_ID, zoneId);
 
 		token = createToken(claimsSetBuilder);
 
@@ -173,7 +173,7 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getUserNameReturnsErrorWhenOriginContainsDelimeter() {
-		claimsSetBuilder.claim(TokenClaims.ORIGIN, "my/Idp");
+		claimsSetBuilder.claim(TokenClaims.XSUAA.ORIGIN, "my/Idp");
 		token = createToken(claimsSetBuilder);
 		assertNull(token.getUsername());
 	}

@@ -23,7 +23,8 @@ import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.web.client.RestOperations;
 
-import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.JKU;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.KID;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());

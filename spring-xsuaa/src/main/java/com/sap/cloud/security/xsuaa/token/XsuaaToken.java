@@ -13,7 +13,7 @@ import org.springframework.util.Assert;
 import java.time.Instant;
 import java.util.*;
 
-import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**
  * Custom XSUAA token implementation.
@@ -186,7 +186,7 @@ public class XsuaaToken extends Jwt implements Token {
 	public String[] getXSUserAttribute(String attributeName) {
 		String[] attributeValue = getStringListAttributeFromClaim(attributeName, CLAIM_EXTERNAL_CONTEXT);
 		return attributeValue != null ? attributeValue
-				: getStringListAttributeFromClaim(attributeName, TokenClaims.XS_USER_ATTRIBUTES);
+				: getStringListAttributeFromClaim(attributeName, TokenClaims.XSUAA.XS_USER_ATTRIBUTES);
 	}
 
 	@Override

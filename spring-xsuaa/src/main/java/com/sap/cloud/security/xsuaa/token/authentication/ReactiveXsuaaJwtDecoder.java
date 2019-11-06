@@ -23,8 +23,8 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 import reactor.core.publisher.Mono;
 
-import static com.sap.cloud.security.token.TokenClaims.JKU;
-import static com.sap.cloud.security.token.TokenClaims.KID;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.JKU;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.KID;
 
 public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 

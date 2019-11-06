@@ -46,7 +46,7 @@ public class XsuaaAudienceValidatorTest {
 		cloneTokenWithAudience = new JwtGenerator().createFromTemplate("/audience_3.txt");
 
 		claimsBuilder = new JWTClaimsSet.Builder().issueTime(new Date()).expirationTime(JwtGenerator.NO_EXPIRE_DATE);
-		claimsBuilder.claim(TokenClaims.CLIENT_ID, "sb-test1!t1");
+		claimsBuilder.claim(TokenClaims.XSUAA.CLIENT_ID, "sb-test1!t1");
 	}
 
 	@Test
@@ -148,7 +148,7 @@ public class XsuaaAudienceValidatorTest {
 
 	@Test
 	public void testTokenWithoutClientId() {
-		claimsBuilder.claim(TokenClaims.CLIENT_ID, "");
+		claimsBuilder.claim(TokenClaims.XSUAA.CLIENT_ID, "");
 		Jwt tokenWithoutClientId = JwtGenerator.createFromClaims(claimsBuilder.build());
 		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationSameClientId)
 				.validate(tokenWithoutClientId);
