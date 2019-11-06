@@ -1,7 +1,8 @@
 package com.sap.cloud.security.token;
 
 /**
- * Class with public constants denoting custom XSUAA Jwt claims.
+ * Class with constants denoting Jwt claims as specified here:
+ * https://tools.ietf.org/html/rfc7519#section-4
  */
 public final class TokenClaims {
 	private TokenClaims() {
@@ -23,8 +24,6 @@ public final class TokenClaims {
 		public static final String GRANT_TYPE = "grant_type";
 		public static final String ZDN = "zdn";
 		public static final String ZONE_ID = "zid";
-		public static final String JKU = "jku";
-		public static final String KID = "kid";
 		public static final String CLIENT_ID = "cid";
 		public static final String SCOPES = "scope";
 	}

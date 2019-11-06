@@ -33,7 +33,7 @@ public class TokenImpl implements Token {
 
 	@Nullable
 	@Override
-	public String getHeaderValueAsString(@Nonnull String headerName) {
+	public String getHeaderParameterAsString(@Nonnull String headerName) {
 		return headerJsonObject.getAsString(headerName);
 	}
 

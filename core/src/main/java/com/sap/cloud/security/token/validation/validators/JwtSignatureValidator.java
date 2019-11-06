@@ -57,19 +57,13 @@ public class JwtSignatureValidator implements Validator<Token> {
 	@Override
 	public ValidationResult validate(Token token) {
 		return validate(token.getAppToken(),
-				token.getHeaderValueAsString(ALGORITHM_PARAMETER_NAME),
-				token.getHeaderValueAsString(KEY_ID_PARAMETER_NAME));
+				token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME),
+				token.getHeaderParameterAsString(KEY_ID_PARAMETER_NAME));
 	}
 
 	public ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId) {
 		assertNotEmpty(token, "token must not be null / empty string.");
 		assertNotEmpty(tokenAlgorithm, "tokenAlgorithm must not be null / empty string.");
-
-		/*
-		 * if(!isTokenKeyUrlValid(tokenKeyUrl, serviceConfiguration.getUaaDomain())) {
-		 * return
-		 * ValidationResults.createInvalid("JKU of token header is not trusted."); }
-		 */
 
 		Type keyType = getKeyTypeForAlgorithm(tokenAlgorithm);
 		String keyId = tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID;
@@ -138,14 +132,4 @@ public class JwtSignatureValidator implements Validator<Token> {
 		return isSignatureValid;
 	}
 
-	// TODO move to XsuaaIssuerValidator
-	/*
-	 * private boolean isTokenKeyUrlValid(String jku, String identityServiceDomain)
-	 * { URI jkuUri; try { jkuUri = new URI(jku); } catch (URISyntaxException e) {
-	 * LOGGER.warn("Error: JKU of token header '{}' is not a valid URI", jku);
-	 * return false; } if(!jkuUri.getHost().endsWith(identityServiceDomain)) {
-	 * LOGGER.
-	 * warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'"
-	 * , jku, identityServiceDomain); return false; } return true; }
-	 */
 }

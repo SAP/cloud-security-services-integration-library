@@ -10,18 +10,20 @@ import java.util.List;
 public interface Token {
 
 	/**
-	 * Returns the header vale as string for the given header name.
+	 * Returns the header parameter value as string for the given header parameter name.
 	 *
 	 * @param headerName
-	 *            the name of the header parameter.
-	 * @return the value for the given header name.
+	 *            the name of the header parameter as defined here {@link TokenHeader}
+	 * @return the value for the given header name or null, if the header is not provided.
 	 */
 	@Nullable
-	String getHeaderValueAsString(@Nonnull String headerName);
+	String getHeaderParameterAsString(@Nonnull String headerName);
 
 	/**
+	 * Checks whether the token contains a given claim.
+	 *
 	 * @param claimName
-	 *            the name of the claim.
+	 *            the name of the claim as defined here {@link TokenClaims}.
 	 * @return true when the claim with the given name is found.
 	 */
 	boolean containsClaim(@Nonnull String claimName);
@@ -32,7 +34,7 @@ public interface Token {
 	 * {@link JsonParsingException}.
 	 * 
 	 * @param claimName
-	 *            the name of the claim.
+	 *            the name of the claim as defined here {@link TokenClaims}.
 	 * @return the corresponding string value of the given claim or null.
 	 *
 	 * @throws JsonParsingException
@@ -47,7 +49,7 @@ public interface Token {
 	 * it will throw a {@link JsonParsingException}.
 	 * 
 	 * @param claimName
-	 *            the name of the claim.
+	 *            the name of the claim as defined here {@link TokenClaims}.
 	 * @return the data of the given claim as a list of strings.
 	 */
 	@Nullable
@@ -75,7 +77,7 @@ public interface Token {
 	 * <p>
 	 * Never expose this token via log or via HTTP.
 	 *
-	 * @return jwt token
+	 * @return the encoded token.
 	 */
 	String getAppToken();
 
