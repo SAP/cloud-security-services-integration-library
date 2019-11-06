@@ -129,51 +129,51 @@ public class XsuaaToken extends Jwt implements Token {
 	@Override
 	@Nullable
 	public String getLogonName() {
-		return getClaimAsString(CLAIM_USER_NAME);
+		return getClaimAsString(USER_NAME);
 	}
 
 	@Override
 	@Nullable
 	public String getClientId() {
-		return getClaimAsString(CLAIM_CLIENT_ID);
+		return getClaimAsString(CLIENT_ID);
 	}
 
 	@Override
 	public String getGivenName() {
-		String externalAttribute = getStringAttributeFromClaim(CLAIM_GIVEN_NAME, CLAIM_EXTERNAL_ATTR);
-		return externalAttribute != null ? externalAttribute : getClaimAsString(CLAIM_GIVEN_NAME);
+		String externalAttribute = getStringAttributeFromClaim(GIVEN_NAME, CLAIM_EXTERNAL_ATTR);
+		return externalAttribute != null ? externalAttribute : getClaimAsString(GIVEN_NAME);
 	}
 
 	@Override
 	@Nullable
 	public String getFamilyName() {
-		String externalAttribute = getStringAttributeFromClaim(CLAIM_FAMILY_NAME, CLAIM_EXTERNAL_ATTR);
-		return externalAttribute != null ? externalAttribute : getClaimAsString(CLAIM_FAMILY_NAME);
+		String externalAttribute = getStringAttributeFromClaim(FAMILY_NAME, CLAIM_EXTERNAL_ATTR);
+		return externalAttribute != null ? externalAttribute : getClaimAsString(FAMILY_NAME);
 	}
 
 	@Override
 	public String getEmail() {
-		return getClaimAsString(CLAIM_EMAIL);
+		return getClaimAsString(EMAIL);
 	}
 
 	@Override
 	public String getOrigin() {
-		return getClaimAsString(CLAIM_ORIGIN);
+		return getClaimAsString(ORIGIN);
 	}
 
 	@Override
 	public String getGrantType() {
-		return getClaimAsString(CLAIM_GRANT_TYPE);
+		return getClaimAsString(GRANT_TYPE);
 	}
 
 	@Override
 	public String getSubaccountId() {
-		return getClaimAsString(CLAIM_ZONE_ID);
+		return getClaimAsString(ZONE_ID);
 	}
 
 	@Override
 	public String getSubdomain() {
-		return getStringAttributeFromClaim(CLAIM_ZDN, CLAIM_EXTERNAL_ATTR);
+		return getStringAttributeFromClaim(ZDN, CLAIM_EXTERNAL_ATTR);
 	}
 
 	@Override
@@ -186,7 +186,7 @@ public class XsuaaToken extends Jwt implements Token {
 	public String[] getXSUserAttribute(String attributeName) {
 		String[] attributeValue = getStringListAttributeFromClaim(attributeName, CLAIM_EXTERNAL_CONTEXT);
 		return attributeValue != null ? attributeValue
-				: getStringListAttributeFromClaim(attributeName, TokenClaims.CLAIM_XS_USER_ATTRIBUTES);
+				: getStringListAttributeFromClaim(attributeName, TokenClaims.XS_USER_ATTRIBUTES);
 	}
 
 	@Override
@@ -206,7 +206,7 @@ public class XsuaaToken extends Jwt implements Token {
 
 	@Override
 	public Collection<String> getScopes() {
-		List<String> scopesList = getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
+		List<String> scopesList = getClaimAsStringList(TokenClaims.SCOPES);
 		return scopesList != null ? scopesList : Collections.emptyList();
 	}
 

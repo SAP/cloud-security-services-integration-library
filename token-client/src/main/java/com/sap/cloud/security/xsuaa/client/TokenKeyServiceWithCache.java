@@ -1,7 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
-import static com.sap.cloud.security.xsuaa.jwk.JsonWebKey.DEFAULT_KEY_ID;
 
 import javax.annotation.Nullable;
 
@@ -10,7 +9,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -19,12 +17,14 @@ import org.slf4j.LoggerFactory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
 
 public class TokenKeyServiceWithCache {
+	private Logger logger = LoggerFactory.getLogger(TokenKeyServiceWithCache.class);
+
 	private final OAuth2TokenKeyService tokenKeyService;
 	private final OAuth2ServiceEndpointsProvider endpointsProvider;
 	private Cache<String, PublicKey> cache;
-	private static Logger LOGGER = LoggerFactory.getLogger(TokenKeyServiceWithCache.class);
 	private long cacheValidityInSeconds = 900;
 	private long cacheSize = 100;
 
@@ -82,14 +82,6 @@ public class TokenKeyServiceWithCache {
 		return this;
 	}
 
-
-	public TokenKeyServiceWithCache configureCache(int cacheValidityInSeconds, int cacheSize) {
-		cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
-				.maximumSize(cacheSize)
-				.build();
-		return this;
-	}
-
 	@Nullable
 	public PublicKey getPublicKey(JsonWebKey.Type keyType, @Nullable String keyId) {
 		String cacheKey = getUniqueCacheKey(keyType, keyId);
@@ -111,9 +103,9 @@ public class TokenKeyServiceWithCache {
 				getCache().put(getUniqueCacheKey(jwk.getType(), jwk.getId()), jwk.getPublicKey());
 			}
 		} catch (OAuth2ServiceException e) {
-			LOGGER.warn("Error retrieving JSON Web Keys from Identity Service ({}).", jwksUri, e);
+			logger.warn("Error retrieving JSON Web Keys from Identity Service ({}).", jwksUri, e);
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			LOGGER.warn("Error creating PublicKey from JSON Web Key received from Identity Service ({}).", jwksUri, e);
+			logger.warn("Error creating PublicKey from JSON Web Key received from Identity Service ({}).", jwksUri, e);
 		}
 	}
 
@@ -124,8 +116,7 @@ public class TokenKeyServiceWithCache {
 	}
 
 	public static String getUniqueCacheKey(JsonWebKey.Type type, String keyId) {
-		return String.valueOf(Objects.hash(type, keyId != null ? keyId : DEFAULT_KEY_ID));
+		return String.valueOf(JsonWebKeyImpl.calculateUniqueId(type, keyId)); // TODO
 	}
-
 
 }

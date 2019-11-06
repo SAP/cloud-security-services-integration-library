@@ -49,19 +49,19 @@ public class TokenImpl implements Token {
 	@Nullable
 	@Override
 	public List<String> getScopes() {
-		return getClaimAsStringList(CLAIM_SCOPES);
+		return getClaimAsStringList(SCOPES);
 	}
 
 	@Nullable
 	@Override
 	public Instant getExpiration() {
-		return jsonPayloadParser.getAsInstant(CLAIM_EXPIRATION);
+		return jsonPayloadParser.getAsInstant(EXPIRATION);
 	}
 
 	@Nullable
 	@Override
 	public Instant getNotBefore() {
-		return jsonPayloadParser.getAsInstant(CLAIM_NOT_BEFORE);
+		return jsonPayloadParser.getAsInstant(NOT_BEFORE);
 	}
 
 	@Override

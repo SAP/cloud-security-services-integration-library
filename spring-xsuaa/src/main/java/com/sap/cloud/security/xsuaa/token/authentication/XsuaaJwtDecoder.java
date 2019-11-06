@@ -46,12 +46,12 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		this.tokenInfoExtractor = new TokenInfoExtractor() {
 			@Override
 			public String getJku(JWT jwt) {
-				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_JKU, null);
+				return (String) jwt.getHeader().toJSONObject().getOrDefault(JKU, null);
 			}
 
 			@Override
 			public String getKid(JWT jwt) {
-				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_KID, null);
+				return (String) jwt.getHeader().toJSONObject().getOrDefault(KID, null);
 			}
 
 			@Override

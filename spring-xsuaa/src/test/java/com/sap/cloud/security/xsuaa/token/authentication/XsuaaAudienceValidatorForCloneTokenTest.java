@@ -37,7 +37,7 @@ public class XsuaaAudienceValidatorForCloneTokenTest {
 
 	@Test
 	public void tokenWithClientId_like_brokerClientId_shouldBeIgnored() {
-		claimsBuilder.claim(TokenClaims.CLAIM_CLIENT_ID, XSUAA_BROKER_CLIENT_ID);
+		claimsBuilder.claim(TokenClaims.CLIENT_ID, XSUAA_BROKER_CLIENT_ID);
 
 		OAuth2TokenValidatorResult result = cut.validate(JwtGenerator.createFromClaims(claimsBuilder.build()));
 		Assert.assertFalse(result.hasErrors());
@@ -45,7 +45,7 @@ public class XsuaaAudienceValidatorForCloneTokenTest {
 
 	@Test
 	public void cloneTokenClientId_like_brokerClientId_shouldBeAccepted() {
-		claimsBuilder.claim(TokenClaims.CLAIM_CLIENT_ID, "sb-clone1!b22|" + XSUAA_BROKER_XSAPPNAME);
+		claimsBuilder.claim(TokenClaims.CLIENT_ID, "sb-clone1!b22|" + XSUAA_BROKER_XSAPPNAME);
 
 		OAuth2TokenValidatorResult result = cut.validate(JwtGenerator.createFromClaims(claimsBuilder.build()));
 		Assert.assertFalse(result.hasErrors());
@@ -53,7 +53,7 @@ public class XsuaaAudienceValidatorForCloneTokenTest {
 
 	@Test
 	public void cloneTokenClientId_unlike_brokerClientId_raisesError() {
-		claimsBuilder.claim(TokenClaims.CLAIM_CLIENT_ID, "sb-clone1!b22|ANOTHERAPP!b12");
+		claimsBuilder.claim(TokenClaims.CLIENT_ID, "sb-clone1!b22|ANOTHERAPP!b12");
 
 		OAuth2TokenValidatorResult result = cut.validate(JwtGenerator.createFromClaims(claimsBuilder.build()));
 		Assert.assertTrue(result.hasErrors());

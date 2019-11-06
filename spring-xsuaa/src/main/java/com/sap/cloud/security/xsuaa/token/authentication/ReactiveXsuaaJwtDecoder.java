@@ -24,8 +24,8 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 import reactor.core.publisher.Mono;
 
-import static com.sap.cloud.security.token.TokenClaims.CLAIM_JKU;
-import static com.sap.cloud.security.token.TokenClaims.CLAIM_KID;
+import static com.sap.cloud.security.token.TokenClaims.JKU;
+import static com.sap.cloud.security.token.TokenClaims.KID;
 
 public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 
@@ -49,12 +49,12 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 		this.tokenInfoExtractor = new TokenInfoExtractor() {
 			@Override
 			public String getJku(JWT jwt) {
-				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_JKU, null);
+				return (String) jwt.getHeader().toJSONObject().getOrDefault(JKU, null);
 			}
 
 			@Override
 			public String getKid(JWT jwt) {
-				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_KID, null);
+				return (String) jwt.getHeader().toJSONObject().getOrDefault(KID, null);
 			}
 
 			@Override
