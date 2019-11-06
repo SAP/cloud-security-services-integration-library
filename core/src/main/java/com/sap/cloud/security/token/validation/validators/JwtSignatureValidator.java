@@ -7,13 +7,14 @@ import static java.nio.charset.StandardCharsets.*;
 
 import javax.annotation.Nullable;
 
-import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
@@ -27,14 +28,25 @@ import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 
 public class JwtSignatureValidator implements Validator<Token> {
 	private TokenKeyServiceWithCache tokenKeyService;
-	private URI jwksUri;
 	private static Logger LOGGER = LoggerFactory.getLogger(JwtSignatureValidator.class);
+	private final static Map<String, Type> MAP_ALGORITHM_TYPE;
+	static {
+		MAP_ALGORITHM_TYPE = new HashMap<>();
+		MAP_ALGORITHM_TYPE.put("RS256", Type.RSA);
+		MAP_ALGORITHM_TYPE.put("ES256", Type.EC);
+	}
+
+	private final static Map<Type, String> MAP_TYPE_SIGNATURE;
+	static {
+		MAP_TYPE_SIGNATURE = new HashMap<>();
+		MAP_TYPE_SIGNATURE.put(Type.RSA, "SHA256withRSA");
+		MAP_TYPE_SIGNATURE.put(Type.EC, "SHA256withECDSA");
+	}
 
 	public JwtSignatureValidator(TokenKeyServiceWithCache tokenKeyService) {
 		assertNotNull(tokenKeyService, "tokenKeyService must not be null.");
 
 		this.tokenKeyService = tokenKeyService;
-		this.jwksUri = jwksUri;
 	}
 
 	@Override
@@ -59,7 +71,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 			return ValidationResults.createInvalid("There is no JSON Web Token Key to prove the identity of the JWT.");
 		}
 		try {
-			if(!isTokenSignatureValid(token, tokenAlgorithm, publicKey)) {
+			if(!isTokenSignatureValid(token, keyType, publicKey)) {
 				return ValidationResults.createInvalid("Signature verification failed.");
 			}
 		} catch (Exception e) {
@@ -70,18 +82,23 @@ public class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	private Type getKeyTypeForAlgorithm(String tokenAlgorithm) {
-		Type keyType;
-		switch (tokenAlgorithm) {
-		case "RS256":
-			keyType = Type.RSA;
-			break;
-		case "ES256":
-			keyType = Type.EC;
-			break;
-		default:
-			throw new IllegalStateException("JWT token with signature algorithm " + tokenAlgorithm + " can not be verified.");
+		Type keyType = MAP_ALGORITHM_TYPE.get(tokenAlgorithm);
+		if(keyType != null) {
+			return keyType;
 		}
-		return keyType;
+		throw new IllegalArgumentException("JWT token with signature algorithm " + tokenAlgorithm + " can not be verified.");
+	}
+
+	private Signature getSignatureForAlgorithm(Type keyType) {
+		String algorithm = MAP_TYPE_SIGNATURE.get(keyType);
+		if(algorithm != null) {
+			try {
+				return Signature.getInstance(algorithm);
+			} catch (NoSuchAlgorithmException e) {
+				// should never happen
+			}
+		}
+		throw new IllegalArgumentException("JWT token with signature algorithm " + keyType.value() + " can not be verified.");
 	}
 
 	@Nullable
@@ -89,16 +106,9 @@ public class JwtSignatureValidator implements Validator<Token> {
 		return tokenKeyService.getPublicKey(keyType, keyId);
 	}
 
-	private boolean isTokenSignatureValid(String token, String tokenAlgorithm, PublicKey publicKey) throws
-			SignatureException, InvalidKeyException, NoSuchAlgorithmException {
-		Signature publicSignature;
-		if("RS256".equalsIgnoreCase(tokenAlgorithm)) {
-			publicSignature = Signature.getInstance("SHA256withRSA"); //RSASSA-PKCS1-v1_5 using SHA-256 according to https://tools.ietf.org/html/rfc7518#section-3
-		} else if("ES256".equalsIgnoreCase(tokenAlgorithm)) {
-			publicSignature = Signature.getInstance("SHA256withECDSA");
-		} else {
-			throw new IllegalStateException("JWT token with signature algorithm " + tokenAlgorithm + " can not be verified.");
-		}
+	private boolean isTokenSignatureValid(String token, Type keyType, PublicKey publicKey) throws
+			SignatureException, InvalidKeyException {
+		Signature publicSignature = getSignatureForAlgorithm(keyType);
 
 		String[] tokenHeaderPayloadSignature = token.split(Pattern.quote("."));
 		if(tokenHeaderPayloadSignature.length != 3) {

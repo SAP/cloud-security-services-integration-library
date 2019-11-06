@@ -108,9 +108,11 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	@Ignore
 	public void validationFailsWhenTokenKeyTypeIsNotRSA256() {
-		// TODO implement
+		String token = "eyJhbGciOiJFUzUxMiJ9.eyJpc3MiOiJhdXRoMCJ9.AeCJPDIsSHhwRSGZCY6rspi8zekOw0K9qYMNridP1Fu9uhrA1QrG-EUxXlE06yvmh2R7Rz0aE7kxBwrnq8L8aOBCAYAsqhzPeUvyp8fXjjgs0Eto5I0mndE2QHlgcMSFASyjHbU8wD2Rq7ZNzGQ5b2MZfpv030WGUajT-aZYWFUJHVg2";
+		assertThatThrownBy(() -> {
+			cut.validate(token, "ES512", "key-id-1");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("JWT token with signature algorithm ES512 can not be verified");
 	}
 
 	@Test
