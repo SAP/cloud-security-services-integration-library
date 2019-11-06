@@ -111,7 +111,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 
 	static List<String> getScopes(Jwt token) {
 		List<String> scopes = null;
-		scopes = token.getClaimAsStringList(TokenClaims.SCOPES);
+		scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 		return scopes != null ? scopes : new ArrayList<>();
 	}
 }

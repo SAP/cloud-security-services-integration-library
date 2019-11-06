@@ -206,7 +206,7 @@ public class XsuaaToken extends Jwt implements Token {
 
 	@Override
 	public Collection<String> getScopes() {
-		List<String> scopesList = getClaimAsStringList(TokenClaims.SCOPES);
+		List<String> scopesList = getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 		return scopesList != null ? scopesList : Collections.emptyList();
 	}
 

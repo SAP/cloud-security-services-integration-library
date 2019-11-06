@@ -143,7 +143,7 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getAuthoritiesNoScopeClaimReturnsEmptyList() {
-		claimsSetBuilder.claim(TokenClaims.SCOPES, new ArrayList<>());
+		claimsSetBuilder.claim(TokenClaims.XSUAA.SCOPES, new ArrayList<>());
 
 		token = createToken(claimsSetBuilder);
 
