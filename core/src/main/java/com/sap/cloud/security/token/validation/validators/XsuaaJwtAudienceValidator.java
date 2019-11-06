@@ -18,14 +18,14 @@ import java.util.stream.Collectors;
 
 /**
  * Validate audience using audience field content. in case this field is empty,
- * the audience is derived from the scope field
+ * the audience is derived from the scope field.
  */
-public class JwtAudienceValidator implements Validator<Token> {
-	private static final Logger logger = LoggerFactory.getLogger(JwtAudienceValidator.class);
+public class XsuaaJwtAudienceValidator implements Validator<Token> {
+	private static final Logger logger = LoggerFactory.getLogger(XsuaaJwtAudienceValidator.class);
 
 	private final Map<String, String> appIdClientIdMap = new HashMap<>();
 
-	public JwtAudienceValidator(String appId, String clientId) {
+	public XsuaaJwtAudienceValidator(String appId, String clientId) {
 		configureAnotherServiceInstance(appId, clientId);
 	}
 

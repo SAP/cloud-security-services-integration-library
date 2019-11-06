@@ -14,16 +14,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 
 
-public class JwtAudienceValidatorForCloneTokenTest {
+public class XsuaaJwtAudienceValidatorForCloneTokenTest {
 
 	private String XSUAA_BROKER_XSAPPNAME = "brokerplanmasterapp!b123";
 	private String XSUAA_BROKER_CLIENT_ID = "sb-" + XSUAA_BROKER_XSAPPNAME;
-	private JwtAudienceValidator cut;
+	private XsuaaJwtAudienceValidator cut;
 	private MockTokenBuilder mockTokenBuilder;
 
 	@Before
 	public void setup() {
-		cut = new JwtAudienceValidator( "test1!t1", "sb-test1!t1");
+		cut = new XsuaaJwtAudienceValidator( "test1!t1", "sb-test1!t1");
 		cut.configureAnotherServiceInstance(XSUAA_BROKER_XSAPPNAME, XSUAA_BROKER_CLIENT_ID);
 
 		mockTokenBuilder = new MockTokenBuilder().withExpiration(JwtGenerator.NO_EXPIRE_DATE.toInstant());

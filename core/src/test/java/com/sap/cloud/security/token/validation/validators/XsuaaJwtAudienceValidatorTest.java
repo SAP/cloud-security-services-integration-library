@@ -14,27 +14,27 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JwtAudienceValidatorTest {
+public class XsuaaJwtAudienceValidatorTest {
 
 	private final Token tokenWithAudience;
 	private final Token tokenWithoutAudience;
 	private final Token cloneTokenWithAudience;
 
-	private final JwtAudienceValidator jwtAudienceValidatorSameClientId;
-	private final JwtAudienceValidator jwtAudienceValidatorOtherGrantedClientId;
-	private final JwtAudienceValidator jwtAudienceValidatorGrantedClientId;
-	private final JwtAudienceValidator jwtAudienceValidatorBrokerPlan;
+	private final XsuaaJwtAudienceValidator jwtAudienceValidatorSameClientId;
+	private final XsuaaJwtAudienceValidator jwtAudienceValidatorOtherGrantedClientId;
+	private final XsuaaJwtAudienceValidator jwtAudienceValidatorGrantedClientId;
+	private final XsuaaJwtAudienceValidator jwtAudienceValidatorBrokerPlan;
 	private MockTokenBuilder mockTokenBuilder;
 
-	public JwtAudienceValidatorTest() throws IOException {
+	public XsuaaJwtAudienceValidatorTest() throws IOException {
 		tokenWithAudience = createTokenFromTemplate("/audience_1.txt");
 		tokenWithoutAudience = createTokenFromTemplate("/audience_2.txt");
 		cloneTokenWithAudience = createTokenFromTemplate("/audience_3.txt");
 
-		jwtAudienceValidatorSameClientId = new JwtAudienceValidator("test1!t1", "sb-test1!t1");
-		jwtAudienceValidatorOtherGrantedClientId = new JwtAudienceValidator("test2!t1", "sb-test2!t1");
-		jwtAudienceValidatorGrantedClientId = new JwtAudienceValidator("test3!t1", "sb-test3!t1");
-		jwtAudienceValidatorBrokerPlan = new JwtAudienceValidator("test3!b1", "sb-test3!b1");
+		jwtAudienceValidatorSameClientId = new XsuaaJwtAudienceValidator("test1!t1", "sb-test1!t1");
+		jwtAudienceValidatorOtherGrantedClientId = new XsuaaJwtAudienceValidator("test2!t1", "sb-test2!t1");
+		jwtAudienceValidatorGrantedClientId = new XsuaaJwtAudienceValidator("test3!t1", "sb-test3!t1");
+		jwtAudienceValidatorBrokerPlan = new XsuaaJwtAudienceValidator("test3!b1", "sb-test3!b1");
 	}
 
 	@Before
@@ -80,7 +80,7 @@ public class JwtAudienceValidatorTest {
 
 	@Test
 	public void testOtherGrantedClientIdWithoutAudienceAndDot() {
-		ValidationResult result = new JwtAudienceValidator("test4!t1", "sb-test4!t1").validate(tokenWithAudience);
+		ValidationResult result = new XsuaaJwtAudienceValidator("test4!t1", "sb-test4!t1").validate(tokenWithAudience);
 
 		assertThat(result.isValid()).isTrue();
 	}
