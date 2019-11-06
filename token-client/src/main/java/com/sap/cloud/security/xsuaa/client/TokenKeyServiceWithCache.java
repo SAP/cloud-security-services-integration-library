@@ -8,7 +8,6 @@ import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -84,8 +83,22 @@ public class TokenKeyServiceWithCache {
 		return this;
 	}
 
+	/**
+	 * Returns the cached key by id and type or requests the keys from the jwks URI of the identity service.
+	 *
+	 * @param keyType the Key Type of the Access Token.
+	 * @param keyId the Key Id of the Access Token.
+	 * @return a PublicKey
+	 * @throws OAuth2ServiceException
+	 * 			in case the call to the jwks endpoint of the identity service failed.
+	 * @throws InvalidKeySpecException
+	 * 			in case the PublicKey generation for the json web key failed.
+	 * @throws NoSuchAlgorithmException
+	 * 			in case the algorithm of the json web key is not supported.
+	 */
 	@Nullable
-	public PublicKey getPublicKey(JsonWebKey.Type keyType, @Nullable String keyId) {
+	public PublicKey getPublicKey(JsonWebKey.Type keyType, @Nullable String keyId)
+			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		String cacheKey = getUniqueCacheKey(keyType, keyId);
 
 		PublicKey publicKey = getCache().getIfPresent(cacheKey);
@@ -95,18 +108,16 @@ public class TokenKeyServiceWithCache {
 		return getCache().getIfPresent(cacheKey);
 	}
 
-	private void retrieveTokenKeysAndFillCache() {
-		URI jwksUri = endpointsProvider.getJwksUri();
-		try {
-			Set<JsonWebKey> jwks = tokenKeyService.retrieveTokenKeys(jwksUri).getAll();
-			for (JsonWebKey jwk : jwks) {
-				getCache().put(getUniqueCacheKey(jwk.getType(), jwk.getId()), jwk.getPublicKey());
-			}
-		} catch (OAuth2ServiceException e) {
-			logger.warn("Error retrieving JSON Web Keys from Identity Service ({}).", jwksUri, e);
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			logger.warn("Error creating PublicKey from JSON Web Key received from Identity Service ({}).", jwksUri, e);
+	private void retrieveTokenKeysAndFillCache()
+			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+		Set<JsonWebKey> jwks = tokenKeyService.retrieveTokenKeys(getJwkUri()).getAll();
+		for (JsonWebKey jwk : jwks) {
+			getCache().put(getUniqueCacheKey(jwk.getType(), jwk.getId()), jwk.getPublicKey());
 		}
+	}
+
+	public URI getJwkUri() {
+		return endpointsProvider.getJwksUri();
 	}
 
 	public void clearCache() {
@@ -116,7 +127,7 @@ public class TokenKeyServiceWithCache {
 	}
 
 	public static String getUniqueCacheKey(JsonWebKey.Type type, String keyId) {
-		return String.valueOf(JsonWebKeyImpl.calculateUniqueId(type, keyId)); // TODO
+		return String.valueOf(JsonWebKeyImpl.calculateUniqueId(type, keyId));
 	}
 
 }

@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,14 +22,18 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 
+/**
+ * Validates whether the jwt was signed with the public key of the trust-worthy identity service.
+ * - asks the token key service for a set of (cached) json web token keys.
+ * - creates a PublicKey for the json web key with the respective id and type.
+ * - checks whether the jwt is unchanged and signed with a private key that matches the PublicKey.
+ */
 public class JwtSignatureValidator implements Validator<Token> {
 	private TokenKeyServiceWithCache tokenKeyService;
-	private static Logger LOGGER = LoggerFactory.getLogger(JwtSignatureValidator.class);
 	private final static Map<String, Type> MAP_ALGORITHM_TYPE;
 	static {
 		MAP_ALGORITHM_TYPE = new HashMap<>();
@@ -67,18 +72,26 @@ public class JwtSignatureValidator implements Validator<Token> {
 		 */
 
 		Type keyType = getKeyTypeForAlgorithm(tokenAlgorithm);
+		String keyId = tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID;
 
-		PublicKey publicKey = getPublicKey(keyType, tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID);
-		if (publicKey == null) {
-			return ValidationResults.createInvalid("There is no JSON Web Token Key to prove the identity of the JWT.");
+		PublicKey publicKey;
+		try {
+			publicKey = tokenKeyService.getPublicKey(keyType, keyId);
+		} catch (OAuth2ServiceException e) {
+			return ValidationResults.createInvalid("Error retrieving JSON Web Keys from Identity Service (" + tokenKeyService.getJwkUri() + "): " + e.getMessage());
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			return ValidationResults.createInvalid("Error creating PublicKey from JSON Web Key received from Identity Service (" + tokenKeyService.getJwkUri() + "): " + e.getMessage());
 		}
+		if (publicKey == null) {
+			return ValidationResults.createInvalid("There is no JSON Web Token Key with keyId '" + keyId + "' and type '" + keyType + "' to prove the identity of the JWT.");
+		}
+
 		try {
 			if (!isTokenSignatureValid(token, keyType, publicKey)) {
-				return ValidationResults.createInvalid("Signature verification failed.");
+				return ValidationResults.createInvalid("Signature of JWT Token is not valid: the identity provided by the JSON Web Token Key can not be verified.");
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error during JSON Web Signature could not be verified.", e);
-			return ValidationResults.createInvalid(e.getMessage());
+			return ValidationResults.createInvalid("Error occurred during JSON Web Signature Validation: " + e.getMessage());
 		}
 		return ValidationResults.createValid();
 	}
@@ -105,11 +118,6 @@ public class JwtSignatureValidator implements Validator<Token> {
 				"JWT token with signature algorithm " + keyType.value() + " can not be verified.");
 	}
 
-	@Nullable
-	private PublicKey getPublicKey(Type keyType, String keyId) {
-		return tokenKeyService.getPublicKey(keyType, keyId);
-	}
-
 	private boolean isTokenSignatureValid(String token, Type keyType, PublicKey publicKey)
 			throws SignatureException, InvalidKeyException {
 		Signature publicSignature = getSignatureForAlgorithm(keyType);
@@ -127,10 +135,6 @@ public class JwtSignatureValidator implements Validator<Token> {
 		byte[] decodedSignatureBytes = Base64.getUrlDecoder().decode(tokenHeaderPayloadSignature[2]);
 
 		boolean isSignatureValid = publicSignature.verify(decodedSignatureBytes);
-		if (!isSignatureValid) {
-			LOGGER.warn(
-					"Error: Signature of JWT Token is not valid: the identity provided by the JSON Web Token Key can not be verified");
-		}
 		return isSignatureValid;
 	}
 
