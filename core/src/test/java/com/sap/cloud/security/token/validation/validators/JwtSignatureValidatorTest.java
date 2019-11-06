@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
-import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
@@ -37,14 +36,14 @@ public class JwtSignatureValidatorTest {
 	@Before
 	public void setup() throws IOException {
 		accessToken = IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8);
-		otherToken = IOUtils.resourceToString("/iasOIDCTokenAlgHeaderOnly.txt", StandardCharsets.UTF_8);
+		otherToken = IOUtils.resourceToString("/iasOidcTokenAlgHeaderOnly.txt", StandardCharsets.UTF_8);
 
 		endpointsProvider = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProvider.getJwksUri()).thenReturn(URI.create("https://myauth.com/jwks_uri"));
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
-				IOUtils.resourceToString("/JSONWebTokenKeys.json", StandardCharsets.UTF_8)));
+				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
 
 		cut = new JwtSignatureValidator(new TokenKeyServiceWithCache(tokenKeyServiceMock, endpointsProvider));
 	}
@@ -57,7 +56,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void iasOIDCRSASignatureMatchesJWKS() throws IOException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
-				IOUtils.resourceToString("/iasJSONWebTokenKeys.json", StandardCharsets.UTF_8)));
+				IOUtils.resourceToString("/iasJsonWebTokenKeys.json", StandardCharsets.UTF_8)));
 		assertThat(cut.validate(token(otherToken)).isValid(), is(true));
 	}
 

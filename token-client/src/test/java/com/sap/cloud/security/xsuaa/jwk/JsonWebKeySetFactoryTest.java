@@ -18,7 +18,7 @@ public class JsonWebKeySetFactoryTest {
 
 	@Before
 	public void setup() throws IOException {
-		cut = IOUtils.resourceToString("/JSONWebTokenKeys.json", StandardCharsets.UTF_8);
+		cut = IOUtils.resourceToString("/JsonWebTokenKeys.json", StandardCharsets.UTF_8);
 	}
 
 	@Test
@@ -43,7 +43,7 @@ public class JsonWebKeySetFactoryTest {
 
 	@Test
 	public void getIasKeys() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-		cut = IOUtils.resourceToString("/iasJSONWebTokenKeys.json", StandardCharsets.UTF_8);
+		cut = IOUtils.resourceToString("/iasJsonWebTokenKeys.json", StandardCharsets.UTF_8);
 		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJson(cut);
 		JsonWebKey jwk = jwks.getKeyByTypeAndId(JsonWebKey.Type.RSA, null);
 		assertThat(jwk.getType().value, equalTo("RSA"));
