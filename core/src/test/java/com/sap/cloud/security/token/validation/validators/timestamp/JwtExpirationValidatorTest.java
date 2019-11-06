@@ -1,9 +1,8 @@
 package com.sap.cloud.security.token.validation.validators.timestamp;
 
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.validation.MockTokenTestFactory;
+import com.sap.cloud.security.token.validation.MockTokenBuilder;
 import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.token.validation.validators.timestamp.JwtExpirationValidator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,12 +14,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JwtExpirationValidatorTest {
 
 	private JwtExpirationValidator cut;
-	private MockTokenTestFactory tokenFactory;
+	private MockTokenBuilder tokenFactory;
 
 	@Before
 	public void setUp() {
 		cut = new JwtExpirationValidator(() -> NOW, CLOCK_SKEW_LEEWAY);
-		tokenFactory = new MockTokenTestFactory();
+		tokenFactory = new MockTokenBuilder();
 	}
 
 	@Test
@@ -56,7 +55,7 @@ public class JwtExpirationValidatorTest {
 
 	@Test
 	public void tokenExpired_butStillInClockSkewLeeway_isValid() {
-		tokenFactory = new MockTokenTestFactory();
+		tokenFactory = new MockTokenBuilder();
 		Token token = tokenFactory.withExpiration(NOW.minus(CLOCK_SKEW_LEEWAY).plus(ONE_SECOND)).build();
 
 		ValidationResult validationResult = cut.validate(token);

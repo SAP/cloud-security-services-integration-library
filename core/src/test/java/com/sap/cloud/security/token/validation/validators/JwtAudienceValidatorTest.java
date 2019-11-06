@@ -1,8 +1,8 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenImpl;
-import com.sap.cloud.security.token.validation.MockTokenTestFactory;
+import com.sap.cloud.security.token.TokenTestFactory;
+import com.sap.cloud.security.token.validation.MockTokenBuilder;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -24,7 +24,7 @@ public class JwtAudienceValidatorTest {
 	private final JwtAudienceValidator jwtAudienceValidatorOtherGrantedClientId;
 	private final JwtAudienceValidator jwtAudienceValidatorGrantedClientId;
 	private final JwtAudienceValidator jwtAudienceValidatorBrokerPlan;
-	private MockTokenTestFactory mockTokenTestFactory;
+	private MockTokenBuilder mockTokenBuilder;
 
 	public JwtAudienceValidatorTest() throws IOException {
 		tokenWithAudience = createTokenFromTemplate("/audience_1.txt");
@@ -39,12 +39,12 @@ public class JwtAudienceValidatorTest {
 
 	@Before
 	public void setUp()  {
-		mockTokenTestFactory = new MockTokenTestFactory();
+		mockTokenBuilder = new MockTokenBuilder();
 	}
 
 	private Token createTokenFromTemplate(String templateFilename) throws IOException {
 		String tokenWithAudienceAsJsonString = IOUtils.resourceToString(templateFilename, StandardCharsets.UTF_8);
-		return new TokenImpl(null, tokenWithAudienceAsJsonString, null);
+		return TokenTestFactory.createFromJsonPayload(tokenWithAudienceAsJsonString);
 	}
 
 	@Test
@@ -63,7 +63,7 @@ public class JwtAudienceValidatorTest {
 
 	@Test
 	public void testExtractAudiencesFromTokenScopes() {
-		Token token = new MockTokenTestFactory()
+		Token token = new MockTokenBuilder()
 				.withScopes("test1!t1.read", "test2!t1.read", "test2!t1.write", ".scopeWithoutAppId").build();
 
 		List<String> audiences = jwtAudienceValidatorSameClientId.getAllowedAudiences(token);
@@ -101,7 +101,7 @@ public class JwtAudienceValidatorTest {
 
 	@Test
 	public void testOtherGrantedClientIdWithoutAudienceButScopes() {
-		Token tokenWithoutAudienceButScopes = mockTokenTestFactory.withScopes("test2!t1.Display").build();
+		Token tokenWithoutAudienceButScopes = mockTokenBuilder.withScopes("test2!t1.Display").build();
 
 		ValidationResult result = jwtAudienceValidatorOtherGrantedClientId.validate(tokenWithoutAudienceButScopes);
 
@@ -110,7 +110,7 @@ public class JwtAudienceValidatorTest {
 
 	@Test
 	public void testOtherGrantedClientIdWithoutAudienceAndMatchingScopes() {
-		Token tokenWithoutAudienceButScopes = mockTokenTestFactory.withScopes("test3!t1.Display").build();
+		Token tokenWithoutAudienceButScopes = mockTokenBuilder.withScopes("test3!t1.Display").build();
 
 		ValidationResult result = jwtAudienceValidatorOtherGrantedClientId.validate(tokenWithoutAudienceButScopes);
 
@@ -122,7 +122,7 @@ public class JwtAudienceValidatorTest {
 
 	@Test
 	public void testOtherGrantedClientIdWithoutAudienceAndScopes() {
-		Token tokenWithoutAudienceAndScopes = mockTokenTestFactory.build();
+		Token tokenWithoutAudienceAndScopes = mockTokenBuilder.build();
 
 		ValidationResult result = jwtAudienceValidatorOtherGrantedClientId.validate(tokenWithoutAudienceAndScopes);
 
@@ -131,7 +131,7 @@ public class JwtAudienceValidatorTest {
 
 	@Test
 	public void testOtherGrantedClientIdWithoutAudienceAndEmptyScopes() {
-		Token tokenWithoutAudienceAndScopes = mockTokenTestFactory.withScopes("[]").build();
+		Token tokenWithoutAudienceAndScopes = mockTokenBuilder.withScopes("[]").build();
 
 		ValidationResult result = jwtAudienceValidatorOtherGrantedClientId.validate(tokenWithoutAudienceAndScopes);
 
@@ -140,7 +140,7 @@ public class JwtAudienceValidatorTest {
 
 	@Test
 	public void testTokenWithoutClientId() {
-		Token tokenWithoutClientId = mockTokenTestFactory.withClientId("").build();
+		Token tokenWithoutClientId = mockTokenBuilder.withClientId("").build();
 
 		ValidationResult result = jwtAudienceValidatorSameClientId.validate(tokenWithoutClientId);
 
