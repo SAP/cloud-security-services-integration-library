@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
 import javax.annotation.Nonnull;
@@ -18,6 +19,10 @@ public class TokenImpl implements Token {
 
 	public TokenImpl(DecodedJwt decodedJwt) {
 		this(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
+	}
+
+	public TokenImpl(String appToken) {
+		this(Base64JwtDecoder.getInstance().decode(appToken));
 	}
 
 	TokenImpl(String jsonHeader, String jsonPayload, String appToken) {

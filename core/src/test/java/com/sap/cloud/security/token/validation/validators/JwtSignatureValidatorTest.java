@@ -11,7 +11,6 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
-import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
@@ -24,7 +23,6 @@ import org.mockito.Mockito;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 
 public class JwtSignatureValidatorTest {
 	private String accessToken;
@@ -50,14 +48,14 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void jsonRSASignatureMatchesJWKS() {
-		assertThat(cut.validate(token(accessToken)).isValid(), is(true));
+		assertThat(cut.validate(new TokenImpl(accessToken)).isValid(), is(true));
 	}
 
 	@Test
 	public void iasOIDCRSASignatureMatchesJWKS() throws IOException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
 				IOUtils.resourceToString("/iasJsonWebTokenKeys.json", StandardCharsets.UTF_8)));
-		assertThat(cut.validate(token(otherToken)).isValid(), is(true));
+		assertThat(cut.validate(new TokenImpl(otherToken)).isValid(), is(true));
 	}
 
 	@Test
@@ -69,7 +67,7 @@ public class JwtSignatureValidatorTest {
 				.append(otherHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(token(tokenWithOthersSignature)).isValid(), is(false));
+		assertThat(cut.validate(new TokenImpl(tokenWithOthersSignature)).isValid(), is(false));
 	}
 
 	@Test
@@ -95,17 +93,17 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void takePublicKeyFromCache() throws OAuth2ServiceException {
-		cut.validate(token(accessToken));
+		cut.validate(new TokenImpl(accessToken));
 		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
 				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		assertThat(cut.validate(token(accessToken)).isValid(), is(true));
+		assertThat(cut.validate(new TokenImpl(accessToken)).isValid(), is(true));
 	}
 
 	@Test
 	public void validationFailsWhenTokenKeyCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
 				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		assertThat(cut.validate(token(accessToken)).isValid(), is(false));
+		assertThat(cut.validate(new TokenImpl(accessToken)).isValid(), is(false));
 	}
 
 	@Test
@@ -122,9 +120,5 @@ public class JwtSignatureValidatorTest {
 	public void jsonECSignatureMatchesJWKS() throws IOException {
 		String ecSignedToken = "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhdXRoMCJ9.4iVk3-Y0v4RT4_9IaQlp-8dZ_4fsTzIylgrPTDLrEvTHBTyVS3tgPbr2_IZfLETtiKRqCg0aQ5sh9eIsTTwB1g";
 		assertThat(cut.validate(ecSignedToken, "ES256", "key-id-1").isValid(), is(true));
-	}
-
-	private Token token(String token) {
-		return new TokenImpl(Base64JwtDecoder.getInstance().decode(token));
 	}
 }
