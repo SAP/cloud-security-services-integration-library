@@ -6,6 +6,7 @@ import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 
 import static org.mockito.Mockito.when;
 
