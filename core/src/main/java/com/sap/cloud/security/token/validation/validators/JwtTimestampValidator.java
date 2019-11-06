@@ -1,8 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.core.Assertions;
-import com.sap.cloud.security.core.DefaultTimeProvider;
-import com.sap.cloud.security.core.TimeProvider;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
@@ -32,7 +30,11 @@ public class JwtTimestampValidator implements Validator<Token> {
 	private final TemporalAmount tolerance;
 
 	public JwtTimestampValidator() {
-		this(new DefaultTimeProvider(), DEFAULT_TOLERANCE);
+		this(() -> Instant.now(), DEFAULT_TOLERANCE);
+	}
+
+	interface TimeProvider {
+		Instant now();
 	}
 
 	JwtTimestampValidator(TimeProvider timeProvider, TemporalAmount tolerance) {

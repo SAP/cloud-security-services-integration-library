@@ -12,7 +12,7 @@ import java.time.Instant;
 import static com.sap.cloud.security.TestConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JwtNotBeforeValidatorTest {
+public class JwtTimestampValidatorTest {
 
 	private JwtTimestampValidator cut;
 	private MockTokenBuilder tokenFactory;
