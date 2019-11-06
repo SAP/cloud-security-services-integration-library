@@ -23,14 +23,6 @@ public class JsonWebKeySetFactoryTest {
 	}
 
 	@Test
-	public void containsKey() {
-		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJson(cut);
-		assertThat(jwks.isEmpty(), equalTo(false));
-		assertThat(jwks.containsKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-0"), equalTo(true));
-		assertThat(jwks.containsKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1"), equalTo(true));
-	}
-
-	@Test
 	public void getKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
 		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJson(cut);
 		JsonWebKey jwk = jwks.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1");

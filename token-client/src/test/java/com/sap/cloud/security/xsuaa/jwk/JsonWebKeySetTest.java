@@ -19,48 +19,6 @@ public class JsonWebKeySetTest {
 	}
 
 	@Test
-	public void isEmpty_isTrue_onEmptyJSONWebKeySet() {
-		assertThat(cut.isEmpty()).isTrue();
-	}
-
-	@Test
-	public void isEmpty_isFalse_whenKeyHasBeenInserted() {
-		cut.put(JSON_WEB_KEY);
-
-		assertThat(cut.isEmpty()).isFalse();
-	}
-
-	@Test
-	public void containsKeyByTypeAndId_returnsTrue_whenKeyHasBeenInserted() {
-		cut.put(JSON_WEB_KEY);
-
-		assertThat(cut.containsKeyByTypeAndId(JSON_WEB_KEY.getType(), JSON_WEB_KEY.getId())).isTrue();
-	}
-
-	@Test
-	public void containsKeyByTypeAndId_isFalse_onEmptyJSONWebKeySet() {
-		assertThat(cut.containsKeyByTypeAndId(Type.RSA, JSON_WEB_KEY.getId())).isFalse();
-	}
-
-	@Test
-	public void containsKeyByTypeAndId_returnsFalse_whenKeyIdDoesNotMatch() {
-		String differentKeyId = "differentKeyId";
-
-		cut.put(JSON_WEB_KEY);
-
-		assertThat(cut.containsKeyByTypeAndId(JSON_WEB_KEY.getType(), differentKeyId)).isFalse();
-	}
-
-	@Test
-	public void containsKeyByTypeAndId_returnsFalse_whenKeyTypeDoesNotMatch() {
-		Type differentKeyType = Type.EC;
-
-		cut.put(JSON_WEB_KEY);
-
-		assertThat(cut.containsKeyByTypeAndId(differentKeyType, JSON_WEB_KEY.getId())).isFalse();
-	}
-
-	@Test
 	public void getKeyByTypeAndId_returnsKey_whenKeyHasBeenInserted() {
 		cut.put(JSON_WEB_KEY);
 
@@ -129,9 +87,4 @@ public class JsonWebKeySetTest {
 		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY_DEFAULT.getType(), JSON_WEB_KEY_DEFAULT.getId())).isEqualTo(JSON_WEB_KEY_DEFAULT);
 	}
 
-	public void clear_removesAllEntries() {
-		cut.put(JSON_WEB_KEY);
-		cut.clear();
-		assertThat(cut.isEmpty()).isTrue();
-	}
 }

@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -96,10 +97,8 @@ public class TokenKeyServiceWithCache {
 	private void retrieveTokenKeysAndFillCache() {
 		URI jwksUri = endpointsProvider.getJwksUri();
 		try {
-			Map<String, JsonWebKey> jwks = tokenKeyService.retrieveTokenKeys(jwksUri).getAll();
-
-			for (Map.Entry<String, JsonWebKey> jwksEntry : jwks.entrySet()) {
-				JsonWebKey jwk = jwksEntry.getValue();
+			Set<JsonWebKey> jwks = tokenKeyService.retrieveTokenKeys(jwksUri).getAll();
+			for (JsonWebKey jwk : jwks) {
 				getCache().put(getUniqueCacheKey(jwk.getType(), jwk.getId()), jwk.getPublicKey());
 			}
 		} catch (OAuth2ServiceException e) {

@@ -93,9 +93,8 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 		JsonWebKeySet result = retrieveTokenKeys();
 
-		assertThat(result.isEmpty()).isFalse();
-		assertThat(result.containsKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-0")).isTrue();
-		assertThat(result.containsKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1")).isTrue();
+		assertThat(result.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-0")).isNotNull();
+		assertThat(result.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1")).isNotNull();
 	}
 
 	private CloseableHttpResponse mockResponse() throws IOException {

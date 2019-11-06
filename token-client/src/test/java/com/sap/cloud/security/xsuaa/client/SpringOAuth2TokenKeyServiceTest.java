@@ -75,9 +75,8 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 		JsonWebKeySet response = retrieveTokenKeys();
 
-		assertThat(response.isEmpty()).isFalse();
-		assertThat(response.containsKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-0")).isTrue();
-		assertThat(response.containsKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1")).isTrue();
+		assertThat(response.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-0")).isNotNull();
+		assertThat(response.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1")).isNotNull();
 	}
 
 	private void mockResponse() {
