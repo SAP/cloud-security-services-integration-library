@@ -28,7 +28,7 @@ public class MockTokenBuilder {
 	}
 
 	public MockTokenBuilder withClientId(String clientId) {
-		when(token.getClaimAsString(TokenClaims.CLAIM_CLIENT_ID)).thenReturn(clientId);
+		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(clientId);
 		return this;
 	}
 

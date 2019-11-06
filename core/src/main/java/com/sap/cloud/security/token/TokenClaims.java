@@ -24,9 +24,9 @@ public final class TokenClaims {
 		public static final String GRANT_TYPE = "grant_type";
 		public static final String ZDN = "zdn";
 		public static final String ZONE_ID = "zid";
-
 		public static final String JKU = "jku";
 		public static final String KID = "kid";
+		public static final String CLIENT_ID = "cid";
 	}
 
 	public final class IAS {

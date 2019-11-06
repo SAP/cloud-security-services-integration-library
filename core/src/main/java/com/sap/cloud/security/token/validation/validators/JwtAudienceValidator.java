@@ -33,7 +33,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
-		String tokenClientId = token.getClaimAsString(TokenClaims.CLAIM_CLIENT_ID);
+		String tokenClientId = token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID);
 		if (tokenClientId == null || tokenClientId.isEmpty()) {
 			ValidationResults.createInvalid("Jwt token must contain 'cid' (client_id)");
 		}
@@ -70,7 +70,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	 */
 	static List<String> getAllowedAudiences(Token token) {
 		List<String> allAudiences = new ArrayList<>();
-		List<String> tokenAudiences = token.getClaimAsStringList(TokenClaims.CLAIM_AUDIENCE);
+		List<String> tokenAudiences = token.getClaimAsStringList(TokenClaims.AUDIENCE);
 
 		if (tokenAudiences != null) {
 			for (String audience : tokenAudiences) {
