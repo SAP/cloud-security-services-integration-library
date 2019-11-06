@@ -24,4 +24,41 @@ public class ValidationResultsTest {
 		assertThat(validationResult.isValid()).isTrue();
 	}
 
+	@Test
+	public void createInvalidWithTemplateString() {
+		String errorMessageTemplate = "An error message {} {} {}";
+		String[] args = { "first", "second", "third" };
+		ValidationResult validationResult = ValidationResults.createInvalid(errorMessageTemplate, args[0], args[1],
+				args[2]);
+
+		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.getErrors()).hasSize(1);
+		String description = validationResult.getErrors().get(0).getDescription();
+		assertThat(description).isEqualTo("An error message first second third");
+	}
+
+	@Test
+	public void createInvalidWithTemplateString_tooManyPlaceholders_areIgnored() {
+		String errorMessageTemplate = "An error message {} {} {}";
+		String onlyOne = "first";
+		ValidationResult validationResult = ValidationResults.createInvalid(errorMessageTemplate, onlyOne);
+
+		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.getErrors()).hasSize(1);
+		String description = validationResult.getErrors().get(0).getDescription();
+		assertThat(description).isEqualTo("An error message first {} {}");
+	}
+
+	@Test
+	public void createInvalidWithTemplateString_tooManyArguments_areIgnored() {
+		String errorMessageTemplate = "An error message {}";
+		String[] args = { "first", "second", "third" };
+		ValidationResult validationResult = ValidationResults.createInvalid(errorMessageTemplate, args);
+
+		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.getErrors()).hasSize(1);
+		String description = validationResult.getErrors().get(0).getDescription();
+		assertThat(description).isEqualTo("An error message first");
+	}
+
 }
