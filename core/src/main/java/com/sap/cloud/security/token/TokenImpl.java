@@ -12,43 +12,41 @@ import static com.sap.cloud.security.token.TokenClaims.*;
 
 public class TokenImpl implements Token {
 
-	private final DefaultJsonObject jsonHeaderParser;
-	private final DefaultJsonObject jsonPayloadParser;
+	private final DefaultJsonObject headerJsonObject;
+	private final DefaultJsonObject payloadJsonObject;
 	private final String appToken;
 
 	public TokenImpl(DecodedJwt decodedJwt) {
-		jsonHeaderParser = new DefaultJsonObject(decodedJwt.getHeader());
-		jsonPayloadParser = new DefaultJsonObject(decodedJwt.getPayload());
-		appToken = decodedJwt.getEncodedToken();
+		this(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
 	}
 
 	TokenImpl(String jsonHeader, String jsonPayload, String appToken) {
-		jsonHeaderParser = new DefaultJsonObject(jsonHeader);
-		jsonPayloadParser = new DefaultJsonObject(jsonPayload);
+		headerJsonObject = new DefaultJsonObject(jsonHeader);
+		payloadJsonObject = new DefaultJsonObject(jsonPayload);
 		this.appToken = appToken;
 	}
 
 	@Nullable
 	@Override
 	public String getHeaderValueAsString(@Nonnull String headerName) {
-		return jsonHeaderParser.getAsString(headerName);
+		return headerJsonObject.getAsString(headerName);
 	}
 
 	@Override
 	public boolean containsClaim(@Nonnull String claimName) {
-		return jsonPayloadParser.contains(claimName);
+		return payloadJsonObject.contains(claimName);
 	}
 
 	@Nullable
 	@Override
 	public String getClaimAsString(@Nonnull String claimName) {
-		return jsonPayloadParser.getAsString(claimName);
+		return payloadJsonObject.getAsString(claimName);
 	}
 
 	@Nullable
 	@Override
 	public List<String> getClaimAsStringList(@Nonnull String claimName) {
-		return jsonPayloadParser.getAsList(claimName, String.class);
+		return payloadJsonObject.getAsList(claimName, String.class);
 	}
 
 	@Nullable
@@ -60,13 +58,13 @@ public class TokenImpl implements Token {
 	@Nullable
 	@Override
 	public Instant getExpiration() {
-		return jsonPayloadParser.getAsInstant(EXPIRATION);
+		return payloadJsonObject.getAsInstant(EXPIRATION);
 	}
 
 	@Nullable
 	@Override
 	public Instant getNotBefore() {
-		return jsonPayloadParser.getAsInstant(NOT_BEFORE);
+		return payloadJsonObject.getAsInstant(NOT_BEFORE);
 	}
 
 	@Override
