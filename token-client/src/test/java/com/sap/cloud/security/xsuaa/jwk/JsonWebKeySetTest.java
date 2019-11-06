@@ -84,7 +84,8 @@ public class JsonWebKeySetTest {
 
 		cut.putAll(other);
 		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
-		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY_DEFAULT.getType(), JSON_WEB_KEY_DEFAULT.getId())).isEqualTo(JSON_WEB_KEY_DEFAULT);
+		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY_DEFAULT.getType(), JSON_WEB_KEY_DEFAULT.getId()))
+				.isEqualTo(JSON_WEB_KEY_DEFAULT);
 	}
 
 }

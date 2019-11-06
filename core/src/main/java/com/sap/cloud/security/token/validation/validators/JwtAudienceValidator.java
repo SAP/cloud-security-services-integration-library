@@ -44,12 +44,14 @@ public class JwtAudienceValidator implements Validator<Token> {
 				return ValidationResults.createValid();
 			}
 		}
-		return ValidationResults.createInvalid("Jwt token audience matches none of these: " + appIdClientIdMap.keySet());
+		return ValidationResults
+				.createInvalid("Jwt token audience matches none of these: " + appIdClientIdMap.keySet());
 	}
 
 	private boolean checkMatch(String appId, String clientId, String tokenClientId, List<String> allowedAudiences) {
 		// case 1 : token issued by own client (or master)
-		if (clientId.equals(tokenClientId) || (appId.contains("!b") && tokenClientId.contains("|") && tokenClientId.endsWith("|" + appId))) {
+		if (clientId.equals(tokenClientId)
+				|| (appId.contains("!b") && tokenClientId.contains("|") && tokenClientId.endsWith("|" + appId))) {
 			return true;
 		} else {
 			// case 2: foreign token

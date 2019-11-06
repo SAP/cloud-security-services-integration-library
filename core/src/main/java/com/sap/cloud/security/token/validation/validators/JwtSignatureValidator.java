@@ -60,9 +60,11 @@ public class JwtSignatureValidator implements Validator<Token> {
 		assertNotEmpty(token, "token must not be null / empty string.");
 		assertNotEmpty(tokenAlgorithm, "tokenAlgorithm must not be null / empty string.");
 
-		/*if(!isTokenKeyUrlValid(tokenKeyUrl, serviceConfiguration.getUaaDomain())) {
-				return ValidationResults.createInvalid("JKU of token header is not trusted.");
-		}*/
+		/*
+		 * if(!isTokenKeyUrlValid(tokenKeyUrl, serviceConfiguration.getUaaDomain())) {
+		 * return
+		 * ValidationResults.createInvalid("JKU of token header is not trusted."); }
+		 */
 
 		Type keyType = getKeyTypeForAlgorithm(tokenAlgorithm);
 
@@ -71,7 +73,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 			return ValidationResults.createInvalid("There is no JSON Web Token Key to prove the identity of the JWT.");
 		}
 		try {
-			if(!isTokenSignatureValid(token, keyType, publicKey)) {
+			if (!isTokenSignatureValid(token, keyType, publicKey)) {
 				return ValidationResults.createInvalid("Signature verification failed.");
 			}
 		} catch (Exception e) {
@@ -83,22 +85,24 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	private Type getKeyTypeForAlgorithm(String tokenAlgorithm) {
 		Type keyType = MAP_ALGORITHM_TYPE.get(tokenAlgorithm);
-		if(keyType != null) {
+		if (keyType != null) {
 			return keyType;
 		}
-		throw new IllegalArgumentException("JWT token with signature algorithm " + tokenAlgorithm + " can not be verified.");
+		throw new IllegalArgumentException(
+				"JWT token with signature algorithm " + tokenAlgorithm + " can not be verified.");
 	}
 
 	private Signature getSignatureForAlgorithm(Type keyType) {
 		String algorithm = MAP_TYPE_SIGNATURE.get(keyType);
-		if(algorithm != null) {
+		if (algorithm != null) {
 			try {
 				return Signature.getInstance(algorithm);
 			} catch (NoSuchAlgorithmException e) {
 				// should never happen
 			}
 		}
-		throw new IllegalArgumentException("JWT token with signature algorithm " + keyType.value() + " can not be verified.");
+		throw new IllegalArgumentException(
+				"JWT token with signature algorithm " + keyType.value() + " can not be verified.");
 	}
 
 	@Nullable
@@ -106,42 +110,38 @@ public class JwtSignatureValidator implements Validator<Token> {
 		return tokenKeyService.getPublicKey(keyType, keyId);
 	}
 
-	private boolean isTokenSignatureValid(String token, Type keyType, PublicKey publicKey) throws
-			SignatureException, InvalidKeyException {
+	private boolean isTokenSignatureValid(String token, Type keyType, PublicKey publicKey)
+			throws SignatureException, InvalidKeyException {
 		Signature publicSignature = getSignatureForAlgorithm(keyType);
 
 		String[] tokenHeaderPayloadSignature = token.split(Pattern.quote("."));
-		if(tokenHeaderPayloadSignature.length != 3) {
+		if (tokenHeaderPayloadSignature.length != 3) {
 			throw new IllegalArgumentException("JWT token does not consist of 'header'.'payload'.'signature'.");
 		}
-		String headerAndPayload = new StringBuilder( tokenHeaderPayloadSignature[0]).append( "." ).append(tokenHeaderPayloadSignature[1]).toString();
+		String headerAndPayload = new StringBuilder(tokenHeaderPayloadSignature[0]).append(".")
+				.append(tokenHeaderPayloadSignature[1]).toString();
 
 		publicSignature.initVerify(publicKey);
-		publicSignature.update(headerAndPayload.getBytes( UTF_8)); // provide data
+		publicSignature.update(headerAndPayload.getBytes(UTF_8)); // provide data
 
 		byte[] decodedSignatureBytes = Base64.getUrlDecoder().decode(tokenHeaderPayloadSignature[2]);
 
 		boolean isSignatureValid = publicSignature.verify(decodedSignatureBytes);
-		if(!isSignatureValid) {
-			LOGGER.warn("Error: Signature of JWT Token is not valid: the identity provided by the JSON Web Token Key can not be verified");
+		if (!isSignatureValid) {
+			LOGGER.warn(
+					"Error: Signature of JWT Token is not valid: the identity provided by the JSON Web Token Key can not be verified");
 		}
 		return isSignatureValid;
 	}
 
 	// TODO move to XsuaaIssuerValidator
-	/*private boolean isTokenKeyUrlValid(String jku, String identityServiceDomain) {
-		URI jkuUri;
-		try {
-			jkuUri = new URI(jku);
-		} catch (URISyntaxException e) {
-			LOGGER.warn("Error: JKU of token header '{}' is not a valid URI", jku);
-			return false;
-		}
-		if(!jkuUri.getHost().endsWith(identityServiceDomain)) {
-			LOGGER.warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'",
-					jku, identityServiceDomain);
-			return false;
-		}
-		return true;
-	}*/
+	/*
+	 * private boolean isTokenKeyUrlValid(String jku, String identityServiceDomain)
+	 * { URI jkuUri; try { jkuUri = new URI(jku); } catch (URISyntaxException e) {
+	 * LOGGER.warn("Error: JKU of token header '{}' is not a valid URI", jku);
+	 * return false; } if(!jkuUri.getHost().endsWith(identityServiceDomain)) {
+	 * LOGGER.
+	 * warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'"
+	 * , jku, identityServiceDomain); return false; } return true; }
+	 */
 }

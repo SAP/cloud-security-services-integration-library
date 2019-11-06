@@ -26,7 +26,8 @@ public class JsonWebKeyImpl implements JsonWebKey {
 	private final String publicExponent;
 	private PublicKey publicKey;
 
-	public JsonWebKeyImpl(Type type, @Nullable String keyId, @Nullable String algorithm, String modulus, String publicExponent, @Nullable String pemEncodedPublicKey) {
+	public JsonWebKeyImpl(Type type, @Nullable String keyId, @Nullable String algorithm, String modulus,
+			String publicExponent, @Nullable String pemEncodedPublicKey) {
 		Assertions.assertNotNull(type, "type must be not null");
 		this.type = type;
 		this.keyId = keyId != null ? keyId : DEFAULT_KEY_ID;
@@ -36,23 +37,30 @@ public class JsonWebKeyImpl implements JsonWebKey {
 		this.modulus = modulus;
 	}
 
-	@Nullable @Override public String getAlgorithm() {
+	@Nullable
+	@Override
+	public String getAlgorithm() {
 		return algorithm;
 	}
 
-	@Nullable @Override public Type getType() {
+	@Nullable
+	@Override
+	public Type getType() {
 		return type;
 	}
 
-	@Nullable @Override public String getId() {
+	@Nullable
+	@Override
+	public String getId() {
 		return keyId;
 	}
 
-	@Override public PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
-		if(publicKey != null) {
+	@Override
+	public PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
+		if (publicKey != null) {
 			return publicKey;
 		}
-		if(pemEncodedPublicKey != null) {
+		if (pemEncodedPublicKey != null) {
 			publicKey = createPublicKeyFromPemEncodedPubliKey(type, pemEncodedPublicKey);
 		} else if (type == Type.RSA) {
 			publicKey = createRSAPublicKey(publicExponent, modulus);
@@ -88,7 +96,8 @@ public class JsonWebKeyImpl implements JsonWebKey {
 		return key;
 	}
 
-	@Override public int hashCode() {
+	@Override
+	public int hashCode() {
 		return calculateUniqueId(type, keyId);
 	}
 
@@ -111,4 +120,3 @@ public class JsonWebKeyImpl implements JsonWebKey {
 	}
 
 }
-

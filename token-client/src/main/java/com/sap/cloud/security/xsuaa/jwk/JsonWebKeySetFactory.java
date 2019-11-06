@@ -28,22 +28,23 @@ public class JsonWebKeySetFactory {
 		String publicExponent = null;
 
 		String keyType = key.getString(JsonWebKeyConstants.KEY_TYPE_PARAMETER_NAME);
-		if(key.has(JsonWebKeyConstants.ALGORITHM_PARAMETER_NAME)) {
+		if (key.has(JsonWebKeyConstants.ALGORITHM_PARAMETER_NAME)) {
 			algorithm = key.getString(JsonWebKeyConstants.ALGORITHM_PARAMETER_NAME);
 		}
-		if(key.has(JsonWebKeyConstants.VALUE_PARAMETER_NAME)) {
+		if (key.has(JsonWebKeyConstants.VALUE_PARAMETER_NAME)) {
 			pemEncodedPublicKey = key.getString(JsonWebKeyConstants.VALUE_PARAMETER_NAME);
 		}
-		if(key.has(JsonWebKeyConstants.KEY_ID_PARAMETER_NAME)) {
+		if (key.has(JsonWebKeyConstants.KEY_ID_PARAMETER_NAME)) {
 			keyId = key.getString(JsonWebKeyConstants.KEY_ID_PARAMETER_NAME);
 		}
-		if(key.has(JsonWebKeyConstants.RSA_KEY_MODULUS_PARAMETER_NAME)) {
+		if (key.has(JsonWebKeyConstants.RSA_KEY_MODULUS_PARAMETER_NAME)) {
 			modulus = key.getString(JsonWebKeyConstants.RSA_KEY_MODULUS_PARAMETER_NAME);
 		}
-		if(key.has(JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME)) {
+		if (key.has(JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME)) {
 			publicExponent = key.getString(JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME);
 		}
-		return new JsonWebKeyImpl(JsonWebKey.Type.valueOf(keyType), keyId, algorithm, modulus, publicExponent, pemEncodedPublicKey);
+		return new JsonWebKeyImpl(JsonWebKey.Type.valueOf(keyType), keyId, algorithm, modulus, publicExponent,
+				pemEncodedPublicKey);
 	}
 
 }

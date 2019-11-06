@@ -18,8 +18,7 @@ public interface JsonWebKey {
 	 * https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1
 	 */
 	public enum Type {
-		RSA("RSA"),
-		EC("EC"); // Eliptic curve
+		RSA("RSA"), EC("EC"); // Eliptic curve
 
 		final String value;
 
@@ -33,21 +32,25 @@ public interface JsonWebKey {
 	}
 
 	/**
-	 * Returns a JSON Web e.g. RS256, see also specification here: https://tools.ietf.org/html/rfc7518
+	 * Returns a JSON Web e.g. RS256, see also specification here:
+	 * https://tools.ietf.org/html/rfc7518
+	 * 
 	 * @return the algorithm the JWT is signed.
 	 */
 	public String getAlgorithm();
 
 	/**
 	 * Returns the key type, e.g. Type.RSA.
+	 * 
 	 * @return the key type.
 	 */
 	@Nullable
 	public Type getType();
 
 	/**
-	 * Returns the key id. This is used, for instance,
-	 * to choose among a set of keys within a JWK Set during key rollover.
+	 * Returns the key id. This is used, for instance, to choose among a set of keys
+	 * within a JWK Set during key rollover.
+	 * 
 	 * @return unique key identifier.
 	 */
 	@Nullable
@@ -55,6 +58,7 @@ public interface JsonWebKey {
 
 	/**
 	 * Returns the public key representation.
+	 * 
 	 * @return the public key.
 	 */
 	@Nullable

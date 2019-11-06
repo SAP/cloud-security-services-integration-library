@@ -36,12 +36,13 @@ public class TokenKeyServiceWithCache {
 	 * @param tokenKeyService
 	 *            the OAuth2TokenKeyService that will be used to request token keys.
 	 *
-	 *  <pre>
+	 *            <pre>
 	 * {@code
 	 * }
-	 * </pre>
+	 *            </pre>
 	 */
-	public TokenKeyServiceWithCache(OAuth2TokenKeyService tokenKeyService, OAuth2ServiceEndpointsProvider endpointsProvider) {
+	public TokenKeyServiceWithCache(OAuth2TokenKeyService tokenKeyService,
+			OAuth2ServiceEndpointsProvider endpointsProvider) {
 		assertNotNull(tokenKeyService, "tokenKeyService must not be null.");
 		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null");
 
@@ -109,7 +110,7 @@ public class TokenKeyServiceWithCache {
 	}
 
 	public void clearCache() {
-		if(cache != null) {
+		if (cache != null) {
 			cache.invalidateAll();
 		}
 	}

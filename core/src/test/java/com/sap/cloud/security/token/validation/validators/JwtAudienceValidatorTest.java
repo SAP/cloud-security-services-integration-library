@@ -38,7 +38,7 @@ public class JwtAudienceValidatorTest {
 	}
 
 	@Before
-	public void setUp()  {
+	public void setUp() {
 		mockTokenBuilder = new MockTokenBuilder();
 	}
 
@@ -158,6 +158,5 @@ public class JwtAudienceValidatorTest {
 		ValidationResult result = jwtAudienceValidatorBrokerPlan.validate(cloneTokenWithAudience);
 		assertThat(result.isValid()).isTrue();
 	}
-
 
 }

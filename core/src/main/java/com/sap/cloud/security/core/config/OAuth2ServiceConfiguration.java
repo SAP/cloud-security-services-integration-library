@@ -18,8 +18,8 @@ public interface OAuth2ServiceConfiguration {
 	String getClientSecret();
 
 	/**
-	 * Base URL of the OAuth2 Identity service instance. In multi tenancy scenarios this is
-	 * the url where the service instance was created.
+	 * Base URL of the OAuth2 Identity service instance. In multi tenancy scenarios
+	 * this is the url where the service instance was created.
 	 *
 	 * @return base url
 	 */

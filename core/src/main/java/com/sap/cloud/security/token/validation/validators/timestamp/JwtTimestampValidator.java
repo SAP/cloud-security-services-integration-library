@@ -18,6 +18,7 @@ public class JwtTimestampValidator implements Validator<Token> {
 				.with(new JwtExpirationValidator())
 				.with(new JwtNotBeforeValidator()).build();
 	}
+
 	@Override
 	public ValidationResult validate(Token token) {
 		return combinedValidator.validate(token);

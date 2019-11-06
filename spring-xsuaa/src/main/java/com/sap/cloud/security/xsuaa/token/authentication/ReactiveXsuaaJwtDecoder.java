@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;

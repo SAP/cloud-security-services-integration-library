@@ -80,7 +80,7 @@ public class JwtSignatureValidatorTest {
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
 
 		assertThatThrownBy(() -> {
-			cut.validate(accessToken, "", "key-id-1" );
+			cut.validate(accessToken, "", "key-id-1");
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenAlgorithm");
 	}
 
@@ -91,19 +91,21 @@ public class JwtSignatureValidatorTest {
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
 
-		assertThat(cut.validate(tokenWithOthersSignature, "RS256","key-id-1" ).isValid(), is(false));
+		assertThat(cut.validate(tokenWithOthersSignature, "RS256", "key-id-1").isValid(), is(false));
 	}
 
 	@Test
 	public void takePublicKeyFromCache() throws OAuth2ServiceException {
 		cut.validate(token(accessToken));
-		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenThrow(new OAuth2ServiceException("Currently unavailable"));
+		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
+				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
 		assertThat(cut.validate(token(accessToken)).isValid(), is(true));
 	}
 
 	@Test
 	public void validationFailsWhenTokenKeyCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
-		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenThrow(new OAuth2ServiceException("Currently unavailable"));
+		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
+				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
 		assertThat(cut.validate(token(accessToken)).isValid(), is(false));
 	}
 
@@ -112,7 +114,8 @@ public class JwtSignatureValidatorTest {
 		String token = "eyJhbGciOiJFUzUxMiJ9.eyJpc3MiOiJhdXRoMCJ9.AeCJPDIsSHhwRSGZCY6rspi8zekOw0K9qYMNridP1Fu9uhrA1QrG-EUxXlE06yvmh2R7Rz0aE7kxBwrnq8L8aOBCAYAsqhzPeUvyp8fXjjgs0Eto5I0mndE2QHlgcMSFASyjHbU8wD2Rq7ZNzGQ5b2MZfpv030WGUajT-aZYWFUJHVg2";
 		assertThatThrownBy(() -> {
 			cut.validate(token, "ES512", "key-id-1");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("JWT token with signature algorithm ES512 can not be verified");
+		}).isInstanceOf(IllegalArgumentException.class)
+				.hasMessageStartingWith("JWT token with signature algorithm ES512 can not be verified");
 	}
 
 	@Test

@@ -17,12 +17,13 @@ public class MockTokenBuilder {
 		when(token.getExpiration()).thenReturn(expirationDate);
 		return this;
 	}
+
 	public MockTokenBuilder withNotBefore(Instant notBeforeDate) {
 		when(token.getNotBefore()).thenReturn(notBeforeDate);
 		return this;
 	}
 
-	public MockTokenBuilder withScopes(String...scopes) {
+	public MockTokenBuilder withScopes(String... scopes) {
 		when(token.getScopes()).thenReturn(Arrays.asList(scopes));
 		return this;
 	}

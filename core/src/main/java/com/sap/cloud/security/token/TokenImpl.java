@@ -22,11 +22,11 @@ public class TokenImpl implements Token {
 		appToken = decodedJwt.getEncodedToken();
 	}
 
-	 TokenImpl(String jsonHeader, String jsonPayload, String appToken) {
-		 jsonHeaderParser = new DefaultJsonObject(jsonHeader);
-		 jsonPayloadParser = new DefaultJsonObject(jsonPayload);
-		 this.appToken = appToken;
-	 }
+	TokenImpl(String jsonHeader, String jsonPayload, String appToken) {
+		jsonHeaderParser = new DefaultJsonObject(jsonHeader);
+		jsonPayloadParser = new DefaultJsonObject(jsonPayload);
+		this.appToken = appToken;
+	}
 
 	@Nullable
 	@Override

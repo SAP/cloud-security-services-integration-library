@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;

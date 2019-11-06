@@ -62,5 +62,4 @@ public class JwtNotBeforeValidatorTest {
 		assertThat(errorDescription).contains(NOW.toString()).contains(inOneMinute.toString());
 	}
 
-
 }

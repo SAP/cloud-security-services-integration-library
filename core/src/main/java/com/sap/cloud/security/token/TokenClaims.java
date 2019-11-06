@@ -8,7 +8,6 @@ public final class TokenClaims {
 		throw new IllegalStateException("Utility class");
 	}
 
-
 	public static final String SCOPES = "scope";
 	public static final String ISSUER = "iss";
 	public static final String EXPIRATION = "exp";

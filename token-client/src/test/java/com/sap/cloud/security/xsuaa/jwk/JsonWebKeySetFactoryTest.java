@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa.jwk;
 
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
