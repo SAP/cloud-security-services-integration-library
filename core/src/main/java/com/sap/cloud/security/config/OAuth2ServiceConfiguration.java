@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import java.net.URI;
 
 public interface OAuth2ServiceConfiguration {
+
 	/**
 	 * Client id of xsuaa service instance
 	 *
@@ -34,4 +35,15 @@ public interface OAuth2ServiceConfiguration {
 	 */
 	@Nullable
 	String getDomain();
+
+	/**
+	 * Returns the value of the given property as string.
+	 *
+	 * @param name
+	 *            the name of the property.
+	 * @return the string value of the given property or null if the property does
+	 *         not exist.
+	 */
+	@Nullable
+	String getProperty(String name);
 }

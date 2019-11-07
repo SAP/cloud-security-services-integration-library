@@ -17,7 +17,7 @@
     "instance_name": "my-xsuaa",
     "label": "xsuaa",
     "name": "example-xsuaa",
-    "plan": "default",
+    "plan": "application",
     "provider": null,
     "syslog_drain_url": null,
     "tags": [
