@@ -28,7 +28,7 @@ public class DefaultJsonObject implements JsonObject {
 	@Override
 	@Nullable
 	public <T> List<T> getAsList(String name, Class<T> type) {
-		return getJSONArray(name).map(jsonArray -> convertToList(jsonArray, type)).orElse(null);
+		return getJSONArray(name).map(jsonArray -> castToListOfType(jsonArray, type)).orElse(null);
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class DefaultJsonObject implements JsonObject {
 	@Nullable
 	public JsonObject getJsonObject(String keyName) {
 		if (contains(keyName)) {
-			JSONObject newJsonObject = null;
+			JSONObject newJsonObject;
 			try {
 				newJsonObject = getJsonObject().getJSONObject(keyName);
 			} catch (JSONException e) {
@@ -76,17 +76,20 @@ public class DefaultJsonObject implements JsonObject {
 	@Override
 	@Nullable
 	public List<JsonObject> getJsonObjects(String keyName) {
+		return getJSONArray(keyName)
+				.map(this::convertToJsonObjects)
+				.orElse(null);
+	}
+
+	private List<JsonObject> convertToJsonObjects(JSONArray jsonArray) {
 		List<JsonObject> jsonObjects = new ArrayList<>();
-		Optional<JSONArray> jsonArray = getJSONArray(keyName);
-		if (jsonArray.isPresent()) {
-			jsonArray.get().forEach(jsonArrayObject -> {
-				if (jsonArrayObject instanceof JSONObject) {
-					jsonObjects.add(new DefaultJsonObject(jsonArrayObject.toString()));
-				}
-			});
-		} else {
-			return null;
-		}
+		jsonArray.forEach(jsonArrayObject -> {
+			if (jsonArrayObject instanceof JSONObject) {
+				jsonObjects.add(new DefaultJsonObject(jsonArrayObject.toString()));
+			} else {
+				throw new JsonParsingException("Array does not only contain json objects!");
+			}
+		});
 		return jsonObjects;
 	}
 
@@ -106,7 +109,7 @@ public class DefaultJsonObject implements JsonObject {
 		}
 	}
 
-	private <T> List<T> convertToList(JSONArray jsonArray, Class<T> type) {
+	private <T> List<T> castToListOfType(JSONArray jsonArray, Class<T> type) {
 		List<T> valuesAsList = new ArrayList<>(jsonArray.length());
 		for (int i = 0; i < jsonArray.length(); i++) {
 			Object value = jsonArray.get(i);
