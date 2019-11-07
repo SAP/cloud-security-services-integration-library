@@ -12,9 +12,7 @@ public class ValidationResultsTest {
 		ValidationResult validationResult = ValidationResults.createInvalid(errorMessage);
 
 		assertThat(validationResult.isValid()).isFalse();
-		assertThat(validationResult.getErrors()).size().isOne();
-		ValidationError error = validationResult.getErrors().get(0);
-		assertThat(error.getDescription()).isEqualTo(errorMessage);
+		assertThat(validationResult.getErrorDescription()).isEqualTo(errorMessage);
 	}
 
 	@Test
@@ -32,9 +30,7 @@ public class ValidationResultsTest {
 				args[2]);
 
 		assertThat(validationResult.isValid()).isFalse();
-		assertThat(validationResult.getErrors()).hasSize(1);
-		String description = validationResult.getErrors().get(0).getDescription();
-		assertThat(description).isEqualTo("An error message first second third");
+		assertThat(validationResult.getErrorDescription()).isEqualTo("An error message first second third");
 	}
 
 	@Test
@@ -44,9 +40,7 @@ public class ValidationResultsTest {
 		ValidationResult validationResult = ValidationResults.createInvalid(errorMessageTemplate, onlyOne);
 
 		assertThat(validationResult.isValid()).isFalse();
-		assertThat(validationResult.getErrors()).hasSize(1);
-		String description = validationResult.getErrors().get(0).getDescription();
-		assertThat(description).isEqualTo("An error message first {} {}");
+		assertThat(validationResult.getErrorDescription()).isEqualTo("An error message first {} {}");
 	}
 
 	@Test
@@ -56,9 +50,7 @@ public class ValidationResultsTest {
 		ValidationResult validationResult = ValidationResults.createInvalid(errorMessageTemplate, args);
 
 		assertThat(validationResult.isValid()).isFalse();
-		assertThat(validationResult.getErrors()).hasSize(1);
-		String description = validationResult.getErrors().get(0).getDescription();
-		assertThat(description).isEqualTo("An error message first");
+		assertThat(validationResult.getErrorDescription()).isEqualTo("An error message first");
 	}
 
 }

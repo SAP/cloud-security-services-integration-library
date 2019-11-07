@@ -1,17 +1,12 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.token.validation.MockTokenBuilder;
-import com.sap.cloud.security.token.validation.ValidationError;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
 
 
 public class XsuaaJwtAudienceValidatorForCloneTokenTest {
@@ -54,9 +49,7 @@ public class XsuaaJwtAudienceValidatorForCloneTokenTest {
 		ValidationResult result = cut.validate(mockTokenBuilder.build());
 
 		assertThat(result.isValid()).isFalse();
-		List<ValidationError> errors = result.getErrors();
-		Assert.assertThat(errors.get(0).getDescription(),
-				is("Jwt token audience matches none of these: [test1!t1, brokerplanmasterapp!b123]"));
+		assertThat(result.getErrorDescription().equals("Jwt token audience matches none of these: [test1!t1, brokerplanmasterapp!b123]"));
 	}
 
 

@@ -1,8 +1,9 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import com.sap.cloud.security.token.validation.ValidationError;
+import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
+
 import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.token.validation.ValidationResultImpl;
+import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
 
 import java.util.ArrayList;
@@ -11,8 +12,7 @@ import java.util.List;
 /**
  * This is a special validator that combines several validators into one. To
  * create an instance use the {@link #builderFor} method. By default the
- * validation stops after one invalid result has been found. To not stop
- * validating use {@link CombiningValidatorBuilder#validateAll}.
+ * validation stops after one invalid result has been found.
  * 
  * @param <T>
  *            the type to be validated.
@@ -20,6 +20,8 @@ import java.util.List;
 public class CombiningValidator<T> implements Validator<T> {
 
 	private final List<Validator<T>> validators;
+	private List<String> validationErrors = new ArrayList<>();
+
 	private final boolean stopAfterFirstInvalidResult;
 
 	private CombiningValidator(List<Validator<T>> validators, boolean stopAfterFirstInvalidResult) {
@@ -29,19 +31,19 @@ public class CombiningValidator<T> implements Validator<T> {
 
 	@Override
 	public ValidationResult validate(T t) {
-		List<ValidationError> validationErrors = new ArrayList<>();
 		for (Validator<T> validator : validators) {
 			ValidationResult result = validator.validate(t);
-			validationErrors.addAll(result.getErrors());
-			if (shouldStop(result)) {
-				return new ValidationResultImpl(validationErrors);
+			if(!result.isValid()) {
+				validationErrors.add(result.getErrorDescription());
+				if(stopAfterFirstInvalidResult == true) {
+					return result;
+				}
 			}
 		}
-		return new ValidationResultImpl(validationErrors);
-	}
-
-	private boolean shouldStop(ValidationResult result) {
-		return stopAfterFirstInvalidResult && !result.isValid();
+		if(validationErrors.size() > 0) {
+			return createInvalid("{} out of {} validators reported an error. Please see detailed error descriptions.", validationErrors.size(), validators.size());
+		}
+		return ValidationResults.createValid();
 	}
 
 	/**
@@ -54,6 +56,10 @@ public class CombiningValidator<T> implements Validator<T> {
 	 */
 	public static <U> CombiningValidatorBuilder<U> builderFor(Class<U> toBeValidatedType) {
 		return new CombiningValidatorBuilder<>();
+	}
+
+	public List<String> getAllErrorDescriptions() {
+		return validationErrors;
 	}
 
 	public static class CombiningValidatorBuilder<U> {

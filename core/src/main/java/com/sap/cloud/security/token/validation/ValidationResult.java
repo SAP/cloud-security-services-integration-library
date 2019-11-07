@@ -1,6 +1,6 @@
 package com.sap.cloud.security.token.validation;
 
-import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * Captures the result of a validation. Normally created by validators that
@@ -9,18 +9,17 @@ import java.util.List;
 public interface ValidationResult {
 
 	/**
-	 * Returns true if there are no validation errors, false otherwise.
+	 * Returns true if there is no validation error, false otherwise.
 	 * 
-	 * @return true if there are no validation errors.
+	 * @return true if there is no validation error.
 	 */
-	default boolean isValid() {
-		return getErrors().isEmpty();
-	}
+	boolean isValid();
 
 	/**
-	 * The list of validation errors that have been found.
-	 * 
-	 * @return the errors.
+	 * The validation error that have been found.
+	 *
+	 * @return the error description or null in case the validation was valid.
 	 */
-	List<ValidationError> getErrors();
+	@Nullable
+	String getErrorDescription();
 }

@@ -115,8 +115,7 @@ public class XsuaaJwtAudienceValidatorTest {
 		ValidationResult result = jwtAudienceValidatorOtherGrantedClientId.validate(tokenWithoutAudienceButScopes);
 
 		assertThat(result.isValid()).isFalse();
-		assertThat(result.getErrors()).hasSize(1);
-		assertThat(result.getErrors().get(0).getDescription())
+		assertThat(result.getErrorDescription())
 				.isEqualTo("Jwt token audience matches none of these: [test2!t1]");
 	}
 

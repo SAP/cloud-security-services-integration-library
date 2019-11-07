@@ -1,16 +1,19 @@
 package com.sap.cloud.security.token.validation;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
-
-import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * This is a factory class to easily create {@link ValidationResult} objects.
  */
 public class ValidationResults {
+
+	private ValidationResults() {
+		// factory
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ValidationResults.class);
 
@@ -19,16 +22,13 @@ public class ValidationResults {
 	 * {@link ValidationError} with given description.
 	 * 
 	 * @param errorMesssage
-	 *            the description used to create the {@link ValidationError}.
+	 *            the error description.
 	 * @return an invalid {@link ValidationResult} containing one
 	 *         {@link ValidationError} with the given error description.
 	 */
 	public static ValidationResult createInvalid(String errorMesssage) {
 		logger.warn(errorMesssage);
-		ArrayList<ValidationError> validationErrors = new ArrayList<>();
-		validationErrors.add(new ValidationErrorImpl(errorMesssage));
-		ValidationResultImpl validationResult = new ValidationResultImpl(validationErrors);
-		return validationResult;
+		return new ValidationResultImpl(new ValidationErrorImpl(errorMesssage));
 	}
 
 	/**
@@ -58,6 +58,47 @@ public class ValidationResults {
 		return createInvalid(format);
 	}
 
+	static class ValidationResultImpl implements ValidationResult {
+
+		private final ValidationError validationError;
+
+		public ValidationResultImpl(ValidationError validationError) {
+			this.validationError = validationError;
+		}
+
+		public ValidationResultImpl() {
+			this(null);
+		}
+
+		@Override public boolean isValid() {
+			return getErrorDescription() == null;
+		}
+
+		@Nullable
+		@Override public String getErrorDescription() {
+			return validationError != null ? validationError.getDescription() : null;
+		}
+
+		@Override public String toString() {
+			return isValid() ? "Validation was successful." : getErrorDescription();
+		}
+	}
+
+	/**
+	 * Captures information about specific validation errors. Normally contained
+	 * inside a by a {@link ValidationResult}.
+	 */
+	 interface ValidationError {
+
+		/**
+		 * A description of the specific validation error.
+		 *
+		 * @return the description.
+		 */
+		String getDescription();
+
+	}
+
 	/**
 	 * Creates a valid {@link ValidationResult}, which is a {@link ValidationResult}
 	 * that contains no errors.
@@ -65,7 +106,20 @@ public class ValidationResults {
 	 * @return a valid validation result.
 	 */
 	public static ValidationResult createValid() {
-		return new ValidationResultImpl(new ArrayList<>());
+		return new ValidationResultImpl();
 	}
 
+	static class ValidationErrorImpl implements ValidationError {
+
+		private final String errorMessage;
+
+		public ValidationErrorImpl(String errorMessage) {
+			this.errorMessage = errorMessage;
+		}
+
+		@Override
+		public String getDescription() {
+			return errorMessage;
+		}
+	}
 }
