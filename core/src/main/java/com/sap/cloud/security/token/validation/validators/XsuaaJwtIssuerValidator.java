@@ -5,7 +5,7 @@ import static com.sap.cloud.security.token.validation.ValidationResults.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import com.sap.cloud.security.core.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -26,14 +26,14 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 
 		String tokenKeyUrl = token.getHeaderParameterAsString(TokenHeader.JWKS_URL);
 		if (tokenKeyUrl == null) {
-			return createInvalid("Issue Validation can not be performed because JWT token does not contain 'jku' header parameter.");
+			return createInvalid("Issuer validation can not be performed because JWT token does not contain 'jku' header parameter.");
 		}
 
 		URI jkuUri;
 		try {
 			jkuUri = new URI(tokenKeyUrl);
 			if(!jkuUri.getHost().endsWith(uaaDomain)) {
-				return createInvalid("Error: Do not trust issuer because 'jku' '" + tokenKeyUrl + "' does not match uaa domain '" + uaaDomain + "'.");
+				return createInvalid("Do not trust issuer because 'jku' '" + tokenKeyUrl + "' does not match uaa domain '" + uaaDomain + "'.");
 			}
 		} catch (URISyntaxException e) {
 			return createInvalid("Error: 'jku' header parameter '" + tokenKeyUrl + "' is not a valid URI.");

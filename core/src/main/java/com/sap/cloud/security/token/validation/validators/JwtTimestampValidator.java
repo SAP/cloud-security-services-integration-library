@@ -1,5 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import javax.annotation.Nullable;
+
 import com.sap.cloud.security.core.Assertions;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -33,16 +35,14 @@ public class JwtTimestampValidator implements Validator<Token> {
 		this(() -> Instant.now(), DEFAULT_TOLERANCE);
 	}
 
-	interface TimeProvider {
-		Instant now();
-	}
-
-	JwtTimestampValidator(TimeProvider timeProvider, TemporalAmount tolerance) {
+	/**
+	 * For testing only!
+	 */
+	JwtTimestampValidator(TimeProvider timeProvider, @Nullable TemporalAmount tolerance) {
 		Assertions.assertNotNull(timeProvider, "timeProvider must not be null");
-		Assertions.assertNotNull(tolerance, "tolerance must not be null");
 
 	    this.timeProvider = timeProvider;
-		this.tolerance = tolerance;
+		this.tolerance = tolerance != null ? tolerance: DEFAULT_TOLERANCE;
 	}
 
 	@Override
@@ -90,6 +90,10 @@ public class JwtTimestampValidator implements Validator<Token> {
 
 	private Instant now() {
 		return timeProvider.now();
+	}
+
+	interface TimeProvider {
+		Instant now();
 	}
 
 }

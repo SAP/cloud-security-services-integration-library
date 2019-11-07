@@ -1,4 +1,4 @@
-package com.sap.cloud.security.core.config;
+package com.sap.cloud.security.config;
 
 import javax.annotation.Nullable;
 

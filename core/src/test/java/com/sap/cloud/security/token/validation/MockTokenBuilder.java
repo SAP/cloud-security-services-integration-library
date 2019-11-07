@@ -28,6 +28,7 @@ public class MockTokenBuilder {
 		return this;
 	}
 
+	// TODO XSUAA specifc
 	public MockTokenBuilder withScopes(String... scopes) {
 		when(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).thenReturn(Arrays.asList(scopes));
 		return this;
