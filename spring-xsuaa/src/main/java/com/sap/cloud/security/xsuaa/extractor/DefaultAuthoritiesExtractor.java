@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.security.token.TokenClaims;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.token.XsuaaToken;
 
 public class DefaultAuthoritiesExtractor extends JwtAuthenticationConverter implements AuthoritiesExtractor {
@@ -21,7 +21,7 @@ public class DefaultAuthoritiesExtractor extends JwtAuthenticationConverter impl
 
 	@Override
 	protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-		List<String> scopes = jwt.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
+		List<String> scopes = jwt.getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
 
 		if (scopes == null) {
 			return Collections.emptyList();

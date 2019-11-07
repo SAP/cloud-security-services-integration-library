@@ -1,5 +1,8 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -23,9 +26,6 @@ import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.web.client.RestOperations;
 
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.JKU;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.KID;
-
 public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -46,12 +46,12 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		this.tokenInfoExtractor = new TokenInfoExtractor() {
 			@Override
 			public String getJku(JWT jwt) {
-				return (String) jwt.getHeader().toJSONObject().getOrDefault(JKU, null);
+				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_JKU, null);
 			}
 
 			@Override
 			public String getKid(JWT jwt) {
-				return (String) jwt.getHeader().toJSONObject().getOrDefault(KID, null);
+				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_KID, null);
 			}
 
 			@Override

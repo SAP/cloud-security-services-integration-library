@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloud.security.token.TokenClaims;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,10 +46,10 @@ public class XsuaaTokenTest {
 		claimsSetBuilder = new JWTClaimsSet.Builder()
 				.issueTime(new Date())
 				.expirationTime(JwtGenerator.NO_EXPIRE_DATE)
-				.claim(TokenClaims.XSUAA.USER_NAME, userName).claim(TokenClaims.XSUAA.EMAIL, userName + "@test.org")
-				.claim(TokenClaims.XSUAA.ZONE_ID, zoneId).claim(TokenClaims.XSUAA.CLIENT_ID, "sb-java-hello-world")
-				.claim(TokenClaims.XSUAA.ORIGIN, "userIdp")
-				.claim(TokenClaims.XSUAA.GRANT_TYPE, XsuaaToken.GRANTTYPE_SAML2BEARER);
+				.claim(TokenClaims.CLAIM_USER_NAME, userName).claim(TokenClaims.CLAIM_EMAIL, userName + "@test.org")
+				.claim(TokenClaims.CLAIM_ZONE_ID, zoneId).claim(TokenClaims.CLAIM_CLIENT_ID, "sb-java-hello-world")
+				.claim(TokenClaims.CLAIM_ORIGIN, "userIdp")
+				.claim(TokenClaims.CLAIM_GRANT_TYPE, XsuaaToken.GRANTTYPE_SAML2BEARER);
 
 		jwtSaml = new JwtGenerator().createFromTemplate("/saml.txt");
 		jwtCC = JwtGenerator.createFromFile("/token_cc.txt");
@@ -134,7 +133,7 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getZoneIdAsTenantGuid() {
-		claimsSetBuilder.claim(TokenClaims.XSUAA.ZONE_ID, zoneId);
+		claimsSetBuilder.claim(TokenClaims.CLAIM_ZONE_ID, zoneId);
 
 		token = createToken(claimsSetBuilder);
 
@@ -143,7 +142,7 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getAuthoritiesNoScopeClaimReturnsEmptyList() {
-		claimsSetBuilder.claim(TokenClaims.XSUAA.SCOPES, new ArrayList<>());
+		claimsSetBuilder.claim(TokenClaims.CLAIM_SCOPES, new ArrayList<>());
 
 		token = createToken(claimsSetBuilder);
 
@@ -173,7 +172,7 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getUserNameReturnsErrorWhenOriginContainsDelimeter() {
-		claimsSetBuilder.claim(TokenClaims.XSUAA.ORIGIN, "my/Idp");
+		claimsSetBuilder.claim(TokenClaims.CLAIM_ORIGIN, "my/Idp");
 		token = createToken(claimsSetBuilder);
 		assertNull(token.getUsername());
 	}

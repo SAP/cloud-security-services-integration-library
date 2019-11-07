@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_CLIENT_ID;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -24,7 +24,7 @@ public class OAuth2AuthenticationConverter extends TokenAuthenticationConverter 
 	@Override
 	public OAuth2Authentication convert(Jwt jwt) {
 		AuthenticationToken authenticationToken = (AuthenticationToken) super.convert(jwt);
-		String clientId = jwt.getClaimAsString(CLIENT_ID);
+		String clientId = jwt.getClaimAsString(CLAIM_CLIENT_ID);
 		AuthorizationRequest authorizationRequest = new AuthorizationRequest(clientId,
 				authenticationToken.getAuthorities().stream().map(Objects::toString).collect(Collectors.toList()));
 		authorizationRequest.setApproved(true);

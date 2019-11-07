@@ -1,10 +1,5 @@
 package com.sap.cloud.security.xsuaa.token;
 
-/**
- * Class with public constants denoting custom XSUAA Jwt claims.
- * @deprecated will be removed in version 3.0 in favor of {@link com.sap.cloud.security.token.TokenClaims}
- */
-@Deprecated
 public final class TokenClaims {
 	private TokenClaims() {
 		throw new IllegalStateException("Utility class");
