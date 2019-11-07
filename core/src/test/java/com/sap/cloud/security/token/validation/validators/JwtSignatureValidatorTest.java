@@ -11,6 +11,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
+import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
@@ -25,16 +26,16 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 
 public class JwtSignatureValidatorTest {
-	private String accessToken;
-	private String otherToken; // contains alg header only, signature that does not match jwks
+	private Token accessToken;
+	private Token otherToken; // contains alg header only, signature that does not match jwks
 	private JwtSignatureValidator cut;
 	private OAuth2TokenKeyService tokenKeyServiceMock;
 	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	@Before
 	public void setup() throws IOException {
-		accessToken = IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8);
-		otherToken = IOUtils.resourceToString("/iasOidcTokenAlgHeaderOnly.txt", StandardCharsets.UTF_8);
+		accessToken = new TokenImpl(IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
+		otherToken = new TokenImpl(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
 
 		endpointsProvider = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProvider.getJwksUri()).thenReturn(URI.create("https://myauth.com/jwks_uri"));
@@ -47,21 +48,32 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void jsonRSASignatureMatchesJWKS() {
-		assertThat(cut.validate(new TokenImpl(accessToken)).isValid(), is(true));
+	public void validate_throwsOnNullValues() {
+		assertThatThrownBy(() -> {
+			cut.validate(null, "key-id-1", "RS256");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
+
+		assertThatThrownBy(() -> {
+			cut.validate(accessToken.getAppToken(), "", "key-id-1");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenAlgorithm");
 	}
 
 	@Test
-	public void iasOIDCRSASignatureMatchesJWKS() throws IOException {
+	public void xsuaaRSASignatureMatchesJWKS() {
+		assertThat(cut.validate(accessToken).isValid(), is(true));
+	}
+
+	@Test
+	public void iasOidcRSASignatureMatchesJWKS() throws IOException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
 				IOUtils.resourceToString("/iasJsonWebTokenKeys.json", StandardCharsets.UTF_8)));
-		assertThat(cut.validate(new TokenImpl(otherToken)).isValid(), is(true));
+		assertThat(cut.validate(otherToken).isValid(), is(true));
 	}
 
 	@Test
-	public void jwtPayloadModifiedNotValid() {
-		String[] tokenHeaderPayloadSignature = accessToken.split(Pattern.quote("."));
-		String[] otherHeaderPayloadSignature = otherToken.split(Pattern.quote("."));
+	public void validationFails_whenJwtPayloadModified() {
+		String[] tokenHeaderPayloadSignature = accessToken.getAppToken().split(Pattern.quote("."));
+		String[] otherHeaderPayloadSignature = otherToken.getAppToken().split(Pattern.quote("."));
 		String tokenWithOthersSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(otherHeaderPayloadSignature[1])
@@ -71,19 +83,8 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void validate_throwsOnNullValues() {
-		assertThatThrownBy(() -> {
-			cut.validate(null, "key-id-1", "RS256");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
-
-		assertThatThrownBy(() -> {
-			cut.validate(accessToken, "", "key-id-1");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenAlgorithm");
-	}
-
-	@Test
-	public void jwtWithoutSignatureNotValid() {
-		String[] tokenHeaderPayloadSignature = accessToken.split(Pattern.quote("."));
+	public void validationFails_whenJwtProvidesNo() {
+		String[] tokenHeaderPayloadSignature = accessToken.getAppToken().split(Pattern.quote("."));
 		String tokenWithOthersSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
@@ -91,23 +92,24 @@ public class JwtSignatureValidatorTest {
 		assertThat(cut.validate(tokenWithOthersSignature, "RS256", "key-id-1").isValid(), is(false));
 	}
 
+	// TODO we can move this into TokenKeyServiceWithCache
 	@Test
 	public void takePublicKeyFromCache() throws OAuth2ServiceException {
-		cut.validate(new TokenImpl(accessToken));
+		cut.validate(accessToken);
 		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
 				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		assertThat(cut.validate(new TokenImpl(accessToken)).isValid(), is(true));
+		assertThat(cut.validate(accessToken).isValid(), is(true));
 	}
 
 	@Test
-	public void validationFailsWhenTokenKeyCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
+	public void validationFails_whenTokenKeyCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
 				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		assertThat(cut.validate(new TokenImpl(accessToken)).isValid(), is(false));
+		assertThat(cut.validate(accessToken).isValid(), is(false));
 	}
 
 	@Test
-	public void validationFailsWhenTokenKeyTypeIsNotRSA256() {
+	public void validationFails_whenTokenKeyTypeIsNotRSA256() {
 		String token = "eyJhbGciOiJFUzUxMiJ9.eyJpc3MiOiJhdXRoMCJ9.AeCJPDIsSHhwRSGZCY6rspi8zekOw0K9qYMNridP1Fu9uhrA1QrG-EUxXlE06yvmh2R7Rz0aE7kxBwrnq8L8aOBCAYAsqhzPeUvyp8fXjjgs0Eto5I0mndE2QHlgcMSFASyjHbU8wD2Rq7ZNzGQ5b2MZfpv030WGUajT-aZYWFUJHVg2";
 		assertThatThrownBy(() -> {
 			cut.validate(token, "ES512", "key-id-1");

@@ -20,7 +20,7 @@ import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
 
 public class TokenKeyServiceWithCache {
-	private Logger logger = LoggerFactory.getLogger(TokenKeyServiceWithCache.class);
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final OAuth2TokenKeyService tokenKeyService;
 	private final OAuth2ServiceEndpointsProvider endpointsProvider;

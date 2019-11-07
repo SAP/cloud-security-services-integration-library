@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * This is a factory class to easily create {@link ValidationResult} objects.
@@ -17,23 +18,32 @@ public class ValidationResults {
 	 * Creates an invalid {@link ValidationResult} that contains one
 	 * {@link ValidationError} with given description.
 	 * 
-	 * @param errorDescription
+	 * @param errorMesssage
 	 *            the description used to create the {@link ValidationError}.
 	 * @return an invalid {@link ValidationResult} containing one
 	 *         {@link ValidationError} with the given error description.
 	 */
-	public static ValidationResult createInvalid(String errorDescription) {
-		logger.warn(errorDescription);
+	public static ValidationResult createInvalid(String errorMesssage) {
+		logger.warn(errorMesssage);
 		ArrayList<ValidationError> validationErrors = new ArrayList<>();
-		validationErrors.add(new ValidationErrorImpl(errorDescription));
+		validationErrors.add(new ValidationErrorImpl(errorMesssage));
 		ValidationResultImpl validationResult = new ValidationResultImpl(validationErrors);
 		return validationResult;
 	}
 
 	/**
 	 * Works just like {@link #createInvalid(String)} but accepts a template string
-	 * with placeholders that are substituted with the given arguments. Works like
+	 * with placeholders "{}" that are substituted with the given arguments. Works like
 	 * described in {@link MessageFormatter}.
+	 *
+	 * For example,
+	 *
+	 * <pre>
+	 * MessageFormatter.format(&quot;Hi {}.&quot;, &quot;there&quot;);
+	 * </pre>
+	 *
+	 * will return the string "Hi there.".
+	 * <p>
 	 * 
 	 * @param errorMessageTemplate
 	 *            the description as template used to create the
@@ -43,7 +53,7 @@ public class ValidationResults {
 	 * @return an invalid {@link ValidationResult} containing one
 	 *         {@link ValidationError} with the given error description.
 	 */
-	public static ValidationResult createInvalid(String errorMessageTemplate, String... arguments) {
+	public static ValidationResult createInvalid(String errorMessageTemplate, Object... arguments) {
 		String format = MessageFormatter.arrayFormat(errorMessageTemplate, arguments).getMessage();
 		return createInvalid(format);
 	}

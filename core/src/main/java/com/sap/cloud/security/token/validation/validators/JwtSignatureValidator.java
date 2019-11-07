@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.core.Assertions.*;
+import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.xsuaa.jwk.JsonWebKey.*;
 import static com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants.*;
 import static java.nio.charset.StandardCharsets.*;
@@ -72,20 +73,23 @@ public class JwtSignatureValidator implements Validator<Token> {
 		try {
 			publicKey = tokenKeyService.getPublicKey(keyType, keyId);
 		} catch (OAuth2ServiceException e) {
-			return ValidationResults.createInvalid("Error retrieving JSON Web Keys from Identity Service (" + tokenKeyService.getJwkUri() + "): " + e.getMessage());
+			return createInvalid("Error retrieving JSON Web Keys from Identity Service ({}): {}.",
+					tokenKeyService.getJwkUri(), e.getMessage());
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			return ValidationResults.createInvalid("Error creating PublicKey from JSON Web Key received from Identity Service (" + tokenKeyService.getJwkUri() + "): " + e.getMessage());
+			return createInvalid("Error creating PublicKey from JSON Web Key received from {}: {}.",
+					tokenKeyService.getJwkUri(), e.getMessage());
 		}
 		if (publicKey == null) {
-			return ValidationResults.createInvalid("There is no JSON Web Token Key with keyId '" + keyId + "' and type '" + keyType + "' to prove the identity of the JWT.");
+			return createInvalid("There is no JSON Web Token Key with keyId '{}' and type '{}' to prove the identity of the JWT.",
+					keyId, keyType);
 		}
 
 		try {
 			if (!isTokenSignatureValid(token, keyType, publicKey)) {
-				return ValidationResults.createInvalid("Signature of JWT Token is not valid: the identity provided by the JSON Web Token Key can not be verified.");
+				return createInvalid("Signature of JWT Token is not valid: the identity provided by the JSON Web Token Key can not be verified.");
 			}
 		} catch (Exception e) {
-			return ValidationResults.createInvalid("Error occurred during JSON Web Signature Validation: " + e.getMessage());
+			return createInvalid("Error occurred during JSON Web Signature Validation: {}.", e.getMessage());
 		}
 		return ValidationResults.createValid();
 	}
@@ -97,19 +101,6 @@ public class JwtSignatureValidator implements Validator<Token> {
 		}
 		throw new IllegalArgumentException(
 				"JWT token with signature algorithm " + tokenAlgorithm + " can not be verified.");
-	}
-
-	private Signature getSignatureForAlgorithm(Type keyType) {
-		String algorithm = MAP_TYPE_SIGNATURE.get(keyType);
-		if (algorithm != null) {
-			try {
-				return Signature.getInstance(algorithm);
-			} catch (NoSuchAlgorithmException e) {
-				// should never happen
-			}
-		}
-		throw new IllegalArgumentException(
-				"JWT token with signature algorithm " + keyType.value() + " can not be verified.");
 	}
 
 	private boolean isTokenSignatureValid(String token, Type keyType, PublicKey publicKey)
@@ -130,6 +121,19 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 		boolean isSignatureValid = publicSignature.verify(decodedSignatureBytes);
 		return isSignatureValid;
+	}
+
+	private Signature getSignatureForAlgorithm(Type keyType) {
+		String algorithm = MAP_TYPE_SIGNATURE.get(keyType);
+		if (algorithm != null) {
+			try {
+				return Signature.getInstance(algorithm);
+			} catch (NoSuchAlgorithmException e) {
+				// should never happen
+			}
+		}
+		throw new IllegalArgumentException(
+				"JWT token with signature algorithm " + keyType.value() + " can not be verified.");
 	}
 
 }

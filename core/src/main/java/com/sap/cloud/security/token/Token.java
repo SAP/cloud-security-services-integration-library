@@ -79,6 +79,7 @@ public interface Token {
 	 *
 	 * @return the encoded token.
 	 */
+	// TODO check name?
 	String getAppToken();
 
 }

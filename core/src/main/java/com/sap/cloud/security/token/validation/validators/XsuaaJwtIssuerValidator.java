@@ -12,14 +12,14 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 
 public class XsuaaJwtIssuerValidator implements Validator<Token> {
-	private final String uaaDomain;
+	private final String domain;
 
 	/**
 	 *
 	 * @param uaaDomain the domain of the identity service {@link OAuth2ServiceConfiguration#getDomain()}
 	 */
 	public XsuaaJwtIssuerValidator(String uaaDomain) {
-		this.uaaDomain = uaaDomain;
+		this.domain = uaaDomain;
 	}
 
 	@Override public ValidationResult validate(Token token) {
@@ -32,11 +32,12 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 		URI jkuUri;
 		try {
 			jkuUri = new URI(tokenKeyUrl);
-			if(!jkuUri.getHost().endsWith(uaaDomain)) {
-				return createInvalid("Do not trust issuer because 'jku' '" + tokenKeyUrl + "' does not match uaa domain '" + uaaDomain + "'.");
+			if(!jkuUri.getHost().endsWith(domain)) {
+				return createInvalid("Issuer is not trusted because 'jku' '{}' does not match uaa domain '{}'.",
+						tokenKeyUrl, domain);
 			}
 		} catch (URISyntaxException e) {
-			return createInvalid("Error: 'jku' header parameter '" + tokenKeyUrl + "' is not a valid URI.");
+			return createInvalid("Error: 'jku' header parameter '{}' does not provide a valid URI.", tokenKeyUrl);
 		}
 		return createValid();
 	}
