@@ -18,7 +18,9 @@ public class DefaultJsonObjectTest {
 	public static final String KEY_1 = "key-1";
 	public static final String KEY_2 = "key-2";
 
-	public static final String STRING_VALUE = "\"string text\"";
+	public static final String STRING_TEXT = "string text";
+	public static final String STRING_VALUE = "\"" + STRING_TEXT + "\"";
+
 	public static final String STRING_LIST_VALUE = "[\"a\", \"b\", \"c\"]";
 
 	private DefaultJsonObject cut;
@@ -40,7 +42,7 @@ public class DefaultJsonObjectTest {
 
 	@Test
 	public void getValueAsString_keyExists_returnsStringValue() {
-		assertThat(cut.getAsString(KEY_1)).isEqualTo(STRING_VALUE.substring(1, STRING_VALUE.length() - 1));
+		assertThat(cut.getAsString(KEY_1)).isEqualTo(STRING_TEXT);
 	}
 
 	@Test
@@ -104,6 +106,61 @@ public class DefaultJsonObjectTest {
 	public void getInstant_propertyExistsButIsNotInEpochTime_throwsException() {
 		assertThatThrownBy(() -> cut.getAsInstant(KEY_1))
 				.isInstanceOf(JsonParsingException.class);
+	}
+
+	@Test
+	public void getJsonObject_propertExists_returnsJsonObject() {
+		cut = createJsonParser(KEY_1, createJsonObjectString(KEY_1, STRING_VALUE));
+
+		JsonObject jsonObject = cut.getJsonObject(KEY_1);
+
+		assertThat(jsonObject).isNotNull();
+		assertThat(jsonObject.getAsString(KEY_1)).isNotNull();
+	}
+
+	@Test
+	public void getJsonObjects_propertExists_returnsJsonObjects() {
+		cut = createJsonParser(KEY_1, "[" + createJsonObjectString(KEY_1, STRING_VALUE) + "]");
+
+		List<JsonObject> jsonObjects = cut.getJsonObjects(KEY_1);
+
+		assertThat(jsonObjects).isNotNull();
+		assertThat(jsonObjects).hasSize(1);
+		assertThat(jsonObjects.get(0).getAsString(KEY_1)).isNotNull();
+	}
+
+	@Test
+	public void getJsonObject_propertDoesNotExists_returnsNull() {
+		JsonObject jsonObject = cut.getJsonObject("keyDoesNotExist");
+
+		assertThat(jsonObject).isNull();
+	}
+
+	@Test
+	public void getJsonObject_propertExistsButIsNotAnObject_throwsException() {
+		assertThatThrownBy(() -> cut.getJsonObject(KEY_1)).isInstanceOf(JsonParsingException.class);
+	}
+
+	@Test
+	public void getJsonObjects_propertDoesNotExists_returnsNull() {
+		List<JsonObject> jsonObjects = cut.getJsonObjects("keyDoesNotExist");
+
+		assertThat(jsonObjects).isNull();
+	}
+
+	@Test
+	public void getJsonObjects_propertExists_returnsEmptyList() {
+		cut = createJsonParser(KEY_1, "[]");
+
+		List<JsonObject> jsonObjects = cut.getJsonObjects(KEY_1);
+
+		assertThat(jsonObjects).isNotNull();
+		assertThat(jsonObjects).isEmpty();
+	}
+
+	@Test
+	public void getJsonObjects_propertExistsButIsNotAnArray_throwsException() {
+		assertThatThrownBy(() -> cut.getJsonObjects(KEY_1)).isInstanceOf(JsonParsingException.class);
 	}
 
 	private DefaultJsonObject createJsonParser(String key, Object value) {
