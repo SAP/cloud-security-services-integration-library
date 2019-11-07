@@ -5,6 +5,9 @@ import static com.sap.cloud.security.token.validation.ValidationResults.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenHeader;
@@ -13,6 +16,7 @@ import com.sap.cloud.security.token.validation.Validator;
 
 public class XsuaaJwtIssuerValidator implements Validator<Token> {
 	private final String domain;
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 *
@@ -25,21 +29,25 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 	@Override public ValidationResult validate(Token token) {
 
 		String tokenKeyUrl = token.getHeaderParameterAsString(TokenHeader.JWKS_URL);
-		if (tokenKeyUrl == null) {
+		if (tokenKeyUrl == null || tokenKeyUrl.trim().isEmpty()) {
 			return createInvalid("Issuer validation can not be performed because JWT token does not contain 'jku' header parameter.");
 		}
 
+		return matchesTokenKeyUrlDomain(tokenKeyUrl);
+	}
+
+	private ValidationResult matchesTokenKeyUrlDomain(String tokenKeyUrl) {
 		URI jkuUri;
 		try {
 			jkuUri = new URI(tokenKeyUrl);
-			if(!jkuUri.getHost().endsWith(domain)) {
-				return createInvalid("Issuer is not trusted because 'jku' '{}' does not match uaa domain '{}'.",
-						tokenKeyUrl, domain);
+			if(jkuUri.getHost() != null && jkuUri.getHost().endsWith(domain)) {
+				return createValid();
 			}
 		} catch (URISyntaxException e) {
-			return createInvalid("Error: 'jku' header parameter '{}' does not provide a valid URI.", tokenKeyUrl);
+			logger.error("Error: 'jku' header parameter '{}' does not provide a valid URI: {}.", tokenKeyUrl, e.getMessage(), e);
 		}
-		return createValid();
+		return createInvalid("Issuer is not trusted because 'jku' '{}' does not match uaa domain '{}' of the identity service.",
+				tokenKeyUrl, domain);
 	}
 
 }
