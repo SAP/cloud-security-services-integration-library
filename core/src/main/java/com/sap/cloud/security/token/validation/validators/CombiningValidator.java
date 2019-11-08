@@ -3,6 +3,7 @@ package com.sap.cloud.security.token.validation.validators;
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
@@ -72,6 +73,14 @@ public class CombiningValidator<T> implements Validator<T> {
 		return validationErrors;
 	}
 
+	@Override public String toString() {
+		StringBuilder validatorNames = new StringBuilder();
+		for (Validator v: validators) {
+			validatorNames.append(v.getClass().getName()).append(',');
+		}
+		return validatorNames.toString();
+	}
+
 	public static class TokenValidatorBuilder {
 		private final List<Validator<Token>> validators = new ArrayList<>();
 		private boolean stopAfterFirstInvalidResult = true;
@@ -110,19 +119,17 @@ public class CombiningValidator<T> implements Validator<T> {
 		 * @return the validator.
 		 */
 		public CombiningValidator<Token> build() {
-
 			if (configuration != null /* && configuration.getServiceName() == "xsuaa"*/) { // TODO
 				OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(configuration.getUrl());
 				TokenKeyServiceWithCache tokenKeyServiceWithCache = new TokenKeyServiceWithCache(tokenKeyService, endpointsProvider);
-				with(new JwtSignatureValidator(tokenKeyServiceWithCache));
 				with(new JwtTimestampValidator());
-				with(new XsuaaJwtAudienceValidator(configuration.getProperty("appId"), configuration.getClientId()));//TODO
 				with(new XsuaaJwtIssuerValidator(configuration.getDomain()));
+				with(new XsuaaJwtAudienceValidator(configuration.getProperty(CFConstants.APP_ID), configuration.getClientId()));
+				with(new JwtSignatureValidator(tokenKeyServiceWithCache));
 			}
 
 			return new CombiningValidator(validators, stopAfterFirstInvalidResult);
 		}
-
 
 		void setOAuthConfiguration(OAuth2ServiceConfiguration configuration) {
 			this.configuration = configuration;
