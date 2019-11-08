@@ -1,13 +1,26 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.token.MockTokenBuilder;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenImpl;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 
+import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class CombiningValidatorTest {
@@ -17,7 +30,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_containsNoValidators_validResult() {
-		Validator<Object> combiningValidator = CombiningValidator.builderFor().build();
+		Validator<Token> combiningValidator = CombiningValidator.builder().build();
 
 		ValidationResult validationResult = combiningValidator.validate(null);
 
@@ -26,7 +39,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoValidValidators_validResult() {
-		Validator<Object> combiningValidator = CombiningValidator.builderFor()
+		Validator<Token> combiningValidator = CombiningValidator.builder()
 				.with(validValidator())
 				.with(validValidator())
 				.build();
@@ -38,7 +51,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoInvalidValidators_invalidResult() {
-		Validator<Object> combiningValidator = CombiningValidator.builderFor()
+		Validator<Token> combiningValidator = CombiningValidator.builder()
 				.with(invalidValidator())
 				.with(invalidValidator())
 				.build();
@@ -50,7 +63,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoInvalidValidators_containsOnlyOneErrorMessages() {
-		Validator<Object> combiningValidator = CombiningValidator.builderFor()
+		Validator<Token> combiningValidator = CombiningValidator.builder()
 				.with(validValidator())
 				.with(invalidValidator(FIRST_ERROR_MESSAGE))
 				.with(invalidValidator(SECOND_ERROR_MESSAGE)).build();
@@ -62,7 +75,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoInvalidValidatorsWithValidateAll_containsBothErrorMessages() {
-		CombiningValidator<Object> combiningValidator = CombiningValidator.builderFor()
+		CombiningValidator<Token> combiningValidator = CombiningValidator.builder()
 				.with(validValidator())
 				.with(invalidValidator(FIRST_ERROR_MESSAGE))
 				.with(invalidValidator(SECOND_ERROR_MESSAGE))
@@ -78,16 +91,50 @@ public class CombiningValidatorTest {
 		assertThat(errorMessages).containsExactly(FIRST_ERROR_MESSAGE, SECOND_ERROR_MESSAGE);
 	}
 
-	private Validator<Object> validValidator() {
+	private Validator<Token> validValidator() {
 		return (obj) -> ValidationResults.createValid();
 	}
 
-	private Validator<Object> invalidValidator() {
+	private Validator<Token> invalidValidator() {
 		return invalidValidator(FIRST_ERROR_MESSAGE);
 	}
 
-	private Validator<Object> invalidValidator(String errorMessage) {
+	private Validator<Token> invalidValidator(String errorMessage) {
 		return (obj) -> ValidationResults.createInvalid(errorMessage);
+	}
+
+	@Test
+	public void validationFails_withXsuaaCombiningValidator_whenOAuthServerIsUnavailable() throws URISyntaxException, IOException {
+		OAuth2ServiceConfiguration configuration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		when(configuration.getUrl()).thenReturn(new URI("https://my.auth.com"));
+		when(configuration.getDomain()).thenReturn("auth.com");
+		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
+		when(configuration.getProperty("appId")).thenReturn("test-app!t123");
+
+		Validator combiningValidator = CombiningValidator.builderFor(configuration).build();
+
+		Token xsuaaToken = new TokenImpl(IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
+		ValidationResult result = combiningValidator.validate(xsuaaToken);
+		assertThat(result.isValid()).isFalse();
+		assertThat(result.getErrorDescription()).contains("Error retrieving Json Web Keys from Identity Service (https://my.auth.com/token_keys)");
+	}
+
+	@Test
+	public void validate_withXsuaaCombiningValidator_whenOAuthServerIsMocked() throws URISyntaxException, IOException {
+		OAuth2ServiceConfiguration configuration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		when(configuration.getUrl()).thenReturn(new URI("https://my.auth.com"));
+		when(configuration.getDomain()).thenReturn("auth.com");
+		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
+		when(configuration.getProperty("appId")).thenReturn("test-app!t123");
+
+		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
+		Validator combiningValidator = CombiningValidator.builderFor(configuration)
+				.withOAuth2TokenKeyService(tokenKeyService).build();
+
+		Token xsuaaToken = new TokenImpl(IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
+		ValidationResult result = combiningValidator.validate(xsuaaToken);
+		assertThat(result.isValid()).isFalse();
+		assertThat(result.getErrorDescription()).contains("Error retrieving Json Web Keys from Identity Service (https://my.auth.com/token_keys)");
 	}
 
 }

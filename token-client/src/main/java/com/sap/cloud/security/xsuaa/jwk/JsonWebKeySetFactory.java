@@ -9,8 +9,8 @@ public class JsonWebKeySetFactory {
 	}
 
 	public static JsonWebKeySet createFromJson(String json) {
-		JSONArray keys = new JSONObject(json).getJSONArray(JsonWebKeyConstants.KEYS_PARAMETER_NAME);
 		JsonWebKeySet keySet = new JsonWebKeySet();
+		JSONArray keys = new JSONObject(json).getJSONArray(JsonWebKeyConstants.KEYS_PARAMETER_NAME);
 
 		for (Object key : keys) {
 			if (key instanceof JSONObject) {
