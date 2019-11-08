@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SecurityContextTest {
 
 	private static final Token TOKEN = new MockTokenBuilder().build();
+	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
 	@Before
 	public void setUp() {
@@ -45,8 +46,7 @@ public class SecurityContextTest {
 	public void tokenNotAvailableInDifferentThread() throws ExecutionException, InterruptedException {
 		SecurityContext.setToken(TOKEN);
 
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		Future<Token> tokenInOtherThread = executor.submit(() -> SecurityContext.getToken());
+		Future<Token> tokenInOtherThread = executorService.submit(() -> SecurityContext.getToken());
 
 		assertThat(tokenInOtherThread.get()).isNull();
 	}
@@ -55,8 +55,7 @@ public class SecurityContextTest {
 	public void clearingTokenInDifferentThreadDoesNotAffectMainThread() throws ExecutionException, InterruptedException {
 		SecurityContext.setToken(TOKEN);
 
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		executor.submit(() -> SecurityContext.clearToken()).get(); //run and await other thread
+		executorService.submit(() -> SecurityContext.clearToken()).get(); //run and await other thread
 
 		assertThat(SecurityContext.getToken()).isEqualTo(TOKEN);
 	}
