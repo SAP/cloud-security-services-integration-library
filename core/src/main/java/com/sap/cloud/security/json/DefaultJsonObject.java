@@ -135,7 +135,11 @@ public class DefaultJsonObject implements JsonObject {
 
 	private JSONObject getJsonObject() {
 		if (jsonObject == null) {
-			jsonObject = new JSONObject(jsonString);
+			try {
+				jsonObject = new JSONObject(jsonString);
+			} catch (JSONException e) {
+				throw new JsonParsingException(e.getMessage());
+			}
 		}
 		return jsonObject;
 	}

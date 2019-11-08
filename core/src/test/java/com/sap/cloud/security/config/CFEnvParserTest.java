@@ -16,6 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CFEnvParserTest {
 
+	private static final String EMPTY_XSUAA_BINDINGS = "{xsuaa: []}";
+
 	private final CFEnvParser cutMultipleBindings;
 	private final CFEnvParser cutSingleBinding;
 
@@ -73,15 +75,16 @@ public class CFEnvParserTest {
 
 	@Test
 	public void load_emptyBindings_isNull() {
-		CFOAuth2ServiceConfiguration configuration = new CFEnvParser("{xsuaa: []}").load(XSUAA);
+		CFOAuth2ServiceConfiguration configuration = new CFEnvParser(EMPTY_XSUAA_BINDINGS).load(XSUAA);
 
 		assertThat(configuration).isNull();
 	}
 
 	@Test
 	public void loadAll_emptyBindings_isEmptyList() {
-		List<CFOAuth2ServiceConfiguration> configurations = new CFEnvParser("{xsuaa: []}").loadAll(XSUAA);
+		List<CFOAuth2ServiceConfiguration> configurations = new CFEnvParser(EMPTY_XSUAA_BINDINGS).loadAll(XSUAA);
 
 		assertThat(configurations).isEmpty();
 	}
+
 }
