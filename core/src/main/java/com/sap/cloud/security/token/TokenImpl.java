@@ -21,8 +21,8 @@ public class TokenImpl implements Token {
 		this(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
 	}
 
-	public TokenImpl(String appToken) {
-		this(Base64JwtDecoder.getInstance().decode(appToken));
+	public TokenImpl(String accessToken) {
+		this(Base64JwtDecoder.getInstance().decode(accessToken));
 	}
 
 	TokenImpl(String jsonHeader, String jsonPayload, String appToken) {
