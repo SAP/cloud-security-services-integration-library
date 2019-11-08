@@ -68,8 +68,8 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
-	public void getValueOAsListOfStrings_keyDoesNotExist_returnsNull() {
-		assertThat(cut.getAsList("keyDoesNotExist", String.class)).isNull();
+	public void getValueOAsListOfStrings_keyDoesNotExist_returnsEmptyList() {
+		assertThat(cut.getAsList("keyDoesNotExist", String.class)).isEmpty();
 	}
 
 	@Test
@@ -142,10 +142,10 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
-	public void getJsonObjects_propertyDoesNotExists_returnsNull() {
+	public void getJsonObjects_propertyDoesNotExists_returnsEmptyList() {
 		List<JsonObject> jsonObjects = cut.getJsonObjects("keyDoesNotExist");
 
-		assertThat(jsonObjects).isNull();
+		assertThat(jsonObjects).isEmpty();
 	}
 
 	@Test

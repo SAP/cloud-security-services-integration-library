@@ -26,9 +26,8 @@ public class DefaultJsonObject implements JsonObject {
 	}
 
 	@Override
-	@Nullable
 	public <T> List<T> getAsList(String name, Class<T> type) {
-		return getJSONArray(name).map(jsonArray -> castToListOfType(jsonArray, type)).orElse(null);
+		return getJSONArray(name).map(jsonArray -> castToListOfType(jsonArray, type)).orElse(new ArrayList<>());
 	}
 
 	@Override
@@ -57,11 +56,11 @@ public class DefaultJsonObject implements JsonObject {
 
 	@Override
 	@Nullable
-	public JsonObject getJsonObject(String keyName) {
-		if (contains(keyName)) {
+	public JsonObject getJsonObject(String name) {
+		if (contains(name)) {
 			JSONObject newJsonObject;
 			try {
-				newJsonObject = getJsonObject().getJSONObject(keyName);
+				newJsonObject = getJsonObject().getJSONObject(name);
 			} catch (JSONException e) {
 				throw new JsonParsingException(e.getMessage());
 			}
@@ -74,11 +73,10 @@ public class DefaultJsonObject implements JsonObject {
 	}
 
 	@Override
-	@Nullable
-	public List<JsonObject> getJsonObjects(String keyName) {
-		return getJSONArray(keyName)
+	public List<JsonObject> getJsonObjects(String name) {
+		return getJSONArray(name)
 				.map(this::convertToJsonObjects)
-				.orElse(null); //TODO return Empty list
+				.orElse(new ArrayList<>());
 	}
 
 	private List<JsonObject> convertToJsonObjects(JSONArray jsonArray) {
@@ -122,10 +120,10 @@ public class DefaultJsonObject implements JsonObject {
 		return valuesAsList;
 	}
 
-	private Optional<JSONArray> getJSONArray(String keyName) {
-		if (contains(keyName)) {
+	private Optional<JSONArray> getJSONArray(String name) {
+		if (contains(name)) {
 			try {
-				return Optional.ofNullable(getJsonObject().getJSONArray(keyName));
+				return Optional.ofNullable(getJsonObject().getJSONArray(name));
 			} catch (JSONException e) {
 				throw new JsonParsingException(e.getMessage());
 			}

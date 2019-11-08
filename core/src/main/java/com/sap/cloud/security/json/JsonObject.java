@@ -18,20 +18,19 @@ public interface JsonObject {
 
 	/**
 	 * Parses the json object for the given property {@code name} and returns a list
-	 * of type {@link T}. If the property with the given name is not found, null is
-	 * returned.
+	 * of type {@link T}. If the property with the given name is not found, an empyt
+	 * list is returned.
 	 *
 	 * @param name
 	 *            the property inside the json structure which contains a list as
 	 *            values of type {@link T}.
 	 * @param type
 	 *            type parameter for generic type {@link T}.
-	 * @return the list of type {@link T} or null if the property does not exist.
+	 * @return the list of type {@link T}.
 	 * @throws JsonParsingException
 	 *             if the json object with the given key is not a list or list
 	 *             elements are not of type {@link T}.
 	 */
-	@Nullable
 	<T> List<T> getAsList(String name, Class<T> type);
 
 	/**
@@ -65,7 +64,7 @@ public interface JsonObject {
 	/**
 	 * Returns a nested JSON object as @{link JsonObject} instance.
 	 * 
-	 * @param keyName
+	 * @param name
 	 *            the name of property.
 	 * @return the {@link JsonObject}.
 	 * @throws JsonParsingException
@@ -73,19 +72,19 @@ public interface JsonObject {
 	 *             object structure.
 	 */
 	@Nullable
-	JsonObject getJsonObject(String keyName);
+	JsonObject getJsonObject(String name);
 
 	/**
 	 * Returns a nested array of JSON objects as list of @{link JsonObject}
-	 * instances.
+	 * instances. If the property with the given name is not found, an empty
+	 * list is returned.
 	 * 
-	 * @param keyName
+	 * @param name
 	 *            the name of property.
 	 * @return a list of {@link JsonObject} instances.
 	 * @throws JsonParsingException
 	 *             if the json object identified by the given property is not an
 	 *             array of JSON objects.
 	 */
-	@Nullable
-	List<JsonObject> getJsonObjects(String keyName);
+	List<JsonObject> getJsonObjects(String name);
 }
