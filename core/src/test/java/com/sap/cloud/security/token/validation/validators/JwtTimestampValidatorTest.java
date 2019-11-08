@@ -1,7 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.validation.MockTokenBuilder;
+import com.sap.cloud.security.token.MockTokenBuilder;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -123,6 +123,5 @@ public class JwtTimestampValidatorTest {
 
 		assertThat(validationResult.isValid()).isFalse();
 	}
-
 
 }

@@ -17,7 +17,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_containsNoValidators_validResult() {
-		Validator<Object> combiningValidator = CombiningValidator.builderFor(Object.class).build();
+		Validator<Object> combiningValidator = CombiningValidator.builderFor().build();
 
 		ValidationResult validationResult = combiningValidator.validate(null);
 
@@ -26,7 +26,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoValidValidators_validResult() {
-		Validator<Object> combiningValidator = CombiningValidator.builderFor(Object.class)
+		Validator<Object> combiningValidator = CombiningValidator.builderFor()
 				.with(validValidator())
 				.with(validValidator())
 				.build();
@@ -38,7 +38,7 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoInvalidValidators_invalidResult() {
-		Validator<Object> combiningValidator = CombiningValidator.builderFor(Object.class)
+		Validator<Object> combiningValidator = CombiningValidator.builderFor()
 				.with(invalidValidator())
 				.with(invalidValidator())
 				.build();
@@ -50,7 +50,8 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoInvalidValidators_containsOnlyOneErrorMessages() {
-		Validator<Object> combiningValidator = CombiningValidator.builderFor(Object.class)
+		Validator<Object> combiningValidator = CombiningValidator.builderFor()
+				.with(validValidator())
 				.with(invalidValidator(FIRST_ERROR_MESSAGE))
 				.with(invalidValidator(SECOND_ERROR_MESSAGE)).build();
 
@@ -61,7 +62,8 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoInvalidValidatorsWithValidateAll_containsBothErrorMessages() {
-		CombiningValidator<Object> combiningValidator = CombiningValidator.builderFor(Object.class)
+		CombiningValidator<Object> combiningValidator = CombiningValidator.builderFor()
+				.with(validValidator())
 				.with(invalidValidator(FIRST_ERROR_MESSAGE))
 				.with(invalidValidator(SECOND_ERROR_MESSAGE))
 				.with(validValidator())
@@ -69,7 +71,7 @@ public class CombiningValidatorTest {
 				.build();
 
 		ValidationResult result = combiningValidator.validate(null);
-		assertThat(result.getErrorDescription()).isEqualTo("2 out of 3 validators reported an error. Please see detailed error descriptions.");
+		assertThat(result.getErrorDescription()).isEqualTo("2 out of 4 validators reported an error. Please see detailed error descriptions.");
 		assertThat(result.isValid()).isEqualTo(false);
 
 		List<String> errorMessages = combiningValidator.getAllErrorDescriptions();

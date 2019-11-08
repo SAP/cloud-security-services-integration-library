@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.core.Assertions.*;
+import static com.sap.cloud.security.token.TokenClaims.*;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
@@ -30,17 +31,17 @@ public class XsuaaJwtAudienceValidator implements Validator<Token> {
 	}
 
 	public void configureAnotherServiceInstance(String appId, String clientId) {
-		assertNotNull(appId, "appId must not be null");
-		assertNotNull(clientId, "clientId must not be null");
+		assertNotEmpty(appId, "appId must not be null or empty.");
+		assertNotEmpty(clientId, "clientId must not be null or empty.");
 		appIdClientIdMap.putIfAbsent(appId, clientId);
-		logger.info("configured JwtAudienceValidator with appId {} and clientId {}", appId, clientId);
+		logger.info("configured XsuaaJwtAudienceValidator with appId {} and clientId {}.", appId, clientId);
 	}
 
 	@Override
 	public ValidationResult validate(Token token) {
 		String tokenClientId = token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID);
 		if (tokenClientId == null || tokenClientId.isEmpty()) {
-			ValidationResults.createInvalid("Jwt token must contain 'cid' (client_id)");
+			return ValidationResults.createInvalid("Jwt token must contain 'cid' (client_id).");
 		}
 		List<String> allowedAudiences = getAllowedAudiences(token);
 
@@ -50,7 +51,7 @@ public class XsuaaJwtAudienceValidator implements Validator<Token> {
 			}
 		}
 		return ValidationResults
-				.createInvalid("Jwt token audience matches none of these: " + appIdClientIdMap.keySet());
+				.createInvalid("Jwt token audience matches none of these: {}.",appIdClientIdMap.keySet());
 	}
 
 	private boolean checkMatch(String appId, String clientId, String tokenClientId, List<String> allowedAudiences) {
@@ -77,12 +78,12 @@ public class XsuaaJwtAudienceValidator implements Validator<Token> {
 	 */
 	static List<String> getAllowedAudiences(Token token) {
 		List<String> allAudiences = new ArrayList<>();
-		List<String> tokenAudiences = token.getClaimAsStringList(TokenClaims.AUDIENCE);
+		List<String> tokenAudiences = token.getClaimAsStringList(AUDIENCE);
 
 		if (tokenAudiences != null) {
 			for (String audience : tokenAudiences) {
 				if (audience.contains(".")) {
-					String aud = audience.substring(0, audience.indexOf("."));
+					String aud = audience.substring(0, audience.indexOf('.'));
 					allAudiences.add(aud);
 				} else {
 					allAudiences.add(audience);
@@ -90,11 +91,11 @@ public class XsuaaJwtAudienceValidator implements Validator<Token> {
 			}
 		}
 
-		// extract audience (app-id) from scopes
+		// fallback: extract audience (app-id) from scopes
 		if (allAudiences.isEmpty()) {
 			for (String scope : getScopes(token)) {
 				if (scope.contains(".")) {
-					String aud = scope.substring(0, scope.indexOf("."));
+					String aud = scope.substring(0, scope.indexOf('.'));
 					allAudiences.add(aud);
 				}
 			}

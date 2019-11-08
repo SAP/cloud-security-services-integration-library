@@ -1,15 +1,15 @@
-package com.sap.cloud.security.token.validation;
+package com.sap.cloud.security.token;
 
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenClaims;
 import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.GregorianCalendar;
 
 import static org.mockito.Mockito.when;
 
 public class MockTokenBuilder {
+	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
 
 	private final Token token = Mockito.mock(Token.class);
 

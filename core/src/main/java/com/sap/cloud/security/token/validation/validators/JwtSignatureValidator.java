@@ -2,17 +2,16 @@ package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.core.Assertions.*;
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
+import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
 import static com.sap.cloud.security.xsuaa.jwk.JsonWebKey.*;
 import static com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants.*;
 import static java.nio.charset.StandardCharsets.*;
 
 import javax.annotation.Nullable;
 
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
-import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.HashMap;
@@ -21,7 +20,6 @@ import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
 
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
@@ -63,77 +61,110 @@ public class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	public ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId) {
-		assertNotEmpty(token, "token must not be null / empty string.");
-		assertNotEmpty(tokenAlgorithm, "tokenAlgorithm must not be null / empty string.");
+		assertNotEmpty(token, "token must not be null or empty.");
 
-		Type keyType = getKeyTypeForAlgorithm(tokenAlgorithm);
-		String keyId = tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID;
+		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId);
+	}
 
+	private static class Validation {
+		Type keyType;
 		PublicKey publicKey;
-		try {
-			publicKey = tokenKeyService.getPublicKey(keyType, keyId);
-		} catch (OAuth2ServiceException e) {
-			return createInvalid("Error retrieving JSON Web Keys from Identity Service ({}): {}.",
-					tokenKeyService.getJwkUri(), e.getMessage());
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			return createInvalid("Error creating PublicKey from JSON Web Key received from {}: {}.",
-					tokenKeyService.getJwkUri(), e.getMessage());
-		}
-		if (publicKey == null) {
-			return createInvalid("There is no JSON Web Token Key with keyId '{}' and type '{}' to prove the identity of the JWT.",
-					keyId, keyType);
+		Signature publicSignature;
+
+		private Validation() {}
+
+		static Validation getInstance() {
+			return new Validation();
 		}
 
-		try {
-			if (!isTokenSignatureValid(token, keyType, publicKey)) {
-				return createInvalid("Signature of JWT Token is not valid: the identity provided by the JSON Web Token Key can not be verified.");
+		public ValidationResult validate(TokenKeyServiceWithCache tokenKeyService, String token, String tokenAlgorithm,
+				@Nullable String tokenKeyId) {
+			assertNotEmpty(token, "token must not be null or empty.");
+
+			ValidationResult validationResult;
+
+			validationResult = setKeyTypeForAlgorithm(tokenAlgorithm);
+			if (!validationResult.isValid()) {
+				return validationResult;
 			}
-		} catch (Exception e) {
-			return createInvalid("Error occurred during JSON Web Signature Validation: {}.", e.getMessage());
+
+			String keyId = tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID;
+			validationResult = setPublicKey(tokenKeyService, keyType, keyId);
+			if (!validationResult.isValid()) {
+				return validationResult;
+			}
+
+			validationResult = setPublicSignatureForKeyType(keyType);
+			if (!validationResult.isValid()) {
+				return validationResult;
+			}
+
+			return isTokenSignatureValid(token, publicSignature, publicKey);
 		}
-		return ValidationResults.createValid();
-	}
 
-	private Type getKeyTypeForAlgorithm(String tokenAlgorithm) {
-		Type keyType = MAP_ALGORITHM_TYPE.get(tokenAlgorithm);
-		if (keyType != null) {
-			return keyType;
+		private ValidationResult setKeyTypeForAlgorithm(String tokenAlgorithm) {
+			if (tokenAlgorithm != null) {
+				keyType = MAP_ALGORITHM_TYPE.get(tokenAlgorithm);
+				if (keyType != null) {
+					return createValid();
+				}
+			}
+			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.", tokenAlgorithm);
 		}
-		throw new IllegalArgumentException(
-				"JWT token with signature algorithm " + tokenAlgorithm + " can not be verified.");
-	}
 
-	private boolean isTokenSignatureValid(String token, Type keyType, PublicKey publicKey)
-			throws SignatureException, InvalidKeyException {
-		Signature publicSignature = getSignatureForAlgorithm(keyType);
-
-		String[] tokenHeaderPayloadSignature = token.split(Pattern.quote("."));
-		if (tokenHeaderPayloadSignature.length != 3) {
-			throw new IllegalArgumentException("JWT token does not consist of 'header'.'payload'.'signature'.");
-		}
-		String headerAndPayload = new StringBuilder(tokenHeaderPayloadSignature[0]).append(".")
-				.append(tokenHeaderPayloadSignature[1]).toString();
-
-		publicSignature.initVerify(publicKey);
-		publicSignature.update(headerAndPayload.getBytes(UTF_8)); // provide data
-
-		byte[] decodedSignatureBytes = Base64.getUrlDecoder().decode(tokenHeaderPayloadSignature[2]);
-
-		boolean isSignatureValid = publicSignature.verify(decodedSignatureBytes);
-		return isSignatureValid;
-	}
-
-	private Signature getSignatureForAlgorithm(Type keyType) {
-		String algorithm = MAP_TYPE_SIGNATURE.get(keyType);
-		if (algorithm != null) {
+		private ValidationResult setPublicKey(TokenKeyServiceWithCache tokenKeyService, Type keyType, String keyId) {
 			try {
-				return Signature.getInstance(algorithm);
-			} catch (NoSuchAlgorithmException e) {
-				// should never happen
+				this.publicKey = tokenKeyService.getPublicKey(keyType, keyId);
+			} catch (OAuth2ServiceException e) {
+				return createInvalid("Error retrieving Json Web Keys from Identity Service ({}): {}.",
+						tokenKeyService.getJwkUri(), e.getMessage());
+			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+				return createInvalid("Error creating PublicKey from Json Web Key received from {}: {}.",
+						tokenKeyService.getJwkUri(), e.getMessage());
+			}
+			if (this.publicKey == null) {
+				return createInvalid(
+						"There is no Json Web Token Key with keyId '{}' and type '{}' to prove the identity of the Jwt.",
+						keyId, keyType);
+			}
+			return createValid();
+		}
+
+		ValidationResult setPublicSignatureForKeyType(Type keyType) {
+			String algorithm = MAP_TYPE_SIGNATURE.get(keyType);
+			if (algorithm != null) {
+				try {
+					publicSignature = Signature.getInstance(algorithm);
+					return createValid();
+				} catch (NoSuchAlgorithmException e) {
+					// should never happen
+				}
+			}
+			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.", keyType.value());
+		}
+
+		private ValidationResult isTokenSignatureValid(String token, Signature signature, PublicKey publicKey) {
+			String[] tokenHeaderPayloadSignature = token.split(Pattern.quote("."));
+			if (tokenHeaderPayloadSignature.length != 3) {
+				return createInvalid("Jwt token does not consist of 'header'.'payload'.'signature'.");
+			}
+			String headerAndPayload = new StringBuilder(tokenHeaderPayloadSignature[0]).append(".")
+					.append(tokenHeaderPayloadSignature[1]).toString();
+			try {
+				signature.initVerify(publicKey);
+				signature.update(headerAndPayload.getBytes(UTF_8)); // provide data
+
+				byte[] decodedSignatureBytes = Base64.getUrlDecoder().decode(tokenHeaderPayloadSignature[2]);
+
+				if (signature.verify(decodedSignatureBytes)) {
+					return createValid();
+				}
+				return createInvalid(
+						"Signature of Jwt Token is not valid: the identity provided by the JSON Web Token Key can not be verified.");
+			} catch (Exception e) {
+				return createInvalid("Error occurred during Json Web Signature Validation: {}.", e.getMessage());
 			}
 		}
-		throw new IllegalArgumentException(
-				"JWT token with signature algorithm " + keyType.value() + " can not be verified.");
-	}
 
+	}
 }

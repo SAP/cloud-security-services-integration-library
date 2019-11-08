@@ -1,45 +1,33 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.token.TokenImpl;
 import com.sap.cloud.security.token.TokenTestFactory;
-import com.sap.cloud.security.token.validation.MockTokenBuilder;
 import com.sap.cloud.security.token.validation.ValidationResult;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class XsuaaJwtAudienceValidatorTest {
 
-	private final Token tokenWithAudience;
-	private final Token tokenWithoutAudience;
-	private final Token cloneTokenWithAudience;
-
-	private final XsuaaJwtAudienceValidator jwtAudienceValidatorSameClientId;
-	private final XsuaaJwtAudienceValidator jwtAudienceValidatorOtherGrantedClientId;
-	private final XsuaaJwtAudienceValidator jwtAudienceValidatorGrantedClientId;
-	private final XsuaaJwtAudienceValidator jwtAudienceValidatorBrokerPlan;
-	private MockTokenBuilder mockTokenBuilder;
-
-	public XsuaaJwtAudienceValidatorTest() throws IOException {
-		tokenWithAudience = createTokenFromTemplate("/audience_1.txt");
-		tokenWithoutAudience = createTokenFromTemplate("/audience_2.txt");
-		cloneTokenWithAudience = createTokenFromTemplate("/audience_3.txt");
-
-		jwtAudienceValidatorSameClientId = new XsuaaJwtAudienceValidator("test1!t1", "sb-test1!t1");
-		jwtAudienceValidatorOtherGrantedClientId = new XsuaaJwtAudienceValidator("test2!t1", "sb-test2!t1");
-		jwtAudienceValidatorGrantedClientId = new XsuaaJwtAudienceValidator("test3!t1", "sb-test3!t1");
-		jwtAudienceValidatorBrokerPlan = new XsuaaJwtAudienceValidator("test3!b1", "sb-test3!b1");
-	}
+	private Token token;
 
 	@Before
 	public void setUp() {
-		mockTokenBuilder = new MockTokenBuilder();
+		token = Mockito.mock(TokenImpl.class);
+		Mockito.when(token.getClaimAsString(CLIENT_ID)).thenReturn("sb-test1!t1");
 	}
 
 	private Token createTokenFromTemplate(String templateFilename) throws IOException {
@@ -48,113 +36,85 @@ public class XsuaaJwtAudienceValidatorTest {
 	}
 
 	@Test
-	public void testSameClientId() {
-		ValidationResult result = jwtAudienceValidatorSameClientId.validate(tokenWithAudience);
+	public void extractAudiencesFromTokenScopes() {
+		Mockito.when(token.getClaimAsStringList(SCOPES)).thenReturn(
+				Arrays.asList("test1!t1.read", "foreign!t1.read", "foreign!t1.write", ".scopeWithoutAppId, test1!t1.write"));
 
-		assertThat(result.isValid()).isTrue();
-	}
-
-	@Test
-	public void testSameClientIdWithoutAudience() {
-		ValidationResult result = jwtAudienceValidatorSameClientId.validate(tokenWithoutAudience);
-
-		assertThat(result.isValid()).isTrue();
-	}
-
-	@Test
-	public void testExtractAudiencesFromTokenScopes() {
-		Token token = new MockTokenBuilder()
-				.withScopes("test1!t1.read", "test2!t1.read", "test2!t1.write", ".scopeWithoutAppId").build();
-
-		List<String> audiences = jwtAudienceValidatorSameClientId.getAllowedAudiences(token);
+		List<String> audiences = XsuaaJwtAudienceValidator.getAllowedAudiences(token);
 
 		assertThat(audiences).hasSize(2);
-		assertThat(audiences).containsExactly("test1!t1", "test2!t1");
+		assertThat(audiences).containsExactly("test1!t1", "foreign!t1");
 	}
 
 	@Test
-	public void testOtherGrantedClientIdWithoutAudience() {
-		ValidationResult result = jwtAudienceValidatorOtherGrantedClientId.validate(tokenWithoutAudience);
+	public void validate_foreignClientId_tokenAudienceMatchesClientId() {
+		Mockito.when(token.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(
+						Arrays.asList("test1!t1","foreign!t1","test4!t1.data"));
+
+		ValidationResult result = new XsuaaJwtAudienceValidator("foreign!t1", "sb-foreign!t1")
+				.validate(token);
+
 		assertThat(result.isValid()).isTrue();
 	}
 
 	@Test
-	public void testOtherGrantedClientIdWithoutAudienceAndDot() {
-		ValidationResult result = new XsuaaJwtAudienceValidator("test4!t1", "sb-test4!t1").validate(tokenWithAudience);
+	public void validate_foreignClientId_noTokenAudience_canExtractAudienceFromScopes() {
+		Mockito.when(token.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(
+				Collections.emptyList());
+		Mockito.when(token.getClaimAsStringList(SCOPES)).thenReturn(
+				Arrays.asList("foreign!t1.write", "test1!t1.read"));
+
+		ValidationResult result = new XsuaaJwtAudienceValidator("foreign!t1", "sb-foreign!t1")
+				.validate(token);
 
 		assertThat(result.isValid()).isTrue();
 	}
 
 	@Test
-	public void testOtherGrantedClientId() {
-		ValidationResult result = jwtAudienceValidatorGrantedClientId.validate(tokenWithAudience);
+	public void validationFails_noTokenClientId() {
+		Mockito.when(token.getClaimAsString(CLIENT_ID)).thenReturn("");
+		ValidationResult result = new XsuaaJwtAudienceValidator("test1!t1", "sb-test1!t1")
+				.validate(token);
 
 		assertThat(result.isValid()).isFalse();
+		assertThat(result.getErrorDescription()).startsWith("Jwt token must contain 'cid'");
 	}
 
 	@Test
-	public void testUnGrantedClientId() {
-		ValidationResult result = jwtAudienceValidatorGrantedClientId.validate(tokenWithAudience);
+	public void validationFails_foreignClientId_whenNoAudienceMatches() {
+		Mockito.when(token.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(
+				Arrays.asList("test1!t1","foreign!t1","test4!t1.data","test3!t2"));
 
-		assertThat(result.isValid()).isFalse();
-	}
-
-	@Test
-	public void testOtherGrantedClientIdWithoutAudienceButScopes() {
-		Token tokenWithoutAudienceButScopes = mockTokenBuilder.withScopes("test2!t1.Display").build();
-
-		ValidationResult result = jwtAudienceValidatorOtherGrantedClientId.validate(tokenWithoutAudienceButScopes);
-
-		assertThat(result.isValid()).isTrue();
-	}
-
-	@Test
-	public void testOtherGrantedClientIdWithoutAudienceAndMatchingScopes() {
-		Token tokenWithoutAudienceButScopes = mockTokenBuilder.withScopes("test3!t1.Display").build();
-
-		ValidationResult result = jwtAudienceValidatorOtherGrantedClientId.validate(tokenWithoutAudienceButScopes);
+		ValidationResult result = new XsuaaJwtAudienceValidator("test3!t1", "sb-test3!t1").validate(token);
 
 		assertThat(result.isValid()).isFalse();
 		assertThat(result.getErrorDescription())
-				.isEqualTo("Jwt token audience matches none of these: [test2!t1]");
+				.isEqualTo("Jwt token audience matches none of these: [test3!t1].");
 	}
 
 	@Test
-	public void testOtherGrantedClientIdWithoutAudienceAndScopes() {
-		Token tokenWithoutAudienceAndScopes = mockTokenBuilder.build();
+	public void validationFails_foreignClientId_whenTokenHasNoAudienceAndScopes() {
+		Mockito.when(token.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(
+				Collections.emptyList());
+		Mockito.when(token.getClaimAsStringList(SCOPES)).thenReturn(
+				Collections.emptyList());
 
-		ValidationResult result = jwtAudienceValidatorOtherGrantedClientId.validate(tokenWithoutAudienceAndScopes);
+		ValidationResult result = new XsuaaJwtAudienceValidator("foreign!t1", "sb-foreign!t1").validate(token);
 
 		assertThat(result.isValid()).isFalse();
+		assertThat(result.getErrorDescription())
+				.isEqualTo("Jwt token audience matches none of these: [foreign!t1].");
 	}
 
 	@Test
-	public void testOtherGrantedClientIdWithoutAudienceAndEmptyScopes() {
-		Token tokenWithoutAudienceAndScopes = mockTokenBuilder.withScopes("[]").build();
+	public void validate_byTokenClientId_whenTokenHasNoAudienceAndScopes() {
+		Mockito.when(token.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(
+				Collections.emptyList());
+		Mockito.when(token.getClaimAsStringList(SCOPES)).thenReturn(
+				Collections.emptyList());
 
-		ValidationResult result = jwtAudienceValidatorOtherGrantedClientId.validate(tokenWithoutAudienceAndScopes);
+		ValidationResult result = new XsuaaJwtAudienceValidator("test1!t1", "sb-test1!t1").validate(token);
 
-		assertThat(result.isValid()).isFalse();
-	}
-
-	@Test
-	public void testTokenWithoutClientId() {
-		Token tokenWithoutClientId = mockTokenBuilder.withClientId("").build();
-
-		ValidationResult result = jwtAudienceValidatorSameClientId.validate(tokenWithoutClientId);
-
-		assertThat(result.isValid()).isFalse();
-	}
-
-	@Test
-	public void testBrokerCloneWithAudience() {
-		ValidationResult result = jwtAudienceValidatorBrokerPlan.validate(cloneTokenWithAudience);
-		assertThat(result.isValid()).isTrue();
-	}
-
-	@Test
-	public void testBrokerCloneWithoutAudience() {
-		ValidationResult result = jwtAudienceValidatorBrokerPlan.validate(cloneTokenWithAudience);
 		assertThat(result.isValid()).isTrue();
 	}
 

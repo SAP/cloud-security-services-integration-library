@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import static com.sap.cloud.security.core.Assertions.assertNotEmpty;
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
 
@@ -23,14 +24,14 @@ public class JwtIssuerValidator implements Validator<Token> {
 	 * @param domain the domain of the identity service {@link OAuth2ServiceConfiguration#getDomain()}
 	 */
 	public JwtIssuerValidator(String domain) {
+		assertNotEmpty(domain, "domain must not be null or empty.");
 		this.domain = domain;
 	}
 
 	@Override public ValidationResult validate(Token token) {
-
 		String issuer = token.getClaimAsString(TokenClaims.ISSUER);
 		if (issuer == null || issuer.trim().isEmpty()) {
-			return createInvalid("Issuer validation can not be performed because JWT token does not contain 'iss' claim.");
+			return createInvalid("Issuer validation can not be performed because Jwt token does not contain 'iss' claim.");
 		}
 
 		return matchesTokenIssuerDomain(issuer);

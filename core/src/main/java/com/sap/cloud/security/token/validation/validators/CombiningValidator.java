@@ -48,13 +48,10 @@ public class CombiningValidator<T> implements Validator<T> {
 
 	/**
 	 * Creates a {@link CombiningValidatorBuilder} object.
-	 * 
-	 * @param toBeValidatedType
-	 *            creates a builder for {@link Validator} objects that are generic
-	 *            over {@link U}.
+	 *
 	 * @return the builder.
 	 */
-	public static <U> CombiningValidatorBuilder<U> builderFor(Class<U> toBeValidatedType) {
+	public static <U> CombiningValidatorBuilder<U> builderFor() {
 		return new CombiningValidatorBuilder<>();
 	}
 

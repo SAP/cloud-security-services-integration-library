@@ -1,7 +1,9 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -13,6 +15,7 @@ import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
+import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
@@ -48,14 +51,10 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void validate_throwsOnNullValues() {
+	public void validate_throwsWhenTokenIsNull() {
 		assertThatThrownBy(() -> {
 			cut.validate(null, "key-id-1", "RS256");
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
-
-		assertThatThrownBy(() -> {
-			cut.validate(accessToken.getAppToken(), "", "key-id-1");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenAlgorithm");
 	}
 
 	@Test
@@ -83,13 +82,15 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void validationFails_whenJwtProvidesNo() {
+	public void validationFails_whenJwtProvidesNoSignature() {
 		String[] tokenHeaderPayloadSignature = accessToken.getAppToken().split(Pattern.quote("."));
 		String tokenWithOthersSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
 
-		assertThat(cut.validate(tokenWithOthersSignature, "RS256", "key-id-1").isValid(), is(false));
+		ValidationResult result = cut.validate(tokenWithOthersSignature, "RS256", "key-id-1");
+		assertThat(result.isValid(), is(false));
+		assertThat(result.getErrorDescription(), containsString("Jwt token does not consist of 'header'.'payload'.'signature'."));
 	}
 
 	// TODO we can move this into TokenKeyServiceWithCache
@@ -109,12 +110,17 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void validationFails_whenTokenKeyTypeIsNotRSA256() {
-		String token = "eyJhbGciOiJFUzUxMiJ9.eyJpc3MiOiJhdXRoMCJ9.AeCJPDIsSHhwRSGZCY6rspi8zekOw0K9qYMNridP1Fu9uhrA1QrG-EUxXlE06yvmh2R7Rz0aE7kxBwrnq8L8aOBCAYAsqhzPeUvyp8fXjjgs0Eto5I0mndE2QHlgcMSFASyjHbU8wD2Rq7ZNzGQ5b2MZfpv030WGUajT-aZYWFUJHVg2";
-		assertThatThrownBy(() -> {
-			cut.validate(token, "ES512", "key-id-1");
-		}).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageStartingWith("JWT token with signature algorithm ES512 can not be verified");
+	public void validationFails_whenTokenAlgorithmIsNotRSA256() {
+		ValidationResult validationResult = cut.validate(accessToken.getAppToken(), "ES123", "key-id-1");
+		assertThat(validationResult.isValid(), is(false));
+		assertThat(validationResult.getErrorDescription(), startsWith("Jwt token with signature algorithm 'ES123' can not be verified."));
+	}
+
+	@Test
+	public void validationFails_whenTokenAlgorithmIsNull() {
+		ValidationResult validationResult = cut.validate(accessToken.getAppToken(), "", "key-id-1");
+		assertThat(validationResult.isValid(), is(false));
+		assertThat(validationResult.getErrorDescription(), startsWith("Jwt token with signature algorithm '' can not be verified."));
 	}
 
 	@Test

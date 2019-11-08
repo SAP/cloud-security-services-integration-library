@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import static com.sap.cloud.security.core.Assertions.assertNotEmpty;
 import static com.sap.cloud.security.token.validation.ValidationResults.*;
 
 import java.net.URI;
@@ -23,14 +24,14 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 	 * @param uaaDomain the domain of the identity service {@link OAuth2ServiceConfiguration#getDomain()}
 	 */
 	public XsuaaJwtIssuerValidator(String uaaDomain) {
+		assertNotEmpty(uaaDomain, "uaaDomain must not be null or empty.");
 		this.domain = uaaDomain;
 	}
 
 	@Override public ValidationResult validate(Token token) {
-
 		String tokenKeyUrl = token.getHeaderParameterAsString(TokenHeader.JWKS_URL);
 		if (tokenKeyUrl == null || tokenKeyUrl.trim().isEmpty()) {
-			return createInvalid("Issuer validation can not be performed because JWT token does not contain 'jku' header parameter.");
+			return createInvalid("Issuer validation can not be performed because Jwt token does not contain 'jku' header parameter.");
 		}
 
 		return matchesTokenKeyUrlDomain(tokenKeyUrl);
@@ -50,4 +51,18 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 				tokenKeyUrl, domain);
 	}
 
+	@Override public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		XsuaaJwtIssuerValidator that = (XsuaaJwtIssuerValidator) o;
+
+		return domain.equals(that.domain);
+	}
+
+	@Override public int hashCode() {
+		return domain.hashCode();
+	}
 }

@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.token.TokenClaims.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
@@ -17,22 +18,33 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 public class JwtIssuerValidatorTest {
 
 	private JwtIssuerValidator cut;
+	private Token token;
 
 	@Before
 	public void setup() {
 		cut = new JwtIssuerValidator("accounts400.ondemand.com");
+		token = Mockito.mock(TokenImpl.class);
+	}
+
+	@Test
+	public void constructor_throwsOnNullValues() {
+		assertThatThrownBy(() -> {
+			new JwtIssuerValidator(null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("domain");
+
+		assertThatThrownBy(() -> {
+			new JwtIssuerValidator(" ");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("domain");
 	}
 
 	@Test
 	public void tokenIssuerMatchesIdentityServiceDomain() {
-		Token token = Mockito.mock(TokenImpl.class);
 		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com");
 		assertThat(cut.validate(token).isValid(), is(true));
 	}
 
 	@Test
 	public void validationFails_whenTokenIssuerDoesNotMatchIdentityServiceDomain() {
-		Token token = Mockito.mock(TokenImpl.class);
 		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts300.ondemand.com");
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isValid(), is(false));
@@ -41,20 +53,18 @@ public class JwtIssuerValidatorTest {
 
 	@Test
 	public void validationFails_whenTokenIssuerIsEmpty() {
-		Token token = Mockito.mock(TokenImpl.class);
 		when(token.getClaimAsString(ISSUER)).thenReturn(" ");
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isValid(), is(false));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because JWT token does not contain 'iss' claim."));
+		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
 	}
 
 	@Test
 	public void validationFails_whenTokenIssuerIsNull() {
-		Token token = Mockito.mock(TokenImpl.class);
 		when(token.getClaimAsString(ISSUER)).thenReturn(null);
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isValid(), is(false));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because JWT token does not contain 'iss' claim."));
+		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
 	}
 
 	@Test

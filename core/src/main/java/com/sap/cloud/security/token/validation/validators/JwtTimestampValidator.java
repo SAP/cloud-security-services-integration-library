@@ -1,5 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
+
 import javax.annotation.Nullable;
 
 import com.sap.cloud.security.core.Assertions;
@@ -39,8 +41,6 @@ public class JwtTimestampValidator implements Validator<Token> {
 	 * For testing only!
 	 */
 	JwtTimestampValidator(TimeProvider timeProvider, @Nullable TemporalAmount tolerance) {
-		Assertions.assertNotNull(timeProvider, "timeProvider must not be null");
-
 	    this.timeProvider = timeProvider;
 		this.tolerance = tolerance != null ? tolerance: DEFAULT_TOLERANCE;
 	}
@@ -66,8 +66,7 @@ public class JwtTimestampValidator implements Validator<Token> {
 		if (isNotExpired(expiration)) {
 			return ValidationResults.createValid();
 		}
-		String errorDescription = String.format("Jwt expired at %s, time now: %s", expiration, now());
-		return ValidationResults.createInvalid(errorDescription);
+		return createInvalid("Jwt expired at {}, time now: {}", expiration, now());
 
 	}
 
@@ -75,9 +74,7 @@ public class JwtTimestampValidator implements Validator<Token> {
 		if (canBeAccepted(notBeforeTimestamp)) {
 			return ValidationResults.createValid();
 		}
-		String errorDescription = String
-				.format("Jwt cannot be accepted before %s, time now: %s", notBeforeTimestamp, now());
-		return ValidationResults.createInvalid(errorDescription);
+		return createInvalid("Jwt cannot be accepted before {}, time now: {}", notBeforeTimestamp, now());
 	}
 
 	private boolean canBeAccepted(Instant notBeforeTimestamp) {
