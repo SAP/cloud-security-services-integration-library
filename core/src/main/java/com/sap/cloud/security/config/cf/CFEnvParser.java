@@ -27,6 +27,9 @@ public class CFEnvParser {
 	@Deprecated
 	public List<CFOAuth2ServiceConfiguration> loadAll(ServiceType serviceType) {
 		List<JsonObject> instanceObjects = jsonObject.getJsonObjects(serviceType.propertyName());
+		if (instanceObjects.size() > 1) {
+			logger.warn("More than one service configuration available!");
+		}
 		return convertToServiceConfigurations(instanceObjects);
 	}
 
@@ -38,9 +41,6 @@ public class CFEnvParser {
 		Optional<CFOAuth2ServiceConfiguration> brokerService = getServiceOfType(availableServices,
 				Plan.BROKER);
 		if (applicationService.isPresent()) {
-			if (brokerService.isPresent()) {
-				logger.warn("Only application or broker plan should be used. Not both.");
-			}
 			return applicationService.get();
 		}
 		return brokerService.orElse(null);
