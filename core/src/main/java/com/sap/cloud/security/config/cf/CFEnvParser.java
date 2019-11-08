@@ -27,7 +27,7 @@ public class CFEnvParser {
 	@Deprecated
 	public List<CFOAuth2ServiceConfiguration> loadAll(ServiceType serviceType) {
 		List<JsonObject> instanceObjects = jsonObject.getJsonObjects(serviceType.propertyName());
-		if (instanceObjects.size() > 1) {
+		if (instanceObjects != null && instanceObjects.size() > 1) {
 			logger.warn("More than one service configuration available!");
 		}
 		return convertToServiceConfigurations(instanceObjects);
