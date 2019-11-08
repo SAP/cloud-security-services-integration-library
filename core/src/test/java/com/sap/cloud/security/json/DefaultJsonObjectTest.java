@@ -130,26 +130,26 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
-	public void getJsonObject_propertDoesNotExists_returnsNull() {
+	public void getJsonObject_propertyDoesNotExists_returnsNull() {
 		JsonObject jsonObject = cut.getJsonObject("keyDoesNotExist");
 
 		assertThat(jsonObject).isNull();
 	}
 
 	@Test
-	public void getJsonObject_propertExistsButIsNotAnObject_throwsException() {
+	public void getJsonObject_propertyExistsButIsNotAnObject_throwsException() {
 		assertThatThrownBy(() -> cut.getJsonObject(KEY_1)).isInstanceOf(JsonParsingException.class);
 	}
 
 	@Test
-	public void getJsonObjects_propertDoesNotExists_returnsNull() {
+	public void getJsonObjects_propertyDoesNotExists_returnsNull() {
 		List<JsonObject> jsonObjects = cut.getJsonObjects("keyDoesNotExist");
 
 		assertThat(jsonObjects).isNull();
 	}
 
 	@Test
-	public void getJsonObjects_propertExists_returnsEmptyList() {
+	public void getJsonObjects_propertyExists_returnsEmptyList() {
 		cut = createJsonParser(KEY_1, "[]");
 
 		List<JsonObject> jsonObjects = cut.getJsonObjects(KEY_1);
@@ -159,7 +159,7 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
-	public void getJsonObjects_propertExistsButIsNotAnArray_throwsException() {
+	public void getJsonObjects_propertyExistsButIsNotAnArray_throwsException() {
 		assertThatThrownBy(() -> cut.getJsonObjects(KEY_1)).isInstanceOf(JsonParsingException.class);
 	}
 
