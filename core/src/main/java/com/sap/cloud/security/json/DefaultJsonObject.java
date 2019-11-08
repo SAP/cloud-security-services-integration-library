@@ -78,7 +78,7 @@ public class DefaultJsonObject implements JsonObject {
 	public List<JsonObject> getJsonObjects(String keyName) {
 		return getJSONArray(keyName)
 				.map(this::convertToJsonObjects)
-				.orElse(null);
+				.orElse(null); //TODO return Empty list
 	}
 
 	private List<JsonObject> convertToJsonObjects(JSONArray jsonArray) {

@@ -17,8 +17,9 @@ public class CFOAuth2ServiceConfigurationTest {
 	private CFOAuth2ServiceConfiguration cut;
 
 	public CFOAuth2ServiceConfigurationTest() throws IOException {
-		String singleBindingJsonString = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
-		JsonObject binding = new DefaultJsonObject(singleBindingJsonString).getJsonObjects("xsuaa").get(0);
+		String vcapXsuaa = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
+
+		JsonObject binding = new DefaultJsonObject(vcapXsuaa).getJsonObjects("xsuaa").get(0);
 
 		cut = new CFOAuth2ServiceConfiguration(binding);
 	}

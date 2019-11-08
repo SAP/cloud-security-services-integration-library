@@ -14,7 +14,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.ServiceType.XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CFEnvParserTest {
+public class CFEnvParserTest {  // Xsuaa
 
 	private static final String EMPTY_XSUAA_BINDINGS = "{xsuaa: []}";
 
@@ -44,7 +44,7 @@ public class CFEnvParserTest {
 	}
 
 	@Test
-	public void load_returnsCorrectConfiguration() {
+	public void load_returnsApplicationConfiguration_inCaseOfMultipleBindings() {
 		CFOAuth2ServiceConfiguration configuration = cutMultipleBindings.load(XSUAA);
 
 		assertThat(configuration).isNotNull();
@@ -59,32 +59,24 @@ public class CFEnvParserTest {
 	}
 
 	@Test
-	public void loadAll_serviceTypeIsOnlyBinding_returnsSingleConfigurationInList() {
-		List<CFOAuth2ServiceConfiguration> configurations = cutSingleBinding.loadAll(XSUAA);
-
-		assertThat(configurations).hasSize(1);
-	}
-
-	@Test
-	public void load_onlyBinding_returnsCorrectConfiguration() {
+	public void load_onlySingleBinding_returnsCorrectConfiguration() {
 		CFOAuth2ServiceConfiguration configuration = cutSingleBinding.load(XSUAA);
 
 		assertThat(configuration).isNotNull();
-		assertThat(configuration.getPlan()).isEqualTo(APPLICATION);
+		assertThat(configuration.getPlan()).isEqualTo(APPLICATION); // TODO change to BROKER in json?
 	}
 
 	@Test
-	public void load_emptyBindings_isNull() {
+	public void load_noServiceBindings_isNull() {
 		CFOAuth2ServiceConfiguration configuration = new CFEnvParser(EMPTY_XSUAA_BINDINGS).load(XSUAA);
 
 		assertThat(configuration).isNull();
 	}
 
 	@Test
-	public void loadAll_emptyBindings_isEmptyList() {
+	public void loadAll_noServiceBindings_isEmptyList() {
 		List<CFOAuth2ServiceConfiguration> configurations = new CFEnvParser(EMPTY_XSUAA_BINDINGS).loadAll(XSUAA);
 
 		assertThat(configurations).isEmpty();
 	}
-
 }
