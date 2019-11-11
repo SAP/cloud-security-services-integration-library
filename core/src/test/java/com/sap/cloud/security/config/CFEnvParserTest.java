@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.sap.cloud.security.config.cf.CFConstants.Plan.APPLICATION;
+import static com.sap.cloud.security.config.cf.CFConstants.Plan.BROKER;
 import static com.sap.cloud.security.config.cf.CFConstants.ServiceType.IAS;
 import static com.sap.cloud.security.config.cf.CFConstants.ServiceType.XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -63,7 +64,7 @@ public class CFEnvParserTest {  // Xsuaa
 		CFOAuth2ServiceConfiguration configuration = cutSingleBinding.load(XSUAA);
 
 		assertThat(configuration).isNotNull();
-		assertThat(configuration.getPlan()).isEqualTo(APPLICATION); // TODO change to BROKER in json?
+		assertThat(configuration.getPlan()).isEqualTo(BROKER);
 	}
 
 	@Test
