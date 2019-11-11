@@ -55,7 +55,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
-		return validate(token.getAppToken(),
+		return validate(token.getAccessToken(),
 				token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME),
 				token.getHeaderParameterAsString(KEY_ID_PARAMETER_NAME));
 	}

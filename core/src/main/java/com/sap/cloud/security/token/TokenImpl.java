@@ -15,20 +15,24 @@ public class TokenImpl implements Token {
 
 	private final DefaultJsonObject headerJsonObject;
 	private final DefaultJsonObject payloadJsonObject;
-	private final String appToken;
+	private final String accessToken;
 
 	public TokenImpl(DecodedJwt decodedJwt) {
 		this(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
 	}
 
+	/**
+	 * Creates a Token object for simple access to the header parameters and its claims.
+	 * @param accessToken the encoded access token (Jwt or OIDC), e.g. from the Authorization Header.
+	 */
 	public TokenImpl(String accessToken) {
-		this(Base64JwtDecoder.getInstance().decode(accessToken));
+		this(Base64JwtDecoder.getInstance().decode(removeBearer(accessToken)));
 	}
 
-	TokenImpl(String jsonHeader, String jsonPayload, String appToken) {
+	TokenImpl(String jsonHeader, String jsonPayload, String accessToken) {
 		headerJsonObject = new DefaultJsonObject(jsonHeader);
 		payloadJsonObject = new DefaultJsonObject(jsonPayload);
-		this.appToken = appToken;
+		this.accessToken = accessToken;
 	}
 
 	@Nullable
@@ -67,7 +71,11 @@ public class TokenImpl implements Token {
 	}
 
 	@Override
-	public String getAppToken() {
-		return appToken;
+	public String getAccessToken() {
+		return accessToken;
+	}
+
+	private static String removeBearer(String accessToken) {
+		return accessToken.replaceFirst("Bearer ", "");
 	}
 }

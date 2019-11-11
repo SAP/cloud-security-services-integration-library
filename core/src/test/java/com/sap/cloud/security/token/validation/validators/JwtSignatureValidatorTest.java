@@ -71,8 +71,8 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenJwtPayloadModified() {
-		String[] tokenHeaderPayloadSignature = accessToken.getAppToken().split(Pattern.quote("."));
-		String[] otherHeaderPayloadSignature = otherToken.getAppToken().split(Pattern.quote("."));
+		String[] tokenHeaderPayloadSignature = accessToken.getAccessToken().split(Pattern.quote("."));
+		String[] otherHeaderPayloadSignature = otherToken.getAccessToken().split(Pattern.quote("."));
 		String tokenWithOthersSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(otherHeaderPayloadSignature[1])
@@ -83,7 +83,7 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenJwtProvidesNoSignature() {
-		String[] tokenHeaderPayloadSignature = accessToken.getAppToken().split(Pattern.quote("."));
+		String[] tokenHeaderPayloadSignature = accessToken.getAccessToken().split(Pattern.quote("."));
 		String tokenWithOthersSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
@@ -111,14 +111,14 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNotRSA256() {
-		ValidationResult validationResult = cut.validate(accessToken.getAppToken(), "ES123", "key-id-1");
+		ValidationResult validationResult = cut.validate(accessToken.getAccessToken(), "ES123", "key-id-1");
 		assertThat(validationResult.isValid(), is(false));
 		assertThat(validationResult.getErrorDescription(), startsWith("Jwt token with signature algorithm 'ES123' can not be verified."));
 	}
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNull() {
-		ValidationResult validationResult = cut.validate(accessToken.getAppToken(), "", "key-id-1");
+		ValidationResult validationResult = cut.validate(accessToken.getAccessToken(), "", "key-id-1");
 		assertThat(validationResult.isValid(), is(false));
 		assertThat(validationResult.getErrorDescription(), startsWith("Jwt token with signature algorithm '' can not be verified."));
 	}
