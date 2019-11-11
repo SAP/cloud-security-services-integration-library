@@ -22,6 +22,11 @@ public final class Base64JwtDecoder {
 		return instance;
 	}
 
+	/**
+	 * Decodes the Json Web token (jwt).
+	 * @param jwt the access token
+	 * @return the decoded jwt.
+	 */
 	public DecodedJwt decode(String jwt) {
 		Assertions.assertNotNull(jwt, "JWT must not be null");
 

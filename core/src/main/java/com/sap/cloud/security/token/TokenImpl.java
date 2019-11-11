@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
@@ -17,7 +18,7 @@ public class TokenImpl implements Token {
 	private final DefaultJsonObject payloadJsonObject;
 	private final String accessToken;
 
-	public TokenImpl(DecodedJwt decodedJwt) {
+	public TokenImpl(@Nonnull DecodedJwt decodedJwt) {
 		this(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
 	}
 
@@ -25,7 +26,7 @@ public class TokenImpl implements Token {
 	 * Creates a Token object for simple access to the header parameters and its claims.
 	 * @param accessToken the encoded access token (Jwt or OIDC), e.g. from the Authorization Header.
 	 */
-	public TokenImpl(String accessToken) {
+	public TokenImpl(@Nonnull String accessToken) {
 		this(Base64JwtDecoder.getInstance().decode(removeBearer(accessToken)));
 	}
 
@@ -75,7 +76,8 @@ public class TokenImpl implements Token {
 		return accessToken;
 	}
 
-	private static String removeBearer(String accessToken) {
+	private static String removeBearer(@Nonnull String accessToken) {
+		Assertions.assertNotEmpty(accessToken, "accessToken must not be null / empty");
 		return accessToken.replaceFirst("Bearer ", "");
 	}
 }
