@@ -3,6 +3,7 @@ package com.sap.cloud.security.config;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFEnvParser;
 import com.sap.cloud.security.config.cf.CFOAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.cf.CFService;
 
 public class Environment {
 
@@ -36,7 +37,7 @@ public class Environment {
 
 	private CFOAuth2ServiceConfiguration getServiceConfigurationForCurrentEnvironment() {
 		// TODO implement environment prober
-		return new CFEnvParser(systemEnvironmentProvider.getEnv(CFConstants.VCAP_SERVICES)).load(CFConstants.ServiceName.XSUAA);
+		return new CFEnvParser(systemEnvironmentProvider.getEnv(CFConstants.VCAP_SERVICES)).load(CFService.XSUAA);
 	}
 
 	public void setOAuth2ServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {

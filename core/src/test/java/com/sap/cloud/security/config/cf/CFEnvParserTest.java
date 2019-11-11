@@ -1,7 +1,5 @@
 package com.sap.cloud.security.config.cf;
 
-import com.sap.cloud.security.config.cf.CFEnvParser;
-import com.sap.cloud.security.config.cf.CFOAuth2ServiceConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -10,8 +8,8 @@ import java.util.List;
 
 import static com.sap.cloud.security.config.cf.CFConstants.Plan.APPLICATION;
 import static com.sap.cloud.security.config.cf.CFConstants.Plan.BROKER;
-import static com.sap.cloud.security.config.cf.CFConstants.ServiceName.IAS;
-import static com.sap.cloud.security.config.cf.CFConstants.ServiceName.XSUAA;
+import static com.sap.cloud.security.config.cf.CFService.IAS;
+import static com.sap.cloud.security.config.cf.CFService.XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 

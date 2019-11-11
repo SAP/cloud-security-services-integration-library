@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 
+import com.sap.cloud.security.config.cf.CFService;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class IntegrationTest {
 	public void validate_withXsuaaCombiningValidator_whenOAuthServerIsMocked() throws IOException {
 		String singleBindingJsonString = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
 		CFEnvParser envParser = new CFEnvParser(singleBindingJsonString);
-		OAuth2ServiceConfiguration configuration = envParser.load(CFConstants.ServiceName.XSUAA);
+		OAuth2ServiceConfiguration configuration = envParser.load(CFService.XSUAA);
 
 		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(

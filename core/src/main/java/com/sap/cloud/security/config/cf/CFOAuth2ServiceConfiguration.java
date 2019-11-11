@@ -45,6 +45,12 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 		return credentials.getAsString(name);
 	}
 
+	@Override
+	public String getServiceName() {
+		//TODO is this correct? Different class for e.g. IAS?
+		return CFService.XSUAA.getName();
+	}
+
 	@Nullable
 	public Plan getPlan() {
 		String planAsString = configuration.getAsString(SERVICE_PLAN);

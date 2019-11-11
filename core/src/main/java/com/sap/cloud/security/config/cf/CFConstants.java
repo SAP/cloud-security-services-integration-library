@@ -14,20 +14,6 @@ public class CFConstants {
 	public static final String SERVICE_PLAN = "plan";
 	public static final String VCAP_SERVICES = "VCAP_SERVICES";
 
-	public enum ServiceName {
-		XSUAA("xsuaa"), IAS("iasb");
-
-		private final String jsonKey;
-
-		ServiceName(String jsonKey) {
-			this.jsonKey = jsonKey;
-		}
-
-		String getJsonKey() {
-			return jsonKey;
-		}
-	}
-
 	enum Plan {
 		BROKER, APPLICATION;
 

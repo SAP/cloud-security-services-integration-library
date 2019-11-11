@@ -8,7 +8,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.URI;
 
-import static com.sap.cloud.security.config.cf.CFConstants.Plan.APPLICATION;
 import static com.sap.cloud.security.config.cf.CFConstants.Plan.BROKER;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,4 +53,10 @@ public class CFOAuth2ServiceConfigurationTest {
 	public void getPlan() {
 		assertThat(cut.getPlan()).isEqualTo(BROKER);
 	}
+
+	@Test
+	public void getService() {
+		assertThat(cut.getServiceName()).isEqualTo(CFService.XSUAA.getName());
+	}
+
 }

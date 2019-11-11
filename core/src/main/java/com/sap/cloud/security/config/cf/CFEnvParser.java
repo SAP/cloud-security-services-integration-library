@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.cf.CFConstants.Plan;
-import static com.sap.cloud.security.config.cf.CFConstants.ServiceName;
 
 public class CFEnvParser {
 	private static final Logger logger = LoggerFactory.getLogger(CFEnvParser.class);
@@ -25,8 +24,8 @@ public class CFEnvParser {
 	}
 
 	@Deprecated
-	public List<CFOAuth2ServiceConfiguration> loadAll(ServiceName serviceName) {
-		List<JsonObject> instanceObjects = jsonObject.getJsonObjects(serviceName.getJsonKey());
+	public List<CFOAuth2ServiceConfiguration> loadAll(CFService serviceName) {
+		List<JsonObject> instanceObjects = jsonObject.getJsonObjects(serviceName.getName());
 		if (instanceObjects.size() > 1) {
 			logger.warn("More than one service configuration available!");
 		}
@@ -34,7 +33,7 @@ public class CFEnvParser {
 	}
 
 	@Nullable
-	public CFOAuth2ServiceConfiguration load(ServiceName serviceName) {
+	public CFOAuth2ServiceConfiguration load(CFService serviceName) {
 		List<CFOAuth2ServiceConfiguration> availableServices = loadAll(serviceName);
 		Optional<CFOAuth2ServiceConfiguration> applicationService = getServiceOfType(availableServices,
 				Plan.APPLICATION);

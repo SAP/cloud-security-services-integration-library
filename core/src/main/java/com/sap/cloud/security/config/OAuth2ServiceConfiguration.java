@@ -1,5 +1,7 @@
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.config.cf.CFService;
+
 import javax.annotation.Nullable;
 
 import java.net.URI;
@@ -46,4 +48,12 @@ public interface OAuth2ServiceConfiguration {
 	 */
 	@Nullable
 	String getProperty(String name);
+
+	/**
+	 * Returns the service name from the service of this configuration.
+	 *
+	 * @return the service name.
+	 */
+	String getServiceName();
+
 }
