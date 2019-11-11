@@ -89,6 +89,8 @@ List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 ...
 ```
 
+## Sample
+You can find a sample Servlet application [here](/samples/java-security-usage).
 
 ## Specs und references
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)
