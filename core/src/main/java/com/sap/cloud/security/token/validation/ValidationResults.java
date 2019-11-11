@@ -74,6 +74,10 @@ public class ValidationResults {
 			return getErrorDescription() == null;
 		}
 
+		@Override public boolean isErronous() {
+			return !isValid();
+		}
+
 		@Nullable
 		@Override public String getErrorDescription() {
 			return validationError != null ? validationError.getDescription() : null;

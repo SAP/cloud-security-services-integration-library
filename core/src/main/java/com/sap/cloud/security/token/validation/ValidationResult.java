@@ -16,6 +16,13 @@ public interface ValidationResult {
 	boolean isValid();
 
 	/**
+	 * Returns true if there is a validation error, false otherwise.
+	 *
+	 * @return true if there is a validation error.
+	 */
+	boolean isErronous();
+
+	/**
 	 * The validation error that have been found.
 	 *
 	 * @return the error description or null in case the validation was valid.
