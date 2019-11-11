@@ -33,19 +33,24 @@ public class TokenFilter implements Filter {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 
 			if (authorizationHeader != null && !authorizationHeader.isEmpty()) {
-				Token token = new TokenImpl(authorizationHeader);
+				try {
+					Token token = new TokenImpl(authorizationHeader);
 
-				CombiningValidator<Token> combiningValidator =
-						CombiningValidator.builderFor(Environment.getInstance()
-								.getXsuaaServiceConfiguration()) // NEEDS VCAP_SERVICES env
-								.build();
-				ValidationResult result = combiningValidator.validate(token);
-				if (result.isValid()) {
-					SecurityContext.setToken(token);
-					logger.info(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES).toString());
-				} else {
-					httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					logger.error(result.getErrorDescription());
+					CombiningValidator<Token> combiningValidator =
+							CombiningValidator.builderFor(Environment.getInstance()
+									.getXsuaaServiceConfiguration()) // NEEDS VCAP_SERVICES env
+									.build();
+					ValidationResult result = combiningValidator.validate(token);
+					if (result.isValid()) {
+						SecurityContext.setToken(token);
+						filterChain.doFilter(request, response);
+						return;
+					} else {
+						httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+						logger.warn("Error during token validation: " + result.getErrorDescription());
+					}
+				} catch (Exception e) {
+					logger.warn("Unexpected Error occured: " + e.getMessage());
 				}
 			}
 			httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -55,6 +60,7 @@ public class TokenFilter implements Filter {
 
 	@Override
 	public void destroy() {
+		SecurityContext.clearToken();
 	}
 
 }
