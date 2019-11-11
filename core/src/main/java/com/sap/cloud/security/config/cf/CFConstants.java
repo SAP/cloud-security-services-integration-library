@@ -2,24 +2,32 @@ package com.sap.cloud.security.config.cf;
 
 public class CFConstants {
 
-	public static final String CREDENTIALS = "credentials";
+	public static class XSUAA {
+		public static final String CREDENTIALS = "credentials";
+		public static final String CLIENT_ID = "clientid";
+		public static final String CLIENT_SECRET = "clientsecret";
+		public static final String APP_ID = "xsappname";
+	}
 
-	// XSUAA ähnlich TokenClaims
 	public static final String URL = "url";
-	public static final String CLIENT_ID = "clientid";
-	public static final String CLIENT_SECRET = "clientsecret";
 	public static final String UAA_DOMAIN = "uaadomain"; // XSUAA und IAS
 	public static final String SERVICE_PLAN = "plan";
-	public static final String APP_ID = "xsappname"; // XSUAA only
 
-	public enum ServiceType { // TODO ServiceName - überall
-		XSUAA, IAS; // configurable with key
-		String propertyName() {
-			return toString().toLowerCase();
+	public enum ServiceName {
+		XSUAA("xsuaa"), IAS("iasb");
+
+		private final String jsonKey;
+
+		ServiceName(String jsonKey) {
+			this.jsonKey = jsonKey;
+		}
+
+		String getJsonKey() {
+			return jsonKey;
 		}
 	}
 
-	public enum Plan { // is service instance specific -> hide
+	enum Plan {
 		BROKER, APPLICATION;
 
 		public static Plan from(String planAsString) {

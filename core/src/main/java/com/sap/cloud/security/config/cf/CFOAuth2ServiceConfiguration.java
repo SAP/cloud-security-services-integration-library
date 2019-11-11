@@ -14,18 +14,18 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 	private final JsonObject configuration;
 
 	CFOAuth2ServiceConfiguration(JsonObject configuration) {
-		this.credentials = configuration.getJsonObject(CREDENTIALS);
+		this.credentials = configuration.getJsonObject(XSUAA.CREDENTIALS);
 		this.configuration = configuration;
 	}
 
 	@Override
 	public String getClientId() {
-		return credentials.getAsString(CLIENT_ID);
+		return credentials.getAsString(XSUAA.CLIENT_ID);
 	}
 
 	@Override
 	public String getClientSecret() {
-		return credentials.getAsString(CLIENT_SECRET);
+		return credentials.getAsString(XSUAA.CLIENT_SECRET);
 	}
 
 	@Override

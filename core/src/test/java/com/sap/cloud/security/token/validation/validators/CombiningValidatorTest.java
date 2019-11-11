@@ -92,7 +92,7 @@ public class CombiningValidatorTest {
 		when(configuration.getUrl()).thenReturn(new URI("https://my.auth.com"));
 		when(configuration.getDomain()).thenReturn("auth.com");
 		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
-		when(configuration.getProperty(CFConstants.APP_ID)).thenReturn("test-app!t123");
+		when(configuration.getProperty(CFConstants.XSUAA.APP_ID)).thenReturn("test-app!t123");
 
 		CombiningValidator combiningValidator = CombiningValidator.builderFor(configuration).build();
 		String allValidators = combiningValidator.toString();

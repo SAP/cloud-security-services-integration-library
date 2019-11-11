@@ -124,7 +124,7 @@ public class CombiningValidator<T> implements Validator<T> {
 				TokenKeyServiceWithCache tokenKeyServiceWithCache = new TokenKeyServiceWithCache(tokenKeyService, endpointsProvider);
 				with(new JwtTimestampValidator());
 				with(new XsuaaJwtIssuerValidator(configuration.getDomain()));
-				with(new XsuaaJwtAudienceValidator(configuration.getProperty(CFConstants.APP_ID), configuration.getClientId()));
+				with(new XsuaaJwtAudienceValidator(configuration.getProperty(CFConstants.XSUAA.APP_ID), configuration.getClientId()));
 				with(new JwtSignatureValidator(tokenKeyServiceWithCache));
 			}
 

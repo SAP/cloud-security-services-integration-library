@@ -32,7 +32,7 @@ public class IntegrationTest {
 		when(configuration.getUrl()).thenReturn(new URI("https://my.auth.com"));
 		when(configuration.getDomain()).thenReturn("auth.com");
 		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
-		when(configuration.getProperty(CFConstants.APP_ID)).thenReturn("test-app!t123");
+		when(configuration.getProperty(CFConstants.XSUAA.APP_ID)).thenReturn("test-app!t123");
 
 		Validator combiningValidator = CombiningValidator.builderFor(configuration).build();
 
@@ -48,7 +48,7 @@ public class IntegrationTest {
 	public void validate_withXsuaaCombiningValidator_whenOAuthServerIsMocked() throws IOException {
 		String singleBindingJsonString = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
 		CFEnvParser envParser = new CFEnvParser(singleBindingJsonString);
-		OAuth2ServiceConfiguration configuration = envParser.load(CFConstants.ServiceType.XSUAA);
+		OAuth2ServiceConfiguration configuration = envParser.load(CFConstants.ServiceName.XSUAA);
 
 		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
