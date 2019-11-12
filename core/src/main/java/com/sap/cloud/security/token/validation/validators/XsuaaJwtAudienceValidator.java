@@ -52,7 +52,7 @@ public class XsuaaJwtAudienceValidator implements Validator<Token> {
 			}
 		}
 		return ValidationResults
-				.createInvalid("Jwt token audience matches none of these: {}.",appIdClientIdMap.keySet());
+				.createInvalid("Jwt token audience matches none of these: {}.", appIdClientIdMap.keySet());
 	}
 
 	private boolean checkMatch(String appId, String clientId, String tokenClientId, List<String> allowedAudiences) {

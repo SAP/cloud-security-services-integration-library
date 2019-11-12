@@ -13,7 +13,7 @@ import static com.sap.cloud.security.config.cf.CFService.XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CFEnvParserTest {  // Xsuaa
+public class CFEnvParserTest { // Xsuaa
 
 	private static final String EMPTY_XSUAA_BINDINGS = "{iasb: []}";
 

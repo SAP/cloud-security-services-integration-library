@@ -23,8 +23,12 @@ public class TokenImpl implements Token {
 	}
 
 	/**
-	 * Creates a Token object for simple access to the header parameters and its claims.
-	 * @param accessToken the encoded access token (Jwt or OIDC), e.g. from the Authorization Header.
+	 * Creates a Token object for simple access to the header parameters and its
+	 * claims.
+	 * 
+	 * @param accessToken
+	 *            the encoded access token (Jwt or OIDC), e.g. from the
+	 *            Authorization Header.
 	 */
 	public TokenImpl(@Nonnull String accessToken) {
 		this(Base64JwtDecoder.getInstance().decode(removeBearer(accessToken)));

@@ -26,10 +26,11 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 
 /**
- * Validates whether the jwt was signed with the public key of the trust-worthy identity service.
- * - asks the token key service for a set of (cached) json web token keys.
- * - creates a PublicKey for the json web key with the respective id and type.
- * - checks whether the jwt is unchanged and signed with a private key that matches the PublicKey.
+ * Validates whether the jwt was signed with the public key of the trust-worthy
+ * identity service. - asks the token key service for a set of (cached) json web
+ * token keys. - creates a PublicKey for the json web key with the respective id
+ * and type. - checks whether the jwt is unchanged and signed with a private key
+ * that matches the PublicKey.
  */
 public class JwtSignatureValidator implements Validator<Token> {
 	private final TokenKeyServiceWithCache tokenKeyService;
@@ -68,12 +69,13 @@ public class JwtSignatureValidator implements Validator<Token> {
 			MAP_TYPE_SIGNATURE.put(Type.RSA, "SHA256withRSA");
 			MAP_TYPE_SIGNATURE.put(Type.EC, "SHA256withECDSA");
 		}
-		
+
 		Type keyType;
 		PublicKey publicKey;
 		Signature publicSignature;
 
-		private Validation() {}
+		private Validation() {
+		}
 
 		static Validation getInstance() {
 			return new Validation();
@@ -145,8 +147,8 @@ public class JwtSignatureValidator implements Validator<Token> {
 			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.", keyType.value());
 		}
 
-		private static final Pattern DOT = Pattern.compile("\\.",0);
-		
+		private static final Pattern DOT = Pattern.compile("\\.", 0);
+
 		private ValidationResult isTokenSignatureValid(String token, Signature signature, PublicKey publicKey) {
 			String[] tokenHeaderPayloadSignature = DOT.split(token);
 			if (tokenHeaderPayloadSignature.length != 3) {

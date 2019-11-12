@@ -21,17 +21,21 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 
 	/**
 	 *
-	 * @param uaaDomain the domain of the identity service {@link OAuth2ServiceConfiguration#getDomain()}
+	 * @param uaaDomain
+	 *            the domain of the identity service
+	 *            {@link OAuth2ServiceConfiguration#getDomain()}
 	 */
 	public XsuaaJwtIssuerValidator(String uaaDomain) {
 		assertNotEmpty(uaaDomain, "uaaDomain must not be null or empty.");
 		this.domain = uaaDomain;
 	}
 
-	@Override public ValidationResult validate(Token token) {
+	@Override
+	public ValidationResult validate(Token token) {
 		String tokenKeyUrl = token.getHeaderParameterAsString(TokenHeader.JWKS_URL);
 		if (tokenKeyUrl == null || tokenKeyUrl.trim().isEmpty()) {
-			return createInvalid("Issuer validation can not be performed because Jwt token does not contain 'jku' header parameter.");
+			return createInvalid(
+					"Issuer validation can not be performed because Jwt token does not contain 'jku' header parameter.");
 		}
 
 		return matchesTokenKeyUrlDomain(tokenKeyUrl);
@@ -41,17 +45,20 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 		URI jkuUri;
 		try {
 			jkuUri = new URI(tokenKeyUrl);
-			if(jkuUri.getHost() != null && jkuUri.getHost().endsWith(domain)) {
+			if (jkuUri.getHost() != null && jkuUri.getHost().endsWith(domain)) {
 				return createValid();
 			}
 		} catch (URISyntaxException e) {
-			logger.error("Error: 'jku' header parameter '{}' does not provide a valid URI: {}.", tokenKeyUrl, e.getMessage(), e);
+			logger.error("Error: 'jku' header parameter '{}' does not provide a valid URI: {}.", tokenKeyUrl,
+					e.getMessage(), e);
 		}
-		return createInvalid("Issuer is not trusted because 'jku' '{}' does not match uaa domain '{}' of the identity service.",
+		return createInvalid(
+				"Issuer is not trusted because 'jku' '{}' does not match uaa domain '{}' of the identity service.",
 				tokenKeyUrl, domain);
 	}
 
-	@Override public boolean equals(Object o) {
+	@Override
+	public boolean equals(Object o) {
 		if (this == o)
 			return true;
 		if (o == null || getClass() != o.getClass())
@@ -62,7 +69,8 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 		return domain.equals(that.domain);
 	}
 
-	@Override public int hashCode() {
+	@Override
+	public int hashCode() {
 		return domain.hashCode();
 	}
 }

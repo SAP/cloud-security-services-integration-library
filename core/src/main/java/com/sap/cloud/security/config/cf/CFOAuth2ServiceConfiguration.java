@@ -27,12 +27,14 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 
 	@Override
 	public String getClientId() {
-		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_ID) : credentials.getAsString(IAS.CLIENT_ID);
+		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_ID)
+				: credentials.getAsString(IAS.CLIENT_ID);
 	}
 
 	@Override
 	public String getClientSecret() {
-		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_SECRET) : credentials.getAsString(IAS.CLIENT_SECRET);
+		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_SECRET)
+				: credentials.getAsString(IAS.CLIENT_SECRET);
 	}
 
 	@Override
@@ -43,7 +45,8 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 	@Nullable
 	@Override
 	public String getDomain() {
-		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.UAA_DOMAIN) : credentials.getAsString(IAS.DOMAIN);
+		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.UAA_DOMAIN)
+				: credentials.getAsString(IAS.DOMAIN);
 	}
 
 	@Override
@@ -59,6 +62,7 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 
 	/**
 	 * Cloud Foundry specific information.
+	 * 
 	 * @return the CF service plan.
 	 */
 	public Plan getPlan() {

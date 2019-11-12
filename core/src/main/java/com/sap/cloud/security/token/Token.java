@@ -10,11 +10,14 @@ import java.util.List;
 public interface Token {
 
 	/**
-	 * Returns the header parameter value as string for the given header parameter name.
+	 * Returns the header parameter value as string for the given header parameter
+	 * name.
 	 *
 	 * @param headerName
-	 *            the name of the header parameter as defined here {@link TokenHeader}
-	 * @return the value for the given header name or null, if the header is not provided.
+	 *            the name of the header parameter as defined here
+	 *            {@link TokenHeader}
+	 * @return the value for the given header name or null, if the header is not
+	 *         provided.
 	 */
 	@Nullable
 	String getHeaderParameterAsString(@Nonnull String headerName);

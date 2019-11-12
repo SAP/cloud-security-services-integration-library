@@ -90,7 +90,8 @@ public class JwtSignatureValidatorTest {
 
 		ValidationResult result = cut.validate(tokenWithOthersSignature, "RS256", "key-id-1");
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("Jwt token does not consist of 'header'.'payload'.'signature'."));
+		assertThat(result.getErrorDescription(),
+				containsString("Jwt token does not consist of 'header'.'payload'.'signature'."));
 	}
 
 	// TODO we can move this into TokenKeyServiceWithCache
@@ -113,14 +114,16 @@ public class JwtSignatureValidatorTest {
 	public void validationFails_whenTokenAlgorithmIsNotRSA256() {
 		ValidationResult validationResult = cut.validate(accessToken.getAccessToken(), "ES123", "key-id-1");
 		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Jwt token with signature algorithm 'ES123' can not be verified."));
+		assertThat(validationResult.getErrorDescription(),
+				startsWith("Jwt token with signature algorithm 'ES123' can not be verified."));
 	}
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNull() {
 		ValidationResult validationResult = cut.validate(accessToken.getAccessToken(), "", "key-id-1");
 		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Jwt token with signature algorithm '' can not be verified."));
+		assertThat(validationResult.getErrorDescription(),
+				startsWith("Jwt token with signature algorithm '' can not be verified."));
 	}
 
 	@Test

@@ -7,13 +7,16 @@ import javax.annotation.Nullable;
  */
 public class SecurityContext {
 
-	private SecurityContext() {}
+	private SecurityContext() {
+	}
 
 	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
 
 	/**
 	 * Saves the given token thread wide.
-	 * @param token token to be saved.
+	 * 
+	 * @param token
+	 *            token to be saved.
 	 */
 	public static void setToken(Token token) {
 		tokenStorage.set(token);
@@ -21,6 +24,7 @@ public class SecurityContext {
 
 	/**
 	 * Returns the token that is saved in thread wide storage.
+	 * 
 	 * @return the token or null if the storage is empty.
 	 */
 	@Nullable

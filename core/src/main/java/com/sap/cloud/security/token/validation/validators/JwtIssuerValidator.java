@@ -21,17 +21,21 @@ public class JwtIssuerValidator implements Validator<Token> {
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
-	 * @param domain the domain of the identity service {@link OAuth2ServiceConfiguration#getDomain()}
+	 * @param domain
+	 *            the domain of the identity service
+	 *            {@link OAuth2ServiceConfiguration#getDomain()}
 	 */
 	public JwtIssuerValidator(String domain) {
 		assertNotEmpty(domain, "domain must not be null or empty.");
 		this.domain = domain;
 	}
 
-	@Override public ValidationResult validate(Token token) {
+	@Override
+	public ValidationResult validate(Token token) {
 		String issuer = token.getClaimAsString(TokenClaims.ISSUER);
 		if (issuer == null || issuer.trim().isEmpty()) {
-			return createInvalid("Issuer validation can not be performed because Jwt token does not contain 'iss' claim.");
+			return createInvalid(
+					"Issuer validation can not be performed because Jwt token does not contain 'iss' claim.");
 		}
 
 		return matchesTokenIssuerDomain(issuer);
@@ -41,13 +45,14 @@ public class JwtIssuerValidator implements Validator<Token> {
 		URI issuerUri;
 		try {
 			issuerUri = new URI(issuer);
-			if(issuerUri.getHost() != null && issuerUri.getHost().endsWith(domain)) {
+			if (issuerUri.getHost() != null && issuerUri.getHost().endsWith(domain)) {
 				return createValid();
 			}
 		} catch (URISyntaxException e) {
 			logger.error("Error: 'iss' claim '{}' does not provide a valid URI: {}.", issuer, e.getMessage(), e);
 		}
-		return createInvalid("Issuer is not trusted because 'iss' '{}' does not match domain '{}' of the identity service.",
+		return createInvalid(
+				"Issuer is not trusted because 'iss' '{}' does not match domain '{}' of the identity service.",
 				issuer, domain);
 	}
 

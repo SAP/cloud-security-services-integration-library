@@ -15,7 +15,8 @@ public final class TokenClaims {
 	public static final String NOT_BEFORE = "nbf";
 
 	public final class XSUAA {
-		private XSUAA() {}
+		private XSUAA() {
+		}
 
 		public static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
 		public static final String USER_NAME = "user_name";
@@ -31,7 +32,8 @@ public final class TokenClaims {
 	}
 
 	public final class IAS {
-		private IAS() {}
+		private IAS() {
+		}
 
 		public static final String USER_NAME = "user_name";
 		public static final String GIVEN_NAME = "first_name";

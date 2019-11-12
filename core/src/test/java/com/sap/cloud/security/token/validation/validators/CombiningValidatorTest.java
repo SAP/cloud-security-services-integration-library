@@ -84,7 +84,6 @@ public class CombiningValidatorTest {
 		assertThat(allValidators).contains("JwtSignatureValidator");
 	}
 
-
 	private Validator<Token> validValidator() {
 		return (obj) -> ValidationResults.createValid();
 	}

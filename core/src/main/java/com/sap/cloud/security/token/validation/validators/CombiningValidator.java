@@ -17,8 +17,8 @@ import java.util.List;
 
 /**
  * This is a special validator that combines several validators into one. To
- * create an instance use the {@link #builder} method. By default the
- * validation stops after one invalid result has been found.
+ * create an instance use the {@link #builder} method. By default the validation
+ * stops after one invalid result has been found.
  * 
  * @param <T>
  *            the type to be validated.
@@ -26,7 +26,6 @@ import java.util.List;
 public class CombiningValidator<T> implements Validator<T> {
 
 	private final List<Validator<T>> validators;
-
 
 	private CombiningValidator(List<Validator<T>> validators) {
 		this.validators = validators;
@@ -36,7 +35,7 @@ public class CombiningValidator<T> implements Validator<T> {
 	public ValidationResult validate(T t) {
 		for (Validator<T> validator : validators) {
 			ValidationResult result = validator.validate(t);
-			if(result.isErroneous()) {
+			if (result.isErroneous()) {
 				return result;
 			}
 		}
@@ -58,9 +57,10 @@ public class CombiningValidator<T> implements Validator<T> {
 		return tokenBuilder;
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		StringBuilder validatorNames = new StringBuilder();
-		for (Validator<T> v: validators) {
+		for (Validator<T> v : validators) {
 			validatorNames.append(v.getClass().getName()).append(',');
 		}
 		return validatorNames.toString();
@@ -102,15 +102,18 @@ public class CombiningValidator<T> implements Validator<T> {
 		 * @return the validator.
 		 */
 		public CombiningValidator<Token> build() {
-			if (configuration != null /* && configuration.getServiceName() == "xsuaa"*/) { // TODO
+			if (configuration != null /* && configuration.getServiceName() == "xsuaa" */) { // TODO
 				OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(configuration.getUrl());
-				TokenKeyServiceWithCache tokenKeyServiceWithCache = new TokenKeyServiceWithCache(tokenKeyService, endpointsProvider);
-				XsuaaJwtAudienceValidator audienceValidator = new XsuaaJwtAudienceValidator(configuration.getProperty(CFConstants.XSUAA.APP_ID), configuration.getClientId());
+				TokenKeyServiceWithCache tokenKeyServiceWithCache = new TokenKeyServiceWithCache(tokenKeyService,
+						endpointsProvider);
+				XsuaaJwtAudienceValidator audienceValidator = new XsuaaJwtAudienceValidator(
+						configuration.getProperty(CFConstants.XSUAA.APP_ID), configuration.getClientId());
 				// TODO audienceValidator.configureAnotherServiceInstance();
 
 				with(new JwtTimestampValidator());
 				with(new XsuaaJwtIssuerValidator(configuration.getDomain()));
-				with(new XsuaaJwtAudienceValidator(configuration.getProperty(CFConstants.XSUAA.APP_ID), configuration.getClientId()));
+				with(new XsuaaJwtAudienceValidator(configuration.getProperty(CFConstants.XSUAA.APP_ID),
+						configuration.getClientId()));
 				with(new JwtSignatureValidator(tokenKeyServiceWithCache));
 			}
 

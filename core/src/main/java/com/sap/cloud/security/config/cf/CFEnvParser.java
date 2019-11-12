@@ -25,10 +25,14 @@ public class CFEnvParser {
 
 	/**
 	 * Loads all configurations of all service instances of the dedicated service.
-	 * @param service the name of the service
-	 * @return the list of all found configurations or empty list, in case there are not service bindings.
+	 * 
+	 * @param service
+	 *            the name of the service
+	 * @return the list of all found configurations or empty list, in case there are
+	 *         not service bindings.
 	 * @deprecated as multiple bindings of identity service is not anymore necessary
-	 * with the unified broker plan, this method is deprecated. Use {@link #load(CFService)} instead.
+	 *             with the unified broker plan, this method is deprecated. Use
+	 *             {@link #load(CFService)} instead.
 	 */
 	@Deprecated
 	public List<CFOAuth2ServiceConfiguration> loadAll(CFService service) {
@@ -41,16 +45,19 @@ public class CFEnvParser {
 
 	/**
 	 * Loads the configuration of of the dedicated service instance.
-	 * @param service the name of the service
-	 * @return the configuration of the dedicated service instance.
-	 * In case of XSUAA service you may still have multiple bindings.
-	 * In this case the configuration of the service of application plan is returned.
+	 * 
+	 * @param service
+	 *            the name of the service
+	 * @return the configuration of the dedicated service instance. In case of XSUAA
+	 *         service you may still have multiple bindings. In this case the
+	 *         configuration of the service of application plan is returned.
 	 *
-	 * Note: with the unified broker plan there is no longer a need to have multiple bindings.
+	 *         Note: with the unified broker plan there is no longer a need to have
+	 *         multiple bindings.
 	 */
 	@Nullable
 	public CFOAuth2ServiceConfiguration load(CFService service) {
-		if(CFService.XSUAA.equals(service)) {
+		if (CFService.XSUAA.equals(service)) {
 			return loadXsuaa();
 		}
 		logger.warn("Identity Service {} is currently not supported.", service.getName());
@@ -69,11 +76,13 @@ public class CFEnvParser {
 		return brokerService.orElse(null);
 	}
 
-	private List<CFOAuth2ServiceConfiguration> convertToServiceConfigurations(CFService service, Collection<JsonObject> instanceObjects) {
+	private List<CFOAuth2ServiceConfiguration> convertToServiceConfigurations(CFService service,
+			Collection<JsonObject> instanceObjects) {
 		if (instanceObjects == null) {
 			return Collections.EMPTY_LIST;
 		}
-		return instanceObjects.stream().map((JsonObject object) -> convertToServiceConfiguration(service, object)).collect(Collectors.toList());
+		return instanceObjects.stream().map((JsonObject object) -> convertToServiceConfiguration(service, object))
+				.collect(Collectors.toList());
 	}
 
 	private CFOAuth2ServiceConfiguration convertToServiceConfiguration(CFService service, JsonObject jsonObject) {

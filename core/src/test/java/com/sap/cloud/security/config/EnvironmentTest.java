@@ -17,9 +17,9 @@ public class EnvironmentTest {
 	private Environment cut;
 
 	private Environment.SystemEnvironmentProvider fakeSystemEnvironmentProvider = (String key) -> {
-			if (CFConstants.VCAP_SERVICES.equals(key)) {
-				return vcapXsuaa;
-			}
+		if (CFConstants.VCAP_SERVICES.equals(key)) {
+			return vcapXsuaa;
+		}
 		return null;
 	};
 

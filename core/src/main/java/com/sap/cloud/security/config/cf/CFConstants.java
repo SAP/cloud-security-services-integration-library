@@ -6,10 +6,13 @@ public class CFConstants {
 	public static final String SERVICE_PLAN = "plan";
 	public static final String URL = "url";
 
-	private CFConstants() {}
+	private CFConstants() {
+	}
 
 	public static class XSUAA {
-		private XSUAA() {}
+		private XSUAA() {
+		}
+
 		public static final String CLIENT_ID = "clientid";
 		public static final String CLIENT_SECRET = "clientsecret";
 		public static final String UAA_DOMAIN = "uaadomain";
@@ -17,7 +20,9 @@ public class CFConstants {
 	}
 
 	public static class IAS {
-		private IAS() {}
+		private IAS() {
+		}
+
 		public static final String CLIENT_ID = "username";
 		public static final String CLIENT_SECRET = "password";
 		public static final String DOMAIN = "domain";

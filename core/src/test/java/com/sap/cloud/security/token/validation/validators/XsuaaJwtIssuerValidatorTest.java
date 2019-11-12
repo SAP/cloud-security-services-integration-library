@@ -47,7 +47,8 @@ public class XsuaaJwtIssuerValidatorTest {
 		when(token.getHeaderParameterAsString(JWKS_URL)).thenReturn("https://subdomain.any.ondemand.com");
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because 'jku' 'https://subdomain.any.ondemand.com' does not match uaa domain 'myauth.ondemand.com' of the identity service."));
+		assertThat(validationResult.getErrorDescription(), startsWith(
+				"Issuer is not trusted because 'jku' 'https://subdomain.any.ondemand.com' does not match uaa domain 'myauth.ondemand.com' of the identity service."));
 	}
 
 	@Test
@@ -55,7 +56,8 @@ public class XsuaaJwtIssuerValidatorTest {
 		when(token.getHeaderParameterAsString(JWKS_URL)).thenReturn(" ");
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because Jwt token does not contain 'jku' header parameter."));
+		assertThat(validationResult.getErrorDescription(), startsWith(
+				"Issuer validation can not be performed because Jwt token does not contain 'jku' header parameter."));
 	}
 
 	@Test
@@ -63,7 +65,8 @@ public class XsuaaJwtIssuerValidatorTest {
 		when(token.getHeaderParameterAsString(JWKS_URL)).thenReturn(null);
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because Jwt token does not contain 'jku' header parameter."));
+		assertThat(validationResult.getErrorDescription(), startsWith(
+				"Issuer validation can not be performed because Jwt token does not contain 'jku' header parameter."));
 	}
 
 	@Test

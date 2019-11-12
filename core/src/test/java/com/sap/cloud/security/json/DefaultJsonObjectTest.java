@@ -166,7 +166,7 @@ public class DefaultJsonObjectTest {
 
 	@Test
 	public void getJsonObjects_malformedJson_throwsException() {
-		cut =  new DefaultJsonObject("");
+		cut = new DefaultJsonObject("");
 
 		assertThatThrownBy(() -> cut.getJsonObject(KEY_1)).isInstanceOf(JsonParsingException.class);
 	}

@@ -26,7 +26,7 @@ public class XsuaaJwtAudienceValidatorForCloneTokenTest {
 	@Before
 	public void setup() {
 		token = Mockito.mock(TokenImpl.class);
-		cut = new XsuaaJwtAudienceValidator( "test1!t1", "sb-test1!t1");
+		cut = new XsuaaJwtAudienceValidator("test1!t1", "sb-test1!t1");
 		cut.configureAnotherServiceInstance(XSUAA_BROKER_XSAPPNAME, XSUAA_BROKER_CLIENT_ID);
 	}
 
@@ -54,7 +54,8 @@ public class XsuaaJwtAudienceValidatorForCloneTokenTest {
 		ValidationResult result = cut.validate(token);
 
 		assertThat(result.isValid()).isFalse();
-		assertThat(result.getErrorDescription()).isEqualTo("Jwt token audience matches none of these: [test1!t1, brokerplanmasterapp!b123].");
+		assertThat(result.getErrorDescription())
+				.isEqualTo("Jwt token audience matches none of these: [test1!t1, brokerplanmasterapp!b123].");
 	}
 
 	@Test

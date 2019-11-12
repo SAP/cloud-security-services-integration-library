@@ -54,10 +54,11 @@ public class SecurityContextTest {
 	}
 
 	@Test
-	public void clearingTokenInDifferentThreadDoesNotAffectMainThread() throws ExecutionException, InterruptedException {
+	public void clearingTokenInDifferentThreadDoesNotAffectMainThread()
+			throws ExecutionException, InterruptedException {
 		SecurityContext.setToken(TOKEN);
 
-		executorService.submit(() -> SecurityContext.clearToken()).get(); //run and await other thread
+		executorService.submit(() -> SecurityContext.clearToken()).get(); // run and await other thread
 
 		assertThat(SecurityContext.getToken()).isEqualTo(TOKEN);
 	}

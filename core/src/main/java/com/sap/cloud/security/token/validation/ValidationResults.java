@@ -18,7 +18,8 @@ public class ValidationResults {
 	private static final Logger logger = LoggerFactory.getLogger(ValidationResults.class);
 
 	/**
-	 * Creates an invalid {@link ValidationResult} that contains an error description.
+	 * Creates an invalid {@link ValidationResult} that contains an error
+	 * description.
 	 * 
 	 * @param errorDescription
 	 *            the error description.
@@ -31,8 +32,8 @@ public class ValidationResults {
 
 	/**
 	 * Works just like {@link #createInvalid(String)} but accepts a template string
-	 * with placeholders "{}" that are substituted with the given arguments. Works like
-	 * described in {@link MessageFormatter}.
+	 * with placeholders "{}" that are substituted with the given arguments. Works
+	 * like described in {@link MessageFormatter}.
 	 *
 	 * For example,
 	 *
@@ -77,15 +78,17 @@ public class ValidationResults {
 		}
 
 		@Nullable
-		@Override public String getErrorDescription() {
+		@Override
+		public String getErrorDescription() {
 			return validationError;
 		}
 
-		@Override public String toString() {
+		@Override
+		public String toString() {
 			return isValid() ? "Validation was successful." : getErrorDescription();
 		}
 	}
 
-	 private static final ValidationResult VALID_RESULT = new ValidationResultImpl();
-	
+	private static final ValidationResult VALID_RESULT = new ValidationResultImpl();
+
 }

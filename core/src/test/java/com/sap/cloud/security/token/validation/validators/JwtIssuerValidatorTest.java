@@ -48,7 +48,8 @@ public class JwtIssuerValidatorTest {
 		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts300.ondemand.com");
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because 'iss' 'https://subdomain.accounts300.ondemand.com' does not match domain 'accounts400.ondemand.com' of the identity service."));
+		assertThat(validationResult.getErrorDescription(), startsWith(
+				"Issuer is not trusted because 'iss' 'https://subdomain.accounts300.ondemand.com' does not match domain 'accounts400.ondemand.com' of the identity service."));
 	}
 
 	@Test
@@ -56,7 +57,8 @@ public class JwtIssuerValidatorTest {
 		when(token.getClaimAsString(ISSUER)).thenReturn(" ");
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
+		assertThat(validationResult.getErrorDescription(),
+				startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
 	}
 
 	@Test
@@ -64,7 +66,8 @@ public class JwtIssuerValidatorTest {
 		when(token.getClaimAsString(ISSUER)).thenReturn(null);
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
+		assertThat(validationResult.getErrorDescription(),
+				startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
 	}
 
 	@Test

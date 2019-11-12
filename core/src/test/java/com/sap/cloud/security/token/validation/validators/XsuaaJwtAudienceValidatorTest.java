@@ -38,7 +38,8 @@ public class XsuaaJwtAudienceValidatorTest {
 	@Test
 	public void extractAudiencesFromTokenScopes() {
 		Mockito.when(token.getClaimAsStringList(SCOPES)).thenReturn(
-				Arrays.asList("test1!t1.read", "foreign!t1.read", "foreign!t1.write", ".scopeWithoutAppId, test1!t1.write"));
+				Arrays.asList("test1!t1.read", "foreign!t1.read", "foreign!t1.write",
+						".scopeWithoutAppId, test1!t1.write"));
 
 		List<String> audiences = XsuaaJwtAudienceValidator.getAllowedAudiences(token);
 
@@ -49,7 +50,7 @@ public class XsuaaJwtAudienceValidatorTest {
 	@Test
 	public void validate_foreignClientId_tokenAudienceMatchesClientId() {
 		Mockito.when(token.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(
-						Arrays.asList("test1!t1","foreign!t1","test4!t1.data"));
+				Arrays.asList("test1!t1", "foreign!t1", "test4!t1.data"));
 
 		ValidationResult result = new XsuaaJwtAudienceValidator("foreign!t1", "sb-foreign!t1")
 				.validate(token);
@@ -83,7 +84,7 @@ public class XsuaaJwtAudienceValidatorTest {
 	@Test
 	public void validationFails_foreignClientId_whenNoAudienceMatches() {
 		Mockito.when(token.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(
-				Arrays.asList("test1!t1","foreign!t1","test4!t1.data","test3!t2"));
+				Arrays.asList("test1!t1", "foreign!t1", "test4!t1.data", "test3!t2"));
 
 		ValidationResult result = new XsuaaJwtAudienceValidator("test3!t1", "sb-test3!t1").validate(token);
 

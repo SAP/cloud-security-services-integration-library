@@ -76,8 +76,8 @@ public interface JsonObject {
 
 	/**
 	 * Returns a nested array of JSON objects as list of @{link JsonObject}
-	 * instances. If the property with the given name is not found, an empty
-	 * list is returned.
+	 * instances. If the property with the given name is not found, an empty list is
+	 * returned.
 	 * 
 	 * @param name
 	 *            the name of property.

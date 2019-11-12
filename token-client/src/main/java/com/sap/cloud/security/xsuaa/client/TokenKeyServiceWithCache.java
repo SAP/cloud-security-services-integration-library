@@ -84,17 +84,21 @@ public class TokenKeyServiceWithCache {
 	}
 
 	/**
-	 * Returns the cached key by id and type or requests the keys from the jwks URI of the identity service.
+	 * Returns the cached key by id and type or requests the keys from the jwks URI
+	 * of the identity service.
 	 *
-	 * @param keyType the Key Type of the Access Token.
-	 * @param keyId the Key Id of the Access Token.
+	 * @param keyType
+	 *            the Key Type of the Access Token.
+	 * @param keyId
+	 *            the Key Id of the Access Token.
 	 * @return a PublicKey
 	 * @throws OAuth2ServiceException
-	 * 			in case the call to the jwks endpoint of the identity service failed.
+	 *             in case the call to the jwks endpoint of the identity service
+	 *             failed.
 	 * @throws InvalidKeySpecException
-	 * 			in case the PublicKey generation for the json web key failed.
+	 *             in case the PublicKey generation for the json web key failed.
 	 * @throws NoSuchAlgorithmException
-	 * 			in case the algorithm of the json web key is not supported.
+	 *             in case the algorithm of the json web key is not supported.
 	 */
 	@Nullable
 	public PublicKey getPublicKey(JsonWebKey.Type keyType, @Nullable String keyId)
