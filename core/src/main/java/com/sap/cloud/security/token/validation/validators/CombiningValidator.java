@@ -122,6 +122,9 @@ public class CombiningValidator<T> implements Validator<T> {
 			if (configuration != null /* && configuration.getServiceName() == "xsuaa"*/) { // TODO
 				OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(configuration.getUrl());
 				TokenKeyServiceWithCache tokenKeyServiceWithCache = new TokenKeyServiceWithCache(tokenKeyService, endpointsProvider);
+				XsuaaJwtAudienceValidator audienceValidator = new XsuaaJwtAudienceValidator(configuration.getProperty(CFConstants.XSUAA.APP_ID), configuration.getClientId());
+				// TODO audienceValidator.configureAnotherServiceInstance();
+
 				with(new JwtTimestampValidator());
 				with(new XsuaaJwtIssuerValidator(configuration.getDomain()));
 				with(new XsuaaJwtAudienceValidator(configuration.getProperty(CFConstants.XSUAA.APP_ID), configuration.getClientId()));

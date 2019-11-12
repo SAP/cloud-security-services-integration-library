@@ -1,6 +1,7 @@
 package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.core.Assertions;
 import com.sap.cloud.security.json.JsonObject;
 
 import javax.annotation.Nullable;
@@ -10,22 +11,28 @@ import static com.sap.cloud.security.config.cf.CFConstants.*;
 
 public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration {
 
+	private final CFService service;
 	private final JsonObject credentials;
 	private final JsonObject configuration;
+	private Plan plan; // lazy read
 
-	CFOAuth2ServiceConfiguration(JsonObject configuration) {
-		this.credentials = configuration.getJsonObject(XSUAA.CREDENTIALS);
-		this.configuration = configuration;
+	CFOAuth2ServiceConfiguration(CFService service, JsonObject jsonServiceConfiguration) {
+		Assertions.assertNotNull(service, "service must not be null");
+		Assertions.assertNotNull(jsonServiceConfiguration, "jsonServiceConfiguration must not be null");
+
+		this.service = service;
+		this.configuration = jsonServiceConfiguration;
+		this.credentials = configuration.getJsonObject(CREDENTIALS);
 	}
 
 	@Override
 	public String getClientId() {
-		return credentials.getAsString(XSUAA.CLIENT_ID);
+		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_ID) : credentials.getAsString(IAS.CLIENT_ID);
 	}
 
 	@Override
 	public String getClientSecret() {
-		return credentials.getAsString(XSUAA.CLIENT_SECRET);
+		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_SECRET) : credentials.getAsString(IAS.CLIENT_SECRET);
 	}
 
 	@Override
@@ -36,7 +43,7 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 	@Nullable
 	@Override
 	public String getDomain() {
-		return credentials.getAsString(UAA_DOMAIN);
+		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.UAA_DOMAIN) : credentials.getAsString(IAS.DOMAIN);
 	}
 
 	@Override
@@ -47,14 +54,19 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 
 	@Override
 	public String getServiceName() {
-		//TODO is this correct? Different class for e.g. IAS?
-		return CFService.XSUAA.getName();
+		return this.service.getName();
 	}
 
-	@Nullable
+	/**
+	 * Cloud Foundry specific information.
+	 * @return the CF service plan.
+	 */
 	public Plan getPlan() {
-		String planAsString = configuration.getAsString(SERVICE_PLAN);
-		return planAsString != null ? Plan.from(planAsString) : null;
+		if (plan == null) {
+			String planAsString = configuration.getAsString(SERVICE_PLAN);
+			plan = planAsString != null ? Plan.from(planAsString) : Plan.DEFAULT;
+		}
+		return plan;
 	}
 
 }

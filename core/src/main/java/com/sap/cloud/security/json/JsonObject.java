@@ -18,11 +18,11 @@ public interface JsonObject {
 
 	/**
 	 * Parses the json object for the given property {@code name} and returns a list
-	 * of type {@link T}. If the property with the given name is not found, an empyt
+	 * of type {@link T}. If the property with the given name is not found, an empty
 	 * list is returned.
 	 *
 	 * @param name
-	 *            the property inside the json structure which contains a list as
+	 *            the property inside this json object which contains a list as
 	 *            values of type {@link T}.
 	 * @param type
 	 *            type parameter for generic type {@link T}.

@@ -21,7 +21,7 @@ public class CFOAuth2ServiceConfigurationTest {
 
 		JsonObject binding = new DefaultJsonObject(vcapXsuaa).getJsonObjects("xsuaa").get(0);
 
-		cut = new CFOAuth2ServiceConfiguration(binding);
+		cut = new CFOAuth2ServiceConfiguration(CFService.XSUAA, binding);
 	}
 
 	@Test

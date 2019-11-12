@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CFEnvParserTest {  // Xsuaa
 
-	private static final String EMPTY_XSUAA_BINDINGS = "{xsuaa: []}";
+	private static final String EMPTY_XSUAA_BINDINGS = "{iasb: []}";
 
 	private final CFEnvParser cutMultipleBindings;
 	private final CFEnvParser cutSingleBinding;

@@ -1,7 +1,5 @@
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.config.cf.CFService;
-
 import javax.annotation.Nullable;
 
 import java.net.URI;

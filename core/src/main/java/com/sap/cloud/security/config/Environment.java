@@ -6,6 +6,13 @@ import com.sap.cloud.security.config.cf.CFOAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFService;
 
 public class Environment {
+	enum Type {
+		CF, KUBERNETES;
+
+		public static Type from(String typeAsString) {
+			return Type.valueOf(typeAsString.toUpperCase());
+		}
+	}
 
 	private static Environment instance = new Environment();
 	private final SystemEnvironmentProvider systemEnvironmentProvider;
@@ -17,7 +24,6 @@ public class Environment {
 
 	Environment(SystemEnvironmentProvider systemEnvironmentProvider) {
 		this.systemEnvironmentProvider = systemEnvironmentProvider;
-
 	}
 
 	interface SystemEnvironmentProvider {

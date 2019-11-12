@@ -13,15 +13,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DefaultJsonObjectTest {
 
-	public static final Instant FIRST_OF_APRIL = LocalDate.of(2019, 4, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
+	private static final Instant FIRST_OF_APRIL = LocalDate.of(2019, 4, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
 
-	public static final String KEY_1 = "key-1";
-	public static final String KEY_2 = "key-2";
+	private static final String KEY_1 = "key-1";
+	private static final String KEY_2 = "key-2";
 
-	public static final String STRING_TEXT = "string text";
-	public static final String STRING_VALUE = "\"" + STRING_TEXT + "\"";
+	private static final String STRING_TEXT = "string text";
+	private static final String STRING_VALUE = "\"" + STRING_TEXT + "\"";
 
-	public static final String STRING_LIST_VALUE = "[\"a\", \"b\", \"c\"]";
+	private static final String STRING_LIST_VALUE = "[\"a\", \"b\", \"c\"]";
+	private static final String MAP_OBJECT = "{\"key1\": \"value1\",\"key2\": \"value2\"}";
 
 	private DefaultJsonObject cut;
 
@@ -41,24 +42,24 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
-	public void getValueAsString_keyExists_returnsStringValue() {
+	public void getAsString_keyExists_returnsStringValue() {
 		assertThat(cut.getAsString(KEY_1)).isEqualTo(STRING_TEXT);
 	}
 
 	@Test
-	public void getValueAsString_keyDoesNotExists_returnsNull() {
+	public void getAsString_keyDoesNotExists_returnsNull() {
 		assertThat(cut.getAsString("keyDoesNotExist")).isNull();
 	}
 
 	@Test
-	public void getValueAsString_keyDoesExistButTypeIsWrong_throwsException() {
+	public void getAsString_keyDoesExistButTypeIsWrong_throwsException() {
 		cut = createJsonParser(KEY_2, STRING_LIST_VALUE);
 
 		assertThatThrownBy(() -> cut.getAsString(KEY_2)).isInstanceOf(JsonParsingException.class);
 	}
 
 	@Test
-	public void getValueOAsListOfStrings_keyExists_returnsList() {
+	public void getAsListOfStrings_keyExists_returnsList() {
 		cut = createJsonParser(KEY_2, STRING_LIST_VALUE);
 
 		List<String> list = cut.getAsList(KEY_2, String.class);
@@ -68,19 +69,19 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
-	public void getValueOAsListOfStrings_keyDoesNotExist_returnsEmptyList() {
+	public void getAsListOfStrings_keyDoesNotExist_returnsEmptyList() {
 		assertThat(cut.getAsList("keyDoesNotExist", String.class)).isEmpty();
 	}
 
 	@Test
-	public void getValueOAsListOfStrings_keyExistsButTypeIsWrong_throwsException() {
+	public void getAsListOfStrings_keyExistsButTypeIsWrong_throwsException() {
 		cut = createJsonParser(KEY_2, STRING_LIST_VALUE);
 
 		assertThatThrownBy(() -> cut.getAsList(KEY_2, Integer.class)).isInstanceOf(JsonParsingException.class);
 	}
 
 	@Test
-	public void getInstant_propertyExistsAndIsEpochTime_returnsInstant() {
+	public void getAsInstant_propertyExistsAndIsEpochTime_returnsInstant() {
 		cut = createJsonParser(KEY_1, "\"" + FIRST_OF_APRIL.getEpochSecond() + "\"");
 
 		Instant instant = cut.getAsInstant(KEY_1);
@@ -89,7 +90,7 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
-	public void getInstant_propertyExistsAndIsEpochTimeFormattedAsNumber_returnsInstant() {
+	public void getAsInstant_propertyExistsAndIsEpochTimeFormattedAsNumber_returnsInstant() {
 		cut = createJsonParser(KEY_1, FIRST_OF_APRIL.getEpochSecond());
 
 		Instant instant = cut.getAsInstant(KEY_1);
@@ -98,12 +99,12 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
-	public void getInstant_propertyDoesNotExist_returnsNull() {
+	public void getAsInstant_propertyDoesNotExist_returnsNull() {
 		assertThat(cut.getAsInstant("keyDoesNotExist")).isNull();
 	}
 
 	@Test
-	public void getInstant_propertyExistsButIsNotInEpochTime_throwsException() {
+	public void getAsInstant_propertyExistsButIsNotInEpochTime_throwsException() {
 		assertThatThrownBy(() -> cut.getAsInstant(KEY_1))
 				.isInstanceOf(JsonParsingException.class);
 	}
