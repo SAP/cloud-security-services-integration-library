@@ -18,17 +18,15 @@ public class ValidationResults {
 	private static final Logger logger = LoggerFactory.getLogger(ValidationResults.class);
 
 	/**
-	 * Creates an invalid {@link ValidationResult} that contains one
-	 * {@link ValidationError} with given description.
+	 * Creates an invalid {@link ValidationResult} that contains an error description.
 	 * 
-	 * @param errorMesssage
+	 * @param errorDescription
 	 *            the error description.
-	 * @return an invalid {@link ValidationResult} containing one
-	 *         {@link ValidationError} with the given error description.
+	 * @return an invalid {@link ValidationResult} containing an error description.
 	 */
-	public static ValidationResult createInvalid(String errorMesssage) {
-		logger.warn(errorMesssage);
-		return new ValidationResultImpl(new ValidationErrorImpl(errorMesssage));
+	public static ValidationResult createInvalid(String errorDescription) {
+		logger.warn(errorDescription);
+		return new ValidationResultImpl(errorDescription);
 	}
 
 	/**
@@ -45,65 +43,17 @@ public class ValidationResults {
 	 * will return the string "Hi there.".
 	 * <p>
 	 * 
-	 * @param errorMessageTemplate
-	 *            the description as template used to create the
-	 *            {@link ValidationError}.
+	 * @param errorDescriptionTemplate
+	 *            the description as template used to create the error description.
 	 * @param arguments
 	 *            the arguments that are filled inside the description template.
-	 * @return an invalid {@link ValidationResult} containing one
-	 *         {@link ValidationError} with the given error description.
+	 * @return an invalid {@link ValidationResult} containing one error description.
 	 */
-	public static ValidationResult createInvalid(String errorMessageTemplate, Object... arguments) {
-		String format = MessageFormatter.arrayFormat(errorMessageTemplate, arguments).getMessage();
+	public static ValidationResult createInvalid(String errorDescriptionTemplate, Object... arguments) {
+		String format = MessageFormatter.arrayFormat(errorDescriptionTemplate, arguments).getMessage();
 		return createInvalid(format);
 	}
 
-	static class ValidationResultImpl implements ValidationResult {
-
-		private final ValidationError validationError;
-
-		public ValidationResultImpl(ValidationError validationError) {
-			this.validationError = validationError;
-		}
-
-		public ValidationResultImpl() {
-			this(null);
-		}
-
-		@Override public boolean isValid() {
-			return getErrorDescription() == null;
-		}
-
-		@Override public boolean isErronous() {
-			return !isValid();
-		}
-
-		@Nullable
-		@Override public String getErrorDescription() {
-			return validationError != null ? validationError.getDescription() : null;
-		}
-
-		@Override public String toString() {
-			return isValid() ? "Validation was successful." : getErrorDescription();
-		}
-	}
-
-	/**
-	 * Captures information about specific validation errors. Normally contained
-	 * inside a by a {@link ValidationResult}.
-	 */
-	 interface ValidationError {
-
-		/**
-		 * A description of the specific validation error.
-		 *
-		 * @return the description.
-		 */
-		String getDescription();
-
-	}
-
-	 private static final ValidationResult VALID_RESULT = new ValidationResultImpl();
 	/**
 	 * Creates a valid {@link ValidationResult}, which is a {@link ValidationResult}
 	 * that contains no errors.
@@ -111,20 +61,31 @@ public class ValidationResults {
 	 * @return a valid validation result.
 	 */
 	public static ValidationResult createValid() {
-		return VALID_RESULT;
+		return new ValidationResultImpl();
 	}
 
-	static class ValidationErrorImpl implements ValidationError {
+	static class ValidationResultImpl implements ValidationResult {
 
-		private final String errorMessage;
+		private final String validationError;
 
-		public ValidationErrorImpl(String errorMessage) {
-			this.errorMessage = errorMessage;
+		public ValidationResultImpl(String validationError) {
+			this.validationError = validationError;
 		}
 
-		@Override
-		public String getDescription() {
-			return errorMessage;
+		public ValidationResultImpl() {
+			this(null);
+		}
+
+		@Nullable
+		@Override public String getErrorDescription() {
+			return validationError;
+		}
+
+		@Override public String toString() {
+			return isValid() ? "Validation was successful." : getErrorDescription();
 		}
 	}
+
+	 private static final ValidationResult VALID_RESULT = new ValidationResultImpl();
+	
 }

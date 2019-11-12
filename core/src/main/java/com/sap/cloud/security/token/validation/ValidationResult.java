@@ -13,14 +13,18 @@ public interface ValidationResult {
 	 * 
 	 * @return true if there is no validation error.
 	 */
-	boolean isValid();
+	default boolean isValid() {
+		return getErrorDescription() == null;
+	}
 
 	/**
 	 * Returns true if there is a validation error, false otherwise.
 	 *
 	 * @return true if there is a validation error.
 	 */
-	boolean isErronous();
+	default boolean isErroneous() {
+		return !isValid();
+	}
 
 	/**
 	 * The validation error that have been found.
