@@ -1,7 +1,10 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import static com.sap.cloud.security.config.cf.CFService.*;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.CFService;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
@@ -102,7 +105,7 @@ public class CombiningValidator<T> implements Validator<T> {
 		 * @return the validator.
 		 */
 		public CombiningValidator<Token> build() {
-			if (configuration != null /* && configuration.getServiceName() == "xsuaa" */) { // TODO
+			if (configuration != null && configuration.getServiceName().equalsIgnoreCase(XSUAA.getName())) {
 				OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(configuration.getUrl());
 				TokenKeyServiceWithCache tokenKeyServiceWithCache = new TokenKeyServiceWithCache(tokenKeyService,
 						endpointsProvider);

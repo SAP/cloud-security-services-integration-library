@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.CFService;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
@@ -75,6 +76,7 @@ public class CombiningValidatorTest {
 		when(configuration.getDomain()).thenReturn("auth.com");
 		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
 		when(configuration.getProperty(CFConstants.XSUAA.APP_ID)).thenReturn("test-app!t123");
+		when(configuration.getServiceName()).thenReturn(CFService.XSUAA.getName());
 
 		CombiningValidator combiningValidator = CombiningValidator.builderFor(configuration).build();
 		String allValidators = combiningValidator.toString();
@@ -82,6 +84,7 @@ public class CombiningValidatorTest {
 		assertThat(allValidators).contains("XsuaaJwtIssuerValidator");
 		assertThat(allValidators).contains("XsuaaJwtAudienceValidator");
 		assertThat(allValidators).contains("JwtSignatureValidator");
+		when(configuration.getServiceName()).thenReturn(CFService.XSUAA.getName());
 	}
 
 	private Validator<Token> validValidator() {
