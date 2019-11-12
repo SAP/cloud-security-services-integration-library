@@ -55,14 +55,14 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	private static class Validation {
 
-		private final static Map<String, Type> MAP_ALGORITHM_TYPE;
+		private static final Map<String, Type> MAP_ALGORITHM_TYPE;
 		static {
 			MAP_ALGORITHM_TYPE = new HashMap<>();
 			MAP_ALGORITHM_TYPE.put("RS256", Type.RSA);
 			MAP_ALGORITHM_TYPE.put("ES256", Type.EC);
 		}
 
-		private final static Map<Type, String> MAP_TYPE_SIGNATURE;
+		private static final Map<Type, String> MAP_TYPE_SIGNATURE;
 		static {
 			MAP_TYPE_SIGNATURE = new HashMap<>();
 			MAP_TYPE_SIGNATURE.put(Type.RSA, "SHA256withRSA");
@@ -86,18 +86,18 @@ public class JwtSignatureValidator implements Validator<Token> {
 			ValidationResult validationResult;
 
 			validationResult = setKeyTypeForAlgorithm(tokenAlgorithm);
-			if (!validationResult.isValid()) {
+			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
 
 			String keyId = tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID;
 			validationResult = setPublicKey(tokenKeyService, keyType, keyId);
-			if (!validationResult.isValid()) {
+			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
 
 			validationResult = setPublicSignatureForKeyType(keyType);
-			if (!validationResult.isValid()) {
+			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
 

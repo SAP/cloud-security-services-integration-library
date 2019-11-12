@@ -47,7 +47,7 @@ public class JwtIssuerValidatorTest {
 	public void validationFails_whenTokenIssuerDoesNotMatchIdentityServiceDomain() {
 		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts300.ondemand.com");
 		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isValid(), is(false));
+		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because 'iss' 'https://subdomain.accounts300.ondemand.com' does not match domain 'accounts400.ondemand.com' of the identity service."));
 	}
 
@@ -55,7 +55,7 @@ public class JwtIssuerValidatorTest {
 	public void validationFails_whenTokenIssuerIsEmpty() {
 		when(token.getClaimAsString(ISSUER)).thenReturn(" ");
 		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isValid(), is(false));
+		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
 	}
 
@@ -63,7 +63,7 @@ public class JwtIssuerValidatorTest {
 	public void validationFails_whenTokenIssuerIsNull() {
 		when(token.getClaimAsString(ISSUER)).thenReturn(null);
 		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isValid(), is(false));
+		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
 	}
 
@@ -72,7 +72,7 @@ public class JwtIssuerValidatorTest {
 		Token token = Mockito.mock(TokenImpl.class);
 		when(token.getClaimAsString(ISSUER)).thenReturn("\0://myauth.com");
 		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isValid(), is(false));
+		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because"));
 	}
 

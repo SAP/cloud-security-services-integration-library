@@ -7,6 +7,8 @@ import javax.annotation.Nullable;
  */
 public class SecurityContext {
 
+	private SecurityContext() {}
+
 	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
 
 	/**

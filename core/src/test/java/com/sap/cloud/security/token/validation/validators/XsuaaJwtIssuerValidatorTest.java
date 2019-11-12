@@ -46,7 +46,7 @@ public class XsuaaJwtIssuerValidatorTest {
 	public void validationFails_whenTokenIssuerDoesNotMatchIdentityServiceDomain() {
 		when(token.getHeaderParameterAsString(JWKS_URL)).thenReturn("https://subdomain.any.ondemand.com");
 		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isValid(), is(false));
+		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because 'jku' 'https://subdomain.any.ondemand.com' does not match uaa domain 'myauth.ondemand.com' of the identity service."));
 	}
 
@@ -54,7 +54,7 @@ public class XsuaaJwtIssuerValidatorTest {
 	public void validationFails_whenTokenIssuerIsEmpty() {
 		when(token.getHeaderParameterAsString(JWKS_URL)).thenReturn(" ");
 		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isValid(), is(false));
+		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because Jwt token does not contain 'jku' header parameter."));
 	}
 
@@ -62,7 +62,7 @@ public class XsuaaJwtIssuerValidatorTest {
 	public void validationFails_whenTokenIssuerIsNull() {
 		when(token.getHeaderParameterAsString(JWKS_URL)).thenReturn(null);
 		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isValid(), is(false));
+		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith("Issuer validation can not be performed because Jwt token does not contain 'jku' header parameter."));
 	}
 
@@ -70,7 +70,7 @@ public class XsuaaJwtIssuerValidatorTest {
 	public void validationFails_whenTokenIssuerIsNotAValidUri() {
 		when(token.getHeaderParameterAsString(JWKS_URL)).thenReturn("\0://myauth.com");
 		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isValid(), is(false));
+		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because"));
 	}
 }

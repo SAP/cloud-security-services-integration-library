@@ -53,7 +53,7 @@ public class CombiningValidatorTest {
 
 		ValidationResult validationResult = combiningValidator.validate(null);
 
-		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.isErroneous()).isTrue();
 	}
 
 	@Test

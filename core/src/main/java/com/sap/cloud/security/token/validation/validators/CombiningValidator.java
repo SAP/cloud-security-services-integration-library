@@ -36,7 +36,7 @@ public class CombiningValidator<T> implements Validator<T> {
 	public ValidationResult validate(T t) {
 		for (Validator<T> validator : validators) {
 			ValidationResult result = validator.validate(t);
-			if(!result.isValid()) {
+			if(result.isErroneous()) {
 				return result;
 			}
 		}
@@ -68,7 +68,6 @@ public class CombiningValidator<T> implements Validator<T> {
 
 	public static class TokenValidatorBuilder {
 		private final List<Validator<Token>> validators = new ArrayList<>();
-		private boolean stopAfterFirstInvalidResult = true;
 		private OAuth2TokenKeyService tokenKeyService = new DefaultOAuth2TokenKeyService();
 		private OAuth2ServiceConfiguration configuration;
 
@@ -91,7 +90,6 @@ public class CombiningValidator<T> implements Validator<T> {
 		 * @return this builder.
 		 */
 		public TokenValidatorBuilder validateAll() {
-			stopAfterFirstInvalidResult = false;
 			return this;
 		}
 

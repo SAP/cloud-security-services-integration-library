@@ -61,7 +61,7 @@ public class ValidationResults {
 	 * @return a valid validation result.
 	 */
 	public static ValidationResult createValid() {
-		return new ValidationResultImpl();
+		return VALID_RESULT;
 	}
 
 	static class ValidationResultImpl implements ValidationResult {

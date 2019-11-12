@@ -76,7 +76,7 @@ public class XsuaaJwtAudienceValidatorTest {
 		ValidationResult result = new XsuaaJwtAudienceValidator("test1!t1", "sb-test1!t1")
 				.validate(token);
 
-		assertThat(result.isValid()).isFalse();
+		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription()).startsWith("Jwt token must contain 'cid'");
 	}
 
@@ -87,7 +87,7 @@ public class XsuaaJwtAudienceValidatorTest {
 
 		ValidationResult result = new XsuaaJwtAudienceValidator("test3!t1", "sb-test3!t1").validate(token);
 
-		assertThat(result.isValid()).isFalse();
+		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
 				.isEqualTo("Jwt token audience matches none of these: [test3!t1].");
 	}
@@ -101,7 +101,7 @@ public class XsuaaJwtAudienceValidatorTest {
 
 		ValidationResult result = new XsuaaJwtAudienceValidator("foreign!t1", "sb-foreign!t1").validate(token);
 
-		assertThat(result.isValid()).isFalse();
+		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
 				.isEqualTo("Jwt token audience matches none of these: [foreign!t1].");
 	}

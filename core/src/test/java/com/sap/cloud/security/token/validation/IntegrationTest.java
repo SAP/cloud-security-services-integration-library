@@ -40,7 +40,7 @@ public class IntegrationTest {
 		Token xsuaaToken = new TokenImpl(
 				IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
 		ValidationResult result = combiningValidator.validate(xsuaaToken);
-		assertThat(result.isValid()).isFalse();
+		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription()).contains("Jwt expired at 2019-10-26T03:32:49Z");
 	}
 
@@ -63,7 +63,7 @@ public class IntegrationTest {
 				IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
 
 		ValidationResult result = combiningValidator.validate(xsuaaToken);
-		assertThat(result.isValid()).isFalse();
+		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
 				.contains("Error retrieving Json Web Keys from Identity Service (https://my.auth.com/token_keys)");
 	}

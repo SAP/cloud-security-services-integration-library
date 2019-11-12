@@ -13,9 +13,4 @@ public final class TokenHeader {
 	public static final String JWKS_URL = "jku";
 	public static final String KEY_ID = "kid";
 	public static final String TYPE = "typ";
-
-	public final class XSUAA {
-
-	}
-
 }

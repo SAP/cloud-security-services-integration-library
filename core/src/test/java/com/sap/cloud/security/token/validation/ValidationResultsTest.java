@@ -11,7 +11,7 @@ public class ValidationResultsTest {
 		String errorMessage = "An error message";
 		ValidationResult validationResult = ValidationResults.createInvalid(errorMessage);
 
-		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.isErroneous()).isTrue();
 		assertThat(validationResult.getErrorDescription()).isEqualTo(errorMessage);
 	}
 
@@ -29,7 +29,7 @@ public class ValidationResultsTest {
 		ValidationResult validationResult = ValidationResults.createInvalid(errorMessageTemplate, args[0], args[1],
 				args[2]);
 
-		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.isErroneous()).isTrue();
 		assertThat(validationResult.getErrorDescription()).isEqualTo("An error message first second third");
 	}
 
@@ -39,7 +39,7 @@ public class ValidationResultsTest {
 		String onlyOne = "first";
 		ValidationResult validationResult = ValidationResults.createInvalid(errorMessageTemplate, onlyOne);
 
-		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.isErroneous()).isTrue();
 		assertThat(validationResult.getErrorDescription()).isEqualTo("An error message first {} {}");
 	}
 
@@ -49,7 +49,7 @@ public class ValidationResultsTest {
 		String[] args = { "first", "second", "third" };
 		ValidationResult validationResult = ValidationResults.createInvalid(errorMessageTemplate, args);
 
-		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.isErroneous()).isTrue();
 		assertThat(validationResult.getErrorDescription()).isEqualTo("An error message first");
 	}
 

@@ -62,11 +62,7 @@ public class XsuaaJwtAudienceValidator implements Validator<Token> {
 			return true;
 		} else {
 			// case 2: foreign token
-			if (allowedAudiences.contains(appId)) {
-				return true;
-			} else {
-				return false;
-			}
+			return allowedAudiences.contains(appId);
 		}
 	}
 

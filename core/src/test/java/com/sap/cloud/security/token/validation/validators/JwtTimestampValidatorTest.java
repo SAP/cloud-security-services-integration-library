@@ -95,7 +95,7 @@ public class JwtTimestampValidatorTest {
 
 		ValidationResult validationResult = cut.validate(token);
 
-		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.isErroneous()).isTrue();
 		assertThat(validationResult.getErrorDescription()).contains(NOW.toString()).contains(inOneMinute.toString());
 	}
 
@@ -108,7 +108,7 @@ public class JwtTimestampValidatorTest {
 
 		ValidationResult validationResult = cut.validate(token);
 
-		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.isErroneous()).isTrue();
 	}
 
 	@Test
@@ -121,7 +121,7 @@ public class JwtTimestampValidatorTest {
 
 		ValidationResult validationResult = cut.validate(token);
 
-		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.isErroneous()).isTrue();
 	}
 
 }
