@@ -43,15 +43,17 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
+
 		return validate(token.getAccessToken(),
 				token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME),
-				token.getHeaderParameterAsString(KEY_ID_PARAMETER_NAME));
+				token.getHeaderParameterAsString(KEY_ID_PARAMETER_NAME),
+				token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME));
 	}
 
-	public ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId) {
+	public ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId, @Nullable String tokenKeysUrl) {
 		assertNotEmpty(token, "token must not be null or empty.");
 
-		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId);
+		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId, tokenKeysUrl);
 	}
 
 	private static class Validation {
@@ -82,7 +84,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		public ValidationResult validate(TokenKeyServiceWithCache tokenKeyService, String token, String tokenAlgorithm,
-				@Nullable String tokenKeyId) {
+				@Nullable String tokenKeyId, @Nullable String tokenKeysUrl) {
 			assertNotEmpty(token, "token must not be null or empty.");
 
 			ValidationResult validationResult;
@@ -93,7 +95,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 			}
 
 			String keyId = tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID;
-			validationResult = setPublicKey(tokenKeyService, keyType, keyId);
+			validationResult = setPublicKey(tokenKeyService, keyType, keyId, tokenKeysUrl);
 			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
@@ -116,15 +118,14 @@ public class JwtSignatureValidator implements Validator<Token> {
 			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.", tokenAlgorithm);
 		}
 
-		private ValidationResult setPublicKey(TokenKeyServiceWithCache tokenKeyService, Type keyType, String keyId) {
+		private ValidationResult setPublicKey(TokenKeyServiceWithCache tokenKeyService, Type keyType, String keyId, String keyUri) {
 			try {
-				this.publicKey = tokenKeyService.getPublicKey(keyType, keyId);
+				this.publicKey = tokenKeyService.getPublicKey(keyType, keyId, keyUri);
 			} catch (OAuth2ServiceException e) {
-				return createInvalid("Error retrieving Json Web Keys from Identity Service ({}): {}.",
-						tokenKeyService.getJwkUri(), e.getMessage());
+				return createInvalid("Error retrieving Json Web Keys from Identity Service: {}.", e.getMessage());
 			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 				return createInvalid("Error creating PublicKey from Json Web Key received from {}: {}.",
-						tokenKeyService.getJwkUri(), e.getMessage());
+						keyUri != null ? keyUri : tokenKeyService.getDefaultJwksUri(), e.getMessage());
 			}
 			if (this.publicKey == null) {
 				return createInvalid(

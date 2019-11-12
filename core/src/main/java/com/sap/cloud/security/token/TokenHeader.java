@@ -9,8 +9,8 @@ public final class TokenHeader {
 		throw new IllegalStateException("Utility class");
 	}
 
-	public static final String ALGORITHM = "alg";
-	public static final String JWKS_URL = "jku";
-	public static final String KEY_ID = "kid";
-	public static final String TYPE = "typ";
+	public static final String ALGORITHM = "alg"; // Algorithm Header Parameter
+	public static final String JWKS_URL = "jku"; // JWK Set URL Header Parameter
+	public static final String KEY_ID = "kid"; // Key ID Header Parameter
+	public static final String TYPE = "typ"; // Type Header Parameter
 }

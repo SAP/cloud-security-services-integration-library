@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.security.spec.InvalidKeySpecException;
 import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
@@ -44,7 +45,7 @@ public class JwtSignatureValidatorTest {
 		when(endpointsProvider.getJwksUri()).thenReturn(URI.create("https://myauth.com/jwks_uri"));
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
+		when(tokenKeyServiceMock.retrieveTokenKeys(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys"))).thenReturn(JsonWebKeySetFactory.createFromJson(
 				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
 
 		cut = new JwtSignatureValidator(new TokenKeyServiceWithCache(tokenKeyServiceMock, endpointsProvider));
@@ -53,7 +54,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validate_throwsWhenTokenIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate(null, "key-id-1", "RS256");
+			cut.validate(null, "key-id-1", "RS256", null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
 	}
 
@@ -82,13 +83,16 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void validationFails_whenJwtProvidesNoSignature() {
+	public void validationFails_whenJwtProvidesNoSignature() throws IOException {
 		String[] tokenHeaderPayloadSignature = accessToken.getAccessToken().split(Pattern.quote("."));
 		String tokenWithOthersSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
 
-		ValidationResult result = cut.validate(tokenWithOthersSignature, "RS256", "key-id-1");
+		when(tokenKeyServiceMock.retrieveTokenKeys(endpointsProvider.getJwksUri())).thenReturn(JsonWebKeySetFactory.createFromJson(
+				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
+
+		ValidationResult result = cut.validate(tokenWithOthersSignature, "RS256", "key-id-1", null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString("Jwt token does not consist of 'header'.'payload'.'signature'."));
@@ -107,12 +111,15 @@ public class JwtSignatureValidatorTest {
 	public void validationFails_whenTokenKeyCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
 				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		assertThat(cut.validate(accessToken).isValid(), is(false));
+		ValidationResult validationResult = cut.validate(accessToken);
+		assertThat(validationResult.isValid(), is(false));
+		assertThat(validationResult.getErrorDescription(),
+				startsWith("Error retrieving Json Web Keys from Identity Service: Currently unavailable."));
 	}
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNotRSA256() {
-		ValidationResult validationResult = cut.validate(accessToken.getAccessToken(), "ES123", "key-id-1");
+		ValidationResult validationResult = cut.validate(accessToken.getAccessToken(), "ES123", "key-id-1", null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Jwt token with signature algorithm 'ES123' can not be verified."));
@@ -120,7 +127,7 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNull() {
-		ValidationResult validationResult = cut.validate(accessToken.getAccessToken(), "", "key-id-1");
+		ValidationResult validationResult = cut.validate(accessToken.getAccessToken(), "", "key-id-1", null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Jwt token with signature algorithm '' can not be verified."));
@@ -130,6 +137,6 @@ public class JwtSignatureValidatorTest {
 	@Ignore
 	public void jsonECSignatureMatchesJWKS() throws IOException {
 		String ecSignedToken = "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhdXRoMCJ9.4iVk3-Y0v4RT4_9IaQlp-8dZ_4fsTzIylgrPTDLrEvTHBTyVS3tgPbr2_IZfLETtiKRqCg0aQ5sh9eIsTTwB1g";
-		assertThat(cut.validate(ecSignedToken, "ES256", "key-id-1").isValid(), is(true));
+		assertThat(cut.validate(ecSignedToken, "ES256", "key-id-1", null).isValid(), is(true));
 	}
 }
