@@ -50,7 +50,8 @@ public class JwtSignatureValidator implements Validator<Token> {
 				token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME));
 	}
 
-	public ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId, @Nullable String tokenKeysUrl) {
+	public ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId,
+			@Nullable String tokenKeysUrl) {
 		assertNotEmpty(token, "token must not be null or empty.");
 
 		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId, tokenKeysUrl);
@@ -118,7 +119,8 @@ public class JwtSignatureValidator implements Validator<Token> {
 			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.", tokenAlgorithm);
 		}
 
-		private ValidationResult setPublicKey(TokenKeyServiceWithCache tokenKeyService, Type keyType, String keyId, String keyUri) {
+		private ValidationResult setPublicKey(TokenKeyServiceWithCache tokenKeyService, Type keyType, String keyId,
+				String keyUri) {
 			try {
 				this.publicKey = tokenKeyService.getPublicKey(keyType, keyId, keyUri);
 			} catch (OAuth2ServiceException e) {

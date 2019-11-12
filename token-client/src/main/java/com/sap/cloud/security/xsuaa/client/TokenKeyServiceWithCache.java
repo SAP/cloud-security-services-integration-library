@@ -87,7 +87,7 @@ public class TokenKeyServiceWithCache {
 	 * @param keyId
 	 *            the Key Id of the Access Token.
 	 * @param keyUrl
-	 * 			  the jwks key url of the Access Token (can be tenant specific).
+	 *            the jwks key url of the Access Token (can be tenant specific).
 	 * @return a PublicKey
 	 * @throws OAuth2ServiceException
 	 *             in case the call to the jwks endpoint of the identity service

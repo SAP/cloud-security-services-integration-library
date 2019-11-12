@@ -45,8 +45,10 @@ public class JwtSignatureValidatorTest {
 		when(endpointsProvider.getJwksUri()).thenReturn(URI.create("https://myauth.com/jwks_uri"));
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys"))).thenReturn(JsonWebKeySetFactory.createFromJson(
-				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
+		when(tokenKeyServiceMock
+				.retrieveTokenKeys(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")))
+						.thenReturn(JsonWebKeySetFactory.createFromJson(
+								IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
 
 		cut = new JwtSignatureValidator(new TokenKeyServiceWithCache(tokenKeyServiceMock, endpointsProvider));
 	}
@@ -89,8 +91,9 @@ public class JwtSignatureValidatorTest {
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
 
-		when(tokenKeyServiceMock.retrieveTokenKeys(endpointsProvider.getJwksUri())).thenReturn(JsonWebKeySetFactory.createFromJson(
-				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
+		when(tokenKeyServiceMock.retrieveTokenKeys(endpointsProvider.getJwksUri()))
+				.thenReturn(JsonWebKeySetFactory.createFromJson(
+						IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
 
 		ValidationResult result = cut.validate(tokenWithOthersSignature, "RS256", "key-id-1", null);
 		assertThat(result.isErroneous(), is(true));
