@@ -14,11 +14,9 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +38,7 @@ public class TokenFilterTest {
 	}
 
 	@Test
-	public void doFilter_noHeader_isUnauthorized()  {
+	public void doFilter_noHeader_isUnauthorized() {
 		when(httpRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
 
 		cut.doFilter(httpRequest, httpResponse, filterChain);
@@ -49,7 +47,7 @@ public class TokenFilterTest {
 	}
 
 	@Test
-	public void doFilter_invalidToken_isUnauthorized()  {
+	public void doFilter_invalidToken_isUnauthorized() {
 		cut = createComponent((ValidationResults.createInvalid("Token is not valid")));
 
 		cut.doFilter(httpRequest, httpResponse, filterChain);
@@ -58,7 +56,7 @@ public class TokenFilterTest {
 	}
 
 	@Test
-	public void doFilter_validToken_isNotUnauthorized()  {
+	public void doFilter_validToken_isNotUnauthorized() {
 		cut = createComponent((ValidationResults.createValid()));
 
 		cut.doFilter(httpRequest, httpResponse, filterChain);
@@ -67,7 +65,7 @@ public class TokenFilterTest {
 	}
 
 	@Test
-	public void doFilter_validToken_containedInSecurityContext()  {
+	public void doFilter_validToken_containedInSecurityContext() {
 		cut = createComponent((ValidationResults.createValid()));
 
 		cut.doFilter(httpRequest, httpResponse, filterChain);

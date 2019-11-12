@@ -1,6 +1,7 @@
 package com.sap.cloud.security.javasec.samples.usage;
 
 import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
@@ -8,6 +9,7 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.CombiningValidator;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,16 +21,11 @@ public class TokenFilter implements Filter {
 
 	private static final Logger logger = LoggerFactory.getLogger(TokenFilter.class);
 	private final TokenExtractor tokenExtractor;
-	private final Validator<Token> tokenValidator;
-	
-	
-	interface TokenExtractor {
-		Token fromAuthorizationHeader(String authorizationHeader);
-	}
-	
+	private Validator<Token> tokenValidator;
+	private OAuth2ServiceConfiguration oAuth2ServiceConfiguration;
+
 	public TokenFilter() {
 		tokenExtractor = (authorizationHeader) -> new TokenImpl(authorizationHeader);
-		tokenValidator = CombiningValidator.builderFor(Environment.getInstance().getXsuaaServiceConfiguration()).build();
 	}
 
 	TokenFilter(TokenExtractor tokenExtractor, Validator<Token> tokenValidator) {
@@ -36,12 +33,40 @@ public class TokenFilter implements Filter {
 		this.tokenValidator = tokenValidator;
 	}
 
+	private Validator<Token> getTokenValidator() {
+		if (tokenValidator == null) {
+			tokenValidator = CombiningValidator
+					.builderFor(getXsuaaServiceConfiguration())
+					.withOAuth2TokenKeyService((x) -> new JsonWebKeySet())
+					.build();
+		}
+		return tokenValidator;
+	}
+
+	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
+		if (oAuth2ServiceConfiguration == null) {
+			oAuth2ServiceConfiguration = Environment.getInstance().getXsuaaServiceConfiguration();
+		}
+		return oAuth2ServiceConfiguration;
+	}
+
 	@Override
 	public void init(FilterConfig filterConfig) {
+		String configurationClass = filterConfig.getInitParameter("configuration-class");
+		if (configurationClass != null) {
+			try {
+				oAuth2ServiceConfiguration = (OAuth2ServiceConfiguration) filterConfig.getServletContext()
+						.getClassLoader()
+						.loadClass(configurationClass)
+						.newInstance();
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+				logger.error("Failed to load class {}, ", configurationClass, e);
+			}
+		}
 	}
-	
+
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)  {
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) {
 		if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -50,7 +75,7 @@ public class TokenFilter implements Filter {
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = tokenExtractor.fromAuthorizationHeader(authorizationHeader);
-					ValidationResult result = tokenValidator.validate(token);
+					ValidationResult result = getTokenValidator().validate(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
 						filterChain.doFilter(request, response);
@@ -78,6 +103,10 @@ public class TokenFilter implements Filter {
 	@Override
 	public void destroy() {
 		SecurityContext.clearToken();
+	}
+
+	interface TokenExtractor {
+		Token fromAuthorizationHeader(String authorizationHeader);
 	}
 
 }

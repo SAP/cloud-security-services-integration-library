@@ -25,8 +25,7 @@ public class HelloJavaServlet extends HttpServlet {
 	private static Logger logger = LoggerFactory.getLogger(HelloJavaServlet.class);
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 * response)
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
