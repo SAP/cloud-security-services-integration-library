@@ -28,7 +28,7 @@ import java.util.List;
 public class CombiningValidator<T> implements Validator<T> {
 
 	private final List<Validator<T>> validators;
-	private List<String> validationErrors = new ArrayList<>();
+	private final List<String> validationErrors = new ArrayList<>();
 
 	private final boolean stopAfterFirstInvalidResult;
 
@@ -48,7 +48,7 @@ public class CombiningValidator<T> implements Validator<T> {
 				}
 			}
 		}
-		if(validationErrors.size() > 0) {
+		if(!validationErrors.isEmpty()) {
 			return createInvalid("{} out of {} validators reported an error. Please see detailed error descriptions.", validationErrors.size(), validators.size());
 		}
 		return ValidationResults.createValid();
@@ -75,7 +75,7 @@ public class CombiningValidator<T> implements Validator<T> {
 
 	@Override public String toString() {
 		StringBuilder validatorNames = new StringBuilder();
-		for (Validator v: validators) {
+		for (Validator<T> v: validators) {
 			validatorNames.append(v.getClass().getName()).append(',');
 		}
 		return validatorNames.toString();
@@ -128,7 +128,7 @@ public class CombiningValidator<T> implements Validator<T> {
 				with(new JwtSignatureValidator(tokenKeyServiceWithCache));
 			}
 
-			return new CombiningValidator(validators, stopAfterFirstInvalidResult);
+			return new CombiningValidator<>(validators, stopAfterFirstInvalidResult);
 		}
 
 		void setOAuthConfiguration(OAuth2ServiceConfiguration configuration) {

@@ -17,7 +17,7 @@ import com.sap.cloud.security.token.validation.Validator;
 
 public class XsuaaJwtIssuerValidator implements Validator<Token> {
 	private final String domain;
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 *

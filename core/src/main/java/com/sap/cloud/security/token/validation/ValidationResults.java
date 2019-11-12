@@ -103,6 +103,7 @@ public class ValidationResults {
 
 	}
 
+	 private static final ValidationResult VALID_RESULT = new ValidationResultImpl();
 	/**
 	 * Creates a valid {@link ValidationResult}, which is a {@link ValidationResult}
 	 * that contains no errors.
@@ -110,7 +111,7 @@ public class ValidationResults {
 	 * @return a valid validation result.
 	 */
 	public static ValidationResult createValid() {
-		return new ValidationResultImpl();
+		return VALID_RESULT;
 	}
 
 	static class ValidationErrorImpl implements ValidationError {

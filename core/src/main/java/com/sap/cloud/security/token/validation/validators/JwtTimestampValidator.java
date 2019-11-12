@@ -4,7 +4,6 @@ import static com.sap.cloud.security.token.validation.ValidationResults.createIn
 
 import javax.annotation.Nullable;
 
-import com.sap.cloud.security.core.Assertions;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
