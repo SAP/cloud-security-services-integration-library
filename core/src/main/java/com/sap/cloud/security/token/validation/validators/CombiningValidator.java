@@ -1,7 +1,5 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
-
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
@@ -28,13 +26,10 @@ import java.util.List;
 public class CombiningValidator<T> implements Validator<T> {
 
 	private final List<Validator<T>> validators;
-	private final List<String> validationErrors = new ArrayList<>();
 
-	private final boolean stopAfterFirstInvalidResult;
 
-	private CombiningValidator(List<Validator<T>> validators, boolean stopAfterFirstInvalidResult) {
+	private CombiningValidator(List<Validator<T>> validators) {
 		this.validators = validators;
-		this.stopAfterFirstInvalidResult = stopAfterFirstInvalidResult;
 	}
 
 	@Override
@@ -42,14 +37,8 @@ public class CombiningValidator<T> implements Validator<T> {
 		for (Validator<T> validator : validators) {
 			ValidationResult result = validator.validate(t);
 			if(!result.isValid()) {
-				validationErrors.add(result.getErrorDescription());
-				if(stopAfterFirstInvalidResult == true) {
-					return result;
-				}
+				return result;
 			}
-		}
-		if(!validationErrors.isEmpty()) {
-			return createInvalid("{} out of {} validators reported an error. Please see detailed error descriptions.", validationErrors.size(), validators.size());
 		}
 		return ValidationResults.createValid();
 	}
@@ -67,10 +56,6 @@ public class CombiningValidator<T> implements Validator<T> {
 		TokenValidatorBuilder tokenBuilder = builder();
 		tokenBuilder.setOAuthConfiguration(configuration);
 		return tokenBuilder;
-	}
-
-	public List<String> getAllErrorDescriptions() {
-		return validationErrors;
 	}
 
 	@Override public String toString() {
@@ -131,7 +116,7 @@ public class CombiningValidator<T> implements Validator<T> {
 				with(new JwtSignatureValidator(tokenKeyServiceWithCache));
 			}
 
-			return new CombiningValidator<>(validators, stopAfterFirstInvalidResult);
+			return new CombiningValidator<>(validators);
 		}
 
 		void setOAuthConfiguration(OAuth2ServiceConfiguration configuration) {

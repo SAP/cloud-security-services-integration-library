@@ -69,24 +69,6 @@ public class CombiningValidatorTest {
 	}
 
 	@Test
-	public void validate_twoInvalidValidatorsWithValidateAll_containsBothErrorMessages() {
-		CombiningValidator<Token> combiningValidator = CombiningValidator.builder()
-				.with(validValidator())
-				.with(invalidValidator(FIRST_ERROR_MESSAGE))
-				.with(invalidValidator(SECOND_ERROR_MESSAGE))
-				.with(validValidator())
-				.validateAll()
-				.build();
-
-		ValidationResult result = combiningValidator.validate(null);
-		assertThat(result.getErrorDescription()).isEqualTo("2 out of 4 validators reported an error. Please see detailed error descriptions.");
-		assertThat(result.isValid()).isEqualTo(false);
-
-		List<String> errorMessages = combiningValidator.getAllErrorDescriptions();
-		assertThat(errorMessages).containsExactly(FIRST_ERROR_MESSAGE, SECOND_ERROR_MESSAGE);
-	}
-
-	@Test
 	public void build_xsuaaCombiningValidator() throws URISyntaxException, IOException {
 		OAuth2ServiceConfiguration configuration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(configuration.getUrl()).thenReturn(new URI("https://my.auth.com"));
