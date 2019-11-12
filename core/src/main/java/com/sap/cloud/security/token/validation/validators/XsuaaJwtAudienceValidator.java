@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,8 +83,9 @@ public class XsuaaJwtAudienceValidator implements Validator<Token> {
 
 		if (tokenAudiences != null) {
 			for (String audience : tokenAudiences) {
-				if (audience.contains(".")) {
-					String aud = audience.substring(0, audience.indexOf('.'));
+				int index = audience.indexOf('.');
+				if (index > -1) {
+					String aud = audience.substring(0, index);
 					allAudiences.add(aud);
 				} else {
 					allAudiences.add(audience);
@@ -94,8 +96,9 @@ public class XsuaaJwtAudienceValidator implements Validator<Token> {
 		// fallback: extract audience (app-id) from scopes
 		if (allAudiences.isEmpty()) {
 			for (String scope : getScopes(token)) {
-				if (scope.contains(".")) {
-					String aud = scope.substring(0, scope.indexOf('.'));
+				int idx = scope.indexOf('.');
+				if (idx > -1) {
+					String aud = scope.substring(0, idx);
 					allAudiences.add(aud);
 				}
 			}
@@ -105,6 +108,6 @@ public class XsuaaJwtAudienceValidator implements Validator<Token> {
 
 	static List<String> getScopes(Token token) {
 		List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
-		return scopes != null ? scopes : new ArrayList<>();
+		return scopes != null ? scopes : Collections.emptyList();
 	}
 }

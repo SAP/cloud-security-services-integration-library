@@ -32,20 +32,7 @@ import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
  * - checks whether the jwt is unchanged and signed with a private key that matches the PublicKey.
  */
 public class JwtSignatureValidator implements Validator<Token> {
-	private TokenKeyServiceWithCache tokenKeyService;
-	private final static Map<String, Type> MAP_ALGORITHM_TYPE;
-	static {
-		MAP_ALGORITHM_TYPE = new HashMap<>();
-		MAP_ALGORITHM_TYPE.put("RS256", Type.RSA);
-		MAP_ALGORITHM_TYPE.put("ES256", Type.EC);
-	}
-
-	private final static Map<Type, String> MAP_TYPE_SIGNATURE;
-	static {
-		MAP_TYPE_SIGNATURE = new HashMap<>();
-		MAP_TYPE_SIGNATURE.put(Type.RSA, "SHA256withRSA");
-		MAP_TYPE_SIGNATURE.put(Type.EC, "SHA256withECDSA");
-	}
+	private final TokenKeyServiceWithCache tokenKeyService;
 
 	public JwtSignatureValidator(TokenKeyServiceWithCache tokenKeyService) {
 		assertNotNull(tokenKeyService, "tokenKeyService must not be null.");
@@ -67,6 +54,21 @@ public class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	private static class Validation {
+
+		private final static Map<String, Type> MAP_ALGORITHM_TYPE;
+		static {
+			MAP_ALGORITHM_TYPE = new HashMap<>();
+			MAP_ALGORITHM_TYPE.put("RS256", Type.RSA);
+			MAP_ALGORITHM_TYPE.put("ES256", Type.EC);
+		}
+
+		private final static Map<Type, String> MAP_TYPE_SIGNATURE;
+		static {
+			MAP_TYPE_SIGNATURE = new HashMap<>();
+			MAP_TYPE_SIGNATURE.put(Type.RSA, "SHA256withRSA");
+			MAP_TYPE_SIGNATURE.put(Type.EC, "SHA256withECDSA");
+		}
+		
 		Type keyType;
 		PublicKey publicKey;
 		Signature publicSignature;
@@ -130,7 +132,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 			return createValid();
 		}
 
-		ValidationResult setPublicSignatureForKeyType(Type keyType) {
+		private ValidationResult setPublicSignatureForKeyType(Type keyType) {
 			String algorithm = MAP_TYPE_SIGNATURE.get(keyType);
 			if (algorithm != null) {
 				try {
@@ -143,8 +145,10 @@ public class JwtSignatureValidator implements Validator<Token> {
 			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.", keyType.value());
 		}
 
+		private static final Pattern DOT = Pattern.compile("\\.",0);
+		
 		private ValidationResult isTokenSignatureValid(String token, Signature signature, PublicKey publicKey) {
-			String[] tokenHeaderPayloadSignature = token.split(Pattern.quote("."));
+			String[] tokenHeaderPayloadSignature = DOT.split(token);
 			if (tokenHeaderPayloadSignature.length != 3) {
 				return createInvalid("Jwt token does not consist of 'header'.'payload'.'signature'.");
 			}

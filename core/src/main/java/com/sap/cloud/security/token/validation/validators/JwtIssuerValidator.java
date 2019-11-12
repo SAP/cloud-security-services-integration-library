@@ -18,7 +18,7 @@ import com.sap.cloud.security.token.validation.Validator;
 
 public class JwtIssuerValidator implements Validator<Token> {
 	private final String domain;
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * @param domain the domain of the identity service {@link OAuth2ServiceConfiguration#getDomain()}
