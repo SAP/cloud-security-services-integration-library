@@ -3,7 +3,6 @@ package com.sap.cloud.security.javasec.samples.usage;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenImpl;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.CombiningValidator;
@@ -32,30 +31,39 @@ public class TokenFilter implements Filter {
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 
-			if (authorizationHeader != null && !authorizationHeader.isEmpty()) {
+			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = new TokenImpl(authorizationHeader);
-
-					CombiningValidator<Token> combiningValidator =
-							CombiningValidator.builderFor(Environment.getInstance()
-									.getXsuaaServiceConfiguration()) // NEEDS VCAP_SERVICES env
-									.build();
-					ValidationResult result = combiningValidator.validate(token);
+					ValidationResult result = validateToken(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
 						filterChain.doFilter(request, response);
-						return;
 					} else {
-						httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-						logger.warn("Error during token validation: " + result.getErrorDescription());
+						unauthorized(httpResponse, "Error during token validation: " + result.getErrorDescription());
 					}
 				} catch (Exception e) {
-					logger.warn("Unexpected Error occured: " + e.getMessage());
+					unauthorized(httpResponse, "Unexpected Error occured: " + e.getMessage());
 				}
+			} else {
+				unauthorized(httpResponse, "Authorization header is missing");
 			}
-			httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			logger.error("access forbidden");
 		}
+	}
+
+	private ValidationResult validateToken(Token token) {
+		CombiningValidator<Token> combiningValidator =
+				CombiningValidator.builderFor(Environment.getInstance().getXsuaaServiceConfiguration())
+						.build();// NEEDS VCAP_SERVICES env
+		return combiningValidator.validate(token);
+	}
+
+	private void unauthorized(HttpServletResponse httpResponse, String message) {
+		logger.error(message);
+		httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+	}
+
+	private boolean headerIsAvailable(String authorizationHeader) {
+		return authorizationHeader != null && !authorizationHeader.isEmpty();
 	}
 
 	@Override
