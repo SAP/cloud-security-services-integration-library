@@ -9,13 +9,13 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.CombiningValidator;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class TokenFilter implements Filter {
 
@@ -58,7 +58,9 @@ public class TokenFilter implements Filter {
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = tokenExtractor.fromAuthorizationHeader(authorizationHeader);
-					ValidationResult result = getTokenValidator().validate(token);
+					ValidationResult result = CombiningValidator
+							.builderFor(getXsuaaServiceConfiguration())
+							.build().validate(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
 						filterChain.doFilter(request, response);
@@ -83,16 +85,6 @@ public class TokenFilter implements Filter {
 			oAuth2ServiceConfiguration = Environment.getInstance().getXsuaaServiceConfiguration();
 		}
 		return oAuth2ServiceConfiguration;
-	}
-
-	private Validator<Token> getTokenValidator() {
-		if (tokenValidator == null) {
-			tokenValidator = CombiningValidator
-					.builderFor(getXsuaaServiceConfiguration())
-					.withOAuth2TokenKeyService((x) -> new JsonWebKeySet())
-					.build();
-		}
-		return tokenValidator;
 	}
 
 	private void unauthorized(HttpServletResponse httpResponse, String message) {

@@ -16,15 +16,15 @@ public class TestConfiguration implements OAuth2ServiceConfiguration {
 	}
 
 	@Override public URI getUrl() {
-		return URI.create("http://fake.url.io");
+		return URI.create("http://localhost:33195");
 	}
 
 	@Nullable @Override public String getDomain() {
-		return "fake.url.io";
+		return null;
 	}
 
 	@Nullable @Override public String getProperty(String name) {
-		return "fakeProperyValues";
+		return null;
 	}
 
 	@Override public String getServiceName() {

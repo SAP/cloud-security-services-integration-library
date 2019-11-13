@@ -31,7 +31,6 @@ public class HelloJavaServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 		response.setContentType("text/plain");
 		Token token = SecurityContext.getToken();
-		token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 		try {
 			response.getWriter().write("You ('"
 					+ token.getClaimAsString(TokenClaims.XSUAA.EMAIL) + "') "

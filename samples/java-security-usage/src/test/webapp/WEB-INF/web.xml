@@ -18,6 +18,16 @@ This file is licensed under the Apache Software License, v. 2 except as noted ot
         </init-param>
     </filter>
 
+    <servlet>
+        <servlet-name>hello-java-security</servlet-name>
+        <servlet-class>com.sap.cloud.security.javasec.samples.usage.HelloJavaServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>hello-java-security</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
     <filter-mapping>
         <filter-name>TokenFilter</filter-name>
         <url-pattern>/*</url-pattern>
