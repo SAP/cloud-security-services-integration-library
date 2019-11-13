@@ -33,23 +33,6 @@ public class TokenFilter implements Filter {
 		this.tokenValidator = tokenValidator;
 	}
 
-	private Validator<Token> getTokenValidator() {
-		if (tokenValidator == null) {
-			tokenValidator = CombiningValidator
-					.builderFor(getXsuaaServiceConfiguration())
-					.withOAuth2TokenKeyService((x) -> new JsonWebKeySet())
-					.build();
-		}
-		return tokenValidator;
-	}
-
-	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
-		if (oAuth2ServiceConfiguration == null) {
-			oAuth2ServiceConfiguration = Environment.getInstance().getXsuaaServiceConfiguration();
-		}
-		return oAuth2ServiceConfiguration;
-	}
-
 	@Override
 	public void init(FilterConfig filterConfig) {
 		String configurationClass = filterConfig.getInitParameter("configuration-class");
@@ -90,6 +73,27 @@ public class TokenFilter implements Filter {
 			}
 		}
 	}
+	@Override
+	public void destroy() {
+		SecurityContext.clearToken();
+	}
+
+	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
+		if (oAuth2ServiceConfiguration == null) {
+			oAuth2ServiceConfiguration = Environment.getInstance().getXsuaaServiceConfiguration();
+		}
+		return oAuth2ServiceConfiguration;
+	}
+
+	private Validator<Token> getTokenValidator() {
+		if (tokenValidator == null) {
+			tokenValidator = CombiningValidator
+					.builderFor(getXsuaaServiceConfiguration())
+					.withOAuth2TokenKeyService((x) -> new JsonWebKeySet())
+					.build();
+		}
+		return tokenValidator;
+	}
 
 	private void unauthorized(HttpServletResponse httpResponse, String message) {
 		logger.error(message);
@@ -98,11 +102,6 @@ public class TokenFilter implements Filter {
 
 	private boolean headerIsAvailable(String authorizationHeader) {
 		return authorizationHeader != null && !authorizationHeader.isEmpty();
-	}
-
-	@Override
-	public void destroy() {
-		SecurityContext.clearToken();
 	}
 
 	interface TokenExtractor {
