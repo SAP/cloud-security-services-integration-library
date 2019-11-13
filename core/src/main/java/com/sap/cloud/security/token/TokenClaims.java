@@ -19,16 +19,16 @@ public final class TokenClaims {
 		}
 
 		public static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
-		public static final String USER_NAME = "user_name";
+		public static final String LOGON_NAME = "user_name";
 		public static final String GIVEN_NAME = "given_name";
 		public static final String FAMILY_NAME = "family_name";
 		public static final String EMAIL = "email";
 		public static final String ORIGIN = "origin";
-		public static final String GRANT_TYPE = "grant_type";
-		public static final String ZDN = "zdn";
-		public static final String ZONE_ID = "zid";
-		public static final String CLIENT_ID = "cid";
-		public static final String SCOPES = "scope";
+		public static final String GRANT_TYPE = "grant_type"; // OAuth grant type used for token creation
+		public static final String SUBDOMAIN = "zdn"; // subdomain of the tenant the JWT belongs to
+		public static final String SUBACCOUNT_ID = "zid"; // tenant GUID
+		public static final String CLIENT_ID = "cid"; // OAuth client identifier
+		public static final String SCOPES = "scope"; // list of scopes including application id, e.g. "my-app!t123.Display"
 	}
 
 	public final class IAS {
