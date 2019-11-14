@@ -7,7 +7,7 @@ public class JwtConstants {
 		public static final String HS256 = "HS256";
 	}
 
-	public class Header {
+	public final class Header {
 		public static final String TYPE = "typ";
 		public static final String ALG = "alg";
 		public static final String KID = "kid";

@@ -4,12 +4,15 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
 
 // TODO 14.11.19 c5295400: This is basically a TokenBuilder?
 public class JwtGenerator {
 
+	public static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
+	private static final String DOT = ".";
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
 	private final PrivateKey privateKey;
@@ -35,22 +38,17 @@ public class JwtGenerator {
 	public Token createToken() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		String header = base64Encode(jsonHeader.toString().getBytes());
 		String payload = base64Encode(jsonPayload.toString().getBytes());
-		return new TokenImpl(header + "." + payload + "." + calculateSignature(header, payload));
+		String headerAndPayload = header + DOT + payload;
+		String signature = base64Encode(calculateSignature(headerAndPayload.getBytes()));
+		return new TokenImpl(headerAndPayload + DOT + signature);
 	}
 
-	private String calculateSignature(String header, String payload)
-			throws NoSuchAlgorithmException, InvalidKeyException,
-			SignatureException {
-		byte[] bytes = (header + "." + payload).getBytes();
-		return calculateSignature(bytes);
-	}
-
-	private String calculateSignature(byte[] bytes)
+	private byte[] calculateSignature(byte[] bytes)
 			throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-		Signature signature = Signature.getInstance("SHA256withRSA");
+		Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
 		signature.initSign(privateKey);
 		signature.update(bytes);
-		return base64Encode(signature.sign());
+		return signature.sign();
 	}
 
 	private String base64Encode(byte[] bytes) {
