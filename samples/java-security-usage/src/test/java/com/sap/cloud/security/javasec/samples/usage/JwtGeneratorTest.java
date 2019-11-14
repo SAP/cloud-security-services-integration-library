@@ -35,9 +35,19 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void withAlgorithm_containsAlgorithm() throws Exception {
-		Token token = cut.withAlgorithm("HS256").createToken();
+		Token token = cut.withAlgorithm(JwtConstants.Algorithms.HS256).createToken();
 
 		assertThat(token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME)).isEqualTo(JwtConstants.Algorithms.HS256);
+	}
+
+	@Test
+	public void withHeaderParameter_containsHeaderParameter() throws Exception {
+		String parmeterName = "the-key";
+		String parameterValue = "the-value";
+
+		Token token = cut.withHeaderParameter(parmeterName, parameterValue).createToken();
+
+		assertThat(token.getHeaderParameterAsString(parmeterName)).isEqualTo(parameterValue);
 	}
 
 	@Test

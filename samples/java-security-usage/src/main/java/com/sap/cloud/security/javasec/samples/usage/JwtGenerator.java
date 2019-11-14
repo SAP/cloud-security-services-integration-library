@@ -18,7 +18,11 @@ public class JwtGenerator {
 	}
 
 	public JwtGenerator withAlgorithm(String algorithm) {
-		jsonHeader.put(JwtConstants.Header.ALG, algorithm);
+		return withHeaderParameter(JwtConstants.Header.ALG, algorithm);
+	}
+
+	public JwtGenerator withHeaderParameter(String parameterName, String value) {
+		jsonHeader.put(parameterName, value);
 		return this;
 	}
 
