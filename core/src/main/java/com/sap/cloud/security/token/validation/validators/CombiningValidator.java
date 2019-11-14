@@ -96,7 +96,8 @@ public class CombiningValidator<T> implements Validator<T> {
 			return this;
 		}
 
-		public TokenValidatorBuilder configureAnotherServiceInstance(@Nullable OAuth2ServiceConfiguration otherConfiguration) {
+		public TokenValidatorBuilder configureAnotherServiceInstance(
+				@Nullable OAuth2ServiceConfiguration otherConfiguration) {
 			this.otherConfiguration = otherConfiguration;
 			return this;
 		}
@@ -112,7 +113,8 @@ public class CombiningValidator<T> implements Validator<T> {
 				XsuaaJwtAudienceValidator audienceValidator = new XsuaaJwtAudienceValidator(
 						configuration.getProperty(APP_ID), configuration.getClientId());
 
-				audienceValidator.configureAnotherServiceInstance(otherConfiguration.getProperty(APP_ID), otherConfiguration.getClientId());
+				audienceValidator.configureAnotherServiceInstance(otherConfiguration.getProperty(APP_ID),
+						otherConfiguration.getClientId());
 
 				with(new JwtTimestampValidator());
 				with(new XsuaaJwtIssuerValidator(configuration.getDomain()));

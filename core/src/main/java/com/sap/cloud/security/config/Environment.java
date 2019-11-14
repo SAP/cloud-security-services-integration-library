@@ -46,25 +46,35 @@ public class Environment {
 		return overriddenServiceConfiguration;
 	}
 
+	/**
+	 * @deprecated as multiple bindings of identity service is not anymore necessary
+	 *             with the unified broker plan, this method is deprecated.
+	 */
+	@Deprecated
 	public int getNumberOfXsuaaServices() {
 		return 1; // TODO implement
-		//return envParser.loadAll(CFService.XSUAA).size();
+		// return envParser.loadAll(CFService.XSUAA).size();
 	}
 
 	/**
-	 * In case there is only one binding, this gets returned.
-	 * In case there are multiple bindings the one of plan "broker" gets returned.
-	 * @return the service configuration to be used for token exchange {@link com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows}
+	 * In case there is only one binding, this gets returned. In case there are
+	 * multiple bindings the one of plan "broker" gets returned.
+	 * 
+	 * @return the service configuration to be used for token exchange
+	 *         {@link com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows}
+	 * @deprecated as multiple bindings of identity service is not anymore necessary
+	 *             with the unified broker plan, this method is deprecated.
 	 */
+	@Deprecated
 	public OAuth2ServiceConfiguration getXsuaaServiceConfigurationForTokenExchange() {
 		return null; // TODO implement
 		// if getNumberOfXsuaaServices() > 1
-		// return envParser.loadServiceByPlan(CFService.XSUAA, CFConstants.Plan.BROKER).size();
+		// return envParser.loadServiceByPlan(CFService.XSUAA,
+		// CFConstants.Plan.BROKER).size();
 	}
 
-
 	public Type getType() {
-		if(type == null) {
+		if (type == null) {
 			// TODO implement and test
 			type = Type.CF;
 		}
