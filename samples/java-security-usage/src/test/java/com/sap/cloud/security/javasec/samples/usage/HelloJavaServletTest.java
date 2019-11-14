@@ -8,9 +8,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,17 +18,17 @@ import java.util.Base64;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.sap.cloud.security.javasec.samples.usage.TomcatTestServer.TOMCAT_PORT;
-import static com.sap.cloud.security.javasec.samples.usage.TomcatTestServer.start;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletTest {
 
 	private static final int TOKEN_KEY_SERVICE_PORT = 33195;
+	private static final int TOMCAT_PORT = 8281;
 
 	private static PrivateKey privateKey;
 	private static PublicKey publicKey;
 	private static Token validToken;
+	private static TomcatTestServer tomcatTestServer;
 
 	@Rule
 	public WireMockRule wireMockRule = new WireMockRule(options().port(TOKEN_KEY_SERVICE_PORT));
@@ -39,7 +37,13 @@ public class HelloJavaServletTest {
 	public static void prepareTest() throws Exception {
 		setupKeys();
 		String webappDir = new File("src/test/webapp").getAbsolutePath();
-		start(webappDir);
+		tomcatTestServer = new TomcatTestServer(webappDir, TOMCAT_PORT);
+		tomcatTestServer.start();
+	}
+
+	@AfterClass
+	public static void tearDown() throws Exception {
+		tomcatTestServer.stop();
 	}
 
 	private static void setupKeys() throws Exception {

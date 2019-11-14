@@ -7,23 +7,32 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TomcatTestServer {
 
 	private static final Logger logger = LoggerFactory.getLogger(TomcatTestServer.class);
 
-	// TODO 14.11.19 c5295400: find free random port
-	public static final int TOMCAT_PORT = 8281;
+	private final String webappDir;
+	private final int port;
+	private ExecutorService executorService;
 
-	static void start(String webappPath) throws InterruptedException {
+	// TODO 14.11.19 c5295400: make tomcat launch at free random port?
+	public TomcatTestServer(String webappDir, int port) {
+		this.webappDir = webappDir;
+		this.port = port;
+		executorService = Executors.newFixedThreadPool(1);
+	}
+
+	public void start() throws InterruptedException {
 		CountDownLatch lock = new CountDownLatch(1);
 
-		Executors.newFixedThreadPool(1).submit(() -> {
+		executorService.submit(() -> {
 			Tomcat tomcat = new Tomcat();
-			tomcat.setPort(TOMCAT_PORT);
+			tomcat.setPort(port);
 			try {
-				tomcat.addWebapp("", webappPath);
+				tomcat.addWebapp("", webappDir);
 				tomcat.start();
 			} catch (LifecycleException | ServletException e) {
 				logger.error("Failed to start tomcat server", e);
@@ -31,7 +40,10 @@ public class TomcatTestServer {
 			lock.countDown();
 			tomcat.getServer().await();
 		});
-
 		lock.await(); // wait for tomcat to start in thread
+	}
+
+	public void stop() {
+		executorService.shutdown();
 	}
 }
