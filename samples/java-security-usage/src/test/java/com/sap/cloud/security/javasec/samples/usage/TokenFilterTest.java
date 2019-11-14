@@ -39,14 +39,14 @@ public class TokenFilterTest {
 	}
 
 	@Test
-	public void doFilter_noHeader_isUnauthorized() {
+	public void doFilter_noHeader_isUnauthorized() throws Exception {
 		cut.doFilter(httpRequest, httpResponse, filterChain);
 
 		assertThatResponseIsUnauthorized();
 	}
 
 	@Test
-	public void doFilter_invalidToken_isUnauthorized() {
+	public void doFilter_invalidToken_isUnauthorized() throws Exception {
 		cut = createComponent((ValidationResults.createInvalid("Token is not valid")));
 		cut.doFilter(httpRequest, httpResponse, filterChain);
 
@@ -54,7 +54,7 @@ public class TokenFilterTest {
 	}
 
 	@Test
-	public void doFilter_validToken_containedInSecurityContext() {
+	public void doFilter_validToken_containedInSecurityContext() throws Exception {
 		mockAuthorizationHeader();
 
 		cut = createComponent((ValidationResults.createValid()));
