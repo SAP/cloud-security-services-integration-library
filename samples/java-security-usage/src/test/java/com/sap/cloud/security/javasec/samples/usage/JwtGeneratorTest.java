@@ -20,7 +20,7 @@ public class JwtGeneratorTest {
 	private JwtGenerator cut;
 
 	public JwtGeneratorTest() throws NoSuchAlgorithmException {
-		KeyPair keys = KeyPairGenerator.getInstance(JwtConstants.RSA).generateKeyPair();
+		KeyPair keys = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 		privateKey = keys.getPrivate();
 		publicKey = keys.getPublic();
 		cut = new JwtGenerator(privateKey);
