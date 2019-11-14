@@ -8,6 +8,7 @@ import com.sap.cloud.security.token.TokenImpl;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.CombiningValidator;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +17,16 @@ import javax.annotation.Nullable;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 public class TokenFilter implements Filter {
 
 	private static final Logger logger = LoggerFactory.getLogger(TokenFilter.class);
 	private final TokenExtractor tokenExtractor;
 	private Validator<Token> tokenValidator;
+
 	private OAuth2ServiceConfiguration oAuth2ServiceConfiguration;
+	private OAuth2TokenKeyService injectedTokenKeyService;
 
 	public TokenFilter() {
 		tokenExtractor = (authorizationHeader) -> new TokenImpl(authorizationHeader);
@@ -43,6 +47,17 @@ public class TokenFilter implements Filter {
 						.loadClass(configurationClass)
 						.newInstance();
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+				logger.error("Failed to load class {}, ", configurationClass, e);
+			}
+		}
+		String tokenKeyServiceClass = filterConfig.getInitParameter("token-key-service-class");
+		if (tokenKeyServiceClass != null) {
+			try {
+				injectedTokenKeyService = (OAuth2TokenKeyService) filterConfig.getServletContext()
+						.getClassLoader()
+						.loadClass(tokenKeyServiceClass)
+						.newInstance();
+			} catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
 				logger.error("Failed to load class {}, ", configurationClass, e);
 			}
 		}
@@ -74,8 +89,6 @@ public class TokenFilter implements Filter {
 		}
 	}
 
-
-
 	@Override
 	public void destroy() {
 		SecurityContext.clearToken();
@@ -83,10 +96,12 @@ public class TokenFilter implements Filter {
 
 	private ValidationResult validateToken(Token token) {
 		if (tokenValidator == null) {
-			return CombiningValidator
+			CombiningValidator.TokenValidatorBuilder tokenValidatorBuilder = CombiningValidator
 					.builderFor(getXsuaaServiceConfiguration())
 					.configureAnotherServiceInstance(
-							getOtherXsuaaServiceConfiguration()) // in case of multiple xsuaa bindings
+							getOtherXsuaaServiceConfiguration()); // in case of multiple xsuaa bindings
+			getInjectedTokenKeyService().ifPresent(tokenValidatorBuilder::withOAuth2TokenKeyService);
+			return tokenValidatorBuilder
 					.build()
 					.validate(token);
 		} else {
@@ -116,6 +131,10 @@ public class TokenFilter implements Filter {
 
 	private boolean headerIsAvailable(String authorizationHeader) {
 		return authorizationHeader != null && !authorizationHeader.isEmpty();
+	}
+
+	private Optional<OAuth2TokenKeyService> getInjectedTokenKeyService() {
+		return Optional.ofNullable(injectedTokenKeyService);
 	}
 
 	interface TokenExtractor {
