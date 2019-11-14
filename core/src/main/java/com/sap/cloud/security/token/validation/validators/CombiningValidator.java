@@ -1,9 +1,13 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.*;
 import static com.sap.cloud.security.config.cf.CFService.*;
+
+import javax.annotation.Nullable;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
 import com.sap.cloud.security.config.cf.CFService;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -73,6 +77,7 @@ public class CombiningValidator<T> implements Validator<T> {
 		private final List<Validator<Token>> validators = new ArrayList<>();
 		private OAuth2TokenKeyService tokenKeyService = new DefaultOAuth2TokenKeyService();
 		private OAuth2ServiceConfiguration configuration;
+		private OAuth2ServiceConfiguration otherConfiguration;
 
 		/**
 		 * Add the validator to the validation chain.
@@ -86,23 +91,18 @@ public class CombiningValidator<T> implements Validator<T> {
 			return this;
 		}
 
-		/**
-		 * Causes the created validator to not stop validating after the first invalid
-		 * result.
-		 * 
-		 * @return this builder.
-		 */
-		public TokenValidatorBuilder validateAll() {
-			return this;
-		}
-
 		public TokenValidatorBuilder withOAuth2TokenKeyService(OAuth2TokenKeyService tokenKeyService) {
 			this.tokenKeyService = tokenKeyService;
 			return this;
 		}
 
+		public TokenValidatorBuilder configureAnotherServiceInstance(@Nullable OAuth2ServiceConfiguration otherConfiguration) {
+			this.otherConfiguration = otherConfiguration;
+			return this;
+		}
+
 		/**
-		 * @return the validator.
+		 * @return the combined validators.
 		 */
 		public CombiningValidator<Token> build() {
 			if (configuration != null && configuration.getServiceName().equalsIgnoreCase(XSUAA.getName())) {
@@ -110,12 +110,13 @@ public class CombiningValidator<T> implements Validator<T> {
 				TokenKeyServiceWithCache tokenKeyServiceWithCache = new TokenKeyServiceWithCache(tokenKeyService,
 						endpointsProvider);
 				XsuaaJwtAudienceValidator audienceValidator = new XsuaaJwtAudienceValidator(
-						configuration.getProperty(CFConstants.XSUAA.APP_ID), configuration.getClientId());
-				// TODO audienceValidator.configureAnotherServiceInstance();
+						configuration.getProperty(APP_ID), configuration.getClientId());
+
+				audienceValidator.configureAnotherServiceInstance(otherConfiguration.getProperty(APP_ID), otherConfiguration.getClientId());
 
 				with(new JwtTimestampValidator());
 				with(new XsuaaJwtIssuerValidator(configuration.getDomain()));
-				with(new XsuaaJwtAudienceValidator(configuration.getProperty(CFConstants.XSUAA.APP_ID),
+				with(new XsuaaJwtAudienceValidator(configuration.getProperty(APP_ID),
 						configuration.getClientId()));
 				with(new JwtSignatureValidator(tokenKeyServiceWithCache));
 			}

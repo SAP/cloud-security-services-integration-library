@@ -28,7 +28,8 @@ public class CFConstants {
 		public static final String DOMAIN = "domain";
 	}
 
-	enum Plan {
+	// TODO move to CFService?
+	public enum Plan {
 		DEFAULT, BROKER, APPLICATION;
 
 		public static Plan from(String planAsString) {

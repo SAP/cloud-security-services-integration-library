@@ -12,6 +12,7 @@ import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,6 +61,7 @@ public class TokenFilter implements Filter {
 					Token token = tokenExtractor.fromAuthorizationHeader(authorizationHeader);
 					ValidationResult result = CombiningValidator
 							.builderFor(getXsuaaServiceConfiguration())
+							.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration()) // in case of multiple xsuaa bindings
 							.build().validate(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
@@ -81,10 +83,18 @@ public class TokenFilter implements Filter {
 	}
 
 	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
-		if (oAuth2ServiceConfiguration == null) {
+		if (oAuth2ServiceConfiguration == null) { // TODO: why is this needed? Btw Environment should "cache" the loaded configurations to avoid repetitive json parsing
 			oAuth2ServiceConfiguration = Environment.getInstance().getXsuaaServiceConfiguration();
 		}
 		return oAuth2ServiceConfiguration;
+	}
+
+	@Nullable
+	private OAuth2ServiceConfiguration getOtherXsuaaServiceConfiguration() {
+		if (Environment.getInstance().getNumberOfXsuaaServices() > 1) { // TODO: why is this needed? Btw Environment should "cache" the loaded configurations to avoid repetitive json parsing
+			return Environment.getInstance().getXsuaaServiceConfigurationForTokenExchange();
+		}
+		return null;
 	}
 
 	private void unauthorized(HttpServletResponse httpResponse, String message) {
