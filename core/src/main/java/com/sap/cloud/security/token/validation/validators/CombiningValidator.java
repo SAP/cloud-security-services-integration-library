@@ -113,8 +113,10 @@ public class CombiningValidator<T> implements Validator<T> {
 				XsuaaJwtAudienceValidator audienceValidator = new XsuaaJwtAudienceValidator(
 						configuration.getProperty(APP_ID), configuration.getClientId());
 
-				audienceValidator.configureAnotherServiceInstance(otherConfiguration.getProperty(APP_ID),
-						otherConfiguration.getClientId());
+				if(otherConfiguration != null) {
+					audienceValidator.configureAnotherServiceInstance(otherConfiguration.getProperty(APP_ID),
+							otherConfiguration.getClientId());
+				}
 
 				with(new JwtTimestampValidator());
 				with(new XsuaaJwtIssuerValidator(configuration.getDomain()));
