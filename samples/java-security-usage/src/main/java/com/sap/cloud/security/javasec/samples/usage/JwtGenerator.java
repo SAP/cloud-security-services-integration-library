@@ -7,10 +7,11 @@ import org.json.JSONObject;
 import java.security.*;
 import java.util.Base64;
 
+// TODO 14.11.19 c5295400: This is basically a TokenBuilder?
 public class JwtGenerator {
 
-	public static final String PAYLOAD = "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ";
 	private final JSONObject jsonHeader = new JSONObject();
+	private final JSONObject jsonPayload = new JSONObject();
 	private final PrivateKey privateKey;
 
 	public JwtGenerator(PrivateKey privateKey) {
@@ -26,9 +27,15 @@ public class JwtGenerator {
 		return this;
 	}
 
+	public JwtGenerator withClaim(String claimName, String value) {
+		jsonPayload.put(claimName, value);
+		return this;
+	}
+
 	public Token createToken() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		String header = base64Encode(jsonHeader.toString().getBytes());
-		return new TokenImpl(header + "." + PAYLOAD + "." + calculateSignature(header, PAYLOAD));
+		String payload = base64Encode(jsonPayload.toString().getBytes());
+		return new TokenImpl(header + "." + payload + "." + calculateSignature(header, payload));
 	}
 
 	private String calculateSignature(String header, String payload)

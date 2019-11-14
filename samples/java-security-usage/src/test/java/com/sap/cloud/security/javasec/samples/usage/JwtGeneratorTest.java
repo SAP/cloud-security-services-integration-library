@@ -41,6 +41,16 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
+	public void withClaim_containsClaim() throws Exception {
+		String claimName = "claim-name";
+		String claimValue = "claim-value";
+
+		Token token = cut.withClaim(claimName, claimValue).createToken();
+
+		assertThat(token.getClaimAsString(claimName)).isEqualTo(claimValue);
+	}
+
+	@Test
 	public void withHeaderParameter_containsHeaderParameter() throws Exception {
 		String parmeterName = "the-key";
 		String parameterValue = "the-value";
@@ -54,6 +64,8 @@ public class JwtGeneratorTest {
 	public void withAlgorithm_createsTokenWithCorrectSignature() throws Exception {
 		Token token = cut
 				.withAlgorithm(JwtConstants.Algorithms.RS256)
+				.withHeaderParameter("test-123", "321abc")
+				.withClaim("test-claim-123", "qwerty")
 				.createToken();
 
 		TokenKeyServiceWithCache tokenKeyServiceMock = Mockito.mock(TokenKeyServiceWithCache.class);
