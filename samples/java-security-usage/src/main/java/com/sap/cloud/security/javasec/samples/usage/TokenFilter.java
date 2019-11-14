@@ -58,10 +58,7 @@ public class TokenFilter implements Filter {
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = tokenExtractor.fromAuthorizationHeader(authorizationHeader);
-					ValidationResult result = CombiningValidator
-							.builderFor(getXsuaaServiceConfiguration())
-							.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration()) // in case of multiple xsuaa bindings
-							.build().validate(token);
+					ValidationResult result = validateToken(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
 						filterChain.doFilter(request, response);
@@ -77,13 +74,28 @@ public class TokenFilter implements Filter {
 		}
 	}
 
+
+
 	@Override
 	public void destroy() {
 		SecurityContext.clearToken();
 	}
 
+	private ValidationResult validateToken(Token token) {
+		if (tokenValidator == null) {
+			return CombiningValidator
+					.builderFor(getXsuaaServiceConfiguration())
+					.configureAnotherServiceInstance(
+							getOtherXsuaaServiceConfiguration()) // in case of multiple xsuaa bindings
+					.build()
+					.validate(token);
+		} else {
+			return tokenValidator.validate(token);
+		}
+	}
+
 	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
-		if (oAuth2ServiceConfiguration == null) { // TODO: why is this needed? Btw Environment should "cache" the loaded configurations to avoid repetitive json parsing
+		if (oAuth2ServiceConfiguration == null) {
 			oAuth2ServiceConfiguration = Environment.getInstance().getXsuaaServiceConfiguration();
 		}
 		return oAuth2ServiceConfiguration;
@@ -91,7 +103,7 @@ public class TokenFilter implements Filter {
 
 	@Nullable
 	private OAuth2ServiceConfiguration getOtherXsuaaServiceConfiguration() {
-		if (Environment.getInstance().getNumberOfXsuaaServices() > 1) { // TODO: why is this needed? Btw Environment should "cache" the loaded configurations to avoid repetitive json parsing
+		if (Environment.getInstance().getNumberOfXsuaaServices() > 1) {
 			return Environment.getInstance().getXsuaaServiceConfigurationForTokenExchange();
 		}
 		return null;
