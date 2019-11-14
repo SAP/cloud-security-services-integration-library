@@ -3,65 +3,43 @@ package com.sap.cloud.security.javasec.samples.usage;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 
-import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.sap.cloud.security.javasec.samples.usage.TomcatTestServer.TOMCAT_PORT;
+import static com.sap.cloud.security.javasec.samples.usage.TomcatTestServer.start;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletTest {
 
-	public static final int TOMCAT_PORT = 8281;
-	public static final int TOKEN_KEY_SERVICE_PORT = 33195;
+	private static final int TOKEN_KEY_SERVICE_PORT = 33195;
 
-	private static final Logger logger = LoggerFactory.getLogger(HelloJavaServletTest.class);
-	private static Tomcat tomcat;
-	private static CountDownLatch lock = new CountDownLatch(1);
 	private static PrivateKey privateKey;
 	private static PublicKey publicKey;
 	private static Token validToken;
 
 	@Rule
-	public WireMockRule wireMockRule = new WireMockRule(options().port(33195));
+	public WireMockRule wireMockRule = new WireMockRule(options().port(TOKEN_KEY_SERVICE_PORT));
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
 		setupKeys();
-		setupTomcat();
-	}
-
-	private static void setupTomcat() {
-		Executors.newFixedThreadPool(1).submit(() -> {
-			tomcat = new Tomcat();
-			tomcat.setPort(TOMCAT_PORT);
-			try {
-				String webappDir = new File("src/test/webapp").getAbsolutePath();
-				tomcat.addWebapp("", webappDir);
-				tomcat.start();
-			} catch (LifecycleException | ServletException e) {
-				logger.error("Failed to start tomcat", e);
-			}
-			lock.countDown();
-			tomcat.getServer().await();
-		});
+		String webappDir = new File("src/test/webapp").getAbsolutePath();
+		start(webappDir);
 	}
 
 	private static void setupKeys() throws Exception {
@@ -71,9 +49,12 @@ public class HelloJavaServletTest {
 		validToken = createValidToken();
 	}
 
-	@Before
-	public void setUp() throws InterruptedException {
-		lock.await();
+	private static Token createValidToken() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+		return new JwtGenerator(privateKey)
+				.withAlgorithm(JwtConstants.Algorithms.RS256)
+				.withHeaderParameter("jku", "http://localhost:" + TOKEN_KEY_SERVICE_PORT)
+				.withClaim("cid", "sb-clientId!20")
+				.createToken();
 	}
 
 	@Test
@@ -102,18 +83,10 @@ public class HelloJavaServletTest {
 		}
 	}
 
-	private static Token createValidToken() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-		return new JwtGenerator(privateKey)
-				.withAlgorithm(JwtConstants.Algorithms.RS256)
-				.withHeaderParameter("jku", "http://localhost:" + TOKEN_KEY_SERVICE_PORT)
-				.withClaim("cid", "sb-clientId!20")
-				.createToken();
-	}
-
 	private String createTokenKeyResponse() throws IOException {
 		return IOUtils.resourceToString("/token_keys_template.json", StandardCharsets.UTF_8)
-			.replace("$kid", "default-kid")
-			.replace("$public_key", Base64.getEncoder().encodeToString(publicKey.getEncoded()));
+				.replace("$kid", "default-kid")
+				.replace("$public_key", Base64.getEncoder().encodeToString(publicKey.getEncoded()));
 	}
 
 	private HttpGet createGetRequest(String bearer_token) {
