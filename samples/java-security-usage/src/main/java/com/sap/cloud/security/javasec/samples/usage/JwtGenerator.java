@@ -4,7 +4,6 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
 import org.json.JSONObject;
 
-import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
 
