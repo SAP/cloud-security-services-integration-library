@@ -6,7 +6,6 @@ import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.security.*;
 
 import static com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants.ALGORITHM_PARAMETER_NAME;
@@ -20,7 +19,7 @@ public class JwtGeneratorTest {
 	private final PrivateKey privateKey;
 	private JwtGenerator cut;
 
-	public JwtGeneratorTest() throws IOException, NoSuchAlgorithmException {
+	public JwtGeneratorTest() throws NoSuchAlgorithmException {
 		KeyPair keys = KeyPairGenerator.getInstance(JwtConstants.RSA).generateKeyPair();
 		privateKey = keys.getPrivate();
 		publicKey = keys.getPublic();
@@ -28,25 +27,24 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void createToken_isNotNull() {
-		Token token = cut.createToken(null);
+	public void createToken_isNotNull() throws Exception {
+		Token token = cut.createToken();
 
 		assertThat(token).isNotNull();
 	}
 
 	@Test
-	public void withAlgorithm_containsAlgorithm() {
-		cut.withAlgorithm(JwtConstants.RS256).createToken(null);
-		Token token = cut.createToken(null);
+	public void withAlgorithm_containsAlgorithm() throws Exception {
+		Token token = cut.withAlgorithm("HS256").createToken();
 
-		assertThat(token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME)).isEqualTo(JwtConstants.RS256);
+		assertThat(token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME)).isEqualTo(JwtConstants.Algorithms.HS256);
 	}
 
 	@Test
 	public void withAlgorithm_createsTokenWithCorrectSignature() throws Exception {
 		Token token = cut
-				.withAlgorithm(JwtConstants.RS256)
-				.createTokenWithSignature();
+				.withAlgorithm(JwtConstants.Algorithms.RS256)
+				.createToken();
 
 		TokenKeyServiceWithCache tokenKeyServiceMock = Mockito.mock(TokenKeyServiceWithCache.class);
 		when(tokenKeyServiceMock.getPublicKey(any(), any(), any())).thenReturn(publicKey);
