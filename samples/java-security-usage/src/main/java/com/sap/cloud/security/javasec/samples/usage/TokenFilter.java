@@ -16,7 +16,6 @@ import javax.annotation.Nullable;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 public class TokenFilter implements Filter {
 
@@ -77,6 +76,7 @@ public class TokenFilter implements Filter {
 			}
 		}
 	}
+
 	@Override
 	public void destroy() {
 		SecurityContext.clearToken();
