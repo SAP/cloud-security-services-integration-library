@@ -29,7 +29,7 @@ public class XsuaaOAuth2TokenServiceJwtBearerTokenTest {
 
 	private OAuth2TokenService cut;
 
-	private String assertion = "jwtToken";
+	private String jwtToken = "jwtToken";
 	private String subdomain = "subdomain";
 	private ClientCredentials clientCredentials = new ClientCredentials("theClientId", "test321");
 	private URI tokenEndpoint = URI.create("https://subdomain.myauth.server.com/oauth/token");
@@ -55,7 +55,7 @@ public class XsuaaOAuth2TokenServiceJwtBearerTokenTest {
 		throwExceptionOnPost(HttpStatus.UNAUTHORIZED);
 
 		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientCredentials,
-				assertion, null, null);
+				jwtToken, null, null);
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
@@ -63,15 +63,15 @@ public class XsuaaOAuth2TokenServiceJwtBearerTokenTest {
 		throwExceptionOnPost(HttpStatus.BAD_REQUEST);
 
 		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientCredentials,
-				assertion, null, null);
+				jwtToken, null, null);
 	}
 
 	@Test
 	public void retrieveToken_requiredParametersMissing_throwsException() {
 		assertThatThrownBy(() -> cut.retrieveAccessTokenViaJwtBearerTokenGrant(null, clientCredentials,
-				assertion, subdomain, optionalParameters)).isInstanceOf(IllegalArgumentException.class);
+				jwtToken, subdomain, optionalParameters)).isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, null,
-				assertion, subdomain, optionalParameters)).isInstanceOf(IllegalArgumentException.class);
+				jwtToken, subdomain, optionalParameters)).isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientCredentials,
 				null, subdomain, optionalParameters)).isInstanceOf(IllegalArgumentException.class);
 	}
@@ -79,7 +79,7 @@ public class XsuaaOAuth2TokenServiceJwtBearerTokenTest {
 	@Test
 	public void retrieveToken_callsTokenEndpoint() throws OAuth2ServiceException {
 		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientCredentials,
-				assertion, null, null);
+				jwtToken, null, null);
 
 		Mockito.verify(mockRestOperations, times(1))
 				.postForEntity(eq(tokenEndpoint), any(), any());
@@ -88,7 +88,7 @@ public class XsuaaOAuth2TokenServiceJwtBearerTokenTest {
 	@Test
 	public void retrieveToken_setsCorrectGrantType() throws OAuth2ServiceException {
 		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientCredentials,
-				assertion, null, null);
+				jwtToken, null, null);
 
 		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = captureRequestEntity();
 
@@ -97,19 +97,19 @@ public class XsuaaOAuth2TokenServiceJwtBearerTokenTest {
 	}
 
 	@Test
-	public void retrieveToken_setsAssertion() throws OAuth2ServiceException {
+	public void retrieveToken_setsToken() throws OAuth2ServiceException {
 		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientCredentials,
-				assertion, null, null);
+				jwtToken, null, null);
 
 		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = captureRequestEntity();
 
-		assertThat(valueOfParameter(ASSERTION, requestEntityCaptor)).isEqualTo(assertion);
+		assertThat(valueOfParameter(ASSERTION, requestEntityCaptor)).isEqualTo(jwtToken);
 	}
 
 	@Test
 	public void retrieveToken_setsClientCredentials() throws OAuth2ServiceException {
 		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientCredentials,
-				assertion, null, null);
+				jwtToken, null, null);
 
 		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = captureRequestEntity();
 
@@ -128,7 +128,7 @@ public class XsuaaOAuth2TokenServiceJwtBearerTokenTest {
 		optionalParameters.put(responseTypeParameterName, loginHint);
 
 		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientCredentials,
-				assertion, null, optionalParameters);
+				jwtToken, null, optionalParameters);
 
 		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = captureRequestEntity();
 		assertThat(valueOfParameter(tokenFormatParameterName, requestEntityCaptor)).isEqualTo(tokenFormat);
@@ -138,7 +138,7 @@ public class XsuaaOAuth2TokenServiceJwtBearerTokenTest {
 	@Test
 	public void retrieveToken_setsCorrectHeaders() throws OAuth2ServiceException {
 		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientCredentials,
-				assertion, null, optionalParameters);
+				jwtToken, null, optionalParameters);
 
 		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = captureRequestEntity();
 		HttpHeaders headers = requestEntityCaptor.getValue().getHeaders();
@@ -151,7 +151,7 @@ public class XsuaaOAuth2TokenServiceJwtBearerTokenTest {
 	public void retrieveToken() throws OAuth2ServiceException {
 		OAuth2TokenResponse actualResponse = cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint,
 				clientCredentials,
-				assertion, null, null);
+				jwtToken, null, null);
 
 		assertThat(actualResponse.getAccessToken()).isEqualTo(response.get(ACCESS_TOKEN));
 		assertThat(actualResponse.getExpiredAt()).isNotNull();

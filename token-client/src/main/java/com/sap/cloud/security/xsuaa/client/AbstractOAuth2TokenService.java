@@ -106,16 +106,16 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpoint,
-			ClientCredentials clientCredentials, String assertion, @Nullable String subdomain,
+			ClientCredentials clientCredentials, String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenEndpoint, "tokenEndpoint is required");
 		Assertions.assertNotNull(clientCredentials, "clientCredentials are required");
-		Assertions.assertNotNull(assertion, "assertion is required");
+		Assertions.assertNotNull(token, "token is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_JWT_BEARER)
 				.withClientCredentials(clientCredentials)
-				.withAssertion(assertion)
+				.withToken(token)
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 

@@ -111,7 +111,7 @@ public interface OAuth2TokenService {
 	 * @param clientCredentials
 	 *            the client id and secret of the OAuth client, the recipient of the
 	 *            token.
-	 * @param assertion
+	 * @param token
 	 *            the JWT token identifying representing the user to be
 	 *            authenticated
 	 * @param subdomain
@@ -124,7 +124,7 @@ public interface OAuth2TokenService {
 	 *             in case of an error during the http request.
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
-			ClientCredentials clientCredentials, String assertion, @Nullable String subdomain,
+			ClientCredentials clientCredentials, String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
 
 }

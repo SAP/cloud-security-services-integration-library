@@ -48,8 +48,8 @@ public class RequestParameterBuilder {
 		return this;
 	}
 
-	public RequestParameterBuilder withAssertion(String assertion) {
-		parameters.put(ASSERTION, assertion);
+	public RequestParameterBuilder withToken(String token) {
+		parameters.put(ASSERTION, token);
 		return this;
 	}
 
