@@ -43,7 +43,8 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 
 	private static final List<String> XSUAA_ATTRIBUTES = Arrays
 			.asList(new String[] { "clientid", "clientsecret", "identityzoneid",
-					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname" });
+					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname", "certificate",
+					"key" });
 
 	public XsuaaServicePropertySourceFactory() {
 	}
