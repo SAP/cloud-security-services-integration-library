@@ -1,8 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -18,6 +16,7 @@ import javax.annotation.Nonnull;
 import java.net.URI;
 import java.util.Map;
 
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
 public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
@@ -26,7 +25,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 
 	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations) {
-		Assertions.assertNotNull(restOperations, "restOperations is required");
+		assertNotNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
 	}
 
