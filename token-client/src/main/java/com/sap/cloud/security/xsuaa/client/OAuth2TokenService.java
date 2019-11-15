@@ -104,7 +104,6 @@ public interface OAuth2TokenService {
 			String username, String password, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
 
-
 	/**
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.

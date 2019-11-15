@@ -42,9 +42,9 @@ public class XsuaaTokenFlows implements Serializable {
 	 * String xsuaaBaseUrl = "<<get your xsuaa base url from service binding>>";
 	 *
 	 * XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-         *                           new DefaultOAuth2TokenService(), 
-         *                           new XsuaaDefaultEndpoints(xsuaaBaseUrl), 
-         *                           new ClientCredentials(clientId, clientSecret));
+	     *                           new DefaultOAuth2TokenService(), 
+	     *                           new XsuaaDefaultEndpoints(xsuaaBaseUrl), 
+	     *                           new ClientCredentials(clientId, clientSecret));
 	 * }
 	 *            </pre>
 	 */

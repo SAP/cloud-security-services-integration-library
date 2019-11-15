@@ -41,11 +41,15 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 		return uaaDomain;
 	}
 
-	@Nullable @Override public String getCertificates() {
+	@Nullable
+	@Override
+	public String getCertificates() {
 		return null;
 	}
 
-	@Nullable @Override public String getPrivateKey() {
+	@Nullable
+	@Override
+	public String getPrivateKey() {
 		return null;
 	}
 }

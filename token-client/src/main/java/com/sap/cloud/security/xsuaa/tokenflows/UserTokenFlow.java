@@ -177,11 +177,13 @@ public class UserTokenFlow {
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
 							token, request.getSubdomain(), optionalParameter);
 
-			/* As soon as JWT bearer token supports scopes, we can just use this one to get an user token
-			OAuth2TokenResponse accessToken = tokenService
-					.retrieveAccessTokenViaJwtBearerTokenGrant(request.getTokenEndpoint(),
-							new ClientCredentials(request.getClientId(), request.getClientSecret()),
-							token, request.getSubdomain(), optionalParameter); */
+			/*
+			 * As soon as JWT bearer token supports scopes, we can just use this one to get
+			 * an user token OAuth2TokenResponse accessToken = tokenService
+			 * .retrieveAccessTokenViaJwtBearerTokenGrant(request.getTokenEndpoint(), new
+			 * ClientCredentials(request.getClientId(), request.getClientSecret()), token,
+			 * request.getSubdomain(), optionalParameter);
+			 */
 
 			if (accessToken.getRefreshToken() != null) {
 				refreshToken = accessToken.getRefreshToken();
