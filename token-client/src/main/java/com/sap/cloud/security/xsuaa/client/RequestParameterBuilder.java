@@ -48,6 +48,11 @@ public class RequestParameterBuilder {
 		return this;
 	}
 
+	public RequestParameterBuilder withAssertion(String assertion) {
+		parameters.put(ASSERTION, assertion);
+		return this;
+	}
+
 	public Map<String, String> buildAsMap() {
 		return parameters;
 	}
