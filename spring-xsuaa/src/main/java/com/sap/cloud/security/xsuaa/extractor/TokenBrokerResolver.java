@@ -188,10 +188,10 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				String subdomain = parseSubdomainFromOIDCToken(oidcToken); // TODO returns null as of now
 				try {
 					OAuth2TokenResponse response = xsuaaTokenFlows.userTokenFlow()
-																	.token(oidcToken)
-																	.subdomain(subdomain)
-																	.consumerCertificate(consumerCertificate)
-																	.execute();
+							.token(oidcToken)
+							.subdomain(subdomain)
+							.consumerCertificate(consumerCertificate)
+							.execute();
 					return response.getAccessToken();
 				} catch (TokenFlowException e) {
 					logger.error("Can not exchange OIDC token with jwt bearer token", e);

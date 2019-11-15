@@ -47,10 +47,13 @@ public class SSLContextFactory {
 		assertHasText(x509Certificates, "x509Certificate is required");
 		assertHasText(rsaPrivateKey, "rsaPrivateKey is required");
 
-		/*if(Security.getProvider("BC") == null) {
-			logger.warn("This method requires BouncyCastleProvider for PKCS#8 support: Security.addProvider(new BouncyCastleProvider())");
-			throw new IllegalStateException("This method requires BouncyCastleProvider for PKCS#8 support: Security.addProvider(new BouncyCastleProvider())");
-		}*/
+		/*
+		 * if(Security.getProvider("BC") == null) { logger.
+		 * warn("This method requires BouncyCastleProvider for PKCS#8 support: Security.addProvider(new BouncyCastleProvider())"
+		 * ); throw new
+		 * IllegalStateException("This method requires BouncyCastleProvider for PKCS#8 support: Security.addProvider(new BouncyCastleProvider())"
+		 * ); }
+		 */
 
 		SSLContext sslContext = createDefaultSSLContext();
 

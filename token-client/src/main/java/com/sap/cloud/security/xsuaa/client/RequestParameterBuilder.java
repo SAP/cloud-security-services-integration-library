@@ -33,7 +33,7 @@ public class RequestParameterBuilder {
 	}
 
 	public RequestParameterBuilder withParameter(String name, String value) {
-		if(parameters.containsKey(name)) {
+		if (parameters.containsKey(name)) {
 			throw new IllegalArgumentException("Parameter '" + name + "' exists already.");
 		}
 		parameters.put(name, value);

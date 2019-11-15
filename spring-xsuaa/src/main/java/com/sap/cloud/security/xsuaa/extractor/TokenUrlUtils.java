@@ -68,7 +68,7 @@ final class TokenUrlUtils {
 		String protocol = uri.getScheme();
 
 		String tenantTokenUrl = String.format("%s://%s", protocol, tenantUaaDomain + endpoint);
-		logger.debug("Created tenant token URL {}.",tenantTokenUrl);
+		logger.debug("Created tenant token URL {}.", tenantTokenUrl);
 		return tenantTokenUrl;
 	}
 

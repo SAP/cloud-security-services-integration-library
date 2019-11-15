@@ -148,7 +148,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 	}
 
 	/**
-	 * Implements the HTTP client specific logic to perform an HTTP request and handle the response.
+	 * Implements the HTTP client specific logic to perform an HTTP request and
+	 * handle the response.
 	 *
 	 * @param tokenEndpointUri
 	 *            the URI of the token endpoint the request must be sent to.

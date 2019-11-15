@@ -83,15 +83,17 @@ public class ClientCredentialsTokenFlow {
 	 * Sets the pem encoded certificate to be forwarded.<br>
 	 *
 	 * @param certificate
-	 *            - the consumer certificate (PEM encoded) to forward.
-	 *            You can get that from the x-forwarded-client-cert HTTP header.
+	 *            - the consumer certificate (PEM encoded) to forward. You can get
+	 *            that from the x-forwarded-client-cert HTTP header.
 	 * @return this builder.
 	 * @throws IllegalArgumentException
-	 *             - in case endpointsProvider is not instance of {@link XsuaaDefaultEndpoints}.
+	 *             - in case endpointsProvider is not instance of
+	 *             {@link XsuaaDefaultEndpoints}.
 	 */
 	public ClientCredentialsTokenFlow consumerCertificate(String certificate) {
-		if(!(endpointsProvider instanceof XsuaaDefaultEndpoints)) {
-			throw new IllegalArgumentException("This feature is only supported by XSUAA, hence use XsuaaDefaultEndpoints as endpointProvider");
+		if (!(endpointsProvider instanceof XsuaaDefaultEndpoints)) {
+			throw new IllegalArgumentException(
+					"This feature is only supported by XSUAA, hence use XsuaaDefaultEndpoints as endpointProvider");
 		}
 		this.request.setConsumerCertificate(certificate);
 		this.request.setTokenEndpoint(((XsuaaDefaultEndpoints) endpointsProvider).getDelegationTokenEndpoint());
@@ -112,7 +114,7 @@ public class ClientCredentialsTokenFlow {
 	public OAuth2TokenResponse execute() throws IllegalArgumentException, TokenFlowException {
 		checkRequest(request);
 
-		if(request.getConsumerCertificate() != null) {
+		if (request.getConsumerCertificate() != null) {
 			return requestTechnicalUserTokenWithX509ClientCertificate(request);
 		}
 		return requestTechnicalUserToken(request);
@@ -167,7 +169,8 @@ public class ClientCredentialsTokenFlow {
 		}
 	}
 
-	private OAuth2TokenResponse requestTechnicalUserTokenWithX509ClientCertificate(XsuaaTokenFlowRequest request) throws TokenFlowException {
+	private OAuth2TokenResponse requestTechnicalUserTokenWithX509ClientCertificate(XsuaaTokenFlowRequest request)
+			throws TokenFlowException {
 		Map requestParameter = null;
 		String authorities = buildAuthorities(request);
 

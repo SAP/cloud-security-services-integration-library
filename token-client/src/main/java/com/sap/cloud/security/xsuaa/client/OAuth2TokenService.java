@@ -107,15 +107,18 @@ public interface OAuth2TokenService {
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
 
 	/**
-	 * Requests client-credentials access token from OAuth Server with X509 client certificates.
+	 * Requests client-credentials access token from OAuth Server with X509 client
+	 * certificates.
 	 *
-	 * @param delegationEndpointUri the delegation token endpoint with cert domain
+	 * @param delegationEndpointUri
+	 *            the delegation token endpoint with cert domain
 	 * @param clientId
-	 * 			- the client id extracted from VCAP_SERVICES system
-	 *            environment variable
-	 * @param consumerCertificate the PEM encoded consumer certificate to forward
+	 *            - the client id extracted from VCAP_SERVICES system environment
+	 *            variable
+	 * @param consumerCertificate
+	 *            the PEM encoded consumer certificate to forward
 	 * @param subdomain
-	 *          - optionally indicates what Identity Zone this request goes to by
+	 *            - optionally indicates what Identity Zone this request goes to by
 	 *            supplying a subdomain (tenant).
 	 * @param optionalParameters
 	 *            optional request parameters, can be null.
@@ -130,13 +133,18 @@ public interface OAuth2TokenService {
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
 
 	/**
-	 * Requests jwt bearer access token from OAuth Server with X509 client certificate.
+	 * Requests jwt bearer access token from OAuth Server with X509 client
+	 * certificate.
 	 *
-	 * @param delegationEndpointUri the delegation token endpoint with cert domain
-	 * @param clientId of master (extracted from VCAP_SERVICES system
-	 *            environment variable)
-	 * @param consumerCertificate the PEM encoded consumer certificate to forward
-	 * @param oidcToken the oidc token that contains the user's principal information
+	 * @param delegationEndpointUri
+	 *            the delegation token endpoint with cert domain
+	 * @param clientId
+	 *            of master (extracted from VCAP_SERVICES system environment
+	 *            variable)
+	 * @param consumerCertificate
+	 *            the PEM encoded consumer certificate to forward
+	 * @param oidcToken
+	 *            the oidc token that contains the user's principal information
 	 * @param subdomain
 	 *            optionally indicates what Identity Zone this request goes to by
 	 *            supplying a subdomain (tenant).

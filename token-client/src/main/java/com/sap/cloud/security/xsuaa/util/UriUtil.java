@@ -91,7 +91,6 @@ public class UriUtil {
 		return newPath.replaceAll("//", "/");
 	}
 
-
 	private static boolean hasSubdomain(URI uri) {
 		return uri.getHost().contains(".");
 	}

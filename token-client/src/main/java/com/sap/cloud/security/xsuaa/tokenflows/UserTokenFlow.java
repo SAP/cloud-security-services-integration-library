@@ -112,15 +112,17 @@ public class UserTokenFlow {
 	 * Sets the pem encoded certificate to be forwarded.<br>
 	 *
 	 * @param certificate
-	 *            - the consumer certificate (PEM encoded) to forward.
-	 *            You can get that from the x-forwarded-client-cert HTTP header.
+	 *            - the consumer certificate (PEM encoded) to forward. You can get
+	 *            that from the x-forwarded-client-cert HTTP header.
 	 * @return this builder.
 	 * @throws IllegalArgumentException
-	 *             - in case endpointsProvider is not instance of {@link XsuaaDefaultEndpoints}.
+	 *             - in case endpointsProvider is not instance of
+	 *             {@link XsuaaDefaultEndpoints}.
 	 */
 	public UserTokenFlow consumerCertificate(String certificate) {
-		if(!(endpointsProvider instanceof XsuaaDefaultEndpoints)) {
-			throw new IllegalArgumentException("This feature is only supported by XSUAA, hence use XsuaaDefaultEndpoints as endpointProvider");
+		if (!(endpointsProvider instanceof XsuaaDefaultEndpoints)) {
+			throw new IllegalArgumentException(
+					"This feature is only supported by XSUAA, hence use XsuaaDefaultEndpoints as endpointProvider");
 		}
 		this.request.setConsumerCertificate(certificate);
 		this.request.setTokenEndpoint(((XsuaaDefaultEndpoints) endpointsProvider).getDelegationTokenEndpoint());
@@ -143,7 +145,7 @@ public class UserTokenFlow {
 	public OAuth2TokenResponse execute() throws TokenFlowException {
 		checkRequest(request);
 
-		if(request.getConsumerCertificate() != null) {
+		if (request.getConsumerCertificate() != null) {
 			return requestUserTokenWithX509ClientCertificate(request);
 		}
 		return requestUserToken(request);
@@ -169,7 +171,7 @@ public class UserTokenFlow {
 
 		boolean isUserToken = hasScope(token, UAA_USER_SCOPE);
 		if (!isUserToken) {
-			if(request.getConsumerCertificate() == null) {
+			if (request.getConsumerCertificate() == null) {
 				throw new IllegalStateException(
 						"JWT token does not include scope 'uaa.user'. Only user tokens can be exchanged for another user token.");
 			}
@@ -232,7 +234,8 @@ public class UserTokenFlow {
 		}
 	}
 
-	private OAuth2TokenResponse requestUserTokenWithX509ClientCertificate(XsuaaTokenFlowRequest request) throws TokenFlowException {
+	private OAuth2TokenResponse requestUserTokenWithX509ClientCertificate(XsuaaTokenFlowRequest request)
+			throws TokenFlowException {
 		Map requestParameter = null;
 		String authorities = buildAuthorities(request);
 
@@ -259,7 +262,6 @@ public class UserTokenFlow {
 					e);
 		}
 	}
-
 
 	/**
 	 * Checks if a given scope is contained inside the given token.
