@@ -6,8 +6,8 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
@@ -21,20 +21,15 @@ public class HelloJavaServletTestWithoutWiremock {
 	private static PrivateKey privateKey;
 	private static Token validToken;
 	public static final int TOMCAT_PORT = 8282;
-	private static TomcatTestServer tomcatTestServer;
+
+	@Rule
+	public final TomcatTestServer server = new TomcatTestServer(TOMCAT_PORT, "src/test/webapp_customTokenKeyService");
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
 		String webappDir = new File("src/test/webapp_customTokenKeyService").getAbsolutePath();
-		tomcatTestServer = new TomcatTestServer(webappDir, TOMCAT_PORT);
-		tomcatTestServer.start();
 		privateKey = new TestOAuthTokenKeyService().getPrivateKey();
 		validToken = createValidToken();
-	}
-
-	@AfterClass
-	public static void tearDown() {
-		tomcatTestServer.stop();
 	}
 
 	@Test

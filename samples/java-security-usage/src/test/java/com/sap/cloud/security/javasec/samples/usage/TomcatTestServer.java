@@ -2,48 +2,56 @@ package com.sap.cloud.security.javasec.samples.usage;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.commons.io.FileUtils;
+import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import wiremock.com.google.common.io.Files;
 
 import javax.servlet.ServletException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.io.File;
+import java.io.IOException;
 
-public class TomcatTestServer {
+public class TomcatTestServer extends ExternalResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(TomcatTestServer.class);
 
-	private final String webappDir;
 	private final int port;
-	private ExecutorService executorService;
+	private final String webappDir;
+	private Tomcat tomcat;
+	private File baseDir;
 
-	// TODO 14.11.19 c5295400: make tomcat launch at free random port?
-	public TomcatTestServer(String webappDir, int port) {
-		this.webappDir = webappDir;
+	public TomcatTestServer(int port, String webappDir) {
 		this.port = port;
-		executorService = Executors.newFixedThreadPool(1);
+		this.webappDir = new File(webappDir).getAbsolutePath();
+		baseDir = Files.createTempDir();
+		tomcat = new Tomcat();
 	}
 
-	public void start() throws InterruptedException {
-		CountDownLatch lock = new CountDownLatch(1);
-
-		executorService.submit(() -> {
-			Tomcat tomcat = new Tomcat();
-			tomcat.setPort(port);
-			try {
-				tomcat.addWebapp("", webappDir);
-				tomcat.start();
-			} catch (LifecycleException | ServletException e) {
-				logger.error("Failed to start tomcat server", e);
-			}
-			lock.countDown();
-			tomcat.getServer().await();
-		});
-		lock.await(); // wait for tomcat to start in thread
+	@Override
+	protected void before() {
+		start();
 	}
 
-	public void stop() {
-		executorService.shutdown();
+	@Override
+	protected void after() {
+		try {
+			tomcat.stop();
+			tomcat.destroy();
+			FileUtils.deleteDirectory(baseDir);
+		} catch (LifecycleException | IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void start() {
+		tomcat.setPort(port);
+		tomcat.setBaseDir(baseDir.getAbsolutePath());
+		try {
+			tomcat.addWebapp("", webappDir);
+			tomcat.start();
+		} catch (LifecycleException | ServletException e) {
+			logger.error("Failed to start tomcat server", e);
+		}
 	}
 }

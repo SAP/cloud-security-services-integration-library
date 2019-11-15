@@ -28,22 +28,16 @@ public class HelloJavaServletTest {
 	private static PrivateKey privateKey;
 	private static PublicKey publicKey;
 	private static Token validToken;
-	private static TomcatTestServer tomcatTestServer;
 
 	@Rule
 	public WireMockRule wireMockRule = new WireMockRule(options().port(TOKEN_KEY_SERVICE_PORT));
 
+	@Rule
+	public final TomcatTestServer server = new TomcatTestServer(TOMCAT_PORT, "src/test/webapp");
+
 	@BeforeClass
 	public static void prepareTest() throws Exception {
 		setupKeys();
-		String webappDir = new File("src/test/webapp").getAbsolutePath();
-		tomcatTestServer = new TomcatTestServer(webappDir, TOMCAT_PORT);
-		tomcatTestServer.start();
-	}
-
-	@AfterClass
-	public static void tearDown() throws Exception {
-		tomcatTestServer.stop();
 	}
 
 	private static void setupKeys() throws Exception {
