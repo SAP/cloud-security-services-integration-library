@@ -11,6 +11,8 @@ The idea behind a User Token exchange is to separate service-specific access sco
 The Client Credentials ([RFC 6749, section 4.4](https://tools.ietf.org/html/rfc6749#section-4.4)) is used by clients to obtain an access token outside of the context of a user. It is used for non interactive applications (a CLI, a batch job, or for service-2-service communication) where the token is issued to the application itself, instead of an end user for accessing resources without principal propagation. 
 * **Refresh Token Flow**.  
 A Refresh Token ([RFC 6749, section 1.5](https://tools.ietf.org/html/rfc6749#section-1.5)) flow allows you to obtain a new access token in case the current one becomes invalid or expires.
+* **Password Token Flow**.  
+The Resource owner password credentials (i.e., username and password) can be used directly as an authorization grant to obtain an access token ([RFC 6749, section 1.3.3](https://tools.ietf.org/html/rfc6749#section-1.3.3)). The credentials should only be used when there is a high degree of trust between the resource owner and the client.
 
 > Note: The **Authorization Code Grant Flow** involves the browser and is therefore triggered by an API gateway (e.g. Application Router). The other flows, however, may need to be triggered programmatically, e.g. to exchange one token for another or refresh a token, if it is about to expire. When you create a XSUAA service instance a OAuth client gets created and you receive the client credentials (client id and secret) when you bind your application with the XSUAA service instance. Having that in place you are ready to use the token flows in your Java application.
 
@@ -21,7 +23,7 @@ A Refresh Token ([RFC 6749, section 1.5](https://tools.ietf.org/html/rfc6749#sec
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.1.0</version>
+    <version>2.3.0-SNAPSHOT</version>
 </dependency>
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
@@ -43,6 +45,19 @@ The `DefaultOAuth2TokenService` can also be instantiated with a custom `Closeabl
 
 > The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. 
 
+#### Setup Apache Rest client for mutual TLS 
+```java
+SSLContext sslContext = SSLContextFactory.getInstance().create(<certificate>, <key>);
+
+SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
+
+CloseableHttpClient httpClient = HttpClients.custom()
+        .setSSLContext(sslContext)
+        .setSSLSocketFactory(socketFactory)
+        .build();
+```
+> The `<certificate>` represents the the PEM encoded certificate chain and `<key>` is the private key the certificate is signed with. Both are placeholders for the information you get from the XSUAA service binding.
+
 ## Configuration for Java/Spring Applications
 
 #### Maven Dependencies, when using Spring Web `RestTemplate`
@@ -54,7 +69,7 @@ The `DefaultOAuth2TokenService` can also be instantiated with a custom `Closeabl
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.1.0</version>
+    <version>2.3.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -77,7 +92,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.1.0</version>
+    <version>2.3.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -133,6 +148,16 @@ OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
                 .attributes(additionalAttributes) // this is optional
                 .execute();
 ```
+### Password Token Flow
+In order to obtain an access token for a user:
+```java
+OAuth2TokenResponse clientCredentialsToken = tokenFlows.passwordTokenFlow()
+                                                    .subdomain(jwtToken.getSubdomain()) // this is optional
+                                                    .username(<your username>)
+                                                    .password(<your password>)
+                                                    .execute();
+```
+
 
 Make sure to read the API documentation of the `XsuaaTokenFlows` API, to understand what the individual token flows' parameters are for.
 Also note, that the **user token flow** requires an input token that has the scope `uaa.user` to succeed.

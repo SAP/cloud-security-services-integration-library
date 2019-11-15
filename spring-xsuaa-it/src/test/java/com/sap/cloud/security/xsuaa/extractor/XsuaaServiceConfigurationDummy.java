@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
+import javax.annotation.Nullable;
+
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration {
@@ -35,11 +37,13 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 		return uaaDomain;
 	}
 
+	@Nullable
 	@Override
 	public String getCertificates() {
 		return null;
 	}
 
+	@Nullable
 	@Override
 	public String getPrivateKey() {
 		return null;

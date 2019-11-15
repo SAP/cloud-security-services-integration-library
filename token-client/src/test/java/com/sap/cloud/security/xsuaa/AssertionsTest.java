@@ -18,4 +18,25 @@ public class AssertionsTest {
 	public void assertNotNull_doesNotThrow() {
 		Assertions.assertNotNull(new Object(), "Should not be thrown");
 	}
+
+	@Test
+	public void assertHasText_throwsIllegalArgumentExceptionContainingMessage() {
+		String message = "A message";
+		assertThatThrownBy(() -> {
+			Assertions.assertHasText(null, message);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessage(message);
+
+		assertThatThrownBy(() -> {
+			Assertions.assertHasText("", message);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessage(message);
+
+		assertThatThrownBy(() -> {
+			Assertions.assertHasText("  ", message);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessage(message);
+	}
+
+	@Test
+	public void assertHasText_doesNotThrow() {
+		Assertions.assertHasText(" s ", "Should not be thrown");
+	}
 }

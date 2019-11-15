@@ -35,7 +35,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.sap.cloud.security.xsuaa.ServiceConfiguration#getClientId()
 	 */
 	@Override
@@ -72,5 +72,4 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	public String getPrivateKey() {
 		return privateKey;
 	}
-
 }

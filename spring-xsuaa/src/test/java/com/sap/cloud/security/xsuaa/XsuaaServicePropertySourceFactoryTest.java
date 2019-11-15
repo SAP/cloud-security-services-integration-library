@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa;
 
+import static org.hamcrest.CoreMatchers.startsWith;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,17 +23,26 @@ public class XsuaaServicePropertySourceFactoryTest {
 	XsuaaServiceConfigurationDefault serviceConfiguration;
 
 	@Test
-	public void testInjectedPropertyValue() {
-		Assert.assertEquals("https://auth.com", testConfiguration.xsuaaUrl);
-		Assert.assertEquals("xs2.usertoken", testConfiguration.xsuaaClientId);
-		Assert.assertEquals("secret", testConfiguration.xsuaaClientSecret);
-		Assert.assertEquals("auth.com", testConfiguration.xsuaaDomain);
-
-		Assert.assertEquals("https://auth.com", serviceConfiguration.getUaaUrl());
+	public void testXsuaaServiceConfiguration() {
 		Assert.assertEquals("xs2.usertoken", serviceConfiguration.getClientId());
 		Assert.assertEquals("secret", serviceConfiguration.getClientSecret());
+		Assert.assertEquals("https://auth.com", serviceConfiguration.getUaaUrl());
 		Assert.assertEquals("auth.com", serviceConfiguration.getUaaDomain());
+		Assert.assertThat(testConfiguration.certificate, startsWith("-----BEGIN CERTIFICATE-----"));
+		Assert.assertThat(testConfiguration.key, startsWith("-----BEGIN RSA PRIVATE KEY-----"));
 	}
+
+	@Test
+	public void testInjectedPropertyValue() {
+		Assert.assertEquals("xs2.usertoken", testConfiguration.xsuaaClientId);
+		Assert.assertEquals("secret", testConfiguration.xsuaaClientSecret);
+		Assert.assertEquals("https://auth.com", testConfiguration.xsuaaUrl);
+		Assert.assertEquals("auth.com", testConfiguration.xsuaaDomain);
+		Assert.assertEquals("", testConfiguration.unknown);
+		Assert.assertThat(testConfiguration.certificate, startsWith("-----BEGIN CERTIFICATE-----"));
+		Assert.assertThat(testConfiguration.key, startsWith("-----BEGIN RSA PRIVATE KEY-----"));
+	}
+
 }
 
 @Configuration
@@ -51,5 +62,11 @@ class TestConfiguration {
 	public String xsuaaClientSecret;
 
 	@Value("${xsuaa.unknown:}")
-	private String unknown;
+	public String unknown;
+
+	@Value("${xsuaa.certificate:}")
+	public String certificate;
+
+	@Value("${xsuaa.key:}")
+	public String key;
 }

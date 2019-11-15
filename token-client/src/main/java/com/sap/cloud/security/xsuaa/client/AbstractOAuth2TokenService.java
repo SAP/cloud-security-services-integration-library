@@ -103,6 +103,26 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, parameters);
 	}
 
+	@Override
+	public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpoint,
+			ClientCredentials clientCredentials, String token, @Nullable String subdomain,
+			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
+		Assertions.assertNotNull(tokenEndpoint, "tokenEndpoint is required");
+		Assertions.assertNotNull(clientCredentials, "clientCredentials are required");
+		Assertions.assertNotNull(token, "token is required");
+
+		Map<String, String> parameters = new RequestParameterBuilder()
+				.withGrantType(GRANT_TYPE_JWT_BEARER)
+				.withClientCredentials(clientCredentials)
+				.withToken(token)
+				.withOptionalParameters(optionalParameters)
+				.buildAsMap();
+
+		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
+
+		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, parameters);
+	}
+
 	public OAuth2TokenResponse retrieveAccessTokenViaX509(URI delegationEndpointUri,
 			String clientId, String consumerCertificate,
 			@Nullable String subdomain,

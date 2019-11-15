@@ -3,10 +3,12 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -37,7 +39,7 @@ public class XsuaaAutoConfiguration {
 
 	@Configuration
 	@PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "" })
-	@ConditionalOnProperty(prefix = "spring.xsuaa", name = "multiple-bindings", havingValue = "false", matchIfMissing = true)
+	@Conditional(PropertyConditions.class)
 	public static class XsuaaServiceAutoConfiguration {
 
 		@Bean
@@ -46,6 +48,22 @@ public class XsuaaAutoConfiguration {
 			logger.info("auto-configures XsuaaServiceConfigurationDefault");
 			return new XsuaaServiceConfigurationDefault();
 		}
+	}
+
+	private static class PropertyConditions extends AllNestedConditions {
+
+		public PropertyConditions() {
+			super(ConfigurationPhase.PARSE_CONFIGURATION);
+		}
+
+		@ConditionalOnProperty(prefix = "spring.xsuaa", name = "multiple-bindings", havingValue = "false", matchIfMissing = true)
+		static class MultipleBindingsCondition {
+		}
+
+		@ConditionalOnProperty(prefix = "spring.xsuaa", name = "disable-default-property-source", havingValue = "false", matchIfMissing = true)
+		static class DisableDefaultPropertySourceCondition {
+		}
+
 	}
 
 	/**

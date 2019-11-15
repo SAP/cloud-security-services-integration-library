@@ -56,6 +56,11 @@ public class RequestParameterBuilder {
 		return this;
 	}
 
+	public RequestParameterBuilder withToken(String token) {
+		parameters.put(ASSERTION, token);
+		return this;
+	}
+
 	public Map<String, String> buildAsMap() {
 		return parameters;
 	}

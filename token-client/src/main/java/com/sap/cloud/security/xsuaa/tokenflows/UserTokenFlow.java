@@ -17,10 +17,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
-import com.sap.xsa.security.container.XSTokenRequest;
 
 /**
  * A user token flow builder class. <br>
@@ -207,6 +205,14 @@ public class UserTokenFlow {
 					.retrieveAccessTokenViaUserTokenGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
 							token, request.getSubdomain(), optionalParameter);
+
+			/*
+			 * As soon as JWT bearer token supports scopes, we can just use this one to get
+			 * an user token OAuth2TokenResponse accessToken = tokenService
+			 * .retrieveAccessTokenViaJwtBearerTokenGrant(request.getTokenEndpoint(), new
+			 * ClientCredentials(request.getClientId(), request.getClientSecret()), token,
+			 * request.getSubdomain(), optionalParameter);
+			 */
 
 			if (accessToken.getRefreshToken() != null) {
 				refreshToken = accessToken.getRefreshToken();
