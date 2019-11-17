@@ -81,7 +81,7 @@ public class TokenImpl implements Token {
 	}
 
 	private static String removeBearer(@Nonnull String accessToken) {
-		Assertions.assertNotEmpty(accessToken, "accessToken must not be null / empty");
+		Assertions.assertHasText(accessToken, "accessToken must not be null / empty");
 		return accessToken.replaceFirst("Bearer ", "");
 	}
 }

@@ -27,9 +27,15 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Value("${xsuaa.xsappname:}")
 	private String appid;
 
+	@Value("${xsuaa.key:}")
+	private String privateKey;
+
+	@Value("${xsuaa.certificate:}")
+	private String certificates;
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.sap.cloud.security.xsuaa.ServiceConfiguration#getClientId()
 	 */
 	@Override
@@ -57,4 +63,13 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 		return uaadomain;
 	}
 
+	@Override
+	public String getCertificates() {
+		return certificates;
+	}
+
+	@Override
+	public String getPrivateKey() {
+		return privateKey;
+	}
 }

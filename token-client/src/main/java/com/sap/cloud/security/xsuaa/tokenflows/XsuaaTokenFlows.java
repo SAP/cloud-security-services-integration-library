@@ -41,11 +41,10 @@ public class XsuaaTokenFlows implements Serializable {
 	 * String clientSecret = "<<get your client secret from your service binding>>";
 	 * String xsuaaBaseUrl = "<<get your xsuaa base url from service binding>>";
 	 *
-	 * OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUrl);
-	 * ClientCredentials clientCredentials = new ClientCredentials(clientId, clientSecret);
-	 * RestOperations restOperations = new RestTemplate();
-	 *
-	 * XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(restOperations, endpointsProvider, clientCredentials);
+	 * XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+	     *                           new DefaultOAuth2TokenService(), 
+	     *                           new XsuaaDefaultEndpoints(xsuaaBaseUrl), 
+	     *                           new ClientCredentials(clientId, clientSecret));
 	 * }
 	 *            </pre>
 	 */

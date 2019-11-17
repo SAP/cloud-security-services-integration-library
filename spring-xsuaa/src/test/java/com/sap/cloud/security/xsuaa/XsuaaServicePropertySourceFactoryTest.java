@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa;
 
+import static org.hamcrest.CoreMatchers.startsWith;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +28,8 @@ public class XsuaaServicePropertySourceFactoryTest {
 		Assert.assertEquals("secret", serviceConfiguration.getClientSecret());
 		Assert.assertEquals("https://auth.com", serviceConfiguration.getUaaUrl());
 		Assert.assertEquals("auth.com", serviceConfiguration.getUaaDomain());
+		Assert.assertThat(testConfiguration.certificate, startsWith("-----BEGIN CERTIFICATE-----"));
+		Assert.assertThat(testConfiguration.key, startsWith("-----BEGIN RSA PRIVATE KEY-----"));
 	}
 
 	@Test
@@ -35,6 +39,8 @@ public class XsuaaServicePropertySourceFactoryTest {
 		Assert.assertEquals("https://auth.com", testConfiguration.xsuaaUrl);
 		Assert.assertEquals("auth.com", testConfiguration.xsuaaDomain);
 		Assert.assertEquals("", testConfiguration.unknown);
+		Assert.assertThat(testConfiguration.certificate, startsWith("-----BEGIN CERTIFICATE-----"));
+		Assert.assertThat(testConfiguration.key, startsWith("-----BEGIN RSA PRIVATE KEY-----"));
 	}
 
 }
@@ -57,4 +63,10 @@ class TestConfiguration {
 
 	@Value("${xsuaa.unknown:}")
 	public String unknown;
+
+	@Value("${xsuaa.certificate:}")
+	public String certificate;
+
+	@Value("${xsuaa.key:}")
+	public String key;
 }

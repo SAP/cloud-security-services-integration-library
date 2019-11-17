@@ -1,8 +1,9 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.core.Assertions.*;
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.jwk.JsonWebKey.*;
 import static com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants.*;
 import static java.nio.charset.StandardCharsets.*;
@@ -52,7 +53,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	public ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId,
 			@Nullable String tokenKeysUrl) {
-		assertNotEmpty(token, "token must not be null or empty.");
+		assertHasText(token, "token must not be null or empty.");
 
 		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId, tokenKeysUrl);
 	}
@@ -86,7 +87,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 		public ValidationResult validate(TokenKeyServiceWithCache tokenKeyService, String token, String tokenAlgorithm,
 				@Nullable String tokenKeyId, @Nullable String tokenKeysUrl) {
-			assertNotEmpty(token, "token must not be null or empty.");
+			assertHasText(token, "token must not be null or empty.");
 
 			ValidationResult validationResult;
 

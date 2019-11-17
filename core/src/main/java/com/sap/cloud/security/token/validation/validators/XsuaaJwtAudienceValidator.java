@@ -1,13 +1,15 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.core.Assertions.*;
 import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.xsuaa.Assertions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +34,8 @@ public class XsuaaJwtAudienceValidator implements Validator<Token> {
 	}
 
 	public void configureAnotherServiceInstance(String appId, String clientId) {
-		assertNotEmpty(appId, "appId must not be null or empty.");
-		assertNotEmpty(clientId, "clientId must not be null or empty.");
+		assertHasText(appId, "appId must not be null or empty.");
+		assertHasText(clientId, "clientId must not be null or empty.");
 		appIdClientIdMap.putIfAbsent(appId, clientId);
 		logger.info("configured XsuaaJwtAudienceValidator with appId {} and clientId {}.", appId, clientId);
 	}

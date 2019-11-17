@@ -1,5 +1,7 @@
 package com.sap.cloud.security.core;
 
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.Test;
@@ -10,33 +12,33 @@ public class AssertionsTest {
 	public void assertNotNull_throwsIllegalArgumentExceptionContainingMessage() {
 		String message = "A message";
 		assertThatThrownBy(() -> {
-			Assertions.assertNotNull(null, message);
+			assertNotNull(null, message);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessage(message);
 	}
 
 	@Test
 	public void assertNotNull_doesNotThrow() {
-		Assertions.assertNotNull(new Object(), "Should not be thrown");
+		assertNotNull(new Object(), "Should not be thrown");
 	}
 
 	@Test
 	public void assertNotEmpty_throwsIllegalArgumentExceptionContainingMessage() {
 		String message = "A message";
 		assertThatThrownBy(() -> {
-			Assertions.assertNotEmpty(null, message);
+			assertHasText(null, message);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessage(message);
 
 		assertThatThrownBy(() -> {
-			Assertions.assertNotEmpty("", message);
+			assertHasText("", message);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessage(message);
 
 		assertThatThrownBy(() -> {
-			Assertions.assertNotEmpty("  ", message);
+			assertHasText("  ", message);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessage(message);
 	}
 
 	@Test
 	public void assertNotEmpty_doesNotThrow() {
-		Assertions.assertNotEmpty(" s ", "Should not be thrown");
+		assertHasText(" s ", "Should not be thrown");
 	}
 }

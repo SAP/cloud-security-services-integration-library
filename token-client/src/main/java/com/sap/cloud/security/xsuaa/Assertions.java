@@ -11,7 +11,7 @@ public class Assertions {
 		}
 	}
 
-	public static void assertNotEmpty(String string, String message) {
+	public static void assertHasText(String string, String message) {
 		if (string == null || string.trim().isEmpty()) {
 			throw new IllegalArgumentException(message);
 		}

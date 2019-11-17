@@ -1,13 +1,13 @@
 package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.core.Assertions;
 import com.sap.cloud.security.json.JsonObject;
 
 import javax.annotation.Nullable;
 import java.net.URI;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
+import static com.sap.cloud.security.xsuaa.Assertions.*;
 
 public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration {
 
@@ -17,8 +17,8 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 	private Plan plan; // lazy read
 
 	CFOAuth2ServiceConfiguration(CFService service, JsonObject jsonServiceConfiguration) {
-		Assertions.assertNotNull(service, "service must not be null");
-		Assertions.assertNotNull(jsonServiceConfiguration, "jsonServiceConfiguration must not be null");
+		assertNotNull(service, "service must not be null");
+		assertNotNull(jsonServiceConfiguration, "jsonServiceConfiguration must not be null");
 
 		this.service = service;
 		this.configuration = jsonServiceConfiguration;

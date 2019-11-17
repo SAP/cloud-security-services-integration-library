@@ -1,8 +1,8 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.core.Assertions.assertNotEmpty;
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,7 +26,7 @@ public class JwtIssuerValidator implements Validator<Token> {
 	 *            {@link OAuth2ServiceConfiguration#getDomain()}
 	 */
 	public JwtIssuerValidator(String domain) {
-		assertNotEmpty(domain, "domain must not be null or empty.");
+		assertHasText(domain, "domain must not be null or empty.");
 		this.domain = domain;
 	}
 
