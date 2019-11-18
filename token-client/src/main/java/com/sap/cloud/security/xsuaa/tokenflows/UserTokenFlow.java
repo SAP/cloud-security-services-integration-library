@@ -3,14 +3,19 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+
+import javax.annotation.Nullable;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
@@ -37,6 +42,7 @@ public class UserTokenFlow {
 	private String token;
 	private RefreshTokenFlow refreshTokenFlow;
 	private OAuth2TokenService tokenService;
+	static final String FF_USE_JWT_BEARER_GRANT_TYPE = "xsuaa.userTokenFlow.useJwtBearer";
 
 	/**
 	 * Creates a new instance.
@@ -201,18 +207,24 @@ public class UserTokenFlow {
 
 		String refreshToken = null;
 		try {
+			boolean useJwtBearerGrant = Boolean.parseBoolean(readFromPropertyFile(FF_USE_JWT_BEARER_GRANT_TYPE));
+			if(useJwtBearerGrant) {
+				/*
+				 * As soon as JWT bearer token supports scopes, we can just use this one to get
+				 * an user token
+				 */
+			return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+					request.getTokenEndpoint(),
+					new ClientCredentials(request.getClientId(), request.getClientSecret()),
+					token,
+					request.getSubdomain(),
+					optionalParameter);
+
+			}
 			OAuth2TokenResponse accessToken = tokenService
 					.retrieveAccessTokenViaUserTokenGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
 							token, request.getSubdomain(), optionalParameter);
-
-			/*
-			 * As soon as JWT bearer token supports scopes, we can just use this one to get
-			 * an user token OAuth2TokenResponse accessToken = tokenService
-			 * .retrieveAccessTokenViaJwtBearerTokenGrant(request.getTokenEndpoint(), new
-			 * ClientCredentials(request.getClientId(), request.getClientSecret()), token,
-			 * request.getSubdomain(), optionalParameter);
-			 */
 
 			if (accessToken.getRefreshToken() != null) {
 				refreshToken = accessToken.getRefreshToken();
@@ -292,4 +304,19 @@ public class UserTokenFlow {
 		}
 		return false;
 	}
+
+	@Nullable
+	private String readFromPropertyFile(String property) {
+		String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
+		String appConfigPath = rootPath + "application.properties";
+
+		Properties appProps = new Properties();
+		try {
+			appProps.load(new FileInputStream(appConfigPath));
+			return appProps.getProperty(property);
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
 }

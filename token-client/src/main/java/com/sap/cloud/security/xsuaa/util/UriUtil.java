@@ -44,28 +44,6 @@ public class UriUtil {
 	}
 
 	/**
-	 * Utility method that sets the path of the URI.
-	 *
-	 * @param uri
-	 *            the URI to be replaced.
-	 * @param pathToAppend
-	 *            the path to append.
-	 * @return the URI with the path.
-	 */
-	public static URI expandPath(URI uri, String pathToAppend) {
-		assertNotNull(uri, "the uri parameter must not be null");
-		assertHasText(pathToAppend, "the path parameter must not be null or ''");
-		try {
-			String newPath = uri.getPath() + pathToAppend;
-			return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(),
-					replaceDoubleSlashes(newPath), uri.getQuery(), uri.getFragment());
-		} catch (URISyntaxException e) {
-			logger.error("Could not set path {} in given uri {}", pathToAppend, uri);
-			throw new IllegalStateException(e);
-		}
-	}
-
-	/**
 	 * Utility method that sets the "cert" in the URI host.
 	 *
 	 * @param uri
@@ -87,15 +65,37 @@ public class UriUtil {
 		}
 	}
 
-	private static String replaceDoubleSlashes(String newPath) {
-		return newPath.replaceAll("//", "/");
-	}
-
 	private static boolean hasSubdomain(URI uri) {
 		return uri.getHost().contains(".");
 	}
 
 	private static boolean hasText(String string) {
 		return Optional.ofNullable(string).filter(str -> !str.trim().isEmpty()).isPresent();
+	}
+
+	/**
+	 * Utility method that expands the path of the URI.
+	 *
+	 * @param uri
+	 *            the URI to be replaced.
+	 * @param pathToAppend
+	 *            the path to append.
+	 * @return the URI with the path.
+	 */
+	public static URI expandPath(URI uri, String pathToAppend) {
+		assertNotNull(uri, "the uri parameter must not be null");
+		assertHasText(pathToAppend, "the path parameter must not be null or ''");
+		try {
+			String newPath = uri.getPath() + pathToAppend;
+			return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(),
+					replaceDoubleSlashes(newPath), uri.getQuery(), uri.getFragment());
+		} catch (URISyntaxException e) {
+			logger.error("Could not set path {} in given uri {}", pathToAppend, uri);
+			throw new IllegalStateException(e);
+		}
+	}
+
+	private static String replaceDoubleSlashes(String newPath) {
+		return newPath.replaceAll("//", "/");
 	}
 }

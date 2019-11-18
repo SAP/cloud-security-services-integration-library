@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
@@ -10,6 +9,7 @@ import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Map;
 
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
@@ -27,8 +27,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 			@Nonnull ClientCredentials clientCredentials,
 			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
-		Assertions.assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assertions.assertNotNull(clientCredentials, "clientCredentials is required");
+		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
+		assertNotNull(clientCredentials, "clientCredentials is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_CLIENT_CREDENTIALS)
@@ -46,9 +46,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 			@Nonnull ClientCredentials clientCredentials, @Nonnull String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
-		Assertions.assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assertions.assertNotNull(clientCredentials, "clientCredentials is required");
-		Assertions.assertNotNull(token, "token is required");
+		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
+		assertNotNull(clientCredentials, "clientCredentials is required");
+		assertNotNull(token, "token is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_USER_TOKEN)
@@ -65,9 +65,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 	public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(@Nonnull URI tokenEndpointUri,
 			@Nonnull ClientCredentials clientCredentials,
 			@Nonnull String refreshToken, String subdomain) throws OAuth2ServiceException {
-		Assertions.assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		Assertions.assertNotNull(clientCredentials, "clientCredentials is required");
-		Assertions.assertNotNull(refreshToken, "refreshToken is required");
+		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
+		assertNotNull(clientCredentials, "clientCredentials is required");
+		assertNotNull(refreshToken, "refreshToken is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_REFRESH_TOKEN)
@@ -85,10 +85,10 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 			@Nonnull ClientCredentials clientCredentials, @Nonnull String username, @Nonnull String password,
 			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
-		Assertions.assertNotNull(tokenEndpoint, "tokenEndpoint is required");
-		Assertions.assertNotNull(clientCredentials, "clientCredentials are required");
-		Assertions.assertNotNull(username, "username is required");
-		Assertions.assertNotNull(password, "password is required");
+		assertNotNull(tokenEndpoint, "tokenEndpoint is required");
+		assertNotNull(clientCredentials, "clientCredentials are required");
+		assertNotNull(username, "username is required");
+		assertNotNull(password, "password is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_PASSWORD)
@@ -107,9 +107,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 	public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpoint,
 			ClientCredentials clientCredentials, String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
-		Assertions.assertNotNull(tokenEndpoint, "tokenEndpoint is required");
-		Assertions.assertNotNull(clientCredentials, "clientCredentials are required");
-		Assertions.assertNotNull(token, "token is required");
+		assertNotNull(tokenEndpoint, "tokenEndpoint is required");
+		assertNotNull(clientCredentials, "clientCredentials are required");
+		assertNotNull(token, "token is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_JWT_BEARER)

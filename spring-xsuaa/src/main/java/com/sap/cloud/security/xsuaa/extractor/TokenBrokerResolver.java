@@ -28,12 +28,12 @@ import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
-import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 
 /**
  * Analyse authentication header and obtain token from UAA
- * 
+ *
  * For using this feature also in multi tenancy mode request-parameter
  * {@code X-Identity-Zone-Subdomain} must be set or the
  * AuthenticationInformationExtractor needs to be implemented).
