@@ -8,7 +8,7 @@
         "identityzone": "uaa",
         "identityzoneid": "uaa",
         "uaadomain": "localhost",
-        "url": "http://localhost:33195",
+        "url": "http://localhost",
         "xsappname": "java-security-usage"
       },
       "name": "xsuaa",

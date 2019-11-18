@@ -25,45 +25,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletTest {
 
-	private static final int TOKEN_KEY_SERVICE_PORT = 33195;
-	private static final int TOMCAT_PORT = 8281;
+	private static final int APPLICATION_SERVER_PORT = 8282;
+	private static final int MOCK_TOKEN_KEY_SERVICE_PORT = 33195;
 
 	private static PrivateKey privateKey;
-	private static PublicKey publicKey;
 	private static Token validToken;
-
-	@Rule
-	public WireMockRule wireMockRule = new WireMockRule(options().port(TOKEN_KEY_SERVICE_PORT));
-
-	@Rule
-	public final TomcatTestServer server = new TomcatTestServer(TOMCAT_PORT, "src/test/webapp");
 	private static Properties oldProperties;
+	private static PublicKey publicKey;
+
+	@Rule
+	public WireMockRule wireMockRule = new WireMockRule(options().port(MOCK_TOKEN_KEY_SERVICE_PORT));
+
+	@Rule
+	public final TomcatTestServer server = new TomcatTestServer(APPLICATION_SERVER_PORT, "src/test/webapp");
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
-		setupKeys();
 		oldProperties = System.getProperties();
 		System.setProperty("VCAP_SERVICES", IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-	}
 
-	@AfterClass
-	public void name() {
-		System.setProperties(oldProperties);
-	}
-
-	private static void setupKeys() throws Exception {
 		KeyPair keys = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 		privateKey = keys.getPrivate();
 		publicKey = keys.getPublic();
 		validToken = createValidToken();
 	}
 
-	private static Token createValidToken() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-		return new JwtGenerator(privateKey)
-				.withAlgorithm(JwtConstants.Algorithms.RS256)
-				.withHeaderParameter("jku", "http://localhost:" + TOKEN_KEY_SERVICE_PORT)
-				.withClaim("cid", "sb-clientId!20")
-				.createToken();
+	@AfterClass
+	public static void name() {
+		System.setProperties(oldProperties);
 	}
 
 	@Test
@@ -86,10 +75,20 @@ public class HelloJavaServletTest {
 	@Test
 	public void request_withValidToken() throws IOException {
 		HttpGet request = createGetRequest("Bearer " + validToken.getAccessToken());
+
 		wireMockRule.stubFor(get(urlEqualTo("/")).willReturn(aResponse().withBody(createTokenKeyResponse())));
+
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
 		}
+	}
+
+	private static Token createValidToken() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+		return new JwtGenerator(privateKey)
+				.withAlgorithm(JwtConstants.Algorithms.RS256)
+				.withHeaderParameter("jku", "http://localhost:" + MOCK_TOKEN_KEY_SERVICE_PORT)
+				.withClaim("cid", "sb-clientId!20")
+				.createToken();
 	}
 
 	private String createTokenKeyResponse() throws IOException {
@@ -99,7 +98,7 @@ public class HelloJavaServletTest {
 	}
 
 	private HttpGet createGetRequest(String bearer_token) {
-		HttpGet httpPost = new HttpGet("http://localhost:" + TOMCAT_PORT + "/hello-java-security");
+		HttpGet httpPost = new HttpGet("http://localhost:" + APPLICATION_SERVER_PORT + "/hello-java-security");
 		httpPost.setHeader(HttpHeaders.AUTHORIZATION, bearer_token);
 		return httpPost;
 	}
