@@ -83,9 +83,18 @@ public class Environment {
 
 	private CFOAuth2ServiceConfiguration getServiceConfigurationForCurrentEnvironment() {
 		if (Type.CF.equals(getType())) {
-			return new CFEnvParser(systemEnvironmentProvider.getEnv(CFConstants.VCAP_SERVICES)).load(CFService.XSUAA);
+			String env = extractVcapServices();
+			return new CFEnvParser(env).load(CFService.XSUAA);
 		}
 		return null; // No other environement supported as of now
+	}
+
+	private String extractVcapServices() {
+		String env = systemEnvironmentProvider.getEnv(CFConstants.VCAP_SERVICES);
+		if (env == null) {
+			env = System.getProperty(CFConstants.VCAP_SERVICES);
+		}
+		return env;
 	}
 
 	public void setOAuth2ServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {

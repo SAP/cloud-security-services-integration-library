@@ -1,5 +1,6 @@
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.config.Environment.SystemEnvironmentProvider;
 import com.sap.cloud.security.config.cf.CFConstants;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -51,6 +52,17 @@ public class EnvironmentTest {
 
 	@Test
 	public void getXsuaaServiceConfiguration() {
+
+		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaServiceConfiguration();
+
+		assertThat(serviceConfiguration).isNotNull();
+	}
+
+	@Test
+	public void getXsuaaServiceConfiguration_usesSystemPropertiesAsFallback() {
+		SystemEnvironmentProvider noDataProvider = (str) -> null;
+		cut = new Environment(noDataProvider);
+		System.setProperty(CFConstants.VCAP_SERVICES, vcapXsuaa);
 
 		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaServiceConfiguration();
 
