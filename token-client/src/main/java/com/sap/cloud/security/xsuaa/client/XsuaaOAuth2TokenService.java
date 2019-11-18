@@ -19,6 +19,9 @@ import java.util.Map;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
+/**
+ *
+ */
 public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private final RestOperations restOperations;
