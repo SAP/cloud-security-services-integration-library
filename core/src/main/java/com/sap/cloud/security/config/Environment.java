@@ -2,37 +2,47 @@ package com.sap.cloud.security.config;
 
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFEnvParser;
-import com.sap.cloud.security.config.cf.CFOAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFService;
+
+import java.util.Optional;
 
 // TODO this class is a central access point to read/ get the configuration.
 // In production it would be okay, to parse VCAP_SERVICES once at application start. But we can not guarantee, that
 // People cache the result themselves....
 // So, we have to make sure that it can be called more than one time without parsing it again.
 public class Environment {
+
 	enum Type {
 		CF, KUBERNETES;
 
 		public static Type from(String typeAsString) {
 			return Type.valueOf(typeAsString.toUpperCase());
 		}
+
 	}
 
 	private Type type;
 	private static Environment instance = new Environment();
 	private final SystemEnvironmentProvider systemEnvironmentProvider;
-	private OAuth2ServiceConfiguration overriddenServiceConfiguration; // TODO what's the purpose of this? Testing?
+	private final SystemPropertiesProvider systemPropertiesProvider;
 
 	private Environment() {
-		this.systemEnvironmentProvider = System::getenv;
+		systemEnvironmentProvider = System::getenv;
+		systemPropertiesProvider = System::getProperty;
 	}
 
-	Environment(SystemEnvironmentProvider systemEnvironmentProvider) {
+	Environment(SystemEnvironmentProvider systemEnvironmentProvider, SystemPropertiesProvider systemPropertiesProvider) {
 		this.systemEnvironmentProvider = systemEnvironmentProvider;
+		this.systemPropertiesProvider = systemPropertiesProvider;
 	}
 
 	interface SystemEnvironmentProvider {
 		String getEnv(String key);
+	}
+
+
+	interface SystemPropertiesProvider {
+		String getProperty(String key);
 	}
 
 	public static Environment getInstance() {
@@ -40,10 +50,11 @@ public class Environment {
 	}
 
 	public OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
-		if (overriddenServiceConfiguration == null) {
-			return getServiceConfigurationForCurrentEnvironment();
+		Optional<String> vcapJsonString = extractVcapJsonString();
+		if (Type.CF.equals(getType()) && vcapJsonString.isPresent()) {
+			return new CFEnvParser(vcapJsonString.get()).load(CFService.XSUAA);
 		}
-		return overriddenServiceConfiguration;
+		return null; // No other environement supported as of now
 	}
 
 	/**
@@ -81,24 +92,13 @@ public class Environment {
 		return type;
 	}
 
-	private CFOAuth2ServiceConfiguration getServiceConfigurationForCurrentEnvironment() {
-		if (Type.CF.equals(getType())) {
-			String env = extractVcapServices();
-			return new CFEnvParser(env).load(CFService.XSUAA);
-		}
-		return null; // No other environement supported as of now
-	}
-
-	private String extractVcapServices() {
+	private Optional<String> extractVcapJsonString() {
 		String env = systemEnvironmentProvider.getEnv(CFConstants.VCAP_SERVICES);
 		if (env == null) {
-			env = System.getProperty(CFConstants.VCAP_SERVICES);
+			env = systemPropertiesProvider.getProperty(CFConstants.VCAP_SERVICES);
 		}
-		return env;
-	}
+		return Optional.ofNullable(env);
 
-	public void setOAuth2ServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {
-		overriddenServiceConfiguration = serviceConfiguration;
 	}
 
 }
