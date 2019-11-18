@@ -1,15 +1,17 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+
+import com.sap.cloud.security.xsuaa.util.UriUtil;
 
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final URI baseUri;
 	private static final String TOKEN_ENDPOINT = "/oauth/token";
 	private static final String AUTHORIZE_ENDPOINT = "/oauth/authorize";
 	private static final String KEYSET_ENDPOINT = "/token_keys";
+	private static final String DELEGATION_TOKEN_ENDPOINT = "/delegation/oauth/token";
 
 	/**
 	 * Creates a new XsuaaRestClient.
@@ -36,30 +38,17 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 
 	@Override
 	public URI getTokenEndpoint() {
-		return getUriWithPathAppended(TOKEN_ENDPOINT);
+		return UriUtil.expandPath(baseUri, TOKEN_ENDPOINT);
 	}
 
 	@Override
 	public URI getAuthorizeEndpoint() {
-		return getUriWithPathAppended(AUTHORIZE_ENDPOINT);
+		return UriUtil.expandPath(baseUri, AUTHORIZE_ENDPOINT);
 	}
 
 	@Override
 	public URI getJwksUri() {
-		return getUriWithPathAppended(KEYSET_ENDPOINT);
+		return UriUtil.expandPath(baseUri, KEYSET_ENDPOINT);
 	}
 
-	private URI getUriWithPathAppended(String pathToAppend) {
-		try {
-			String newPath = baseUri.getPath() + pathToAppend;
-			return new URI(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(),
-					replaceDoubleSlashes(newPath), baseUri.getQuery(), baseUri.getFragment());
-		} catch (URISyntaxException e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
-	private String replaceDoubleSlashes(String newPath) {
-		return newPath.replaceAll("//", "/");
-	}
 }
