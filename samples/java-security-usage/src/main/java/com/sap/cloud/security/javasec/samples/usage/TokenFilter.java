@@ -25,7 +25,6 @@ public class TokenFilter implements Filter {
 	private final TokenExtractor tokenExtractor;
 	private Validator<Token> tokenValidator;
 
-	private OAuth2ServiceConfiguration oAuth2ServiceConfiguration;
 	private OAuth2TokenKeyService injectedTokenKeyService;
 
 	public TokenFilter() {
@@ -39,17 +38,6 @@ public class TokenFilter implements Filter {
 
 	@Override
 	public void init(FilterConfig filterConfig) {
-		String configurationClass = filterConfig.getInitParameter("configuration-class");
-		if (configurationClass != null) {
-			try {
-				oAuth2ServiceConfiguration = (OAuth2ServiceConfiguration) filterConfig.getServletContext()
-						.getClassLoader()
-						.loadClass(configurationClass)
-						.newInstance();
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-				logger.error("Failed to load class {}, ", configurationClass, e);
-			}
-		}
 		String tokenKeyServiceClass = filterConfig.getInitParameter("token-key-service-class");
 		if (tokenKeyServiceClass != null) {
 			try {
@@ -58,7 +46,7 @@ public class TokenFilter implements Filter {
 						.loadClass(tokenKeyServiceClass)
 						.newInstance();
 			} catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
-				logger.error("Failed to load class {}, ", configurationClass, e);
+				logger.error("Failed to load class {}, ", tokenKeyServiceClass, e);
 			}
 		}
 	}
@@ -110,10 +98,7 @@ public class TokenFilter implements Filter {
 	}
 
 	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
-		if (oAuth2ServiceConfiguration == null) {
-			oAuth2ServiceConfiguration = Environment.getInstance().getXsuaaServiceConfiguration();
-		}
-		return oAuth2ServiceConfiguration;
+		return Environment.getInstance().getXsuaaServiceConfiguration();
 	}
 
 	@Nullable

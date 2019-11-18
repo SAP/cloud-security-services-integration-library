@@ -1,0 +1,21 @@
+{
+  "xsuaa": [
+    {
+      "binding_name": null,
+      "credentials": {
+        "clientid": "sb-clientId!20",
+        "clientsecret": "secret",
+        "identityzone": "uaa",
+        "identityzoneid": "uaa",
+        "uaadomain": "localhost",
+        "url": "http://localhost:33195",
+        "xsappname": "java-security-usage"
+      },
+      "name": "xsuaa",
+      "plan": "broker",
+      "tags": [
+        "xsuaa"
+      ]
+    }
+  ]
+}

@@ -12,10 +12,6 @@ This file is licensed under the Apache Software License, v. 2 except as noted ot
     <filter>
         <filter-name>TokenFilter</filter-name>
         <filter-class>com.sap.cloud.security.javasec.samples.usage.TokenFilter</filter-class>
-        <init-param>
-            <param-name>configuration-class</param-name>
-            <param-value>com.sap.cloud.security.javasec.samples.usage.TestConfiguration</param-value>
-        </init-param>
     </filter>
 
     <servlet>

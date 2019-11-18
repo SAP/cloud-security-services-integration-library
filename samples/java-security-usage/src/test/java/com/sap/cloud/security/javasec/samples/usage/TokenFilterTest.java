@@ -35,7 +35,6 @@ public class TokenFilterTest {
 		httpResponse = Mockito.mock(HttpServletResponse.class);
 		filterChain = Mockito.mock(FilterChain.class);
 		cut = createComponent(ValidationResults.createValid());
-		Environment.getInstance().setOAuth2ServiceConfiguration(new TestConfiguration());
 	}
 
 	@Test

@@ -8,13 +8,16 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
+import java.util.Properties;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -34,10 +37,18 @@ public class HelloJavaServletTest {
 
 	@Rule
 	public final TomcatTestServer server = new TomcatTestServer(TOMCAT_PORT, "src/test/webapp");
+	private static Properties oldProperties;
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
 		setupKeys();
+		oldProperties = System.getProperties();
+		System.setProperty("VCAP_SERVICES", IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
+	}
+
+	@AfterClass
+	public void name() {
+		System.setProperties(oldProperties);
 	}
 
 	private static void setupKeys() throws Exception {
