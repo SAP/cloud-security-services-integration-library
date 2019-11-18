@@ -149,7 +149,7 @@ OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
                 .execute();
 ```
 
-> BETA feature: In case you like to exchange an `id_token` (OIDC) with an XSUAA access token you need to establish a trust relationship between XSUAA and your IDP and you need to use the JWT Bearer Token Grant flow, which is defined in [RFC 7523](https://tools.ietf.org/html/rfc7523). In order to enable that feature (for now) with providing a property `xsuaa.userTokenFlow.useJwtBearer` =  `true`.
+> BETA feature: In case you like to exchange an `id_token` (OIDC) with an XSUAA access token you need to establish a trust relationship between XSUAA and your IDP and you need to use the JWT Bearer Token Grant flow, which is defined in [RFC 7523](https://tools.ietf.org/html/rfc7523). In order to enable that feature (for now) you need to provide a property `xsuaa.userTokenFlow.useJwtBearer` =  `true`.
 
 ### Password Token Flow
 In order to obtain an access token for a user:
