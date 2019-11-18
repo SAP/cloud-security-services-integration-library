@@ -1,6 +1,5 @@
 package com.sap.cloud.security.javasec.samples.usage;
 
-import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;

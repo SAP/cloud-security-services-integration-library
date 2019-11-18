@@ -51,7 +51,7 @@ public class HelloJavaServletTest {
 	}
 
 	@AfterClass
-	public static void name() {
+	public static void restoreProperties() {
 		System.setProperties(oldProperties);
 	}
 
