@@ -136,7 +136,7 @@ public class ClientCredentialsTokenFlow {
 			return accessToken;
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
-					String.format("Error requesting user token with grant_type 'client_credentials': %s",
+					String.format("Error requesting technical user token with grant_type 'client_credentials': %s",
 							e.getMessage()),
 					e);
 		}

@@ -45,7 +45,6 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	private static final String AUTH_HEADER = "Authorization";
 	private static final String OAUTH_TOKEN_PATH = "/oauth/token";
 	private static final String AUTH_BEARER = "bearer";
-	private static final String FWD_CERT_HEADER = "x-forwarded-client-cert";
 
 	private XsuaaServiceConfiguration configuration;
 

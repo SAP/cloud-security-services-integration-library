@@ -61,7 +61,7 @@ public interface OAuth2TokenService {
 			throws OAuth2ServiceException;
 
 	/**
-	 * Requests access token from OAuth Server with refresh-token
+	 * Requests access token from OAuth Server with refresh-token.
 	 *
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
@@ -82,6 +82,8 @@ public interface OAuth2TokenService {
 			String refreshToken, @Nullable String subdomain) throws OAuth2ServiceException;
 
 	/**
+	 * Requests access token from OAuth Server with user / password.
+	 *
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
 	 * @param clientCredentials
