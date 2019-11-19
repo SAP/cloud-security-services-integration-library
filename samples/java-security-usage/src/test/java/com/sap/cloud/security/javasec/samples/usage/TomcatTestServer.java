@@ -2,11 +2,10 @@ package com.sap.cloud.security.javasec.samples.usage;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
-import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wiremock.com.google.common.io.Files;
 
 import javax.servlet.ServletException;
 import java.io.File;
@@ -19,18 +18,17 @@ public class TomcatTestServer extends ExternalResource {
 	private final int port;
 	private final String webappDir;
 	private Tomcat tomcat;
-	private File baseDir;
+	private TemporaryFolder baseDir;
 
 	public TomcatTestServer(int port, String webappDir) {
 		this.port = port;
 		this.webappDir = new File(webappDir).getAbsolutePath();
-		baseDir = Files.createTempDir();
+		baseDir = new TemporaryFolder();
 		tomcat = new Tomcat();
-
 	}
 
 	@Override
-	protected void before() {
+	protected void before() throws IOException {
 		start();
 	}
 
@@ -39,15 +37,16 @@ public class TomcatTestServer extends ExternalResource {
 		try {
 			tomcat.stop();
 			tomcat.destroy();
-			FileUtils.deleteDirectory(baseDir);
-		} catch (LifecycleException | IOException e) {
+			baseDir.delete();
+		} catch (LifecycleException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private void start() {
+	private void start() throws IOException {
 		tomcat.setPort(port);
-		tomcat.setBaseDir(baseDir.getAbsolutePath());
+		baseDir.create();
+		tomcat.setBaseDir(baseDir.getRoot().getAbsolutePath());
 		try {
 			tomcat.addWebapp("", webappDir);
 			tomcat.start();
