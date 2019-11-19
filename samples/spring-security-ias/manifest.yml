@@ -3,13 +3,42 @@
 # configured for EU10. For other landscapes, please adopt LANDSCAPE_APPS_DOMAIN in ../vars.yml
 # If the route is occupied, you might need to change ID in in ../vars.yml
 applications:
-- name: spring-security-ias
-  instances: 1
+- name: ks1-q4
   memory: 896M
+  path: service
   routes:
-    - route: spring-security-ias-((ID)).((LANDSCAPE_APPS_DOMAIN))
-    - route: ks1-((ID)).cert.((LANDSCAPE_APPS_DOMAIN))
-  path: target/spring-security-ias.jar
+    - route: ks1-q4-((ID)).((LANDSCAPE_APPS_DOMAIN))
+    - route: ks1-q4-((ID)).cert.((LANDSCAPE_APPS_DOMAIN))
   services:
-    - ks1-uaa
+    - ks1-broker-uaa
+
+- name: ks1-broker-q4
+  memory: 128M
+  path: broker
+  routes:
+    - route: ks1-broker-q4-((ID)).((LANDSCAPE_APPS_DOMAIN))
+  services:
+    - ks1-broker-uaa
+    - broker-audit
+  env:
+      SBF_CATALOG_SUFFIX: ks1-q4
+      SBF_BROKER_CREDENTIALS_HASH: >
+        {
+          "sb": "sha256:1ul6dFQX49RzQ42662tOzs6x0877iGpak2XeRjtkQjs=:FVf3Y5uo6gMeyKZlJoWtZtqpjXc2cOgCsdda9vtJUi0="
+        }
+      SBF_SERVICE_CONFIG: >
+        {
+          "named-service": {
+            "extend_credentials": {
+              "shared": {
+                "vendor": "SAP"
+              },
+              "per_plan": {
+                "default": {
+                  "url": "https://ks1-q4.cfapps.sap.hana.ondemand.com"
+                }
+              }
+            }
+          }
+        }      
 ...
