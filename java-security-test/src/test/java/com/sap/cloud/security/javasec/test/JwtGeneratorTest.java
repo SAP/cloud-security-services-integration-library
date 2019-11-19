@@ -8,7 +8,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants.ALGORITHM_PARAMETER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -16,7 +15,6 @@ import static org.mockito.Mockito.when;
 public class JwtGeneratorTest {
 
 	private static final String RS256 = "RS256";
-	private static final String HS256 = "HS256";
 
 	private JwtGenerator cut;
 
@@ -33,13 +31,6 @@ public class JwtGeneratorTest {
 		Token token = cut.createToken();
 
 		assertThat(token).isNotNull();
-	}
-
-	@Test
-	public void withAlgorithm_containsAlgorithm() throws Exception {
-		Token token = cut.withAlgorithm(HS256).createToken();
-
-		assertThat(token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME)).isEqualTo("HS256");
 	}
 
 	@Test
@@ -64,8 +55,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void withAlgorithm_createsTokenWithCorrectSignature() throws Exception {
-		Token token = cut
-				.withAlgorithm(RS256)
+		Token token = cut.withHeaderParameter(JwtGenerator.HEADER_PARAMETER_ALG, RS256)
 				.withHeaderParameter("test-123", "321abc")
 				.withClaim("test-claim-123", "qwerty")
 				.createToken();

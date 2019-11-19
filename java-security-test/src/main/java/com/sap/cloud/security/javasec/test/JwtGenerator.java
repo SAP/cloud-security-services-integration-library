@@ -11,7 +11,7 @@ import java.util.Base64;
 public class JwtGenerator {
 
 	private static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
-	private static final String HEADER_PARAMETER_ALG = "alg";
+	public static final String HEADER_PARAMETER_ALG = "alg";
 
 	private static final String DOT = ".";
 	private final JSONObject jsonHeader = new JSONObject();
@@ -20,10 +20,6 @@ public class JwtGenerator {
 
 	public JwtGenerator(PrivateKey privateKey) {
 		this.privateKey = privateKey;
-	}
-
-	public JwtGenerator withAlgorithm(String algorithm) {
-		return withHeaderParameter(HEADER_PARAMETER_ALG, algorithm);
 	}
 
 	public JwtGenerator withHeaderParameter(String parameterName, String value) {

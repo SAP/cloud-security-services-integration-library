@@ -86,7 +86,7 @@ public class HelloJavaServletTest {
 
 	private Token createValidToken() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		return new JwtGenerator(keyPair.getPrivate())
-				.withAlgorithm("RS256")
+				.withHeaderParameter(JwtGenerator.HEADER_PARAMETER_ALG, "RS256")
 				.withHeaderParameter("jku", "http://localhost:" + MOCK_TOKEN_KEY_SERVICE_PORT)
 				.withClaim("cid", "sb-clientId!20")
 				.createToken();
