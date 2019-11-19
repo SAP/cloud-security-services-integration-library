@@ -6,7 +6,7 @@ public class RSAKeypair {
 
 	private final KeyPair keyPair;
 
-	public RSAKeypair()  {
+	public RSAKeypair() {
 		keyPair = generateKeyPair();
 	}
 
@@ -21,7 +21,7 @@ public class RSAKeypair {
 	private KeyPair generateKeyPair() {
 		try {
 			return KeyPairGenerator.getInstance("RSA").generateKeyPair();
-		} catch ( NoSuchAlgorithmException e) {
+		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}
 	}

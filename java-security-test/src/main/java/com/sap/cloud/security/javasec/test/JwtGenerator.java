@@ -28,10 +28,12 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the header parameter with name {@param parameterName} to the given string value.
+	 * Sets the header parameter with the given name to the given string value.
 	 *
-	 * @param parameterName the name of the header parameter to be set.
-	 * @param value     the string value of the header parameter to be set.
+	 * @param parameterName
+	 *            the name of the header parameter to be set.
+	 * @param value
+	 *            the string value of the header parameter to be set.
 	 * @return the builder object.
 	 */
 	public JwtGenerator withHeaderParameter(String parameterName, String value) {
@@ -40,10 +42,12 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claim with name {@param claimName} to the given string value.
+	 * Sets the claim with the given name to the given string value.
 	 *
-	 * @param claimName the name of the claim to be set.
-	 * @param value     the string value of the claim to be set.
+	 * @param claimName
+	 *            the name of the claim to be set.
+	 * @param value
+	 *            the string value of the claim to be set.
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaim(String claimName, String value) {
@@ -52,9 +56,11 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the signature algorithm that is used to create the signature of the token.
+	 * Sets the signature algorithm that is used to create the signature of the
+	 * token.
 	 *
-	 * @param signatureAlgorithm the signature algorithm.
+	 * @param signatureAlgorithm
+	 *            the signature algorithm.
 	 * @return the builder object.
 	 */
 	public JwtGenerator withSignatureAlgoritm(JwtSignatureAlgorithm signatureAlgorithm) {
@@ -63,14 +69,16 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Creates and signs the token with the {@param privateKey} and the algorithm
-	 * set via {@link #withSignatureAlgoritm(JwtSignatureAlgorithm)}. By default
-	 * {@link JwtSignatureAlgorithm#RS256} is used.
+	 * Creates and signs the token using the the algorithm set via
+	 * {@link #withSignatureAlgoritm(JwtSignatureAlgorithm)} and the given key. By
+	 * default{@link JwtSignatureAlgorithm#RS256} is used.
 	 *
-	 * @param privateKey the private key that is used to sign the token.
+	 * @param privateKey
+	 *            the private key that is used to sign the token.
 	 * @return the token.
-	 * @throws InvalidKeyException if the key cannot be used for creating a signature
-	 *                             with the current JwtSignatureAlgorithm.
+	 * @throws InvalidKeyException
+	 *             if the key cannot be used for creating a signature with the
+	 *             current JwtSignatureAlgorithm.
 	 */
 	public Token createToken(PrivateKey privateKey) throws InvalidKeyException {
 		setHeaderAlgorithmValue();
