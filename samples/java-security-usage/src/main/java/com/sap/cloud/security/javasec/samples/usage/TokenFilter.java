@@ -25,7 +25,6 @@ public class TokenFilter implements Filter {
 	private final TokenExtractor tokenExtractor;
 	private Validator<Token> tokenValidator;
 
-	private OAuth2TokenKeyService injectedTokenKeyService;
 
 	public TokenFilter() {
 		tokenExtractor = (authorizationHeader) -> new TokenImpl(authorizationHeader);
@@ -36,19 +35,7 @@ public class TokenFilter implements Filter {
 		this.tokenValidator = tokenValidator;
 	}
 
-	@Override
-	public void init(FilterConfig filterConfig) {
-		String tokenKeyServiceClass = filterConfig.getInitParameter("token-key-service-class");
-		if (tokenKeyServiceClass != null) {
-			try {
-				injectedTokenKeyService = (OAuth2TokenKeyService) filterConfig.getServletContext()
-						.getClassLoader()
-						.loadClass(tokenKeyServiceClass)
-						.newInstance();
-			} catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
-				logger.error("Failed to load class {}, ", tokenKeyServiceClass, e);
-			}
-		}
+	@Override public void init(FilterConfig filterConfig) {
 	}
 
 	@Override
@@ -57,7 +44,6 @@ public class TokenFilter implements Filter {
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
-
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = tokenExtractor.fromAuthorizationHeader(authorizationHeader);
@@ -84,12 +70,9 @@ public class TokenFilter implements Filter {
 
 	private ValidationResult validateToken(Token token) {
 		if (tokenValidator == null) {
-			CombiningValidator.TokenValidatorBuilder tokenValidatorBuilder = CombiningValidator
+			return CombiningValidator
 					.builderFor(getXsuaaServiceConfiguration())
-					.configureAnotherServiceInstance(
-							getOtherXsuaaServiceConfiguration()); // in case of multiple xsuaa bindings
-			getInjectedTokenKeyService().ifPresent(tokenValidatorBuilder::withOAuth2TokenKeyService);
-			return tokenValidatorBuilder
+					.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
 					.build()
 					.validate(token);
 		} else {
@@ -116,10 +99,6 @@ public class TokenFilter implements Filter {
 
 	private boolean headerIsAvailable(String authorizationHeader) {
 		return authorizationHeader != null && !authorizationHeader.isEmpty();
-	}
-
-	private Optional<OAuth2TokenKeyService> getInjectedTokenKeyService() {
-		return Optional.ofNullable(injectedTokenKeyService);
 	}
 
 	interface TokenExtractor {
