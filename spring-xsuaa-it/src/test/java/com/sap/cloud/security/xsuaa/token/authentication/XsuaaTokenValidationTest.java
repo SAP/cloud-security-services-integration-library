@@ -66,7 +66,8 @@ public class XsuaaTokenValidationTest {
 	public void test_insufficientScopedToken_isUnauthorized() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
-						.with(bearerToken(JWTUtil.createJWT("/insufficient_scoped_token.txt", "uaa", "legacy-token-key"))))
+						.with(bearerToken(
+								JWTUtil.createJWT("/insufficient_scoped.txt", "uaa", "legacy-token-key"))))
 				.andExpect(status().isUnauthorized());
 	}
 
@@ -74,7 +75,7 @@ public class XsuaaTokenValidationTest {
 	public void test_expiredToken_isUnauthorized() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
-						.with(bearerToken(JWTUtil.createJWT("/expired_token.txt", "uaa", "legacy-token-key"))))
+						.with(bearerToken(JWTUtil.createJWT("/expired.txt", "uaa", "legacy-token-key"))))
 				.andExpect(status().isUnauthorized());
 	}
 
