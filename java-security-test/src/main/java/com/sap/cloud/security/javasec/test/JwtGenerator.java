@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import java.security.*;
 import java.util.Base64;
 
-// TODO 14.11.19 c5295400: This is basically a TokenBuilder?
+/**
+ * Jwt {@link Token} builder class to generate tokes for testing purposes.
+ */
 public class JwtGenerator {
 	private static final Logger logger = LoggerFactory.getLogger(JwtGenerator.class);
 
@@ -19,27 +21,57 @@ public class JwtGenerator {
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
 
-	private JwtSignatureAlgoritm signatureAlgorithm;
+	private JwtSignatureAlgorithm signatureAlgorithm;
 
 	public JwtGenerator() {
-		signatureAlgorithm = JwtSignatureAlgoritm.RS256;
+		signatureAlgorithm = JwtSignatureAlgorithm.RS256;
 	}
 
+	/**
+	 * Sets the header parameter with name {@param parameterName} to the given string value.
+	 *
+	 * @param parameterName the name of the header parameter to be set.
+	 * @param value     the string value of the header parameter to be set.
+	 * @return the builder object.
+	 */
 	public JwtGenerator withHeaderParameter(String parameterName, String value) {
 		jsonHeader.put(parameterName, value);
 		return this;
 	}
 
+	/**
+	 * Sets the claim with name {@param claimName} to the given string value.
+	 *
+	 * @param claimName the name of the claim to be set.
+	 * @param value     the string value of the claim to be set.
+	 * @return the builder object.
+	 */
 	public JwtGenerator withClaim(String claimName, String value) {
 		jsonPayload.put(claimName, value);
 		return this;
 	}
 
-	public JwtGenerator withSignatureAlgoritm(JwtSignatureAlgoritm signatureAlgorithm) {
+	/**
+	 * Sets the signature algorithm that is used to create the signature of the token.
+	 *
+	 * @param signatureAlgorithm the signature algorithm.
+	 * @return the builder object.
+	 */
+	public JwtGenerator withSignatureAlgoritm(JwtSignatureAlgorithm signatureAlgorithm) {
 		this.signatureAlgorithm = signatureAlgorithm;
 		return this;
 	}
 
+	/**
+	 * Creates and signs the token with the {@param privateKey} and the algorithm
+	 * set via {@link #withSignatureAlgoritm(JwtSignatureAlgorithm)}. By default
+	 * {@link JwtSignatureAlgorithm#RS256} is used.
+	 *
+	 * @param privateKey the private key that is used to sign the token.
+	 * @return the token.
+	 * @throws InvalidKeyException if the key cannot be used for creating a signature
+	 *                             with the current JwtSignatureAlgorithm.
+	 */
 	public Token createToken(PrivateKey privateKey) throws InvalidKeyException {
 		setHeaderAlgorithmValue();
 		String header = base64Encode(jsonHeader.toString().getBytes());

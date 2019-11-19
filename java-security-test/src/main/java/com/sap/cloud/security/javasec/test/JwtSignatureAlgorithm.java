@@ -1,12 +1,12 @@
 package com.sap.cloud.security.javasec.test;
 
-public enum JwtSignatureAlgoritm {
+public enum JwtSignatureAlgorithm {
 	RS256("RS256", "SHA256withRSA");
 
 	private final String jwtAlgorithmHeaderVale;
 	private final String javaSignatureAlgorithmName;
 
-	JwtSignatureAlgoritm(String jwtAlgorithmHeaderVale, String javaSignatureAlgorithmName) {
+	JwtSignatureAlgorithm(String jwtAlgorithmHeaderVale, String javaSignatureAlgorithmName) {
 		this.jwtAlgorithmHeaderVale = jwtAlgorithmHeaderVale;
 		this.javaSignatureAlgorithmName = javaSignatureAlgorithmName;
 	}
