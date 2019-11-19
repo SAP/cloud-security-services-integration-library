@@ -1,11 +1,6 @@
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,10 +15,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { XsuaaResourceServerJwkAutoConfiguration.class, XsuaaAutoConfiguration.class })
@@ -86,8 +82,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 				.run((context) -> {
 					assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));
 					assertThat(context.containsBean("customJwtDecoder"), is(true));
-					assertThat(context.getBean("customJwtDecoder"),
-							instanceOf(NimbusJwtDecoderJwkSupport.class));
+					assertThat(context.getBean("customJwtDecoder"), instanceOf(NimbusJwtDecoder.class));
 				});
 	}
 
@@ -108,7 +103,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 
 		@Bean
 		public JwtDecoder customJwtDecoder() {
-			return new NimbusJwtDecoderJwkSupport("http://localhost:8080/uaa/oauth/token_keys");
+			return NimbusJwtDecoder.withJwkSetUri("http://localhost:8080/uaa/oauth/token_keys").build();
 		}
 	}
 }

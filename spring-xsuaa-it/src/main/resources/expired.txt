@@ -1,0 +1,16 @@
+{
+  "client_id": "sb-java-hello-world",
+  "cid": "sb-java-hello-world",
+  "grant_type": "authorization_code",
+  "iat": 1442912244,
+  "exp": 1442912245,
+  "iss": "http://localhost:8080/uaa/oauth/token",
+  "zid": "$zid",
+  "aud": [],
+  "scope": [
+    "java-hello-world.Display",
+    "openid",
+    "java-hello-world.Delete",
+    "java-hello-world.Create"
+  ]
+  }
