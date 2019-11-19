@@ -1,10 +1,8 @@
 package com.sap.cloud.security.javasec.test;
 
-import org.junit.rules.ExternalResource;
-
 import java.security.*;
 
-public class RSAKeypair extends ExternalResource {
+public class RSAKeypair {
 
 	private final KeyPair keyPair;
 

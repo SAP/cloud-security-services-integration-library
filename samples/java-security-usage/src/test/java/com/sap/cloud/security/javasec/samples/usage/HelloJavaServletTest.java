@@ -14,7 +14,9 @@ import org.junit.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.util.Base64;
 import java.util.Properties;
 
@@ -35,13 +37,11 @@ public class HelloJavaServletTest {
 	@Rule
 	public final TomcatTestServer server = new TomcatTestServer(APPLICATION_SERVER_PORT, "src/test/webapp");
 
-	@Rule
-	public final RSAKeypair keyPair = new RSAKeypair();
+	private final RSAKeypair keyPair;
+	private final Token validToken;
 
-	private Token validToken;
-
-	@Before
-	public void setUp() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+	public HelloJavaServletTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+		keyPair = new RSAKeypair();
 		validToken = createValidToken();
 	}
 
@@ -85,11 +85,10 @@ public class HelloJavaServletTest {
 	}
 
 	private Token createValidToken() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-		return new JwtGenerator(keyPair.getPrivate())
-				.withHeaderParameter(JwtGenerator.HEADER_PARAMETER_ALG, "RS256")
+		return new JwtGenerator()
 				.withHeaderParameter("jku", "http://localhost:" + MOCK_TOKEN_KEY_SERVICE_PORT)
 				.withClaim("cid", "sb-clientId!20")
-				.createToken();
+				.createToken(keyPair.getPrivate());
 	}
 
 	private String createTokenKeyResponse() throws IOException {

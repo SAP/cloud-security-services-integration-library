@@ -4,7 +4,6 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -14,21 +13,21 @@ import static org.mockito.Mockito.when;
 
 public class JwtGeneratorTest {
 
-	private static final String RS256 = "RS256";
-
+	private final RSAKeypair rsaKeypair;
 	private JwtGenerator cut;
 
-	@Rule
-	public final RSAKeypair keyPair = new RSAKeypair();
+	public JwtGeneratorTest() {
+		rsaKeypair = new RSAKeypair();
+	}
 
 	@Before
 	public void setUp() {
-		cut = new JwtGenerator(keyPair.getPrivate());
+		cut = new JwtGenerator();
 	}
 
 	@Test
 	public void createToken_isNotNull() throws Exception {
-		Token token = cut.createToken();
+		Token token = cut.createToken(rsaKeypair.getPrivate());
 
 		assertThat(token).isNotNull();
 	}
@@ -38,7 +37,7 @@ public class JwtGeneratorTest {
 		String claimName = "claim-name";
 		String claimValue = "claim-value";
 
-		Token token = cut.withClaim(claimName, claimValue).createToken();
+		Token token = cut.withClaim(claimName, claimValue).createToken(rsaKeypair.getPrivate());
 
 		assertThat(token.getClaimAsString(claimName)).isEqualTo(claimValue);
 	}
@@ -48,20 +47,19 @@ public class JwtGeneratorTest {
 		String parmeterName = "the-key";
 		String parameterValue = "the-value";
 
-		Token token = cut.withHeaderParameter(parmeterName, parameterValue).createToken();
+		Token token = cut.withHeaderParameter(parmeterName, parameterValue).createToken(rsaKeypair.getPrivate());
 
 		assertThat(token.getHeaderParameterAsString(parmeterName)).isEqualTo(parameterValue);
 	}
 
 	@Test
-	public void withAlgorithm_createsTokenWithCorrectSignature() throws Exception {
-		Token token = cut.withHeaderParameter(JwtGenerator.HEADER_PARAMETER_ALG, RS256)
-				.withHeaderParameter("test-123", "321abc")
+	public void withAlgorithm_createsTokenWithSignature_isValid() throws Exception {
+		Token token = cut.withHeaderParameter("test-123", "321abc")
 				.withClaim("test-claim-123", "qwerty")
-				.createToken();
+				.createToken(rsaKeypair.getPrivate());
 
 		TokenKeyServiceWithCache tokenKeyServiceMock = Mockito.mock(TokenKeyServiceWithCache.class);
-		when(tokenKeyServiceMock.getPublicKey(any(), any(), any())).thenReturn(keyPair.getPublic());
+		when(tokenKeyServiceMock.getPublicKey(any(), any(), any())).thenReturn(rsaKeypair.getPublic());
 
 		JwtSignatureValidator validator = new JwtSignatureValidator(tokenKeyServiceMock);
 		assertThat(validator.validate(token).isValid()).isTrue();
