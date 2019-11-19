@@ -62,6 +62,14 @@ public class XsuaaTokenValidationTest {
 						content().string(containsString(".ewogICJqdGkiOiAiOGU3YjNiMDAtNzc1MS00YjQ2LTliMWEtNWE0NmEyY")));
 	}
 
+	@Test
+	public void test_insufficientScopedToken_isUnauthorized() throws Exception {
+		this.mvc.perform(
+				get("/clientCredentialsToken")
+						.with(bearerToken(JWTUtil.createJWT("/insufficient_scoped_token.txt", "uaa", "legacy-token-key"))))
+				.andExpect(status().isUnauthorized());
+	}
+
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
 		private String token;
 

@@ -134,7 +134,9 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		if (restOperations != null) {
 			jwkSetUriJwtDecoderBuilder.restOperations(restOperations);
 		}
-		return jwkSetUriJwtDecoderBuilder.build();
+		NimbusJwtDecoder decoder = jwkSetUriJwtDecoderBuilder.build();
+		decoder.setJwtValidator(tokenValidators);
+		return decoder;
 	}
 
 	public void setTokenInfoExtractor(TokenInfoExtractor tokenInfoExtractor) {

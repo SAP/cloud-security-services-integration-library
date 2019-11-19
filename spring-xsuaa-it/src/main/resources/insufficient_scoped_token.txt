@@ -1,0 +1,11 @@
+{
+  "client_id": "sb-java-hello-world",
+  "cid": "wrongClientId",
+  "grant_type": "authorization_code",
+  "iat": 1442912244,
+  "exp": $exp,
+  "iss": "http://localhost:8080/uaa/oauth/token",
+  "zid": "$zid",
+  "aud": [],
+  "scope": [ "insufficient" ]
+}
