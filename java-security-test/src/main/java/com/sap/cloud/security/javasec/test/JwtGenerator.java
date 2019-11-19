@@ -17,7 +17,6 @@ public class JwtGenerator {
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
 	private final PrivateKey privateKey;
-	public static final String ALG = "alg";
 
 	public JwtGenerator(PrivateKey privateKey) {
 		this.privateKey = privateKey;

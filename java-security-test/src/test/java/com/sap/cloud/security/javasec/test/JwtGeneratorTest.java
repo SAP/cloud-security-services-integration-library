@@ -3,10 +3,10 @@ package com.sap.cloud.security.javasec.test;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.security.*;
 
 import static com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants.ALGORITHM_PARAMETER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,17 +17,15 @@ public class JwtGeneratorTest {
 
 	private static final String RS256 = "RS256";
 	private static final String HS256 = "HS256";
-	private static final String RSA = "RSA";
 
-	private final PublicKey publicKey;
-	private final PrivateKey privateKey;
 	private JwtGenerator cut;
 
-	public JwtGeneratorTest() throws NoSuchAlgorithmException {
-		KeyPair keys = KeyPairGenerator.getInstance(RSA).generateKeyPair();
-		privateKey = keys.getPrivate();
-		publicKey = keys.getPublic();
-		cut = new JwtGenerator(privateKey);
+	@Rule
+	public final RSAKeypair keyPair = new RSAKeypair();
+
+	@Before
+	public void setUp() {
+		cut = new JwtGenerator(keyPair.getPrivate());
 	}
 
 	@Test
@@ -73,7 +71,7 @@ public class JwtGeneratorTest {
 				.createToken();
 
 		TokenKeyServiceWithCache tokenKeyServiceMock = Mockito.mock(TokenKeyServiceWithCache.class);
-		when(tokenKeyServiceMock.getPublicKey(any(), any(), any())).thenReturn(publicKey);
+		when(tokenKeyServiceMock.getPublicKey(any(), any(), any())).thenReturn(keyPair.getPublic());
 
 		JwtSignatureValidator validator = new JwtSignatureValidator(tokenKeyServiceMock);
 		assertThat(validator.validate(token).isValid()).isTrue();

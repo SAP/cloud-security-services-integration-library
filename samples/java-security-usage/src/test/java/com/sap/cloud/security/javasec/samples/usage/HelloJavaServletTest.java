@@ -2,6 +2,7 @@ package com.sap.cloud.security.javasec.samples.usage;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sap.cloud.security.javasec.test.JwtGenerator;
+import com.sap.cloud.security.javasec.test.RSAKeypair;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
@@ -9,10 +10,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -29,26 +27,28 @@ public class HelloJavaServletTest {
 	private static final int APPLICATION_SERVER_PORT = 8282;
 	private static final int MOCK_TOKEN_KEY_SERVICE_PORT = 33195;
 
-	private static PrivateKey privateKey;
-	private static Token validToken;
 	private static Properties oldProperties;
-	private static PublicKey publicKey;
 
 	@Rule
-	public WireMockRule wireMockRule = new WireMockRule(options().port(MOCK_TOKEN_KEY_SERVICE_PORT));
+	public final WireMockRule wireMockRule = new WireMockRule(options().port(MOCK_TOKEN_KEY_SERVICE_PORT));
 
 	@Rule
 	public final TomcatTestServer server = new TomcatTestServer(APPLICATION_SERVER_PORT, "src/test/webapp");
+
+	@Rule
+	public final RSAKeypair keyPair = new RSAKeypair();
+
+	private Token validToken;
+
+	@Before
+	public void setUp() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+		validToken = createValidToken();
+	}
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
 		oldProperties = System.getProperties();
 		System.setProperty("VCAP_SERVICES", IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-
-		KeyPair keys = KeyPairGenerator.getInstance("RSA").generateKeyPair();
-		privateKey = keys.getPrivate();
-		publicKey = keys.getPublic();
-		validToken = createValidToken();
 	}
 
 	@AfterClass
@@ -84,8 +84,8 @@ public class HelloJavaServletTest {
 		}
 	}
 
-	private static Token createValidToken() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-		return new JwtGenerator(privateKey)
+	private Token createValidToken() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+		return new JwtGenerator(keyPair.getPrivate())
 				.withAlgorithm(JwtConstants.Algorithms.RS256)
 				.withHeaderParameter("jku", "http://localhost:" + MOCK_TOKEN_KEY_SERVICE_PORT)
 				.withClaim("cid", "sb-clientId!20")
@@ -95,7 +95,7 @@ public class HelloJavaServletTest {
 	private String createTokenKeyResponse() throws IOException {
 		return IOUtils.resourceToString("/token_keys_template.json", StandardCharsets.UTF_8)
 				.replace("$kid", "default-kid")
-				.replace("$public_key", Base64.getEncoder().encodeToString(publicKey.getEncoded()));
+				.replace("$public_key", Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
 	}
 
 	private HttpGet createGetRequest(String bearer_token) {

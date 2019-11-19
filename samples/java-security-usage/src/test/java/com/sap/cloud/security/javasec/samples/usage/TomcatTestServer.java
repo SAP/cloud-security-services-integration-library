@@ -26,6 +26,7 @@ public class TomcatTestServer extends ExternalResource {
 		this.webappDir = new File(webappDir).getAbsolutePath();
 		baseDir = Files.createTempDir();
 		tomcat = new Tomcat();
+
 	}
 
 	@Override
