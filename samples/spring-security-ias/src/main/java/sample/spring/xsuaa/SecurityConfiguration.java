@@ -49,7 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 		// @formatter:off
 		http.authorizeRequests()
-				.antMatchers("/hello-token").hasAuthority("uaa.resource")
+				//.antMatchers("/hello-token").hasAuthority("uaa.resource")
 				.anyRequest().authenticated()
 			.and()
 				.sessionManagement()

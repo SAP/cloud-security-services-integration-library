@@ -1,0 +1,9 @@
+{
+  "xs-security": {
+    "xsappname": "ks1-q4-consumer",
+    "oauth2-configuration": {
+      "grant-types":["client_x509", "urn:ietf:params:oauth:grant-type:jwt-bearer"]
+    }
+  },
+  "additionalParam": 1
+}

@@ -5,10 +5,10 @@
 applications:
 - name: ks1-q4
   memory: 896M
-  path: service
   routes:
     - route: ks1-q4-((ID)).((LANDSCAPE_APPS_DOMAIN))
     - route: ks1-q4-((ID)).cert.((LANDSCAPE_APPS_DOMAIN))
+  path: target/ks1-q4.jar
   services:
     - ks1-broker-uaa
 
@@ -21,21 +21,21 @@ applications:
     - ks1-broker-uaa
     - broker-audit
   env:
-      SBF_CATALOG_SUFFIX: ks1-q4
+      SBF_CATALOG_SUFFIX: ((ID))
       SBF_BROKER_CREDENTIALS_HASH: >
         {
-          "sb": "sha256:1ul6dFQX49RzQ42662tOzs6x0877iGpak2XeRjtkQjs=:FVf3Y5uo6gMeyKZlJoWtZtqpjXc2cOgCsdda9vtJUi0="
+          "ks-user": "sha256:uYezoLS6vuBri7/2CacJwnnWPrpq0MoFcq75lophL5I=:MtLWbSQNegk5UkSB7xjhIox9Sd4CHHP2YJI4qY4L7gQ="
         }
       SBF_SERVICE_CONFIG: >
         {
-          "named-service": {
+          "ks1-q4": {
             "extend_credentials": {
               "shared": {
                 "vendor": "SAP"
               },
               "per_plan": {
                 "default": {
-                  "url": "https://ks1-q4.cfapps.sap.hana.ondemand.com"
+                  "url": "https://ks1-q4-((ID)).((LANDSCAPE_APPS_DOMAIN))"
                 }
               }
             }

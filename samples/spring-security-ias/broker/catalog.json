@@ -1,0 +1,13 @@
+{
+  "services": [{
+    "name": "ks1-q4",
+    "id": "367188a4-2511-4038-9be7-9694b05214dc-ks1-q4",
+    "description": "Demo KS1 service",
+    "bindable": true,
+    "plans": [{
+      "id": "5fbe092f-7a44-4f69-ada8-181feec1b20f-ks1-q4",
+      "name": "default",
+      "description": "Demo KS1 service plan"
+    }]
+  }]
+}

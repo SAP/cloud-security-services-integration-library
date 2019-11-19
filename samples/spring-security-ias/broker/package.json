@@ -1,0 +1,16 @@
+{
+  "name": "products-broker",
+  "version": "1.0.0",
+  "description": "Products service - service broker",
+  "main": "server.js",
+  "scripts": {
+    "start": "start-broker",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@sap/sbf": "^5.0.0"
+  },
+  "engines": {
+    "node": "^10.0.0"
+  }
+}
