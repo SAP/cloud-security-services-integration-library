@@ -42,8 +42,6 @@ Deploy the application using cf push. It will expect 1 GB of free memory quota.
 cf push --vars-file ../vars.yml
 ```
 
-# Prepare Kernel Service Consumer
-
 ## Register the Kernel Service in Cloud Foundry 
 This command registers the kernel service new service broker with space scope at the provided URL.
 ```bash
@@ -60,7 +58,6 @@ Use the [parameters.json](./parameters.json) that specifies the instance paramet
 cf create-service ks1-q4-<ID> default ks1-q4-consumer -c parameters.json
 ```
 
-
 # Access the Kernel Service with consumer certificate
 After deployment, the spring service can be called with X.509 certificate. Therefore we must generate a certificate.pem and a key.pem file from the service key information as described next.
 
@@ -70,10 +67,21 @@ After deployment, the spring service can be called with X.509 certificate. There
 cf create-service-key ks1-q4-consumer ks1-q4-consumer-sk
 ```
 
+## Fetch ID Token from IAS
+```bash
+curl -X POST \
+  https://xs2security.accounts400.ondemand.com/oauth2/token 
+  -H 'Authorization: Basic <IAS credentials>' 
+  -H 'Content-Type: application/x-www-form-urlencoded' 
+  -d 'response_type=id_token&grant_type=password&username=xs2sec%40kurzepost.de&password=Init1234%23'
+```
+
 Now you can call the Kernel Service with the certificate files.
+
 **TODO**
 ```bash
-curl ...
+curl  --cert certificate.pem --key key.pem  -XPOST https://ks1-q4-<ID>.<LANDSCAPE_APPS_DOMAIN>/hello-token
+-H 'Authorization: Bearer <your ID Token>'
 ```
 
 **TODO**
