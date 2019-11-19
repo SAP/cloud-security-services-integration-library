@@ -70,6 +70,14 @@ public class XsuaaTokenValidationTest {
 				.andExpect(status().isUnauthorized());
 	}
 
+	@Test
+	public void test_expiredToken_isUnauthorized() throws Exception {
+		this.mvc.perform(
+				get("/clientCredentialsToken")
+						.with(bearerToken(JWTUtil.createJWT("/expired_token.txt", "uaa", "legacy-token-key"))))
+				.andExpect(status().isUnauthorized());
+	}
+
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
 		private String token;
 
