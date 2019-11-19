@@ -1,4 +1,4 @@
-package com.sap.cloud.security.javasec.samples.usage;
+package com.sap.cloud.security.javasec.test;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenImpl;
@@ -10,18 +10,21 @@ import java.util.Base64;
 // TODO 14.11.19 c5295400: This is basically a TokenBuilder?
 public class JwtGenerator {
 
-	public static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
+	private static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
+	private static final String HEADER_PARAMETER_ALG = "alg";
+
 	private static final String DOT = ".";
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
 	private final PrivateKey privateKey;
+	public static final String ALG = "alg";
 
 	public JwtGenerator(PrivateKey privateKey) {
 		this.privateKey = privateKey;
 	}
 
 	public JwtGenerator withAlgorithm(String algorithm) {
-		return withHeaderParameter(JwtConstants.Header.ALG, algorithm);
+		return withHeaderParameter(HEADER_PARAMETER_ALG, algorithm);
 	}
 
 	public JwtGenerator withHeaderParameter(String parameterName, String value) {

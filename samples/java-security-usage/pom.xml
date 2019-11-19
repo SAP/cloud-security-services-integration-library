@@ -41,6 +41,11 @@
     <dependencies>
         <dependency>
             <groupId>com.sap.cloud.security.xsuaa</groupId>
+            <artifactId>java-security-test</artifactId>
+            <version>${xsuaa.client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sap.cloud.security.xsuaa</groupId>
             <artifactId>core</artifactId>
             <version>${xsuaa.client.version}</version>
         </dependency>

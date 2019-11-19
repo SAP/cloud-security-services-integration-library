@@ -1,4 +1,4 @@
-package com.sap.cloud.security.javasec.samples.usage;
+package com.sap.cloud.security.javasec.test;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
@@ -15,12 +15,16 @@ import static org.mockito.Mockito.when;
 
 public class JwtGeneratorTest {
 
+	private static final String RS256 = "RS256";
+	private static final String HS256 = "HS256";
+	private static final String RSA = "RSA";
+
 	private final PublicKey publicKey;
 	private final PrivateKey privateKey;
 	private JwtGenerator cut;
 
 	public JwtGeneratorTest() throws NoSuchAlgorithmException {
-		KeyPair keys = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+		KeyPair keys = KeyPairGenerator.getInstance(RSA).generateKeyPair();
 		privateKey = keys.getPrivate();
 		publicKey = keys.getPublic();
 		cut = new JwtGenerator(privateKey);
@@ -35,9 +39,9 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void withAlgorithm_containsAlgorithm() throws Exception {
-		Token token = cut.withAlgorithm(JwtConstants.Algorithms.HS256).createToken();
+		Token token = cut.withAlgorithm(HS256).createToken();
 
-		assertThat(token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME)).isEqualTo(JwtConstants.Algorithms.HS256);
+		assertThat(token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME)).isEqualTo("HS256");
 	}
 
 	@Test
@@ -63,7 +67,7 @@ public class JwtGeneratorTest {
 	@Test
 	public void withAlgorithm_createsTokenWithCorrectSignature() throws Exception {
 		Token token = cut
-				.withAlgorithm(JwtConstants.Algorithms.RS256)
+				.withAlgorithm(RS256)
 				.withHeaderParameter("test-123", "321abc")
 				.withClaim("test-claim-123", "qwerty")
 				.createToken();

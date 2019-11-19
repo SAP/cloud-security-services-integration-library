@@ -1,6 +1,7 @@
 package com.sap.cloud.security.javasec.samples.usage;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.sap.cloud.security.javasec.test.JwtGenerator;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
