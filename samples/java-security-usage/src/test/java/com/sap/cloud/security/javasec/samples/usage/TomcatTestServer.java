@@ -39,6 +39,7 @@ public class TomcatTestServer extends ExternalResource {
 			tomcat.destroy();
 			baseDir.delete();
 		} catch (LifecycleException e) {
+			logger.error("Failed to properly stop the tomcat server!");
 			throw new RuntimeException(e);
 		}
 	}
@@ -51,7 +52,8 @@ public class TomcatTestServer extends ExternalResource {
 			tomcat.addWebapp("", webappDir);
 			tomcat.start();
 		} catch (LifecycleException | ServletException e) {
-			logger.error("Failed to start tomcat server", e);
+			logger.error("Failed to start the tomcat server!");
+			throw new RuntimeException(e);
 		}
 	}
 }
