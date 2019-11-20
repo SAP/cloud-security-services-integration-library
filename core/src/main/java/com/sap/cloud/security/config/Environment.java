@@ -3,6 +3,7 @@ package com.sap.cloud.security.config;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFEnvParser;
 import com.sap.cloud.security.config.cf.CFService;
+import com.sun.tools.internal.xjc.model.CEnumConstant;
 
 import java.util.Optional;
 
@@ -12,13 +13,13 @@ import java.util.Optional;
 // So, we have to make sure that it can be called more than one time without parsing it again.
 public class Environment {
 
+	private CFEnvParser cfEnvParser;
+
 	enum Type {
 		CF, KUBERNETES;
-
 		public static Type from(String typeAsString) {
 			return Type.valueOf(typeAsString.toUpperCase());
 		}
-
 	}
 
 	private Type type;
@@ -31,7 +32,8 @@ public class Environment {
 		systemPropertiesProvider = System::getProperty;
 	}
 
-	Environment(SystemEnvironmentProvider systemEnvironmentProvider, SystemPropertiesProvider systemPropertiesProvider) {
+	Environment(SystemEnvironmentProvider systemEnvironmentProvider,
+			SystemPropertiesProvider systemPropertiesProvider) {
 		this.systemEnvironmentProvider = systemEnvironmentProvider;
 		this.systemPropertiesProvider = systemPropertiesProvider;
 	}
@@ -39,7 +41,6 @@ public class Environment {
 	interface SystemEnvironmentProvider {
 		String getEnv(String key);
 	}
-
 
 	interface SystemPropertiesProvider {
 		String getProperty(String key);
@@ -50,9 +51,11 @@ public class Environment {
 	}
 
 	public OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
-		Optional<String> vcapJsonString = extractVcapJsonString();
-		if (Type.CF.equals(getType()) && vcapJsonString.isPresent()) {
-			return new CFEnvParser(vcapJsonString.get()).load(CFService.XSUAA);
+		if (cfEnvParser == null && Type.CF == getType()) {
+			cfEnvParser = extractVcapJsonString()
+					.map(vcapString -> new CFEnvParser(vcapString))
+					.orElse(null);
+			return cfEnvParser == null ? null : cfEnvParser.load(CFService.XSUAA);
 		}
 		return null; // No other environement supported as of now
 	}
@@ -63,8 +66,7 @@ public class Environment {
 	 */
 	@Deprecated
 	public int getNumberOfXsuaaServices() {
-		return 1; // TODO implement
-		// return envParser.loadAll(CFService.XSUAA).size();
+		return cfEnvParser.loadAll(CFService.XSUAA).size();
 	}
 
 	/**
@@ -78,10 +80,10 @@ public class Environment {
 	 */
 	@Deprecated
 	public OAuth2ServiceConfiguration getXsuaaServiceConfigurationForTokenExchange() {
-		return null; // TODO implement
-		// if getNumberOfXsuaaServices() > 1
-		// return envParser.loadServiceByPlan(CFService.XSUAA,
-		// CFConstants.Plan.BROKER).size();
+		if (getNumberOfXsuaaServices() > 1) {
+			return cfEnvParser.loadByPlan(CFService.XSUAA, CFConstants.Plan.BROKER);
+		}
+		return getXsuaaServiceConfiguration();
 	}
 
 	public Type getType() {

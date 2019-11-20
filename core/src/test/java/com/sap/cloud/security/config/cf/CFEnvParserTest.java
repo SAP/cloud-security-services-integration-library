@@ -1,5 +1,6 @@
 package com.sap.cloud.security.config.cf;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -77,5 +78,19 @@ public class CFEnvParserTest { // Xsuaa
 		List<CFOAuth2ServiceConfiguration> configurations = new CFEnvParser(EMPTY_XSUAA_BINDINGS).loadAll(XSUAA);
 
 		assertThat(configurations).isEmpty();
+	}
+
+	@Test
+	public void loadByPlan_configurationWithPlanExists_returnsConfiguration() {
+		OAuth2ServiceConfiguration configuration = cutMultipleBindings.loadByPlan(XSUAA, APPLICATION);
+
+		assertThat(configuration).isNotNull();
+	}
+
+	@Test
+	public void loadByPlan_configurationPlanDoesNotExist_returnsNull() {
+		OAuth2ServiceConfiguration configuration = cutSingleBinding.loadByPlan(XSUAA, APPLICATION);
+
+		assertThat(configuration).isNull();
 	}
 }
