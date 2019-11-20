@@ -20,7 +20,7 @@ As a prerequisite, an Audit log service instance have to be created and bound to
 cf create-service auditlog standard broker-audit
 ```
 
-#### Create UAA service of plan broker
+#### Create UAA Service Instance of plan broker
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
 ```bash
 cf create-service xsuaa broker ks1-broker-uaa -c xs-security.json
@@ -94,9 +94,9 @@ After deployment, the kernel service can be called with X.509 certificate. There
 ```bash
 curl -X POST \
   https://xs2security.accounts400.ondemand.com/oauth2/token 
-  -H 'Authorization: Basic <IAS credentials>' 
+  -H 'Authorization: Basic <ias-client-credentials>' 
   -H 'Content-Type: application/x-www-form-urlencoded' 
-  -d 'response_type=id_token&grant_type=password&username=xs2sec%40kurzepost.de&password=Init1234%23'
+  -d 'response_type=id_token&grant_type=password&username=<ias-user>&password=<ias-user-pwd>'
 ```
 
 #### Call Kernel Service
