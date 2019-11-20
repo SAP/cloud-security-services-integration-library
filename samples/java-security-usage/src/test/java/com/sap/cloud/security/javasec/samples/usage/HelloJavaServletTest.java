@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sap.cloud.security.javasec.test.JwtGenerator;
 import com.sap.cloud.security.javasec.test.RSAKeypair;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -28,6 +29,7 @@ public class HelloJavaServletTest {
 
 	private static final int APPLICATION_SERVER_PORT = 8282;
 	private static final int MOCK_TOKEN_KEY_SERVICE_PORT = 33195;
+	private static final String EMAIL_ADDRESS = "test.email@example.org";
 
 	private static Properties oldProperties;
 
@@ -80,7 +82,9 @@ public class HelloJavaServletTest {
 		wireMockRule.stubFor(get(urlEqualTo("/")).willReturn(aResponse().withBody(createTokenKeyResponse())));
 
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
+			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
+			assertThat(responseBody).contains(EMAIL_ADDRESS);
 		}
 	}
 
@@ -88,6 +92,7 @@ public class HelloJavaServletTest {
 		return new JwtGenerator()
 				.withHeaderParameter("jku", "http://localhost:" + MOCK_TOKEN_KEY_SERVICE_PORT)
 				.withClaim("cid", "sb-clientId!20")
+				.withClaim(TokenClaims.XSUAA.EMAIL, EMAIL_ADDRESS)
 				.createToken(keyPair.getPrivate());
 	}
 
