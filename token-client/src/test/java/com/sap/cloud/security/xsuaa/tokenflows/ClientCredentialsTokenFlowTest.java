@@ -84,7 +84,7 @@ public class ClientCredentialsTokenFlowTest {
 			cut.execute();
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
-						"Error requesting user token with grant_type 'client_credentials': exception executed REST call");
+						"Error requesting technical user token with grant_type 'client_credentials': exception executed REST call");
 	}
 
 	@Test

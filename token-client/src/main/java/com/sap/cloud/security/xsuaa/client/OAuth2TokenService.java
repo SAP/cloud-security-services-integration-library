@@ -52,7 +52,7 @@ public interface OAuth2TokenService {
 	 * @return the OAuth2AccessToken.
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
-	 * @deprecated instead use jwt bearer.
+	 * @deprecated instead use jwt bearer {{@link #retrieveAccessTokenViaJwtBearerTokenGrant(URI, ClientCredentials, String, String, Map)}}.
 	 */
 	@Deprecated
 	OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
@@ -61,7 +61,7 @@ public interface OAuth2TokenService {
 			throws OAuth2ServiceException;
 
 	/**
-	 * Requests access token from OAuth Server with refresh-token
+	 * Requests access token from OAuth Server with refresh-token.
 	 *
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
@@ -82,6 +82,8 @@ public interface OAuth2TokenService {
 			String refreshToken, @Nullable String subdomain) throws OAuth2ServiceException;
 
 	/**
+	 * Requests access token from OAuth Server with user / password.
+	 *
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
 	 * @param clientCredentials
