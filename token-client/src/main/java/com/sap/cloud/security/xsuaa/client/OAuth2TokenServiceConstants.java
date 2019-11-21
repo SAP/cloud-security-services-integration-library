@@ -21,6 +21,7 @@ public class OAuth2TokenServiceConstants {
 	public static final String GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
 	public static final String GRANT_TYPE_PASSWORD = "password";
 	public static final String GRANT_TYPE_JWT_BEARER = "urn:ietf:params:oauth:grant-type:jwt-bearer";
+	public static final String GRANT_TYPE_CLIENT_X509 = "client_x509";
 
 	public static final String TOKEN_TYPE_OPAQUE = "opaque";
 

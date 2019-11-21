@@ -14,6 +14,8 @@ import java.util.*;
 
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
 
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
+
 /**
  * Custom XSUAA token implementation.
  * <p>
@@ -62,7 +64,8 @@ public class XsuaaToken extends Jwt implements Token {
 
 	@Override
 	public String getUsername() {
-		if (GRANTTYPE_CLIENTCREDENTIAL.equals(getGrantType())) {
+		if (OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS.equals(getGrantType()) ||
+				OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_X509.equalsIgnoreCase(getGrantType())) {
 			return String.format(UNIQUE_CLIENT_NAME_FORMAT, getClientId());
 		} else {
 			return getUniquePrincipalName(getOrigin(), getLogonName());
