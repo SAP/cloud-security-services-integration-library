@@ -1,19 +1,17 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.token.TokenClaims.*;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Mockito.when;
-
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.ValidationResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenImpl;
-import com.sap.cloud.security.token.validation.ValidationResult;
+import static com.sap.cloud.security.token.TokenClaims.ISSUER;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
 
 public class JwtIssuerValidatorTest {
 
@@ -23,7 +21,7 @@ public class JwtIssuerValidatorTest {
 	@Before
 	public void setup() {
 		cut = new JwtIssuerValidator("accounts400.ondemand.com");
-		token = Mockito.mock(TokenImpl.class);
+		token = Mockito.mock(Token.class);
 	}
 
 	@Test
@@ -72,7 +70,7 @@ public class JwtIssuerValidatorTest {
 
 	@Test
 	public void validationFails_whenTokenIssuerIsNotAValidUri() {
-		Token token = Mockito.mock(TokenImpl.class);
+		Token token = Mockito.mock(Token.class);
 		when(token.getClaimAsString(ISSUER)).thenReturn("\0://myauth.com");
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));

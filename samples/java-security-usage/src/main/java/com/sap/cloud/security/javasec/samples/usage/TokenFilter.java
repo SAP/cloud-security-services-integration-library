@@ -1,14 +1,13 @@
 package com.sap.cloud.security.javasec.samples.usage;
 
-import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenImpl;
+import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
-import com.sap.cloud.security.token.validation.validators.CombiningValidator;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.token.validation.validators.TokenValidatorBuilder;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ import javax.annotation.Nullable;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
 public class TokenFilter implements Filter {
 
@@ -27,7 +25,7 @@ public class TokenFilter implements Filter {
 
 
 	public TokenFilter() {
-		tokenExtractor = (authorizationHeader) -> new TokenImpl(authorizationHeader);
+		tokenExtractor = (authorizationHeader) -> new XsuaaToken(authorizationHeader);
 	}
 
 	TokenFilter(TokenExtractor tokenExtractor, Validator<Token> tokenValidator) {
@@ -70,8 +68,8 @@ public class TokenFilter implements Filter {
 
 	private ValidationResult validateToken(Token token) {
 		if (tokenValidator == null) {
-			return CombiningValidator
-					.builderFor(getXsuaaServiceConfiguration())
+			return TokenValidatorBuilder
+					.createFor(getXsuaaServiceConfiguration())
 					.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
 					.build()
 					.validate(token);
@@ -81,13 +79,13 @@ public class TokenFilter implements Filter {
 	}
 
 	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
-		return Environment.getInstance().getXsuaaServiceConfiguration();
+		return Environments.getCurrentEnvironment().getXsuaaServiceConfiguration();
 	}
 
 	@Nullable
 	private OAuth2ServiceConfiguration getOtherXsuaaServiceConfiguration() {
-		if (Environment.getInstance().getNumberOfXsuaaServices() > 1) {
-			return Environment.getInstance().getXsuaaServiceConfigurationForTokenExchange();
+		if (Environments.getCurrentEnvironment().getNumberOfXsuaaServices() > 1) {
+			return Environments.getCurrentEnvironment().getXsuaaServiceConfigurationForTokenExchange();
 		}
 		return null;
 	}

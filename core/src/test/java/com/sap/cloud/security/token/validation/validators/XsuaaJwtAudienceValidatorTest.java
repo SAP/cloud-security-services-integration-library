@@ -2,10 +2,8 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.token.TokenImpl;
 import com.sap.cloud.security.token.TokenTestFactory;
 import com.sap.cloud.security.token.validation.ValidationResult;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +15,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.SCOPES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class XsuaaJwtAudienceValidatorTest {
@@ -26,7 +25,7 @@ public class XsuaaJwtAudienceValidatorTest {
 
 	@Before
 	public void setUp() {
-		token = Mockito.mock(TokenImpl.class);
+		token = Mockito.mock(Token.class);
 		Mockito.when(token.getClaimAsString(CLIENT_ID)).thenReturn("sb-test1!t1");
 	}
 

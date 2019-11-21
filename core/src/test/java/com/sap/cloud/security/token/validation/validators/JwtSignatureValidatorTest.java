@@ -1,21 +1,11 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
-
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenImpl;
+import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
@@ -24,9 +14,16 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class JwtSignatureValidatorTest {
 	private Token accessToken;
@@ -37,8 +34,9 @@ public class JwtSignatureValidatorTest {
 
 	@Before
 	public void setup() throws IOException {
-		accessToken = new TokenImpl(IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
-		otherToken = new TokenImpl(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
+		accessToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
+		// TODO 21.11.19 c5295400: use IAS token implementation when ready
+		otherToken = new XsuaaToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
 
 		endpointsProvider = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProvider.getJwksUri()).thenReturn(URI.create("https://myauth.com/jwks_uri"));
@@ -80,7 +78,7 @@ public class JwtSignatureValidatorTest {
 				.append(otherHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(new TokenImpl(tokenWithOthersSignature)).isErroneous(), is(true));
+		assertThat(cut.validate(new XsuaaToken(tokenWithOthersSignature)).isErroneous(), is(true));
 	}
 
 	@Test

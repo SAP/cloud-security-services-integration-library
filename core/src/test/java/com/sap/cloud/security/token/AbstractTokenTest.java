@@ -5,18 +5,23 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TokenImplTest {
+public class AbstractTokenTest {
 
 	private final String jwtString;
-	private TokenImpl cut;
+	private AbstractToken cut;
 
-	public TokenImplTest() throws IOException {
+	public AbstractTokenTest() throws IOException {
 		jwtString = IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8);
-		cut = new TokenImpl(jwtString);
+		cut = new AbstractToken(jwtString) {
+			@Override public Principal getPrincipal() {
+				return null;
+			}
+		};
 	}
 
 	@Test

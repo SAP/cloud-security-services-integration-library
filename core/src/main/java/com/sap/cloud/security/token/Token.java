@@ -4,6 +4,7 @@ import com.sap.cloud.security.json.JsonParsingException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
 
@@ -85,4 +86,5 @@ public interface Token {
 	// TODO check name?
 	String getAccessToken();
 
+	Principal getPrincipal();
 }

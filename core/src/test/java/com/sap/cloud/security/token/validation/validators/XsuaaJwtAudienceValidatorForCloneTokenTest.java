@@ -2,18 +2,17 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.token.TokenImpl;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.Collections;
+
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class XsuaaJwtAudienceValidatorForCloneTokenTest {
 
@@ -25,7 +24,7 @@ public class XsuaaJwtAudienceValidatorForCloneTokenTest {
 
 	@Before
 	public void setup() {
-		token = Mockito.mock(TokenImpl.class);
+		token = Mockito.mock(Token.class);
 		cut = new XsuaaJwtAudienceValidator("test1!t1", "sb-test1!t1");
 		cut.configureAnotherServiceInstance(XSUAA_BROKER_XSAPPNAME, XSUAA_BROKER_CLIENT_ID);
 	}

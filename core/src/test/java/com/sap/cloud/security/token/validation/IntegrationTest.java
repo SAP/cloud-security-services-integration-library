@@ -1,30 +1,29 @@
 package com.sap.cloud.security.token.validation;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.CFEnvParser;
+import com.sap.cloud.security.config.cf.CFService;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.token.validation.validators.CombiningValidator;
+import com.sap.cloud.security.token.validation.validators.TokenValidatorBuilder;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
+import org.apache.commons.io.IOUtils;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 
-import com.sap.cloud.security.config.cf.CFService;
-import com.sap.cloud.security.token.validation.validators.CombiningValidator;
-import com.sap.cloud.security.token.validation.validators.TokenValidatorBuilder;
-import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.config.cf.CFEnvParser;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenImpl;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class IntegrationTest {
 
@@ -39,7 +38,7 @@ public class IntegrationTest {
 
 		CombiningValidator<Token> tokenValidator = TokenValidatorBuilder.createFor(configuration).build();
 
-		Token xsuaaToken = new TokenImpl(
+		Token xsuaaToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
 		ValidationResult result = tokenValidator.validate(xsuaaToken);
 		assertThat(result.isErroneous()).isTrue();
@@ -61,7 +60,7 @@ public class IntegrationTest {
 				.withOAuth2TokenKeyService(tokenKeyService)
 				.build();
 
-		Token xsuaaToken = new TokenImpl(
+		Token xsuaaToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
 
 		ValidationResult result = combiningValidator.validate(xsuaaToken);

@@ -12,13 +12,13 @@ import java.util.List;
 
 import static com.sap.cloud.security.token.TokenClaims.*;
 
-public class TokenImpl implements Token {
+public abstract class AbstractToken implements Token {
 
 	private final DefaultJsonObject headerJsonObject;
 	private final DefaultJsonObject payloadJsonObject;
 	private final String accessToken;
 
-	public TokenImpl(@Nonnull DecodedJwt decodedJwt) {
+	public AbstractToken(@Nonnull DecodedJwt decodedJwt) {
 		this(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
 	}
 
@@ -30,11 +30,11 @@ public class TokenImpl implements Token {
 	 *            the encoded access token (Jwt or OIDC), e.g. from the
 	 *            Authorization Header.
 	 */
-	public TokenImpl(@Nonnull String accessToken) {
+	public AbstractToken(@Nonnull String accessToken) {
 		this(Base64JwtDecoder.getInstance().decode(removeBearer(accessToken)));
 	}
 
-	TokenImpl(String jsonHeader, String jsonPayload, String accessToken) {
+	AbstractToken(String jsonHeader, String jsonPayload, String accessToken) {
 		headerJsonObject = new DefaultJsonObject(jsonHeader);
 		payloadJsonObject = new DefaultJsonObject(jsonPayload);
 		this.accessToken = accessToken;

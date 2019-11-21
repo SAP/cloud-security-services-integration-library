@@ -1,19 +1,17 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.token.TokenHeader.*;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Mockito.when;
-
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.ValidationResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenImpl;
-import com.sap.cloud.security.token.validation.ValidationResult;
+import static com.sap.cloud.security.token.TokenHeader.JWKS_URL;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
 
 public class XsuaaJwtIssuerValidatorTest {
 	private XsuaaJwtIssuerValidator cut;
@@ -22,7 +20,7 @@ public class XsuaaJwtIssuerValidatorTest {
 	@Before
 	public void setup() {
 		cut = new XsuaaJwtIssuerValidator("myauth.ondemand.com");
-		token = Mockito.mock(TokenImpl.class);
+		token = Mockito.mock(Token.class);
 	}
 
 	@Test
