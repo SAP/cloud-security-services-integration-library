@@ -44,12 +44,12 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void withHeaderParameter_containsHeaderParameter() throws Exception {
-		String parmeterName = "the-key";
+		String parameterName = "the-key";
 		String parameterValue = "the-value";
 
-		Token token = cut.withHeaderParameter(parmeterName, parameterValue).createToken(rsaKeypair.getPrivate());
+		Token token = cut.withHeaderParameter(parameterName, parameterValue).createToken(rsaKeypair.getPrivate());
 
-		assertThat(token.getHeaderParameterAsString(parmeterName)).isEqualTo(parameterValue);
+		assertThat(token.getHeaderParameterAsString(parameterName)).isEqualTo(parameterValue);
 	}
 
 	@Test

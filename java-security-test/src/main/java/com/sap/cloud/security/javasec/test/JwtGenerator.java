@@ -1,6 +1,7 @@
 package com.sap.cloud.security.javasec.test;
 
 import com.sap.cloud.security.token.AbstractToken;
+import com.sap.cloud.security.token.JwtSignatureAlgorithm;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.UserPrincipal;
 import org.json.JSONObject;
@@ -64,14 +65,16 @@ public class JwtGenerator {
 	 *            the signature algorithm.
 	 * @return the builder object.
 	 */
-	public JwtGenerator withSignatureAlgoritm(JwtSignatureAlgorithm signatureAlgorithm) {
+	public JwtGenerator withSignatureAlgorithm(JwtSignatureAlgorithm signatureAlgorithm) {
 		this.signatureAlgorithm = signatureAlgorithm;
 		return this;
 	}
 
+	// TODO: createToken without parameter should use the predefined /resources/privateKey.
+
 	/**
 	 * Creates and signs the token using the the algorithm set via
-	 * {@link #withSignatureAlgoritm(JwtSignatureAlgorithm)} and the given key. By
+	 * {@link #withSignatureAlgorithm(JwtSignatureAlgorithm)} and the given key. By
 	 * default{@link JwtSignatureAlgorithm#RS256} is used.
 	 *
 	 * @param privateKey
@@ -95,17 +98,17 @@ public class JwtGenerator {
 	}
 
 	private void setHeaderAlgorithmValue() {
-		withHeaderParameter(JWT_HEADER_ALG, signatureAlgorithm.getJwtAlgorithmHeaderValue());
+		withHeaderParameter(JWT_HEADER_ALG, signatureAlgorithm.asJwt());
 	}
 
 	private byte[] calculateSignature(byte[] headerAndPayload, PrivateKey privateKey) throws InvalidKeyException {
 		try {
-			Signature signature = Signature.getInstance(signatureAlgorithm.getJavaSignatureAlgorithmName());
+			Signature signature = Signature.getInstance(signatureAlgorithm.asJava());
 			signature.initSign(privateKey);
 			signature.update(headerAndPayload);
 			return signature.sign();
 		} catch (NoSuchAlgorithmException e) {
-			logger.error("Algorithm '{}' not found!", signatureAlgorithm.getJavaSignatureAlgorithmName(), e);
+			logger.error("Algorithm '{}' not found!", signatureAlgorithm.asJava(), e);
 			throw new RuntimeException(e);
 		} catch (SignatureException e) {
 			logger.error("Error creating JWT signature!", e);

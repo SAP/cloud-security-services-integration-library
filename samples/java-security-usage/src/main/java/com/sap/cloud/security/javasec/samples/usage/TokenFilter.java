@@ -53,7 +53,7 @@ public class TokenFilter implements Filter {
 						unauthorized(httpResponse, "Error during token validation: " + result.getErrorDescription());
 					}
 				} catch (Exception e) {
-					unauthorized(httpResponse, "Unexpected error occured: " + e.getMessage());
+					unauthorized(httpResponse, "Unexpected error occurred: " + e.getMessage());
 				}
 			} else {
 				unauthorized(httpResponse, "Authorization header is missing");
