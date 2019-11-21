@@ -1,8 +1,6 @@
 package com.sap.cloud.security.token;
 
-import com.sap.cloud.security.javasec.test.JwtGenerator;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -13,8 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TokenImplTest {
 
-	private TokenImpl cut;
 	private final String jwtString;
+	private TokenImpl cut;
 
 	public TokenImplTest() throws IOException {
 		jwtString = IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8);

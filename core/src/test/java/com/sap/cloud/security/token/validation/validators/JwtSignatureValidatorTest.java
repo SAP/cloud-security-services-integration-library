@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.security.spec.InvalidKeySpecException;
 import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
