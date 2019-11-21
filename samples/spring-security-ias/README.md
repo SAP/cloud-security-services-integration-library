@@ -19,7 +19,7 @@ cf create-service auditlog standard broker-audit
 ```
 
 #### Create UAA Service Instance of plan 'broker'
-Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
+Use the [xs-security.json](./xs-security.json) to define the authentication settings such as the `grant-types` and create a service instance:
 ```bash
 cf create-service xsuaa broker ks1-broker-uaa -c xs-security.json
 ```
@@ -58,7 +58,7 @@ The Kernel Service consumer is bound to IAS Identity Service and as well to the 
 
 
 #### Create Kernel Service Instance and Key
-Use the [parameters.json](./parameters.json) that specifies the instance parameters for the service instance creation:
+Use the [parameters.json](./parameters.json) that specifies the instance parameters such as the `grant-types` for the service instance creation:
 
 ```bash
 cf create-service ks1-q4-<ID> default ks1-q4-consumer -c parameters.json
@@ -84,31 +84,36 @@ cf create-service-key ks1-consumer-ias ks1-consumer-ias-sk
 After deployment, the Kernel Service can be called with X.509 certificate. Therefore we must generate a certificate.pem and a key.pem file from the service key information as described next.
 
 #### Create certificate.pem and key.pem files for Kernel Service instance
-In case you have [`jq`](https://stedolan.github.io/jq/download/) and [`curl`]() installed, you can use the `extract.sh` script.
+In case you have [`jq`](https://stedolan.github.io/jq/download/) and [`curl`](https://curl.haxx.se/) installed, you can use the [`extract.sh`](extract.sh) script.
 
-The extract.sh script is parameterized with a json file which contains the service key including the certificate and the key.
+The `extract.sh` script needs to be parameterized with a json file which contains the service key including the certificate and the key:
 
 ```bash
-TODO save as file cf service-key ks1-q4-consumer ks1-q4-consumer-sk >> consumer_srv_key.json
+cf service-key ks1-q4-consumer ks1-q4-consumer-sk > consumer_srv_key.json
+```
+
+You need to edit the `consumer_srv_key.json` file and delete the first lines and remove the outer object `uaa`, so that it becomes a valid json file. Then run the `extract.sh` script in order to extract the `certificate.pem` and `key.pem` files:
+
+```bash
 ./extract.sh consumer_srv_key.json 
 ```
-Now, the keys are extracted to `certificate.pem` and `key.pem`.
 
 #### Fetch ID Token as Consumer from IAS
+In order to get an ID Token (OIDC token) you need your own IAS tenant.
 ```bash
 curl -X POST \
-  https://xs2security.accounts400.ondemand.com/oauth2/token 
+  https://<ias-tenant>.accounts400.ondemand.com/oauth2/token 
   -H 'Authorization: Basic <ias-client-credentials>' 
   -H 'Content-Type: application/x-www-form-urlencoded' 
   -d 'response_type=id_token&grant_type=password&username=<ias-user>&password=<ias-user-pwd>'
 ```
 
 #### Call Kernel Service
-Now you can call the Kernel Service with the certificate files.
+Now you can call the Kernel Service via the `cert` domain with the certificate files.
 
 ```bash
-curl  --cert certificate.pem --key key.pem  -XPOST https://ks1-q4-<ID>.<LANDSCAPE_APPS_DOMAIN>/hello-token
--H 'Authorization: Bearer <your ID Token>'
+curl  --cert certificate.pem --key key.pem  -XPOST https://ks1-q4-<ID>.cert.<LANDSCAPE_APPS_DOMAIN>/hello-token
+-H 'Authorization: Bearer <oidc-token>'
 ```
 
 You will get a response like:
@@ -126,10 +131,21 @@ You will get a response like:
 }
 ```
 
+#### Call application locally
+After deployment, the spring service can be called with X.509 certificate:
+```shell
+mvn spring-boot:run
+
+curl -X GET http://localhost:9999/hello-token
+-H 'Authorization: Bearer <oidc-token>'
+-H 'x-forwarded-client-cert: <certificate (not pem encoded)>'
+```
+
 ## Assign Role Collection to User
 **TOBEREMOVED:** Create shadow user: https://ks-demo.authentication.sap.hana.ondemand.com/ (select XSUAA Trust Idp) which redirects you to IAS account, where you need to login with your IAS credentials.
 
 **TODO** API Business Hub / SCIM Group / User
+
 
 ## Clean-Up
 
@@ -144,4 +160,3 @@ cf delete-service ks1-q4-consumer
 cf delete -f ks1-q4
 cf delete -f ks1-broker-q4
 ```
-

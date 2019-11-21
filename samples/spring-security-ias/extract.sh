@@ -11,8 +11,8 @@ if [ "$1" ]; then
         export CLIENTID=`cat $1 | jq --raw-output '.clientid'`
         echo "keys extracted to certificate.pem and key.pem"
         echo
-        echo "curl to obtain a token:"
-        echo curl  --cert certificate.pem --key key.pem  -XPOST $URL/oauth/token -d "'grant_type=client_x509&client_id="$CLIENTID"'"
+        # echo "test: curl to obtain a token:"
+        # echo curl  --cert certificate.pem --key key.pem  -XPOST $URL/oauth/token -d "'grant_type=client_x509&client_id="$CLIENTID"'"
 else
         echo "call $0 <path to service-key json>"
 fi
