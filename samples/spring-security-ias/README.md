@@ -68,6 +68,8 @@ and its key:
 cf create-service-key ks1-q4-consumer ks1-q4-consumer-sk
 ```
 
+> You can have a look at the key with `cf service-key ks1-q4-consumer ks1-q4-consumer-sk`. This includes the so called consumer certificate which is needed for the mutualTLS connection to the Kernel Service.
+
 #### Create IAS Service Instance and Key
 ```bash
 cf create-service iasb default ks1-consumer-ias -c '{"redirect_uris": ["https://ks1-q4-<ID>.<LANDSCAPE_APPS_DOMAIN>/uaa/login/callback/my-oidc"]}'
@@ -109,7 +111,7 @@ You will get a response like:
   "client id": "sb-spring-security-xsuaa-usage!t291",
   "family name": "Jones",
   "given name": "Bob",
-  "subaccount id": "2f047cc0-4364-4d8b-ae70-b8bd39d15bf0",
+  "subaccount id": "2f047cc0-4364-4d8b-ae70-b8bd38d15bf0",
   "logon name": "bob.jones@example.com",
   "email": "bob.jones@example.com",
   "grant type": "password",
