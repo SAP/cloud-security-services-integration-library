@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.token.IasToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -35,8 +36,7 @@ public class JwtSignatureValidatorTest {
 	@Before
 	public void setup() throws IOException {
 		accessToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
-		// TODO 21.11.19 c5295400: use IAS token implementation when ready
-		otherToken = new XsuaaToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
+		otherToken = new IasToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
 
 		endpointsProvider = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProvider.getJwksUri()).thenReturn(URI.create("https://myauth.com/jwks_uri"));

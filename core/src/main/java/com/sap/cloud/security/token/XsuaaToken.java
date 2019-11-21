@@ -21,7 +21,24 @@ public class XsuaaToken extends AbstractToken {
 	}
 
 	@Override
-	public Principal getPrincipal() {
-		return () -> getClaimAsString(TokenClaims.XSUAA.LOGON_NAME);
+	public UserPrincipal getPrincipal() {
+		return new UserPrincipal() {
+			@Override
+			public String getFirstName() {
+				return getClaimAsString(TokenClaims.XSUAA.GIVEN_NAME);
+			}
+			@Override
+			public String getLastName() {
+				return getClaimAsString(TokenClaims.XSUAA.FAMILY_NAME);
+			}
+			@Override
+			public String getEmail() {
+				return getClaimAsString(TokenClaims.XSUAA.EMAIL);
+			}
+			@Override
+			public String getUsername() {
+				return getClaimAsString(TokenClaims.XSUAA.LOGON_NAME);
+			}
+		};
 	}
 }
