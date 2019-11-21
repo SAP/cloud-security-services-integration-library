@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 
+// TODO provide Rule with java-security-test
 public class TomcatTestServer extends ExternalResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(TomcatTestServer.class);

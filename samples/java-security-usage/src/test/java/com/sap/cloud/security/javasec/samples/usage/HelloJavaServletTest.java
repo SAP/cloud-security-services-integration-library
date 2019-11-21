@@ -27,22 +27,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletTest {
 
-	private static final int APPLICATION_SERVER_PORT = 8282;
-	private static final int MOCK_TOKEN_KEY_SERVICE_PORT = 33195;
+	private static final int APPLICATION_SERVER_PORT = 8282; // TODO get from rule
+	private static final int MOCK_TOKEN_KEY_SERVICE_PORT = 33195; // TODO get from rule
 	private static final String EMAIL_ADDRESS = "test.email@example.org";
 
 	private static Properties oldProperties;
 
 	@Rule
+	// TODO provide default Rule with default ports for mock server and tomcat server as part of java-security-test
+	// allow overrule of ports
 	public final WireMockRule wireMockRule = new WireMockRule(options().port(MOCK_TOKEN_KEY_SERVICE_PORT));
 
 	@Rule
+	// TODO see above
 	public final TomcatTestServer server = new TomcatTestServer(APPLICATION_SERVER_PORT, "src/test/webapp");
 
 	private final RSAKeypair keyPair;
 	private final Token validToken;
 
-	public HelloJavaServletTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+	public HelloJavaServletTest() throws InvalidKeyException {
 		keyPair = new RSAKeypair();
 		validToken = createValidToken();
 	}
@@ -79,7 +82,7 @@ public class HelloJavaServletTest {
 	public void request_withValidToken() throws IOException {
 		HttpGet request = createGetRequest("Bearer " + validToken.getAccessToken());
 
-		wireMockRule.stubFor(get(urlEqualTo("/")).willReturn(aResponse().withBody(createTokenKeyResponse())));
+		wireMockRule.stubFor(get(urlEqualTo("/")).willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
 
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -88,7 +91,8 @@ public class HelloJavaServletTest {
 		}
 	}
 
-	private Token createValidToken() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+	// TODO our Rule should provide a JwtGenerator instance that is preconfigured with jku header
+	private Token createValidToken() throws InvalidKeyException {
 		return new JwtGenerator()
 				.withHeaderParameter("jku", "http://localhost:" + MOCK_TOKEN_KEY_SERVICE_PORT)
 				.withClaim("cid", "sb-clientId!20")
@@ -96,7 +100,9 @@ public class HelloJavaServletTest {
 				.createToken(keyPair.getPrivate());
 	}
 
-	private String createTokenKeyResponse() throws IOException {
+	// TODO Offer this as a default in context of our Rule with no parameters
+	//  allow overwrite by another method with kid (and optionally with publicKey)
+	private String createDefaultTokenKeyResponse() throws IOException {
 		return IOUtils.resourceToString("/token_keys_template.json", StandardCharsets.UTF_8)
 				.replace("$kid", "default-kid")
 				.replace("$public_key", Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
