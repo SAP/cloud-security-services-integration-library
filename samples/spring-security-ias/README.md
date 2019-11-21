@@ -1,11 +1,9 @@
 # Description
-In some situations, the client does not support OAuth protocols so you need to fall back to  authentication. This sample uses a implementation of the [BearerTokenResolver](https://docs.spring.io/spring-security/site/docs/5.1.1.RELEASE/api/org/springframework/security/oauth2/server/resource/web/BearerTokenResolver.html). Depending on the configuration, this resolver will
-- Support OAuth JWT tokens and
-  - either exchange incoming credentials using the OAuth password grant flow
-  - or exchange incoming credentials using the OAuth client credential flow
+This sample demonstrates how to develop a Kernel Service as a spring-boot application, which is basically a Service Broker, and how it can be consumed. As of version `TODO` the `token-client` client library
+- supports mutual TLS for Apache Rest clients
+- exchanges IAS Open ID tokens (OIDC) with JWT bearer assertions using the `/delegation/oauth/token` endpoint of the XSUAA Authorization Server. This validates the consumer via X.509 client certificate and issues a JWT bearer assertion including the users authorizations.
 
-# Coding
-This sample is using the spring-security project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. It enables caching using [`Caffeine`](https://github.com/ben-manes/caffeine) to avoid requesting new tokens from XSUAA for every incoming request.
+![](overview.png)
 
 # Deployment on Cloud Foundry
 
@@ -13,14 +11,14 @@ This sample is using the spring-security project. As of version 5 of spring-secu
 We are going to deploy the Kernel Service as service broker.
 Therefore the following steps are required.
 
-#### Create Audit log service
+#### Create Audit Log Service
 As a prerequisite, an Audit log service instance have to be created and bound to the broker application
 
 ```bash
 cf create-service auditlog standard broker-audit
 ```
 
-#### Create UAA Service Instance of plan broker
+#### Create UAA Service Instance of plan 'broker'
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
 ```bash
 cf create-service xsuaa broker ks1-broker-uaa -c xs-security.json
@@ -28,7 +26,7 @@ cf create-service xsuaa broker ks1-broker-uaa -c xs-security.json
 
 > Note that your subaccount needs to be activated for certificates! 
 
-#### Compile the Kernel Service (Spring application)
+#### Compile the Kernel Service (Spring Application)
 Run maven to package the application
 ```bash
 mvn clean package
@@ -56,8 +54,7 @@ Now `cf m` will list you also your `ks1-q4-<ID>` and we can create an instance o
 
 
 ## Create KS1 Consumer Application
-The Kernel Service consumer is bound to IAS Identity Service and as well to the Kernel Service ks1. This binding will be realized by using service keys. 
-
+The Kernel Service consumer is bound to IAS Identity Service and as well to the Kernel Service ks1. This binding is simulated by using service keys.
 
 
 #### Create Kernel Service Instance and Key
@@ -82,15 +79,14 @@ cf create-service-key ks1-consumer-ias ks1-consumer-ias-sk
 
 
 
-
-## Access the Kernel Service with consumer certificate
+## Access the Kernel Service with Consumer Certificate
 After deployment, the kernel service can be called with X.509 certificate. Therefore we must generate a certificate.pem and a key.pem file from the service key information as described next.
 
 #### Create certificate.pem and key.pem files for Kernel Service instance
 
 **TODO** jq script???
 
-#### Fetch ID Token as consumer from IAS
+#### Fetch ID Token as Consumer from IAS
 ```bash
 curl -X POST \
   https://xs2security.accounts400.ondemand.com/oauth2/token 
@@ -129,11 +125,15 @@ You will get a response like:
 
 # Clean-Up
 
-Finally delete your application and your service instances using the following commands:
+Finally delete your application and your (broker) service instances using the following commands:
 ```
 cf delete-service-broker ks1-q4-broker
 # cf purge-service-offering ks1-q4-<ID>
+cf delete-service broker-audit
+cf delete-service ks1-broker-uaa
+cf delete-service ks1-consumer-ias
+cf delete-service ks1-q4-consumer
 cf delete -f ks1-q4
-cf delete-service -f ks1-uaa
+cf delete -f ks1-broker-q4
 ```
 
