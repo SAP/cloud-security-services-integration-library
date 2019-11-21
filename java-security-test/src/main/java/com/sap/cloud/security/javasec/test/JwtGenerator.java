@@ -2,6 +2,7 @@ package com.sap.cloud.security.javasec.test;
 
 import com.sap.cloud.security.token.AbstractToken;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.UserPrincipal;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +88,7 @@ public class JwtGenerator {
 		String headerAndPayload = header + DOT + payload;
 		String signature = base64Encode(calculateSignature(headerAndPayload.getBytes(), privateKey));
 		return new AbstractToken(headerAndPayload + DOT + signature) {
-			@Override public Principal getPrincipal() {
+			@Override public UserPrincipal getPrincipal() {
 				return null;
 			}
 		};
