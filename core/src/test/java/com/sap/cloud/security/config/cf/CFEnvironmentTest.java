@@ -26,7 +26,6 @@ public class CFEnvironmentTest {
 		cut = new CFEnvironment(fakeSystemEnvironmentProvider, fakeSystemPropertiesProvider);
 	}
 
-
 	@Test
 	public void getXsuaaServiceConfiguration() {
 

@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 
 import com.sap.cloud.security.config.cf.CFService;
+import com.sap.cloud.security.token.validation.validators.CombiningValidator;
 import com.sap.cloud.security.token.validation.validators.TokenValidatorBuilder;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
@@ -36,7 +37,7 @@ public class IntegrationTest {
 		when(configuration.getProperty(CFConstants.XSUAA.APP_ID)).thenReturn("test-app!t123");
 		when(configuration.getServiceName()).thenReturn(CFService.XSUAA.getName());
 
-		Validator<Token> tokenValidator = TokenValidatorBuilder.createFor(configuration).build();
+		CombiningValidator<Token> tokenValidator = TokenValidatorBuilder.createFor(configuration).build();
 
 		Token xsuaaToken = new TokenImpl(
 				IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
@@ -56,7 +57,7 @@ public class IntegrationTest {
 		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
 				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
 
-		Validator<Token>  combiningValidator = TokenValidatorBuilder.createFor(configuration)
+		CombiningValidator<Token> combiningValidator = TokenValidatorBuilder.createFor(configuration)
 				.withOAuth2TokenKeyService(tokenKeyService)
 				.build();
 

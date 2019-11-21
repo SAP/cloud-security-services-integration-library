@@ -1,23 +1,15 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.config.cf.CFService;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
-import com.sun.tools.javac.util.List;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.util.Lists.newArrayList;
 
 public class CombiningValidatorTest {
 
@@ -35,7 +27,8 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoValidValidators_validResult() {
-		Validator<Token> combiningValidator = new CombiningValidator<>(List.of(validValidator(), validValidator()));
+		Validator<Token> combiningValidator = new CombiningValidator<>(
+				newArrayList(validValidator(), validValidator()));
 
 		ValidationResult validationResult = combiningValidator.validate(null);
 
@@ -44,7 +37,8 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void validate_twoInvalidValidators_invalidResult() {
-		Validator<Token> combiningValidator = new CombiningValidator<>(List.of(invalidValidator(), invalidValidator()));
+		Validator<Token> combiningValidator = new CombiningValidator<>(
+				newArrayList(invalidValidator(), invalidValidator()));
 
 		ValidationResult validationResult = combiningValidator.validate(null);
 
@@ -54,7 +48,7 @@ public class CombiningValidatorTest {
 	@Test
 	public void validate_twoInvalidValidators_containsOnlyOneErrorMessages() {
 		Validator<Token> combiningValidator = new CombiningValidator<>(
-				List.of(validValidator(), invalidValidator(FIRST_ERROR_MESSAGE),
+				newArrayList(validValidator(), invalidValidator(FIRST_ERROR_MESSAGE),
 						invalidValidator(SECOND_ERROR_MESSAGE)));
 
 		String error = combiningValidator.validate(null).getErrorDescription();

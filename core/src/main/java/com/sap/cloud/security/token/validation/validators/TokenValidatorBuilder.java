@@ -15,8 +15,8 @@ import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
 import static com.sap.cloud.security.config.cf.CFService.XSUAA;
 
 /**
- * Class used to build a token validator. Custom validators can be added
- * via {@link #with(Validator<Token>)} method.
+ * Class used to build a token validator. Custom validators can be added via
+ * {@link #with(Validator)} method.
  */
 public class TokenValidatorBuilder {
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
@@ -73,7 +73,7 @@ public class TokenValidatorBuilder {
 	/**
 	 * @return the combined validators.
 	 */
-	public Validator<Token> build() {
+	public CombiningValidator<Token> build() {
 		List<Validator<Token>> allValidators = createDefaultValidators();
 		allValidators.addAll(validators);
 		return new CombiningValidator<>(allValidators);
