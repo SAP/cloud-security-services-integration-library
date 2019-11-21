@@ -80,13 +80,19 @@ cf create-service-key ks1-consumer-ias ks1-consumer-ias-sk
 ```
 
 
-
 ## Access the Kernel Service with Consumer Certificate
-After deployment, the kernel service can be called with X.509 certificate. Therefore we must generate a certificate.pem and a key.pem file from the service key information as described next.
+After deployment, the Kernel Service can be called with X.509 certificate. Therefore we must generate a certificate.pem and a key.pem file from the service key information as described next.
 
 #### Create certificate.pem and key.pem files for Kernel Service instance
+In case you have [`jq`](https://stedolan.github.io/jq/download/) and [`curl`]() installed, you can use the `extract.sh` script.
 
-**TODO** jq script???
+The extract.sh script is parameterized with a json file which contains the service key including the certificate and the key.
+
+```bash
+TODO save as file cf service-key ks1-q4-consumer ks1-q4-consumer-sk >> consumer_srv_key.json
+./extract.sh consumer_srv_key.json 
+```
+Now, the keys are extracted to `certificate.pem` and `key.pem`.
 
 #### Fetch ID Token as Consumer from IAS
 ```bash
@@ -125,7 +131,7 @@ You will get a response like:
 
 **TODO** API Business Hub / SCIM Group / User
 
-# Clean-Up
+## Clean-Up
 
 Finally delete your application and your (broker) service instances using the following commands:
 ```
