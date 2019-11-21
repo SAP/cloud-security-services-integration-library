@@ -12,6 +12,7 @@ import com.sap.cloud.security.token.validation.Validator;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
+import java.util.function.Supplier;
 
 /**
  * Checks whether the jwt token is used before the "expiration (exp)" time and
@@ -28,17 +29,17 @@ public class JwtTimestampValidator implements Validator<Token> {
 	 */
 	private static final TemporalAmount DEFAULT_TOLERANCE = Duration.ofMinutes(1);
 
-	private final TimeProvider timeProvider;
+	private final Supplier<Instant> timeProvider;
 	private final TemporalAmount tolerance;
 
 	public JwtTimestampValidator() {
-		this(() -> Instant.now(), DEFAULT_TOLERANCE);
+		this(Instant::now, DEFAULT_TOLERANCE);
 	}
 
 	/**
 	 * For testing only!
 	 */
-	JwtTimestampValidator(TimeProvider timeProvider, @Nullable TemporalAmount tolerance) {
+	JwtTimestampValidator(Supplier<Instant> timeProvider, @Nullable TemporalAmount tolerance) {
 		this.timeProvider = timeProvider;
 		this.tolerance = tolerance != null ? tolerance : DEFAULT_TOLERANCE;
 	}
@@ -84,11 +85,7 @@ public class JwtTimestampValidator implements Validator<Token> {
 	}
 
 	private Instant now() {
-		return timeProvider.now();
-	}
-
-	interface TimeProvider {
-		Instant now();
+		return timeProvider.get();
 	}
 
 }
