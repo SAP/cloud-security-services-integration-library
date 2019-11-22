@@ -2,7 +2,7 @@ package com.sap.cloud.security.javasec.samples.usage;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sap.cloud.security.javasec.test.JwtGenerator;
-import com.sap.cloud.security.javasec.test.RSAKeypair;
+import com.sap.cloud.security.javasec.test.RSAKeyPair;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -11,13 +11,14 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
 import java.util.Base64;
 import java.util.Properties;
 
@@ -42,11 +43,11 @@ public class HelloJavaServletTest {
 	// TODO see above
 	public final TomcatTestServer server = new TomcatTestServer(APPLICATION_SERVER_PORT, "src/test/webapp");
 
-	private final RSAKeypair keyPair;
 	private final Token validToken;
+	private final RSAKeyPair keyPair;
 
 	public HelloJavaServletTest() throws InvalidKeyException {
-		keyPair = new RSAKeypair();
+		keyPair = RSAKeyPair.generate();
 		validToken = createValidToken();
 	}
 
@@ -97,7 +98,8 @@ public class HelloJavaServletTest {
 				.withHeaderParameter("jku", "http://localhost:" + MOCK_TOKEN_KEY_SERVICE_PORT)
 				.withClaim("cid", "sb-clientId!20")
 				.withClaim(TokenClaims.XSUAA.EMAIL, EMAIL_ADDRESS)
-				.createToken(keyPair.getPrivate());
+				.withPrivateKey(keyPair.getPrivate())
+				.createToken();
 	}
 
 	// TODO Offer this as a default in context of our Rule with no parameters
