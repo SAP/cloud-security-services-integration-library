@@ -1,8 +1,6 @@
 package com.sap.cloud.security.javasec.samples.usage;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.sap.cloud.security.javasec.test.JwtGenerator;
-import com.sap.cloud.security.javasec.test.RSAKeyPair;
+import com.sap.cloud.security.javasec.test.SecurityIntegrationTestRule;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -18,38 +16,20 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.util.Base64;
 import java.util.Properties;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletTest {
 
-	private static final int APPLICATION_SERVER_PORT = 8282; // TODO get from rule
-	private static final int MOCK_TOKEN_KEY_SERVICE_PORT = 33195; // TODO get from rule
 	private static final String EMAIL_ADDRESS = "test.email@example.org";
-
+	public static final int APPLICATION_SERVER_PORT = 8282;
 	private static Properties oldProperties;
 
 	@Rule
-	// TODO provide default Rule with default ports for mock server and tomcat server as part of java-security-test
-	// allow overrule of ports
-	public final WireMockRule wireMockRule = new WireMockRule(options().port(MOCK_TOKEN_KEY_SERVICE_PORT));
-
-	@Rule
-	// TODO see above
-	public final TomcatTestServer server = new TomcatTestServer(APPLICATION_SERVER_PORT, "src/test/webapp");
-
-	private final Token validToken;
-	private final RSAKeyPair keyPair;
-
-	public HelloJavaServletTest() throws InvalidKeyException {
-		keyPair = RSAKeyPair.generate();
-		validToken = createValidToken();
-	}
+	public SecurityIntegrationTestRule rule = new SecurityIntegrationTestRule()
+			.setPort(8181)
+			.useApplicationServer("src/test/webapp", APPLICATION_SERVER_PORT);
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
@@ -72,7 +52,9 @@ public class HelloJavaServletTest {
 
 	@Test
 	public void requestWithoutHeader_statusUnauthorized() throws Exception {
-		HttpGet request = createGetRequest("Bearer " + validToken.getAccessToken());
+		Token token = rule.getToken();
+
+		HttpGet request = createGetRequest("Bearer " + token.getAccessToken());
 		request.setHeader(HttpHeaders.AUTHORIZATION, null);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
@@ -81,9 +63,8 @@ public class HelloJavaServletTest {
 
 	@Test
 	public void request_withValidToken() throws IOException {
-		HttpGet request = createGetRequest("Bearer " + validToken.getAccessToken());
-
-		wireMockRule.stubFor(get(urlEqualTo("/")).willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
+		rule.getPreconfiguredJwtGenerator().withClaim(TokenClaims.XSUAA.EMAIL, EMAIL_ADDRESS);
+		HttpGet request = createGetRequest("Bearer " + rule.getToken().getAccessToken());
 
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -92,28 +73,10 @@ public class HelloJavaServletTest {
 		}
 	}
 
-	// TODO our Rule should provide a JwtGenerator instance that is preconfigured with jku header
-	private Token createValidToken() throws InvalidKeyException {
-		return new JwtGenerator()
-				.withHeaderParameter("jku", "http://localhost:" + MOCK_TOKEN_KEY_SERVICE_PORT)
-				.withClaim("cid", "sb-clientId!20")
-				.withClaim(TokenClaims.XSUAA.EMAIL, EMAIL_ADDRESS)
-				.withPrivateKey(keyPair.getPrivate())
-				.createToken();
-	}
-
-	// TODO Offer this as a default in context of our Rule with no parameters
-	//  allow overwrite by another method with kid (and optionally with publicKey)
-	private String createDefaultTokenKeyResponse() throws IOException {
-		return IOUtils.resourceToString("/token_keys_template.json", StandardCharsets.UTF_8)
-				.replace("$kid", "default-kid")
-				.replace("$public_key", Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
-	}
-
 	private HttpGet createGetRequest(String bearer_token) {
-		HttpGet httpPost = new HttpGet("http://localhost:" + APPLICATION_SERVER_PORT + "/hello-java-security");
-		httpPost.setHeader(HttpHeaders.AUTHORIZATION, bearer_token);
-		return httpPost;
+		HttpGet httpGet = new HttpGet("http://localhost:" + APPLICATION_SERVER_PORT + "/hello-java-security");
+		httpGet.setHeader(HttpHeaders.AUTHORIZATION, bearer_token);
+		return httpGet;
 	}
 
 }

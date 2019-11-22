@@ -3,14 +3,11 @@ package com.sap.cloud.security.javasec.test;
 import com.sap.cloud.security.token.AbstractToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
-import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.security.*;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
 /**
@@ -100,30 +97,20 @@ public class JwtGenerator {
 	 * @return the token.
 	 */
 	public Token createToken() {
+		if (privateKey == null) {
+			throw new IllegalStateException("Private key was not set!");
+		}
 		setHeaderAlgorithmValue();
 		String header = base64Encode(jsonHeader.toString().getBytes());
 		String payload = base64Encode(jsonPayload.toString().getBytes());
 		String headerAndPayload = header + DOT + payload;
 		String signature = base64Encode(signatureCalculator
-				.calculateSignature(getPrivateKey(), this.signatureAlgorithm, headerAndPayload.getBytes()));
+				.calculateSignature(privateKey, signatureAlgorithm, headerAndPayload.getBytes()));
 		return new AbstractToken(headerAndPayload + DOT + signature) {
 			@Override public Principal getPrincipal() {
 				return null;
 			}
 		};
-	}
-
-	private PrivateKey getPrivateKey() {
-		if (privateKey == null) {
-			try {
-				String privateKeyPath = IOUtils.resourceToURL("/privateKey.txt").getPath();
-				privateKey = RSAKeys.loadPrivateKey(privateKeyPath);
-			} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-				logger.error("Erorr reading public/private key pair from resources", e);
-				throw new RuntimeException(e);
-			}
-		}
-		return privateKey;
 	}
 
 	private void setHeaderAlgorithmValue() {
