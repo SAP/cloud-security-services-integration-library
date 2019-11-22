@@ -19,29 +19,27 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 public class JsonWebKeyImpl implements JsonWebKey {
-	private final JwtSignatureAlgorithm algorithm;
+	private final JwtSignatureAlgorithm keyAlgorithm;
 	private final String keyId;
 	private final String pemEncodedPublicKey;
 	private final String modulus;
 	private final String publicExponent;
 	private PublicKey publicKey;
 
-	public JsonWebKeyImpl(String keyType, @Nullable String keyId, @Nullable String algorithm, String modulus,
+	public JsonWebKeyImpl(JwtSignatureAlgorithm keyAlgorithm, @Nullable String keyId, String modulus,
 			String publicExponent, @Nullable String pemEncodedPublicKey) {
-		Assertions.assertNotNull(keyType, "keyType must be not null");
+		Assertions.assertNotNull(keyAlgorithm, "keyAlgorithm must be not null");
 		this.keyId = keyId != null ? keyId : DEFAULT_KEY_ID;
 
 		this.pemEncodedPublicKey = pemEncodedPublicKey;
 		this.publicExponent = publicExponent;
 		this.modulus = modulus;
-
-		this.algorithm = algorithm != null ? JwtSignatureAlgorithm.fromValue(algorithm)
-				: JwtSignatureAlgorithm.fromType(keyType);
+		this.keyAlgorithm = keyAlgorithm;
 	}
 
 	@Override
-	public JwtSignatureAlgorithm getAlgorithm() {
-		return algorithm;
+	public JwtSignatureAlgorithm getKeyAlgorithm() {
+		return keyAlgorithm;
 	}
 
 	@Nullable
@@ -56,11 +54,11 @@ public class JsonWebKeyImpl implements JsonWebKey {
 			return publicKey;
 		}
 		if (pemEncodedPublicKey != null) {
-			publicKey = createPublicKeyFromPemEncodedPubliKey(algorithm, pemEncodedPublicKey);
-		} else if (algorithm.type() == "RSA") {
+			publicKey = createPublicKeyFromPemEncodedPubliKey(keyAlgorithm, pemEncodedPublicKey);
+		} else if (keyAlgorithm.type() == "RSA") {
 			publicKey = createRSAPublicKey(publicExponent, modulus);
 		} else {
-			throw new IllegalStateException("JWT token with web key type " + algorithm + " can not be verified.");
+			throw new IllegalStateException("JWT token with web key type " + keyAlgorithm + " can not be verified.");
 		}
 		return publicKey;
 	}
@@ -93,7 +91,7 @@ public class JsonWebKeyImpl implements JsonWebKey {
 
 	@Override
 	public int hashCode() {
-		return calculateUniqueId(algorithm, keyId);
+		return calculateUniqueId(keyAlgorithm, keyId);
 	}
 
 	public static int calculateUniqueId(JwtSignatureAlgorithm algorithm, String keyId) {
@@ -109,7 +107,7 @@ public class JsonWebKeyImpl implements JsonWebKey {
 
 		JsonWebKeyImpl that = (JsonWebKeyImpl) o;
 
-		if (getAlgorithm() != that.getAlgorithm())
+		if (getKeyAlgorithm() != that.getKeyAlgorithm())
 			return false;
 		return keyId.equals(that.keyId);
 	}

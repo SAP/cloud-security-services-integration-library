@@ -7,7 +7,9 @@ public class Environments {
 	private static final Environment cfEnvironment = new CFEnvironment();
 
 	public static Environment getCurrentEnvironment() {
-		return cfEnvironment; // TODO implement support for other environments
+		// TODO probe in which environemt it runs currently: CF or Kubernetes
+		// if(System.getenv("VCAP_SERVICES") != null) {
+		return cfEnvironment;
 	}
 
 }

@@ -23,12 +23,12 @@ public class JsonWebKeySetTest {
 	public void getKeyByAlgorithmAndId_returnsKey_whenKeyHasBeenInserted() {
 		cut.put(JSON_WEB_KEY);
 
-		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getAlgorithm(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getKeyAlgorithm(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
 	}
 
 	@Test
 	public void getKeyByAlgorithmAndId_returnsNull_onEmptyJSONWebKeySet() {
-		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getAlgorithm(), JSON_WEB_KEY.getId())).isNull();
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getKeyAlgorithm(), JSON_WEB_KEY.getId())).isNull();
 	}
 
 	@Test
@@ -46,7 +46,7 @@ public class JsonWebKeySetTest {
 
 		cut.put(JSON_WEB_KEY);
 
-		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getAlgorithm(), differentKeyId)).isNull();
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getKeyAlgorithm(), differentKeyId)).isNull();
 	}
 
 	@Test
@@ -55,7 +55,7 @@ public class JsonWebKeySetTest {
 
 		cut.put(JsonWebKeyTestFactory.createDefault());
 
-		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getAlgorithm(), DEFAULT_KEY_ID).getId().equals(DEFAULT_KEY_ID));
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getKeyAlgorithm(), DEFAULT_KEY_ID).getId().equals(DEFAULT_KEY_ID));
 	}
 
 	@Test
@@ -84,8 +84,8 @@ public class JsonWebKeySetTest {
 		cut.put(JSON_WEB_KEY);
 
 		cut.putAll(other);
-		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getAlgorithm(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
-		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY_DEFAULT.getAlgorithm(), JSON_WEB_KEY_DEFAULT.getId()))
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getKeyAlgorithm(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY_DEFAULT.getKeyAlgorithm(), JSON_WEB_KEY_DEFAULT.getId()))
 				.isEqualTo(JSON_WEB_KEY_DEFAULT);
 	}
 

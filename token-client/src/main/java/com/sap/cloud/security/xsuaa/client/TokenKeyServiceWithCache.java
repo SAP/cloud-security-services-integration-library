@@ -116,7 +116,7 @@ public class TokenKeyServiceWithCache {
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		Set<JsonWebKey> jwks = tokenKeyService.retrieveTokenKeys(jwksUri).getAll();
 		for (JsonWebKey jwk : jwks) {
-			getCache().put(getUniqueCacheKey(jwk.getAlgorithm(), jwk.getId(), jwksUri), jwk.getPublicKey());
+			getCache().put(getUniqueCacheKey(jwk.getKeyAlgorithm(), jwk.getId(), jwksUri), jwk.getPublicKey());
 		}
 	}
 

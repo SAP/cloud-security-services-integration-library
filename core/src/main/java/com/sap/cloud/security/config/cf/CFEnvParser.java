@@ -68,12 +68,6 @@ public class CFEnvParser {
 				.orElse(null);
 	}
 
-	private Optional<CFOAuth2ServiceConfiguration> getXsuaaServiceByPlan(Plan plan) {
-		return loadAll(CFService.XSUAA).stream()
-				.filter(service -> plan == service.getPlan())
-				.findFirst();
-	}
-
 	private CFOAuth2ServiceConfiguration loadXsuaa() {
 		Optional<CFOAuth2ServiceConfiguration> applicationService = Optional
 				.ofNullable(loadByPlan(CFService.XSUAA, Plan.APPLICATION));

@@ -33,9 +33,9 @@ public class JsonWebKeySetFactoryTest {
 	public void getKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
 		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJson(jsonWebTokenKeys);
 		JsonWebKey jwk = jwks.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "key-id-1");
-		assertThat(jwk.getAlgorithm().value(), equalTo("RS256"));
-		assertThat(jwk.getAlgorithm().type(), equalTo("RSA"));
-		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getAlgorithm().type()));
+		assertThat(jwk.getKeyAlgorithm().value(), equalTo("RS256"));
+		assertThat(jwk.getKeyAlgorithm().type(), equalTo("RSA"));
+		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getKeyAlgorithm().type()));
 		assertThat(jwk.getId(), equalTo("key-id-1"));
 	}
 
@@ -43,9 +43,9 @@ public class JsonWebKeySetFactoryTest {
 	public void getKeys() throws InvalidKeySpecException, NoSuchAlgorithmException {
 		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJson(jsonWebTokenKeys);
 		JsonWebKey jwk = jwks.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "key-id-1");
-		assertThat(jwk.getAlgorithm().value(), equalTo("RS256"));
-		assertThat(jwk.getAlgorithm().type(), equalTo("RSA"));
-		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getAlgorithm().type()));
+		assertThat(jwk.getKeyAlgorithm().value(), equalTo("RS256"));
+		assertThat(jwk.getKeyAlgorithm().type(), equalTo("RSA"));
+		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getKeyAlgorithm().type()));
 		assertThat(jwk.getId(), equalTo("key-id-1"));
 	}
 
@@ -54,8 +54,8 @@ public class JsonWebKeySetFactoryTest {
 		jsonWebTokenKeys = IOUtils.resourceToString("/iasJsonWebTokenKeys.json", StandardCharsets.UTF_8);
 		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJson(jsonWebTokenKeys);
 		JsonWebKey jwk = jwks.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, null);
-		assertThat(jwk.getAlgorithm().type(), equalTo("RSA"));
-		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getAlgorithm().type()));
+		assertThat(jwk.getKeyAlgorithm().type(), equalTo("RSA"));
+		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getKeyAlgorithm().type()));
 		assertThat(jwk.getId(), equalTo(JsonWebKey.DEFAULT_KEY_ID));
 	}
 }

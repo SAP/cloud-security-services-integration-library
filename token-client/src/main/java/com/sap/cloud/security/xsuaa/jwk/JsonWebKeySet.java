@@ -38,7 +38,7 @@ public class JsonWebKeySet {
 	private Stream<JsonWebKey> getTokenStreamWithTypeAndKeyId(JwtSignatureAlgorithm algorithm, String keyId) {
 		String kid = keyId != null ? keyId : JsonWebKey.DEFAULT_KEY_ID;
 		return jsonWebKeys.stream()
-				.filter(jwk -> algorithm.equals(jwk.getAlgorithm()))
+				.filter(jwk -> algorithm.equals(jwk.getKeyAlgorithm()))
 				.filter(jwk -> kid.equals(jwk.getId()));
 	}
 }

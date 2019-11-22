@@ -21,7 +21,7 @@ public interface JsonWebKey {
 	 * 
 	 * @return the key algorithm.
 	 */
-	public JwtSignatureAlgorithm getAlgorithm();
+	public JwtSignatureAlgorithm getKeyAlgorithm();
 
 	/**
 	 * Returns the key id. This is used, for instance, to choose among a set of keys

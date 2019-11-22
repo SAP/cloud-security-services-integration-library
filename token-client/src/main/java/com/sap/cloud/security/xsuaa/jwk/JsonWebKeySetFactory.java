@@ -3,6 +3,8 @@ package com.sap.cloud.security.xsuaa.jwk;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+
 public class JsonWebKeySetFactory {
 
 	private JsonWebKeySetFactory() {
@@ -23,7 +25,7 @@ public class JsonWebKeySetFactory {
 	}
 
 	private static JsonWebKey createJsonWebKey(JSONObject key) {
-		String algorithm = null;
+		String keyAlgorithm = null;
 		String pemEncodedPublicKey = null;
 		String keyId = null;
 		String modulus = null;
@@ -31,7 +33,7 @@ public class JsonWebKeySetFactory {
 
 		String keyType = key.getString(JsonWebKeyConstants.KEY_TYPE_PARAMETER_NAME);
 		if (key.has(JsonWebKeyConstants.ALGORITHM_PARAMETER_NAME)) {
-			algorithm = key.getString(JsonWebKeyConstants.ALGORITHM_PARAMETER_NAME);
+			keyAlgorithm = key.getString(JsonWebKeyConstants.ALGORITHM_PARAMETER_NAME);
 		}
 		if (key.has(JsonWebKeyConstants.VALUE_PARAMETER_NAME)) {
 			pemEncodedPublicKey = key.getString(JsonWebKeyConstants.VALUE_PARAMETER_NAME);
@@ -45,7 +47,10 @@ public class JsonWebKeySetFactory {
 		if (key.has(JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME)) {
 			publicExponent = key.getString(JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME);
 		}
-		return new JsonWebKeyImpl(keyType, keyId, algorithm, modulus, publicExponent,
+		JwtSignatureAlgorithm algorithm = keyAlgorithm != null ? JwtSignatureAlgorithm.fromValue(keyAlgorithm)
+				: JwtSignatureAlgorithm.fromType(keyType);
+
+		return new JsonWebKeyImpl(algorithm, keyId, modulus, publicExponent,
 				pemEncodedPublicKey);
 	}
 

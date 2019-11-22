@@ -89,7 +89,6 @@ public class TokenValidatorBuilder {
 			XsuaaJwtAudienceValidator audienceValidator = new XsuaaJwtAudienceValidator(
 					configuration.getProperty(APP_ID), configuration.getClientId());
 			if (otherConfiguration != null) {
-				// TODO 20.11.19 c5295400: this audienceValidator is not used
 				audienceValidator.configureAnotherServiceInstance(otherConfiguration.getProperty(APP_ID),
 						otherConfiguration.getClientId());
 			}
