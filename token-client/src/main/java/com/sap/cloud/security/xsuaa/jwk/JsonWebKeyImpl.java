@@ -16,37 +16,32 @@ import java.util.Base64;
 import java.util.Objects;
 
 import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 public class JsonWebKeyImpl implements JsonWebKey {
-	private final Type type;
+	private final JwtSignatureAlgorithm algorithm;
 	private final String keyId;
-	private final String algorithm;
 	private final String pemEncodedPublicKey;
 	private final String modulus;
 	private final String publicExponent;
 	private PublicKey publicKey;
 
-	public JsonWebKeyImpl(Type type, @Nullable String keyId, @Nullable String algorithm, String modulus,
+	public JsonWebKeyImpl(String keyType, @Nullable String keyId, @Nullable String algorithm, String modulus,
 			String publicExponent, @Nullable String pemEncodedPublicKey) {
-		Assertions.assertNotNull(type, "type must be not null");
-		this.type = type;
+		Assertions.assertNotNull(keyType, "keyType must be not null");
 		this.keyId = keyId != null ? keyId : DEFAULT_KEY_ID;
-		this.algorithm = algorithm;
+
 		this.pemEncodedPublicKey = pemEncodedPublicKey;
 		this.publicExponent = publicExponent;
 		this.modulus = modulus;
+
+		this.algorithm = algorithm != null ? JwtSignatureAlgorithm.fromValue(algorithm)
+				: JwtSignatureAlgorithm.fromType(keyType);
 	}
 
-	@Nullable
 	@Override
-	public String getAlgorithm() {
+	public JwtSignatureAlgorithm getAlgorithm() {
 		return algorithm;
-	}
-
-	@Nullable
-	@Override
-	public Type getType() {
-		return type;
 	}
 
 	@Nullable
@@ -61,11 +56,11 @@ public class JsonWebKeyImpl implements JsonWebKey {
 			return publicKey;
 		}
 		if (pemEncodedPublicKey != null) {
-			publicKey = createPublicKeyFromPemEncodedPubliKey(type, pemEncodedPublicKey);
-		} else if (type == Type.RSA) {
+			publicKey = createPublicKeyFromPemEncodedPubliKey(algorithm, pemEncodedPublicKey);
+		} else if (algorithm.type() == "RSA") {
 			publicKey = createRSAPublicKey(publicExponent, modulus);
 		} else {
-			throw new IllegalStateException("JWT token with web key type " + type + " can not be verified.");
+			throw new IllegalStateException("JWT token with web key type " + algorithm + " can not be verified.");
 		}
 		return publicKey;
 	}
@@ -76,16 +71,16 @@ public class JsonWebKeyImpl implements JsonWebKey {
 		BigInteger e = new BigInteger(1, Base64.getUrlDecoder().decode(publicExponent));
 		KeySpec keySpec = new RSAPublicKeySpec(n, e);
 
-		KeyFactory keyFactory = KeyFactory.getInstance(Type.RSA.value());
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 		return keyFactory.generatePublic(keySpec);
 	}
 
-	static PublicKey createPublicKeyFromPemEncodedPubliKey(JsonWebKeyImpl.Type type, String pemEncodedKey)
+	static PublicKey createPublicKeyFromPemEncodedPubliKey(JwtSignatureAlgorithm algorithm, String pemEncodedKey)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
 		byte[] decodedBytes = Base64.getMimeDecoder().decode(convertPEMKey(pemEncodedKey));
 
 		X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(decodedBytes);
-		KeyFactory keyFactory = KeyFactory.getInstance(type.value());
+		KeyFactory keyFactory = KeyFactory.getInstance(algorithm.type());
 		return keyFactory.generatePublic(keySpecX509);
 	}
 
@@ -98,11 +93,11 @@ public class JsonWebKeyImpl implements JsonWebKey {
 
 	@Override
 	public int hashCode() {
-		return calculateUniqueId(type, keyId);
+		return calculateUniqueId(algorithm, keyId);
 	}
 
-	public static int calculateUniqueId(Type type, String keyId) {
-		return Objects.hash(type, keyId != null ? keyId : DEFAULT_KEY_ID);
+	public static int calculateUniqueId(JwtSignatureAlgorithm algorithm, String keyId) {
+		return Objects.hash(algorithm, keyId != null ? keyId : DEFAULT_KEY_ID);
 	}
 
 	@Override
@@ -114,7 +109,7 @@ public class JsonWebKeyImpl implements JsonWebKey {
 
 		JsonWebKeyImpl that = (JsonWebKeyImpl) o;
 
-		if (getType() != that.getType())
+		if (getAlgorithm() != that.getAlgorithm())
 			return false;
 		return keyId.equals(that.keyId);
 	}

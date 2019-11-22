@@ -1,7 +1,8 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,8 +76,8 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 		JsonWebKeySet response = retrieveTokenKeys();
 
-		assertThat(response.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-0")).isNotNull();
-		assertThat(response.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1")).isNotNull();
+		assertThat(response.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "key-id-0")).isNotNull();
+		assertThat(response.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "key-id-1")).isNotNull();
 	}
 
 	private void mockResponse() {

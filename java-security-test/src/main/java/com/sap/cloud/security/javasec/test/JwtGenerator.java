@@ -1,7 +1,7 @@
 package com.sap.cloud.security.javasec.test;
 
 import com.sap.cloud.security.token.AbstractToken;
-import com.sap.cloud.security.token.JwtSignatureAlgorithm;
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.UserPrincipal;
 import org.json.JSONObject;
@@ -98,17 +98,17 @@ public class JwtGenerator {
 	}
 
 	private void setHeaderAlgorithmValue() {
-		withHeaderParameter(JWT_HEADER_ALG, signatureAlgorithm.asJwt());
+		withHeaderParameter(JWT_HEADER_ALG, signatureAlgorithm.value());
 	}
 
 	private byte[] calculateSignature(byte[] headerAndPayload, PrivateKey privateKey) throws InvalidKeyException {
 		try {
-			Signature signature = Signature.getInstance(signatureAlgorithm.asJava());
+			Signature signature = Signature.getInstance(signatureAlgorithm.javaSignature());
 			signature.initSign(privateKey);
 			signature.update(headerAndPayload);
 			return signature.sign();
 		} catch (NoSuchAlgorithmException e) {
-			logger.error("Algorithm '{}' not found!", signatureAlgorithm.asJava(), e);
+			logger.error("Algorithm '{}' not found!", signatureAlgorithm.javaSignature(), e);
 			throw new RuntimeException(e);
 		} catch (SignatureException e) {
 			logger.error("Error creating JWT signature!", e);

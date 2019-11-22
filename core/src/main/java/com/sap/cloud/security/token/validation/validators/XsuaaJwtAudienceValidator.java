@@ -8,7 +8,6 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
-import com.sap.cloud.security.xsuaa.Assertions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

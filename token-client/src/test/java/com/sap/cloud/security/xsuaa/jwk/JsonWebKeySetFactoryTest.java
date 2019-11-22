@@ -13,6 +13,8 @@ import java.util.Collections;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+
 public class JsonWebKeySetFactoryTest {
 
 	private String jsonWebTokenKeys;
@@ -30,20 +32,20 @@ public class JsonWebKeySetFactoryTest {
 	@Test
 	public void getKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
 		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJson(jsonWebTokenKeys);
-		JsonWebKey jwk = jwks.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1");
-		assertThat(jwk.getAlgorithm(), equalTo("RS256"));
-		assertThat(jwk.getType().value, equalTo("RSA"));
-		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getType().value));
+		JsonWebKey jwk = jwks.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "key-id-1");
+		assertThat(jwk.getAlgorithm().value(), equalTo("RS256"));
+		assertThat(jwk.getAlgorithm().type(), equalTo("RSA"));
+		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getAlgorithm().type()));
 		assertThat(jwk.getId(), equalTo("key-id-1"));
 	}
 
 	@Test
 	public void getKeys() throws InvalidKeySpecException, NoSuchAlgorithmException {
 		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJson(jsonWebTokenKeys);
-		JsonWebKey jwk = jwks.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1");
-		assertThat(jwk.getAlgorithm(), equalTo("RS256"));
-		assertThat(jwk.getType().value, equalTo("RSA"));
-		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getType().value));
+		JsonWebKey jwk = jwks.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "key-id-1");
+		assertThat(jwk.getAlgorithm().value(), equalTo("RS256"));
+		assertThat(jwk.getAlgorithm().type(), equalTo("RSA"));
+		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getAlgorithm().type()));
 		assertThat(jwk.getId(), equalTo("key-id-1"));
 	}
 
@@ -51,9 +53,9 @@ public class JsonWebKeySetFactoryTest {
 	public void getIasKeys() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 		jsonWebTokenKeys = IOUtils.resourceToString("/iasJsonWebTokenKeys.json", StandardCharsets.UTF_8);
 		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJson(jsonWebTokenKeys);
-		JsonWebKey jwk = jwks.getKeyByTypeAndId(JsonWebKey.Type.RSA, null);
-		assertThat(jwk.getType().value, equalTo("RSA"));
-		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getType().value));
+		JsonWebKey jwk = jwks.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, null);
+		assertThat(jwk.getAlgorithm().type(), equalTo("RSA"));
+		assertThat(jwk.getPublicKey().getAlgorithm(), equalTo(jwk.getAlgorithm().type()));
 		assertThat(jwk.getId(), equalTo(JsonWebKey.DEFAULT_KEY_ID));
 	}
 }

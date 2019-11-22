@@ -15,6 +15,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 public class TokenKeyServiceWithCache {
 	private final OAuth2TokenKeyService tokenKeyService;
@@ -82,8 +83,8 @@ public class TokenKeyServiceWithCache {
 	 * Returns the cached key by id and type or requests the keys from the jwks URI
 	 * of the identity service.
 	 *
-	 * @param keyType
-	 *            the Key Type of the Access Token.
+	 * @param keyAlgorithm
+	 *            the Key Algorithm of the Access Token.
 	 * @param keyId
 	 *            the Key Id of the Access Token.
 	 * @param keyUrl
@@ -98,11 +99,11 @@ public class TokenKeyServiceWithCache {
 	 *             in case the algorithm of the json web key is not supported.
 	 */
 	@Nullable
-	public PublicKey getPublicKey(JsonWebKey.Type keyType, String keyId, @Nullable String keyUrl)
+	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, @Nullable String keyUrl)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 
 		URI jwksUri = keyUrl != null ? URI.create(keyUrl) : getDefaultJwksUri();
-		String cacheKey = getUniqueCacheKey(keyType, keyId, jwksUri);
+		String cacheKey = getUniqueCacheKey(keyAlgorithm, keyId, jwksUri);
 
 		PublicKey publicKey = getCache().getIfPresent(cacheKey);
 		if (publicKey == null) {
@@ -115,7 +116,7 @@ public class TokenKeyServiceWithCache {
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		Set<JsonWebKey> jwks = tokenKeyService.retrieveTokenKeys(jwksUri).getAll();
 		for (JsonWebKey jwk : jwks) {
-			getCache().put(getUniqueCacheKey(jwk.getType(), jwk.getId(), jwksUri), jwk.getPublicKey());
+			getCache().put(getUniqueCacheKey(jwk.getAlgorithm(), jwk.getId(), jwksUri), jwk.getPublicKey());
 		}
 	}
 
@@ -129,8 +130,8 @@ public class TokenKeyServiceWithCache {
 		}
 	}
 
-	public static String getUniqueCacheKey(JsonWebKey.Type type, String keyId, URI jwksUri) {
-		return jwksUri + String.valueOf(JsonWebKeyImpl.calculateUniqueId(type, keyId));
+	public static String getUniqueCacheKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI jwksUri) {
+		return jwksUri + String.valueOf(JsonWebKeyImpl.calculateUniqueId(keyAlgorithm, keyId));
 	}
 
 }

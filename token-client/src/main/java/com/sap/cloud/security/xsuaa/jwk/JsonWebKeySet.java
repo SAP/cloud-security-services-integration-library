@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+
 public class JsonWebKeySet {
 
 	private Set<JsonWebKey> jsonWebKeys;
@@ -15,8 +17,8 @@ public class JsonWebKeySet {
 	}
 
 	@Nullable
-	public JsonWebKey getKeyByTypeAndId(JsonWebKey.Type keyType, String keyId) {
-		return getTokenStreamWithTypeAndKeyId(keyType, keyId)
+	public JsonWebKey getKeyByAlgorithmAndId(JwtSignatureAlgorithm keyAlgorithm, String keyId) {
+		return getTokenStreamWithTypeAndKeyId(keyAlgorithm, keyId)
 				.findFirst()
 				.orElse(null);
 	}
@@ -33,10 +35,10 @@ public class JsonWebKeySet {
 		jsonWebKeys.addAll(jsonWebKeySet.getAll());
 	}
 
-	private Stream<JsonWebKey> getTokenStreamWithTypeAndKeyId(JsonWebKey.Type keyType, String keyId) {
+	private Stream<JsonWebKey> getTokenStreamWithTypeAndKeyId(JwtSignatureAlgorithm algorithm, String keyId) {
 		String kid = keyId != null ? keyId : JsonWebKey.DEFAULT_KEY_ID;
 		return jsonWebKeys.stream()
-				.filter(jwk -> keyType.equals(jwk.getType()))
+				.filter(jwk -> algorithm.equals(jwk.getAlgorithm()))
 				.filter(jwk -> kid.equals(jwk.getId()));
 	}
 }

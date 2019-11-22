@@ -45,7 +45,7 @@ public class JsonWebKeySetFactory {
 		if (key.has(JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME)) {
 			publicExponent = key.getString(JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME);
 		}
-		return new JsonWebKeyImpl(JsonWebKey.Type.valueOf(keyType), keyId, algorithm, modulus, publicExponent,
+		return new JsonWebKeyImpl(keyType, keyId, algorithm, modulus, publicExponent,
 				pemEncodedPublicKey);
 	}
 

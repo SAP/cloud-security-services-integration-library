@@ -15,8 +15,6 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.sap.cloud.security.token.Token;
@@ -25,12 +23,16 @@ import com.sap.cloud.security.token.validation.Validator;
 
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 /**
  * Validates whether the jwt was signed with the public key of the trust-worthy
- * identity service. - asks the token key service for a set of (cached) json web
- * token keys. - creates a PublicKey for the json web key with the respective id
- * and type. - checks whether the jwt is unchanged and signed with a private key
+ * identity service.
+ * - asks the token key service for a set of (cached) json web
+ * token keys.
+ * - creates a PublicKey for the json web key with the respective id
+ * and type.
+ * - checks whether the jwt is unchanged and signed with a private key
  * that matches the PublicKey.
  */
 public class JwtSignatureValidator implements Validator<Token> {
@@ -60,21 +62,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	private static class Validation {
 
-		private static final Map<String, Type> MAP_ALGORITHM_TYPE;
-		static {
-			MAP_ALGORITHM_TYPE = new HashMap<>();
-			MAP_ALGORITHM_TYPE.put("RS256", Type.RSA);
-			MAP_ALGORITHM_TYPE.put("ES256", Type.EC);
-		}
-
-		private static final Map<Type, String> MAP_TYPE_SIGNATURE;
-		static {
-			MAP_TYPE_SIGNATURE = new HashMap<>();
-			MAP_TYPE_SIGNATURE.put(Type.RSA, "SHA256withRSA");
-			MAP_TYPE_SIGNATURE.put(Type.EC, "SHA256withECDSA");
-		}
-
-		Type keyType;
+		JwtSignatureAlgorithm jwtSignatureAlgorithm;
 		PublicKey publicKey;
 		Signature publicSignature;
 
@@ -91,39 +79,39 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 			ValidationResult validationResult;
 
-			validationResult = setKeyTypeForAlgorithm(tokenAlgorithm);
+			validationResult = setJwtAlgorithm(tokenAlgorithm);
 			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
 
 			String keyId = tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID;
-			validationResult = setPublicKey(tokenKeyService, keyType, keyId, tokenKeysUrl);
+			validationResult = setPublicKey(tokenKeyService, keyId, tokenKeysUrl);
 			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
 
-			validationResult = setPublicSignatureForKeyType(keyType);
+			validationResult = setPublicSignatureForKeyType();
 			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
 
-			return isTokenSignatureValid(token, publicSignature, publicKey);
+			return isTokenSignatureValid(token);
 		}
 
-		private ValidationResult setKeyTypeForAlgorithm(String tokenAlgorithm) {
+		private ValidationResult setJwtAlgorithm(String tokenAlgorithm) {
 			if (tokenAlgorithm != null) {
-				keyType = MAP_ALGORITHM_TYPE.get(tokenAlgorithm);
-				if (keyType != null) {
+				jwtSignatureAlgorithm = JwtSignatureAlgorithm.fromValue(tokenAlgorithm);
+				if (jwtSignatureAlgorithm != null) {
 					return createValid();
 				}
 			}
 			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.", tokenAlgorithm);
 		}
 
-		private ValidationResult setPublicKey(TokenKeyServiceWithCache tokenKeyService, Type keyType, String keyId,
+		private ValidationResult setPublicKey(TokenKeyServiceWithCache tokenKeyService, String keyId,
 				String keyUri) {
 			try {
-				this.publicKey = tokenKeyService.getPublicKey(keyType, keyId, keyUri);
+				this.publicKey = tokenKeyService.getPublicKey(jwtSignatureAlgorithm, keyId, keyUri);
 			} catch (OAuth2ServiceException e) {
 				return createInvalid("Error retrieving Json Web Keys from Identity Service: {}.", e.getMessage());
 			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -133,27 +121,24 @@ public class JwtSignatureValidator implements Validator<Token> {
 			if (this.publicKey == null) {
 				return createInvalid(
 						"There is no Json Web Token Key with keyId '{}' and type '{}' to prove the identity of the Jwt.",
-						keyId, keyType);
+						keyId, jwtSignatureAlgorithm.type());
 			}
 			return createValid();
 		}
 
-		private ValidationResult setPublicSignatureForKeyType(Type keyType) {
-			String algorithm = MAP_TYPE_SIGNATURE.get(keyType);
-			if (algorithm != null) {
-				try {
-					publicSignature = Signature.getInstance(algorithm);
-					return createValid();
-				} catch (NoSuchAlgorithmException e) {
-					// should never happen
-				}
+		private ValidationResult setPublicSignatureForKeyType() {
+			try {
+				publicSignature = Signature.getInstance(jwtSignatureAlgorithm.javaSignature());
+				return createValid();
+			} catch (NoSuchAlgorithmException e) {
+				// should never happen
 			}
-			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.", keyType.value());
+			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.", jwtSignatureAlgorithm.javaSignature());
 		}
 
 		private static final Pattern DOT = Pattern.compile("\\.", 0);
 
-		private ValidationResult isTokenSignatureValid(String token, Signature signature, PublicKey publicKey) {
+		private ValidationResult isTokenSignatureValid(String token) {
 			String[] tokenHeaderPayloadSignature = DOT.split(token);
 			if (tokenHeaderPayloadSignature.length != 3) {
 				return createInvalid("Jwt token does not consist of 'header'.'payload'.'signature'.");
@@ -161,12 +146,12 @@ public class JwtSignatureValidator implements Validator<Token> {
 			String headerAndPayload = new StringBuilder(tokenHeaderPayloadSignature[0]).append(".")
 					.append(tokenHeaderPayloadSignature[1]).toString();
 			try {
-				signature.initVerify(publicKey);
-				signature.update(headerAndPayload.getBytes(UTF_8)); // provide data
+				publicSignature.initVerify(publicKey);
+				publicSignature.update(headerAndPayload.getBytes(UTF_8)); // provide data
 
 				byte[] decodedSignatureBytes = Base64.getUrlDecoder().decode(tokenHeaderPayloadSignature[2]);
 
-				if (signature.verify(decodedSignatureBytes)) {
+				if (publicSignature.verify(decodedSignatureBytes)) {
 					return createValid();
 				}
 				return createInvalid(

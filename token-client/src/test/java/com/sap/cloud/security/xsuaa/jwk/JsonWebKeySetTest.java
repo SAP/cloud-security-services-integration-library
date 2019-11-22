@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.jwk;
 
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import com.sap.cloud.security.xsuaa.util.JsonWebKeyTestFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,42 +20,42 @@ public class JsonWebKeySetTest {
 	}
 
 	@Test
-	public void getKeyByTypeAndId_returnsKey_whenKeyHasBeenInserted() {
+	public void getKeyByAlgorithmAndId_returnsKey_whenKeyHasBeenInserted() {
 		cut.put(JSON_WEB_KEY);
 
-		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getAlgorithm(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
 	}
 
 	@Test
-	public void getKeyByTypeAndId_returnsNull_onEmptyJSONWebKeySet() {
-		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), JSON_WEB_KEY.getId())).isNull();
+	public void getKeyByAlgorithmAndId_returnsNull_onEmptyJSONWebKeySet() {
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getAlgorithm(), JSON_WEB_KEY.getId())).isNull();
 	}
 
 	@Test
-	public void getKeyByTypeAndId_returnsNull_whenKeyTypeDoesNotMatch() {
-		Type differentKeyType = Type.EC;
+	public void getKeyByAlgorithmAndId_returnsNull_whenKeyTypeDoesNotMatch() {
+		JwtSignatureAlgorithm differentKeyAlgorithm = JwtSignatureAlgorithm.ES256;
 
 		cut.put(JSON_WEB_KEY);
 
-		assertThat(cut.getKeyByTypeAndId(differentKeyType, JSON_WEB_KEY.getId())).isNull();
+		assertThat(cut.getKeyByAlgorithmAndId(differentKeyAlgorithm, JSON_WEB_KEY.getId())).isNull();
 	}
 
 	@Test
-	public void getKeyByTypeAndId_returnsDefault_whenKeyIdDoesNotMatch() {
+	public void getKeyByAlgorithmAndId_returnsDefault_whenKeyIdDoesNotMatch() {
 		String differentKeyId = "differentKeyId";
 
 		cut.put(JSON_WEB_KEY);
 
-		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), differentKeyId)).isNull();
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getAlgorithm(), differentKeyId)).isNull();
 	}
 
 	@Test
-	public void getKeyByTypeAndId_returnsNull_whenKeyIdDoesNotMatch() {
+	public void getKeyByAlgorithmAndId_returnsNull_whenKeyIdDoesNotMatch() {
 		cut.put(JSON_WEB_KEY);
 
 		cut.put(JsonWebKeyTestFactory.createDefault());
 
-		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), DEFAULT_KEY_ID).getId().equals(DEFAULT_KEY_ID));
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getAlgorithm(), DEFAULT_KEY_ID).getId().equals(DEFAULT_KEY_ID));
 	}
 
 	@Test
@@ -83,8 +84,8 @@ public class JsonWebKeySetTest {
 		cut.put(JSON_WEB_KEY);
 
 		cut.putAll(other);
-		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY.getType(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
-		assertThat(cut.getKeyByTypeAndId(JSON_WEB_KEY_DEFAULT.getType(), JSON_WEB_KEY_DEFAULT.getId()))
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getAlgorithm(), JSON_WEB_KEY.getId())).isEqualTo(JSON_WEB_KEY);
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY_DEFAULT.getAlgorithm(), JSON_WEB_KEY_DEFAULT.getId()))
 				.isEqualTo(JSON_WEB_KEY_DEFAULT);
 	}
 

@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -93,8 +93,8 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 		JsonWebKeySet result = retrieveTokenKeys();
 
-		assertThat(result.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-0")).isNotNull();
-		assertThat(result.getKeyByTypeAndId(JsonWebKey.Type.RSA, "key-id-1")).isNotNull();
+		assertThat(result.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "key-id-0")).isNotNull();
+		assertThat(result.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "key-id-1")).isNotNull();
 	}
 
 	private CloseableHttpResponse mockResponse() throws IOException {

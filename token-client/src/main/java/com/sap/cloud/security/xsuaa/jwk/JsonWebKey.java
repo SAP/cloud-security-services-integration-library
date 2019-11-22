@@ -6,46 +6,22 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+
 /**
  * See also JSON Web Key (JWK) specification:
  * https://tools.ietf.org/html/rfc7517
  */
 public interface JsonWebKey {
-	static final String DEFAULT_KEY_ID = "default-kid";
+	String DEFAULT_KEY_ID = "default-kid";
 
 	/**
-	 * This is represented by "kty" (Key Type) Parameter.
-	 * https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1
-	 */
-	public enum Type {
-		RSA("RSA"), EC("EC"); // Eliptic curve
-
-		final String value;
-
-		Type(String value) {
-			this.value = value;
-		}
-
-		public String value() {
-			return value;
-		}
-	}
-
-	/**
-	 * Returns a JSON Web e.g. RS256, see also specification here:
-	 * https://tools.ietf.org/html/rfc7518
+	 * Returns the key algorithm a JWT is/can be signed with,
+	 * e.g. {@link JwtSignatureAlgorithm#RS256}.
 	 * 
-	 * @return the algorithm the JWT is signed.
+	 * @return the key algorithm.
 	 */
-	public String getAlgorithm();
-
-	/**
-	 * Returns the key type, e.g. Type.RSA.
-	 * 
-	 * @return the key type.
-	 */
-	@Nullable
-	public Type getType();
+	public JwtSignatureAlgorithm getAlgorithm();
 
 	/**
 	 * Returns the key id. This is used, for instance, to choose among a set of keys
@@ -60,6 +36,8 @@ public interface JsonWebKey {
 	 * Returns the public key representation.
 	 * 
 	 * @return the public key.
+	 * @throws InvalidKeySpecException in case the a PublicKey can not be created for this JSON web key.
+	 * @throws NoSuchAlgorithmException in case the algorithm specified as part of the JSON web key is not supported.
 	 */
 	@Nullable
 	public PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException;
