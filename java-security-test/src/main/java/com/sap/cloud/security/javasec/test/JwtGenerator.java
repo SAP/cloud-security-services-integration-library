@@ -1,13 +1,16 @@
 package com.sap.cloud.security.javasec.test;
 
 import com.sap.cloud.security.token.AbstractToken;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
 /**
@@ -21,10 +24,19 @@ public class JwtGenerator {
 
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
+	private final SignatureCalculator signatureCalculator;
 
 	private JwtSignatureAlgorithm signatureAlgorithm;
+	private PrivateKey privateKey;
 
 	public JwtGenerator() {
+		signatureAlgorithm = JwtSignatureAlgorithm.RS256;
+		signatureCalculator = this::calculateSignature;
+	}
+
+	// for testing
+	JwtGenerator(SignatureCalculator signatureCalculator) {
+		this.signatureCalculator = signatureCalculator;
 		signatureAlgorithm = JwtSignatureAlgorithm.RS256;
 	}
 
@@ -69,27 +81,31 @@ public class JwtGenerator {
 		return this;
 	}
 
-	// TODO: createToken without parameter should use the predefined /resources/privateKey.
+	/**
+	 * Sets the private key that is used to sign the token.
+	 *
+	 * @param privateKey the private key.
+	 * @return the builder object.
+	 */
+	public JwtGenerator withPrivateKey(PrivateKey privateKey) {
+		this.privateKey = privateKey;
+		return this;
+	}
 
 	/**
 	 * Creates and signs the token using the the algorithm set via
 	 * {@link #withSignatureAlgorithm(JwtSignatureAlgorithm)} and the given key. By
 	 * default{@link JwtSignatureAlgorithm#RS256} is used.
 	 *
-	 * @param privateKey
-	 *            the private key that is used to sign the token.
 	 * @return the token.
-	 * @throws InvalidKeyException
-	 *             if the key cannot be used for creating a signature with the
-	 *             current JwtSignatureAlgorithm.
 	 */
-	public Token createToken(PrivateKey privateKey) throws InvalidKeyException {
+	public Token createToken() {
 		setHeaderAlgorithmValue();
 		String header = base64Encode(jsonHeader.toString().getBytes());
 		String payload = base64Encode(jsonPayload.toString().getBytes());
 		String headerAndPayload = header + DOT + payload;
-		String signature = base64Encode(calculateSignature(headerAndPayload.getBytes(), privateKey));
-
+		String signature = base64Encode(signatureCalculator
+				.calculateSignature(getPrivateKey(), this.signatureAlgorithm, headerAndPayload.getBytes()));
 		return new AbstractToken(headerAndPayload + DOT + signature) {
 			@Override public Principal getPrincipal() {
 				return null;
@@ -97,15 +113,29 @@ public class JwtGenerator {
 		};
 	}
 
+	private PrivateKey getPrivateKey() {
+		if (privateKey == null) {
+			try {
+				String privateKeyPath = IOUtils.resourceToURL("/privateKey.txt").getPath();
+				privateKey = RSAKeys.loadPrivateKey(privateKeyPath);
+			} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+				logger.error("Erorr reading public/private key pair from resources", e);
+				throw new RuntimeException(e);
+			}
+		}
+		return privateKey;
+	}
+
 	private void setHeaderAlgorithmValue() {
 		withHeaderParameter(JWT_HEADER_ALG, signatureAlgorithm.value());
 	}
 
-	private byte[] calculateSignature(byte[] headerAndPayload, PrivateKey privateKey) throws InvalidKeyException {
+	private byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm signatureAlgorithm,
+			byte[] dataToSign) {
 		try {
 			Signature signature = Signature.getInstance(signatureAlgorithm.javaSignature());
 			signature.initSign(privateKey);
-			signature.update(headerAndPayload);
+			signature.update(dataToSign);
 			return signature.sign();
 		} catch (NoSuchAlgorithmException e) {
 			logger.error("Algorithm '{}' not found!", signatureAlgorithm.javaSignature(), e);
@@ -113,11 +143,18 @@ public class JwtGenerator {
 		} catch (SignatureException e) {
 			logger.error("Error creating JWT signature!", e);
 			throw new RuntimeException(e);
+		} catch (InvalidKeyException e) {
+			logger.error("Invalid private key!", e);
+			throw new RuntimeException(e);
 		}
 	}
 
 	private String base64Encode(byte[] bytes) {
 		return Base64.getUrlEncoder().encodeToString(bytes);
+	}
+
+	interface SignatureCalculator {
+		byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm algorithm, byte[] dataToSign);
 	}
 
 }
