@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,12 +21,10 @@ public class IasTokenTest {
 	@Test
 	@Ignore
 	// TODO 21.11.19 c5295400: need real token with test data
-	public void getPrincipal() throws IOException {
-		UserPrincipal principal = cut.getPrincipal();
+	public void getPrincipal() {
+		Principal principal = cut.getPrincipal();
 
-		assertThat(principal.getLastName()).isEqualTo("lastName");
-		assertThat(principal.getFirstName()).isEqualTo("firstName");
-		assertThat(principal.getUsername()).isEqualTo("user");
-		assertThat(principal.getEmail()).isEqualTo("email");
+		assertThat(principal).isNotNull();
+		assertThat(principal.getName()).isEqualTo("TODO");
 	}
 }

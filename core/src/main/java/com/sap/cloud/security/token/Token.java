@@ -86,5 +86,5 @@ public interface Token {
 	String getAccessToken();
 
 
-	UserPrincipal getPrincipal();
+	Principal getPrincipal();
 }

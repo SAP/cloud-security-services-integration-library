@@ -35,7 +35,7 @@ public class JwtSignatureValidatorTest {
 
 	@Before
 	public void setup() throws IOException {
-		accessToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8));
+		accessToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8));
 		otherToken = new IasToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
 
 		endpointsProvider = Mockito.mock(OAuth2ServiceEndpointsProvider.class);

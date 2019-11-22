@@ -16,9 +16,9 @@ public class AbstractTokenTest {
 	private AbstractToken cut;
 
 	public AbstractTokenTest() throws IOException {
-		jwtString = IOUtils.resourceToString("/xsuaaAccessTokenRSA256.txt", StandardCharsets.UTF_8);
+		jwtString = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
 		cut = new AbstractToken(jwtString) {
-			@Override public UserPrincipal getPrincipal() {
+			@Override public Principal getPrincipal() {
 				return null;
 			}
 		};

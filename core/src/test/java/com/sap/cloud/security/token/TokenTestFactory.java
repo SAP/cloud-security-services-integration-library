@@ -5,7 +5,7 @@ import java.security.Principal;
 public class TokenTestFactory {
 	public static Token createFromJsonPayload(String jsonPayload) {
 		return new AbstractToken(null, jsonPayload, null) {
-			@Override public UserPrincipal getPrincipal() {
+			@Override public Principal getPrincipal() {
 				return null;
 			}
 		};

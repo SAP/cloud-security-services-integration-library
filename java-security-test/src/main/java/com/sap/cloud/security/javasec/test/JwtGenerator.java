@@ -3,7 +3,6 @@ package com.sap.cloud.security.javasec.test;
 import com.sap.cloud.security.token.AbstractToken;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.UserPrincipal;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,8 +89,9 @@ public class JwtGenerator {
 		String payload = base64Encode(jsonPayload.toString().getBytes());
 		String headerAndPayload = header + DOT + payload;
 		String signature = base64Encode(calculateSignature(headerAndPayload.getBytes(), privateKey));
+
 		return new AbstractToken(headerAndPayload + DOT + signature) {
-			@Override public UserPrincipal getPrincipal() {
+			@Override public Principal getPrincipal() {
 				return null;
 			}
 		};

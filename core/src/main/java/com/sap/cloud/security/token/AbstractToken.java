@@ -12,8 +12,11 @@ import java.util.List;
 
 import static com.sap.cloud.security.token.TokenClaims.*;
 
-public abstract class AbstractToken implements Token {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public abstract class AbstractToken implements Token {
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	private final DefaultJsonObject headerJsonObject;
 	private final DefaultJsonObject payloadJsonObject;
 	private final String accessToken;
