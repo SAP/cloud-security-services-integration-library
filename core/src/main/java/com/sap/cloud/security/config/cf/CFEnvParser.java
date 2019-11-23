@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.cf.CFConstants.Plan;
 
-public class CFEnvParser {
+class CFEnvParser {
 	private static final Logger logger = LoggerFactory.getLogger(CFEnvParser.class);
 
 	private final Map<CFService, List<CFOAuth2ServiceConfiguration>> serviceConfigurations;

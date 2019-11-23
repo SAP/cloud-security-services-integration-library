@@ -3,7 +3,6 @@ package com.sap.cloud.security.config.cf;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -46,7 +45,7 @@ public class CFEnvironmentTest {
 	}
 
 	@Test
-	public void getXsuaaServiceConfiguration_vcapServicesNotAvilable_returnsNull() {
+	public void getXsuaaServiceConfiguration_vcapServicesNotAvailable_returnsNull() {
 		SystemEnvironmentProvider emptyEnvironmentProvider = (str) -> null;
 		SystemPropertiesProvider emptySystemPropertiesProvider = (str) -> null;
 		cut = new CFEnvironment(emptyEnvironmentProvider, emptySystemPropertiesProvider);

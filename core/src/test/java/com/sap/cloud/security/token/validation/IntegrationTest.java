@@ -1,8 +1,8 @@
 package com.sap.cloud.security.token.validation;
 
+import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.config.cf.CFEnvParser;
 import com.sap.cloud.security.config.cf.CFService;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -48,9 +48,10 @@ public class IntegrationTest {
 	@Test
 	@Ignore // TODO
 	public void validate_withXsuaaCombiningValidator_whenOAuthServerIsMocked() throws IOException {
-		String singleBindingJsonString = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
-		CFEnvParser envParser = new CFEnvParser(singleBindingJsonString);
-		OAuth2ServiceConfiguration configuration = envParser.load(CFService.XSUAA);
+		Properties oldProperties = System.getProperties();
+		System.setProperty("VCAP_SERVICES", IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", StandardCharsets.UTF_8));
+
+		OAuth2ServiceConfiguration configuration = Environments.getCurrentEnvironment().getXsuaaServiceConfiguration();
 
 		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
@@ -67,5 +68,7 @@ public class IntegrationTest {
 		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
 				.contains("Error retrieving Json Web Keys from Identity Service (https://my.auth.com/token_keys)");
+
+		System.setProperties(oldProperties);
 	}
 }
