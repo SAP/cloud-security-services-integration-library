@@ -1,6 +1,7 @@
 package com.sap.cloud.security.javasec.test;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
@@ -22,7 +23,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 public class SecurityIntegrationTestRule extends ExternalResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(SecurityIntegrationTestRule.class);
-	private static final String TOKEN_KEYS = "/token_keys";
+	private static final String TOKEN_KEYS = "/token_keys"; // TODO XSUAA specific OAuth2ServiceEndpointsProvider.getJwksUri
 
 	private final RSAKeys keys;
 	private final JwtGenerator jwtGenerator;
@@ -36,9 +37,9 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	private int tomcatPort = 8181;
 	private TemporaryFolder baseDir;
 
-	public SecurityIntegrationTestRule() {
+	public SecurityIntegrationTestRule(Service service) {
 		keys = RSAKeys.generate();
-		jwtGenerator = new JwtGenerator();
+		jwtGenerator = JwtGenerator.getInstance(service);
 	}
 
 	public SecurityIntegrationTestRule setPort(int port) {
@@ -67,7 +68,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 				.withPrivateKey(keys.getPrivate());
 	}
 
-	public Token getToken() {
+	public Token getAccessToken() {
 		return getPreconfiguredJwtGenerator().createToken();
 	}
 

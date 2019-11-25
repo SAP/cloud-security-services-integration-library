@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
+import static com.sap.cloud.security.config.Service.XSUAA;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletTest {
@@ -27,7 +28,7 @@ public class HelloJavaServletTest {
 	private static Properties oldProperties;
 
 	@Rule
-	public SecurityIntegrationTestRule rule = new SecurityIntegrationTestRule()
+	public SecurityIntegrationTestRule rule = new SecurityIntegrationTestRule(XSUAA)
 			.setPort(8181)
 			.useApplicationServer("src/test/webapp", APPLICATION_SERVER_PORT);
 
@@ -52,7 +53,7 @@ public class HelloJavaServletTest {
 
 	@Test
 	public void requestWithoutHeader_statusUnauthorized() throws Exception {
-		Token token = rule.getToken();
+		Token token = rule.getAccessToken();
 
 		HttpGet request = createGetRequest("Bearer " + token.getAccessToken());
 		request.setHeader(HttpHeaders.AUTHORIZATION, null);
@@ -64,7 +65,7 @@ public class HelloJavaServletTest {
 	@Test
 	public void request_withValidToken() throws IOException {
 		rule.getPreconfiguredJwtGenerator().withClaim(TokenClaims.XSUAA.EMAIL, EMAIL_ADDRESS);
-		HttpGet request = createGetRequest("Bearer " + rule.getToken().getAccessToken());
+		HttpGet request = createGetRequest("Bearer " + rule.getAccessToken().getAccessToken());
 
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);

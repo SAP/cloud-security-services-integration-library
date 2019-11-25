@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
-import static com.sap.cloud.security.config.cf.CFService.XSUAA;
+import static com.sap.cloud.security.config.Service.XSUAA;
 
 /**
  * Class used to build a token validator. Custom validators can be added via

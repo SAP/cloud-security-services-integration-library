@@ -1,5 +1,6 @@
 package com.sap.cloud.security.config.cf;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import org.slf4j.Logger;
@@ -14,13 +15,13 @@ import static com.sap.cloud.security.config.cf.CFConstants.Plan;
 class CFEnvParser {
 	private static final Logger logger = LoggerFactory.getLogger(CFEnvParser.class);
 
-	private final Map<CFService, List<CFOAuth2ServiceConfiguration>> serviceConfigurations;
+	private final Map<Service, List<CFOAuth2ServiceConfiguration>> serviceConfigurations;
 
 	public CFEnvParser(String vcapJsonString) {
 		serviceConfigurations = new HashMap<>();
-		List<CFOAuth2ServiceConfiguration> allServices = extractAllServices(CFService.XSUAA,
+		List<CFOAuth2ServiceConfiguration> allServices = extractAllServices(Service.XSUAA,
 				new DefaultJsonObject(vcapJsonString));
-		serviceConfigurations.put(CFService.XSUAA, allServices);
+		serviceConfigurations.put(Service.XSUAA, allServices);
 	}
 
 	/**
@@ -32,10 +33,10 @@ class CFEnvParser {
 	 *         not service bindings.
 	 * @deprecated as multiple bindings of identity service is not anymore necessary
 	 *             with the unified broker plan, this method is deprecated. Use
-	 *             {@link #load(CFService)} instead.
+	 *             {@link #load(Service)} instead.
 	 */
 	@Deprecated
-	public List<CFOAuth2ServiceConfiguration> loadAll(CFService service) {
+	public List<CFOAuth2ServiceConfiguration> loadAll(Service service) {
 		return serviceConfigurations.getOrDefault(service, new ArrayList<>());
 	}
 
@@ -52,8 +53,8 @@ class CFEnvParser {
 	 *         multiple bindings.
 	 */
 	@Nullable
-	public CFOAuth2ServiceConfiguration load(CFService service) {
-		if (CFService.XSUAA == service) {
+	public CFOAuth2ServiceConfiguration load(Service service) {
+		if (Service.XSUAA == service) {
 			return loadXsuaa();
 		}
 		logger.warn("Identity Service {} is currently not supported.", service.getName());
@@ -61,7 +62,7 @@ class CFEnvParser {
 	}
 
 	@Nullable
-	public CFOAuth2ServiceConfiguration loadByPlan(CFService service, Plan plan) {
+	public CFOAuth2ServiceConfiguration loadByPlan(Service service, Plan plan) {
 		return loadAll(service).stream()
 				.filter(configuration -> configuration.getPlan() == plan)
 				.findFirst()
@@ -70,16 +71,16 @@ class CFEnvParser {
 
 	private CFOAuth2ServiceConfiguration loadXsuaa() {
 		Optional<CFOAuth2ServiceConfiguration> applicationService = Optional
-				.ofNullable(loadByPlan(CFService.XSUAA, Plan.APPLICATION));
+				.ofNullable(loadByPlan(Service.XSUAA, Plan.APPLICATION));
 		Optional<CFOAuth2ServiceConfiguration> brokerService = Optional
-				.ofNullable(loadByPlan(CFService.XSUAA, Plan.BROKER));
+				.ofNullable(loadByPlan(Service.XSUAA, Plan.BROKER));
 		if (applicationService.isPresent()) {
 			return applicationService.get();
 		}
 		return brokerService.orElse(null);
 	}
 
-	private List<CFOAuth2ServiceConfiguration> extractAllServices(CFService service, DefaultJsonObject jsonObject) {
+	private List<CFOAuth2ServiceConfiguration> extractAllServices(Service service, DefaultJsonObject jsonObject) {
 		List<JsonObject> jsonServiceObjects = jsonObject.getJsonObjects(service.getName());
 		if (jsonServiceObjects.size() > 1) {
 			logger.warn("More than one service configuration available. Please make use of unified 'broker' plan.");

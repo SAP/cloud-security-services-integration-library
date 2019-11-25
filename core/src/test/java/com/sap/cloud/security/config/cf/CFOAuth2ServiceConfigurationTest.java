@@ -1,5 +1,6 @@
 package com.sap.cloud.security.config.cf;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import org.apache.commons.io.IOUtils;
@@ -21,7 +22,7 @@ public class CFOAuth2ServiceConfigurationTest {
 
 		JsonObject binding = new DefaultJsonObject(vcapXsuaa).getJsonObjects("xsuaa").get(0);
 
-		cut = new CFOAuth2ServiceConfiguration(CFService.XSUAA, binding);
+		cut = new CFOAuth2ServiceConfiguration(Service.XSUAA, binding);
 	}
 
 	@Test
@@ -56,7 +57,7 @@ public class CFOAuth2ServiceConfigurationTest {
 
 	@Test
 	public void getService() {
-		assertThat(cut.getServiceName()).isEqualTo(CFService.XSUAA.getName());
+		assertThat(cut.getServiceName()).isEqualTo(Service.XSUAA.getName());
 	}
 
 }

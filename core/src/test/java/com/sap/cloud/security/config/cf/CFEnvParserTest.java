@@ -9,8 +9,8 @@ import java.util.List;
 
 import static com.sap.cloud.security.config.cf.CFConstants.Plan.APPLICATION;
 import static com.sap.cloud.security.config.cf.CFConstants.Plan.BROKER;
-import static com.sap.cloud.security.config.cf.CFService.IAS;
-import static com.sap.cloud.security.config.cf.CFService.XSUAA;
+import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.config.Service.XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 

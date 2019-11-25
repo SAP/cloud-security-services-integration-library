@@ -2,6 +2,7 @@ package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 
 import java.util.Optional;
 
@@ -25,18 +26,18 @@ public class CFEnvironment implements Environment {
 
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
-		return getCFEnvParser().load(CFService.XSUAA);
+		return getCFEnvParser().load(Service.XSUAA);
 	}
 
 	@Override
 	public int getNumberOfXsuaaServices() {
-		return getCFEnvParser().loadAll(CFService.XSUAA).size();
+		return getCFEnvParser().loadAll(Service.XSUAA).size();
 	}
 
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaServiceConfigurationForTokenExchange() {
 		if (getNumberOfXsuaaServices() > 1) {
-			return getCFEnvParser().loadByPlan(CFService.XSUAA, CFConstants.Plan.BROKER);
+			return getCFEnvParser().loadByPlan(Service.XSUAA, CFConstants.Plan.BROKER);
 		}
 		return getXsuaaServiceConfiguration();
 	}

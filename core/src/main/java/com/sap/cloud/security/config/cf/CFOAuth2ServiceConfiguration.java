@@ -1,6 +1,7 @@
 package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
 
 import javax.annotation.Nullable;
@@ -11,12 +12,12 @@ import static com.sap.cloud.security.xsuaa.Assertions.*;
 
 public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration {
 
-	private final CFService service;
+	private final Service service;
 	private final JsonObject credentials;
 	private final JsonObject configuration;
 	private Plan plan; // lazy read
 
-	CFOAuth2ServiceConfiguration(CFService service, JsonObject jsonServiceConfiguration) {
+	CFOAuth2ServiceConfiguration(Service service, JsonObject jsonServiceConfiguration) {
 		assertNotNull(service, "service must not be null");
 		assertNotNull(jsonServiceConfiguration, "jsonServiceConfiguration must not be null");
 
@@ -27,13 +28,13 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 
 	@Override
 	public String getClientId() {
-		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_ID)
+		return service.equals(Service.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_ID)
 				: credentials.getAsString(IAS.CLIENT_ID);
 	}
 
 	@Override
 	public String getClientSecret() {
-		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_SECRET)
+		return service.equals(Service.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_SECRET)
 				: credentials.getAsString(IAS.CLIENT_SECRET);
 	}
 
@@ -45,7 +46,7 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 	@Nullable
 	@Override
 	public String getDomain() {
-		return service.equals(CFService.XSUAA) ? credentials.getAsString(XSUAA.UAA_DOMAIN)
+		return service.equals(Service.XSUAA) ? credentials.getAsString(XSUAA.UAA_DOMAIN)
 				: credentials.getAsString(IAS.DOMAIN);
 	}
 

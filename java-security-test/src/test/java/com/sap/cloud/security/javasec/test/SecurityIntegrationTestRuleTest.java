@@ -9,7 +9,10 @@ import wiremock.org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
 
+import static com.sap.cloud.security.config.Service.XSUAA;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import com.sap.cloud.security.config.Service;
 
 public class SecurityIntegrationTestRuleTest {
 
@@ -17,7 +20,7 @@ public class SecurityIntegrationTestRuleTest {
 	public static final int APPLICATION_SERVER_PORT = 8383;
 
 	@Rule
-	public SecurityIntegrationTestRule rule = new SecurityIntegrationTestRule()
+	public SecurityIntegrationTestRule rule = new SecurityIntegrationTestRule(XSUAA)
 			.setPort(PORT)
 			.useApplicationServer("src/test/webapp", APPLICATION_SERVER_PORT);
 

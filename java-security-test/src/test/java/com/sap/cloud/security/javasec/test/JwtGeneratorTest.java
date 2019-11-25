@@ -1,5 +1,6 @@
 package com.sap.cloud.security.javasec.test;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
@@ -7,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.javasec.test.JwtGenerator.SignatureCalculator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -21,7 +24,7 @@ public class JwtGeneratorTest {
 	@Before
 	public void setUp() {
 		keys = RSAKeys.generate();
-		cut = new JwtGenerator().withPrivateKey(keys.getPrivate());
+		cut = JwtGenerator.getInstance(XSUAA).withPrivateKey(keys.getPrivate());
 	}
 
 	@Test
@@ -33,7 +36,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void createToken_withoutPrivateKey_throwsException()  {
-		assertThatThrownBy(() -> new JwtGenerator().createToken())
+		assertThatThrownBy(() -> JwtGenerator.getInstance(IAS).createToken())
 				.isInstanceOf(IllegalStateException.class);
 	}
 
@@ -53,7 +56,7 @@ public class JwtGeneratorTest {
 		SignatureCalculator signatureCalculatorMock = Mockito.mock(SignatureCalculator.class);
 		when(signatureCalculatorMock.calculateSignature(any(), any(), any())).thenReturn("sig".getBytes());
 
-		new JwtGenerator(signatureCalculatorMock).withPrivateKey(keys.getPrivate()).createToken();
+		new JwtGenerator(IAS, signatureCalculatorMock).withPrivateKey(keys.getPrivate()).createToken();
 
 		verify(signatureCalculatorMock, times(1)).calculateSignature(eq(keys.getPrivate()), any(), any());
 	}

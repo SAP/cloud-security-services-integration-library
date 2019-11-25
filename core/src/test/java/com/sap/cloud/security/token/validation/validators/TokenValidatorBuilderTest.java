@@ -2,7 +2,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.config.cf.CFService;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
@@ -58,7 +58,7 @@ public class TokenValidatorBuilderTest {
 		when(configuration.getDomain()).thenReturn("auth.com");
 		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
 		when(configuration.getProperty(CFConstants.XSUAA.APP_ID)).thenReturn("test-app!t123");
-		when(configuration.getServiceName()).thenReturn(CFService.XSUAA.getName());
+		when(configuration.getServiceName()).thenReturn(Service.XSUAA.getName());
 		return configuration;
 	}
 

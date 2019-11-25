@@ -1,7 +1,9 @@
 package com.sap.cloud.security.javasec.test;
 
-import com.sap.cloud.security.token.AbstractToken;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.token.IasToken;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -22,19 +24,24 @@ public class JwtGenerator {
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
 	private final SignatureCalculator signatureCalculator;
+	private final Service service;
 
 	private JwtSignatureAlgorithm signatureAlgorithm;
 	private PrivateKey privateKey;
 
-	public JwtGenerator() {
+	JwtGenerator(Service service, SignatureCalculator signatureCalculator) {
+		this.signatureCalculator = signatureCalculator;
 		signatureAlgorithm = JwtSignatureAlgorithm.RS256;
-		signatureCalculator = this::calculateSignature;
+		this.service = service;
+	}
+
+	public static JwtGenerator getInstance(Service service) {
+		return new JwtGenerator(service, JwtGenerator::calculateSignature);
 	}
 
 	// for testing
-	JwtGenerator(SignatureCalculator signatureCalculator) {
-		this.signatureCalculator = signatureCalculator;
-		signatureAlgorithm = JwtSignatureAlgorithm.RS256;
+	public static JwtGenerator getInstance(Service service, SignatureCalculator signatureCalculator) {
+		return new JwtGenerator(service, signatureCalculator);
 	}
 
 	/**
@@ -106,18 +113,23 @@ public class JwtGenerator {
 		String headerAndPayload = header + DOT + payload;
 		String signature = base64Encode(signatureCalculator
 				.calculateSignature(privateKey, signatureAlgorithm, headerAndPayload.getBytes()));
-		return new AbstractToken(headerAndPayload + DOT + signature) {
-			@Override public Principal getPrincipal() {
-				return null;
-			}
-		};
+
+		String token = headerAndPayload + DOT + signature;
+		switch (service){
+		case IAS:
+			return new IasToken(token);
+		case XSUAA:
+			return new XsuaaToken(token);
+		default:
+			throw new IllegalStateException("Unexpected value: " + service);
+		}
 	}
 
 	private void setHeaderAlgorithmValue() {
 		withHeaderParameter(JWT_HEADER_ALG, signatureAlgorithm.value());
 	}
 
-	private byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm signatureAlgorithm,
+	private static byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm signatureAlgorithm,
 			byte[] dataToSign) {
 		try {
 			Signature signature = Signature.getInstance(signatureAlgorithm.javaSignature());
