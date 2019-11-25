@@ -1,4 +1,4 @@
-package com.sap.cloud.security.javasec.test;
+package com.sap.cloud.security.test;
 
 import java.io.IOException;
 import java.nio.file.Files;

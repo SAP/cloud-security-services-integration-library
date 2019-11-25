@@ -1,4 +1,4 @@
-package com.sap.cloud.security.javasec.test;
+package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.IasToken;
@@ -15,6 +15,7 @@ import java.util.Base64;
 /**
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
  */
+// TODO allow addScopes(String... scopes)
 public class JwtGenerator {
 	private static final Logger logger = LoggerFactory.getLogger(JwtGenerator.class);
 

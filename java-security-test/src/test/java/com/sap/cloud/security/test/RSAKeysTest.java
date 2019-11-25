@@ -1,4 +1,4 @@
-package com.sap.cloud.security.javasec.test;
+package com.sap.cloud.security.test;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;

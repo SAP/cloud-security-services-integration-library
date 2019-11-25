@@ -25,7 +25,7 @@ public class TokenFilter implements Filter {
 
 
 	public TokenFilter() {
-		tokenExtractor = (authorizationHeader) -> new XsuaaToken(authorizationHeader);
+		tokenExtractor = authorizationHeader -> new XsuaaToken(authorizationHeader);
 	}
 
 	TokenFilter(TokenExtractor tokenExtractor, Validator<Token> tokenValidator) {
@@ -68,14 +68,12 @@ public class TokenFilter implements Filter {
 
 	private ValidationResult validateToken(Token token) {
 		if (tokenValidator == null) {
-			return TokenValidatorBuilder
+			tokenValidator = TokenValidatorBuilder
 					.createFor(getXsuaaServiceConfiguration())
 					.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
-					.build()
-					.validate(token);
-		} else {
-			return tokenValidator.validate(token);
+					.build();
 		}
+		return tokenValidator.validate(token);
 	}
 
 	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
@@ -91,7 +89,7 @@ public class TokenFilter implements Filter {
 	}
 
 	private void unauthorized(HttpServletResponse httpResponse, String message) {
-		logger.error(message);
+		logger.warn(message);
 		httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 

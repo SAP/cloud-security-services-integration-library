@@ -1,6 +1,6 @@
 package com.sap.cloud.security.javasec.samples.usage;
 
-import com.sap.cloud.security.javasec.test.SecurityIntegrationTestRule;
+import com.sap.cloud.security.test.SecurityIntegrationTestRule;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;

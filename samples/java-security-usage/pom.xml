@@ -40,41 +40,36 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.sap.cloud.security.xsuaa</groupId>
-            <artifactId>java-security-test</artifactId>
-            <version>${xsuaa.client.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sap.cloud.security.xsuaa</groupId>
-            <artifactId>core</artifactId>
-            <version>${xsuaa.client.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${apache.httpclient.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet.api.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- security -->
+        <dependency>
+            <groupId>com.sap.cloud.security.xsuaa</groupId>
+            <artifactId>core</artifactId>
+            <version>${xsuaa.client.version}</version>
+        </dependency>
+
+        <!-- test utilities -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
@@ -82,27 +77,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-            <version>${tomcat.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-jasper</artifactId>
-            <version>${tomcat.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-logging-juli</artifactId>
-            <version>${tomcat.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-jre8-standalone</artifactId>
-            <version>${wiremock.version}</version>
+            <groupId>com.sap.cloud.security.xsuaa</groupId>
+            <artifactId>java-security-test</artifactId>
+            <version>${xsuaa.client.version}</version>
             <scope>test</scope>
         </dependency>
 

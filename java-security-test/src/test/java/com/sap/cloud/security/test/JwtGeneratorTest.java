@@ -1,6 +1,5 @@
-package com.sap.cloud.security.javasec.test;
+package com.sap.cloud.security.test;
 
-import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
@@ -10,7 +9,7 @@ import org.mockito.Mockito;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.javasec.test.JwtGenerator.SignatureCalculator;
+import static com.sap.cloud.security.test.JwtGenerator.SignatureCalculator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
