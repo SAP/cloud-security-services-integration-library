@@ -14,6 +14,7 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +70,15 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 				.withHeaderParameter(TokenHeader.JWKS_URL, tokenKeysUrl)
 				.withClaim(TokenClaims.XSUAA.CLIENT_ID, "sb-clientId!20")
 				.withPrivateKey(keys.getPrivate());
+	}
+
+
+	/**
+	 * Null if not yet initialized as part of {@link #before()} method.
+	 */
+	@Nullable
+	public WireMockRule getWireMockRule() {
+		return wireMockRule;
 	}
 
 	public Token getAccessToken() {

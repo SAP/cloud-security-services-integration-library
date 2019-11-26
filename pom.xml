@@ -79,7 +79,7 @@
 
 	<modules>
 		<module>api</module>
-		<module>core</module>
+		<module>java-security</module>
 		<module>token-client</module>
 		<module>java-security-test</module>
 		<module>spring-xsuaa</module>

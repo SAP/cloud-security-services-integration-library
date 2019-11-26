@@ -1,5 +1,5 @@
 # Description
-This sample is a Java back-end application running on the Cloud Foundry. On incoming requests it checks whether the user is authorized using the [Java Security](../../core/) library.
+This sample is a Java back-end application running on the Cloud Foundry. On incoming requests it checks whether the user is authorized using the [Java Security](../../java-security/) library.
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:

@@ -41,7 +41,7 @@ A Java implementation of JSON Web Token (JWT) - RFC 7519 (see [1]).
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
-    <artifactId>core</artifactId>
+    <artifactId>java-security</artifactId>
     <version>2.3.0</version>
 </dependency>
 <dependency>
