@@ -55,7 +55,7 @@ public class JwtGeneratorTest {
 		SignatureCalculator signatureCalculatorMock = Mockito.mock(SignatureCalculator.class);
 		when(signatureCalculatorMock.calculateSignature(any(), any(), any())).thenReturn("sig".getBytes());
 
-		new JwtGenerator(IAS, signatureCalculatorMock).withPrivateKey(keys.getPrivate()).createToken();
+		JwtGenerator.getInstance(IAS, signatureCalculatorMock).withPrivateKey(keys.getPrivate()).createToken();
 
 		verify(signatureCalculatorMock, times(1)).calculateSignature(eq(keys.getPrivate()), any(), any());
 	}

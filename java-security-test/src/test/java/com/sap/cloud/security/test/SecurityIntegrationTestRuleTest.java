@@ -20,7 +20,7 @@ public class SecurityIntegrationTestRuleTest {
 	public static final int APPLICATION_SERVER_PORT = 8383;
 
 	@Rule
-	public SecurityIntegrationTestRule rule = new SecurityIntegrationTestRule(XSUAA)
+	public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
 			.setPort(PORT)
 			.useApplicationServer("src/test/webapp", APPLICATION_SERVER_PORT);
 

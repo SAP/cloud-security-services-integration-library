@@ -15,7 +15,7 @@ import java.util.Base64;
 /**
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
  */
-// TODO allow addScopes(String... scopes)
+// TODO allow addScopes(String... scopes) in case of XSUAA service
 public class JwtGenerator {
 	private static final Logger logger = LoggerFactory.getLogger(JwtGenerator.class);
 
@@ -24,25 +24,27 @@ public class JwtGenerator {
 
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
-	private final SignatureCalculator signatureCalculator;
-	private final Service service;
+	private SignatureCalculator signatureCalculator;
+	private Service service;
 
 	private JwtSignatureAlgorithm signatureAlgorithm;
 	private PrivateKey privateKey;
 
-	JwtGenerator(Service service, SignatureCalculator signatureCalculator) {
-		this.signatureCalculator = signatureCalculator;
-		signatureAlgorithm = JwtSignatureAlgorithm.RS256;
-		this.service = service;
+	private JwtGenerator() {
+		// see factory method getInstance()
 	}
 
 	public static JwtGenerator getInstance(Service service) {
-		return new JwtGenerator(service, JwtGenerator::calculateSignature);
+		return getInstance(service, JwtGenerator::calculateSignature);
 	}
 
 	// for testing
 	public static JwtGenerator getInstance(Service service, SignatureCalculator signatureCalculator) {
-		return new JwtGenerator(service, signatureCalculator);
+		JwtGenerator instance = new JwtGenerator();
+		instance.service = service;
+		instance.signatureCalculator = signatureCalculator;
+		instance.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
+		return instance;
 	}
 
 	/**

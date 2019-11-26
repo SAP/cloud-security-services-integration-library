@@ -103,6 +103,7 @@ Instant expiredtAt = token.getExpiration();
 You can find a sample Servlet application [here](/samples/java-security-usage).
 
 ## Test Utilities
+The `SecurityIntegrationTestRule` uses third-party library [WireMock](http://wiremock.org/docs/getting-started/) to stub outgoing calls to the identity service. Furthermore it pre-configures the JwtGenerator, so that the token is signed with a private key which matches the public key provided by the jwks endpoint (on behalf of WireMock).
 
 ### Maven Dependencies
 ```xml
@@ -119,21 +120,19 @@ You can find a sample Servlet application [here](/samples/java-security-usage).
 Token token = JwtGenerator.getInstance(Service.XSUAA)
                                 .withHeaderParameter(TokenHeader.KEY_ID, "key-id")
                                 .withClaim(TokenClaims.XSUAA.EMAIL, "tester@email.com")
-                                .createToken()
+                                .createToken();
 ```
 
 ### Servlet Test Utilities
 ```java
 public class HelloJavaServletTest {
 
-	private static final String EMAIL_ADDRESS = "test.email@example.org";
-	public static final int APPLICATION_SERVER_PORT = 8282;
 	private static Properties oldProperties;
 
 	@Rule
-	public SecurityIntegrationTestRule rule = new SecurityIntegrationTestRule(XSUAA)
-			.setPort(8181)
-			.useApplicationServer("src/test/webapp", APPLICATION_SERVER_PORT);
+	public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
+			.setPort(8181) // optionally overwrite WireMock port
+			.useApplicationServer("src/test/webapp", 8282); // optionally overwrite app server port
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
@@ -148,7 +147,7 @@ public class HelloJavaServletTest {
 
 	@Test
 	public void requestWithoutHeader_statusUnauthorized() throws Exception {
-		Token token = rule.getAccessToken();
+		Token token = rule.createToken();
 
 		HttpGet request = createGetRequest("Bearer " + token.getAccessToken());
 		request.setHeader(HttpHeaders.AUTHORIZATION, null);
@@ -159,18 +158,18 @@ public class HelloJavaServletTest {
 
 	@Test
 	public void request_withValidToken() throws IOException {
-		rule.getPreconfiguredJwtGenerator().withClaim(TokenClaims.XSUAA.EMAIL, EMAIL_ADDRESS);
-		HttpGet request = createGetRequest("Bearer " + rule.getAccessToken().getAccessToken());
+		rule.getPreconfiguredJwtGenerator().withClaim(TokenClaims.XSUAA.EMAIL, "test.email@example.org");
+		HttpGet request = createGetRequest("Bearer " + rule.createToken().getAccessToken());
 
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
-			assertThat(responseBody).contains(EMAIL_ADDRESS);
+			assertThat(responseBody).contains("test.email@example.org");
 		}
 	}
 
 	private HttpGet createGetRequest(String bearer_token) {
-		HttpGet httpGet = new HttpGet("http://localhost:" + APPLICATION_SERVER_PORT + "/hello-java-security");
+		HttpGet httpGet = new HttpGet(rule.getAppServerUri() + "/hello-java-security");
 		httpGet.setHeader(HttpHeaders.AUTHORIZATION, bearer_token);
 		return httpGet;
 	}

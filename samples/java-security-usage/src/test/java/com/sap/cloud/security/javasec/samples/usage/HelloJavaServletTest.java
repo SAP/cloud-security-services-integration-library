@@ -24,13 +24,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class HelloJavaServletTest {
 
 	private static final String EMAIL_ADDRESS = "test.email@example.org";
-	public static final int APPLICATION_SERVER_PORT = 8282;
 	private static Properties oldProperties;
 
 	@Rule
-	public SecurityIntegrationTestRule rule = new SecurityIntegrationTestRule(XSUAA)
+	public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
 			.setPort(8181)
-			.useApplicationServer("src/test/webapp", APPLICATION_SERVER_PORT);
+			.useApplicationServer("src/test/webapp");
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
@@ -53,7 +52,7 @@ public class HelloJavaServletTest {
 
 	@Test
 	public void requestWithoutHeader_statusUnauthorized() throws Exception {
-		Token token = rule.getAccessToken();
+		Token token = rule.createToken();
 
 		HttpGet request = createGetRequest("Bearer " + token.getAccessToken());
 		request.setHeader(HttpHeaders.AUTHORIZATION, null);
@@ -65,7 +64,7 @@ public class HelloJavaServletTest {
 	@Test
 	public void request_withValidToken() throws IOException {
 		rule.getPreconfiguredJwtGenerator().withClaim(TokenClaims.XSUAA.EMAIL, EMAIL_ADDRESS);
-		HttpGet request = createGetRequest("Bearer " + rule.getAccessToken().getAccessToken());
+		HttpGet request = createGetRequest("Bearer " + rule.createToken().getAccessToken());
 
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -75,7 +74,7 @@ public class HelloJavaServletTest {
 	}
 
 	private HttpGet createGetRequest(String bearer_token) {
-		HttpGet httpGet = new HttpGet("http://localhost:" + APPLICATION_SERVER_PORT + "/hello-java-security");
+		HttpGet httpGet = new HttpGet(rule.getAppServerUri() + "/hello-java-security");
 		httpGet.setHeader(HttpHeaders.AUTHORIZATION, bearer_token);
 		return httpGet;
 	}

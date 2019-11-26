@@ -21,7 +21,7 @@ public class RSAKeysTest {
 	}
 
 	@Test
-	public void fromKeyFiles() throws IOException, URISyntaxException, InvalidKeySpecException,
+	public void fromKeyFiles() throws IOException, InvalidKeySpecException,
 			NoSuchAlgorithmException {
 		String privateKeyPath = IOUtils.resourceToURL("/privateKey.txt").getPath();
 		String publicKeyPath = IOUtils.resourceToURL("/publicKey.txt").getPath();

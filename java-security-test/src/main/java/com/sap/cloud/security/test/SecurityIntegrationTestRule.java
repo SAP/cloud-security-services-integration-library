@@ -5,6 +5,8 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
@@ -18,6 +20,7 @@ import javax.annotation.Nullable;
 import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -27,10 +30,10 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 public class SecurityIntegrationTestRule extends ExternalResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(SecurityIntegrationTestRule.class);
-	private static final String TOKEN_KEYS = "/token_keys"; // TODO XSUAA specific OAuth2ServiceEndpointsProvider.getJwksUri
+	private static final String LOCALHOST_PATTERN = "http://localhost:%d";
 
-	private final RSAKeys keys;
-	private final JwtGenerator jwtGenerator;
+	private RSAKeys keys;
+	private JwtGenerator jwtGenerator;
 
 	private int wireMockPort = 33195;
 	private WireMockRule wireMockRule;
@@ -38,25 +41,41 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	private boolean useApplicationServer;
 	private Tomcat tomcat;
 	private String webappDir;
-	private int tomcatPort = 8181;
+	private int tomcatPort = 44195;
 	private TemporaryFolder baseDir;
+	private Service service;
 
-	public SecurityIntegrationTestRule(Service service) {
-		keys = RSAKeys.generate();
-		jwtGenerator = JwtGenerator.getInstance(service);
+	private SecurityIntegrationTestRule() {
+		// see factory method getInstance()
 	}
 
-	public SecurityIntegrationTestRule setPort(int port) {
-		wireMockPort = port;
-		return this;
+	public static SecurityIntegrationTestRule getInstance(Service service) {
+		SecurityIntegrationTestRule instance = new SecurityIntegrationTestRule();
+		instance.keys = RSAKeys.generate();
+		instance.jwtGenerator = JwtGenerator.getInstance(service);
+		instance.service = service;
+		return instance;
 	}
 
+	/**
+	 * Specifies an embedded Tomcat as application server.
+	 * It needs to be configured before the {@link #before()} method.
+	 *
+	 * @param pathToWebAppDir e.g. "src/test/webapp"
+	 * @return the rule itself.
+	 */
 	public SecurityIntegrationTestRule useApplicationServer(String pathToWebAppDir) {
-		webappDir = pathToWebAppDir;
-		useApplicationServer = true;
-		return this;
+		return useApplicationServer(pathToWebAppDir, tomcatPort);
 	}
 
+	/**
+	 * Specifies an embedded Tomcat as application server.
+	 * It needs to be configured before the {@link #before()} method.
+	 *
+	 * @param pathToWebAppDir e.g. "src/test/webapp"
+	 * @param port the port on which the application service is started.
+	 * @return the rule itself.
+	 */
 	public SecurityIntegrationTestRule useApplicationServer(String pathToWebAppDir, int port) {
 		webappDir = pathToWebAppDir;
 		useApplicationServer = true;
@@ -64,35 +83,91 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		return this;
 	}
 
-	public JwtGenerator getPreconfiguredJwtGenerator() {
-		String tokenKeysUrl = String.format("http://localhost:%d/%s", wireMockPort, TOKEN_KEYS);
-		return jwtGenerator
-				.withHeaderParameter(TokenHeader.JWKS_URL, tokenKeysUrl)
-				.withClaim(TokenClaims.XSUAA.CLIENT_ID, "sb-clientId!20")
-				.withPrivateKey(keys.getPrivate());
+	/**
+	 * Overwrites the port on which the wire mock server runs.
+	 * It needs to be configured before the {@link #before()} method.
+	 *
+	 * @param wireMockPort the port on which the wire mock service is started.
+	 * @return the rule itself.
+	 */
+	public SecurityIntegrationTestRule setPort(int wireMockPort) {
+		this.wireMockPort = wireMockPort;
+		return this;
 	}
 
+	/**
+	 * Overwrites the private/public key pair to be used.
+	 * The private key is used to sign the jwt token.
+	 * The public key is provided by jwks endpoint (on behalf of WireMock).
+	 *
+	 * It needs to be configured before the {@link #before()} method.
+	 *
+	 * @param keys the private/public key pair.
+	 * @return the rule itself.
+	 */
+	public SecurityIntegrationTestRule setKeys(RSAKeys keys) {
+		this.keys = keys;
+		return this;
+	}
 
 	/**
-	 * Null if not yet initialized as part of {@link #before()} method.
+	 * Note: the JwtGenerator is fully configured as part of {@link #before()} method.
+	 */
+	public JwtGenerator getPreconfiguredJwtGenerator() {
+		return jwtGenerator;
+	}
+
+	/**
+	 * Allows to stub further endpoints of the identity service.
+	 * Returns null if not yet initialized as part of {@link #before()} method.
+	 * You can find a detailed explanation on how to configure wire mock here: http://wiremock.org/docs/getting-started/
 	 */
 	@Nullable
 	public WireMockRule getWireMockRule() {
 		return wireMockRule;
 	}
 
-	public Token getAccessToken() {
+	/**
+	 * Returns the URI of the embedded tomcat application server or null if not specified.
+	 */
+	@Nullable
+	public String getAppServerUri() {
+		if(!useApplicationServer) {
+			return null;
+		}
+		return String.format(LOCALHOST_PATTERN, tomcatPort);
+	}
+
+	public Token createToken() {
 		return getPreconfiguredJwtGenerator().createToken();
 	}
 
 	@Override
 	protected void before() throws IOException {
+		// start application server (for integration tests)
 		if (useApplicationServer) {
 			startTomcat();
 		}
+
+		// prepare endpoints provider
+		OAuth2ServiceEndpointsProvider endpointsProvider = null;
+		switch (service) {
+		case XSUAA:
+			endpointsProvider = new XsuaaDefaultEndpoints(String.format(LOCALHOST_PATTERN, wireMockPort));
+			// configure predefined JwtGenerator
+			jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, endpointsProvider.getJwksUri().toString())
+					.withClaim(TokenClaims.XSUAA.CLIENT_ID, "sb-clientId!20")
+					.withPrivateKey(keys.getPrivate());
+			// TODO check for feature parity in the spring-xsuaa-test JwtGenerator
+			break;
+		default:
+			throw new IllegalStateException("Service " + service + " is not yet supported.");
+		}
+
+		// starts WireMock (to stub communication to identity service)
 		wireMockRule = new WireMockRule(options().port(wireMockPort));
 		wireMockRule.start();
-		wireMockRule.stubFor(get(urlEqualTo(TOKEN_KEYS))
+		wireMockRule.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
 				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
 	}
 
@@ -127,7 +202,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 			tomcat.addWebapp("", new File(webappDir).getAbsolutePath());
 			tomcat.start();
 		} catch (LifecycleException | ServletException e) {
-			logger.error("Failed to start the tomcat server!");
+			logger.error("Failed to start the tomcat server on port {}!", tomcatPort);
 			throw new RuntimeException(e);
 		}
 	}

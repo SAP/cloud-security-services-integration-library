@@ -76,7 +76,7 @@ public interface Token {
 	Instant getNotBefore();
 
 	/**
-	 * Get the original encoded access token.
+	 * Get the encoded authentication token, e.g. for token forwarding to another app.
 	 *
 	 * <p>
 	 * Never expose this token via log or via HTTP.
