@@ -176,9 +176,9 @@ public class HelloJavaServletTest {
 	}
 
 }
-```xml
+```
 
-## Specs und references
+## Specs und References
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)
 2. [OpenID Connect Core 1.0 incorporating errata set 1](https://openid.net/specs/openid-connect-core-1_0.html)
 3. [OpenID Connect Core 1.0 incorporating errata set 1 - ID Token Validation](https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation)
