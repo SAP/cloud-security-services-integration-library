@@ -1,5 +1,6 @@
 package com.sap.cloud.security.javasec.samples.usage;
 
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.test.SecurityIntegrationTestRule;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
@@ -19,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.config.cf.CFConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletIntegrationTest {
@@ -35,7 +37,7 @@ public class HelloJavaServletIntegrationTest {
 	@BeforeClass
 	public static void prepareTest() throws Exception {
 		oldProperties = System.getProperties();
-		System.setProperty("VCAP_SERVICES", IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
+		System.setProperty(VCAP_SERVICES, IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
 	}
 
 	@AfterClass

@@ -1,5 +1,6 @@
 package com.sap.cloud.security.javasec.samples.usage;
 
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.test.RSAKeys;
 import com.sap.cloud.security.test.SecurityIntegrationTestRule;
 import com.sap.cloud.security.token.SecurityContext;
@@ -37,7 +38,7 @@ public class HelloJavaServletTest {
 	@BeforeClass
 	public static void prepareTest() throws Exception {
 		oldProperties = System.getProperties();
-		System.setProperty("VCAP_SERVICES", IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
+		System.setProperty(CFConstants.VCAP_SERVICES, IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
 	}
 
 	@AfterClass
