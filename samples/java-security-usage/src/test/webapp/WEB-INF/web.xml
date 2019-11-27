@@ -5,28 +5,7 @@ This file is licensed under the Apache Software License, v. 2 except as noted ot
  -->
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://java.sun.com/xml/ns/javaee"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-         version="2.5">
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
     <display-name>java-security-usage</display-name>
-
-    <filter>
-        <filter-name>TokenFilter</filter-name>
-        <filter-class>com.sap.cloud.security.javasec.samples.usage.TokenFilter</filter-class>
-    </filter>
-
-    <servlet>
-        <servlet-name>hello-java-security</servlet-name>
-        <servlet-class>com.sap.cloud.security.javasec.samples.usage.HelloJavaServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>hello-java-security</servlet-name>
-        <url-pattern>/*</url-pattern>
-    </servlet-mapping>
-
-    <filter-mapping>
-        <filter-name>TokenFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
 </web-app>

@@ -7,9 +7,12 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-
+import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.catalina.webresources.DirResourceSet;
+import org.apache.catalina.webresources.StandardRoot;
 import org.apache.commons.io.IOUtils;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
@@ -198,7 +201,11 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		tomcat.setBaseDir(baseDir.getRoot().getAbsolutePath());
 		tomcat.setPort(tomcatPort);
 		try {
-			tomcat.addWebapp("", new File(webappDir).getAbsolutePath());
+			Context context = tomcat.addWebapp("", new File(webappDir).getAbsolutePath());
+			File additionWebInfClasses = new File("target/classes");
+			WebResourceRoot resources = new StandardRoot(context);
+			resources.addPreResources(new DirResourceSet(resources, "/WEB-INF/classes", additionWebInfClasses.getAbsolutePath(), "/"));
+			context.setResources(resources);
 			tomcat.start();
 		} catch (LifecycleException | ServletException e) {
 			logger.error("Failed to start the tomcat server on port {}!", tomcatPort);

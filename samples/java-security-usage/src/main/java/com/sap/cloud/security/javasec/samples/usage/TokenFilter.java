@@ -14,9 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@WebFilter(urlPatterns = "/*")
 public class TokenFilter implements Filter {
 
 	private static final Logger logger = LoggerFactory.getLogger(TokenFilter.class);
