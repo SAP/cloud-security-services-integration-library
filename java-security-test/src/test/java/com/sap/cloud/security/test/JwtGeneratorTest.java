@@ -1,8 +1,12 @@
 package com.sap.cloud.security.test;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -12,6 +16,7 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.JwtGenerator.SignatureCalculator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.util.Lists.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -71,6 +76,39 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
+	public void withJku_containsJkuHeaderParameter() {
+		String tokenKeyService = "http://localhost/token_keys";
+		Token token = cut.withJku(tokenKeyService).createToken();
+
+		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(tokenKeyService);
+	}
+
+	@Test
+	public void withKid_containsKeyIdHeaderParameter() {
+		String keyId = "theKeyId";
+		Token token = cut.withKeyId(keyId).createToken();
+
+		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(keyId);
+	}
+
+	@Test
+	public void withScopes_containsScopeWhenServiceIsXsuaa() {
+		String firstScope = "firstScope";
+		String secondScope = "secondScope";
+		Token token = cut.withScopes(firstScope, secondScope).createToken();
+
+		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactly(firstScope, secondScope);
+	}
+
+	@Test
+	public void withScopes_throwsIllegalStateExceptionWhenServiceIsNotXsuaa() {
+		cut = JwtGenerator.getInstance(IAS).withPrivateKey(keys.getPrivate());
+		assertThatThrownBy(() -> cut.withScopes("firstScope").createToken())
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessageContainingAll("Scopes", "XSUAA");
+	}
+
+	@Test
 	public void withAlgorithm_createsTokenWithSignature_isValid() throws Exception {
 		RSAKeys keys = RSAKeys.generate();
 
@@ -83,4 +121,14 @@ public class JwtGeneratorTest {
 		assertThat(validator.validate(token).isValid()).isTrue();
 	}
 
+	@Test
+	public void withClaim_createsTokenWithValuesAsStringList() {
+		String claimName = "claimName";
+		String firstValue = "many";
+		String secondValue = "values";
+
+		Token token = cut.withClaim(claimName, list(firstValue, secondValue)).createToken();
+
+		assertThat(token.getClaimAsStringList(claimName)).containsExactly(firstValue, secondValue);
+	}
 }

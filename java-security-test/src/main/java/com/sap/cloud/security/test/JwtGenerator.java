@@ -1,16 +1,16 @@
 package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.token.IasToken;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.*;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 
 /**
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
@@ -76,6 +76,20 @@ public class JwtGenerator {
 	}
 
 	/**
+	 * Sets the claim with the given name to the given string values.
+	 *
+	 * @param claimName
+	 *            the name of the claim to be set.
+	 * @param values
+	 *            the string value of the claim to be set.
+	 * @return the builder object.
+	 */
+	public JwtGenerator withClaim(String claimName, Collection<String> values) {
+		jsonPayload.put(claimName, values);
+		return this;
+	}
+
+	/**
 	 * Sets the signature algorithm that is used to create the signature of the
 	 * token.
 	 *
@@ -97,6 +111,47 @@ public class JwtGenerator {
 	 */
 	public JwtGenerator withPrivateKey(PrivateKey privateKey) {
 		this.privateKey = privateKey;
+		return this;
+	}
+
+	/**
+	 * Sets the url which is used to retrieve the verification keys.
+	 *
+	 * @param jkuUrl
+	 *            the url to retrieve the keys
+	 * @return the builder object.
+	 */
+	public JwtGenerator withJku(String jkuUrl) {
+		return withHeaderParameter(TokenHeader.JWKS_URL, jkuUrl);
+	}
+
+	/**
+	 * Sets the keyId value as "kid" header to the jwt.
+	 *
+	 * @param keyId
+	 *            the value of the signed jwt token header "kid"
+	 * @return the JwtGenerator itself
+	 */
+	public JwtGenerator withKeyId(String keyId) {
+		return withHeaderParameter(TokenHeader.KEY_ID, keyId);
+	}
+
+	/**
+	 * Sets the roles as claim "scope" to the jwt. Note that this is specific to
+	 * tokens of service type {@link Service#XSUAA}.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if service is not {@link Service#XSUAA}
+	 * @param scopes
+	 *            the scopes that should be part of the token
+	 * @return the JwtGenerator itself
+	 */
+	public JwtGenerator withScopes(String... scopes) {
+		if (service == Service.XSUAA) {
+			withClaim(TokenClaims.XSUAA.SCOPES, Arrays.asList(scopes));
+		} else {
+			throw new IllegalStateException("Scopes are only supported when service is set to XSUAA!");
+		}
 		return this;
 	}
 

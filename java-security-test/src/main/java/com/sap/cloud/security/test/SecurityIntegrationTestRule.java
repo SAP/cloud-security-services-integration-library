@@ -178,7 +178,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		wireMockRule.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
 				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
 		// configure predefined JwtGenerator
-		jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, endpointsProvider.getJwksUri().toString())
+		jwtGenerator.withJku(endpointsProvider.getJwksUri().toString())
 				.withClaim(TokenClaims.XSUAA.CLIENT_ID, "sb-clientId!20")
 				.withPrivateKey(keys.getPrivate());
 		// TODO check for feature parity in the spring-xsuaa-test JwtGenerator
