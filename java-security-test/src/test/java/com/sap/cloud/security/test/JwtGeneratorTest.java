@@ -27,20 +27,20 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void createToken_isNotNull()  {
+	public void createToken_isNotNull() {
 		Token token = cut.createToken();
 
 		assertThat(token).isNotNull();
 	}
 
 	@Test
-	public void createToken_withoutPrivateKey_throwsException()  {
+	public void createToken_withoutPrivateKey_throwsException() {
 		assertThatThrownBy(() -> JwtGenerator.getInstance(IAS).createToken())
 				.isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
-	public void withClaim_containsClaim()  {
+	public void withClaim_containsClaim() {
 		String claimName = "claim-name";
 		String claimValue = "claim-value";
 
@@ -50,7 +50,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void withPrivateKey_usesPrivateKey()  {
+	public void withPrivateKey_usesPrivateKey() {
 
 		SignatureCalculator signatureCalculatorMock = Mockito.mock(SignatureCalculator.class);
 		when(signatureCalculatorMock.calculateSignature(any(), any(), any())).thenReturn("sig".getBytes());
@@ -61,7 +61,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void withHeaderParameter_containsHeaderParameter()  {
+	public void withHeaderParameter_containsHeaderParameter() {
 		String parameterName = "the-key";
 		String parameterValue = "the-value";
 

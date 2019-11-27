@@ -37,7 +37,7 @@ public class SecurityIntegrationTestRuleTest {
 	}
 
 	@Test
-	public void getTokenKeysRequest_() throws IOException {
+	public void getTokenKeysRequest() throws IOException {
 		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
@@ -46,13 +46,14 @@ public class SecurityIntegrationTestRuleTest {
 			assertThat(tokenKeys).hasSize(1);
 			assertThat(tokenKeys.get(0)).isInstanceOf(JSONObject.class);
 			JSONObject tokenKeyObject = (JSONObject) tokenKeys.get(0);
-			String encodedPublicKey = Base64.getEncoder().withoutPadding().encodeToString(rsaKeys.getPublic().getEncoded());
+			String encodedPublicKey = Base64.getEncoder().withoutPadding()
+					.encodeToString(rsaKeys.getPublic().getEncoded());
 			assertThat(tokenKeyObject.get(JsonWebKeyConstants.VALUE_PARAMETER_NAME)).isEqualTo(encodedPublicKey);
 		}
 	}
 
 	private String readContent(CloseableHttpResponse response) throws IOException {
 		return IOUtils.readLines(response.getEntity().getContent(), StandardCharsets.UTF_8).stream()
-						.collect(Collectors.joining());
+				.collect(Collectors.joining());
 	}
 }

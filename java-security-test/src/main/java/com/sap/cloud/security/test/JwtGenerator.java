@@ -91,7 +91,8 @@ public class JwtGenerator {
 	/**
 	 * Sets the private key that is used to sign the token.
 	 *
-	 * @param privateKey the private key.
+	 * @param privateKey
+	 *            the private key.
 	 * @return the builder object.
 	 */
 	public JwtGenerator withPrivateKey(PrivateKey privateKey) {
@@ -118,7 +119,7 @@ public class JwtGenerator {
 				.calculateSignature(privateKey, signatureAlgorithm, headerAndPayload.getBytes()));
 
 		String token = headerAndPayload + DOT + signature;
-		switch (service){
+		switch (service) {
 		case IAS:
 			return new IasToken(token);
 		case XSUAA:
