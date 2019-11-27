@@ -1,35 +1,38 @@
 package com.sap.cloud.security.javasec.samples.usage;
 
+import com.sap.cloud.security.test.RSAKeys;
 import com.sap.cloud.security.test.SecurityIntegrationTestRule;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 public class HelloJavaServletTest {
 
-	private static final String EMAIL_ADDRESS = "test.email@example.org";
+	@Rule
+	public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA).setPort(8181);
+
 	private static Properties oldProperties;
 
-	@Rule
-	public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
-			.setPort(8181)
-			.useApplicationServer("src/test/webapp");
+	private TokenFilter cut;
+	private FilterChain filterChain;
+	private HttpServletResponse httpResponse;
+	private HttpServletRequest httpRequest;
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
@@ -42,41 +45,46 @@ public class HelloJavaServletTest {
 		System.setProperties(oldProperties);
 	}
 
-	@Test
-	public void requestWithoutToken_statusUnauthorized() throws IOException {
-		HttpGet request = createGetRequest("Bearer ");
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
-		}
+	@Before
+	public void setUp() {
+		cut = new TokenFilter();
+		httpResponse = mock(HttpServletResponse.class);
+		httpRequest = mock(HttpServletRequest.class);
+		filterChain = mock(FilterChain.class);
+	}
+
+	@After
+	public void tearDown()  {
+		SecurityContext.clearToken();
 	}
 
 	@Test
-	public void requestWithoutHeader_statusUnauthorized() throws Exception {
-		Token token = rule.createToken();
+	public void validBearerToken_isAuthorized() throws IOException, ServletException {
+		Token token = rule.getPreconfiguredJwtGenerator().createToken();
+		mockAuthorizationHeader(token);
 
-		HttpGet request = createGetRequest("Bearer " + token.getAccessToken());
-		request.setHeader(HttpHeaders.AUTHORIZATION, null);
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
-		}
+		cut.doFilter(httpRequest, httpResponse, filterChain);
+
+		verify(filterChain, times(1)).doFilter(httpRequest, httpResponse);
+		assertThat(SecurityContext.getToken().getAccessToken()).isEqualTo(token.getAccessToken());
 	}
 
 	@Test
-	public void request_withValidToken() throws IOException {
-		rule.getPreconfiguredJwtGenerator().withClaim(TokenClaims.XSUAA.EMAIL, EMAIL_ADDRESS);
-		HttpGet request = createGetRequest("Bearer " + rule.createToken().getAccessToken());
+	public void wrongPrivateKey_isNotAuthorized() {
+		Token token = rule.getPreconfiguredJwtGenerator()
+				.withPrivateKey(RSAKeys.generate().getPrivate())
+				.createToken();
+		mockAuthorizationHeader(token);
 
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
-			assertThat(responseBody).contains(EMAIL_ADDRESS);
-		}
+		cut.doFilter(httpRequest, httpResponse, filterChain);
+
+		verifyNoInteractions(filterChain);
+		verify(httpResponse, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		assertThat(SecurityContext.getToken()).isNull();
 	}
 
-	private HttpGet createGetRequest(String bearer_token) {
-		HttpGet httpGet = new HttpGet(rule.getAppServerUri() + "/hello-java-security");
-		httpGet.setHeader(HttpHeaders.AUTHORIZATION, bearer_token);
-		return httpGet;
+	private void mockAuthorizationHeader(Token token) {
+		when(httpRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer " + token.getAccessToken());
 	}
 
 }
