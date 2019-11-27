@@ -28,7 +28,9 @@ public class CFConstants {
 		public static final String DOMAIN = "domain";
 	}
 
-	// TODO move to CFService?
+	/**
+	 * Represents the service plans on CF marketplace.
+	 */
 	public enum Plan {
 		DEFAULT, BROKER, APPLICATION;
 

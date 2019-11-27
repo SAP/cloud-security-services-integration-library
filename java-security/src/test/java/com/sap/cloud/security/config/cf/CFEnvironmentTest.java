@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.sap.cloud.security.config.cf.CFEnvironment.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,7 +21,7 @@ public class CFEnvironmentTest {
 
 	@Before
 	public void setUp() {
-		cut = new CFEnvironment(fakeSystemEnvironmentProvider, fakeSystemPropertiesProvider);
+		cut = new CFEnvironment((str) -> vcapXsuaa, (str) -> vcapXsuaa);
 	}
 
 	@Test
@@ -35,9 +34,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getXsuaaServiceConfiguration_usesSystemPropertiesAsFallback() {
-		SystemEnvironmentProvider emptyEnvironmentProvider = (str) -> null;
-		SystemPropertiesProvider systemPropertiesProvider = (str) -> vcapXsuaa;
-		cut = new CFEnvironment(emptyEnvironmentProvider, systemPropertiesProvider);
+		cut = new CFEnvironment((str) -> null, (str) -> vcapXsuaa);
 
 		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaServiceConfiguration();
 
@@ -46,27 +43,10 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getXsuaaServiceConfiguration_vcapServicesNotAvailable_returnsNull() {
-		SystemEnvironmentProvider emptyEnvironmentProvider = (str) -> null;
-		SystemPropertiesProvider emptySystemPropertiesProvider = (str) -> null;
-		cut = new CFEnvironment(emptyEnvironmentProvider, emptySystemPropertiesProvider);
+		cut = new CFEnvironment((str) -> null, (str) -> null);
 
 		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaServiceConfiguration();
 
 		assertThat(serviceConfiguration).isNull();
 	}
-
-	private SystemEnvironmentProvider fakeSystemEnvironmentProvider = (String key) -> {
-		if (CFConstants.VCAP_SERVICES.equals(key)) {
-			return vcapXsuaa;
-		}
-		return null;
-	};
-
-	private SystemPropertiesProvider fakeSystemPropertiesProvider = (String key) -> {
-		if (CFConstants.VCAP_SERVICES.equals(key)) {
-			return vcapXsuaa;
-		}
-		return null;
-	};
-
 }

@@ -1,25 +1,30 @@
 package com.sap.cloud.security.config.cf;
 
+import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
+
+import javax.annotation.Nullable;
+
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 public class CFEnvironment implements Environment {
 
 	private CFEnvParser cfEnvParser;
 
-	private final SystemEnvironmentProvider systemEnvironmentProvider;
-	private final SystemPropertiesProvider systemPropertiesProvider;
+	private final Function<String, String> systemEnvironmentProvider;
+	private final Function<String, String> systemPropertiesProvider;
 
 	public CFEnvironment() {
 		systemEnvironmentProvider = System::getenv;
 		systemPropertiesProvider = System::getProperty;
 	}
 
-	CFEnvironment(SystemEnvironmentProvider systemEnvironmentProvider,
-			SystemPropertiesProvider systemPropertiesProvider) {
+	CFEnvironment(Function<String, String> systemEnvironmentProvider,
+			Function<String, String> systemPropertiesProvider) {
 		this.systemEnvironmentProvider = systemEnvironmentProvider;
 		this.systemPropertiesProvider = systemPropertiesProvider;
 	}
@@ -27,6 +32,10 @@ public class CFEnvironment implements Environment {
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
 		return getCFEnvParser().load(Service.XSUAA);
+	}
+
+	@Nullable @Override public OAuth2ServiceConfiguration getIasServiceConfiguration() {
+		throw new UnsupportedOperationException("This feature is not yet active");
 	}
 
 	@Override
@@ -48,9 +57,9 @@ public class CFEnvironment implements Environment {
 	}
 
 	private Optional<String> extractVcapJsonString() {
-		String env = systemEnvironmentProvider.getEnv(CFConstants.VCAP_SERVICES);
+		String env = systemEnvironmentProvider.apply(VCAP_SERVICES);
 		if (env == null) {
-			env = systemPropertiesProvider.getProperty(CFConstants.VCAP_SERVICES);
+			env = systemPropertiesProvider.apply(VCAP_SERVICES);
 		}
 		return Optional.ofNullable(env);
 	}
@@ -62,14 +71,6 @@ public class CFEnvironment implements Environment {
 					.orElse(new CFEnvParser("{}")); // no data
 		}
 		return cfEnvParser;
-	}
-
-	interface SystemEnvironmentProvider {
-		String getEnv(String key);
-	}
-
-	interface SystemPropertiesProvider {
-		String getProperty(String key);
 	}
 
 }
