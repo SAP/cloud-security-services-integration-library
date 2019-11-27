@@ -31,7 +31,6 @@ public class HelloJavaServletIntegrationTest {
 
 	@Rule
 	public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
-			.setPort(8181)
 			.useApplicationServer("src/test/webapp");
 
 	@BeforeClass

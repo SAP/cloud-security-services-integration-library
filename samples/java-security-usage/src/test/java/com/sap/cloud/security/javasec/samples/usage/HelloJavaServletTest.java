@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 public class HelloJavaServletTest {
 
 	@Rule
-	public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA).setPort(8181);
+	public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA);
 
 	private static Properties oldProperties;
 
