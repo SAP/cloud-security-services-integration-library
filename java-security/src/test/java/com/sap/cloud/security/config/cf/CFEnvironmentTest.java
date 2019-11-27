@@ -21,7 +21,7 @@ public class CFEnvironmentTest {
 
 	@Before
 	public void setUp() {
-		cut = new CFEnvironment((str) -> vcapXsuaa, (str) -> vcapXsuaa);
+		cut = CFEnvironment.getInstance((str) -> vcapXsuaa, (str) -> vcapXsuaa);
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getXsuaaServiceConfiguration_usesSystemPropertiesAsFallback() {
-		cut = new CFEnvironment((str) -> null, (str) -> vcapXsuaa);
+		cut = CFEnvironment.getInstance((str) -> null, (str) -> vcapXsuaa);
 
 		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaServiceConfiguration();
 
@@ -43,7 +43,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getXsuaaServiceConfiguration_vcapServicesNotAvailable_returnsNull() {
-		cut = new CFEnvironment((str) -> null, (str) -> null);
+		cut = CFEnvironment.getInstance((str) -> null, (str) -> null);
 
 		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaServiceConfiguration();
 

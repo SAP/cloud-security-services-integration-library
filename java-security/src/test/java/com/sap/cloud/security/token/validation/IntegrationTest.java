@@ -34,7 +34,7 @@ public class IntegrationTest {
 		when(configuration.getDomain()).thenReturn("auth.com");
 		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
 		when(configuration.getProperty(CFConstants.XSUAA.APP_ID)).thenReturn("test-app!t123");
-		when(configuration.getServiceName()).thenReturn(Service.XSUAA.getName());
+		when(configuration.getServiceName()).thenReturn(Service.XSUAA.getCFName());
 
 		CombiningValidator<Token> tokenValidator = TokenValidatorBuilder.createFor(configuration).build();
 

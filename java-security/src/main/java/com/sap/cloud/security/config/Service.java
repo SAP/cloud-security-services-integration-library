@@ -3,13 +3,13 @@ package com.sap.cloud.security.config;
 public enum Service {
 	XSUAA("xsuaa"), IAS("iasb");
 
-	private final String name;
+	private final String cfName;
 
-	Service(String name) {
-		this.name = name;
+	Service(String cfName) {
+		this.cfName = cfName;
 	}
 
-	public String getName() {
-		return name;
+	public String getCFName() {
+		return cfName;
 	}
 }

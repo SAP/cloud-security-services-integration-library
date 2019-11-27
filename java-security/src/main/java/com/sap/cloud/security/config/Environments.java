@@ -4,7 +4,7 @@ import com.sap.cloud.security.config.cf.CFEnvironment;
 
 public class Environments {
 
-	private static final Environment cfEnvironment = new CFEnvironment();
+	private static final Environment cfEnvironment = CFEnvironment.getInstance(); // singleton
 
 	public static Environment getCurrentEnvironment() {
 		// TODO probe in which environemt it runs currently: CF or Kubernetes

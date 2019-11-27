@@ -57,7 +57,7 @@ public class CFOAuth2ServiceConfigurationTest {
 
 	@Test
 	public void getService() {
-		assertThat(cut.getServiceName()).isEqualTo(Service.XSUAA.getName());
+		assertThat(cut.getServiceName()).isEqualTo(Service.XSUAA.getCFName());
 	}
 
 }

@@ -58,7 +58,7 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 
 	@Override
 	public String getServiceName() {
-		return this.service.getName();
+		return this.service.getCFName();
 	}
 
 	/**
