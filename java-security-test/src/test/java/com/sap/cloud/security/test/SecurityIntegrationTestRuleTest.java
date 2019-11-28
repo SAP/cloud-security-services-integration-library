@@ -58,14 +58,16 @@ public class SecurityIntegrationTestRuleTest {
 
 	@Test
 	public void withClientId() {
-		assertThat(cut.setClientId("customClientId").createToken().getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("customClientId");
+		assertThat(cut.setClientId("customClientId").createToken().getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
+				.isEqualTo("customClientId");
 	}
 
 	@Test
 	public void testRuleIsInitializedCorrectly() {
 		assertThat(cut.getAppServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
 		assertThat(cut.getWireMockRule()).isNotNull();
-		assertThat(cut.createToken().getAccessToken()).isEqualTo(cut.getPreconfiguredJwtGenerator().createToken().getAccessToken());
+		assertThat(cut.createToken().getAccessToken())
+				.isEqualTo(cut.getPreconfiguredJwtGenerator().createToken().getAccessToken());
 	}
 
 	private String readContent(CloseableHttpResponse response) throws IOException {
@@ -95,7 +97,6 @@ public class SecurityIntegrationTestRuleTest {
 					.isInstanceOf(IllegalStateException.class)
 					.hasMessageContaining(String.format("Service %s is not yet supported", Service.IAS));
 		}
-
 
 	}
 }

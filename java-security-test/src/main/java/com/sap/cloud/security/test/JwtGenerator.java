@@ -1,17 +1,21 @@
 package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.token.IasToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.directory.Attribute;
 import java.security.*;
-import java.util.Base64;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
@@ -29,6 +33,7 @@ public class JwtGenerator {
 
 	private JwtSignatureAlgorithm signatureAlgorithm;
 	private PrivateKey privateKey;
+	private boolean deriveAudiences;
 
 	private JwtGenerator() {
 		// see factory method getInstance()
@@ -88,12 +93,12 @@ public class JwtGenerator {
 	 *
 	 * @param claimName
 	 *            the name of the claim to be set.
-	 * @param values
-	 *            the string value of the claim to be set.
+	 * @param claims
+	 *            the string values of the claims to be set.
 	 * @return the builder object.
 	 */
-	public JwtGenerator withClaim(String claimName, String... values) {
-		jsonPayload.put(claimName, values);
+	public JwtGenerator withClaims(String claimName, String... claims) {
+		jsonPayload.put(claimName, claims);
 		return this;
 	}
 
@@ -137,7 +142,7 @@ public class JwtGenerator {
 	 */
 	public JwtGenerator withScopes(String... scopes) {
 		if (service == Service.XSUAA) {
-			withClaim(TokenClaims.XSUAA.SCOPES, scopes);
+			withClaims(TokenClaims.XSUAA.SCOPES, scopes);
 		} else {
 			throw new UnsupportedOperationException("Scopes are not supported for service is set to " + service);
 		}
@@ -156,6 +161,9 @@ public class JwtGenerator {
 			throw new IllegalStateException("Private key was not set!");
 		}
 		setHeaderAlgorithmValue();
+		if (deriveAudiences) {
+			deriveAudiences();
+		}
 		String header = base64Encode(jsonHeader.toString().getBytes());
 		String payload = base64Encode(jsonPayload.toString().getBytes());
 		String headerAndPayload = header + DOT + payload;
@@ -170,6 +178,19 @@ public class JwtGenerator {
 		default:
 			throw new IllegalStateException("Unexpected service: " + service);
 		}
+	}
+
+	private void deriveAudiences() {
+		DefaultJsonObject currentPayload = new DefaultJsonObject(jsonPayload.toString());
+		List<String> scopes = currentPayload.getAsList(TokenClaims.XSUAA.SCOPES, String.class);
+		Set<String> audiences = scopes.stream()
+				.filter(scope -> scope.contains("."))
+				.map(scope -> scope.substring(0, scope.indexOf(".")))
+				.filter(aud -> !aud.isEmpty())
+				.collect(Collectors.toSet());
+		List<String> existingAudiences = currentPayload.getAsList(TokenClaims.AUDIENCE, String.class);
+		audiences.addAll(existingAudiences);
+		withClaims(TokenClaims.AUDIENCE, audiences.toArray(new String[] {}));
 	}
 
 	private String calculateSignature(String headerAndPayload) {
@@ -194,6 +215,19 @@ public class JwtGenerator {
 
 	private String base64Encode(byte[] bytes) {
 		return Base64.getUrlEncoder().encodeToString(bytes);
+	}
+
+	/**
+	 * Derives audiences claim ("aud") from scopes. For example in case e.g.
+	 * "xsappid.scope".
+	 *
+	 * @param deriveAudiences
+	 *            if true, audiences are automatically set
+	 * @return the JwtGenerator itself
+	 */
+	public JwtGenerator deriveAudience(boolean deriveAudiences) {
+		this.deriveAudiences = deriveAudiences;
+		return this;
 	}
 
 	interface SignatureCalculator {

@@ -49,7 +49,6 @@ public class JwtGeneratorTest {
 				.isInstanceOf(IllegalStateException.class);
 	}
 
-
 	@Test
 	public void withPrivateKey_usesPrivateKey() throws Exception {
 		SignatureCalculator signatureCalculator = Mockito.mock(SignatureCalculator.class);
@@ -75,7 +74,6 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(clientId);
 	}
 
-
 	@Test
 	public void withHeaderParameter_containsHeaderParameter() {
 		String tokenKeyServiceUrl = "http://localhost/token_keys";
@@ -87,7 +85,6 @@ public class JwtGeneratorTest {
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(keyId);
 		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(tokenKeyServiceUrl);
 	}
-
 
 	@Test
 	public void withScopes_containsScopeWhenServiceIsXsuaa() {
@@ -122,9 +119,30 @@ public class JwtGeneratorTest {
 	public void withClaim_createsTokenWithAudience() {
 		String[] audiences = { "app1", "app2" };
 
-		Token token = cut.withClaim(TokenClaims.AUDIENCE, audiences).createToken();
+		Token token = cut.withClaims(TokenClaims.AUDIENCE, audiences).createToken();
 
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly(audiences);
+	}
+
+	@Test
+	public void deriveAudience_createsTokenWithDerivedAudiences() {
+		String[] scopes = { "openid", "app1.scope", "app2.sub.scope", "app2.scope", ".scopeWithoutAppId" };
+
+		Token token = cut.withScopes(scopes).deriveAudience(true).createToken();
+
+		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactlyInAnyOrder("app1", "app2");
+	}
+
+	@Test
+	public void createsTokenWithDerivedAudiencesAndCustomAudiences() {
+		String[] scopes = { "openid", "app1.scope", "app2.sub.scope", "app2.scope", ".scopeWithoutAppId" };
+
+		Token token = cut.withScopes(scopes)
+				.withClaims(TokenClaims.AUDIENCE, "app3")
+				.deriveAudience(true)
+				.createToken();
+
+		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactlyInAnyOrder("app1", "app2", "app3");
 	}
 
 	@Test

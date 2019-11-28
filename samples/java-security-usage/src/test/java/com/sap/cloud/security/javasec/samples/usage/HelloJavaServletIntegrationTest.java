@@ -22,9 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletIntegrationTest {
 
-	private static final String EMAIL_ADDRESS = "test.email@example.org";
 	private static Properties oldProperties;
-
 
 	@ClassRule
 	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
@@ -63,7 +61,7 @@ public class HelloJavaServletIntegrationTest {
 	@Test
 	public void request_withValidToken() throws IOException {
 		HttpGet request = createGetRequest("Bearer " + rule.createToken().getAccessToken());
-		
+
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
