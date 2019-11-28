@@ -10,10 +10,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -29,8 +26,8 @@ public class HelloJavaServletIntegrationTest {
 	private static Properties oldProperties;
 
 
-	@Rule
-	public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
+	@ClassRule
+	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
 			.useApplicationServer("src/test/webapp");
 
 	@BeforeClass

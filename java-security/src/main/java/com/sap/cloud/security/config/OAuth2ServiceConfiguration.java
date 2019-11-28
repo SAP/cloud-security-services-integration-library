@@ -53,5 +53,4 @@ public interface OAuth2ServiceConfiguration {
 	 * @return the service name.
 	 */
 	String getServiceName();
-
 }

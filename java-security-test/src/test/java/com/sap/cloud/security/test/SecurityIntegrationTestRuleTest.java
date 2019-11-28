@@ -5,6 +5,7 @@ import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import wiremock.org.apache.http.HttpStatus;
@@ -26,12 +27,12 @@ public class SecurityIntegrationTestRuleTest {
 	private static final int PORT = 8484;
 	private static final int APPLICATION_SERVER_PORT = 8383;
 
-	private final RSAKeys rsaKeys = RSAKeys.generate();
+	private static final RSAKeys RSA_KEYS = RSAKeys.generate();
 
-	@Rule
-	public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
+	@ClassRule
+	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
 			.setPort(PORT)
-			.setKeys(rsaKeys)
+			.setKeys(RSA_KEYS)
 			.useApplicationServer("src/test/webapp", APPLICATION_SERVER_PORT);
 
 	public SecurityIntegrationTestRuleTest() {
@@ -49,7 +50,7 @@ public class SecurityIntegrationTestRuleTest {
 			assertThat(tokenKeys.get(0)).isInstanceOf(JSONObject.class);
 			JSONObject tokenKeyObject = (JSONObject) tokenKeys.get(0);
 			String encodedPublicKey = Base64.getEncoder().withoutPadding()
-					.encodeToString(rsaKeys.getPublic().getEncoded());
+					.encodeToString(RSA_KEYS.getPublic().getEncoded());
 			assertThat(tokenKeyObject.get(JsonWebKeyConstants.VALUE_PARAMETER_NAME)).isEqualTo(encodedPublicKey);
 		}
 	}
