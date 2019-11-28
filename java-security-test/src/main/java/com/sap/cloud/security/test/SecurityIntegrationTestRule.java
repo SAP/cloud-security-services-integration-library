@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
@@ -177,7 +178,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		wireMockRule.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
 				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
 		// configure predefined JwtGenerator
-		jwtGenerator.withJku(endpointsProvider.getJwksUri().toString())
+		jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, endpointsProvider.getJwksUri().toString())
 				.withClaim(TokenClaims.XSUAA.CLIENT_ID, "sb-clientId!20")
 				.withPrivateKey(keys.getPrivate());
 		// TODO check for feature parity in the spring-xsuaa-test JwtGenerator

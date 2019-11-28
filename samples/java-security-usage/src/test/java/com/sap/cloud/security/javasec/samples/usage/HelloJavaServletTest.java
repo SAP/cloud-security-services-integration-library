@@ -84,6 +84,16 @@ public class HelloJavaServletTest {
 		assertThat(SecurityContext.getToken()).isNull();
 	}
 
+	@Test
+	public void responseCannotBeWritten_responseNotOk() throws IOException {
+		when(httpResponse.getWriter()).thenThrow(IOException.class);
+		mockAuthorizationHeader(rule.createToken());
+
+		cut.doFilter(httpRequest, httpResponse, filterChain);
+
+		assertThat(httpResponse.getStatus()).isNotEqualTo(HttpServletResponse.SC_OK);
+	}
+
 	private void mockAuthorizationHeader(Token token) {
 		when(httpRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer " + token.getAccessToken());
 	}

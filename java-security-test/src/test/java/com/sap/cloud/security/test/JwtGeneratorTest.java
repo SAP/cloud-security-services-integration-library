@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import javax.naming.OperationNotSupportedException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -48,15 +49,6 @@ public class JwtGeneratorTest {
 				.isInstanceOf(IllegalStateException.class);
 	}
 
-	@Test
-	public void withClaim_containsClaim() {
-		String claimName = "claim-name";
-		String claimValue = "claim-value";
-
-		Token token = cut.withClaim(claimName, claimValue).createToken();
-
-		assertThat(token.getClaimAsString(claimName)).isEqualTo(claimValue);
-	}
 
 	@Test
 	public void withPrivateKey_usesPrivateKey() throws Exception {
@@ -70,46 +62,47 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
+	public void withClaim_containsClaim() {
+		String clientId = "sb-clientId!20";
+		String subdomain = "subdomain";
+
+		Token token = cut
+				.withClaim(TokenClaims.XSUAA.SUBDOMAIN, subdomain)
+				.withClaim(TokenClaims.XSUAA.CLIENT_ID, clientId)
+				.createToken();
+
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.SUBDOMAIN)).isEqualTo(subdomain);
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(clientId);
+	}
+
+
+	@Test
 	public void withHeaderParameter_containsHeaderParameter() {
-		String parameterName = "the-key";
-		String parameterValue = "the-value";
-
-		Token token = cut.withHeaderParameter(parameterName, parameterValue).createToken();
-
-		assertThat(token.getHeaderParameterAsString(parameterName)).isEqualTo(parameterValue);
-	}
-
-	@Test
-	public void withJku_containsJkuHeaderParameter() {
-		String tokenKeyService = "http://localhost/token_keys";
-		Token token = cut.withJku(tokenKeyService).createToken();
-
-		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(tokenKeyService);
-	}
-
-	@Test
-	public void withKid_containsKeyIdHeaderParameter() {
+		String tokenKeyServiceUrl = "http://localhost/token_keys";
 		String keyId = "theKeyId";
-		Token token = cut.withKeyId(keyId).createToken();
+		Token token = cut.withHeaderParameter(TokenHeader.JWKS_URL, tokenKeyServiceUrl)
+				.withHeaderParameter(TokenHeader.KEY_ID, keyId)
+				.createToken();
 
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(keyId);
+		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(tokenKeyServiceUrl);
 	}
+
 
 	@Test
 	public void withScopes_containsScopeWhenServiceIsXsuaa() {
-		String firstScope = "firstScope";
-		String secondScope = "secondScope";
-		Token token = cut.withScopes(firstScope, secondScope).createToken();
+		String[] scopes = new String[] { "openid", "app1.scope" };
+		Token token = cut.withScopes(scopes).createToken();
 
-		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactly(firstScope, secondScope);
+		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactly(scopes);
 	}
 
 	@Test
-	public void withScopes_throwsIllegalStateExceptionWhenServiceIsNotXsuaa() {
+	public void withScopes_serviceIsIAS_throwsUnsupportedOperationException() {
 		cut = JwtGenerator.getInstance(IAS).withPrivateKey(keys.getPrivate());
 		assertThatThrownBy(() -> cut.withScopes("firstScope").createToken())
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessageContainingAll("Scopes", "XSUAA");
+				.isInstanceOf(UnsupportedOperationException.class)
+				.hasMessageContainingAll("Scopes", "IAS");
 	}
 
 	@Test
@@ -126,20 +119,18 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void withClaim_createsTokenWithValuesAsStringList() {
-		String claimName = "claimName";
-		String firstValue = "many";
-		String secondValue = "values";
+	public void withClaim_createsTokenWithAudience() {
+		String[] audiences = { "app1", "app2" };
 
-		Token token = cut.withClaim(claimName, list(firstValue, secondValue)).createToken();
+		Token token = cut.withClaim(TokenClaims.AUDIENCE, audiences).createToken();
 
-		assertThat(token.getClaimAsStringList(claimName)).containsExactly(firstValue, secondValue);
+		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly(audiences);
 	}
 
 	@Test
-	public void withSignatureAlgorithm_privateKeyDoesNotMatch_throwsRuntimeException() {
-		assertThatThrownBy(() -> cut.withSignatureAlgorithm(JwtSignatureAlgorithm.ES256).createToken())
-				.isInstanceOf(RuntimeException.class);
+	public void withSignatureAlgorithm_notSupported_throwsUnsupportedOperationException() {
+		assertThatThrownBy(() -> cut.withSignatureAlgorithm(JwtSignatureAlgorithm.ES256))
+				.isInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test

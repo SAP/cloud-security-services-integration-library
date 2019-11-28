@@ -1,16 +1,17 @@
 package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.token.*;
+import com.sap.cloud.security.token.IasToken;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.*;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collection;
 
 /**
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
@@ -38,7 +39,7 @@ public class JwtGenerator {
 	}
 
 	// for testing
-	public static JwtGenerator getInstance(Service service, SignatureCalculator signatureCalculator) {
+	static JwtGenerator getInstance(Service service, SignatureCalculator signatureCalculator) {
 		JwtGenerator instance = new JwtGenerator();
 		instance.service = service;
 		instance.signatureCalculator = signatureCalculator;
@@ -91,7 +92,7 @@ public class JwtGenerator {
 	 *            the string value of the claim to be set.
 	 * @return the builder object.
 	 */
-	public JwtGenerator withClaim(String claimName, Collection<String> values) {
+	public JwtGenerator withClaim(String claimName, String... values) {
 		jsonPayload.put(claimName, values);
 		return this;
 	}
@@ -105,6 +106,9 @@ public class JwtGenerator {
 	 * @return the builder object.
 	 */
 	public JwtGenerator withSignatureAlgorithm(JwtSignatureAlgorithm signatureAlgorithm) {
+		if (signatureAlgorithm == JwtSignatureAlgorithm.ES256) {
+			throw new UnsupportedOperationException("ES256 not supported yet");
+		}
 		this.signatureAlgorithm = signatureAlgorithm;
 		return this;
 	}
@@ -122,28 +126,6 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the url which is used to retrieve the verification keys.
-	 *
-	 * @param jkuUrl
-	 *            the url to retrieve the keys
-	 * @return the builder object.
-	 */
-	public JwtGenerator withJku(String jkuUrl) {
-		return withHeaderParameter(TokenHeader.JWKS_URL, jkuUrl);
-	}
-
-	/**
-	 * Sets the keyId value as "kid" header to the jwt.
-	 *
-	 * @param keyId
-	 *            the value of the signed jwt token header "kid"
-	 * @return the JwtGenerator itself
-	 */
-	public JwtGenerator withKeyId(String keyId) {
-		return withHeaderParameter(TokenHeader.KEY_ID, keyId);
-	}
-
-	/**
 	 * Sets the roles as claim "scope" to the jwt. Note that this is specific to
 	 * tokens of service type {@link Service#XSUAA}.
 	 *
@@ -155,9 +137,9 @@ public class JwtGenerator {
 	 */
 	public JwtGenerator withScopes(String... scopes) {
 		if (service == Service.XSUAA) {
-			withClaim(TokenClaims.XSUAA.SCOPES, Arrays.asList(scopes));
+			withClaim(TokenClaims.XSUAA.SCOPES, scopes);
 		} else {
-			throw new IllegalStateException("Scopes are only supported when service is set to XSUAA!");
+			throw new UnsupportedOperationException("Scopes are not supported for service is set to " + service);
 		}
 		return this;
 	}
