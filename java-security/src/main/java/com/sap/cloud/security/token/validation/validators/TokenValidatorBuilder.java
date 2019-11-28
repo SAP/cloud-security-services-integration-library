@@ -21,7 +21,7 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 public class TokenValidatorBuilder {
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
 	private final OAuth2ServiceConfiguration configuration;
-	private OAuth2TokenKeyService tokenKeyService = new DefaultOAuth2TokenKeyService();
+	private OAuth2TokenKeyService tokenKeyService;
 	private OAuth2ServiceConfiguration otherConfiguration;
 	private Validator<Token> audienceValidator;
 
@@ -79,12 +79,19 @@ public class TokenValidatorBuilder {
 		return new CombiningValidator<>(allValidators);
 	}
 
+	private OAuth2TokenKeyService getTokenKeyService() {
+		if (tokenKeyService == null) {
+			tokenKeyService = new DefaultOAuth2TokenKeyService();
+		}
+		return tokenKeyService;
+	}
+
 	private List<Validator<Token>> createDefaultValidators() {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
 		if (configuration != null && configuration.getServiceName().equalsIgnoreCase(XSUAA.getName())) {
 			OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(configuration.getUrl());
-			TokenKeyServiceWithCache tokenKeyServiceWithCache = new TokenKeyServiceWithCache(tokenKeyService,
+			TokenKeyServiceWithCache tokenKeyServiceWithCache = new TokenKeyServiceWithCache(getTokenKeyService(),
 					endpointsProvider);
 			XsuaaJwtAudienceValidator audienceValidator = new XsuaaJwtAudienceValidator(
 					configuration.getProperty(APP_ID), configuration.getClientId());
