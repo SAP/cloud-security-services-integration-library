@@ -62,13 +62,11 @@ public class HelloJavaServletIntegrationTest {
 
 	@Test
 	public void request_withValidToken() throws IOException {
-		rule.getPreconfiguredJwtGenerator().withClaim(TokenClaims.XSUAA.EMAIL, EMAIL_ADDRESS);
 		HttpGet request = createGetRequest("Bearer " + rule.createToken().getAccessToken());
-
+		
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
-			assertThat(responseBody).contains(EMAIL_ADDRESS);
 		}
 	}
 

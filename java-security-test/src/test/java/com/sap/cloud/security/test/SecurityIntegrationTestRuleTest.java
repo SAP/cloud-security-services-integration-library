@@ -1,6 +1,7 @@
 package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -30,13 +31,13 @@ public class SecurityIntegrationTestRuleTest {
 	private static final RSAKeys RSA_KEYS = RSAKeys.generate();
 
 	@ClassRule
-	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
+	public static SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(XSUAA)
 			.setPort(PORT)
 			.setKeys(RSA_KEYS)
 			.useApplicationServer("src/test/webapp", APPLICATION_SERVER_PORT);
 
 	public SecurityIntegrationTestRuleTest() {
-		rule.getPreconfiguredJwtGenerator().withHeaderParameter("test", "abc123");
+		cut.getPreconfiguredJwtGenerator().withHeaderParameter("test", "abc123");
 	}
 
 	@Test
@@ -56,10 +57,15 @@ public class SecurityIntegrationTestRuleTest {
 	}
 
 	@Test
+	public void withClientId() {
+		assertThat(cut.setClientId("customClientId").createToken().getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("customClientId");
+	}
+
+	@Test
 	public void testRuleIsInitializedCorrectly() {
-		assertThat(rule.getAppServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
-		assertThat(rule.getWireMockRule()).isNotNull();
-		assertThat(rule.createToken().getAccessToken()).isEqualTo(rule.getPreconfiguredJwtGenerator().createToken().getAccessToken());
+		assertThat(cut.getAppServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
+		assertThat(cut.getWireMockRule()).isNotNull();
+		assertThat(cut.createToken().getAccessToken()).isEqualTo(cut.getPreconfiguredJwtGenerator().createToken().getAccessToken());
 	}
 
 	private String readContent(CloseableHttpResponse response) throws IOException {
@@ -79,7 +85,7 @@ public class SecurityIntegrationTestRuleTest {
 		}
 	}
 
-	public static class SecurityIntegrationTestRuleTestApplicationServerFaults {
+	public static class SecurityIntegrationApplicationServerFaults {
 
 		@Test
 		public void onlyXsuaaIsSupportedYet() {
@@ -89,5 +95,7 @@ public class SecurityIntegrationTestRuleTest {
 					.isInstanceOf(IllegalStateException.class)
 					.hasMessageContaining(String.format("Service %s is not yet supported", Service.IAS));
 		}
+
+
 	}
 }

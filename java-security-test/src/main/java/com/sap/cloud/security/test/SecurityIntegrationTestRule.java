@@ -34,7 +34,6 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	private static final String LOCALHOST_PATTERN = "http://localhost:%d";
 
 	private RSAKeys keys;
-	private JwtGenerator jwtGenerator;
 
 	private int wireMockPort = 0;
 	private WireMockRule wireMockRule;
@@ -45,6 +44,8 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	private int tomcatPort = 44195;
 	private TemporaryFolder baseDir;
 	private Service service;
+	private String clientId;
+	private String jwksUrl;
 
 	private SecurityIntegrationTestRule() {
 		// see factory method getInstance()
@@ -53,7 +54,6 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	public static SecurityIntegrationTestRule getInstance(Service service) {
 		SecurityIntegrationTestRule instance = new SecurityIntegrationTestRule();
 		instance.keys = RSAKeys.generate();
-		instance.jwtGenerator = JwtGenerator.getInstance(service);
 		instance.service = service;
 		return instance;
 	}
@@ -102,6 +102,18 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	/**
+	 * Overwrites the client id (cid) claim of the token that is being generated.
+	 *
+	 * @param clientId
+	 *            the port on which the wire mock service is started.
+	 * @return the rule itself.
+	 */
+	public SecurityIntegrationTestRule setClientId(String clientId) {
+		this.clientId = clientId;
+		return this;
+	}
+
+	/**
 	 * Overwrites the private/public key pair to be used. The private key is used to
 	 * sign the jwt token. The public key is provided by jwks endpoint (on behalf of
 	 * WireMock).
@@ -121,8 +133,12 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 * Note: the JwtGenerator is fully configured as part of {@link #before()}
 	 * method.
 	 */
+	// TODO 28.11.19 c5295400: why need this? getToken sufficient?
 	public JwtGenerator getPreconfiguredJwtGenerator() {
-		return jwtGenerator;
+		return JwtGenerator.getInstance(service)
+				.withClaim(TokenClaims.XSUAA.CLIENT_ID, clientId)
+				.withPrivateKey(keys.getPrivate())
+				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl);
 	}
 
 	/**
@@ -177,10 +193,9 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 				String.format(LOCALHOST_PATTERN, wireMockPort));
 		wireMockRule.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
 				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
-		// configure predefined JwtGenerator
-		jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, endpointsProvider.getJwksUri().toString())
-				.withClaim(TokenClaims.XSUAA.CLIENT_ID, "sb-clientId!20")
-				.withPrivateKey(keys.getPrivate());
+		// xsuaa specific defaults
+		clientId = "sb-clientId!20";
+		jwksUrl = endpointsProvider.getJwksUri().toString();
 	}
 
 	private void setupWireMock() {
