@@ -4,7 +4,6 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;

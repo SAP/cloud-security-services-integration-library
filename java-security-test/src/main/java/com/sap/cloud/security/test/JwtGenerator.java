@@ -46,6 +46,14 @@ public class JwtGenerator {
 		return instance;
 	}
 
+	private static byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm signatureAlgorithm,
+			byte[] dataToSign) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException {
+		Signature signature = Signature.getInstance(signatureAlgorithm.javaSignature());
+		signature.initSign(privateKey);
+		signature.update(dataToSign);
+		return signature.sign();
+	}
+
 	/**
 	 * Sets the header parameter with the given name to the given string value.
 	 *
@@ -138,12 +146,12 @@ public class JwtGenerator {
 	/**
 	 * Sets the roles as claim "scope" to the jwt. Note that this is specific to
 	 * tokens of service type {@link Service#XSUAA}.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if service is not {@link Service#XSUAA}
+	 *
 	 * @param scopes
 	 *            the scopes that should be part of the token
 	 * @return the JwtGenerator itself
+	 * @throws IllegalArgumentException
+	 *             if service is not {@link Service#XSUAA}
 	 */
 	public JwtGenerator withScopes(String... scopes) {
 		if (service == Service.XSUAA) {
@@ -169,31 +177,23 @@ public class JwtGenerator {
 		String header = base64Encode(jsonHeader.toString().getBytes());
 		String payload = base64Encode(jsonPayload.toString().getBytes());
 		String headerAndPayload = header + DOT + payload;
-		String signature = base64Encode(signatureCalculator
-				.calculateSignature(privateKey, signatureAlgorithm, headerAndPayload.getBytes()));
-
+		String signature = calculateSignature(headerAndPayload);
 		String token = headerAndPayload + DOT + signature;
+
 		switch (service) {
 		case IAS:
 			return new IasToken(token);
 		case XSUAA:
 			return new XsuaaToken(token);
 		default:
-			throw new IllegalStateException("Unexpected value: " + service);
+			throw new IllegalStateException("Unexpected service: " + service);
 		}
 	}
 
-	private void setHeaderAlgorithmValue() {
-		withHeaderParameter(JWT_HEADER_ALG, signatureAlgorithm.value());
-	}
-
-	private static byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm signatureAlgorithm,
-			byte[] dataToSign) {
+	private String calculateSignature(String headerAndPayload) {
 		try {
-			Signature signature = Signature.getInstance(signatureAlgorithm.javaSignature());
-			signature.initSign(privateKey);
-			signature.update(dataToSign);
-			return signature.sign();
+			return base64Encode(signatureCalculator
+					.calculateSignature(privateKey, signatureAlgorithm, headerAndPayload.getBytes()));
 		} catch (NoSuchAlgorithmException e) {
 			logger.error("Algorithm '{}' not found!", signatureAlgorithm.javaSignature(), e);
 			throw new RuntimeException(e);
@@ -206,12 +206,17 @@ public class JwtGenerator {
 		}
 	}
 
+	private void setHeaderAlgorithmValue() {
+		withHeaderParameter(JWT_HEADER_ALG, signatureAlgorithm.value());
+	}
+
 	private String base64Encode(byte[] bytes) {
 		return Base64.getUrlEncoder().encodeToString(bytes);
 	}
 
 	interface SignatureCalculator {
-		byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm algorithm, byte[] dataToSign);
+		byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm algorithm, byte[] dataToSign)
+				throws InvalidKeyException, SignatureException, NoSuchAlgorithmException;
 	}
 
 }

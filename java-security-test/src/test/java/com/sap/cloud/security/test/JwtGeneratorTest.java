@@ -6,17 +6,21 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
-import org.assertj.core.util.Lists;
+import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.JwtGenerator.SignatureCalculator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.util.Lists.*;
+import static org.assertj.core.util.Lists.list;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -55,14 +59,14 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void withPrivateKey_usesPrivateKey() {
+	public void withPrivateKey_usesPrivateKey() throws Exception {
+		SignatureCalculator signatureCalculator = Mockito.mock(SignatureCalculator.class);
 
-		SignatureCalculator signatureCalculatorMock = Mockito.mock(SignatureCalculator.class);
-		when(signatureCalculatorMock.calculateSignature(any(), any(), any())).thenReturn("sig".getBytes());
+		when(signatureCalculator.calculateSignature(any(), any(), any())).thenReturn("sig".getBytes());
 
-		JwtGenerator.getInstance(IAS, signatureCalculatorMock).withPrivateKey(keys.getPrivate()).createToken();
+		JwtGenerator.getInstance(IAS, signatureCalculator).withPrivateKey(keys.getPrivate()).createToken();
 
-		verify(signatureCalculatorMock, times(1)).calculateSignature(eq(keys.getPrivate()), any(), any());
+		verify(signatureCalculator, times(1)).calculateSignature(eq(keys.getPrivate()), any(), any());
 	}
 
 	@Test
@@ -131,4 +135,35 @@ public class JwtGeneratorTest {
 
 		assertThat(token.getClaimAsStringList(claimName)).containsExactly(firstValue, secondValue);
 	}
+
+	@Test
+	public void withSignatureAlgorithm_privateKeyDoesNotMatch_throwsRuntimeException() {
+		assertThatThrownBy(() -> cut.withSignatureAlgorithm(JwtSignatureAlgorithm.ES256).createToken())
+				.isInstanceOf(RuntimeException.class);
+	}
+
+	@Test
+	public void createToken_signatureCalculation_NoSuchAlgorithmExceptionTurnedIntoRuntimeException() {
+		cut = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
+			throw new NoSuchAlgorithmException();
+		}).withPrivateKey(keys.getPrivate());
+		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
+	}
+
+	@Test
+	public void createToken_signatureCalculation_SignatureExceptionTurnedIntoRuntimeException() {
+		cut = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
+			throw new SignatureException();
+		}).withPrivateKey(keys.getPrivate());
+		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
+	}
+
+	@Test
+	public void createToken_signatureCalculation_InvalidKeyExceptionTurnedIntoRuntimeException() {
+		cut = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
+			throw new InvalidKeyException();
+		}).withPrivateKey(keys.getPrivate());
+		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
+	}
+
 }
