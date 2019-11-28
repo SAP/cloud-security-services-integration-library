@@ -15,7 +15,6 @@ import java.util.Collection;
 /**
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
  */
-// TODO allow addScopes(String... scopes) in case of XSUAA service
 public class JwtGenerator {
 	private static final Logger logger = LoggerFactory.getLogger(JwtGenerator.class);
 

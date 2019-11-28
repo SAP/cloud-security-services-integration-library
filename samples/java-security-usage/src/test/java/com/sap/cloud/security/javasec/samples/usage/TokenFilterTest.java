@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-// TODO use JwtGenerator instead of Mockito
 public class TokenFilterTest {
 
 	public static final Token TOKEN = Mockito.mock(Token.class);
