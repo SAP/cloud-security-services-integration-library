@@ -201,7 +201,7 @@ public class JwtGeneratorTest {
 	@Test
 	public void createToken_tokenIsValid() throws IOException {
 		System.setProperty("VCAP_SERVICES", IOUtils
-				.resourceToString("/vcapXsuaaServiceSingleBinding.json", StandardCharsets.UTF_8));
+				.resourceToString("/vcap.json", StandardCharsets.UTF_8));
 		OAuth2ServiceConfiguration configuration = Environments.getCurrentEnvironment().getXsuaaServiceConfiguration();
 
 		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
