@@ -53,13 +53,14 @@ A Java implementation of JSON Web Token (JWT) - RFC 7519 (see [1]).
 
 ## Usage
 
-### Setup: Load the Xsuaa Service Configurations 
+### Setup: Load the Xsuaa Service Configurations and setup Validator
 ```java
 OAuth2ServiceConfiguration serviceConfig = Environments.getCurrentEnvironment().getXsuaaServiceConfiguration();
+CombiningValidator<Token> validators = TokenValidatorBuilder.createFor(serviceConfig).build();
 ```
 By default it auto-detects the environment: Cloud Foundry or Kubernetes.
 
-### Per Request - 1: Create a Token Object 
+### Create a Token Object 
 This decodes an encoded access token (Jwt token) and parses its json header and payload. The `Token` interface provides a simple access to its jwt header parameters and its claims.
 
 ```java
@@ -67,26 +68,22 @@ String authorizationHeader = "Bearer eyJhbGciOiJGUzI1NiJ2.eyJhh...";
 Token token = new XsuaaToken(authorizationHeader);
 ```
 
-### Per Request - 2: Validate Access Token to check Authentication
+### Validate Access Token to check Authentication
 
 ```java
-CombiningValidator<Token> combiningValidator = TokenValidatorBuilder.createFor(getXsuaaServiceConfiguration())
-                                            .build();
-
-ValidationResult result = combiningValidator.validate(token);
+ValidationResult result = validators.validate(token);
 
 if(result.isErroneous()) {
    logger.warn("User is not authenticated: " + result.getErrorDescription());
 }
 ```
 
-By default the `TokenValidatorBuilder` bilds a `CombiningValidator` using the `DefaultOAuth2TokenKeyService` as `OAuth2TokenKeyService`, that uses an Apache Rest client to fetch the Json Web Token Keys. This can be customized via the `TokenValidatorBuilder` builder.
+By default the `TokenValidatorBuilder` builds a `CombiningValidator` using the `DefaultOAuth2TokenKeyService` as `OAuth2TokenKeyService`, that uses an Apache Rest client to fetch the Json Web Token Keys. This can be customized via the `TokenValidatorBuilder` builder.
 
-### Per Request - 3: Cache validated Access Token thread-locally
+### Cache validated Access Token (thread-locally)
 ```java
 SecurityContext.setToken(token);
 ```
-
 
 ### Get information from Access Token
 ```java
