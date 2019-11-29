@@ -10,10 +10,8 @@ import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants.Plan;
-import com.sap.jvm.profiling.presentation.typed.entries.GcG1CollectionSetEntry;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -77,7 +75,7 @@ public class CFEnvironment implements Environment {
 	 */
 	@Deprecated
 	List<CFOAuth2ServiceConfiguration> loadAll(Service service) {
-		return serviceConfigurations.getOrDefault(service, Collections.EMPTY_LIST);
+		return serviceConfigurations.getOrDefault(service, new ArrayList<>());
 	}
 
 	@Override
