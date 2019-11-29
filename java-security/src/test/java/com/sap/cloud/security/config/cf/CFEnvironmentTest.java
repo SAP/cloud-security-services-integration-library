@@ -45,8 +45,9 @@ public class CFEnvironmentTest {
 		assertThat(cut.getIasServiceConfiguration().getService()).isEqualTo(Service.IAS);
 		assertThat(cut.getIasServiceConfiguration().getClientId()).isEqualTo("T000297");
 		assertThat(cut.getIasServiceConfiguration().getClientSecret()).startsWith("pCghfbrL");
-		//assertThat(cut.getIasServiceConfiguration().getDomain()).isEqualTo("auth.com");
-		assertThat(cut.getIasServiceConfiguration().getUrl().toString()).isEqualTo("https://application.acc.ondemand.com");
+		// assertThat(cut.getIasServiceConfiguration().getDomain()).isEqualTo("auth.com");
+		assertThat(cut.getIasServiceConfiguration().getUrl().toString())
+				.isEqualTo("https://application.acc.ondemand.com");
 
 		assertThat(cut.getXsuaaServiceConfiguration()).isNull();
 		assertThat(cut.getXsuaaServiceConfigurationForTokenExchange()).isNull();
@@ -64,7 +65,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getNumberOfXsuaaServices()).isEqualTo(1);
 		assertThat(cut.getXsuaaServiceConfigurationForTokenExchange()).isSameAs(cut.getXsuaaServiceConfiguration());
 
-		//assertThat(cut.getIasServiceConfiguration()).isNull(); // TODO IAS
+		// assertThat(cut.getIasServiceConfiguration()).isNull(); // TODO IAS
 	}
 
 	@Test
@@ -72,8 +73,9 @@ public class CFEnvironmentTest {
 		cut = CFEnvironment.getInstance((str) -> vcapMultipleXsuaa, (str) -> null);
 
 		assertThat(cut.getNumberOfXsuaaServices()).isEqualTo(2);
-		CFOAuth2ServiceConfiguration appServConfig = (CFOAuth2ServiceConfiguration)cut.getXsuaaServiceConfiguration();
-		CFOAuth2ServiceConfiguration brokerServConfig = (CFOAuth2ServiceConfiguration)cut.getXsuaaServiceConfigurationForTokenExchange();
+		CFOAuth2ServiceConfiguration appServConfig = (CFOAuth2ServiceConfiguration) cut.getXsuaaServiceConfiguration();
+		CFOAuth2ServiceConfiguration brokerServConfig = (CFOAuth2ServiceConfiguration) cut
+				.getXsuaaServiceConfigurationForTokenExchange();
 
 		assertThat(appServConfig.getService()).isEqualTo(Service.XSUAA);
 		assertThat(appServConfig.getPlan()).isEqualTo(CFConstants.Plan.APPLICATION);
@@ -88,9 +90,9 @@ public class CFEnvironmentTest {
 	public void getConfigurationByPlan() {
 		cut = CFEnvironment.getInstance((str) -> vcapMultipleXsuaa, (str) -> null);
 
-		CFOAuth2ServiceConfiguration appServConfig = (CFOAuth2ServiceConfiguration)cut.loadByPlan(Service.XSUAA,
+		CFOAuth2ServiceConfiguration appServConfig = (CFOAuth2ServiceConfiguration) cut.loadByPlan(Service.XSUAA,
 				CFConstants.Plan.APPLICATION);
-		CFOAuth2ServiceConfiguration brokerServConfig = (CFOAuth2ServiceConfiguration)cut.loadByPlan(Service.XSUAA,
+		CFOAuth2ServiceConfiguration brokerServConfig = (CFOAuth2ServiceConfiguration) cut.loadByPlan(Service.XSUAA,
 				CFConstants.Plan.BROKER);
 
 		assertThat(appServConfig.getPlan()).isEqualTo(CFConstants.Plan.APPLICATION);
@@ -116,6 +118,6 @@ public class CFEnvironmentTest {
 
 		assertThat(cut.getXsuaaServiceConfiguration()).isNull();
 		assertThat(CFEnvironment.getInstance().getXsuaaServiceConfiguration()).isNull();
-//		assertThat(cut.getIasServiceConfiguration()).isNull(); // TODO IAS
+		// assertThat(cut.getIasServiceConfiguration()).isNull(); // TODO IAS
 	}
 }

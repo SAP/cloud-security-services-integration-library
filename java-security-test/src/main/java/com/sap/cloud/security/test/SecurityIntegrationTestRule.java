@@ -106,8 +106,8 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	/**
-	 * Overwrites the client id (cid) claim of the token that is being generated.
-	 * It needs to be configured before the {@link #before()} method.
+	 * Overwrites the client id (cid) claim of the token that is being generated. It
+	 * needs to be configured before the {@link #before()} method.
 	 *
 	 * @param clientId
 	 *            the port on which the wire mock service is started.
@@ -156,6 +156,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	/**
 	 * Note: the JwtGenerator is fully configured as part of {@link #before()}
 	 * method.
+	 * 
 	 * @return the preconfigured Jwt token generator
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
@@ -167,7 +168,8 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	/**
 	 * Creates a very basic token on base of the preconfigured Jwt token generator.
-	 * In case you like to specify further token claims, you can make use of {@link #getPreconfiguredJwtGenerator()}
+	 * In case you like to specify further token claims, you can make use of
+	 * {@link #getPreconfiguredJwtGenerator()}
 	 *
 	 * @return the token.
 	 */
@@ -176,9 +178,9 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	/**
-	 * Allows to stub further endpoints of the identity service. Returns null if the rule is not
-	 * yet initialized as part of {@link #before()} method. You can find a detailed
-	 * explanation on how to configure wire mock here:
+	 * Allows to stub further endpoints of the identity service. Returns null if the
+	 * rule is not yet initialized as part of {@link #before()} method. You can find
+	 * a detailed explanation on how to configure wire mock here:
 	 * http://wiremock.org/docs/getting-started/
 	 */
 	@Nullable
@@ -197,7 +199,6 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		}
 		return String.format(LOCALHOST_PATTERN, tomcatPort);
 	}
-
 
 	private void configureForXsuaa() throws IOException {
 		// prepare endpoints provider

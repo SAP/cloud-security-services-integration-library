@@ -76,7 +76,8 @@ public interface Token {
 	Instant getNotBefore();
 
 	/**
-	 * Get the encoded authentication token, e.g. for token forwarding to another app.
+	 * Get the encoded authentication token, e.g. for token forwarding to another
+	 * app.
 	 *
 	 * <p>
 	 * Never expose this token via log or via HTTP.
@@ -86,8 +87,8 @@ public interface Token {
 	String getAccessToken();
 
 	/**
-	 * Get the encoded authentication token with "Bearer " prefix,
-	 * 	e.g. for Authorization Http Header.
+	 * Get the encoded authentication token with "Bearer " prefix, e.g. for
+	 * Authorization Http Header.
 	 *
 	 * <p>
 	 * Never expose this token via log or via HTTP.

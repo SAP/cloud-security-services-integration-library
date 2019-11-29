@@ -46,8 +46,11 @@ public class CFEnvironment implements Environment {
 		return loadXsuaa();
 	}
 
-	@Nullable @Override public OAuth2ServiceConfiguration getIasServiceConfiguration() {
-		//return loadAll(IAS).stream().filter(Objects::nonNull).findFirst().orElse(null);
+	@Nullable
+	@Override
+	public OAuth2ServiceConfiguration getIasServiceConfiguration() {
+		// return
+		// loadAll(IAS).stream().filter(Objects::nonNull).findFirst().orElse(null);
 		throw new UnsupportedOperationException("Bindings of IAS Identity Service is not yet supported.");
 	}
 
@@ -71,8 +74,9 @@ public class CFEnvironment implements Environment {
 	 *            the name of the service
 	 * @return the list of all found configurations or empty list, in case there are
 	 *         not service bindings.
-	 * @deprecated as multiple bindings of XSUAA identity service is not anymore necessary
-	 *             with the unified broker plan, this method is deprecated.
+	 * @deprecated as multiple bindings of XSUAA identity service is not anymore
+	 *             necessary with the unified broker plan, this method is
+	 *             deprecated.
 	 */
 	@Deprecated
 	List<CFOAuth2ServiceConfiguration> loadAll(Service service) {
@@ -83,7 +87,6 @@ public class CFEnvironment implements Environment {
 	public Type getType() {
 		return Type.CF;
 	}
-
 
 	private String extractVcapJsonString() {
 		String env = systemPropertiesProvider.apply(VCAP_SERVICES);

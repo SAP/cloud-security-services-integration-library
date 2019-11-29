@@ -23,6 +23,6 @@ public class JsonWebKeyTestFactory {
 	}
 
 	public static JsonWebKey createDefault() {
-		return new JsonWebKeyImpl(JwtSignatureAlgorithm.RS256, JsonWebKey.DEFAULT_KEY_ID,  MODULUS, "AQAB", null);
+		return new JsonWebKeyImpl(JwtSignatureAlgorithm.RS256, JsonWebKey.DEFAULT_KEY_ID, MODULUS, "AQAB", null);
 	}
 }

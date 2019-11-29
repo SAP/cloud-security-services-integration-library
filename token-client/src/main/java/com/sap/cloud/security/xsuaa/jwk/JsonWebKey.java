@@ -16,8 +16,8 @@ public interface JsonWebKey {
 	String DEFAULT_KEY_ID = "default-kid";
 
 	/**
-	 * Returns the key algorithm a JWT is/can be signed with,
-	 * e.g. {@link JwtSignatureAlgorithm#RS256}.
+	 * Returns the key algorithm a JWT is/can be signed with, e.g.
+	 * {@link JwtSignatureAlgorithm#RS256}.
 	 * 
 	 * @return the key algorithm.
 	 */
@@ -36,8 +36,11 @@ public interface JsonWebKey {
 	 * Returns the public key representation.
 	 * 
 	 * @return the public key.
-	 * @throws InvalidKeySpecException in case the a PublicKey can not be created for this JSON web key.
-	 * @throws NoSuchAlgorithmException in case the algorithm specified as part of the JSON web key is not supported.
+	 * @throws InvalidKeySpecException
+	 *             in case the a PublicKey can not be created for this JSON web key.
+	 * @throws NoSuchAlgorithmException
+	 *             in case the algorithm specified as part of the JSON web key is
+	 *             not supported.
 	 */
 	@Nullable
 	public PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException;

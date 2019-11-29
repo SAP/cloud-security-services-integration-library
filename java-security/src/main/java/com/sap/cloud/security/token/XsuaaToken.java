@@ -33,14 +33,14 @@ public class XsuaaToken extends AbstractToken {
 	@Override
 	public Principal getPrincipal() {
 		String principalName;
-		switch(getClaimAsString(GRANT_TYPE)) {
+		switch (getClaimAsString(GRANT_TYPE)) {
 		case OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS:
 		case OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_X509:
 			principalName = String.format(UNIQUE_CLIENT_NAME_FORMAT, getClaimAsString(CLIENT_ID));
 			break;
-			default:
-				principalName = getUniquePrincipalName(getClaimAsString(ORIGIN), getClaimAsString(USER_NAME));
-				break;
+		default:
+			principalName = getUniquePrincipalName(getClaimAsString(ORIGIN), getClaimAsString(USER_NAME));
+			break;
 		}
 		return () -> principalName;
 	}

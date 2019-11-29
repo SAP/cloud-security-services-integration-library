@@ -14,6 +14,7 @@ public class CFConstants {
 	public static class XSUAA {
 		private XSUAA() {
 		}
+
 		public static final String UAA_DOMAIN = "uaadomain";
 		public static final String APP_ID = "xsappname";
 	}
@@ -21,6 +22,7 @@ public class CFConstants {
 	public static class IAS {
 		private IAS() {
 		}
+
 		public static final String DOMAIN = "domain";
 	}
 

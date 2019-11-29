@@ -222,5 +222,4 @@ public class JwtGeneratorTest {
 		assertThat(result.isValid()).isTrue();
 	}
 
-
 }

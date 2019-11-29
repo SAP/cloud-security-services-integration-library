@@ -27,12 +27,9 @@ import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 /**
  * Validates whether the jwt was signed with the public key of the trust-worthy
- * identity service.
- * - asks the token key service for a set of (cached) json web
- * token keys.
- * - creates a PublicKey for the json web key with the respective id
- * and type.
- * - checks whether the jwt is unchanged and signed with a private key
+ * identity service. - asks the token key service for a set of (cached) json web
+ * token keys. - creates a PublicKey for the json web key with the respective id
+ * and type. - checks whether the jwt is unchanged and signed with a private key
  * that matches the PublicKey.
  */
 public class JwtSignatureValidator implements Validator<Token> {
@@ -133,7 +130,8 @@ public class JwtSignatureValidator implements Validator<Token> {
 			} catch (NoSuchAlgorithmException e) {
 				// should never happen
 			}
-			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.", jwtSignatureAlgorithm.javaSignature());
+			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.",
+					jwtSignatureAlgorithm.javaSignature());
 		}
 
 		private static final Pattern DOT = Pattern.compile("\\.", 0);

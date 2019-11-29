@@ -40,8 +40,8 @@ public interface OAuth2ServiceConfiguration {
 	 * Returns the value of the given property as string.
 	 *
 	 * @param name
-	 *            the name of the property.
-	 *            You can find constants in {@link com.sap.cloud.security.config.cf.CFConstants}
+	 *            the name of the property. You can find constants in
+	 *            {@link com.sap.cloud.security.config.cf.CFConstants}
 	 * @return the string value of the given property or null if the property does
 	 *         not exist.
 	 */

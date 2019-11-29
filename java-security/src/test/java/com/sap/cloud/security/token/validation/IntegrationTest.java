@@ -49,7 +49,8 @@ public class IntegrationTest {
 	@Ignore // TODO
 	public void validate_withXsuaaCombiningValidator_whenOAuthServerIsMocked() throws IOException {
 		Properties oldProperties = System.getProperties();
-		System.setProperty("VCAP_SERVICES", IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", StandardCharsets.UTF_8));
+		System.setProperty("VCAP_SERVICES",
+				IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", StandardCharsets.UTF_8));
 
 		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaServiceConfiguration();
 

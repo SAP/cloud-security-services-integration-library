@@ -26,7 +26,7 @@ class CFEnvParser {
 	static Map<Service, List<CFOAuth2ServiceConfiguration>> loadAll(String vcapJsonString) {
 		Map<Service, List<CFOAuth2ServiceConfiguration>> serviceConfigurations = new HashMap<>();
 		List<CFOAuth2ServiceConfiguration> allServices;
-		for(Service s : Service.values()) {
+		for (Service s : Service.values()) {
 			allServices = extractAllServices(s,
 					new DefaultJsonObject(vcapJsonString));
 			serviceConfigurations.put(s, allServices);
@@ -37,7 +37,9 @@ class CFEnvParser {
 	static List<CFOAuth2ServiceConfiguration> extractAllServices(Service service, DefaultJsonObject jsonObject) {
 		List<JsonObject> jsonServiceObjects = jsonObject.getJsonObjects(service.getCFName());
 		if (service == XSUAA && jsonServiceObjects.size() > 1) {
-			logger.warn("More than one service configuration available for service {}. Please make use of unified 'broker' plan.", service);
+			logger.warn(
+					"More than one service configuration available for service {}. Please make use of unified 'broker' plan.",
+					service);
 		}
 		return jsonServiceObjects.stream()
 				.map((JsonObject object) -> new CFOAuth2ServiceConfiguration(service, object))

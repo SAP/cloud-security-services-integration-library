@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 public interface Environment {
 
 	enum Type {
-		CF /*, KUBERNETES*/;
+		CF /* , KUBERNETES */;
 		public static Type from(String typeAsString) {
 			return Type.valueOf(typeAsString.toUpperCase());
 		}

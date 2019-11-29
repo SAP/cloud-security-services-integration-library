@@ -25,7 +25,6 @@ public class OAuth2SecurityFilter implements Filter {
 	private final TokenExtractor tokenExtractor;
 	private Validator<Token> tokenValidator;
 
-
 	public OAuth2SecurityFilter() {
 		tokenExtractor = authorizationHeader -> new XsuaaToken(authorizationHeader);
 	}
@@ -35,7 +34,8 @@ public class OAuth2SecurityFilter implements Filter {
 		this.tokenValidator = tokenValidator;
 	}
 
-	@Override public void init(FilterConfig filterConfig) {
+	@Override
+	public void init(FilterConfig filterConfig) {
 	}
 
 	@Override

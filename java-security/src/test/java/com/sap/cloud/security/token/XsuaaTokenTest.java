@@ -14,7 +14,8 @@ public class XsuaaTokenTest {
 	private XsuaaToken userToken;
 
 	public XsuaaTokenTest() throws IOException {
-		clientCredentialsToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8));
+		clientCredentialsToken = new XsuaaToken(
+				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8));
 		userToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", StandardCharsets.UTF_8));
 	}
 
