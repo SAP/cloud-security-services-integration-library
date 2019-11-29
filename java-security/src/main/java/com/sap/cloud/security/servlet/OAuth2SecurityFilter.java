@@ -79,13 +79,13 @@ public class OAuth2SecurityFilter implements Filter {
 	}
 
 	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
-		return Environments.getCurrentEnvironment().getXsuaaServiceConfiguration();
+		return Environments.getCurrent().getXsuaaServiceConfiguration();
 	}
 
 	@Nullable
 	private OAuth2ServiceConfiguration getOtherXsuaaServiceConfiguration() {
-		if (Environments.getCurrentEnvironment().getNumberOfXsuaaServices() > 1) {
-			return Environments.getCurrentEnvironment().getXsuaaServiceConfigurationForTokenExchange();
+		if (Environments.getCurrent().getNumberOfXsuaaServices() > 1) {
+			return Environments.getCurrent().getXsuaaServiceConfigurationForTokenExchange();
 		}
 		return null;
 	}

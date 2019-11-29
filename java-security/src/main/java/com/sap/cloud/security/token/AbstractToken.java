@@ -83,6 +83,11 @@ public abstract class AbstractToken implements Token {
 		return accessToken;
 	}
 
+	@Override
+	public String getBearerAccessToken() {
+		return "Bearer " + accessToken;
+	}
+
 	private static String removeBearer(@Nonnull String accessToken) {
 		Assertions.assertHasText(accessToken, "accessToken must not be null / empty");
 		return accessToken.replaceFirst("Bearer ", "");

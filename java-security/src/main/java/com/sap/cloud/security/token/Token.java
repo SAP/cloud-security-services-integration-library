@@ -85,6 +85,16 @@ public interface Token {
 	 */
 	String getAccessToken();
 
+	/**
+	 * Get the encoded authentication token with "Bearer " prefix,
+	 * 	e.g. for Authorization Http Header.
+	 *
+	 * <p>
+	 * Never expose this token via log or via HTTP.
+	 *
+	 * @return the encoded token.
+	 */
+	String getBearerAccessToken();
 
 	Principal getPrincipal();
 }

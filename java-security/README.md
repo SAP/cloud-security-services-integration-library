@@ -55,7 +55,7 @@ A Java implementation of JSON Web Token (JWT) - RFC 7519 (see [1]).
 
 ### Setup: Load the Xsuaa Service Configurations and setup Validator
 ```java
-OAuth2ServiceConfiguration serviceConfig = Environments.getCurrentEnvironment().getXsuaaServiceConfiguration();
+OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaServiceConfiguration();
 CombiningValidator<Token> validators = TokenValidatorBuilder.createFor(serviceConfig).build();
 ```
 By default it auto-detects the environment: Cloud Foundry or Kubernetes.

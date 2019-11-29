@@ -14,9 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet("/hello-java-security")
-@ServletSecurity(@HttpConstraint(rolesAllowed = { "read" })) // TODO WHAT needs to be done for AUTHZ checks?
+
+
+@WebServlet(HelloJavaServlet.ENDPOINT)
+//@ServletSecurity(@HttpConstraint(rolesAllowed = { "read" })) // TODO WHAT needs to be done for AUTHZ checks?
 public class HelloJavaServlet extends HttpServlet {
+	static final String ENDPOINT = "/hello-java-security";
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = LoggerFactory.getLogger(HelloJavaServlet.class);
 

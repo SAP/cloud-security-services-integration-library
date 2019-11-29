@@ -51,7 +51,7 @@ public class IntegrationTest {
 		Properties oldProperties = System.getProperties();
 		System.setProperty("VCAP_SERVICES", IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", StandardCharsets.UTF_8));
 
-		OAuth2ServiceConfiguration configuration = Environments.getCurrentEnvironment().getXsuaaServiceConfiguration();
+		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaServiceConfiguration();
 
 		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
