@@ -1,4 +1,4 @@
-package com.sap.cloud.security.javasec.samples.usage;
+package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
@@ -20,10 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-public class TokenFilterTest {
+public class OAuth2SecurityFilterTest {
 
 	public static final Token TOKEN = Mockito.mock(Token.class);
-	private TokenFilter cut = null;
+	private OAuth2SecurityFilter cut = null;
 	private HttpServletResponse httpResponse;
 	private HttpServletRequest httpRequest;
 	private FilterChain filterChain;
@@ -75,8 +75,8 @@ public class TokenFilterTest {
 		when(httpRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer fake token");
 	}
 
-	private TokenFilter createComponent(ValidationResult validationResult) {
-		return new TokenFilter((header) -> TOKEN, (TOKEN) -> validationResult);
+	private OAuth2SecurityFilter createComponent(ValidationResult validationResult) {
+		return new OAuth2SecurityFilter((header) -> TOKEN, (TOKEN) -> validationResult);
 	}
 
 	private void assertThatResponseIsUnauthorized() {

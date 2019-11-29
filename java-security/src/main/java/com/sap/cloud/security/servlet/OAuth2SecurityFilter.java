@@ -1,4 +1,4 @@
-package com.sap.cloud.security.javasec.samples.usage;
+package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -19,18 +19,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @WebFilter(urlPatterns = "/*")
-public class TokenFilter implements Filter {
+public class OAuth2SecurityFilter implements Filter {
 
-	private static final Logger logger = LoggerFactory.getLogger(TokenFilter.class);
+	private static final Logger logger = LoggerFactory.getLogger(OAuth2SecurityFilter.class);
 	private final TokenExtractor tokenExtractor;
 	private Validator<Token> tokenValidator;
 
 
-	public TokenFilter() {
+	public OAuth2SecurityFilter() {
 		tokenExtractor = authorizationHeader -> new XsuaaToken(authorizationHeader);
 	}
 
-	TokenFilter(TokenExtractor tokenExtractor, Validator<Token> tokenValidator) {
+	OAuth2SecurityFilter(TokenExtractor tokenExtractor, Validator<Token> tokenValidator) {
 		this.tokenExtractor = tokenExtractor;
 		this.tokenValidator = tokenValidator;
 	}
