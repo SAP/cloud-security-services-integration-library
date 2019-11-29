@@ -1,5 +1,6 @@
 package com.sap.cloud.security.javasec.samples.usage;
 
+import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.test.SecurityIntegrationTestRule;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -30,6 +31,7 @@ public class HelloJavaServletIntegrationTest {
 	public static void prepareTest() throws Exception {
 		oldProperties = System.getProperties();
 		System.setProperty(VCAP_SERVICES, IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
+		rule.setClientId(Environments.getCurrentEnvironment().getXsuaaServiceConfiguration().getClientId());
 	}
 
 	@AfterClass
@@ -46,7 +48,7 @@ public class HelloJavaServletIntegrationTest {
 	}
 
 	@Test
-	public void requestWithoutHeader_statusUnauthorized() throws Exception {
+	public void requestWithoutHeader_statusUnauthenticated() throws Exception {
 		Token token = rule.createToken();
 
 		HttpGet request = createGetRequest("Bearer " + token.getAccessToken());

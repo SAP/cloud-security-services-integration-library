@@ -171,7 +171,7 @@ public class JwtGenerator {
 		}
 		withHeaderParameter(ALGORITHM, signatureAlgorithm.value());
 		if (deriveAudiences) {
-			withClaimValues(AUDIENCE, deriveAudiences());
+			withClaimValues(AUDIENCE, deriveAudiencesFromScopes());
 		}
 		String header = base64Encode(jsonHeader.toString().getBytes());
 		String payload = base64Encode(jsonPayload.toString().getBytes());
@@ -185,11 +185,11 @@ public class JwtGenerator {
 		case XSUAA:
 			return new XsuaaToken(token);
 		default:
-			throw new IllegalStateException("Unexpected service: " + service);
+			throw new UnsupportedOperationException("Service: " + service + " is not supported.");
 		}
 	}
 
-	private String[] deriveAudiences() {
+	private String[] deriveAudiencesFromScopes() {
 		DefaultJsonObject currentPayload = new DefaultJsonObject(jsonPayload.toString());
 		List<String> scopes = currentPayload.getAsList(TokenClaims.XSUAA.SCOPES, String.class);
 		Set<String> audiences = scopes.stream()

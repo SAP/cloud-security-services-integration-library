@@ -3,7 +3,7 @@
     {
       "binding_name": null,
       "credentials": {
-        "clientid": "sb-clientId!20",
+        "clientid": "sb-clientId!t20",
         "clientsecret": "secret",
         "identityzone": "uaa",
         "identityzoneid": "uaa",

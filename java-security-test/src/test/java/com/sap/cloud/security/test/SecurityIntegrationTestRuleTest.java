@@ -37,7 +37,7 @@ public class SecurityIntegrationTestRuleTest {
 			.useApplicationServer("src/test/webapp", APPLICATION_SERVER_PORT);
 
 	public SecurityIntegrationTestRuleTest() {
-		cut.getPreconfiguredJwtGenerator().withHeaderParameter("test", "abc123");
+		cut.getPreconfiguredJwtGenerator().withHeaderParameter("header", "h-value");
 	}
 
 	@Test
@@ -94,7 +94,7 @@ public class SecurityIntegrationTestRuleTest {
 			SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(Service.IAS);
 
 			assertThatThrownBy(() -> cut.before())
-					.isInstanceOf(IllegalStateException.class)
+					.isInstanceOf(UnsupportedOperationException.class)
 					.hasMessageContaining(String.format("Service %s is not yet supported", Service.IAS));
 		}
 

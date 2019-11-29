@@ -64,6 +64,7 @@ public class JwtGeneratorTest {
 		Token token = cut.createToken();
 
 		assertThat(token).isNotNull();
+		assertThat(token.containsClaim(TokenClaims.AUDIENCE)).isFalse();
 	}
 
 	@Test
@@ -85,7 +86,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void withClaim_containsClaim() {
-		String clientId = "sb-clientId!20";
+		String clientId = "myClientId";
 		String subdomain = "subdomain";
 
 		Token token = cut

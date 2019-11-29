@@ -60,7 +60,6 @@ public class RSAKeys {
 	}
 
 	private static String readFileAndReplaceBeginEnd(Path filePath) throws IOException {
-		String stringy = new String(Files.readAllBytes(filePath));
 		String content = Files.readAllLines(filePath).stream().collect(Collectors.joining(""));
 		return content.replaceAll(KEY_BEGIN_END_REGEX, "");
 	}
@@ -69,7 +68,7 @@ public class RSAKeys {
 		try {
 			return KeyPairGenerator.getInstance(RSA).generateKeyPair();
 		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
+			throw new UnsupportedOperationException(e);
 		}
 	}
 
