@@ -48,9 +48,10 @@ public interface OAuth2ServiceConfiguration {
 	String getProperty(String name);
 
 	/**
-	 * Returns the service name from the service of this configuration.
+	 * Returns the service of this configuration.
 	 *
-	 * @return the service name.
+	 * @return the service.
 	 */
-	String getServiceName();
+	Service getService();
+
 }

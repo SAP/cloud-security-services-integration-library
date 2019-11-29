@@ -4,7 +4,8 @@
       "binding_name": null,
       "credentials": {
         "password": "pCghfbrLudwzXM2fPq7YSIhujAmpHj_I0DeMKHKRAqs=",
-        "username": "T000297"
+        "username": "T000297",
+        "url": "https://application.acc.ondemand.com"
       },
       "instance_name": "myservice",
       "label": "iasb",

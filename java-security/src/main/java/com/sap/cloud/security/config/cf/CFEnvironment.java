@@ -1,5 +1,6 @@
 package com.sap.cloud.security.config.cf;
 
+import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
 
@@ -8,10 +9,14 @@ import javax.annotation.Nullable;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants.Plan;
+import com.sap.jvm.profiling.presentation.typed.entries.GcG1CollectionSetEntry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -44,19 +49,18 @@ public class CFEnvironment implements Environment {
 	}
 
 	@Nullable @Override public OAuth2ServiceConfiguration getIasServiceConfiguration() {
-		//return loadAll(IAS).stream().findFirst().orElse(null);
-		throw new UnsupportedOperationException("This feature is not yet active");
+		return loadAll(IAS).stream().filter(Objects::nonNull).findFirst().orElse(null);
 	}
 
 	@Override
 	public int getNumberOfXsuaaServices() {
-		return loadAll(Service.XSUAA).size();
+		return loadAll(XSUAA).size();
 	}
 
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaServiceConfigurationForTokenExchange() {
 		if (getNumberOfXsuaaServices() > 1) {
-			return loadByPlan(Service.XSUAA, CFConstants.Plan.BROKER);
+			return loadByPlan(XSUAA, Plan.BROKER);
 		}
 		return getXsuaaServiceConfiguration();
 	}
@@ -73,7 +77,7 @@ public class CFEnvironment implements Environment {
 	 */
 	@Deprecated
 	List<CFOAuth2ServiceConfiguration> loadAll(Service service) {
-		return serviceConfigurations.getOrDefault(service, new ArrayList<>());
+		return serviceConfigurations.getOrDefault(service, Collections.EMPTY_LIST);
 	}
 
 	@Override
@@ -83,18 +87,18 @@ public class CFEnvironment implements Environment {
 
 
 	private String extractVcapJsonString() {
-		String env = systemEnvironmentProvider.apply(VCAP_SERVICES);
+		String env = systemPropertiesProvider.apply(VCAP_SERVICES);
 		if (env == null) {
-			env = systemPropertiesProvider.apply(VCAP_SERVICES);
+			env = systemEnvironmentProvider.apply(VCAP_SERVICES);
 		}
 		return env != null ? env : "{}";
 	}
 
 	private CFOAuth2ServiceConfiguration loadXsuaa() {
 		Optional<CFOAuth2ServiceConfiguration> applicationService = Optional
-				.ofNullable(loadByPlan(XSUAA, CFConstants.Plan.APPLICATION));
+				.ofNullable(loadByPlan(XSUAA, Plan.APPLICATION));
 		Optional<CFOAuth2ServiceConfiguration> brokerService = Optional
-				.ofNullable(loadByPlan(XSUAA, CFConstants.Plan.BROKER));
+				.ofNullable(loadByPlan(XSUAA, Plan.BROKER));
 		if (applicationService.isPresent()) {
 			return applicationService.get();
 		}
@@ -102,7 +106,7 @@ public class CFEnvironment implements Environment {
 	}
 
 	@Nullable
-	public CFOAuth2ServiceConfiguration loadByPlan(Service service, CFConstants.Plan plan) {
+	public CFOAuth2ServiceConfiguration loadByPlan(Service service, Plan plan) {
 		return loadAll(service).stream()
 				.filter(configuration -> configuration.getPlan() == plan)
 				.findFirst()

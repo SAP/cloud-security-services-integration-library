@@ -89,7 +89,7 @@ public class TokenValidatorBuilder {
 	private List<Validator<Token>> createDefaultValidators() {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
-		if (configuration != null && configuration.getServiceName().equalsIgnoreCase(XSUAA.getCFName())) {
+		if (configuration != null && configuration.getService().equals(XSUAA)) {
 			OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(configuration.getUrl());
 			TokenKeyServiceWithCache tokenKeyServiceWithCache = new TokenKeyServiceWithCache(getTokenKeyService(),
 					endpointsProvider);
