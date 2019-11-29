@@ -136,7 +136,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	// TODO 28.11.19 c5295400: why need this? getToken sufficient?
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		return JwtGenerator.getInstance(service)
-				.withClaim(TokenClaims.XSUAA.CLIENT_ID, clientId)
+				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
 				.withPrivateKey(keys.getPrivate())
 				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl);
 	}

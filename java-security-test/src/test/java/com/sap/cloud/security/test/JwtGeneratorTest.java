@@ -89,8 +89,8 @@ public class JwtGeneratorTest {
 		String subdomain = "subdomain";
 
 		Token token = cut
-				.withClaim(TokenClaims.XSUAA.SUBDOMAIN, subdomain)
-				.withClaim(TokenClaims.XSUAA.CLIENT_ID, clientId)
+				.withClaimValue(TokenClaims.XSUAA.SUBDOMAIN, subdomain)
+				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
 				.createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.SUBDOMAIN)).isEqualTo(subdomain);
@@ -142,7 +142,7 @@ public class JwtGeneratorTest {
 	public void withClaim_createsTokenWithAudience() {
 		String[] audiences = { "app1", "app2" };
 
-		Token token = cut.withClaims(TokenClaims.AUDIENCE, audiences).createToken();
+		Token token = cut.withClaimValues(TokenClaims.AUDIENCE, audiences).createToken();
 
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly(audiences);
 	}
@@ -161,7 +161,7 @@ public class JwtGeneratorTest {
 		String[] scopes = { "openid", "app1.scope", "app2.sub.scope", "app2.scope", ".scopeWithoutAppId" };
 
 		Token token = cut.withScopes(scopes)
-				.withClaims(TokenClaims.AUDIENCE, "app3")
+				.withClaimValues(TokenClaims.AUDIENCE, "app3")
 				.deriveAudience(true)
 				.createToken();
 
@@ -214,7 +214,7 @@ public class JwtGeneratorTest {
 
 		Token token = cut
 				.withHeaderParameter(TokenHeader.JWKS_URL, "http://auth.com/token_keys")
-				.withClaim(TokenClaims.XSUAA.CLIENT_ID, "xs2.usertoken")
+				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, "xs2.usertoken")
 				.createToken();
 
 		ValidationResult result = tokenValidator.validate(token);

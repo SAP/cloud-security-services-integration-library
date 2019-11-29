@@ -1,5 +1,8 @@
 package com.sap.cloud.security.test;
 
+import static com.sap.cloud.security.token.TokenClaims.AUDIENCE;
+import static com.sap.cloud.security.token.TokenHeader.ALGORITHM;
+
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.token.IasToken;
@@ -7,12 +10,10 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.directory.Attribute;
 import java.security.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,8 +24,7 @@ import java.util.stream.Collectors;
 public class JwtGenerator {
 	private static final Logger logger = LoggerFactory.getLogger(JwtGenerator.class);
 
-	private static final String JWT_HEADER_ALG = "alg";
-	private static final String DOT = ".";
+	private static final char DOT = '.';
 
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
@@ -52,14 +52,6 @@ public class JwtGenerator {
 		return instance;
 	}
 
-	private static byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm signatureAlgorithm,
-			byte[] dataToSign) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException {
-		Signature signature = Signature.getInstance(signatureAlgorithm.javaSignature());
-		signature.initSign(privateKey);
-		signature.update(dataToSign);
-		return signature.sign();
-	}
-
 	/**
 	 * Sets the header parameter with the given name to the given string value.
 	 *
@@ -83,7 +75,7 @@ public class JwtGenerator {
 	 *            the string value of the claim to be set.
 	 * @return the builder object.
 	 */
-	public JwtGenerator withClaim(String claimName, String value) {
+	public JwtGenerator withClaimValue(String claimName, String value) {
 		jsonPayload.put(claimName, value);
 		return this;
 	}
@@ -93,12 +85,12 @@ public class JwtGenerator {
 	 *
 	 * @param claimName
 	 *            the name of the claim to be set.
-	 * @param claims
+	 * @param values
 	 *            the string values of the claims to be set.
 	 * @return the builder object.
 	 */
-	public JwtGenerator withClaims(String claimName, String... claims) {
-		jsonPayload.put(claimName, claims);
+	public JwtGenerator withClaimValues(String claimName, String... values) {
+		jsonPayload.put(claimName, values);
 		return this;
 	}
 
@@ -111,8 +103,8 @@ public class JwtGenerator {
 	 * @return the builder object.
 	 */
 	public JwtGenerator withSignatureAlgorithm(JwtSignatureAlgorithm signatureAlgorithm) {
-		if (signatureAlgorithm == JwtSignatureAlgorithm.ES256) {
-			throw new UnsupportedOperationException("ES256 not supported yet");
+		if (signatureAlgorithm != JwtSignatureAlgorithm.RS256) {
+			throw new UnsupportedOperationException(signatureAlgorithm + " is not supported yet");
 		}
 		this.signatureAlgorithm = signatureAlgorithm;
 		return this;
@@ -142,15 +134,32 @@ public class JwtGenerator {
 	 */
 	public JwtGenerator withScopes(String... scopes) {
 		if (service == Service.XSUAA) {
-			withClaims(TokenClaims.XSUAA.SCOPES, scopes);
+			withClaimValues(TokenClaims.XSUAA.SCOPES, scopes);
 		} else {
-			throw new UnsupportedOperationException("Scopes are not supported for service is set to " + service);
+			throw new UnsupportedOperationException("Scopes are not supported for service " + service);
 		}
 		return this;
 	}
 
 	/**
-	 * Creates and signs the token using the the algorithm set via
+	 * Derives audiences claim ("aud") from scopes. For example in case e.g.
+	 * "xsappid.scope".
+	 *
+	 * @param deriveAudiences
+	 *            if true, audiences are automatically derived from the scopes
+	 * @return the JwtGenerator itself
+	 */
+	public JwtGenerator deriveAudience(boolean deriveAudiences) {
+		if (service == Service.XSUAA) {
+			this.deriveAudiences = deriveAudiences;
+		} else {
+			throw new UnsupportedOperationException("deriveAudiences are not supported for service " + service);
+		}
+		return this;
+	}
+
+	/**
+	 * Builds and signs the token using the the algorithm set via
 	 * {@link #withSignatureAlgorithm(JwtSignatureAlgorithm)} and the given key. By
 	 * default{@link JwtSignatureAlgorithm#RS256} is used.
 	 *
@@ -160,9 +169,9 @@ public class JwtGenerator {
 		if (privateKey == null) {
 			throw new IllegalStateException("Private key was not set!");
 		}
-		setHeaderAlgorithmValue();
+		withHeaderParameter(ALGORITHM, signatureAlgorithm.value());
 		if (deriveAudiences) {
-			deriveAudiences();
+			withClaimValues(AUDIENCE, deriveAudiences());
 		}
 		String header = base64Encode(jsonHeader.toString().getBytes());
 		String payload = base64Encode(jsonPayload.toString().getBytes());
@@ -180,17 +189,25 @@ public class JwtGenerator {
 		}
 	}
 
-	private void deriveAudiences() {
+	private String[] deriveAudiences() {
 		DefaultJsonObject currentPayload = new DefaultJsonObject(jsonPayload.toString());
 		List<String> scopes = currentPayload.getAsList(TokenClaims.XSUAA.SCOPES, String.class);
 		Set<String> audiences = scopes.stream()
-				.filter(scope -> scope.contains("."))
-				.map(scope -> scope.substring(0, scope.indexOf(".")))
+				.filter(scope -> scope.contains("" + DOT))
+				.map(scope -> scope.substring(0, scope.indexOf(DOT)))
 				.filter(aud -> !aud.isEmpty())
 				.collect(Collectors.toSet());
-		List<String> existingAudiences = currentPayload.getAsList(TokenClaims.AUDIENCE, String.class);
+		List<String> existingAudiences = currentPayload.getAsList(AUDIENCE, String.class);
 		audiences.addAll(existingAudiences);
-		withClaims(TokenClaims.AUDIENCE, audiences.toArray(new String[] {}));
+		return audiences.toArray(new String[] {});
+	}
+
+	private static byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm signatureAlgorithm,
+			byte[] dataToSign) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException {
+		Signature signature = Signature.getInstance(signatureAlgorithm.javaSignature());
+		signature.initSign(privateKey);
+		signature.update(dataToSign);
+		return signature.sign();
 	}
 
 	private String calculateSignature(String headerAndPayload) {
@@ -198,36 +215,19 @@ public class JwtGenerator {
 			return base64Encode(signatureCalculator
 					.calculateSignature(privateKey, signatureAlgorithm, headerAndPayload.getBytes()));
 		} catch (NoSuchAlgorithmException e) {
-			logger.error("Algorithm '{}' not found!", signatureAlgorithm.javaSignature(), e);
-			throw new RuntimeException(e);
+			logger.error("Algorithm '{}' not found.", signatureAlgorithm.javaSignature());
+			throw new UnsupportedOperationException(e);
 		} catch (SignatureException e) {
-			logger.error("Error creating JWT signature!", e);
-			throw new RuntimeException(e);
+			logger.error("Error creating JWT signature.");
+			throw new UnsupportedOperationException(e);
 		} catch (InvalidKeyException e) {
-			logger.error("Invalid private key!", e);
-			throw new RuntimeException(e);
+			logger.error("Invalid private key.");
+			throw new UnsupportedOperationException(e);
 		}
-	}
-
-	private void setHeaderAlgorithmValue() {
-		withHeaderParameter(JWT_HEADER_ALG, signatureAlgorithm.value());
 	}
 
 	private String base64Encode(byte[] bytes) {
 		return Base64.getUrlEncoder().encodeToString(bytes);
-	}
-
-	/**
-	 * Derives audiences claim ("aud") from scopes. For example in case e.g.
-	 * "xsappid.scope".
-	 *
-	 * @param deriveAudiences
-	 *            if true, audiences are automatically set
-	 * @return the JwtGenerator itself
-	 */
-	public JwtGenerator deriveAudience(boolean deriveAudiences) {
-		this.deriveAudiences = deriveAudiences;
-		return this;
 	}
 
 	interface SignatureCalculator {
