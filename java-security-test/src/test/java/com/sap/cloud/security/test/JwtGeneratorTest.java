@@ -1,39 +1,62 @@
 package com.sap.cloud.security.test;
 
-import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.Environments;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
+import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.token.validation.validators.CombiningValidator;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
+import com.sap.cloud.security.token.validation.validators.TokenValidatorBuilder;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.naming.OperationNotSupportedException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.Properties;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.JwtGenerator.SignatureCalculator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.util.Lists.list;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class JwtGeneratorTest {
 
 	private JwtGenerator cut;
-	private RSAKeys keys;
+	private static RSAKeys keys;
+	private Properties originalSystemProperties;
+
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		String publicKeyPath = IOUtils.resourceToURL("/publicKey.txt").getPath();
+		String privateKeyPath = IOUtils.resourceToURL("/privateKey.txt").getPath();
+		keys = RSAKeys.fromKeyFiles(publicKeyPath, privateKeyPath);
+	}
 
 	@Before
 	public void setUp() {
-		keys = RSAKeys.generate();
+		originalSystemProperties = System.getProperties();
 		cut = JwtGenerator.getInstance(XSUAA).withPrivateKey(keys.getPrivate());
+	}
+
+	@After
+	public void tearDown() {
+		System.setProperties(originalSystemProperties);
 	}
 
 	@Test
@@ -174,5 +197,29 @@ public class JwtGeneratorTest {
 		}).withPrivateKey(keys.getPrivate());
 		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
 	}
+
+	@Test
+	public void createToken_tokenIsValid() throws IOException {
+		System.setProperty("VCAP_SERVICES", IOUtils
+				.resourceToString("/vcapXsuaaServiceSingleBinding.json", StandardCharsets.UTF_8));
+		OAuth2ServiceConfiguration configuration = Environments.getCurrentEnvironment().getXsuaaServiceConfiguration();
+
+		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
+		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
+				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
+
+		CombiningValidator<Token> tokenValidator = TokenValidatorBuilder.createFor(configuration)
+				.withOAuth2TokenKeyService(tokenKeyService)
+				.build();
+
+		Token token = cut
+				.withHeaderParameter(TokenHeader.JWKS_URL, "http://auth.com/token_keys")
+				.withClaim(TokenClaims.XSUAA.CLIENT_ID, "xs2.usertoken")
+				.createToken();
+
+		ValidationResult result = tokenValidator.validate(token);
+		assertThat(result.isValid()).isTrue();
+	}
+
 
 }
