@@ -28,14 +28,12 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 
 	@Override
 	public String getClientId() {
-		return service.equals(Service.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_ID)
-				: credentials.getAsString(IAS.CLIENT_ID);
+		return credentials.getAsString(CLIENT_ID);
 	}
 
 	@Override
 	public String getClientSecret() {
-		return service.equals(Service.XSUAA) ? credentials.getAsString(XSUAA.CLIENT_SECRET)
-				: credentials.getAsString(IAS.CLIENT_SECRET);
+		return credentials.getAsString(CLIENT_SECRET);
 	}
 
 	@Override

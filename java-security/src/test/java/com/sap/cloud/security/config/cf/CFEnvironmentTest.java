@@ -37,14 +37,15 @@ public class CFEnvironmentTest {
 		assertThat(cut.getType()).isEqualTo(Environment.Type.CF);
 	}
 
-	@Test
+	@Test(expected = UnsupportedOperationException.class)
 	public void getConfigurationOfOneIasInstance() {
 		cut = CFEnvironment.getInstance((str) -> vcapIas, (str) -> null);
+		// TODO IAS
 		assertThat(cut.getIasServiceConfiguration()).isSameAs(cut.getIasServiceConfiguration());
 		assertThat(cut.getIasServiceConfiguration().getService()).isEqualTo(Service.IAS);
 		assertThat(cut.getIasServiceConfiguration().getClientId()).isEqualTo("T000297");
 		assertThat(cut.getIasServiceConfiguration().getClientSecret()).startsWith("pCghfbrL");
-		//assertThat(cut.getIasServiceConfiguration().getDomain()).isEqualTo("auth.com"); // TODO IAS
+		//assertThat(cut.getIasServiceConfiguration().getDomain()).isEqualTo("auth.com");
 		assertThat(cut.getIasServiceConfiguration().getUrl().toString()).isEqualTo("https://application.acc.ondemand.com");
 
 		assertThat(cut.getXsuaaServiceConfiguration()).isNull();

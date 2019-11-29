@@ -6,6 +6,8 @@ import com.sap.cloud.security.token.TokenClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -13,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet("/hello-java-security")
-//@ServletSecurity(@HttpConstraint(rolesAllowed = { "read" })) // TODO WHAT needs to be done for AUTHZ checks?
+@ServletSecurity(@HttpConstraint(rolesAllowed = { "read" })) // TODO WHAT needs to be done for AUTHZ checks?
 public class HelloJavaServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = LoggerFactory.getLogger(HelloJavaServlet.class);
