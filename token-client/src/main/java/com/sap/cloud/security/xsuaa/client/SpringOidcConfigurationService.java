@@ -10,8 +10,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
 
 public class SpringOidcConfigurationService implements OidcConfigurationService {
@@ -20,13 +18,6 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
 	public SpringOidcConfigurationService(@Nonnull RestOperations restOperations) {
 		Assertions.assertNotNull(restOperations, "restOperations must not be null!");
 		this.restOperations = restOperations;
-	}
-
-	@Override public OAuth2ServiceEndpointsProvider retrieveIssuerEndpoints(@Nonnull URI issuerUri)
-			throws OAuth2ServiceException {
-		Assertions.assertNotNull(issuerUri, "issuerUri must not be null!");
-		URI discoveryEndpointUri = UriUtil.getUriWithPathAppended(issuerUri, DISCOVERY_ENDPOINT_DEFAULT);
-		return retrieveEndpoints(discoveryEndpointUri);
 	}
 
 	@Override public OAuth2ServiceEndpointsProvider retrieveEndpoints(@Nonnull URI discoveryEndpointUri)

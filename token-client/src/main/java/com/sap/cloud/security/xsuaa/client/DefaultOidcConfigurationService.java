@@ -20,7 +20,7 @@ import com.sap.cloud.security.xsuaa.util.UriUtil;
 
 public class DefaultOidcConfigurationService implements OidcConfigurationService{
 
-	static final Logger logger = LoggerFactory.getLogger(DefaultOAuth2TokenService.class);
+	static final Logger logger = LoggerFactory.getLogger(DefaultOidcConfigurationService.class);
 	private final CloseableHttpClient httpClient;
 
 
@@ -29,10 +29,8 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 		this.httpClient = httpClient;
 	}
 
-	@Override public OAuth2ServiceEndpointsProvider retrieveIssuerEndpoints(@Nonnull URI issuerUri)
-			throws OAuth2ServiceException {
-		URI discoveryEndpointUri = UriUtil.getUriWithPathAppended(issuerUri, DISCOVERY_ENDPOINT_DEFAULT);
-		return retrieveEndpoints(discoveryEndpointUri);
+	public static URI getDiscoveryEndpointUri(@Nonnull URI issuerUri) {
+		return UriUtil.getUriWithPathAppended(issuerUri, DISCOVERY_ENDPOINT_DEFAULT);
 	}
 
 	@Override public OAuth2ServiceEndpointsProvider retrieveEndpoints(@Nonnull URI discoveryEndpointUri)
@@ -58,9 +56,9 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 	}
 
 	static class OidcEndpointsProvider implements OAuth2ServiceEndpointsProvider {
-		final String AUTHORIZATION_ENDPOINT = "authorization_endpoint";
-		final String TOKEN_ENDPOINT = "token_endpoint";
-		final String JWKS_ENDPOINT = "jwks_uri";
+		static final String AUTHORIZATION_ENDPOINT = "authorization_endpoint";
+		static final String TOKEN_ENDPOINT = "token_endpoint";
+		static final String JWKS_ENDPOINT = "jwks_uri";
 
 		private JSONObject jsonObject;
 

@@ -21,14 +21,4 @@ public interface OidcConfigurationService {
 	 */
 	OAuth2ServiceEndpointsProvider retrieveEndpoints(@Nonnull URI discoveryEndpointUri) throws OAuth2ServiceException;
 
-	/**
-	 * Requests an OpenID Provider Configuration Document from OAuth Server.
-	 *
-	 * @param issuerUri that contains the protocol and host of the issuer,
-	 *                  which will be enhanced with ".well-known/openid-configuration".
-	 * @return an object with access endpoints.
-	 * @throws OAuth2ServiceException
-	 *             in case of an error during the http request.
-	 */
-	OAuth2ServiceEndpointsProvider retrieveIssuerEndpoints(@Nonnull URI issuerUri) throws OAuth2ServiceException;
 }

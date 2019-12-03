@@ -21,8 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestOperations;
 
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 public class SpringOidcConfigurationServiceTest {
 	public static final URI CONFIG_ENDPOINT_URI = URI.create("https://sub.myauth.com" + DISCOVERY_ENDPOINT_DEFAULT);
@@ -68,16 +66,6 @@ public class SpringOidcConfigurationServiceTest {
 		mockResponse();
 
 		retrieveEndpoints();
-
-		Mockito.verify(restOperationsMock, times(1))
-				.getForEntity(CONFIG_ENDPOINT_URI, String.class);
-	}
-
-	@Test
-	public void retrieveIssuerEndpoints_executesHttpGetRequestWithCorrectURI() throws IOException {
-		mockResponse();
-
-		cut.retrieveIssuerEndpoints(URI.create("https://sub.myauth.com"));
 
 		Mockito.verify(restOperationsMock, times(1))
 				.getForEntity(CONFIG_ENDPOINT_URI, String.class);
