@@ -3,6 +3,7 @@ package com.sap.cloud.security.json;
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface used to expose JSON data.
@@ -87,4 +88,7 @@ public interface JsonObject {
 	 *             array of JSON objects.
 	 */
 	List<JsonObject> getJsonObjects(String name);
+
+	// TODO apply javadoc
+	Map<String, String> getKeyValueMap();
 }

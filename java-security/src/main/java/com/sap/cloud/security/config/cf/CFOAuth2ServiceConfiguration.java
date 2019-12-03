@@ -2,10 +2,10 @@ package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.json.JsonObject;
 
 import javax.annotation.Nullable;
 import java.net.URI;
+import java.util.Map;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 import static com.sap.cloud.security.xsuaa.Assertions.*;
@@ -13,45 +13,45 @@ import static com.sap.cloud.security.xsuaa.Assertions.*;
 public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration {
 
 	private final Service service;
-	private final JsonObject credentials;
-	private final JsonObject configuration;
+	private final Map<String, String> credentials;
+	private final Map<String, String> configuration;
 	private Plan plan; // lazy read
 
-	CFOAuth2ServiceConfiguration(Service service, JsonObject jsonServiceConfiguration) {
-		assertNotNull(service, "service must not be null");
-		assertNotNull(jsonServiceConfiguration, "jsonServiceConfiguration must not be null");
+	CFOAuth2ServiceConfiguration(Service service, Map<String, String> configuration, Map<String, String> credentials) {
+		assertNotNull(configuration, "configuration must not be null");
+		assertNotNull(credentials, "credentials must not be null");
 
 		this.service = service;
-		this.configuration = jsonServiceConfiguration;
-		this.credentials = configuration.getJsonObject(CREDENTIALS);
+		this.configuration = configuration;
+		this.credentials = credentials;
 	}
 
 	@Override
 	public String getClientId() {
-		return credentials.getAsString(CLIENT_ID);
+		return credentials.get(CLIENT_ID);
 	}
 
 	@Override
 	public String getClientSecret() {
-		return credentials.getAsString(CLIENT_SECRET);
+		return credentials.get(CLIENT_SECRET);
 	}
 
 	@Override
 	public URI getUrl() {
-		return URI.create(credentials.getAsString(URL));
+		return URI.create(credentials.get(URL));
 	}
 
 	@Nullable
 	@Override
 	public String getDomain() {
-		return service.equals(Service.XSUAA) ? credentials.getAsString(XSUAA.UAA_DOMAIN)
-				: credentials.getAsString(IAS.DOMAIN);
+		return service.equals(Service.XSUAA) ? credentials.get(XSUAA.UAA_DOMAIN)
+				: credentials.get(IAS.DOMAIN);
 	}
 
 	@Override
 	@Nullable
 	public String getProperty(String name) {
-		return credentials.getAsString(name);
+		return credentials.get(name);
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 	 */
 	public Plan getPlan() {
 		if (plan == null) {
-			String planAsString = configuration.getAsString(SERVICE_PLAN);
+			String planAsString = configuration.get(SERVICE_PLAN);
 			plan = planAsString != null ? Plan.from(planAsString) : Plan.DEFAULT;
 		}
 		return plan;

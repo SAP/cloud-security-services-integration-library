@@ -8,7 +8,10 @@ import javax.annotation.Nullable;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class DefaultJsonObject implements JsonObject {
@@ -79,6 +82,20 @@ public class DefaultJsonObject implements JsonObject {
 				.orElse(new ArrayList<>());
 	}
 
+	@Override
+	public Map<String, String> getKeyValueMap() {
+		Map<String, String> map = new HashMap<>();
+		Iterator<String> keysItr = getJsonObject().keys();
+		while(keysItr.hasNext()) {
+			String key = keysItr.next();
+			Object value = jsonObject.get(key);
+			if (value instanceof String) {
+				map.put(key, String.valueOf(value));
+			}
+		}
+		return map;
+	}
+
 	private List<JsonObject> convertToJsonObjects(JSONArray jsonArray) {
 		List<JsonObject> jsonObjects = new ArrayList<>();
 		jsonArray.forEach(jsonArrayObject -> {
@@ -141,4 +158,5 @@ public class DefaultJsonObject implements JsonObject {
 		}
 		return jsonObject;
 	}
+
 }

@@ -34,16 +34,22 @@ class CFEnvParser {
 		return serviceConfigurations;
 	}
 
-	static List<CFOAuth2ServiceConfiguration> extractAllServices(Service service, DefaultJsonObject jsonObject) {
-		List<JsonObject> jsonServiceObjects = jsonObject.getJsonObjects(service.getCFName());
-		if (service == XSUAA && jsonServiceObjects.size() > 1) {
+	static List<CFOAuth2ServiceConfiguration> extractAllServices(Service service, JsonObject vcapJsonObject) {
+		List<JsonObject> serviceJsonObjects = vcapJsonObject.getJsonObjects(service.getCFName());
+		if (service == XSUAA && serviceJsonObjects.size() > 1) {
 			logger.warn(
 					"More than one service configuration available for service {}. Please make use of unified 'broker' plan.",
 					service);
 		}
-		return jsonServiceObjects.stream()
-				.map((JsonObject object) -> new CFOAuth2ServiceConfiguration(service, object))
+		return serviceJsonObjects.stream()
+				.map((JsonObject serviceJsonObject) -> extract(service, serviceJsonObject))
 				.collect(Collectors.toList());
 	}
 
+	public static CFOAuth2ServiceConfiguration extract(Service service,JsonObject serviceJsonObject) {
+		Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
+		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
+
+		return new CFOAuth2ServiceConfiguration(service, xsuaaConfigMap, credentialsMap);
+	}
 }
