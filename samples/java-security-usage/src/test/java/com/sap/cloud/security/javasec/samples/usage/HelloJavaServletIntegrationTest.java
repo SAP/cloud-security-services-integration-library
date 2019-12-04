@@ -25,7 +25,8 @@ public class HelloJavaServletIntegrationTest {
 
 	@ClassRule
 	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
-			.useApplicationServer("src/test/webapp");
+			.useServletServer(0)
+			.addServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
@@ -89,7 +90,7 @@ public class HelloJavaServletIntegrationTest {
 	**/
 
 	private HttpGet createGetRequest(String bearerToken) {
-		HttpGet httpGet = new HttpGet(rule.getAppServerUri() + HelloJavaServlet.ENDPOINT);
+		HttpGet httpGet = new HttpGet(rule.getServletServerUri() + HelloJavaServlet.ENDPOINT);
 		if(bearerToken != null) {
 			httpGet.setHeader(HttpHeaders.AUTHORIZATION, bearerToken);
 		}

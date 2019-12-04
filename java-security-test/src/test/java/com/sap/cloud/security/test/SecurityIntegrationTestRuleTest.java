@@ -7,16 +7,18 @@ import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
-
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import wiremock.org.apache.http.HttpStatus;
-import wiremock.org.apache.http.client.methods.CloseableHttpResponse;
-import wiremock.org.apache.http.client.methods.HttpGet;
-import wiremock.org.apache.http.impl.client.HttpClients;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
@@ -28,7 +30,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class SecurityIntegrationTestRuleTest {
 
 	private static final int PORT = 8484;
-	private static final int APPLICATION_SERVER_PORT = 8383;
+	private static final int SERVLET_SERVER_PORT = 8383;
+	private static final String UTF_8 = StandardCharsets.UTF_8.displayName();
 
 	private static final RSAKeys RSA_KEYS = RSAKeys.generate();
 
@@ -36,7 +39,8 @@ public class SecurityIntegrationTestRuleTest {
 	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
 			.setPort(PORT)
 			.setKeys(RSA_KEYS)
-			.useApplicationServer("src/test/webapp", APPLICATION_SERVER_PORT);
+			.useServletServer(SERVLET_SERVER_PORT)
+			.addServlet(TestServlet.class, "/hello");
 
 	@Test
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys() throws IOException {
@@ -71,15 +75,33 @@ public class SecurityIntegrationTestRuleTest {
 
 	@Test
 	public void testRuleIsInitializedCorrectly() {
-		assertThat(rule.getAppServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
-		assertThat(rule.getWireMockRule()).isNotNull();
+		assertThat(rule.getServletServerUri()).isEqualTo("http://localhost:" + SERVLET_SERVER_PORT);
 		assertThat(rule.createToken().getAccessToken())
 				.isEqualTo(rule.getPreconfiguredJwtGenerator().createToken().getAccessToken());
 	}
 
+	@Test
+	public void servletFilterServesTestServlet() throws IOException {
+		HttpGet httpGet = new HttpGet(rule.getServletServerUri() + "/hello");
+		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+		}
+	}
+
 	private String readContent(CloseableHttpResponse response) throws IOException {
-		return IOUtils.readLines(response.getEntity().getContent(), StandardCharsets.UTF_8).stream()
+		return IOUtils.readLines(response.getEntity().getContent(), UTF_8).stream()
 				.collect(Collectors.joining());
+	}
+
+	public static class TestServlet extends HttpServlet {
+		@Override
+		protected void doGet(HttpServletRequest request,
+				HttpServletResponse response) throws IOException {
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.setContentType("text/plain");
+			response.setCharacterEncoding(UTF_8);
+			response.getWriter().print("TestServlet says hi!");
+		}
 	}
 
 	public static class SecurityIntegrationTestRuleTestWithoutApplicationServer {
@@ -89,8 +111,7 @@ public class SecurityIntegrationTestRuleTest {
 
 		@Test
 		public void testRuleIsInitializedCorrectly() {
-			assertThat(rule.getAppServerUri()).isNull();
-			assertThat(rule.getWireMockRule()).isNotNull();
+			assertThat(rule.getServletServerUri()).isNull();
 		}
 	}
 
