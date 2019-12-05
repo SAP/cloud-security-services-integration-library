@@ -51,9 +51,9 @@ public class HelloJavaServletTest {
 
 	@ClassRule
 	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
-        .usePort(8181) // optionally overwrite embedded jwks server port
-        .useServletServer(8282)  // activate additional servlet server and (optionally) overwrite port
-        .addServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT); // add additional servlet to servlet server
+        	.usePort(8181) // optionally overwrite embedded jwks server port
+        	.useServletServer(8282)  // activate additional servlet server and (optionally) overwrite port
+        	.addServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT); // add additional servlet to servlet server
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
