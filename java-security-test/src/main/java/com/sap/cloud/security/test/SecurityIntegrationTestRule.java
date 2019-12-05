@@ -147,7 +147,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		default:
 			throw new UnsupportedOperationException("Service " + service + " is not yet supported.");
 		}
-		
+
 		ServletHolder servletHolder = new ServletHolder(new JwksServlet());
 		jwksServerServletHandler.addServletWithMapping(servletHolder, jwksUrl.getPath());
 	}

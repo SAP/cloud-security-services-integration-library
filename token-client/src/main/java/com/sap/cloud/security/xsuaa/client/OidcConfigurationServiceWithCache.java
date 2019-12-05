@@ -80,10 +80,6 @@ public class OidcConfigurationServiceWithCache {
 	 * @throws OAuth2ServiceException
 	 *             in case the call to the jwks endpoint of the identity service
 	 *             failed.
-	 * @throws InvalidKeySpecException
-	 *             in case the PublicKey generation for the json web key failed.
-	 * @throws NoSuchAlgorithmException
-	 *             in case the algorithm of the json web key is not supported.
 	 */
 	@Nullable
 	public OAuth2ServiceEndpointsProvider getEndpoints(URI discoveryEndpointUri)
