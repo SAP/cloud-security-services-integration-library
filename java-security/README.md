@@ -15,7 +15,7 @@ A Java implementation of JSON Web Token (JWT) - RFC 7519 (see [1]).
   - Is the jwt signed with the public key of the trust-worthy identity service? With that it also makes sure that the payload and the header of the jwt is unchanged ([`JwtSignatureValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/JwtSignatureValidator.java))?
 - Provides thread-local cache ([`SecurityContext`](src/main/java/com/sap/cloud/security/token/SecurityContext.java)) to store the decoded and validated token.
-
+- Provides a servlet security filter ([`OAuth2SecurityFilter`](src/main/java/com/sap/cloud/security/servlet/OAuth2SecurityFilter.java)) that validates bearer tokens contained in the authorization header of HTTP requests. The filter is used in the following [sample](/samples/java-security-usage).
 ## Open Source libs used
 - JSON Parser Reference implementation: [json.org](https://github.com/stleary/JSON-java)
 - No crypto library. Leverages Public Key Infrastructure (PKI) provided by Java Security Framework to verify digital signatures.
