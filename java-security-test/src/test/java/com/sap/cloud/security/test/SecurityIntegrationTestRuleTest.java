@@ -44,7 +44,6 @@ public class SecurityIntegrationTestRuleTest {
 			.useServletServer(SERVLET_SERVER_PORT)
 			.addServlet(new ServletHolder(new TestServlet()), "/hi");
 
-
 	@Test
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys() throws IOException {
 		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");

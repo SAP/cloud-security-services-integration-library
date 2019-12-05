@@ -54,7 +54,9 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	/**
 	 * Creates an instance of the test rule for the given service.
-	 * @param service the service for which the test rule should be created.
+	 * 
+	 * @param service
+	 *            the service for which the test rule should be created.
 	 * @return the test rule instance.
 	 */
 	public static SecurityIntegrationTestRule getInstance(Service service) {
@@ -66,8 +68,8 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
-	 * before the {@link #before()} method. If the port is set to 0, a free
-	 * random port is chosen.
+	 * before the {@link #before()} method. If the port is set to 0, a free random
+	 * port is chosen.
 	 *
 	 * @param port
 	 *            the port on which the application service is started.
@@ -81,10 +83,10 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
-	 *  before the {@link #before()} method. The servlet server will listen on
-	 * 	a free random port. Use {@link #getServletServerUri()} to obtain port.
+	 * before the {@link #before()} method. The servlet server will listen on a free
+	 * random port. Use {@link #getServletServerUri()} to obtain port.
 	 *
-	 *  @return the rule itself.
+	 * @return the rule itself.
 	 */
 	public SecurityIntegrationTestRule useServletServer() {
 		servletServerPort = 0;
@@ -93,10 +95,13 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	/**
-	 * Adds a servlet to the servlet server. Only has an effect when used in conjunction
-	 * with {@link #useServletServer}.
-	 * @param servletClass the servlet class that should be served.
-	 * @param path the path on which the servlet should be served, e.g. "/*".
+	 * Adds a servlet to the servlet server. Only has an effect when used in
+	 * conjunction with {@link #useServletServer}.
+	 * 
+	 * @param servletClass
+	 *            the servlet class that should be served.
+	 * @param path
+	 *            the path on which the servlet should be served, e.g. "/*".
 	 * @return the rule itself.
 	 */
 	public SecurityIntegrationTestRule addServlet(Class<? extends Servlet> servletClass, String path) {
@@ -105,10 +110,13 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	/**
-	 * Adds a servlet to the servlet server. Only has an effect when used in conjunction
-	 * with {@link #useServletServer}.
-	 * @param servletHolder the servlet inside a {@link ServletHolder} that should be served.
-	 * @param path the path on which the servlet should be served, e.g. "/*".
+	 * Adds a servlet to the servlet server. Only has an effect when used in
+	 * conjunction with {@link #useServletServer}.
+	 * 
+	 * @param servletHolder
+	 *            the servlet inside a {@link ServletHolder} that should be served.
+	 * @param path
+	 *            the path on which the servlet should be served, e.g. "/*".
 	 * @return the rule itself.
 	 */
 	public SecurityIntegrationTestRule addServlet(ServletHolder servletHolder, String path) {
@@ -229,7 +237,6 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		}
 	}
 
-
 	private void startServletServer() throws Exception {
 		servletServer = new Server(servletServerPort);
 		ServletHandler servletHandler = createHandlerForServer(servletServer);
@@ -239,7 +246,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		servletServer.start();
 	}
 
-	private ServletHandler createHandlerForServer(Server server)  {
+	private ServletHandler createHandlerForServer(Server server) {
 		ServletHandler jwksServerServletHandler = new ServletHandler();
 		server.setHandler(jwksServerServletHandler);
 		return jwksServerServletHandler;
