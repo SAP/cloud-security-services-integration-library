@@ -86,7 +86,7 @@ public class DefaultJsonObject implements JsonObject {
 	public Map<String, String> getKeyValueMap() {
 		Map<String, String> map = new HashMap<>();
 		Iterator<String> keysItr = getJsonObject().keys();
-		while(keysItr.hasNext()) {
+		while (keysItr.hasNext()) {
 			String key = keysItr.next();
 			Object value = jsonObject.get(key);
 			if (value instanceof String) {

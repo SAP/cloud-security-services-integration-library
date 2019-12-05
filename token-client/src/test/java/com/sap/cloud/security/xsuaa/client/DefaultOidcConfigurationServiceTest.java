@@ -89,14 +89,18 @@ public class DefaultOidcConfigurationServiceTest {
 
 	@Test
 	public void retrieveIssuerEndpoints_executesHttpGetRequestWithCorrectURI() throws IOException {
-		URI discoveryEndpoint1 = DefaultOidcConfigurationService.getDiscoveryEndpointUri(URI.create("https://sub.myauth.com"));
-		URI discoveryEndpoint2 = DefaultOidcConfigurationService.getDiscoveryEndpointUri(URI.create("https://sub.myauth.com/"));
-		URI discoveryEndpoint3 = DefaultOidcConfigurationService.getDiscoveryEndpointUri(URI.create("https://sub.myauth.com/path"));
+		URI discoveryEndpoint1 = DefaultOidcConfigurationService
+				.getDiscoveryEndpointUri(URI.create("https://sub.myauth.com"));
+		URI discoveryEndpoint2 = DefaultOidcConfigurationService
+				.getDiscoveryEndpointUri(URI.create("https://sub.myauth.com/"));
+		URI discoveryEndpoint3 = DefaultOidcConfigurationService
+				.getDiscoveryEndpointUri(URI.create("https://sub.myauth.com/path"));
 
 		assertThat(discoveryEndpoint1.toString()).isEqualTo("https://sub.myauth.com/.well-known/openid-configuration");
 		assertThat(discoveryEndpoint2.toString()).isEqualTo("https://sub.myauth.com/.well-known/openid-configuration");
-		assertThat(discoveryEndpoint3.toString()).isEqualTo("https://sub.myauth.com/path/.well-known/openid-configuration");
-}
+		assertThat(discoveryEndpoint3.toString())
+				.isEqualTo("https://sub.myauth.com/path/.well-known/openid-configuration");
+	}
 
 	@Test
 	public void retrieveEndpoints_containsBothKeys() throws IOException {

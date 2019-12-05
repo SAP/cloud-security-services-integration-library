@@ -19,8 +19,8 @@ import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 /**
- * Decorates {@link OAuth2TokenKeyService} with a cache,
- * which gets looked up before the identity service is requested via http.
+ * Decorates {@link OAuth2TokenKeyService} with a cache, which gets looked up
+ * before the identity service is requested via http.
  */
 public class OAuth2TokenKeyServiceWithCache {
 	private OAuth2TokenKeyService tokenKeyService; // access via getter
@@ -82,7 +82,8 @@ public class OAuth2TokenKeyServiceWithCache {
 	 * @param keyId
 	 *            the Key Id of the Access Token.
 	 * @param keyUri
-	 *            the Token Key Uri (jwks) of the Access Token (can be tenant specific).
+	 *            the Token Key Uri (jwks) of the Access Token (can be tenant
+	 *            specific).
 	 * @return a PublicKey
 	 * @throws OAuth2ServiceException
 	 *             in case the call to the jwks endpoint of the identity service

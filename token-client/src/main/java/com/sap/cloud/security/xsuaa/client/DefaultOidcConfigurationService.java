@@ -22,7 +22,7 @@ import com.sap.cloud.security.xsuaa.util.UriUtil;
 /**
  * https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest
  */
-public class DefaultOidcConfigurationService implements OidcConfigurationService{
+public class DefaultOidcConfigurationService implements OidcConfigurationService {
 
 	static final Logger logger = LoggerFactory.getLogger(DefaultOidcConfigurationService.class);
 	private final CloseableHttpClient httpClient;
@@ -40,7 +40,8 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 		return UriUtil.getUriWithPathAppended(issuerUri, DISCOVERY_ENDPOINT_DEFAULT);
 	}
 
-	@Override public OAuth2ServiceEndpointsProvider retrieveEndpoints(@Nonnull URI discoveryEndpointUri)
+	@Override
+	public OAuth2ServiceEndpointsProvider retrieveEndpoints(@Nonnull URI discoveryEndpointUri)
 			throws OAuth2ServiceException {
 		Assertions.assertNotNull(discoveryEndpointUri, "discoveryEndpointUri must not be null!");
 
@@ -50,16 +51,19 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 			int statusCode = response.getStatusLine().getStatusCode();
 			return handleResponse(bodyAsString, statusCode);
 		} catch (IOException e) {
-			throw new OAuth2ServiceException("Error retrieving configured oidc endpoints from " + discoveryEndpointUri + " : " + e.getMessage());
+			throw new OAuth2ServiceException(
+					"Error retrieving configured oidc endpoints from " + discoveryEndpointUri + " : " + e.getMessage());
 		}
 	}
 
-	private OAuth2ServiceEndpointsProvider handleResponse(String bodyAsString, int statusCode) throws OAuth2ServiceException {
+	private OAuth2ServiceEndpointsProvider handleResponse(String bodyAsString, int statusCode)
+			throws OAuth2ServiceException {
 		if (statusCode == HttpStatus.SC_OK) {
 			return new OidcEndpointsProvider(bodyAsString);
 		} else {
 			throw OAuth2ServiceException
-					.createWithStatusCodeAndResponseBody("Error retrieving configured oidc endpoints", statusCode, bodyAsString);
+					.createWithStatusCodeAndResponseBody("Error retrieving configured oidc endpoints", statusCode,
+							bodyAsString);
 		}
 	}
 
@@ -74,15 +78,18 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 			jsonObject = new JSONObject(jsonString);
 		}
 
-		@Override public URI getTokenEndpoint() {
+		@Override
+		public URI getTokenEndpoint() {
 			return URI.create(jsonObject.getString(TOKEN_ENDPOINT));
 		}
 
-		@Override public URI getAuthorizeEndpoint() {
+		@Override
+		public URI getAuthorizeEndpoint() {
 			return URI.create(jsonObject.getString(AUTHORIZATION_ENDPOINT));
 		}
 
-		@Override public URI getJwksUri() {
+		@Override
+		public URI getJwksUri() {
 			return URI.create(jsonObject.getString(JWKS_ENDPOINT));
 		}
 	}

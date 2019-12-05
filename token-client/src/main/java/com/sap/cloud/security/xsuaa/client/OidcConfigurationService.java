@@ -4,11 +4,9 @@ import javax.annotation.Nonnull;
 
 import java.net.URI;
 
-
 @SuppressWarnings("squid:S1214")
 public interface OidcConfigurationService {
-	String DISCOVERY_ENDPOINT_DEFAULT = "/.well-known/openid-configuration"; //NOSONAR
-
+	String DISCOVERY_ENDPOINT_DEFAULT = "/.well-known/openid-configuration"; // NOSONAR
 
 	/**
 	 * Requests an OpenID Provider Configuration Document from OAuth Server.

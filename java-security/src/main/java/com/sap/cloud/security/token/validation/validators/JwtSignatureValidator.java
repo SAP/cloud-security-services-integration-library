@@ -30,19 +30,17 @@ import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 /**
  * Validates whether the jwt was signed with the public key of the trust-worthy
- * identity service.
- * - asks the token key service for a set of (cached) json web
- * token keys.
- * - creates a PublicKey for the json web key with the respective id
- * and type.
- * - checks whether the jwt is unchanged and signed with a private key
+ * identity service. - asks the token key service for a set of (cached) json web
+ * token keys. - creates a PublicKey for the json web key with the respective id
+ * and type. - checks whether the jwt is unchanged and signed with a private key
  * that matches the PublicKey.
  */
 public class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private final OidcConfigurationService oidcConfigurationService;
 
-	public JwtSignatureValidator(OAuth2TokenKeyServiceWithCache tokenKeyService, OidcConfigurationService oidcConfigurationService) {
+	public JwtSignatureValidator(OAuth2TokenKeyServiceWithCache tokenKeyService,
+			OidcConfigurationService oidcConfigurationService) {
 		assertNotNull(tokenKeyService, "tokenKeyService must not be null.");
 		assertNotNull(tokenKeyService, "oidcConfigurationService must not be null.");
 
@@ -66,13 +64,15 @@ public class JwtSignatureValidator implements Validator<Token> {
 		assertHasText(token, "token must not be null or empty.");
 		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
 
-		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId, URI.create(tokenKeysUrl));
+		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId,
+				URI.create(tokenKeysUrl));
 	}
 
 	private String determineJwksUri(Token token) throws OAuth2ServiceException {
 		String jkuUri = token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME);
 		if (jkuUri == null) {
-			jkuUri = oidcConfigurationService.retrieveEndpoints(URI.create(token.getClaimAsString(TokenClaims.ISSUER))).getJwksUri().toString();
+			jkuUri = oidcConfigurationService.retrieveEndpoints(URI.create(token.getClaimAsString(TokenClaims.ISSUER)))
+					.getJwksUri().toString();
 		}
 		return jkuUri;
 	}
@@ -90,7 +90,8 @@ public class JwtSignatureValidator implements Validator<Token> {
 			return new Validation();
 		}
 
-		public ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token, String tokenAlgorithm,
+		public ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
+				String tokenAlgorithm,
 				@Nullable String tokenKeyId, URI tokenKeysUrl) {
 			ValidationResult validationResult;
 

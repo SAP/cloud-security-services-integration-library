@@ -19,7 +19,8 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
 		this.restOperations = restOperations;
 	}
 
-	@Override public OAuth2ServiceEndpointsProvider retrieveEndpoints(@Nonnull URI discoveryEndpointUri)
+	@Override
+	public OAuth2ServiceEndpointsProvider retrieveEndpoints(@Nonnull URI discoveryEndpointUri)
 			throws OAuth2ServiceException {
 		Assertions.assertNotNull(discoveryEndpointUri, "discoveryEndpointUri must not be null!");
 		try {
@@ -27,11 +28,13 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
 				return new DefaultOidcConfigurationService.OidcEndpointsProvider(response.getBody());
 			} else {
-				throw OAuth2ServiceException.createWithStatusCodeAndResponseBody("Error retrieving configured oidc endpoints",
+				throw OAuth2ServiceException.createWithStatusCodeAndResponseBody(
+						"Error retrieving configured oidc endpoints",
 						response.getStatusCodeValue(), response.getBody());
 			}
 		} catch (HttpClientErrorException ex) {
-			throw OAuth2ServiceException.createWithStatusCodeAndResponseBody("Error retrieving configured oidc endpoints",
+			throw OAuth2ServiceException.createWithStatusCodeAndResponseBody(
+					"Error retrieving configured oidc endpoints",
 					ex.getStatusCode().value(), ex.getResponseBodyAsString());
 		}
 	}

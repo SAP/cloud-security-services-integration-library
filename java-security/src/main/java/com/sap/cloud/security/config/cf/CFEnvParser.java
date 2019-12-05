@@ -46,7 +46,7 @@ class CFEnvParser {
 				.collect(Collectors.toList());
 	}
 
-	public static CFOAuth2ServiceConfiguration extract(Service service,JsonObject serviceJsonObject) {
+	public static CFOAuth2ServiceConfiguration extract(Service service, JsonObject serviceJsonObject) {
 		Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
 		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
 

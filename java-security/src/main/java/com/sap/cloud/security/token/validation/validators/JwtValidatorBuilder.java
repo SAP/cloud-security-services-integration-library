@@ -89,7 +89,8 @@ public class JwtValidatorBuilder {
 						otherConfiguration.getClientId());
 			}
 			defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getDomain()));
-			defaultValidators.add(new JwtSignatureValidator(getTokenKeyServiceWithCache(), getOidcConfigurationServiceWithCache()));
+			defaultValidators.add(
+					new JwtSignatureValidator(getTokenKeyServiceWithCache(), getOidcConfigurationServiceWithCache()));
 			defaultValidators.add(getAudienceValidator(configuration));
 		}
 		return defaultValidators;

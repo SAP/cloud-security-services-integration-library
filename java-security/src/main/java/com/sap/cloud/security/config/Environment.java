@@ -4,7 +4,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Central entry point to access the OAuth configuration of a supported identity {@link Service}.
+ * Central entry point to access the OAuth configuration of a supported identity
+ * {@link Service}.
  */
 public interface Environment {
 
@@ -20,6 +21,7 @@ public interface Environment {
 
 	/**
 	 * Return OAuth service configuration of Xsuaa identity service instance.
+	 * 
 	 * @return the OAuth service configuration or null, in case there is no instance
 	 */
 	@Nullable
@@ -27,6 +29,7 @@ public interface Environment {
 
 	/**
 	 * Return OAuth service configuration of Ias identity service instance.
+	 * 
 	 * @return the OAuth service configuration or null, in case there is no instance
 	 */
 	@Nullable
@@ -34,15 +37,18 @@ public interface Environment {
 
 	/**
 	 * Returns number of Xsuaa identity service instances.
-	 * @deprecated as multiple bindings of Xsuaa identity service is not anymore necessary
-	 *             with the unified broker plan, this method is deprecated.
+	 * 
+	 * @deprecated as multiple bindings of Xsuaa identity service is not anymore
+	 *             necessary with the unified broker plan, this method is
+	 *             deprecated.
 	 */
 	@Deprecated
 	int getNumberOfXsuaaConfigurations();
 
 	/**
-	 * In case there is only one Xsuaa identity service instance, this one gets returned.
-	 * In case there are multiple bindings the one of plan "broker" gets returned.
+	 * In case there is only one Xsuaa identity service instance, this one gets
+	 * returned. In case there are multiple bindings the one of plan "broker" gets
+	 * returned.
 	 *
 	 * @return the service configuration to be used for token exchange
 	 *         {@link com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows}

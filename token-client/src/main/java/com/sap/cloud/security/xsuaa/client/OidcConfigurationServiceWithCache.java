@@ -13,15 +13,14 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 /**
- * Decorates {@link OidcConfigurationService} with a cache,
- * which gets looked up before the identity service is requested via http.
+ * Decorates {@link OidcConfigurationService} with a cache, which gets looked up
+ * before the identity service is requested via http.
  */
 public class OidcConfigurationServiceWithCache implements OidcConfigurationService {
 	private OidcConfigurationService oidcConfigurationService; // access via getter
 	private Cache<String, OAuth2ServiceEndpointsProvider> cache;
 	private long cacheValidityInSeconds = 6000;
 	private long cacheSize = 100;
-
 
 	private OidcConfigurationServiceWithCache() {
 		// use getInstance factory method
@@ -38,10 +37,12 @@ public class OidcConfigurationServiceWithCache implements OidcConfigurationServi
 	 * Overwrites the service to be used to request the oidc configuration.
 	 *
 	 * @param oidcConfigurationService
-	 * 	 *            the OidcConfigurationService that will be used to request the oidc configuration.
+	 *            * the OidcConfigurationService that will be used to request the
+	 *            oidc configuration.
 	 * @return this
 	 */
-	public OidcConfigurationServiceWithCache withOidcConfigurationService(OidcConfigurationService oidcConfigurationService) {
+	public OidcConfigurationServiceWithCache withOidcConfigurationService(
+			OidcConfigurationService oidcConfigurationService) {
 		this.oidcConfigurationService = oidcConfigurationService;
 		return this;
 	}

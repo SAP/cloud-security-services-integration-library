@@ -41,7 +41,8 @@ public class JwtValidatorBuilderTest {
 
 	@Test
 	public void build_withConfiguration_containsAllDefaultValidators() throws URISyntaxException {
-		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(createMockConfiguration()).build().getValidators();
+		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(createMockConfiguration()).build()
+				.getValidators();
 
 		assertThat(validators)
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)

@@ -55,7 +55,8 @@ public class JwtSignatureValidatorTest {
 
 		cut = new JwtSignatureValidator(
 				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
-				OidcConfigurationServiceWithCache.getInstance().withOidcConfigurationService(oidcConfigurationServiceMock));
+				OidcConfigurationServiceWithCache.getInstance()
+						.withOidcConfigurationService(oidcConfigurationServiceMock));
 	}
 
 	@Test
@@ -96,7 +97,8 @@ public class JwtSignatureValidatorTest {
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
 
-		ValidationResult result = cut.validate(tokenWithOthersSignature, "RS256", "key-id-1", "https://myauth.com/jwks_uri");
+		ValidationResult result = cut.validate(tokenWithOthersSignature, "RS256", "key-id-1",
+				"https://myauth.com/jwks_uri");
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString("Jwt token does not consist of 'header'.'payload'.'signature'."));
@@ -104,7 +106,8 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNotRSA256() {
-		ValidationResult validationResult = cut.validate(xsuaaToken.getAccessToken(), "ES123", "key-id-1", "https://myauth.com/jwks_uri");
+		ValidationResult validationResult = cut.validate(xsuaaToken.getAccessToken(), "ES123", "key-id-1",
+				"https://myauth.com/jwks_uri");
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Jwt token with signature algorithm 'ES123' can not be verified."));
@@ -112,7 +115,8 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNull() {
-		ValidationResult validationResult = cut.validate(xsuaaToken.getAccessToken(), "", "key-id-1", "https://myauth.com/jwks_uri");
+		ValidationResult validationResult = cut.validate(xsuaaToken.getAccessToken(), "", "key-id-1",
+				"https://myauth.com/jwks_uri");
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Jwt token with signature algorithm '' can not be verified."));
@@ -150,13 +154,16 @@ public class JwtSignatureValidatorTest {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
 				IOUtils.resourceToString("/iasJsonWebTokenKeys.json", StandardCharsets.UTF_8)));
 		cut.validate(iasToken);
-		when(oidcConfigurationServiceMock.retrieveEndpoints(any())).thenThrow(new OAuth2ServiceException("Currently unavailable"));
+		when(oidcConfigurationServiceMock.retrieveEndpoints(any()))
+				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
 		assertThat(cut.validate(iasToken).isValid(), is(true));
 	}
 
 	@Test
-	public void validationFails_whenOidcConfigurationCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
-		when(oidcConfigurationServiceMock.retrieveEndpoints(any())).thenThrow(new OAuth2ServiceException("Currently unavailable"));
+	public void validationFails_whenOidcConfigurationCanNotBeRetrievedFromIdentityProvider()
+			throws OAuth2ServiceException {
+		when(oidcConfigurationServiceMock.retrieveEndpoints(any()))
+				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
 		ValidationResult validationResult = cut.validate(iasToken);
 		assertThat(validationResult.isValid(), is(false));
 		assertThat(validationResult.getErrorDescription(),
