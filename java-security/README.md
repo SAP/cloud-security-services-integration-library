@@ -53,10 +53,10 @@ A Java implementation of JSON Web Token (JWT) - RFC 7519 (see [1]).
 
 ## Usage
 
-### Setup: Load the Xsuaa Service Configurations and setup Validator
+### Setup: Load the Xsuaa Service Configurations and Setup Validator
 ```java
-OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaServiceConfiguration();
-CombiningValidator<Token> validators = TokenValidatorBuilder.createFor(serviceConfig).build();
+OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaConfiguration();
+CombiningValidator<Token> validators = JwtValidatorBuilder.getInstance(serviceConfig).build();
 ```
 By default it auto-detects the environment: Cloud Foundry or Kubernetes.
 
@@ -78,7 +78,8 @@ if(result.isErroneous()) {
 }
 ```
 
-By default the `TokenValidatorBuilder` builds a `CombiningValidator` using the `DefaultOAuth2TokenKeyService` as `OAuth2TokenKeyService`, that uses an Apache Rest client to fetch the Json Web Token Keys. This can be customized via the `TokenValidatorBuilder` builder.
+By default the `JwtValidatorBuilder` builds a `CombiningValidator`. For the Sinature validation it needs to fetch the Json Web Token Keys (jwks), for that it uses the `DefaultOAuth2TokenKeyService`. In case the token does not provide a `jku` header parameter it also requests the OpenID Provider Configuration from the OAuth Server to determine the `jwks_uri` using `DefaultOidcConfigurationService`. Both default services uses an default Apache Rest client and can be customized via the `JwtValidatorBuilder` builder.
+
 
 ### Cache validated Access Token (thread-locally)
 ```java
