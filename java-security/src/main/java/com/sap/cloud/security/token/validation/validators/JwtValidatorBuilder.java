@@ -18,28 +18,22 @@ import static com.sap.cloud.security.config.Service.XSUAA;
  * Class used to build a token validator. Custom validators can be added via
  * {@link #with(Validator)} method.
  */
-public class TokenValidatorBuilder {
+public class JwtValidatorBuilder {
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
-	private final OAuth2ServiceConfiguration configuration;
-	private OAuth2TokenKeyService tokenKeyService;
+	private OAuth2ServiceConfiguration configuration;
+	private OidcConfigurationService oidcConfigurationService = null;
+	private OAuth2TokenKeyService tokenKeyService = null;
 	private OAuth2ServiceConfiguration otherConfiguration;
 	private Validator<Token> audienceValidator;
 
-	private TokenValidatorBuilder(OAuth2ServiceConfiguration configuration) {
-		this.configuration = configuration;
+	private JwtValidatorBuilder() {
+		// use getInstance factory method
 	}
 
-	/**
-	 * Creates a {@link TokenValidatorBuilder} object.
-	 *
-	 * @return the builder.
-	 */
-	public static TokenValidatorBuilder create() {
-		return new TokenValidatorBuilder(null);
-	}
-
-	public static TokenValidatorBuilder createFor(OAuth2ServiceConfiguration configuration) {
-		return new TokenValidatorBuilder(configuration);
+	public static JwtValidatorBuilder getInstance(OAuth2ServiceConfiguration configuration) {
+		JwtValidatorBuilder tokenBuilder = new JwtValidatorBuilder();
+		tokenBuilder.configuration = configuration;
+		return tokenBuilder;
 	}
 
 	/**
@@ -49,22 +43,27 @@ public class TokenValidatorBuilder {
 	 *            the validator used for validation.
 	 * @return this builder.
 	 */
-	public TokenValidatorBuilder with(Validator<Token> validator) {
+	public JwtValidatorBuilder with(Validator<Token> validator) {
 		validators.add(validator);
 		return this;
 	}
 
-	public TokenValidatorBuilder withAudienceValidator(Validator<Token> audienceValidator) {
+	public JwtValidatorBuilder withAudienceValidator(Validator<Token> audienceValidator) {
 		this.audienceValidator = audienceValidator;
 		return this;
 	}
 
-	public TokenValidatorBuilder withOAuth2TokenKeyService(OAuth2TokenKeyService tokenKeyService) {
+	public JwtValidatorBuilder withOAuth2TokenKeyService(OAuth2TokenKeyService tokenKeyService) {
 		this.tokenKeyService = tokenKeyService;
 		return this;
 	}
 
-	public TokenValidatorBuilder configureAnotherServiceInstance(
+	public JwtValidatorBuilder withOidcConfigurationService(OidcConfigurationService oidcConfigurationService) {
+		this.oidcConfigurationService = oidcConfigurationService;
+		return this;
+	}
+
+	public JwtValidatorBuilder configureAnotherServiceInstance(
 			@Nullable OAuth2ServiceConfiguration otherConfiguration) {
 		this.otherConfiguration = otherConfiguration;
 		return this;
@@ -79,20 +78,10 @@ public class TokenValidatorBuilder {
 		return new CombiningValidator<>(allValidators);
 	}
 
-	private OAuth2TokenKeyService getTokenKeyService() {
-		if (tokenKeyService == null) {
-			tokenKeyService = new DefaultOAuth2TokenKeyService();
-		}
-		return tokenKeyService;
-	}
-
 	private List<Validator<Token>> createDefaultValidators() {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
 		if (configuration != null && configuration.getService().equals(XSUAA)) {
-			OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(configuration.getUrl());
-			TokenKeyServiceWithCache tokenKeyServiceWithCache = new TokenKeyServiceWithCache(getTokenKeyService(),
-					endpointsProvider);
 			XsuaaJwtAudienceValidator audienceValidator = new XsuaaJwtAudienceValidator(
 					configuration.getProperty(APP_ID), configuration.getClientId());
 			if (otherConfiguration != null) {
@@ -100,10 +89,20 @@ public class TokenValidatorBuilder {
 						otherConfiguration.getClientId());
 			}
 			defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getDomain()));
-			defaultValidators.add(new JwtSignatureValidator(tokenKeyServiceWithCache));
+			defaultValidators.add(new JwtSignatureValidator(getTokenKeyServiceWithCache(), getOidcConfigurationServiceWithCache()));
 			defaultValidators.add(getAudienceValidator(configuration));
 		}
 		return defaultValidators;
+	}
+
+	private OAuth2TokenKeyServiceWithCache getTokenKeyServiceWithCache() {
+		return OAuth2TokenKeyServiceWithCache.getInstance()
+				.withTokenKeyService(tokenKeyService);
+	}
+
+	private OidcConfigurationServiceWithCache getOidcConfigurationServiceWithCache() {
+		return OidcConfigurationServiceWithCache.getInstance()
+				.withOidcConfigurationService(oidcConfigurationService);
 	}
 
 	private Validator<Token> getAudienceValidator(OAuth2ServiceConfiguration configuration) {

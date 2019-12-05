@@ -10,6 +10,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,17 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
 
+/**
+ * https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest
+ */
 public class DefaultOidcConfigurationService implements OidcConfigurationService{
 
 	static final Logger logger = LoggerFactory.getLogger(DefaultOidcConfigurationService.class);
 	private final CloseableHttpClient httpClient;
 
+	public DefaultOidcConfigurationService() {
+		this.httpClient = HttpClients.createDefault();
+	}
 
 	public DefaultOidcConfigurationService(CloseableHttpClient httpClient) {
 		Assertions.assertNotNull(httpClient, "httpClient is required");
@@ -36,6 +43,7 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 	@Override public OAuth2ServiceEndpointsProvider retrieveEndpoints(@Nonnull URI discoveryEndpointUri)
 			throws OAuth2ServiceException {
 		Assertions.assertNotNull(discoveryEndpointUri, "discoveryEndpointUri must not be null!");
+
 		HttpUriRequest request = new HttpGet(discoveryEndpointUri);
 		try (CloseableHttpResponse response = httpClient.execute(request)) {
 			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);

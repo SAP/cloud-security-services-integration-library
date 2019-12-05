@@ -16,8 +16,7 @@ public class EnvironmentsTest {
 
 	@Test
 	public void getCurrent_returnsCorrectEnvironment() {
-		// TODO 29.11.19 c5295400: extend test when more than one environment is
-		// supported
+		// TODO 29.11.19 c5295400: extend test when more than one environment is supported
 		assertThat(Environments.getCurrent().getType()).isEqualTo(Environment.Type.CF);
 	}
 }

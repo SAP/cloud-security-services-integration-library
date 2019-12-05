@@ -7,7 +7,7 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.validators.CombiningValidator;
-import com.sap.cloud.security.token.validation.validators.TokenValidatorBuilder;
+import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
@@ -36,7 +36,7 @@ public class IntegrationTest {
 		when(configuration.getProperty(CFConstants.XSUAA.APP_ID)).thenReturn("test-app!t123");
 		when(configuration.getService()).thenReturn(Service.XSUAA);
 
-		CombiningValidator<Token> tokenValidator = TokenValidatorBuilder.createFor(configuration).build();
+		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 
 		Token xsuaaToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8));
@@ -52,13 +52,13 @@ public class IntegrationTest {
 		System.setProperty("VCAP_SERVICES",
 				IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", StandardCharsets.UTF_8));
 
-		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaServiceConfiguration();
+		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaConfiguration();
 
 		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
 				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
 
-		CombiningValidator<Token> combiningValidator = TokenValidatorBuilder.createFor(configuration)
+		CombiningValidator<Token> combiningValidator = JwtValidatorBuilder.getInstance(configuration)
 				.withOAuth2TokenKeyService(tokenKeyService)
 				.build();
 

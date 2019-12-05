@@ -1,5 +1,7 @@
 package com.sap.cloud.security.token.validation;
 
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+
 /**
  * Generic validator interface over type {@link T}.
  * 

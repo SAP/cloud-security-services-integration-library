@@ -10,7 +10,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.util.UriUtil;
 
 public class SpringOidcConfigurationService implements OidcConfigurationService {
 	private final RestOperations restOperations;

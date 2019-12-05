@@ -3,13 +3,17 @@ package com.sap.cloud.security.config;
 public enum Service {
 	XSUAA("xsuaa"), IAS("iasb");
 
-	private final String cfName;
+	private final String cloudFoundryName;
 
-	Service(String cfName) {
-		this.cfName = cfName;
+	Service(String cloudFoundryName) {
+		this.cloudFoundryName = cloudFoundryName;
 	}
 
+	/**
+	 * Returns the name of the identity service as it appears on Cloud Foundry marketplace.
+	 * @return name of the identity service in context of Cloud Foundry environment.
+	 */
 	public String getCFName() {
-		return cfName;
+		return cloudFoundryName;
 	}
 }

@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 import javax.annotation.Nullable;
@@ -17,41 +18,23 @@ import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
-public class TokenKeyServiceWithCache {
-	private final OAuth2TokenKeyService tokenKeyService;
-	private final OAuth2ServiceEndpointsProvider endpointsProvider;
-	private Cache<String, PublicKey> cache;
+/**
+ * Decorates {@link OAuth2TokenKeyService} with a cache,
+ * which gets looked up before the identity service is requested via http.
+ */
+public class OAuth2TokenKeyServiceWithCache {
+	private OAuth2TokenKeyService tokenKeyService; // access via getter
+	private Cache<String, PublicKey> cache; // access via getter
 	private long cacheValidityInSeconds = 900;
 	private long cacheSize = 100;
 
-	/**
-	 * Create a new instance of this bean with the given RestTemplate. Applications
-	 * should {@code @Autowire} instances of this bean.
-	 *
-	 * @param tokenKeyService
-	 *            the OAuth2TokenKeyService that will be used to request token keys.
-	 *
-	 *            <pre>
-	 * {@code
-	 * }
-	 *            </pre>
-	 */
-	public TokenKeyServiceWithCache(OAuth2TokenKeyService tokenKeyService,
-			OAuth2ServiceEndpointsProvider endpointsProvider) {
-		assertNotNull(tokenKeyService, "tokenKeyService must not be null.");
-		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null");
-
-		this.tokenKeyService = tokenKeyService;
-		this.endpointsProvider = endpointsProvider;
+	private OAuth2TokenKeyServiceWithCache() {
+		// use getInstance factory method
 	}
 
-	private Cache<String, PublicKey> getCache() {
-		if (cache == null) {
-			cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
-					.maximumSize(cacheSize)
-					.build();
-		}
-		return cache;
+	public static OAuth2TokenKeyServiceWithCache getInstance() {
+		OAuth2TokenKeyServiceWithCache instance = new OAuth2TokenKeyServiceWithCache();
+		return instance;
 	}
 
 	/**
@@ -61,21 +44,32 @@ public class TokenKeyServiceWithCache {
 	 *            time to cache the signing keys
 	 * @return this
 	 */
-	public TokenKeyServiceWithCache withCacheTime(int timeInSeconds) {
+	public OAuth2TokenKeyServiceWithCache withCacheTime(int timeInSeconds) {
 		this.cacheValidityInSeconds = timeInSeconds;
 		return this;
 	}
 
 	/**
-	 *
 	 * Caches the Json web keys. Overwrite the size of the cache (default: 100).
 	 *
 	 * @param size
 	 *            number of cached json web keys.
 	 * @return this
 	 */
-	public TokenKeyServiceWithCache withCacheSize(int size) {
+	public OAuth2TokenKeyServiceWithCache withCacheSize(int size) {
 		this.cacheSize = size;
+		return this;
+	}
+
+	/**
+	 * Overwrites the service to be used to request the Json web keys.
+	 *
+	 * @param tokenKeyService
+	 *            the service to request the json web key set.
+	 * @return this
+	 */
+	public OAuth2TokenKeyServiceWithCache withTokenKeyService(OAuth2TokenKeyService tokenKeyService) {
+		this.tokenKeyService = tokenKeyService;
 		return this;
 	}
 
@@ -87,8 +81,8 @@ public class TokenKeyServiceWithCache {
 	 *            the Key Algorithm of the Access Token.
 	 * @param keyId
 	 *            the Key Id of the Access Token.
-	 * @param keyUrl
-	 *            the jwks key url of the Access Token (can be tenant specific).
+	 * @param keyUri
+	 *            the Token Key Uri (jwks) of the Access Token (can be tenant specific).
 	 * @return a PublicKey
 	 * @throws OAuth2ServiceException
 	 *             in case the call to the jwks endpoint of the identity service
@@ -97,31 +91,46 @@ public class TokenKeyServiceWithCache {
 	 *             in case the PublicKey generation for the json web key failed.
 	 * @throws NoSuchAlgorithmException
 	 *             in case the algorithm of the json web key is not supported.
+	 *
 	 */
 	@Nullable
-	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, @Nullable String keyUrl)
+	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+		assertNotNull(keyAlgorithm, "keyAlgorithm must not be null.");
+		assertHasText(keyId, "keyId must not be null.");
+		assertNotNull(keyUri, "keyUrl must not be null.");
 
-		URI jwksUri = keyUrl != null ? URI.create(keyUrl) : getDefaultJwksUri();
-		String cacheKey = getUniqueCacheKey(keyAlgorithm, keyId, jwksUri);
+		String cacheKey = getUniqueCacheKey(keyAlgorithm, keyId, keyUri);
 
 		PublicKey publicKey = getCache().getIfPresent(cacheKey);
 		if (publicKey == null) {
-			retrieveTokenKeysAndFillCache(jwksUri);
+			retrieveTokenKeysAndFillCache(keyUri);
 		}
 		return getCache().getIfPresent(cacheKey);
 	}
 
 	private void retrieveTokenKeysAndFillCache(URI jwksUri)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		Set<JsonWebKey> jwks = tokenKeyService.retrieveTokenKeys(jwksUri).getAll();
+		Set<JsonWebKey> jwks = getTokenKeyService().retrieveTokenKeys(jwksUri).getAll();
 		for (JsonWebKey jwk : jwks) {
 			getCache().put(getUniqueCacheKey(jwk.getKeyAlgorithm(), jwk.getId(), jwksUri), jwk.getPublicKey());
 		}
 	}
 
-	public URI getDefaultJwksUri() {
-		return endpointsProvider.getJwksUri();
+	private Cache<String, PublicKey> getCache() {
+		if (cache == null) {
+			cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
+					.maximumSize(cacheSize)
+					.build();
+		}
+		return cache;
+	}
+
+	private OAuth2TokenKeyService getTokenKeyService() {
+		if (tokenKeyService == null) {
+			this.tokenKeyService = new DefaultOAuth2TokenKeyService();
+		}
+		return tokenKeyService;
 	}
 
 	public void clearCache() {

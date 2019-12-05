@@ -32,7 +32,7 @@ public class HelloJavaServletIntegrationTest {
 	public static void prepareTest() throws Exception {
 		oldProperties = System.getProperties();
 		System.setProperty(VCAP_SERVICES, IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-		rule.setClientId(Environments.getCurrent().getXsuaaServiceConfiguration().getClientId());
+		rule.setClientId(Environments.getCurrent().getXsuaaConfiguration().getClientId());
 	}
 
 	@AfterClass
@@ -97,7 +97,7 @@ public class HelloJavaServletIntegrationTest {
 	}
 
 	private String getGlobalScope(String scope) {
-		String appId = Environments.getCurrent().getXsuaaServiceConfiguration().getProperty(CFConstants.XSUAA.APP_ID);
+		String appId = Environments.getCurrent().getXsuaaConfiguration().getProperty(CFConstants.XSUAA.APP_ID);
 		return appId + '.' + scope;
 	}
 }

@@ -12,37 +12,38 @@ import java.util.concurrent.TimeUnit;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
-public class OidcConfigurationServiceWithCache {
-	private final OidcConfigurationService oidcConfigurationService;
+/**
+ * Decorates {@link OidcConfigurationService} with a cache,
+ * which gets looked up before the identity service is requested via http.
+ */
+public class OidcConfigurationServiceWithCache implements OidcConfigurationService {
+	private OidcConfigurationService oidcConfigurationService; // access via getter
 	private Cache<String, OAuth2ServiceEndpointsProvider> cache;
 	private long cacheValidityInSeconds = 6000;
 	private long cacheSize = 100;
 
-	/**
-	 * Create a new instance of this bean with the given RestTemplate. Applications
-	 * should {@code @Autowire} instances of this bean.
-	 *
-	 * @param configService
-	 *            the OAuth2TokenKeyService that will be used to request token keys.
-	 *
-	 *            <pre>
-	 * {@code
-	 * }
-	 *            </pre>
-	 */
-	public OidcConfigurationServiceWithCache(OidcConfigurationService configService) {
-		assertNotNull(configService, "configService must not be null.");
 
-		this.oidcConfigurationService = configService;
+	private OidcConfigurationServiceWithCache() {
+		// use getInstance factory method
 	}
 
-	private Cache<String, OAuth2ServiceEndpointsProvider> getCache() {
-		if (cache == null) {
-			cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
-					.maximumSize(cacheSize)
-					.build();
-		}
-		return cache;
+	/**
+	 * Creates a new instance.
+	 */
+	public static OidcConfigurationServiceWithCache getInstance() {
+		return new OidcConfigurationServiceWithCache();
+	}
+
+	/**
+	 * Overwrites the service to be used to request the oidc configuration.
+	 *
+	 * @param oidcConfigurationService
+	 * 	 *            the OidcConfigurationService that will be used to request the oidc configuration.
+	 * @return this
+	 */
+	public OidcConfigurationServiceWithCache withOidcConfigurationService(OidcConfigurationService oidcConfigurationService) {
+		this.oidcConfigurationService = oidcConfigurationService;
+		return this;
 	}
 
 	/**
@@ -82,17 +83,32 @@ public class OidcConfigurationServiceWithCache {
 	 *             failed.
 	 */
 	@Nullable
-	public OAuth2ServiceEndpointsProvider getEndpoints(URI discoveryEndpointUri)
+	public OAuth2ServiceEndpointsProvider retrieveEndpoints(URI discoveryEndpointUri)
 			throws OAuth2ServiceException {
-
 		assertNotNull(discoveryEndpointUri, "discoveryEndpointUri must not be null.");
 		String cacheKey = discoveryEndpointUri.toString();
 		OAuth2ServiceEndpointsProvider endpointsProvider = getCache().getIfPresent(cacheKey);
 		if (endpointsProvider == null) {
-			endpointsProvider = oidcConfigurationService.retrieveEndpoints(discoveryEndpointUri);
+			endpointsProvider = getOidcConfigurationService().retrieveEndpoints(discoveryEndpointUri);
 			getCache().put(cacheKey, endpointsProvider);
 		}
 		return getCache().getIfPresent(cacheKey);
+	}
+
+	private Cache<String, OAuth2ServiceEndpointsProvider> getCache() {
+		if (cache == null) {
+			cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
+					.maximumSize(cacheSize)
+					.build();
+		}
+		return cache;
+	}
+
+	private OidcConfigurationService getOidcConfigurationService() {
+		if (oidcConfigurationService == null) {
+			this.oidcConfigurationService = new DefaultOidcConfigurationService();
+		}
+		return oidcConfigurationService;
 	}
 
 	public void clearCache() {

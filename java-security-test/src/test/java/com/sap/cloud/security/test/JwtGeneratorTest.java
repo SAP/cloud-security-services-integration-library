@@ -8,9 +8,11 @@ import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.CombiningValidator;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
-import com.sap.cloud.security.token.validation.validators.TokenValidatorBuilder;
+import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.client.TokenKeyServiceWithCache;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
+import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import org.apache.commons.io.IOUtils;
@@ -21,6 +23,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -123,20 +126,7 @@ public class JwtGeneratorTest {
 		cut = JwtGenerator.getInstance(IAS).withPrivateKey(keys.getPrivate());
 		assertThatThrownBy(() -> cut.withScopes("firstScope").createToken())
 				.isInstanceOf(UnsupportedOperationException.class)
-				.hasMessageContainingAll("Scopes", "IAS");
-	}
-
-	@Test
-	public void withAlgorithm_createsTokenWithSignature_isValid() throws Exception {
-		RSAKeys keys = RSAKeys.generate();
-
-		Token token = cut.withPrivateKey(keys.getPrivate()).createToken();
-
-		TokenKeyServiceWithCache tokenKeyServiceMock = Mockito.mock(TokenKeyServiceWithCache.class);
-		when(tokenKeyServiceMock.getPublicKey(any(), any(), any())).thenReturn(keys.getPublic());
-
-		JwtSignatureValidator validator = new JwtSignatureValidator(tokenKeyServiceMock);
-		assertThat(validator.validate(token).isValid()).isTrue();
+				.hasMessage("Scopes are not supported for service IAS");
 	}
 
 	@Test
@@ -203,13 +193,13 @@ public class JwtGeneratorTest {
 	public void createToken_tokenIsValid() throws IOException {
 		System.setProperty("VCAP_SERVICES", IOUtils
 				.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaServiceConfiguration();
+		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaConfiguration();
 
 		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
 				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
 
-		CombiningValidator<Token> tokenValidator = TokenValidatorBuilder.createFor(configuration)
+		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
 				.withOAuth2TokenKeyService(tokenKeyService)
 				.build();
 
@@ -220,6 +210,27 @@ public class JwtGeneratorTest {
 
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isTrue();
+	}
+
+	@Test
+	public void createToken_discoverOidcJwksEndpoint_tokenIsValid() throws Exception {
+		RSAKeys keys = RSAKeys.generate();
+
+		Token token = cut
+				.withClaimValue(TokenClaims.ISSUER, "http://auth.com")
+				.withPrivateKey(keys.getPrivate()).createToken();
+
+		OAuth2TokenKeyServiceWithCache tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyServiceWithCache.class);
+		when(tokenKeyServiceMock.getPublicKey(any(), any(), any())).thenReturn(keys.getPublic());
+
+		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
+		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("http://auth.com/token_keys"));
+
+		OidcConfigurationService oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
+		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);
+
+		JwtSignatureValidator validator = new JwtSignatureValidator(tokenKeyServiceMock, oidcConfigServiceMock);
+		assertThat(validator.validate(token).isValid()).isTrue();
 	}
 
 }
