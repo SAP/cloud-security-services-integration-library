@@ -42,8 +42,7 @@ In case you want to test your secured web application as part of your JUnit test
 
 The `SecurityIntegrationTestRule` stubs outgoing calls to the identity service. Furthermore it pre-configures the `JwtGenerator`, so that the token is signed with a private key which matches the public key provided by the jwks endpoint. Furthermore you can specify the `clientId` for token generation, that it can be validated by the predefined set of Jwt validators.
 
-Optionally, you can configure the `SecurityIntegrationTestRule` to start an embedded Jetty servlet container which then needs to be configured with the Security Filter, that is in place to check whether a request is done by an authenticated / authorized party ([example `web.xml`](/samples/java-security-usage/src/test/webapp/WEB-INF/web.xml)).
- 
+Optionally, you can configure the `SecurityIntegrationTestRule` to start an embedded Jetty servlet container that comes equipped with a token [security filter](/java-security/src/main/java/com/sap/cloud/security/servlet/OAuth2SecurityFilter.java). The filter checks whether a request is done by an authenticated / authorized party. You can also add your own servlets to the container. Only requests that contain a valid authorization header will be passed through to the servlet. See the following test code that triggers HTTP request against the servlet container. One does not contain the token inside the authorization header and is expected to result in HTTP 401 (Unauthorized). The other does contain a valid token and is expected to go through.
 
 ```java
 public class HelloJavaServletTest {
@@ -69,16 +68,8 @@ public class HelloJavaServletTest {
 	}
 
 	@Test
-	public void requestWithoutAuthorizationHeader_statusUnauthenticated() throws IOException {
+	public void requestWithoutAuthorizationHeader_statusUnauthorized() throws IOException {
 		HttpGet request = createGetRequest(null);
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
-		}
-	}
-
-	@Test
-	public void requestWithEmptyAuthorizationHeader_statusUnauthenticated() throws Exception {
-		HttpGet request = createGetRequest("");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 		}

@@ -41,7 +41,7 @@ public class HelloJavaServletIntegrationTest {
 	}
 
 	@Test
-	public void requestWithoutAuthorizationHeader_statusUnauthenticated() throws IOException {
+	public void requestWithoutAuthorizationHeader_statusUnauthorized() throws IOException {
 		HttpGet request = createGetRequest(null);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
@@ -49,7 +49,7 @@ public class HelloJavaServletIntegrationTest {
 	}
 
 	@Test
-	public void requestWithEmptyAuthorizationHeader_statusUnauthenticated() throws Exception {
+	public void requestWithEmptyAuthorizationHeader_statusUnauthorized() throws Exception {
 		HttpGet request = createGetRequest("");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
