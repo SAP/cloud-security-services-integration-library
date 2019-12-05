@@ -12,6 +12,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +41,8 @@ public class SecurityIntegrationTestRuleTest {
 			.setPort(PORT)
 			.setKeys(RSA_KEYS)
 			.useServletServer(SERVLET_SERVER_PORT)
-			.addServlet(TestServlet.class, "/hello");
+			.addServlet(new ServletHolder(new TestServlet()), "/hi");
+
 
 	@Test
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys() throws IOException {
@@ -93,14 +95,13 @@ public class SecurityIntegrationTestRuleTest {
 				.collect(Collectors.joining());
 	}
 
-	public static class TestServlet extends HttpServlet {
+	private static class TestServlet extends HttpServlet {
 		@Override
-		protected void doGet(HttpServletRequest request,
-				HttpServletResponse response) throws IOException {
+		protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.setContentType("text/plain");
 			response.setCharacterEncoding(UTF_8);
-			response.getWriter().print("TestServlet says hi!");
+			response.getWriter().print("Hi!");
 		}
 	}
 

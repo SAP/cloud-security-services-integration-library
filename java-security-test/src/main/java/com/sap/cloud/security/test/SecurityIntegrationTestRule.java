@@ -43,7 +43,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	private boolean useServletServer;
 	private int servletServerPort = 0;
 	private Server servletServer;
-	private Map<String, Class<? extends Servlet>> servletsByPathSpec = new HashMap<>();
+	private Map<String, ServletHolder> servletsByPath = new HashMap<>();
 
 	private Service service;
 	private String clientId;
@@ -78,11 +78,23 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 * Adds a servlet to the servlet server. Only has an effect when used in conjunction
 	 * with {@link #useServletServer}.
 	 * @param servletClass the servlet class that should be served.
-	 * @param pathSpec the path on which the servlet should be served, e.g. "/*".
+	 * @param path the path on which the servlet should be served, e.g. "/*".
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule addServlet(Class<? extends Servlet> servletClass, String pathSpec) {
-		servletsByPathSpec.put(pathSpec, servletClass);
+	public SecurityIntegrationTestRule addServlet(Class<? extends Servlet> servletClass, String path) {
+		servletsByPath.put(path, new ServletHolder(servletClass));
+		return this;
+	}
+
+	/**
+	 * Adds a servlet to the servlet server. Only has an effect when used in conjunction
+	 * with {@link #useServletServer}.
+	 * @param servletHolder the servlet inside a {@link ServletHolder} that should be served.
+	 * @param path the path on which the servlet should be served, e.g. "/*".
+	 * @return the rule itself.
+	 */
+	public SecurityIntegrationTestRule addServlet(ServletHolder servletHolder, String path) {
+		servletsByPath.put(path, servletHolder);
 		return this;
 	}
 
@@ -203,7 +215,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	private void startServletServer() throws Exception {
 		servletServer = new Server(servletServerPort);
 		ServletHandler servletHandler = createHandlerForServer(servletServer);
-		servletsByPathSpec.forEach((pathSpec, servlet) -> servletHandler.addServletWithMapping(servlet, pathSpec));
+		servletsByPath.forEach((path, servlet) -> servletHandler.addServletWithMapping(servlet, path));
 		servletHandler.addFilterWithMapping(OAuth2SecurityFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 		servletServer.setHandler(servletHandler);
 		servletServer.start();
