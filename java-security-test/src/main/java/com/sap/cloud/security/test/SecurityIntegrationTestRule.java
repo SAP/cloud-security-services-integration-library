@@ -80,6 +80,19 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	/**
+	 * Specifies an embedded jetty as servlet server. It needs to be configured
+	 *  before the {@link #before()} method. The servlet server will listen on
+	 * 	a free random port. Use {@link #getServletServerUri()} to obtain port.
+	 *
+	 *  @return the rule itself.
+	 */
+	public SecurityIntegrationTestRule useServletServer() {
+		servletServerPort = 0;
+		useServletServer = true;
+		return this;
+	}
+
+	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in conjunction
 	 * with {@link #useServletServer}.
 	 * @param servletClass the servlet class that should be served.

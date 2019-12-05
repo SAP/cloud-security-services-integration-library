@@ -25,7 +25,7 @@ public class HelloJavaServletIntegrationTest {
 
 	@ClassRule
 	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
-			.useServletServer(0)
+			.useServletServer()
 			.addServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 
 	@BeforeClass

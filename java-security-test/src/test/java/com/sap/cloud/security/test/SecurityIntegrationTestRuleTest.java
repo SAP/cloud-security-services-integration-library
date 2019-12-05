@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
@@ -113,6 +114,20 @@ public class SecurityIntegrationTestRuleTest {
 		@Test
 		public void testRuleIsInitializedCorrectly() {
 			assertThat(rule.getServletServerUri()).isNull();
+		}
+	}
+
+	public static class SecurityIntegrationTestRuleTestWithApplicationServerRandomPort {
+
+		@Rule
+		public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
+				.useServletServer();
+
+		@Test
+		public void freeRandomPortIsChosenForServletServer() {
+			URI servletServerUri = URI.create(rule.getServletServerUri());
+			assertThat(servletServerUri).isNotNull();
+			assertThat(servletServerUri.getPort()).isGreaterThan(0);
 		}
 	}
 
