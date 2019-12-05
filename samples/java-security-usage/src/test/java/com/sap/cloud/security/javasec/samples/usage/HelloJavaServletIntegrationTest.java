@@ -59,7 +59,6 @@ public class HelloJavaServletIntegrationTest {
 	@Test
 	public void request_withValidToken() throws IOException {
 		HttpGet request = createGetRequest(rule.createToken().getBearerAccessToken());
-
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);

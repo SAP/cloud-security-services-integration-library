@@ -53,8 +53,8 @@ public class HelloJavaServletTest {
 	@ClassRule
 	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
         .usePort(8181) // optionally overwrite embedded jwks server port
-		.useServletServer(8282)  // activate additional servlet server and (optionally) overwrite port
-		.addServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT); // add additional servlet to servlet server
+        .useServletServer(8282)  // activate additional servlet server and (optionally) overwrite port
+        .addServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT); // add additional servlet to servlet server
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
@@ -87,7 +87,6 @@ public class HelloJavaServletTest {
 	@Test
 	public void request_withValidToken() throws IOException {
 		HttpGet request = createGetRequest(rule.createToken().getBearerAccessToken());
-
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
