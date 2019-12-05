@@ -96,6 +96,30 @@ Instant expiredtAt = token.getExpiration();
 ...
 ```
 
+## Automatic validation via security filter
+The [`OAuth2SecurityFilter`](src/main/java/com/sap/cloud/security/servlet/OAuth2SecurityFilter.java) 
+is a Java Web-Servlet `WebFilter` that performs authorization checks on HTTP requests.
+When implementing a Java Web-Servlet application that is deployed in a servlet container, 
+the `OAuth2SecurityFilter` can be used by simply declaring a dependency to this library and it will automatically be used.
+This is because it has the `@WebFilter` annotation declared. At runtime the application server detects the annotation and adds the filter to the filter chain.
+If annotation scanning is not supported by the runtime, the filter needs to be declared in the web.xml file of the application.
+
+### Filter settings
+The following web.xml snippet shows how the filter is defined and a mapping for `/secure` is established.
+```xml
+    <filter>
+        <filter-name>OAuth2SecurityFilter</filter-name>
+        <filter-class>com.sap.cloud.security.servlet.OAuth2SecurityFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>OAuth2SecurityFilter</filter-name>
+        <url-pattern>/secure/*</url-pattern>
+    </filter-mapping>
+```
+Security filter settings in the `web.xml` file override any settings from annotations. So even if annotations are supported,
+the web.xml can still be used to override defaults. By default the filter is mapped to the root context so that all
+HTTP requests are filtered. So a `filter-mapping` setting can be used to override that default.
+
 ## Sample
 You can find a sample Servlet application [here](/samples/java-security-usage).
 
