@@ -52,6 +52,11 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		// see factory method getInstance()
 	}
 
+	/**
+	 * Creates an instance of the test rule for the given service.
+	 * @param service the service for which the test rule should be created.
+	 * @return the test rule instance.
+	 */
 	public static SecurityIntegrationTestRule getInstance(Service service) {
 		SecurityIntegrationTestRule instance = new SecurityIntegrationTestRule();
 		instance.keys = RSAKeys.generate();
