@@ -6,6 +6,8 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.http.MediaType;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -16,7 +18,13 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.servlet.DispatcherType;
 import javax.servlet.Servlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -139,7 +147,8 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		default:
 			throw new UnsupportedOperationException("Service " + service + " is not yet supported.");
 		}
-		ServletHolder servletHolder = new ServletHolder(new TokenKeyServlet(keys.getPublic()));
+		
+		ServletHolder servletHolder = new ServletHolder(new JwksServlet());
 		jwksServerServletHandler.addServletWithMapping(servletHolder, jwksUrl.getPath());
 	}
 
@@ -206,5 +215,20 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		return jwksServerServletHandler;
 	}
 
+	private class JwksServlet extends HttpServlet {
+		@Override
+		protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.setContentType(MediaType.APPLICATION_JSON.value());
+			response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
+			response.getWriter().write(createDefaultTokenKeyResponse());
+		}
+	}
+
+	private String createDefaultTokenKeyResponse() throws IOException {
+		return IOUtils.resourceToString("/token_keys_template.json", StandardCharsets.UTF_8)
+				.replace("$kid", "default-kid")
+				.replace("$public_key", Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()));
+	}
 
 }
