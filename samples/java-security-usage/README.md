@@ -36,7 +36,7 @@ cf push --vars-file ../vars.yml
 
 ```
 curl -X POST \
-  h<<VCAP_SERVICES.xsuaa.credentials.url>>/oauth/token \
+  <<VCAP_SERVICES.xsuaa.credentials.url>>/oauth/token \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   -d 'client_id=<<VCAP_SERVICES.xsuaa.credentials.clientid>>&client_secret=<<VCAP_SERVICES.xsuaa.credentials.clientsecret>>&grant_type=client_credentials'
 ```
