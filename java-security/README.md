@@ -144,7 +144,7 @@ around this problem:
 
 1. Add the filter instance programmatically to the `ServletContext`. How to do this depends on the specific runtime.
 
-2. Create another filter in your application that delegates to or inherits from the `OAuth2SecurityFilter`. Specify this filter in the `web.xml` or annotate it with the `@WebFilter` annotation, e.g:
+2. Create another filter in your application that delegates to or inherits from `OAuth2SecurityFilter`. Specify this filter in the `web.xml` or annotate it with the `@WebFilter` annotation, e.g:
 ```java
 @WebFilter(urlPatterns = "/*")
 public class MySecurityFilter implements Filter {
@@ -152,7 +152,7 @@ public class MySecurityFilter implements Filter {
 	private final OAuth2SecurityFilter oAuth2SecurityFilter;
 
 	public MyCustomizedFilter() {
-		OidcConfigurationService oidcConfigurationService = OidcConfigurationServiceWithCache.getInstance()
+		OidcConfigurationService oidcConfigurationService = new OidcConfigurationService();
 		OAuth2TokenKeyService oAuth2TokenKeyService = new MyOAuth2TokenKeyService();
 		oAuth2SecurityFilter = new OAuth2SecurityFilter(oidcConfigurationService, oAuth2TokenKeyService);
 	}
