@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 
 public class HttpClientUtil {
 
+	private HttpClientUtil() {
+		// use static methods
+	}
 	public static String extractResponseBodyAsString(HttpResponse response) throws IOException {
 		return new BufferedReader(new InputStreamReader(response.getEntity().getContent()))
 				.lines().collect(Collectors.joining(System.lineSeparator()));

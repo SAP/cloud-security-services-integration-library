@@ -89,6 +89,16 @@ public interface JsonObject {
 	 */
 	List<JsonObject> getJsonObjects(String name);
 
-	// TODO apply javadoc
+	/**
+	 * Returns a key-value map of the JSON properties.
+	 *
+	 * <pr>
+	 * String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
+	 * JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName()).get(0);
+	 * Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
+	 * Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
+	 * </pr>
+	 * @return the json properties as key-value map
+	 */
 	Map<String, String> getKeyValueMap();
 }

@@ -55,7 +55,7 @@ public class JsonWebKeyImpl implements JsonWebKey {
 		}
 		if (pemEncodedPublicKey != null) {
 			publicKey = createPublicKeyFromPemEncodedPubliKey(keyAlgorithm, pemEncodedPublicKey);
-		} else if (keyAlgorithm.type() == "RSA") {
+		} else if (keyAlgorithm.type().equalsIgnoreCase("RSA")) {
 			publicKey = createRSAPublicKey(publicExponent, modulus);
 		} else {
 			throw new IllegalStateException("JWT token with web key type " + keyAlgorithm + " can not be verified.");

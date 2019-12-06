@@ -14,6 +14,10 @@ public class UriUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(UriUtil.class);
 
+	private UriUtil() {
+		// use static methods
+	}
+
 	/**
 	 * Utility method that replaces the subdomain of the URI with the given
 	 * subdomain.

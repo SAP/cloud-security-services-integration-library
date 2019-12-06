@@ -3,12 +3,15 @@ package com.sap.cloud.security.config.cf;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.json.JsonObject;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,10 +40,21 @@ public class CFEnvironmentTest {
 		assertThat(cut.getType()).isEqualTo(Environment.Type.CF);
 	}
 
+	@Test
+	public void getCFServiceConfigurationAndCredentialsAsMap() {
+		String vcapServices = vcapXsuaa;
+		JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName()).get(0);
+		Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
+		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
+
+		assertThat(xsuaaConfigMap.size()).isEqualTo(4);
+		assertThat(credentialsMap.size()).isEqualTo(10);
+		assertThat(credentialsMap.get(CFConstants.CLIENT_SECRET)).isEqualTo("secret");
+	}
+
 	@Test(expected = UnsupportedOperationException.class)
 	public void getConfigurationOfOneIasInstance() {
 		cut = CFEnvironment.getInstance((str) -> vcapIas, (str) -> null);
-		// TODO IAS
 		assertThat(cut.getIasConfiguration()).isSameAs(cut.getIasConfiguration());
 		assertThat(cut.getIasConfiguration().getService()).isEqualTo(Service.IAS);
 		assertThat(cut.getIasConfiguration().getClientId()).isEqualTo("T000297");

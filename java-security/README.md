@@ -59,6 +59,14 @@ OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaCon
 ```
 > Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes.
 
+### Further details
+```java
+String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
+JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName()).get(0);
+Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
+Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
+```
+
 ### Setup Step 2: Setup Validators
 Now configure the `JwtValidatorBuilder` once with the service configuration from the previous step.
 ```java
