@@ -19,7 +19,6 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebFilter(urlPatterns = "/*", filterName = "OAuth2SecurityFilter")
 public class OAuth2SecurityFilter implements Filter {
 
 	private static final Logger logger = LoggerFactory.getLogger(OAuth2SecurityFilter.class);
