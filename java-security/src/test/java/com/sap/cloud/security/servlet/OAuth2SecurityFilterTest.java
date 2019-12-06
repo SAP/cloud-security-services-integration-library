@@ -40,6 +40,11 @@ public class OAuth2SecurityFilterTest {
 	}
 
 	@Test
+	public void defaultConstructor() {
+		cut = new OAuth2SecurityFilter();
+	}
+
+	@Test
 	public void doFilter_noHeader_isUnauthorized() throws Exception {
 		cut.doFilter(httpRequest, httpResponse, filterChain);
 

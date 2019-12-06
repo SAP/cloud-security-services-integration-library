@@ -32,7 +32,8 @@ public class HelloJavaServletIntegrationTest {
 	public static void prepareTest() throws Exception {
 		oldProperties = System.getProperties();
 		System.setProperty(VCAP_SERVICES, IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-		rule.setClientId(Environments.getCurrent().getXsuaaConfiguration().getClientId());
+		// TODO this seems not to work anymore:
+		//rule.setClientId(Environments.getCurrent().getXsuaaConfiguration().getClientId());
 	}
 
 	@AfterClass

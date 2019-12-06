@@ -24,18 +24,10 @@ public class OAuth2SecurityFilter implements Filter {
 
 	private static final Logger logger = LoggerFactory.getLogger(OAuth2SecurityFilter.class);
 	private final TokenExtractor tokenExtractor;
-	private OAuth2TokenKeyServiceWithCache tokenKeyService = null;
-	private OidcConfigurationServiceWithCache oidcConfigurationService = null;
 	private Validator<Token> tokenValidator;
 
 	public OAuth2SecurityFilter() {
-		tokenExtractor = authorizationHeader -> new XsuaaToken(authorizationHeader);
-		tokenValidator = JwtValidatorBuilder
-				.getInstance(getXsuaaServiceConfiguration())
-				.withOAuth2TokenKeyService(tokenKeyService)
-				.withOidcConfigurationService(oidcConfigurationService)
-				.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
-				.build();
+		this((OAuth2TokenKeyServiceWithCache) null, null);
 	}
 
 	/**
@@ -49,9 +41,13 @@ public class OAuth2SecurityFilter implements Filter {
 	 * 					the service that requests the open-id provider configuration if not yet cached.
 	 */
 	public OAuth2SecurityFilter(OAuth2TokenKeyServiceWithCache tokenKeyService, OidcConfigurationServiceWithCache oidcConfigurationService) {
-		this();
-		this.tokenKeyService = tokenKeyService;
-		this.oidcConfigurationService = oidcConfigurationService;
+		tokenExtractor = authorizationHeader -> new XsuaaToken(authorizationHeader);
+		tokenValidator = JwtValidatorBuilder
+				.getInstance(getXsuaaServiceConfiguration())
+				.withOAuth2TokenKeyService(tokenKeyService)
+				.withOidcConfigurationService(oidcConfigurationService)
+				.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
+				.build();
 	}
 
 	OAuth2SecurityFilter(TokenExtractor tokenExtractor, Validator<Token> tokenValidator) {
