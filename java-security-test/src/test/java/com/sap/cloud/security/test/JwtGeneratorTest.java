@@ -9,10 +9,7 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.CombiningValidator;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
-import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
+import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import org.apache.commons.io.IOUtils;
@@ -40,8 +37,8 @@ import static org.mockito.Mockito.*;
 
 public class JwtGeneratorTest {
 
-	private JwtGenerator cut;
 	private static RSAKeys keys;
+	private JwtGenerator cut;
 	private Properties originalSystemProperties;
 
 	@BeforeClass
@@ -199,8 +196,10 @@ public class JwtGeneratorTest {
 		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
 				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
 
+		OAuth2TokenKeyServiceWithCache oAuth2TokenKeyServiceWithCache = OAuth2TokenKeyServiceWithCache.getInstance();
+		oAuth2TokenKeyServiceWithCache.withTokenKeyService(tokenKeyService);
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
-				.withOAuth2TokenKeyService(tokenKeyService)
+				.withOAuth2TokenKeyService(oAuth2TokenKeyServiceWithCache)
 				.build();
 
 		Token token = cut
@@ -228,8 +227,11 @@ public class JwtGeneratorTest {
 
 		OidcConfigurationService oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
 		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);
+		OidcConfigurationServiceWithCache oidcConfigurationService = OidcConfigurationServiceWithCache
+				.getInstance().withOidcConfigurationService(oidcConfigServiceMock);
 
-		JwtSignatureValidator validator = new JwtSignatureValidator(tokenKeyServiceMock, oidcConfigServiceMock);
+		JwtSignatureValidator validator = new JwtSignatureValidator(tokenKeyServiceMock, oidcConfigurationService);
+
 		assertThat(validator.validate(token).isValid()).isTrue();
 	}
 
