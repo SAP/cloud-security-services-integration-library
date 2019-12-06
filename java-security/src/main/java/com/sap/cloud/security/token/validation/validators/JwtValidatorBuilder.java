@@ -24,7 +24,7 @@ public class JwtValidatorBuilder {
 	private OidcConfigurationServiceWithCache oidcConfigurationService = null;
 	private OAuth2TokenKeyServiceWithCache tokenKeyService = null;
 	private OAuth2ServiceConfiguration otherConfiguration;
-	private Validator<Token> audienceValidator;
+	private Validator<Token> customAudienceValidator;
 
 	private JwtValidatorBuilder() {
 		// use getInstance factory method
@@ -49,7 +49,7 @@ public class JwtValidatorBuilder {
 	}
 
 	public JwtValidatorBuilder withAudienceValidator(Validator<Token> audienceValidator) {
-		this.audienceValidator = audienceValidator;
+		this.customAudienceValidator = audienceValidator;
 		return this;
 	}
 
@@ -75,26 +75,42 @@ public class JwtValidatorBuilder {
 	public CombiningValidator<Token> build() {
 		List<Validator<Token>> allValidators = createDefaultValidators();
 		allValidators.addAll(validators);
+
 		return new CombiningValidator<>(allValidators);
 	}
 
 	private List<Validator<Token>> createDefaultValidators() {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
-		if (configuration != null && configuration.getService().equals(XSUAA)) {
-			// TODO validate setup of audience validators - local vs field variable?
-			XsuaaJwtAudienceValidator audienceValidator = new XsuaaJwtAudienceValidator(
-					configuration.getProperty(APP_ID), configuration.getClientId());
-			if (otherConfiguration != null) {
-				audienceValidator.configureAnotherServiceInstance(otherConfiguration.getProperty(APP_ID),
-						otherConfiguration.getClientId());
+		if (isXsuaa()) {
+			if (customAudienceValidator == null) {
+				XsuaaJwtAudienceValidator xsuaaJwtAudienceValidator = createXsuaaAudieneValidator();
+				defaultValidators.add(xsuaaJwtAudienceValidator);
+			} else {
+				defaultValidators.add(customAudienceValidator);
 			}
 			defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getDomain()));
 			defaultValidators.add(
 					new JwtSignatureValidator(getTokenKeyServiceWithCache(), getOidcConfigurationServiceWithCache()));
-			defaultValidators.add(getAudienceValidator(configuration));
+		} else {
+			Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
 		}
+
 		return defaultValidators;
+	}
+
+	private boolean isXsuaa() {
+		return configuration != null && configuration.getService().equals(XSUAA);
+	}
+
+	private XsuaaJwtAudienceValidator createXsuaaAudieneValidator() {
+		XsuaaJwtAudienceValidator xsuaaJwtAudienceValidator = new XsuaaJwtAudienceValidator(
+				configuration.getProperty(APP_ID), configuration.getClientId());
+		if (otherConfiguration != null) {
+			xsuaaJwtAudienceValidator.configureAnotherServiceInstance(otherConfiguration.getProperty(APP_ID),
+					otherConfiguration.getClientId());
+		}
+		return 	xsuaaJwtAudienceValidator;
 	}
 
 	private OAuth2TokenKeyServiceWithCache getTokenKeyServiceWithCache() {
@@ -105,9 +121,6 @@ public class JwtValidatorBuilder {
 		return oidcConfigurationService != null ? oidcConfigurationService : OidcConfigurationServiceWithCache.getInstance();
 	}
 
-	private Validator<Token> getAudienceValidator(OAuth2ServiceConfiguration configuration) {
-		return Optional.ofNullable(audienceValidator)
-				.orElse(new XsuaaJwtAudienceValidator(configuration.getProperty(APP_ID), configuration.getClientId()));
-	}
+
 
 }
