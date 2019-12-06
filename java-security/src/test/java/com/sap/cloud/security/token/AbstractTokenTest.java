@@ -25,7 +25,8 @@ public class AbstractTokenTest {
 				return null;
 			}
 
-			@Override public Service getService() {
+			@Override
+			public Service getService() {
 				return null;
 			}
 		};

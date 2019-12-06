@@ -24,7 +24,7 @@ class CFEnvParser {
 	 *         not service bindings.
 	 */
 	static Map<Service, List<CFOAuth2ServiceConfiguration>> loadAll(String vcapJsonString) {
-		Map<Service, List<CFOAuth2ServiceConfiguration>> serviceConfigurations = new HashMap<>(); //NOSONAR
+		Map<Service, List<CFOAuth2ServiceConfiguration>> serviceConfigurations = new HashMap<>(); // NOSONAR
 		List<CFOAuth2ServiceConfiguration> allServices;
 		for (Service s : Service.values()) {
 			allServices = extractAllServices(s,

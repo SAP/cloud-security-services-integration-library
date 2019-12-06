@@ -44,7 +44,8 @@ public class CFEnvironmentTest {
 	@Test
 	public void getCFServiceConfigurationAndCredentialsAsMap() {
 		String vcapServices = vcapXsuaa;
-		JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName()).get(0);
+		JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName())
+				.get(0);
 		Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
 		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
 

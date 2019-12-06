@@ -51,7 +51,7 @@ public class OAuth2TokenKeyServiceWithCache {
 	 * @return this
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheTime(int timeInSeconds) {
-		if(timeInSeconds <= 6000) {
+		if (timeInSeconds <= 6000) {
 			throw new IllegalArgumentException("The cache validity must be minimum 6000 seconds");
 		}
 		this.cacheValidityInSeconds = timeInSeconds;
@@ -66,7 +66,7 @@ public class OAuth2TokenKeyServiceWithCache {
 	 * @return this
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheSize(int size) {
-		if(size <= 100) {
+		if (size <= 100) {
 			throw new IllegalArgumentException("The cache size must be 100 or more");
 		}
 		this.cacheSize = size;
@@ -125,7 +125,7 @@ public class OAuth2TokenKeyServiceWithCache {
 	private void retrieveTokenKeysAndFillCache(URI jwksUri)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		JsonWebKeySet keySet = getTokenKeyService().retrieveTokenKeys(jwksUri);
-		if(keySet == null) {
+		if (keySet == null) {
 			return;
 		}
 		Set<JsonWebKey> jwks = keySet.getAll();

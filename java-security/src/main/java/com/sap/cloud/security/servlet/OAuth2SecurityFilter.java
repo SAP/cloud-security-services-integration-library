@@ -31,16 +31,19 @@ public class OAuth2SecurityFilter implements Filter {
 	}
 
 	/**
-	 * In case you want to use your own Rest client or you want to configure/manage the cache by your own
-	 * you can provide your own implementations of {@link OAuth2TokenKeyServiceWithCache}
-	 * and {@link OAuth2TokenKeyServiceWithCache}.
+	 * In case you want to use your own Rest client or you want to configure/manage
+	 * the cache by your own you can provide your own implementations of
+	 * {@link OAuth2TokenKeyServiceWithCache} and
+	 * {@link OAuth2TokenKeyServiceWithCache}.
 	 *
 	 * @param tokenKeyService
-	 * 					the service that requests the token keys (jwks) if not yet cached.
+	 *            the service that requests the token keys (jwks) if not yet cached.
 	 * @param oidcConfigurationService
-	 * 					the service that requests the open-id provider configuration if not yet cached.
+	 *            the service that requests the open-id provider configuration if
+	 *            not yet cached.
 	 */
-	public OAuth2SecurityFilter(OAuth2TokenKeyServiceWithCache tokenKeyService, OidcConfigurationServiceWithCache oidcConfigurationService) {
+	public OAuth2SecurityFilter(OAuth2TokenKeyServiceWithCache tokenKeyService,
+			OidcConfigurationServiceWithCache oidcConfigurationService) {
 		tokenExtractor = authorizationHeader -> new XsuaaToken(authorizationHeader);
 		tokenValidator = JwtValidatorBuilder
 				.getInstance(getXsuaaServiceConfiguration())
@@ -69,7 +72,7 @@ public class OAuth2SecurityFilter implements Filter {
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = tokenExtractor.fromAuthorizationHeader(authorizationHeader);
-					if(token.getService() != Service.XSUAA) {
+					if (token.getService() != Service.XSUAA) {
 						logger.info("The token of service {} is not validated by {}.", token.getService(), getClass());
 						return;
 					}

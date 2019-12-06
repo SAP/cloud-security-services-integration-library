@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-
 public class OidcConfigurationServiceWithCacheTest {
 	OidcConfigurationServiceWithCache cut;
 	OidcConfigurationService oidcConfigServiceMock;
@@ -72,7 +71,8 @@ public class OidcConfigurationServiceWithCacheTest {
 	}
 
 	@Test
-	public void retrieveNoEndpoints_returnsNull() throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+	public void retrieveNoEndpoints_returnsNull()
+			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		cut.withOidcConfigurationService(Mockito.mock(OidcConfigurationService.class));
 		OAuth2ServiceEndpointsProvider endpointsProvider = cut.getOrRetrieveEndpoints(DISCOVERY_URI);
 		Assertions.assertThat(endpointsProvider).isNull();

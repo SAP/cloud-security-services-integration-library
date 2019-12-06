@@ -99,8 +99,8 @@ public interface Token {
 	String getBearerAccessToken();
 
 	/**
-	 * Returns a principal, which
-	 * can be used to represent any entity, such as an individual, a corporation, and a login id.
+	 * Returns a principal, which can be used to represent any entity, such as an
+	 * individual, a corporation, and a login id.
 	 *
 	 * @return the principal.
 	 */

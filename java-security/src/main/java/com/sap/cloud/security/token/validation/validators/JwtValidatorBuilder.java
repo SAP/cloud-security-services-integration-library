@@ -61,7 +61,8 @@ public class JwtValidatorBuilder {
 		return this;
 	}
 
-	public JwtValidatorBuilder withOidcConfigurationService(OidcConfigurationServiceWithCache oidcConfigurationService) {
+	public JwtValidatorBuilder withOidcConfigurationService(
+			OidcConfigurationServiceWithCache oidcConfigurationService) {
 		this.oidcConfigurationService = oidcConfigurationService;
 		return this;
 	}
@@ -113,7 +114,7 @@ public class JwtValidatorBuilder {
 			xsuaaJwtAudienceValidator.configureAnotherServiceInstance(otherConfiguration.getProperty(APP_ID),
 					otherConfiguration.getClientId());
 		}
-		return 	xsuaaJwtAudienceValidator;
+		return xsuaaJwtAudienceValidator;
 	}
 
 	private OAuth2TokenKeyServiceWithCache getTokenKeyServiceWithCache() {
@@ -121,9 +122,8 @@ public class JwtValidatorBuilder {
 	}
 
 	private OidcConfigurationServiceWithCache getOidcConfigurationServiceWithCache() {
-		return oidcConfigurationService != null ? oidcConfigurationService : OidcConfigurationServiceWithCache.getInstance();
+		return oidcConfigurationService != null ? oidcConfigurationService
+				: OidcConfigurationServiceWithCache.getInstance();
 	}
-
-
 
 }

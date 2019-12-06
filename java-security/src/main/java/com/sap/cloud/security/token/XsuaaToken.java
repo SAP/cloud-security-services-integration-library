@@ -51,21 +51,25 @@ public class XsuaaToken extends AbstractToken {
 		return () -> principalName;
 	}
 
-	@Override public Service getService() {
+	@Override
+	public Service getService() {
 		return Service.XSUAA;
 	}
 
 	/**
 	 * Get unique principal name of a user.
 	 *
-	 * @param origin        of the access token
-	 * @param userLoginName of the access token
+	 * @param origin
+	 *            of the access token
+	 * @param userLoginName
+	 *            of the access token
 	 * @return unique principal name
 	 *
 	 * @throws IllegalArgumentException
 	 */
 	static String getUniquePrincipalName(String origin, String userLoginName) {
-		Assertions.assertHasText(origin, "Origin claim not set in JWT. Cannot create unique user name. Returning null.");
+		Assertions.assertHasText(origin,
+				"Origin claim not set in JWT. Cannot create unique user name. Returning null.");
 		Assertions.assertHasText(userLoginName,
 				"User login name claim not set in JWT. Cannot create unique user name. Returning null.");
 

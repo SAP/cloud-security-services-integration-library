@@ -31,7 +31,7 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock.retrieveTokenKeys(TOKEN_KEYS_URI))
 				.thenReturn(JsonWebKeySetFactory.createFromJson(
-				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
+						IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
 
 		cut = OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock);
 	}
@@ -76,7 +76,8 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	}
 
 	@Test
-	public void retrieveNoTokenKeys_returnsNull() throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+	public void retrieveNoTokenKeys_returnsNull()
+			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		cut.withTokenKeyService(Mockito.mock(OAuth2TokenKeyService.class));
 		PublicKey key = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI);
 		Assertions.assertThat(key).isNull();

@@ -22,7 +22,8 @@ public interface JsonObject {
 	 * of type {@link T}. If the property with the given name is not found, an empty
 	 * list is returned.
 	 *
-	 * @param <T> the type of the list elements.
+	 * @param <T>
+	 *            the type of the list elements.
 	 * @param name
 	 *            the property inside this json object which contains a list as
 	 *            values of type {@link T}.
@@ -93,13 +94,13 @@ public interface JsonObject {
 	/**
 	 * Returns a key-value map of the JSON properties.
 	 *
-	 * Example:
-	 * {@code
+	 * Example: {@code
 	 * String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
 	 * JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName()).get(0);
 	 * Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
 	 * Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
 	 * }
+	 * 
 	 * @return the json properties as key-value map
 	 */
 	Map<String, String> getKeyValueMap();

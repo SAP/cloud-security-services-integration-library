@@ -72,7 +72,8 @@ public class JwtSignatureValidator implements Validator<Token> {
 	private String determineJwksUri(Token token) throws OAuth2ServiceException {
 		String jkuUri = token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME);
 		if (jkuUri == null) {
-			jkuUri = oidcConfigurationService.getOrRetrieveEndpoints(URI.create(token.getClaimAsString(TokenClaims.ISSUER)))
+			jkuUri = oidcConfigurationService
+					.getOrRetrieveEndpoints(URI.create(token.getClaimAsString(TokenClaims.ISSUER)))
 					.getJwksUri().toString();
 		}
 		return jkuUri;

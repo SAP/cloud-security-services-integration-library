@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class IasToken extends AbstractToken {
 	static final Logger LOGGER = LoggerFactory.getLogger(IasToken.class);
+
 	public IasToken(@Nonnull DecodedJwt decodedJwt) {
 		super(decodedJwt);
 	}
@@ -25,7 +26,8 @@ public class IasToken extends AbstractToken {
 		return null;
 	}
 
-	@Override public Service getService() {
+	@Override
+	public Service getService() {
 		return Service.IAS;
 	}
 }

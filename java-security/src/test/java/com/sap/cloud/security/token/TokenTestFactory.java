@@ -12,7 +12,8 @@ public class TokenTestFactory {
 				return null;
 			}
 
-			@Override public Service getService() {
+			@Override
+			public Service getService() {
 				return null;
 			}
 		};
