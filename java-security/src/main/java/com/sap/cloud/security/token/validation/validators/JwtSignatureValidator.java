@@ -26,6 +26,7 @@ import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
+import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 /**
@@ -37,10 +38,10 @@ import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
  */
 public class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
-	private final OidcConfigurationService oidcConfigurationService;
+	private final OidcConfigurationServiceWithCache oidcConfigurationService;
 
 	public JwtSignatureValidator(OAuth2TokenKeyServiceWithCache tokenKeyService,
-			OidcConfigurationService oidcConfigurationService) {
+			OidcConfigurationServiceWithCache oidcConfigurationService) {
 		assertNotNull(tokenKeyService, "tokenKeyService must not be null.");
 		assertNotNull(tokenKeyService, "oidcConfigurationService must not be null.");
 
@@ -71,7 +72,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 	private String determineJwksUri(Token token) throws OAuth2ServiceException {
 		String jkuUri = token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME);
 		if (jkuUri == null) {
-			jkuUri = oidcConfigurationService.retrieveEndpoints(URI.create(token.getClaimAsString(TokenClaims.ISSUER)))
+			jkuUri = oidcConfigurationService.getOrRetrieveEndpoints(URI.create(token.getClaimAsString(TokenClaims.ISSUER)))
 					.getJwksUri().toString();
 		}
 		return jkuUri;

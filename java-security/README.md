@@ -51,24 +51,33 @@ A Java implementation of JSON Web Token (JWT) - RFC 7519 (see [1]).
 </dependency>
 ```
 
-## Usage
+## Basic Usage
 
-### Setup: Load the Xsuaa Service Configurations and Setup Validator
+### Setup Step 1: Load the Service Configurations
 ```java
 OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaConfiguration();
+```
+> Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes.
+
+### Setup Step 2: Setup Validators
+Now configure the `JwtValidatorBuilder` once with the service configuration from the previous step.
+```java
 CombiningValidator<Token> validators = JwtValidatorBuilder.getInstance(serviceConfig).build();
 ```
-By default it auto-detects the environment: Cloud Foundry or Kubernetes.
+
+> Note: By default `JwtValidatorBuilder` builds a `CombiningValidator`. 
+> For the Signature validation it needs to fetch the Json Web Token Keys (jwks) from the OAuth server using `DefaultOAuth2TokenKeyService`. In case the token does not provide a `jku` header parameter it also requests the Open-ID Provider Configuration from the OAuth Server to determine the `jwks_uri` using `DefaultOidcConfigurationService`. Both default services uses Apache Rest client and can be customized via the `JwtValidatorBuilder` builder.
+          
 
 ### Create a Token Object 
-This decodes an encoded access token (Jwt token) and parses its json header and payload. The `Token` interface provides a simple access to its jwt header parameters and its claims.
+This decodes an encoded access token (Jwt token) and parses its json header and payload. The `Token` interface provides a simple access to its jwt header parameters and its claims .
 
 ```java
 String authorizationHeader = "Bearer eyJhbGciOiJGUzI1NiJ2.eyJhh...";
 Token token = new XsuaaToken(authorizationHeader);
 ```
 
-### Validate Access Token to check Authentication
+### Validate Token to check Authentication
 
 ```java
 ValidationResult result = validators.validate(token);
@@ -78,15 +87,13 @@ if(result.isErroneous()) {
 }
 ```
 
-By default the `JwtValidatorBuilder` builds a `CombiningValidator`. For the Sinature validation it needs to fetch the Json Web Token Keys (jwks), for that it uses the `DefaultOAuth2TokenKeyService`. In case the token does not provide a `jku` header parameter it also requests the OpenID Provider Configuration from the OAuth Server to determine the `jwks_uri` using `DefaultOidcConfigurationService`. Both default services uses an default Apache Rest client and can be customized via the `JwtValidatorBuilder` builder.
-
-
-### Cache validated Access Token (thread-locally)
+### Cache validated Token (thread-locally)
 ```java
 SecurityContext.setToken(token);
 ```
 
-### Get information from Access Token
+<a id='applicable'></a>
+### Get information from Token
 ```java
 Token token = SecurityContext.getToken();
 
@@ -97,7 +104,7 @@ Instant expiredtAt = token.getExpiration();
 ...
 ```
 
-### Token validation with security filter
+## Usage with Security Filter
 The [`OAuth2SecurityFilter`](src/main/java/com/sap/cloud/security/servlet/OAuth2SecurityFilter.java) 
 is a Java Web-Servlet `WebFilter` that can perform authorization checks on HTTP requests.
 To use the filter it needs to be declared in the web.xml file of the application.

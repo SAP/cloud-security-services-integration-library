@@ -9,15 +9,14 @@ import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
+import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,8 +24,8 @@ public class OAuth2SecurityFilter implements Filter {
 
 	private static final Logger logger = LoggerFactory.getLogger(OAuth2SecurityFilter.class);
 	private final TokenExtractor tokenExtractor;
-	private OidcConfigurationService oidcConfigurationService = null;
-	private OAuth2TokenKeyService tokenKeyService = null;
+	private OAuth2TokenKeyServiceWithCache tokenKeyService = null;
+	private OidcConfigurationServiceWithCache oidcConfigurationService = null;
 	private Validator<Token> tokenValidator;
 
 	public OAuth2SecurityFilter() {
@@ -40,15 +39,16 @@ public class OAuth2SecurityFilter implements Filter {
 	}
 
 	/**
-	 * In case you want to use your own Rest client, you can provide your own
-	 * implementations of {@link OAuth2TokenKeyService} and {@link OidcConfigurationService}.
+	 * In case you want to use your own Rest client or you want to configure/manage the cache by your own
+	 * you can provide your own implementations of {@link OAuth2TokenKeyServiceWithCache}
+	 * and {@link OAuth2TokenKeyServiceWithCache}.
 	 *
 	 * @param tokenKeyService
-	 * 					the service that requests the token keys (jwks)
+	 * 					the service that requests the token keys (jwks) if not yet cached.
 	 * @param oidcConfigurationService
-	 * 					the service that requests the open-id provider configuration
+	 * 					the service that requests the open-id provider configuration if not yet cached.
 	 */
-	public OAuth2SecurityFilter(OAuth2TokenKeyService tokenKeyService, OidcConfigurationService oidcConfigurationService) {
+	public OAuth2SecurityFilter(OAuth2TokenKeyServiceWithCache tokenKeyService, OidcConfigurationServiceWithCache oidcConfigurationService) {
 		this();
 		this.tokenKeyService = tokenKeyService;
 		this.oidcConfigurationService = oidcConfigurationService;
