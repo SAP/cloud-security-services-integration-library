@@ -26,6 +26,8 @@ public class OidcConfigurationServiceWithCache {
 
 	/**
 	 * Creates a new instance.
+	 *
+	 * @return the new instance.
 	 */
 	public static OidcConfigurationServiceWithCache getInstance() {
 		return new OidcConfigurationServiceWithCache();

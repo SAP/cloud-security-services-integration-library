@@ -32,6 +32,11 @@ public class OAuth2TokenKeyServiceWithCache {
 		// use getInstance factory method
 	}
 
+	/**
+	 * Creates a new instance.
+	 *
+	 * @return the new instance.
+	 */
 	public static OAuth2TokenKeyServiceWithCache getInstance() {
 		OAuth2TokenKeyServiceWithCache instance = new OAuth2TokenKeyServiceWithCache();
 		return instance;

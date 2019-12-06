@@ -37,7 +37,9 @@ public interface Environment {
 
 	/**
 	 * Returns number of Xsuaa identity service instances.
-	 * 
+	 *
+	 * @return the number Xsuaa identity service instances.
+	 *
 	 * @deprecated as multiple bindings of Xsuaa identity service is not anymore
 	 *             necessary with the unified broker plan, this method is
 	 *             deprecated.
