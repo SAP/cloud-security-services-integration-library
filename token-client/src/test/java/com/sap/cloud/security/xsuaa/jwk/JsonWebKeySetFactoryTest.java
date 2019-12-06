@@ -21,7 +21,7 @@ public class JsonWebKeySetFactoryTest {
 
 	@Before
 	public void setup() throws IOException {
-		jsonWebTokenKeys = IOUtils.resourceToString("/JsonWebTokenKeys.json", StandardCharsets.UTF_8);
+		jsonWebTokenKeys = IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8);
 	}
 
 	@Test

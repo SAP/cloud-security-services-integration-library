@@ -16,6 +16,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 /**
@@ -25,7 +26,7 @@ import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 public class OAuth2TokenKeyServiceWithCache {
 	private OAuth2TokenKeyService tokenKeyService; // access via getter
 	private Cache<String, PublicKey> cache; // access via getter
-	private long cacheValidityInSeconds = 900;
+	private long cacheValidityInSeconds = 6000;
 	private long cacheSize = 100;
 
 	private OAuth2TokenKeyServiceWithCache() {
@@ -50,6 +51,9 @@ public class OAuth2TokenKeyServiceWithCache {
 	 * @return this
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheTime(int timeInSeconds) {
+		if(timeInSeconds <= 6000) {
+			throw new IllegalArgumentException("The cache validity must be minimum 6000 seconds");
+		}
 		this.cacheValidityInSeconds = timeInSeconds;
 		return this;
 	}
@@ -62,6 +66,9 @@ public class OAuth2TokenKeyServiceWithCache {
 	 * @return this
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheSize(int size) {
+		if(size <= 100) {
+			throw new IllegalArgumentException("The cache size must be 100 or more");
+		}
 		this.cacheSize = size;
 		return this;
 	}
@@ -117,7 +124,11 @@ public class OAuth2TokenKeyServiceWithCache {
 
 	private void retrieveTokenKeysAndFillCache(URI jwksUri)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		Set<JsonWebKey> jwks = getTokenKeyService().retrieveTokenKeys(jwksUri).getAll();
+		JsonWebKeySet keySet = getTokenKeyService().retrieveTokenKeys(jwksUri);
+		if(keySet == null) {
+			return;
+		}
+		Set<JsonWebKey> jwks = keySet.getAll();
 		for (JsonWebKey jwk : jwks) {
 			getCache().put(getUniqueCacheKey(jwk.getKeyAlgorithm(), jwk.getId(), jwksUri), jwk.getPublicKey());
 		}

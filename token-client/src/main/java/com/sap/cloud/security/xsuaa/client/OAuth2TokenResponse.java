@@ -40,7 +40,7 @@ public class OAuth2TokenResponse {
 		if (accessToken == null) {
 			return null;
 		}
-		return new Base64JwtDecoder().decode(accessToken);
+		return Base64JwtDecoder.getInstance().decode(accessToken);
 	}
 
 	/**

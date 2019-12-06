@@ -30,7 +30,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 	private final String jsonWebKeysAsString;
 
 	public SpringOAuth2TokenKeyServiceTest() throws IOException {
-		jsonWebKeysAsString = IOUtils.resourceToString("/JsonWebTokenKeys.json", StandardCharsets.UTF_8);
+		jsonWebKeysAsString = IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8);
 	}
 
 	@Before

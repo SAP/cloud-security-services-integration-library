@@ -129,45 +129,4 @@ public class JwtSignatureValidatorTest {
 		assertThat(cut.validate(ecSignedToken, "ES256", "key-id-1", null).isValid(), is(true));
 	}
 
-	// TODO we can move this into TokenKeyServiceWithCache
-	@Test
-	public void takePublicKeyFromCache() throws OAuth2ServiceException {
-		cut.validate(xsuaaToken);
-		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
-				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		assertThat(cut.validate(xsuaaToken).isValid(), is(true));
-	}
-
-	@Test
-	public void validationFails_whenTokenKeyCanNotBeRetrievedFromIdentityProvider() throws OAuth2ServiceException {
-		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
-				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		ValidationResult validationResult = cut.validate(xsuaaToken);
-		assertThat(validationResult.isValid(), is(false));
-		assertThat(validationResult.getErrorDescription(),
-				startsWith("Error retrieving Json Web Keys from Identity Service: Currently unavailable."));
-	}
-
-	// TODO we can move this into OidcConfigurationServiceWithCache
-	@Test
-	public void takeOidcEndpointsProviderFromCache() throws IOException {
-		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
-				IOUtils.resourceToString("/iasJsonWebTokenKeys.json", StandardCharsets.UTF_8)));
-		cut.validate(iasToken);
-		when(oidcConfigurationServiceMock.retrieveEndpoints(any()))
-				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		assertThat(cut.validate(iasToken).isValid(), is(true));
-	}
-
-	@Test
-	public void validationFails_whenOidcConfigurationCanNotBeRetrievedFromIdentityProvider()
-			throws OAuth2ServiceException {
-		when(oidcConfigurationServiceMock.retrieveEndpoints(any()))
-				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
-		ValidationResult validationResult = cut.validate(iasToken);
-		assertThat(validationResult.isValid(), is(false));
-		assertThat(validationResult.getErrorDescription(),
-				startsWith("Error occurred during jwks uri determination: Currently unavailable."));
-	}
-
 }

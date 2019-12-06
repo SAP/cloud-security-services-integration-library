@@ -55,6 +55,9 @@ public class OidcConfigurationServiceWithCache {
 	 * @return this
 	 */
 	public OidcConfigurationServiceWithCache withCacheTime(int timeInSeconds) {
+		if(timeInSeconds <= 6000) {
+			throw new IllegalArgumentException("The cache validity must be minimum 6000 seconds");
+		}
 		this.cacheValidityInSeconds = timeInSeconds;
 		return this;
 	}
@@ -68,6 +71,9 @@ public class OidcConfigurationServiceWithCache {
 	 * @return this
 	 */
 	public OidcConfigurationServiceWithCache withCacheSize(int size) {
+		if(size <= 100) {
+			throw new IllegalArgumentException("The cache size must be 100 or more");
+		}
 		this.cacheSize = size;
 		return this;
 	}
@@ -91,6 +97,9 @@ public class OidcConfigurationServiceWithCache {
 		OAuth2ServiceEndpointsProvider endpointsProvider = getCache().getIfPresent(cacheKey);
 		if (endpointsProvider == null) {
 			endpointsProvider = getOidcConfigurationService().retrieveEndpoints(discoveryEndpointUri);
+			if(endpointsProvider == null) {
+				return null;
+			}
 			getCache().put(cacheKey, endpointsProvider);
 		}
 		return getCache().getIfPresent(cacheKey);
