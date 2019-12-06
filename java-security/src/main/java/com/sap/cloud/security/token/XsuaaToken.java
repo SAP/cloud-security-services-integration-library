@@ -5,6 +5,7 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.GRANT_TYPE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.ORIGIN;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.USER_NAME;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
@@ -43,6 +44,10 @@ public class XsuaaToken extends AbstractToken {
 			break;
 		}
 		return () -> principalName;
+	}
+
+	@Override public Service getService() {
+		return Service.XSUAA;
 	}
 
 	/**

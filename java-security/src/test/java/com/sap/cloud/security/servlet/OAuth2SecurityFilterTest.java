@@ -1,9 +1,11 @@
 package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
+import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
@@ -33,7 +35,8 @@ public class OAuth2SecurityFilterTest {
 		httpRequest = Mockito.mock(HttpServletRequest.class);
 		httpResponse = Mockito.mock(HttpServletResponse.class);
 		filterChain = Mockito.mock(FilterChain.class);
-		cut = createComponent(ValidationResults.createValid());
+		cut = createFilter(ValidationResults.createValid());
+		when(TOKEN.getService()).thenReturn(Service.XSUAA);
 	}
 
 	@Test
@@ -45,7 +48,7 @@ public class OAuth2SecurityFilterTest {
 
 	@Test
 	public void doFilter_invalidToken_isUnauthorized() throws Exception {
-		cut = createComponent((ValidationResults.createInvalid("Token is not valid")));
+		cut = createFilter((ValidationResults.createInvalid("Token is not valid")));
 		cut.doFilter(httpRequest, httpResponse, filterChain);
 
 		assertThatResponseIsUnauthorized();
@@ -55,7 +58,7 @@ public class OAuth2SecurityFilterTest {
 	public void doFilter_validToken_containedInSecurityContext() throws Exception {
 		mockAuthorizationHeader();
 
-		cut = createComponent((ValidationResults.createValid()));
+		cut = createFilter((ValidationResults.createValid()));
 		cut.doFilter(httpRequest, httpResponse, filterChain);
 
 		assertThat(SecurityContext.getToken()).isSameAs(TOKEN);
@@ -65,7 +68,7 @@ public class OAuth2SecurityFilterTest {
 	public void doFilter_validToken_filterChainIsCalled() throws IOException, ServletException {
 		mockAuthorizationHeader();
 
-		cut = createComponent((ValidationResults.createValid()));
+		cut = createFilter((ValidationResults.createValid()));
 		cut.doFilter(httpRequest, httpResponse, filterChain);
 
 		Mockito.verify(filterChain, times(1)).doFilter(httpRequest, httpResponse);
@@ -75,8 +78,11 @@ public class OAuth2SecurityFilterTest {
 		when(httpRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer fake token");
 	}
 
-	private OAuth2SecurityFilter createComponent(ValidationResult validationResult) {
-		return new OAuth2SecurityFilter((header) -> TOKEN, (TOKEN) -> validationResult);
+	private OAuth2SecurityFilter createFilter(ValidationResult validationResult) {
+		OAuth2SecurityFilter.TokenExtractor tokenExtractor = (header) -> TOKEN;
+		Validator<Token> tokenValidator = (TOKEN) -> validationResult;
+
+		return new OAuth2SecurityFilter(tokenExtractor, tokenValidator);
 	}
 
 	private void assertThatResponseIsUnauthorized() {

@@ -2,12 +2,14 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.slf4j.Logger;
@@ -24,14 +26,31 @@ public class OAuth2SecurityFilter implements Filter {
 	private static final Logger logger = LoggerFactory.getLogger(OAuth2SecurityFilter.class);
 	private final TokenExtractor tokenExtractor;
 	private OidcConfigurationService oidcConfigurationService = null;
+	private OAuth2TokenKeyService tokenKeyService = null;
 	private Validator<Token> tokenValidator;
 
 	public OAuth2SecurityFilter() {
-		this.tokenExtractor = authorizationHeader -> new XsuaaToken(authorizationHeader);
+		tokenExtractor = authorizationHeader -> new XsuaaToken(authorizationHeader);
+		tokenValidator = JwtValidatorBuilder
+				.getInstance(getXsuaaServiceConfiguration())
+				.withOAuth2TokenKeyService(tokenKeyService)
+				.withOidcConfigurationService(oidcConfigurationService)
+				.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
+				.build();
 	}
 
-	public OAuth2SecurityFilter(OidcConfigurationService oidcConfigurationService) {
-		this.tokenExtractor = authorizationHeader -> new XsuaaToken(authorizationHeader);
+	/**
+	 * In case you want to use your own Rest client, you can provide your own
+	 * implementations of {@link OAuth2TokenKeyService} and {@link OidcConfigurationService}.
+	 *
+	 * @param tokenKeyService
+	 * 					the service that requests the token keys (jwks)
+	 * @param oidcConfigurationService
+	 * 					the service that requests the open-id provider configuration
+	 */
+	public OAuth2SecurityFilter(OAuth2TokenKeyService tokenKeyService, OidcConfigurationService oidcConfigurationService) {
+		this();
+		this.tokenKeyService = tokenKeyService;
 		this.oidcConfigurationService = oidcConfigurationService;
 	}
 
@@ -42,6 +61,7 @@ public class OAuth2SecurityFilter implements Filter {
 
 	@Override
 	public void init(FilterConfig filterConfig) {
+		// nothing to do
 	}
 
 	@Override
@@ -53,7 +73,11 @@ public class OAuth2SecurityFilter implements Filter {
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = tokenExtractor.fromAuthorizationHeader(authorizationHeader);
-					ValidationResult result = validateToken(token);
+					if(token.getService() != Service.XSUAA) {
+						logger.info("The token of service {} is not validated by {}.", token.getService(), getClass());
+						return;
+					}
+					ValidationResult result = tokenValidator.validate(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
 						filterChain.doFilter(request, response);
@@ -72,17 +96,6 @@ public class OAuth2SecurityFilter implements Filter {
 	@Override
 	public void destroy() {
 		SecurityContext.clearToken();
-	}
-
-	private ValidationResult validateToken(Token token) {
-		if (tokenValidator == null) {
-			tokenValidator = JwtValidatorBuilder
-					.getInstance(getXsuaaServiceConfiguration())
-					.withOidcConfigurationService(oidcConfigurationService)
-					.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
-					.build();
-		}
-		return tokenValidator.validate(token);
 	}
 
 	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {

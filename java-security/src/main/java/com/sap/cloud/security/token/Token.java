@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonParsingException;
 
 import javax.annotation.Nonnull;
@@ -97,5 +98,18 @@ public interface Token {
 	 */
 	String getBearerAccessToken();
 
+	/**
+	 * Returns a principal, which
+	 * can be used to represent any entity, such as an individual, a corporation, and a login id.
+	 *
+	 * @return the principal.
+	 */
 	Principal getPrincipal();
+
+	/**
+	 * Returns the identity service, the token is issued by.
+	 *
+	 * @return the service.
+	 */
+	Service getService();
 }

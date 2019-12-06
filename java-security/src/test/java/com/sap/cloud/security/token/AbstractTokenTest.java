@@ -10,6 +10,8 @@ import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.sap.cloud.security.config.Service;
+
 public class AbstractTokenTest {
 
 	private final String jwtString;
@@ -20,6 +22,10 @@ public class AbstractTokenTest {
 		cut = new AbstractToken(jwtString) {
 			@Override
 			public Principal getPrincipal() {
+				return null;
+			}
+
+			@Override public Service getService() {
 				return null;
 			}
 		};
