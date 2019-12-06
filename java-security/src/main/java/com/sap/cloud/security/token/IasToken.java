@@ -7,7 +7,11 @@ import javax.annotation.Nonnull;
 
 import java.security.Principal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class IasToken extends AbstractToken {
+	static final Logger LOGGER = LoggerFactory.getLogger(IasToken.class);
 	public IasToken(@Nonnull DecodedJwt decodedJwt) {
 		super(decodedJwt);
 	}

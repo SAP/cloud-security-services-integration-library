@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.sap.cloud.security.config.Service;
 
 public class XsuaaTokenTest {
 
@@ -37,5 +40,33 @@ public class XsuaaTokenTest {
 		assertThat(clientCredentialsToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("sap_osb");
 		assertThat(clientCredentialsToken.getPrincipal()).isNotNull();
 		assertThat(clientCredentialsToken.getPrincipal().getName()).isEqualTo("client/sap_osb");
+	}
+
+	@Test
+	public void getBearerAccessToken() {
+		assertThat(userToken.getBearerAccessToken()).startsWith("Bearer ");
+	}
+
+	@Test
+	public void getService() {
+		assertThat(userToken.getService()).isEqualTo(Service.XSUAA);
+	}
+
+	@Test
+	public void getUniquePrincipalName() {
+		assertThat(XsuaaToken.getUniquePrincipalName("origin", "user"))
+				.isEqualTo("user/origin/user");
+
+		assertThatThrownBy(() -> {
+			XsuaaToken.getUniquePrincipalName("origin/", "user");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("/");
+
+		assertThatThrownBy(() -> {
+			XsuaaToken.getUniquePrincipalName("origin", "");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("User");
+
+		assertThatThrownBy(() -> {
+			XsuaaToken.getUniquePrincipalName("", "user");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("Origin");
 	}
 }

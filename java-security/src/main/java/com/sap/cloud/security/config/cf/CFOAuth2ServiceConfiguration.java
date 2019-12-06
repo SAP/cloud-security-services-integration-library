@@ -41,13 +41,6 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 		return URI.create(credentials.get(URL));
 	}
 
-	@Nullable
-	@Override
-	public String getDomain() {
-		return service.equals(Service.XSUAA) ? credentials.get(XSUAA.UAA_DOMAIN)
-				: credentials.get(IAS.DOMAIN);
-	}
-
 	@Override
 	@Nullable
 	public String getProperty(String name) {

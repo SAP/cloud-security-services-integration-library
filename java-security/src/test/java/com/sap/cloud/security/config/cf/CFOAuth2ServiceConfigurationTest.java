@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.URI;
 
+import static com.sap.cloud.security.config.cf.CFConstants.*;
 import static com.sap.cloud.security.config.cf.CFConstants.Plan.BROKER;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +43,7 @@ public class CFOAuth2ServiceConfigurationTest {
 
 	@Test
 	public void getDomain() {
-		assertThat(cut.getDomain()).isEqualTo("auth.com");
+		assertThat(cut.getProperty(XSUAA.UAA_DOMAIN)).isEqualTo("auth.com");
 	}
 
 	@Test

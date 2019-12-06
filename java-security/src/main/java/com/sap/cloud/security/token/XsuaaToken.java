@@ -6,6 +6,7 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.ORIGIN;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.USER_NAME;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
@@ -15,7 +16,11 @@ import javax.annotation.Nullable;
 import java.security.Principal;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class XsuaaToken extends AbstractToken {
+	static final Logger LOGGER = LoggerFactory.getLogger(XsuaaToken.class);
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>
 
@@ -53,28 +58,20 @@ public class XsuaaToken extends AbstractToken {
 	/**
 	 * Get unique principal name of a user.
 	 *
-	 * @param origin
-	 *            of the access token
-	 * @param userLoginName
-	 *            of the access token
+	 * @param origin        of the access token
+	 * @param userLoginName of the access token
 	 * @return unique principal name
+	 *
+	 * @throws IllegalArgumentException
 	 */
-	@Nullable
-	String getUniquePrincipalName(String origin, String userLoginName) {
-		if (origin == null) {
-			logger.warn("Origin claim not set in JWT. Cannot create unique user name. Returning null.");
-			return null;
-		}
-
-		if (userLoginName == null) {
-			logger.warn("User login name claim not set in JWT. Cannot create unique user name. Returning null.");
-			return null;
-		}
+	static String getUniquePrincipalName(String origin, String userLoginName) {
+		Assertions.assertHasText(origin, "Origin claim not set in JWT. Cannot create unique user name. Returning null.");
+		Assertions.assertHasText(userLoginName,
+				"User login name claim not set in JWT. Cannot create unique user name. Returning null.");
 
 		if (origin.contains("/")) {
-			logger.warn(
+			throw new IllegalArgumentException(
 					"Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returing null.");
-			return null;
 		}
 
 		return String.format(UNIQUE_USER_NAME_FORMAT, origin, userLoginName);

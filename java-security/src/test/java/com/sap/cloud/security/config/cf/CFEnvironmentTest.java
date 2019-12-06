@@ -5,6 +5,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
+import com.sap.cloud.security.token.TokenClaims;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -73,7 +74,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
 		assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("xs2.usertoken");
 		assertThat(cut.getXsuaaConfiguration().getClientSecret()).isEqualTo("secret");
-		assertThat(cut.getXsuaaConfiguration().getDomain()).isEqualTo("auth.com");
+		assertThat(cut.getXsuaaConfiguration().getProperty(CFConstants.XSUAA.UAA_DOMAIN)).isEqualTo("auth.com");
 		assertThat(cut.getXsuaaConfiguration().getUrl().toString()).isEqualTo("https://paastenant.auth.com");
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);

@@ -3,6 +3,7 @@ package com.sap.cloud.security.token.validation.validators;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
@@ -54,9 +55,9 @@ public class JwtValidatorBuilderTest {
 	private OAuth2ServiceConfiguration createMockConfiguration() throws URISyntaxException {
 		OAuth2ServiceConfiguration configuration = mock(OAuth2ServiceConfiguration.class);
 		when(configuration.getUrl()).thenReturn(new URI("https://my.auth.com"));
-		when(configuration.getDomain()).thenReturn("auth.com");
 		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
-		when(configuration.getProperty(CFConstants.XSUAA.APP_ID)).thenReturn("test-app!t123");
+		when(configuration.getProperty(XSUAA.APP_ID)).thenReturn("test-app!t123");
+		when(configuration.getProperty(XSUAA.UAA_DOMAIN)).thenReturn("auth.com");
 		when(configuration.getService()).thenReturn(Service.XSUAA);
 		return configuration;
 	}

@@ -1,6 +1,8 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.xsuaa.client.*;
@@ -11,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.*;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
 import static com.sap.cloud.security.config.Service.XSUAA;
 
@@ -89,7 +92,7 @@ public class JwtValidatorBuilder {
 			} else {
 				defaultValidators.add(customAudienceValidator);
 			}
-			defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getDomain()));
+			defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
 			defaultValidators.add(
 					new JwtSignatureValidator(getTokenKeyServiceWithCache(), getOidcConfigurationServiceWithCache()));
 		} else {

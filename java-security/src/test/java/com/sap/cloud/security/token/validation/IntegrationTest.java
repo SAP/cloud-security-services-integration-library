@@ -26,9 +26,9 @@ public class IntegrationTest {
 	public void validationFails_withXsuaaCombiningValidator() throws URISyntaxException, IOException {
 		OAuth2ServiceConfiguration configuration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(configuration.getUrl()).thenReturn(new URI("https://my.auth.com"));
-		when(configuration.getDomain()).thenReturn("auth.com");
 		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
 		when(configuration.getProperty(CFConstants.XSUAA.APP_ID)).thenReturn("test-app!t123");
+		when(configuration.getProperty(CFConstants.XSUAA.UAA_DOMAIN)).thenReturn("auth.com");
 		when(configuration.getService()).thenReturn(Service.XSUAA);
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
