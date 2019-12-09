@@ -5,14 +5,18 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 
 public class CombiningValidatorTest {
 
+	public static final Token TOKEN = null;
 	private static final String FIRST_ERROR_MESSAGE = "firstMessage";
 	private static final String SECOND_ERROR_MESSAGE = "secondMessage";
 
@@ -20,7 +24,7 @@ public class CombiningValidatorTest {
 	public void validate_containsNoValidators_validResult() {
 		Validator<Token> combiningValidator = new CombiningValidator<>(new ArrayList<>());
 
-		ValidationResult validationResult = combiningValidator.validate(null);
+		ValidationResult validationResult = combiningValidator.validate(TOKEN);
 
 		assertThat(validationResult.isValid()).isTrue();
 	}
@@ -30,7 +34,7 @@ public class CombiningValidatorTest {
 		Validator<Token> combiningValidator = new CombiningValidator<>(
 				newArrayList(validValidator(), validValidator()));
 
-		ValidationResult validationResult = combiningValidator.validate(null);
+		ValidationResult validationResult = combiningValidator.validate(TOKEN);
 
 		assertThat(validationResult.isValid()).isTrue();
 	}
@@ -40,7 +44,7 @@ public class CombiningValidatorTest {
 		Validator<Token> combiningValidator = new CombiningValidator<>(
 				newArrayList(invalidValidator(), invalidValidator()));
 
-		ValidationResult validationResult = combiningValidator.validate(null);
+		ValidationResult validationResult = combiningValidator.validate(TOKEN);
 
 		assertThat(validationResult.isErroneous()).isTrue();
 	}
@@ -51,9 +55,45 @@ public class CombiningValidatorTest {
 				newArrayList(validValidator(), invalidValidator(FIRST_ERROR_MESSAGE),
 						invalidValidator(SECOND_ERROR_MESSAGE)));
 
-		String error = combiningValidator.validate(null).getErrorDescription();
+		String error = combiningValidator.validate(TOKEN).getErrorDescription();
 
 		assertThat(error).isEqualTo(FIRST_ERROR_MESSAGE);
+	}
+
+	@Test
+	public void registerValidationListener_validValidator_callsOnValidationSuccess() {
+		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(newArrayList(validValidator()));
+		ValidationListener validationListenerMock = Mockito.mock(ValidationListener.class);
+		combiningValidator.registerValidationListener(validationListenerMock);
+
+		combiningValidator.validate(TOKEN);
+
+		Mockito.verify(validationListenerMock, times(1)).onValidationSuccess();
+		Mockito.verifyNoMoreInteractions(validationListenerMock);
+	}
+
+	@Test
+	public void registerValidationListener_invalidValidator_callsOnValidationSuccess() {
+		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(newArrayList(invalidValidator()));
+		ValidationListener validationListenerMock = Mockito.mock(ValidationListener.class);
+		combiningValidator.registerValidationListener(validationListenerMock);
+
+		combiningValidator.validate(TOKEN);
+
+		Mockito.verify(validationListenerMock, times(1)).onValidationError(any(ValidationResult.class));
+		Mockito.verifyNoMoreInteractions(validationListenerMock);
+	}
+
+	@Test
+	public void registerValidationListener_listenerIsRemoved_isNotCalled() {
+		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(newArrayList(validValidator()));
+		ValidationListener validationListenerMock = Mockito.mock(ValidationListener.class);
+		combiningValidator.registerValidationListener(validationListenerMock);
+		combiningValidator.removeValidationListener(validationListenerMock);
+
+		combiningValidator.validate(TOKEN);
+
+		Mockito.verifyZeroInteractions(validationListenerMock);
 	}
 
 	private Validator<Token> validValidator() {
