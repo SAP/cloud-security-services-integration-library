@@ -1,6 +1,7 @@
 package com.sap.cloud.security.javasec.samples.usage;
 
 import com.sap.cloud.security.config.Environments;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.test.SecurityIntegrationTestRule;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -32,8 +33,8 @@ public class HelloJavaServletIntegrationTest {
 	public static void prepareTest() throws Exception {
 		oldProperties = System.getProperties();
 		System.setProperty(VCAP_SERVICES, IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-		// TODO this seems not to work anymore:
-		//rule.setClientId(Environments.getCurrent().getXsuaaConfiguration().getClientId());
+		assertThat(Environments.getCurrent().getXsuaaConfiguration()).isNotNull();
+		rule.setClientId(Environments.getCurrent().getXsuaaConfiguration().getClientId());
 	}
 
 	@AfterClass

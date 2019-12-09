@@ -25,6 +25,8 @@ public class OAuth2SecurityFilter implements Filter {
 	private static final Logger logger = LoggerFactory.getLogger(OAuth2SecurityFilter.class);
 	private final TokenExtractor tokenExtractor;
 	private Validator<Token> tokenValidator;
+	private OAuth2TokenKeyServiceWithCache tokenKeyService;
+	private OidcConfigurationServiceWithCache oidcConfigurationService;
 
 	public OAuth2SecurityFilter() {
 		this((OAuth2TokenKeyServiceWithCache) null, null);
@@ -33,8 +35,8 @@ public class OAuth2SecurityFilter implements Filter {
 	/**
 	 * In case you want to use your own Rest client or you want to configure/manage
 	 * the cache by your own you can provide your own implementations of
-	 * {@link OAuth2TokenKeyServiceWithCache} and
-	 * {@link OAuth2TokenKeyServiceWithCache}.
+	 * {@link OAuth2TokenKeyServiceWithCache}
+	 * and{@link OidcConfigurationServiceWithCache}.
 	 *
 	 * @param tokenKeyService
 	 *            the service that requests the token keys (jwks) if not yet cached.
@@ -44,13 +46,9 @@ public class OAuth2SecurityFilter implements Filter {
 	 */
 	public OAuth2SecurityFilter(OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
+		this.tokenKeyService = tokenKeyService;
+		this.oidcConfigurationService = oidcConfigurationService;
 		tokenExtractor = authorizationHeader -> new XsuaaToken(authorizationHeader);
-		tokenValidator = JwtValidatorBuilder
-				.getInstance(getXsuaaServiceConfiguration())
-				.withOAuth2TokenKeyService(tokenKeyService)
-				.withOidcConfigurationService(oidcConfigurationService)
-				.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
-				.build();
 	}
 
 	OAuth2SecurityFilter(TokenExtractor tokenExtractor, Validator<Token> tokenValidator) {
@@ -76,7 +74,7 @@ public class OAuth2SecurityFilter implements Filter {
 						logger.info("The token of service {} is not validated by {}.", token.getService(), getClass());
 						return;
 					}
-					ValidationResult result = tokenValidator.validate(token);
+					ValidationResult result = getOrCreateTokenValidator().validate(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
 						filterChain.doFilter(request, response);
@@ -90,6 +88,18 @@ public class OAuth2SecurityFilter implements Filter {
 				unauthorized(httpResponse, "Authorization header is missing");
 			}
 		}
+	}
+
+	private Validator<Token> getOrCreateTokenValidator() {
+		if (tokenValidator == null) {
+			tokenValidator = JwtValidatorBuilder
+					.getInstance(getXsuaaServiceConfiguration())
+					.withOAuth2TokenKeyService(tokenKeyService)
+					.withOidcConfigurationService(oidcConfigurationService)
+					.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
+					.build();
+		}
+		return tokenValidator;
 	}
 
 	@Override
