@@ -46,11 +46,13 @@ public class SSLContextFactory {
 	}
 
 	/**
-	 * Creates a SSLContext which can be used to parameterize your Rest client,
-	 *  in order to support mutual TLS.
+	 * Creates a SSLContext which can be used to parameterize your Rest client, in
+	 * order to support mutual TLS.
 	 *
-	 * @param x509Certificates, you can get from your Service Configuration
-	 * @param rsaPrivateKey, you can get from your Service Configuration
+	 * @param x509Certificates,
+	 *            you can get from your Service Configuration
+	 * @param rsaPrivateKey,
+	 *            you can get from your Service Configuration
 	 * @return a new SSLContext instance
 	 * @throws GeneralSecurityException
 	 * @throws IOException
