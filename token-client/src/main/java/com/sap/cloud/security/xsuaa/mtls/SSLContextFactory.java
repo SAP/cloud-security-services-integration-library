@@ -28,7 +28,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Creates a SSLContext (without Bouncy Castle crypto lib).
+ *
+ * @deprecated This class might be removed again in the future
  */
+@Deprecated
 public class SSLContextFactory {
 	private static final char[] noPassword = "".toCharArray();
 	private static final SSLContextFactory instance = new SSLContextFactory();
@@ -42,6 +45,16 @@ public class SSLContextFactory {
 		return instance;
 	}
 
+	/**
+	 * Creates a SSLContext which can be used to parameterize your Rest client,
+	 *  in order to support mutual TLS.
+	 *
+	 * @param x509Certificates, you can get from your Service Configuration
+	 * @param rsaPrivateKey, you can get from your Service Configuration
+	 * @return a new SSLContext instance
+	 * @throws GeneralSecurityException
+	 * @throws IOException
+	 */
 	public SSLContext create(String x509Certificates, String rsaPrivateKey)
 			throws GeneralSecurityException, IOException {
 		assertHasText(x509Certificates, "x509Certificate is required");
