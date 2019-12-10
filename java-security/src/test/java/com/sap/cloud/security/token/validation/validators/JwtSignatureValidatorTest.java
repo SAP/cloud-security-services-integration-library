@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class JwtSignatureValidatorTest {
+	public static final String APP_ID = "my-app!t1785";
 	private Token xsuaaToken;
 	private Token iasToken; // contains alg header only, signature that does not match jwks
 	private JwtSignatureValidator cut;
@@ -38,7 +39,8 @@ public class JwtSignatureValidatorTest {
 
 	@Before
 	public void setup() throws IOException {
-		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8));
+		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8),
+				APP_ID);
 		iasToken = new IasToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
 
 		endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
@@ -87,7 +89,7 @@ public class JwtSignatureValidatorTest {
 				.append(otherHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(new XsuaaToken(tokenWithOthersSignature)).isErroneous(), is(true));
+		assertThat(cut.validate(new XsuaaToken(tokenWithOthersSignature, APP_ID)).isErroneous(), is(true));
 	}
 
 	@Test

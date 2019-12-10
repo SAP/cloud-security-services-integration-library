@@ -183,7 +183,8 @@ public class JwtGenerator {
 		case IAS:
 			return new IasToken(token);
 		case XSUAA:
-			return new XsuaaToken(token);
+			// TODO 10.12.19 c5295400: Implement via withAppId or method parameter?
+			return new XsuaaToken(token, null);
 		default:
 			throw new UnsupportedOperationException("Service: " + service + " is not supported.");
 		}

@@ -9,7 +9,7 @@
         "identityzoneid": "uaa",
         "uaadomain": "localhost",
         "url": "http://localhost",
-        "xsappname": "java-security-usage"
+        "xsappname": "java-security-usage!t1785"
       },
       "name": "xsuaa",
       "plan": "broker",

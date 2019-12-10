@@ -3,6 +3,7 @@ package com.sap.cloud.security.servlet;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
@@ -48,7 +49,9 @@ public class OAuth2SecurityFilter implements Filter {
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
 		this.tokenKeyService = tokenKeyService;
 		this.oidcConfigurationService = oidcConfigurationService;
-		tokenExtractor = authorizationHeader -> new XsuaaToken(authorizationHeader);
+		tokenExtractor = (authorizationHeader) -> new XsuaaToken(authorizationHeader,
+				Environments.getCurrent().getXsuaaConfiguration().getProperty(
+						CFConstants.XSUAA.APP_ID));
 	}
 
 	OAuth2SecurityFilter(TokenExtractor tokenExtractor, Validator<Token> tokenValidator) {
@@ -69,7 +72,7 @@ public class OAuth2SecurityFilter implements Filter {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
-					Token token = tokenExtractor.fromAuthorizationHeader(authorizationHeader);
+					Token token = tokenExtractor.from(authorizationHeader);
 					if (token.getService() != Service.XSUAA) {
 						logger.info("The token of service {} is not validated by {}.", token.getService(), getClass());
 						return;
@@ -129,7 +132,7 @@ public class OAuth2SecurityFilter implements Filter {
 	}
 
 	interface TokenExtractor {
-		Token fromAuthorizationHeader(String authorizationHeader);
+		Token from(String authorizationHeader);
 	}
 
 }

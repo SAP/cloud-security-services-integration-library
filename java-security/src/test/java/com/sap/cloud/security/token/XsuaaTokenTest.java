@@ -1,30 +1,47 @@
 package com.sap.cloud.security.token;
 
+import com.sap.cloud.security.config.Service;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
+import static java.nio.charset.StandardCharsets.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.sap.cloud.security.config.Service;
-
 public class XsuaaTokenTest {
+
+	private static final String APP_ID = "my-app!t1785";
 
 	private XsuaaToken clientCredentialsToken;
 	private XsuaaToken userToken;
 
 	public XsuaaTokenTest() throws IOException {
 		clientCredentialsToken = new XsuaaToken(
-				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8));
-		userToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", StandardCharsets.UTF_8));
+				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8), APP_ID);
+		userToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8), APP_ID);
 	}
 
 	@Test
 	public void getScopes() {
 		assertThat(clientCredentialsToken.getScopes()).containsExactly("ROLE_SERVICEBROKER", "uaa.resource");
+	}
+
+	@Test
+	public void getAppId() {
+		assertThat(clientCredentialsToken.getAppId()).isEqualTo(APP_ID);
+	}
+
+	@Test
+	public void hasScope_scopeExists_isTrue() {
+		assertThat(clientCredentialsToken.hasScope("ROLE_SERVICEBROKER")).isTrue();
+		assertThat(clientCredentialsToken.hasScope("uaa.resource")).isTrue();
+	}
+
+	@Test
+	public void hasScope_scopeDoesNotExist_isFalse() {
+		assertThat(clientCredentialsToken.hasScope("scopeDoesNotExist")).isFalse();
 	}
 
 	@Test
@@ -69,4 +86,5 @@ public class XsuaaTokenTest {
 			XsuaaToken.getUniquePrincipalName("", "user");
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("Origin");
 	}
+
 }

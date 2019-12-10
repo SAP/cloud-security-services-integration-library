@@ -10,7 +10,7 @@
      "tenantmode": "dedicated",
      "uaadomain": "auth.com",
      "url": "https://paastenant.auth.com",
-     "xsappname": "java-hello-world"
+     "xsappname": "java-hello-world!t1785"
     },
     "instance_name": "my-xsuaa",
     "label": "xsuaa",

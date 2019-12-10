@@ -34,7 +34,7 @@ public class IntegrationTest {
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 
 		Token xsuaaToken = new XsuaaToken(
-				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8));
+				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8), "test-app!t123");
 		ValidationResult result = tokenValidator.validate(xsuaaToken);
 		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription()).contains("Jwt expired at 2019-10-26T03:32:49Z");
