@@ -86,7 +86,7 @@ public class JwtValidatorBuilder {
 		defaultValidators.add(new JwtTimestampValidator());
 		if (isXsuaaConfiguration()) {
 			if (customAudienceValidator == null) {
-				XsuaaJwtAudienceValidator xsuaaJwtAudienceValidator = createXsuaaAudieneValidator();
+				XsuaaJwtAudienceValidator xsuaaJwtAudienceValidator = createXsuaaAudienceValidator();
 				defaultValidators.add(xsuaaJwtAudienceValidator);
 			} else {
 				defaultValidators.add(customAudienceValidator);
@@ -105,7 +105,7 @@ public class JwtValidatorBuilder {
 		return configuration != null && XSUAA.equals(configuration.getService());
 	}
 
-	private XsuaaJwtAudienceValidator createXsuaaAudieneValidator() {
+	private XsuaaJwtAudienceValidator createXsuaaAudienceValidator() {
 		XsuaaJwtAudienceValidator xsuaaJwtAudienceValidator = new XsuaaJwtAudienceValidator(
 				configuration.getProperty(APP_ID), configuration.getClientId());
 		if (otherConfiguration != null) {
