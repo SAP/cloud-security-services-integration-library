@@ -18,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +31,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
+		//enforce browser login popup with basic authentication
+		BasicAuthenticationEntryPoint aep = new BasicAuthenticationEntryPoint();
+		aep.setRealmName("spring-security-basic-auth");
+
 		// @formatter:off
 		http.authorizeRequests()
 				.antMatchers("/hello-token").hasAuthority("openid")
@@ -37,7 +42,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 				.sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and().exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint()).and()
+			.and().exceptionHandling().authenticationEntryPoint(aep).and()
 				.oauth2ResourceServer()
 				.bearerTokenResolver(getTokenBrokerResolver())
 				.jwt()

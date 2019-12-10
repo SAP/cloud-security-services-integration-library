@@ -4,6 +4,9 @@ In some situations, the client does not support OAuth protocols so you need to f
   - either exchange incoming credentials using the OAuth password grant flow
   - or exchange incoming credentials using the OAuth client credential flow
 
+In order to get the basic auth login popup, the response header `WWW-Authenticate` must be changed from `Bearer` to `Basic`. 
+This is done by means of the class `BasicAuthenticationEntryPoint` in the Security Configuration.
+
 # Coding
 This sample is using the spring-security project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. It enables caching using [`Caffeine`](https://github.com/ben-manes/caffeine) to avoid requesting new tokens from XSUAA for every incoming request.
 
