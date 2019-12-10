@@ -63,7 +63,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 		return uaadomain;
 	}
 
-	@Override
+	/*@Override
 	public String getCertificates() {
 		return certificates;
 	}
@@ -71,5 +71,5 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Override
 	public String getPrivateKey() {
 		return privateKey;
-	}
+	}*/
 }
