@@ -179,17 +179,17 @@ public class UserTokenFlow {
 		String refreshToken = null;
 		try {
 			boolean useJwtBearerGrant = Boolean.parseBoolean(readFromPropertyFile(FF_USE_JWT_BEARER_GRANT_TYPE));
-			if(useJwtBearerGrant) {
+			if (useJwtBearerGrant) {
 				/*
 				 * As soon as JWT bearer token supports scopes, we can just use this one to get
 				 * an user token
 				 */
-			return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-					request.getTokenEndpoint(),
-					new ClientCredentials(request.getClientId(), request.getClientSecret()),
-					token,
-					request.getSubdomain(),
-					optionalParameter);
+				return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+						request.getTokenEndpoint(),
+						new ClientCredentials(request.getClientId(), request.getClientSecret()),
+						token,
+						request.getSubdomain(),
+						optionalParameter);
 
 			}
 			OAuth2TokenResponse accessToken = tokenService

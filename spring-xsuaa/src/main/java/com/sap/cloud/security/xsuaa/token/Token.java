@@ -11,7 +11,9 @@ import java.util.Date;
 public interface Token extends UserDetails {
 
 	/**
-	 * Use {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants#GRANT_TYPE_CLIENT_CREDENTIALS} instead
+	 * Use
+	 * {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants#GRANT_TYPE_CLIENT_CREDENTIALS}
+	 * instead
 	 */
 	@Deprecated
 	static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
