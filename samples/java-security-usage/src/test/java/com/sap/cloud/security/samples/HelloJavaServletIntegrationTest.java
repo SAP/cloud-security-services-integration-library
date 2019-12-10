@@ -1,7 +1,6 @@
-package com.sap.cloud.security.javasec.samples.usage;
+package com.sap.cloud.security.samples;
 
 import com.sap.cloud.security.config.Environments;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.test.SecurityIntegrationTestRule;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
