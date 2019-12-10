@@ -1,11 +1,10 @@
 # SAP CP Java Security Library
 
-A Java implementation of JSON Web Token (JWT) - RFC 7519 (see [1]). 
+A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.org/html/rfc7519). 
 
-- Loads Identity Service Configuration from `VCAP_SERVICES` environment (`OAuth2ServiceConfiguration`) within SAP CP Cloud Foundry.
-- Decodes and parses encoded access token (JWT) ([`XsuaaToken`](src/main/java/com/sap/cloud/security/token/XsuaaToken.java)) and provides access to token header parameters and claims.
-- Validates the decoded token. The [`TokenValidatorBuilder`](
-                                                           src/main/java/com/sap/cloud/security/token/validation/validators/TokenValidatorBuilder.java) comprises the following mandatory checks:
+- Loads Identity Service Configuration from `VCAP_SERVICES` environment. The [`Environment`](src/main/java/com/sap/cloud/security/config/Environment.java) serves as central entry point to get or parse the  [`OAuth2ServiceConfiguration`](src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java) within SAP Cloud Platform.
+- Decodes and parses encoded access token (JWT) ([`Token`](src/main/java/com/sap/cloud/security/token/Token.java)) and provides access to token header parameters and claims.
+- Validates the decoded token. The [`JwtValidatorBuilder`](src/main/java/com/sap/cloud/security/token/validation/validators/JwtValidatorBuilder.java) comprises the following mandatory checks:
   - Is the jwt used before the "exp" (expiration) time and if it is used after the "nbf" (not before) time ([`JwtTimestampValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/JwtTimestampValidator.java))?
   - Is the jwt issued by a trust worthy identity service ([`JwtIssuerValidator`](
