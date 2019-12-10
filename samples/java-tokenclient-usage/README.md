@@ -1,7 +1,7 @@
 # Description
 This sample is a Java back-end application running on the Cloud Foundry. On incoming requests it reads 
 credentials from the `VCAP_SERVICES` environment variable and requests a new access token via client credentials token
-flow provided by the [Token Client](../../token-client/) library.
+flow provided by the [Token Client](/token-client/) library.
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
