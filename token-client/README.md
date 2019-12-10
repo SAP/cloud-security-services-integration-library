@@ -45,18 +45,6 @@ The `DefaultOAuth2TokenService` can also be instantiated with a custom `Closeabl
 
 > The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. 
 
-#### Setup Apache Rest client for mutual TLS 
-```java
-SSLContext sslContext = SSLContextFactory.getInstance().create(<certificate>, <key>);
-
-SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
-
-CloseableHttpClient httpClient = HttpClients.custom()
-        .setSSLContext(sslContext)
-        .setSSLSocketFactory(socketFactory)
-        .build();
-```
-> The `<certificate>` represents the the PEM encoded certificate chain and `<key>` is the private key the certificate is signed with. Both are placeholders for the information you get from the XSUAA service binding.
 
 ## Configuration for Java/Spring Applications
 
