@@ -50,8 +50,13 @@ public abstract class AbstractToken implements Token {
 	}
 
 	@Override
-	public boolean containsClaim(@Nonnull String claimName) {
+	public boolean hasClaim(@Nonnull String claimName) {
 		return payloadJsonObject.contains(claimName);
+	}
+
+	@Override
+	public boolean hasHeaderParameter(@Nonnull String parameterName) {
+		return headerJsonObject.contains(parameterName);
 	}
 
 	@Nullable

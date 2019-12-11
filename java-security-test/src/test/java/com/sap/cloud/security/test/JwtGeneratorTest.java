@@ -64,7 +64,7 @@ public class JwtGeneratorTest {
 		Token token = cut.createToken();
 
 		assertThat(token).isNotNull();
-		assertThat(token.containsClaim(TokenClaims.AUDIENCE)).isFalse();
+		assertThat(token.hasClaim(TokenClaims.AUDIENCE)).isFalse();
 	}
 
 	@Test

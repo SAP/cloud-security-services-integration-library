@@ -30,8 +30,8 @@ public class AbstractTokenTest {
 
 	@Test
 	public void containsClaim() {
-		assertThat(cut.containsClaim("notContained")).isFalse();
-		assertThat(cut.containsClaim("grant_type")).isTrue();
+		assertThat(cut.hasClaim("notContained")).isFalse();
+		assertThat(cut.hasClaim("grant_type")).isTrue();
 	}
 
 	@Test

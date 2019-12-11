@@ -25,13 +25,23 @@ public interface Token {
 	String getHeaderParameterAsString(@Nonnull String headerName);
 
 	/**
+	 * Checks whether the token contains a given header parameter.
+	 *
+	 * @param headerName
+	 *            the name of the header parameter as defined here
+	 *            {@link TokenHeader}
+	 * @return true when the given header name is found.
+	 */
+	boolean hasHeaderParameter(@Nonnull String headerName);
+
+	/**
 	 * Checks whether the token contains a given claim.
 	 *
 	 * @param claimName
 	 *            the name of the claim as defined here {@link TokenClaims}.
 	 * @return true when the claim with the given name is found.
 	 */
-	boolean containsClaim(@Nonnull String claimName);
+	boolean hasClaim(@Nonnull String claimName);
 
 	/**
 	 * Extracts the value as string for the given claim. If the claim is not found,
