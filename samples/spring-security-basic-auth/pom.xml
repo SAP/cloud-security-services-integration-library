@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>xsuaa-spring-boot-starter</artifactId>
-			<version>RELEASE</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

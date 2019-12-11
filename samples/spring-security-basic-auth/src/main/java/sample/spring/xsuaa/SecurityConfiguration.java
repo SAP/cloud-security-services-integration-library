@@ -1,11 +1,7 @@
 package sample.spring.xsuaa;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
-import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
-import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
-import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.caffeine.CaffeineCache;
@@ -20,7 +16,11 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
-import java.util.concurrent.TimeUnit;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
+import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
+import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -32,8 +32,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 
 		//enforce browser login popup with basic authentication
-		BasicAuthenticationEntryPoint aep = new BasicAuthenticationEntryPoint();
-		aep.setRealmName("spring-security-basic-auth");
+		BasicAuthenticationEntryPoint authEntryPoint = new BasicAuthenticationEntryPoint();
+		authEntryPoint.setRealmName("spring-security-basic-auth");
 
 		// @formatter:off
 		http.authorizeRequests()
@@ -42,7 +42,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 				.sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and().exceptionHandling().authenticationEntryPoint(aep).and()
+			.and().exceptionHandling().authenticationEntryPoint(authEntryPoint).and()
 				.oauth2ResourceServer()
 				.bearerTokenResolver(getTokenBrokerResolver())
 				.jwt()
@@ -68,8 +68,4 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return converter;
 	}
 
-	@Bean
-	XsuaaServiceConfiguration getXsuaaServiceConfiguration() {
-		return new XsuaaServiceConfigurationDefault();
-	}
 }
