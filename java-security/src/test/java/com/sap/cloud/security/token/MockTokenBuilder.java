@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 public class MockTokenBuilder {
 	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
 
-	private final Token token = Mockito.mock(Token.class);
+	private final AbstractToken token = Mockito.mock(AbstractToken.class);
 
 	public MockTokenBuilder withExpiration(Instant expirationDate) {
 		when(token.getExpiration()).thenReturn(expirationDate);
@@ -34,7 +34,7 @@ public class MockTokenBuilder {
 		return this;
 	}
 
-	public Token build() {
+	public AbstractToken build() {
 		return token;
 	}
 }

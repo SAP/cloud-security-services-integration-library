@@ -8,9 +8,12 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
-import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
+import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
 
 public abstract class AbstractToken implements Token {
 	private final DefaultJsonObject headerJsonObject;
@@ -66,6 +69,11 @@ public abstract class AbstractToken implements Token {
 	@Override
 	public Instant getExpiration() {
 		return payloadJsonObject.getAsInstant(EXPIRATION);
+	}
+
+	@Override
+	public boolean isExpired() {
+		return getExpiration() == null ? false : getExpiration().isBefore(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 	}
 
 	@Nullable

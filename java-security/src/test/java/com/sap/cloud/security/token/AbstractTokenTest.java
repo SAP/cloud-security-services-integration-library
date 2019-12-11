@@ -9,6 +9,7 @@ import java.security.Principal;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import com.sap.cloud.security.config.Service;
 
@@ -56,6 +57,28 @@ public class AbstractTokenTest {
 	@Test
 	public void getExpiration() {
 		assertThat(cut.getExpiration()).isEqualTo(Instant.ofEpochSecond(1572060769L));
+	}
+
+	@Test
+	public void tokenWithExpirationInTheFuture_isNotExpired() {
+		AbstractToken doesNotExpireSoon = new MockTokenBuilder().withExpiration(MockTokenBuilder.NO_EXPIRE_DATE)
+				.build();
+		when(doesNotExpireSoon.isExpired()).thenCallRealMethod();
+
+		assertThat(doesNotExpireSoon.isExpired()).isFalse();
+	}
+
+	@Test
+	public void tokenWithExpirationInThePast_isExpired() {
+		assertThat(cut.isExpired()).isTrue();
+	}
+
+	@Test
+	public void tokenWithouthExpirationDate_isNotExpired() {
+		AbstractToken neverExpires = new MockTokenBuilder().withExpiration(null).build();
+		when(neverExpires.isExpired()).thenCallRealMethod();
+
+		assertThat(neverExpires.isExpired()).isFalse();
 	}
 
 	@Test

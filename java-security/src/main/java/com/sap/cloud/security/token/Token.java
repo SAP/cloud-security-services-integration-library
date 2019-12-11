@@ -69,6 +69,13 @@ public interface Token {
 	Instant getExpiration();
 
 	/**
+	 * Returns true if the token is expired.
+	 *
+	 * @return true if the token is expired.
+	 */
+	boolean isExpired();
+
+	/**
 	 * Returns the moment in time before which the token must not be accepted.
 	 *
 	 * @return the not before point in time if present.

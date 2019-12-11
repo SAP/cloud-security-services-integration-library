@@ -81,8 +81,9 @@ public class XsuaaToken extends AbstractToken {
 
 	/**
 	 * Checks if a scope is available in the authentication token.
+	 * 
 	 * @param scope
-	 * 			name of the scope
+	 *            name of the scope
 	 * @return true if scope is available
 	 */
 	public boolean hasScope(String scope) {
