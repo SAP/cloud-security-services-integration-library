@@ -128,9 +128,9 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	/**
-	 * Overwrites the port on which the identity service mock server runs (WireMock). It needs to be
-	 * configured before the {@link #before()} method. If the port is not specified
-	 * or is set to 0, a free random port is chosen.
+	 * Overwrites the port on which the identity service mock server runs
+	 * (WireMock). It needs to be configured before the {@link #before()} method. If
+	 * the port is not specified or is set to 0, a free random port is chosen.
 	 *
 	 * @param port
 	 *            the port on which the wire mock service is started.

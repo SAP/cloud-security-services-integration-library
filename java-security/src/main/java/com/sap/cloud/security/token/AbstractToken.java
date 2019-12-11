@@ -74,7 +74,8 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public boolean isExpired() {
-		return getExpiration() == null ? false : getExpiration().isBefore(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+		return getExpiration() == null ? false
+				: getExpiration().isBefore(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 	}
 
 	@Nullable
