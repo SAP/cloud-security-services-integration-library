@@ -14,15 +14,14 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 public class XsuaaToken extends AbstractToken {
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>
-
 	private final String appId;
 
-	public XsuaaToken(@Nonnull DecodedJwt decodedJwt, String appId) {
+	public XsuaaToken(@Nonnull DecodedJwt decodedJwt, @Nonnull String appId) {
 		super(decodedJwt);
 		this.appId = appId;
 	}
 
-	public XsuaaToken(@Nonnull String accessToken, String appId) {
+	public XsuaaToken(@Nonnull String accessToken, @Nonnull String appId) {
 		super(accessToken);
 		this.appId = appId;
 	}
@@ -80,8 +79,29 @@ public class XsuaaToken extends AbstractToken {
 		return appId;
 	}
 
-	public boolean hasScope(String scopeName) {
-		return getScopes().contains(scopeName);
+	/**
+	 * Checks if a scope is available in the authentication token.
+	 * @param scope
+	 * 			name of the scope
+	 * @return true if scope is available
+	 */
+	public boolean hasScope(String scope) {
+		return getScopes().contains(scope);
 	}
 
+	/**
+	 * Check if a local scope is available in the authentication token.
+	 *
+	 * @param scope
+	 *            name of local scope (without the appId)
+	 * @return true if local scope is available
+	 **/
+
+	public boolean hasLocalScope(@Nonnull String scope) {
+		return hasScope(asLocalScope(scope));
+	}
+
+	private String asLocalScope(@Nonnull String scope) {
+		return appId + "." + scope;
+	}
 }

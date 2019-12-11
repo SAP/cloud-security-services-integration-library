@@ -12,8 +12,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class XsuaaTokenTest {
 
-	private static final String APP_ID = "my-app!t1785";
+	private static final String APP_ID = "app1";
 
+	private final XsuaaToken scopesToken;
 	private XsuaaToken clientCredentialsToken;
 	private XsuaaToken userToken;
 
@@ -21,6 +22,8 @@ public class XsuaaTokenTest {
 		clientCredentialsToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8), APP_ID);
 		userToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8), APP_ID);
+
+		scopesToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaScopesTokenRSA256.txt", UTF_8), APP_ID);
 	}
 
 	@Test
@@ -42,6 +45,12 @@ public class XsuaaTokenTest {
 	@Test
 	public void hasScope_scopeDoesNotExist_isFalse() {
 		assertThat(clientCredentialsToken.hasScope("scopeDoesNotExist")).isFalse();
+	}
+
+	@Test
+	public void hasLocalScope() {
+		assertThat(scopesToken.hasLocalScope("scope")).isTrue();
+		assertThat(scopesToken.hasLocalScope("openid")).isFalse();
 	}
 
 	@Test
