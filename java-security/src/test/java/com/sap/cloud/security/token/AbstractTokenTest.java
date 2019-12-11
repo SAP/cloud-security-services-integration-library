@@ -20,17 +20,7 @@ public class AbstractTokenTest {
 
 	public AbstractTokenTest() throws IOException {
 		jwtString = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
-		cut = new AbstractToken(jwtString) {
-			@Override
-			public Principal getPrincipal() {
-				return null;
-			}
-
-			@Override
-			public Service getService() {
-				return null;
-			}
-		};
+		cut = new TestToken(jwtString);
 	}
 
 	@Test
@@ -91,4 +81,36 @@ public class AbstractTokenTest {
 		assertThat(cut.getAccessToken()).isEqualTo(jwtString);
 	}
 
+	@Test
+	public void getBearerAccessToken() {
+		assertThat(cut.getBearerAccessToken()).isEqualTo("Bearer " + cut.getAccessToken());
+	}
+
+	@Test
+	public void getBearerAccessToken_bearerSmallCaps() {
+		String bearerSmallCapsJwtstring = "bearer " + jwtString;
+		assertThat(new TestToken(bearerSmallCapsJwtstring).getAccessToken()).isEqualTo(jwtString);
+	}
+
+	@Test
+	public void getBearerAccessToken_bearerLargeCaps() {
+		String bearerSmallCapsJwtstring = "Bearer " + jwtString;
+		assertThat(new TestToken(bearerSmallCapsJwtstring).getAccessToken()).isEqualTo(jwtString);
+	}
+
+	private class TestToken extends AbstractToken {
+		public TestToken(String jwtString) {
+			super(jwtString);
+		}
+
+		@Override
+		public Principal getPrincipal() {
+			return null;
+		}
+
+		@Override
+		public Service getService() {
+			return null;
+		}
+	}
 }

@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
 import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
@@ -94,6 +95,7 @@ public abstract class AbstractToken implements Token {
 
 	private static String removeBearer(@Nonnull String accessToken) {
 		Assertions.assertHasText(accessToken, "accessToken must not be null / empty");
-		return accessToken.replaceFirst("Bearer ", "");
+		Pattern bearerPattern = Pattern.compile("[B|b]earer ");
+		return bearerPattern.matcher(accessToken).replaceFirst("");
 	}
 }
