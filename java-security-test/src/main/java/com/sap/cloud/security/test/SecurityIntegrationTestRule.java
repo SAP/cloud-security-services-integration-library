@@ -2,14 +2,14 @@ package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.servlet.OAuth2SecurityFilter;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.http.MediaType;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.rules.ExternalResource;
@@ -18,16 +18,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
 import javax.servlet.Servlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -46,6 +41,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	private int applicationServerPort = 0;
 	private Server applicationServer;
 	private Map<String, ServletHolder> applicationServletsByPath = new HashMap<>();
+	private List<FilterHolder> applicationServletFilters = new ArrayList<>();
 
 	private Service service;
 	private String clientId;
@@ -64,6 +60,10 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 */
 	public static SecurityIntegrationTestRule getInstance(Service service) {
 		SecurityIntegrationTestRule instance = new SecurityIntegrationTestRule();
+		// TODO IAS
+		/*if (service != Service.XSUAA) {
+			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
+		}*/
 		instance.keys = RSAKeys.generate();
 		instance.service = service;
 		return instance;
@@ -107,7 +107,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            the path on which the servlet should be served, e.g. "/*".
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule addServlet(Class<? extends Servlet> servletClass, String path) {
+	public SecurityIntegrationTestRule addApplicationServlet(Class<? extends Servlet> servletClass, String path) {
 		applicationServletsByPath.put(path, new ServletHolder(servletClass));
 		return this;
 	}
@@ -122,8 +122,13 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            the path on which the servlet should be served, e.g. "/*".
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule addServlet(ServletHolder servletHolder, String path) {
+	public SecurityIntegrationTestRule addApplicationServlet(ServletHolder servletHolder, String path) {
 		applicationServletsByPath.put(path, servletHolder);
+		return this;
+	}
+
+	public SecurityIntegrationTestRule addApplicationServletFilter(Class<? extends Filter> filterClass) {
+		applicationServletFilters.add(new FilterHolder(filterClass));
 		return this;
 	}
 
@@ -176,18 +181,18 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 			startApplicationServer();
 		}
 		setupWireMock();
+		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
+				String.format(LOCALHOST_PATTERN, wireMockPort));
+		wireMockRule.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
+				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
 
 		switch (service) {
 		case XSUAA:
 			// prepare endpoints provider
-			XsuaaDefaultEndpoints endpointsProvider = new XsuaaDefaultEndpoints(
-					String.format(LOCALHOST_PATTERN, wireMockPort));
-			wireMockRule.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
-					.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
 			jwksUrl = endpointsProvider.getJwksUri().toString();
 			break;
 		default:
-			throw new UnsupportedOperationException("Service " + service + " is not yet supported.");
+			break;
 		}
 
 		// starts WireMock (to stub communication to identity service)
@@ -200,10 +205,11 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 * @return the preconfigured Jwt token generator
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
-		return JwtGenerator.getInstance(service)
+		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service)
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
 				.withPrivateKey(keys.getPrivate())
-				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl.toString());
+				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl); // TODO null in case of IAS
+		return jwtGenerator;
 	}
 
 	/**
@@ -264,8 +270,8 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	private void startApplicationServer() throws Exception {
 		applicationServer = new Server(applicationServerPort);
 		ServletHandler servletHandler = createHandlerForServer(applicationServer);
-		applicationServletsByPath.forEach((path, servlet) -> servletHandler.addServletWithMapping(servlet, path));
-		servletHandler.addFilterWithMapping(OAuth2SecurityFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+		applicationServletsByPath.forEach((path, servletHolder) -> servletHandler.addServletWithMapping(servletHolder, path));
+		applicationServletFilters.forEach((filterHolder) -> servletHandler.addFilterWithMapping(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
 		applicationServer.setHandler(servletHandler);
 		applicationServer.start();
 	}
@@ -281,5 +287,6 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 				.replace("$kid", "default-kid")
 				.replace("$public_key", Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()));
 	}
+
 
 }

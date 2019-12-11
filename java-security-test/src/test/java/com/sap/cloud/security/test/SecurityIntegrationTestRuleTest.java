@@ -1,6 +1,7 @@
 package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.servlet.OAuth2SecurityFilter;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
@@ -14,6 +15,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -37,11 +39,12 @@ public class SecurityIntegrationTestRuleTest {
 	private static final RSAKeys RSA_KEYS = RSAKeys.generate();
 
 	@ClassRule
-	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
+	public static SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(XSUAA)
 			.setPort(PORT)
 			.setKeys(RSA_KEYS)
 			.useApplicationServer(APPLICATION_SERVER_PORT)
-			.addServlet(new ServletHolder(new TestServlet()), "/hi");
+			.addApplicationServlet(new ServletHolder(new TestServlet()), "/hi")
+			.addApplicationServletFilter(OAuth2SecurityFilter.class);
 
 	@Test
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys() throws IOException {
@@ -56,14 +59,14 @@ public class SecurityIntegrationTestRuleTest {
 
 	@Test
 	public void generatesTokenWithClientId() {
-		Token generatedToken = rule.setClientId("customClientId").createToken();
+		Token generatedToken = cut.setClientId("customClientId").createToken();
 		assertThat(generatedToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
 				.isEqualTo("customClientId");
 	}
 
 	@Test
 	public void generatesTokenWithOtherClaimsAndHeaderParameter() {
-		Token generatedToken = rule.setClientId("customClientId").getPreconfiguredJwtGenerator()
+		Token generatedToken = cut.setClientId("customClientId").getPreconfiguredJwtGenerator()
 				.withClaimValue(TokenClaims.ISSUER, "issuer")
 				.withScopes("appid.scope1")
 				.withHeaderParameter(TokenHeader.TYPE, "type").createToken();
@@ -76,15 +79,15 @@ public class SecurityIntegrationTestRuleTest {
 
 	@Test
 	public void testRuleIsInitializedCorrectly() {
-		assertThat(rule.getApplicationServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
-		assertThat(rule.getWireMockRule()).isNotNull();
-		assertThat(rule.createToken().getAccessToken())
-				.isEqualTo(rule.getPreconfiguredJwtGenerator().createToken().getAccessToken());
+		assertThat(cut.getApplicationServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
+		assertThat(cut.getWireMockRule()).isNotNull();
+		assertThat(cut.createToken().getAccessToken())
+				.isEqualTo(cut.getPreconfiguredJwtGenerator().createToken().getAccessToken());
 	}
 
 	@Test
 	public void servletFilterServesTestServlet() throws IOException {
-		HttpGet httpGet = new HttpGet(rule.getApplicationServerUri() + "/hello");
+		HttpGet httpGet = new HttpGet(cut.getApplicationServerUri() + "/hello");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
 		}
@@ -117,9 +120,11 @@ public class SecurityIntegrationTestRuleTest {
 		}
 	}
 
+	// TODO IAS
 	public static class SecurityIntegrationApplicationServerFaults {
 
 		@Test
+		@Ignore
 		public void onlyXsuaaIsSupportedYet() {
 			SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(Service.IAS);
 

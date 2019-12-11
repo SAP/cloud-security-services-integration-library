@@ -52,8 +52,9 @@ public class HelloJavaServletTest {
 	@ClassRule
 	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
         	.usePort(8181) // optionally overwrite identity service port (WireMock)
-        	.useApplicationServer(8282)  // activate additional application server and (optionally) overwrite port
-        	.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT); // add additional servlet to application server
+        	.useApplicationServer(8282)  // optionally activate additional application server and (optionally) overwrite port
+        	.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT) // add servlet to be tested to application server
+            .addApplicationServletFilter(OAuth2SecurityFilter.class); // add security filter to application server
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
