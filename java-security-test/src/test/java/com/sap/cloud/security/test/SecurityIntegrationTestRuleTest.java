@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
@@ -32,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class SecurityIntegrationTestRuleTest {
 
 	private static final int PORT = 8484;
-	private static final int SERVLET_SERVER_PORT = 8383;
+	private static final int APPLICATION_SERVER_PORT = 8383;
 	private static final String UTF_8 = StandardCharsets.UTF_8.displayName();
 
 	private static final RSAKeys RSA_KEYS = RSAKeys.generate();
@@ -41,7 +40,7 @@ public class SecurityIntegrationTestRuleTest {
 	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
 			.setPort(PORT)
 			.setKeys(RSA_KEYS)
-			.useServletServer(SERVLET_SERVER_PORT)
+			.useApplicationServer(APPLICATION_SERVER_PORT)
 			.addServlet(new ServletHolder(new TestServlet()), "/hi");
 
 	@Test
@@ -77,14 +76,15 @@ public class SecurityIntegrationTestRuleTest {
 
 	@Test
 	public void testRuleIsInitializedCorrectly() {
-		assertThat(rule.getServletServerUri()).isEqualTo("http://localhost:" + SERVLET_SERVER_PORT);
+		assertThat(rule.getApplicationServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
+		assertThat(rule.getWireMockRule()).isNotNull();
 		assertThat(rule.createToken().getAccessToken())
 				.isEqualTo(rule.getPreconfiguredJwtGenerator().createToken().getAccessToken());
 	}
 
 	@Test
 	public void servletFilterServesTestServlet() throws IOException {
-		HttpGet httpGet = new HttpGet(rule.getServletServerUri() + "/hello");
+		HttpGet httpGet = new HttpGet(rule.getApplicationServerUri() + "/hello");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
 		}
@@ -112,21 +112,8 @@ public class SecurityIntegrationTestRuleTest {
 
 		@Test
 		public void testRuleIsInitializedCorrectly() {
-			assertThat(rule.getServletServerUri()).isNull();
-		}
-	}
-
-	public static class SecurityIntegrationTestRuleTestWithApplicationServerRandomPort {
-
-		@Rule
-		public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
-				.useServletServer();
-
-		@Test
-		public void freeRandomPortIsChosenForServletServer() {
-			URI servletServerUri = URI.create(rule.getServletServerUri());
-			assertThat(servletServerUri).isNotNull();
-			assertThat(servletServerUri.getPort()).isGreaterThan(0);
+			assertThat(rule.getApplicationServerUri()).isNull();
+			assertThat(rule.getWireMockRule()).isNotNull();
 		}
 	}
 

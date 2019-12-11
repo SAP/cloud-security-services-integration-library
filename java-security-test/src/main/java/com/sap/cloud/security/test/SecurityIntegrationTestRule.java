@@ -1,5 +1,6 @@
 package com.sap.cloud.security.test;
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.servlet.OAuth2SecurityFilter;
 import com.sap.cloud.security.token.Token;
@@ -22,12 +23,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 public class SecurityIntegrationTestRule extends ExternalResource {
 
@@ -36,17 +39,17 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	private RSAKeys keys;
 
-	private int jwksServerPort = 0;
-	private Server jwksServer;
-	private URI jwksUrl;
+	private int wireMockPort = 0;
+	private WireMockRule wireMockRule;
 
-	private boolean useServletServer;
-	private int servletServerPort = 0;
-	private Server servletServer;
-	private Map<String, ServletHolder> servletsByPath = new HashMap<>();
+	private boolean useApplicationServer;
+	private int applicationServerPort = 0;
+	private Server applicationServer;
+	private Map<String, ServletHolder> applicationServletsByPath = new HashMap<>();
 
 	private Service service;
 	private String clientId;
+	private String jwksUrl;
 
 	private SecurityIntegrationTestRule() {
 		// see factory method getInstance()
@@ -75,28 +78,28 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            the port on which the application service is started.
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule useServletServer(int port) {
-		servletServerPort = port;
-		useServletServer = true;
+	public SecurityIntegrationTestRule useApplicationServer(int port) {
+		applicationServerPort = port;
+		useApplicationServer = true;
 		return this;
 	}
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
 	 * before the {@link #before()} method. The servlet server will listen on a free
-	 * random port. Use {@link #getServletServerUri()} to obtain port.
+	 * random port. Use {@link #getApplicationServerUri()} to obtain port.
 	 *
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule useServletServer() {
-		servletServerPort = 0;
-		useServletServer = true;
+	public SecurityIntegrationTestRule useApplicationServer() {
+		applicationServerPort = 0;
+		useApplicationServer = true;
 		return this;
 	}
 
 	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in
-	 * conjunction with {@link #useServletServer}.
+	 * conjunction with {@link #useApplicationServer}.
 	 * 
 	 * @param servletClass
 	 *            the servlet class that should be served.
@@ -105,13 +108,13 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 * @return the rule itself.
 	 */
 	public SecurityIntegrationTestRule addServlet(Class<? extends Servlet> servletClass, String path) {
-		servletsByPath.put(path, new ServletHolder(servletClass));
+		applicationServletsByPath.put(path, new ServletHolder(servletClass));
 		return this;
 	}
 
 	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in
-	 * conjunction with {@link #useServletServer}.
+	 * conjunction with {@link #useApplicationServer}.
 	 * 
 	 * @param servletHolder
 	 *            the servlet inside a {@link ServletHolder} that should be served.
@@ -120,12 +123,12 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 * @return the rule itself.
 	 */
 	public SecurityIntegrationTestRule addServlet(ServletHolder servletHolder, String path) {
-		servletsByPath.put(path, servletHolder);
+		applicationServletsByPath.put(path, servletHolder);
 		return this;
 	}
 
 	/**
-	 * Overwrites the port on which the jwks mock server runs. It needs to be
+	 * Overwrites the port on which the identity service mock server runs (WireMock). It needs to be
 	 * configured before the {@link #before()} method. If the port is not specified
 	 * or is set to 0, a free random port is chosen.
 	 *
@@ -134,7 +137,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 * @return the rule itself.
 	 */
 	public SecurityIntegrationTestRule setPort(int port) {
-		this.jwksServerPort = port;
+		this.wireMockPort = port;
 		return this;
 	}
 
@@ -169,25 +172,25 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	@Override
 	protected void before() throws Exception {
-		jwksServer = new Server(jwksServerPort);
-		ServletHandler jwksServerServletHandler = createHandlerForServer(jwksServer);
-		jwksServer.start();
-		if (useServletServer) {
-			startServletServer();
+		if (useApplicationServer) {
+			startApplicationServer();
 		}
+		setupWireMock();
+
 		switch (service) {
 		case XSUAA:
 			// prepare endpoints provider
 			XsuaaDefaultEndpoints endpointsProvider = new XsuaaDefaultEndpoints(
-					String.format(LOCALHOST_PATTERN, jwksServer.getURI().getPort()));
-			jwksUrl = endpointsProvider.getJwksUri();
+					String.format(LOCALHOST_PATTERN, wireMockPort));
+			wireMockRule.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
+					.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
+			jwksUrl = endpointsProvider.getJwksUri().toString();
 			break;
 		default:
 			throw new UnsupportedOperationException("Service " + service + " is not yet supported.");
 		}
 
-		ServletHolder servletHolder = new ServletHolder(new JwksServlet());
-		jwksServerServletHandler.addServletWithMapping(servletHolder, jwksUrl.getPath());
+		// starts WireMock (to stub communication to identity service)
 	}
 
 	/**
@@ -215,51 +218,62 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	/**
+	 * Allows to stub further endpoints of the identity service. Returns null if the
+	 * rule is not yet initialized as part of {@link #before()} method. You can find
+	 * a detailed explanation on how to configure wire mock here:
+	 * http://wiremock.org/docs/getting-started/
+	 */
+	@Nullable
+	public WireMockRule getWireMockRule() {
+		return wireMockRule;
+	}
+
+	/**
 	 * Returns the URI of the embedded jetty server or null if not specified.
 	 */
 	@Nullable
-	public String getServletServerUri() {
-		if (useServletServer) {
-			return String.format(LOCALHOST_PATTERN, servletServer.getURI().getPort());
+	public String getApplicationServerUri() {
+		if (useApplicationServer) {
+			return String.format(LOCALHOST_PATTERN, applicationServer.getURI().getPort());
 		}
 		return null;
 	}
 
+	private void setupWireMock() {
+		if (wireMockPort == 0) {
+			wireMockRule = new WireMockRule(options().dynamicPort());
+		} else {
+			wireMockRule = new WireMockRule(options().port(wireMockPort));
+		}
+		wireMockRule.start();
+		wireMockPort = wireMockRule.port();
+	}
+
 	@Override
 	protected void after() {
+		wireMockRule.shutdown();
 		try {
-			jwksServer.stop();
-			if (useServletServer) {
-				servletServer.stop();
+			if (useApplicationServer) {
+				applicationServer.stop();
 			}
 		} catch (Exception e) {
 			logger.error("Failed to stop jetty server", e);
 		}
 	}
 
-	private void startServletServer() throws Exception {
-		servletServer = new Server(servletServerPort);
-		ServletHandler servletHandler = createHandlerForServer(servletServer);
-		servletsByPath.forEach((path, servlet) -> servletHandler.addServletWithMapping(servlet, path));
+	private void startApplicationServer() throws Exception {
+		applicationServer = new Server(applicationServerPort);
+		ServletHandler servletHandler = createHandlerForServer(applicationServer);
+		applicationServletsByPath.forEach((path, servlet) -> servletHandler.addServletWithMapping(servlet, path));
 		servletHandler.addFilterWithMapping(OAuth2SecurityFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
-		servletServer.setHandler(servletHandler);
-		servletServer.start();
+		applicationServer.setHandler(servletHandler);
+		applicationServer.start();
 	}
 
 	private ServletHandler createHandlerForServer(Server server) {
-		ServletHandler jwksServerServletHandler = new ServletHandler();
-		server.setHandler(jwksServerServletHandler);
-		return jwksServerServletHandler;
-	}
-
-	private class JwksServlet extends HttpServlet {
-		@Override
-		protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-			response.setStatus(HttpServletResponse.SC_OK);
-			response.setContentType(MediaType.APPLICATION_JSON.value());
-			response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
-			response.getWriter().write(createDefaultTokenKeyResponse());
-		}
+		ServletHandler servletHandler = new ServletHandler();
+		server.setHandler(servletHandler);
+		return servletHandler;
 	}
 
 	private String createDefaultTokenKeyResponse() throws IOException {

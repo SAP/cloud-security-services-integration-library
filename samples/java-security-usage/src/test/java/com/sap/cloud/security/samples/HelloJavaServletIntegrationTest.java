@@ -25,7 +25,7 @@ public class HelloJavaServletIntegrationTest {
 
 	@ClassRule
 	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
-			.useServletServer()
+			.useApplicationServer()
 			.addServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 
 	@BeforeClass
@@ -42,7 +42,7 @@ public class HelloJavaServletIntegrationTest {
 	}
 
 	@Test
-	public void requestWithoutAuthorizationHeader_statusUnauthorized() throws IOException {
+	public void requestWithoutAuthorizationHeader_unauthenticated() throws IOException {
 		HttpGet request = createGetRequest(null);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
@@ -50,7 +50,7 @@ public class HelloJavaServletIntegrationTest {
 	}
 
 	@Test
-	public void requestWithEmptyAuthorizationHeader_statusUnauthorized() throws Exception {
+	public void requestWithEmptyAuthorizationHeader_unauthenticated() throws Exception {
 		HttpGet request = createGetRequest("");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
@@ -69,7 +69,7 @@ public class HelloJavaServletIntegrationTest {
 	/** TODO as soon @ServletSecurity works
 
 	@Test
-	public void request_withValidTokenWithoutScopes_statusUnauthorized() throws IOException {
+	public void request_withValidTokenWithoutScopes_unauthorized() throws IOException {
 		HttpGet request = createGetRequest(rule.createToken().getBearerAccessToken());
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -78,7 +78,7 @@ public class HelloJavaServletIntegrationTest {
 	}
 
 	@Test
-	public void request_withValidToken_statusOk() throws IOException {
+	public void request_withValidToken_ok() throws IOException {
 		Token tokenWithScopes = rule.getPreconfiguredJwtGenerator().withScopes(getGlobalScope("read")).createToken();
 		HttpGet request = createGetRequest(tokenWithScopes.getBearerAccessToken());
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
@@ -90,7 +90,7 @@ public class HelloJavaServletIntegrationTest {
 	**/
 
 	private HttpGet createGetRequest(String bearerToken) {
-		HttpGet httpGet = new HttpGet(rule.getServletServerUri() + HelloJavaServlet.ENDPOINT);
+		HttpGet httpGet = new HttpGet(rule.getApplicationServerUri() + HelloJavaServlet.ENDPOINT);
 		if(bearerToken != null) {
 			httpGet.setHeader(HttpHeaders.AUTHORIZATION, bearerToken);
 		}
