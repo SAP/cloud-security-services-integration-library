@@ -21,11 +21,13 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
 public class SecurityIntegrationTestRule extends ExternalResource {
 
@@ -181,19 +183,6 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 			startApplicationServer();
 		}
 		setupWireMock();
-		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
-				String.format(LOCALHOST_PATTERN, wireMockPort));
-		wireMockRule.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
-				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
-
-		switch (service) {
-		case XSUAA:
-			// prepare endpoints provider
-			jwksUrl = endpointsProvider.getJwksUri().toString();
-			break;
-		default:
-			break;
-		}
 
 		// starts WireMock (to stub communication to identity service)
 	}
@@ -207,8 +196,16 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service)
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
-				.withPrivateKey(keys.getPrivate())
-				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl); // TODO null in case of IAS
+				.withPrivateKey(keys.getPrivate());
+		switch (service) {
+			case XSUAA:
+				jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl);
+				break;
+			default:
+				jwtGenerator.withClaimValue(TokenClaims.ISSUER, wireMockRule.baseUrl());
+				break;
+		}
+
 		return jwtGenerator;
 	}
 
@@ -245,7 +242,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		return null;
 	}
 
-	private void setupWireMock() {
+	private void setupWireMock() throws IOException {
 		if (wireMockPort == 0) {
 			wireMockRule = new WireMockRule(options().dynamicPort());
 		} else {
@@ -253,6 +250,14 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		}
 		wireMockRule.start();
 		wireMockPort = wireMockRule.port();
+
+		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
+				String.format(LOCALHOST_PATTERN, wireMockPort));
+		wireMockRule.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
+				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
+		wireMockRule.stubFor(get(urlEqualTo(DISCOVERY_ENDPOINT_DEFAULT))
+				.willReturn(aResponse().withBody(createDefaultOidcConfigurationResponse())));
+		jwksUrl = endpointsProvider.getJwksUri().toString();
 	}
 
 	@Override
@@ -286,6 +291,11 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		return IOUtils.resourceToString("/token_keys_template.json", StandardCharsets.UTF_8)
 				.replace("$kid", "default-kid")
 				.replace("$public_key", Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()));
+	}
+
+	private String createDefaultOidcConfigurationResponse() throws IOException {
+		return IOUtils.resourceToString("/oidcConfigurationTemplate.json", StandardCharsets.UTF_8)
+				.replace("$issuer", wireMockRule.baseUrl());
 	}
 
 

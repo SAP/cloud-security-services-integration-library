@@ -4,6 +4,7 @@ import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.token.IasToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
@@ -23,11 +24,11 @@ import javax.servlet.http.HttpServletResponse;
 
 public class OAuth2SecurityFilter implements Filter {
 
-	private static final Logger logger = LoggerFactory.getLogger(OAuth2SecurityFilter.class);
-	private final TokenExtractor tokenExtractor;
-	private Validator<Token> tokenValidator;
-	private OAuth2TokenKeyServiceWithCache tokenKeyService;
-	private OidcConfigurationServiceWithCache oidcConfigurationService;
+	private final Logger logger = LoggerFactory.getLogger(OAuth2SecurityFilter.class);
+	protected final TokenExtractor tokenExtractor;
+	protected Validator<Token> tokenValidator;
+	protected OAuth2TokenKeyServiceWithCache tokenKeyService;
+	protected OidcConfigurationServiceWithCache oidcConfigurationService;
 
 	public OAuth2SecurityFilter() {
 		this((OAuth2TokenKeyServiceWithCache) null, null);
@@ -49,9 +50,7 @@ public class OAuth2SecurityFilter implements Filter {
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
 		this.tokenKeyService = tokenKeyService;
 		this.oidcConfigurationService = oidcConfigurationService;
-		tokenExtractor = (authorizationHeader) -> new XsuaaToken(authorizationHeader,
-				Environments.getCurrent().getXsuaaConfiguration().getProperty(
-						CFConstants.XSUAA.APP_ID));
+		tokenExtractor = new DefaultTokenExtractor();
 	}
 
 	OAuth2SecurityFilter(TokenExtractor tokenExtractor, Validator<Token> tokenValidator) {
@@ -73,10 +72,10 @@ public class OAuth2SecurityFilter implements Filter {
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = tokenExtractor.from(authorizationHeader);
-					if (token.getService() != Service.XSUAA) {
-						logger.info("The token of service {} is not validated by {}.", token.getService(), getClass());
+					/*if (token.getService() != Service.XSUAA) {
+						logger.warn("The token of service {} is not validated by {}.", token.getService(), getClass());
 						return;
-					}
+					}*/
 					ValidationResult result = getOrCreateTokenValidator().validate(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
@@ -93,10 +92,10 @@ public class OAuth2SecurityFilter implements Filter {
 		}
 	}
 
-	private Validator<Token> getOrCreateTokenValidator() {
+	protected Validator<Token> getOrCreateTokenValidator() {
 		if (tokenValidator == null) {
 			tokenValidator = JwtValidatorBuilder
-					.getInstance(getXsuaaServiceConfiguration())
+					.getInstance(Environments.getCurrent().getXsuaaConfiguration())
 					.withOAuth2TokenKeyService(tokenKeyService)
 					.withOidcConfigurationService(oidcConfigurationService)
 					.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
@@ -110,12 +109,8 @@ public class OAuth2SecurityFilter implements Filter {
 		SecurityContext.clearToken();
 	}
 
-	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
-		return Environments.getCurrent().getXsuaaConfiguration();
-	}
-
 	@Nullable
-	private OAuth2ServiceConfiguration getOtherXsuaaServiceConfiguration() {
+	protected OAuth2ServiceConfiguration getOtherXsuaaServiceConfiguration() {
 		if (Environments.getCurrent().getNumberOfXsuaaConfigurations() > 1) {
 			return Environments.getCurrent().getXsuaaConfigurationForTokenExchange();
 		}
@@ -131,8 +126,21 @@ public class OAuth2SecurityFilter implements Filter {
 		return authorizationHeader != null && !authorizationHeader.isEmpty();
 	}
 
-	interface TokenExtractor {
+	public interface TokenExtractor {
 		Token from(String authorizationHeader);
+	}
+
+	public class DefaultTokenExtractor implements TokenExtractor {
+
+		@Override
+		public Token from(String authorizationHeader) {
+			if(Environments.getCurrent().getXsuaaConfiguration() != null) {
+				return new XsuaaToken(authorizationHeader,
+						Environments.getCurrent().getXsuaaConfiguration().getProperty(
+								CFConstants.XSUAA.APP_ID));
+			}
+			return new IasToken(authorizationHeader);
+		}
 	}
 
 }

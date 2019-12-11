@@ -3,6 +3,7 @@ package com.sap.cloud.security.token.validation.validators;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
 
 import javax.annotation.Nullable;
@@ -11,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.*;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
 import static com.sap.cloud.security.config.Service.XSUAA;
@@ -32,6 +34,7 @@ public class JwtValidatorBuilder {
 	}
 
 	public static JwtValidatorBuilder getInstance(OAuth2ServiceConfiguration configuration) {
+		Assertions.assertNotNull(configuration, "configuration must not be null");
 		JwtValidatorBuilder tokenBuilder = new JwtValidatorBuilder();
 		tokenBuilder.configuration = configuration;
 		return tokenBuilder;
@@ -84,25 +87,21 @@ public class JwtValidatorBuilder {
 	private List<Validator<Token>> createDefaultValidators() {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
-		if (isXsuaaConfiguration()) {
+		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
+		defaultValidators.add(
+				new JwtSignatureValidator(getTokenKeyServiceWithCache(), getOidcConfigurationServiceWithCache()));
+
+		if (configuration.getService() == XSUAA) {
 			if (customAudienceValidator == null) {
-				XsuaaJwtAudienceValidator xsuaaJwtAudienceValidator = createXsuaaAudienceValidator();
-				defaultValidators.add(xsuaaJwtAudienceValidator);
-			} else {
-				defaultValidators.add(customAudienceValidator);
+				defaultValidators.add(createXsuaaAudienceValidator());
 			}
 			defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
-			defaultValidators.add(
-					new JwtSignatureValidator(getTokenKeyServiceWithCache(), getOidcConfigurationServiceWithCache()));
-		} else {
-			Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
+
+		} else if (configuration.getService() == IAS) {
+			// TODO IAS
+			// defaultValidators.add(new JwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
 		}
-
 		return defaultValidators;
-	}
-
-	private boolean isXsuaaConfiguration() {
-		return configuration != null && XSUAA.equals(configuration.getService());
 	}
 
 	private XsuaaJwtAudienceValidator createXsuaaAudienceValidator() {

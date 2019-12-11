@@ -23,8 +23,8 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 
+import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
@@ -51,6 +51,9 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
+		if (!token.hasHeaderParameter(KEYS_URL_PARAMETER_NAME) && !token.hasClaim(TokenClaims.ISSUER)) {
+			return createInvalid("Token signature can not be validated as jwks uri can not be determined: Token does neither provide 'jku' header nor 'issuer' claim.");
+		}
 		try {
 			return validate(token.getAccessToken(),
 					token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME),
@@ -70,13 +73,16 @@ public class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	private String determineJwksUri(Token token) throws OAuth2ServiceException {
-		String jkuUri = token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME);
-		if (jkuUri == null) {
-			jkuUri = oidcConfigurationService
-					.getOrRetrieveEndpoints(URI.create(token.getClaimAsString(TokenClaims.ISSUER)))
+		if (token.hasHeaderParameter(KEYS_URL_PARAMETER_NAME)) {
+			return token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME);
+		}
+		if (token.hasClaim(TokenClaims.ISSUER)) {
+			URI discoveryUri = DefaultOidcConfigurationService.getDiscoveryEndpointUri(URI.create(token.getClaimAsString(TokenClaims.ISSUER)));
+			return oidcConfigurationService
+					.getOrRetrieveEndpoints(discoveryUri)
 					.getJwksUri().toString();
 		}
-		return jkuUri;
+		return null;
 	}
 
 	private static class Validation {

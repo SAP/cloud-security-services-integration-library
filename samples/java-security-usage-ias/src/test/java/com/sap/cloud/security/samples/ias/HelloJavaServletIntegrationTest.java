@@ -1,9 +1,11 @@
-package com.sap.cloud.security.samples;
+package com.sap.cloud.security.samples.ias;
 
 import com.sap.cloud.security.config.Environments;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.servlet.OAuth2SecurityFilter;
 import com.sap.cloud.security.test.SecurityIntegrationTestRule;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -16,7 +18,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
-import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,17 +26,18 @@ public class HelloJavaServletIntegrationTest {
 	private static Properties oldProperties;
 
 	@ClassRule
-	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
+	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(Service.IAS)
 			.useApplicationServer()
 			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT)
-			.addApplicationServletFilter(OAuth2SecurityFilter.class);
+			.addApplicationServletFilter(SecurityServletFilter.class);
+
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
 		oldProperties = System.getProperties();
 		System.setProperty(VCAP_SERVICES, IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-		assertThat(Environments.getCurrent().getXsuaaConfiguration()).isNotNull();
-		rule.setClientId(Environments.getCurrent().getXsuaaConfiguration().getClientId());
+		assertThat(Environments.getCurrent().getIasConfiguration()).isNotNull();
+		rule.setClientId(Environments.getCurrent().getIasConfiguration().getClientId());
 	}
 
 	@AfterClass
@@ -61,9 +63,11 @@ public class HelloJavaServletIntegrationTest {
 
 	@Test
 	public void request_withValidToken() throws IOException {
-		HttpGet request = createGetRequest(rule.createToken().getBearerAccessToken());
+		Token token = rule.getPreconfiguredJwtGenerator()
+				.createToken();
+		HttpGet request = createGetRequest(token.getBearerAccessToken());
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+			IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
 		}
 	}

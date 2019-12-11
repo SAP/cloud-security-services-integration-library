@@ -21,15 +21,6 @@ public class JwtValidatorBuilderTest {
 	public static final Token TOKEN = mock(Token.class);
 
 	@Test
-	public void with_addedValidator_isUsed() {
-		TokenValidator myValidatorMock = createTokenValidatorMock();
-
-		JwtValidatorBuilder.getInstance(null).with(myValidatorMock).build().validate(TOKEN);
-
-		verify(myValidatorMock, times(1)).validate(TOKEN);
-	}
-
-	@Test
 	public void withAudienceValidator_overridesXsuaaJwtAudienceValidator() throws URISyntaxException {
 		TokenValidator tokenValidatorMock = createTokenValidatorMock();
 		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(createMockConfiguration())
@@ -41,7 +32,7 @@ public class JwtValidatorBuilderTest {
 	}
 
 	@Test
-	public void build_withConfiguration_containsAllDefaultValidators() throws URISyntaxException {
+	public void build_containsAllDefaultValidators() throws URISyntaxException {
 		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(createMockConfiguration()).build()
 				.getValidators();
 
@@ -50,6 +41,20 @@ public class JwtValidatorBuilderTest {
 				.hasAtLeastOneElementOfType(XsuaaJwtAudienceValidator.class)
 				.hasAtLeastOneElementOfType(XsuaaJwtIssuerValidator.class)
 				.hasAtLeastOneElementOfType(JwtSignatureValidator.class);
+	}
+
+	@Test
+	public void buildWithAnotherValidator_containsAddedValidator() throws URISyntaxException {
+		TokenValidator tokenValidatorMock = createTokenValidatorMock();
+
+		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(createMockConfiguration())
+				.with(tokenValidatorMock)
+				.build()
+				.getValidators();
+
+		assertThat(validators)
+				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
+				.contains(tokenValidatorMock);
 	}
 
 	private OAuth2ServiceConfiguration createMockConfiguration() throws URISyntaxException {
