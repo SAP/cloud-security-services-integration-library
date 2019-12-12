@@ -90,15 +90,23 @@ public class DefaultOidcConfigurationServiceTest {
 	@Test
 	public void retrieveIssuerEndpoints_executesHttpGetRequestWithCorrectURI() throws IOException {
 		URI discoveryEndpoint1 = DefaultOidcConfigurationService
-				.getDiscoveryEndpointUri(URI.create("https://sub.myauth.com"));
+				.getDiscoveryEndpointUri("https://sub.myauth.com");
 		URI discoveryEndpoint2 = DefaultOidcConfigurationService
-				.getDiscoveryEndpointUri(URI.create("https://sub.myauth.com/"));
+				.getDiscoveryEndpointUri("https://sub.myauth.com/");
 		URI discoveryEndpoint3 = DefaultOidcConfigurationService
-				.getDiscoveryEndpointUri(URI.create("https://sub.myauth.com/path"));
+				.getDiscoveryEndpointUri("https://sub.myauth.com/path");
+		URI discoveryEndpoint4 = DefaultOidcConfigurationService
+				.getDiscoveryEndpointUri("https://sub.myauth.com//path");
+		URI discoveryEndpoint5 = DefaultOidcConfigurationService
+				.getDiscoveryEndpointUri("sub.myauth.com/path");
 
 		assertThat(discoveryEndpoint1.toString()).isEqualTo("https://sub.myauth.com/.well-known/openid-configuration");
 		assertThat(discoveryEndpoint2.toString()).isEqualTo("https://sub.myauth.com/.well-known/openid-configuration");
 		assertThat(discoveryEndpoint3.toString())
+				.isEqualTo("https://sub.myauth.com/path/.well-known/openid-configuration");
+		assertThat(discoveryEndpoint4.toString())
+				.isEqualTo("https://sub.myauth.com/path/.well-known/openid-configuration");
+		assertThat(discoveryEndpoint5.toString())
 				.isEqualTo("https://sub.myauth.com/path/.well-known/openid-configuration");
 	}
 
