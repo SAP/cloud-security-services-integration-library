@@ -41,6 +41,17 @@ public interface OAuth2ServiceConfiguration {
 	String getProperty(String name);
 
 	/**
+	 * Returns true if the configuration contains the given property.
+	 *
+	 * @param name
+	 *            the name of the property. You can find constants in
+	 *            {@link com.sap.cloud.security.config.cf.CFConstants}
+	 * @return true if the property does not exist.
+	 */
+	@Nullable
+	boolean hasProperty(String name);
+
+	/**
 	 * Returns the service of this configuration.
 	 *
 	 * @return the service.
