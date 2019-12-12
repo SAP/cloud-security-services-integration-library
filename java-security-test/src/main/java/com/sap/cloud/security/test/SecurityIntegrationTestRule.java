@@ -8,10 +8,15 @@ import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.annotations.AnnotationConfiguration;
+import org.eclipse.jetty.plus.webapp.EnvConfiguration;
+import org.eclipse.jetty.plus.webapp.PlusConfiguration;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.*;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +26,6 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -55,7 +59,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	/**
 	 * Creates an instance of the test rule for the given service.
-	 * 
+	 *
 	 * @param service
 	 *            the service for which the test rule should be created.
 	 * @return the test rule instance.
@@ -63,9 +67,11 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	public static SecurityIntegrationTestRule getInstance(Service service) {
 		SecurityIntegrationTestRule instance = new SecurityIntegrationTestRule();
 		// TODO IAS
-		/*if (service != Service.XSUAA) {
-			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
-		}*/
+		/*
+		 * if (service != Service.XSUAA) { throw new
+		 * UnsupportedOperationException("Identity Service " + service +
+		 * " is not yet supported."); }
+		 */
 		instance.keys = RSAKeys.generate();
 		instance.service = service;
 		return instance;
@@ -102,7 +108,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in
 	 * conjunction with {@link #useApplicationServer}.
-	 * 
+	 *
 	 * @param servletClass
 	 *            the servlet class that should be served.
 	 * @param path
@@ -117,7 +123,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in
 	 * conjunction with {@link #useApplicationServer}.
-	 * 
+	 *
 	 * @param servletHolder
 	 *            the servlet inside a {@link ServletHolder} that should be served.
 	 * @param path
@@ -198,12 +204,12 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
 				.withPrivateKey(keys.getPrivate());
 		switch (service) {
-			case XSUAA:
-				jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl);
-				break;
-			default:
-				jwtGenerator.withClaimValue(TokenClaims.ISSUER, wireMockRule.baseUrl());
-				break;
+		case XSUAA:
+			jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl);
+			break;
+		default:
+			jwtGenerator.withClaimValue(TokenClaims.ISSUER, wireMockRule.baseUrl());
+			break;
 		}
 
 		return jwtGenerator;
@@ -273,17 +279,35 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	private void startApplicationServer() throws Exception {
+		WebAppContext context = new WebAppContext();
+		context.setConfigurations(new Configuration[] {
+				new AnnotationConfiguration(), new WebXmlConfiguration(),
+				new WebInfConfiguration(),
+				new PlusConfiguration(), new MetaInfConfiguration(),
+				new FragmentConfiguration(), new EnvConfiguration() });
+		context.setContextPath("/");
+		context.setResourceBase("src/main/java/webapp");
+		context.setParentLoaderPriority(true);
+
 		applicationServer = new Server(applicationServerPort);
-		ServletHandler servletHandler = createHandlerForServer(applicationServer);
-		applicationServletsByPath.forEach((path, servletHolder) -> servletHandler.addServletWithMapping(servletHolder, path));
-		applicationServletFilters.forEach((filterHolder) -> servletHandler.addFilterWithMapping(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
-		applicationServer.setHandler(servletHandler);
+		ServletHandler servletHandler = createHandlerForServer(applicationServer, context);
+		applicationServletsByPath
+				.forEach((path, servletHolder) -> servletHandler.addServletWithMapping(servletHolder, path));
+		applicationServletFilters.forEach((filterHolder) -> servletHandler
+				.addFilterWithMapping(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
+
+		applicationServer.setHandler(context);
 		applicationServer.start();
 	}
 
-	private ServletHandler createHandlerForServer(Server server) {
+	private ServletHandler createHandlerForServer(Server server, WebAppContext context) {
+		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
+		security.setAuthenticator(new TokenAuthenticator());
 		ServletHandler servletHandler = new ServletHandler();
-		server.setHandler(servletHandler);
+		security.setHandler(servletHandler);
+		context.setServletHandler(servletHandler);
+		context.setSecurityHandler(security);
+		server.setHandler(security);
 		return servletHandler;
 	}
 
@@ -297,6 +321,5 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		return IOUtils.resourceToString("/oidcConfigurationTemplate.json", StandardCharsets.UTF_8)
 				.replace("$issuer", wireMockRule.baseUrl());
 	}
-
 
 }
