@@ -37,6 +37,7 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 	}
 
 	public static URI getDiscoveryEndpointUri(@Nonnull String issuerUri) {
+		// to support existing IAS applications
 		URI uri = URI.create(issuerUri.startsWith("http") ? issuerUri : "https://" + issuerUri);
 		return UriUtil.getUriWithPathAppended(uri, DISCOVERY_ENDPOINT_DEFAULT);
 	}

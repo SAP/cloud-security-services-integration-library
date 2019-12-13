@@ -73,7 +73,8 @@ public class JsonWebKeyImpl implements JsonWebKey {
 		return keyFactory.generatePublic(keySpec);
 	}
 
-	public static PublicKey createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm algorithm, String pemEncodedKey)
+	public static PublicKey createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm algorithm,
+			String pemEncodedKey)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
 		byte[] decodedBytes = Base64.getMimeDecoder().decode(convertPEMKey(pemEncodedKey));
 

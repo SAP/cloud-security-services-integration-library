@@ -72,10 +72,11 @@ public class OAuth2SecurityFilter implements Filter {
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = tokenExtractor.from(authorizationHeader);
-					/*if (token.getService() != Service.XSUAA) {
-						logger.warn("The token of service {} is not validated by {}.", token.getService(), getClass());
-						return;
-					}*/
+					/*
+					 * if (token.getService() != Service.XSUAA) {
+					 * logger.warn("The token of service {} is not validated by {}.",
+					 * token.getService(), getClass()); return; }
+					 */
 					ValidationResult result = getOrCreateTokenValidator().validate(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
@@ -134,7 +135,7 @@ public class OAuth2SecurityFilter implements Filter {
 
 		@Override
 		public Token from(String authorizationHeader) {
-			if(Environments.getCurrent().getXsuaaConfiguration() != null) {
+			if (Environments.getCurrent().getXsuaaConfiguration() != null) {
 				return new XsuaaToken(authorizationHeader,
 						Environments.getCurrent().getXsuaaConfiguration().getProperty(
 								CFConstants.XSUAA.APP_ID));

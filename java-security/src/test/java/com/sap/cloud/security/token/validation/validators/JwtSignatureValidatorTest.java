@@ -40,7 +40,8 @@ public class JwtSignatureValidatorTest {
 				APP_ID);
 		iasToken = new IasToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 
-		xsuaaTokenSignedWithVerificationKey = new XsuaaToken(IOUtils.resourceToString("/xsuaaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8), APP_ID);
+		xsuaaTokenSignedWithVerificationKey = new XsuaaToken(
+				IOUtils.resourceToString("/xsuaaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8), APP_ID);
 
 		endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("https://myoidcprovider.com/jwks_uri"));
@@ -74,8 +75,9 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void iasOidc_RSASignatureMatchesJWKS() throws IOException {
-		when(tokenKeyServiceMock.retrieveTokenKeys(URI.create("https://myoidcprovider.com/jwks_uri"))).thenReturn(JsonWebKeySetFactory.createFromJson(
-				IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8)));
+		when(tokenKeyServiceMock.retrieveTokenKeys(URI.create("https://myoidcprovider.com/jwks_uri")))
+				.thenReturn(JsonWebKeySetFactory.createFromJson(
+						IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8)));
 		assertThat(cut.validate(iasToken).isValid(), is(true));
 	}
 
@@ -83,13 +85,14 @@ public class JwtSignatureValidatorTest {
 	public void generatedToken_SignatureMatchesVerificationkey() {
 		OAuth2ServiceConfiguration mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
-		when(mockConfiguration.getProperty("verificationkey")).thenReturn("-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTNVTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9YoU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GPn38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4oQIDAQAB-----END PUBLIC KEY-----");
+		when(mockConfiguration.getProperty("verificationkey")).thenReturn(
+				"-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTNVTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9YoU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GPn38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4oQIDAQAB-----END PUBLIC KEY-----");
 		cut.withOAuth2Configuration(mockConfiguration);
 		assertThat(cut.validate(xsuaaTokenSignedWithVerificationKey).isValid(), is(true));
 	}
 
 	@Test
-	public void validationFails_whenSignatureOfGeneratedTokenDoesNotMatchVerificationkey()  {
+	public void validationFails_whenSignatureOfGeneratedTokenDoesNotMatchVerificationkey() {
 		OAuth2ServiceConfiguration mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
 		when(mockConfiguration.getProperty("verificationkey")).thenReturn("INVALID_KEY");
@@ -129,14 +132,16 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenNoMatchingKey() throws IOException {
-		when(tokenKeyServiceMock.retrieveTokenKeys(URI.create("https://myauth.com/jwks_uri"))).thenReturn(JsonWebKeySetFactory.createFromJson(
-				IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8)));
+		when(tokenKeyServiceMock.retrieveTokenKeys(URI.create("https://myauth.com/jwks_uri")))
+				.thenReturn(JsonWebKeySetFactory.createFromJson(
+						IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8)));
 
 		ValidationResult result = cut.validate(iasToken.getAccessToken(), "RS256", "default-kid-2",
 				"https://myauth.com/jwks_uri");
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
-				containsString("There is no Json Web Token Key with keyId 'default-kid-2' and type 'RSA' to prove the identity of the Jwt."));
+				containsString(
+						"There is no Json Web Token Key with keyId 'default-kid-2' and type 'RSA' to prove the identity of the Jwt."));
 	}
 
 	@Test

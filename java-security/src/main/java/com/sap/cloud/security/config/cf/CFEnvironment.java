@@ -47,7 +47,8 @@ public class CFEnvironment implements Environment {
 	public OAuth2ServiceConfiguration getIasConfiguration() {
 		return loadAll(IAS).stream().filter(Objects::nonNull).findFirst().orElse(null);
 
-		// TODO IAS throw new UnsupportedOperationException("Bindings of IAS Identity Service is not yet supported.");
+		// TODO IAS throw new UnsupportedOperationException("Bindings of IAS Identity
+		// Service is not yet supported.");
 	}
 
 	@Override

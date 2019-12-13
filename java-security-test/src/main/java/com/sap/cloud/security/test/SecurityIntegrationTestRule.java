@@ -63,9 +63,11 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	public static SecurityIntegrationTestRule getInstance(Service service) {
 		SecurityIntegrationTestRule instance = new SecurityIntegrationTestRule();
 		// TODO IAS
-		/*if (service != Service.XSUAA) {
-			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
-		}*/
+		/*
+		 * if (service != Service.XSUAA) { throw new
+		 * UnsupportedOperationException("Identity Service " + service +
+		 * " is not yet supported."); }
+		 */
 		instance.keys = RSAKeys.generate();
 		instance.service = service;
 		return instance;
@@ -198,12 +200,12 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
 				.withPrivateKey(keys.getPrivate());
 		switch (service) {
-			case XSUAA:
-				jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl);
-				break;
-			default:
-				jwtGenerator.withClaimValue(TokenClaims.ISSUER, wireMockRule.baseUrl());
-				break;
+		case XSUAA:
+			jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl);
+			break;
+		default:
+			jwtGenerator.withClaimValue(TokenClaims.ISSUER, wireMockRule.baseUrl());
+			break;
 		}
 
 		return jwtGenerator;
@@ -275,8 +277,10 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	private void startApplicationServer() throws Exception {
 		applicationServer = new Server(applicationServerPort);
 		ServletHandler servletHandler = createHandlerForServer(applicationServer);
-		applicationServletsByPath.forEach((path, servletHolder) -> servletHandler.addServletWithMapping(servletHolder, path));
-		applicationServletFilters.forEach((filterHolder) -> servletHandler.addFilterWithMapping(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
+		applicationServletsByPath
+				.forEach((path, servletHolder) -> servletHandler.addServletWithMapping(servletHolder, path));
+		applicationServletFilters.forEach((filterHolder) -> servletHandler.addFilterWithMapping(filterHolder, "/*",
+				EnumSet.of(DispatcherType.REQUEST)));
 		applicationServer.setHandler(servletHandler);
 		applicationServer.start();
 	}
@@ -297,6 +301,5 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		return IOUtils.resourceToString("/oidcConfigurationTemplate.json", StandardCharsets.UTF_8)
 				.replace("$issuer", wireMockRule.baseUrl());
 	}
-
 
 }

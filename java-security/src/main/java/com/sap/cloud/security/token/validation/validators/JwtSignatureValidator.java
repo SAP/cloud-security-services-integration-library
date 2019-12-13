@@ -69,13 +69,17 @@ public class JwtSignatureValidator implements Validator<Token> {
 					token.getHeaderParameterAsString(KEY_ID_PARAMETER_NAME),
 					jwksUri);
 		} catch (OAuth2ServiceException | IllegalArgumentException e) {
-			if(configuration != null && configuration.hasProperty("verificationkey")) {
+			if (configuration != null && configuration.hasProperty("verificationkey")) {
 				try {
 					// default Fallback
-					PublicKey publicKey = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256, configuration.getProperty("verificationkey"));
-					return Validation.validateTokenSignature(token.getAccessToken(), publicKey, Signature.getInstance(JwtSignatureAlgorithm.RS256.javaSignature()));
+					PublicKey publicKey = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(
+							JwtSignatureAlgorithm.RS256, configuration.getProperty("verificationkey"));
+					return Validation.validateTokenSignature(token.getAccessToken(), publicKey,
+							Signature.getInstance(JwtSignatureAlgorithm.RS256.javaSignature()));
 				} catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
-					return createInvalid("Error occurred during signature validation: ({}). Fallback with configured verificationkey was not successful.", e.getMessage());
+					return createInvalid(
+							"Error occurred during signature validation: ({}). Fallback with configured verificationkey was not successful.",
+							e.getMessage());
 				}
 			}
 			return createInvalid("Error occurred during jwks uri determination: {}.", e.getMessage());
@@ -102,9 +106,9 @@ public class JwtSignatureValidator implements Validator<Token> {
 					.getOrRetrieveEndpoints(discoveryUri)
 					.getJwksUri().toString();
 		}
-		throw new IllegalArgumentException("Token signature can not be validated as jwks uri can not be determined: Token does neither provide 'jku' header nor 'issuer' claim.");
+		throw new IllegalArgumentException(
+				"Token signature can not be validated as jwks uri can not be determined: Token does neither provide 'jku' header nor 'issuer' claim.");
 	}
-
 
 	private static class Validation {
 		JwtSignatureAlgorithm jwtSignatureAlgorithm;
@@ -206,6 +210,5 @@ public class JwtSignatureValidator implements Validator<Token> {
 			}
 		}
 	}
-
 
 }
