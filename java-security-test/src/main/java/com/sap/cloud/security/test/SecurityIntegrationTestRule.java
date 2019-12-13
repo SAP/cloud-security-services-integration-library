@@ -114,6 +114,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	// TODO 13.12.19 c5295400: TODO move add* methods into ApplicationServerOptions?
+
 	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in
 	 * conjunction with {@link #useApplicationServer}.
@@ -288,28 +289,20 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	private void startApplicationServer() throws Exception {
-		WebAppContext context = new WebAppContext();
-		context.setConfigurations(new Configuration[] {
-				new AnnotationConfiguration(), new WebXmlConfiguration(),
-				new WebInfConfiguration(),
-				new PlusConfiguration(), new MetaInfConfiguration(),
-				new FragmentConfiguration(), new EnvConfiguration() });
-		context.setContextPath("/");
-		context.setResourceBase("src/main/java/webapp");
-		context.setParentLoaderPriority(true);
+		WebAppContext context = createWebAppContext();
+		ServletHandler servletHandler = createServletHandler(context);
 
-		applicationServer = new Server(applicationServerOptions.getPort());
-		ServletHandler servletHandler = createHandlerForServer(applicationServer, context);
 		applicationServletsByPath
 				.forEach((path, servletHolder) -> servletHandler.addServletWithMapping(servletHolder, path));
 		applicationServletFilters.forEach((filterHolder) -> servletHandler
 				.addFilterWithMapping(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
 
+		applicationServer = new Server(applicationServerOptions.getPort());
 		applicationServer.setHandler(context);
 		applicationServer.start();
 	}
 
-	private ServletHandler createHandlerForServer(Server server, WebAppContext context) {
+	private ServletHandler createServletHandler(WebAppContext context) {
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
 		security.setAuthenticator(new TokenAuthenticator(applicationServerOptions.getTokenKeyService(),
 				applicationServerOptions.getOidcConfigurationService()));
@@ -317,8 +310,19 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		security.setHandler(servletHandler);
 		context.setServletHandler(servletHandler);
 		context.setSecurityHandler(security);
-		server.setHandler(security);
 		return servletHandler;
+	}
+
+	private WebAppContext createWebAppContext() {
+		WebAppContext context = new WebAppContext();
+		context.setConfigurations(new Configuration[] {
+				new AnnotationConfiguration(), new WebXmlConfiguration(),
+				new WebInfConfiguration(), new PlusConfiguration(), new MetaInfConfiguration(),
+				new FragmentConfiguration(), new EnvConfiguration() });
+		context.setContextPath("/");
+		context.setResourceBase("src/main/java/webapp");
+		context.setParentLoaderPriority(true);
+		return context;
 	}
 
 	private String createDefaultTokenKeyResponse() throws IOException {
