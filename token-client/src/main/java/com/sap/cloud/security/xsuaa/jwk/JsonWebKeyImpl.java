@@ -54,7 +54,7 @@ public class JsonWebKeyImpl implements JsonWebKey {
 			return publicKey;
 		}
 		if (pemEncodedPublicKey != null) {
-			publicKey = createPublicKeyFromPemEncodedPubliKey(keyAlgorithm, pemEncodedPublicKey);
+			publicKey = createPublicKeyFromPemEncodedPublicKey(keyAlgorithm, pemEncodedPublicKey);
 		} else if (keyAlgorithm.type().equalsIgnoreCase("RSA")) {
 			publicKey = createRSAPublicKey(publicExponent, modulus);
 		} else {
@@ -73,7 +73,7 @@ public class JsonWebKeyImpl implements JsonWebKey {
 		return keyFactory.generatePublic(keySpec);
 	}
 
-	static PublicKey createPublicKeyFromPemEncodedPubliKey(JwtSignatureAlgorithm algorithm, String pemEncodedKey)
+	public static PublicKey createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm algorithm, String pemEncodedKey)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
 		byte[] decodedBytes = Base64.getMimeDecoder().decode(convertPEMKey(pemEncodedKey));
 

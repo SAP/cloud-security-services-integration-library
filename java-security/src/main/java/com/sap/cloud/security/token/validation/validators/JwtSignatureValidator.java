@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import static com.sap.cloud.security.token.TokenClaims.*;
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
@@ -8,6 +9,7 @@ import static com.sap.cloud.security.xsuaa.jwk.JsonWebKey.*;
 import static com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants.*;
 import static java.nio.charset.StandardCharsets.*;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.net.URI;
@@ -18,8 +20,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.regex.Pattern;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 
@@ -27,6 +29,7 @@ import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
+import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 /**
@@ -39,6 +42,7 @@ import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 public class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private final OidcConfigurationServiceWithCache oidcConfigurationService;
+	private OAuth2ServiceConfiguration configuration;
 
 	public JwtSignatureValidator(OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
@@ -49,21 +53,36 @@ public class JwtSignatureValidator implements Validator<Token> {
 		this.oidcConfigurationService = oidcConfigurationService;
 	}
 
+	public JwtSignatureValidator withOAuth2Configuration(OAuth2ServiceConfiguration configuration) {
+		this.configuration = configuration;
+		return this;
+	}
+
 	@Override
 	public ValidationResult validate(Token token) {
-		if (!token.hasHeaderParameter(KEYS_URL_PARAMETER_NAME) && !token.hasClaim(TokenClaims.ISSUER)) {
-			return createInvalid("Token signature can not be validated as jwks uri can not be determined: Token does neither provide 'jku' header nor 'issuer' claim.");
-		}
+		String jwksUri;
+
 		try {
+			jwksUri = getOrRequestJwksUri(token);
 			return validate(token.getAccessToken(),
 					token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME),
 					token.getHeaderParameterAsString(KEY_ID_PARAMETER_NAME),
-					determineJwksUri(token));
-		} catch (OAuth2ServiceException e) {
+					jwksUri);
+		} catch (OAuth2ServiceException | IllegalArgumentException e) {
+			if(configuration != null && configuration.hasProperty("verificationkey")) {
+				try {
+					// default Fallback
+					PublicKey publicKey = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256, configuration.getProperty("verificationkey"));
+					return Validation.validateTokenSignature(token.getAccessToken(), publicKey, Signature.getInstance(JwtSignatureAlgorithm.RS256.javaSignature()));
+				} catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+					return createInvalid("Error occurred during signature validation: ({}). Fallback with configured verificationkey was not successful.", e.getMessage());
+				}
+			}
 			return createInvalid("Error occurred during jwks uri determination: {}.", e.getMessage());
 		}
 	}
 
+	// for testing
 	ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId, String tokenKeysUrl) {
 		assertHasText(token, "token must not be null or empty.");
 		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
@@ -72,21 +91,22 @@ public class JwtSignatureValidator implements Validator<Token> {
 				URI.create(tokenKeysUrl));
 	}
 
-	private String determineJwksUri(Token token) throws OAuth2ServiceException {
+	@Nonnull
+	private String getOrRequestJwksUri(Token token) throws OAuth2ServiceException, IllegalArgumentException {
 		if (token.hasHeaderParameter(KEYS_URL_PARAMETER_NAME)) {
 			return token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME);
 		}
-		if (token.hasClaim(TokenClaims.ISSUER)) {
-			URI discoveryUri = DefaultOidcConfigurationService.getDiscoveryEndpointUri(URI.create(token.getClaimAsString(TokenClaims.ISSUER)));
+		if (token.hasClaim(ISSUER)) {
+			URI discoveryUri = DefaultOidcConfigurationService.getDiscoveryEndpointUri(token.getClaimAsString(ISSUER));
 			return oidcConfigurationService
 					.getOrRetrieveEndpoints(discoveryUri)
 					.getJwksUri().toString();
 		}
-		return null;
+		throw new IllegalArgumentException("Token signature can not be validated as jwks uri can not be determined: Token does neither provide 'jku' header nor 'issuer' claim.");
 	}
 
-	private static class Validation {
 
+	private static class Validation {
 		JwtSignatureAlgorithm jwtSignatureAlgorithm;
 		PublicKey publicKey;
 		Signature publicSignature;
@@ -119,7 +139,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 				return validationResult;
 			}
 
-			return isTokenSignatureValid(token);
+			return validateTokenSignature(token, publicKey, publicSignature);
 		}
 
 		private ValidationResult setJwtAlgorithm(String tokenAlgorithm) {
@@ -163,7 +183,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 		private static final Pattern DOT = Pattern.compile("\\.", 0);
 
-		private ValidationResult isTokenSignatureValid(String token) {
+		static ValidationResult validateTokenSignature(String token, PublicKey publicKey, Signature publicSignature) {
 			String[] tokenHeaderPayloadSignature = DOT.split(token);
 			if (tokenHeaderPayloadSignature.length != 3) {
 				return createInvalid("Jwt token does not consist of 'header'.'payload'.'signature'.");
@@ -185,6 +205,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 				return createInvalid("Error occurred during Json Web Signature Validation: {}.", e.getMessage());
 			}
 		}
-
 	}
+
+
 }
