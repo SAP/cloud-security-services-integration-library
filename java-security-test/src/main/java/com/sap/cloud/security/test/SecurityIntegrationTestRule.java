@@ -2,6 +2,7 @@ package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.test.jetty.JettyTokenAuthenticator;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
@@ -57,7 +58,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	public static ApplicationServerOptions applicationServerOptions() {
-		return ApplicationServerOptions.DEFAULT;
+		return ApplicationServerOptions.createDefault();
 	}
 
 	/**
@@ -83,7 +84,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
 	 * before the {@link #before()} method. The application server will be started
-	 * with default options, see {@link ApplicationServerOptions#DEFAULT} for
+	 * with default options, see {@link ApplicationServerOptions#createDefault} for
 	 * details. In this case the servlet server will listen on a free random port.
 	 * Use
 	 * {@link SecurityIntegrationTestRule#useApplicationServer(ApplicationServerOptions)}
@@ -304,8 +305,9 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	private ServletHandler createServletHandler(WebAppContext context) {
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
-		security.setAuthenticator(new TokenAuthenticator(applicationServerOptions.getTokenKeyService(),
-				applicationServerOptions.getOidcConfigurationService()));
+		JettyTokenAuthenticator authenticator = new JettyTokenAuthenticator(
+				applicationServerOptions.getTokenAuthenticator());
+		security.setAuthenticator(authenticator);
 		ServletHandler servletHandler = new ServletHandler();
 		security.setHandler(servletHandler);
 		context.setServletHandler(servletHandler);

@@ -1,5 +1,7 @@
 package com.sap.cloud.security.test;
 
+import com.sap.cloud.security.servlet.DefaultTokenAuthenticator;
+import com.sap.cloud.security.servlet.TokenAuthenticator;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 
@@ -9,70 +11,52 @@ import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
  */
 public class ApplicationServerOptions {
 
-	public static ApplicationServerOptions DEFAULT = new ApplicationServerOptions(
-			OAuth2TokenKeyServiceWithCache.getInstance(),
-			OidcConfigurationServiceWithCache.getInstance(), 0);
-
-	private OAuth2TokenKeyServiceWithCache tokenKeyService;
-	private OidcConfigurationServiceWithCache oidcConfigurationService;
+	private final TokenAuthenticator tokenAuthenticator;
 	private int port;
 
-	/**
-	 * Use this method to configure a custom {@link OAuth2TokenKeyServiceWithCache}
-	 * that will be used in the application server to retrieve token keys for the
-	 * token validation.
-	 * 
-	 * @param tokenKeyService
-	 *            the custom {@link OAuth2TokenKeyServiceWithCache}.
-	 * @return the new configuration object.
-	 */
-	public ApplicationServerOptions useTokenKeyService(OAuth2TokenKeyServiceWithCache tokenKeyService) {
-		return new ApplicationServerOptions(tokenKeyService, oidcConfigurationService, port);
+	private ApplicationServerOptions(TokenAuthenticator tokenAuthenticator, int port) {
+		this.tokenAuthenticator = tokenAuthenticator;
+		this.port = port;
+	}
+
+	public static ApplicationServerOptions createDefault() {
+		return new ApplicationServerOptions(
+				new DefaultTokenAuthenticator(OAuth2TokenKeyServiceWithCache.getInstance(),
+						OidcConfigurationServiceWithCache.getInstance()), 0);
 	}
 
 	/**
-	 * Use this method to configure a custom
-	 * {@link OidcConfigurationServiceWithCache} that will be used in the
-	 * application server.
-	 * 
-	 * @param oidcConfigurationService
-	 *            the custom {@link OidcConfigurationServiceWithCache}.
+	 * Use this method to configure a custom {@link TokenAuthenticator}
+	 * that will be used in the application server to authenticate the user
+	 * via tokens retrieved in the authorization header.
+	 *
+	 * @param tokenAuthenticator
+	 *            the custom {@link TokenAuthenticator}.
 	 * @return the new configuration object.
 	 */
-	public ApplicationServerOptions useOidcConfigurationService(
-			OidcConfigurationServiceWithCache oidcConfigurationService) {
-		return new ApplicationServerOptions(tokenKeyService, oidcConfigurationService, port);
+	public ApplicationServerOptions useTokenAuthenticator(TokenAuthenticator tokenAuthenticator) {
+		return new ApplicationServerOptions(tokenAuthenticator, port);
 	}
 
 	/**
 	 * Use this method to configure a custom port on which the application server
 	 * will listen to. If not set, the servlet server will use on a free random
 	 * port.
-	 * 
+	 *
 	 * @param port
 	 *            the custom port.
 	 * @return the new configuration object.
 	 */
 	public ApplicationServerOptions usePort(int port) {
-		return new ApplicationServerOptions(tokenKeyService, oidcConfigurationService, port);
+		return new ApplicationServerOptions(tokenAuthenticator, port);
 	}
 
-	public OAuth2TokenKeyServiceWithCache getTokenKeyService() {
-		return tokenKeyService;
-	}
-
-	public OidcConfigurationServiceWithCache getOidcConfigurationService() {
-		return oidcConfigurationService;
+	public TokenAuthenticator getTokenAuthenticator() {
+		return tokenAuthenticator;
 	}
 
 	public int getPort() {
 		return port;
 	}
 
-	private ApplicationServerOptions(OAuth2TokenKeyServiceWithCache tokenKeyService,
-			OidcConfigurationServiceWithCache oidcConfigurationService, int port) {
-		this.tokenKeyService = tokenKeyService;
-		this.oidcConfigurationService = oidcConfigurationService;
-		this.port = port;
-	}
 }

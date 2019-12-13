@@ -1,79 +1,67 @@
-package com.sap.cloud.security.test;
+package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.token.*;
+import com.sap.cloud.security.token.IasToken;
+import com.sap.cloud.security.token.SecurityContext;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import org.eclipse.jetty.security.Authenticator;
-import org.eclipse.jetty.security.DefaultUserIdentity;
-import org.eclipse.jetty.security.UserAuthentication;
-import org.eclipse.jetty.server.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.security.auth.Subject;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.Principal;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-class TokenAuthenticator implements Authenticator {
+public class DefaultTokenAuthenticator implements TokenAuthenticator {
 
-	private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticator.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefaultTokenAuthenticator.class);
 	private final TokenExtractor tokenExtractor;
 	private Validator<Token> tokenValidator;
 
 	private OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private OidcConfigurationServiceWithCache oidcConfigurationService;
 
-	public TokenAuthenticator(OAuth2TokenKeyServiceWithCache tokenKeyService,
+	public DefaultTokenAuthenticator(OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
 		this.tokenKeyService = tokenKeyService;
 		this.oidcConfigurationService = oidcConfigurationService;
 		tokenExtractor = new DefaultTokenExtractor();
 	}
 
-	public TokenAuthenticator() {
+	public DefaultTokenAuthenticator() {
 		// TODO 12.12.19 c5295400: correct default?
 		tokenKeyService = OAuth2TokenKeyServiceWithCache.getInstance();
 		oidcConfigurationService = OidcConfigurationServiceWithCache.getInstance();
 		tokenExtractor = new DefaultTokenExtractor();
 	}
 
-	@Override
-	public void setConfiguration(AuthConfiguration configuration) {
+	DefaultTokenAuthenticator(TokenExtractor tokenExtractor, Validator<Token> tokenValidator) {
+		this.tokenExtractor = tokenExtractor;
+		this.tokenValidator = tokenValidator;
 	}
 
 	@Override
-	public String getAuthMethod() {
-		return "Token";
-	}
-
-	@Override
-	public void prepareRequest(ServletRequest request) {
-		request.getServletContext();
-	}
-
-	@Override
-	public Authentication validateRequest(ServletRequest request, ServletResponse response, boolean mandatory) {
+	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
 		if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
-					Token token = tokenExtractor.from(authorizationHeader);
+					Token token = getTokenExtractor().from(authorizationHeader);
 					// if (token.getService() != Service.XSUAA) {
 					// logger.info("The token of service {} is not validated by {}.",
 					// token.getService(), getClass());
@@ -95,40 +83,40 @@ class TokenAuthenticator implements Authenticator {
 				return unauthenticated(httpResponse, "Authorization header is missing");
 			}
 		}
-		return Authentication.NOT_CHECKED;
+		return TokenAuthenticationResult.createUnauthenticated("Could not process request " + request);
+	}
+
+	public class DefaultTokenExtractor implements TokenExtractor {
+		@Override
+		public Token from(String authorizationHeader) {
+			if (Environments.getCurrent().getXsuaaConfiguration() != null) {
+				return new XsuaaToken(authorizationHeader,
+						Environments.getCurrent().getXsuaaConfiguration().getProperty(CFConstants.XSUAA.APP_ID));
+			}
+			return new IasToken(authorizationHeader);
+		}
 	}
 
 	@Override
-	public boolean secureResponse(ServletRequest request, ServletResponse response, boolean mandatory,
-			Authentication.User validatedUser) {
-		return true;
+	public TokenExtractor getTokenExtractor() {
+		return tokenExtractor;
 	}
 
-	private Authentication unauthenticated(HttpServletResponse httpResponse, String message) {
+	private TokenAuthenticationResult unauthenticated(HttpServletResponse httpResponse, String message) {
 		try {
 			httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			logger.error("Could not send unauthenticated response!", e);
 		}
-		logger.warn("Could not authenticate user!");
-		return Authentication.UNAUTHENTICATED;
+		return TokenAuthenticationResult.createUnauthenticated(message);
 	}
 
-	private void unauthorized(HttpServletResponse httpResponse, String message) {
-		logger.warn(message);
-		httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-	}
-
-	private Authentication createAuthentication(Token token) {
-		Principal principal = token.getPrincipal();
-		Set<Principal> principals = new HashSet<>();
-		principals.add(principal);
-		Subject subject = new Subject(true, principals, new HashSet<>(), new HashSet<>());
+	private TokenAuthenticationResult createAuthentication(Token token) {
 		if (token instanceof XsuaaToken) {
-			String[] scopes = ((XsuaaToken) token).getScopes().toArray(new String[0]);
-			return new UserAuthentication(getAuthMethod(), new DefaultUserIdentity(subject, principal, scopes));
+			List<String> scopes = ((XsuaaToken) token).getScopes();
+			return TokenAuthenticationResult.createAuthenticated(token.getPrincipal(), scopes, token);
 		}
-		return new UserAuthentication(getAuthMethod(), new DefaultUserIdentity(subject, principal, new String[0]));
+		return TokenAuthenticationResult.createAuthenticated(token.getPrincipal(), new ArrayList<>(), token);
 	}
 
 	protected Validator<Token> getOrCreateTokenValidator() {
@@ -143,10 +131,6 @@ class TokenAuthenticator implements Authenticator {
 		return tokenValidator;
 	}
 
-	private OAuth2ServiceConfiguration getXsuaaServiceConfiguration() {
-		return Environments.getCurrent().getXsuaaConfiguration();
-	}
-
 	@Nullable
 	private OAuth2ServiceConfiguration getOtherXsuaaServiceConfiguration() {
 		if (Environments.getCurrent().getNumberOfXsuaaConfigurations() > 1) {
@@ -157,22 +141,6 @@ class TokenAuthenticator implements Authenticator {
 
 	private boolean headerIsAvailable(String authorizationHeader) {
 		return authorizationHeader != null && !authorizationHeader.isEmpty();
-	}
-
-	public interface TokenExtractor {
-		Token from(String authorizationHeader);
-	}
-
-	public class DefaultTokenExtractor implements TokenExtractor {
-
-		@Override
-		public Token from(String authorizationHeader) {
-			if (Environments.getCurrent().getXsuaaConfiguration() != null) {
-				return new XsuaaToken(authorizationHeader,
-						Environments.getCurrent().getXsuaaConfiguration().getProperty(CFConstants.XSUAA.APP_ID));
-			}
-			return new IasToken(authorizationHeader);
-		}
 	}
 
 }

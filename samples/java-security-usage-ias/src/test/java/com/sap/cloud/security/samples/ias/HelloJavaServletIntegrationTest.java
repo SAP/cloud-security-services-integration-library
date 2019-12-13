@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
+import static com.sap.cloud.security.test.SecurityIntegrationTestRule.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletIntegrationTest {
@@ -26,10 +27,9 @@ public class HelloJavaServletIntegrationTest {
 	private static Properties oldProperties;
 
 	@ClassRule
-	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(Service.IAS)
-			.useApplicationServer()
-			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT)
-			.addApplicationServletFilter(SecurityServletFilter.class);
+	public static SecurityIntegrationTestRule rule = getInstance(Service.IAS)
+			.useApplicationServer(applicationServerOptions().useTokenAuthenticator(new IasTokenAuthenticator()))
+			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 
 
 	@BeforeClass
