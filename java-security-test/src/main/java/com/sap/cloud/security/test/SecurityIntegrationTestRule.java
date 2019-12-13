@@ -38,23 +38,27 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	private static final Logger logger = LoggerFactory.getLogger(SecurityIntegrationTestRule.class);
 	private static final String LOCALHOST_PATTERN = "http://localhost:%d";
 
-	private RSAKeys keys;
-
-	private int wireMockPort = 0;
-	private WireMockRule wireMockRule;
-
-	private boolean useApplicationServer;
-	private int applicationServerPort = 0;
+	// app server
 	private Server applicationServer;
-	private Map<String, ServletHolder> applicationServletsByPath = new HashMap<>();
-	private List<FilterHolder> applicationServletFilters = new ArrayList<>();
+	private final Map<String, ServletHolder> applicationServletsByPath = new HashMap<>();
+	private final List<FilterHolder> applicationServletFilters = new ArrayList<>();
+	private ApplicationServerOptions applicationServerOptions;
+	private boolean useApplicationServer;
 
+	// mock server
+	private WireMockRule wireMockRule;
+	private RSAKeys keys;
+	private int wireMockPort = 0;
 	private Service service;
 	private String clientId;
 	private String jwksUrl;
 
 	private SecurityIntegrationTestRule() {
 		// see factory method getInstance()
+	}
+
+	public static ApplicationServerOptions applicationServerOptions() {
+		return ApplicationServerOptions.DEFAULT;
 	}
 
 	/**
@@ -79,28 +83,30 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
-	 * before the {@link #before()} method. If the port is set to 0, a free random
-	 * port is chosen.
-	 *
-	 * @param port
-	 *            the port on which the application service is started.
-	 * @return the rule itself.
-	 */
-	public SecurityIntegrationTestRule useApplicationServer(int port) {
-		applicationServerPort = port;
-		useApplicationServer = true;
-		return this;
-	}
-
-	/**
-	 * Specifies an embedded jetty as servlet server. It needs to be configured
-	 * before the {@link #before()} method. The servlet server will listen on a free
-	 * random port. Use {@link #getApplicationServerUri()} to obtain port.
+	 * before the {@link #before()} method. The application server will be started
+	 * with default options, see {@link ApplicationServerOptions#DEFAULT} for details.
+	 * In this case the servlet server will listen on a free random port.
+	 * Use {@link SecurityIntegrationTestRule#useApplicationServer(ApplicationServerOptions)}
+	 * to overwrite default settings.
+	 * Use {@link #getApplicationServerUri()} to obtain port.
 	 *
 	 * @return the rule itself.
 	 */
 	public SecurityIntegrationTestRule useApplicationServer() {
-		applicationServerPort = 0;
+		return useApplicationServer(applicationServerOptions());
+	}
+
+	/**
+	 * Specifies an embedded jetty as servlet server. It needs to be configured
+	 * before the {@link #before()} method. If the port is set to 0, a free random
+	 * port is chosen.
+	 *
+	 * @param applicationServerOptions
+	 *            custom options to configure the application server.
+	 * @return the rule itself.
+	 */
+	public SecurityIntegrationTestRule useApplicationServer(ApplicationServerOptions applicationServerOptions) {
+		this.applicationServerOptions = applicationServerOptions;
 		useApplicationServer = true;
 		return this;
 	}
@@ -289,7 +295,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		context.setResourceBase("src/main/java/webapp");
 		context.setParentLoaderPriority(true);
 
-		applicationServer = new Server(applicationServerPort);
+		applicationServer = new Server(applicationServerOptions.getPort());
 		ServletHandler servletHandler = createHandlerForServer(applicationServer, context);
 		applicationServletsByPath
 				.forEach((path, servletHolder) -> servletHandler.addServletWithMapping(servletHolder, path));
@@ -302,7 +308,8 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	private ServletHandler createHandlerForServer(Server server, WebAppContext context) {
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
-		security.setAuthenticator(new TokenAuthenticator());
+		security.setAuthenticator(new TokenAuthenticator(applicationServerOptions.getTokenKeyService(),
+				applicationServerOptions.getOidcConfigurationService()));
 		ServletHandler servletHandler = new ServletHandler();
 		security.setHandler(servletHandler);
 		context.setServletHandler(servletHandler);

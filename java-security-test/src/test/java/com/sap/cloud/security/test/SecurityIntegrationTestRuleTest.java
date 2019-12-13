@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.test.SecurityIntegrationTestRule.applicationServerOptions;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -40,7 +41,7 @@ public class SecurityIntegrationTestRuleTest {
 	public static SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(XSUAA)
 			.setPort(PORT)
 			.setKeys(RSA_KEYS)
-			.useApplicationServer(APPLICATION_SERVER_PORT)
+			.useApplicationServer(applicationServerOptions().usePort(APPLICATION_SERVER_PORT))
 			.addApplicationServlet(TestServlet.class, "/hi");
 
 	@Test

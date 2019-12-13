@@ -37,7 +37,6 @@ class TokenAuthenticator implements Authenticator {
 	private OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private OidcConfigurationServiceWithCache oidcConfigurationService;
 
-	// TODO 12.12.19 c5295400: use this constructor from rule
 	public TokenAuthenticator(OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
 		this.tokenKeyService = tokenKeyService;
