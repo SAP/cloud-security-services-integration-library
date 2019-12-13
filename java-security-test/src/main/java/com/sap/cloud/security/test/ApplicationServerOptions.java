@@ -18,12 +18,13 @@ public class ApplicationServerOptions {
 	private int port;
 
 	/**
-	 * Use this metod to configure a custom {@link OAuth2TokenKeyServiceWithCache}
+	 * Use this method to configure a custom {@link OAuth2TokenKeyServiceWithCache}
 	 * that will be used in the application server to retrieve token keys for the
 	 * token validation.
 	 * 
 	 * @param tokenKeyService
-	 * @return
+	 *            the custom {@link OAuth2TokenKeyServiceWithCache}.
+	 * @return the new configuration object.
 	 */
 	public ApplicationServerOptions useTokenKeyService(OAuth2TokenKeyServiceWithCache tokenKeyService) {
 		return new ApplicationServerOptions(tokenKeyService, oidcConfigurationService, port);
@@ -36,7 +37,7 @@ public class ApplicationServerOptions {
 	 * 
 	 * @param oidcConfigurationService
 	 *            the custom {@link OidcConfigurationServiceWithCache}.
-	 * @return the new objects object
+	 * @return the new configuration object.
 	 */
 	public ApplicationServerOptions useOidcConfigurationService(
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
@@ -44,12 +45,13 @@ public class ApplicationServerOptions {
 	}
 
 	/**
-	 * Use this method to configure a custom port the application server will listen
-	 * to. If not set, the servlet server will listen on a free random port.
+	 * Use this method to configure a custom port on which the application server
+	 * will listen to. If not set, the servlet server will use on a free random
+	 * port.
 	 * 
 	 * @param port
 	 *            the custom port.
-	 * @return the new objects object.
+	 * @return the new configuration object.
 	 */
 	public ApplicationServerOptions usePort(int port) {
 		return new ApplicationServerOptions(tokenKeyService, oidcConfigurationService, port);

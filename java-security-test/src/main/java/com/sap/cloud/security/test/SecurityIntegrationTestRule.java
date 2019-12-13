@@ -37,11 +37,10 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(SecurityIntegrationTestRule.class);
 	private static final String LOCALHOST_PATTERN = "http://localhost:%d";
-
-	// app server
-	private Server applicationServer;
 	private final Map<String, ServletHolder> applicationServletsByPath = new HashMap<>();
 	private final List<FilterHolder> applicationServletFilters = new ArrayList<>();
+	// app server
+	private Server applicationServer;
 	private ApplicationServerOptions applicationServerOptions;
 	private boolean useApplicationServer;
 
@@ -89,7 +88,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 * Use
 	 * {@link SecurityIntegrationTestRule#useApplicationServer(ApplicationServerOptions)}
 	 * to overwrite default settings. Use {@link #getApplicationServerUri()} to
-	 * obtain port.
+	 * obtain the actual port used at runtime.
 	 *
 	 * @return the rule itself.
 	 */
@@ -99,8 +98,10 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
-	 * before the {@link #before()} method. If the port is set to 0, a free random
-	 * port is chosen.
+	 * before the {@link #before()} method. Use
+	 * {@link SecurityIntegrationTestRule#applicationServerOptions()} to obtain a
+	 * configuration object that can be customized. See
+	 * {@link ApplicationServerOptions} for details.
 	 *
 	 * @param applicationServerOptions
 	 *            custom options to configure the application server.
@@ -112,6 +113,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		return this;
 	}
 
+	// TODO 13.12.19 c5295400: TODO move add* methods into ApplicationServerOptions?
 	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in
 	 * conjunction with {@link #useApplicationServer}.

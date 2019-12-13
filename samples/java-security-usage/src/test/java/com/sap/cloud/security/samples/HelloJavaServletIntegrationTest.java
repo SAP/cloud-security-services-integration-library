@@ -2,10 +2,8 @@ package com.sap.cloud.security.samples;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.servlet.OAuth2SecurityFilter;
 import com.sap.cloud.security.test.SecurityIntegrationTestRule;
 import com.sap.cloud.security.token.SecurityContext;
-import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
