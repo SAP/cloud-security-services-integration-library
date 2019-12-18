@@ -1,4 +1,29 @@
 {
 	"xsappname": "java-security-usage",
-	"tenant-mode": "dedicated"
+	"tenant-mode": "dedicated",
+	"scopes"        : [
+    {
+      "name"        : "$XSAPPNAME.Read",
+      "description" : "Read Permissions."
+    }
+  ],
+  "role-templates": [
+    {
+      "name"             : "Viewer_servlet",
+      "description"      : "View Data",
+      "scope-references" : [
+        "$XSAPPNAME.Read",
+        "uaa.user"
+      ]
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "Viewer_servlet",
+      "description": "Viewer (read)",
+      "role-template-references": [
+        "$XSAPPNAME.Viewer_servlet"
+      ]
+    }
+  ]
 }

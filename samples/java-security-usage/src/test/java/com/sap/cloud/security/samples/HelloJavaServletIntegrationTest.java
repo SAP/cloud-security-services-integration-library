@@ -81,7 +81,7 @@ public class HelloJavaServletIntegrationTest {
 	public void request_withValidToken_ok() throws IOException {
 		String  getBearerAccessToken = rule.getPreconfiguredJwtGenerator()
 				.withClaimValue(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS)
-				.withScopes(getGlobalScope("read"))
+				.withScopes(getGlobalScope("Read"))
 				.createToken()
 				.getBearerAccessToken();
 		HttpGet request = createGetRequest(getBearerAccessToken);

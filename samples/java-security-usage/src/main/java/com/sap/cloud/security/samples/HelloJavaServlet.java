@@ -17,7 +17,7 @@ import java.io.IOException;
 
 
 @WebServlet(HelloJavaServlet.ENDPOINT)
-@ServletSecurity(@HttpConstraint(rolesAllowed = { "java-security-usage!t1785.read" }))
+@ServletSecurity(@HttpConstraint(rolesAllowed = { "java-security-usage!t1785.Read" }))
 public class HelloJavaServlet extends HttpServlet {
 	static final String ENDPOINT = "/hello-java-security";
 	private static final long serialVersionUID = 1L;
