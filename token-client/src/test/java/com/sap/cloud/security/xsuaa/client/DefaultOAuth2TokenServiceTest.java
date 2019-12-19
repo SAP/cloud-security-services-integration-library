@@ -97,7 +97,7 @@ public class DefaultOAuth2TokenServiceTest {
 
 	private OAuth2TokenResponse requestAccessToken() throws OAuth2ServiceException {
 		URI tokenEndpointUri = URI.create("https://subdomain.myauth.server.com/oauth/token");
-		HttpHeaders withoutAuthorizationHeader = new HttpHeadersFactory().createWithoutAuthorizationHeader();
+		HttpHeaders withoutAuthorizationHeader = HttpHeadersFactory.createWithoutAuthorizationHeader();
 		Map<String, String> parameters = Collections.emptyMap();
 		return cut.requestAccessToken(tokenEndpointUri, withoutAuthorizationHeader, parameters);
 	}
