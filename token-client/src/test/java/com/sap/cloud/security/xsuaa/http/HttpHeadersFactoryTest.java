@@ -12,18 +12,16 @@ public class HttpHeadersFactoryTest {
 	private static final HttpHeader CONTENT_TYPE_URL_ENCODED = new HttpHeader(CONTENT_TYPE, APPLICATION_FORM_URLENCODED.value());
 	private static final String TOKEN = "TOKEN CONTENT";
 
-	private HttpHeadersFactory cut = new HttpHeadersFactory();
-
 	@Test
 	public void createWithoutAuthorizationHeader_containsDefaultHeaders() {
-		HttpHeaders headers = cut.createWithoutAuthorizationHeader();
+		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 		assertThat(headers.getHeaders()).hasSize(2);
 		assertThat(headers.getHeaders()).containsExactlyInAnyOrder(ACCEPT_JSON_HEADER, CONTENT_TYPE_URL_ENCODED);
 	}
 
 	@Test
 	public void createWithAuthorizationBearerHeader_containsDefaultHeadersAndToken() {
-		HttpHeaders headers = cut.createWithAuthorizationBearerHeader(TOKEN);
+		HttpHeaders headers = HttpHeadersFactory.createWithAuthorizationBearerHeader(TOKEN);
 		assertThat(headers.getHeaders()).hasSize(3);
 		assertThat(headers.getHeaders()).contains(ACCEPT_JSON_HEADER, CONTENT_TYPE_URL_ENCODED);
 		HttpHeader tokenHeader = new HttpHeader(AUTHORIZATION, "Bearer " + TOKEN);

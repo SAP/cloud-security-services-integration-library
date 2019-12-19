@@ -7,12 +7,7 @@ import java.util.stream.Collectors;
 
 public class HttpHeadersFactory {
 
-	private final Map<String, String> headers;
-
-	public HttpHeadersFactory() {
-		headers = new HashMap<>();
-		headers.put(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.value());
-		headers.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED.value());
+	private HttpHeadersFactory() {
 	}
 
 	/**
@@ -22,10 +17,11 @@ public class HttpHeadersFactory {
 	 *            - the token which should be part of the header.
 	 * @return the builder instance.
 	 */
-	public HttpHeaders createWithAuthorizationBearerHeader(String token) {
+	public static HttpHeaders createWithAuthorizationBearerHeader(String token) {
+		Map<String, String> headers = createDefaultHeaders();
 		final String AUTHORIZATION_BEARER_TOKEN_FORMAT = "Bearer %s";
 		headers.put(HttpHeaders.AUTHORIZATION, String.format(AUTHORIZATION_BEARER_TOKEN_FORMAT, token));
-		return createFromHeaders();
+		return createFromHeaders(headers);
 	}
 
 	/**
@@ -34,16 +30,24 @@ public class HttpHeadersFactory {
 	 *
 	 * @return the HTTP headers.
 	 */
-	public HttpHeaders createWithoutAuthorizationHeader() {
-		return createFromHeaders();
+	public static HttpHeaders  createWithoutAuthorizationHeader() {
+		return createFromHeaders(createDefaultHeaders());
 	}
 
-	private HttpHeaders createFromHeaders() {
-		List<HttpHeader> httpHeaders = this.headers.entrySet()
+	private static HttpHeaders createFromHeaders(Map<String, String> headers) {
+		List<HttpHeader> httpHeaders = headers.entrySet()
 				.stream()
 				.map(header -> new HttpHeader(header.getKey(), header.getValue()))
 				.collect(Collectors.toList());
 		return new HttpHeaders(httpHeaders);
 	}
+
+	private static Map<String, String> createDefaultHeaders() {
+		Map<String, String> headers = new HashMap<>();
+		headers.put(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.value());
+		headers.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED.value());
+		return headers;
+	}
+
 
 }
