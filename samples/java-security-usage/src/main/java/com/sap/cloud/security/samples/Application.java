@@ -13,6 +13,13 @@ import org.eclipse.jetty.webapp.*;
 import java.net.URL;
 import java.util.Arrays;
 
+/**
+ * This class is used to start the sample as standalone application which does not rely on
+ * a application server runtime.
+ * TODO only needed because the java build pack does only support the servlet security annotations
+ * in conjunction with the old Java Container Security library. As soon as the build pack supports
+ * the new java security library, this class can be removed.
+ */
 public class Application {
 
 	public static void main(String[] args) throws Exception {
@@ -21,6 +28,7 @@ public class Application {
 		server.join();
 	}
 
+	// bootstrapping jetty server
 	private static Server createJettyServer() {
 		WebAppContext context = new WebAppContext();
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
@@ -32,6 +40,8 @@ public class Application {
 				new FragmentConfiguration(), new EnvConfiguration() });
 		context.setContextPath("/");
 		context.setResourceBase("src/main/java/webapp");
+
+		// needed so that annotations from this project are also scanned
 		context.setParentLoaderPriority(true);
 		URL classes = HelloJavaServlet.class
 				.getProtectionDomain()
@@ -40,6 +50,7 @@ public class Application {
 		context.getMetaData()
 				.setWebInfClassesDirs(
 						Arrays.asList(Resource.newResource(classes)));
+
 		Server server = new Server(8080);
 		server.setHandler(context);
 		return server;
