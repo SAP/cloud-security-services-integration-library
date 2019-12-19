@@ -97,12 +97,11 @@ public class XsuaaToken extends AbstractToken {
 	 *            name of local scope (without the appId)
 	 * @return true if local scope is available
 	 **/
-
 	public boolean hasLocalScope(@Nonnull String scope) {
-		return hasScope(asLocalScope(scope));
+		return hasScope(asGlobalScope(scope));
 	}
 
-	private String asLocalScope(@Nonnull String scope) {
+	private String asGlobalScope(@Nonnull String scope) {
 		return appId + "." + scope;
 	}
 }
