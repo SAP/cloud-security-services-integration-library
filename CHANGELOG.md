@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## 2.3.0
 - Issue: Spring tests fail with version `2.2.0`, when auto-configuration is disabled and no `RestOperations` bean is specified.
 - [token-client] Supports basically JWT Bearer Token Grant as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#jwt-bearer-token-grant).
+- [token-client] **Bug fix** for state issue in HttpHeaderFactor ([#200](https://github.com/SAP-samples/cloud-security-xsuaa-integration/issues/200)) that causes interference between different types of token flows.
 
 ## 2.2.0
 - [spring-xsuaa] `PropertySourceFactory` supports custom property sources and default can optionally be disabled with  `spring.xsuaa.disable-default-property-source=true`
