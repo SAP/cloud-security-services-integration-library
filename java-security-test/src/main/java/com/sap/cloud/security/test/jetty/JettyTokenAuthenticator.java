@@ -29,9 +29,8 @@ public class JettyTokenAuthenticator implements Authenticator {
 	@Override
 	public Authentication validateRequest(ServletRequest request, ServletResponse response, boolean mandatory) {
 		TokenAuthenticationResult tokenAuthenticationResult = tokenAuthenticator.validateRequest(request, response);
-		return tokenAuthenticationResult.isAuthenticated() ?
-				createAuthentication(tokenAuthenticationResult) :
-				Authentication.UNAUTHENTICATED;
+		return tokenAuthenticationResult.isAuthenticated() ? createAuthentication(tokenAuthenticationResult)
+				: Authentication.UNAUTHENTICATED;
 	}
 
 	@Override

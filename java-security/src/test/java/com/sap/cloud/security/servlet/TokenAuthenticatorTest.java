@@ -39,15 +39,15 @@ public class TokenAuthenticatorTest {
 	}
 
 	@Test
-	public void doFilter_noHeader_isUnauthenticated()  {
+	public void doFilter_noHeader_isUnauthenticated() {
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, httpResponse);
 
 		assertThat(response.isAuthenticated()).isFalse();
-		assertThat(response.getErrorMessage()).contains("Authorization header is missing");
+		assertThat(response.getUnauthenticatedReason()).contains("Authorization header is missing");
 	}
 
 	@Test
-	public void doFilter_invalidToken_isUnauthenticated()  {
+	public void doFilter_invalidToken_isUnauthenticated() {
 		mockAuthorizationHeader();
 		String errorMessage = "Token is not valid";
 		cut = createAuthenticator((ValidationResults.createInvalid(errorMessage)));
@@ -55,11 +55,11 @@ public class TokenAuthenticatorTest {
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, httpResponse);
 
 		assertThat(response.isAuthenticated()).isFalse();
-		assertThat(response.getErrorMessage()).contains(errorMessage);
+		assertThat(response.getUnauthenticatedReason()).contains(errorMessage);
 	}
 
 	@Test
-	public void doFilter_validToken_containedInSecurityContext()  {
+	public void doFilter_validToken_containedInSecurityContext() {
 		mockAuthorizationHeader();
 
 		cut = createAuthenticator((ValidationResults.createValid()));
@@ -80,6 +80,5 @@ public class TokenAuthenticatorTest {
 
 		return new DefaultTokenAuthenticator(tokenExtractor, tokenValidator);
 	}
-
 
 }

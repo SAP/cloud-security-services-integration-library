@@ -86,6 +86,7 @@ public class DefaultTokenAuthenticator implements TokenAuthenticator {
 		return TokenAuthenticationResult.createUnauthenticated("Could not process request " + request);
 	}
 
+	// TODO 19.12.19 c5295400: Xsuaa/Ias sub classes instead
 	public class DefaultTokenExtractor implements TokenExtractor {
 		@Override
 		public Token from(String authorizationHeader) {

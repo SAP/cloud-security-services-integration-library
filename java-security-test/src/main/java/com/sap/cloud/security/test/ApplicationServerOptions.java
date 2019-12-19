@@ -26,9 +26,9 @@ public class ApplicationServerOptions {
 	}
 
 	/**
-	 * Use this method to configure a custom {@link TokenAuthenticator}
-	 * that will be used in the application server to authenticate the user
-	 * via tokens retrieved in the authorization header.
+	 * Use this method to configure a custom {@link TokenAuthenticator} that will be
+	 * used in the application server to authenticate the user via tokens retrieved
+	 * in the authorization header.
 	 *
 	 * @param tokenAuthenticator
 	 *            the custom {@link TokenAuthenticator}.
