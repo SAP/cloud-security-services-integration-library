@@ -20,6 +20,7 @@ public class ValidationResultsTest {
 		ValidationResult validationResult = ValidationResults.createValid();
 
 		assertThat(validationResult.isValid()).isTrue();
+		assertThat(validationResult.toString()).contains("Validation was successful");
 	}
 
 	@Test

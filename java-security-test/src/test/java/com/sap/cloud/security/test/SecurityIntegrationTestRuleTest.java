@@ -46,6 +46,13 @@ public class SecurityIntegrationTestRuleTest {
 			.addApplicationServlet(new ServletHolder(new TestServlet()), "/hi")
 			.addApplicationServletFilter(OAuth2SecurityFilter.class);
 
+	private static void assertThatTestServletIsServed(SecurityIntegrationTestRule cut) throws IOException {
+		HttpGet httpGet = new HttpGet(cut.getApplicationServerUri() + "/hi");
+		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+		}
+	}
+
 	@Test
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys() throws IOException {
 		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
@@ -87,10 +94,7 @@ public class SecurityIntegrationTestRuleTest {
 
 	@Test
 	public void servletFilterServesTestServlet() throws IOException {
-		HttpGet httpGet = new HttpGet(cut.getApplicationServerUri() + "/hello");
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
-		}
+		assertThatTestServletIsServed(cut);
 	}
 
 	private String readContent(CloseableHttpResponse response) throws IOException {
@@ -98,25 +102,35 @@ public class SecurityIntegrationTestRuleTest {
 				.collect(Collectors.joining());
 	}
 
-	private static class TestServlet extends HttpServlet {
-		@Override
-		protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-			response.setStatus(HttpServletResponse.SC_OK);
-			response.setContentType("text/plain");
-			response.setCharacterEncoding(UTF_8);
-			response.getWriter().print("Hi!");
+	public static class SecurityIntegrationTestRuleTestWithoutDynamicPorts {
+
+		@Rule
+		public SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(XSUAA)
+				.useApplicationServer()
+				.addApplicationServlet(TestServlet.class, "/hi");
+
+		@Test
+		public void testRuleIsInitializedCorrectly() {
+			assertThat(cut.getApplicationServerUri()).isNotNull();
+			assertThat(cut.getWireMockRule()).isNotNull();
 		}
+
+		@Test
+		public void servletFilterServesTestServlet() throws IOException {
+			assertThatTestServletIsServed(cut);
+		}
+
 	}
 
 	public static class SecurityIntegrationTestRuleTestWithoutApplicationServer {
 
 		@Rule
-		public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA);
+		public SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(XSUAA);
 
 		@Test
 		public void testRuleIsInitializedCorrectly() {
-			assertThat(rule.getApplicationServerUri()).isNull();
-			assertThat(rule.getWireMockRule()).isNotNull();
+			assertThat(cut.getApplicationServerUri()).isNull();
+			assertThat(cut.getWireMockRule()).isNotNull();
 		}
 	}
 
@@ -132,6 +146,16 @@ public class SecurityIntegrationTestRuleTest {
 					.isInstanceOf(UnsupportedOperationException.class)
 					.hasMessageContaining(String.format("Service %s is not yet supported", Service.IAS));
 		}
-
 	}
+
+	private static class TestServlet extends HttpServlet {
+		@Override
+		protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.setContentType("text/plain");
+			response.setCharacterEncoding(UTF_8);
+			response.getWriter().print("Hi!");
+		}
+	}
+
 }

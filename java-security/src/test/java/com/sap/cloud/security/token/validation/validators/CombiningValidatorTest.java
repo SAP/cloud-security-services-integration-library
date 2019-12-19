@@ -96,6 +96,20 @@ public class CombiningValidatorTest {
 		Mockito.verifyZeroInteractions(validationListenerMock);
 	}
 
+	@Test
+	public void toString_containsValidatorName() {
+		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(
+				newArrayList(new MyTokenValidator()));
+
+		assertThat(combiningValidator.toString()).contains(MyTokenValidator.class.getSimpleName());
+	}
+
+	private class MyTokenValidator implements Validator<Token> {
+		@Override public ValidationResult validate(Token token) {
+			return ValidationResults.createValid();
+		}
+
+	}
 	private Validator<Token> validValidator() {
 		return (obj) -> ValidationResults.createValid();
 	}
