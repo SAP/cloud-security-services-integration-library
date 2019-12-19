@@ -40,6 +40,11 @@
             <version>${xsuaa.client.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.sap.cloud.security.xsuaa</groupId>
+            <artifactId>java-security</artifactId>
+            <version>${xsuaa.client.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${apache.httpclient.version}</version>
