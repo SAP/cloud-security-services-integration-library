@@ -15,19 +15,16 @@ import java.util.Collection;
 public class TokenAuthenticationResult {
 
 	private final Collection<String> scopes;
-	private final Principal principal;
 	private final Token token;
 	private final String reason;
 
-	private TokenAuthenticationResult(Principal principal, Collection<String> scopes, Token token) {
-		this.principal = principal;
+	private TokenAuthenticationResult(Collection<String> scopes, Token token) {
 		this.token = token;
 		this.scopes = scopes;
 		this.reason = "";
 	}
 
 	private TokenAuthenticationResult(String reason) {
-		this.principal = null;
 		this.token = null;
 		this.scopes = new ArrayList<>();
 		this.reason = reason;
@@ -57,7 +54,7 @@ public class TokenAuthenticationResult {
 	 */
 	public static TokenAuthenticationResult createAuthenticated(Principal principal, Collection<String> scopes,
 			Token token) {
-		return new TokenAuthenticationResult(principal, scopes, token);
+		return new TokenAuthenticationResult(scopes, token);
 	}
 
 	/**
@@ -77,7 +74,7 @@ public class TokenAuthenticationResult {
 	 */
 	@Nullable
 	public Principal getPrincipal() {
-		return principal;
+		return token.getPrincipal();
 	}
 
 	/**
