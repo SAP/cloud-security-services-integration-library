@@ -3,10 +3,7 @@ package com.sap.cloud.security.servlet;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.token.IasToken;
-import com.sap.cloud.security.token.SecurityContext;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
@@ -115,7 +112,8 @@ public class DefaultTokenAuthenticator implements TokenAuthenticator {
 	private TokenAuthenticationResult createAuthentication(Token token) {
 		if (token instanceof XsuaaToken) {
 			List<String> scopes = ((XsuaaToken) token).getScopes();
-			return TokenAuthenticationResult.createAuthenticated(token.getPrincipal(), scopes, token);
+			List<String> translatedScopes = new ScopeTranslator().translateToLocalScope(scopes);
+			return TokenAuthenticationResult.createAuthenticated(token.getPrincipal(), translatedScopes, token);
 		}
 		return TokenAuthenticationResult.createAuthenticated(token.getPrincipal(), new ArrayList<>(), token);
 	}
