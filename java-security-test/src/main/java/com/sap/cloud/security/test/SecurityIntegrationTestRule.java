@@ -57,10 +57,6 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		// see factory method getInstance()
 	}
 
-	public static ApplicationServerOptions applicationServerOptions() {
-		return ApplicationServerOptions.createDefault();
-	}
-
 	/**
 	 * Creates an instance of the test rule for the given service.
 	 *
@@ -70,22 +66,18 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 */
 	public static SecurityIntegrationTestRule getInstance(Service service) {
 		SecurityIntegrationTestRule instance = new SecurityIntegrationTestRule();
-		// TODO IAS
-		/*
-		 * if (service != Service.XSUAA) { throw new
-		 * UnsupportedOperationException("Identity Service " + service +
-		 * " is not yet supported."); }
-		 */
 		instance.keys = RSAKeys.generate();
 		instance.service = service;
+		ApplicationServerOptions.createOptionsForService(service);
 		return instance;
 	}
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
 	 * before the {@link #before()} method. The application server will be started
-	 * with default options, see {@link ApplicationServerOptions#createDefault} for
-	 * details. In this case the servlet server will listen on a free random port.
+	 * with default options for the given {@link Service},
+	 * see {@link ApplicationServerOptions#createOptionsForService(Service)} for
+	 * details. By default the servlet server will listen on a free random port.
 	 * Use
 	 * {@link SecurityIntegrationTestRule#useApplicationServer(ApplicationServerOptions)}
 	 * to overwrite default settings. Use {@link #getApplicationServerUri()} to
@@ -94,13 +86,13 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 * @return the rule itself.
 	 */
 	public SecurityIntegrationTestRule useApplicationServer() {
-		return useApplicationServer(applicationServerOptions());
+		return useApplicationServer(ApplicationServerOptions.createOptionsForService(service));
 	}
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
 	 * before the {@link #before()} method. Use
-	 * {@link SecurityIntegrationTestRule#applicationServerOptions()} to obtain a
+	 * {@link ApplicationServerOptions#createOptionsForService(Service)} to obtain a
 	 * configuration object that can be customized. See
 	 * {@link ApplicationServerOptions} for details.
 	 *
@@ -113,8 +105,6 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 		useApplicationServer = true;
 		return this;
 	}
-
-	// TODO 13.12.19 c5295400: TODO move add* methods into ApplicationServerOptions?
 
 	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in

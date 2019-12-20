@@ -1,7 +1,9 @@
 package com.sap.cloud.security.test;
 
-import com.sap.cloud.security.servlet.DefaultTokenAuthenticator;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.servlet.IasTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticator;
+import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 
@@ -14,15 +16,29 @@ public class ApplicationServerOptions {
 	private final TokenAuthenticator tokenAuthenticator;
 	private int port;
 
+	private ApplicationServerOptions(TokenAuthenticator tokenAuthenticator) {
+		this(tokenAuthenticator, 0);
+	}
+
 	private ApplicationServerOptions(TokenAuthenticator tokenAuthenticator, int port) {
 		this.tokenAuthenticator = tokenAuthenticator;
 		this.port = port;
 	}
 
-	public static ApplicationServerOptions createDefault() {
-		return new ApplicationServerOptions(
-				new DefaultTokenAuthenticator(OAuth2TokenKeyServiceWithCache.getInstance(),
-						OidcConfigurationServiceWithCache.getInstance()), 0);
+	public static ApplicationServerOptions createOptionsForService(Service service) {
+		switch (service) {
+		case XSUAA:
+			return new ApplicationServerOptions(
+					new XsuaaTokenAuthenticator(OAuth2TokenKeyServiceWithCache.getInstance(),
+							OidcConfigurationServiceWithCache.getInstance()));
+		case IAS:
+			return new ApplicationServerOptions(
+					new IasTokenAuthenticator(OAuth2TokenKeyServiceWithCache.getInstance(),
+							OidcConfigurationServiceWithCache.getInstance()));
+		default:
+			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
+		}
+
 	}
 
 	/**

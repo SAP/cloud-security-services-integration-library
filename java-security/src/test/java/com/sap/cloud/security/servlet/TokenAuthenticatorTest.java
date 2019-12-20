@@ -14,16 +14,17 @@ import org.mockito.Mockito;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.sap.cloud.security.servlet.DefaultTokenAuthenticator.TokenExtractor;
+import static com.sap.cloud.security.servlet.TokenAuthenticator.TokenExtractor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 public class TokenAuthenticatorTest {
 
 	private static final Token TOKEN = Mockito.mock(Token.class);
-	private DefaultTokenAuthenticator cut = null;
+
 	private HttpServletResponse httpResponse;
 	private HttpServletRequest httpRequest;
+	private TokenAuthenticator cut;
 
 	@Before
 	public void setUp() {
@@ -35,7 +36,7 @@ public class TokenAuthenticatorTest {
 
 	@Test
 	public void defaultConstructor() {
-		cut = new DefaultTokenAuthenticator();
+		cut = new XsuaaTokenAuthenticator();
 	}
 
 	@Test
@@ -74,11 +75,20 @@ public class TokenAuthenticatorTest {
 		when(httpRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer fake token");
 	}
 
-	private DefaultTokenAuthenticator createAuthenticator(ValidationResult validationResult) {
+	private TokenAuthenticator createAuthenticator(ValidationResult validationResult) {
 		TokenExtractor tokenExtractor = (header) -> TOKEN;
 		Validator<Token> tokenValidator = (TOKEN) -> validationResult;
+		return new AbstractTokenAuthenticator() {
 
-		return new DefaultTokenAuthenticator(tokenExtractor, tokenValidator);
+			@Override public TokenExtractor getTokenExtractor() {
+				return tokenExtractor;
+			}
+
+			@Override
+			protected Validator<Token> createTokenValidator() {
+				return tokenValidator;
+			}
+		};
 	}
 
 }
