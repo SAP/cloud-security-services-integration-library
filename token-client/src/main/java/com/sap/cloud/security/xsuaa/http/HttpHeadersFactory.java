@@ -30,7 +30,7 @@ public class HttpHeadersFactory {
 	 *
 	 * @return the HTTP headers.
 	 */
-	public static HttpHeaders  createWithoutAuthorizationHeader() {
+	public static HttpHeaders createWithoutAuthorizationHeader() {
 		return createFromHeaders(createDefaultHeaders());
 	}
 
@@ -48,6 +48,5 @@ public class HttpHeadersFactory {
 		headers.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED.value());
 		return headers;
 	}
-
 
 }

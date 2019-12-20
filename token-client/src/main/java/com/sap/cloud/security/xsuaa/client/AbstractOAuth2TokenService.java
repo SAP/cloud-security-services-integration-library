@@ -14,7 +14,6 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
 public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 
-
 	public AbstractOAuth2TokenService() {
 	}
 

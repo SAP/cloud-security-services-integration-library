@@ -140,7 +140,7 @@ public class XsuaaServicesParser {
 			JSONArray tags = (JSONArray) binding.get(TAGS);
 
 			for (int j = 0; j < tags.size(); j++) {
-				boolean isApiAccessPlan	= binding.getAsString("plan").equals("apiaccess");
+				boolean isApiAccessPlan = binding.getAsString("plan").equals("apiaccess");
 
 				if (tags.get(j).equals(tag) && !isApiAccessPlan) {
 					if (xsuaaBinding == null) {

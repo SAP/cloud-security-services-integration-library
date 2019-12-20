@@ -9,7 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class HttpHeadersFactoryTest {
 
 	private static final HttpHeader ACCEPT_JSON_HEADER = new HttpHeader(ACCEPT, APPLICATION_JSON.value());
-	private static final HttpHeader CONTENT_TYPE_URL_ENCODED = new HttpHeader(CONTENT_TYPE, APPLICATION_FORM_URLENCODED.value());
+	private static final HttpHeader CONTENT_TYPE_URL_ENCODED = new HttpHeader(CONTENT_TYPE,
+			APPLICATION_FORM_URLENCODED.value());
 	private static final String TOKEN = "TOKEN CONTENT";
 
 	@Test
