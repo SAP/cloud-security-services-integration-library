@@ -73,9 +73,9 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		if (token instanceof XsuaaToken) {
 			List<String> scopes = ((XsuaaToken) token).getScopes();
 			List<String> translatedScopes = new ScopeTranslator().translateToLocalScope(scopes);
-			return TokenAuthenticationResult.createAuthenticated(token.getPrincipal(), translatedScopes, token);
+			return TokenAuthenticationResult.createAuthenticated(translatedScopes, token);
 		}
-		return TokenAuthenticationResult.createAuthenticated(token.getPrincipal(), new ArrayList<>(), token);
+		return TokenAuthenticationResult.createAuthenticated(new ArrayList<>(), token);
 	}
 
 

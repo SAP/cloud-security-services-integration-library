@@ -43,17 +43,13 @@ public class TokenAuthenticationResult {
 	}
 
 	/**
-	 *
-	 * @param principal
-	 *            the principal associated with the request.
 	 * @param scopes
 	 *            the authentication scopes. Can be empty.
 	 * @param token
 	 *            the token that was checked for authentication.
 	 * @return a {@link TokenAuthenticationResult}.
 	 */
-	public static TokenAuthenticationResult createAuthenticated(Principal principal, Collection<String> scopes,
-			Token token) {
+	public static TokenAuthenticationResult createAuthenticated(Collection<String> scopes, Token token) {
 		return new TokenAuthenticationResult(scopes, token);
 	}
 
