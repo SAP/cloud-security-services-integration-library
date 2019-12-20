@@ -53,11 +53,12 @@ public class ScopeTranslatorTest {
 		assertThat(translatedScope).containsSequence(scope);
 	}
 	@Test
-	public void translateToLocalScope_scopeContainsPoint() {
-		List<String> scope = newArrayList("myAppId!t1785.Read.Context", "sub.myAppid!b13.Write.Context");
+	public void translateToLocalScope_scopeContainsDotAndUnderscore() {
+		List<String> scope = newArrayList("my_AppId.new!t1785.Read.Context", "sub.myAppid!b13.Write.Context");
 
 		List<String> translatedScope = cut.translateToLocalScope(scope);
 
 		assertThat(translatedScope).containsExactly("Read.Context", "Write.Context");
 	}
+
 }
