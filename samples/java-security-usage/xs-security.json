@@ -1,28 +1,27 @@
 {
-	"xsappname": "java-security-usage",
-	"tenant-mode": "dedicated",
-	"scopes"        : [
+  "xsappname": "java-security-usage",
+  "tenant-mode": "dedicated",
+  "scopes": [
     {
-      "name"        : "$XSAPPNAME.Read",
-      "description" : "Read Permissions."
+      "name": "$XSAPPNAME.Read",
+      "description": "With this scope, information can be read."
     }
   ],
   "role-templates": [
     {
-      "name"             : "Viewer_servlet",
-      "description"      : "View Data",
-      "scope-references" : [
-        "$XSAPPNAME.Read",
-        "uaa.user"
+      "name": "AccessRole",
+      "description": "Role to call the java-security-usage servlet",
+      "scope-references": [
+        "$XSAPPNAME.Read"
       ]
     }
   ],
   "role-collections": [
     {
-      "name": "Viewer_servlet",
-      "description": "Viewer (read)",
+      "name": "Java_Security_Usage_Viewer",
+      "description": "Role Collection to call the java-security-usage servlet",
       "role-template-references": [
-        "$XSAPPNAME.Viewer_servlet"
+        "$XSAPPNAME.AccessRole"
       ]
     }
   ]

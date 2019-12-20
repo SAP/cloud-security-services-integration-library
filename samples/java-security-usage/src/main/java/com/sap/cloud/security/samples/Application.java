@@ -1,6 +1,6 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.servlet.DefaultTokenAuthenticator;
+import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
 import com.sap.cloud.security.test.jetty.JettyTokenAuthenticator;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
@@ -32,7 +32,7 @@ public class Application {
 	private static Server createJettyServer() {
 		WebAppContext context = new WebAppContext();
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
-		security.setAuthenticator(new JettyTokenAuthenticator(new DefaultTokenAuthenticator()));
+		security.setAuthenticator(new JettyTokenAuthenticator(new XsuaaTokenAuthenticator()));
 		context.setSecurityHandler(security);
 		context.setConfigurations(new Configuration[] {
 				new AnnotationConfiguration(), new WebXmlConfiguration(),
