@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public class ScopeTranslator {
 
-	public static final Pattern GLOBAL_SCOPE_PATTERN = Pattern.compile("[\\w-]+!\\w+\\.(.+)");
+	private static final Pattern GLOBAL_SCOPE_PATTERN = Pattern.compile("[\\w-\\.]+!\\w+\\.(.+)");
 
 	public List<String> translateToLocalScope(Collection<String> scopes) {
 		return scopes.stream()
