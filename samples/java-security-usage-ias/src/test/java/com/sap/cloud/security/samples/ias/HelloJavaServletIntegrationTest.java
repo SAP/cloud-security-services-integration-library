@@ -3,9 +3,9 @@ package com.sap.cloud.security.samples.ias;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.test.ApplicationServerOptions;
 import com.sap.cloud.security.test.SecurityIntegrationTestRule;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -28,7 +28,7 @@ public class HelloJavaServletIntegrationTest {
 
 	@ClassRule
 	public static SecurityIntegrationTestRule rule = getInstance(Service.IAS)
-			.useApplicationServer(applicationServerOptions().useTokenAuthenticator(new IasTokenAuthenticator()))
+			.useApplicationServer()
 			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 
 
