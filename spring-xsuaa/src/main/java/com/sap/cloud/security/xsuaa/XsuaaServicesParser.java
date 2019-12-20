@@ -140,12 +140,14 @@ public class XsuaaServicesParser {
 			JSONArray tags = (JSONArray) binding.get(TAGS);
 
 			for (int j = 0; j < tags.size(); j++) {
-				if (tags.get(j).equals(tag)) {
+				boolean isApiAccessPlan = binding.getAsString("plan").equals("apiaccess");
+
+				if (tags.get(j).equals(tag) && !isApiAccessPlan) {
 					if (xsuaaBinding == null) {
 						xsuaaBinding = binding;
 					} else {
 						throw new IllegalStateException(
-								"Found more than one xsuaa binding. Please consider unified broker plan.");
+								"Found more than one xsuaa bindings. Please consider unified broker plan.");
 					}
 				}
 			}

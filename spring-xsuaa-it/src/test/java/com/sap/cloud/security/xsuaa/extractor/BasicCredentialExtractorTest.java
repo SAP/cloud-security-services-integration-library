@@ -43,7 +43,7 @@ public class BasicCredentialExtractorTest {
 	 * @throws java.lang.Exception
 	 */
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		request = new MockHttpServletRequest();
 	}
 

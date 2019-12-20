@@ -74,7 +74,7 @@ class CustomConfiguration {
 }
 
 class CustomPropertySourceFactory implements PropertySourceFactory {
-	private String vcapJsonString = "{\"xsuaa\":[{\"credentials\":{\"xsappname\":\"customAppId!t2344\"},\"tags\":[\"xsuaa\"]}]}";
+	private String vcapJsonString = "{\"xsuaa\":[{\"credentials\":{\"xsappname\":\"customAppId!t2344\"},\"plan\": \"application\",\"tags\":[\"xsuaa\"]}]}";
 
 	@Override
 	public org.springframework.core.env.PropertySource<?> createPropertySource(String s,

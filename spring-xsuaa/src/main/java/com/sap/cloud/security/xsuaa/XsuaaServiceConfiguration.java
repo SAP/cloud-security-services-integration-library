@@ -43,19 +43,15 @@ public interface XsuaaServiceConfiguration {
 	 * PEM encoded certificate chain.
 	 *
 	 * @return certificates
-	 * @deprecated this method might be removed again in the future
 	 */
-	@Nullable
-	@Deprecated
-	String getCertificates();
+	// @Nullable
+	// String getCertificates();
 
 	/**
 	 * Private key the certificate is signed with.
 	 *
 	 * @return private key
-	 * @deprecated this method might be removed again in the future
 	 */
-	@Nullable
-	@Deprecated
-	String getPrivateKey();
+	// @Nullable
+	// String getPrivateKey();
 }
