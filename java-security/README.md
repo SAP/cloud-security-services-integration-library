@@ -111,58 +111,6 @@ Instant expiredtAt = token.getExpiration();
 ...
 ```
 
-## Usage with Security Filter
-The [`OAuth2SecurityFilter`](src/main/java/com/sap/cloud/security/servlet/OAuth2SecurityFilter.java) 
-is a Java Web-Servlet-Filter that can perform authorization checks on HTTP requests.
-To use the filter it needs to be declared in the web.xml file of the application.
-
-### Filter settings
-The following web.xml snippet shows how the filter is defined and a mapping for `/secure` is established.
-```xml
-    <filter>
-        <filter-name>OAuth2SecurityFilter</filter-name>
-        <filter-class>com.sap.cloud.security.servlet.OAuth2SecurityFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>OAuth2SecurityFilter</filter-name>
-        <url-pattern>/secure/*</url-pattern>
-    </filter-mapping>
-```
-See [here](/samples/java-security-usage/src/test/webapp/WEB-INF/web.xml) for a complete `web.xml` configuration file.
-
-
-> Intentionally the filter does not contain a `@WebFilter` annotation to prevent that it is automatically used 
-> when it is found by application servers. 
-
-#### Configuration
-Depending on the application's needs the `OAuth2SecurityFilter` can be customized. For this use the second constructor
-to insert instances of a custom `OidcConfigurationService` and a custom `OAuth2TokenKeyService`.
-Filters that are defined in the `web.xml` are created with the non-arg constructor. Since we want to pass arguments
-to our `OAuth2SecurityFilter` we cannot rely on runtime to create the filter instance. There are at least two ways to work
-around this problem:
-
-1. Add the filter instance programmatically to the `ServletContext`. How to do this depends on the specific runtime.
-
-2. Create another filter in your application that delegates to or inherits from `OAuth2SecurityFilter`. Specify this filter in the `web.xml` or annotate it with the `@WebFilter` annotation, e.g:
-```java
-@WebFilter(urlPatterns = "/*")
-public class MySecurityFilter implements Filter {
-
-	private final OAuth2SecurityFilter oAuth2SecurityFilter;
-
-	public MyCustomizedFilter() {
-		OidcConfigurationService oidcConfigurationService = new OidcConfigurationService();
-		OAuth2TokenKeyService oAuth2TokenKeyService = new MyOAuth2TokenKeyService();
-		oAuth2SecurityFilter = new OAuth2SecurityFilter(oidcConfigurationService, oAuth2TokenKeyService);
-	}
-
-	@Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
-		oAuth2SecurityFilter.doFilter(request, response, chain);
-	}
-...
-```
-
 ## Sample
 You can find a sample Servlet application [here](/samples/java-security-usage).
 

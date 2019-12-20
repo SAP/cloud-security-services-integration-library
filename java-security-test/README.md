@@ -42,7 +42,7 @@ In case you want to test your secured web application as part of your JUnit test
 
 The `SecurityIntegrationTestRule` uses third-party library [WireMock](http://wiremock.org/docs/getting-started/) to stub outgoing calls to the identity service. Furthermore it pre-configures the `JwtGenerator`, so that the token is signed with a private key which matches the public key provided by the jwks endpoint (on behalf of WireMock). Furthermore you can specify the `clientId` for token generation, that it can be validated by the predefined set of Jwt validators.
 
-Optionally, you can configure the `SecurityIntegrationTestRule` to start an embedded Jetty servlet container that comes equipped with a token [security filter](/java-security/src/main/java/com/sap/cloud/security/servlet/OAuth2SecurityFilter.java). The filter checks whether a request is done by an authenticated / authorized party. You can also add your own servlets to the container. Only requests that contain a valid authorization header will be passed through to the servlet. See the following test code that triggers HTTP request against the servlet container. One does not contain the token inside the authorization header and is expected to result in HTTP 401 (Unauthorized). The other does contain a valid token and is expected to go through.
+Optionally, you can configure the `SecurityIntegrationTestRule` to start an embedded Jetty servlet container that comes equipped with an  [authenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java). The authenticator checks whether a request is done by an authenticated / authorized party. You can also add your own servlets to the container. Only requests that contain a valid authorization header will be passed through to the servlet. See the following test code that triggers HTTP request against the servlet container. One does not contain the token inside the authorization header and is expected to result in HTTP 401 (Unauthorized). The other does contain a valid token and is expected to go through.
 
 ```java
 public class HelloJavaServletTest {
@@ -51,10 +51,9 @@ public class HelloJavaServletTest {
 
 	@ClassRule
 	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
-        	.usePort(8181) // optionally overwrite identity service port (WireMock)
-        	.useApplicationServer(8282)  // optionally activate additional application server and (optionally) overwrite port
-        	.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT) // add servlet to be tested to application server
-            .addApplicationServletFilter(OAuth2SecurityFilter.class); // add security filter to application server
+			.setPort(8181) // optionally overwrite identity service port (WireMock)
+			.useApplicationServer(createOptionsForService(XSUAA).usePort(8282)) // optionally activate additional application server and (optionally) overwrite port
+			.addApplicationServlet(TestServlet.class, "/hi");  // add servlet to be tested to application server
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
