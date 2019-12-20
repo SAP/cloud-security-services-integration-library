@@ -116,7 +116,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            the path on which the servlet should be served, e.g. "/*".
 	 * @return the rule itself.
 	 */
-	SecurityIntegrationTestRule addApplicationServlet(Class<? extends Servlet> servletClass, String path) {
+	public SecurityIntegrationTestRule addApplicationServlet(Class<? extends Servlet> servletClass, String path) {
 		applicationServletsByPath.put(path, new ServletHolder(servletClass));
 		return this;
 	}
@@ -131,7 +131,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            the path on which the servlet should be served, e.g. "/*".
 	 * @return the rule itself.
 	 */
-	SecurityIntegrationTestRule addApplicationServlet(ServletHolder servletHolder, String path) {
+	public SecurityIntegrationTestRule addApplicationServlet(ServletHolder servletHolder, String path) {
 		applicationServletsByPath.put(path, servletHolder);
 		return this;
 	}
