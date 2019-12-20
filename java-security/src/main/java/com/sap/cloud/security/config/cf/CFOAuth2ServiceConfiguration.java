@@ -48,6 +48,11 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 	}
 
 	@Override
+	public boolean hasProperty(String name) {
+		return credentials.containsKey(name);
+	}
+
+	@Override
 	public Service getService() {
 		return this.service;
 	}

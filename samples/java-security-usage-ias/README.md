@@ -5,9 +5,9 @@ This sample is a Java back-end application running on the Cloud Foundry. On inco
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
 - Compile the Java application
-- Create a xsuaa service instance
+- Create a ias service instance
 - Configure the manifest
-- Deploy the application
+- Deploy the application    
 - Access the application
 
 ## Compile the Java application
@@ -16,10 +16,10 @@ Run maven to package the application
 mvn clean package
 ```
 
-## Create the xsuaa service instance
-Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
+## Create the ias service instance
+Use the ias service broker and create a service instance
 ```shell
-cf create-service xsuaa application xsuaa-java-security -c xs-security.json
+cf create-service iasb default ias-java-security
 ```
 
 ## Configure the manifest
@@ -37,9 +37,9 @@ cf push --vars-file ../vars.yml
 
 ```
 curl -X POST \
-  <<VCAP_SERVICES.xsuaa.credentials.url>>/oauth/token \
+  <<VCAP_SERVICES.iasb.credentials.url>>/oauth/token \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'client_id=<<VCAP_SERVICES.xsuaa.credentials.clientid>>&client_secret=<<VCAP_SERVICES.xsuaa.credentials.clientsecret>>&grant_type=client_credentials'
+  -d 'client_id=<<VCAP_SERVICES.iasb.credentials.clientid>>&client_secret=<<VCAP_SERVICES.iasb.credentials.clientsecret>>&grant_type=client_credentials'
 ```
 
 Copy the `access_token` into your clipboard.
@@ -60,5 +60,5 @@ You ('<your user>') can access the application with the following scopes: '<your
 Finally delete your application and your service instances using the following commands:
 ```
 cf delete -f java-security-usage-ias
-cf delete-service -f xsuaa-java-security
+cf delete-service -f ias-java-security
 ```

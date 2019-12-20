@@ -55,7 +55,7 @@ public class CFEnvironmentTest {
 	}
 
 	// TODO IAS
-	//@Test(expected = UnsupportedOperationException.class)
+	// @Test(expected = UnsupportedOperationException.class)
 	public void getConfigurationOfOneIasInstance() {
 		cut = CFEnvironment.getInstance((str) -> vcapIas, (str) -> null);
 		assertThat(cut.getIasConfiguration()).isSameAs(cut.getIasConfiguration());

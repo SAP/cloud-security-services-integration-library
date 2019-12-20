@@ -13,6 +13,6 @@ applications:
   buildpacks:
     - java_buildpack
   services:
-    - xsuaa-java-security
+    - ias-java-security
 
 ...
