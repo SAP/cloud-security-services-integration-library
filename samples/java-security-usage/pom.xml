@@ -4,9 +4,11 @@
     <groupId>com.sap.cloud.security.xssec.samples</groupId>
     <artifactId>java-security-usage</artifactId>
     <version>2.3.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <sap.security.client.version>2.3.0-SNAPSHOT</sap.security.client.version>
         <apache.httpclient.version>4.5.8</apache.httpclient.version>
         <javax.servlet.api.version>3.1.0</javax.servlet.api.version>
@@ -14,26 +16,48 @@
         <wiremock.version>2.25.1</wiremock.version>
         <assertj.version>3.13.2</assertj.version>
         <mockito.version>3.1.0</mockito.version>
+        <jettyVersion>9.4.24.v20191120</jettyVersion>
         <junit.version>4.12</junit.version>
     </properties>
 
     <build>
+        <finalName>java-main-sample</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.3</version>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
                 <configuration>
-                    <warName>java-security-usage</warName>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>8</source>
-                    <target>8</target>
-                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>com.sap.cloud.security.samples.Application</Main-Class>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -44,11 +68,11 @@
             <artifactId>httpclient</artifactId>
             <version>${apache.httpclient.version}</version>
         </dependency>
+        <!-- TODO needed for authenticator and integration test -->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet.api.version}</version>
-            <scope>provided</scope>
+            <groupId>com.sap.cloud.security.xsuaa</groupId>
+            <artifactId>java-security-test</artifactId>
+            <version>${sap.security.client.version}</version>
         </dependency>
         <!-- security -->
         <dependency>
@@ -56,7 +80,6 @@
             <artifactId>java-security</artifactId>
             <version>${sap.security.client.version}</version>
         </dependency>
-
         <!-- test utilities -->
         <dependency>
             <groupId>junit</groupId>
@@ -74,12 +97,6 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>${assertj.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sap.cloud.security.xsuaa</groupId>
-            <artifactId>java-security-test</artifactId>
-            <version>${sap.security.client.version}</version>
             <scope>test</scope>
         </dependency>
 

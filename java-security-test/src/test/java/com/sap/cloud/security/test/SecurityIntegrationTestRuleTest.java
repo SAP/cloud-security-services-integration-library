@@ -1,7 +1,6 @@
 package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.servlet.OAuth2SecurityFilter;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
@@ -13,7 +12,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -27,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.test.ApplicationServerOptions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -42,16 +41,8 @@ public class SecurityIntegrationTestRuleTest {
 	public static SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(XSUAA)
 			.setPort(PORT)
 			.setKeys(RSA_KEYS)
-			.useApplicationServer(APPLICATION_SERVER_PORT)
-			.addApplicationServlet(new ServletHolder(new TestServlet()), "/hi")
-			.addApplicationServletFilter(OAuth2SecurityFilter.class);
-
-	private static void assertThatTestServletIsServed(SecurityIntegrationTestRule cut) throws IOException {
-		HttpGet httpGet = new HttpGet(cut.getApplicationServerUri() + "/hi");
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
-		}
-	}
+			.useApplicationServer(createOptionsForService(XSUAA).usePort(APPLICATION_SERVER_PORT))
+			.addApplicationServlet(TestServlet.class, "/hi");
 
 	@Test
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys() throws IOException {
@@ -94,7 +85,10 @@ public class SecurityIntegrationTestRuleTest {
 
 	@Test
 	public void servletFilterServesTestServlet() throws IOException {
-		assertThatTestServletIsServed(cut);
+		HttpGet httpGet = new HttpGet(cut.getApplicationServerUri() + "/hi");
+		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+		}
 	}
 
 	private String readContent(CloseableHttpResponse response) throws IOException {
@@ -102,35 +96,15 @@ public class SecurityIntegrationTestRuleTest {
 				.collect(Collectors.joining());
 	}
 
-	public static class SecurityIntegrationTestRuleTestWithoutDynamicPorts {
-
-		@Rule
-		public SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(XSUAA)
-				.useApplicationServer()
-				.addApplicationServlet(TestServlet.class, "/hi");
-
-		@Test
-		public void testRuleIsInitializedCorrectly() {
-			assertThat(cut.getApplicationServerUri()).isNotNull();
-			assertThat(cut.getWireMockRule()).isNotNull();
-		}
-
-		@Test
-		public void servletFilterServesTestServlet() throws IOException {
-			assertThatTestServletIsServed(cut);
-		}
-
-	}
-
 	public static class SecurityIntegrationTestRuleTestWithoutApplicationServer {
 
 		@Rule
-		public SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(XSUAA);
+		public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA);
 
 		@Test
 		public void testRuleIsInitializedCorrectly() {
-			assertThat(cut.getApplicationServerUri()).isNull();
-			assertThat(cut.getWireMockRule()).isNotNull();
+			assertThat(rule.getApplicationServerUri()).isNull();
+			assertThat(rule.getWireMockRule()).isNotNull();
 		}
 	}
 
@@ -146,9 +120,10 @@ public class SecurityIntegrationTestRuleTest {
 					.isInstanceOf(UnsupportedOperationException.class)
 					.hasMessageContaining(String.format("Service %s is not yet supported", Service.IAS));
 		}
+
 	}
 
-	private static class TestServlet extends HttpServlet {
+	public static class TestServlet extends HttpServlet {
 		@Override
 		protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 			response.setStatus(HttpServletResponse.SC_OK);
@@ -157,5 +132,4 @@ public class SecurityIntegrationTestRuleTest {
 			response.getWriter().print("Hi!");
 		}
 	}
-
 }

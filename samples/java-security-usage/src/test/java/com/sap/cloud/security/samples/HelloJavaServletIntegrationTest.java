@@ -2,8 +2,8 @@ package com.sap.cloud.security.samples;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.servlet.OAuth2SecurityFilter;
 import com.sap.cloud.security.test.SecurityIntegrationTestRule;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -18,6 +18,8 @@ import java.util.Properties;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.cf.CFConstants.*;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.GRANT_TYPE;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletIntegrationTest {
@@ -27,8 +29,7 @@ public class HelloJavaServletIntegrationTest {
 	@ClassRule
 	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
 			.useApplicationServer()
-			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT)
-			.addApplicationServletFilter(OAuth2SecurityFilter.class);
+			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
@@ -36,6 +37,11 @@ public class HelloJavaServletIntegrationTest {
 		System.setProperty(VCAP_SERVICES, IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
 		assertThat(Environments.getCurrent().getXsuaaConfiguration()).isNotNull();
 		rule.setClientId(Environments.getCurrent().getXsuaaConfiguration().getClientId());
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		SecurityContext.clearToken();
 	}
 
 	@AfterClass
@@ -60,36 +66,30 @@ public class HelloJavaServletIntegrationTest {
 	}
 
 	@Test
-	public void request_withValidToken() throws IOException {
-		HttpGet request = createGetRequest(rule.createToken().getBearerAccessToken());
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
-		}
-	}
-
-	/** TODO as soon @ServletSecurity works
-
-	@Test
 	public void request_withValidTokenWithoutScopes_unauthorized() throws IOException {
-		HttpGet request = createGetRequest(rule.createToken().getBearerAccessToken());
+		String bearerAccessToken = rule.getPreconfiguredJwtGenerator()
+				.withClaimValue(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS)
+				.createToken()
+				.getBearerAccessToken();
+		HttpGet request = createGetRequest(bearerAccessToken);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_FORBIDDEN); // 403
 		}
 	}
 
 	@Test
 	public void request_withValidToken_ok() throws IOException {
-		Token tokenWithScopes = rule.getPreconfiguredJwtGenerator().withScopes(getGlobalScope("read")).createToken();
-		HttpGet request = createGetRequest(tokenWithScopes.getBearerAccessToken());
+		String  getBearerAccessToken = rule.getPreconfiguredJwtGenerator()
+				.withClaimValue(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS)
+				.withScopes(getGlobalScope("Read"))
+				.createToken()
+				.getBearerAccessToken();
+		HttpGet request = createGetRequest(getBearerAccessToken);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK); // 200
 		}
 	}
-
-	**/
 
 	private HttpGet createGetRequest(String bearerToken) {
 		HttpGet httpGet = new HttpGet(rule.getApplicationServerUri() + HelloJavaServlet.ENDPOINT);

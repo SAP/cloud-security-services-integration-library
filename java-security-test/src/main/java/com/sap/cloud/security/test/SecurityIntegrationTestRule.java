@@ -2,16 +2,22 @@ package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.test.jetty.JettyTokenAuthenticator;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.annotations.AnnotationConfiguration;
+import org.eclipse.jetty.plus.webapp.EnvConfiguration;
+import org.eclipse.jetty.plus.webapp.PlusConfiguration;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.*;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +27,6 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -33,18 +38,17 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(SecurityIntegrationTestRule.class);
 	private static final String LOCALHOST_PATTERN = "http://localhost:%d";
-
-	private RSAKeys keys;
-
-	private int wireMockPort = 0;
-	private WireMockRule wireMockRule;
-
-	private boolean useApplicationServer;
-	private int applicationServerPort = 0;
+	private final Map<String, ServletHolder> applicationServletsByPath = new HashMap<>();
+	private final List<FilterHolder> applicationServletFilters = new ArrayList<>();
+	// app server
 	private Server applicationServer;
-	private Map<String, ServletHolder> applicationServletsByPath = new HashMap<>();
-	private List<FilterHolder> applicationServletFilters = new ArrayList<>();
+	private ApplicationServerOptions applicationServerOptions;
+	private boolean useApplicationServer;
 
+	// mock server
+	private WireMockRule wireMockRule;
+	private RSAKeys keys;
+	private int wireMockPort = 0;
 	private Service service;
 	private String clientId;
 	private String jwksUrl;
@@ -55,48 +59,49 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 
 	/**
 	 * Creates an instance of the test rule for the given service.
-	 * 
+	 *
 	 * @param service
 	 *            the service for which the test rule should be created.
 	 * @return the test rule instance.
 	 */
 	public static SecurityIntegrationTestRule getInstance(Service service) {
 		SecurityIntegrationTestRule instance = new SecurityIntegrationTestRule();
-		// TODO IAS
-		/*
-		 * if (service != Service.XSUAA) { throw new
-		 * UnsupportedOperationException("Identity Service " + service +
-		 * " is not yet supported."); }
-		 */
 		instance.keys = RSAKeys.generate();
 		instance.service = service;
+		ApplicationServerOptions.createOptionsForService(service);
 		return instance;
 	}
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
-	 * before the {@link #before()} method. If the port is set to 0, a free random
-	 * port is chosen.
-	 *
-	 * @param port
-	 *            the port on which the application service is started.
-	 * @return the rule itself.
-	 */
-	public SecurityIntegrationTestRule useApplicationServer(int port) {
-		applicationServerPort = port;
-		useApplicationServer = true;
-		return this;
-	}
-
-	/**
-	 * Specifies an embedded jetty as servlet server. It needs to be configured
-	 * before the {@link #before()} method. The servlet server will listen on a free
-	 * random port. Use {@link #getApplicationServerUri()} to obtain port.
+	 * before the {@link #before()} method. The application server will be started
+	 * with default options for the given {@link Service},
+	 * see {@link ApplicationServerOptions#createOptionsForService(Service)} for
+	 * details. By default the servlet server will listen on a free random port.
+	 * Use
+	 * {@link SecurityIntegrationTestRule#useApplicationServer(ApplicationServerOptions)}
+	 * to overwrite default settings. Use {@link #getApplicationServerUri()} to
+	 * obtain the actual port used at runtime.
 	 *
 	 * @return the rule itself.
 	 */
 	public SecurityIntegrationTestRule useApplicationServer() {
-		applicationServerPort = 0;
+		return useApplicationServer(ApplicationServerOptions.createOptionsForService(service));
+	}
+
+	/**
+	 * Specifies an embedded jetty as servlet server. It needs to be configured
+	 * before the {@link #before()} method. Use
+	 * {@link ApplicationServerOptions#createOptionsForService(Service)} to obtain a
+	 * configuration object that can be customized. See
+	 * {@link ApplicationServerOptions} for details.
+	 *
+	 * @param applicationServerOptions
+	 *            custom options to configure the application server.
+	 * @return the rule itself.
+	 */
+	public SecurityIntegrationTestRule useApplicationServer(ApplicationServerOptions applicationServerOptions) {
+		this.applicationServerOptions = applicationServerOptions;
 		useApplicationServer = true;
 		return this;
 	}
@@ -104,7 +109,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in
 	 * conjunction with {@link #useApplicationServer}.
-	 * 
+	 *
 	 * @param servletClass
 	 *            the servlet class that should be served.
 	 * @param path
@@ -119,7 +124,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in
 	 * conjunction with {@link #useApplicationServer}.
-	 * 
+	 *
 	 * @param servletHolder
 	 *            the servlet inside a {@link ServletHolder} that should be served.
 	 * @param path
@@ -275,20 +280,41 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	}
 
 	private void startApplicationServer() throws Exception {
-		applicationServer = new Server(applicationServerPort);
-		ServletHandler servletHandler = createHandlerForServer(applicationServer);
+		WebAppContext context = createWebAppContext();
+		ServletHandler servletHandler = createServletHandler(context);
+
 		applicationServletsByPath
 				.forEach((path, servletHolder) -> servletHandler.addServletWithMapping(servletHolder, path));
-		applicationServletFilters.forEach((filterHolder) -> servletHandler.addFilterWithMapping(filterHolder, "/*",
-				EnumSet.of(DispatcherType.REQUEST)));
-		applicationServer.setHandler(servletHandler);
+		applicationServletFilters.forEach((filterHolder) -> servletHandler
+				.addFilterWithMapping(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
+
+		applicationServer = new Server(applicationServerOptions.getPort());
+		applicationServer.setHandler(context);
 		applicationServer.start();
 	}
 
-	private ServletHandler createHandlerForServer(Server server) {
+	private ServletHandler createServletHandler(WebAppContext context) {
+		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
+		JettyTokenAuthenticator authenticator = new JettyTokenAuthenticator(
+				applicationServerOptions.getTokenAuthenticator());
+		security.setAuthenticator(authenticator);
 		ServletHandler servletHandler = new ServletHandler();
-		server.setHandler(servletHandler);
+		security.setHandler(servletHandler);
+		context.setServletHandler(servletHandler);
+		context.setSecurityHandler(security);
 		return servletHandler;
+	}
+
+	private WebAppContext createWebAppContext() {
+		WebAppContext context = new WebAppContext();
+		context.setConfigurations(new Configuration[] {
+				new AnnotationConfiguration(), new WebXmlConfiguration(),
+				new WebInfConfiguration(), new PlusConfiguration(), new MetaInfConfiguration(),
+				new FragmentConfiguration(), new EnvConfiguration() });
+		context.setContextPath("/");
+		context.setResourceBase("src/main/java/webapp");
+		context.setParentLoaderPriority(true);
+		return context;
 	}
 
 	private String createDefaultTokenKeyResponse() throws IOException {
