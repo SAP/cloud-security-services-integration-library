@@ -49,7 +49,7 @@ public class TokenAuthenticationResult {
 	 *            the token that was checked for authentication.
 	 * @return a {@link TokenAuthenticationResult}.
 	 */
-	public static TokenAuthenticationResult createAuthenticated(Collection<String> scopes, Token token) {
+	public static TokenAuthenticationResult authenticated(Collection<String> scopes, Token token) {
 		return new TokenAuthenticationResult(scopes, token);
 	}
 
