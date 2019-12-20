@@ -2,8 +2,6 @@ package sample.spring.xsuaa;
 
 import java.util.concurrent.TimeUnit;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.caffeine.CaffeineCache;
@@ -16,7 +14,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
 import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
@@ -30,6 +31,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
+		//enforce browser login popup with basic authentication
+		BasicAuthenticationEntryPoint authEntryPoint = new BasicAuthenticationEntryPoint();
+		authEntryPoint.setRealmName("spring-security-basic-auth");
+
 		// @formatter:off
 		http.authorizeRequests()
 				.antMatchers("/hello-token").hasAuthority("openid")
@@ -37,7 +42,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 				.sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and()
+			.and().exceptionHandling().authenticationEntryPoint(authEntryPoint).and()
 				.oauth2ResourceServer()
 				.bearerTokenResolver(getTokenBrokerResolver())
 				.jwt()
