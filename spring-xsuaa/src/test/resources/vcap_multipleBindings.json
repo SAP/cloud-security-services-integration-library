@@ -1,0 +1,31 @@
+{
+  "xsuaa": [
+    {
+      "credentials": {
+        "clientid": "client-id-api",
+        "clientsecret": "client-secret-api"
+      },
+      "instance_name": "xsuaa-api",
+      "label": "xsuaa",
+      "name": "xsuaa-api",
+      "plan": "apiaccess",
+      "tags": [
+        "xsuaa"
+      ]
+    },
+    {
+      "credentials": {
+        "clientid": "client-id",
+        "clientsecret": "client-secret"
+      },
+      "instance_name": "xsuaa-main",
+      "label": "xsuaa",
+      "name": "xsuaa-main",
+      "plan": "application",
+      "tags": [
+        "xsuaa"
+      ]
+    }
+  ]
+}
+}
