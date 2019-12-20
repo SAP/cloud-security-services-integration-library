@@ -17,8 +17,8 @@ import java.util.Arrays;
  * This class is used to start the sample as standalone application which does not rely on
  * a application server runtime.
  * TODO only needed because the java build pack does only support the servlet security annotations
- * in conjunction with the old Java Container Security library. As soon as the build pack supports
- * the new java security library, this class can be removed.
+ * in conjunction with the old Java Container Security library. As soon as the SAP java build pack
+ * supports the new java security library, this class can be removed.
  */
 public class Application {
 
