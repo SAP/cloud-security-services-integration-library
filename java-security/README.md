@@ -41,12 +41,12 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.3.0</version>
+    <version>2.4.0-SNAPSHOT</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpclient</artifactId>
-    <version>2.3.0</version>
+    <version>2.4.0-SNAPSHOT</version>
 </dependency>
 ```
 

@@ -20,7 +20,7 @@ All of them are returned as [`Token`](/java-security/src/main/java/com/sap/cloud
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>2.3.0-SNAPSHOT</version>
+    <version>2.4.0-SNAPSHOT</version>
     <scope>test</scope>
 </dependency>
 ```
