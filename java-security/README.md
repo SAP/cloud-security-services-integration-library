@@ -14,7 +14,7 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
   - Is the jwt signed with the public key of the trust-worthy identity service? With that it also makes sure that the payload and the header of the jwt is unchanged ([`JwtSignatureValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/JwtSignatureValidator.java))?
 - Provides thread-local cache ([`SecurityContext`](src/main/java/com/sap/cloud/security/token/SecurityContext.java)) to store the decoded and validated token.
-- Provides a servlet security filter ([`OAuth2SecurityFilter`](src/main/java/com/sap/cloud/security/servlet/OAuth2SecurityFilter.java)) that validates bearer tokens contained in the authorization header of HTTP requests. The filter is used in the following [sample](/samples/java-security-usage).
+- Provides an authenticator ([`TokenAuthenticator`](src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java)) that validates bearer tokens contained in the authorization header of HTTP requests. The authenticator is used in the following [sample](/samples/java-security-usage).
 ## Open Source libs used
 - JSON Parser Reference implementation: [json.org](https://github.com/stleary/JSON-java)
 - No crypto library. Leverages Public Key Infrastructure (PKI) provided by Java Security Framework to verify digital signatures.
@@ -111,8 +111,18 @@ Instant expiredtAt = token.getExpiration();
 ...
 ```
 
-## Sample
-You can find a sample Servlet application [here](/samples/java-security-usage).
+## Token based authentication
+The servlet authenticator part of this library makes it easy to integrate token based authentication into your java application.
+For the integration of different Identity Services the ([`TokenAuthenticator`](src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java))
+interface was created. Right now there are two implementations:
+- [XsuaaTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java)
+- [IasTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/IasTokenAuthenticator.java) (work in progress)
+
+> Depending on the application's needs the `XsuaaTokenAuthenticator/IasTokenAuthenticator` can be customized.
+> For this use the alternative constructor to insert instances of a custom `OidcConfigurationService` and a custom
+> `OAuth2TokenKeyService`.
+
+The authenticator is used in the following [sample](/samples/java-security-usage).
 
 ## Test Utilities
 You can find the test utilites documented [here](/java-security-test).
