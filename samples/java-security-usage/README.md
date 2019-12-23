@@ -33,7 +33,7 @@ cf push --vars-file ../vars.yml
 ```
 
 ## Access the application
-- Get an token via `curl`. You can get the information to fill the placeholders from your system environment `cf env java-security-usage`:
+- Get an access token via `curl`. You can get the information to fill the placeholders from your system environment `cf env java-security-usage`:
 
 ```
 curl -X POST \
