@@ -33,13 +33,13 @@ cf push --vars-file ../vars.yml
 ```
 
 ## Access the application
-- Get an client-credentials access token via `curl. You can get the information to fill the placeholders from your system environment `cf env java-security-usage-ias`:
+- Get an access token via `curl`. You can get the information to fill the placeholders from your system environment `cf env java-security-usage`:
 
 ```
 curl -X POST \
-  <<VCAP_SERVICES.iasb.credentials.url>>/oauth/token \
+  <<VCAP_SERVICES.xsuaa.credentials.url>>/oauth/token \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'client_id=<<VCAP_SERVICES.iasb.credentials.clientid>>&client_secret=<<VCAP_SERVICES.iasb.credentials.clientsecret>>&grant_type=client_credentials'
+  -d 'client_id=<<VCAP_SERVICES.xsuaa.credentials.clientid>>&client_secret=<<VCAP_SERVICES.xsuaa.credentials.clientsecret>>&grant_type=password&username=<your username>&password=<your password>'
 ```
 
 Copy the `access_token` into your clipboard.
