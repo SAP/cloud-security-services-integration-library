@@ -116,8 +116,7 @@ Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants
 
 ## Token based authentication
 The servlet authenticator part of this library makes it easy to integrate token based authentication into your java application.
-For the integration of different Identity Services the ([`TokenAuthenticator`](src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java))
-interface was created. Right now there are these implementations:
+For the integration of different Identity Services the [`TokenAuthenticator`](src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java) interface was created. Right now there are these implementations:
 - [XsuaaTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java)
 
 > Depending on the application's needs the `TokenAuthenticator` can be customized.

@@ -41,7 +41,7 @@ public class UriUtil {
 				throw new IllegalArgumentException(e);
 			}
 		}
-		logger.warn("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
+		logger.info("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
 		return uri;
 	}
 
@@ -53,8 +53,18 @@ public class UriUtil {
 		return Optional.ofNullable(string).filter(str -> !str.trim().isEmpty()).isPresent();
 	}
 
+	/**
+	 * Utility method that expands the path of the URI.
+	 *
+	 * @param baseUri
+	 *            the URI to be replaced.
+	 * @param pathToAppend
+	 *            the path to append.
+	 * @return the URI with the path.
+	 */
+	// TODO rename to getUriWithPathAppended
 	@Nonnull
-	public static URI getUriWithPathAppended(URI baseUri, String pathToAppend) {
+	public static URI expandPath(URI baseUri, String pathToAppend) {
 		try {
 			String newPath = baseUri.getPath() + pathToAppend;
 			return new URI(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(),

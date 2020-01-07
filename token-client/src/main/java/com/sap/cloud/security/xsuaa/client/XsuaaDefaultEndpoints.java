@@ -3,7 +3,7 @@ package com.sap.cloud.security.xsuaa.client;
 import java.net.URI;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
-import static com.sap.cloud.security.xsuaa.util.UriUtil.getUriWithPathAppended;
+import static com.sap.cloud.security.xsuaa.util.UriUtil.expandPath;
 
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final URI baseUri;
@@ -36,17 +36,17 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 
 	@Override
 	public URI getTokenEndpoint() {
-		return getUriWithPathAppended(baseUri, TOKEN_ENDPOINT);
+		return expandPath(baseUri, TOKEN_ENDPOINT);
 	}
 
 	@Override
 	public URI getAuthorizeEndpoint() {
-		return getUriWithPathAppended(baseUri, AUTHORIZE_ENDPOINT);
+		return expandPath(baseUri, AUTHORIZE_ENDPOINT);
 	}
 
 	@Override
 	public URI getJwksUri() {
-		return getUriWithPathAppended(baseUri, KEYSET_ENDPOINT);
+		return expandPath(baseUri, KEYSET_ENDPOINT);
 	}
 
 }

@@ -27,8 +27,8 @@ public class ApplicationServerOptions {
 		switch (service) {
 		case XSUAA:
 			return new ApplicationServerOptions(new XsuaaTokenAuthenticator());
-		//case IAS:
-		//	return new ApplicationServerOptions(new IasTokenAuthenticator());
+		case IAS:
+			return new ApplicationServerOptions(new IasTokenAuthenticator());
 		default:
 			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
 		}

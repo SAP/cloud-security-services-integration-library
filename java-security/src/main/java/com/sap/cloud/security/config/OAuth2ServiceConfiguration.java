@@ -48,7 +48,6 @@ public interface OAuth2ServiceConfiguration {
 	 *            {@link com.sap.cloud.security.config.cf.CFConstants}
 	 * @return true if the property does not exist.
 	 */
-	@Nullable
 	boolean hasProperty(String name);
 
 	/**

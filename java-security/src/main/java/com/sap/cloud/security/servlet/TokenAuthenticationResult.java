@@ -18,6 +18,11 @@ public class TokenAuthenticationResult {
 	private Token token = null;
 	private String reason = "";
 
+	private TokenAuthenticationResult() {
+		// use static create methods
+	}
+
+
 	/**
 	 * Creates an unauthenticated result with a reason.
 	 * 
