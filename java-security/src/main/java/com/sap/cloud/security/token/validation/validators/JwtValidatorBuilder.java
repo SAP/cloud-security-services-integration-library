@@ -2,6 +2,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;

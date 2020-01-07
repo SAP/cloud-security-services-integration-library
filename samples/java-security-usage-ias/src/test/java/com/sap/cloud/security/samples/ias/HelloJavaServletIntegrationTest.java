@@ -3,8 +3,7 @@ package com.sap.cloud.security.samples.ias;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.test.ApplicationServerOptions;
-import com.sap.cloud.security.test.SecurityIntegrationTestRule;
+import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
@@ -19,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
-import static com.sap.cloud.security.test.SecurityIntegrationTestRule.*;
+import static com.sap.cloud.security.test.SecurityTestRule.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletIntegrationTest {
@@ -27,7 +26,7 @@ public class HelloJavaServletIntegrationTest {
 	private static Properties oldProperties;
 
 	@ClassRule
-	public static SecurityIntegrationTestRule rule = getInstance(Service.IAS)
+	public static SecurityTestRule rule = getInstance(Service.IAS)
 			.useApplicationServer()
 			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 

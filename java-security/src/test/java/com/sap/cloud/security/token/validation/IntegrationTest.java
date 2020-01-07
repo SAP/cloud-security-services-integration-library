@@ -17,7 +17,6 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
-import com.sap.cloud.security.token.validation.validators.CombiningValidator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 
 public class IntegrationTest {

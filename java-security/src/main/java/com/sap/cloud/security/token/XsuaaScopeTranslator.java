@@ -7,10 +7,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * This utility class translates scopes that are specified in global form
+ * This utility class translates XSUAA scopes that are specified in global form
  * to local ones.
  */
-public class ScopeTranslator {
+public class XsuaaScopeTranslator {
 
 	private static final Pattern GLOBAL_SCOPE_PATTERN = Pattern.compile("[\\w-\\.]+!\\w+\\.(.+)");
 

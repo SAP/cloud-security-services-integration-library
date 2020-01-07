@@ -11,7 +11,7 @@ public class Environments {
 	}
 
 	public static Environment getCurrent() {
-		// TODO probe in which environemt it runs currently: CF or Kubernetes, e.g.
+		// TODO Kubernetes: probe in which environemt it runs currently: CF or Kubernetes, e.g.
 		// if(System.getenv("VCAP_SERVICES") != null) {
 		return cfEnvironment;
 	}

@@ -1,8 +1,4 @@
-package com.sap.cloud.security.token.validation.validators;
-
-import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.token.validation.ValidationResults;
-import com.sap.cloud.security.token.validation.Validator;
+package com.sap.cloud.security.token.validation;
 
 import java.util.HashSet;
 import java.util.List;

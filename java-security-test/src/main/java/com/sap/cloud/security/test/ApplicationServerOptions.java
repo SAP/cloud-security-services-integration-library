@@ -4,12 +4,10 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.servlet.IasTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticator;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
-import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 
 /**
  * This class is used to configure the application server to serve test servlets
- * inside the {@link SecurityIntegrationTestRule}.
+ * inside the {@link SecurityTestRule}.
  */
 public class ApplicationServerOptions {
 
@@ -28,13 +26,9 @@ public class ApplicationServerOptions {
 	public static ApplicationServerOptions createOptionsForService(Service service) {
 		switch (service) {
 		case XSUAA:
-			return new ApplicationServerOptions(
-					new XsuaaTokenAuthenticator(OAuth2TokenKeyServiceWithCache.getInstance(),
-							OidcConfigurationServiceWithCache.getInstance()));
-		case IAS:
-			return new ApplicationServerOptions(
-					new IasTokenAuthenticator(OAuth2TokenKeyServiceWithCache.getInstance(),
-							OidcConfigurationServiceWithCache.getInstance()));
+			return new ApplicationServerOptions(new XsuaaTokenAuthenticator());
+		//case IAS:
+		//	return new ApplicationServerOptions(new IasTokenAuthenticator());
 		default:
 			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
 		}

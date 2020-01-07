@@ -1,7 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
 import com.sap.cloud.security.token.Token;

@@ -5,8 +5,8 @@ import com.sap.cloud.security.xsuaa.Assertions;
 
 import javax.annotation.Nullable;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Class to collect the result of the authentication performed by a
@@ -14,21 +14,9 @@ import java.util.Collection;
  */
 public class TokenAuthenticationResult {
 
-	private final Collection<String> scopes;
-	private final Token token;
-	private final String reason;
-
-	private TokenAuthenticationResult(Collection<String> scopes, Token token) {
-		this.token = token;
-		this.scopes = scopes;
-		this.reason = "";
-	}
-
-	private TokenAuthenticationResult(String reason) {
-		this.token = null;
-		this.scopes = new ArrayList<>();
-		this.reason = reason;
-	}
+	private Collection<String> scopes = Collections.emptyList();
+	private Token token = null;
+	private String reason = "";
 
 	/**
 	 * Creates an unauthenticated result with a reason.
@@ -39,7 +27,9 @@ public class TokenAuthenticationResult {
 	 */
 	public static final TokenAuthenticationResult createUnauthenticated(String reason) {
 		Assertions.assertHasText(reason, "Reason must contain text");
-		return new TokenAuthenticationResult(reason);
+		TokenAuthenticationResult result = new TokenAuthenticationResult();
+		result.reason = reason;
+		return result;
 	}
 
 	/**
@@ -50,7 +40,10 @@ public class TokenAuthenticationResult {
 	 * @return a {@link TokenAuthenticationResult}.
 	 */
 	public static TokenAuthenticationResult authenticated(Collection<String> scopes, Token token) {
-		return new TokenAuthenticationResult(scopes, token);
+		TokenAuthenticationResult result = new TokenAuthenticationResult();
+		result.scopes = scopes;
+		result.token = token;
+		return result;
 	}
 
 	/**

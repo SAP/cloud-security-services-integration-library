@@ -6,7 +6,7 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.token.validation.validators.CombiningValidator;
+import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.client.*;

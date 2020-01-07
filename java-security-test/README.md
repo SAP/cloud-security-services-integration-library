@@ -4,8 +4,6 @@
 This library complements the `java-security` project with testing utilities.
 It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) that can be used for JUnit tests, as well as for integration testing.
 
-All of them are returned as [`Token`](/java-security/src/main/java/com/sap/cloud/security/token/Token.java), which offers you a `getAccessToken()` method that returns the encoded and signed Jwt token. You need to prefix this one with `Bearer ` in case you like to provide the access token via `Authorization` header to your application.
-
  > By default the generated token is Base64 encoded and signed with a generated RSA key.
 
 
@@ -29,20 +27,23 @@ All of them are returned as [`Token`](/java-security/src/main/java/com/sap/cloud
 Find an example on how to use the test utilities [here](/samples/java-security-usage).
 
 ### Jwt Generator
-Using `JwtGenerator` you can create tokens of type [`Token`](/java-security/src/main/java/com/sap/cloud/security/token/Token.java) that are by default signed with a random RSA key pair.  
+Using `JwtGenerator` you can create tokens of type [`Token`](/java-security/src/main/java/com/sap/cloud/security/token/Token.java), which offers you a `getAccessToken()` method that returns the encoded and signed Jwt token. By default its signed with a random RSA key pair. In case you like to provide the token via `Authorization` header to your application use `getBearerAccessToken()` to get the access token prefixed with `Bearer `. 
+
 ```java
 Token token = JwtGenerator.getInstance(Service.XSUAA)
                                 .withHeaderParameter(TokenHeader.KEY_ID, "key-id") // optional
                                 .withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId) // optional
                                 .createToken();
+
+String authorizationHeaderValue = token.getBearerAccessToken();
 ```
 
 ### Unit Test Utilities
 In case you want to test your secured web application as part of your JUnit tests you need to generate JWT tokens and in order to validate the token you need also to mock the jwks endpoint of the identity service e.g. xsuaa. 
 
-The `SecurityIntegrationTestRule` uses third-party library [WireMock](http://wiremock.org/docs/getting-started/) to stub outgoing calls to the identity service. Furthermore it pre-configures the `JwtGenerator`, so that the token is signed with a private key which matches the public key provided by the jwks endpoint (on behalf of WireMock). Furthermore you can specify the `clientId` for token generation, that it can be validated by the predefined set of Jwt validators.
+The `SecurityTestRule` uses third-party library [WireMock](http://wiremock.org/docs/getting-started/) to stub outgoing calls to the identity service. Furthermore it pre-configures the `JwtGenerator`, so that the token is signed with a private key which matches the public key provided by the jwks endpoint (on behalf of WireMock). Furthermore you can specify the `clientId` for token generation, that it can be validated by the predefined set of Jwt validators.
 
-Optionally, you can configure the `SecurityIntegrationTestRule` to start an embedded Jetty servlet container that comes equipped with an [authenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java). The authenticator checks whether a request is done by an authenticated / authorized party. You can also add your own servlets to the container. Only requests that contain a valid authorization header will be passed through to the servlet. See the following test code that triggers HTTP request against the servlet container. One does not contain the token inside the authorization header and is expected to result in HTTP 401 (Unauthorized). The other does contain a valid token and is expected to go through.
+Optionally, you can configure the `SecurityTestRule` to start an embedded Jetty servlet container that comes equipped with an [authenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java). The authenticator checks whether a request is done by an authenticated AND authorized party. You can also add your own servlets to the container. Only requests that contain a valid authorization header will be passed through to the servlet. See the following test code that triggers HTTP requests against the servlet container. One request does not contain the token inside the authorization header and is expected to result in HTTP 401 (unauthenticated). The other contains a valid token and is expected to succeed.
 
 ```java
 public class HelloJavaServletTest {
@@ -50,7 +51,7 @@ public class HelloJavaServletTest {
 	private static Properties oldProperties;
 
 	@ClassRule
-	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
+	public static SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA)
 			.setPort(8181) // optionally overwrite identity service port (WireMock)
 			.useApplicationServer(ApplicationServerOptions.createOptionsForService(XSUAA).usePort(8282)) // optionally activate additional application server and (optionally) overwrite port
 			.addApplicationServlet(TestServlet.class, "/hi");  // add servlet to be tested to application server

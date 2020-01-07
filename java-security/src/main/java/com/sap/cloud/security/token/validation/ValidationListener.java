@@ -1,6 +1,4 @@
-package com.sap.cloud.security.token.validation.validators;
-
-import com.sap.cloud.security.token.validation.ValidationResult;
+package com.sap.cloud.security.token.validation;
 
 /**
  * Implement this interface to register custom validation listener to the

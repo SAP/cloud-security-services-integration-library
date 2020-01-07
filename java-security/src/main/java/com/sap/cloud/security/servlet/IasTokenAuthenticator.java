@@ -10,16 +10,6 @@ import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 
 public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 
-
-	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
-	private final OidcConfigurationServiceWithCache oidcConfigurationService;
-
-	public IasTokenAuthenticator(OAuth2TokenKeyServiceWithCache tokenKeyService,
-			OidcConfigurationServiceWithCache oidcConfigurationService) {
-		this.tokenKeyService = tokenKeyService;
-		this.oidcConfigurationService = oidcConfigurationService;
-	}
-
 	public IasTokenAuthenticator() {
 		tokenKeyService = OAuth2TokenKeyServiceWithCache.getInstance();
 		oidcConfigurationService = OidcConfigurationServiceWithCache.getInstance();

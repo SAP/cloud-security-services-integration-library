@@ -34,9 +34,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
-public class SecurityIntegrationTestRule extends ExternalResource {
+public class SecurityTestRule extends ExternalResource {
 
-	private static final Logger logger = LoggerFactory.getLogger(SecurityIntegrationTestRule.class);
+	private static final Logger logger = LoggerFactory.getLogger(SecurityTestRule.class);
 	private static final String LOCALHOST_PATTERN = "http://localhost:%d";
 	private final Map<String, ServletHolder> applicationServletsByPath = new HashMap<>();
 	private final List<FilterHolder> applicationServletFilters = new ArrayList<>();
@@ -53,7 +53,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	private String clientId;
 	private String jwksUrl;
 
-	private SecurityIntegrationTestRule() {
+	private SecurityTestRule() {
 		// see factory method getInstance()
 	}
 
@@ -64,8 +64,8 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            the service for which the test rule should be created.
 	 * @return the test rule instance.
 	 */
-	public static SecurityIntegrationTestRule getInstance(Service service) {
-		SecurityIntegrationTestRule instance = new SecurityIntegrationTestRule();
+	public static SecurityTestRule getInstance(Service service) {
+		SecurityTestRule instance = new SecurityTestRule();
 		instance.keys = RSAKeys.generate();
 		instance.service = service;
 		ApplicationServerOptions.createOptionsForService(service);
@@ -79,13 +79,13 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 * see {@link ApplicationServerOptions#createOptionsForService(Service)} for
 	 * details. By default the servlet server will listen on a free random port.
 	 * Use
-	 * {@link SecurityIntegrationTestRule#useApplicationServer(ApplicationServerOptions)}
+	 * {@link SecurityTestRule#useApplicationServer(ApplicationServerOptions)}
 	 * to overwrite default settings. Use {@link #getApplicationServerUri()} to
 	 * obtain the actual port used at runtime.
 	 *
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule useApplicationServer() {
+	public SecurityTestRule useApplicationServer() {
 		return useApplicationServer(ApplicationServerOptions.createOptionsForService(service));
 	}
 
@@ -100,7 +100,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            custom options to configure the application server.
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule useApplicationServer(ApplicationServerOptions applicationServerOptions) {
+	public SecurityTestRule useApplicationServer(ApplicationServerOptions applicationServerOptions) {
 		this.applicationServerOptions = applicationServerOptions;
 		useApplicationServer = true;
 		return this;
@@ -116,7 +116,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            the path on which the servlet should be served, e.g. "/*".
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule addApplicationServlet(Class<? extends Servlet> servletClass, String path) {
+	public SecurityTestRule addApplicationServlet(Class<? extends Servlet> servletClass, String path) {
 		applicationServletsByPath.put(path, new ServletHolder(servletClass));
 		return this;
 	}
@@ -131,12 +131,12 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            the path on which the servlet should be served, e.g. "/*".
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule addApplicationServlet(ServletHolder servletHolder, String path) {
+	public SecurityTestRule addApplicationServlet(ServletHolder servletHolder, String path) {
 		applicationServletsByPath.put(path, servletHolder);
 		return this;
 	}
 
-	SecurityIntegrationTestRule addApplicationServletFilter(Class<? extends Filter> filterClass) {
+	SecurityTestRule addApplicationServletFilter(Class<? extends Filter> filterClass) {
 		applicationServletFilters.add(new FilterHolder(filterClass));
 		return this;
 	}
@@ -150,7 +150,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            the port on which the wire mock service is started.
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule setPort(int port) {
+	public SecurityTestRule setPort(int port) {
 		this.wireMockPort = port;
 		return this;
 	}
@@ -163,7 +163,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            the port on which the wire mock service is started.
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule setClientId(String clientId) {
+	public SecurityTestRule setClientId(String clientId) {
 		this.clientId = clientId;
 		return this;
 	}
@@ -179,7 +179,7 @@ public class SecurityIntegrationTestRule extends ExternalResource {
 	 *            the private/public key pair.
 	 * @return the rule itself.
 	 */
-	public SecurityIntegrationTestRule setKeys(RSAKeys keys) {
+	public SecurityTestRule setKeys(RSAKeys keys) {
 		this.keys = keys;
 		return this;
 	}

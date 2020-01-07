@@ -55,7 +55,7 @@ public class CFEnvironmentTest {
 	}
 
 	// TODO IAS
-	// @Test(expected = UnsupportedOperationException.class)
+	@Test(expected = UnsupportedOperationException.class)
 	public void getConfigurationOfOneIasInstance() {
 		cut = CFEnvironment.getInstance((str) -> vcapIas, (str) -> null);
 		assertThat(cut.getIasConfiguration()).isSameAs(cut.getIasConfiguration());
@@ -82,7 +82,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
 
-		// assertThat(cut.getIasServiceConfiguration()).isNull(); // TODO IAS
+		//assertThat(cut.getIasConfiguration()).isNull(); // TODO IAS
 	}
 
 	@Test
@@ -135,6 +135,6 @@ public class CFEnvironmentTest {
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(CFEnvironment.getInstance().getXsuaaConfiguration()).isNull();
-		// assertThat(cut.getIasServiceConfiguration()).isNull(); // TODO IAS
+		//assertThat(cut.getIasConfiguration()).isNull(); // TODO IAS
 	}
 }

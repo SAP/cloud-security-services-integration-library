@@ -18,7 +18,7 @@ import static com.sap.cloud.security.servlet.TokenAuthenticator.TokenExtractor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-public class TokenAuthenticatorTest {
+public class AbstractTokenAuthenticatorTest {
 
 	private static final Token TOKEN = Mockito.mock(Token.class);
 
@@ -63,7 +63,7 @@ public class TokenAuthenticatorTest {
 	public void doFilter_validToken_containedInSecurityContext() {
 		mockAuthorizationHeader();
 
-		cut = createAuthenticator((ValidationResults.createValid()));
+		cut = createAuthenticator(ValidationResults.createValid());
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, httpResponse);
 

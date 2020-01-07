@@ -1,11 +1,11 @@
 package com.sap.cloud.security.servlet;
 
-import com.sap.cloud.security.token.ScopeTranslator;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
+import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +15,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTokenAuthenticator.class);
 	private Validator<Token> tokenValidator;
-
+	protected OidcConfigurationServiceWithCache oidcConfigurationService;
+	protected OAuth2TokenKeyServiceWithCache tokenKeyService;
 
 	@Override
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
@@ -36,7 +36,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 					ValidationResult result = createTokenValidator().validate(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
-						return createAuthentication(token);
+						return authenticated(token);
 					} else {
 						return unauthenticated(httpResponse,
 								"Error during token validation: " + result.getErrorDescription());
@@ -45,10 +45,21 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 					return unauthenticated(httpResponse, "Unexpected error occurred: " + e.getMessage());
 				}
 			} else {
-				return unauthenticated(httpResponse, "Authorization header is missing");
+				return unauthenticated(httpResponse, "Authorization header is missing.");
 			}
 		}
 		return TokenAuthenticationResult.createUnauthenticated("Could not process request " + request);
+	}
+
+	public AbstractTokenAuthenticator withOidcConfigurationService(
+			OidcConfigurationServiceWithCache oidcConfigurationService) {
+		this.oidcConfigurationService = oidcConfigurationService;
+		return this;
+	}
+
+	public AbstractTokenAuthenticator withOAuth2TokenKeyService(OAuth2TokenKeyServiceWithCache tokenKeyService) {
+		this.tokenKeyService = tokenKeyService;
+		return this;
 	}
 
 	protected abstract Validator<Token> createTokenValidator();
@@ -69,15 +80,9 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return TokenAuthenticationResult.createUnauthenticated(message);
 	}
 
-	private TokenAuthenticationResult createAuthentication(Token token) {
-		if (token instanceof XsuaaToken) {
-			List<String> scopes = ((XsuaaToken) token).getScopes();
-			List<String> translatedScopes = new ScopeTranslator().translateToLocalScope(scopes);
-			return TokenAuthenticationResult.authenticated(translatedScopes, token);
-		}
-		return TokenAuthenticationResult.authenticated(new ArrayList<>(), token);
+	protected TokenAuthenticationResult authenticated(Token token) {
+		return TokenAuthenticationResult.authenticated(Collections.emptyList(), token);
 	}
-
 
 	private boolean headerIsAvailable(String authorizationHeader) {
 		return authorizationHeader != null && !authorizationHeader.isEmpty();

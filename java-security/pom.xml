@@ -15,10 +15,6 @@
 	<packaging>jar</packaging>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-to-slf4j</artifactId>
-		</dependency>
 		<dependency> <!-- can be removed with slf4j-api 1.8 version -->
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>

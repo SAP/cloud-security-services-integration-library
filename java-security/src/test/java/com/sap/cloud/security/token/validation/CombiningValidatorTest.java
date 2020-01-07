@@ -1,9 +1,7 @@
-package com.sap.cloud.security.token.validation.validators;
+package com.sap.cloud.security.token.validation;
 
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.token.validation.ValidationResults;
-import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.token.validation.*;
 import org.junit.Test;
 import org.mockito.Mockito;
 

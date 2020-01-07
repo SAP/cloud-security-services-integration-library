@@ -10,11 +10,11 @@ import static org.assertj.core.util.Lists.newArrayList;
 
 public class ScopeTranslatorTest {
 
-	private ScopeTranslator cut;
+	private XsuaaScopeTranslator cut;
 
 	@Before
 	public void setUp() {
-		cut = new ScopeTranslator();
+		cut = new XsuaaScopeTranslator();
 	}
 
 	@Test

@@ -52,19 +52,12 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
 
 ## Basic Usage
 
-### Setup Step 1: Load the Service Configurations
+### Setup Step 1: Load the Service Configuration(s)
 ```java
 OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaConfiguration();
 ```
 > Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes.
 
-### Further details
-```java
-String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
-JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName()).get(0);
-Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
-Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
-```
 
 ### Setup Step 2: Setup Validators
 Now configure the `JwtValidatorBuilder` once with the service configuration from the previous step.
@@ -77,7 +70,7 @@ CombiningValidator<Token> validators = JwtValidatorBuilder.getInstance(serviceCo
           
 
 ### Create a Token Object 
-This decodes an encoded access token (Jwt token) and parses its json header and payload. The `Token` interface provides a simple access to its JWT header parameters and its claims .
+This decodes an encoded access token (Jwt token) and parses its json header and payload. The `Token` interface provides a simple access to its JWT header parameters and its claims.
 
 ```java
 String authorizationHeader = "Bearer eyJhbGciOiJGUzI1NiJ2.eyJhh...";
@@ -99,7 +92,6 @@ if(result.isErroneous()) {
 SecurityContext.setToken(token);
 ```
 
-<a id='applicable'></a>
 ### Get information from Token
 ```java
 Token token = SecurityContext.getToken();
@@ -107,25 +99,33 @@ Token token = SecurityContext.getToken();
 String email = token.getClaimAsString(TokenClaims.XSUAA.EMAIL);
 List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 java.security.Principal principal = token.getPrincipal();
-Instant expiredtAt = token.getExpiration();
+Instant expiredAt = token.getExpiration();
 ...
+```
+
+### Get further information from `VCAP_SERVICES`
+In case you need further details from `VCAP_SERVICES` system environment variable, which are not exposed by `OAuth2ServiceConfiguration` interface you can use the `DefaultJsonObject` class for Json parsing. 
+
+Example:
+```java
+String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
+JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName()).get(0);
+Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
+Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
 ```
 
 ## Token based authentication
 The servlet authenticator part of this library makes it easy to integrate token based authentication into your java application.
 For the integration of different Identity Services the ([`TokenAuthenticator`](src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java))
-interface was created. Right now there are two implementations:
+interface was created. Right now there are these implementations:
 - [XsuaaTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java)
-- [IasTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/IasTokenAuthenticator.java) (work in progress)
 
-> Depending on the application's needs the `XsuaaTokenAuthenticator/IasTokenAuthenticator` can be customized.
-> For this use the alternative constructor to insert instances of a custom `OidcConfigurationService` and a custom
-> `OAuth2TokenKeyService`.
+> Depending on the application's needs the `TokenAuthenticator` can be customized.
 
 The authenticator is used in the following [sample](/samples/java-security-usage).
 
 ## Test Utilities
-You can find the test utilites documented [here](/java-security-test).
+You can find the test utilities documented [here](/java-security-test).
 
 ## Specs und References
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)

@@ -2,40 +2,24 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.*;
-import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
-import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
-	private OAuth2TokenKeyServiceWithCache tokenKeyService;
-	private OidcConfigurationServiceWithCache oidcConfigurationService;
 	private final TokenExtractor xsuaaTokenExtractor = new XsuaaTokenExtractor();
 
 	public XsuaaTokenAuthenticator() {
-		this(OAuth2TokenKeyServiceWithCache.getInstance(), OidcConfigurationServiceWithCache.getInstance());
-	}
-
-	public XsuaaTokenAuthenticator(OAuth2TokenKeyServiceWithCache tokenKeyService,
-			OidcConfigurationServiceWithCache oidcConfigurationService) {
-		this.tokenKeyService = tokenKeyService;
-		this.oidcConfigurationService = oidcConfigurationService;
+		tokenKeyService = OAuth2TokenKeyServiceWithCache.getInstance();
+		oidcConfigurationService = OidcConfigurationServiceWithCache.getInstance();
 	}
 
 	@Override
@@ -71,4 +55,15 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 		}
 		return null;
 	}
+
+	@Override
+	protected TokenAuthenticationResult authenticated(Token token) {
+		if (token.getService() != Service.XSUAA) {
+		 	return super.authenticated(token);
+		}
+		List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
+		List<String> translatedScopes = new XsuaaScopeTranslator().translateToLocalScope(scopes);
+		return TokenAuthenticationResult.authenticated(translatedScopes, token);
+	}
+
 }

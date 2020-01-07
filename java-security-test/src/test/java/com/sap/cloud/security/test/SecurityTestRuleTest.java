@@ -29,7 +29,7 @@ import static com.sap.cloud.security.test.ApplicationServerOptions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class SecurityIntegrationTestRuleTest {
+public class SecurityTestRuleTest {
 
 	private static final int PORT = 8484;
 	private static final int APPLICATION_SERVER_PORT = 8383;
@@ -38,7 +38,7 @@ public class SecurityIntegrationTestRuleTest {
 	private static final RSAKeys RSA_KEYS = RSAKeys.generate();
 
 	@ClassRule
-	public static SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(XSUAA)
+	public static SecurityTestRule cut = SecurityTestRule.getInstance(XSUAA)
 			.setPort(PORT)
 			.setKeys(RSA_KEYS)
 			.useApplicationServer(createOptionsForService(XSUAA).usePort(APPLICATION_SERVER_PORT))
@@ -66,7 +66,7 @@ public class SecurityIntegrationTestRuleTest {
 	public void generatesTokenWithOtherClaimsAndHeaderParameter() {
 		Token generatedToken = cut.setClientId("customClientId").getPreconfiguredJwtGenerator()
 				.withClaimValue(TokenClaims.ISSUER, "issuer")
-				.withScopes("appid.scope1")
+				.withScopes("appId!t123.scope1")
 				.withHeaderParameter(TokenHeader.TYPE, "type").createToken();
 
 		assertThat(generatedToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("customClientId");
@@ -96,10 +96,10 @@ public class SecurityIntegrationTestRuleTest {
 				.collect(Collectors.joining());
 	}
 
-	public static class SecurityIntegrationTestRuleTestWithoutApplicationServer {
+	public static class SecurityTestRuleTestWithoutApplicationServer {
 
 		@Rule
-		public SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA);
+		public SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA);
 
 		@Test
 		public void testRuleIsInitializedCorrectly() {
@@ -112,13 +112,10 @@ public class SecurityIntegrationTestRuleTest {
 	public static class SecurityIntegrationApplicationServerFaults {
 
 		@Test
-		@Ignore
 		public void onlyXsuaaIsSupportedYet() {
-			SecurityIntegrationTestRule cut = SecurityIntegrationTestRule.getInstance(Service.IAS);
-
-			assertThatThrownBy(() -> cut.before())
+			assertThatThrownBy(() -> SecurityTestRule.getInstance(Service.IAS))
 					.isInstanceOf(UnsupportedOperationException.class)
-					.hasMessageContaining(String.format("Service %s is not yet supported", Service.IAS));
+					.hasMessageContaining(String.format("Identity Service %s is not yet supported", Service.IAS));
 		}
 
 	}

@@ -2,7 +2,7 @@ package com.sap.cloud.security.samples;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.test.SecurityIntegrationTestRule;
+import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
@@ -27,7 +27,7 @@ public class HelloJavaServletIntegrationTest {
 	private static Properties oldProperties;
 
 	@ClassRule
-	public static SecurityIntegrationTestRule rule = SecurityIntegrationTestRule.getInstance(XSUAA)
+	public static SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA)
 			.useApplicationServer()
 			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 
