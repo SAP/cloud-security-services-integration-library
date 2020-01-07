@@ -67,16 +67,6 @@ public class XsuaaJwtAudienceValidatorForCloneTokenTest {
 	}
 
 	@Test
-	@Ignore // TODO: extracts Supported
-	public void validate_byBrokerClientId_whenTokenHasCloneAudience() {
-		Mockito.when(token.getClaimAsString(CLIENT_ID)).thenReturn("test!t1");
-		Mockito.when(token.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(
-				Arrays.asList("clone1!b22|broker!b1"));
-		ValidationResult result = new XsuaaJwtAudienceValidator("broker!b1", "sb-broker!b1").validate(token);
-		assertThat(result.isValid()).isTrue();
-	}
-
-	@Test
 	public void validationFails_byBrokerClientId_whenTokenHasNoAudience() {
 		Mockito.when(token.getClaimAsString(CLIENT_ID)).thenReturn("sb-clone1!b22|broker!b1");
 		Mockito.when(token.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(
