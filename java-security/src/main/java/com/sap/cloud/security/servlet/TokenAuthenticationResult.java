@@ -12,7 +12,7 @@ import java.util.Collections;
  * Class to collect the result of the authentication performed by a
  * {@link TokenAuthenticator}.
  */
-public class TokenAuthenticationResult {
+class TokenAuthenticationResult {
 
 	private Collection<String> scopes = Collections.emptyList();
 	private Token token = null;
@@ -44,7 +44,7 @@ public class TokenAuthenticationResult {
 	 *            the token that was checked for authentication.
 	 * @return a {@link TokenAuthenticationResult}.
 	 */
-	public static TokenAuthenticationResult authenticated(Collection<String> scopes, Token token) {
+	public static TokenAuthenticationResult createAuthenticated(Collection<String> scopes, Token token) {
 		TokenAuthenticationResult result = new TokenAuthenticationResult();
 		result.scopes = scopes;
 		result.token = token;

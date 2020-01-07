@@ -81,7 +81,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	protected TokenAuthenticationResult authenticated(Token token) {
-		return TokenAuthenticationResult.authenticated(Collections.emptyList(), token);
+		return TokenAuthenticationResult.createAuthenticated(Collections.emptyList(), token);
 	}
 
 	private boolean headerIsAvailable(String authorizationHeader) {

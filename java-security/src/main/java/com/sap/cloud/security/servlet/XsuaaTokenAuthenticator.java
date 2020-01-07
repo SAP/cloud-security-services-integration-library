@@ -63,7 +63,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 		}
 		List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 		List<String> translatedScopes = new XsuaaScopeTranslator().translateToLocalScope(scopes);
-		return TokenAuthenticationResult.authenticated(translatedScopes, token);
+		return TokenAuthenticationResult.createAuthenticated(translatedScopes, token);
 	}
 
 }
