@@ -1,7 +1,7 @@
 package com.sap.cloud.security.samples;
 
+import com.sap.cloud.security.samples.tmp.JettyTokenAuthenticator;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
-import com.sap.cloud.security.test.jetty.JettyTokenAuthenticator;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
@@ -16,9 +16,9 @@ import java.util.Arrays;
 /**
  * This class is used to start the sample as standalone application which does not rely on
  * a application server runtime.
- * TODO only needed because the java build pack does only support the servlet security annotations
- * in conjunction with the old Java Container Security library. As soon as the SAP java build pack
- * supports the new java security library, this class can be removed.
+ * TODO only needed because the SAP Java Buildpack does only support the servlet security annotations
+ *      in conjunction with the SAP internal Java Container Security library.
+ * As soon as the SAP Java Buildpack supports the new java security library, this class gets obsolete.
  */
 public class Application {
 

@@ -8,6 +8,7 @@ To deploy the application, the following steps are required:
 - Create a xsuaa service instance
 - Configure the manifest
 - Deploy the application
+- Assign Role Collection to your user
 - Access the application
 
 ## Compile the Java application
@@ -33,7 +34,7 @@ cf push --vars-file ../vars.yml
 ```
 
 ## Cockpit administration tasks: Assign Role to your User
-Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection `Java_Security_Usage_Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
+Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection `JAVA_SECURITY_SAMPLE_Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
 
 ![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
 
@@ -49,10 +50,10 @@ Further up-to-date information you can get on sap.help.com:
 curl -X POST \
   <<VCAP_SERVICES.xsuaa.credentials.url>>/oauth/token \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'client_id=<<VCAP_SERVICES.xsuaa.credentials.clientid>>&client_secret=<<VCAP_SERVICES.xsuaa.credentials.clientsecret>>&grant_type=password&username=<your username>&password=<your password>'
+  -d 'client_id=<<VCAP_SERVICES.xsuaa.credentials.clientid>>&client_secret=<<VCAP_SERVICES.xsuaa.credentials.clientsecret>>&grant_type=password&username=<<your username>>&password=<<your password>>'
 ```
 
-Copy the `access_token` into your clipboard.
+Copy the `access_token` to your clipboard.
 
 - Access the app via `curl`. Don't forget to fill the placeholders.
 ```

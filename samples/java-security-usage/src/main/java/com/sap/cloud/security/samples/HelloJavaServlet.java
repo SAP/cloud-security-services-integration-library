@@ -14,8 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-
-
 @WebServlet(HelloJavaServlet.ENDPOINT)
 @ServletSecurity(@HttpConstraint(rolesAllowed = { "Read" }))
 public class HelloJavaServlet extends HttpServlet {
@@ -31,13 +29,16 @@ public class HelloJavaServlet extends HttpServlet {
 		response.setContentType("text/plain");
 		Token token = SecurityContext.getToken();
 		try {
-			response.getWriter().write("You ('"
-					+ token.getClaimAsString(TokenClaims.XSUAA.EMAIL) + "') "
-					+ "can access the application with the following scopes: '"
-					+ token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES) + "'.");
+			StringBuilder message = new StringBuilder();
+			message.append("You ('");
+			message.append(token.getClaimAsString(TokenClaims.XSUAA.EMAIL));
+			message.append("') can access the application with the following scopes: '");
+			message.append(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
+			message.append("'.");
+			response.getWriter().write(message.toString());
 			response.setStatus(HttpServletResponse.SC_OK);
 		} catch (final IOException e) {
-			logger.error("Failed to write error response: " + e.getMessage() + ".", e);
+			logger.error("Failed to write error response: {}.", e.getMessage(), e);
 		}
 	}
 
