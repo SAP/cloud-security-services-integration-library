@@ -5,6 +5,8 @@
 [sap-java-buildpack-api-usage](./sap-java-buildpack-api-usage): Sample demonstrating how to leverage SAP java buildpack to secure a Java web application.
 
 ## Java
+[java-security-usage](./java-security-usage): Sample demonstrating how to leverage xsuaa as identity service and [java-security](/java-security) library to secure a Java web application and how to test the secured application using the [java-security-test](/java-security-test) test utilities.
+
 [java-tokenclient-usage](./java-tokenclient-usage): Java application demonstrating how to use xsuaa [token-client](/token-client) library for token exchange.
 
 ## Spring Boot 2.1 and later

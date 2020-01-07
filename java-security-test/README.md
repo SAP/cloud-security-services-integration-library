@@ -6,7 +6,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 
 All of them are returned as [`Token`](/java-security/src/main/java/com/sap/cloud/security/token/Token.java), which offers you a `getAccessToken()` method that returns the encoded and signed Jwt token. You need to prefix this one with `Bearer ` in case you like to provide the access token via `Authorization` header to your application.
 
- > By default the generated token is Base64 encoded and signed with a RSA key.
+ > By default the generated token is Base64 encoded and signed with a generated RSA key.
 
 
 ## Requirements
@@ -38,7 +38,7 @@ Token token = JwtGenerator.getInstance(Service.XSUAA)
 ```
 
 ### Unit Test Utilities
-In case you want to test your secured web application as part of your JUnit tests you need to generate jwt tokens and in order to validate the token you need also to mock the jwks endpoint of the identity service. 
+In case you want to test your secured web application as part of your JUnit tests you need to generate JWT tokens and in order to validate the token you need also to mock the jwks endpoint of the identity service e.g. xsuaa. 
 
 The `SecurityIntegrationTestRule` uses third-party library [WireMock](http://wiremock.org/docs/getting-started/) to stub outgoing calls to the identity service. Furthermore it pre-configures the `JwtGenerator`, so that the token is signed with a private key which matches the public key provided by the jwks endpoint (on behalf of WireMock). Furthermore you can specify the `clientId` for token generation, that it can be validated by the predefined set of Jwt validators.
 
