@@ -53,14 +53,14 @@ public class HelloJavaServletTest {
 	@ClassRule
 	public static SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA)
 			.setPort(8181) // optionally overwrite identity service port (WireMock)
-			.useApplicationServer(ApplicationServerOptions.createOptionsForService(XSUAA).usePort(8282)) // optionally activate additional application server and (optionally) overwrite port
+			.useApplicationServer() // optionally customize application server and (optionally) overwrite port
 			.addApplicationServlet(TestServlet.class, "/hi");  // add servlet to be tested to application server
 
 	@BeforeClass
 	public static void prepareTest() throws Exception {
 		oldProperties = System.getProperties();
 		System.setProperty(VCAP_SERVICES, IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-		rule.setClientId(Environments.getCurrent().getXsuaaServiceConfiguration().getClientId());
+		rule.setClientId(Environments.getCurrent().getXsuaaConfiguration().getClientId());
 	}
 
 	@AfterClass

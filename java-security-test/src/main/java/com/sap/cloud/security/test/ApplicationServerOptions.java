@@ -23,7 +23,7 @@ public class ApplicationServerOptions {
 		this.port = port;
 	}
 
-	public static ApplicationServerOptions createOptionsForService(Service service) {
+	public static ApplicationServerOptions forService(Service service) {
 		switch (service) {
 		case XSUAA:
 			return new ApplicationServerOptions(new XsuaaTokenAuthenticator());

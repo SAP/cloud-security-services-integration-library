@@ -68,7 +68,7 @@ public class SecurityTestRule extends ExternalResource {
 		SecurityTestRule instance = new SecurityTestRule();
 		instance.keys = RSAKeys.generate();
 		instance.service = service;
-		ApplicationServerOptions.createOptionsForService(service);
+		ApplicationServerOptions.forService(service);
 		return instance;
 	}
 
@@ -76,7 +76,7 @@ public class SecurityTestRule extends ExternalResource {
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
 	 * before the {@link #before()} method. The application server will be started
 	 * with default options for the given {@link Service},
-	 * see {@link ApplicationServerOptions#createOptionsForService(Service)} for
+	 * see {@link ApplicationServerOptions#forService(Service)} for
 	 * details. By default the servlet server will listen on a free random port.
 	 * Use
 	 * {@link SecurityTestRule#useApplicationServer(ApplicationServerOptions)}
@@ -86,13 +86,13 @@ public class SecurityTestRule extends ExternalResource {
 	 * @return the rule itself.
 	 */
 	public SecurityTestRule useApplicationServer() {
-		return useApplicationServer(ApplicationServerOptions.createOptionsForService(service));
+		return useApplicationServer(ApplicationServerOptions.forService(service));
 	}
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
 	 * before the {@link #before()} method. Use
-	 * {@link ApplicationServerOptions#createOptionsForService(Service)} to obtain a
+	 * {@link ApplicationServerOptions#forService(Service)} to obtain a
 	 * configuration object that can be customized. See
 	 * {@link ApplicationServerOptions} for details.
 	 *
