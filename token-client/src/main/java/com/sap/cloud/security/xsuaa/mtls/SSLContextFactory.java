@@ -152,7 +152,7 @@ public class SSLContextFactory {
 					primeExponentQ,
 					crtCoefficient);
 		} catch (IOException e) {
-			logger.error("Exception during parsing DER encoded private key ({})", e.getMessage(), e);
+			logger.error("Exception during parsing DER encoded private key ({})", e.getMessage());
 			throw new GeneralSecurityException("Exception during parsing DER encoded private key", e);
 		}
 		return keySpec;

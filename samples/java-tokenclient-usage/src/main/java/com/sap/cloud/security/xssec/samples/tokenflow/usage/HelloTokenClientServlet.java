@@ -6,12 +6,13 @@
  */
 package com.sap.cloud.security.xssec.samples.tokenflow.usage;
 
+import com.sap.cloud.security.config.Environments;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
-import org.json.JSONObject;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -31,10 +32,10 @@ public class HelloTokenClientServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		response.setContentType("text/plain");
 
-		JSONObject jsonObject = createJsonObjectFromVCAPServices();
-		String clientSecret = extractString(jsonObject, "/xsuaa/0/credentials/clientsecret");
-		String clientid = extractString(jsonObject, "/xsuaa/0/credentials/clientid");
-		String url = extractString(jsonObject, "/xsuaa/0/credentials/url");
+		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaConfiguration();
+		String clientSecret = configuration.getClientSecret();
+		String clientid = configuration.getClientId();
+		String url = configuration.getUrl().toString();
 
 		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 				new DefaultOAuth2TokenService(),
@@ -45,15 +46,6 @@ public class HelloTokenClientServlet extends HttpServlet {
 		writeLine(response, "Access-Token-Payload: " + tokenResponse.getDecodedAccessToken().getPayload());
 		writeLine(response, "Expired-At: " + tokenResponse.getExpiredAtDate());
 
-	}
-
-	private String extractString(JSONObject jsonObject, String jsonPointer) {
-		return jsonObject.query(jsonPointer).toString();
-	}
-
-	private JSONObject createJsonObjectFromVCAPServices() {
-		String vcapServices = System.getenv("VCAP_SERVICES");
-		return new JSONObject(vcapServices);
 	}
 
 	private void writeLine(HttpServletResponse response, String string) throws IOException {
