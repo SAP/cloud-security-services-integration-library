@@ -8,10 +8,7 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.*;
@@ -23,6 +20,7 @@ import static com.sap.cloud.security.config.Service.XSUAA;
  * {@link #with(Validator)} method.
  */
 public class JwtValidatorBuilder {
+	private static Map<OAuth2ServiceConfiguration, JwtValidatorBuilder> instances = new HashMap<>();
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
 	private OAuth2ServiceConfiguration configuration;
 	private OidcConfigurationServiceWithCache oidcConfigurationService = null;
@@ -36,9 +34,13 @@ public class JwtValidatorBuilder {
 
 	public static JwtValidatorBuilder getInstance(OAuth2ServiceConfiguration configuration) {
 		Assertions.assertNotNull(configuration, "configuration must not be null");
-		JwtValidatorBuilder tokenBuilder = new JwtValidatorBuilder();
-		tokenBuilder.configuration = configuration;
-		return tokenBuilder;
+		if (instances.containsKey(configuration)) {
+			return instances.get(configuration);
+		}
+		JwtValidatorBuilder instance = new JwtValidatorBuilder();
+		instance.configuration = configuration;
+		instances.put(configuration, instance);
+		return instance;
 	}
 
 	/**

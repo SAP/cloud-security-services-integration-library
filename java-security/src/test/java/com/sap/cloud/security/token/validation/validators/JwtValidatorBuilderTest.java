@@ -6,6 +6,7 @@ import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.URI;
@@ -18,6 +19,33 @@ import static org.mockito.Mockito.*;
 public class JwtValidatorBuilderTest {
 
 	public static final Token TOKEN = mock(Token.class);
+
+	@Test
+	public void sameServiceConfiguration_getSameInstance() throws URISyntaxException {
+		TokenValidator tokenValidatorMock = createTokenValidatorMock();
+		OAuth2ServiceConfiguration configuration = createMockConfiguration();
+		JwtValidatorBuilder builder_1 = JwtValidatorBuilder.getInstance(configuration);
+		JwtValidatorBuilder builder_2 = JwtValidatorBuilder.getInstance(configuration);
+		assertThat(builder_1).isSameAs(builder_2);
+	}
+
+	@Test
+	@Ignore // TODO: required?
+	public void sameServiceConfiguration_getSameValidators() throws URISyntaxException {
+		TokenValidator tokenValidatorMock = createTokenValidatorMock();
+		OAuth2ServiceConfiguration configuration = createMockConfiguration();
+
+		List<Validator<Token>> validators_1 = JwtValidatorBuilder.getInstance(configuration)
+				.withAudienceValidator(tokenValidatorMock)
+				.build()
+				.getValidators();
+		List<Validator<Token>> validators_2 = JwtValidatorBuilder.getInstance(configuration)
+				.withAudienceValidator(tokenValidatorMock)
+				.build()
+				.getValidators();
+
+		assertThat(validators_1).isSameAs(validators_2);
+	}
 
 	@Test
 	public void withAudienceValidator_overridesXsuaaJwtAudienceValidator() throws URISyntaxException {
