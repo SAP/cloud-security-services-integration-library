@@ -30,24 +30,6 @@ public class JwtValidatorBuilderTest {
 	}
 
 	@Test
-	@Ignore // TODO: required?
-	public void sameServiceConfiguration_getSameValidators() throws URISyntaxException {
-		TokenValidator tokenValidatorMock = createTokenValidatorMock();
-		OAuth2ServiceConfiguration configuration = createMockConfiguration();
-
-		List<Validator<Token>> validators_1 = JwtValidatorBuilder.getInstance(configuration)
-				.withAudienceValidator(tokenValidatorMock)
-				.build()
-				.getValidators();
-		List<Validator<Token>> validators_2 = JwtValidatorBuilder.getInstance(configuration)
-				.withAudienceValidator(tokenValidatorMock)
-				.build()
-				.getValidators();
-
-		assertThat(validators_1).isSameAs(validators_2);
-	}
-
-	@Test
 	public void withAudienceValidator_overridesXsuaaJwtAudienceValidator() throws URISyntaxException {
 		TokenValidator tokenValidatorMock = createTokenValidatorMock();
 		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(createMockConfiguration())

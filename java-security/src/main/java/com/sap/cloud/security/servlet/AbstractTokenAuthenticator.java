@@ -1,9 +1,11 @@
 package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -23,6 +25,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	private Validator<Token> tokenValidator;
 	protected OidcConfigurationServiceWithCache oidcConfigurationService;
 	protected OAuth2TokenKeyServiceWithCache tokenKeyService;
+	protected OAuth2ServiceConfiguration serviceConfiguration;
 
 	@Override
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
@@ -33,7 +36,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = getTokenExtractor().from(authorizationHeader);
-					ValidationResult result = createTokenValidator().validate(token);
+					ValidationResult result = getOrCreateTokenValidator().validate(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
 						return authenticated(token);
@@ -62,11 +65,25 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return this;
 	}
 
-	protected abstract Validator<Token> createTokenValidator();
+	public AbstractTokenAuthenticator withServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {
+		this.serviceConfiguration = serviceConfiguration;
+		return this;
+	}
 
-	protected Validator<Token> getOrCreateTokenValidator() {
+	/**
+	 * Return configured service configuration or Environments.getCurrent() if not
+	 * configured.
+	 * 
+	 * @return the actual service configuration
+	 */
+	protected abstract OAuth2ServiceConfiguration getServiceConfiguration();
+
+	private Validator<Token> getOrCreateTokenValidator() {
 		if (tokenValidator == null) {
-			tokenValidator = createTokenValidator();
+			tokenValidator = JwtValidatorBuilder.getInstance(getServiceConfiguration())
+					.withOAuth2TokenKeyService(tokenKeyService)
+					.withOidcConfigurationService(oidcConfigurationService)
+					.build();
 		}
 		return tokenValidator;
 	}

@@ -8,58 +8,67 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 
-public class ScopeTranslatorTest {
+public class XsuaaScopeTranslatorTest {
 
 	private XsuaaScopeTranslator cut;
 
 	@Before
 	public void setUp() {
-		cut = new XsuaaScopeTranslator();
+		cut = new XsuaaScopeTranslator("myAppId!t1785");
 	}
 
 	@Test
-	public void translateToLocalScope() {
+	public void oneLocalScope() {
 		List<String> scope = newArrayList("myAppId!t1785.Read");
 
-		List<String> translatedScope = cut.translateToLocalScope(scope);
+		List<String> translatedScope = cut.toLocalScope(scope);
 
 		assertThat(translatedScope).containsExactly("Read");
 	}
 
 	@Test
-	public void translateToLocalScope_doesNotTouchLocalScopedEntries() {
+	public void doesNotTouchLocalScopedEntries() {
 		List<String> scope = newArrayList("myAppId!t1785.Read", "Display");
 
-		List<String> translatedScope = cut.translateToLocalScope(scope);
+		List<String> translatedScope = cut.toLocalScope(scope);
 
 		assertThat(translatedScope).containsExactly("Read", "Display");
 	}
 
 	@Test
-	public void translateToLocalScope_nothingToTranslate_returnsSameScope() {
+	public void nothingToTranslate_returnsSameScope() {
 		List<String> scope = newArrayList("Display");
 
-		List<String> translatedScope = cut.translateToLocalScope(scope);
+		List<String> translatedScope = cut.toLocalScope(scope);
 
 		assertThat(translatedScope).containsSequence(scope);
 	}
 
 	@Test
-	public void translateToLocalScope_doesNotTouchNonGlobalScopedEntries() {
+	public void doesNotTouchNonGlobalScopedEntries() {
 		List<String> scope = newArrayList("myAppId.Read", "Display");
 
-		List<String> translatedScope = cut.translateToLocalScope(scope);
+		List<String> translatedScope = cut.toLocalScope(scope);
 
 		assertThat(translatedScope).containsSequence(scope);
 	}
 
 	@Test
-	public void translateToLocalScope_scopeContainsDotAndUnderscore() {
-		List<String> scope = newArrayList("my_AppId.new!t1785.Read.Context", "sub.myAppid!b13.Write.Context");
+	public void scopeContainsDotAndUnderscore() {
+		List<String> scope = newArrayList("myAppId!t1785.Read.Context", "myAppId!t1785.Write.Context");
 
-		List<String> translatedScope = cut.translateToLocalScope(scope);
+		List<String> translatedScope = cut.toLocalScope(scope);
 
 		assertThat(translatedScope).containsExactly("Read.Context", "Write.Context");
+	}
+
+	@Test
+	public void noScopes_emptyList() {
+		List<String> scope = newArrayList();
+
+		List<String> translatedScope = cut.toLocalScope(scope);
+
+		assertThat(translatedScope).isEmpty();
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
@@ -85,9 +86,14 @@ public class AbstractTokenAuthenticatorTest {
 				return tokenExtractor;
 			}
 
+			/*
+			 * @Override protected Validator<Token> createTokenValidator() { return
+			 * tokenValidator; }
+			 */
+
 			@Override
-			protected Validator<Token> createTokenValidator() {
-				return tokenValidator;
+			protected OAuth2ServiceConfiguration getServiceConfiguration() {
+				return serviceConfiguration;
 			}
 		};
 	}

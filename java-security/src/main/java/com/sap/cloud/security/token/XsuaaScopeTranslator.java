@@ -11,17 +11,20 @@ import java.util.stream.Collectors;
  * to local ones.
  */
 public class XsuaaScopeTranslator {
+	private final Pattern globalScopePattern;
 
-	private static final Pattern GLOBAL_SCOPE_PATTERN = Pattern.compile("[\\w-\\.]+!\\w+\\.(.+)");
+	public XsuaaScopeTranslator(String appId) {
+		this.globalScopePattern = Pattern.compile(appId + "\\.(.+)");
+	}
 
-	public List<String> translateToLocalScope(Collection<String> scopes) {
+	public List<String> toLocalScope(Collection<String> scopes) {
 		return scopes.stream()
 				.map(this::convertToLocalScope)
 				.collect(Collectors.toList());
 	}
 
 	private String convertToLocalScope(String scope) {
-		Matcher matcher = GLOBAL_SCOPE_PATTERN.matcher(scope);
+		Matcher matcher = globalScopePattern.matcher(scope);
 		if (matcher.matches()) {
 			return matcher.group(matcher.groupCount());
 		}
