@@ -22,7 +22,6 @@ public class TokenAuthenticationResult {
 		// use static create methods
 	}
 
-
 	/**
 	 * Creates an unauthenticated result with a reason.
 	 * 

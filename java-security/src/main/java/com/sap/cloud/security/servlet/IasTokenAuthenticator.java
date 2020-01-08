@@ -22,11 +22,11 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	@Override
 	protected Validator<Token> createTokenValidator() {
-			return JwtValidatorBuilder
-					.getInstance(Environments.getCurrent().getIasConfiguration())
-					.withOAuth2TokenKeyService(tokenKeyService)
-					.withOidcConfigurationService(oidcConfigurationService)
-					.build();
+		return JwtValidatorBuilder
+				.getInstance(Environments.getCurrent().getIasConfiguration())
+				.withOAuth2TokenKeyService(tokenKeyService)
+				.withOidcConfigurationService(oidcConfigurationService)
+				.build();
 	}
 
 }

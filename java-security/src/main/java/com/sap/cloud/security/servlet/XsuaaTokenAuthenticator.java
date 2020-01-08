@@ -29,12 +29,12 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	@Override
 	protected Validator<Token> createTokenValidator() {
-			return JwtValidatorBuilder
-					.getInstance(Environments.getCurrent().getXsuaaConfiguration())
-					.withOAuth2TokenKeyService(tokenKeyService)
-					.withOidcConfigurationService(oidcConfigurationService)
-					.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
-					.build();
+		return JwtValidatorBuilder
+				.getInstance(Environments.getCurrent().getXsuaaConfiguration())
+				.withOAuth2TokenKeyService(tokenKeyService)
+				.withOidcConfigurationService(oidcConfigurationService)
+				.configureAnotherServiceInstance(getOtherXsuaaServiceConfiguration())
+				.build();
 	}
 
 	private class XsuaaTokenExtractor implements TokenExtractor {
@@ -59,7 +59,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 	@Override
 	protected TokenAuthenticationResult authenticated(Token token) {
 		if (token.getService() != Service.XSUAA) {
-		 	return super.authenticated(token);
+			return super.authenticated(token);
 		}
 		List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 		List<String> translatedScopes = new XsuaaScopeTranslator().translateToLocalScope(scopes);

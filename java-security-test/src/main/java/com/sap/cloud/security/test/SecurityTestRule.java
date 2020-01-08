@@ -75,13 +75,12 @@ public class SecurityTestRule extends ExternalResource {
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
 	 * before the {@link #before()} method. The application server will be started
-	 * with default options for the given {@link Service},
-	 * see {@link ApplicationServerOptions#forService(Service)} for
-	 * details. By default the servlet server will listen on a free random port.
-	 * Use
-	 * {@link SecurityTestRule#useApplicationServer(ApplicationServerOptions)}
-	 * to overwrite default settings. Use {@link #getApplicationServerUri()} to
-	 * obtain the actual port used at runtime.
+	 * with default options for the given {@link Service}, see
+	 * {@link ApplicationServerOptions#forService(Service)} for details. By default
+	 * the servlet server will listen on a free random port. Use
+	 * {@link SecurityTestRule#useApplicationServer(ApplicationServerOptions)} to
+	 * overwrite default settings. Use {@link #getApplicationServerUri()} to obtain
+	 * the actual port used at runtime.
 	 *
 	 * @return the rule itself.
 	 */

@@ -26,6 +26,6 @@ public class XsuaaScopeTranslator {
 			return matcher.group(matcher.groupCount());
 		}
 		return scope;
- 	}
+	}
 
 }

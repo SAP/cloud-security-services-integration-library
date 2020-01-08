@@ -82,7 +82,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
 
-		//assertThat(cut.getIasConfiguration()).isNull(); // TODO IAS
+		// assertThat(cut.getIasConfiguration()).isNull(); // TODO IAS
 	}
 
 	@Test
@@ -135,6 +135,6 @@ public class CFEnvironmentTest {
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(CFEnvironment.getInstance().getXsuaaConfiguration()).isNull();
-		//assertThat(cut.getIasConfiguration()).isNull(); // TODO IAS
+		// assertThat(cut.getIasConfiguration()).isNull(); // TODO IAS
 	}
 }

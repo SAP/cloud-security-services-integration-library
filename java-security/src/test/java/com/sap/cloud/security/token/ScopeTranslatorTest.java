@@ -37,7 +37,7 @@ public class ScopeTranslatorTest {
 
 	@Test
 	public void translateToLocalScope_nothingToTranslate_returnsSameScope() {
-		List<String> scope = newArrayList( "Display");
+		List<String> scope = newArrayList("Display");
 
 		List<String> translatedScope = cut.translateToLocalScope(scope);
 
@@ -52,6 +52,7 @@ public class ScopeTranslatorTest {
 
 		assertThat(translatedScope).containsSequence(scope);
 	}
+
 	@Test
 	public void translateToLocalScope_scopeContainsDotAndUnderscore() {
 		List<String> scope = newArrayList("my_AppId.new!t1785.Read.Context", "sub.myAppid!b13.Write.Context");

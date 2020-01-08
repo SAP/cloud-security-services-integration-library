@@ -80,7 +80,8 @@ public class AbstractTokenAuthenticatorTest {
 		Validator<Token> tokenValidator = (TOKEN) -> validationResult;
 		return new AbstractTokenAuthenticator() {
 
-			@Override public TokenExtractor getTokenExtractor() {
+			@Override
+			public TokenExtractor getTokenExtractor() {
 				return tokenExtractor;
 			}
 

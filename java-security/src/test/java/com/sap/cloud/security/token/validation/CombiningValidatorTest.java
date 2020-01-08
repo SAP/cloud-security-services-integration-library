@@ -103,11 +103,13 @@ public class CombiningValidatorTest {
 	}
 
 	private class MyTokenValidator implements Validator<Token> {
-		@Override public ValidationResult validate(Token token) {
+		@Override
+		public ValidationResult validate(Token token) {
 			return ValidationResults.createValid();
 		}
 
 	}
+
 	private Validator<Token> validValidator() {
 		return (obj) -> ValidationResults.createValid();
 	}
