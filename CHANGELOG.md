@@ -3,12 +3,14 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.4.0-SNAPSHOT
-- Initial / Snapshot version of the new plain Java security library.
+- [java-security] Initial / Snapshot version of the new plain Java security libraries as documented [here](/README.md#token-validation-for-java-applications).
+- [token-client] [OidcConfigurationServiceWithCache](/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/OidcConfigurationServiceWithCache.java) supports basically Open-id Configuration endpoints as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#openid-connect-flow).
+- [token-client] [OAuth2TokenKeyServiceWithCache](/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/OAuth2TokenKeyServiceWithCache.java) supports JWKS endpoint with cache of identity service as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#token-keys).
 
 ## 2.3.0
 - Issue: Spring tests fail with version `2.2.0`, when auto-configuration is disabled and no `RestOperations` bean is specified.
 - [token-client] Supports basically JWT Bearer Token Grant as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#jwt-bearer-token-grant).
-- [token-client] **Bug fix** for state issue in HttpHeaderFactor ([#200](https://github.com/SAP-samples/cloud-security-xsuaa-integration/issues/200)) that causes interference between different types of token flows.
+- [token-client] **Bug fix** for state issue in HttpHeaderFactor ([#200](/issues/200)) that causes interference between different types of token flows.
 - [spring-xsuaa] Supports (ignores) xsuaa bindings of plan "apiaccess".
 
 ## 2.2.0
@@ -18,7 +20,7 @@ All notable changes to this project will be documented in this file.
 - Internally, we've cleaned up maven dependencies (converged versions) and 
   - removed transient dependency of `spring-security-oauth2` to `jackson`.
   - introduced `org.owasp.dependency-check-maven` which performs CVSS checks.
-- [token-client] supports password token flows as documented [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/token-client).
+- [token-client] Supports password token flows as documented [here](/token-client).
 
 ## 2.1.0
 * `token-client` library supports [Apache Http Client](https://hc.apache.org/) (without any Spring dependencies). Have also a look at the [java-tokenclient-usage](/samples/java-tokenclient-usage) sample application.
