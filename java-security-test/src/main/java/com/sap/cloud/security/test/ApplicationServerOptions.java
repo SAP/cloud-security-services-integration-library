@@ -3,7 +3,6 @@ package com.sap.cloud.security.test;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.servlet.IasTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticator;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
 import com.sap.cloud.security.xsuaa.Assertions;
@@ -42,7 +41,8 @@ public class ApplicationServerOptions {
 		Assertions.assertHasText(appId, "xsappname is required by the XsuaaAudienceValidator");
 		Assertions.assertHasText(clientId, "clientId is required by the XsuaaAudienceValidator");
 		return new ApplicationServerOptions(
-				new XsuaaTokenAuthenticator().withServiceConfiguration(new DummyXsuaaConfiguration(appId, clientId)));
+				new XsuaaTokenAuthenticator(appId)
+						.withServiceConfiguration(new DummyXsuaaConfiguration(appId, clientId)));
 	}
 
 	/**

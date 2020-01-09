@@ -1,6 +1,5 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.test.ApplicationServerOptions;
 import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
