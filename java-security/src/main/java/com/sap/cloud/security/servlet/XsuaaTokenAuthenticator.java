@@ -12,11 +12,12 @@ import java.util.List;
 
 public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
-	private final TokenExtractor xsuaaTokenExtractor = new XsuaaTokenExtractor();
+	private final TokenExtractor xsuaaTokenExtractor;
 
-	public XsuaaTokenAuthenticator() {
+	public XsuaaTokenAuthenticator(String appId) {
 		tokenKeyService = OAuth2TokenKeyServiceWithCache.getInstance();
 		oidcConfigurationService = OidcConfigurationServiceWithCache.getInstance();
+		xsuaaTokenExtractor = new XsuaaTokenExtractor(appId);
 	}
 
 	@Override
@@ -30,13 +31,15 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 	}
 
 	private class XsuaaTokenExtractor implements TokenExtractor {
+		private final String appId;
+
+		public XsuaaTokenExtractor(String appId) {
+			this.appId = appId;
+		}
+
 		@Override
 		public Token from(String authorizationHeader) {
-			if (getServiceConfiguration() != null) {
-				return new XsuaaToken(authorizationHeader,
-						getServiceConfiguration().getProperty(CFConstants.XSUAA.APP_ID));
-			}
-			throw new RuntimeException("XsuaaConfiguration not found. Are VCAP_SERVICES missing?");
+			return new XsuaaToken(authorizationHeader, appId);
 		}
 	}
 

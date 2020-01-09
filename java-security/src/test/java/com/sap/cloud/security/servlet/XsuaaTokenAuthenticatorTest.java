@@ -48,18 +48,7 @@ public class XsuaaTokenAuthenticatorTest {
 						OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyService))
 				.withServiceConfiguration(oAuth2ServiceConfiguration);
 	}
-
-	@Test
-	public void validateRequest_noConfiguration_isUnauthenticated() {
-		cut = new XsuaaTokenAuthenticator();
-		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getBearerAccessToken());
-
-		TokenAuthenticationResult authenticationResult = cut.validateRequest(httpRequest, HTTP_RESPONSE);
-
-		assertThat(authenticationResult.isAuthenticated()).isFalse();
-		assertThat(authenticationResult.getUnauthenticatedReason()).contains("XsuaaConfiguration not found");
-	}
-
+	
 	@Test
 	public void validateRequest_noHeader_isUnauthenticated() {
 		HttpServletRequest httpRequest = createRequestWithoutToken();
