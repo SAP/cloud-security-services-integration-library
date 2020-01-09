@@ -13,11 +13,13 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
+import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.*;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
@@ -301,15 +303,31 @@ public class SecurityTestRule extends ExternalResource {
 	}
 
 	private ServletHandler createServletHandler(WebAppContext context) {
+		ConstraintMapping constraintMapping = createSecurityConstraintMapping();
+
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
 		JettyTokenAuthenticator authenticator = new JettyTokenAuthenticator(
 				applicationServerOptions.getTokenAuthenticator());
 		security.setAuthenticator(authenticator);
+		security.setConstraintMappings(Collections.singletonList(constraintMapping));
+
 		ServletHandler servletHandler = new ServletHandler();
 		security.setHandler(servletHandler);
 		context.setServletHandler(servletHandler);
 		context.setSecurityHandler(security);
+
 		return servletHandler;
+	}
+
+	private ConstraintMapping createSecurityConstraintMapping() {
+		Constraint constraint = new Constraint();
+		constraint.setRoles(new String[] { Constraint.ANY_ROLE });
+		constraint.setAuthenticate(true);
+
+		ConstraintMapping mapping = new ConstraintMapping();
+		mapping.setPathSpec("/*");
+		mapping.setConstraint(constraint);
+		return mapping;
 	}
 
 	private WebAppContext createWebAppContext() {
