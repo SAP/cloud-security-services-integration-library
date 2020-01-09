@@ -43,6 +43,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 	@Override
 	protected TokenAuthenticationResult authenticated(Token token) {
 		if (token.getService() != Service.XSUAA) {
+			// TODO 09.01.20 c5295400: delete this if-statement? (When should this happen?)
 			return super.authenticated(token);
 		}
 		List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
