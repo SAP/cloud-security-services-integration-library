@@ -134,7 +134,6 @@ public class CFEnvironmentTest {
 		cut = CFEnvironment.getInstance((str) -> null, (str) -> null);
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
-		assertThat(CFEnvironment.getInstance().getXsuaaConfiguration()).isNull();
 		// assertThat(cut.getIasConfiguration()).isNull(); // TODO IAS
 	}
 }
