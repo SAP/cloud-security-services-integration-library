@@ -3,7 +3,6 @@ package com.sap.cloud.security.servlet;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.config.cf.Oauth2ServiceConfigurationTestFactory;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
@@ -12,7 +11,6 @@ import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 

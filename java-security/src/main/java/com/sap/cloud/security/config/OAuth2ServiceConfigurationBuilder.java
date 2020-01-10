@@ -1,7 +1,5 @@
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.config.cf.CFConstants;
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +38,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	public OAuth2ServiceConfiguration build() {
+		// TODO 10.01.20 c5295400: check if every non nullable field is set?
 		return new OAuth2ServiceConfiguration() {
 
 			@Override
@@ -54,7 +53,10 @@ public class OAuth2ServiceConfigurationBuilder {
 
 			@Override
 			public URI getUrl() {
-				return Optional.ofNullable(url).orElse(URI.create(properties.get(URL)));
+				if (url == null) {
+					return Optional.ofNullable(properties.get(URL)).map(URI::create).orElse(null);
+				}
+				return url;
 			}
 
 			@Override
