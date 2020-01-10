@@ -12,7 +12,7 @@ import java.util.List;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**
- * Decodes and parses encoded access token (JWT) (Token) for the Xsuaa identity
+ * Decodes and parses encoded access token (JWT) for the Xsuaa identity
  * service and provides access to token header parameters and claims.
  */
 public class XsuaaToken extends AbstractToken {
@@ -120,6 +120,7 @@ public class XsuaaToken extends AbstractToken {
 
 	/**
 	 * Check if a local scope is available in the authentication token. <br>
+	 * Requires a {@link ScopeConverter} to be configured with {@link #withScopeConverter(ScopeConverter)}.
 	 *
 	 * @param scope
 	 *            name of local scope (without the appId)
