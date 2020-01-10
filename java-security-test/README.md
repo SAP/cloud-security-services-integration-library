@@ -70,7 +70,7 @@ public class HelloJavaServletTest {
 
 	@Test
 	public void requestWithValidToken_ok() throws IOException {
-	    String jwt = rule.getPreconfiguredJwtGenerator()
+		String jwt = rule.getPreconfiguredJwtGenerator()
 				.withScopes(SecurityTestRule.DEFAULT_APP_ID + ".Read")
 				.createToken()
 				.getBearerAccessToken();

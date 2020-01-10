@@ -55,15 +55,8 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
-	public void generatesTokenWithClientId() {
-		Token generatedToken = cut.setClientId("customClientId").createToken();
-		assertThat(generatedToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
-				.isEqualTo("customClientId");
-	}
-
-	@Test
 	public void generatesTokenWithOtherClaimsAndHeaderParameter() {
-		Token generatedToken = cut.setClientId("customClientId").getPreconfiguredJwtGenerator()
+		Token generatedToken = cut.getPreconfiguredJwtGenerator()
 				.withClaimValue(TokenClaims.ISSUER, "issuer")
 				.withScopes("appId!t123.scope1")
 				.withHeaderParameter(TokenHeader.TYPE, "type").createToken();

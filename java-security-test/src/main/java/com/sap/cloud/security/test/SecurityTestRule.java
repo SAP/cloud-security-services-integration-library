@@ -162,20 +162,6 @@ public class SecurityTestRule extends ExternalResource {
 	}
 
 	/**
-	 * Overwrites the OAuth client id that is used as (cid) claim of the token that
-	 * is being generated. It needs to be configured before the {@link #before()}
-	 * method.
-	 *
-	 * @param clientId
-	 *            the client id.
-	 * @return the rule itself.
-	 */
-	public SecurityTestRule setClientId(String clientId) {
-		this.clientId = clientId;
-		return this;
-	}
-
-	/**
 	 * Overwrites the private/public key pair to be used. The private key is used to
 	 * sign the jwt token. The public key is provided by jwks endpoint (on behalf of
 	 * WireMock).
@@ -209,7 +195,7 @@ public class SecurityTestRule extends ExternalResource {
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service)
-				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId) // TODO
+				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
 				.withPrivateKey(keys.getPrivate());
 		switch (service) {
 		case XSUAA:
