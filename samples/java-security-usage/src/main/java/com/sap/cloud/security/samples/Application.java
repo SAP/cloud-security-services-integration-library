@@ -37,7 +37,7 @@ public class Application {
 		WebAppContext context = new WebAppContext();
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
 		String appId = Environments.getCurrent().getXsuaaConfiguration().getProperty(APP_ID);
-		security.setAuthenticator(new JettyTokenAuthenticator(new XsuaaTokenAuthenticator(appId)));
+		security.setAuthenticator(new JettyTokenAuthenticator(new XsuaaTokenAuthenticator()));
 		context.setSecurityHandler(security);
 		context.setConfigurations(new Configuration[] {
 				new AnnotationConfiguration(), new WebXmlConfiguration(),

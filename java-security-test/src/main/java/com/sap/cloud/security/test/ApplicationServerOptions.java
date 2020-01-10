@@ -16,7 +16,6 @@ public class ApplicationServerOptions {
 
 	private final TokenAuthenticator tokenAuthenticator;
 	private int port;
-	private Service service; // TODO 10.01.20 c5295400: never accessed
 
 	private ApplicationServerOptions(TokenAuthenticator tokenAuthenticator) {
 		this(tokenAuthenticator, 0);
@@ -39,7 +38,7 @@ public class ApplicationServerOptions {
 		Assertions.assertHasText(appId, "xsappname is required by the XsuaaAudienceValidator");
 		Assertions.assertHasText(clientId, "clientId is required by the XsuaaAudienceValidator");
 		return new ApplicationServerOptions(
-				new XsuaaTokenAuthenticator(appId)
+				new XsuaaTokenAuthenticator()
 						.withServiceConfiguration(createServiceConfiguration(appId, clientId)));
 	}
 
@@ -62,7 +61,6 @@ public class ApplicationServerOptions {
 		default:
 			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
 		}
-		instance.service = service;
 		return instance;
 	}
 
@@ -101,8 +99,7 @@ public class ApplicationServerOptions {
 	}
 
 	private static OAuth2ServiceConfiguration createServiceConfiguration(String appId, String clientId) {
-		return new OAuth2ServiceConfigurationBuilder()
-				.forService(Service.XSUAA)
+		return OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(clientId)
 				.withProperty(CFConstants.XSUAA.APP_ID, appId)
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")

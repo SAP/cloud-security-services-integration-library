@@ -6,6 +6,7 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -28,27 +29,26 @@ public class XsuaaTokenAuthenticatorTest {
 
 	private final static HttpServletResponse HTTP_RESPONSE = Mockito.mock(HttpServletResponse.class);
 
-	private final XsuaaToken xsuaaToken;
-	private final OAuth2TokenKeyService tokenKeyService;
-	private final OAuth2ServiceConfiguration oAuth2ServiceConfiguration;
+	private XsuaaToken xsuaaToken;
+	private OAuth2TokenKeyService tokenKeyService;
+	private OAuth2ServiceConfiguration oAuth2ServiceConfiguration;
 
 	private AbstractTokenAuthenticator cut;
 
-	public XsuaaTokenAuthenticatorTest() throws IOException {
+	@Before
+	public void setUp() throws IOException {
 		tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(
 				JsonWebKeySetFactory.createFromJson(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8)));
 		oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "auth.com")
+				.withProperty(CFConstants.XSUAA.APP_ID, "appId")
 				.withClientId("clientId")
 				.build();
 
 		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8), "appId");
-	}
 
-	@Before
-	public void setUp() {
-		cut = new XsuaaTokenAuthenticator("appId")
+		cut = new XsuaaTokenAuthenticator()
 				.withOAuth2TokenKeyService(
 						OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyService))
 				.withServiceConfiguration(oAuth2ServiceConfiguration);
