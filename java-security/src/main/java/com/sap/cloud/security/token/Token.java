@@ -9,6 +9,9 @@ import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Represents a (JWT) access token.
+ */
 public interface Token {
 
 	/**

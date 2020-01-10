@@ -49,7 +49,7 @@ public class CombiningValidator<T> implements Validator<T> {
 	/**
 	 * Components that are interested in the result of the token validation can
 	 * register a validation listener which is called whenever a token is validated.
-	 * Listener must implement the @{link ValidationListener} interface.
+	 * Listener must implement the {@link ValidationListener} interface.
 	 *
 	 * @param validationListener
 	 *            the listener to be added.

@@ -119,7 +119,7 @@ public class XsuaaToken extends AbstractToken {
 	}
 
 	/**
-	 * Check if a local scope is available in the authentication token.
+	 * Check if a local scope is available in the authentication token. <br>
 	 *
 	 * @param scope
 	 *            name of local scope (without the appId)

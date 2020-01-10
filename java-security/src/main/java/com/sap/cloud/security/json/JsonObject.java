@@ -78,7 +78,7 @@ public interface JsonObject {
 	JsonObject getJsonObject(String name);
 
 	/**
-	 * Returns a nested array of JSON objects as list of @{link JsonObject}
+	 * Returns a nested array of JSON objects as list of {@link JsonObject}
 	 * instances. If the property with the given name is not found, an empty list is
 	 * returned.
 	 * 
@@ -94,13 +94,15 @@ public interface JsonObject {
 	/**
 	 * Returns a key-value map of the JSON properties.
 	 *
-	 * Example: {@code
+	 * Example:
+	 * <pre>
+	 * {@code
 	 * String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
 	 * JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName()).get(0);
 	 * Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
 	 * Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
 	 * }
-	 * 
+	 * </pre>
 	 * @return the json properties as key-value map
 	 */
 	Map<String, String> getKeyValueMap();
