@@ -130,7 +130,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 			}
 
 			String keyId = tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID;
-			validationResult = setPublicKey(tokenKeyService, keyId, tokenKeysUrl, fallbackPublicKey);
+			validationResult = setPublicKey(tokenKeyService, keyId, tokenKeysUrl);
 			if (validationResult.isErroneous()) {
 				if (fallbackPublicKey != null) {
 					try {
@@ -165,21 +165,10 @@ public class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		private ValidationResult setPublicKey(OAuth2TokenKeyServiceWithCache tokenKeyService, String keyId,
-				URI keyUri, String fallbackPublicKey) {
+				URI keyUri) {
 			try {
 				this.publicKey = tokenKeyService.getPublicKey(jwtSignatureAlgorithm, keyId, keyUri);
 			} catch (OAuth2ServiceException e) {
-				if (fallbackPublicKey != null) {
-					try {
-						this.publicKey = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(
-								JwtSignatureAlgorithm.RS256, fallbackPublicKey);
-						LOGGER.warn("NEVER PRODUCTIVELY: verificationKey as Fallback for publicKey.");
-					} catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
-						return createInvalid(
-								"Error occurred during signature validation: ({}). Fallback with configured verificationkey was not successful.",
-								e.getMessage());
-					}
-				}
 				return createInvalid("Error retrieving Json Web Keys from Identity Service: {}.", e.getMessage());
 			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 				return createInvalid("Error creating PublicKey from Json Web Key received from {}: {}.",
