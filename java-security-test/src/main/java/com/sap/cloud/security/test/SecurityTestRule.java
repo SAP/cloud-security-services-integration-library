@@ -13,13 +13,11 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
-import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.*;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
@@ -39,11 +37,10 @@ import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCO
 
 public class SecurityTestRule extends ExternalResource {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityTestRule.class);
-	private static final String LOCALHOST_PATTERN = "http://localhost:%d";
 	public static final String DEFAULT_APP_ID = "xsapp!t0815";
 	public static final String DEFAULT_CLIENT_ID = "sb-clientId!t0815";
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityTestRule.class);
+	private static final String LOCALHOST_PATTERN = "http://localhost:%d";
 	private final Map<String, ServletHolder> applicationServletsByPath = new HashMap<>();
 	private final List<FilterHolder> applicationServletFilters = new ArrayList<>();
 	// app server
@@ -283,19 +280,19 @@ public class SecurityTestRule extends ExternalResource {
 		applicationServletFilters.forEach((filterHolder) -> servletHandler
 				.addFilterWithMapping(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
 
+		servletHandler
+				.addFilterWithMapping(new FilterHolder(new SecurityFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
+
 		applicationServer = new Server(applicationServerOptions.getPort());
 		applicationServer.setHandler(context);
 		applicationServer.start();
 	}
 
 	private ServletHandler createServletHandler(WebAppContext context) {
-		ConstraintMapping constraintMapping = createSecurityConstraintMapping();
-
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
 		JettyTokenAuthenticator authenticator = new JettyTokenAuthenticator(
 				applicationServerOptions.getTokenAuthenticator());
 		security.setAuthenticator(authenticator);
-		security.setConstraintMappings(Collections.singletonList(constraintMapping));
 
 		ServletHandler servletHandler = new ServletHandler();
 		security.setHandler(servletHandler);
@@ -303,17 +300,6 @@ public class SecurityTestRule extends ExternalResource {
 		context.setSecurityHandler(security);
 
 		return servletHandler;
-	}
-
-	private ConstraintMapping createSecurityConstraintMapping() {
-		Constraint constraint = new Constraint();
-		constraint.setRoles(new String[] { Constraint.ANY_ROLE });
-		constraint.setAuthenticate(true);
-
-		ConstraintMapping mapping = new ConstraintMapping();
-		mapping.setPathSpec("/*");
-		mapping.setConstraint(constraint);
-		return mapping;
 	}
 
 	private WebAppContext createWebAppContext() {
