@@ -3,6 +3,7 @@ package com.sap.cloud.security.servlet;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.IasToken;
+import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 
@@ -14,8 +15,8 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 	}
 
 	@Override
-	public TokenExtractor getTokenExtractor() {
-		return IasToken::new;
+	public Token extractFromHeader(String authorizationHeader) {
+		return new IasToken(authorizationHeader);
 	}
 
 	@Override

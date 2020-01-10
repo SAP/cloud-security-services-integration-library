@@ -35,7 +35,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
-					Token token = getTokenExtractor().from(authorizationHeader);
+					Token token = extractFromHeader(authorizationHeader);
 					ValidationResult result = getOrCreateTokenValidator().validate(token);
 					if (result.isValid()) {
 						SecurityContext.setToken(token);
@@ -77,6 +77,13 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 * @return the actual service configuration
 	 */
 	protected abstract OAuth2ServiceConfiguration getServiceConfiguration();
+
+	/**
+	 * Extracts the {@link Token} from the authorization header.
+	 *
+	 * @return the {@link Token} instance.
+	 */
+	protected abstract Token extractFromHeader(String authorizationHeader);
 
 	private Validator<Token> getOrCreateTokenValidator() {
 		if (tokenValidator == null) {

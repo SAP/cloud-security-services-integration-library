@@ -11,34 +11,20 @@ import java.util.List;
 
 public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
-	private final TokenExtractor xsuaaTokenExtractor = new XsuaaTokenExtractor();
-
 	public XsuaaTokenAuthenticator() {
 		tokenKeyService = OAuth2TokenKeyServiceWithCache.getInstance();
 		oidcConfigurationService = OidcConfigurationServiceWithCache.getInstance();
 	}
 
 	@Override
-	public TokenExtractor getTokenExtractor() {
-		return xsuaaTokenExtractor;
+	public Token extractFromHeader(String authorizationHeader) {
+		return new XsuaaToken(authorizationHeader)
+				.withScopeConverter(getScopeConverter());
 	}
 
 	@Override
 	protected OAuth2ServiceConfiguration getServiceConfiguration() {
 		return serviceConfiguration != null ? serviceConfiguration : Environments.getCurrent().getXsuaaConfiguration();
-	}
-
-	private ScopeConverter getScopeConverter() {
-		return new XsuaaScopeConverter(
-				getServiceConfiguration().getProperty(CFConstants.XSUAA.APP_ID));
-	}
-
-	private class XsuaaTokenExtractor implements TokenExtractor {
-		@Override
-		public Token from(String authorizationHeader) {
-			return new XsuaaToken(authorizationHeader)
-					.withScopeConverter(getScopeConverter());
-		}
 	}
 
 	@Override
@@ -47,5 +33,11 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 				.convert(((XsuaaToken) token).getScopes());
 		return TokenAuthenticationResult.createAuthenticated(translatedScopes, token);
 	}
+
+	private ScopeConverter getScopeConverter() {
+		return new XsuaaScopeConverter(
+				getServiceConfiguration().getProperty(CFConstants.XSUAA.APP_ID));
+	}
+
 
 }
