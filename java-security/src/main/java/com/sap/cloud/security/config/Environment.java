@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Central entry point to access the OAuth configuration of a supported identity
+ * Central entry point to access the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a supported identity
  * {@link Service}.
  */
 public interface Environment {

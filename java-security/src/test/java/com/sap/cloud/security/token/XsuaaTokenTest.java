@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -20,20 +21,15 @@ public class XsuaaTokenTest {
 
 	public XsuaaTokenTest() throws IOException {
 		clientCredentialsToken = new XsuaaToken(
-				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8), APP_ID);
-		userToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8), APP_ID);
+				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
+		userToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
 
-		scopesToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaScopesTokenRSA256.txt", UTF_8), APP_ID);
+		scopesToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaScopesTokenRSA256.txt", UTF_8));
 	}
 
 	@Test
 	public void getScopes() {
 		assertThat(clientCredentialsToken.getScopes()).containsExactly("ROLE_SERVICEBROKER", "uaa.resource");
-	}
-
-	@Test
-	public void getAppId() {
-		assertThat(clientCredentialsToken.getAppId()).isEqualTo(APP_ID);
 	}
 
 	@Test
@@ -49,8 +45,11 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void hasLocalScope() {
+		scopesToken.withScopeConverter(new XsuaaScopeConverter(APP_ID));
+		assertThat(scopesToken.hasScope(APP_ID + ".scope")).isTrue();
 		assertThat(scopesToken.hasLocalScope("scope")).isTrue();
-		assertThat(scopesToken.hasLocalScope("openid")).isFalse();
+		assertThat(scopesToken.hasScope("openid")).isTrue();
+		assertThat(scopesToken.hasLocalScope("openid")).isTrue();
 	}
 
 	@Test

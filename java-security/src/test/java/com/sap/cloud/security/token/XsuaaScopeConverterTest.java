@@ -8,20 +8,20 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 
-public class XsuaaScopeTranslatorTest {
+public class XsuaaScopeConverterTest {
 
-	private XsuaaScopeTranslator cut;
+	private XsuaaScopeConverter cut;
 
 	@Before
 	public void setUp() {
-		cut = new XsuaaScopeTranslator("myAppId!t1785");
+		cut = new XsuaaScopeConverter("myAppId!t1785");
 	}
 
 	@Test
 	public void oneLocalScope() {
 		List<String> scope = newArrayList("myAppId!t1785.Read");
 
-		List<String> translatedScope = cut.toLocalScope(scope);
+		List<String> translatedScope = cut.convert(scope);
 
 		assertThat(translatedScope).containsExactly("Read");
 	}
@@ -30,7 +30,7 @@ public class XsuaaScopeTranslatorTest {
 	public void doesNotTouchLocalScopedEntries() {
 		List<String> scope = newArrayList("myAppId!t1785.Read", "Display");
 
-		List<String> translatedScope = cut.toLocalScope(scope);
+		List<String> translatedScope = cut.convert(scope);
 
 		assertThat(translatedScope).containsExactly("Read", "Display");
 	}
@@ -39,7 +39,7 @@ public class XsuaaScopeTranslatorTest {
 	public void nothingToTranslate_returnsSameScope() {
 		List<String> scope = newArrayList("Display");
 
-		List<String> translatedScope = cut.toLocalScope(scope);
+		List<String> translatedScope = cut.convert(scope);
 
 		assertThat(translatedScope).containsSequence(scope);
 	}
@@ -48,7 +48,7 @@ public class XsuaaScopeTranslatorTest {
 	public void doesNotTouchNonGlobalScopedEntries() {
 		List<String> scope = newArrayList("myAppId.Read", "Display");
 
-		List<String> translatedScope = cut.toLocalScope(scope);
+		List<String> translatedScope = cut.convert(scope);
 
 		assertThat(translatedScope).containsSequence(scope);
 	}
@@ -57,7 +57,7 @@ public class XsuaaScopeTranslatorTest {
 	public void scopeContainsDotAndUnderscore() {
 		List<String> scope = newArrayList("myAppId!t1785.Read.Context", "myAppId!t1785.Write.Context");
 
-		List<String> translatedScope = cut.toLocalScope(scope);
+		List<String> translatedScope = cut.convert(scope);
 
 		assertThat(translatedScope).containsExactly("Read.Context", "Write.Context");
 	}
@@ -66,7 +66,7 @@ public class XsuaaScopeTranslatorTest {
 	public void noScopes_emptyList() {
 		List<String> scope = newArrayList();
 
-		List<String> translatedScope = cut.toLocalScope(scope);
+		List<String> translatedScope = cut.convert(scope);
 
 		assertThat(translatedScope).isEmpty();
 	}

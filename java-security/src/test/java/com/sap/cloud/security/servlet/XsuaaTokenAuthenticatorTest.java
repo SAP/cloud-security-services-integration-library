@@ -46,7 +46,7 @@ public class XsuaaTokenAuthenticatorTest {
 				.withClientId("clientId")
 				.build();
 
-		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8), "appId");
+		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
 
 		cut = new XsuaaTokenAuthenticator()
 				.withOAuth2TokenKeyService(

@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -42,6 +44,11 @@ public class AbstractTokenTest {
 	@Test
 	public void getClaimAsStringList() {
 		assertThat(cut.getClaimAsStringList("aud")).containsExactly("uaa", "sap_osb");
+	}
+
+	@Test
+	public void getClaimAsStringList_unknownClaim_emptyList() {
+		assertThat(cut.getClaimAsStringList("anything")).isEqualTo(Collections.emptyList());
 	}
 
 	@Test

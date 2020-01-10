@@ -7,12 +7,7 @@ import org.json.JSONObject;
 import javax.annotation.Nullable;
 import java.time.DateTimeException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class DefaultJsonObject implements JsonObject {
 
@@ -30,7 +25,7 @@ public class DefaultJsonObject implements JsonObject {
 
 	@Override
 	public <T> List<T> getAsList(String name, Class<T> type) {
-		return getJSONArray(name).map(jsonArray -> castToListOfType(jsonArray, type)).orElse(new ArrayList<>());
+		return getJSONArray(name).map(jsonArray -> castToListOfType(jsonArray, type)).orElse(Collections.emptyList());
 	}
 
 	@Override

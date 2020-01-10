@@ -13,6 +13,11 @@ import com.sap.cloud.security.config.cf.CFConstants.Plan;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
+/**
+ * Loads the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a supported identity
+ * {@link Service} in the SAP CP Cloud Foundry Environment by parsing the {@code VCAP_SERVICES}
+ * system environment variable.
+ */
 public class CFEnvironment implements Environment {
 
 	private Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations;
@@ -69,7 +74,7 @@ public class CFEnvironment implements Environment {
 	 * @param service
 	 *            the name of the service
 	 * @return the list of all found configurations or empty list, in case there are
-	 *         not service bindings.
+	 *         no service bindings.
 	 * @deprecated as multiple bindings of XSUAA identity service is not anymore
 	 *             necessary with the unified broker plan, this method is
 	 *             deprecated.
@@ -103,6 +108,11 @@ public class CFEnvironment implements Environment {
 		return brokerService.orElse(null);
 	}
 
+	/**
+	 * Loads the configuration for a dedicated service plan.
+	 *
+	 * @return the configuration or null, if there is not such binding information for the given service plan.
+	 */
 	@Nullable
 	public OAuth2ServiceConfiguration loadForServicePlan(Service service, Plan plan) {
 		return loadAllForService(service).stream()

@@ -11,19 +11,44 @@ import java.util.List;
 
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
+/**
+ * Decodes and parses encoded access token (JWT) (Token) for the Xsuaa identity service
+ * and provides access to token header parameters and claims.
+ */
 public class XsuaaToken extends AbstractToken {
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>
-	private final String appId;
+	private TokenScopeConverter scopeConverter;
 
-	public XsuaaToken(@Nonnull DecodedJwt decodedJwt, @Nonnull String appId) {
+	/**
+	 * Creates an instance.
+	 *
+	 * @param decodedJwt
+	 * 		the decoded jwt
+	 */
+	public XsuaaToken(@Nonnull DecodedJwt decodedJwt) {
 		super(decodedJwt);
-		this.appId = appId;
 	}
 
-	public XsuaaToken(@Nonnull String accessToken, @Nonnull String appId) {
+	/**
+	 * Creates an instance.
+	 *
+	 * @param accessToken
+	 * 		the encoded access token, e.g. from the {@code Authorization} header.
+	 */
+	public XsuaaToken(@Nonnull String accessToken) {
 		super(accessToken);
-		this.appId = appId;
+	}
+
+	/**
+	 * Configures a scope converter, e.g. required for the {@link #hasLocalScope(String)}
+	 *
+	 * @param converter
+	 * 		the scope converter, e.g. {@link XsuaaScopeConverter}
+	 */
+	public XsuaaToken withScopeConverter(TokenScopeConverter converter) {
+		this.scopeConverter = converter;
+		return this;
 	}
 
 	/**
@@ -51,9 +76,14 @@ public class XsuaaToken extends AbstractToken {
 		return String.format(UNIQUE_USER_NAME_FORMAT, origin, userLoginName);
 	}
 
+	/**
+	 * Returns the list of the claim "scope".
+	 * @return the list of the claim scope or empty list.
+	 */
 	public List<String> getScopes() {
 		return getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 	}
+
 
 	@Override
 	public Principal getPrincipal() {
@@ -75,12 +105,8 @@ public class XsuaaToken extends AbstractToken {
 		return Service.XSUAA;
 	}
 
-	public String getAppId() {
-		return appId;
-	}
-
 	/**
-	 * Checks if a scope is available in the authentication token.
+	 * Checks if a scope is available in the access token.
 	 * 
 	 * @param scope
 	 *            name of the scope
@@ -98,10 +124,7 @@ public class XsuaaToken extends AbstractToken {
 	 * @return true if local scope is available
 	 **/
 	public boolean hasLocalScope(@Nonnull String scope) {
-		return hasScope(asGlobalScope(scope));
-	}
-
-	private String asGlobalScope(@Nonnull String scope) {
-		return appId + "." + scope;
+		Assertions.assertNotNull(scopeConverter, "scopeConverter must not be null");
+		return scopeConverter.convert(getScopes()).contains(scope);
 	}
 }

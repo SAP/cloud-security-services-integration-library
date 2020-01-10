@@ -44,7 +44,7 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
-	 * Add the validator to the validation chain.
+	 * Adds a custom validator to the validation chain.
 	 *
 	 * @param validator
 	 *            the validator used for validation.

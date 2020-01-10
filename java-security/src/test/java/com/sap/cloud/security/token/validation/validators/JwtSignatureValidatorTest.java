@@ -36,12 +36,11 @@ public class JwtSignatureValidatorTest {
 
 	@Before
 	public void setup() throws IOException {
-		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8),
-				APP_ID);
+		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
 		iasToken = new IasToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 
 		xsuaaTokenSignedWithVerificationKey = new XsuaaToken(
-				IOUtils.resourceToString("/xsuaaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8), APP_ID);
+				IOUtils.resourceToString("/xsuaaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
 
 		endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("https://myoidcprovider.com/jwks_uri"));
@@ -113,7 +112,7 @@ public class JwtSignatureValidatorTest {
 				.append(otherHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(new XsuaaToken(tokenWithOthersSignature, APP_ID)).isErroneous(), is(true));
+		assertThat(cut.validate(new XsuaaToken(tokenWithOthersSignature)).isErroneous(), is(true));
 	}
 
 	@Test

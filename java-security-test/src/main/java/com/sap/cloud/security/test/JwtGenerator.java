@@ -183,7 +183,7 @@ public class JwtGenerator {
 		case IAS:
 			return new IasToken(token);
 		case XSUAA:
-			return new XsuaaToken(token, null);
+			return new XsuaaToken(token);
 		default:
 			throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
 		}
