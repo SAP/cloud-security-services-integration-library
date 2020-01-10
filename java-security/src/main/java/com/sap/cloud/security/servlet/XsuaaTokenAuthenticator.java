@@ -28,7 +28,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 		return serviceConfiguration != null ? serviceConfiguration : Environments.getCurrent().getXsuaaConfiguration();
 	}
 
-	private TokenScopeConverter getScopeConverter() {
+	private ScopeConverter getScopeConverter() {
 		return new XsuaaScopeConverter(
 				getServiceConfiguration().getProperty(CFConstants.XSUAA.APP_ID));
 	}
@@ -44,7 +44,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 	@Override
 	protected TokenAuthenticationResult authenticated(Token token) {
 		List<String> translatedScopes = getScopeConverter()
-											.convert(((XsuaaToken) token).getScopes());
+				.convert(((XsuaaToken) token).getScopes());
 		return TokenAuthenticationResult.createAuthenticated(translatedScopes, token);
 	}
 

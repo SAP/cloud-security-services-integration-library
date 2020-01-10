@@ -34,10 +34,12 @@ import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 /**
  * Validates whether the jwt was signed with the public key of the trust-worthy
- * identity service. - asks the token key service for a set of (cached) json web
- * token keys. - creates a PublicKey for the json web key with the respective id
- * and type. - checks whether the jwt is unchanged and signed with a private key
- * that matches the PublicKey.
+ * identity service. <br>
+ * - asks the token key service for a set of (cached) json web token keys.<br>
+ * - creates a PublicKey for the json web key with the respective id and type.
+ * <br>
+ * - checks whether the jwt is unchanged and signed with a private key that
+ * matches the PublicKey.
  */
 public class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;

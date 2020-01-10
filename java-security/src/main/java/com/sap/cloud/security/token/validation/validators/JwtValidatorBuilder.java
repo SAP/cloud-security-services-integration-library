@@ -55,22 +55,58 @@ public class JwtValidatorBuilder {
 		return this;
 	}
 
+	/**
+	 * Sets / overwrites the default audience validator.
+	 *
+	 * @param audienceValidator
+	 *            the validator used for validation.
+	 * @return this builder.
+	 */
 	public JwtValidatorBuilder withAudienceValidator(Validator<Token> audienceValidator) {
 		this.customAudienceValidator = audienceValidator;
 		return this;
 	}
 
+	/**
+	 * Overwrite in case you want to configure your own
+	 * {@link OAuth2TokenKeyServiceWithCache}. For example you like to change the
+	 * cache settings or you like to configure the {@link OAuth2TokenKeyService}
+	 * with your own Rest client.
+	 *
+	 * @param tokenKeyService
+	 *            your token key service
+	 * @return this builder
+	 */
 	public JwtValidatorBuilder withOAuth2TokenKeyService(OAuth2TokenKeyServiceWithCache tokenKeyService) {
 		this.tokenKeyService = tokenKeyService;
 		return this;
 	}
 
+	/**
+	 * Overwrite in case you want to configure your own
+	 * {@link OidcConfigurationServiceWithCache}. For example you like to change the
+	 * cache settings or you like to configure the {@link OidcConfigurationService}
+	 * with your own Rest client.
+	 *
+	 * @param oidcConfigurationService
+	 *            your token key service
+	 * @return this builder
+	 */
 	public JwtValidatorBuilder withOidcConfigurationService(
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
 		this.oidcConfigurationService = oidcConfigurationService;
 		return this;
 	}
 
+	/**
+	 * Allows to provide another service configuration, e.g. in case you have
+	 * multiple Xsuaa identity service instances and you like to accept tokens
+	 * issued for them as well.
+	 *
+	 * @param otherConfiguration
+	 *            the configuration of the other service instance, e.g. the broker
+	 * @return this builder
+	 */
 	public JwtValidatorBuilder configureAnotherServiceInstance(
 			@Nullable OAuth2ServiceConfiguration otherConfiguration) {
 		this.otherConfiguration = otherConfiguration;
@@ -78,6 +114,8 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
+	 * Builds the validators with the applied parameters.
+	 *
 	 * @return the combined validators.
 	 */
 	public CombiningValidator<Token> build() {

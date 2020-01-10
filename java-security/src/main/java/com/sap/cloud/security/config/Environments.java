@@ -3,7 +3,8 @@ package com.sap.cloud.security.config;
 import com.sap.cloud.security.config.cf.CFEnvironment;
 
 /**
- * Central entry point to access the current SAP Cloud Platform {@link Environment}.
+ * Central entry point to access the current SAP Cloud Platform
+ * {@link Environment}.
  */
 public class Environments {
 

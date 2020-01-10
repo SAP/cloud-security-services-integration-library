@@ -9,12 +9,14 @@ import java.util.stream.Collectors;
  * This utility class translates XSUAA scopes that are specified in global form
  * and prefixed with the "appId.", to local ones.
  */
-public class XsuaaScopeConverter implements TokenScopeConverter {
+public class XsuaaScopeConverter implements ScopeConverter {
 	private final Pattern globalScopePattern;
 
 	/**
 	 * Creates an instance of the converter.
-	 * @param appId the xs application name e.g. myapp!t123.
+	 * 
+	 * @param appId
+	 *            the xs application name e.g. myapp!t123.
 	 */
 	public XsuaaScopeConverter(String appId) {
 		this.globalScopePattern = Pattern.compile(appId + "\\.(.+)");

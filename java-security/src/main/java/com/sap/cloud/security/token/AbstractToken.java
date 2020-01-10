@@ -17,7 +17,8 @@ import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
 import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
 
 /**
- * Decodes and parses encoded access token (JWT) Token and provides access to token header parameters and claims.
+ * Decodes and parses encoded access token (JWT) Token and provides access to
+ * token header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
 	private final DefaultJsonObject headerJsonObject;

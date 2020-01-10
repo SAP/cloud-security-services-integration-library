@@ -4,11 +4,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Central entry point to access the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a supported identity
- * {@link Service}.
+ * Central entry point to access the OAuth configuration
+ * ({@link OAuth2ServiceConfiguration}) of a supported identity {@link Service}.
  */
 public interface Environment {
 
+	/**
+	 * Represents a supported SAP CP environment.
+	 */
 	enum Type {
 		CF /* , KUBERNETES */;
 		public static Type from(String typeAsString) {

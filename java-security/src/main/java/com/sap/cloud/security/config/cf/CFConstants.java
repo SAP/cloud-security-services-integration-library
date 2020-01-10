@@ -1,5 +1,9 @@
 package com.sap.cloud.security.config.cf;
 
+/**
+ * Constants that simplifies access to service configuration properties in the
+ * Cloud Foundry environment.
+ */
 public class CFConstants {
 	public static final String VCAP_SERVICES = "VCAP_SERVICES";
 	public static final String CREDENTIALS = "credentials";
@@ -11,6 +15,9 @@ public class CFConstants {
 	private CFConstants() {
 	}
 
+	/**
+	 * Constants that are specific to the Xsuaa identity service.
+	 */
 	public static class XSUAA {
 		private XSUAA() {
 		}
@@ -19,6 +26,9 @@ public class CFConstants {
 		public static final String APP_ID = "xsappname";
 	}
 
+	/**
+	 * Constants that are specific to the Ias identity service.
+	 */
 	public static class IAS {
 		private IAS() {
 		}

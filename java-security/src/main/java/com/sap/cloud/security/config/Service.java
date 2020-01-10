@@ -1,5 +1,8 @@
 package com.sap.cloud.security.config;
 
+/**
+ * Represents a supported identity service.
+ */
 public enum Service {
 	XSUAA("xsuaa"), IAS("iasb");
 

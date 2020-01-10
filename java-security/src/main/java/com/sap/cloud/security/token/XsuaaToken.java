@@ -12,19 +12,19 @@ import java.util.List;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**
- * Decodes and parses encoded access token (JWT) (Token) for the Xsuaa identity service
- * and provides access to token header parameters and claims.
+ * Decodes and parses encoded access token (JWT) (Token) for the Xsuaa identity
+ * service and provides access to token header parameters and claims.
  */
 public class XsuaaToken extends AbstractToken {
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>
-	private TokenScopeConverter scopeConverter;
+	private ScopeConverter scopeConverter;
 
 	/**
 	 * Creates an instance.
 	 *
 	 * @param decodedJwt
-	 * 		the decoded jwt
+	 *            the decoded jwt
 	 */
 	public XsuaaToken(@Nonnull DecodedJwt decodedJwt) {
 		super(decodedJwt);
@@ -34,19 +34,21 @@ public class XsuaaToken extends AbstractToken {
 	 * Creates an instance.
 	 *
 	 * @param accessToken
-	 * 		the encoded access token, e.g. from the {@code Authorization} header.
+	 *            the encoded access token, e.g. from the {@code Authorization}
+	 *            header.
 	 */
 	public XsuaaToken(@Nonnull String accessToken) {
 		super(accessToken);
 	}
 
 	/**
-	 * Configures a scope converter, e.g. required for the {@link #hasLocalScope(String)}
+	 * Configures a scope converter, e.g. required for the
+	 * {@link #hasLocalScope(String)}
 	 *
 	 * @param converter
-	 * 		the scope converter, e.g. {@link XsuaaScopeConverter}
+	 *            the scope converter, e.g. {@link XsuaaScopeConverter}
 	 */
-	public XsuaaToken withScopeConverter(TokenScopeConverter converter) {
+	public XsuaaToken withScopeConverter(ScopeConverter converter) {
 		this.scopeConverter = converter;
 		return this;
 	}
@@ -78,12 +80,12 @@ public class XsuaaToken extends AbstractToken {
 
 	/**
 	 * Returns the list of the claim "scope".
+	 * 
 	 * @return the list of the claim scope or empty list.
 	 */
 	public List<String> getScopes() {
 		return getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 	}
-
 
 	@Override
 	public Principal getPrincipal() {

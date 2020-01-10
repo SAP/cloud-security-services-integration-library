@@ -7,10 +7,12 @@ import java.io.IOException;
 
 class SecurityFilter implements Filter {
 
-	@Override public void init(FilterConfig filterConfig) {
+	@Override
+	public void init(FilterConfig filterConfig) {
 	}
 
-	@Override public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		if (request instanceof HttpServletRequest) {
 			if (((HttpServletResponse) response).getStatus() < 400) {
@@ -21,6 +23,7 @@ class SecurityFilter implements Filter {
 		}
 	}
 
-	@Override public void destroy() {
+	@Override
+	public void destroy() {
 	}
 }

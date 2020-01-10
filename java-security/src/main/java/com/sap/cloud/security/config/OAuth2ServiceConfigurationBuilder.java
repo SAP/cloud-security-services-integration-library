@@ -7,8 +7,8 @@ import java.util.Map;
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 
 /**
- * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) for a dedicated identity ({@link Service})
- * based on the properties applied.
+ * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) for a
+ * dedicated identity ({@link Service}) based on the properties applied.
  */
 public class OAuth2ServiceConfigurationBuilder {
 	private Service service;
@@ -20,7 +20,9 @@ public class OAuth2ServiceConfigurationBuilder {
 
 	/**
 	 * Creates a builder for a dedicated identity ({@link Service})
-	 * @param service the service
+	 * 
+	 * @param service
+	 *            the service
 	 * @return this builder
 	 */
 	public static OAuth2ServiceConfigurationBuilder forService(Service service) {
@@ -32,7 +34,8 @@ public class OAuth2ServiceConfigurationBuilder {
 	/**
 	 * Client id of identity service instance.
 	 *
-	 * @param clientId client identifier
+	 * @param clientId
+	 *            client identifier
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withClientId(String clientId) {
@@ -43,7 +46,8 @@ public class OAuth2ServiceConfigurationBuilder {
 	/**
 	 * Client secret of identity service instance.
 	 *
-	 * @param clientSecret client secret
+	 * @param clientSecret
+	 *            client secret
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withClientSecret(String clientSecret) {
@@ -73,8 +77,9 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	/**
-	 * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration})
-	 * based on the properties applied.
+	 * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) based on
+	 * the properties applied.
+	 * 
 	 * @return the oauth2 service configuration.
 	 */
 	public OAuth2ServiceConfiguration build() {

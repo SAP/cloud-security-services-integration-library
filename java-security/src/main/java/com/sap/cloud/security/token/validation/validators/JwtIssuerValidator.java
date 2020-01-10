@@ -16,6 +16,10 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 
+/**
+ * Validates that the jwt access token is issued by a trust worthy identity
+ * service.
+ */
 public class JwtIssuerValidator implements Validator<Token> {
 	private final String domain;
 	protected final Logger logger = LoggerFactory.getLogger(getClass());

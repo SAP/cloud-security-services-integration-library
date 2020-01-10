@@ -14,9 +14,9 @@ import java.util.*;
 import java.util.function.UnaryOperator;
 
 /**
- * Loads the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a supported identity
- * {@link Service} in the SAP CP Cloud Foundry Environment by parsing the {@code VCAP_SERVICES}
- * system environment variable.
+ * Loads the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a
+ * supported identity {@link Service} in the SAP CP Cloud Foundry Environment by
+ * parsing the {@code VCAP_SERVICES} system environment variable.
  */
 public class CFEnvironment implements Environment {
 
@@ -111,7 +111,8 @@ public class CFEnvironment implements Environment {
 	/**
 	 * Loads the configuration for a dedicated service plan.
 	 *
-	 * @return the configuration or null, if there is not such binding information for the given service plan.
+	 * @return the configuration or null, if there is not such binding information
+	 *         for the given service plan.
 	 */
 	@Nullable
 	public OAuth2ServiceConfiguration loadForServicePlan(Service service, Plan plan) {
