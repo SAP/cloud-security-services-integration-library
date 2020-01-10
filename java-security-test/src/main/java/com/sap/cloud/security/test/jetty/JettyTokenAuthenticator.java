@@ -16,6 +16,9 @@ import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Decorates the TokenAuthenticator and adapts it to Jetty.
+ */
 public class JettyTokenAuthenticator implements Authenticator {
 
 	private static final Logger logger = LoggerFactory.getLogger(JettyTokenAuthenticator.class);

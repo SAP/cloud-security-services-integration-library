@@ -7,18 +7,24 @@ import org.json.JSONObject;
 import javax.annotation.Nullable;
 import java.time.DateTimeException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+/**
+ * Use this class to parse a Json String. This might be relevant in case the
+ * {@link com.sap.cloud.security.config.OAuth2ServiceConfiguration} does not
+ * provide all required properties.
+ */
 public class DefaultJsonObject implements JsonObject {
 
 	private final String jsonString;
 	private JSONObject jsonObject;
 
+	/**
+	 * Create an instance
+	 * 
+	 * @param jsonString
+	 *            the content in json format that should be parsed.
+	 */
 	public DefaultJsonObject(String jsonString) {
 		this.jsonString = jsonString;
 	}
@@ -30,7 +36,7 @@ public class DefaultJsonObject implements JsonObject {
 
 	@Override
 	public <T> List<T> getAsList(String name, Class<T> type) {
-		return getJSONArray(name).map(jsonArray -> castToListOfType(jsonArray, type)).orElse(new ArrayList<>());
+		return getJSONArray(name).map(jsonArray -> castToListOfType(jsonArray, type)).orElse(Collections.emptyList());
 	}
 
 	@Override

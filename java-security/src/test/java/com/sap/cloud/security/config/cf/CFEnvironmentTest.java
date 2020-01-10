@@ -5,7 +5,6 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
-import com.sap.cloud.security.token.TokenClaims;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -14,6 +13,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Map;
 
+import static com.sap.cloud.security.config.cf.CFConstants.*;
+import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,11 +48,11 @@ public class CFEnvironmentTest {
 		JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName())
 				.get(0);
 		Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
-		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
+		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CREDENTIALS).getKeyValueMap();
 
 		assertThat(xsuaaConfigMap.size()).isEqualTo(4);
 		assertThat(credentialsMap.size()).isEqualTo(10);
-		assertThat(credentialsMap.get(CFConstants.CLIENT_SECRET)).isEqualTo("secret");
+		assertThat(credentialsMap.get(CLIENT_SECRET)).isEqualTo("secret");
 	}
 
 	// TODO IAS
@@ -76,7 +77,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
 		assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("xs2.usertoken");
 		assertThat(cut.getXsuaaConfiguration().getClientSecret()).isEqualTo("secret");
-		assertThat(cut.getXsuaaConfiguration().getProperty(CFConstants.XSUAA.UAA_DOMAIN)).isEqualTo("auth.com");
+		assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.UAA_DOMAIN)).isEqualTo("auth.com");
 		assertThat(cut.getXsuaaConfiguration().getUrl().toString()).isEqualTo("https://paastenant.auth.com");
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
@@ -90,16 +91,15 @@ public class CFEnvironmentTest {
 		cut = CFEnvironment.getInstance((str) -> vcapMultipleXsuaa, (str) -> null);
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
-		CFOAuth2ServiceConfiguration appServConfig = (CFOAuth2ServiceConfiguration) cut.getXsuaaConfiguration();
-		CFOAuth2ServiceConfiguration brokerServConfig = (CFOAuth2ServiceConfiguration) cut
-				.getXsuaaConfigurationForTokenExchange();
+		OAuth2ServiceConfiguration appServConfig = cut.getXsuaaConfiguration();
+		OAuth2ServiceConfiguration brokerServConfig = cut.getXsuaaConfigurationForTokenExchange();
 
 		assertThat(appServConfig.getService()).isEqualTo(Service.XSUAA);
-		assertThat(appServConfig.getPlan()).isEqualTo(CFConstants.Plan.APPLICATION);
+		assertThat(Plan.from(appServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);
 
 		assertThat(brokerServConfig).isNotEqualTo(appServConfig);
 		assertThat(brokerServConfig.getService()).isEqualTo(Service.XSUAA);
-		assertThat(brokerServConfig.getPlan()).isEqualTo(CFConstants.Plan.BROKER);
+		assertThat(Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.BROKER);
 		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
 	}
 
@@ -107,15 +107,15 @@ public class CFEnvironmentTest {
 	public void getConfigurationByPlan() {
 		cut = CFEnvironment.getInstance((str) -> vcapMultipleXsuaa, (str) -> null);
 
-		CFOAuth2ServiceConfiguration appServConfig = (CFOAuth2ServiceConfiguration) cut.loadByPlan(Service.XSUAA,
-				CFConstants.Plan.APPLICATION);
-		CFOAuth2ServiceConfiguration brokerServConfig = (CFOAuth2ServiceConfiguration) cut.loadByPlan(Service.XSUAA,
-				CFConstants.Plan.BROKER);
+		OAuth2ServiceConfiguration appServConfig = cut.loadForServicePlan(Service.XSUAA,
+				Plan.APPLICATION);
+		OAuth2ServiceConfiguration brokerServConfig = cut.loadForServicePlan(Service.XSUAA,
+				Plan.BROKER);
 
-		assertThat(appServConfig.getPlan()).isEqualTo(CFConstants.Plan.APPLICATION);
+		assertThat(Plan.from(appServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);
 		assertThat(appServConfig).isSameAs(cut.getXsuaaConfiguration());
 
-		assertThat(brokerServConfig.getPlan()).isEqualTo(CFConstants.Plan.BROKER);
+		assertThat(Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.BROKER);
 		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
 	}
 

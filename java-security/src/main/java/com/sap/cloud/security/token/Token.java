@@ -9,6 +9,9 @@ import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Represents a (JWT) access token.
+ */
 public interface Token {
 
 	/**
@@ -60,14 +63,13 @@ public interface Token {
 
 	/**
 	 * Extracts the value as a list of strings for the given claim. If the claim is
-	 * not found, it will return null. If the given calim is not a list of strings,
+	 * not found, it will return null. If the given claim is not a list of strings,
 	 * it will throw a {@link JsonParsingException}.
 	 * 
 	 * @param claimName
 	 *            the name of the claim as defined here {@link TokenClaims}.
-	 * @return the data of the given claim as a list of strings.
+	 * @return the data of the given claim as a list of strings or an empty list.
 	 */
-	@Nullable
 	List<String> getClaimAsStringList(@Nonnull String claimName);
 
 	/**

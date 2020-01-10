@@ -52,20 +52,12 @@ public class HelloJavaServletTest {
 
 	@ClassRule
 	public static SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA)
-			.setPort(8181) // optionally overwrite identity service port (WireMock)
-			.useApplicationServer() // optionally customize application server and (optionally) overwrite port
+			.useApplicationServer() // optionally customize application server, e.g. port
 			.addApplicationServlet(TestServlet.class, "/hi");  // add servlet to be tested to application server
-
-	@BeforeClass
-	public static void prepareTest() throws Exception {
-		oldProperties = System.getProperties();
-		System.setProperty(VCAP_SERVICES, IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-		rule.setClientId(Environments.getCurrent().getXsuaaConfiguration().getClientId());
-	}
-
-	@AfterClass
-	public static void restoreProperties() {
-		System.setProperties(oldProperties);
+    
+	@After
+	public void tearDown() {
+		SecurityContext.clearToken();
 	}
 
 	@Test
@@ -77,8 +69,12 @@ public class HelloJavaServletTest {
 	}
 
 	@Test
-	public void request_withValidToken() throws IOException {
-		HttpGet request = createGetRequest(rule.createToken().getBearerAccessToken());
+	public void requestWithValidToken_ok() throws IOException {
+		String jwt = rule.getPreconfiguredJwtGenerator()
+				.withScopes(SecurityTestRule.DEFAULT_APP_ID + ".Read")
+				.createToken()
+				.getBearerAccessToken();
+		HttpGet request = createGetRequest(jwt);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);

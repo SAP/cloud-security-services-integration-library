@@ -15,6 +15,11 @@ import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 
+/**
+ * Validates that the jwt access token is issued by a trust worthy identity
+ * service. In case of XSUAA does the token key url (jku JWT header parameter)
+ * must match the identity service domain.
+ */
 public class XsuaaJwtIssuerValidator implements Validator<Token> {
 	private final String domain;
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -37,7 +42,6 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 			return createInvalid(
 					"Issuer validation can not be performed because Jwt token does not contain 'jku' header parameter.");
 		}
-
 		return matchesTokenKeyUrlDomain(tokenKeyUrl);
 	}
 

@@ -36,12 +36,11 @@ public class JwtSignatureValidatorTest {
 
 	@Before
 	public void setup() throws IOException {
-		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8),
-				APP_ID);
+		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
 		iasToken = new IasToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 
 		xsuaaTokenSignedWithVerificationKey = new XsuaaToken(
-				IOUtils.resourceToString("/xsuaaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8), APP_ID);
+				IOUtils.resourceToString("/xsuaaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
 
 		endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("https://myoidcprovider.com/jwks_uri"));
@@ -64,7 +63,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validate_throwsWhenTokenIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate(null, "key-id-1", "RS256", null);
+			cut.validate(null, "key-id-1", "RS256", null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
 	}
 
@@ -86,22 +85,43 @@ public class JwtSignatureValidatorTest {
 		OAuth2ServiceConfiguration mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
 		when(mockConfiguration.getProperty("verificationkey")).thenReturn(
-				"-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTNVTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9YoU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GPn38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4oQIDAQAB-----END PUBLIC KEY-----");
+				"-----BEGIN PUBLIC KEY-----\n" +
+				"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/\n" +
+				"2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTN\n" +
+				"VTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9Y\n" +
+				"oU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GP\n" +
+				"n38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0\n" +
+				"frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4\n" +
+				"oQIDAQAB\n" +
+				"-----END PUBLIC KEY-----");
 		cut.withOAuth2Configuration(mockConfiguration);
 		assertThat(cut.validate(xsuaaTokenSignedWithVerificationKey).isValid(), is(true));
 	}
 
 	@Test
-	public void validationFails_whenSignatureOfGeneratedTokenDoesNotMatchVerificationkey() {
+	public void validationFails_whenVerificationkeyIsInvalid() {
 		OAuth2ServiceConfiguration mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
-		when(mockConfiguration.getProperty("verificationkey")).thenReturn("INVALID_KEY");
+		when(mockConfiguration.getProperty("verificationkey")).thenReturn("INVALIDKEY");
 		cut.withOAuth2Configuration(mockConfiguration);
 
 		ValidationResult result = cut.validate(xsuaaTokenSignedWithVerificationKey);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString("Fallback with configured verificationkey was not successful."));
+	}
+
+	@Test
+	public void validationFails_whenSignatureOfGeneratedTokenDoesNotMatchVerificationkey() {
+		OAuth2ServiceConfiguration mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
+		when(mockConfiguration.getProperty("verificationkey")).thenReturn("-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTNVTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9YoU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GPn38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/3vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4oQIDAQAB-----END PUBLIC KEY-----");
+		cut.withOAuth2Configuration(mockConfiguration);
+
+		ValidationResult result = cut.validate(xsuaaTokenSignedWithVerificationKey);
+		assertThat(result.isErroneous(), is(true));
+		assertThat(result.getErrorDescription(),
+				containsString("Signature of Jwt Token is not valid"));
 	}
 
 	@Test
@@ -113,7 +133,7 @@ public class JwtSignatureValidatorTest {
 				.append(otherHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(new XsuaaToken(tokenWithOthersSignature, APP_ID)).isErroneous(), is(true));
+		assertThat(cut.validate(new XsuaaToken(tokenWithOthersSignature)).isErroneous(), is(true));
 	}
 
 	@Test
@@ -124,7 +144,7 @@ public class JwtSignatureValidatorTest {
 				.append(tokenHeaderPayloadSignature[1]).toString();
 
 		ValidationResult result = cut.validate(tokenWithOthersSignature, "RS256", "key-id-1",
-				"https://authentication.stagingaws.hanavlab.ondemand.com/token_keys");
+				"https://authentication.stagingaws.hanavlab.ondemand.com/token_keys", null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString("Jwt token does not consist of 'header'.'payload'.'signature'."));
@@ -137,7 +157,7 @@ public class JwtSignatureValidatorTest {
 						IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8)));
 
 		ValidationResult result = cut.validate(iasToken.getAccessToken(), "RS256", "default-kid-2",
-				"https://myauth.com/jwks_uri");
+				"https://myauth.com/jwks_uri", null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString(
@@ -147,7 +167,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNotRSA256() {
 		ValidationResult validationResult = cut.validate(xsuaaToken.getAccessToken(), "ES123", "key-id-1",
-				"https://myauth.com/jwks_uri");
+				"https://myauth.com/jwks_uri", null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Jwt token with signature algorithm 'ES123' can not be verified."));
@@ -156,7 +176,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNull() {
 		ValidationResult validationResult = cut.validate(xsuaaToken.getAccessToken(), "", "key-id-1",
-				"https://myauth.com/jwks_uri");
+				"https://myauth.com/jwks_uri", null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Jwt token with signature algorithm '' can not be verified."));
@@ -168,7 +188,7 @@ public class JwtSignatureValidatorTest {
 				.retrieveTokenKeys(any())).thenThrow(OAuth2ServiceException.class);
 
 		ValidationResult result = cut.validate(xsuaaToken.getAccessToken(), "RS256", null,
-				"http://unavailable.com/token_keys");
+				"http://unavailable.com/token_keys", null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString("Error retrieving Json Web Keys from Identity Service"));
@@ -183,7 +203,7 @@ public class JwtSignatureValidatorTest {
 	@Ignore
 	public void jsonECSignatureMatchesJWKS() {
 		String ecSignedToken = "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhdXRoMCJ9.4iVk3-Y0v4RT4_9IaQlp-8dZ_4fsTzIylgrPTDLrEvTHBTyVS3tgPbr2_IZfLETtiKRqCg0aQ5sh9eIsTTwB1g";
-		assertThat(cut.validate(ecSignedToken, "ES256", "key-id-1", null).isValid(), is(true));
+		assertThat(cut.validate(ecSignedToken, "ES256", "key-id-1", null, null).isValid(), is(true));
 	}
 
 }

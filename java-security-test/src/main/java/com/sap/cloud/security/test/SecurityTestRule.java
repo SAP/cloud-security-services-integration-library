@@ -7,6 +7,7 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
@@ -36,7 +37,9 @@ import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCO
 
 public class SecurityTestRule extends ExternalResource {
 
-	private static final Logger logger = LoggerFactory.getLogger(SecurityTestRule.class);
+	public static final String DEFAULT_APP_ID = "xsapp!t0815";
+	public static final String DEFAULT_CLIENT_ID = "sb-clientId!t0815";
+	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityTestRule.class);
 	private static final String LOCALHOST_PATTERN = "http://localhost:%d";
 	private final Map<String, ServletHolder> applicationServletsByPath = new HashMap<>();
 	private final List<FilterHolder> applicationServletFilters = new ArrayList<>();
@@ -50,7 +53,8 @@ public class SecurityTestRule extends ExternalResource {
 	private RSAKeys keys;
 	private int wireMockPort = 0;
 	private Service service;
-	private String clientId;
+
+	private String clientId = DEFAULT_CLIENT_ID;
 	private String jwksUrl;
 
 	private SecurityTestRule() {
@@ -155,19 +159,6 @@ public class SecurityTestRule extends ExternalResource {
 	}
 
 	/**
-	 * Overwrites the client id (cid) claim of the token that is being generated. It
-	 * needs to be configured before the {@link #before()} method.
-	 *
-	 * @param clientId
-	 *            the port on which the wire mock service is started.
-	 * @return the rule itself.
-	 */
-	public SecurityTestRule setClientId(String clientId) {
-		this.clientId = clientId;
-		return this;
-	}
-
-	/**
 	 * Overwrites the private/public key pair to be used. The private key is used to
 	 * sign the jwt token. The public key is provided by jwks endpoint (on behalf of
 	 * WireMock).
@@ -205,7 +196,9 @@ public class SecurityTestRule extends ExternalResource {
 				.withPrivateKey(keys.getPrivate());
 		switch (service) {
 		case XSUAA:
-			jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl);
+			jwtGenerator
+					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
 			break;
 		default:
 			jwtGenerator.withClaimValue(TokenClaims.ISSUER, wireMockRule.baseUrl());
@@ -274,7 +267,7 @@ public class SecurityTestRule extends ExternalResource {
 				applicationServer.stop();
 			}
 		} catch (Exception e) {
-			logger.error("Failed to stop jetty server", e);
+			LOGGER.error("Failed to stop jetty server", e);
 		}
 	}
 
@@ -287,6 +280,9 @@ public class SecurityTestRule extends ExternalResource {
 		applicationServletFilters.forEach((filterHolder) -> servletHandler
 				.addFilterWithMapping(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
 
+		servletHandler
+				.addFilterWithMapping(new FilterHolder(new SecurityFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
+
 		applicationServer = new Server(applicationServerOptions.getPort());
 		applicationServer.setHandler(context);
 		applicationServer.start();
@@ -297,10 +293,12 @@ public class SecurityTestRule extends ExternalResource {
 		JettyTokenAuthenticator authenticator = new JettyTokenAuthenticator(
 				applicationServerOptions.getTokenAuthenticator());
 		security.setAuthenticator(authenticator);
+
 		ServletHandler servletHandler = new ServletHandler();
 		security.setHandler(servletHandler);
 		context.setServletHandler(servletHandler);
 		context.setSecurityHandler(security);
+
 		return servletHandler;
 	}
 

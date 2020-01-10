@@ -31,18 +31,23 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Validates whether the jwt was signed with the public key of the trust-worthy
- * identity service. - asks the token key service for a set of (cached) json web
- * token keys. - creates a PublicKey for the json web key with the respective id
- * and type. - checks whether the jwt is unchanged and signed with a private key
- * that matches the PublicKey.
+ * identity service. <br>
+ * - asks the token key service for a set of (cached) json web token keys.<br>
+ * - creates a PublicKey for the json web key with the respective id and type.
+ * <br>
+ * - checks whether the jwt is unchanged and signed with a private key that
+ * matches the PublicKey.
  */
 public class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private final OidcConfigurationServiceWithCache oidcConfigurationService;
 	private OAuth2ServiceConfiguration configuration;
+	private static final Logger LOGGER = LoggerFactory.getLogger(JwtSignatureValidator.class);
 
 	public JwtSignatureValidator(OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
@@ -64,35 +69,27 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 		try {
 			jwksUri = getOrRequestJwksUri(token);
+			String fallbackPublicKey = null;
+			if(configuration != null && configuration.hasProperty("verificationkey")) {
+				fallbackPublicKey = configuration.getProperty("verificationkey");
+			}
 			return validate(token.getAccessToken(),
 					token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME),
 					token.getHeaderParameterAsString(KEY_ID_PARAMETER_NAME),
-					jwksUri);
+					jwksUri,
+					fallbackPublicKey);
 		} catch (OAuth2ServiceException | IllegalArgumentException e) {
-			if (configuration != null && configuration.hasProperty("verificationkey")) {
-				try {
-					// default Fallback
-					PublicKey publicKey = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(
-							JwtSignatureAlgorithm.RS256, configuration.getProperty("verificationkey"));
-					return Validation.validateTokenSignature(token.getAccessToken(), publicKey,
-							Signature.getInstance(JwtSignatureAlgorithm.RS256.javaSignature()));
-				} catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
-					return createInvalid(
-							"Error occurred during signature validation: ({}). Fallback with configured verificationkey was not successful.",
-							e.getMessage());
-				}
-			}
 			return createInvalid("Error occurred during jwks uri determination: {}.", e.getMessage());
 		}
 	}
 
 	// for testing
-	ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId, String tokenKeysUrl) {
+	ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId, String tokenKeysUrl, String fallbackPublicKey) {
 		assertHasText(token, "token must not be null or empty.");
 		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
 
 		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId,
-				URI.create(tokenKeysUrl));
+				URI.create(tokenKeysUrl), fallbackPublicKey);
 	}
 
 	@Nonnull
@@ -124,7 +121,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 		public ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
 				String tokenAlgorithm,
-				@Nullable String tokenKeyId, URI tokenKeysUrl) {
+				@Nullable String tokenKeyId, URI tokenKeysUrl, String fallbackPublicKey) {
 			ValidationResult validationResult;
 
 			validationResult = setJwtAlgorithm(tokenAlgorithm);
@@ -135,9 +132,20 @@ public class JwtSignatureValidator implements Validator<Token> {
 			String keyId = tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID;
 			validationResult = setPublicKey(tokenKeyService, keyId, tokenKeysUrl);
 			if (validationResult.isErroneous()) {
-				return validationResult;
-			}
+				if (fallbackPublicKey != null) {
+					try {
+						this.publicKey = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(
+								JwtSignatureAlgorithm.RS256, fallbackPublicKey);
 
+					} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+						return createInvalid(
+								"Error occurred during signature validation: ({}). Fallback with configured verificationkey was not successful.",
+								e.getMessage());
+					}
+				} else {
+					return validationResult;
+				}
+			}
 			validationResult = setPublicSignatureForKeyType();
 			if (validationResult.isErroneous()) {
 				return validationResult;

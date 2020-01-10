@@ -20,7 +20,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Validate audience using audience field content. in case this field is empty,
+ * Validates if the jwt access token is intended for the OAuth2 client of this
+ * application. The aud (audience) claim identifies the recipients the JWT is
+ * issued for.
+ *
+ * Validates audience using audience field content. in case this field is empty,
  * the audience is derived from the scope field.
  */
 public class XsuaaJwtAudienceValidator implements Validator<Token> {

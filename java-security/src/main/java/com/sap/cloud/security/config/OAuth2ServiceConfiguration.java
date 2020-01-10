@@ -4,24 +4,27 @@ import javax.annotation.Nullable;
 
 import java.net.URI;
 
+/**
+ * Provides information of the identity {@link Service}.
+ */
 public interface OAuth2ServiceConfiguration {
 
 	/**
-	 * Client id of xsuaa service instance
+	 * Client id of identity service instance.
 	 *
-	 * @return clientId
+	 * @return client identifier
 	 */
 	String getClientId();
 
 	/**
-	 * Client secret of xsuaa instance
+	 * Client secret of identity service instance.
 	 *
 	 * @return client secret
 	 */
 	String getClientSecret();
 
 	/**
-	 * Base URL of the OAuth2 Identity service instance. In multi tenancy scenarios
+	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
 	 * this is the url where the service instance was created.
 	 *
 	 * @return base url, e.g. https://paastenant.idservice.com
@@ -51,7 +54,7 @@ public interface OAuth2ServiceConfiguration {
 	boolean hasProperty(String name);
 
 	/**
-	 * Returns the service of this configuration.
+	 * Returns the identity {@link Service} of this configuration.
 	 *
 	 * @return the service.
 	 */

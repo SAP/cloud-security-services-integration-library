@@ -9,7 +9,10 @@ package com.sap.xsa.security.container;
 /**
  * API for OAuth resource servers to extract authentication and authorization
  * information from the OAuth token.
+ *
+ * @Deprecated with version 2.4.0 in favor of the new SAP Java Container library.
  */
+@Deprecated
 public interface XSUserInfo {
 
 	/**

@@ -12,10 +12,13 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +30,7 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.ApplicationServerOptions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 
 public class SecurityTestRuleTest {
 
@@ -55,20 +59,14 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
-	public void generatesTokenWithClientId() {
-		Token generatedToken = cut.setClientId("customClientId").createToken();
-		assertThat(generatedToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
-				.isEqualTo("customClientId");
-	}
-
-	@Test
 	public void generatesTokenWithOtherClaimsAndHeaderParameter() {
-		Token generatedToken = cut.setClientId("customClientId").getPreconfiguredJwtGenerator()
+		Token generatedToken = cut.getPreconfiguredJwtGenerator()
 				.withClaimValue(TokenClaims.ISSUER, "issuer")
-				.withScopes("appId!t123.scope1")
+				.withScopes(SecurityTestRule.DEFAULT_APP_ID + ".scope1")
 				.withHeaderParameter(TokenHeader.TYPE, "type").createToken();
 
-		assertThat(generatedToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("customClientId");
+		assertThat(generatedToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
+				.isEqualTo(SecurityTestRule.DEFAULT_CLIENT_ID);
 		assertThat(generatedToken.getClaimAsStringList(TokenClaims.XSUAA.SCOPES).size()).isEqualTo(1);
 		assertThat(generatedToken.getClaimAsString(TokenClaims.ISSUER)).isEqualTo("issuer");
 		assertThat(generatedToken.getHeaderParameterAsString(TokenHeader.TYPE)).isEqualTo("type");
@@ -93,6 +91,26 @@ public class SecurityTestRuleTest {
 	private String readContent(CloseableHttpResponse response) throws IOException {
 		return IOUtils.readLines(response.getEntity().getContent(), UTF_8).stream()
 				.collect(Collectors.joining());
+	}
+
+	public static class TestRuleWithMockServlet {
+
+		private HttpServlet mockServlet = Mockito.mock(HttpServlet.class);
+
+		@Rule
+		public SecurityTestRule mockServletRule = SecurityTestRule.getInstance(XSUAA)
+				.useApplicationServer()
+				.addApplicationServlet(new ServletHolder(mockServlet), "/");
+
+		@Test
+		public void testThatServletMethodIsNotCalled() throws ServletException, IOException {
+			HttpGet httpGet = new HttpGet(mockServletRule.getApplicationServerUri());
+			try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+				assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
+			}
+			Mockito.verify(mockServlet, Mockito.times(0)).service(any(), any());
+		}
+
 	}
 
 	public static class SecurityTestRuleTestWithoutApplicationServer {
