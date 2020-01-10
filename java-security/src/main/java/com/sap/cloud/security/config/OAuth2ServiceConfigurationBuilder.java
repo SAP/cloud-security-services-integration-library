@@ -1,8 +1,11 @@
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.config.cf.CFConstants;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 
@@ -50,7 +53,9 @@ public class OAuth2ServiceConfigurationBuilder {
 			}
 
 			@Override
-			public URI getUrl() { return url; }
+			public URI getUrl() {
+				return Optional.ofNullable(url).orElse(URI.create(properties.get(URL)));
+			}
 
 			@Override
 			public String getProperty(String name) {

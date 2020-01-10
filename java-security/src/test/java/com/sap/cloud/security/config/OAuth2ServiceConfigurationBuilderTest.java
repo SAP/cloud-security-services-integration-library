@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.net.URI;
 
+import static com.sap.cloud.security.config.cf.CFConstants.URL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -50,6 +51,9 @@ public class OAuth2ServiceConfigurationBuilderTest {
 
 		assertThat(configuration.getUrl()).isEqualTo(URI.create(url));
 	}
+
+
+
 	@Test
 	public void withMalformedUrl_throwsException() {
 		String malformedUrl = ":malformed";
@@ -66,5 +70,16 @@ public class OAuth2ServiceConfigurationBuilderTest {
 
 		assertThat(configuration.getProperty(propertyName)).isEqualTo(propertyValue);
 	}
+
+	@Test
+	public void withUrl_setViaProperty() {
+		String url = "http://theUrl.org";
+
+		OAuth2ServiceConfiguration configuration = cut.withProperty(URL, url).build();
+
+		assertThat(configuration.getUrl()).isEqualTo(URI.create(url));
+	}
+
+
 
 }
