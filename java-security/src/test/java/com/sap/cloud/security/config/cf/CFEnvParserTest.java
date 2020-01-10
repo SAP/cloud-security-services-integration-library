@@ -1,5 +1,6 @@
 package com.sap.cloud.security.config.cf;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
@@ -14,11 +15,11 @@ import static com.sap.cloud.security.config.cf.CFConstants.Plan.BROKER;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CFOAuth2ServiceConfigurationTest {
+public class CFEnvParserTest {
 
-	private CFOAuth2ServiceConfiguration cut;
+	private OAuth2ServiceConfiguration cut;
 
-	public CFOAuth2ServiceConfigurationTest() throws IOException {
+	public CFEnvParserTest() throws IOException {
 		String vcapXsuaa = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
 
 		JsonObject serviceJsonObject = new DefaultJsonObject(vcapXsuaa).getJsonObjects(Service.XSUAA.getCFName())
@@ -53,7 +54,8 @@ public class CFOAuth2ServiceConfigurationTest {
 
 	@Test
 	public void getPlan() {
-		assertThat(cut.getPlan()).isEqualTo(BROKER);
+		assertThat(cut.getProperty(SERVICE_PLAN)).isEqualTo("broker");
+		assertThat(Plan.from(cut.getProperty(SERVICE_PLAN))).isEqualTo(BROKER);
 	}
 
 	@Test

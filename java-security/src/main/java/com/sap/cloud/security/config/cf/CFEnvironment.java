@@ -1,6 +1,5 @@
 package com.sap.cloud.security.config.cf;
 
-import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
 
@@ -12,13 +11,13 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants.Plan;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public class CFEnvironment implements Environment {
 
-	private Map<Service, List<CFOAuth2ServiceConfiguration>> serviceConfigurations;
-	private Function<String, String> systemEnvironmentProvider;
-	private Function<String, String> systemPropertiesProvider;
+	private Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations;
+	private UnaryOperator<String> systemEnvironmentProvider;
+	private UnaryOperator<String> systemPropertiesProvider;
 
 	private CFEnvironment() {
 		// implemented in getInstance() factory method
@@ -28,8 +27,8 @@ public class CFEnvironment implements Environment {
 		return getInstance(System::getenv, System::getProperty);
 	}
 
-	static CFEnvironment getInstance(Function<String, String> systemEnvironmentProvider,
-			Function<String, String> systemPropertiesProvider) {
+	static CFEnvironment getInstance(UnaryOperator<String> systemEnvironmentProvider,
+			UnaryOperator<String> systemPropertiesProvider) {
 		CFEnvironment instance = new CFEnvironment();
 		instance.systemEnvironmentProvider = systemEnvironmentProvider;
 		instance.systemPropertiesProvider = systemPropertiesProvider;
@@ -76,7 +75,7 @@ public class CFEnvironment implements Environment {
 	 *             deprecated.
 	 */
 	@Deprecated
-	List<CFOAuth2ServiceConfiguration> loadAll(Service service) {
+	List<OAuth2ServiceConfiguration> loadAll(Service service) {
 		return serviceConfigurations.getOrDefault(service, new ArrayList<>());
 	}
 
@@ -93,10 +92,10 @@ public class CFEnvironment implements Environment {
 		return env != null ? env : "{}";
 	}
 
-	private CFOAuth2ServiceConfiguration loadXsuaa() {
-		Optional<CFOAuth2ServiceConfiguration> applicationService = Optional
+	private OAuth2ServiceConfiguration loadXsuaa() {
+		Optional<OAuth2ServiceConfiguration> applicationService = Optional
 				.ofNullable(loadByPlan(XSUAA, Plan.APPLICATION));
-		Optional<CFOAuth2ServiceConfiguration> brokerService = Optional
+		Optional<OAuth2ServiceConfiguration> brokerService = Optional
 				.ofNullable(loadByPlan(XSUAA, Plan.BROKER));
 		if (applicationService.isPresent()) {
 			return applicationService.get();
@@ -105,9 +104,9 @@ public class CFEnvironment implements Environment {
 	}
 
 	@Nullable
-	public CFOAuth2ServiceConfiguration loadByPlan(Service service, Plan plan) {
+	public OAuth2ServiceConfiguration loadByPlan(Service service, Plan plan) {
 		return loadAll(service).stream()
-				.filter(configuration -> configuration.getPlan() == plan)
+				.filter(configuration -> Plan.from(configuration.getProperty(CFConstants.SERVICE_PLAN)).equals(plan))
 				.findFirst()
 				.orElse(null);
 	}

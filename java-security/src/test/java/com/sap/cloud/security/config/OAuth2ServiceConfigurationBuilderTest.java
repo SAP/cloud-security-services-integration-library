@@ -7,7 +7,6 @@ import java.net.URI;
 
 import static com.sap.cloud.security.config.cf.CFConstants.URL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class OAuth2ServiceConfigurationBuilderTest {
 
@@ -15,12 +14,12 @@ public class OAuth2ServiceConfigurationBuilderTest {
 
 	@Before
 	public void setUp() {
-		cut = new OAuth2ServiceConfigurationBuilder();
+		cut = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA);
 	}
 
 	@Test
-	public void withService() {
-		OAuth2ServiceConfiguration configuration = cut.withService(Service.XSUAA).build();
+	public void forService() {
+		OAuth2ServiceConfiguration configuration = cut.build();
 
 		assertThat(configuration.getService()).isEqualTo(Service.XSUAA);
 	}
@@ -50,13 +49,6 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		OAuth2ServiceConfiguration configuration = cut.withUrl(url).build();
 
 		assertThat(configuration.getUrl()).isEqualTo(URI.create(url));
-	}
-
-	@Test
-	public void withMalformedUrl_throwsException() {
-		String malformedUrl = ":malformed";
-
-		assertThatThrownBy(() -> cut.withUrl(malformedUrl)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test

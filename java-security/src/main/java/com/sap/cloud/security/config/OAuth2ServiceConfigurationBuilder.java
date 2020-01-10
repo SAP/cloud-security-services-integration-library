@@ -3,18 +3,21 @@ package com.sap.cloud.security.config;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 
 public class OAuth2ServiceConfigurationBuilder {
 	private Service service;
 	private final Map<String, String> properties = new HashMap<>();
-	private URI url;
 
-	public OAuth2ServiceConfigurationBuilder withService(Service service) {
-		this.service = service;
-		return this;
+	private OAuth2ServiceConfigurationBuilder() {
+		// use forService factory method
+	}
+
+	public static OAuth2ServiceConfigurationBuilder forService(Service service) {
+		OAuth2ServiceConfigurationBuilder instance = new OAuth2ServiceConfigurationBuilder();
+		instance.service = service;
+		return instance;
 	}
 
 	public OAuth2ServiceConfigurationBuilder withClientId(String clientId) {
@@ -28,7 +31,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	public OAuth2ServiceConfigurationBuilder withUrl(String url) {
-		this.url = URI.create(url);
+		properties.put(URL, url);
 		return this;
 	}
 
@@ -37,8 +40,12 @@ public class OAuth2ServiceConfigurationBuilder {
 		return this;
 	}
 
+	public OAuth2ServiceConfigurationBuilder withProperties(Map<String, String> properties) {
+		properties.forEach((key, value) -> withProperty(key, value));
+		return this;
+	}
+
 	public OAuth2ServiceConfiguration build() {
-		// TODO 10.01.20 c5295400: check if every non nullable field is set?
 		return new OAuth2ServiceConfiguration() {
 
 			@Override
@@ -53,10 +60,10 @@ public class OAuth2ServiceConfigurationBuilder {
 
 			@Override
 			public URI getUrl() {
-				if (url == null) {
-					return Optional.ofNullable(properties.get(URL)).map(URI::create).orElse(null);
-				}
-				return url;
+				return URI.create(properties.get(URL));
+				// TODO Nullable required?
+				// return
+				// Optional.ofNullable(properties.get(URL)).map(URI::create).orElse(null);
 			}
 
 			@Override

@@ -102,7 +102,7 @@ public class ApplicationServerOptions {
 
 	private static OAuth2ServiceConfiguration createServiceConfiguration(String appId, String clientId) {
 		return new OAuth2ServiceConfigurationBuilder()
-				.withService(Service.XSUAA)
+				.forService(Service.XSUAA)
 				.withClientId(clientId)
 				.withProperty(CFConstants.XSUAA.APP_ID, appId)
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")

@@ -35,5 +35,6 @@ public class CFConstants {
 		public static Plan from(String planAsString) {
 			return Plan.valueOf(planAsString.toUpperCase());
 		}
+
 	}
 }
