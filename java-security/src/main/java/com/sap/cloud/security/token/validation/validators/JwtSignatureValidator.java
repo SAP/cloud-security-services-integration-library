@@ -31,6 +31,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Validates whether the jwt was signed with the public key of the trust-worthy
@@ -45,6 +47,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private final OidcConfigurationServiceWithCache oidcConfigurationService;
 	private OAuth2ServiceConfiguration configuration;
+	private static final Logger LOGGER = LoggerFactory.getLogger(JwtSignatureValidator.class);
 
 	public JwtSignatureValidator(OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
@@ -127,12 +130,13 @@ public class JwtSignatureValidator implements Validator<Token> {
 			}
 
 			String keyId = tokenKeyId != null ? tokenKeyId : DEFAULT_KEY_ID;
-			validationResult = setPublicKey(tokenKeyService, keyId, tokenKeysUrl);
+			validationResult = setPublicKey(tokenKeyService, keyId, tokenKeysUrl, fallbackPublicKey);
 			if (validationResult.isErroneous()) {
 				if (fallbackPublicKey != null) {
 					try {
 						this.publicKey = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(
 								JwtSignatureAlgorithm.RS256, fallbackPublicKey);
+
 					} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 						return createInvalid(
 								"Error occurred during signature validation: ({}). Fallback with configured verificationkey was not successful.",
@@ -161,10 +165,21 @@ public class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		private ValidationResult setPublicKey(OAuth2TokenKeyServiceWithCache tokenKeyService, String keyId,
-				URI keyUri) {
+				URI keyUri, String fallbackPublicKey) {
 			try {
 				this.publicKey = tokenKeyService.getPublicKey(jwtSignatureAlgorithm, keyId, keyUri);
 			} catch (OAuth2ServiceException e) {
+				if (fallbackPublicKey != null) {
+					try {
+						this.publicKey = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(
+								JwtSignatureAlgorithm.RS256, fallbackPublicKey);
+						LOGGER.warn("NEVER PRODUCTIVELY: verificationKey as Fallback for publicKey.");
+					} catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+						return createInvalid(
+								"Error occurred during signature validation: ({}). Fallback with configured verificationkey was not successful.",
+								e.getMessage());
+					}
+				}
 				return createInvalid("Error retrieving Json Web Keys from Identity Service: {}.", e.getMessage());
 			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 				return createInvalid("Error creating PublicKey from Json Web Key received from {}: {}.",
