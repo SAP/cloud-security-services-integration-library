@@ -107,9 +107,9 @@ public class CFEnvironmentTest {
 	public void getConfigurationByPlan() {
 		cut = CFEnvironment.getInstance((str) -> vcapMultipleXsuaa, (str) -> null);
 
-		OAuth2ServiceConfiguration appServConfig = cut.loadByPlan(Service.XSUAA,
+		OAuth2ServiceConfiguration appServConfig = cut.loadForServicePlan(Service.XSUAA,
 				Plan.APPLICATION);
-		OAuth2ServiceConfiguration brokerServConfig = cut.loadByPlan(Service.XSUAA,
+		OAuth2ServiceConfiguration brokerServConfig = cut.loadForServicePlan(Service.XSUAA,
 				Plan.BROKER);
 
 		assertThat(Plan.from(appServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);

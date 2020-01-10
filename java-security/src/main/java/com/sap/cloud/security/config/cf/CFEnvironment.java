@@ -52,13 +52,13 @@ public class CFEnvironment implements Environment {
 
 	@Override
 	public int getNumberOfXsuaaConfigurations() {
-		return loadAll(XSUAA).size();
+		return loadAllForService(XSUAA).size();
 	}
 
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange() {
 		if (getNumberOfXsuaaConfigurations() > 1) {
-			return loadByPlan(XSUAA, Plan.BROKER);
+			return loadForServicePlan(XSUAA, Plan.BROKER);
 		}
 		return getXsuaaConfiguration();
 	}
@@ -75,7 +75,7 @@ public class CFEnvironment implements Environment {
 	 *             deprecated.
 	 */
 	@Deprecated
-	List<OAuth2ServiceConfiguration> loadAll(Service service) {
+	List<OAuth2ServiceConfiguration> loadAllForService(Service service) {
 		return serviceConfigurations.getOrDefault(service, new ArrayList<>());
 	}
 
@@ -94,9 +94,9 @@ public class CFEnvironment implements Environment {
 
 	private OAuth2ServiceConfiguration loadXsuaa() {
 		Optional<OAuth2ServiceConfiguration> applicationService = Optional
-				.ofNullable(loadByPlan(XSUAA, Plan.APPLICATION));
+				.ofNullable(loadForServicePlan(XSUAA, Plan.APPLICATION));
 		Optional<OAuth2ServiceConfiguration> brokerService = Optional
-				.ofNullable(loadByPlan(XSUAA, Plan.BROKER));
+				.ofNullable(loadForServicePlan(XSUAA, Plan.BROKER));
 		if (applicationService.isPresent()) {
 			return applicationService.get();
 		}
@@ -104,8 +104,8 @@ public class CFEnvironment implements Environment {
 	}
 
 	@Nullable
-	public OAuth2ServiceConfiguration loadByPlan(Service service, Plan plan) {
-		return loadAll(service).stream()
+	public OAuth2ServiceConfiguration loadForServicePlan(Service service, Plan plan) {
+		return loadAllForService(service).stream()
 				.filter(configuration -> Plan.from(configuration.getProperty(CFConstants.SERVICE_PLAN)).equals(plan))
 				.findFirst()
 				.orElse(null);
