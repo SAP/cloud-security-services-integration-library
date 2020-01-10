@@ -1,14 +1,12 @@
 package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.servlet.TokenAuthenticator;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
 import com.sap.cloud.security.xsuaa.Assertions;
-
-import javax.annotation.Nullable;
-import java.net.URI;
 
 /**
  * This class is used to configure the application server to serve test servlets
@@ -18,7 +16,7 @@ public class ApplicationServerOptions {
 
 	private final TokenAuthenticator tokenAuthenticator;
 	private int port;
-	private Service service;
+	private Service service; // TODO 10.01.20 c5295400: never accessed
 
 	private ApplicationServerOptions(TokenAuthenticator tokenAuthenticator) {
 		this(tokenAuthenticator, 0);
@@ -42,7 +40,7 @@ public class ApplicationServerOptions {
 		Assertions.assertHasText(clientId, "clientId is required by the XsuaaAudienceValidator");
 		return new ApplicationServerOptions(
 				new XsuaaTokenAuthenticator(appId)
-						.withServiceConfiguration(new DummyXsuaaConfiguration(appId, clientId)));
+						.withServiceConfiguration(createServiceConfiguration(appId, clientId)));
 	}
 
 	/**
@@ -102,52 +100,13 @@ public class ApplicationServerOptions {
 		return port;
 	}
 
-	private static class DummyXsuaaConfiguration implements OAuth2ServiceConfiguration {
-
-		private final String xsAppName;
-		private final String clientId;
-
-		DummyXsuaaConfiguration(String xsAppName, String clientId) {
-			this.xsAppName = xsAppName;
-			this.clientId = clientId;
-		}
-
-		@Override
-		public String getClientId() {
-			return clientId;
-		}
-
-		@Override
-		public String getClientSecret() {
-			return null;
-		}
-
-		@Override
-		public URI getUrl() {
-			return null;
-		}
-
-		@Nullable
-		@Override
-		public String getProperty(String name) {
-			if (name.equals(CFConstants.XSUAA.APP_ID)) {
-				return xsAppName;
-			}
-			if (name.equals(CFConstants.XSUAA.UAA_DOMAIN)) {
-				return "localhost";
-			}
-			return null;
-		}
-
-		@Override
-		public boolean hasProperty(String name) {
-			return false;
-		}
-
-		@Override
-		public Service getService() {
-			return Service.XSUAA;
-		}
+	private static OAuth2ServiceConfiguration createServiceConfiguration(String appId, String clientId) {
+		return new OAuth2ServiceConfigurationBuilder()
+				.withService(Service.XSUAA)
+				.withClientId(clientId)
+				.withProperty(CFConstants.XSUAA.APP_ID, appId)
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
+				.build();
 	}
 
 }
