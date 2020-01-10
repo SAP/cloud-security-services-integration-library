@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * Represents a token exchange request.
- * @Deprecated with version 2.4.0 in favor of the new SAP Java Container library.
+ * @deprecated with version 2.4.0 in favor of the new SAP Java Container library.
  */
 @Deprecated
 public interface XSTokenRequest {
