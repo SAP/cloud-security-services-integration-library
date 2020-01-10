@@ -102,7 +102,7 @@ public interface JsonObject {
 	 * Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
 	 * Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
 	 * }
-	 * </pre>
+	 * </:qpre>
 	 * @return the json properties as key-value map
 	 */
 	Map<String, String> getKeyValueMap();
