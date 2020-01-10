@@ -17,7 +17,8 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 	private final OAuth2ServiceConfiguration oAuth2ServiceConfiguration;
 	private Plan plan; // lazy read
 
-	CFOAuth2ServiceConfiguration(Service service, Map<String, String> serviceBindingProperties, Map<String, String> serviceBindingCredentials) {
+	CFOAuth2ServiceConfiguration(Service service, Map<String, String> serviceBindingProperties,
+			Map<String, String> serviceBindingCredentials) {
 		assertNotNull(serviceBindingProperties, "serviceBindingProperties must not be null");
 		assertNotNull(serviceBindingCredentials, "serviceBindingCredentials must not be null");
 
@@ -45,27 +46,34 @@ public class CFOAuth2ServiceConfiguration implements OAuth2ServiceConfiguration 
 		return plan;
 	}
 
-	@Override public String getClientId() {
+	@Override
+	public String getClientId() {
 		return oAuth2ServiceConfiguration.getClientId();
 	}
 
-	@Override public String getClientSecret() {
+	@Override
+	public String getClientSecret() {
 		return oAuth2ServiceConfiguration.getClientSecret();
 	}
 
-	@Override public URI getUrl() {
+	@Override
+	public URI getUrl() {
 		return oAuth2ServiceConfiguration.getUrl();
 	}
 
-	@Nullable @Override public String getProperty(String name) {
+	@Nullable
+	@Override
+	public String getProperty(String name) {
 		return oAuth2ServiceConfiguration.getProperty(name);
 	}
 
-	@Override public boolean hasProperty(String name) {
+	@Override
+	public boolean hasProperty(String name) {
 		return oAuth2ServiceConfiguration.hasProperty(name);
 	}
 
-	@Override public Service getService() {
+	@Override
+	public Service getService() {
 		return oAuth2ServiceConfiguration.getService();
 	}
 }

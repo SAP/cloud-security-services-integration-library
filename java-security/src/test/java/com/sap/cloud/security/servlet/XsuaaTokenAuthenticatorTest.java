@@ -51,7 +51,7 @@ public class XsuaaTokenAuthenticatorTest {
 						OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyService))
 				.withServiceConfiguration(oAuth2ServiceConfiguration);
 	}
-	
+
 	@Test
 	public void validateRequest_noHeader_isUnauthenticated() {
 		HttpServletRequest httpRequest = createRequestWithoutToken();

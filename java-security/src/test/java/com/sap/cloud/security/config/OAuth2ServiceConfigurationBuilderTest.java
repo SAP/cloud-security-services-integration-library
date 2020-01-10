@@ -52,8 +52,6 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		assertThat(configuration.getUrl()).isEqualTo(URI.create(url));
 	}
 
-
-
 	@Test
 	public void withMalformedUrl_throwsException() {
 		String malformedUrl = ":malformed";
@@ -79,7 +77,5 @@ public class OAuth2ServiceConfigurationBuilderTest {
 
 		assertThat(configuration.getUrl()).isEqualTo(URI.create(url));
 	}
-
-
 
 }
