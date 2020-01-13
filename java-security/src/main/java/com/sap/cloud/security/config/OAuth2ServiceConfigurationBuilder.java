@@ -59,7 +59,9 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
 	 * this is the url where the service instance was created.
 	 *
-	 * @return base url, e.g. https://paastenant.idservice.com
+	 * @param url
+	 * 			base url, e.g. https://paastenant.idservice.com
+	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withUrl(String url) {
 		properties.put(URL, url);

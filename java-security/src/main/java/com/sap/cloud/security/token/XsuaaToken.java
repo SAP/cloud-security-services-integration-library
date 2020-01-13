@@ -46,6 +46,8 @@ public class XsuaaToken extends AbstractToken {
 	 *
 	 * @param converter
 	 *            the scope converter, e.g. {@link XsuaaScopeConverter}
+	 *
+	 * @return the token itself
 	 */
 	public XsuaaToken withScopeConverter(ScopeConverter converter) {
 		this.scopeConverter = converter;
