@@ -2,7 +2,6 @@ package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
 import javax.annotation.Nonnull;
@@ -90,9 +89,9 @@ public class XsuaaToken extends AbstractToken {
 	@Override
 	public Principal getPrincipal() {
 		String principalName;
-		switch (getClaimAsString(GRANT_TYPE)) {
-		case OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS:
-		case OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_X509:
+		switch (getGrantType()) {
+		case CLIENT_CREDENTIALS:
+		case CLIENT_X509:
 			principalName = String.format(UNIQUE_CLIENT_NAME_FORMAT, getClaimAsString(CLIENT_ID));
 			break;
 		default:
@@ -129,5 +128,10 @@ public class XsuaaToken extends AbstractToken {
 	public boolean hasLocalScope(@Nonnull String scope) {
 		Assertions.assertNotNull(scopeConverter, "scopeConverter must not be null");
 		return scopeConverter.convert(getScopes()).contains(scope);
+	}
+
+	@Override
+	public GrantType getGrantType() {
+		return GrantType.from(getClaimAsString(GRANT_TYPE));
 	}
 }

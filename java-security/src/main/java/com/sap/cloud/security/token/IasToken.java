@@ -30,4 +30,9 @@ public class IasToken extends AbstractToken {
 	public Service getService() {
 		return Service.IAS;
 	}
+
+	@Override
+	public GrantType getGrantType() {
+		return GrantType.JWT_BEARER;
+	}
 }

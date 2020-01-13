@@ -1,28 +1,25 @@
 package com.sap.cloud.security.token;
 
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.sap.cloud.security.config.Service;
-
 public class AbstractTokenTest {
 
 	private final String jwtString;
-	private AbstractToken cut;
+	private Token cut;
 
 	public AbstractTokenTest() throws IOException {
 		jwtString = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
-		cut = new TestToken(jwtString);
+		cut = TokenTestFactory.createFromAccessToken(jwtString);
 	}
 
 	@Test
@@ -93,31 +90,4 @@ public class AbstractTokenTest {
 		assertThat(cut.getBearerAccessToken()).isEqualTo("Bearer " + cut.getAccessToken());
 	}
 
-	@Test
-	public void getBearerAccessToken_bearerSmallCaps() {
-		String bearerSmallCapsJwtstring = "bearer " + jwtString;
-		assertThat(new TestToken(bearerSmallCapsJwtstring).getAccessToken()).isEqualTo(jwtString);
-	}
-
-	@Test
-	public void getBearerAccessToken_bearerLargeCaps() {
-		String bearerSmallCapsJwtstring = "Bearer " + jwtString;
-		assertThat(new TestToken(bearerSmallCapsJwtstring).getAccessToken()).isEqualTo(jwtString);
-	}
-
-	private class TestToken extends AbstractToken {
-		public TestToken(String jwtString) {
-			super(jwtString);
-		}
-
-		@Override
-		public Principal getPrincipal() {
-			return null;
-		}
-
-		@Override
-		public Service getService() {
-			return null;
-		}
-	}
 }

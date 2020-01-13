@@ -29,11 +29,6 @@ public class XsuaaJwtAudienceValidatorTest {
 		Mockito.when(token.getClaimAsString(CLIENT_ID)).thenReturn("sb-test1!t1");
 	}
 
-	private Token createTokenFromTemplate(String templateFilename) throws IOException {
-		String tokenWithAudienceAsJsonString = IOUtils.resourceToString(templateFilename, StandardCharsets.UTF_8);
-		return TokenTestFactory.createFromJsonPayload(tokenWithAudienceAsJsonString);
-	}
-
 	@Test
 	public void extractAudiencesFromTokenScopes() {
 		Mockito.when(token.getClaimAsStringList(SCOPES)).thenReturn(

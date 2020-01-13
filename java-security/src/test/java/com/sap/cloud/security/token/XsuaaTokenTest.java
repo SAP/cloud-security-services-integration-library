@@ -73,6 +73,12 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
+	public void getGrantType() {
+		assertThat(clientCredentialsToken.getGrantType()).isEqualTo(GrantType.CLIENT_CREDENTIALS);
+		assertThat(userToken.getGrantType()).isEqualTo(GrantType.USER_TOKEN);
+	}
+
+	@Test
 	public void getService() {
 		assertThat(userToken.getService()).isEqualTo(Service.XSUAA);
 	}

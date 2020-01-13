@@ -131,4 +131,11 @@ public interface Token {
 	 * @return the service.
 	 */
 	Service getService();
+
+	/**
+	 * Returns the grant type of the jwt token. <br>
+	 *
+	 * @return the grant type
+	 **/
+	public GrantType getGrantType();
 }
