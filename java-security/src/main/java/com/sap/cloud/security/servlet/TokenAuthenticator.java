@@ -11,8 +11,8 @@ import javax.servlet.ServletResponse;
  * result contains the necessary information to perform container specific
  * authentication. <br>
  *
- * See {@see JettyTokenAuthenticator} in the java-security-test library
- * on how this is used with jetty to perform authentication.
+ * See {@see JettyTokenAuthenticator} in the java-security-test library on how
+ * this is used with jetty to perform authentication.
  */
 public interface TokenAuthenticator {
 

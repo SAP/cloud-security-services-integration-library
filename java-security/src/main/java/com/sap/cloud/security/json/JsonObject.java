@@ -95,14 +95,19 @@ public interface JsonObject {
 	 * Returns a key-value map of the JSON properties.
 	 *
 	 * Example:
+	 * 
 	 * <pre>
-	 * {@code
-	 * String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
-	 * JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName()).get(0);
-	 * Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
-	 * Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
+	 * {
+	 * 	&#64;code
+	 * 	String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
+	 * 	JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName())
+	 * 			.get(0);
+	 * 	Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
+	 * 	Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS)
+	 * 			.getKeyValueMap();
 	 * }
 	 * </pre>
+	 * 
 	 * @return the json properties as key-value map
 	 */
 	Map<String, String> getKeyValueMap();

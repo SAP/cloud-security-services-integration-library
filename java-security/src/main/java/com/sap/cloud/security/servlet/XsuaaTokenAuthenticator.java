@@ -39,5 +39,4 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 				getServiceConfiguration().getProperty(CFConstants.XSUAA.APP_ID));
 	}
 
-
 }

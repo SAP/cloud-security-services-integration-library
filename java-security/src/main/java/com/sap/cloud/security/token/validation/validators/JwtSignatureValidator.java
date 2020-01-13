@@ -70,7 +70,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 		try {
 			jwksUri = getOrRequestJwksUri(token);
 			String fallbackPublicKey = null;
-			if(configuration != null && configuration.hasProperty("verificationkey")) {
+			if (configuration != null && configuration.hasProperty("verificationkey")) {
 				fallbackPublicKey = configuration.getProperty("verificationkey");
 			}
 			return validate(token.getAccessToken(),
@@ -84,7 +84,8 @@ public class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	// for testing
-	ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId, String tokenKeysUrl, String fallbackPublicKey) {
+	ValidationResult validate(String token, String tokenAlgorithm, @Nullable String tokenKeyId, String tokenKeysUrl,
+			String fallbackPublicKey) {
 		assertHasText(token, "token must not be null or empty.");
 		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
 

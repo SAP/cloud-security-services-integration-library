@@ -16,7 +16,8 @@ import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
 import static com.sap.cloud.security.config.Service.XSUAA;
 
 /**
- * Class used to build a token validator for a oauth service configuration {@link OAuth2ServiceConfiguration}. <br>
+ * Class used to build a token validator for a oauth service configuration
+ * {@link OAuth2ServiceConfiguration}. <br>
  * Custom validators can be added via {@link #with(Validator)} method.
  */
 public class JwtValidatorBuilder {
@@ -34,8 +35,9 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Creates a builder instance that can be configured further.
+	 * 
 	 * @param configuration
-	 * 			the identity service configuration
+	 *            the identity service configuration
 	 * @return the builder
 	 */
 	public static JwtValidatorBuilder getInstance(OAuth2ServiceConfiguration configuration) {

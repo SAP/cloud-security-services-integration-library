@@ -11,8 +11,8 @@ import java.util.List;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**
- * Decodes and parses encoded access token (JWT) for the Xsuaa identity
- * service and provides access to token header parameters and claims.
+ * Decodes and parses encoded access token (JWT) for the Xsuaa identity service
+ * and provides access to token header parameters and claims.
  */
 public class XsuaaToken extends AbstractToken {
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
@@ -119,7 +119,8 @@ public class XsuaaToken extends AbstractToken {
 
 	/**
 	 * Check if a local scope is available in the authentication token. <br>
-	 * Requires a {@link ScopeConverter} to be configured with {@link #withScopeConverter(ScopeConverter)}.
+	 * Requires a {@link ScopeConverter} to be configured with
+	 * {@link #withScopeConverter(ScopeConverter)}.
 	 *
 	 * @param scope
 	 *            name of local scope (without the appId)

@@ -15,8 +15,9 @@ import java.time.temporal.TemporalAmount;
 import java.util.function.Supplier;
 
 /**
- * Validates whether the jwt access token is used before the "expiration" ({@code exp})
- * time and if it is used after the "not before" ({@code nbf}) time.
+ * Validates whether the jwt access token is used before the "expiration"
+ * ({@code exp}) time and if it is used after the "not before" ({@code nbf})
+ * time.
  *
  * See specification: https://tools.ietf.org/html/rfc7519#section-4.1.4
  * https://tools.ietf.org/html/rfc7519#section-4.1.5
