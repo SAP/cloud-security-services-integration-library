@@ -1,7 +1,9 @@
 package com.sap.cloud.security.config.cf;
 
+import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
+import static com.sap.cloud.security.config.cf.CFEnvParser.loadAll;
 
 import javax.annotation.Nullable;
 
@@ -37,7 +39,7 @@ public class CFEnvironment implements Environment {
 		CFEnvironment instance = new CFEnvironment();
 		instance.systemEnvironmentProvider = systemEnvironmentProvider;
 		instance.systemPropertiesProvider = systemPropertiesProvider;
-		instance.serviceConfigurations = CFEnvParser.loadAll(instance.extractVcapJsonString());
+		instance.serviceConfigurations = loadAll(instance.extractVcapJsonString());
 		return instance;
 	}
 
@@ -49,10 +51,7 @@ public class CFEnvironment implements Environment {
 	@Nullable
 	@Override
 	public OAuth2ServiceConfiguration getIasConfiguration() {
-		// TODO IAS
-		// return
-		// loadAll(IAS).stream().filter(Objects::nonNull).findFirst().orElse(null);
-		throw new UnsupportedOperationException("Bindings of IAS Identity Service is not yet supported.");
+		return loadAllForService(IAS).stream().filter(Objects::nonNull).findFirst().orElse(null);
 	}
 
 	@Override
@@ -72,7 +71,7 @@ public class CFEnvironment implements Environment {
 	 * Loads all configurations of all service instances of the dedicated service.
 	 *
 	 * @param service
-	 *            the name of the service
+	 *            the service name
 	 * @return the list of all found configurations or empty list, in case there are
 	 *         no service bindings.
 	 * @deprecated as multiple bindings of XSUAA identity service is not anymore
@@ -111,6 +110,10 @@ public class CFEnvironment implements Environment {
 	/**
 	 * Loads the configuration for a dedicated service plan.
 	 *
+	 * @param service
+	 * 			the service name
+	 * @param plan
+	 * 			the plan name
 	 * @return the configuration or null, if there is not such binding information
 	 *         for the given service plan.
 	 */

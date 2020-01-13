@@ -149,9 +149,7 @@ public class JwtValidatorBuilder {
 			defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
 
 		} else if (configuration.getService() == IAS) {
-			// TODO IAS
-			// defaultValidators.add(new
-			// JwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
+			defaultValidators.add(new JwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
 		}
 		return defaultValidators;
 	}

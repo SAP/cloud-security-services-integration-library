@@ -1,6 +1,5 @@
 package com.sap.cloud.security.test;
 
-import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
@@ -26,10 +25,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
+import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.config.cf.CFConstants.*;
 import static com.sap.cloud.security.test.ApplicationServerOptions.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 
 public class SecurityTestRuleTest {
@@ -125,14 +125,15 @@ public class SecurityTestRuleTest {
 		}
 	}
 
-	// TODO IAS
-	public static class SecurityIntegrationApplicationServerFaults {
+	public static class SecurityIntegrationApplicationServer_IAS {
+
+		@Rule
+		public SecurityTestRule rule = SecurityTestRule.getInstance(IAS);
 
 		@Test
-		public void onlyXsuaaIsSupportedYet() {
-			assertThatThrownBy(() -> SecurityTestRule.getInstance(Service.IAS))
-					.isInstanceOf(UnsupportedOperationException.class)
-					.hasMessageContaining(String.format("Identity Service %s is not yet supported", Service.IAS));
+		public void testRuleIsInitializedCorrectly() {
+			assertThat(rule.getApplicationServerUri()).isNull();
+			assertThat(rule.getWireMockRule()).isNotNull();
 		}
 
 	}

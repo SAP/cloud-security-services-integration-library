@@ -20,7 +20,6 @@ public class IasTokenTest {
 
 	@Test
 	@Ignore
-	// TODO IAS: need real token with test data
 	public void getPrincipal() {
 		Principal principal = cut.getPrincipal();
 
