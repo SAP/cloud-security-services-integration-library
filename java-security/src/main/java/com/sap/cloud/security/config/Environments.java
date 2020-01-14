@@ -16,7 +16,6 @@ public class Environments {
 
 	/**
 	 * Determines the current type of {@link Environment}.
-	 * 
 	 * @return the current environment
 	 */
 	public static Environment getCurrent() {
