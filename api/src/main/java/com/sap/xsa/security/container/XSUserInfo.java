@@ -27,29 +27,41 @@ public interface XSUserInfo {
 	 * - origin: alias to an identity provider
 	 * 
 	 * - subaccount id: identifier for the subaccount
-	 * 
+	 *
+	 * @deprecated Can be replaced with
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.USER_NAME)} from
+	 *             the {@code com.sap.cloud.security.token} package.
 	 * @return user name
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public String getLogonName() throws XSUserInfoException;
 
 	/**
 	 * Given name of the user.
-	 * 
+	 *
+	 * @deprecated Can be replaced with
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.GIVEN_NAME)} from
+	 *             the {@code com.sap.cloud.security.token} package.
 	 * @return given name
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public String getGivenName() throws XSUserInfoException;
 
 	/**
 	 * Familiy name of the user.
-	 * 
+	 *
+	 * @deprecated Can be replaced with
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.FAMILY_NAME)}
+	 *             from the {@code com.sap.cloud.security.token} package.
 	 * @return family name
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public String getFamilyName() throws XSUserInfoException;
 
 	/**
@@ -57,108 +69,149 @@ public interface XSUserInfo {
 	 * which the user is persisted. For example, users that are authenticated by the
 	 * UAA itself with a username/password combination have their origin set to the
 	 * value uaa.
-	 *
+	 * 
+	 * @deprecated Can be replaced with
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.ORIGIN)} from the
+	 *             {@code com.sap.cloud.security.token} package.
 	 * @return user origin
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public String getOrigin() throws XSUserInfoException;
 
 	/**
 	 * Return identity zone
-	 *
+	 * 
+	 * @deprecated Can be replaced with
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.SUBACCOUNT_ID)}
+	 *             from the {@code com.sap.cloud.security.token} package.
 	 * @return identity zone
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	String getIdentityZone() throws XSUserInfoException;
 
 	/**
 	 * Return subaccount identifier
 	 * 
+	 * @deprecated Can be replaced with
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.SUBACCOUNT_ID)}
+	 *             from the {@code com.sap.cloud.security.token} package.
 	 * @return subaccount identifier
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public String getSubaccountId() throws XSUserInfoException;
 
 	/**
 	 * Return the subdomain of this subaccount
 	 * 
+	 * @deprecated Can be replaced with
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.SUBDOMAIN)} from
+	 *             the {@code com.sap.cloud.security.token} package.
 	 * @return subdomain
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public String getSubdomain() throws XSUserInfoException;
 
 	/**
 	 * Return the client id of the authentication token
-	 * 
+	 *
+	 * @deprecated Can be replaced with
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)} from
+	 *             the {@code com.sap.cloud.security.token} package.
 	 * @return client id
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public String getClientId() throws XSUserInfoException;
 
+	/**
+	 * @deprecated Can be replaced with {@code token.getClaimAsString(attribute)}
+	 *             from the {@code com.sap.cloud.security.token} package.
+	 */
 	@Deprecated
 	public String getJsonValue(String attribute) throws XSUserInfoException;
 
 	/**
 	 * Return the email of the user
 	 * 
+	 * @deprecated Can be replaced with
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.EMAIL)} from the
+	 *             {@code com.sap.cloud.security.token} package.
+	 * 
 	 * @return email
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public String getEmail() throws XSUserInfoException;
 
 	@Deprecated // use getHdbToken
 	public String getDBToken() throws XSUserInfoException;
 
+	// TODO 14.01.20 c5295400: can this be replaced?
 	public String getHdbToken() throws XSUserInfoException;
 
 	/**
 	 * Return authentication token
-	 * 
+	 *
+	 * @deprecated Can be replaced with {@code token.getAccessToken()} from the
+	 *             {@code com.sap.cloud.security.token} package.
 	 * @return authentication token
 	 */
+	@Deprecated
 	public String getAppToken();
 
+	// TODO 14.01.20 c5295400: can this be replaced?
 	@Deprecated
 	public String getToken(String namespace, String name) throws XSUserInfoException;
 
 	/**
 	 * Return user attributes
-	 * 
+	 *
 	 * @param attributeName
 	 *            name of attribute
 	 * @return attribute values array
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	// TODO 14.01.20 c5295400: can this be replaced?
 	public String[] getAttribute(String attributeName) throws XSUserInfoException;
 
 	/**
 	 * Check if the authentication token contains user attributes
-	 * 
+	 *
 	 * @return true if user attributes are available
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	// TODO 14.01.20 c5295400: can this be replaced?
 	public boolean hasAttributes() throws XSUserInfoException;
 
+
+	// TODO 14.01.20 c5295400: can this be replaced?
 	@Deprecated
 	public String[] getSystemAttribute(String attributeName) throws XSUserInfoException;
 
 	/**
 	 * Check if a scope is present in the authentication token
-	 * 
+	 *
 	 * @param scope
 	 *            name of fully qualified scope
+	 * @deprecated can be replaced with {@code xsuaaToken.hasScope(scope)} from the
+	 *             {@code com.sap.cloud.security.token} package.
 	 * @return true if scope is available
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public boolean checkScope(String scope) throws XSUserInfoException;
 
 	/**
@@ -166,10 +219,13 @@ public interface XSUserInfo {
 	 * 
 	 * @param scope
 	 *            name of local scope (ommitting the xsappid)
+	 * @deprecated can be replaced with {@code xsuaaToken.hasLocalScope(scope)} from
+	 *             the {@code com.sap.cloud.security.token} package.
 	 * @return true if local scope (scope without xsappid) is available
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public boolean checkLocalScope(String scope) throws XSUserInfoException;
 
 	/**
@@ -183,6 +239,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	// TODO 14.01.20 c5295400: cannot be replaced yet (but easy to implement).
 	public String getAdditionalAuthAttribute(String attributeName) throws XSUserInfoException;
 
 	/**
@@ -192,15 +249,19 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	// TODO 14.01.20 c5295400: cannot be replaced yet
 	public String getCloneServiceInstanceId() throws XSUserInfoException;
 
 	/**
 	 * OAuth Grant Type used for this token
-	 * 
+	 *
+	 * @deprecated can be replaced with {@code token.getGrantType()} from the
+	 *             {@code com.sap.cloud.security.token} package.
 	 * @return grant type
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public String getGrantType() throws XSUserInfoException;
 
 	/**
@@ -211,20 +272,27 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	// TODO 14.01.20 c5295400: can this be replaced?
 	public boolean isInForeignMode() throws XSUserInfoException;
 
-	@Deprecated // use requestToken
+	/**
+	 * @deprecated can be replaced with token flows from the token client library.
+	 * @throws XSUserInfoException
+	 */
+	@Deprecated
 	public String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
 
 	/**
 	 * Exchange a token into a token from another service instance
 	 * 
+	 * @deprecated can be replaced with token flows from the token client library.
 	 * @param tokenRequest
 	 *            request data
 	 * @return requested token
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException;
 
 }
