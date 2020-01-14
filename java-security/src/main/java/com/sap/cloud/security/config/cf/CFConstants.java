@@ -32,8 +32,6 @@ public class CFConstants {
 	public static class IAS {
 		private IAS() {
 		}
-
-		public static final String DOMAIN = "domain";
 	}
 
 	/**

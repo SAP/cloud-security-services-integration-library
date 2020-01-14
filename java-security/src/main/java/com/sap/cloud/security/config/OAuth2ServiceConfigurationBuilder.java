@@ -3,6 +3,8 @@ package com.sap.cloud.security.config;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 
@@ -60,7 +62,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * this is the url where the service instance was created.
 	 *
 	 * @param url
-	 * 			base url, e.g. https://paastenant.idservice.com
+	 *            base url, e.g. https://paastenant.idservice.com
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withUrl(String url) {
@@ -86,6 +88,8 @@ public class OAuth2ServiceConfigurationBuilder {
 	 */
 	public OAuth2ServiceConfiguration build() {
 		return new OAuth2ServiceConfiguration() {
+
+			private final Pattern DOMAIN_PATTERN = Pattern.compile("[\\w-]+\\.(.+)");
 
 			@Override
 			public String getClientId() {
@@ -115,6 +119,29 @@ public class OAuth2ServiceConfigurationBuilder {
 			@Override
 			public Service getService() {
 				return service;
+			}
+
+			@Override
+			public String getDomain() {
+				if (service.equals(Service.XSUAA) && properties.containsKey(XSUAA.UAA_DOMAIN)) {
+					return properties.get(XSUAA.UAA_DOMAIN);
+				} else if (properties.containsKey(URL)) {
+					return extractDomain(properties.get(URL));
+				}
+				return null;
+			}
+
+			private String extractDomain(String url) {
+				String host = URI.create(url).getHost();
+
+				if (host.equals("localhost")) {
+					return "localhost";
+				}
+				Matcher matcher = DOMAIN_PATTERN.matcher(host);
+				if (matcher.matches()) {
+					return matcher.group(matcher.groupCount());
+				}
+				return null;
 			}
 		};
 

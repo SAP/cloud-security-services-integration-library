@@ -6,37 +6,32 @@
     <version>2.4.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
+    <!--profiles>
+        <profile>
+            <id>allow-snapshots</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <repositories>
+                <repository>
+                    <id>snapshots-repo</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                    <releases><enabled>false</enabled></releases>
+                    <snapshots><enabled>true</enabled></snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles-->
+
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <sap.security.client.version>2.4.0-SNAPSHOT</sap.security.client.version>
         <apache.httpclient.version>4.5.8</apache.httpclient.version>
         <javax.servlet.api.version>3.1.0</javax.servlet.api.version>
-        <tomcat.version>8.0.48</tomcat.version>
         <wiremock.version>2.25.1</wiremock.version>
         <assertj.version>3.13.2</assertj.version>
-        <mockito.version>3.1.0</mockito.version>
+        <jetty.version>9.4.24.v20191120</jetty.version>
         <junit.version>4.12</junit.version>
     </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.3</version>
-                <configuration>
-                    <warName>java-security-usage-ias</warName>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>8</source>
-                    <target>8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>
@@ -47,8 +42,8 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet.api.version}</version>
-            <scope>provided</scope>
+            <version>3.1.0</version>
+            <scope>compile</scope>
         </dependency>
         <!-- security -->
         <dependency>
@@ -59,27 +54,21 @@
 
         <!-- test utilities -->
         <dependency>
+            <groupId>com.sap.cloud.security.xsuaa</groupId>
+            <artifactId>java-security-test</artifactId>
+            <version>${sap.security.client.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>${assertj.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sap.cloud.security.xsuaa</groupId>
-            <artifactId>java-security-test</artifactId>
-            <version>${sap.security.client.version}</version>
             <scope>test</scope>
         </dependency>
 

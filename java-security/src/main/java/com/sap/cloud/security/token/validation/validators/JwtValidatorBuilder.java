@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.Validator;
@@ -149,7 +150,7 @@ public class JwtValidatorBuilder {
 			defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
 
 		} else if (configuration.getService() == IAS) {
-			defaultValidators.add(new JwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
+			defaultValidators.add(new JwtIssuerValidator(configuration.getDomain()));
 		}
 		return defaultValidators;
 	}

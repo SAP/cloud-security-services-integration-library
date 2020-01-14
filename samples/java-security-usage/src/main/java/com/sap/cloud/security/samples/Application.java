@@ -3,7 +3,6 @@ package com.sap.cloud.security.samples;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.samples.tmp.JettyTokenAuthenticator;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
-import com.sap.cloud.security.token.XsuaaToken;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;

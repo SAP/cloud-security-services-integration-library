@@ -1,10 +1,10 @@
 package com.sap.cloud.security.samples.ias;
 
-import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.test.SecurityTestRule;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -15,33 +15,20 @@ import org.junit.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Properties;
 
-import static com.sap.cloud.security.config.cf.CFConstants.*;
 import static com.sap.cloud.security.test.SecurityTestRule.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletIntegrationTest {
-
-	private static Properties oldProperties;
 
 	@ClassRule
 	public static SecurityTestRule rule = getInstance(Service.IAS)
 			.useApplicationServer()
 			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 
-
-	@BeforeClass
-	public static void prepareTest() throws Exception {
-		oldProperties = System.getProperties();
-		System.setProperty(VCAP_SERVICES, IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-		assertThat(Environments.getCurrent().getIasConfiguration()).isNotNull();
-		rule.setClientId(Environments.getCurrent().getIasConfiguration().getClientId());
-	}
-
-	@AfterClass
-	public static void restoreProperties() {
-		System.setProperties(oldProperties);
+	@After
+	public void tearDown() {
+		SecurityContext.clearToken();
 	}
 
 	@Test
@@ -63,36 +50,25 @@ public class HelloJavaServletIntegrationTest {
 	@Test
 	public void request_withValidToken() throws IOException {
 		Token token = rule.getPreconfiguredJwtGenerator()
+				.withClaimValue(TokenClaims.IAS.EMAIL, "john.doe@email.com")
 				.createToken();
 		HttpGet request = createGetRequest(token.getBearerAccessToken());
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
-		}
-	}
-
-	/** TODO as soon @ServletSecurity works
-
-	@Test
-	public void request_withValidTokenWithoutScopes_unauthorized() throws IOException {
-		HttpGet request = createGetRequest(rule.createToken().getBearerAccessToken());
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_FORBIDDEN); // 403
+			assertThat(responseBody).isEqualTo("You ('john.doe@email.com') are authenticated and can access the application.");
 		}
 	}
 
 	@Test
-	public void request_withValidToken_ok() throws IOException {
-		Token tokenWithScopes = rule.getPreconfiguredJwtGenerator().withScopes(getGlobalScope("read")).createToken();
-		HttpGet request = createGetRequest(tokenWithScopes.getBearerAccessToken());
+	public void request_withInvalidToken_unauthenticated() throws IOException {
+		HttpGet request = createGetRequest(rule.getPreconfiguredJwtGenerator()
+				.withClaimValue(TokenClaims.ISSUER, "INVALID Issuer")
+				.createToken().getBearerAccessToken());
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK); // 200
+			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 		}
 	}
-
-	**/
 
 	private HttpGet createGetRequest(String bearerToken) {
 		HttpGet httpGet = new HttpGet(rule.getApplicationServerUri() + HelloJavaServlet.ENDPOINT);
@@ -100,10 +76,5 @@ public class HelloJavaServletIntegrationTest {
 			httpGet.setHeader(HttpHeaders.AUTHORIZATION, bearerToken);
 		}
 		return httpGet;
-	}
-
-	private String getGlobalScope(String scope) {
-		String appId = Environments.getCurrent().getXsuaaConfiguration().getProperty(CFConstants.XSUAA.APP_ID);
-		return appId + '.' + scope;
 	}
 }

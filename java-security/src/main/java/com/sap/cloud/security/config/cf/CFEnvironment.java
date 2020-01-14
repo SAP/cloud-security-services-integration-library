@@ -111,9 +111,9 @@ public class CFEnvironment implements Environment {
 	 * Loads the configuration for a dedicated service plan.
 	 *
 	 * @param service
-	 * 			the service name
+	 *            the service name
 	 * @param plan
-	 * 			the plan name
+	 *            the plan name
 	 * @return the configuration or null, if there is not such binding information
 	 *         for the given service plan.
 	 */

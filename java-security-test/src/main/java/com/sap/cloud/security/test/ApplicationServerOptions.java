@@ -1,9 +1,9 @@
 package com.sap.cloud.security.test;
 
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.servlet.IasTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticator;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
 import com.sap.cloud.security.xsuaa.Assertions;
@@ -35,11 +35,15 @@ public class ApplicationServerOptions {
 	 * @return the application server options.
 	 */
 	public static ApplicationServerOptions forXsuaaService(String appId, String clientId) {
-		Assertions.assertHasText(appId, "xsappname is required by the XsuaaAudienceValidator");
+		Assertions.assertHasText(appId, "appId is required by the XsuaaAudienceValidator");
 		Assertions.assertHasText(clientId, "clientId is required by the XsuaaAudienceValidator");
 		return new ApplicationServerOptions(
 				new XsuaaTokenAuthenticator()
-						.withServiceConfiguration(createServiceConfiguration(appId, clientId)));
+						.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+								.withClientId(clientId)
+								.withProperty(CFConstants.XSUAA.APP_ID, appId)
+								.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
+								.build()));
 	}
 
 	/**
@@ -54,10 +58,12 @@ public class ApplicationServerOptions {
 		case XSUAA:
 			instance = forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
 			break;
-		/*
-		 * case IAS: instance = new ApplicationServerOptions(new
-		 * IasTokenAuthenticator()); break;
-		 */
+		case IAS:
+			instance = new ApplicationServerOptions(new IasTokenAuthenticator()
+					.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
+							.withUrl("http://localhost")
+							.build()));
+			break;
 		default:
 			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
 		}
@@ -96,14 +102,6 @@ public class ApplicationServerOptions {
 
 	public int getPort() {
 		return port;
-	}
-
-	private static OAuth2ServiceConfiguration createServiceConfiguration(String appId, String clientId) {
-		return OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
-				.withClientId(clientId)
-				.withProperty(CFConstants.XSUAA.APP_ID, appId)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
-				.build();
 	}
 
 }

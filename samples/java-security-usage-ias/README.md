@@ -19,7 +19,7 @@ mvn clean package
 ## Create the ias service instance
 Use the ias service broker and create a service instance
 ```shell
-cf create-service iasb default ias-java-security
+cf create-service identity-beta default ias-java-security
 ```
 
 ## Configure the manifest
@@ -33,27 +33,27 @@ cf push --vars-file ../vars.yml
 ```
 
 ## Access the application
-- Get an access token via `curl`. You can get the information to fill the placeholders from your system environment `cf env java-security-usage`:
+- Get an access token via `curl`. You can get the information to fill the placeholders from your system environment `cf env java-security-usage-ias`:
 
 ```
 curl -X POST \
-  <<VCAP_SERVICES.xsuaa.credentials.url>>/oauth/token \
+  <<VCAP_SERVICES.identity-beta.credentials.url>>/oauth2/token \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'client_id=<<VCAP_SERVICES.xsuaa.credentials.clientid>>&client_secret=<<VCAP_SERVICES.xsuaa.credentials.clientsecret>>&grant_type=password&username=<your username>&password=<your password>'
+  -d 'client_id=<<VCAP_SERVICES.identity-beta.credentials.clientid>>&client_secret=<<VCAP_SERVICES.identity-beta.credentials.clientsecret>>&grant_type=password&username=<your email>&password=<your password>'
 ```
 
-Copy the `access_token` into your clipboard.
+Copy the `id_token` into your clipboard.
 
 - Access the app via `curl`. Don't forget to fill the placeholders.
 ```
 curl -X GET \
-  https://java-security-usage-ias-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/hello-java-security \
+  https://java-security-usage-ias-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/hello-java-security-ias \
   -H 'Authorization: Bearer <<your access_token>>'
 ```
 
 You should see something like this:
 ```
-You ('<your user>') can access the application with the following scopes: '<your scopes>'.
+You ('<your email>') are authenticated and can access the application.
 ```
 
 ## Clean-Up

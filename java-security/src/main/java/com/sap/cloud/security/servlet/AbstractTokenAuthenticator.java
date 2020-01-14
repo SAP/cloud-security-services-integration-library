@@ -81,7 +81,8 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	/**
 	 * Extracts the {@link Token} from the authorization header.
 	 *
-	 * @param authorizationHeader the value of the 'Authorization' request header
+	 * @param authorizationHeader
+	 *            the value of the 'Authorization' request header
 	 * @return the {@link Token} instance.
 	 */
 	protected abstract Token extractFromHeader(String authorizationHeader);

@@ -27,10 +27,8 @@ public class HelloJavaServlet extends HttpServlet {
 		Token token = SecurityContext.getToken();
 		try {
 			response.getWriter().write("You ('"
-					+ token.getClaimAsString(TokenClaims.XSUAA.EMAIL) + "') "
-					+ "can access the application with the following scopes: '"
-					+ token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES) + "'.");
-			response.setStatus(HttpServletResponse.SC_OK);
+					+ token.getClaimAsString(TokenClaims.IAS.EMAIL) + "') "
+					+ "are authenticated and can access the application.");
 		} catch (final IOException e) {
 			logger.error("Failed to write error response: " + e.getMessage() + ".", e);
 		}

@@ -60,4 +60,10 @@ public interface OAuth2ServiceConfiguration {
 	 */
 	Service getService();
 
+	/**
+	 * Domain (without subdomain) of identity service instance.
+	 *
+	 * @return domain
+	 */
+	String getDomain();
 }

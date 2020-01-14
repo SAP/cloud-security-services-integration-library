@@ -4,8 +4,10 @@ import com.sap.cloud.security.servlet.IasTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticationResult;
 
 import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
 import java.io.IOException;
 
+@WebFilter("/*") // filter for any endpoint
 public class IasSecurityFilter implements Filter {
 
 	private final IasTokenAuthenticator iasTokenAuthenticator;

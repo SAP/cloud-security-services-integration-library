@@ -89,8 +89,9 @@
         </dependency>
     </dependencies>
 
+    <!-- TODO can be deleted with SAP Buildpack -->
     <build>
-        <finalName>java-main-sample</finalName>
+        <finalName>java-security-usage</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
