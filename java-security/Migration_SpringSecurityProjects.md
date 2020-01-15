@@ -37,7 +37,7 @@ Now you are ready to **remove** the old client library by deleting the following
 ```xml
 <dependency>
   <groupId>com.sap.xs2.security</groupId>
-	<artifactId>java-container-security</artifactId>
+  <artifactId>java-container-security</artifactId>
 </dependency>
 ```
 <!-- Also remove the org.springframework.amqp:spring-rabbit dependency -->
@@ -72,11 +72,11 @@ you need to change it slightly to use the `SAPOfflineTokenServicesCloud` adapter
 For example see the following snippet on how to instantiate the `SAPOfflineTokenServicesCloud`. 
 
 ```java
-    @Bean
-    @Profile("cloud")
-    protected SAPOfflineTokenServicesCloud offlineTokenServices() {
-        return new SAPOfflineTokenServicesCloud(Environments.getCurrent().getXsuaaConfiguration());
-    }
+@Bean
+@Profile("cloud")
+protected SAPOfflineTokenServicesCloud offlineTokenServices() {
+	return new SAPOfflineTokenServicesCloud(Environments.getCurrent().getXsuaaConfiguration());
+}
 ```
 You might need to fix your java imports to get rid of the old import for the `SAPOfflineTokenServicesCloud` class.
 
@@ -110,10 +110,10 @@ In your unit test you might want to generate jwt tokens and have them validated.
 `SecurityTestRule`. See the following snippet as example: 
 
 ```java
-    @ClassRule
-    public static SecurityTestRule securityTestRule =
-            SecurityTestRule.getInstance(Service.XSUAA)
-                    .setKeys("src/test/resources/publicKey.txt", "src/test/resources/privateKey.txt");
+@ClassRule
+public static SecurityTestRule securityTestRule =
+	SecurityTestRule.getInstance(Service.XSUAA)
+		.setKeys("src/test/resources/publicKey.txt", "src/test/resources/privateKey.txt");
 ```
 
 Using the SecurityTestRule you can use a preconfigured jwt generator to create JWT tokens with custom scopes for your tests.
