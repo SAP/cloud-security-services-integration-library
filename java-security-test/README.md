@@ -18,7 +18,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>2.4.0-SNAPSHOT</version>
+    <version>2.4.1-SNAPSHOT</version>
     <scope>test</scope>
 </dependency>
 ```

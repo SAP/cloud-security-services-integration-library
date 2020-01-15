@@ -41,13 +41,31 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.4.0-SNAPSHOT</version>
+    <version>2.4.1-SNAPSHOT</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpclient</artifactId>
-    <version>2.4.0-SNAPSHOT</version>
+    <version>2.4.1-SNAPSHOT</version>
 </dependency>
+```
+
+You may need to add the following profile to allow snapshot versions:
+```xml
+<profiles>
+    <profile>
+        <id>allow-snapshots</id>
+        <activation><activeByDefault>true</activeByDefault></activation>
+        <repositories>
+            <repository>
+                <id>snapshots-repo</id>
+                <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                <releases><enabled>false</enabled></releases>
+                <snapshots><enabled>true</enabled></snapshots>
+            </repository>
+        </repositories>
+    </profile>
+</profiles>
 ```
 
 ## Basic Usage
