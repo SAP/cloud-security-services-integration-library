@@ -4,7 +4,8 @@
 ## Maven
 To use the new [java client lib](https://github.com/SAP/cloud-security-xsuaa-integration/) the dependencies declared in maven `pom.xml` need to be updated.
 
-First add the following dependencies:
+First make sure you have the following dependencies defined in your pom.xml:
+
 ```xml
 <dependency>
   <groupId>org.springframework.security.oauth</groupId>
@@ -28,7 +29,8 @@ First add the following dependencies:
   <scope>test</scope>
 </dependency>
 ```
-Make sure that you do not use outdated versions of maven plugins that might affect your build. 
+
+Also ensure that you do not use outdated versions of maven plugins that might affect your build. 
 So for example if you use `findbugs-maven-plugin` or `jacoco-maven-plugin`, update them to a current version.
 
 Now you are ready to **remove** the old client library by deleting the following lines from the pom.xml:

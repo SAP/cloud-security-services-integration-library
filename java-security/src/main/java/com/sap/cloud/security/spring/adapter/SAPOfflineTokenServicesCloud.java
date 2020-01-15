@@ -1,9 +1,10 @@
-package com.sap.bulletinboard.ads.services;
+package com.sap.cloud.security.spring.adapter;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.CombiningValidator;
+import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.AuthenticationException;
@@ -16,15 +17,22 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
-	private CombiningValidator<Token> tokenValidator;
-	private OAuth2ServiceConfiguration serviceConfiguration;
+	private final Supplier<Validator<Token>> validatorSupplier;
+	private final OAuth2ServiceConfiguration serviceConfiguration;
+	private Validator<Token> tokenValidator;
 
 	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration) {
+		this(serviceConfiguration, () -> JwtValidatorBuilder.getInstance(serviceConfiguration).build());
+	}
+
+	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration, Supplier<Validator<Token>> validatorSupplier) {
 		this.serviceConfiguration = serviceConfiguration;
+		this.validatorSupplier = validatorSupplier;
 	}
 
 	@Override
@@ -42,7 +50,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 	@Override
 	public void afterPropertiesSet() {
-		tokenValidator = JwtValidatorBuilder.getInstance(serviceConfiguration).build();
+		tokenValidator = validatorSupplier.get();
 	}
 
 	@Override public OAuth2AccessToken readAccessToken(String accessToken) {
