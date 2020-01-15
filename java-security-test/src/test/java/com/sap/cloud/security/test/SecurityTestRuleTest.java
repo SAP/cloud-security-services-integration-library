@@ -50,24 +50,6 @@ public class SecurityTestRuleTest {
 			.useApplicationServer(forService(XSUAA).usePort(APPLICATION_SERVER_PORT))
 			.addApplicationServlet(TestServlet.class, "/hi");
 
-	private static String readContent(CloseableHttpResponse response) throws IOException {
-		return IOUtils.readLines(response.getEntity().getContent(), UTF_8).stream()
-				.collect(Collectors.joining());
-	}
-
-	private static void assertThatMockKeyServiceServesPublicKey(PublicKey expectedPublicKey, int mockKeyServicePort)
-			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-		HttpGet httpGet = new HttpGet("http://localhost:" + mockKeyServicePort + "/token_keys");
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
-			JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(readContent(response));
-			PublicKey actualPublicKey = keySet
-					.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "default-kid").getPublicKey();
-
-			assertThat(actualPublicKey).isEqualTo(expectedPublicKey);
-		}
-	}
-
 	@Test
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys()
 			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
@@ -180,6 +162,24 @@ public class SecurityTestRuleTest {
 			response.setContentType("text/plain");
 			response.setCharacterEncoding(UTF_8);
 			response.getWriter().print("Hi!");
+		}
+	}
+
+	private static String readContent(CloseableHttpResponse response) throws IOException {
+		return IOUtils.readLines(response.getEntity().getContent(), UTF_8).stream()
+				.collect(Collectors.joining());
+	}
+
+	private static void assertThatMockKeyServiceServesPublicKey(PublicKey expectedPublicKey, int mockKeyServicePort)
+			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		HttpGet httpGet = new HttpGet("http://localhost:" + mockKeyServicePort + "/token_keys");
+		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
+			JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(readContent(response));
+			PublicKey actualPublicKey = keySet
+					.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "default-kid").getPublicKey();
+
+			assertThat(actualPublicKey).isEqualTo(expectedPublicKey);
 		}
 	}
 }
