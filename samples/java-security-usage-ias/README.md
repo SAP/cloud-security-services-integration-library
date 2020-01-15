@@ -17,9 +17,9 @@ mvn clean package
 ```
 
 ## Create the ias service instance
-Use the ias service broker and create a service instance
+Use the ias service broker and create a service instance (don't forget to replace the placeholders)
 ```shell
-cf create-service identity-beta default ias-java-security
+cf create-service identity-beta default ias-java-security -c '{"redirect_uris": ["https://java-security-usage-ias-((ID)).((LANDSCAPE_APPS_DOMAIN))/uaa/login/callback/my-oidc"]}'
 ```
 
 ## Configure the manifest
@@ -33,13 +33,13 @@ cf push --vars-file ../vars.yml
 ```
 
 ## Access the application
-- Get an access token via `curl`. You can get the information to fill the placeholders from your system environment `cf env java-security-usage-ias`:
+- Get an access token via `curl`. Make sure that you replace the placeholders `clientid`, `clientsecret` and `url` (without `https://` !!!) according to the service configuration that are stored as system environment variable `VCAP_SERVICES.identity-beta.credentials`. You can get them using `cf env java-security-usage-ias`. 
 
 ```
 curl -X POST \
-  <<VCAP_SERVICES.identity-beta.credentials.url>>/oauth2/token \
+  https://<<clientid>>:<<clientsecret>>@<<url>>/oauth2/token \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'client_id=<<VCAP_SERVICES.identity-beta.credentials.clientid>>&client_secret=<<VCAP_SERVICES.identity-beta.credentials.clientsecret>>&grant_type=password&username=<your email>&password=<your password>'
+  -d 'grant_type=password&username=<your ias user>&password=<your ias password>'
 ```
 
 Copy the `id_token` into your clipboard.
