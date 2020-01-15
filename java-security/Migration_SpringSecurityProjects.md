@@ -111,7 +111,7 @@ In your unit test you might want to generate jwt tokens and have them validated.
     @ClassRule
     public static SecurityTestRule securityTestRule =
             SecurityTestRule.getInstance(Service.XSUAA)
-                    .setKeys(RSAKeys.fromKeyFiles("src/test/resources/publicKey.txt", "src/test/resources/privateKey.txt"));
+                    .setKeys("src/test/resources/publicKey.txt", "src/test/resources/privateKey.txt");
 ```
 
 Using the SecurityTestRule you can use a preconfigured jwt generator to create JWT tokens with custom scopes for your tests.
