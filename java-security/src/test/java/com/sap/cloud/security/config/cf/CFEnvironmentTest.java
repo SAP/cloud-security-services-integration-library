@@ -6,6 +6,7 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 
+import com.sap.cloud.security.json.JsonParsingException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.*;
 import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CFEnvironmentTest {
 
@@ -53,6 +55,15 @@ public class CFEnvironmentTest {
 		assertThat(xsuaaConfigMap.size()).isEqualTo(4);
 		assertThat(credentialsMap.size()).isEqualTo(10);
 		assertThat(credentialsMap.get(CLIENT_SECRET)).isEqualTo("secret");
+	}
+
+	@Test
+	public void getCorruptConfiguration_raisesException() {
+		String xsuaaBinding = "{\"xsuaa\": [{ \"credentials\": null }]}";
+
+		assertThatThrownBy(() -> {
+			cut = CFEnvironment.getInstance((str) -> xsuaaBinding, (str) -> null);
+		}).isInstanceOf(JsonParsingException.class).hasMessageContainingAll("The credentials of 'VCAP_SERVICES' can not be parsed for service 'XSUAA'", "Please check the service binding.");
 	}
 
 	// TODO IAS

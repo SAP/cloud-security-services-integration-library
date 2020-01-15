@@ -5,6 +5,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
+import com.sap.cloud.security.json.JsonParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,13 +52,20 @@ class CFEnvParser {
 
 	public static OAuth2ServiceConfiguration extract(Service service, JsonObject serviceJsonObject) {
 		Map<String, String> serviceBindingProperties = serviceJsonObject.getKeyValueMap();
-		Map<String, String> serviceBindingCredentials = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS)
-				.getKeyValueMap();
+		try {
+			Map<String, String> serviceBindingCredentials = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS)
+					.getKeyValueMap();
 
-		return OAuth2ServiceConfigurationBuilder.forService(service)
-				.withProperties(serviceBindingCredentials)
-				.withProperty(SERVICE_PLAN, serviceBindingProperties.get(SERVICE_PLAN))
-				.build();
+			return OAuth2ServiceConfigurationBuilder.forService(service)
+					.withProperties(serviceBindingCredentials)
+					.withProperty(SERVICE_PLAN, serviceBindingProperties.get(SERVICE_PLAN))
+					.build();
+		} catch (JsonParsingException e) {
+			String errDescription = "The credentials of 'VCAP_SERVICES' can not be parsed for service '"
+					+ service + "' ('" + e.getMessage() + "'). Please check the service binding.";
+			logger.error(errDescription);
+			throw new JsonParsingException(errDescription);
+		}
 	}
 
 }
