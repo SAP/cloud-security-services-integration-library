@@ -18,9 +18,9 @@ First make sure you have the following dependencies defined in your pom.xml:
   <version>4.3.25.RELEASE</version>
 </dependency>
 <dependency>
-    <groupId>com.sap.cloud.security.xsuaa</groupId>
-	<artifactId>java-security</artifactId>
-	<version>2.4.0-SNAPSHOT</version>
+  <groupId>com.sap.cloud.security.xsuaa</groupId>
+  <artifactId>java-security</artifactId>
+  <version>2.4.0-SNAPSHOT</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
