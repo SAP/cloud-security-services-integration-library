@@ -87,14 +87,14 @@ public class JwtGeneratorTest {
 	@Test
 	public void withClaim_containsClaim() {
 		String clientId = "myClientId";
-		String subdomain = "subdomain";
+		String email = "john.doe@mail.de";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.XSUAA.SUBDOMAIN, subdomain)
+				.withClaimValue(TokenClaims.XSUAA.EMAIL, email)
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
 				.createToken();
 
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.SUBDOMAIN)).isEqualTo(subdomain);
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.EMAIL)).isEqualTo(email);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(clientId);
 	}
 
