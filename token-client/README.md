@@ -131,7 +131,6 @@ XsuaaToken jwtToken = SpringSecurityContext.getToken();
 
 OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
                 .token(jwtToken)
-                .clientId(<client_id>) // this is optional
                 .subdomain(jwtToken.getSubdomain()) // this is optional      
                 .attributes(additionalAttributes) // this is optional
                 .execute();
