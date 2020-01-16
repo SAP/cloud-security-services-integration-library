@@ -80,7 +80,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 * 
 	 * @param validationListener
 	 *            the listener to be added.
-	 * @return this builder
+	 * @return the authenticator instance
 	 */
 	public AbstractTokenAuthenticator withValidationListener(ValidationListener validationListener) {
 		this.validationListeners.add(validationListener);
