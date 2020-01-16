@@ -16,7 +16,7 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
 - Provides thread-local cache ([`SecurityContext`](src/main/java/com/sap/cloud/security/token/SecurityContext.java)) to store the decoded and validated token.
 - Furthermore, it provides an authenticator ([`TokenAuthenticator`](src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java)) that validates bearer tokens contained in the authorization header of HTTP requests. The authenticator is used in the following [sample](/samples/java-security-usage).
 
-![](iasApplication.png)
+![](xsuaaApplication.png)
 
 ## Open Source libs used
 - JSON Parser Reference implementation: [json.org](https://github.com/stleary/JSON-java)
