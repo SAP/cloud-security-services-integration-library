@@ -58,10 +58,8 @@ The  from the app router needs to be updated as well. Find the `package.json` fi
 ```
 
 ## Update build packs
-Find the `manifest.yml` in the root directory.
-
-Update the `java-buildpack` to version `v4.27`.
-and the nodejs buildpack to version `v1.6.49`.
+Find the `manifest.yml` in the root directory and make sure to use up to date build pack versions.
+For example update `java-buildpack` to version `v4.27` and the nodejs buildpack to version `v1.6.49`.
 
 # Code changes
 After the dependencies have been changed, the project code probably needs some adjustments as well.
