@@ -142,6 +142,8 @@ For the integration of different Identity Services the [`TokenAuthenticator`](sr
 
 > Depending on the application's needs the `TokenAuthenticator` can be customized.
 
+![](xsuaaFilter.png)
+
 The authenticator is used in the following [sample](/samples/java-security-usage).
 
 ## Test Utilities
