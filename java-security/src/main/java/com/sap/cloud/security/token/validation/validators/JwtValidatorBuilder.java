@@ -137,11 +137,6 @@ public class JwtValidatorBuilder {
 	private List<Validator<Token>> createDefaultValidators() {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
-		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
-				getOidcConfigurationServiceWithCache());
-		signatureValidator.withOAuth2Configuration(configuration);
-		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
-		defaultValidators.add(signatureValidator);
 
 		if (configuration.getService() == XSUAA) {
 			if (customAudienceValidator == null) {
@@ -152,6 +147,12 @@ public class JwtValidatorBuilder {
 		} else if (configuration.getService() == IAS) {
 			defaultValidators.add(new JwtIssuerValidator(configuration.getDomain()));
 		}
+
+		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
+				getOidcConfigurationServiceWithCache());
+		signatureValidator.withOAuth2Configuration(configuration);
+		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
+		defaultValidators.add(signatureValidator);
 		return defaultValidators;
 	}
 
