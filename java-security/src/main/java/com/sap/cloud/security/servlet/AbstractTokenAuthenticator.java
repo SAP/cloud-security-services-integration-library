@@ -3,6 +3,7 @@ package com.sap.cloud.security.servlet;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
@@ -17,11 +18,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTokenAuthenticator.class);
+	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private Validator<Token> tokenValidator;
 	protected OidcConfigurationServiceWithCache oidcConfigurationService;
 	protected OAuth2TokenKeyServiceWithCache tokenKeyService;
@@ -71,6 +75,16 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	/**
+	 * Adds the validation listener to the jwt validator that is being used by the authenticator to validate the tokens.
+	 * @param validationListener the listener to be added.
+	 * @return this builder
+	 */
+	public AbstractTokenAuthenticator withValidationListener(ValidationListener validationListener) {
+		this.validationListeners.add(validationListener);
+		return this;
+	}
+
+	/**
 	 * Return configured service configuration or Environments.getCurrent() if not
 	 * configured.
 	 * 
@@ -88,10 +102,11 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private Validator<Token> getOrCreateTokenValidator() {
 		if (tokenValidator == null) {
-			tokenValidator = JwtValidatorBuilder.getInstance(getServiceConfiguration())
+			JwtValidatorBuilder jwtValidatorBuilder = JwtValidatorBuilder.getInstance(getServiceConfiguration())
 					.withOAuth2TokenKeyService(tokenKeyService)
-					.withOidcConfigurationService(oidcConfigurationService)
-					.build();
+					.withOidcConfigurationService(oidcConfigurationService);
+			validationListeners.forEach(jwtValidatorBuilder::withValidatorListener);
+			tokenValidator = jwtValidatorBuilder.build();
 		}
 		return tokenValidator;
 	}
