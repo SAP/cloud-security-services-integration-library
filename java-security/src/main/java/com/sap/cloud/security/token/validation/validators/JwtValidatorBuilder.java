@@ -41,7 +41,8 @@ public class JwtValidatorBuilder {
 		CombiningValidator<Token> create(List<Validator<Token>> validators);
 	}
 
-	public JwtValidatorBuilder(OAuth2ServiceConfiguration configuration, CombiningValidatorProvider combiningTokenValidatorProvider) {
+	public JwtValidatorBuilder(OAuth2ServiceConfiguration configuration,
+			CombiningValidatorProvider combiningTokenValidatorProvider) {
 		this.combiningTokenValidatorProvider = combiningTokenValidatorProvider;
 		this.configuration = configuration;
 	}
@@ -136,7 +137,9 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Adds the validation listener to the jwt validator that is being built.
-	 * @param validationListener the listener to be added to the validator.
+	 * 
+	 * @param validationListener
+	 *            the listener to be added to the validator.
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withValidatorListener(ValidationListener validationListener) {
@@ -157,7 +160,6 @@ public class JwtValidatorBuilder {
 		tokenValidationListeners.forEach(tokenCombiningValidator::registerValidationListener);
 		return tokenCombiningValidator;
 	}
-
 
 	private List<Validator<Token>> createDefaultValidators() {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();

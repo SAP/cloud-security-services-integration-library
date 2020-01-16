@@ -46,7 +46,8 @@ public class XsuaaTokenAuthenticatorTest {
 		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(
 				JsonWebKeySetFactory.createFromJson(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8)));
-		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder
+				.forService(Service.XSUAA)
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "auth.com")
 				.withProperty(CFConstants.XSUAA.APP_ID, "appId")
 				.withClientId("clientId")

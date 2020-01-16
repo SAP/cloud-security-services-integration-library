@@ -81,7 +81,8 @@ public class JwtValidatorBuilderTest {
 	public void withValidationListener_onValidationSuccessIsCalled() throws URISyntaxException {
 		ValidationListener validationListener1 = mock(ValidationListener.class);
 		ValidationListener validationListener2 = mock(ValidationListener.class);
-		JwtValidatorBuilder jwtValidatorBuilder = new JwtValidatorBuilder(configuration(), (validators) -> combiningValidatorMock);
+		JwtValidatorBuilder jwtValidatorBuilder = new JwtValidatorBuilder(configuration(),
+				(validators) -> combiningValidatorMock);
 
 		jwtValidatorBuilder
 				.withValidatorListener(validationListener1)
@@ -101,6 +102,5 @@ public class JwtValidatorBuilderTest {
 		when(configuration.getService()).thenReturn(Service.XSUAA);
 		return configuration;
 	}
-
 
 }

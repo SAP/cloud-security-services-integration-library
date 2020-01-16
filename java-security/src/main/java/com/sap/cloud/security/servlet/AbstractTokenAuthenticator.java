@@ -75,8 +75,11 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	/**
-	 * Adds the validation listener to the jwt validator that is being used by the authenticator to validate the tokens.
-	 * @param validationListener the listener to be added.
+	 * Adds the validation listener to the jwt validator that is being used by the
+	 * authenticator to validate the tokens.
+	 * 
+	 * @param validationListener
+	 *            the listener to be added.
 	 * @return this builder
 	 */
 	public AbstractTokenAuthenticator withValidationListener(ValidationListener validationListener) {
@@ -95,7 +98,8 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	/**
 	 * Extracts the {@link Token} from the authorization header.
 	 *
-	 * @param authorizationHeader the value of the 'Authorization' request header
+	 * @param authorizationHeader
+	 *            the value of the 'Authorization' request header
 	 * @return the {@link Token} instance.
 	 */
 	protected abstract Token extractFromHeader(String authorizationHeader);
