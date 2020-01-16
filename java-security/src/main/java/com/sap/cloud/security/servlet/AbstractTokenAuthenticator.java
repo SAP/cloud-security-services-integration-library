@@ -48,6 +48,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 					return unauthenticated(httpResponse, "Unexpected error occurred: " + e.getMessage());
 				}
 			} else {
+				logger.warn("Authorization header is missing.");
 				return unauthenticated(httpResponse, "Authorization header is missing.");
 			}
 		}
