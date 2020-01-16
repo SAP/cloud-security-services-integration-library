@@ -9,7 +9,7 @@ applications:
   routes:
     - route: java-security-usage-ias-((ID)).((LANDSCAPE_APPS_DOMAIN))
   host: 
-  path: target/java-security-usage-ias-2.4.0-SNAPSHOT.war
+  path: target/java-security-usage-ias.war
   buildpacks:
     - java_buildpack
   services:
