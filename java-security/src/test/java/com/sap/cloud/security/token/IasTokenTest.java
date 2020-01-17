@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token;
 
+import com.sap.cloud.security.config.Service;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -9,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class IasTokenTest {
 
@@ -19,6 +21,17 @@ public class IasTokenTest {
 	}
 
 	@Test
+	public void constructor_raiseIllegalArgumentExceptions() {
+		assertThatThrownBy(() -> {
+			new IasToken("");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("accessToken must not be null / empty");
+
+		assertThatThrownBy(() -> {
+			new IasToken("abc");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");
+	}
+
+	@Test
 	@Ignore
 	public void getPrincipal() {
 		Principal principal = cut.getPrincipal();
@@ -26,4 +39,15 @@ public class IasTokenTest {
 		assertThat(principal).isNotNull();
 		assertThat(principal.getName()).isEqualTo("TODO");
 	}
+
+	@Test
+	public void getGrantType() {
+		assertThat(cut.getGrantType()).isEqualTo(GrantType.JWT_BEARER);
+	}
+
+	@Test
+	public void getService() {
+		assertThat(cut.getService()).isEqualTo(Service.IAS);
+	}
+
 }
