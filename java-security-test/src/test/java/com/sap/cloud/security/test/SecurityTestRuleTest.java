@@ -40,13 +40,13 @@ public class SecurityTestRuleTest {
 	private static final int PORT = 8484;
 	private static final int APPLICATION_SERVER_PORT = 8383;
 	private static final String UTF_8 = StandardCharsets.UTF_8.displayName();
-
-	private static final RSAKeys RSA_KEYS = RSAKeys.generate();
+	private static final String PUBLIC_KEY_PATH = "src/main/resources/publicKey.txt";
+	private static final String PRIVATE_KEY_PATH = "src/main/resources/privateKey.txt";
 
 	@ClassRule
 	public static SecurityTestRule cut = SecurityTestRule.getInstance(XSUAA)
 			.setPort(PORT)
-			.setKeys(RSA_KEYS)
+			.setKeys(PUBLIC_KEY_PATH, PRIVATE_KEY_PATH)
 			.useApplicationServer(forService(XSUAA).usePort(APPLICATION_SERVER_PORT))
 			.addApplicationServlet(TestServlet.class, "/hi");
 
@@ -54,7 +54,15 @@ public class SecurityTestRuleTest {
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys()
 			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 
-		assertThatMockKeyServiceServesPublicKey(RSA_KEYS.getPublic(), PORT);
+		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
+		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
+			JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(readContent(response));
+			PublicKey actualPublicKey = keySet
+					.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "default-kid").getPublicKey();
+
+			assertThat(actualPublicKey).isEqualTo(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH));
+		}
 	}
 
 	@Test
@@ -139,22 +147,6 @@ public class SecurityTestRuleTest {
 
 	}
 
-	public static class SecurityTestRuleWithRSAKeysPath {
-
-		private static final String PUBLIC_KEY_PATH = "src/main/resources/publicKey.txt";
-
-		@Rule
-		public SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA)
-				.setKeys(PUBLIC_KEY_PATH, "src/main/resources/privateKey.txt");
-
-		@Test
-		public void testRuleIsInitializedCorrectly()
-				throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
-			assertThatMockKeyServiceServesPublicKey(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH),
-					rule.getWireMockRule().port());
-		}
-	}
-
 	public static class TestServlet extends HttpServlet {
 		@Override
 		protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -170,16 +162,4 @@ public class SecurityTestRuleTest {
 				.collect(Collectors.joining());
 	}
 
-	private static void assertThatMockKeyServiceServesPublicKey(PublicKey expectedPublicKey, int mockKeyServicePort)
-			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-		HttpGet httpGet = new HttpGet("http://localhost:" + mockKeyServicePort + "/token_keys");
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
-			JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(readContent(response));
-			PublicKey actualPublicKey = keySet
-					.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "default-kid").getPublicKey();
-
-			assertThat(actualPublicKey).isEqualTo(expectedPublicKey);
-		}
-	}
 }
