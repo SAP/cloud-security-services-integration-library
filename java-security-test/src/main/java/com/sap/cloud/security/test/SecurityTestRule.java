@@ -29,6 +29,8 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -155,6 +157,27 @@ public class SecurityTestRule extends ExternalResource {
 	 */
 	public SecurityTestRule setPort(int port) {
 		this.wireMockPort = port;
+		return this;
+	}
+
+	/**
+	 * Same as {@link SecurityTestRule#setKeys(RSAKeys)} except you can pass in the
+	 * path to the public and private keys and the {@link RSAKeys} object will be
+	 * built for you. Any checked exceptions are caught and rethrown as runtime
+	 * exceptions for test convenience.
+	 *
+	 * @param publicKeyPath
+	 *            path to public key file.
+	 * @param privateKeyPath
+	 *            path to private key file.
+	 * @return the rule itself.
+	 */
+	public SecurityTestRule setKeys(String publicKeyPath, String privateKeyPath) {
+		try {
+			this.keys = RSAKeys.fromKeyFiles(publicKeyPath, privateKeyPath);
+		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+			throw new RuntimeException(e);
+		}
 		return this;
 	}
 
