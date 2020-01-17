@@ -86,9 +86,16 @@ Now configure the `JwtValidatorBuilder` once with the service configuration from
 CombiningValidator<Token> validators = JwtValidatorBuilder.getInstance(serviceConfig).build();
 ```
 
+
 > Note: By default `JwtValidatorBuilder` builds a `CombiningValidator`. 
 > For the Signature validation it needs to fetch the Json Web Token Keys (jwks) from the OAuth server using `DefaultOAuth2TokenKeyService`. In case the token does not provide a `jku` header parameter it also requests the Open-ID Provider Configuration from the OAuth Server to determine the `jwks_uri` using `DefaultOidcConfigurationService`. Both default services uses Apache Rest client and can be customized via the `JwtValidatorBuilder` builder.
-          
+
+#### [Optional] Step 2.1: Add validation listeners
+Optionally, you can add a validation listener to the validator to be able to get callbacks whenever a token is validated.
+```java
+JwtValidatorBuilder.getInstance(serviceConfig).withValidatorListener(validationListener);
+```
+The validation listener needs to implement the [ValidationListener](src/main/java/com/sap/cloud/security/token/validation/ValidationListener.java) interface to be able to receive callbacks on validation success or failure.
 
 ### Create a Token Object 
 This decodes an encoded access token (Jwt token) and parses its json header and payload. The `Token` interface provides a simple access to its JWT header parameters and its claims.

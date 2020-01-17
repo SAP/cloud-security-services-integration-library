@@ -3,6 +3,7 @@ package com.sap.cloud.security.token.validation.validators;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
+import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
@@ -23,6 +24,7 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 public class JwtValidatorBuilder {
 	private static Map<OAuth2ServiceConfiguration, JwtValidatorBuilder> instances = new HashMap<>();
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
+	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private OAuth2ServiceConfiguration configuration;
 	private OidcConfigurationServiceWithCache oidcConfigurationService = null;
 	private OAuth2TokenKeyServiceWithCache tokenKeyService = null;
@@ -122,6 +124,18 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
+	 * Adds the validation listener to the jwt validator that is being built.
+	 * 
+	 * @param validationListener
+	 *            the listener to be added to the validator.
+	 * @return this builder
+	 */
+	public JwtValidatorBuilder withValidatorListener(ValidationListener validationListener) {
+		validationListeners.add(validationListener);
+		return this;
+	}
+
+	/**
 	 * Builds the validators with the applied parameters.
 	 *
 	 * @return the combined validators.
@@ -130,7 +144,9 @@ public class JwtValidatorBuilder {
 		List<Validator<Token>> allValidators = createDefaultValidators();
 		allValidators.addAll(validators);
 
-		return new CombiningValidator<>(allValidators);
+		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(allValidators);
+		validationListeners.forEach(combiningValidator::registerValidationListener);
+		return combiningValidator;
 	}
 
 	private List<Validator<Token>> createDefaultValidators() {
