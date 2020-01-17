@@ -1,3 +1,4 @@
+
 package com.sap.cloud.security.json;
 
 import javax.annotation.Nullable;
@@ -97,8 +98,7 @@ public interface JsonObject {
 	 * Example:
 	 * 
 	 * <pre>
-	 * {
-	 * 	&#64;code
+	 * {@code
 	 * 	String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
 	 * 	JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName())
 	 * 			.get(0);
