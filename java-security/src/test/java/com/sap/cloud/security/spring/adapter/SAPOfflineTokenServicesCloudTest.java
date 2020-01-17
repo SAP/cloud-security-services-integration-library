@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ public class SAPOfflineTokenServicesCloudTest {
 		cut = createSAPOfflineTokenServicesCloud((token) -> ValidationResults.createValid());
 	}
 
+
 	@Test
 	public void loadAuthentication() throws IOException {
 		cut.afterPropertiesSet();
@@ -46,18 +48,29 @@ public class SAPOfflineTokenServicesCloudTest {
 	}
 
 	@Test
+	public void loadAuthentication_tokenIsNull_throwsException() {
+		assertThatThrownBy(() -> cut.loadAuthentication(null)).isInstanceOf(InvalidTokenException.class);
+	}
+
+	@Test
+	public void loadAuthentication_tokenIsMalformed_throwsException() {
+		assertThatThrownBy(() -> cut.loadAuthentication("a.b.c")).isInstanceOf(InvalidTokenException.class);
+	}
+
+
+	@Test
 	public void readAccessToken() {
 		assertThatThrownBy(() -> cut.readAccessToken("token")).isInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test
-	public void loadAuthentication_notAuthenticated() {
-		cut = createSAPOfflineTokenServicesCloud((token) -> ValidationResults.createInvalid("not valid"));
+	public void loadAuthentication_tokenValidationFailed_throwsException() {
+		String errorDescription = "just not valid";
+		cut = createSAPOfflineTokenServicesCloud((token) -> ValidationResults.createInvalid(errorDescription));
 		cut.afterPropertiesSet();
 
-		OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
+		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class).hasMessageContaining(errorDescription);
 
-		assertThat(authentication.isAuthenticated()).isFalse();
 	}
 
 	@Test
@@ -71,13 +84,12 @@ public class SAPOfflineTokenServicesCloudTest {
 	}
 
 	@Test
-	public void createInstanceWithPublicConstructor_notAuthenticated() {
+	public void createInstancWithEmptyConfiguration_throwsException() {
 		cut =  new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class));
 		cut.afterPropertiesSet();
-		OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
-
-		assertThat(authentication.isAuthenticated()).isFalse();
+		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
 	}
+
 
 	private static class TestTokenValidatorSupplier implements Supplier<Validator<Token>> {
 		@Override public Validator<Token> get() {

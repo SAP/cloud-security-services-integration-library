@@ -4,6 +4,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.CombiningValidator;
+import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import org.springframework.beans.factory.InitializingBean;
@@ -14,6 +15,7 @@ import org.springframework.security.oauth2.provider.AuthorizationRequest;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,16 +38,28 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	}
 
 	@Override
-	public OAuth2Authentication loadAuthentication(String accessToken)
+	public OAuth2Authentication loadAuthentication(@Nonnull String accessToken)
 			throws AuthenticationException, InvalidTokenException {
-		XsuaaToken token = new XsuaaToken(accessToken);
+		XsuaaToken token = checkAndCreateToken(accessToken);
 		Set<String> scopes = token.getScopes().stream().collect(Collectors.toSet());
+		ValidationResult validationResult = tokenValidator.validate(token);
 
-		AuthorizationRequest authorizationRequest = new AuthorizationRequest(new HashMap<>(), null,
-				serviceConfiguration.getClientId(), scopes, new HashSet<>(), null,
-				tokenValidator.validate(token).isValid(), "", "", null);
+		if (validationResult.isValid()) {
+			AuthorizationRequest authorizationRequest = new AuthorizationRequest(new HashMap<>(), null,
+					serviceConfiguration.getClientId(), scopes, new HashSet<>(), null,
+					true, "", "", null);
+			return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), null);
+		} else {
+			throw new InvalidTokenException(validationResult.getErrorDescription());
+		}
+	}
 
-		return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), null);
+	private XsuaaToken checkAndCreateToken(@Nonnull String accessToken) {
+		try {
+			return new XsuaaToken(accessToken);
+		} catch (Exception e) {
+			throw new InvalidTokenException(e.getMessage());
+		}
 	}
 
 	@Override
