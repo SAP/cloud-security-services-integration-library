@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.util;
 
+import com.sap.cloud.security.xsuaa.Assertions;
 import org.apache.http.HttpResponse;
 
 import java.io.BufferedReader;
@@ -14,6 +15,7 @@ public class HttpClientUtil {
 	}
 
 	public static String extractResponseBodyAsString(HttpResponse response) throws IOException {
+		Assertions.assertNotNull(response, "response must not be null.");
 		return new BufferedReader(new InputStreamReader(response.getEntity().getContent()))
 				.lines().collect(Collectors.joining(System.lineSeparator()));
 	}

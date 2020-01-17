@@ -4,17 +4,10 @@ import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.*;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
-import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 
 import java.util.List;
 
 public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
-
-	public XsuaaTokenAuthenticator() {
-		tokenKeyService = OAuth2TokenKeyServiceWithCache.getInstance();
-		oidcConfigurationService = OidcConfigurationServiceWithCache.getInstance();
-	}
 
 	@Override
 	public Token extractFromHeader(String authorizationHeader) {

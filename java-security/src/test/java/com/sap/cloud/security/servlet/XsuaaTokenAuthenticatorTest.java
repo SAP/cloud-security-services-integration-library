@@ -7,11 +7,12 @@ import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationListener;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
+import com.sap.cloud.security.util.HttpClientTestFactory;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -32,6 +33,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 	private final XsuaaToken xsuaaToken;
 	private final XsuaaToken invalidSignatureToken;
+	private CloseableHttpClient mockHttpClient;
 
 	private AbstractTokenAuthenticator cut;
 
@@ -43,19 +45,20 @@ public class XsuaaTokenAuthenticatorTest {
 
 	@Before
 	public void setUp() throws IOException {
-		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
-		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(
-				JsonWebKeySetFactory.createFromJson(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8)));
-		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder
-				.forService(Service.XSUAA)
+		mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+
+		CloseableHttpResponse response = HttpClientTestFactory
+				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+		when(mockHttpClient.execute(any(HttpGet.class))).thenReturn(response);
+
+		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "auth.com")
 				.withProperty(CFConstants.XSUAA.APP_ID, "appId")
 				.withClientId("clientId")
 				.build();
 
 		cut = new XsuaaTokenAuthenticator()
-				.withOAuth2TokenKeyService(
-						OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyService))
+				.withHttpClient(mockHttpClient)
 				.withServiceConfiguration(oAuth2ServiceConfiguration);
 	}
 
