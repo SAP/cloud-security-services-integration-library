@@ -88,6 +88,13 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
+	public void getPreconfiguredJwtGenerator_tokenHasExpirationDate() {
+		Token token = cut.getPreconfiguredJwtGenerator().createToken();
+
+		assertThat(token.hasClaim(TokenClaims.EXPIRATION)).isTrue();
+	}
+
+	@Test
 	public void servletFilterServesTestServlet() throws IOException {
 		HttpGet httpGet = new HttpGet(cut.getApplicationServerUri() + "/hi");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {

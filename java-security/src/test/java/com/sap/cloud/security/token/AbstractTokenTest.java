@@ -1,6 +1,5 @@
 package com.sap.cloud.security.token;
 
-import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
