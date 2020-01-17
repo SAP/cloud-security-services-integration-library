@@ -142,7 +142,6 @@ public class JwtGeneratorTest {
 	public void withExpiration_createsTokenWithExpiration() {
 		Instant expiration = LocalDate.of(2019, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
 
-
 		Token token = cut.withExpiration(expiration).createToken();
 
 		assertThat(token.getExpiration()).isEqualTo(expiration);

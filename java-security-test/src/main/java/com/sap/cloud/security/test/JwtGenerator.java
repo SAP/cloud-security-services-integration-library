@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.security.*;
 import java.time.Instant;
 import java.util.*;
@@ -98,13 +99,13 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the expiration claim (exp) of the token to the given moment in
-	 * time.
+	 * Sets the expiration claim (exp) of the token to the given moment in time.
 	 *
-	 * @param expiration the moment in time when the token will be expired.
+	 * @param expiration
+	 *            the moment in time when the token will be expired.
 	 * @return the builder object.
 	 */
-	public JwtGenerator withExpiration(Instant expiration) {
+	public JwtGenerator withExpiration(@Nonnull Instant expiration) {
 		jsonPayload.put(TokenClaims.EXPIRATION, expiration.getEpochSecond());
 		return this;
 	}
