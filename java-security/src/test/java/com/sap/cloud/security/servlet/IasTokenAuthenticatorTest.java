@@ -38,18 +38,10 @@ public class IasTokenAuthenticatorTest {
 
 	public IasTokenAuthenticatorTest() throws IOException {
 		/*
-		TODO
-		{
-		  "aud": "T000169",
-		  "sub": "P176945",
-		  "mail": "xs2sec@kurzepost.de",
-		  "iss": "https://xs2security.accounts400.ondemand.com",
-		  "last_name": "xs2sec",
-		  "exp": 6974031600,
-		  "iat": 6974030600,
-		  "first_name": "xs2sec",
-		  "jti": "e21f7317-b4b9-42fd-b58b-3402d083ac77"
-		}
+		 * TODO { "aud": "T000169", "sub": "P176945", "mail": "xs2sec@kurzepost.de",
+		 * "iss": "https://xs2security.accounts400.ondemand.com", "last_name": "xs2sec",
+		 * "exp": 6974031600, "iat": 6974030600, "first_name": "xs2sec", "jti":
+		 * "e21f7317-b4b9-42fd-b58b-3402d083ac77" }
 		 */
 		token = new IasToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 	}
@@ -78,7 +70,8 @@ public class IasTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 		assertThat(response.isAuthenticated()).isFalse();
-		assertThat(response.getUnauthenticatedReason()).contains("Unexpected error occurred: There must be a service configuration.");
+		assertThat(response.getUnauthenticatedReason())
+				.contains("Unexpected error occurred: There must be a service configuration.");
 	}
 
 	@Test

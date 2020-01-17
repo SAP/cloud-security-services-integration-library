@@ -24,9 +24,9 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	@Override
 	protected OAuth2ServiceConfiguration getServiceConfiguration() {
-		OAuth2ServiceConfiguration config =  serviceConfiguration != null ? serviceConfiguration :
-				Environments.getCurrent().getXsuaaConfiguration();
-		if(config == null) {
+		OAuth2ServiceConfiguration config = serviceConfiguration != null ? serviceConfiguration
+				: Environments.getCurrent().getXsuaaConfiguration();
+		if (config == null) {
 			throw new IllegalStateException("There must be a service configuration.");
 		}
 		return config;

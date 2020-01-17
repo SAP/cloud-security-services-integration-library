@@ -62,7 +62,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * this is the url where the service instance was created.
 	 *
 	 * @param url
-	 * 			base url, e.g. https://paastenant.idservice.com
+	 *            base url, e.g. https://paastenant.idservice.com
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withUrl(String url) {

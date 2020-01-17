@@ -32,7 +32,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		this(serviceConfiguration, () -> JwtValidatorBuilder.getInstance(serviceConfiguration).build());
 	}
 
-	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration, Supplier<Validator<Token>> validatorSupplier) {
+	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
+			Supplier<Validator<Token>> validatorSupplier) {
 		this.serviceConfiguration = serviceConfiguration;
 		this.validatorSupplier = validatorSupplier;
 	}
@@ -67,7 +68,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		tokenValidator = validatorSupplier.get();
 	}
 
-	@Override public OAuth2AccessToken readAccessToken(String accessToken) {
+	@Override
+	public OAuth2AccessToken readAccessToken(String accessToken) {
 		throw new UnsupportedOperationException("Not supported: read access token");
 	}
 }

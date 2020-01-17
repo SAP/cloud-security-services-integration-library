@@ -28,7 +28,8 @@ public class IasTokenTest {
 
 		assertThatThrownBy(() -> {
 			new IasToken("abc");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");
+		}).isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");
 	}
 
 	@Test

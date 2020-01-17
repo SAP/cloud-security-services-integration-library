@@ -27,7 +27,6 @@ public class XsuaaTokenTest {
 		scopesToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaScopesTokenRSA256.txt", UTF_8));
 	}
 
-
 	@Test
 	public void constructor_raiseIllegalArgumentExceptions() {
 		assertThatThrownBy(() -> {
@@ -36,7 +35,8 @@ public class XsuaaTokenTest {
 
 		assertThatThrownBy(() -> {
 			new XsuaaToken("abc");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");
+		}).isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");
 	}
 
 	@Test
@@ -115,6 +115,5 @@ public class XsuaaTokenTest {
 			XsuaaToken.getUniquePrincipalName("", "user");
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Origin");
 	}
-
 
 }

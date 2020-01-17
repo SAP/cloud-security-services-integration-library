@@ -163,8 +163,8 @@ public class SecurityTestRule extends ExternalResource {
 	/**
 	 * Overwrites the private/public key pair to be used. The private key is used to
 	 * sign the jwt token. The public key is provided by jwks endpoint (on behalf of
-	 * WireMock). Checked exceptions are caught and rethrown as runtime
-	 * exceptions for test convenience.
+	 * WireMock). Checked exceptions are caught and rethrown as runtime exceptions
+	 * for test convenience.
 	 *
 	 * @param publicKeyPath
 	 *            path to public key file.

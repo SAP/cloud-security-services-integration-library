@@ -67,7 +67,8 @@ public class XsuaaTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 		assertThat(response.isAuthenticated()).isFalse();
-		assertThat(response.getUnauthenticatedReason()).contains("Unexpected error occurred: There must be a service configuration.");
+		assertThat(response.getUnauthenticatedReason())
+				.contains("Unexpected error occurred: There must be a service configuration.");
 	}
 
 	@Test

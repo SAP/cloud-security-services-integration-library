@@ -129,7 +129,8 @@ public class XsuaaToken extends AbstractToken {
 	 * @return true if local scope is available
 	 **/
 	public boolean hasLocalScope(@Nonnull String scope) {
-		Assertions.assertNotNull(scopeConverter, "hasLocalScope method requires scopeConverter, which must not be null");
+		Assertions.assertNotNull(scopeConverter,
+				"hasLocalScope method requires scopeConverter, which must not be null");
 		return scopeConverter.convert(getScopes()).contains(scope);
 	}
 

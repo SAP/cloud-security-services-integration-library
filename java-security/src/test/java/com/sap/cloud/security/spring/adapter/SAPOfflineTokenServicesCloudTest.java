@@ -36,7 +36,6 @@ public class SAPOfflineTokenServicesCloudTest {
 		cut = createSAPOfflineTokenServicesCloud((token) -> ValidationResults.createValid());
 	}
 
-
 	@Test
 	public void loadAuthentication() throws IOException {
 		cut.afterPropertiesSet();
@@ -57,7 +56,6 @@ public class SAPOfflineTokenServicesCloudTest {
 		assertThatThrownBy(() -> cut.loadAuthentication("a.b.c")).isInstanceOf(InvalidTokenException.class);
 	}
 
-
 	@Test
 	public void readAccessToken() {
 		assertThatThrownBy(() -> cut.readAccessToken("token")).isInstanceOf(UnsupportedOperationException.class);
@@ -69,14 +67,15 @@ public class SAPOfflineTokenServicesCloudTest {
 		cut = createSAPOfflineTokenServicesCloud((token) -> ValidationResults.createInvalid(errorDescription));
 		cut.afterPropertiesSet();
 
-		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class).hasMessageContaining(errorDescription);
+		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class)
+				.hasMessageContaining(errorDescription);
 
 	}
 
 	@Test
 	public void afterPropertiesSet() {
 		TestTokenValidatorSupplier mockValidator = Mockito.mock(TestTokenValidatorSupplier.class);
-		cut =  new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class), mockValidator);
+		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class), mockValidator);
 
 		Mockito.verify(mockValidator, times(0)).get();
 		cut.afterPropertiesSet();
@@ -85,14 +84,14 @@ public class SAPOfflineTokenServicesCloudTest {
 
 	@Test
 	public void createInstancWithEmptyConfiguration_throwsException() {
-		cut =  new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class));
+		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class));
 		cut.afterPropertiesSet();
 		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
 	}
 
-
 	private static class TestTokenValidatorSupplier implements Supplier<Validator<Token>> {
-		@Override public Validator<Token> get() {
+		@Override
+		public Validator<Token> get() {
 			return null;
 		}
 	}
