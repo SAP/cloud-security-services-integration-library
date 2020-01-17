@@ -25,6 +25,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Properties;
 
 import static com.sap.cloud.security.config.Service.IAS;
@@ -136,6 +139,15 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
+	public void withExpiration_createsTokenWithExpiration() {
+		Instant expiration = LocalDate.of(2019, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
+
+		Token token = cut.withExpiration(expiration).createToken();
+
+		assertThat(token.getExpiration()).isEqualTo(expiration);
+	}
+
+	@Test
 	public void deriveAudience_createsTokenWithDerivedAudiences() {
 		String[] scopes = { "openid", "app1.scope", "app2.sub.scope", "app2.scope", ".scopeWithoutAppId" };
 
@@ -205,6 +217,7 @@ public class JwtGeneratorTest {
 		Token token = cut
 				.withHeaderParameter(TokenHeader.JWKS_URL, "http://auth.com/token_keys")
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, "xs2.usertoken")
+				.withExpiration(JwtGenerator.NO_EXPIRE_DATE)
 				.createToken();
 
 		ValidationResult result = tokenValidator.validate(token);

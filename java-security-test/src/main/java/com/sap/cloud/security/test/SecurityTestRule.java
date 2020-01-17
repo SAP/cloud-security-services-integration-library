@@ -161,9 +161,9 @@ public class SecurityTestRule extends ExternalResource {
 	}
 
 	/**
-	 * Same as {@link SecurityTestRule#setKeys(RSAKeys)} except you can pass in the
-	 * path to the public and private keys and the {@link RSAKeys} object will be
-	 * built for you. Any checked exceptions are caught and rethrown as runtime
+	 * Overwrites the private/public key pair to be used. The private key is used to
+	 * sign the jwt token. The public key is provided by jwks endpoint (on behalf of
+	 * WireMock). Checked exceptions are caught and rethrown as runtime
 	 * exceptions for test convenience.
 	 *
 	 * @param publicKeyPath
@@ -178,22 +178,6 @@ public class SecurityTestRule extends ExternalResource {
 		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
 			throw new RuntimeException(e);
 		}
-		return this;
-	}
-
-	/**
-	 * Overwrites the private/public key pair to be used. The private key is used to
-	 * sign the jwt token. The public key is provided by jwks endpoint (on behalf of
-	 * WireMock).
-	 * <p>
-	 * It needs to be configured before the {@link #before()} method.
-	 *
-	 * @param keys
-	 *            the private/public key pair.
-	 * @return the rule itself.
-	 */
-	public SecurityTestRule setKeys(RSAKeys keys) {
-		this.keys = keys;
 		return this;
 	}
 
@@ -215,6 +199,7 @@ public class SecurityTestRule extends ExternalResource {
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service)
+				.withExpiration(JwtGenerator.NO_EXPIRE_DATE)
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
 				.withPrivateKey(keys.getPrivate());
 		switch (service) {

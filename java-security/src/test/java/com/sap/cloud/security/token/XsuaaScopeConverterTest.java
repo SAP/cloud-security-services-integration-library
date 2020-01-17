@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.util.Lists.newArrayList;
 
 public class XsuaaScopeConverterTest {
@@ -15,6 +16,17 @@ public class XsuaaScopeConverterTest {
 	@Before
 	public void setUp() {
 		cut = new XsuaaScopeConverter("myAppId!t1785");
+	}
+
+	@Test
+	public void constructsWithInvalidAppId_raisesIllegalArgumentException() {
+		assertThatThrownBy(() -> {
+			new XsuaaScopeConverter(null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("appId must not be null or empty");
+
+		assertThatThrownBy(() -> {
+			new XsuaaScopeConverter("");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("appId must not be null or empty");
 	}
 
 	@Test

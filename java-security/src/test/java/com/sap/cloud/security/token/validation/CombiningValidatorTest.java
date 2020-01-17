@@ -1,13 +1,13 @@
 package com.sap.cloud.security.token.validation;
 
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.validation.*;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -17,6 +17,14 @@ public class CombiningValidatorTest {
 	public static final Token TOKEN = null;
 	private static final String FIRST_ERROR_MESSAGE = "firstMessage";
 	private static final String SECOND_ERROR_MESSAGE = "secondMessage";
+
+	@Test
+	public void construct_emptyToken_() {
+		assertThatThrownBy(() -> {
+			new CombiningValidator<>(null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("validators must not be null");
+
+	}
 
 	@Test
 	public void validate_containsNoValidators_validResult() {
@@ -30,7 +38,7 @@ public class CombiningValidatorTest {
 	@Test
 	public void validate_twoValidValidators_validResult() {
 		Validator<Token> combiningValidator = new CombiningValidator<>(
-				newArrayList(validValidator(), validValidator()));
+				newArrayList(TokenTestValidator.createValid(), TokenTestValidator.createValid()));
 
 		ValidationResult validationResult = combiningValidator.validate(TOKEN);
 
@@ -40,7 +48,7 @@ public class CombiningValidatorTest {
 	@Test
 	public void validate_twoInvalidValidators_invalidResult() {
 		Validator<Token> combiningValidator = new CombiningValidator<>(
-				newArrayList(invalidValidator(), invalidValidator()));
+				newArrayList(TokenTestValidator.createInvalid(), TokenTestValidator.createInvalid()));
 
 		ValidationResult validationResult = combiningValidator.validate(TOKEN);
 
@@ -50,8 +58,8 @@ public class CombiningValidatorTest {
 	@Test
 	public void validate_twoInvalidValidators_containsOnlyOneErrorMessages() {
 		Validator<Token> combiningValidator = new CombiningValidator<>(
-				newArrayList(validValidator(), invalidValidator(FIRST_ERROR_MESSAGE),
-						invalidValidator(SECOND_ERROR_MESSAGE)));
+				newArrayList(TokenTestValidator.createValid(), TokenTestValidator.createInvalid(FIRST_ERROR_MESSAGE),
+						TokenTestValidator.createInvalid(SECOND_ERROR_MESSAGE)));
 
 		String error = combiningValidator.validate(TOKEN).getErrorDescription();
 
@@ -60,7 +68,8 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void registerValidationListener_validValidator_callsOnValidationSuccess() {
-		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(newArrayList(validValidator()));
+		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(newArrayList(
+				TokenTestValidator.createValid()));
 		ValidationListener validationListenerMock = Mockito.mock(ValidationListener.class);
 		combiningValidator.registerValidationListener(validationListenerMock);
 
@@ -72,7 +81,8 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void registerValidationListener_invalidValidator_callsOnValidationSuccess() {
-		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(newArrayList(invalidValidator()));
+		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(newArrayList(
+				TokenTestValidator.createInvalid()));
 		ValidationListener validationListenerMock = Mockito.mock(ValidationListener.class);
 		combiningValidator.registerValidationListener(validationListenerMock);
 
@@ -84,7 +94,8 @@ public class CombiningValidatorTest {
 
 	@Test
 	public void registerValidationListener_listenerIsRemoved_isNotCalled() {
-		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(newArrayList(validValidator()));
+		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(newArrayList(
+				TokenTestValidator.createValid()));
 		ValidationListener validationListenerMock = Mockito.mock(ValidationListener.class);
 		combiningValidator.registerValidationListener(validationListenerMock);
 		combiningValidator.removeValidationListener(validationListenerMock);
@@ -97,29 +108,9 @@ public class CombiningValidatorTest {
 	@Test
 	public void toString_containsValidatorName() {
 		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(
-				newArrayList(new MyTokenValidator()));
+				newArrayList(TokenTestValidator.createValid()));
 
-		assertThat(combiningValidator.toString()).contains(MyTokenValidator.class.getSimpleName());
-	}
-
-	private class MyTokenValidator implements Validator<Token> {
-		@Override
-		public ValidationResult validate(Token token) {
-			return ValidationResults.createValid();
-		}
-
-	}
-
-	private Validator<Token> validValidator() {
-		return (obj) -> ValidationResults.createValid();
-	}
-
-	private Validator<Token> invalidValidator() {
-		return invalidValidator(FIRST_ERROR_MESSAGE);
-	}
-
-	private Validator<Token> invalidValidator(String errorMessage) {
-		return (obj) -> ValidationResults.createInvalid(errorMessage);
+		assertThat(combiningValidator.toString()).contains(TokenTestValidator.class.getSimpleName());
 	}
 
 }
