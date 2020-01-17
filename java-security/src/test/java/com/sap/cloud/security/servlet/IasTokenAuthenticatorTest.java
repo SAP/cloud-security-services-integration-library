@@ -7,11 +7,15 @@ import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.IasToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.validation.ValidationListener;
+import com.sap.cloud.security.util.HttpClientTestFactory;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,6 +37,7 @@ public class IasTokenAuthenticatorTest {
 	private final static HttpServletResponse HTTP_RESPONSE = Mockito.mock(HttpServletResponse.class);
 
 	private final IasToken token;
+	private CloseableHttpClient mockHttpClient;
 
 	private AbstractTokenAuthenticator cut;
 
@@ -48,17 +53,19 @@ public class IasTokenAuthenticatorTest {
 
 	@Before
 	public void setUp() throws IOException {
-		OAuth2TokenKeyService tokenKeyService = Mockito.mock(OAuth2TokenKeyService.class);
-		when(tokenKeyService.retrieveTokenKeys(any())).thenReturn(
-				JsonWebKeySetFactory.createFromJson(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8)));
+		mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+
+		CloseableHttpResponse response = HttpClientTestFactory
+				.createHttpResponse(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+		when(mockHttpClient.execute(any(HttpGet.class))).thenReturn(response);
+
 		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.IAS)
 				.withProperty(CFConstants.URL, "https://xs2security.accounts400.ondemand.com")
 				.build();
 
 		cut = new IasTokenAuthenticator()
-				.withOAuth2TokenKeyService(
-						OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyService))
+				.withHttpClient(mockHttpClient)
 				.withServiceConfiguration(oAuth2ServiceConfiguration);
 	}
 

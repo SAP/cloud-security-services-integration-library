@@ -7,9 +7,8 @@ import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
-import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +26,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTokenAuthenticator.class);
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private Validator<Token> tokenValidator;
-	protected OidcConfigurationServiceWithCache oidcConfigurationService;
-	protected OAuth2TokenKeyServiceWithCache tokenKeyService;
+	protected CloseableHttpClient httpClient;
 	protected OAuth2ServiceConfiguration serviceConfiguration;
 
 	@Override
@@ -59,14 +57,8 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return TokenAuthenticationResult.createUnauthenticated("Could not process request " + request);
 	}
 
-	public AbstractTokenAuthenticator withOidcConfigurationService(
-			OidcConfigurationServiceWithCache oidcConfigurationService) {
-		this.oidcConfigurationService = oidcConfigurationService;
-		return this;
-	}
-
-	public AbstractTokenAuthenticator withOAuth2TokenKeyService(OAuth2TokenKeyServiceWithCache tokenKeyService) {
-		this.tokenKeyService = tokenKeyService;
+	public AbstractTokenAuthenticator withHttpClient(CloseableHttpClient httpClient) {
+		this.httpClient = httpClient;
 		return this;
 	}
 
@@ -110,8 +102,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	private Validator<Token> getOrCreateTokenValidator() {
 		if (tokenValidator == null) {
 			JwtValidatorBuilder jwtValidatorBuilder = JwtValidatorBuilder.getInstance(getServiceConfiguration())
-					.withOAuth2TokenKeyService(tokenKeyService)
-					.withOidcConfigurationService(oidcConfigurationService);
+					.withHttpClient(httpClient);
 			validationListeners.forEach(jwtValidatorBuilder::withValidatorListener);
 			tokenValidator = jwtValidatorBuilder.build();
 		}
