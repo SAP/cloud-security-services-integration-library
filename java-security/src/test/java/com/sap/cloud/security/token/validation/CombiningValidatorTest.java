@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token.validation;
 
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.*;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -8,6 +9,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -17,6 +19,14 @@ public class CombiningValidatorTest {
 	public static final Token TOKEN = null;
 	private static final String FIRST_ERROR_MESSAGE = "firstMessage";
 	private static final String SECOND_ERROR_MESSAGE = "secondMessage";
+
+	@Test
+	public void construct_emptyToken_() {
+		assertThatThrownBy(() -> {
+			new CombiningValidator<>(null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("validators must not be null");
+
+	}
 
 	@Test
 	public void validate_containsNoValidators_validResult() {

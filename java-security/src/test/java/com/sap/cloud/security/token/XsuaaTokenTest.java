@@ -27,6 +27,18 @@ public class XsuaaTokenTest {
 		scopesToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaScopesTokenRSA256.txt", UTF_8));
 	}
 
+
+	@Test
+	public void constructor_raiseIllegalArgumentExceptions() {
+		assertThatThrownBy(() -> {
+			new XsuaaToken("");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("accessToken must not be null / empty");
+
+		assertThatThrownBy(() -> {
+			new XsuaaToken("abc");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");
+	}
+
 	@Test
 	public void getScopes() {
 		assertThat(clientCredentialsToken.getScopes()).containsExactly("ROLE_SERVICEBROKER", "uaa.resource");
@@ -87,18 +99,22 @@ public class XsuaaTokenTest {
 	public void getUniquePrincipalName() {
 		assertThat(XsuaaToken.getUniquePrincipalName("origin", "user"))
 				.isEqualTo("user/origin/user");
+	}
 
+	@Test
+	public void getUniquePrincipalName_raiseIllegalArgumentExceptions() {
 		assertThatThrownBy(() -> {
 			XsuaaToken.getUniquePrincipalName("origin/", "user");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("/");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("/");
 
 		assertThatThrownBy(() -> {
 			XsuaaToken.getUniquePrincipalName("origin", "");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("User");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("User");
 
 		assertThatThrownBy(() -> {
 			XsuaaToken.getUniquePrincipalName("", "user");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("Origin");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Origin");
 	}
+
 
 }
