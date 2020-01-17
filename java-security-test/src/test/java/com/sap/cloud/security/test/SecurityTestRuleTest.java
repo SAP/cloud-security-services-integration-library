@@ -24,10 +24,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.test.ApplicationServerOptions.*;
+import static com.sap.cloud.security.test.ApplicationServerOptions.forService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,24 +40,28 @@ public class SecurityTestRuleTest {
 	private static final int PORT = 8484;
 	private static final int APPLICATION_SERVER_PORT = 8383;
 	private static final String UTF_8 = StandardCharsets.UTF_8.displayName();
-
-	private static final RSAKeys RSA_KEYS = RSAKeys.generate();
+	private static final String PUBLIC_KEY_PATH = "src/main/resources/publicKey.txt";
+	private static final String PRIVATE_KEY_PATH = "src/main/resources/privateKey.txt";
 
 	@ClassRule
 	public static SecurityTestRule cut = SecurityTestRule.getInstance(XSUAA)
 			.setPort(PORT)
-			.setKeys(RSA_KEYS)
+			.setKeys(PUBLIC_KEY_PATH, PRIVATE_KEY_PATH)
 			.useApplicationServer(forService(XSUAA).usePort(APPLICATION_SERVER_PORT))
 			.addApplicationServlet(TestServlet.class, "/hi");
 
 	@Test
-	public void getTokenKeysRequest_responseContainsExpectedTokenKeys() throws IOException {
-		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
+	public void getTokenKeysRequest_responseContainsExpectedTokenKeys()
+			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 
+		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
 			JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(readContent(response));
-			assertThat(keySet.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "default-kid")).isNotNull();
+			PublicKey actualPublicKey = keySet
+					.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "default-kid").getPublicKey();
+
+			assertThat(actualPublicKey).isEqualTo(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH));
 		}
 	}
 
@@ -88,12 +95,15 @@ public class SecurityTestRuleTest {
 		}
 	}
 
-	private String readContent(CloseableHttpResponse response) throws IOException {
-		return IOUtils.readLines(response.getEntity().getContent(), UTF_8).stream()
-				.collect(Collectors.joining());
+	@Test
+	public void setKeys_invalidPath_throwsException()
+			throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
+		assertThatThrownBy(() -> SecurityTestRule.getInstance(XSUAA)
+				.setKeys("doesNotExist", "doesNotExist"))
+						.isInstanceOf(RuntimeException.class);
 	}
 
-	public static class TestRuleWithMockServlet {
+	public static class SecurityTestRuleWithMockServlet {
 
 		private HttpServlet mockServlet = Mockito.mock(HttpServlet.class);
 
@@ -113,7 +123,7 @@ public class SecurityTestRuleTest {
 
 	}
 
-	public static class SecurityTestRuleTestWithoutApplicationServer {
+	public static class SecurityTestRuleWithoutApplicationServer {
 
 		@Rule
 		public SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA);
@@ -126,7 +136,7 @@ public class SecurityTestRuleTest {
 	}
 
 	// TODO IAS
-	public static class SecurityIntegrationApplicationServerFaults {
+	public static class SecurityTestRuleApplicationServerFaults {
 
 		@Test
 		public void onlyXsuaaIsSupportedYet() {
@@ -146,4 +156,10 @@ public class SecurityTestRuleTest {
 			response.getWriter().print("Hi!");
 		}
 	}
+
+	private static String readContent(CloseableHttpResponse response) throws IOException {
+		return IOUtils.readLines(response.getEntity().getContent(), UTF_8).stream()
+				.collect(Collectors.joining());
+	}
+
 }

@@ -29,6 +29,8 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -161,16 +163,21 @@ public class SecurityTestRule extends ExternalResource {
 	/**
 	 * Overwrites the private/public key pair to be used. The private key is used to
 	 * sign the jwt token. The public key is provided by jwks endpoint (on behalf of
-	 * WireMock).
-	 * <p>
-	 * It needs to be configured before the {@link #before()} method.
+	 * WireMock). Checked exceptions are caught and rethrown as runtime
+	 * exceptions for test convenience.
 	 *
-	 * @param keys
-	 *            the private/public key pair.
+	 * @param publicKeyPath
+	 *            path to public key file.
+	 * @param privateKeyPath
+	 *            path to private key file.
 	 * @return the rule itself.
 	 */
-	public SecurityTestRule setKeys(RSAKeys keys) {
-		this.keys = keys;
+	public SecurityTestRule setKeys(String publicKeyPath, String privateKeyPath) {
+		try {
+			this.keys = RSAKeys.fromKeyFiles(publicKeyPath, privateKeyPath);
+		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+			throw new RuntimeException(e);
+		}
 		return this;
 	}
 

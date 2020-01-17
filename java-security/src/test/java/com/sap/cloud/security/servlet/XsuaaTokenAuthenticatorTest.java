@@ -60,6 +60,17 @@ public class XsuaaTokenAuthenticatorTest {
 	}
 
 	@Test
+	public void validateWhenConfigurationIsNull() {
+		cut = new XsuaaTokenAuthenticator();
+
+		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getBearerAccessToken());
+
+		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
+		assertThat(response.isAuthenticated()).isFalse();
+		assertThat(response.getUnauthenticatedReason()).contains("Unexpected error occurred: There must be a service configuration.");
+	}
+
+	@Test
 	public void validateRequest_noHeader_isUnauthenticated() {
 		HttpServletRequest httpRequest = createRequestWithoutToken();
 
