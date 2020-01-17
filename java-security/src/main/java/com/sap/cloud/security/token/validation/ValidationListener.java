@@ -5,7 +5,7 @@ package com.sap.cloud.security.token.validation;
  * {@link CombiningValidator}. Those classes will be called whenever a token is
  * being validated. <br>
  *
- * This might be relevant for writing your Audit logs.
+ * This might be relevant for writing Audit logs.
  */
 public interface ValidationListener {
 

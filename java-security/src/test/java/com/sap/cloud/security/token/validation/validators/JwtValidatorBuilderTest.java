@@ -23,8 +23,6 @@ public class JwtValidatorBuilderTest {
 
 	public static final Token TOKEN = mock(Token.class);
 
-	@Mock
-	private CombiningValidator<Token> combiningValidatorMock;
 
 	@Before
 	public void setUp() {
@@ -77,24 +75,7 @@ public class JwtValidatorBuilderTest {
 				.contains(tokenValidator);
 	}
 
-	@Test
-	public void withValidationListener_onValidationSuccessIsCalled() throws URISyntaxException {
-		ValidationListener validationListener1 = mock(ValidationListener.class);
-		ValidationListener validationListener2 = mock(ValidationListener.class);
-		JwtValidatorBuilder jwtValidatorBuilder = new JwtValidatorBuilder(configuration(),
-				(validators) -> combiningValidatorMock);
-
-		jwtValidatorBuilder
-				.withValidatorListener(validationListener1)
-				.withValidatorListener(validationListener2)
-				.build();
-
-		Mockito.verify(combiningValidatorMock, times(1)).registerValidationListener(validationListener1);
-		Mockito.verify(combiningValidatorMock, times(1)).registerValidationListener(validationListener2);
-		Mockito.verifyNoMoreInteractions(combiningValidatorMock);
-	}
-
-	private OAuth2ServiceConfiguration configuration() throws URISyntaxException {
+	private OAuth2ServiceConfiguration configuration() {
 		OAuth2ServiceConfiguration configuration = mock(OAuth2ServiceConfiguration.class);
 		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
 		when(configuration.getProperty(XSUAA.APP_ID)).thenReturn("test-app!t123");

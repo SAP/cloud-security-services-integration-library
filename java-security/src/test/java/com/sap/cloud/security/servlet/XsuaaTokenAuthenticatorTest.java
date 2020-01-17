@@ -94,24 +94,33 @@ public class XsuaaTokenAuthenticatorTest {
 	@Test
 	public void validateRequest_validToken_listenerIsCalled() {
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getBearerAccessToken());
-		ValidationListener validationListener = Mockito.mock(ValidationListener.class);
+		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
+		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 
-		cut.withValidationListener(validationListener).validateRequest(httpRequest, HTTP_RESPONSE);
+		cut.withValidationListener(validationListener1)
+				.withValidationListener(validationListener2)
+				.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		Mockito.verify(validationListener, times(1)).onValidationSuccess();
-		Mockito.verifyNoMoreInteractions(validationListener);
+		Mockito.verify(validationListener1, times(1)).onValidationSuccess();
+		Mockito.verify(validationListener2, times(1)).onValidationSuccess();
+		Mockito.verifyNoMoreInteractions(validationListener1);
+		Mockito.verifyNoMoreInteractions(validationListener2);
 	}
 
 	@Test
 	public void validateRequest_invalidToken_listenerIsCalled() {
 		HttpServletRequest httpRequest = createRequestWithToken(invalidSignatureToken.getBearerAccessToken());
-		ValidationListener validationListener = Mockito.mock(ValidationListener.class);
+		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
+		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 
-		TokenAuthenticationResult resp = cut.withValidationListener(validationListener)
+		cut.withValidationListener(validationListener1)
+				.withValidationListener(validationListener2)
 				.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		Mockito.verify(validationListener, times(1)).onValidationError(any());
-		Mockito.verifyNoMoreInteractions(validationListener);
+		Mockito.verify(validationListener1, times(1)).onValidationError(any());
+		Mockito.verify(validationListener2, times(1)).onValidationError(any());
+		Mockito.verifyNoMoreInteractions(validationListener2);
+		Mockito.verifyNoMoreInteractions(validationListener2);
 	}
 
 	private HttpServletRequest createRequestWithoutToken() {

@@ -24,8 +24,7 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 public class JwtValidatorBuilder {
 	private static Map<OAuth2ServiceConfiguration, JwtValidatorBuilder> instances = new HashMap<>();
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
-	private final CombiningValidatorProvider combiningTokenValidatorProvider;
-	private final List<ValidationListener> tokenValidationListeners = new ArrayList<>();
+	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private OAuth2ServiceConfiguration configuration;
 	private OidcConfigurationServiceWithCache oidcConfigurationService = null;
 	private OAuth2TokenKeyServiceWithCache tokenKeyService = null;
@@ -34,17 +33,6 @@ public class JwtValidatorBuilder {
 
 	private JwtValidatorBuilder() {
 		// use getInstance factory method
-		combiningTokenValidatorProvider = CombiningValidator::new;
-	}
-
-	interface CombiningValidatorProvider {
-		CombiningValidator<Token> create(List<Validator<Token>> validators);
-	}
-
-	public JwtValidatorBuilder(OAuth2ServiceConfiguration configuration,
-			CombiningValidatorProvider combiningTokenValidatorProvider) {
-		this.combiningTokenValidatorProvider = combiningTokenValidatorProvider;
-		this.configuration = configuration;
 	}
 
 	/**
@@ -143,7 +131,7 @@ public class JwtValidatorBuilder {
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withValidatorListener(ValidationListener validationListener) {
-		tokenValidationListeners.add(validationListener);
+		validationListeners.add(validationListener);
 		return this;
 	}
 
@@ -156,9 +144,9 @@ public class JwtValidatorBuilder {
 		List<Validator<Token>> allValidators = createDefaultValidators();
 		allValidators.addAll(validators);
 
-		CombiningValidator<Token> tokenCombiningValidator = combiningTokenValidatorProvider.create(allValidators);
-		tokenValidationListeners.forEach(tokenCombiningValidator::registerValidationListener);
-		return tokenCombiningValidator;
+		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(allValidators);
+		validationListeners.forEach(combiningValidator::registerValidationListener);
+		return combiningValidator;
 	}
 
 	private List<Validator<Token>> createDefaultValidators() {
