@@ -51,7 +51,8 @@ public class XsuaaTokenAuthenticatorTest {
 				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 		when(mockHttpClient.execute(any(HttpGet.class))).thenReturn(response);
 
-		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder
+				.forService(Service.XSUAA)
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "auth.com")
 				.withProperty(CFConstants.XSUAA.APP_ID, "appId")
 				.withClientId("clientId")
@@ -70,7 +71,8 @@ public class XsuaaTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 		assertThat(response.isAuthenticated()).isFalse();
-		assertThat(response.getUnauthenticatedReason()).contains("Unexpected error occurred: There must be a service configuration.");
+		assertThat(response.getUnauthenticatedReason())
+				.contains("Unexpected error occurred: There must be a service configuration.");
 	}
 
 	@Test

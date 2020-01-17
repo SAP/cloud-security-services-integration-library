@@ -107,10 +107,11 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
-	 * In case you want to configure the {@link OidcConfigurationService} and the the {@link OAuth2TokenKeyService}
-	 * with your own Rest client.
+	 * In case you want to configure the {@link OidcConfigurationService} and the
+	 * the {@link OAuth2TokenKeyService} with your own Rest client.
 	 *
-	 * @param httpClient your own http client
+	 * @param httpClient
+	 *            your own http client
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withHttpClient(CloseableHttpClient httpClient) {
@@ -193,10 +194,10 @@ public class JwtValidatorBuilder {
 	}
 
 	private OAuth2TokenKeyServiceWithCache getTokenKeyServiceWithCache() {
-		if(tokenKeyService != null) {
+		if (tokenKeyService != null) {
 			return tokenKeyService;
 		}
-		if(httpClient != null) {
+		if (httpClient != null) {
 			return OAuth2TokenKeyServiceWithCache.getInstance()
 					.withTokenKeyService(new DefaultOAuth2TokenKeyService(httpClient));
 		}
@@ -204,10 +205,10 @@ public class JwtValidatorBuilder {
 	}
 
 	private OidcConfigurationServiceWithCache getOidcConfigurationServiceWithCache() {
-		if(oidcConfigurationService != null) {
+		if (oidcConfigurationService != null) {
 			return oidcConfigurationService;
 		}
-		if(httpClient != null) {
+		if (httpClient != null) {
 			return OidcConfigurationServiceWithCache.getInstance()
 					.withOidcConfigurationService(new DefaultOidcConfigurationService(httpClient));
 		}

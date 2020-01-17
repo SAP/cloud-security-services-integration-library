@@ -23,7 +23,6 @@ public class JwtValidatorBuilderTest {
 
 	public static final Token TOKEN = mock(Token.class);
 
-
 	@Before
 	public void setUp() {
 		Mockito.mockitoSession().initMocks();

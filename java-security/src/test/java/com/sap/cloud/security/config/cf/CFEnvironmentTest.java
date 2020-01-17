@@ -63,7 +63,9 @@ public class CFEnvironmentTest {
 
 		assertThatThrownBy(() -> {
 			cut = CFEnvironment.getInstance((str) -> xsuaaBinding, (str) -> null);
-		}).isInstanceOf(JsonParsingException.class).hasMessageContainingAll("The credentials of 'VCAP_SERVICES' can not be parsed for service 'XSUAA'", "Please check the service binding.");
+		}).isInstanceOf(JsonParsingException.class).hasMessageContainingAll(
+				"The credentials of 'VCAP_SERVICES' can not be parsed for service 'XSUAA'",
+				"Please check the service binding.");
 	}
 
 	// TODO IAS
