@@ -3,7 +3,6 @@ package com.sap.cloud.security.spring.adapter;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
-import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
@@ -19,23 +18,20 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
-	private final Supplier<Validator<Token>> validatorSupplier;
 	private final OAuth2ServiceConfiguration serviceConfiguration;
 	private Validator<Token> tokenValidator;
 
 	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration) {
-		this(serviceConfiguration, () -> JwtValidatorBuilder.getInstance(serviceConfiguration).build());
+		this(serviceConfiguration, JwtValidatorBuilder.getInstance(serviceConfiguration).build());
 	}
 
-	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
-			Supplier<Validator<Token>> validatorSupplier) {
+	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration, Validator<Token> tokenValidator) {
 		this.serviceConfiguration = serviceConfiguration;
-		this.validatorSupplier = validatorSupplier;
+		this.tokenValidator = tokenValidator;
 	}
 
 	@Override
@@ -55,21 +51,20 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		}
 	}
 
+	@Override
+	public void afterPropertiesSet() {
+	}
+
+	@Override
+	public OAuth2AccessToken readAccessToken(String accessToken) {
+		throw new UnsupportedOperationException("Not supported: read access token");
+	}
+
 	private XsuaaToken checkAndCreateToken(@Nonnull String accessToken) {
 		try {
 			return new XsuaaToken(accessToken);
 		} catch (Exception e) {
 			throw new InvalidTokenException(e.getMessage());
 		}
-	}
-
-	@Override
-	public void afterPropertiesSet() {
-		tokenValidator = validatorSupplier.get();
-	}
-
-	@Override
-	public OAuth2AccessToken readAccessToken(String accessToken) {
-		throw new UnsupportedOperationException("Not supported: read access token");
 	}
 }
