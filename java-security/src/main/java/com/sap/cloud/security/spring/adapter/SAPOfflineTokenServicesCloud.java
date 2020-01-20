@@ -64,23 +64,23 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		throw new UnsupportedOperationException("Not supported: read access token");
 	}
 
-	// TODO 20.01.20 c5295400: test
 	private Token checkAndCreateToken(@Nonnull String accessToken) {
+		Service service = serviceConfiguration.getService();
+		if (service == null) {
+			throw new IllegalStateException(
+					String.format("Service configuration contains no service. VCAP_SERVICES missing?"));
+		}
 		try {
-			Service service = serviceConfiguration.getService();
-			if (service == null) {
-				throw new InvalidTokenException("Service configuration not found. Are VCAP_SERVICES missing?");
-			}
 			switch (service) {
 			case XSUAA:
 				return new XsuaaToken(accessToken);
 			case IAS:
 				return new IasToken(accessToken);
-			default:
-				throw new InvalidTokenException(String.format("Service configuration '%s' not supported yet", service));
 			}
 		} catch (Exception e) {
+			// catches exceptions during token creation and re-throws with spring specific exception
 			throw new InvalidTokenException(e.getMessage());
 		}
+		throw new IllegalStateException(String.format("Service configuration '%s' not supported yet", service));
 	}
 }
