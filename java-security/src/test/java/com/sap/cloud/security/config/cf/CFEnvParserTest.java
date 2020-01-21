@@ -29,7 +29,7 @@ public class CFEnvParserTest {
 
 	@Test
 	public void getClientId() {
-		assertThat(cut.getClientId()).isEqualTo("xs2.usertoken");
+		assertThat(cut.getClientId()).isEqualTo("clientId");
 	}
 
 	@Test

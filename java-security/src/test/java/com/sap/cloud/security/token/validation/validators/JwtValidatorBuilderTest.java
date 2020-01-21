@@ -61,6 +61,19 @@ public class JwtValidatorBuilderTest {
 	}
 
 	@Test
+	public void buildLegacy_containsAllDefaultValidators() {
+		List<Validator<Token>> validators = JwtValidatorBuilder
+				.getInstance(configuration())
+				.enableLegacyMode()
+				.build()
+				.getValidators();
+
+		assertThat(validators)
+				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
+				.hasAtLeastOneElementOfType(JwtSignatureValidator.class);
+	}
+
+	@Test
 	public void buildWithAnotherValidator_containsAddedValidator() throws URISyntaxException {
 		TokenTestValidator tokenValidator = TokenTestValidator.createValid();
 

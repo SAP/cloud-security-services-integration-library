@@ -32,6 +32,7 @@ public class JwtValidatorBuilder {
 	private CloseableHttpClient httpClient = null;
 	private OAuth2ServiceConfiguration otherConfiguration;
 	private Validator<Token> customAudienceValidator;
+	private boolean legacyMode;
 
 	private JwtValidatorBuilder() {
 		// use getInstance factory method
@@ -53,6 +54,17 @@ public class JwtValidatorBuilder {
 		instance.configuration = configuration;
 		instances.put(configuration, instance);
 		return instance;
+	}
+
+	/**
+	 * Setup validators that are relevant to check legacy access tokens,
+	 * 		e.g. not containing jku header and not supporting the oidc endpoint.
+	 *
+	 * @return this builder.
+	 */
+	public JwtValidatorBuilder enableLegacyMode() {
+		this.legacyMode = true;
+		return this;
 	}
 
 	/**
@@ -164,7 +176,7 @@ public class JwtValidatorBuilder {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
 		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
-				getOidcConfigurationServiceWithCache());
+				getOidcConfigurationServiceWithCache()).enableLegacyMode(legacyMode);
 		signatureValidator.withOAuth2Configuration(configuration);
 		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
 		defaultValidators.add(signatureValidator);
@@ -173,7 +185,9 @@ public class JwtValidatorBuilder {
 			if (customAudienceValidator == null) {
 				defaultValidators.add(createXsuaaAudienceValidator());
 			}
-			defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
+			if (legacyMode == false) {
+				defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
+			}
 
 		} else if (configuration.getService() == IAS) {
 			// TODO IAS
