@@ -44,11 +44,13 @@ public interface XSUserInfo {
 	 * @deprecated Can be replaced with
 	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.GIVEN_NAME)} from
 	 *             the {@code com.sap.cloud.security.token} package.
+	 *             TODO: Only if it is not an external attribute.
 	 * @return given name
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
 	@Deprecated
+	// TODO: 21.01.20 If it is an external attribute, we need getStringAttributeFromClaim for that.
 	public String getGivenName() throws XSUserInfoException;
 
 	/**
@@ -57,10 +59,12 @@ public interface XSUserInfo {
 	 * @deprecated Can be replaced with
 	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.FAMILY_NAME)}
 	 *             from the {@code com.sap.cloud.security.token} package.
+	 *             TODO: Only if it is not an external attribute.
 	 * @return family name
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	// TODO: 21.01.20 If it is an external attribute, we need getStringAttributeFromClaim for that.
 	@Deprecated
 	public String getFamilyName() throws XSUserInfoException;
 
@@ -108,14 +112,12 @@ public interface XSUserInfo {
 
 	/**
 	 * Return the subdomain of this subaccount
-	 * 
-	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.SUBDOMAIN)} from
-	 *             the {@code com.sap.cloud.security.token} package.
+	 *
 	 * @return subdomain
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	// TODO 21.01.20 c5295400: Cannot replaced until we have getStringAttributeFromClaim
 	@Deprecated
 	public String getSubdomain() throws XSUserInfoException;
 
@@ -153,10 +155,11 @@ public interface XSUserInfo {
 	@Deprecated
 	public String getEmail() throws XSUserInfoException;
 
+	// TODO XSA?
 	@Deprecated // use getHdbToken
 	public String getDBToken() throws XSUserInfoException;
 
-	// TODO 14.01.20 c5295400: can this be replaced?
+	// TODO XSA?
 	public String getHdbToken() throws XSUserInfoException;
 
 	/**
@@ -169,7 +172,7 @@ public interface XSUserInfo {
 	@Deprecated
 	public String getAppToken();
 
-	// TODO 14.01.20 c5295400: can this be replaced?
+	// TODO XSA?
 	@Deprecated
 	public String getToken(String namespace, String name) throws XSUserInfoException;
 
@@ -182,7 +185,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	// TODO 14.01.20 c5295400: can this be replaced?
+	// TODO 21.01.20 c5295400: Cannot replaced until we have getStringListAttributeFromClaim
 	public String[] getAttribute(String attributeName) throws XSUserInfoException;
 
 	/**
@@ -196,7 +199,7 @@ public interface XSUserInfo {
 	public boolean hasAttributes() throws XSUserInfoException;
 
 
-	// TODO 14.01.20 c5295400: can this be replaced?
+	// TODO XSA?
 	@Deprecated
 	public String[] getSystemAttribute(String attributeName) throws XSUserInfoException;
 
@@ -239,7 +242,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	// TODO 14.01.20 c5295400: cannot be replaced yet (but easy to implement).
+	// TODO 21.01.20 c5295400: Cannot replaced until we have getStringAttributeFromClaim
 	public String getAdditionalAuthAttribute(String attributeName) throws XSUserInfoException;
 
 	/**
@@ -249,14 +252,16 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	// TODO 14.01.20 c5295400: cannot be replaced yet
+	// TODO 21.01.20 c5295400: Cannot replaced until we have getStringAttributeFromClaim
 	public String getCloneServiceInstanceId() throws XSUserInfoException;
 
 	/**
 	 * OAuth Grant Type used for this token
 	 *
 	 * @deprecated can be replaced with {@code token.getGrantType()} from the
-	 *             {@code com.sap.cloud.security.token} package.
+	 *             {@code com.sap.cloud.security.token} package. This will give
+	 *             you a {@code GrantType} enum entry on which you can call {@code toString}
+	 *             to obtain the grant type as string, e.g. "client_credentials".
 	 * @return grant type
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
@@ -272,7 +277,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	// TODO 14.01.20 c5295400: can this be replaced?
+	// TODO XSA?
 	public boolean isInForeignMode() throws XSUserInfoException;
 
 	/**
