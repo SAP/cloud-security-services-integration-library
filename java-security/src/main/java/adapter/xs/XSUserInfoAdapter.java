@@ -2,6 +2,7 @@ package adapter.xs;
 
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.GrantType;
+import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.xsa.security.container.XSTokenRequest;
@@ -23,7 +24,17 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	static final String EXTERNAL_ATTR = "ext_attr";
 	private final XsuaaToken xsuaaToken;
 
-	public XSUserInfoAdapter(XsuaaToken xsuaaToken) {
+	public XSUserInfoAdapter(Token xsuaaToken) throws XSUserInfoException {
+		if(!(xsuaaToken instanceof XsuaaToken)) {
+			throw new XSUserInfoException("token needs to be an instance of XsuaaToken.");
+		}
+		this.xsuaaToken = (XsuaaToken) xsuaaToken;
+	}
+
+	public XSUserInfoAdapter(XsuaaToken xsuaaToken) throws XSUserInfoException {
+		if(xsuaaToken == null) {
+			throw new XSUserInfoException("token must not be null.");
+		}
 		this.xsuaaToken = xsuaaToken;
 	}
 
