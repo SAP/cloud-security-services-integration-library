@@ -49,7 +49,6 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpclient</artifactId>
-    <version>2.4.1-SNAPSHOT</version>
 </dependency>
 ```
 
