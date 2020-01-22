@@ -1,5 +1,6 @@
 package com.sap.cloud.security.adapter.spring;
 
+import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
@@ -27,6 +28,21 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * This constructor requires a dependency to Spring oauth and web.
+ * <pre>{@code
+ * <dependency>
+ *     <groupId>org.springframework.security.oauth</groupId>
+ *     <artifactId>spring-security-oauth2</artifactId>
+ *     <scope>provided</scope>
+ * </dependency>
+ * <dependency>
+ *     <groupId>org.springframework</groupId>
+ *     <artifactId>spring-beans</artifactId>
+ *     <scope>provided</scope>
+ * </dependency>
+ * }</pre>
+ */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
 	private final Supplier<Validator<Token>> validatorSupplier;
@@ -34,29 +50,26 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	private Validator<Token> tokenValidator;
 
 	/**
-	 * This constructor requires a dependency to Apache Rest Client.
-	 * <pre>{@code
-	 * <dependency>
-	 *     <groupId>org.apache.httpcomponents</groupId>
-	 *     <artifactId>httpclient</artifactId>
-	 * </dependency>
-	 * }</pre>
+	 * Constructs an instance which can be used in the SAP CP Environment.
+	 */
+	public SAPOfflineTokenServicesCloud() {
+		this(Environments.getCurrent().getXsuaaConfiguration());
+	}
+
+	/**
+	 * Constructs an instance with custom configuration.
+	 *
 	 * @param serviceConfiguration the service configuration.
 	 *                             You can use {@link com.sap.cloud.security.config.Environments} in order to load
 	 *                             service configuration from the binding information in your environment.
 	 */
 	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration) {
-		this(serviceConfiguration, () -> JwtValidatorBuilder.getInstance(serviceConfiguration).build());
+		this(serviceConfiguration, new RestTemplate());
 	}
 
 	/**
-	 * This constructor requires a dependency to Spring web.
-	 * <pre>{@code
-	 * <dependency>
-	 *     <groupId>org.springframework</groupId>
-	 *     <artifactId>spring-web</artifactId>
-	 * </dependency>
-	 * }</pre>
+	 * Constructs an instance with custom configuration and rest template.
+	 *
 	 * @param serviceConfiguration the service configuration.
 	 *                             You can use {@link com.sap.cloud.security.config.Environments} in order to load
 	 *                             service configuration from the binding information in your environment.
