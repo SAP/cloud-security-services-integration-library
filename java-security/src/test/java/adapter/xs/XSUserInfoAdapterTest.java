@@ -1,33 +1,44 @@
 package adapter.xs;
 
+import com.sap.cloud.security.json.JsonObject;
+import com.sap.cloud.security.token.GrantType;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
-import static java.nio.charset.StandardCharsets.*;
+import static adapter.xs.XSUserInfoAdapter.*;
+import static adapter.xs.XSUserInfoAdapter.HDB_NAMEDUSER_SAML;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 @Ignore
 public class XSUserInfoAdapterTest {
 
-	public static final String TEST_APP_ID = "testApp";
+	private static final String TEST_APP_ID = "testApp";
+	private final XsuaaToken token;
 	private XSUserInfoAdapter cut;
+	private XsuaaToken emptyToken;
+
+	public XSUserInfoAdapterTest() throws IOException {
+		emptyToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaEmptyToken.txt", UTF_8));
+		token = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", UTF_8));
+	}
 
 	@Before
-	public void setUp() throws IOException, XSUserInfoException {
-		XsuaaToken token = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", UTF_8));
+	public void setUp() throws XSUserInfoException {
 		cut = new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)));
 	}
 
+	// TODO 22.01.20 c5295400: implement external context fallback tests
 	@Test
 	public void testGetLogonName() throws XSUserInfoException {
 		assertThat(cut.getLogonName()).isEqualTo("TestUser");
@@ -58,7 +69,9 @@ public class XSUserInfoAdapterTest {
 		assertThat(cut.getClientId()).isEqualTo("sb-clone1!b5|LR-master!b5");
 	}
 
-	// TODO 21.01.20 c5295400: does not exist in XSUserInfo??
+	// TODO 21.01.20 c5295400: does not exist in XSUserInfo interface but exists in
+	// old UserInfo implementation?
+
 	// @Test
 	// public void testGetExpirationDate() throws XSUserInfoException {
 	// Date d = new Date(System.currentTimeMillis());
@@ -91,16 +104,44 @@ public class XSUserInfoAdapterTest {
 		assertThat(cut.getAppToken()).isEqualTo(IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", UTF_8));
 	}
 
-	// TODO 22.01.20 c5295400: get test data to implement this
-	// @Test
-	// public void testGetToken() throws XSUserInfoException,
-	// TokenValidationException {
-	// JwtToken jwtToken = JwtTokenHelper.decode(accessToken);
-	// Map<String, Object> claims = UaaTokenUtils.getClaims(jwtToken);
-	// userInfo = new UserInfo(claims, "testApp", accessToken);
-	// assertThat(userInfo.getToken("SYSTEM", "HDB")).startsWith(
-	// "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImxlZ2FjeS1LaWQifQ.ewogICJqdGkiOiAiMzc1ODdlOGM0NWI4NGE4NTgyMDc0NGMxNDU5OTEwYjUiLAogICJleHRfYXR0ciI6IHsKICA");
-	// }
+	@Test
+	public void getToken_namespaceNotSystem_throwsException() {
+		assertThatThrownBy(() -> cut.getToken("any", "any")).isInstanceOf(XSUserInfoException.class);
+	}
+
+	@Test
+	public void getToken_fallbackToAccessToken() throws XSUserInfoException {
+		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(token.getAccessToken());
+	}
+
+	@Test
+	public void getToken_fromExternalContext() throws XSUserInfoException {
+		String internalToken = "token";
+		XsuaaToken mockToken = Mockito.mock(XsuaaToken.class);
+		when(mockToken.getGrantType()).thenReturn(GrantType.SAML2_BEARER);
+		when(mockToken.hasClaim(EXTERNAL_CONTEXT)).thenReturn(true);
+		JsonObject externalContextMock = Mockito.mock(JsonObject.class);
+		when(mockToken.getClaimAsJsonObject(EXTERNAL_CONTEXT)).thenReturn(
+				externalContextMock);
+		when(externalContextMock.getAsString(HDB_NAMEDUSER_SAML)).thenReturn(internalToken);
+
+		cut = new XSUserInfoAdapter(mockToken);
+
+		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(internalToken);
+	}
+
+	@Test
+	public void getToken_fromHDBNamedUserSaml() throws XSUserInfoException {
+		String internalToken = "token";
+		XsuaaToken mockToken = Mockito.mock(XsuaaToken.class);
+		when(mockToken.getGrantType()).thenReturn(GrantType.SAML2_BEARER);
+		when(mockToken.hasClaim(EXTERNAL_CONTEXT)).thenReturn(false);
+		when(mockToken.getClaimAsString(HDB_NAMEDUSER_SAML)).thenReturn(internalToken);
+		when(mockToken.getClaimAsJsonObject(XS_USER_ATTRIBUTES)).thenReturn(Mockito.mock(JsonObject.class));
+		cut = new XSUserInfoAdapter(mockToken);
+
+		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(internalToken);
+	}
 
 	@Test
 	public void testGetAttribute() throws XSUserInfoException {
@@ -127,6 +168,12 @@ public class XSUserInfoAdapterTest {
 	@Test
 	public void testCheckLocalScope() throws XSUserInfoException {
 		assertThat(cut.checkLocalScope("localScope")).isTrue();
+	}
+
+	@Test
+	public void testCheckLocalScope_appNameNull_throwsException() throws XSUserInfoException {
+		cut = new XSUserInfoAdapter(token.withScopeConverter(null));
+		assertThatThrownBy(() -> cut.checkLocalScope("localScope")).isInstanceOf(XSUserInfoException.class);
 	}
 
 	@Test
@@ -161,11 +208,9 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void accessAttributes_doNotExist_throwsException() throws IOException, XSUserInfoException {
-		String emptyTokenString = IOUtils.resourceToString("/xsuaaEmptyToken.txt", UTF_8);
-		XsuaaToken emptyToken = new XsuaaToken(emptyTokenString);
+		String nonExistingAttribute = "doesNotExist";
 		cut = new XSUserInfoAdapter(emptyToken.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)));
 
-		assertThat(cut.getAppToken()).isEqualTo(emptyTokenString);
 		assertThatThrownBy(() -> cut.getGrantType()).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getLogonName()).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getFamilyName()).isInstanceOf(XSUserInfoException.class);
@@ -174,16 +219,9 @@ public class XSUserInfoAdapterTest {
 		assertThatThrownBy(() -> cut.getCloneServiceInstanceId()).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getGrantType()).isInstanceOf(XSUserInfoException.class);
 
-		// assertThatThrownBy(() ->
-		// cut.getJsonValue("")).isInstanceOf(XSUserInfoException.class);
-		// assertThatThrownBy(() ->
-		// cut.getAttribute("")).isInstanceOf(XSUserInfoException.class);
-		// assertThatThrownBy(() ->
-		// cut.getSystemAttribute("")).isInstanceOf(XSUserInfoException.class);
-		// assertThatThrownBy(() ->
-		// cut.checkLocalScope("localScope")).isInstanceOf(XSUserInfoException.class);
-		// assertThatThrownBy(() ->
-		// cut.isInForeignMode()).isInstanceOf(XSUserInfoException.class);
+		assertThatThrownBy(() -> cut.getJsonValue(nonExistingAttribute)).isInstanceOf(XSUserInfoException.class);
+		assertThatThrownBy(() -> cut.getAttribute(nonExistingAttribute)).isInstanceOf(XSUserInfoException.class);
+		assertThatThrownBy(() -> cut.getSystemAttribute(nonExistingAttribute)).isInstanceOf(XSUserInfoException.class);
 	}
 
 	@Test
