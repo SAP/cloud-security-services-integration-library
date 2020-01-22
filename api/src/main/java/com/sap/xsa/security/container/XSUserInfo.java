@@ -35,7 +35,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	public String getLogonName() throws XSUserInfoException;
 
 	/**
@@ -49,7 +48,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	// TODO: 21.01.20 If it is an external attribute, we need getStringAttributeFromClaim for that.
 	public String getGivenName() throws XSUserInfoException;
 
@@ -65,7 +63,6 @@ public interface XSUserInfo {
 	 *             if attribute is not available in the authentication token
 	 */
 	// TODO: 21.01.20 If it is an external attribute, we need getStringAttributeFromClaim for that.
-	@Deprecated
 	public String getFamilyName() throws XSUserInfoException;
 
 	/**
@@ -81,7 +78,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	public String getOrigin() throws XSUserInfoException;
 
 	/**
@@ -94,7 +90,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	String getIdentityZone() throws XSUserInfoException;
 
 	/**
@@ -107,7 +102,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	public String getSubaccountId() throws XSUserInfoException;
 
 	/**
@@ -118,7 +112,6 @@ public interface XSUserInfo {
 	 *             if attribute is not available in the authentication token
 	 */
 	// TODO 21.01.20 c5295400: Cannot replaced until we have getStringAttributeFromClaim
-	@Deprecated
 	public String getSubdomain() throws XSUserInfoException;
 
 	/**
@@ -131,7 +124,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	public String getClientId() throws XSUserInfoException;
 
 	/**
@@ -152,10 +144,8 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	public String getEmail() throws XSUserInfoException;
 
-	// TODO XSA?
 	@Deprecated // use getHdbToken
 	public String getDBToken() throws XSUserInfoException;
 
@@ -169,7 +159,6 @@ public interface XSUserInfo {
 	 *             {@code com.sap.cloud.security.token} package.
 	 * @return authentication token
 	 */
-	@Deprecated
 	public String getAppToken();
 
 	// TODO XSA?
@@ -214,7 +203,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	public boolean checkScope(String scope) throws XSUserInfoException;
 
 	/**
@@ -228,7 +216,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	public boolean checkLocalScope(String scope) throws XSUserInfoException;
 
 	/**
@@ -266,7 +253,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	public String getGrantType() throws XSUserInfoException;
 
 	/**
@@ -290,14 +276,13 @@ public interface XSUserInfo {
 	/**
 	 * Exchange a token into a token from another service instance
 	 * 
-	 * @deprecated can be replaced with token flows from the token client library.
 	 * @param tokenRequest
 	 *            request data
+	 * @deprecated can be replaced with token flows from the token client library.
 	 * @return requested token
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	public String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException;
 
 }
