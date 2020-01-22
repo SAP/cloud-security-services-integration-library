@@ -17,6 +17,12 @@ First make sure you have the following dependencies defined in your pom.xml:
   <version>4.3.25.RELEASE</version>
 </dependency>
 <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-web</artifactId>
+    <version>5.2.3.RELEASE</version>
+</dependency>
+<-- new java-security dependencies -->
+<dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>java-security</artifactId>
   <version>2.4.1-SNAPSHOT</version>
@@ -50,7 +56,7 @@ For example see the following snippet on how to instantiate the `SAPOfflineToken
 @Bean
 @Profile("cloud")
 protected SAPOfflineTokenServicesCloud offlineTokenServices() {
-	return new SAPOfflineTokenServicesCloud(Environments.getCurrent().getXsuaaConfiguration());
+	return new SAPOfflineTokenServicesCloud(Environments.getCurrent().getXsuaaConfiguration(), new RestTemplate());
 }
 ```
 You might need to fix your java imports to get rid of the old import for the `SAPOfflineTokenServicesCloud` class.
