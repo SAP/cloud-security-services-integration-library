@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.4.1-SNAPSHOT
+- [java-security] Migration Guide and some little improvements / enhancements.
+
 ## 2.4.0-SNAPSHOT
 - [java-security] Initial / Snapshot version of the new plain Java security libraries as documented [here](/README.md#token-validation-for-java-applications).
 - [token-client] [OidcConfigurationServiceWithCache](/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/OidcConfigurationServiceWithCache.java) supports basically Open-id Configuration endpoints as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#openid-connect-flow).

@@ -18,7 +18,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>2.4.0-SNAPSHOT</version>
+    <version>2.4.1-SNAPSHOT</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -46,12 +46,15 @@ The `SecurityTestRule` uses third-party library [WireMock](http://wiremock.org/d
 Optionally, you can configure the `SecurityTestRule` to start an embedded Jetty servlet container that comes equipped with an [authenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java). The authenticator checks whether a request is done by an authenticated AND authorized party. You can also add your own servlets to the container. Only requests that contain a valid authorization header will be passed through to the servlet. See the following test code that triggers HTTP requests against the servlet container. One request does not contain the token inside the authorization header and is expected to result in HTTP 401 (unauthenticated). The other contains a valid token and is expected to succeed.
 
 ```java
-public class HelloJavaServletTest {
+import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.token.TokenClaims.*;
 
+public class HelloJavaServletTest {
+    
 	private static Properties oldProperties;
 
 	@ClassRule
-	public static SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA)
+	public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA)
 			.useApplicationServer() // optionally customize application server, e.g. port
 			.addApplicationServlet(TestServlet.class, "/hi");  // add servlet to be tested to application server
     

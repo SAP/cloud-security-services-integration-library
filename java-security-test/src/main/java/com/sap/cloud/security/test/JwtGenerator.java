@@ -16,7 +16,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.security.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
  */
 public class JwtGenerator {
+	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
+
 	private static final Logger logger = LoggerFactory.getLogger(JwtGenerator.class);
 
 	private static final char DOT = '.';
@@ -112,6 +116,18 @@ public class JwtGenerator {
 	 */
 	public JwtGenerator withClaimValues(String claimName, String... values) {
 		jsonPayload.put(claimName, values);
+		return this;
+	}
+
+	/**
+	 * Sets the expiration claim (exp) of the token to the given moment in time.
+	 *
+	 * @param expiration
+	 *            the moment in time when the token will be expired.
+	 * @return the builder object.
+	 */
+	public JwtGenerator withExpiration(@Nonnull Instant expiration) {
+		jsonPayload.put(TokenClaims.EXPIRATION, expiration.getEpochSecond());
 		return this;
 	}
 

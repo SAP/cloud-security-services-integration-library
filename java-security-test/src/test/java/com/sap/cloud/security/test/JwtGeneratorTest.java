@@ -25,6 +25,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Properties;
 
 import static com.sap.cloud.security.config.Service.IAS;
@@ -87,14 +90,14 @@ public class JwtGeneratorTest {
 	@Test
 	public void withClaim_containsClaim() {
 		String clientId = "myClientId";
-		String subdomain = "subdomain";
+		String email = "john.doe@mail.de";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.XSUAA.SUBDOMAIN, subdomain)
+				.withClaimValue(TokenClaims.XSUAA.EMAIL, email)
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
 				.createToken();
 
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.SUBDOMAIN)).isEqualTo(subdomain);
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.EMAIL)).isEqualTo(email);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(clientId);
 	}
 
@@ -133,6 +136,15 @@ public class JwtGeneratorTest {
 		Token token = cut.withClaimValues(TokenClaims.AUDIENCE, audiences).createToken();
 
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly(audiences);
+	}
+
+	@Test
+	public void withExpiration_createsTokenWithExpiration() {
+		Instant expiration = LocalDate.of(2019, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
+
+		Token token = cut.withExpiration(expiration).createToken();
+
+		assertThat(token.getExpiration()).isEqualTo(expiration);
 	}
 
 	@Test
@@ -205,6 +217,7 @@ public class JwtGeneratorTest {
 		Token token = cut
 				.withHeaderParameter(TokenHeader.JWKS_URL, "http://auth.com/token_keys")
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, "xs2.usertoken")
+				.withExpiration(JwtGenerator.NO_EXPIRE_DATE)
 				.createToken();
 
 		ValidationResult result = tokenValidator.validate(token);

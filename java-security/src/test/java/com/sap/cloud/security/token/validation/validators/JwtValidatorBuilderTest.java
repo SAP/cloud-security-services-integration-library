@@ -4,26 +4,34 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.validation.ValidationResults;
-import com.sap.cloud.security.token.validation.Validator;
-import org.junit.Ignore;
+import com.sap.cloud.security.token.validation.*;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class JwtValidatorBuilderTest {
 
 	public static final Token TOKEN = mock(Token.class);
 
+	@Before
+	public void setUp() {
+		Mockito.mockitoSession().initMocks();
+	}
+
 	@Test
 	public void sameServiceConfiguration_getSameInstance() throws URISyntaxException {
-		TokenValidator tokenValidatorMock = createTokenValidatorMock();
-		OAuth2ServiceConfiguration configuration = createMockConfiguration();
+		TokenTestValidator.createValid();
+		OAuth2ServiceConfiguration configuration = configuration();
 		JwtValidatorBuilder builder_1 = JwtValidatorBuilder.getInstance(configuration);
 		JwtValidatorBuilder builder_2 = JwtValidatorBuilder.getInstance(configuration);
 		assertThat(builder_1).isSameAs(builder_2);
@@ -31,18 +39,18 @@ public class JwtValidatorBuilderTest {
 
 	@Test
 	public void withAudienceValidator_overridesXsuaaJwtAudienceValidator() throws URISyntaxException {
-		TokenValidator tokenValidatorMock = createTokenValidatorMock();
-		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(createMockConfiguration())
-				.withAudienceValidator(tokenValidatorMock)
+		TokenTestValidator validator = TokenTestValidator.createValid();
+		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(configuration())
+				.withAudienceValidator(validator)
 				.build()
 				.getValidators();
-		assertThat(validators).contains(tokenValidatorMock)
+		assertThat(validators).contains(validator)
 				.doesNotHaveAnyElementsOfTypes(XsuaaJwtAudienceValidator.class);
 	}
 
 	@Test
 	public void build_containsAllDefaultValidators() throws URISyntaxException {
-		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(createMockConfiguration()).build()
+		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(configuration()).build()
 				.getValidators();
 
 		assertThat(validators)
@@ -54,21 +62,20 @@ public class JwtValidatorBuilderTest {
 
 	@Test
 	public void buildWithAnotherValidator_containsAddedValidator() throws URISyntaxException {
-		TokenValidator tokenValidatorMock = createTokenValidatorMock();
+		TokenTestValidator tokenValidator = TokenTestValidator.createValid();
 
-		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(createMockConfiguration())
-				.with(tokenValidatorMock)
+		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(configuration())
+				.with(tokenValidator)
 				.build()
 				.getValidators();
 
 		assertThat(validators)
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
-				.contains(tokenValidatorMock);
+				.contains(tokenValidator);
 	}
 
-	private OAuth2ServiceConfiguration createMockConfiguration() throws URISyntaxException {
+	private OAuth2ServiceConfiguration configuration() {
 		OAuth2ServiceConfiguration configuration = mock(OAuth2ServiceConfiguration.class);
-		when(configuration.getUrl()).thenReturn(new URI("https://my.auth.com"));
 		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
 		when(configuration.getProperty(XSUAA.APP_ID)).thenReturn("test-app!t123");
 		when(configuration.getProperty(XSUAA.UAA_DOMAIN)).thenReturn("auth.com");
@@ -76,13 +83,4 @@ public class JwtValidatorBuilderTest {
 		return configuration;
 	}
 
-	private TokenValidator createTokenValidatorMock() {
-		TokenValidator tokenValidatorMock = mock(TokenValidator.class);
-		when(tokenValidatorMock.validate(TOKEN)).thenReturn(ValidationResults.createValid());
-		return tokenValidatorMock;
-	}
-
-	private interface TokenValidator extends Validator<Token> {
-
-	}
 }

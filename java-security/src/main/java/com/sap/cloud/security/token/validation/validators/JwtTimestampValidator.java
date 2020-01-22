@@ -5,6 +5,7 @@ import static com.sap.cloud.security.token.validation.ValidationResults.createIn
 import javax.annotation.Nullable;
 
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
@@ -52,6 +53,8 @@ public class JwtTimestampValidator implements Validator<Token> {
 		Instant expiration = token.getExpiration();
 		if (expiration != null) {
 			validationResult = checkExpiration(expiration);
+		} else {
+			return ValidationResults.createInvalid("Jwt does not contain expiration (exp) claim. Cannot be validated!");
 		}
 
 		Instant notBefore = token.getNotBefore();

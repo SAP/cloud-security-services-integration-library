@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import static com.sap.cloud.security.TestConstants.*;
+import static com.sap.cloud.security.token.MockTokenBuilder.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JwtTimestampValidatorTest {
@@ -24,12 +25,12 @@ public class JwtTimestampValidatorTest {
 	}
 
 	@Test
-	public void token_LacksExpiration_isValid() {
+	public void token_lacksExpiration_isNotValid() {
 		Token token = tokenFactory.withExpiration(null).build();
 
 		ValidationResult validationResult = cut.validate(token);
 
-		assertThat(validationResult.isValid()).isTrue();
+		assertThat(validationResult.isValid()).isFalse();
 	}
 
 	@Test
@@ -63,7 +64,7 @@ public class JwtTimestampValidatorTest {
 
 	@Test
 	public void tokenLacksNotBefore_isValid() {
-		Token token = tokenFactory.withNotBefore(null).build();
+		Token token = tokenFactory.withExpiration(NO_EXPIRE_DATE).withNotBefore(null).build();
 
 		ValidationResult validationResult = cut.validate(token);
 
@@ -72,7 +73,7 @@ public class JwtTimestampValidatorTest {
 
 	@Test
 	public void tokenNotBefore_now_isValid() {
-		Token token = tokenFactory.withNotBefore(NOW).build();
+		Token token = tokenFactory.withExpiration(NO_EXPIRE_DATE).withNotBefore(NOW).build();
 
 		ValidationResult validationResult = cut.validate(token);
 
@@ -81,7 +82,10 @@ public class JwtTimestampValidatorTest {
 
 	@Test
 	public void tokenNotBefore_insideClockSkewLeeway_isValid() {
-		Token token = tokenFactory.withNotBefore(NOW.plus(ONE_MINUTE).minus(ONE_SECOND)).build();
+		Token token = tokenFactory
+				.withExpiration(NO_EXPIRE_DATE)
+				.withNotBefore(NOW.plus(ONE_MINUTE).minus(ONE_SECOND))
+				.build();
 
 		ValidationResult validationResult = cut.validate(token);
 
@@ -91,7 +95,7 @@ public class JwtTimestampValidatorTest {
 	@Test
 	public void tokenNotBefore_afterClockSkewLeeway_isNotValidAndContainsErrorDescription() {
 		Instant inOneMinute = NOW.plus(ONE_MINUTE);
-		Token token = tokenFactory.withNotBefore(inOneMinute).build();
+		Token token = tokenFactory.withExpiration(NO_EXPIRE_DATE).withNotBefore(inOneMinute).build();
 
 		ValidationResult validationResult = cut.validate(token);
 

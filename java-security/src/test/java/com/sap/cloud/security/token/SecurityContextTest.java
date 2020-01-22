@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SecurityContextTest {
 
@@ -21,14 +22,21 @@ public class SecurityContextTest {
 	}
 
 	@Test
-	public void securityContext_initialTokenIsNull() {
+	public void setTokenAndRetrieve_NullToken() {
+		SecurityContext.setToken(TOKEN);
+		SecurityContext.setToken(null);
+		assertThat(SecurityContext.getToken()).isNull();
+	}
+
+	@Test
+	public void getInitialToken_isNull() {
 		Token token = SecurityContext.getToken();
 
 		assertThat(token).isNull();
 	}
 
 	@Test
-	public void initTokenAndRetrieve() {
+	public void setTokenAndGet() {
 		SecurityContext.setToken(TOKEN);
 		Token token = SecurityContext.getToken();
 

@@ -15,6 +15,9 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
  src/main/java/com/sap/cloud/security/token/validation/validators/JwtSignatureValidator.java))?
 - Provides thread-local cache ([`SecurityContext`](src/main/java/com/sap/cloud/security/token/SecurityContext.java)) to store the decoded and validated token.
 - Furthermore, it provides an authenticator ([`TokenAuthenticator`](src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java)) that validates bearer tokens contained in the authorization header of HTTP requests. The authenticator is used in the following [sample](/samples/java-security-usage).
+
+![](xsuaaApplication.png)
+
 ## Open Source libs used
 - JSON Parser Reference implementation: [json.org](https://github.com/stleary/JSON-java)
 - No crypto library. Leverages Public Key Infrastructure (PKI) provided by Java Security Framework to verify digital signatures.
@@ -41,13 +44,30 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.4.0-SNAPSHOT</version>
+    <version>2.4.1-SNAPSHOT</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpclient</artifactId>
-    <version>2.4.0-SNAPSHOT</version>
 </dependency>
+```
+
+You may need to add the following profile to allow snapshot versions:
+```xml
+<profiles>
+    <profile>
+        <id>allow-snapshots</id>
+        <activation><activeByDefault>true</activeByDefault></activation>
+        <repositories>
+            <repository>
+                <id>snapshots-repo</id>
+                <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                <releases><enabled>false</enabled></releases>
+                <snapshots><enabled>true</enabled></snapshots>
+            </repository>
+        </repositories>
+    </profile>
+</profiles>
 ```
 
 ## Basic Usage
@@ -65,9 +85,18 @@ Now configure the `JwtValidatorBuilder` once with the service configuration from
 CombiningValidator<Token> validators = JwtValidatorBuilder.getInstance(serviceConfig).build();
 ```
 
+
 > Note: By default `JwtValidatorBuilder` builds a `CombiningValidator`. 
 > For the Signature validation it needs to fetch the Json Web Token Keys (jwks) from the OAuth server using `DefaultOAuth2TokenKeyService`. In case the token does not provide a `jku` header parameter it also requests the Open-ID Provider Configuration from the OAuth Server to determine the `jwks_uri` using `DefaultOidcConfigurationService`. Both default services uses Apache Rest client and can be customized via the `JwtValidatorBuilder` builder.
-          
+
+#### [Optional] Step 2.1: Add Validation Listeners for Audit Log
+Optionally, you can add a validation listener to the validator to be able to get called back whenever a token is validated. Here you may want to emit logs to the audit log service.
+
+```java
+JwtValidatorBuilder.getInstance(serviceConfig).withValidatorListener(validationListener);
+```
+
+The validation listener needs to implement the [ValidationListener](src/main/java/com/sap/cloud/security/token/validation/ValidationListener.java) interface to be able to receive callbacks on validation success or failure.
 
 ### Create a Token Object 
 This decodes an encoded access token (Jwt token) and parses its json header and payload. The `Token` interface provides a simple access to its JWT header parameters and its claims.
@@ -120,6 +149,8 @@ For the integration of different Identity Services the [`TokenAuthenticator`](sr
 - [XsuaaTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java)
 
 > Depending on the application's needs the `TokenAuthenticator` can be customized.
+
+![](xsuaaFilter.png)
 
 The authenticator is used in the following [sample](/samples/java-security-usage).
 

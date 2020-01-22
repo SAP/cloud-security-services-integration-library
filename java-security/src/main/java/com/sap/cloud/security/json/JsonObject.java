@@ -96,14 +96,16 @@ public interface JsonObject {
 	 *
 	 * Example:
 	 * 
-	 * <pre>{@code
+	 * <pre>
+	 * {@code
 	 * 	String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
 	 * 	JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName())
 	 * 			.get(0);
 	 * 	Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
 	 * 	Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS)
 	 * 			.getKeyValueMap();
-	 * }</pre>
+	 * }
+	 * </pre>
 	 * 
 	 * @return the json properties as key-value map
 	 */

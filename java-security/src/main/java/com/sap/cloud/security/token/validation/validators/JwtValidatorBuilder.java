@@ -3,9 +3,11 @@ package com.sap.cloud.security.token.validation.validators;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
+import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -23,9 +25,11 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 public class JwtValidatorBuilder {
 	private static Map<OAuth2ServiceConfiguration, JwtValidatorBuilder> instances = new HashMap<>();
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
+	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private OAuth2ServiceConfiguration configuration;
 	private OidcConfigurationServiceWithCache oidcConfigurationService = null;
 	private OAuth2TokenKeyServiceWithCache tokenKeyService = null;
+	private CloseableHttpClient httpClient = null;
 	private OAuth2ServiceConfiguration otherConfiguration;
 	private Validator<Token> customAudienceValidator;
 
@@ -77,9 +81,7 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OAuth2TokenKeyServiceWithCache}. For example you like to change the
-	 * cache settings or you like to configure the {@link OAuth2TokenKeyService}
-	 * with your own Rest client.
+	 * {@link OAuth2TokenKeyServiceWithCache}.
 	 *
 	 * @param tokenKeyService
 	 *            your token key service
@@ -92,9 +94,7 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OidcConfigurationServiceWithCache}. For example you like to change the
-	 * cache settings or you like to configure the {@link OidcConfigurationService}
-	 * with your own Rest client.
+	 * {@link OidcConfigurationServiceWithCache}.
 	 *
 	 * @param oidcConfigurationService
 	 *            your token key service
@@ -103,6 +103,19 @@ public class JwtValidatorBuilder {
 	public JwtValidatorBuilder withOidcConfigurationService(
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
 		this.oidcConfigurationService = oidcConfigurationService;
+		return this;
+	}
+
+	/**
+	 * In case you want to configure the {@link OidcConfigurationService} and the
+	 * the {@link OAuth2TokenKeyService} with your own Rest client.
+	 *
+	 * @param httpClient
+	 *            your own http client
+	 * @return this builder
+	 */
+	public JwtValidatorBuilder withHttpClient(CloseableHttpClient httpClient) {
+		this.httpClient = httpClient;
 		return this;
 	}
 
@@ -122,6 +135,18 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
+	 * Adds the validation listener to the jwt validator that is being built.
+	 * 
+	 * @param validationListener
+	 *            the listener to be added to the validator.
+	 * @return this builder
+	 */
+	public JwtValidatorBuilder withValidatorListener(ValidationListener validationListener) {
+		validationListeners.add(validationListener);
+		return this;
+	}
+
+	/**
 	 * Builds the validators with the applied parameters.
 	 *
 	 * @return the combined validators.
@@ -130,7 +155,9 @@ public class JwtValidatorBuilder {
 		List<Validator<Token>> allValidators = createDefaultValidators();
 		allValidators.addAll(validators);
 
-		return new CombiningValidator<>(allValidators);
+		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(allValidators);
+		validationListeners.forEach(combiningValidator::registerValidationListener);
+		return combiningValidator;
 	}
 
 	private List<Validator<Token>> createDefaultValidators() {
@@ -167,12 +194,25 @@ public class JwtValidatorBuilder {
 	}
 
 	private OAuth2TokenKeyServiceWithCache getTokenKeyServiceWithCache() {
-		return tokenKeyService != null ? tokenKeyService : OAuth2TokenKeyServiceWithCache.getInstance();
+		if (tokenKeyService != null) {
+			return tokenKeyService;
+		}
+		if (httpClient != null) {
+			return OAuth2TokenKeyServiceWithCache.getInstance()
+					.withTokenKeyService(new DefaultOAuth2TokenKeyService(httpClient));
+		}
+		return OAuth2TokenKeyServiceWithCache.getInstance();
 	}
 
 	private OidcConfigurationServiceWithCache getOidcConfigurationServiceWithCache() {
-		return oidcConfigurationService != null ? oidcConfigurationService
-				: OidcConfigurationServiceWithCache.getInstance();
+		if (oidcConfigurationService != null) {
+			return oidcConfigurationService;
+		}
+		if (httpClient != null) {
+			return OidcConfigurationServiceWithCache.getInstance()
+					.withOidcConfigurationService(new DefaultOidcConfigurationService(httpClient));
+		}
+		return OidcConfigurationServiceWithCache.getInstance();
 	}
 
 }

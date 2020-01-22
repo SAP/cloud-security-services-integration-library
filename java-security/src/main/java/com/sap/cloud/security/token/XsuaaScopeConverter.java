@@ -1,5 +1,7 @@
 package com.sap.cloud.security.token;
 
+import com.sap.cloud.security.xsuaa.Assertions;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,6 +21,7 @@ public class XsuaaScopeConverter implements ScopeConverter {
 	 *            the xs application name e.g. myapp!t123.
 	 */
 	public XsuaaScopeConverter(String appId) {
+		Assertions.assertHasText(appId, "appId must not be null or empty.");
 		this.globalScopePattern = Pattern.compile(appId + "\\.(.+)");
 	}
 
