@@ -40,7 +40,7 @@ public class CFConstants {
 	 * Represents the service plans on CF marketplace.
 	 */
 	public enum Plan {
-		DEFAULT, BROKER, APPLICATION;
+		DEFAULT, BROKER, APPLICATION, SPACE;
 
 		public static Plan from(String planAsString) {
 			return Plan.valueOf(planAsString.toUpperCase());
