@@ -1,5 +1,6 @@
-package com.sap.cloud.security.spring.adapter;
+package com.sap.cloud.security.adapter.spring;
 
+import com.sap.cloud.security.adapter.spring.SAPOfflineTokenServicesCloud;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;

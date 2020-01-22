@@ -93,7 +93,7 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OAuth2TokenKeyServiceWithCache}.
+	 * {@link OAuth2TokenKeyServiceWithCache#getInstance()}.
 	 *
 	 * @param tokenKeyService
 	 *            your token key service
@@ -106,7 +106,7 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OidcConfigurationServiceWithCache}.
+	 * {@link OidcConfigurationServiceWithCache#getInstance()}.
 	 *
 	 * @param oidcConfigurationService
 	 *            your token key service
