@@ -30,7 +30,9 @@ import java.util.stream.Collectors;
 
 /**
  * This constructor requires a dependency to Spring oauth and web.
- * <pre>{@code
+ * 
+ * <pre>
+ * {@code
  * <dependency>
  *     <groupId>org.springframework.security.oauth</groupId>
  *     <artifactId>spring-security-oauth2</artifactId>
@@ -41,7 +43,8 @@ import java.util.stream.Collectors;
  *     <artifactId>spring-beans</artifactId>
  *     <scope>provided</scope>
  * </dependency>
- * }</pre>
+ * }
+ * </pre>
  */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
@@ -59,9 +62,11 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	/**
 	 * Constructs an instance with custom configuration.
 	 *
-	 * @param serviceConfiguration the service configuration.
-	 *                             You can use {@link com.sap.cloud.security.config.Environments} in order to load
-	 *                             service configuration from the binding information in your environment.
+	 * @param serviceConfiguration
+	 *            the service configuration. You can use
+	 *            {@link com.sap.cloud.security.config.Environments} in order to
+	 *            load service configuration from the binding information in your
+	 *            environment.
 	 */
 	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration) {
 		this(serviceConfiguration, new RestTemplate());
@@ -70,20 +75,23 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	/**
 	 * Constructs an instance with custom configuration and rest template.
 	 *
-	 * @param serviceConfiguration the service configuration.
-	 *                             You can use {@link com.sap.cloud.security.config.Environments} in order to load
-	 *                             service configuration from the binding information in your environment.
-	 * @param restOperations the spring rest template
+	 * @param serviceConfiguration
+	 *            the service configuration. You can use
+	 *            {@link com.sap.cloud.security.config.Environments} in order to
+	 *            load service configuration from the binding information in your
+	 *            environment.
+	 * @param restOperations
+	 *            the spring rest template
 	 */
-	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration, RestOperations restOperations) {
+	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
+			RestOperations restOperations) {
 		this(serviceConfiguration, () -> JwtValidatorBuilder.getInstance(serviceConfiguration)
 				.withOAuth2TokenKeyService(
 						OAuth2TokenKeyServiceWithCache.getInstance()
 								.withTokenKeyService(new SpringOAuth2TokenKeyService(restOperations)))
 				.withOidcConfigurationService(
 						OidcConfigurationServiceWithCache.getInstance()
-								.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations))
-				)
+								.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations)))
 				.build());
 	}
 

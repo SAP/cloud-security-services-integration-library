@@ -28,7 +28,6 @@ public class XSUserInfoAdapterTest {
 		cut = new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)));
 	}
 
-
 	@Test
 	public void testGetLogonName() throws XSUserInfoException {
 		assertThat(cut.getLogonName()).isEqualTo("TestUser");
@@ -60,11 +59,12 @@ public class XSUserInfoAdapterTest {
 	}
 
 	// TODO 21.01.20 c5295400: does not exist in XSUserInfo??
-	//	@Test
-	//	public void testGetExpirationDate() throws XSUserInfoException {
-	//		Date d = new Date(System.currentTimeMillis());
-	//		assertThat(userInfo.getExpirationDate().getTime()).isCloseTo(System.currentTimeMillis(), Offset.offset(5000L));
-	//	}
+	// @Test
+	// public void testGetExpirationDate() throws XSUserInfoException {
+	// Date d = new Date(System.currentTimeMillis());
+	// assertThat(userInfo.getExpirationDate().getTime()).isCloseTo(System.currentTimeMillis(),
+	// Offset.offset(5000L));
+	// }
 
 	@Test
 	public void testGetJsonValue() throws XSUserInfoException {
@@ -92,14 +92,15 @@ public class XSUserInfoAdapterTest {
 	}
 
 	// TODO 22.01.20 c5295400: get test data to implement this
-	//	@Test
-	//	public void testGetToken() throws XSUserInfoException, TokenValidationException {
-	//		JwtToken jwtToken = JwtTokenHelper.decode(accessToken);
-	//		Map<String, Object> claims = UaaTokenUtils.getClaims(jwtToken);
-	//		userInfo = new UserInfo(claims, "testApp", accessToken);
-	//		assertThat(userInfo.getToken("SYSTEM", "HDB")).startsWith(
-	//				"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImxlZ2FjeS1LaWQifQ.ewogICJqdGkiOiAiMzc1ODdlOGM0NWI4NGE4NTgyMDc0NGMxNDU5OTEwYjUiLAogICJleHRfYXR0ciI6IHsKICA");
-	//	}
+	// @Test
+	// public void testGetToken() throws XSUserInfoException,
+	// TokenValidationException {
+	// JwtToken jwtToken = JwtTokenHelper.decode(accessToken);
+	// Map<String, Object> claims = UaaTokenUtils.getClaims(jwtToken);
+	// userInfo = new UserInfo(claims, "testApp", accessToken);
+	// assertThat(userInfo.getToken("SYSTEM", "HDB")).startsWith(
+	// "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImxlZ2FjeS1LaWQifQ.ewogICJqdGkiOiAiMzc1ODdlOGM0NWI4NGE4NTgyMDc0NGMxNDU5OTEwYjUiLAogICJleHRfYXR0ciI6IHsKICA");
+	// }
 
 	@Test
 	public void testGetAttribute() throws XSUserInfoException {
@@ -173,17 +174,22 @@ public class XSUserInfoAdapterTest {
 		assertThatThrownBy(() -> cut.getCloneServiceInstanceId()).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getGrantType()).isInstanceOf(XSUserInfoException.class);
 
-		//		assertThatThrownBy(() -> cut.getJsonValue("")).isInstanceOf(XSUserInfoException.class);
-		//		assertThatThrownBy(() -> cut.getAttribute("")).isInstanceOf(XSUserInfoException.class);
-		//		assertThatThrownBy(() -> cut.getSystemAttribute("")).isInstanceOf(XSUserInfoException.class);
-		//		assertThatThrownBy(() -> cut.checkLocalScope("localScope")).isInstanceOf(XSUserInfoException.class);
-		//		assertThatThrownBy(() -> cut.isInForeignMode()).isInstanceOf(XSUserInfoException.class);
+		// assertThatThrownBy(() ->
+		// cut.getJsonValue("")).isInstanceOf(XSUserInfoException.class);
+		// assertThatThrownBy(() ->
+		// cut.getAttribute("")).isInstanceOf(XSUserInfoException.class);
+		// assertThatThrownBy(() ->
+		// cut.getSystemAttribute("")).isInstanceOf(XSUserInfoException.class);
+		// assertThatThrownBy(() ->
+		// cut.checkLocalScope("localScope")).isInstanceOf(XSUserInfoException.class);
+		// assertThatThrownBy(() ->
+		// cut.isInForeignMode()).isInstanceOf(XSUserInfoException.class);
 	}
-
 
 	@Test
 	public void testRequestTokenForClient() {
-		// assertThat(userInfo.requestTokenForClient(clientId, clientSecret, uaaUrl)).isEqualTo("useridp");
+		// assertThat(userInfo.requestTokenForClient(clientId, clientSecret,
+		// uaaUrl)).isEqualTo("useridp");
 	}
 
 	@Test

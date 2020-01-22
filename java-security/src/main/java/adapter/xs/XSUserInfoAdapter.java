@@ -28,14 +28,14 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	private final XsuaaToken xsuaaToken;
 
 	public XSUserInfoAdapter(Token xsuaaToken) throws XSUserInfoException {
-		if(!(xsuaaToken instanceof XsuaaToken)) {
+		if (!(xsuaaToken instanceof XsuaaToken)) {
 			throw new XSUserInfoException("token needs to be an instance of XsuaaToken.");
 		}
 		this.xsuaaToken = (XsuaaToken) xsuaaToken;
 	}
 
 	public XSUserInfoAdapter(XsuaaToken xsuaaToken) throws XSUserInfoException {
-		if(xsuaaToken == null) {
+		if (xsuaaToken == null) {
 			throw new XSUserInfoException("token must not be null.");
 		}
 		this.xsuaaToken = xsuaaToken;
@@ -45,7 +45,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	public String getLogonName() throws XSUserInfoException {
 		return getClaimValue(TokenClaims.XSUAA.USER_NAME);
 	}
-
 
 	@Override
 	public String getGivenName() throws XSUserInfoException {
@@ -93,13 +92,13 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		return getClaimValue(TokenClaims.XSUAA.EMAIL);
 	}
 
-	//TODO
+	// TODO
 	@Override
 	public String getDBToken() throws XSUserInfoException {
 		return getHdbToken();
 	}
 
-	//TODO
+	// TODO
 	@Override
 	public String getHdbToken() throws XSUserInfoException {
 		return getToken(SYSTEM, HDB);
@@ -179,12 +178,14 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getAdditionalAuthAttribute(String attributeName) throws XSUserInfoException {
-		return Optional.ofNullable(getAttributeFromClaimAsString(CLAIM_ADDITIONAL_AZ_ATTR, attributeName)).orElseThrow(createXSUserInfoException(attributeName));
+		return Optional.ofNullable(getAttributeFromClaimAsString(CLAIM_ADDITIONAL_AZ_ATTR, attributeName))
+				.orElseThrow(createXSUserInfoException(attributeName));
 	}
 
 	@Override
 	public String getCloneServiceInstanceId() throws XSUserInfoException {
-		return Optional.ofNullable(getExternalAttribute(SERVICEINSTANCEID)).orElseThrow(createXSUserInfoException(SERVICEINSTANCEID));
+		return Optional.ofNullable(getExternalAttribute(SERVICEINSTANCEID))
+				.orElseThrow(createXSUserInfoException(SERVICEINSTANCEID));
 	}
 
 	@Override
@@ -230,6 +231,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	private Supplier<XSUserInfoException> createXSUserInfoException(String attribute) {
 		return () -> new XSUserInfoException("Invalid user attribute " + attribute);
 	}
+
 	private String getClaimValue(String claimname) throws XSUserInfoException {
 		String value = xsuaaToken.getClaimAsString(claimname);
 		if (value == null) {
@@ -238,6 +240,4 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		return value;
 	}
 
-
 }
-
