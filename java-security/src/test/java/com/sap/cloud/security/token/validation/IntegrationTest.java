@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
@@ -17,7 +18,6 @@ import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.util.HttpClientTestFactory;
-import com.sun.tools.javac.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -66,7 +66,7 @@ public class IntegrationTest {
 		Token xsuaaToken = spy(new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", StandardCharsets.UTF_8)));
 		when(xsuaaToken.getExpiration()).thenReturn(NO_EXPIRE_DATE);
-		when(xsuaaToken.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(List.from(new String[]{"clientId"}));
+		when(xsuaaToken.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(Arrays.asList(new String[]{"clientId"}));
 
 		ValidationResult result = tokenValidator.validate(xsuaaToken);
 		assertThat(result.isValid()).isTrue();
