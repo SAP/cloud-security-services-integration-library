@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
@@ -77,6 +78,12 @@ public abstract class AbstractToken implements Token {
 
 	@Nullable
 	@Override
+	public JsonObject getClaimAsJsonObject(String claimName) {
+		return tokenBody.getJsonObject(claimName);
+	}
+
+	@Nullable
+	@Override
 	public Instant getExpiration() {
 		return tokenBody.getAsInstant(EXPIRATION);
 	}
@@ -101,10 +108,6 @@ public abstract class AbstractToken implements Token {
 	@Override
 	public String getBearerAccessToken() {
 		return "Bearer " + accessToken;
-	}
-
-	protected DefaultJsonObject getTokenBody() {
-		return tokenBody;
 	}
 
 	private static String removeBearer(@Nonnull String accessToken) {

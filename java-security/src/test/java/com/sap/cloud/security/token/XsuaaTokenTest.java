@@ -1,7 +1,6 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -112,13 +111,4 @@ public class XsuaaTokenTest {
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Origin");
 	}
 
-	@Test
-	public void getStringAttributeFromClaim() {
-		assertThat(clientCredentialsToken.getStringAttributeFromClaim("ext_attr", "enhancer")).isEqualTo("XSUAA");
-	}
-
-	@Test
-	public void getStringAttributeFromClaim_notContained_isNull() {
-		assertThat(clientCredentialsToken.getStringAttributeFromClaim("ext_attr", "notContained")).isNull();
-	}
 }

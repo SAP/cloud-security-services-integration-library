@@ -1,5 +1,7 @@
 package com.sap.cloud.security.token;
 
+import com.sap.cloud.security.json.JsonObject;
+import com.sap.cloud.security.json.JsonParsingException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -9,12 +11,13 @@ import java.time.Instant;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 public class AbstractTokenTest {
 
 	private final String jwtString;
-	private AbstractToken cut;
+	private Token cut;
 
 	public AbstractTokenTest() throws IOException {
 		jwtString = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
@@ -90,7 +93,19 @@ public class AbstractTokenTest {
 	}
 
 	@Test
-	// TODO 22.01.20 c5295400: TODO
-	public void getTokenBody() {
+	public void getJsonObject() {
+		JsonObject externalAttributes = cut.getClaimAsJsonObject("ext_attr");
+		assertThat(externalAttributes.getAsString("enhancer")).isEqualTo("XSUAA");
 	}
+
+	@Test
+	public void getJsonObject_claimsIsNotAnObject_throwsException() {
+		assertThatThrownBy(() -> cut.getClaimAsJsonObject("client_id")).isInstanceOf(JsonParsingException.class);
+	}
+
+	@Test
+	public void getJsonObject_claimsDoesNotExist_isNull() {
+		assertThat(cut.getClaimAsJsonObject("doesNotExist")).isNull();
+	}
+
 }
