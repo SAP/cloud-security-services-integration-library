@@ -84,6 +84,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 						OidcConfigurationServiceWithCache.getInstance()
 								.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations))
 				)
+				.enableLegacyMode()
 				.build());
 	}
 

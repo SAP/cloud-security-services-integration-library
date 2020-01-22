@@ -10,7 +10,6 @@ import static com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants.*;
 import static java.nio.charset.StandardCharsets.*;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
@@ -18,7 +17,6 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -32,8 +30,6 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Validates whether the jwt was signed with the public key of the trust-worthy

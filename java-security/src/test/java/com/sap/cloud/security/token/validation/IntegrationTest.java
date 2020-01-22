@@ -80,7 +80,6 @@ public class IntegrationTest {
 
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withProperties(credentialsMap)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "xsa-a272d86a-0f74-448c-93d1-6b78903d1543")// TODO
 				.build();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
