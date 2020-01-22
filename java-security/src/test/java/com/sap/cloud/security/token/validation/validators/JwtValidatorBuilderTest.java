@@ -64,7 +64,7 @@ public class JwtValidatorBuilderTest {
 	public void buildLegacy_containsAllDefaultValidators() {
 		List<Validator<Token>> validators = JwtValidatorBuilder
 				.getInstance(configuration())
-				.enableLegacyMode()
+				.setLegacyMode(true)
 				.build()
 				.getValidators();
 

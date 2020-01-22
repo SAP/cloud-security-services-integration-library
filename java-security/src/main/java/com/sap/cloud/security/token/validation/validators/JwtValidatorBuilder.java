@@ -32,7 +32,7 @@ public class JwtValidatorBuilder {
 	private CloseableHttpClient httpClient = null;
 	private OAuth2ServiceConfiguration otherConfiguration;
 	private Validator<Token> customAudienceValidator;
-	private boolean legacyMode;
+	private boolean runInLegacyMode;
 
 	private JwtValidatorBuilder() {
 		// use getInstance factory method
@@ -62,8 +62,8 @@ public class JwtValidatorBuilder {
 	 *
 	 * @return this builder.
 	 */
-	public JwtValidatorBuilder enableLegacyMode() {
-		this.legacyMode = true;
+	public JwtValidatorBuilder setLegacyMode(boolean enableLegacyMode) {
+		this.runInLegacyMode = enableLegacyMode;
 		return this;
 	}
 
@@ -176,7 +176,7 @@ public class JwtValidatorBuilder {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
 		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
-				getOidcConfigurationServiceWithCache()).enableLegacyMode(legacyMode);
+				getOidcConfigurationServiceWithCache()).enableLegacyMode(runInLegacyMode);
 		signatureValidator.withOAuth2Configuration(configuration);
 		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
 		defaultValidators.add(signatureValidator);
@@ -185,7 +185,7 @@ public class JwtValidatorBuilder {
 			if (customAudienceValidator == null) {
 				defaultValidators.add(createXsuaaAudienceValidator());
 			}
-			if (legacyMode == false) {
+			if (runInLegacyMode == false) {
 				defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
 

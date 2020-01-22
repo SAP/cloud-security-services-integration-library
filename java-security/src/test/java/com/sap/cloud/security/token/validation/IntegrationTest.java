@@ -83,7 +83,7 @@ public class IntegrationTest {
 				.build();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
-				.enableLegacyMode()
+				.setLegacyMode(true)
 				.withHttpClient(mockHttpClient)
 				.build();
 

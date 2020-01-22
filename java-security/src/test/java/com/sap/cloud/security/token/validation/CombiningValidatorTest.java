@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -17,14 +18,6 @@ public class CombiningValidatorTest {
 	public static final Token TOKEN = null;
 	private static final String FIRST_ERROR_MESSAGE = "firstMessage";
 	private static final String SECOND_ERROR_MESSAGE = "secondMessage";
-
-	@Test
-	public void construct_emptyToken_() {
-		assertThatThrownBy(() -> {
-			new CombiningValidator<>(null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("validators must not be null");
-
-	}
 
 	@Test
 	public void validate_containsNoValidators_validResult() {

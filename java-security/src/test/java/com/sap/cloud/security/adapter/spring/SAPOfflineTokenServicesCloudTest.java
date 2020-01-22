@@ -85,7 +85,7 @@ public class SAPOfflineTokenServicesCloudTest {
 
 	@Test
 	public void createInstancWithEmptyConfiguration_throwsException() {
-		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class));
+		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class), false);
 		cut.afterPropertiesSet();
 		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
 	}
