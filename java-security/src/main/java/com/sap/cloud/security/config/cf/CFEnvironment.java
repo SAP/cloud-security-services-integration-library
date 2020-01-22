@@ -102,10 +102,12 @@ public class CFEnvironment implements Environment {
 				.ofNullable(loadForServicePlan(XSUAA, Plan.APPLICATION));
 		Optional<OAuth2ServiceConfiguration> brokerService = Optional
 				.ofNullable(loadForServicePlan(XSUAA, Plan.BROKER));
+		Optional<OAuth2ServiceConfiguration> legacyService = Optional
+				.ofNullable(loadForServicePlan(XSUAA, Plan.SPACE));
 		if (applicationService.isPresent()) {
 			return applicationService.get();
 		}
-		return brokerService.orElse(null);
+		return brokerService.orElse(legacyService.orElse(null));
 	}
 
 	/**

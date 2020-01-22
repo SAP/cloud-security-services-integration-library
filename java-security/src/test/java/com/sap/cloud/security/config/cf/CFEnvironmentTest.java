@@ -25,12 +25,14 @@ public class CFEnvironmentTest {
 	private String vcapXsuaa;
 	private String vcapMultipleXsuaa;
 	private String vcapIas;
+	private String vcapXsa;
 	private CFEnvironment cut;
 
 	public CFEnvironmentTest() throws IOException {
 		vcapXsuaa = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
 		vcapMultipleXsuaa = IOUtils.resourceToString("/vcapXsuaaServiceMultipleBindings.json", UTF_8);
 		vcapIas = IOUtils.resourceToString("/vcapIasServiceSingleBinding.json", UTF_8);
+		vcapXsa = IOUtils.resourceToString("/vcapXsuaaXsaSingleBinding.json", UTF_8);
 	}
 
 	@Before
@@ -97,6 +99,18 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
 
 		// assertThat(cut.getIasConfiguration()).isNull(); // TODO IAS
+	}
+
+	@Test
+	public void getConfigurationOfXsuaaInstanceInXsaSystem() {
+		cut = CFEnvironment.getInstance((str) -> vcapXsa, (str) -> null);
+		assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
+		assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("sb-java-hello-world!i1");
+		assertThat(cut.getXsuaaConfiguration().getClientSecret()).startsWith("fxnWLHqLh6KC0Wp/bbv8Gwbu50OEbpS");
+		assertThat(cut.getXsuaaConfiguration().getUrl().toString()).isEqualTo("https://xsa-test.c.eu-de-2.cloud.sap:30132/uaa-security");
+
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
+		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
 	}
 
 	@Test

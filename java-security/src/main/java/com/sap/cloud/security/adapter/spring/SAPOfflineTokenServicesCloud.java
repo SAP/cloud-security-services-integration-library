@@ -7,6 +7,7 @@ import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.SpringOAuth2TokenKeyService;
@@ -90,6 +91,9 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
 			Supplier<Validator<Token>> validatorSupplier) {
+		Assertions.assertNotNull(serviceConfiguration, "serviceConfiguration is required.");
+		Assertions.assertNotNull(validatorSupplier, "validatorSupplier is required.");
+
 		this.serviceConfiguration = serviceConfiguration;
 		this.validatorSupplier = validatorSupplier;
 	}
