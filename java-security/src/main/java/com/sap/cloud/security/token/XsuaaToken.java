@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
@@ -131,6 +132,11 @@ public class XsuaaToken extends AbstractToken {
 	public boolean hasLocalScope(@Nonnull String scope) {
 		Assertions.assertNotNull(scopeConverter, "scopeConverter must not be null");
 		return scopeConverter.convert(getScopes()).contains(scope);
+	}
+
+	public String getStringAttributeFromClaim(String claimName, String attributeName) {
+		JsonObject claim = getTokenBody().getJsonObject(claimName);
+		return claim.getAsString(attributeName);
 	}
 
 	@Override

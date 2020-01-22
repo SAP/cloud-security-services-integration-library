@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 public class AbstractTokenTest {
 
 	private final String jwtString;
-	private Token cut;
+	private AbstractToken cut;
 
 	public AbstractTokenTest() throws IOException {
 		jwtString = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
@@ -90,4 +90,8 @@ public class AbstractTokenTest {
 		assertThat(cut.getBearerAccessToken()).isEqualTo("Bearer " + cut.getAccessToken());
 	}
 
+	@Test
+	// TODO 22.01.20 c5295400: TODO
+	public void getTokenBody() {
+	}
 }

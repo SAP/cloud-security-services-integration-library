@@ -137,5 +137,5 @@ public interface Token {
 	 *
 	 * @return the grant type
 	 **/
-	public GrantType getGrantType();
+	GrantType getGrantType();
 }

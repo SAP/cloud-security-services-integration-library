@@ -15,7 +15,6 @@ public class XsuaaTokenTest {
 
 	private static final String APP_ID = "app1";
 
-	private final XsuaaToken scopesToken;
 	private XsuaaToken clientCredentialsToken;
 	private XsuaaToken userToken;
 
@@ -23,8 +22,6 @@ public class XsuaaTokenTest {
 		clientCredentialsToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
 		userToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
-
-		scopesToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaScopesTokenRSA256.txt", UTF_8));
 	}
 
 	@Test
@@ -45,11 +42,10 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void hasLocalScope() {
-		scopesToken.withScopeConverter(new XsuaaScopeConverter(APP_ID));
-		assertThat(scopesToken.hasScope(APP_ID + ".scope")).isTrue();
-		assertThat(scopesToken.hasLocalScope("scope")).isTrue();
-		assertThat(scopesToken.hasScope("openid")).isTrue();
-		assertThat(scopesToken.hasLocalScope("openid")).isTrue();
+		clientCredentialsToken.withScopeConverter(new XsuaaScopeConverter("uaa"));
+		assertThat(clientCredentialsToken.hasScope("uaa.resource")).isTrue();
+		assertThat(clientCredentialsToken.hasLocalScope("resource")).isTrue();
+		assertThat(clientCredentialsToken.hasLocalScope("ROLE_SERVICEBROKER")).isTrue();
 	}
 
 	@Test
@@ -101,4 +97,13 @@ public class XsuaaTokenTest {
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("Origin");
 	}
 
+	@Test
+	public void getStringAttributeFromClaim() {
+		assertThat(clientCredentialsToken.getStringAttributeFromClaim("ext_attr", "enhancer")).isEqualTo("XSUAA");
+	}
+
+	@Test
+	public void getStringAttributeFromClaim_notContained_isNull() {
+		assertThat(clientCredentialsToken.getStringAttributeFromClaim("ext_attr", "notContained")).isNull();
+	}
 }

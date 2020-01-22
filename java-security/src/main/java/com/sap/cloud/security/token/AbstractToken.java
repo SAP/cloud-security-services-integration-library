@@ -21,8 +21,8 @@ import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
  * token header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
-	private final DefaultJsonObject headerJsonObject;
-	private final DefaultJsonObject payloadJsonObject;
+	private final DefaultJsonObject tokenHeader;
+	private final DefaultJsonObject tokenBody;
 	private final String accessToken;
 
 	public AbstractToken(@Nonnull DecodedJwt decodedJwt) {
@@ -42,43 +42,43 @@ public abstract class AbstractToken implements Token {
 	}
 
 	AbstractToken(String jsonHeader, String jsonPayload, String accessToken) {
-		headerJsonObject = new DefaultJsonObject(jsonHeader);
-		payloadJsonObject = new DefaultJsonObject(jsonPayload);
+		tokenHeader = new DefaultJsonObject(jsonHeader);
+		tokenBody = new DefaultJsonObject(jsonPayload);
 		this.accessToken = accessToken;
 	}
 
 	@Nullable
 	@Override
 	public String getHeaderParameterAsString(@Nonnull String headerName) {
-		return headerJsonObject.getAsString(headerName);
+		return tokenHeader.getAsString(headerName);
 	}
 
 	@Override
 	public boolean hasClaim(@Nonnull String claimName) {
-		return payloadJsonObject.contains(claimName);
+		return tokenBody.contains(claimName);
 	}
 
 	@Override
 	public boolean hasHeaderParameter(@Nonnull String parameterName) {
-		return headerJsonObject.contains(parameterName);
+		return tokenHeader.contains(parameterName);
 	}
 
 	@Nullable
 	@Override
 	public String getClaimAsString(@Nonnull String claimName) {
-		return payloadJsonObject.getAsString(claimName);
+		return tokenBody.getAsString(claimName);
 	}
 
 	@Nullable
 	@Override
 	public List<String> getClaimAsStringList(@Nonnull String claimName) {
-		return payloadJsonObject.getAsList(claimName, String.class);
+		return tokenBody.getAsList(claimName, String.class);
 	}
 
 	@Nullable
 	@Override
 	public Instant getExpiration() {
-		return payloadJsonObject.getAsInstant(EXPIRATION);
+		return tokenBody.getAsInstant(EXPIRATION);
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public abstract class AbstractToken implements Token {
 	@Nullable
 	@Override
 	public Instant getNotBefore() {
-		return payloadJsonObject.getAsInstant(NOT_BEFORE);
+		return tokenBody.getAsInstant(NOT_BEFORE);
 	}
 
 	@Override
@@ -101,6 +101,10 @@ public abstract class AbstractToken implements Token {
 	@Override
 	public String getBearerAccessToken() {
 		return "Bearer " + accessToken;
+	}
+
+	protected DefaultJsonObject getTokenBody() {
+		return tokenBody;
 	}
 
 	private static String removeBearer(@Nonnull String accessToken) {
