@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 import java.io.IOException;
 
 import static adapter.xs.XSUserInfoAdapter.*;
-import static adapter.xs.XSUserInfoAdapter.HDB_NAMEDUSER_SAML;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -95,16 +94,6 @@ public class XSUserInfoAdapterTest {
 	public void testGetClientId() throws XSUserInfoException {
 		assertThat(cut.getClientId()).isEqualTo("sb-clone1!b5|LR-master!b5");
 	}
-
-	// TODO 21.01.20 c5295400: does not exist in XSUserInfo interface but exists in
-	// old UserInfo implementation?
-
-	// @Test
-	// public void testGetExpirationDate() throws XSUserInfoException {
-	// Date d = new Date(System.currentTimeMillis());
-	// assertThat(userInfo.getExpirationDate().getTime()).isCloseTo(System.currentTimeMillis(),
-	// Offset.offset(5000L));
-	// }
 
 	@Test
 	public void testGetJsonValue() throws XSUserInfoException {
@@ -283,14 +272,17 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void testRequestTokenForClient() {
-		// assertThat(userInfo.requestTokenForClient(clientId, clientSecret,
-		// uaaUrl)).isEqualTo("useridp");
+	public void testRequestTokenForClient_isNotImplemented() {
+		assertThatThrownBy(() -> cut.requestTokenForClient("", "", ""))
+				.isInstanceOf(UnsupportedOperationException.class)
+				.hasMessageContaining("Not implemented");
 	}
 
 	@Test
-	public void testRequestToken() {
-		// fail("Not yet implemented");
+	public void testRequestToken_isNotImplemented()  {
+		assertThatThrownBy(() -> cut.requestToken(null))
+				.isInstanceOf(UnsupportedOperationException.class)
+				.hasMessageContaining("Not implemented");
 	}
 
 	private XsuaaToken createMockToken(GrantType grantType) {

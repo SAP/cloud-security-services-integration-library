@@ -25,7 +25,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	static final String SERVICEINSTANCEID = "serviceinstanceid";
 	static final String ZDN = "zdn";
 	static final String SYSTEM = "SYSTEM";
-	static final String ISSUER = "iss";
 	static final String HDB = "HDB";
 	static final String EXTERNAL_ATTR = "ext_attr";
 	private final XsuaaToken xsuaaToken;
@@ -220,12 +219,12 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	@Override
 	public String requestTokenForClient(String clientId, String clientSecret, String uaaUrl)
 			throws XSUserInfoException {
-		return null;
+		throw new UnsupportedOperationException("Not implemented.");
 	}
 
 	@Override
 	public String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException {
-		return null;
+		throw new UnsupportedOperationException("Not implemented.");
 	}
 
 	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName)
