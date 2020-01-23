@@ -24,7 +24,7 @@ public class XSUserInfoSpringAdapter extends XSUserInfoAdapter {
             throw new XSUserInfoException("User not authenticated (Spring Security Context is empty)");
         }
         if (!(auth.getDetails() instanceof OAuth2AuthenticationDetails)) {
-            throw new XSUserInfoException("token needs to be an instance of XsuaaToken.");
+            throw new XSUserInfoException("User not authenticated (Cannot parse User Details from Spring Security Context).");
         }
         String tokenValue = ((OAuth2AuthenticationDetails) auth.getDetails()).getTokenValue();
         return new XsuaaToken(tokenValue);
