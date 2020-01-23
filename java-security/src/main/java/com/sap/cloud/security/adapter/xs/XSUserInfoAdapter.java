@@ -1,4 +1,4 @@
-package adapter.xs;
+package com.sap.cloud.security.adapter.xs;
 
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;

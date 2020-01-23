@@ -1,5 +1,6 @@
-package adapter.xs;
+package com.sap.cloud.security.adapter.xs;
 
+import com.sap.cloud.security.adapter.xs.XSUserInfoAdapter;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.GrantType;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
@@ -13,7 +14,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 
-import static adapter.xs.XSUserInfoAdapter.*;
+import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
