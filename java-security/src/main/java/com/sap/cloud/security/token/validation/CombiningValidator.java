@@ -2,6 +2,7 @@ package com.sap.cloud.security.token.validation;
 
 import com.sap.cloud.security.xsuaa.Assertions;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +22,11 @@ public class CombiningValidator<T> implements Validator<T> {
 	public CombiningValidator(List<Validator<T>> validators) {
 		Assertions.assertNotNull(validators, "validators must not be null.");
 		this.validators = validators;
+	}
+
+	public CombiningValidator(Validator<T>... validators) {
+		Assertions.assertNotNull(validators, "validators must not be null.");
+		this.validators = Arrays.asList(validators);
 	}
 
 	@Override

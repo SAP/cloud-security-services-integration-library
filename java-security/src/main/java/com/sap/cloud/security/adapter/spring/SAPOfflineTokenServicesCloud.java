@@ -49,12 +49,14 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 	private final OAuth2ServiceConfiguration serviceConfiguration;
 	private Validator<Token> tokenValidator;
+	private JwtValidatorBuilder jwtValidatorBuilder;
+	private boolean runInLegacyMode;
 
 	/**
 	 * Constructs an instance which can be used in the SAP CP Environment.
 	 */
-	public SAPOfflineTokenServicesCloud(boolean enableLegacyMode) {
-		this(Environments.getCurrent().getXsuaaConfiguration(), enableLegacyMode);
+	public SAPOfflineTokenServicesCloud() {
+		this(Environments.getCurrent().getXsuaaConfiguration());
 	}
 
 	/**
@@ -66,8 +68,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	 *            load service configuration from the binding information in your
 	 *            environment.
 	 */
-	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration, boolean enableLegacyMode) {
-		this(serviceConfiguration, new RestTemplate(), enableLegacyMode);
+	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration) {
+		this(serviceConfiguration, new RestTemplate());
 	}
 
 	/**
@@ -82,25 +84,28 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	 *            the spring rest template
 	 */
 	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
-			RestOperations restOperations, boolean enableLegacyMode) {
+			RestOperations restOperations) {
 		this(serviceConfiguration, JwtValidatorBuilder.getInstance(serviceConfiguration)
 				.withOAuth2TokenKeyService(
 						OAuth2TokenKeyServiceWithCache.getInstance()
 								.withTokenKeyService(new SpringOAuth2TokenKeyService(restOperations)))
 				.withOidcConfigurationService(
 						OidcConfigurationServiceWithCache.getInstance()
-								.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations)))
-				.setLegacyMode(enableLegacyMode)
-				.build());
+								.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations))));
+				
+	}
+
+	public void setLegacyMode(boolean enableLegacyMode) {
+		this.runInLegacyMode = enableLegacyMode;
 	}
 
 	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
-			Validator<Token> tokenValidator) {
+			JwtValidatorBuilder jwtValidatorBuilder) {
 		Assertions.assertNotNull(serviceConfiguration, "serviceConfiguration is required.");
-		Assertions.assertNotNull(tokenValidator, "tokenValidator is required.");
+		Assertions.assertNotNull(jwtValidatorBuilder, "jwtValidatorBuilder is required.");
 
 		this.serviceConfiguration = serviceConfiguration;
-		this.tokenValidator = tokenValidator;
+		this.jwtValidatorBuilder = jwtValidatorBuilder;
 	}
 
 	@Override
@@ -123,9 +128,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 	@Override
 	public void afterPropertiesSet() {
-		// jwtValidatorBuilder
-		// .setLegacyMode(enableLegacyMode)
-		// .build());
+		tokenValidator = jwtValidatorBuilder.setLegacyMode(runInLegacyMode).build();
 	}
 
 	@Override
