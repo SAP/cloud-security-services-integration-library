@@ -26,7 +26,6 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -42,11 +41,11 @@ import java.util.stream.Collectors;
  *     <artifactId>spring-beans</artifactId>
  *     <scope>provided</scope>
  * </dependency>
- * }</pre>
+ * }
+ * </pre>
  */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
-	private final Supplier<Validator<Token>> validatorSupplier;
 	private final OAuth2ServiceConfiguration serviceConfiguration;
 	private Validator<Token> tokenValidator;
 
@@ -73,14 +72,17 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	/**
 	 * Constructs an instance with custom configuration and rest template.
 	 *
-	 * @param serviceConfiguration the service configuration.
-	 *                             You can use {@link com.sap.cloud.security.config.Environments} in order to load
-	 *                             service configuration from the binding information in your environment.
-	 * @param restOperations the spring rest template
+	 * @param serviceConfiguration
+	 *            the service configuration. You can use
+	 *            {@link com.sap.cloud.security.config.Environments} in order to
+	 *            load service configuration from the binding information in your
+	 *            environment.
+	 * @param restOperations
+	 *            the spring rest template
 	 */
 	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
 			RestOperations restOperations, boolean enableLegacyMode) {
-		this(serviceConfiguration, () -> JwtValidatorBuilder.getInstance(serviceConfiguration)
+		this(serviceConfiguration, JwtValidatorBuilder.getInstance(serviceConfiguration)
 				.withOAuth2TokenKeyService(
 						OAuth2TokenKeyServiceWithCache.getInstance()
 								.withTokenKeyService(new SpringOAuth2TokenKeyService(restOperations)))
@@ -92,12 +94,12 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	}
 
 	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
-			Supplier<Validator<Token>> validatorSupplier) {
+			Validator<Token> tokenValidator) {
 		Assertions.assertNotNull(serviceConfiguration, "serviceConfiguration is required.");
-		Assertions.assertNotNull(validatorSupplier, "validatorSupplier is required.");
+		Assertions.assertNotNull(tokenValidator, "tokenValidator is required.");
 
 		this.serviceConfiguration = serviceConfiguration;
-		this.validatorSupplier = validatorSupplier;
+		this.tokenValidator = tokenValidator;
 	}
 
 	@Override
@@ -117,21 +119,23 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		}
 	}
 
+	@Override
+	public void afterPropertiesSet() {
+		// jwtValidatorBuilder
+		// .setLegacyMode(enableLegacyMode)
+		// .build());
+	}
+
+	@Override
+	public OAuth2AccessToken readAccessToken(String accessToken) {
+		throw new UnsupportedOperationException("Not supported: read access token");
+	}
+
 	private XsuaaToken checkAndCreateToken(@Nonnull String accessToken) {
 		try {
 			return new XsuaaToken(accessToken);
 		} catch (Exception e) {
 			throw new InvalidTokenException(e.getMessage());
 		}
-	}
-
-	@Override
-	public void afterPropertiesSet() {
-		tokenValidator = validatorSupplier.get();
-	}
-
-	@Override
-	public OAuth2AccessToken readAccessToken(String accessToken) {
-		throw new UnsupportedOperationException("Not supported: read access token");
 	}
 }

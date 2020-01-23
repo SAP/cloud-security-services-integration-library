@@ -1,5 +1,6 @@
-package adapter.xs;
+package com.sap.cloud.security.adapter.xs;
 
+import com.sap.cloud.security.adapter.xs.XSUserInfoAdapter;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.GrantType;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
@@ -13,8 +14,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 
-import static adapter.xs.XSUserInfoAdapter.*;
-import static adapter.xs.XSUserInfoAdapter.HDB_NAMEDUSER_SAML;
+import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -45,13 +45,40 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
+	public void testGetLogonName_grantTypeClientCredentials_throwsException() throws XSUserInfoException {
+		cut = new XSUserInfoAdapter(createMockToken(GrantType.CLIENT_CREDENTIALS));
+
+		assertThatThrownBy(() -> cut.getLogonName()).isInstanceOf(XSUserInfoException.class)
+				.hasMessageContaining("getLogonName")
+				.hasMessageContaining(GrantType.CLIENT_CREDENTIALS.toString());
+	}
+
+	@Test
 	public void testGetGivenName() throws XSUserInfoException {
 		assertThat(cut.getGivenName()).isEqualTo("TestUser");
 	}
 
 	@Test
+	public void testGetGivenName_grantTypeClientCredentials_throwsException() throws XSUserInfoException {
+		cut = new XSUserInfoAdapter(createMockToken(GrantType.CLIENT_CREDENTIALS));
+
+		assertThatThrownBy(() -> cut.getGivenName()).isInstanceOf(XSUserInfoException.class)
+				.hasMessageContaining("getGivenName")
+				.hasMessageContaining(GrantType.CLIENT_CREDENTIALS.toString());
+	}
+
+	@Test
 	public void testGetFamilyName() throws XSUserInfoException {
 		assertThat(cut.getFamilyName()).isEqualTo("unknown.org");
+	}
+
+	@Test
+	public void testGetFamilyName_grantTypeClientCredentials_throwsException() throws XSUserInfoException {
+		cut = new XSUserInfoAdapter(createMockToken(GrantType.CLIENT_CREDENTIALS));
+
+		assertThatThrownBy(() -> cut.getFamilyName()).isInstanceOf(XSUserInfoException.class)
+				.hasMessageContaining("getFamilyName")
+				.hasMessageContaining(GrantType.CLIENT_CREDENTIALS.toString());
 	}
 
 	@Test
@@ -69,16 +96,6 @@ public class XSUserInfoAdapterTest {
 		assertThat(cut.getClientId()).isEqualTo("sb-clone1!b5|LR-master!b5");
 	}
 
-	// TODO 21.01.20 c5295400: does not exist in XSUserInfo interface but exists in
-	// old UserInfo implementation?
-
-	// @Test
-	// public void testGetExpirationDate() throws XSUserInfoException {
-	// Date d = new Date(System.currentTimeMillis());
-	// assertThat(userInfo.getExpirationDate().getTime()).isCloseTo(System.currentTimeMillis(),
-	// Offset.offset(5000L));
-	// }
-
 	@Test
 	public void testGetJsonValue() throws XSUserInfoException {
 		assertThat(cut.getJsonValue("cid")).isEqualTo("sb-clone1!b5|LR-master!b5");
@@ -87,6 +104,15 @@ public class XSUserInfoAdapterTest {
 	@Test
 	public void testGetEmail() throws XSUserInfoException {
 		assertThat(cut.getEmail()).isEqualTo("TestUser@uaa.org");
+	}
+
+	@Test
+	public void testGetEmail_grantTypeClientCredentials_throwsException() throws XSUserInfoException {
+		cut = new XSUserInfoAdapter(createMockToken(GrantType.CLIENT_CREDENTIALS));
+
+		assertThatThrownBy(() -> cut.getEmail()).isInstanceOf(XSUserInfoException.class)
+				.hasMessageContaining("getEmail")
+				.hasMessageContaining(GrantType.CLIENT_CREDENTIALS.toString());
 	}
 
 	@Test
@@ -117,13 +143,9 @@ public class XSUserInfoAdapterTest {
 	@Test
 	public void getToken_fromExternalContext() throws XSUserInfoException {
 		String internalToken = "token";
-		XsuaaToken mockToken = Mockito.mock(XsuaaToken.class);
-		when(mockToken.getGrantType()).thenReturn(GrantType.SAML2_BEARER);
-		when(mockToken.hasClaim(EXTERNAL_CONTEXT)).thenReturn(true);
 		JsonObject externalContextMock = Mockito.mock(JsonObject.class);
-		when(mockToken.getClaimAsJsonObject(EXTERNAL_CONTEXT)).thenReturn(
-				externalContextMock);
 		when(externalContextMock.getAsString(HDB_NAMEDUSER_SAML)).thenReturn(internalToken);
+		XsuaaToken mockToken = createMockToken(externalContextMock);
 
 		cut = new XSUserInfoAdapter(mockToken);
 
@@ -133,11 +155,10 @@ public class XSUserInfoAdapterTest {
 	@Test
 	public void getToken_fromHDBNamedUserSaml() throws XSUserInfoException {
 		String internalToken = "token";
-		XsuaaToken mockToken = Mockito.mock(XsuaaToken.class);
-		when(mockToken.getGrantType()).thenReturn(GrantType.SAML2_BEARER);
-		when(mockToken.hasClaim(EXTERNAL_CONTEXT)).thenReturn(false);
+		XsuaaToken mockToken = createMockToken();
 		when(mockToken.getClaimAsString(HDB_NAMEDUSER_SAML)).thenReturn(internalToken);
 		when(mockToken.getClaimAsJsonObject(XS_USER_ATTRIBUTES)).thenReturn(Mockito.mock(JsonObject.class));
+
 		cut = new XSUserInfoAdapter(mockToken);
 
 		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(internalToken);
@@ -150,8 +171,26 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
+	public void testGetAttribute_grantTypeClientCredentials_throwsException() throws XSUserInfoException {
+		cut = new XSUserInfoAdapter(createMockToken(GrantType.CLIENT_CREDENTIALS));
+
+		assertThatThrownBy(() -> cut.getAttribute("any")).isInstanceOf(XSUserInfoException.class)
+				.hasMessageContaining("getAttribute")
+				.hasMessageContaining(GrantType.CLIENT_CREDENTIALS.toString());
+	}
+
+	@Test
 	public void testHasAttributes() throws XSUserInfoException {
 		assertThat(cut.hasAttributes()).isTrue();
+	}
+
+	@Test
+	public void testHasAttributes_grantTypeClientCredentials_throwsException() throws XSUserInfoException {
+		cut = new XSUserInfoAdapter(createMockToken(GrantType.CLIENT_CREDENTIALS));
+
+		assertThatThrownBy(() -> cut.hasAttributes()).isInstanceOf(XSUserInfoException.class)
+				.hasMessageContaining("hasAttributes")
+				.hasMessageContaining(GrantType.CLIENT_CREDENTIALS.toString());
 	}
 
 	@Test
@@ -207,6 +246,15 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
+	public void testGetOrigin_grantTypeClientCredentials_throwsException() throws XSUserInfoException {
+		cut = new XSUserInfoAdapter(createMockToken(GrantType.CLIENT_CREDENTIALS));
+
+		assertThatThrownBy(() -> cut.getOrigin()).isInstanceOf(XSUserInfoException.class)
+				.hasMessageContaining("getOrigin")
+				.hasMessageContaining(GrantType.CLIENT_CREDENTIALS.toString());
+	}
+
+	@Test
 	public void accessAttributes_doNotExist_throwsException() throws IOException, XSUserInfoException {
 		String nonExistingAttribute = "doesNotExist";
 		cut = new XSUserInfoAdapter(emptyToken.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)));
@@ -225,14 +273,34 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void testRequestTokenForClient() {
-		// assertThat(userInfo.requestTokenForClient(clientId, clientSecret,
-		// uaaUrl)).isEqualTo("useridp");
+	public void testRequestTokenForClient_isNotImplemented() {
+		assertThatThrownBy(() -> cut.requestTokenForClient("", "", ""))
+				.isInstanceOf(UnsupportedOperationException.class)
+				.hasMessageContaining("Not implemented");
 	}
 
 	@Test
-	public void testRequestToken() {
-		// fail("Not yet implemented");
+	public void testRequestToken_isNotImplemented()  {
+		assertThatThrownBy(() -> cut.requestToken(null))
+				.isInstanceOf(UnsupportedOperationException.class)
+				.hasMessageContaining("Not implemented");
+	}
+
+	private XsuaaToken createMockToken(GrantType grantType) {
+		XsuaaToken mockToken = Mockito.mock(XsuaaToken.class);
+		when(mockToken.getGrantType()).thenReturn(grantType);
+		return mockToken;
+	}
+
+	private XsuaaToken createMockToken() {
+		return createMockToken(GrantType.SAML2_BEARER);
+	}
+
+	private XsuaaToken createMockToken(JsonObject externalContext) {
+		final XsuaaToken mockToken = createMockToken();
+		when(mockToken.hasClaim(EXTERNAL_CONTEXT)).thenReturn(true);
+		when(mockToken.getClaimAsJsonObject(EXTERNAL_CONTEXT)).thenReturn(externalContext);
+		return mockToken;
 	}
 
 }

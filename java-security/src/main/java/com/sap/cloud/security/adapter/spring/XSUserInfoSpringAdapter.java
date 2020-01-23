@@ -1,6 +1,6 @@
 package com.sap.cloud.security.adapter.spring;
 
-import adapter.xs.XSUserInfoAdapter;
+import com.sap.cloud.security.adapter.xs.XSUserInfoAdapter;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.xsa.security.container.XSUserInfoException;

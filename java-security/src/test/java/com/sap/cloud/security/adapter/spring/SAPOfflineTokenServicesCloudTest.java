@@ -1,6 +1,5 @@
 package com.sap.cloud.security.adapter.spring;
 
-import com.sap.cloud.security.adapter.spring.SAPOfflineTokenServicesCloud;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
@@ -17,11 +16,9 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.times;
 
 public class SAPOfflineTokenServicesCloudTest {
 
@@ -74,27 +71,10 @@ public class SAPOfflineTokenServicesCloudTest {
 	}
 
 	@Test
-	public void afterPropertiesSet() {
-		TestTokenValidatorSupplier mockValidator = Mockito.mock(TestTokenValidatorSupplier.class);
-		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class), mockValidator);
-
-		Mockito.verify(mockValidator, times(0)).get();
-		cut.afterPropertiesSet();
-		Mockito.verify(mockValidator, times(1)).get();
-	}
-
-	@Test
 	public void createInstancWithEmptyConfiguration_throwsException() {
 		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class), false);
 		cut.afterPropertiesSet();
 		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
-	}
-
-	private static class TestTokenValidatorSupplier implements Supplier<Validator<Token>> {
-		@Override
-		public Validator<Token> get() {
-			return null;
-		}
 	}
 
 	private SAPOfflineTokenServicesCloud createSAPOfflineTokenServicesCloud(Validator<Token> tokenValidator) {
@@ -104,7 +84,7 @@ public class SAPOfflineTokenServicesCloudTest {
 				.withProperty(CFConstants.CLIENT_ID, "clientId")
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
 				.build();
-		return new SAPOfflineTokenServicesCloud(configuration, () -> tokenValidator);
+		return new SAPOfflineTokenServicesCloud(configuration, tokenValidator);
 	}
 
 }
