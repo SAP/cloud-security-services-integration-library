@@ -4,6 +4,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
@@ -32,6 +33,7 @@ public class SAPOfflineTokenServicesCloudTest {
 	@Before
 	public void setUp() {
 		cut = createSAPOfflineTokenServicesCloud((token) -> ValidationResults.createValid());
+		SecurityContext.clearToken();
 	}
 
 	@Test
@@ -42,6 +44,7 @@ public class SAPOfflineTokenServicesCloudTest {
 		assertThat(authentication.isAuthenticated()).isTrue();
 		assertThat(authentication.getOAuth2Request()).isNotNull();
 		assertThat(authentication.getOAuth2Request().getScope()).contains("ROLE_SERVICEBROKER", "uaa.resource");
+		assertThat(SecurityContext.getToken().getAccessToken()).isEqualTo(xsuaaToken);
 	}
 
 	@Test
@@ -68,6 +71,7 @@ public class SAPOfflineTokenServicesCloudTest {
 		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class)
 				.hasMessageContaining(errorDescription);
 
+		assertThat(SecurityContext.getToken()).isNull();
 	}
 
 	@Test

@@ -2,6 +2,7 @@ package com.sap.cloud.security.adapter.spring;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -113,6 +114,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			AuthorizationRequest authorizationRequest = new AuthorizationRequest(new HashMap<>(), null,
 					serviceConfiguration.getClientId(), scopes, new HashSet<>(), null,
 					true, "", "", null);
+			SecurityContext.setToken(token);
 			return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), null);
 		} else {
 			throw new InvalidTokenException(validationResult.getErrorDescription());
