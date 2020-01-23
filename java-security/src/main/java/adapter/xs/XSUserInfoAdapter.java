@@ -4,7 +4,6 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.GrantType;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.xsa.security.container.XSTokenRequest;
 import com.sap.xsa.security.container.XSUserInfo;
@@ -13,6 +12,8 @@ import com.sap.xsa.security.container.XSUserInfoException;
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 public class XSUserInfoAdapter implements XSUserInfo {
 
@@ -45,28 +46,41 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getLogonName() throws XSUserInfoException {
-		return getClaimValue(TokenClaims.XSUAA.USER_NAME);
+		checkNotGrantTypeClientCredentials("getLogonName");
+		return getClaimValue(USER_NAME);
 	}
 
 	@Override
 	public String getGivenName() throws XSUserInfoException {
-		return getClaimValue(TokenClaims.XSUAA.GIVEN_NAME);
+		checkNotGrantTypeClientCredentials("getGivenName");
+		String externalAttributeName = getExternalAttribute(GIVEN_NAME);
+		if (externalAttributeName == null) {
+			return getClaimValue(GIVEN_NAME);
+		} else {
+			return externalAttributeName;
+		}
 	}
 
 	@Override
 	public String getFamilyName() throws XSUserInfoException {
-		return getClaimValue(TokenClaims.XSUAA.FAMILY_NAME);
+		checkNotGrantTypeClientCredentials("getFamilyName");
+		String externalAttributeName = getExternalAttribute(FAMILY_NAME);
+		if (externalAttributeName == null) {
+			return getClaimValue(FAMILY_NAME);
+		} else {
+			return externalAttributeName;
+		}
 	}
 
 	@Override
 	public String getOrigin() throws XSUserInfoException {
 		checkNotGrantTypeClientCredentials("getOrigin");
-		return getClaimValue(TokenClaims.XSUAA.ORIGIN);
+		return getClaimValue(ORIGIN);
 	}
 
 	@Override
 	public String getIdentityZone() throws XSUserInfoException {
-		return getClaimValue(TokenClaims.XSUAA.SUBACCOUNT_ID);
+		return getClaimValue(SUBACCOUNT_ID);
 	}
 
 	@Override
@@ -81,7 +95,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getClientId() throws XSUserInfoException {
-		return getClaimValue(TokenClaims.XSUAA.CLIENT_ID);
+		return getClaimValue(CLIENT_ID);
 	}
 
 	@Override
@@ -91,7 +105,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getEmail() throws XSUserInfoException {
-		return getClaimValue(TokenClaims.XSUAA.EMAIL);
+		checkNotGrantTypeClientCredentials("getEmail");
+		return getClaimValue(EMAIL);
 	}
 
 	// TODO
@@ -194,7 +209,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	public String getGrantType() throws XSUserInfoException {
 		return Optional.ofNullable(xsuaaToken.getGrantType())
 				.map(GrantType::toString)
-				.orElseThrow(createXSUserInfoException(TokenClaims.XSUAA.GRANT_TYPE));
+				.orElseThrow(createXSUserInfoException(GRANT_TYPE));
 	}
 
 	@Override
@@ -223,7 +238,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	private void checkNotGrantTypeClientCredentials(String methodName) throws XSUserInfoException {
-		if (getGrantType().equals(GrantType.CLIENT_CREDENTIALS)) {
+		if (GrantType.CLIENT_CREDENTIALS == xsuaaToken.getGrantType()) {
 			String message = String.format("Method '%s' is not supported for grant type '%s'", methodName,
 					GrantType.CLIENT_CREDENTIALS);
 			throw new XSUserInfoException(message + GrantType.CLIENT_CREDENTIALS);
