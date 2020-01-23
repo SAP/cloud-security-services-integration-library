@@ -36,6 +36,13 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- needed for XSUserInfoAdapter-->
+		<dependency>
+			<groupId>com.sap.cloud.security.xsuaa</groupId>
+			<artifactId>api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
 		<!-- for call to tokenKeyService -->
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>

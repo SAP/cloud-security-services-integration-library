@@ -45,10 +45,10 @@ import java.util.stream.Collectors;
  * }</pre>
  */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
+
 	private final Supplier<Validator<Token>> validatorSupplier;
 	private final OAuth2ServiceConfiguration serviceConfiguration;
 	private Validator<Token> tokenValidator;
-	private boolean runInLegacyMode;
 
 	/**
 	 * Constructs an instance which can be used in the SAP CP Environment.
@@ -60,9 +60,11 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	/**
 	 * Constructs an instance with custom configuration.
 	 *
-	 * @param serviceConfiguration the service configuration.
-	 *                             You can use {@link com.sap.cloud.security.config.Environments} in order to load
-	 *                             service configuration from the binding information in your environment.
+	 * @param serviceConfiguration
+	 *            the service configuration. You can use
+	 *            {@link com.sap.cloud.security.config.Environments} in order to
+	 *            load service configuration from the binding information in your
+	 *            environment.
 	 */
 	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration, boolean enableLegacyMode) {
 		this(serviceConfiguration, new RestTemplate(), enableLegacyMode);
@@ -76,7 +78,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	 *                             service configuration from the binding information in your environment.
 	 * @param restOperations the spring rest template
 	 */
-	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration, RestOperations restOperations, boolean enableLegacyMode) {
+	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
+			RestOperations restOperations, boolean enableLegacyMode) {
 		this(serviceConfiguration, () -> JwtValidatorBuilder.getInstance(serviceConfiguration)
 				.withOAuth2TokenKeyService(
 						OAuth2TokenKeyServiceWithCache.getInstance()

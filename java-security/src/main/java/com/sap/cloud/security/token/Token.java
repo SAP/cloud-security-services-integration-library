@@ -75,10 +75,11 @@ public interface Token {
 
 	/**
 	 * Extracts the value of the given as a JsonObject. Use this to extract nested
-	 * objects. If the claim is not found, it will return null.  If the vale for the
+	 * objects. If the claim is not found, it will return null. If the vale for the
 	 * given claim is not an object, it will throw a {@link JsonParsingException}.
 	 *
-	 * @param claimName the name of the claim for which the object should be extracted.
+	 * @param claimName
+	 *            the name of the claim for which the object should be extracted.
 	 * @return the corresponding {@link JsonObject} for the given claim.
 	 */
 	@Nullable

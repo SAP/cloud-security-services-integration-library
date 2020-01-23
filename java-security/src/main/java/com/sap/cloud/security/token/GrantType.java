@@ -7,10 +7,10 @@ import javax.annotation.Nullable;
  * https://tools.ietf.org/html/rfc6749
  */
 public enum GrantType {
-	CLIENT_CREDENTIALS("client_credentials"),USER_TOKEN("user_token"), REFRESH_TOKEN("refresh_token"), PASSWORD(
-			"password"), JWT_BEARER("urn:ietf:params:oauth:grant-type:jwt-bearer"),
-	SAML2_BEARER("urn:ietf:params:oauth:grant-type:saml2-bearer"), CLIENT_X509(
-					"client_x509"), AUTHORIZATION_CODE("authorization_code");
+	CLIENT_CREDENTIALS("client_credentials"), USER_TOKEN("user_token"), REFRESH_TOKEN("refresh_token"), PASSWORD(
+			"password"), JWT_BEARER("urn:ietf:params:oauth:grant-type:jwt-bearer"), SAML2_BEARER(
+					"urn:ietf:params:oauth:grant-type:saml2-bearer"), CLIENT_X509(
+							"client_x509"), AUTHORIZATION_CODE("authorization_code");
 
 	private String claimName;
 

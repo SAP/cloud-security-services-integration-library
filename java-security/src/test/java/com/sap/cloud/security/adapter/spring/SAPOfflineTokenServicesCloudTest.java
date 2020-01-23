@@ -29,7 +29,7 @@ public class SAPOfflineTokenServicesCloudTest {
 	private String xsuaaToken;
 
 	public SAPOfflineTokenServicesCloudTest() throws IOException {
-		xsuaaToken = IOUtils.resourceToString("/xsuaaScopesTokenRSA256.txt", StandardCharsets.UTF_8);
+		xsuaaToken = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
 	}
 
 	@Before
@@ -44,7 +44,7 @@ public class SAPOfflineTokenServicesCloudTest {
 
 		assertThat(authentication.isAuthenticated()).isTrue();
 		assertThat(authentication.getOAuth2Request()).isNotNull();
-		assertThat(authentication.getOAuth2Request().getScope()).contains("openid");
+		assertThat(authentication.getOAuth2Request().getScope()).contains("ROLE_SERVICEBROKER", "uaa.resource");
 	}
 
 	@Test
