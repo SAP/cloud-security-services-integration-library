@@ -10,7 +10,7 @@ package com.sap.xsa.security.container;
  * API for OAuth resource servers to extract authentication and authorization
  * information from the OAuth token.
  *
- * @apiNote deprecated with version 2.4.0 in favor of the new SAP Java Container
+ * deprecated with version 2.4.0 in favor of the new SAP Java Container
  *             library.
  */
 public interface XSUserInfo {
@@ -109,8 +109,10 @@ public interface XSUserInfo {
 	public String getSubaccountId() throws XSUserInfoException;
 
 	/**
-	 * @apiNote Still Supported via {@codeXSUserInfoAdapter}
+	 * Still Supported via {@code XSUserInfoAdapter}
 	 * 	 	from the {@code com.sap.cloud.security.adapter.xs} package.
+	 * @return the subdomain
+	 * @throws XSUserInfoException if subdomain is not available in the authentication token
 	 */
 	public String getSubdomain() throws XSUserInfoException;
 
@@ -130,6 +132,8 @@ public interface XSUserInfo {
 	/**
 	 * @deprecated Can be replaced with {@code token.getClaimAsString(attribute)}
 	 *             from the {@code com.sap.cloud.security.token} package.
+	 * @return value of attribute
+	 * @throws XSUserInfoException if attribute is not available in the authentication token
 	 */
 	@Deprecated
 	public String getJsonValue(String attribute) throws XSUserInfoException;
@@ -152,13 +156,17 @@ public interface XSUserInfo {
 	 * @deprecated use {@link #getHdbToken()} instead.
 	 * @return the hana database token
 	 * @throws XSUserInfoException
+	 *             if db token is not available in the authentication token
 	 */
 	@Deprecated // use getHdbToken
 	public String getDBToken() throws XSUserInfoException;
 
 	/**
-	 * @apiNote Still Supported via {@codeXSUserInfoAdapter}
+	 * Still Supported via {@code XSUserInfoAdapter}
 	 * 	 from the {@code com.sap.cloud.security.adapter.xs} package.
+	 *
+	 * @return the hana database token
+	 *  @throws XSUserInfoException if db token is not available in the authentication token
 	 */
 	public String getHdbToken() throws XSUserInfoException;
 
@@ -173,15 +181,20 @@ public interface XSUserInfo {
 	public String getAppToken();
 
 	/**
-	 * @apiNote Still Supported via {@codeXSUserInfoAdapter}
+	 * Still Supported via {@code XSUserInfoAdapter}
 	 * 	 from the {@code com.sap.cloud.security.adapter.xs} package.
+	 *
+	 * @param namespace the namespace
+	 * @param name the name
+	 * @throws XSUserInfoException
+	 *  			if token is not available in the authentication token
 	 */
 	public String getToken(String namespace, String name) throws XSUserInfoException;
 
 	/**
 	 * Return user attributes.
 	 *
-	 * @apiNote Still Supported via {@codeXSUserInfoAdapter}
+	 * Still Supported via {@code XSUserInfoAdapter}
 	 * 	 	from the {@code com.sap.cloud.security.adapter.xs} package.
 	 * @param attributeName
 	 *            name of attribute
@@ -193,7 +206,7 @@ public interface XSUserInfo {
 
 	/**
 	 * Check if the authentication token contains user attributes.
-	 * @apiNote Still Supported via {@codeXSUserInfoAdapter}
+	 * Still Supported via {@code XSUserInfoAdapter}
 	 * 	 	from the {@code com.sap.cloud.security.adapter.xs} package.
 	 *
 	 * @return true if user attributes are available
@@ -203,12 +216,13 @@ public interface XSUserInfo {
 	public boolean hasAttributes() throws XSUserInfoException;
 
 	/**
-	 * @apiNote Still Supported via {@codeXSUserInfoAdapter}
+	 * Still Supported via {@code XSUserInfoAdapter}
 	 * 	 	from the {@code com.sap.cloud.security.adapter.xs} package.
 	 *
 	 * @param attributeName the name of the system attribute
 	 * @return the system attribute
 	 * @throws XSUserInfoException
+	 * 			if system attribute is not available in the authentication token
 	 */
 	public String[] getSystemAttribute(String attributeName) throws XSUserInfoException;
 
@@ -246,9 +260,7 @@ public interface XSUserInfo {
 	 * component. Note: this is data controlled by the requester of a token. Might
 	 * be not trustworthy.
 	 *
-	 * @apiNote Still Supported via {@codeXSUserInfoAdapter}
-	 * 	 	from the {@code com.sap.cloud.security.adapter.xs} package.
-	 *
+	 * Still Supported via {@code XSUserInfoAdapter}
 	 * @param attributeName
 	 *            name of the authentication attribute
 	 * @return addition authentication attributes
@@ -260,7 +272,7 @@ public interface XSUserInfo {
 	/**
 	 * In case of xsuaa broker plan tokens, it contains the service instance id
 	 *
-	 * @apiNote Still Supported via {@codeXSUserInfoAdapter}
+	 * Still Supported via {@code XSUserInfoAdapter}
 	 * 	 	from the {@code com.sap.cloud.security.adapter.xs} package.
 	 *
 	 * @return service instance id
@@ -298,8 +310,14 @@ public interface XSUserInfo {
 	public boolean isInForeignMode() throws XSUserInfoException;
 
 	/**
+	 * @param clientId client id
+	 * @param clientSecret client secret
+	 * @param uaaUrl the uaa url
+	 * @return the token
+	 *
 	 * @deprecated can be replaced with token flows from the token-client library.
 	 * @throws XSUserInfoException
+	 * 				if an error occurs during token request
 	 */
 	@Deprecated
 	public String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
@@ -312,7 +330,7 @@ public interface XSUserInfo {
 	 * @deprecated can be replaced with token flows from the token-client library.
 	 * @return requested token
 	 * @throws XSUserInfoException
-	 *             if attribute is not available in the authentication token
+	 *             if an error occurs during token exchange
 	 */
 	public String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException;
 

@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Represents a token exchange request.
  * 
- * @apiNote deprecated with version 2.4.0 in favor of the new SAP Java Container
+ * deprecated with version 2.4.0 in favor of the new SAP Java Container
  *             library.
  */
 public interface XSTokenRequest {
