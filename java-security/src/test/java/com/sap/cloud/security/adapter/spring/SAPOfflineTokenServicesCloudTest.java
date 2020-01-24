@@ -101,5 +101,14 @@ public class SAPOfflineTokenServicesCloudTest {
 		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
 	}
 
+	@Test
+	public void afterPropertiesSet() {
+		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class), jwtValidatorBuilderMock);
+
+		Mockito.verify(jwtValidatorBuilderMock, times(0)).build();
+		cut.afterPropertiesSet();
+		Mockito.verify(jwtValidatorBuilderMock, times(1)).build();
+	}
+
 
 }
