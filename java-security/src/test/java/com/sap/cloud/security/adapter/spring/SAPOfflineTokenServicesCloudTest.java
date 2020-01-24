@@ -61,15 +61,6 @@ public class SAPOfflineTokenServicesCloudTest {
 	}
 
 	@Test
-	public void setLegacyModeBeforePropertiesSet()  {
-		cut.setLegacyMode(true);
-		cut.afterPropertiesSet();
-
-		Mockito.verify(jwtValidatorBuilderMock, times(1)).setLegacyMode(true);
-		Mockito.verify(jwtValidatorBuilderMock, times(1)).build();
-	}
-
-	@Test
 	public void loadAuthentication_tokenIsNull_throwsException() {
 		assertThatThrownBy(() -> cut.loadAuthentication(null)).isInstanceOf(InvalidTokenException.class);
 	}
@@ -109,6 +100,18 @@ public class SAPOfflineTokenServicesCloudTest {
 		cut.afterPropertiesSet();
 		Mockito.verify(jwtValidatorBuilderMock, times(1)).build();
 	}
+
+	@Test
+	public void setLegacyModeBeforePropertiesSet()  {
+		cut.setLegacyMode(true);
+
+		Mockito.verify(jwtValidatorBuilderMock, times(0)).setLegacyMode(true);
+		cut.afterPropertiesSet();
+
+		Mockito.verify(jwtValidatorBuilderMock, times(1)).setLegacyMode(true);
+		Mockito.verify(jwtValidatorBuilderMock, times(1)).build();
+	}
+
 
 
 }
