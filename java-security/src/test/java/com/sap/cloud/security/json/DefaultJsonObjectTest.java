@@ -42,6 +42,12 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
+	public void isEmpty() {
+		assertThat(cut.isEmpty()).isFalse();
+		assertThat(new DefaultJsonObject("{}").isEmpty()).isTrue();
+	}
+
+	@Test
 	public void getAsString_keyExists_returnsStringValue() {
 		assertThat(cut.getAsString(KEY_1)).isEqualTo(STRING_TEXT);
 	}

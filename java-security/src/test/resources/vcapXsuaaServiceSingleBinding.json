@@ -3,7 +3,7 @@
    {
     "binding_name": null,
     "credentials": {
-     "clientid": "xs2.usertoken",
+     "clientid": "clientId",
      "clientsecret": "secret",
      "identityzone": "uaa",
      "identityzoneid": "uaa",

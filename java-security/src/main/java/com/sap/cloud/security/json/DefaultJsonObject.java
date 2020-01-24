@@ -35,6 +35,11 @@ public class DefaultJsonObject implements JsonObject {
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return getJsonObject().isEmpty();
+	}
+
+	@Override
 	public <T> List<T> getAsList(String name, Class<T> type) {
 		return getJSONArray(name).map(jsonArray -> castToListOfType(jsonArray, type)).orElse(Collections.emptyList());
 	}

@@ -1,14 +1,28 @@
 package com.sap.cloud.security.token.validation;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.GregorianCalendar;
+import java.util.Map;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
+import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.json.JsonObject;
+import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -21,21 +35,65 @@ import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 
 public class IntegrationTest {
 
+	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
+
+	CloseableHttpClient mockHttpClient;
+
+	@Before
+	public void setup() throws IOException {
+		mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+
+		CloseableHttpResponse response = HttpClientTestFactory
+				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+		when(mockHttpClient.execute(any(HttpGet.class))).thenReturn(response);
+	}
+
 	@Test
 	public void validationFails_withXsuaaCombiningValidator() throws URISyntaxException, IOException {
-		OAuth2ServiceConfiguration configuration = Mockito.mock(OAuth2ServiceConfiguration.class);
-		when(configuration.getUrl()).thenReturn(new URI("https://my.auth.com"));
-		when(configuration.getClientId()).thenReturn("sb-test-app!t123");
-		when(configuration.getProperty(CFConstants.XSUAA.APP_ID)).thenReturn("test-app!t123");
-		when(configuration.getProperty(CFConstants.XSUAA.UAA_DOMAIN)).thenReturn("auth.com");
-		when(configuration.getService()).thenReturn(Service.XSUAA);
+		String vcapServices = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
+		JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName())
+				.get(0);
+		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
 
-		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+				.withProperties(credentialsMap)
+				.build();
 
-		Token xsuaaToken = new XsuaaToken(
-				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8));
+		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
+				.withHttpClient(mockHttpClient)
+				.build();
+
+		Token xsuaaToken = spy(new XsuaaToken(
+				IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", StandardCharsets.UTF_8)));
+		when(xsuaaToken.getExpiration()).thenReturn(NO_EXPIRE_DATE);
+		when(xsuaaToken.getClaimAsStringList(TokenClaims.AUDIENCE))
+				.thenReturn(Arrays.asList(new String[] { "clientId" }));
+
 		ValidationResult result = tokenValidator.validate(xsuaaToken);
-		assertThat(result.isErroneous()).isTrue();
-		assertThat(result.getErrorDescription()).contains("Jwt expired at 2019-10-26T03:32:49Z");
+		assertThat(result.isValid()).isTrue();
+	}
+
+	@Test
+	public void xsaTokenValidationSucceeds_withXsuaaCombiningValidator() throws IOException {
+		String XsaVcapServices = IOUtils.resourceToString("/vcapXsuaaXsaSingleBinding.json", UTF_8);
+		JsonObject serviceJsonObject = new DefaultJsonObject(XsaVcapServices).getJsonObjects(Service.XSUAA.getCFName())
+				.get(0);
+		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
+
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+				.withProperties(credentialsMap)
+				.runInLegacyMode(true)
+				.build();
+
+		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
+				.withHttpClient(mockHttpClient)
+				.build();
+
+		XsuaaToken xsaToken = spy(new XsuaaToken(
+				IOUtils.resourceToString("/xsuaaXsaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8)));
+		when(xsaToken.getExpiration()).thenReturn(NO_EXPIRE_DATE);
+
+		ValidationResult result = tokenValidator.validate(xsaToken);
+		assertThat(result.isValid()).isTrue();
 	}
 }

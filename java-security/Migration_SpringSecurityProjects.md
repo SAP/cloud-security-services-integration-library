@@ -17,20 +17,24 @@ First make sure you have the following dependencies defined in your pom.xml:
   <version>4.3.25.RELEASE</version>
 </dependency>
 <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-web</artifactId>
+    <version>5.2.3.RELEASE</version>
+</dependency>
+<-- new java-security dependencies -->
+<dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>java-security</artifactId>
-  <version>2.4.0-SNAPSHOT</version>
+  <version>2.4.1-SNAPSHOT</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>java-security-test</artifactId>
-  <version>2.4.0-SNAPSHOT</version>
+  <version>2.4.1-SNAPSHOT</version>
   <scope>test</scope>
 </dependency>
 ```
 
-> Also ensure that you do not use outdated versions of maven plugins that might affect your build. 
-So for example if you use `findbugs-maven-plugin` or `jacoco-maven-plugin`, update them to a current version.
 
 Now you are ready to **remove** the old client library by deleting the following lines from the pom.xml:
 ```xml
@@ -52,7 +56,7 @@ For example see the following snippet on how to instantiate the `SAPOfflineToken
 @Bean
 @Profile("cloud")
 protected SAPOfflineTokenServicesCloud offlineTokenServices() {
-	return new SAPOfflineTokenServicesCloud(Environments.getCurrent().getXsuaaConfiguration());
+	return new SAPOfflineTokenServicesCloud(Environments.getCurrent().getXsuaaConfiguration(), new RestTemplate());
 }
 ```
 You might need to fix your java imports to get rid of the old import for the `SAPOfflineTokenServicesCloud` class.
@@ -64,6 +68,8 @@ You might need to fix your java imports to get rid of the old import for the `SA
 If you want to overwrite the service configuration of the `SAPOfflineTokenServicesCloud` for your test, you can do so by
 using some test constants provided by the test library. The following snippet shows how to do that:
 ```java 
+import static com.sap.cloud.security.config.cf.CFConstants.*;
+
 @Configuration
 public class TestSecurityConfig {
 	@Bean
@@ -73,7 +79,7 @@ public class TestSecurityConfig {
 				.forService(Service.XSUAA)
 				.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
 				.withProperty(CFConstants.XSUAA.APP_ID, SecurityTestRule.DEFAULT_APP_ID)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN) //TODO
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
 				.build();
 		return new SAPOfflineTokenServicesCloud(configuration);
 	}
@@ -81,7 +87,7 @@ public class TestSecurityConfig {
 ```
 
 ### Unit testing 
-In your unit test you might want to generate jwt tokens and have them validated. The new [java-security-test](/java-security-test) library provides it's own `JwtGenerator`. This can be embedded using the new 
+In your unit test you might want to generate jwt tokens and have them validated. The new [java-security-test](/java-security-test) library provides it's own `JwtGenerator`.  This can be embedded using the new 
 `SecurityTestRule`. See the following snippet as example: 
 
 ```java
@@ -91,7 +97,7 @@ public static SecurityTestRule securityTestRule =
 		.setKeys("src/test/resources/publicKey.txt", "src/test/resources/privateKey.txt");
 ```
 
-Using the `SecurityTestRule` you can use a preconfigured `JwtGenerator` to create JWT tokens with custom scopes for your tests.
+Using the `SecurityTestRule` you can use a preconfigured `JwtGenerator` to create JWT tokens with custom scopes for your tests. It configures the JwtGenerator in such a way that **it uses the public key from the [`publicKey.txt`](/java-security-test/src/main/resources) file to sign the token.**
 
 ```java
 String jwt = securityTestRule.getPreconfiguredJwtGenerator()

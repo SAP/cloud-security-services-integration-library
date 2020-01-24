@@ -1,7 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationListener;
@@ -165,18 +164,21 @@ public class JwtValidatorBuilder {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
 
+
 		if (configuration.getService() == XSUAA) {
 			if (customAudienceValidator == null) {
 				defaultValidators.add(createXsuaaAudienceValidator());
 			}
-			defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
+			if (!configuration.isLegacyMode()) {
+				defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
+			}
 
 		} else if (configuration.getService() == IAS) {
 			defaultValidators.add(new JwtIssuerValidator(configuration.getDomain()));
 		}
 
 		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
-				getOidcConfigurationServiceWithCache());
+				getOidcConfigurationServiceWithCache()).runInLegacyMode(configuration.isLegacyMode());
 		signatureValidator.withOAuth2Configuration(configuration);
 		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
 		defaultValidators.add(signatureValidator);

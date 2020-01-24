@@ -41,6 +41,7 @@ public class SecurityTestRule extends ExternalResource {
 
 	public static final String DEFAULT_APP_ID = "xsapp!t0815";
 	public static final String DEFAULT_CLIENT_ID = "sb-clientId!t0815";
+	public static final String DEFAULT_DOMAIN = "localhost";
 	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityTestRule.class);
 	private static final String LOCALHOST_PATTERN = "http://localhost:%d";
 	private final Map<String, ServletHolder> applicationServletsByPath = new HashMap<>();

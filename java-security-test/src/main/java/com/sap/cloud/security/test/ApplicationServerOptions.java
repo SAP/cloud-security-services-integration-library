@@ -1,5 +1,6 @@
 package com.sap.cloud.security.test;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
@@ -102,6 +103,14 @@ public class ApplicationServerOptions {
 
 	public int getPort() {
 		return port;
+	}
+
+	private static OAuth2ServiceConfiguration createServiceConfiguration(String appId, String clientId) {
+		return OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+				.withClientId(clientId)
+				.withProperty(CFConstants.XSUAA.APP_ID, appId)
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
+				.build();
 	}
 
 }

@@ -17,6 +17,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.*;
  */
 public class OAuth2ServiceConfigurationBuilder {
 	private Service service;
+	private boolean runInLegacyMode;
 	private final Map<String, String> properties = new HashMap<>();
 
 	private OAuth2ServiceConfigurationBuilder() {
@@ -75,12 +76,17 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	public OAuth2ServiceConfigurationBuilder withProperty(String propertyName, String propertyValue) {
-		properties.put(propertyName, propertyValue);
+		properties.put(propertyName, propertyValue); // replaces values, that were already set
 		return this;
 	}
 
 	public OAuth2ServiceConfigurationBuilder withProperties(Map<String, String> properties) {
 		properties.forEach((key, value) -> withProperty(key, value));
+		return this;
+	}
+
+	public OAuth2ServiceConfigurationBuilder runInLegacyMode(boolean isLegacyMode) {
+		this.runInLegacyMode = isLegacyMode;
 		return this;
 	}
 
@@ -146,6 +152,11 @@ public class OAuth2ServiceConfigurationBuilder {
 					return matcher.group(matcher.groupCount());
 				}
 				return null;
+			}
+
+			@Override
+			public boolean isLegacyMode() {
+				return runInLegacyMode;
 			}
 		};
 

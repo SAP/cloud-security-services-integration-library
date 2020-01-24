@@ -6,6 +6,7 @@ import com.sap.cloud.security.token.IasToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
@@ -21,26 +22,28 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
+	private final Supplier<Validator<Token>> validatorSupplier;
 	private final OAuth2ServiceConfiguration serviceConfiguration;
 	private Validator<Token> tokenValidator;
 
 	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration) {
-		this(serviceConfiguration, JwtValidatorBuilder.getInstance(serviceConfiguration).build());
+		this(serviceConfiguration, () -> JwtValidatorBuilder.getInstance(serviceConfiguration).build());
 	}
 
-	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration, Validator<Token> tokenValidator) {
+	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
+			Supplier<Validator<Token>> validatorSupplier) {
 		this.serviceConfiguration = serviceConfiguration;
-		this.tokenValidator = tokenValidator;
+		this.validatorSupplier = validatorSupplier;
 	}
 
 	@Override
 	public OAuth2Authentication loadAuthentication(@Nonnull String accessToken)
 			throws AuthenticationException, InvalidTokenException {
-
 		Token token = checkAndCreateToken(accessToken);
 		Set<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES).stream().collect(Collectors.toSet());
 		ValidationResult validationResult = tokenValidator.validate(token);
@@ -55,15 +58,6 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		}
 	}
 
-	@Override
-	public void afterPropertiesSet() {
-	}
-
-	@Override
-	public OAuth2AccessToken readAccessToken(String accessToken) {
-		throw new UnsupportedOperationException("Not supported: read access token");
-	}
-
 	private Token checkAndCreateToken(@Nonnull String accessToken) {
 		Service service = serviceConfiguration.getService();
 		if (service == null) {
@@ -72,15 +66,25 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		}
 		try {
 			switch (service) {
-			case XSUAA:
-				return new XsuaaToken(accessToken);
-			case IAS:
-				return new IasToken(accessToken);
+				case XSUAA:
+					return new XsuaaToken(accessToken);
+				case IAS:
+					return new IasToken(accessToken);
 			}
 		} catch (Exception e) {
 			// catches exceptions during token creation and re-throws with spring specific exception
 			throw new InvalidTokenException(e.getMessage());
 		}
 		throw new IllegalStateException(String.format("Service configuration '%s' not supported yet", service));
+	}
+
+	@Override
+	public void afterPropertiesSet() {
+		tokenValidator = validatorSupplier.get();
+	}
+
+	@Override
+	public OAuth2AccessToken readAccessToken(String accessToken) {
+		throw new UnsupportedOperationException("Not supported: read access token");
 	}
 }

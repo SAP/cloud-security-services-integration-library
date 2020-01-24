@@ -2,6 +2,7 @@ package com.sap.cloud.security.token.validation;
 
 import com.sap.cloud.security.xsuaa.Assertions;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,11 @@ public class CombiningValidator<T> implements Validator<T> {
 		this.validators = validators;
 	}
 
+	public CombiningValidator(Validator<T>... validators) {
+		Assertions.assertNotNull(validators, "validators must not be null.");
+		this.validators = Arrays.asList(validators);
+	}
+
 	@Override
 	public ValidationResult validate(T t) {
 		for (Validator<T> validator : validators) {
@@ -32,8 +38,19 @@ public class CombiningValidator<T> implements Validator<T> {
 				return result;
 			}
 		}
-		validationListeners.forEach(ValidationListener::onValidationSuccess);
-		return ValidationResults.createValid();
+		return createValidationResult();
+	}
+
+	private ValidationResult createValidationResult() {
+		if (validators.isEmpty()) {
+			ValidationResult result = ValidationResults
+					.createInvalid("CombiningValidator must contain at least one validator!");
+			validationListeners.forEach((listener) -> listener.onValidationError(result));
+			return result;
+		} else {
+			validationListeners.forEach(ValidationListener::onValidationSuccess);
+			return ValidationResults.createValid();
+		}
 	}
 
 	public List<Validator<T>> getValidators() {
