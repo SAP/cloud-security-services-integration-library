@@ -118,7 +118,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	// for testing
 	ValidationResult validate(String token, String tokenAlgorithm, String tokenKeyId, String tokenKeysUrl,
-							  String fallbackPublicKey) {
+			String fallbackPublicKey) {
 		assertHasText(token, "token must not be null or empty.");
 		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
 

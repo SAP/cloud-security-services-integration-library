@@ -48,7 +48,8 @@ class CFEnvParser {
 		return new DefaultJsonObject(vcapApplicationJson).contains("xs_api");
 	}
 
-	static List<OAuth2ServiceConfiguration> extractAllServices(Service service, JsonObject vcapServicesJson, boolean isLegacyMode) {
+	static List<OAuth2ServiceConfiguration> extractAllServices(Service service, JsonObject vcapServicesJson,
+			boolean isLegacyMode) {
 		List<JsonObject> serviceJsonObjects = vcapServicesJson.getJsonObjects(service.getCFName());
 		if (service == XSUAA && serviceJsonObjects.size() > 1) {
 			logger.warn(

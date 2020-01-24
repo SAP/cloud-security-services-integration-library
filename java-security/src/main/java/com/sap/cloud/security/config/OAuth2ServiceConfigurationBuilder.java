@@ -70,7 +70,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	public OAuth2ServiceConfigurationBuilder withProperty(String propertyName, String propertyValue) {
-		properties.put(propertyName, propertyValue); //replaces values, that were already set
+		properties.put(propertyName, propertyValue); // replaces values, that were already set
 		return this;
 	}
 

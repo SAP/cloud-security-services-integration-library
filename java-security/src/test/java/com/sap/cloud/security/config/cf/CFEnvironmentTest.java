@@ -119,7 +119,8 @@ public class CFEnvironmentTest {
 		assertThat(Plan.from(cut.getXsuaaConfiguration().getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
 		assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("sb-java-hello-world!i1");
 		assertThat(cut.getXsuaaConfiguration().getClientSecret()).startsWith("fxnWLHqLh6KC0Wp/bbv8Gwbu50OEbpS");
-		assertThat(cut.getXsuaaConfiguration().getUrl().toString()).isEqualTo("https://xsa-test.c.eu-de-2.cloud.sap:30132/uaa-security");
+		assertThat(cut.getXsuaaConfiguration().getUrl().toString())
+				.isEqualTo("https://xsa-test.c.eu-de-2.cloud.sap:30132/uaa-security");
 		assertThat(cut.getXsuaaConfiguration().isLegacyMode()).isTrue();
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);

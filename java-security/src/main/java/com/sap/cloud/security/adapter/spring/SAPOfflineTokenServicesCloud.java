@@ -31,7 +31,9 @@ import java.util.stream.Collectors;
 
 /**
  * This constructor requires a dependency to Spring oauth and web.
- * <pre>{@code
+ * 
+ * <pre>
+ * {@code
  * <dependency>
  *     <groupId>org.springframework.security.oauth</groupId>
  *     <artifactId>spring-security-oauth2</artifactId>
@@ -91,7 +93,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 				.withOidcConfigurationService(
 						OidcConfigurationServiceWithCache.getInstance()
 								.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations))));
-				
+
 	}
 
 	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,

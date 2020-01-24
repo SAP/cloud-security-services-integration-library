@@ -280,7 +280,7 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void testRequestToken_isNotImplemented()  {
+	public void testRequestToken_isNotImplemented() {
 		assertThatThrownBy(() -> cut.requestToken(null))
 				.isInstanceOf(UnsupportedOperationException.class)
 				.hasMessageContaining("Not implemented");

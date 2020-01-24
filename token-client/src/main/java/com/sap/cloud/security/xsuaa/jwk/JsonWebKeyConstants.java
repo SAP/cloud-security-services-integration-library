@@ -19,7 +19,6 @@ public class JsonWebKeyConstants {
 	// Legacy Token Key ID
 	public static final String KEY_ID_VALUE_LEGACY = "legacy-token-key";
 
-
 	static final String BEGIN_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----";
 	static final String END_PUBLIC_KEY = "-----END PUBLIC KEY-----";
 }

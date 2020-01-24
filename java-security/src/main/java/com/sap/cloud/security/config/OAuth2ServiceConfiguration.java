@@ -34,10 +34,11 @@ public interface OAuth2ServiceConfiguration {
 	/**
 	 * Returns the value of the given property as string.
 	 *
-	 * @param name the name of the property. You can find constants in
-	 *             {@link com.sap.cloud.security.config.cf.CFConstants}
+	 * @param name
+	 *            the name of the property. You can find constants in
+	 *            {@link com.sap.cloud.security.config.cf.CFConstants}
 	 * @return the string value of the given property or null if the property does
-	 * not exist.
+	 *         not exist.
 	 */
 	@Nullable
 	String getProperty(String name);
@@ -45,8 +46,9 @@ public interface OAuth2ServiceConfiguration {
 	/**
 	 * Returns true if the configuration contains the given property.
 	 *
-	 * @param name the name of the property. You can find constants in
-	 *             {@link com.sap.cloud.security.config.cf.CFConstants}
+	 * @param name
+	 *            the name of the property. You can find constants in
+	 *            {@link com.sap.cloud.security.config.cf.CFConstants}
 	 * @return true if the property does not exist.
 	 */
 	boolean hasProperty(String name);

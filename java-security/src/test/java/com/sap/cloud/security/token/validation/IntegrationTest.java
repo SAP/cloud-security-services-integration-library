@@ -51,22 +51,23 @@ public class IntegrationTest {
 	@Test
 	public void validationFails_withXsuaaCombiningValidator() throws URISyntaxException, IOException {
 		String vcapServices = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
-		JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName()).get(0);
+		JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName())
+				.get(0);
 		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
 
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withProperties(credentialsMap)
 				.build();
 
-		CombiningValidator<Token> tokenValidator =
-				JwtValidatorBuilder.getInstance(configuration)
-						.withHttpClient(mockHttpClient)
-						.build();
+		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
+				.withHttpClient(mockHttpClient)
+				.build();
 
 		Token xsuaaToken = spy(new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", StandardCharsets.UTF_8)));
 		when(xsuaaToken.getExpiration()).thenReturn(NO_EXPIRE_DATE);
-		when(xsuaaToken.getClaimAsStringList(TokenClaims.AUDIENCE)).thenReturn(Arrays.asList(new String[]{"clientId"}));
+		when(xsuaaToken.getClaimAsStringList(TokenClaims.AUDIENCE))
+				.thenReturn(Arrays.asList(new String[] { "clientId" }));
 
 		ValidationResult result = tokenValidator.validate(xsuaaToken);
 		assertThat(result.isValid()).isTrue();
@@ -75,7 +76,8 @@ public class IntegrationTest {
 	@Test
 	public void xsaTokenValidationSucceeds_withXsuaaCombiningValidator() throws IOException {
 		String XsaVcapServices = IOUtils.resourceToString("/vcapXsuaaXsaSingleBinding.json", UTF_8);
-		JsonObject serviceJsonObject = new DefaultJsonObject(XsaVcapServices).getJsonObjects(Service.XSUAA.getCFName()).get(0);
+		JsonObject serviceJsonObject = new DefaultJsonObject(XsaVcapServices).getJsonObjects(Service.XSUAA.getCFName())
+				.get(0);
 		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
 
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)

@@ -51,7 +51,7 @@ public class SAPOfflineTokenServicesCloudTest {
 	}
 
 	@Test
-	public void loadAuthentication()  {
+	public void loadAuthentication() {
 		cut.afterPropertiesSet();
 		OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
 
@@ -101,6 +101,5 @@ public class SAPOfflineTokenServicesCloudTest {
 		cut.afterPropertiesSet();
 		Mockito.verify(jwtValidatorBuilderMock, times(1)).build();
 	}
-
 
 }
