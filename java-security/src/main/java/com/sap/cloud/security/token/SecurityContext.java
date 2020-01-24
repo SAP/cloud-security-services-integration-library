@@ -23,7 +23,7 @@ public class SecurityContext {
 	 *            token to be saved.
 	 */
 	public static void setToken(Token token) {
-		LOGGER.error("Sets access token of service %s to SecurityContext.",
+		LOGGER.info("Sets access token of service %s to SecurityContext (thread-locally).",
 				token != null ? token.getService() : "null");
 		tokenStorage.set(token);
 	}

@@ -63,7 +63,7 @@ public interface OAuth2ServiceConfiguration {
 	/**
 	 * Returns true, in case of XSUAA service runs in legacy mode.
 	 *
-	 * @return the service.
+	 * @return true in case it runs in legacy mode.
 	 */
 	boolean isLegacyMode();
 }

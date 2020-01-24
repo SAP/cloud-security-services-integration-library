@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 
+@Deprecated // TODO is this class really required?
 public class XSUserInfoSpringAdapter extends XSUserInfoAdapter {
 
 	public XSUserInfoSpringAdapter(Token xsuaaToken) throws XSUserInfoException {
