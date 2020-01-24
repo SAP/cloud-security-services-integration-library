@@ -213,7 +213,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public boolean isInForeignMode() throws XSUserInfoException {
-		return false;
+		return false; // This is not supported
 	}
 
 	@Override
