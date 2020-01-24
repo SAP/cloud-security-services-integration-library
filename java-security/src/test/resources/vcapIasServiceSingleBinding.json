@@ -5,7 +5,7 @@
       "credentials": {
         "clientsecret": "pCghfbrLudwzXM2fPq7YSIhujAmpHj_I0DeMKHKRAqs=",
         "clientid": "T000297",
-        "url": "https://subdomain.example.com"
+        "url": "https://xs2security.accounts400.ondemand.com"
       },
       "instance_name": "myservice",
       "label": "identity-beta",
