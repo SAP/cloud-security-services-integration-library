@@ -1,6 +1,7 @@
 package com.sap.cloud.security.config.cf;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
 
 import javax.annotation.Nullable;
@@ -37,7 +38,8 @@ public class CFEnvironment implements Environment {
 		CFEnvironment instance = new CFEnvironment();
 		instance.systemEnvironmentProvider = systemEnvironmentProvider;
 		instance.systemPropertiesProvider = systemPropertiesProvider;
-		instance.serviceConfigurations = CFEnvParser.loadAll(instance.extractVcapJsonString());
+		instance.serviceConfigurations = CFEnvParser.loadAll(instance.extractVcapServicesJson(),
+				instance.extractVcapApplicationJson());
 		return instance;
 	}
 
@@ -79,9 +81,8 @@ public class CFEnvironment implements Environment {
 	 *             necessary with the unified broker plan, this method is
 	 *             deprecated.
 	 */
-	@Deprecated
 	List<OAuth2ServiceConfiguration> loadAllForService(Service service) {
-		return serviceConfigurations.getOrDefault(service, new ArrayList<>());
+		return serviceConfigurations.getOrDefault(service, Collections.emptyList());
 	}
 
 	@Override
@@ -89,11 +90,16 @@ public class CFEnvironment implements Environment {
 		return Type.CF;
 	}
 
-	private String extractVcapJsonString() {
+	private String extractVcapServicesJson() {
 		String env = systemPropertiesProvider.apply(VCAP_SERVICES);
 		if (env == null) {
 			env = systemEnvironmentProvider.apply(VCAP_SERVICES);
 		}
+		return env != null ? env : "{}";
+	}
+
+	private String extractVcapApplicationJson() {
+		String env = System.getenv(VCAP_APPLICATION);
 		return env != null ? env : "{}";
 	}
 
@@ -102,19 +108,21 @@ public class CFEnvironment implements Environment {
 				.ofNullable(loadForServicePlan(XSUAA, Plan.APPLICATION));
 		Optional<OAuth2ServiceConfiguration> brokerService = Optional
 				.ofNullable(loadForServicePlan(XSUAA, Plan.BROKER));
+		Optional<OAuth2ServiceConfiguration> legacyService = Optional
+				.ofNullable(loadForServicePlan(XSUAA, Plan.SPACE));
 		if (applicationService.isPresent()) {
 			return applicationService.get();
 		}
-		return brokerService.orElse(null);
+		return brokerService.orElse(legacyService.orElse(null));
 	}
 
 	/**
 	 * Loads the configuration for a dedicated service plan.
 	 *
 	 * @param service
-	 * 		the name of the service
+	 *            the name of the service
 	 * @param plan
-	 * 		the name of the service plan
+	 *            the name of the service plan
 	 * @return the configuration or null, if there is not such binding information
 	 *         for the given service plan.
 	 */

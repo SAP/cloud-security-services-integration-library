@@ -23,6 +23,15 @@
       "kid": "key-id-1",
       "alg": "ES256",
       "value": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQgb5npLHd0Bk61bNnjK632uwmBfr\nF7I8hoPgaOZjyhh+BrPDO6CL6D/aW/yPObXXm7SpZogmRwGROcOA3yUleg==\n-----END PUBLIC KEY-----"
+    },
+    {
+      "kty": "RSA",
+      "e": "AQAB",
+      "use": "sig",
+      "kid": "legacy-token-key",
+      "alg": "RS256",
+      "value": "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOzNGEDK6jNrJcl3L2wstY8SnX9KNo4ic/JtrEQX4U/+749b9y6JlSGOXSKBFJ6alNGHVyPK66SfSgeWHwPjVekdnHYM7bQTyYX1NoSOxqUgvsktIpxeYJLC+J5qJTtnFcjFTRUovKwtCYxlTP4b63b7dWixwc+iSnkuvl4IkZjVTcstK73eTlmVtJDC5DIisPyYOK06qxTPrLC8KlgFA6a0FdPJF9G8s/ElxPHFu7mw6UKn2LTmDlDbADQZLMXGKBw/zg3l5scjxkOCVGTkGvv1ooccqCfYgZAsmsPbQdoZxznSdQTPfaWULnYLo8i5hFXiS1q8agvXHjWpUmWcMwIDAQAB-----END PUBLIC KEY-----",
+      "n": "AJjTNzl32UtFLvHmGVwoBlhYFVkF-jB52nWJN8x2eTyD3g2NwKWkhqTBIlcJ9XE-ilFRzCx3Js9YLDcu-KQp5gmttluydwaGbpc0dAN-2sjFa0R4d5334MkpPLufNZdNm723KWm93txKLUjeS4sRk9VVmbw22pV3-p-ZKuOfTVi-mc5BLNtDKzhJOXC3Z7IoE0FB0iiEOU6ZXcg5CTJts8DpawdkffOPkHZQxZqFR-2Gro8a9oNGferu1vSJopOsE4hXPFu3lF34Txp-63lS6tf-aNjc9CcdHoxRw8Exp3LPpNUQUug26UzjK_bZCRHN2bF9xbeDragpEVyOYVJmvh8"
     }
   ]
 }

@@ -1,11 +1,15 @@
 package com.sap.cloud.security.token;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.Nullable;
 
 /**
  * Thread wide {@link Token} storage.
  */
 public class SecurityContext {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityContext.class);
 
 	private SecurityContext() {
 	}
@@ -19,6 +23,8 @@ public class SecurityContext {
 	 *            token to be saved.
 	 */
 	public static void setToken(Token token) {
+		LOGGER.info("Sets access token of service %s to SecurityContext (thread-locally).",
+				token != null ? token.getService() : "null");
 		tokenStorage.set(token);
 	}
 

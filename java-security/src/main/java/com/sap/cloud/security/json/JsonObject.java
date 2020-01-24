@@ -18,6 +18,13 @@ public interface JsonObject {
 	boolean contains(String name);
 
 	/**
+	 * Method to check if the underlying json object is empty.
+	 *
+	 * @return true if the jsonObject is empty.
+	 */
+	boolean isEmpty();
+
+	/**
 	 * Parses the json object for the given property {@code name} and returns a list
 	 * of type {@link T}. If the property with the given name is not found, an empty
 	 * list is returned.

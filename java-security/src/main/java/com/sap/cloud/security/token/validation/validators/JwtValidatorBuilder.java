@@ -164,7 +164,7 @@ public class JwtValidatorBuilder {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
 		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
-				getOidcConfigurationServiceWithCache());
+				getOidcConfigurationServiceWithCache()).runInLegacyMode(configuration.isLegacyMode());
 		signatureValidator.withOAuth2Configuration(configuration);
 		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
 		defaultValidators.add(signatureValidator);
@@ -173,7 +173,9 @@ public class JwtValidatorBuilder {
 			if (customAudienceValidator == null) {
 				defaultValidators.add(createXsuaaAudienceValidator());
 			}
-			defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
+			if (!configuration.isLegacyMode()) {
+				defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
+			}
 
 		} else if (configuration.getService() == IAS) {
 			// TODO IAS

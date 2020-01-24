@@ -9,10 +9,9 @@ package com.sap.xsa.security.container;
 import java.security.Principal;
 
 /**
- * @deprecated with version 2.4.0 in favor of the new SAP Java Container
+ * @apiNote deprecated with version 2.4.0 in favor of the new SAP Java Container
  *             library.
  */
-@Deprecated
 public interface XSPrincipal extends Principal {
 
 }

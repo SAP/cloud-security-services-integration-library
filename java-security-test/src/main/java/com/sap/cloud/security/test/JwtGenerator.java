@@ -5,11 +5,14 @@ import static com.sap.cloud.security.token.TokenHeader.ALGORITHM;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.json.JsonObject;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.IasToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +84,25 @@ public class JwtGenerator {
 	 */
 	public JwtGenerator withClaimValue(String claimName, String value) {
 		jsonPayload.put(claimName, value);
+		return this;
+	}
+
+	/**
+	 * Sets the claim with the given name to the given string value.
+	 *
+	 * @param claimName
+	 *            the name of the claim to be set.
+	 * @param object
+	 *            the string value of the claim to be set.
+	 * @return the builder object.
+	 */
+	public JwtGenerator withClaimValue(String claimName, JsonObject object) {
+		try {
+			JSONObject wrappedObject = new JSONObject(object.toString());
+			jsonPayload.put(claimName, wrappedObject);
+		} catch (JSONException e) {
+			throw new JsonParsingException(e.getMessage());
+		}
 		return this;
 	}
 

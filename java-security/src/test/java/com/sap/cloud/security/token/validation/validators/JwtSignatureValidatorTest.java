@@ -188,7 +188,7 @@ public class JwtSignatureValidatorTest {
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(any())).thenThrow(OAuth2ServiceException.class);
 
-		ValidationResult result = cut.validate(xsuaaToken.getAccessToken(), "RS256", null,
+		ValidationResult result = cut.validate(xsuaaToken.getAccessToken(), "RS256", "key-id-1",
 				"http://unavailable.com/token_keys", null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),

@@ -5,9 +5,10 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.SecurityContext;
+import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResults;
-import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +18,6 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -27,24 +27,38 @@ public class SAPOfflineTokenServicesCloudTest {
 
 	private SAPOfflineTokenServicesCloud cut;
 	private String xsuaaToken;
+	private JwtValidatorBuilder jwtValidatorBuilderMock;
 
 	public SAPOfflineTokenServicesCloudTest() throws IOException {
-		xsuaaToken = IOUtils.resourceToString("/xsuaaScopesTokenRSA256.txt", StandardCharsets.UTF_8);
+		xsuaaToken = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
 	}
 
 	@Before
 	public void setUp() {
-		cut = createSAPOfflineTokenServicesCloud((token) -> ValidationResults.createValid());
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
+				.forService(Service.XSUAA)
+				.withProperty(CFConstants.XSUAA.APP_ID, "appId")
+				.withProperty(CFConstants.CLIENT_ID, "clientId")
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
+				.build();
+
+		jwtValidatorBuilderMock = Mockito.spy(JwtValidatorBuilder.getInstance(configuration));
+		Mockito.when(jwtValidatorBuilderMock.build()).thenReturn(
+				new CombiningValidator<>(token -> ValidationResults.createValid()));
+
+		cut = new SAPOfflineTokenServicesCloud(configuration, jwtValidatorBuilderMock);
+		SecurityContext.clearToken();
 	}
 
 	@Test
-	public void loadAuthentication() throws IOException {
+	public void loadAuthentication() {
 		cut.afterPropertiesSet();
 		OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
 
 		assertThat(authentication.isAuthenticated()).isTrue();
 		assertThat(authentication.getOAuth2Request()).isNotNull();
-		assertThat(authentication.getOAuth2Request().getScope()).contains("openid");
+		assertThat(authentication.getOAuth2Request().getScope()).contains("ROLE_SERVICEBROKER", "uaa.resource");
+		assertThat(SecurityContext.getToken().getAccessToken()).isEqualTo(xsuaaToken);
 	}
 
 	@Test
@@ -64,47 +78,28 @@ public class SAPOfflineTokenServicesCloudTest {
 
 	@Test
 	public void loadAuthentication_tokenValidationFailed_throwsException() {
-		String errorDescription = "just not valid";
-		cut = createSAPOfflineTokenServicesCloud((token) -> ValidationResults.createInvalid(errorDescription));
+		Mockito.when(jwtValidatorBuilderMock.build()).thenCallRealMethod();
 		cut.afterPropertiesSet();
 
-		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class)
-				.hasMessageContaining(errorDescription);
+		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
 
+		assertThat(SecurityContext.getToken()).isNull();
 	}
 
 	@Test
-	public void afterPropertiesSet() {
-		TestTokenValidatorSupplier mockValidator = Mockito.mock(TestTokenValidatorSupplier.class);
-		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class), mockValidator);
-
-		Mockito.verify(mockValidator, times(0)).get();
-		cut.afterPropertiesSet();
-		Mockito.verify(mockValidator, times(1)).get();
-	}
-
-	@Test
-	public void createInstancWithEmptyConfiguration_throwsException() {
+	public void createInstanceWithEmptyConfiguration_throwsException() {
 		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class));
 		cut.afterPropertiesSet();
 		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
 	}
 
-	private static class TestTokenValidatorSupplier implements Supplier<Validator<Token>> {
-		@Override
-		public Validator<Token> get() {
-			return null;
-		}
-	}
+	@Test
+	public void afterPropertiesSet() {
+		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class), jwtValidatorBuilderMock);
 
-	private SAPOfflineTokenServicesCloud createSAPOfflineTokenServicesCloud(Validator<Token> tokenValidator) {
-		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
-				.forService(Service.XSUAA)
-				.withProperty(CFConstants.XSUAA.APP_ID, "appId")
-				.withProperty(CFConstants.CLIENT_ID, "clientId")
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
-				.build();
-		return new SAPOfflineTokenServicesCloud(configuration, () -> tokenValidator);
+		Mockito.verify(jwtValidatorBuilderMock, times(0)).build();
+		cut.afterPropertiesSet();
+		Mockito.verify(jwtValidatorBuilderMock, times(1)).build();
 	}
 
 }

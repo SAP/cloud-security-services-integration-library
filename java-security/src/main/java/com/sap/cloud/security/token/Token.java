@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 
 import javax.annotation.Nonnull;
@@ -50,7 +51,7 @@ public interface Token {
 	 * Extracts the value as string for the given claim. If the claim is not found,
 	 * it will return null. If the given claim is not a string, it will throw a
 	 * {@link JsonParsingException}.
-	 * 
+	 *
 	 * @param claimName
 	 *            the name of the claim as defined here {@link TokenClaims}.
 	 * @return the corresponding string value of the given claim or null.
@@ -65,12 +66,24 @@ public interface Token {
 	 * Extracts the value as a list of strings for the given claim. If the claim is
 	 * not found, it will return null. If the given claim is not a list of strings,
 	 * it will throw a {@link JsonParsingException}.
-	 * 
+	 *
 	 * @param claimName
 	 *            the name of the claim as defined here {@link TokenClaims}.
 	 * @return the data of the given claim as a list of strings or an empty list.
 	 */
 	List<String> getClaimAsStringList(@Nonnull String claimName);
+
+	/**
+	 * Extracts the value of the given as a JsonObject. Use this to extract nested
+	 * objects. If the claim is not found, it will return null. If the vale for the
+	 * given claim is not an object, it will throw a {@link JsonParsingException}.
+	 *
+	 * @param claimName
+	 *            the name of the claim for which the object should be extracted.
+	 * @return the corresponding {@link JsonObject} for the given claim.
+	 */
+	@Nullable
+	JsonObject getClaimAsJsonObject(@Nonnull String claimName);
 
 	/**
 	 * Returns the moment in time when the token will be expired.
@@ -137,5 +150,6 @@ public interface Token {
 	 *
 	 * @return the grant type
 	 **/
-	public GrantType getGrantType();
+	GrantType getGrantType();
+
 }
