@@ -9,7 +9,9 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
 import java.io.IOException;
 import java.util.Map;
@@ -21,6 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CFEnvironmentTest {
+
+	@Rule
+	public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
 	private String vcapXsuaa;
 	private String vcapMultipleXsuaa;
@@ -81,6 +86,7 @@ public class CFEnvironmentTest {
 		// assertThat(cut.getIasServiceConfiguration().getDomain()).isEqualTo("auth.com");
 		assertThat(cut.getIasConfiguration().getUrl().toString())
 				.isEqualTo("https://application.acc.ondemand.com");
+		assertThat(cut.getIasConfiguration().isLegacyMode()).isFalse();
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isNull();
@@ -94,6 +100,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration().getClientSecret()).isEqualTo("secret");
 		assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.UAA_DOMAIN)).isEqualTo("auth.com");
 		assertThat(cut.getXsuaaConfiguration().getUrl().toString()).isEqualTo("https://paastenant.auth.com");
+		assertThat(cut.getXsuaaConfiguration().isLegacyMode()).isFalse();
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
@@ -103,11 +110,17 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getConfigurationOfXsuaaInstanceInXsaSystem() {
-		cut = CFEnvironment.getInstance((str) -> vcapXsa, (str) -> null);
+		environmentVariables.set(VCAP_SERVICES, vcapXsa);
+		environmentVariables.set(VCAP_APPLICATION, "{\"xs_api\": \"anyvalue\"}");
+		assertThat(System.getenv(VCAP_APPLICATION)).isNotNull();
+		cut = CFEnvironment.getInstance();
+
 		assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
+		assertThat(Plan.from(cut.getXsuaaConfiguration().getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
 		assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("sb-java-hello-world!i1");
 		assertThat(cut.getXsuaaConfiguration().getClientSecret()).startsWith("fxnWLHqLh6KC0Wp/bbv8Gwbu50OEbpS");
 		assertThat(cut.getXsuaaConfiguration().getUrl().toString()).isEqualTo("https://xsa-test.c.eu-de-2.cloud.sap:30132/uaa-security");
+		assertThat(cut.getXsuaaConfiguration().isLegacyMode()).isTrue();
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());

@@ -80,10 +80,10 @@ public class IntegrationTest {
 
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withProperties(credentialsMap)
+				.runInLegacyMode(true)
 				.build();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
-				.setLegacyMode(true)
 				.withHttpClient(mockHttpClient)
 				.build();
 

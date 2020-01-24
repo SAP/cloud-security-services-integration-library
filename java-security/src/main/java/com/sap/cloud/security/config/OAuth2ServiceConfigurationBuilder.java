@@ -12,6 +12,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.*;
  */
 public class OAuth2ServiceConfigurationBuilder {
 	private Service service;
+	private boolean runInLegacyMode;
 	private final Map<String, String> properties = new HashMap<>();
 
 	private OAuth2ServiceConfigurationBuilder() {
@@ -78,6 +79,11 @@ public class OAuth2ServiceConfigurationBuilder {
 		return this;
 	}
 
+	public OAuth2ServiceConfigurationBuilder runInLegacyMode(boolean isLegacyMode) {
+		this.runInLegacyMode = isLegacyMode;
+		return this;
+	}
+
 	/**
 	 * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) based on
 	 * the properties applied.
@@ -115,6 +121,11 @@ public class OAuth2ServiceConfigurationBuilder {
 			@Override
 			public Service getService() {
 				return service;
+			}
+
+			@Override
+			public boolean isLegacyMode() {
+				return runInLegacyMode;
 			}
 		};
 

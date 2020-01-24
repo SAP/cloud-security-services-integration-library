@@ -44,7 +44,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private final OidcConfigurationServiceWithCache oidcConfigurationService;
 	private OAuth2ServiceConfiguration configuration;
-	private boolean legacyMode;
+	private boolean runInLegacyMode;
 
 	public JwtSignatureValidator(OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
@@ -60,8 +60,8 @@ public class JwtSignatureValidator implements Validator<Token> {
 		return this;
 	}
 
-	JwtSignatureValidator enableLegacyMode(boolean legacyMode) {
-		this.legacyMode = legacyMode;
+	JwtSignatureValidator runInLegacyMode(boolean isLegacyMode) {
+		this.runInLegacyMode = isLegacyMode;
 		return this;
 	}
 
@@ -89,7 +89,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	@Nonnull
 	private String getOrDefaultKeyId(Token token) {
-		if (legacyMode) {
+		if (runInLegacyMode) {
 			return KEY_ID_VALUE_LEGACY;
 		}
 		if (token.hasHeaderParameter(KEY_ID_PARAMETER_NAME)) {
@@ -100,7 +100,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	@Nonnull
 	private String getOrRequestJwksUri(Token token) throws OAuth2ServiceException, IllegalArgumentException {
-		if (legacyMode) {
+		if (runInLegacyMode) {
 			return configuration.getUrl() + "/token_keys";
 		}
 		if (token.hasHeaderParameter(KEYS_URL_PARAMETER_NAME)) {

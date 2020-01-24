@@ -50,7 +50,6 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	private final OAuth2ServiceConfiguration serviceConfiguration;
 	private Validator<Token> tokenValidator;
 	private JwtValidatorBuilder jwtValidatorBuilder;
-	private boolean runInLegacyMode;
 
 	/**
 	 * Constructs an instance which can be used in the SAP CP Environment.
@@ -95,10 +94,6 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 				
 	}
 
-	public void setLegacyMode(boolean enableLegacyMode) {
-		this.runInLegacyMode = enableLegacyMode;
-	}
-
 	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
 			JwtValidatorBuilder jwtValidatorBuilder) {
 		Assertions.assertNotNull(serviceConfiguration, "serviceConfiguration is required.");
@@ -128,7 +123,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 	@Override
 	public void afterPropertiesSet() {
-		tokenValidator = jwtValidatorBuilder.setLegacyMode(runInLegacyMode).build();
+		tokenValidator = jwtValidatorBuilder.build();
 	}
 
 	@Override
