@@ -233,6 +233,8 @@ public class SecurityTestRule extends ExternalResource {
 	 * rule is not yet initialized as part of {@link #before()} method. You can find
 	 * a detailed explanation on how to configure wire mock here:
 	 * http://wiremock.org/docs/getting-started/
+	 *
+	 * @return an instance of WireMockRule
 	 */
 	@Nullable
 	public WireMockRule getWireMockRule() {
@@ -241,6 +243,7 @@ public class SecurityTestRule extends ExternalResource {
 
 	/**
 	 * Returns the URI of the embedded jetty server or null if not specified.
+	 * @return uri of the application server
 	 */
 	@Nullable
 	public String getApplicationServerUri() {
