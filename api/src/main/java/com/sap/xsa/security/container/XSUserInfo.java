@@ -132,10 +132,7 @@ public interface XSUserInfo {
 	/**
 	 * @deprecated Can be replaced with {@code token.getClaimAsString(attribute)}
 	 *             from the {@code com.sap.cloud.security.token} package.
-<<<<<<< HEAD
-=======
 	 * @param attribute the name of the JSON property
->>>>>>> fix javadoc issues in api package
 	 * @return value of attribute
 	 * @throws XSUserInfoException if attribute is not available in the authentication token
 	 */
