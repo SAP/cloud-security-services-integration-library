@@ -199,9 +199,8 @@ public class SecurityTestRule extends ExternalResource {
 	 * @return the preconfigured Jwt token generator
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
-		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service)
+		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service, clientId)
 				.withExpiration(JwtGenerator.NO_EXPIRE_DATE)
-				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
 				.withPrivateKey(keys.getPrivate());
 		switch (service) {
 		case XSUAA:

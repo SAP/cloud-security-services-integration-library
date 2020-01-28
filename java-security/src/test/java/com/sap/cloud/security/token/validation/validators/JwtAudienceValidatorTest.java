@@ -1,7 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +18,7 @@ public class JwtAudienceValidatorTest {
 	@Before
 	public void setUp() {
 		token = Mockito.mock(Token.class);
-		Mockito.when(token.getAudiences()).thenReturn(Arrays.asList("client", "foreignclient", "thirdclient"));
+		Mockito.when(token.getAudiences()).thenReturn(Arrays.asList("client", "foreignclient", "sb-test4!t1.data"));
 	}
 
 	@Test
@@ -40,6 +39,18 @@ public class JwtAudienceValidatorTest {
 	}
 
 	@Test
+	public void validate_clientIdMatchesTokenAudienceWithoutDot() {
+		// configures token audience
+		Mockito.when(token.getAudiences()).thenReturn(Arrays.asList("client", "foreignclient", "sb-test4!t1.data.x"));
+
+		// configures audience validator with client-id from VCAP_SERVICES
+		ValidationResult result = new JwtAudienceValidator("sb-test4!t1")
+				.validate(token);
+
+		assertThat(result.isValid()).isTrue(); // should match
+	}
+
+	@Test
 	public void validationFails_when_NoTokenAudienceMatches() {
 		ValidationResult result = new JwtAudienceValidator("any")
 				.configureAnotherServiceInstance("anyother")
@@ -47,7 +58,19 @@ public class JwtAudienceValidatorTest {
 
 		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
-				.isEqualTo("Jwt token audience [client, foreignclient, thirdclient] is not issued for these clientIds: [any, anyother].");
+				.isEqualTo("Jwt token with audience [client, foreignclient, sb-test4!t1] is not issued for these clientIds: [any, anyother].");
+	}
+
+	@Test
+	public void validationShouldFilterEmptyAudiences() {
+		Mockito.when(token.getAudiences()).thenReturn(Arrays.asList(".", "test.", " .test2"));
+
+		ValidationResult result = new JwtAudienceValidator("any")
+				.validate(token);
+
+		assertThat(result.isErroneous()).isTrue();
+		assertThat(result.getErrorDescription())
+				.isEqualTo("Jwt token with audience [test] is not issued for these clientIds: [any].");
 	}
 
 	@Test
@@ -59,7 +82,7 @@ public class JwtAudienceValidatorTest {
 
 		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
-				.isEqualTo("Jwt token audience [] is not issued for these clientIds: [any].");
+				.isEqualTo("Jwt token with audience [] is not issued for these clientIds: [any].");
 	}
 
 

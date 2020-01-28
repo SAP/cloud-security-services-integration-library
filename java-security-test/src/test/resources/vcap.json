@@ -3,14 +3,14 @@
    {
     "binding_name": null,
     "credentials": {
-     "clientid": "xs2.usertoken",
+     "clientid": "sb-clientId!t0815",
      "clientsecret": "secret",
      "identityzone": "uaa",
      "identityzoneid": "uaa",
      "tenantmode": "dedicated",
      "uaadomain": "auth.com",
      "url": "https://paastenant.auth.com",
-     "xsappname": "java-hello-world!t1785"
+     "xsappname": "clientId!t0815"
     },
     "instance_name": "my-xsuaa",
     "label": "xsuaa",
