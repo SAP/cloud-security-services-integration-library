@@ -45,7 +45,7 @@ public class JwtValidatorBuilderTest {
 				.build()
 				.getValidators();
 		assertThat(validators).contains(validator)
-				.doesNotHaveAnyElementsOfTypes(XsuaaJwtAudienceValidator.class);
+				.doesNotHaveAnyElementsOfTypes(JwtAudienceValidator.class);
 	}
 
 	@Test
@@ -56,7 +56,7 @@ public class JwtValidatorBuilderTest {
 		assertThat(validators)
 				.hasSize(4)
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
-				.hasAtLeastOneElementOfType(XsuaaJwtAudienceValidator.class)
+				.hasAtLeastOneElementOfType(JwtAudienceValidator.class)
 				.hasAtLeastOneElementOfType(XsuaaJwtIssuerValidator.class)
 				.hasAtLeastOneElementOfType(JwtSignatureValidator.class);
 	}
@@ -71,7 +71,7 @@ public class JwtValidatorBuilderTest {
 		assertThat(validators)
 				.hasSize(3)
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
-				.hasAtLeastOneElementOfType(XsuaaJwtAudienceValidator.class)
+				.hasAtLeastOneElementOfType(JwtAudienceValidator.class)
 				.hasAtLeastOneElementOfType(JwtSignatureValidator.class)
 				.doesNotHaveAnyElementsOfTypes(XsuaaJwtIssuerValidator.class);
 	}

@@ -138,4 +138,5 @@ public class XsuaaToken extends AbstractToken {
 	public GrantType getGrantType() {
 		return GrantType.from(getClaimAsString(GRANT_TYPE));
 	}
+
 }

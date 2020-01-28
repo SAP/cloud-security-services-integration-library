@@ -35,27 +35,28 @@ public class JwtGenerator {
 
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
+	private final List<String> unsupportedClaims = Arrays.asList(new String[]{AUDIENCE});
 	private SignatureCalculator signatureCalculator;
 	private Service service;
 
 	private JwtSignatureAlgorithm signatureAlgorithm;
 	private PrivateKey privateKey;
-	private boolean deriveAudiences;
 
 	private JwtGenerator() {
 		// see factory method getInstance()
 	}
 
-	public static JwtGenerator getInstance(Service service) {
-		return getInstance(service, JwtGenerator::calculateSignature);
+	public static JwtGenerator getInstance(Service service, String clientId) {
+		return getInstance(service, JwtGenerator::calculateSignature, clientId);
 	}
 
 	// for testing
-	static JwtGenerator getInstance(Service service, SignatureCalculator signatureCalculator) {
+	static JwtGenerator getInstance(Service service, SignatureCalculator signatureCalculator, String clientId) {
 		JwtGenerator instance = new JwtGenerator();
 		instance.service = service;
 		instance.signatureCalculator = signatureCalculator;
 		instance.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
+		instance.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId);
 		return instance;
 	}
 
@@ -83,6 +84,7 @@ public class JwtGenerator {
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaimValue(String claimName, String value) {
+		assertClaimIsSupported(claimName);
 		jsonPayload.put(claimName, value);
 		return this;
 	}
@@ -97,6 +99,7 @@ public class JwtGenerator {
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaimValue(String claimName, JsonObject object) {
+		assertClaimIsSupported(claimName);
 		try {
 			JSONObject wrappedObject = new JSONObject(object.toString());
 			jsonPayload.put(claimName, wrappedObject);
@@ -116,8 +119,15 @@ public class JwtGenerator {
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaimValues(String claimName, String... values) {
+		assertClaimIsSupported(claimName);
 		jsonPayload.put(claimName, values);
 		return this;
+	}
+
+	private void assertClaimIsSupported(String claimName) {
+		if (unsupportedClaims.contains(claimName)) {
+			throw new UnsupportedOperationException("generic method for claim " + claimName + " is not supported");
+		}
 	}
 
 	/**
@@ -180,23 +190,6 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Derives audiences claim ("aud") from scopes. For example in case e.g.
-	 * "xsappid.scope".
-	 *
-	 * @param deriveAudiences
-	 *            if true, audiences are automatically derived from the scopes
-	 * @return the JwtGenerator itself
-	 */
-	public JwtGenerator deriveAudience(boolean deriveAudiences) {
-		if (service == Service.XSUAA) {
-			this.deriveAudiences = deriveAudiences;
-		} else {
-			throw new UnsupportedOperationException("deriveAudiences are not supported for service " + service);
-		}
-		return this;
-	}
-
-	/**
 	 * Builds and signs the token using the the algorithm set via
 	 * {@link #withSignatureAlgorithm(JwtSignatureAlgorithm)} and the given key. By
 	 * default{@link JwtSignatureAlgorithm#RS256} is used.
@@ -207,9 +200,14 @@ public class JwtGenerator {
 		if (privateKey == null) {
 			throw new IllegalStateException("Private key was not set!");
 		}
+		if (privateKey == null) {
+			throw new IllegalStateException("Private key was not set!");
+		}
 		withHeaderParameter(ALGORITHM, signatureAlgorithm.value());
-		if (deriveAudiences) {
-			withClaimValues(AUDIENCE, deriveXsuaaAudiencesFromScopes());
+		if (service == Service.IAS) {
+			jsonPayload.put(AUDIENCE, jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID));
+		} else {
+			jsonPayload.put(AUDIENCE, Arrays.asList(jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID)));
 		}
 		String header = base64Encode(jsonHeader.toString().getBytes());
 		String payload = base64Encode(jsonPayload.toString().getBytes());
@@ -225,19 +223,6 @@ public class JwtGenerator {
 		default:
 			throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
 		}
-	}
-
-	private String[] deriveXsuaaAudiencesFromScopes() {
-		DefaultJsonObject currentPayload = new DefaultJsonObject(jsonPayload.toString());
-		List<String> scopes = currentPayload.getAsList(TokenClaims.XSUAA.SCOPES, String.class);
-		Set<String> audiences = scopes.stream()
-				.filter(scope -> scope.contains("" + DOT))
-				.map(scope -> scope.substring(0, scope.indexOf(DOT)))
-				.filter(aud -> !aud.isEmpty())
-				.collect(Collectors.toSet());
-		List<String> existingAudiences = currentPayload.getAsList(AUDIENCE, String.class);
-		audiences.addAll(existingAudiences);
-		return audiences.toArray(new String[] {});
 	}
 
 	private static byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm signatureAlgorithm,

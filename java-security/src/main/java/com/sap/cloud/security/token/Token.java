@@ -152,4 +152,10 @@ public interface Token {
 	 **/
 	GrantType getGrantType();
 
+	/**
+	 * Returns the list of audiences the token is issued for. <br>
+	 *
+	 * @return the audiences.
+	 **/
+	List<String> getAudiences();
 }

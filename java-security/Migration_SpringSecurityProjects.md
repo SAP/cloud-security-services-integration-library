@@ -1,5 +1,7 @@
 # Migration Guide for Applications that use Spring Security and java-container-security
 
+This migration guide is a step-by-step guide explaining how to replace the SAP-internal Java Container Security Client library with this open-source version.
+
 ## Maven Dependencies
 To use the new [java-security](/java-security) client library the dependencies declared in maven `pom.xml` need to be updated.
 
@@ -21,7 +23,13 @@ First make sure you have the following dependencies defined in your pom.xml:
     <artifactId>spring-web</artifactId>
     <version>5.2.3.RELEASE</version>
 </dependency>
+
 <-- new java-security dependencies -->
+<dependency>
+  <groupId>com.sap.cloud.security.xsuaa</groupId>
+  <artifactId>api</artifactId>
+  <version>2.4.1-SNAPSHOT</version>
+</dependency>
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>java-security</artifactId>
@@ -36,19 +44,30 @@ First make sure you have the following dependencies defined in your pom.xml:
 ```
 
 
-Now you are ready to **remove** the old client library by deleting the following lines from the pom.xml:
+Now you are ready to **remove** the **`java-container-security`** client library by deleting the following lines from the pom.xml:
 ```xml
 <dependency>
   <groupId>com.sap.xs2.security</groupId>
   <artifactId>java-container-security</artifactId>
 </dependency>
 ```
+Or
+```xml
+<dependency>
+  <groupId>com.sap.cloud.security.xsuaa</groupId>
+  <artifactId>java-container-security</artifactId>
+</dependency>
+```
 
-## Code changes
-After the dependencies have been changed, the project code probably needs some adjustments as well.
+## Configuration changes
+After the dependencies have been changed, the spring security configuration needs some adjustments as well.
 
 If your security configuration was using the `SAPOfflineTokenServicesCloud` class from the `java-container-security` library,
-you need to change it slightly to use the `SAPOfflineTokenServicesCloud` adapter class from the new library.  
+you need to change it slightly to use the `SAPOfflineTokenServicesCloud` adapter class from the new library.
+
+> Note: There is no replacement for `SAPPropertyPlaceholderConfigurer` as you can always parameterize the `SAPOfflineTokenServicesCloud` bean with your ``.
+
+### Code-based
 
 For example see the following snippet on how to instantiate the `SAPOfflineTokenServicesCloud`. 
 
@@ -61,6 +80,58 @@ protected SAPOfflineTokenServicesCloud offlineTokenServices() {
 ```
 You might need to fix your java imports to get rid of the old import for the `SAPOfflineTokenServicesCloud` class.
 
+### XML-based
+
+In case of XML-based Spring (Security) configuration you need to replace your current `SAPOfflineTokenServicesCloud` bean definition with that:
+
+```xml
+<bean id="offlineTokenServices"
+         class="com.sap.cloud.security.adapter.spring.SAPOfflineTokenServicesCloud" />
+```
+
+## Fetch infos from Token - Part 1
+You may have code parts that requests information from the access token, like the user's name, its tenant, and so on. So, look up your code to find its usage.
+
+
+```java
+import com.sap.xs2.security.container.SecurityContext;
+import com.sap.xs2.security.container.UserInfo;
+import com.sap.xs2.security.container.UserInfoException;
+
+
+try {
+	UserInfo userInfo = SecurityContext.getUserInfo();
+	String logonName = userInfo.getLogonName();
+} catch (UserInfoException e) {
+	// handle exception
+}
+
+```
+
+This can be easily replaced with the `Token` or `XsuaaToken` Api.
+
+```java
+import com.sap.cloud.security.token.SecurityContext;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
+
+Token token = SecurityContext.getToken();
+String logonName = token.getClaimAsString(TokenClaims.XSUAA.USER_NAME);		
+```
+
+> Note, that no `XSUserInfoException` is raised, in case the accessToken does not contain the requested claim.
+
+## Fetch infos from Token - Part 2
+When you're done with the first part and need further information from the token you can use `XSUserInfoAdapter` in order to access the  deprecated methods.
+
+```java
+try {
+	XSUserInfo userInfo = new XSUserInfoAdapter(token);
+	String dbToken = userInfo.getHdbToken();
+} catch (XSUserInfoException e) {
+	// handle exception
+}
+```
 
 ## Test Code Changes
 

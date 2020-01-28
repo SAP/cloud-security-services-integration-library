@@ -55,10 +55,10 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.source.plugin.version>3.1.0</maven.source.plugin.version>
 		<!-- make sure that spring core and spring boot versions are compatible-->
-		<spring.core.version>5.2.0.RELEASE</spring.core.version>
-		<spring.boot.version>2.2.0.RELEASE</spring.boot.version>
-		<spring.security.version>5.2.0.RELEASE</spring.security.version>
-		<spring.security.oauth2.version>2.3.7.RELEASE</spring.security.oauth2.version>
+		<spring.core.version>5.2.3.RELEASE</spring.core.version>
+		<spring.boot.version>2.2.4.RELEASE</spring.boot.version>
+		<spring.security.version>5.2.1.RELEASE</spring.security.version>
+		<spring.security.oauth2.version>2.4.0.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.0.10.RELEASE</spring.security.jwt.version>
 		<reactor.version>3.2.8.RELEASE</reactor.version>
 		<log4j.version>2.11.2</log4j.version>
@@ -131,11 +131,37 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${spring.core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-web</artifactId>
+				<version>${spring.core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-aop</artifactId>
+				<version>${spring.core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-beans</artifactId>
+				<version>${spring.core.version}</version>
+			</dependency>
+			<!-- spring security-->
+			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-bom</artifactId>
 				<version>${spring.security.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-jwt</artifactId>
+				<version>${spring.security.jwt.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security.oauth</groupId>
@@ -151,29 +177,18 @@
 					<artifactId>jackson-mapper-asl</artifactId>
 				</exclusion>
 				<exclusion>
-					<artifactId>spring-beans</artifactId>
 					<groupId>org.springframework</groupId>
+					<artifactId>spring-beans</artifactId>
 				</exclusion>
 				<exclusion>
-					<artifactId>spring-context</artifactId>
 					<groupId>org.springframework</groupId>
+					<artifactId>spring-context</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-aop</artifactId>
 				</exclusion>
 			</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.security</groupId>
-				<artifactId>spring-security-jwt</artifactId>
-				<version>${spring.security.jwt.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-core</artifactId>
-				<version>${spring.core.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-web</artifactId>
-				<version>${spring.core.version}</version>
 			</dependency>
 			<!-- logging -->
 			<dependency>

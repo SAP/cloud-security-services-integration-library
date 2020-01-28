@@ -70,6 +70,7 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 	 *            are filtered out and scopes are returned without appId prefix,
 	 *            e.g. "Display". Creates a new converter with a new
 	 *            {@link LocalAuthoritiesExtractor}
+	 * @return the token authenticator itself
 	 */
 	public TokenAuthenticationConverter setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {
 		if (extractLocalScopesOnly) {

@@ -82,9 +82,9 @@ public class CFEnvironmentTest {
 		assertThat(cut.getIasConfiguration().getService()).isEqualTo(Service.IAS);
 		assertThat(cut.getIasConfiguration().getClientId()).isEqualTo("T000297");
 		assertThat(cut.getIasConfiguration().getClientSecret()).startsWith("pCghfbrL");
-		assertThat(cut.getIasConfiguration().getDomain()).isEqualTo("example.com");
+		assertThat(cut.getIasConfiguration().getDomain()).isEqualTo("accounts400.ondemand.com");
 		assertThat(cut.getIasConfiguration().getUrl().toString())
-				.isEqualTo("https://subdomain.example.com");
+				.isEqualTo("https://xs2security.accounts400.ondemand.com");
 		assertThat(cut.getIasConfiguration().isLegacyMode()).isFalse();
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();

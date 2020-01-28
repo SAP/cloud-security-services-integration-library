@@ -68,8 +68,7 @@ public class IntegrationTest {
 		Token xsuaaToken = spy(new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", StandardCharsets.UTF_8)));
 		when(xsuaaToken.getExpiration()).thenReturn(NO_EXPIRE_DATE);
-		when(xsuaaToken.getClaimAsStringList(TokenClaims.AUDIENCE))
-				.thenReturn(Arrays.asList(new String[] { "clientId" }));
+		when(xsuaaToken.getAudiences()).thenReturn(Arrays.asList("clientId"));
 
 		ValidationResult result = tokenValidator.validate(xsuaaToken);
 		assertThat(result.isValid()).isTrue();

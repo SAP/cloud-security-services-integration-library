@@ -6,9 +6,11 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 
 ## Configuration
 
+These (spring) dependencies needs to be provided:
+
 ### Maven Dependencies
 ```xml
-<dependency>
+<dependency> <!-- includes spring-security-oauth2 -->
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-oauth2-jose</artifactId>
 </dependency>

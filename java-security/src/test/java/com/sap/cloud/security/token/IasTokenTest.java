@@ -34,6 +34,7 @@ public class IasTokenTest {
 
 	@Test
 	@Ignore
+	// TODO IAS: need real token with test data
 	public void getPrincipal() {
 		Principal principal = cut.getPrincipal();
 
@@ -49,6 +50,14 @@ public class IasTokenTest {
 	@Test
 	public void getService() {
 		assertThat(cut.getService()).isEqualTo(Service.IAS);
+	}
+
+
+	@Test
+	public void getAudiences() {
+		assertThat(cut.getAudiences()).isNotEmpty();
+		assertThat(cut.getAudiences()).hasSize(1);
+		assertThat(cut.getAudiences()).contains("T000169");
 	}
 
 }
