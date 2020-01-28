@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.3.1
+- [spring-xsuaa] Fix vulnerability issues and increased Spring versions.
+- [spring-xsuaa] Fix issue in TokenBrokerResolver: Second configured authentication method was ignored
+
 ## 2.3.0
 - Issue: Spring tests fail with version `2.2.0`, when auto-configuration is disabled and no `RestOperations` bean is specified.
 - [token-client] Supports basically JWT Bearer Token Grant as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#jwt-bearer-token-grant).

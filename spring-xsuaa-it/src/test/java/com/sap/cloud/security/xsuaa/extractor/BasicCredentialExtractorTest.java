@@ -22,6 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { XsuaaServiceConfigurationDummy.class,
@@ -34,7 +35,7 @@ public class BasicCredentialExtractorTest {
 	private Cache tokenCache;
 
 	@Autowired
-	private TokenBroker tokenBroker;
+	private OAuth2TokenService oAuth2TokenService;
 
 	@Autowired
 	private AuthenticationInformationExtractor authenticationConfiguration;
@@ -49,7 +50,8 @@ public class BasicCredentialExtractorTest {
 
 	@Test
 	public void testBasicCredentialsNoMultiTenancy() {
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache, tokenBroker,
+		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+				oAuth2TokenService,
 				authenticationConfiguration);
 
 		request.addHeader("Authorization", "basic " + Base64.getEncoder().encodeToString("myuser:mypass".getBytes()));
@@ -59,10 +61,60 @@ public class BasicCredentialExtractorTest {
 
 	@Test
 	public void testBasicCredentialsMultiTenancy() {
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache, tokenBroker,
+		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+				oAuth2TokenService,
+				authenticationConfiguration);
+
+		request.addHeader("X-Identity-Zone-Subdomain", "other");
+		request.addHeader("Authorization", "basic " + Base64.getEncoder().encodeToString("myuser:mypass".getBytes()));
+
+		String token = extractor.resolve(request);
+		assertThat(token).isEqualTo("other_token_pwd");
+	}
+
+	@Test
+	public void testMultipleAuthorizationHeaders_useMatchOfFirstMethod() {
+		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+				oAuth2TokenService,
 				authenticationConfiguration);
 
 		request.addHeader("Authorization", "basic " + Base64.getEncoder().encodeToString("myuser:mypass".getBytes()));
+		request.addHeader("Authorization", "bearer "
+				+ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+
+		String token = extractor.resolve(request);
+		assertThat(token).isEqualTo("token_pwd");
+
+		// Change order of configured methods
+		extractor.setAuthenticationConfig(
+				new DefaultAuthenticationInformationExtractor(AuthenticationMethod.OAUTH2, AuthenticationMethod.BASIC));
+		token = extractor.resolve(request);
+		assertThat(token).startsWith("eyJhbGciOiJIUzI1N");
+	}
+
+	@Test
+	public void testMultipleAuthorizationHeaders_useSecondMethod() {
+		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+				oAuth2TokenService,
+				new DefaultAuthenticationInformationExtractor(AuthenticationMethod.OAUTH2,
+						AuthenticationMethod.CLIENT_CREDENTIALS));
+
+		request.addHeader("Authorization",
+				"basic " + Base64.getEncoder().encodeToString("client1234:secret1234".getBytes()));
+
+		String token = extractor.resolve(request);
+		assertThat(token).isEqualTo("token_cc");
+	}
+
+	@Test
+	public void testMultipleBasicAuthorizationHeaders_useSecond() {
+		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+				oAuth2TokenService,
+				authenticationConfiguration);
+
+		request.addHeader("Authorization", "basic " + Base64.getEncoder().encodeToString("myuser".getBytes()));
+		request.addHeader("Authorization", "basic " + Base64.getEncoder().encodeToString("myuser:mypass".getBytes()));
+
 		request.addHeader("X-Identity-Zone-Subdomain", "other");
 		String token = extractor.resolve(request);
 		assertThat(token).isEqualTo("other_token_pwd");
@@ -70,7 +122,8 @@ public class BasicCredentialExtractorTest {
 
 	@Test
 	public void testClientCredentials() {
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache, tokenBroker,
+		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+				oAuth2TokenService,
 				authenticationMethods(AuthenticationMethod.CLIENT_CREDENTIALS));
 		request.addHeader("Authorization",
 				"basic " + Base64.getEncoder().encodeToString("client1234:secret1234".getBytes()));
@@ -83,7 +136,8 @@ public class BasicCredentialExtractorTest {
 
 	@Test
 	public void testOAuth2Credentials() {
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache, tokenBroker,
+		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+				oAuth2TokenService,
 				authenticationMethods(AuthenticationMethod.OAUTH2));
 
 		request.addHeader("Authorization", "Bearer "
@@ -108,7 +162,7 @@ public class BasicCredentialExtractorTest {
 		request.addHeader("Authorization", "Bearer "
 				+ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
 		TokenBrokerResolver credentialExtractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
-				tokenBroker, invalidCombination);
+				oAuth2TokenService, invalidCombination);
 		credentialExtractor.resolve(request);
 	}
 
@@ -117,7 +171,8 @@ public class BasicCredentialExtractorTest {
 		request.addHeader("Authorization", "Bearer "
 				+ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
 
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache, tokenBroker,
+		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+				oAuth2TokenService,
 				authenticationMethods(AuthenticationMethod.OAUTH2, AuthenticationMethod.BASIC));
 
 		String token = extractor.resolve(request);
@@ -129,7 +184,8 @@ public class BasicCredentialExtractorTest {
 	public void testCombinedCredentials_shouldTakeBasicAsFallback() {
 		request.addHeader("Authorization", "basic " + Base64.getEncoder().encodeToString("myuser:mypass".getBytes()));
 
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache, tokenBroker,
+		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+				oAuth2TokenService,
 				authenticationMethods(AuthenticationMethod.BASIC, AuthenticationMethod.OAUTH2));
 
 		String token = extractor.resolve(request);
