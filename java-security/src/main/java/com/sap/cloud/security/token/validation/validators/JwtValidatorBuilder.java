@@ -14,7 +14,6 @@ import java.util.*;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.*;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
 import static com.sap.cloud.security.config.Service.XSUAA;
 
 /**
@@ -185,14 +184,12 @@ public class JwtValidatorBuilder {
 		return defaultValidators;
 	}
 
-	private XsuaaJwtAudienceValidator createXsuaaAudienceValidator() {
-		XsuaaJwtAudienceValidator xsuaaJwtAudienceValidator = new XsuaaJwtAudienceValidator(
-				configuration.getProperty(APP_ID), configuration.getClientId());
+	private JwtAudienceValidator createXsuaaAudienceValidator() {
+		JwtAudienceValidator jwtAudienceValidator = new JwtAudienceValidator(configuration.getClientId());
 		if (otherConfiguration != null) {
-			xsuaaJwtAudienceValidator.configureAnotherServiceInstance(otherConfiguration.getProperty(APP_ID),
-					otherConfiguration.getClientId());
+			jwtAudienceValidator.configureAnotherServiceInstance(otherConfiguration.getClientId());
 		}
-		return xsuaaJwtAudienceValidator;
+		return jwtAudienceValidator;
 	}
 
 	private OAuth2TokenKeyServiceWithCache getTokenKeyServiceWithCache() {

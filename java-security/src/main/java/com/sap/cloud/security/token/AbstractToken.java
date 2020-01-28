@@ -110,9 +110,15 @@ public abstract class AbstractToken implements Token {
 		return "Bearer " + accessToken;
 	}
 
+	@Override
+	public List<String> getAudiences() {
+		return getClaimAsStringList(TokenClaims.AUDIENCE);
+	}
+
 	private static String removeBearer(@Nonnull String accessToken) {
 		Assertions.assertHasText(accessToken, "accessToken must not be null / empty");
 		Pattern bearerPattern = Pattern.compile("[B|b]earer ");
 		return bearerPattern.matcher(accessToken).replaceFirst("");
 	}
+
 }

@@ -111,4 +111,12 @@ public class XsuaaTokenTest {
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Origin");
 	}
 
+	@Test
+	public void getAudiences() {
+		assertThat(clientCredentialsToken.getAudiences()).isNotEmpty();
+		assertThat(clientCredentialsToken.getAudiences()).hasSize(2);
+		assertThat(clientCredentialsToken.getAudiences()).contains("uaa");
+		assertThat(clientCredentialsToken.getAudiences()).contains("sap_osb");
+	}
+
 }

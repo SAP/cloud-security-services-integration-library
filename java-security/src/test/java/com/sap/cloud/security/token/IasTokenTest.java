@@ -27,4 +27,12 @@ public class IasTokenTest {
 		assertThat(principal).isNotNull();
 		assertThat(principal.getName()).isEqualTo("TODO");
 	}
+
+	@Test
+	public void getAudiences() {
+		assertThat(cut.getAudiences()).isNotEmpty();
+		assertThat(cut.getAudiences()).hasSize(1);
+		assertThat(cut.getAudiences()).contains("T000169");
+	}
+
 }
