@@ -2,7 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.3.1
+
+## 2.3.2
 - [spring-xsuaa] Fix vulnerability issues and increased Spring versions.
 - [spring-xsuaa] Fix issue in TokenBrokerResolver: Second configured authentication method was ignored
 

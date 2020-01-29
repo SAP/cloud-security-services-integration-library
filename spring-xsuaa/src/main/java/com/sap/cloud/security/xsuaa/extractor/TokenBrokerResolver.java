@@ -167,7 +167,6 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 	private String getBrokerToken(AuthenticationMethod credentialType, String authHeaderValue,
 			String oauthTokenUrl, ClientCredentials clientCredentials) throws TokenBrokerException {
-				logger.info("AuthHeaderValue: {}", authHeaderValue);
 		switch (credentialType) {
 			case OAUTH2:
 				return extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
@@ -180,7 +179,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 							userCredentialsFromHeader.toString());
 					String cachedToken = tokenCache.get(cacheKey, String.class);
 					if (cachedToken != null) {
-						logger.info("return (basic) access token for {} from cache", cacheKey);
+						logger.debug("return (basic) access token for {} from cache", cacheKey);
 						return cachedToken;
 					} else {
 						String token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl,
@@ -201,7 +200,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					String cacheKey = createSecureHash(oauthTokenUrl, clientCredentialsFromHeader.toString());
 					String cachedToken = tokenCache.get(cacheKey, String.class);
 					if (cachedToken != null) {
-						logger.info("return (client-credentials) access token for {} from cache", cacheKey);
+						logger.debug("return (client-credentials) access token for {} from cache", cacheKey);
 						return cachedToken;
 					} else {
 						String token = tokenBroker
