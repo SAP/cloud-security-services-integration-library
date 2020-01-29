@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
+<<<<<<< HEAD
 ## 2.4.1-SNAPSHOT
 - [java-security] Migration Guide and some little improvements / enhancements.
 
@@ -10,7 +11,7 @@ All notable changes to this project will be documented in this file.
 - [token-client] [OidcConfigurationServiceWithCache](/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/OidcConfigurationServiceWithCache.java) supports basically Open-id Configuration endpoints as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#openid-connect-flow).
 - [token-client] [OAuth2TokenKeyServiceWithCache](/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/OAuth2TokenKeyServiceWithCache.java) supports JWKS endpoint with cache of identity service as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#token-keys).
 
-## 2.3.1
+## 2.3.2
 - [spring-xsuaa] Fix vulnerability issues and increased Spring versions.
 - [spring-xsuaa] **Bug fix** in TokenBrokerResolver: Second configured authentication method was ignored.
 
