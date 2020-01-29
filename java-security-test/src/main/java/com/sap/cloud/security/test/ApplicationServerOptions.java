@@ -64,6 +64,7 @@ public class ApplicationServerOptions {
 		case IAS:
 			instance = new ApplicationServerOptions(new IasTokenAuthenticator()
 					.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
+							.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
 							.withUrl("http://localhost")
 							.build()));
 			break;

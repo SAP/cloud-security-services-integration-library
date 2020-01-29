@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 public class SAPOfflineTokenServicesCloudTest {
 
@@ -105,6 +106,15 @@ public class SAPOfflineTokenServicesCloudTest {
 	@Test
 	public void createInstanceWithEmptyConfiguration_throwsException() {
 		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class));
+		assertThatThrownBy(() -> cut.afterPropertiesSet()).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void createInstanceWithClientIdConfiguration_throwsException() {
+		OAuth2ServiceConfiguration mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		when(mockConfiguration.getClientId()).thenReturn("clientId");
+
+		cut = new SAPOfflineTokenServicesCloud(mockConfiguration);
 		cut.afterPropertiesSet();
 		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
 	}

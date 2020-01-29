@@ -163,11 +163,10 @@ public class JwtValidatorBuilder {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
 
-
+		if (customAudienceValidator == null) {
+			defaultValidators.add(createXsuaaAudienceValidator());
+		}
 		if (configuration.getService() == XSUAA) {
-			if (customAudienceValidator == null) {
-				defaultValidators.add(createXsuaaAudienceValidator());
-			}
 			if (!configuration.isLegacyMode()) {
 				defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
