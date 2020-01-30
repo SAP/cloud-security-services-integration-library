@@ -4,7 +4,6 @@ import static com.sap.cloud.security.token.TokenClaims.AUDIENCE;
 import static com.sap.cloud.security.token.TokenHeader.ALGORITHM;
 
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.IasToken;
@@ -21,7 +20,6 @@ import javax.annotation.Nonnull;
 import java.security.*;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
@@ -250,8 +248,9 @@ public class JwtGenerator {
 	}
 
 	private String base64Encode(byte[] bytes) {
-		return Base64.getUrlEncoder().encodeToString(bytes);
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
 	}
+
 
 	interface SignatureCalculator {
 		byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm algorithm, byte[] dataToSign)
