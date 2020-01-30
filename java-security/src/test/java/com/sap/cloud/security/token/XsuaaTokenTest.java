@@ -12,8 +12,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class XsuaaTokenTest {
 
-	private static final String APP_ID = "app1";
-
 	private XsuaaToken clientCredentialsToken;
 	private XsuaaToken userToken;
 

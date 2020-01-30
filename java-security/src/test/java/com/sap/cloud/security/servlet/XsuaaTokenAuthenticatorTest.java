@@ -98,7 +98,6 @@ public class XsuaaTokenAuthenticatorTest {
 	}
 
 	@Test
-	@Ignore // TODO: we have to enhance the token with aud field
 	public void validateRequest_validToken_containedInSecurityContext() {
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getBearerAccessToken());
 
@@ -110,7 +109,6 @@ public class XsuaaTokenAuthenticatorTest {
 	}
 
 	@Test
-	@Ignore // TODO: we have to enhance the token with aud field
 	public void validateRequest_validToken_listenerIsCalled() {
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getBearerAccessToken());
 		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);

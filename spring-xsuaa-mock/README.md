@@ -71,4 +71,4 @@ String jwtTokenHeaderKeyId = "legacy-token-key-" + yourSubdomain;
 String jwtToken = new JwtGenerator(yourClientId, yourSubdomain).setJwtHeaderKeyId(jwtTokenHeaderKeyId).getToken().getTokenValue();
 ```
 
-Then your Mock Web Server can provide different token keys for different domains e.g. `testdomain`.
+Then your Mock Web Server is called for example with `http://localhost:33195/testdomain/token_keys` and can be configured in such a way, that it provides different token keys for different domains. The domain `testdomain` is already handled by the default [`XsuaaRequestDispatcher`](src/main/java/com/sap/cloud/security/xsuaa/mock/XsuaaRequestDispatcher.java) implementation.

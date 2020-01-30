@@ -14,7 +14,7 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
  * Decodes and parses encoded access token (JWT) for the Xsuaa identity service
  * and provides access to token header parameters and claims.
  */
-public class XsuaaToken extends AbstractToken {
+public class XsuaaToken extends AbstractToken implements AccessToken {
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>
 	private ScopeConverter scopeConverter;
@@ -79,11 +79,7 @@ public class XsuaaToken extends AbstractToken {
 		return String.format(UNIQUE_USER_NAME_FORMAT, origin, userLoginName);
 	}
 
-	/**
-	 * Returns the list of the claim "scope".
-	 * 
-	 * @return the list of the claim scope or empty list.
-	 */
+	@Override
 	public List<String> getScopes() {
 		return getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 	}
@@ -108,13 +104,7 @@ public class XsuaaToken extends AbstractToken {
 		return Service.XSUAA;
 	}
 
-	/**
-	 * Checks if a scope is available in the access token.
-	 * 
-	 * @param scope
-	 *            name of the scope
-	 * @return true if scope is available
-	 */
+	@Override
 	public boolean hasScope(String scope) {
 		return getScopes().contains(scope);
 	}
@@ -128,6 +118,7 @@ public class XsuaaToken extends AbstractToken {
 	 *            name of local scope (without the appId)
 	 * @return true if local scope is available
 	 **/
+	@Override
 	public boolean hasLocalScope(@Nonnull String scope) {
 		Assertions.assertNotNull(scopeConverter,
 				"hasLocalScope method requires scopeConverter, which must not be null");
