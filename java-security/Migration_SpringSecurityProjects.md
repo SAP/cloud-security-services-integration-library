@@ -75,7 +75,10 @@ For example see the following snippet on how to instantiate the `SAPOfflineToken
 @Bean
 @Profile("cloud")
 protected SAPOfflineTokenServicesCloud offlineTokenServices() {
-	return new SAPOfflineTokenServicesCloud(Environments.getCurrent().getXsuaaConfiguration(), new RestTemplate());
+	return new SAPOfflineTokenServicesCloud(
+				Environments.getCurrent().getXsuaaConfiguration(), //optional
+				new RestTemplate())                                //optional
+			.setLocalScopeAsAuthorities(true);                         //optional
 }
 ```
 You might need to fix your java imports to get rid of the old import for the `SAPOfflineTokenServicesCloud` class.
@@ -86,7 +89,23 @@ In case of XML-based Spring (Security) configuration you need to replace your cu
 
 ```xml
 <bean id="offlineTokenServices"
-         class="com.sap.cloud.security.adapter.spring.SAPOfflineTokenServicesCloud" />
+         class="com.sap.cloud.security.adapter.spring.SAPOfflineTokenServicesCloud">
+		<property name="localScopeAsAuthorities" value="true" />
+</bean>
+```
+
+With `localScopeAsAuthorities` you can perform spring scope checks without referring to the XS application name (application id), e.g. `myapp!t1234`. For example:
+
+Or
+```java
+...
+.authorizeRequests()
+	.antMatchers(POST, "/api/v1/ads/**").access(#oauth2.hasScopeMatching('Update')) //instead of $xsappname.Update
+```
+
+
+```xml
+<sec:intercept-url pattern="/rest/addressbook/deletedata" access="#oauth2.hasScope('Delete')" method="GET" />
 ```
 
 ## Fetch infos from Token - Part 1
