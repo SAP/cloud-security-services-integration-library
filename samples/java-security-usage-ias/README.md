@@ -39,7 +39,7 @@ cf push --vars-file ../vars.yml
 curl -X POST \
   https://<<clientid>>:<<clientsecret>>@<<url>>/oauth2/token \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'grant_type=password&username=<your ias user>&password=<your ias password>'
+  -d 'grant_type=password&username=<<your ias user>>&password=<<your ias password>>'
 ```
 
 Copy the `id_token` into your clipboard.

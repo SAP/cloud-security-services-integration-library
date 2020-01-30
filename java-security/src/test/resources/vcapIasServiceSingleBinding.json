@@ -4,8 +4,8 @@
       "binding_name": null,
       "credentials": {
         "clientsecret": "pCghfbrLudwzXM2fPq7YSIhujAmpHj_I0DeMKHKRAqs=",
-        "clientid": "T000169",
-        "url": "https://xs2security.accounts400.ondemand.com"
+        "clientid": "T000310",
+        "url": "https://app.auth.com"
       },
       "instance_name": "myservice",
       "label": "identity-beta",

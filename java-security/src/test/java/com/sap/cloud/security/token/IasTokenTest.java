@@ -57,7 +57,7 @@ public class IasTokenTest {
 	public void getAudiences() {
 		assertThat(cut.getAudiences()).isNotEmpty();
 		assertThat(cut.getAudiences()).hasSize(1);
-		assertThat(cut.getAudiences()).contains("T000169");
+		assertThat(cut.getAudiences()).contains("T000310");
 	}
 
 }

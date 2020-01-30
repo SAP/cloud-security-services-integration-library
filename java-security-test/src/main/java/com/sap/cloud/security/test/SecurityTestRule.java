@@ -200,7 +200,6 @@ public class SecurityTestRule extends ExternalResource {
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service, clientId)
-				.withExpiration(JwtGenerator.NO_EXPIRE_DATE)
 				.withPrivateKey(keys.getPrivate());
 		switch (service) {
 		case XSUAA:

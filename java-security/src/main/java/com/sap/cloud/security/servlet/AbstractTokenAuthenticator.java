@@ -50,7 +50,6 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 					return unauthenticated(httpResponse, "Unexpected error occurred: " + e.getMessage());
 				}
 			} else {
-				logger.warn("Authorization header is missing.");
 				return unauthenticated(httpResponse, "Authorization header is missing.");
 			}
 		}
@@ -111,6 +110,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private TokenAuthenticationResult unauthenticated(HttpServletResponse httpResponse, String message) {
 		try {
+			logger.warn("Request could not be authenticated: {}.", message);
 			httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, message);
 		} catch (IOException e) {
 			logger.error("Could not send unauthenticated response!", e);

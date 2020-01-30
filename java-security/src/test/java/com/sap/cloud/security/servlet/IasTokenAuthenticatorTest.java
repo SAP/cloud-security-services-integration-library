@@ -8,16 +8,12 @@ import com.sap.cloud.security.token.IasToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.util.HttpClientTestFactory;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -31,42 +27,39 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-@Ignore
 public class IasTokenAuthenticatorTest {
 
 	private final static HttpServletResponse HTTP_RESPONSE = Mockito.mock(HttpServletResponse.class);
 
-	private final IasToken token;
-	private CloseableHttpClient mockHttpClient;
+	private IasToken token;
 
 	private AbstractTokenAuthenticator cut;
 
 	public IasTokenAuthenticatorTest() throws IOException {
-		/*
-		 * TODO { "aud": "T000169", "sub": "P176945", "mail": "xs2sec@kurzepost.de",
-		 * "iss": "https://xs2security.accounts400.ondemand.com", "last_name": "xs2sec",
-		 * "exp": 6974031600, "iat": 6974030600, "first_name": "xs2sec", "jti":
-		 * "e21f7317-b4b9-42fd-b58b-3402d083ac77" }
-		 */
 		token = new IasToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 	}
 
 	@Before
 	public void setUp() throws IOException {
-		mockHttpClient = Mockito.mock(CloseableHttpClient.class);
-
-		CloseableHttpResponse response = HttpClientTestFactory
-				.createHttpResponse(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
-		when(mockHttpClient.execute(any(HttpGet.class))).thenReturn(response);
-
-		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.IAS)
-				.withProperty(CFConstants.URL, "https://xs2security.accounts400.ondemand.com")
+				.withProperty(CFConstants.URL, "https://paasapp.auth.com")
+				.withClientId("T000310")
 				.build();
 
+		CloseableHttpClient httpClientMock = Mockito.mock(CloseableHttpClient.class);
+
+		CloseableHttpResponse oidcResponse = HttpClientTestFactory
+				.createHttpResponse("{\"jwks_uri\" : \"https://application.auth.com/oauth2/certs\"}");
+		CloseableHttpResponse tokenKeysResponse = HttpClientTestFactory
+				.createHttpResponse(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+		when(httpClientMock.execute(any(HttpGet.class)))
+				.thenReturn(oidcResponse)
+				.thenReturn(tokenKeysResponse);
+
 		cut = new IasTokenAuthenticator()
-				.withHttpClient(mockHttpClient)
-				.withServiceConfiguration(oAuth2ServiceConfiguration);
+				.withServiceConfiguration(configuration)
+				.withHttpClient(httpClientMock);
 	}
 
 	@Test
@@ -131,7 +124,7 @@ public class IasTokenAuthenticatorTest {
 
 	@Test
 	public void validateRequest_invalidToken_listenerIsCalled() {
-		HttpServletRequest httpRequest = createRequestWithToken("1" + token);
+		HttpServletRequest httpRequest = createRequestWithToken(token.getBearerAccessToken() + "B");
 		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
 		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 

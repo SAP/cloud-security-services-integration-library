@@ -8,7 +8,6 @@ import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
@@ -17,7 +16,6 @@ import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.IasToken;
 import com.sap.cloud.security.util.HttpClientTestFactory;
-import com.sap.cloud.security.xsuaa.client.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -65,8 +63,6 @@ public class IntegrationTest {
 
 		Token xsuaaToken = spy(new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", StandardCharsets.UTF_8)));
-		when(xsuaaToken.getExpiration()).thenReturn(NO_EXPIRE_DATE);
-		when(xsuaaToken.getAudiences()).thenReturn(Arrays.asList("clientId"));
 
 		ValidationResult result = tokenValidator.validate(xsuaaToken);
 		assertThat(result.isValid()).isTrue();
@@ -98,15 +94,14 @@ public class IntegrationTest {
 
 	@Test
 	public void validationFails_withIasCombiningValidator() throws IOException {
-		CloseableHttpClient tokenKeysHttpClientMock = Mockito.mock(CloseableHttpClient.class);
+		CloseableHttpResponse oidcResponse = HttpClientTestFactory
+				.createHttpResponse("{\"jwks_uri\" : \"https://application.auth.com/oauth2/certs\"}");
 		CloseableHttpResponse tokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
-		when(tokenKeysHttpClientMock.execute(any(HttpGet.class))).thenReturn(tokenKeysResponse);
 
-		CloseableHttpClient oidcHttpClientMock = Mockito.mock(CloseableHttpClient.class);
-		CloseableHttpResponse oidcResponse = HttpClientTestFactory
-				.createHttpResponse("{\"jwks_uri\" : \"https://xs2security.accounts400.ondemand.com/oauth2/certs\"}");
-		when(oidcHttpClientMock.execute(any(HttpGet.class))).thenReturn(oidcResponse);
+		when(httpClientMock.execute(any(HttpGet.class)))
+				.thenReturn(oidcResponse)
+				.thenReturn(tokenKeysResponse);
 
 		String vcapServices = IOUtils.resourceToString("/vcapIasServiceSingleBinding.json", UTF_8);
 		JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.IAS.getCFName())
@@ -117,20 +112,12 @@ public class IntegrationTest {
 				.withProperties(credentialsMap)
 				.build();
 
-
-		OidcConfigurationServiceWithCache oidcService = OidcConfigurationServiceWithCache.getInstance()
-						.withOidcConfigurationService(new DefaultOidcConfigurationService(oidcHttpClientMock));
-		OAuth2TokenKeyServiceWithCache tokenKeyService = OAuth2TokenKeyServiceWithCache.getInstance()
-						.withTokenKeyService(new DefaultOAuth2TokenKeyService(tokenKeysHttpClientMock));
-
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
-				.withOidcConfigurationService(oidcService)
-				.withOAuth2TokenKeyService(tokenKeyService)
+				.withHttpClient(httpClientMock)
 				.build();
 
-		IasToken iasToken = spy(new IasToken(
-				IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8)));
-		when(iasToken.getExpiration()).thenReturn(NO_EXPIRE_DATE);
+		IasToken iasToken = new IasToken(
+				IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
 
 		ValidationResult result = tokenValidator.validate(iasToken);
 		assertThat(result.isValid()).isTrue();

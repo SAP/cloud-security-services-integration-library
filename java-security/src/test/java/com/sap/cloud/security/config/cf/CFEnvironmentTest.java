@@ -80,11 +80,10 @@ public class CFEnvironmentTest {
 		cut = CFEnvironment.getInstance((str) -> vcapIas, (str) -> null);
 		assertThat(cut.getIasConfiguration()).isSameAs(cut.getIasConfiguration());
 		assertThat(cut.getIasConfiguration().getService()).isEqualTo(Service.IAS);
-		assertThat(cut.getIasConfiguration().getClientId()).isEqualTo("T000169");
+		assertThat(cut.getIasConfiguration().getClientId()).isEqualTo("T000310");
 		assertThat(cut.getIasConfiguration().getClientSecret()).startsWith("pCghfbrL");
-		assertThat(cut.getIasConfiguration().getDomain()).isEqualTo("accounts400.ondemand.com");
-		assertThat(cut.getIasConfiguration().getUrl().toString())
-				.isEqualTo("https://xs2security.accounts400.ondemand.com");
+		assertThat(cut.getIasConfiguration().getDomain()).isEqualTo("auth.com");
+		assertThat(cut.getIasConfiguration().getUrl().toString()).isEqualTo("https://app.auth.com");
 		assertThat(cut.getIasConfiguration().isLegacyMode()).isFalse();
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();

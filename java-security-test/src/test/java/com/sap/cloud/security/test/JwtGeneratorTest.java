@@ -11,15 +11,16 @@ import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import sun.security.rsa.RSAPublicKeyImpl;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -28,6 +29,7 @@ import java.security.SignatureException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.Properties;
 
 import static com.sap.cloud.security.config.Service.IAS;
@@ -70,17 +72,29 @@ public class JwtGeneratorTest {
 		assertThat(token).isNotNull();
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).contains(DEFAULT_CLIENT_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID);
+		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
 	}
 
 	@Test
 	public void createIasToken_isNotNull() {
-		cut = JwtGenerator.getInstance(IAS, DEFAULT_CLIENT_ID).withPrivateKey(keys.getPrivate());
+		cut = JwtGenerator.getInstance(IAS, "T000310")
+				.withClaimValue("sub", "P176945")
+				.withClaimValue("scope", "john.doe")
+				.withClaimValue("iss", "https://application.auth.com")
+				.withClaimValue("first_name", "john")
+				.withClaimValue("last_name", "doe")
+				.withClaimValue("email", "john.doe@email.org")
+				.withPrivateKey(keys.getPrivate());
 		Token token = cut.createToken();
 
 		assertThat(token).isNotNull();
-		assertThat(token.getClaimAsString(TokenClaims.AUDIENCE)).isEqualTo(DEFAULT_CLIENT_ID);
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID);
+		assertThat(token.getClaimAsString(TokenClaims.AUDIENCE)).isEqualTo("T000310");
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("T000310");
+		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
+		String encodedModulusN = Base64.getUrlEncoder().encodeToString(((RSAPublicKeyImpl)keys.getPublic()).getModulus().toByteArray());
+		assertThat(encodedModulusN).startsWith("AJtUGmczI7RHx3");
 	}
+
 
 	@Test
 	public void createToken_withoutPrivateKey_throwsException() {
