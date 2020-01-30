@@ -58,7 +58,8 @@ public class JwtAudienceValidatorTest {
 
 		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
-				.isEqualTo("Jwt token with audience [client, foreignclient, sb-test4!t1] is not issued for these clientIds: [any, anyother].");
+				.isEqualTo(
+						"Jwt token with audience [client, foreignclient, sb-test4!t1] is not issued for these clientIds: [any, anyother].");
 	}
 
 	@Test
@@ -84,6 +85,5 @@ public class JwtAudienceValidatorTest {
 		assertThat(result.getErrorDescription())
 				.isEqualTo("Jwt token with audience [] is not issued for these clientIds: [any].");
 	}
-
 
 }

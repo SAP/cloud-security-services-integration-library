@@ -20,7 +20,8 @@ import java.util.stream.Collectors;
  * application. The aud (audience) claim identifies the recipients the JWT is
  * issued for.
  *
- * Validates whether there is one audience that matches one of the configured OAuth2 client ids.
+ * Validates whether there is one audience that matches one of the configured
+ * OAuth2 client ids.
  */
 public class JwtAudienceValidator implements Validator<Token> {
 	private static final Logger logger = LoggerFactory.getLogger(JwtAudienceValidator.class);
@@ -49,7 +50,8 @@ public class JwtAudienceValidator implements Validator<Token> {
 			}
 		}
 		return ValidationResults
-				.createInvalid("Jwt token with audience {} is not issued for these clientIds: {}.", allowedAudiences, clientIds);
+				.createInvalid("Jwt token with audience {} is not issued for these clientIds: {}.", allowedAudiences,
+						clientIds);
 	}
 
 	/**
@@ -65,7 +67,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 		for (String audience : token.getAudiences()) {
 			if (audience.contains(".")) {
 				String aud = audience.substring(0, audience.indexOf(".")).trim();
-				if(!aud.isEmpty()) {
+				if (!aud.isEmpty()) {
 					audiences.add(aud);
 				}
 			} else {

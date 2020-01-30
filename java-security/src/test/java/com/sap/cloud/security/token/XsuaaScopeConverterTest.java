@@ -19,7 +19,6 @@ public class XsuaaScopeConverterTest {
 		cut = new XsuaaScopeConverter(appId);
 	}
 
-
 	@Test
 	public void constructsWithInvalidAppId_raisesIllegalArgumentException() {
 		assertThatThrownBy(() -> {

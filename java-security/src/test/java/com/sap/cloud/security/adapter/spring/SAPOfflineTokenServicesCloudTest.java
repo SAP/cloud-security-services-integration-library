@@ -67,13 +67,13 @@ public class SAPOfflineTokenServicesCloudTest {
 		cut.afterPropertiesSet();
 
 		OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
-		assertThat(authentication.getOAuth2Request().getScope()).containsExactly("testApp.localScope", "openid", "testScope");
+		assertThat(authentication.getOAuth2Request().getScope()).containsExactly("testApp.localScope", "openid",
+				"testScope");
 
 		cut.setLocalScopeAsAuthorities(true);
 		authentication = cut.loadAuthentication(xsuaaToken);
 		assertThat(authentication.getOAuth2Request().getScope()).containsExactly("localScope");
 	}
-
 
 	@Test
 	public void loadAuthentication_tokenIsNull_throwsException() {

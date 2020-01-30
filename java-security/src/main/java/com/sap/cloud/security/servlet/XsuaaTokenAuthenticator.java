@@ -6,7 +6,6 @@ import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.*;
 
 import java.util.Collection;
-import java.util.List;
 
 public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 

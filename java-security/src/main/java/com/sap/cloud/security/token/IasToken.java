@@ -43,7 +43,7 @@ public class IasToken extends AbstractToken {
 	public List<String> getAudiences() {
 		try {
 			return super.getAudiences();
-		} catch(JsonParsingException e) {
+		} catch (JsonParsingException e) {
 			return Arrays.asList(getClaimAsString(TokenClaims.AUDIENCE));
 		}
 	}

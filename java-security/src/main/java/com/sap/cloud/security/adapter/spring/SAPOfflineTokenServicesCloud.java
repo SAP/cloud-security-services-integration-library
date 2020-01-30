@@ -53,7 +53,6 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	private boolean useLocalScopeAsAuthorities;
 	private ScopeConverter xsuaaScopeConverter;
 
-
 	/**
 	 * Constructs an instance which can be used in the SAP CP Environment.
 	 */
@@ -104,8 +103,9 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 		this.serviceConfiguration = serviceConfiguration;
 		this.jwtValidatorBuilder = jwtValidatorBuilder;
-		if(serviceConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
-			this.xsuaaScopeConverter = new XsuaaScopeConverter(serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
+		if (serviceConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
+			this.xsuaaScopeConverter = new XsuaaScopeConverter(
+					serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
 		}
 	}
 
@@ -115,14 +115,15 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		XsuaaToken token = checkAndCreateToken(accessToken);
 
 		List<String> scopes = token.getScopes();
-		if(useLocalScopeAsAuthorities) {
+		if (useLocalScopeAsAuthorities) {
 			scopes = xsuaaScopeConverter.convert(scopes);
 		}
 		ValidationResult validationResult = tokenValidator.validate(token);
 
 		if (validationResult.isValid()) {
 			AuthorizationRequest authorizationRequest = new AuthorizationRequest(new HashMap<>(), null,
-					serviceConfiguration.getClientId(), scopes.stream().collect(Collectors.toSet()), new HashSet<>(), null,
+					serviceConfiguration.getClientId(), scopes.stream().collect(Collectors.toSet()), new HashSet<>(),
+					null,
 					true, "", "", null);
 			SecurityContext.setToken(token);
 			return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), null);
@@ -142,14 +143,13 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	}
 
 	/**
-	 * This method allows to overwrite the default behavior of the
-	 * authorities converter implementation.
+	 * This method allows to overwrite the default behavior of the authorities
+	 * converter implementation.
 	 *
 	 * @param extractLocalScopesOnly
-	 *            true when only local scopes are extracted.
-	 *            Local scopes means that non-application specific scopes
-	 *            are filtered out and scopes are returned without appId prefix,
-	 *            e.g. "Display".
+	 *            true when only local scopes are extracted. Local scopes means that
+	 *            non-application specific scopes are filtered out and scopes are
+	 *            returned without appId prefix, e.g. "Display".
 	 * @return the token authenticator itself
 	 */
 	public SAPOfflineTokenServicesCloud setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {

@@ -148,6 +148,7 @@ public class JwtGeneratorTest {
 				.isInstanceOf(UnsupportedOperationException.class)
 				.hasMessage("Scopes are not supported for service IAS");
 	}
+
 	@Test
 	public void withExpiration_createsTokenWithExpiration() {
 		Instant expiration = LocalDate.of(2019, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);

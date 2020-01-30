@@ -33,7 +33,7 @@ public class JwtGenerator {
 
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
-	private final List<String> unsupportedClaims = Arrays.asList(new String[]{AUDIENCE});
+	private final List<String> unsupportedClaims = Arrays.asList(new String[] { AUDIENCE });
 	private SignatureCalculator signatureCalculator;
 	private Service service;
 
@@ -250,7 +250,6 @@ public class JwtGenerator {
 	private String base64Encode(byte[] bytes) {
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
 	}
-
 
 	interface SignatureCalculator {
 		byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm algorithm, byte[] dataToSign)

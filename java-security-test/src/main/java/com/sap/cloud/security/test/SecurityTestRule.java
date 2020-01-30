@@ -242,6 +242,7 @@ public class SecurityTestRule extends ExternalResource {
 
 	/**
 	 * Returns the URI of the embedded jetty server or null if not specified.
+	 * 
 	 * @return uri of the application server
 	 */
 	@Nullable
