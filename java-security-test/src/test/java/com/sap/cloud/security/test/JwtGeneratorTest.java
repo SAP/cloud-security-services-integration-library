@@ -20,7 +20,6 @@ import org.mockito.Mockito;
 import sun.security.rsa.RSAPublicKeyImpl;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
