@@ -5,6 +5,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.*;
 
+import java.util.Collection;
 import java.util.List;
 
 public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
@@ -27,7 +28,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	@Override
 	protected TokenAuthenticationResult authenticated(Token token) {
-		List<String> translatedScopes = getScopeConverter()
+		Collection<String> translatedScopes = getScopeConverter()
 				.convert(((XsuaaToken) token).getScopes());
 		return TokenAuthenticationResult.createAuthenticated(translatedScopes, token);
 	}

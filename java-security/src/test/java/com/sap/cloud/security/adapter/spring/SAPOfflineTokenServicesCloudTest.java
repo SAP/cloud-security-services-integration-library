@@ -1,6 +1,5 @@
 package com.sap.cloud.security.adapter.spring;
 
-import com.sap.cloud.security.adapter.spring.SAPOfflineTokenServicesCloud;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
@@ -37,7 +36,7 @@ public class SAPOfflineTokenServicesCloudTest {
 	public void setUp() {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
-				.withProperty(CFConstants.XSUAA.APP_ID, "appId")
+				.withProperty(CFConstants.XSUAA.APP_ID, "testApp")
 				.withProperty(CFConstants.CLIENT_ID, "clientId")
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
 				.build();
@@ -60,6 +59,21 @@ public class SAPOfflineTokenServicesCloudTest {
 		assertThat(authentication.getOAuth2Request().getScope()).contains("ROLE_SERVICEBROKER", "uaa.resource");
 		assertThat(SecurityContext.getToken().getAccessToken()).isEqualTo(xsuaaToken);
 	}
+
+	@Test
+	public void loadAuthenticationWithLocalScopes() throws IOException {
+		xsuaaToken = IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", StandardCharsets.UTF_8);
+
+		cut.afterPropertiesSet();
+
+		OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
+		assertThat(authentication.getOAuth2Request().getScope()).containsExactly("testApp.localScope", "openid", "testScope");
+
+		cut.setLocalScopeAsAuthorities(true);
+		authentication = cut.loadAuthentication(xsuaaToken);
+		assertThat(authentication.getOAuth2Request().getScope()).containsExactly("localScope");
+	}
+
 
 	@Test
 	public void loadAuthentication_tokenIsNull_throwsException() {

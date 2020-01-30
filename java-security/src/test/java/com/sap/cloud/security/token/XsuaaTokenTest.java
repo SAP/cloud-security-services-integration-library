@@ -54,7 +54,6 @@ public class XsuaaTokenTest {
 		clientCredentialsToken.withScopeConverter(new XsuaaScopeConverter("uaa"));
 		assertThat(clientCredentialsToken.hasScope("uaa.resource")).isTrue();
 		assertThat(clientCredentialsToken.hasLocalScope("resource")).isTrue();
-		assertThat(clientCredentialsToken.hasLocalScope("ROLE_SERVICEBROKER")).isTrue();
 	}
 
 	@Test

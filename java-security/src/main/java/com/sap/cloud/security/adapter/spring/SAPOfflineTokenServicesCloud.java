@@ -2,9 +2,8 @@ package com.sap.cloud.security.adapter.spring;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.token.SecurityContext;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
@@ -20,13 +19,12 @@ import org.springframework.security.oauth2.common.exceptions.InvalidTokenExcepti
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
+import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -52,6 +50,9 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	private final OAuth2ServiceConfiguration serviceConfiguration;
 	private Validator<Token> tokenValidator;
 	private JwtValidatorBuilder jwtValidatorBuilder;
+	private boolean useLocalScopeAsAuthorities;
+	private ScopeConverter xsuaaScopeConverter;
+
 
 	/**
 	 * Constructs an instance which can be used in the SAP CP Environment.
@@ -103,18 +104,25 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 		this.serviceConfiguration = serviceConfiguration;
 		this.jwtValidatorBuilder = jwtValidatorBuilder;
+		if(serviceConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
+			this.xsuaaScopeConverter = new XsuaaScopeConverter(serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
+		}
 	}
 
 	@Override
 	public OAuth2Authentication loadAuthentication(@Nonnull String accessToken)
 			throws AuthenticationException, InvalidTokenException {
 		XsuaaToken token = checkAndCreateToken(accessToken);
-		Set<String> scopes = token.getScopes().stream().collect(Collectors.toSet());
+
+		List<String> scopes = token.getScopes();
+		if(useLocalScopeAsAuthorities) {
+			scopes = xsuaaScopeConverter.convert(scopes);
+		}
 		ValidationResult validationResult = tokenValidator.validate(token);
 
 		if (validationResult.isValid()) {
 			AuthorizationRequest authorizationRequest = new AuthorizationRequest(new HashMap<>(), null,
-					serviceConfiguration.getClientId(), scopes, new HashSet<>(), null,
+					serviceConfiguration.getClientId(), scopes.stream().collect(Collectors.toSet()), new HashSet<>(), null,
 					true, "", "", null);
 			SecurityContext.setToken(token);
 			return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), null);
@@ -133,9 +141,25 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		throw new UnsupportedOperationException("Not supported: read access token");
 	}
 
+	/**
+	 * This method allows to overwrite the default behavior of the
+	 * authorities converter implementation.
+	 *
+	 * @param extractLocalScopesOnly
+	 *            true when only local scopes are extracted.
+	 *            Local scopes means that non-application specific scopes
+	 *            are filtered out and scopes are returned without appId prefix,
+	 *            e.g. "Display".
+	 * @return the token authenticator itself
+	 */
+	public SAPOfflineTokenServicesCloud setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {
+		this.useLocalScopeAsAuthorities = extractLocalScopesOnly;
+		return this;
+	}
+
 	private XsuaaToken checkAndCreateToken(@Nonnull String accessToken) {
 		try {
-			return new XsuaaToken(accessToken);
+			return new XsuaaToken(accessToken).withScopeConverter(xsuaaScopeConverter);
 		} catch (Exception e) {
 			throw new InvalidTokenException(e.getMessage());
 		}
