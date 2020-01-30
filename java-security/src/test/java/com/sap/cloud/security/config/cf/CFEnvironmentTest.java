@@ -99,6 +99,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("clientId");
 		assertThat(cut.getXsuaaConfiguration().getClientSecret()).isEqualTo("secret");
 		assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.UAA_DOMAIN)).isEqualTo("auth.com");
+		assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.APP_ID)).isEqualTo("java-hello-world");
 		assertThat(cut.getXsuaaConfiguration().getUrl().toString()).isEqualTo("https://paastenant.auth.com");
 		assertThat(cut.getXsuaaConfiguration().isLegacyMode()).isFalse();
 
@@ -118,6 +119,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
 		assertThat(Plan.from(cut.getXsuaaConfiguration().getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
 		assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("sb-java-hello-world!i1");
+		assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.APP_ID)).isEqualTo("java-hello-world!i1");
 		assertThat(cut.getXsuaaConfiguration().getClientSecret()).startsWith("fxnWLHqLh6KC0Wp/bbv8Gwbu50OEbpS");
 		assertThat(cut.getXsuaaConfiguration().getUrl().toString())
 				.isEqualTo("https://xsa-test.c.eu-de-2.cloud.sap:30132/uaa-security");

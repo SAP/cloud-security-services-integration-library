@@ -2,7 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-<<<<<<< HEAD
 ## 2.4.1-SNAPSHOT
 - [java-security] Migration Guide and some little improvements / enhancements.
 
