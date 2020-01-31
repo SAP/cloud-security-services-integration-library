@@ -52,8 +52,8 @@ class CFEnvParser {
 			boolean isLegacyMode) {
 		List<JsonObject> serviceJsonObjects = vcapServicesJson.getJsonObjects(service.getCFName());
 		if (service == XSUAA && serviceJsonObjects.size() > 1) {
-			logger.warn(
-					"More than one service configuration available for service {}. Please make use of unified 'broker' plan.",
+			logger.info(
+					"More than one service configuration available for service {}.",
 					service);
 		}
 		return serviceJsonObjects.stream()

@@ -28,17 +28,17 @@ First make sure you have the following dependencies defined in your pom.xml:
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>api</artifactId>
-  <version>2.4.1-SNAPSHOT</version>
+  <version>2.4.2-SNAPSHOT</version>
 </dependency>
 <dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
+  <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security</artifactId>
-  <version>2.4.1-SNAPSHOT</version>
+  <version>2.4.2-SNAPSHOT</version>
 </dependency>
 <dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
+  <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security-test</artifactId>
-  <version>2.4.1-SNAPSHOT</version>
+  <version>2.4.2-SNAPSHOT</version>
   <scope>test</scope>
 </dependency>
 ```

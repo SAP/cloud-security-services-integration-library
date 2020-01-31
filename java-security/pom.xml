@@ -7,9 +7,10 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>2.4.1-SNAPSHOT</version>
+		<version>2.4.2-SNAPSHOT</version>
 	</parent>
 
+	<groupId>com.sap.cloud.security</groupId>
 	<artifactId>java-security</artifactId>
 	<name>java-security</name>
 	<packaging>jar</packaging>
@@ -36,17 +37,11 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- needed for XSUserInfoAdapter-->
-		<dependency>
-			<groupId>com.sap.cloud.security.xsuaa</groupId>
-			<artifactId>api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
 		<!-- for call to tokenKeyService -->
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>token-client</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -54,8 +49,15 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- optionally needed for XSUserInfoAdapter-->
+		<dependency>
+			<groupId>com.sap.cloud.security.xsuaa</groupId>
+			<artifactId>api</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-		<!-- used for the spring adapter used by migration projects -->
+		<!-- optionally needed for the spring adapter used by migration projects -->
 		<dependency>
 			<groupId>org.springframework.security.oauth</groupId>
 			<artifactId>spring-security-oauth2</artifactId>
