@@ -22,9 +22,8 @@ public interface AccessToken extends Token {
 	boolean hasScope(String scope);
 
 	/**
-	 * Check if a local scope is available in the authentication token.
-	 * The exact definition of a local scope depends on the specific
-	 * token implementation.
+	 * Check if a local scope is available in the authentication token. The exact
+	 * definition of a local scope depends on the specific token implementation.
 	 *
 	 * @param scope
 	 *            name of local scope

@@ -66,13 +66,14 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		}
 		try {
 			switch (service) {
-				case XSUAA:
-					return new XsuaaToken(accessToken);
-				case IAS:
-					return new IasToken(accessToken);
+			case XSUAA:
+				return new XsuaaToken(accessToken);
+			case IAS:
+				return new IasToken(accessToken);
 			}
 		} catch (Exception e) {
-			// catches exceptions during token creation and re-throws with spring specific exception
+			// catches exceptions during token creation and re-throws with spring specific
+			// exception
 			throw new InvalidTokenException(e.getMessage());
 		}
 		throw new IllegalStateException(String.format("Service configuration '%s' not supported yet", service));

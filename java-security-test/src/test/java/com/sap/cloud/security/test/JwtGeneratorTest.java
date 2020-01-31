@@ -90,10 +90,10 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsString(TokenClaims.AUDIENCE)).isEqualTo("T000310");
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("T000310");
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
-		String encodedModulusN = Base64.getUrlEncoder().encodeToString(((RSAPublicKeyImpl)keys.getPublic()).getModulus().toByteArray());
+		String encodedModulusN = Base64.getUrlEncoder()
+				.encodeToString(((RSAPublicKeyImpl) keys.getPublic()).getModulus().toByteArray());
 		assertThat(encodedModulusN).startsWith("AJtUGmczI7RHx3");
 	}
-
 
 	@Test
 	public void createToken_withoutPrivateKey_throwsException() {
@@ -161,6 +161,7 @@ public class JwtGeneratorTest {
 				.isInstanceOf(UnsupportedOperationException.class)
 				.hasMessage("Scopes are not supported for service IAS");
 	}
+
 	@Test
 	public void withExpiration_createsTokenWithExpiration() {
 		Instant expiration = LocalDate.of(2019, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);

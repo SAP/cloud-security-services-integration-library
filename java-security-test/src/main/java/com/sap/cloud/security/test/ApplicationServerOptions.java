@@ -34,7 +34,7 @@ public class ApplicationServerOptions {
 	 * @param appId
 	 *            the xsuaa application name e.g. myapp!t123.
 	 * @param clientId
-	 * 			  the xsuaa client id of the application
+	 *            the xsuaa client id of the application
 	 * @return the application server options.
 	 */
 	public static ApplicationServerOptions forXsuaaService(String appId, String clientId) {
@@ -51,7 +51,9 @@ public class ApplicationServerOptions {
 
 	/**
 	 * Creates an instance of ApplicationServerOptions.
-	 * @param service the identity service
+	 * 
+	 * @param service
+	 *            the identity service
 	 * @return the application server options.
 	 */
 	public static ApplicationServerOptions forService(Service service) {

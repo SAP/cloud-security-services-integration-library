@@ -52,7 +52,6 @@ public class IasTokenTest {
 		assertThat(cut.getService()).isEqualTo(Service.IAS);
 	}
 
-
 	@Test
 	public void getAudiences() {
 		assertThat(cut.getAudiences()).isNotEmpty();

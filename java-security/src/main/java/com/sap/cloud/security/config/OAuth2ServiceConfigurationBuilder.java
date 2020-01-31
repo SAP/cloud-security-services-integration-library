@@ -86,7 +86,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	public OAuth2ServiceConfigurationBuilder runInLegacyMode(boolean isLegacyMode) {
-		if(isLegacyMode && !service.equals(Service.XSUAA)) {
+		if (isLegacyMode && !service.equals(Service.XSUAA)) {
 			throw new UnsupportedOperationException("Legacy Mode is not supported for Service " + service);
 		}
 		this.runInLegacyMode = isLegacyMode;
