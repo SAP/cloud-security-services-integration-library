@@ -2,7 +2,9 @@ package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.xsuaa.Assertions;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -26,9 +28,10 @@ public class XsuaaScopeConverter implements ScopeConverter {
 	}
 
 	@Override
-	public List<String> convert(List<String> scopes) {
+	public List<String> convert(Collection<String> scopes) {
 		return scopes.stream()
 				.map(this::convertToLocalScope)
+				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 	}
 
@@ -37,7 +40,7 @@ public class XsuaaScopeConverter implements ScopeConverter {
 		if (matcher.matches()) {
 			return matcher.group(matcher.groupCount());
 		}
-		return scope;
+		return null;
 	}
 
 }

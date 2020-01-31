@@ -16,9 +16,9 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 ### Maven Dependencies
 ```xml
 <dependency>
-    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>2.4.1-SNAPSHOT</version>
+    <version>2.4.2-SNAPSHOT</version>
     <scope>test</scope>
 </dependency>
 ```

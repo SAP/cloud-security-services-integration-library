@@ -5,6 +5,7 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.security.Principal;
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	 *
 	 * @return the token itself
 	 */
-	public XsuaaToken withScopeConverter(ScopeConverter converter) {
+	public XsuaaToken withScopeConverter(@Nullable ScopeConverter converter) {
 		this.scopeConverter = converter;
 		return this;
 	}
@@ -121,7 +122,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	@Override
 	public boolean hasLocalScope(@Nonnull String scope) {
 		Assertions.assertNotNull(scopeConverter,
-				"hasLocalScope method requires scopeConverter, which must not be null");
+				"hasLocalScope() method requires a scopeConverter, which must not be null");
 		return scopeConverter.convert(getScopes()).contains(scope);
 	}
 

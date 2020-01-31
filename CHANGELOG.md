@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.4.2-SNAPSHOT
+- [java-security] XSA Support.
+
 ## 2.4.1-SNAPSHOT
 - [java-security] Migration Guide and some little improvements / enhancements.
 

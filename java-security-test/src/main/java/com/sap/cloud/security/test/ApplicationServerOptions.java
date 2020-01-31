@@ -34,7 +34,7 @@ public class ApplicationServerOptions {
 	 * @param appId
 	 *            the xsuaa application name e.g. myapp!t123.
 	 * @param clientId
-	 *            the xsuaa client id of the application
+	 * 			  the xsuaa client id of the application
 	 * @return the application server options.
 	 */
 	public static ApplicationServerOptions forXsuaaService(String appId, String clientId) {
@@ -42,16 +42,12 @@ public class ApplicationServerOptions {
 		Assertions.assertHasText(clientId, "clientId is required by the XsuaaAudienceValidator");
 		return new ApplicationServerOptions(
 				new XsuaaTokenAuthenticator()
-						.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
-								.withClientId(clientId)
-								.withProperty(CFConstants.XSUAA.APP_ID, appId)
-								.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
-								.build()));
+						.withServiceConfiguration(createServiceConfiguration(appId, clientId)));
 	}
 
 	/**
 	 * Creates an instance of ApplicationServerOptions.
-	 * 
+	 *
 	 * @param service
 	 *            the identity service
 	 * @return the application server options.

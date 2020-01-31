@@ -2,6 +2,7 @@ package com.sap.cloud.security.adapter.spring;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
@@ -48,6 +49,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	private final OAuth2ServiceConfiguration configuration;
 	private Validator<Token> tokenValidator;
 	private JwtValidatorBuilder jwtValidatorBuilder;
+	private boolean useLocalScopeAsAuthorities;
+	private ScopeConverter xsuaaScopeConverter;
 
 	/**
 	 * Constructs an instance which can be used in the SAP CP Environment.
@@ -99,20 +102,28 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 		this.configuration = serviceConfiguration;
 		this.jwtValidatorBuilder = jwtValidatorBuilder;
+		if (serviceConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
+			this.xsuaaScopeConverter = new XsuaaScopeConverter(
+					serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
+		}
 	}
 
 	@Override
 	public OAuth2Authentication loadAuthentication(@Nonnull String accessToken)
 			throws AuthenticationException, InvalidTokenException {
 		Token token = checkAndCreateToken(accessToken);
-		Set<String> scopes = token instanceof AccessToken
-				? ((AccessToken) token).getScopes().stream().collect(Collectors.toSet())
-				: Collections.EMPTY_SET;
+		List<String> scopes = token instanceof AccessToken
+				? ((AccessToken) token).getScopes()
+				: Collections.EMPTY_LIST;
+		if (useLocalScopeAsAuthorities) {
+			scopes = xsuaaScopeConverter.convert(scopes);
+		}
 		ValidationResult validationResult = tokenValidator.validate(token);
 
 		if (validationResult.isValid()) {
 			AuthorizationRequest authorizationRequest = new AuthorizationRequest(new HashMap<>(), null,
-					configuration.getClientId(), scopes, new HashSet<>(), null,
+					configuration.getClientId(), scopes.stream().collect(Collectors.toSet()), new HashSet<>(),
+					null,
 					true, "", "", null);
 			SecurityContext.setToken(token);
 			return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), null);
@@ -131,21 +142,34 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		throw new UnsupportedOperationException("Not supported: read access token");
 	}
 
+	/**
+	 * This method allows to overwrite the default behavior of the authorities
+	 * converter implementation.
+	 *
+	 * @param extractLocalScopesOnly
+	 *            true when only local scopes are extracted. Local scopes means that
+	 *            non-application specific scopes are filtered out and scopes are
+	 *            returned without appId prefix, e.g. "Display".
+	 * @return the token authenticator itself
+	 */
+	public SAPOfflineTokenServicesCloud setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {
+		this.useLocalScopeAsAuthorities = extractLocalScopesOnly;
+		return this;
+	}
+
 	private Token checkAndCreateToken(@Nonnull String accessToken) {
 		try {
 			switch (configuration.getService()) {
-			case XSUAA:
-				return new XsuaaToken(accessToken);
-			case IAS:
-				return new IasToken(accessToken);
-			default:
-				throw new InvalidTokenException(
+				case XSUAA:
+					return new XsuaaToken(accessToken).withScopeConverter(xsuaaScopeConverter);
+				case IAS:
+					return new IasToken(accessToken);
+				default:
+					throw new InvalidTokenException(
 						"AccessToken of service " + configuration.getService() + " is not supported.");
 			}
-
 		} catch (Exception e) {
 			throw new InvalidTokenException(e.getMessage());
 		}
 	}
-
 }
