@@ -274,7 +274,7 @@ public class SecurityTestRule extends ExternalResource {
 	protected void after() {
 		wireMockRule.shutdown();
 		try {
-			if (useApplicationServer && applicationServer.isStarted()) {
+			if (useApplicationServer) {
 				applicationServer.stop();
 			}
 		} catch (Exception e) {

@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
-	private final OAuth2ServiceConfiguration configuration;
+	private final OAuth2ServiceConfiguration serviceConfiguration;
 	private Validator<Token> tokenValidator;
 	private JwtValidatorBuilder jwtValidatorBuilder;
 	private boolean useLocalScopeAsAuthorities;
@@ -100,7 +100,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		Assertions.assertNotNull(serviceConfiguration, "serviceConfiguration is required.");
 		Assertions.assertNotNull(jwtValidatorBuilder, "jwtValidatorBuilder is required.");
 
-		this.configuration = serviceConfiguration;
+		this.serviceConfiguration = serviceConfiguration;
 		this.jwtValidatorBuilder = jwtValidatorBuilder;
 		if (serviceConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
 			this.xsuaaScopeConverter = new XsuaaScopeConverter(
@@ -122,7 +122,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 		if (validationResult.isValid()) {
 			AuthorizationRequest authorizationRequest = new AuthorizationRequest(new HashMap<>(), null,
-					configuration.getClientId(), scopes.stream().collect(Collectors.toSet()), new HashSet<>(),
+					serviceConfiguration.getClientId(), scopes.stream().collect(Collectors.toSet()), new HashSet<>(),
 					null,
 					true, "", "", null);
 			SecurityContext.setToken(token);
@@ -159,14 +159,14 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 	private Token checkAndCreateToken(@Nonnull String accessToken) {
 		try {
-			switch (configuration.getService()) {
+			switch (serviceConfiguration.getService()) {
 			case XSUAA:
 				return new XsuaaToken(accessToken).withScopeConverter(xsuaaScopeConverter);
 			case IAS:
 				return new IasToken(accessToken);
 			default:
 				throw new InvalidTokenException(
-						"AccessToken of service " + configuration.getService() + " is not supported.");
+						"AccessToken of service " + serviceConfiguration.getService() + " is not supported.");
 			}
 		} catch (Exception e) {
 			throw new InvalidTokenException(e.getMessage());
