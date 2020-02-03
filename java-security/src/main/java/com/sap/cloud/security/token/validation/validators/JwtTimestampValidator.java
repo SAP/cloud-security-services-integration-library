@@ -5,7 +5,6 @@ import static com.sap.cloud.security.token.validation.ValidationResults.createIn
 import javax.annotation.Nullable;
 
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
@@ -48,7 +47,7 @@ public class JwtTimestampValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
-		ValidationResult validationResult = ValidationResults.createValid();
+		ValidationResult validationResult;
 
 		Instant expiration = token.getExpiration();
 		if (expiration != null) {

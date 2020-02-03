@@ -47,7 +47,6 @@ public interface Environment {
 	 *             necessary with the unified broker plan, this method is
 	 *             deprecated.
 	 */
-	@Deprecated
 	int getNumberOfXsuaaConfigurations();
 
 	/**
@@ -60,7 +59,6 @@ public interface Environment {
 	 * @deprecated as multiple bindings of identity service is not anymore necessary
 	 *             with the unified broker plan, this method is deprecated.
 	 */
-	@Deprecated
 	@Nullable
 	OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange();
 

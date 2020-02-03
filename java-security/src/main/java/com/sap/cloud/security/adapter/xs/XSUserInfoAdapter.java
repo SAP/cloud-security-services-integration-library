@@ -108,13 +108,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		return getClaimValue(EMAIL);
 	}
 
-	// TODO
 	@Override
 	public String getDBToken() throws XSUserInfoException {
 		return getHdbToken();
 	}
 
-	// TODO
 	@Override
 	public String getHdbToken() throws XSUserInfoException {
 		return getToken(SYSTEM, HDB);

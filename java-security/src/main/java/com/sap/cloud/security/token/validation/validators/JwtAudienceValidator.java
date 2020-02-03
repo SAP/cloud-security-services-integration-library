@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Validates if the jwt access token is intended for the OAuth2 client of this
@@ -66,7 +64,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 		for (String audience : token.getAudiences()) {
 			if (audience.contains(".")) {
-				String aud = audience.substring(0, audience.indexOf(".")).trim();
+				String aud = audience.substring(0, audience.indexOf(DOT)).trim();
 				if (!aud.isEmpty()) {
 					audiences.add(aud);
 				}
