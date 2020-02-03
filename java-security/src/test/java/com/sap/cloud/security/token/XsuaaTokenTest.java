@@ -109,6 +109,12 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
+	public void getPrincipalShouldBeEqualForSameUser() throws IOException {
+		Token userToken2 = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
+		assertThat(userToken.getPrincipal()).isEqualTo(userToken2.getPrincipal());
+	}
+
+	@Test
 	public void getAudiences() {
 		assertThat(clientCredentialsToken.getAudiences()).isNotEmpty();
 		assertThat(clientCredentialsToken.getAudiences()).hasSize(2);
