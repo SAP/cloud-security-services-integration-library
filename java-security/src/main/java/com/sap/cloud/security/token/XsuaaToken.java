@@ -97,7 +97,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 			principalName = getUniquePrincipalName(getClaimAsString(ORIGIN), getClaimAsString(USER_NAME));
 			break;
 		}
-		return () -> principalName;
+		return createPrincipalByName(principalName);
 	}
 
 	@Override
@@ -130,5 +130,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	public GrantType getGrantType() {
 		return GrantType.from(getClaimAsString(GRANT_TYPE));
 	}
+
+
 
 }

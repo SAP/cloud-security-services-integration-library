@@ -8,10 +8,12 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
@@ -22,9 +24,9 @@ import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
  * token header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
-	private final DefaultJsonObject tokenHeader;
-	private final DefaultJsonObject tokenBody;
-	private final String accessToken;
+	protected final DefaultJsonObject tokenHeader;
+	protected final DefaultJsonObject tokenBody;
+	protected final String accessToken;
 
 	public AbstractToken(@Nonnull DecodedJwt decodedJwt) {
 		this(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
@@ -115,10 +117,44 @@ public abstract class AbstractToken implements Token {
 		return getClaimAsStringList(TokenClaims.AUDIENCE);
 	}
 
+	protected Principal createPrincipalByName(String name) {
+		return new Principal() {
+			@Override
+			public boolean equals(Object o) {
+				if (this == o) return true;
+				if (!(o instanceof Principal)) return false;
+				Principal that = (Principal) o;
+				return getName().equals(that.getName());
+			}
+
+			@Override
+			public int hashCode() {
+				return Objects.hash(getName());
+			}
+
+			@Override
+			public String getName() {
+				return name;
+			}
+		};
+	}
+
 	private static String removeBearer(@Nonnull String accessToken) {
 		Assertions.assertHasText(accessToken, "accessToken must not be null / empty");
 		Pattern bearerPattern = Pattern.compile("[B|b]earer ");
 		return bearerPattern.matcher(accessToken).replaceFirst("");
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof AbstractToken)) return false;
+		AbstractToken that = (AbstractToken) o;
+		return getAccessToken().equals(that.getAccessToken());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getAccessToken());
+	}
 }
