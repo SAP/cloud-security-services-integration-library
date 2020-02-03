@@ -6,10 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
@@ -64,8 +62,6 @@ public class IntegrationTest {
 
 		Token xsuaaToken = spy(new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", StandardCharsets.UTF_8)));
-		when(xsuaaToken.getExpiration()).thenReturn(NO_EXPIRE_DATE);
-		when(xsuaaToken.getAudiences()).thenReturn(Arrays.asList("clientId"));
 
 		ValidationResult result = tokenValidator.validate(xsuaaToken);
 		assertThat(result.isValid()).isTrue();
