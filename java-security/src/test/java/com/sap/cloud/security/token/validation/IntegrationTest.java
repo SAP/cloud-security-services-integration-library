@@ -14,6 +14,7 @@ import java.util.Map;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
+import com.sap.cloud.security.token.IasToken;
 import com.sap.cloud.security.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -88,6 +89,37 @@ public class IntegrationTest {
 		when(xsaToken.getExpiration()).thenReturn(NO_EXPIRE_DATE);
 
 		ValidationResult result = tokenValidator.validate(xsaToken);
+		assertThat(result.isValid()).isTrue();
+	}
+
+	@Test
+	public void validationFails_withIasCombiningValidator() throws IOException {
+		CloseableHttpResponse oidcResponse = HttpClientTestFactory
+				.createHttpResponse("{\"jwks_uri\" : \"https://application.auth.com/oauth2/certs\"}");
+		CloseableHttpResponse tokenKeysResponse = HttpClientTestFactory
+				.createHttpResponse(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+
+		when(httpClientMock.execute(any(HttpGet.class)))
+				.thenReturn(oidcResponse)
+				.thenReturn(tokenKeysResponse);
+
+		String vcapServices = IOUtils.resourceToString("/vcapIasServiceSingleBinding.json", UTF_8);
+		JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.IAS.getCFName())
+				.get(0);
+		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
+
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
+				.withProperties(credentialsMap)
+				.build();
+
+		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
+				.withHttpClient(httpClientMock)
+				.build();
+
+		IasToken iasToken = new IasToken(
+				IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
+
+		ValidationResult result = tokenValidator.validate(iasToken);
 		assertThat(result.isValid()).isTrue();
 	}
 }

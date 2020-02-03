@@ -1,14 +1,14 @@
 {
-  "iasb": [
+  "identity-beta": [
     {
       "binding_name": null,
       "credentials": {
         "clientsecret": "pCghfbrLudwzXM2fPq7YSIhujAmpHj_I0DeMKHKRAqs=",
-        "clientid": "T000297",
-        "url": "https://application.acc.ondemand.com"
+        "clientid": "T000310",
+        "url": "https://app.auth.com"
       },
       "instance_name": "myservice",
-      "label": "iasb",
+      "label": "identity-beta",
       "name": "myservice",
       "plan": "default",
       "provider": null,
