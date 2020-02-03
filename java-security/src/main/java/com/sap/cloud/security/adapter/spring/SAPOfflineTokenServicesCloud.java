@@ -112,6 +112,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	public OAuth2Authentication loadAuthentication(@Nonnull String accessToken)
 			throws AuthenticationException, InvalidTokenException {
 		Token token = checkAndCreateToken(accessToken);
+
 		List<String> scopes = token instanceof AccessToken
 				? ((AccessToken) token).getScopes()
 				: Collections.EMPTY_LIST;

@@ -80,7 +80,7 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OAuth2TokenKeyServiceWithCache}.
+	 * {@link OAuth2TokenKeyServiceWithCache} instance.
 	 *
 	 * @param tokenKeyService
 	 *            your token key service
@@ -93,7 +93,7 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OidcConfigurationServiceWithCache}.
+	 * {@link OidcConfigurationServiceWithCache} instance.
 	 *
 	 * @param oidcConfigurationService
 	 *            your token key service
@@ -162,6 +162,11 @@ public class JwtValidatorBuilder {
 	private List<Validator<Token>> createDefaultValidators() {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
+		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
+				getOidcConfigurationServiceWithCache()).runInLegacyMode(configuration.isLegacyMode());
+		signatureValidator.withOAuth2Configuration(configuration);
+		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
+		defaultValidators.add(signatureValidator);
 
 		if (customAudienceValidator == null) {
 			defaultValidators.add(createXsuaaAudienceValidator());
@@ -174,12 +179,6 @@ public class JwtValidatorBuilder {
 		} else if (configuration.getService() == IAS) {
 			defaultValidators.add(new JwtIssuerValidator(configuration.getDomain()));
 		}
-
-		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
-				getOidcConfigurationServiceWithCache()).runInLegacyMode(configuration.isLegacyMode());
-		signatureValidator.withOAuth2Configuration(configuration);
-		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
-		defaultValidators.add(signatureValidator);
 		return defaultValidators;
 	}
 

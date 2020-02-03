@@ -31,21 +31,18 @@ public interface Environment {
 	OAuth2ServiceConfiguration getXsuaaConfiguration();
 
 	/**
-	 * Return OAuth service configuration of Ias identity service instance.
-	 * 
+	 * Return OAuth service configuration of IAS identity service instance.
+	 *
 	 * @return the OAuth service configuration or null, in case there is no instance
 	 */
 	@Nullable
-	OAuth2ServiceConfiguration getIasConfiguration();
+	OAuth2ServiceConfiguration getIasConfiguration(); // TODO IAS
 
 	/**
 	 * Returns number of Xsuaa identity service instances.
 	 *
 	 * @return the number Xsuaa identity service instances.
 	 *
-	 * @deprecated as multiple bindings of Xsuaa identity service is not anymore
-	 *             necessary with the unified broker plan, this method is
-	 *             deprecated.
 	 */
 	int getNumberOfXsuaaConfigurations();
 
@@ -56,8 +53,6 @@ public interface Environment {
 	 *
 	 * @return the service configuration to be used for token exchange
 	 *         {@link com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows}
-	 * @deprecated as multiple bindings of identity service is not anymore necessary
-	 *             with the unified broker plan, this method is deprecated.
 	 */
 	@Nullable
 	OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange();

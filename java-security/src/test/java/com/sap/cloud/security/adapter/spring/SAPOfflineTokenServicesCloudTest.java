@@ -46,7 +46,7 @@ public class SAPOfflineTokenServicesCloudTest {
 				.build();
 
 		jwtValidatorBuilderMock = Mockito.spy(JwtValidatorBuilder.getInstance(configuration));
-		Mockito.when(jwtValidatorBuilderMock.build()).thenReturn(
+		when(jwtValidatorBuilderMock.build()).thenReturn(
 				new CombiningValidator<>(token -> ValidationResults.createValid()));
 
 		cut = new SAPOfflineTokenServicesCloud(configuration, jwtValidatorBuilderMock);
@@ -111,7 +111,7 @@ public class SAPOfflineTokenServicesCloudTest {
 
 	@Test
 	public void loadAuthentication_tokenValidationFailed_throwsException() {
-		Mockito.when(jwtValidatorBuilderMock.build()).thenCallRealMethod();
+		when(jwtValidatorBuilderMock.build()).thenCallRealMethod();
 		cut.afterPropertiesSet();
 
 		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
