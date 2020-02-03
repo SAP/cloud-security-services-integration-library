@@ -55,6 +55,7 @@ public class JwtGenerator {
 		instance.signatureCalculator = signatureCalculator;
 		instance.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
 		instance.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId);
+		instance.withExpiration(NO_EXPIRE_DATE);
 		return instance;
 	}
 

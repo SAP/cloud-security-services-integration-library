@@ -89,6 +89,7 @@
         </dependency>
     </dependencies>
 
+    <!-- TODO can be deleted with SAP Buildpack -->
     <build>
         <finalName>java-security-usage</finalName>
         <plugins>

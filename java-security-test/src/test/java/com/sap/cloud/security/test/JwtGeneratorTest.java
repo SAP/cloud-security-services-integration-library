@@ -70,6 +70,7 @@ public class JwtGeneratorTest {
 		assertThat(token).isNotNull();
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).contains(DEFAULT_CLIENT_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID);
+		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
 	}
 
 	@Test
