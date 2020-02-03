@@ -1,11 +1,8 @@
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
-
 import javax.annotation.Nullable;
 
 import java.net.URI;
-import java.util.Optional;
 
 /**
  * Provides information of the identity {@link Service}.
