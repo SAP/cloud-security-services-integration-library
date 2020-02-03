@@ -2,7 +2,6 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.*;
@@ -12,16 +11,18 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.net.URISyntaxException;
 import java.util.List;
 
+import static com.sap.cloud.security.config.Service.XSUAA;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JwtValidatorBuilderTest {
 
-	public static final Token TOKEN = mock(Token.class);
+	OAuth2ServiceConfigurationBuilder xsuaaConfigBuilder = OAuth2ServiceConfigurationBuilder.forService(XSUAA)
+			.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "auth.com")
+			.withProperty(CFConstants.XSUAA.APP_ID, "test-app!t123")
+			.withClientId("sb-test-app!t123");
 
 	@Before
 	public void setUp() {
@@ -29,18 +30,18 @@ public class JwtValidatorBuilderTest {
 	}
 
 	@Test
-	public void sameServiceConfiguration_getSameInstance() throws URISyntaxException {
+	public void sameServiceConfiguration_getSameInstance() {
 		TokenTestValidator.createValid();
-		OAuth2ServiceConfiguration configuration = getConfigBuilder().build();
+		OAuth2ServiceConfiguration configuration = xsuaaConfigBuilder.build();
 		JwtValidatorBuilder builder_1 = JwtValidatorBuilder.getInstance(configuration);
 		JwtValidatorBuilder builder_2 = JwtValidatorBuilder.getInstance(configuration);
 		assertThat(builder_1).isSameAs(builder_2);
 	}
 
 	@Test
-	public void withAudienceValidator_overridesXsuaaJwtAudienceValidator() throws URISyntaxException {
+	public void withAudienceValidator_overridesXsuaaJwtAudienceValidator() {
 		TokenTestValidator validator = TokenTestValidator.createValid();
-		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(getConfigBuilder().build())
+		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(xsuaaConfigBuilder.build())
 				.withAudienceValidator(validator)
 				.build()
 				.getValidators();
@@ -49,8 +50,8 @@ public class JwtValidatorBuilderTest {
 	}
 
 	@Test
-	public void build_containsAllDefaultValidators() throws URISyntaxException {
-		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(getConfigBuilder().build()).build()
+	public void build_containsAllDefaultValidators() {
+		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(xsuaaConfigBuilder.build()).build()
 				.getValidators();
 
 		assertThat(validators)
@@ -63,7 +64,7 @@ public class JwtValidatorBuilderTest {
 	@Test
 	public void buildLegacy_containsAllDefaultValidators() {
 		List<Validator<Token>> validators = JwtValidatorBuilder
-				.getInstance(getConfigBuilder().runInLegacyMode(true).build())
+				.getInstance(xsuaaConfigBuilder.runInLegacyMode(true).build())
 				.build()
 				.getValidators();
 
@@ -73,10 +74,10 @@ public class JwtValidatorBuilderTest {
 	}
 
 	@Test
-	public void buildWithAnotherValidator_containsAddedValidator() throws URISyntaxException {
+	public void buildWithAnotherValidator_containsAddedValidator() {
 		TokenTestValidator tokenValidator = TokenTestValidator.createValid();
 
-		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(getConfigBuilder().build())
+		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(xsuaaConfigBuilder.build())
 				.with(tokenValidator)
 				.build()
 				.getValidators();
@@ -84,14 +85,6 @@ public class JwtValidatorBuilderTest {
 		assertThat(validators)
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
 				.contains(tokenValidator);
-	}
-
-	private OAuth2ServiceConfigurationBuilder getConfigBuilder() {
-		return OAuth2ServiceConfigurationBuilder
-				.forService(Service.XSUAA)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "auth.com")
-				.withProperty(CFConstants.XSUAA.APP_ID, "test-app!t123")
-				.withClientId("sb-test-app!t123");
 	}
 
 }

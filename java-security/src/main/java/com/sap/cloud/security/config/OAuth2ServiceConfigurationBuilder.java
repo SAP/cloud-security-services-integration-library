@@ -1,5 +1,7 @@
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.xsuaa.Assertions;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +29,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * @return this builder
 	 */
 	public static OAuth2ServiceConfigurationBuilder forService(Service service) {
+		Assertions.assertNotNull(service, "Service must not be null!");
 		OAuth2ServiceConfigurationBuilder instance = new OAuth2ServiceConfigurationBuilder();
 		instance.service = service;
 		return instance;
@@ -121,6 +124,14 @@ public class OAuth2ServiceConfigurationBuilder {
 			@Override
 			public Service getService() {
 				return service;
+			}
+
+			@Override
+			public String getDomain() {
+				if (service.equals(Service.XSUAA) && properties.containsKey(XSUAA.UAA_DOMAIN)) {
+					return properties.get(XSUAA.UAA_DOMAIN);
+				}
+				return null;
 			}
 
 			@Override

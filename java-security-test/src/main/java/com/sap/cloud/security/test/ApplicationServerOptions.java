@@ -37,7 +37,7 @@ public class ApplicationServerOptions {
 	 * @return the application server options.
 	 */
 	public static ApplicationServerOptions forXsuaaService(String appId, String clientId) {
-		Assertions.assertHasText(appId, "xsappname is required by the XsuaaAudienceValidator");
+		Assertions.assertHasText(appId, "appId is required by the XsuaaAudienceValidator");
 		Assertions.assertHasText(clientId, "clientId is required by the XsuaaAudienceValidator");
 		return new ApplicationServerOptions(
 				new XsuaaTokenAuthenticator()

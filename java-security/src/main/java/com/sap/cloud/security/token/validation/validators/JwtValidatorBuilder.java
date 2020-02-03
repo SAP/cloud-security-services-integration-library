@@ -80,7 +80,7 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OAuth2TokenKeyServiceWithCache#getInstance()}.
+	 * {@link OAuth2TokenKeyServiceWithCache} instance.
 	 *
 	 * @param tokenKeyService
 	 *            your token key service
@@ -93,7 +93,7 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OidcConfigurationServiceWithCache#getInstance()}.
+	 * {@link OidcConfigurationServiceWithCache} instance.
 	 *
 	 * @param oidcConfigurationService
 	 *            your token key service
@@ -168,10 +168,10 @@ public class JwtValidatorBuilder {
 		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
 		defaultValidators.add(signatureValidator);
 
+		if (customAudienceValidator == null) {
+			defaultValidators.add(createXsuaaAudienceValidator());
+		}
 		if (configuration.getService() == XSUAA) {
-			if (customAudienceValidator == null) {
-				defaultValidators.add(createXsuaaAudienceValidator());
-			}
 			if (!configuration.isLegacyMode()) {
 				defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
 			}

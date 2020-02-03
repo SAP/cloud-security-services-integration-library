@@ -9,7 +9,7 @@ applications:
   routes:
     - route: java-security-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
   host: 
-  path: target/java-main-sample.jar
+  path: target/java-security-usage.jar
   buildpacks:
     - java_buildpack
   services:

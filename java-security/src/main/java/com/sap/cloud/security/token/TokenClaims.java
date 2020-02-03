@@ -37,6 +37,6 @@ public final class TokenClaims {
 		public static final String USER_NAME = "user_name";
 		public static final String GIVEN_NAME = "first_name";
 		public static final String FAMILY_NAME = "last_name";
-		public static final String EMAIL = "mail";
+		public static final String EMAIL = "email";
 	}
 }

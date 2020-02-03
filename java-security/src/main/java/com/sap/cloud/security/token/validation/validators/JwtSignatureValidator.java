@@ -83,7 +83,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 					jwksUri,
 					fallbackPublicKey);
 		} catch (OAuth2ServiceException | IllegalArgumentException e) {
-			return createInvalid("Error occurred during jwks uri determination: {}.", e.getMessage());
+			return createInvalid("Error occurred during jwks uri determination: {}", e.getMessage());
 		}
 	}
 

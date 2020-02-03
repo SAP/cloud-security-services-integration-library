@@ -7,6 +7,7 @@ import java.net.URI;
 
 import static com.sap.cloud.security.config.cf.CFConstants.URL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class OAuth2ServiceConfigurationBuilderTest {
 
@@ -22,6 +23,13 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		OAuth2ServiceConfiguration configuration = cut.build();
 
 		assertThat(configuration.getService()).isEqualTo(Service.XSUAA);
+	}
+
+	@Test
+	public void forService_serviceNull_throwsException() {
+		assertThatThrownBy(() -> OAuth2ServiceConfigurationBuilder.forService(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("must not be null");
 	}
 
 	@Test

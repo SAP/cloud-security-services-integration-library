@@ -4,7 +4,7 @@ package com.sap.cloud.security.config;
  * Represents a supported identity service.
  */
 public enum Service {
-	XSUAA("xsuaa"), IAS("iasb");
+	XSUAA("xsuaa"), IAS("identity-beta");
 
 	private final String cloudFoundryName;
 

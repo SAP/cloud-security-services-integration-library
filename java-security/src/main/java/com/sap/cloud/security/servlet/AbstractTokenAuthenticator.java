@@ -109,6 +109,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	private TokenAuthenticationResult unauthenticated(HttpServletResponse httpResponse, String message) {
+		logger.warn("Request could not be authenticated: {}.", message);
 		try {
 			httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, message);
 		} catch (IOException e) {

@@ -112,9 +112,11 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	@Override
 	public OAuth2Authentication loadAuthentication(@Nonnull String accessToken)
 			throws AuthenticationException, InvalidTokenException {
-		XsuaaToken token = checkAndCreateToken(accessToken);
+		Token token = checkAndCreateToken(accessToken);
 
-		List<String> scopes = token.getScopes();
+		List<String> scopes = token instanceof AccessToken
+				? ((AccessToken) token).getScopes()
+				: Collections.EMPTY_LIST;
 		if (useLocalScopeAsAuthorities) {
 			scopes = xsuaaScopeConverter.convert(scopes);
 		}
@@ -157,9 +159,15 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		return this;
 	}
 
-	private XsuaaToken checkAndCreateToken(@Nonnull String accessToken) {
+	private Token checkAndCreateToken(@Nonnull String accessToken) {
 		try {
-			return new XsuaaToken(accessToken).withScopeConverter(xsuaaScopeConverter);
+			switch (serviceConfiguration.getService()) {
+				case XSUAA:
+					return new XsuaaToken(accessToken).withScopeConverter(xsuaaScopeConverter);
+				default:
+					throw new InvalidTokenException(
+							"AccessToken of service " + serviceConfiguration.getService() + " is not supported.");
+			}
 		} catch (Exception e) {
 			throw new InvalidTokenException(e.getMessage());
 		}

@@ -16,7 +16,6 @@ import java.util.Map;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
-import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -37,19 +36,19 @@ public class IntegrationTest {
 
 	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
 
-	CloseableHttpClient mockHttpClient;
+	CloseableHttpClient httpClientMock;
 
 	@Before
 	public void setup() throws IOException {
-		mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+		httpClientMock = Mockito.mock(CloseableHttpClient.class);
 
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
-		when(mockHttpClient.execute(any(HttpGet.class))).thenReturn(response);
+		when(httpClientMock.execute(any(HttpGet.class))).thenReturn(response);
 	}
 
 	@Test
-	public void validationFails_withXsuaaCombiningValidator() throws URISyntaxException, IOException {
+	public void validationFails_withXsuaaCombiningValidator() throws IOException {
 		String vcapServices = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
 		JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName())
 				.get(0);
@@ -60,7 +59,7 @@ public class IntegrationTest {
 				.build();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
-				.withHttpClient(mockHttpClient)
+				.withHttpClient(httpClientMock)
 				.build();
 
 		Token xsuaaToken = spy(new XsuaaToken(
@@ -85,7 +84,7 @@ public class IntegrationTest {
 				.build();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
-				.withHttpClient(mockHttpClient)
+				.withHttpClient(httpClientMock)
 				.build();
 
 		XsuaaToken xsaToken = spy(new XsuaaToken(
