@@ -121,8 +121,10 @@ public abstract class AbstractToken implements Token {
 		return new Principal() {
 			@Override
 			public boolean equals(Object o) {
-				if (this == o) return true;
-				if (!(o instanceof Principal)) return false;
+				if (this == o)
+					return true;
+				if (!(o instanceof Principal))
+					return false;
 				Principal that = (Principal) o;
 				return getName().equals(that.getName());
 			}
@@ -147,8 +149,10 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof AbstractToken)) return false;
+		if (this == o)
+			return true;
+		if (!(o instanceof AbstractToken))
+			return false;
 		AbstractToken that = (AbstractToken) o;
 		return getAccessToken().equals(that.getAccessToken());
 	}

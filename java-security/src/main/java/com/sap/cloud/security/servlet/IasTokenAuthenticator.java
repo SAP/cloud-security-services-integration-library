@@ -15,7 +15,7 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	@Override
 	protected OAuth2ServiceConfiguration getServiceConfiguration() {
-		return serviceConfiguration != null ? serviceConfiguration :
-				((CFEnvironment)Environments.getCurrent()).getIasConfiguration();
+		return serviceConfiguration != null ? serviceConfiguration
+				: ((CFEnvironment) Environments.getCurrent()).getIasConfiguration();
 	}
 }

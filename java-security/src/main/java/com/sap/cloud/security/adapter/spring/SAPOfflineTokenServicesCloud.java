@@ -162,11 +162,11 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	private Token checkAndCreateToken(@Nonnull String accessToken) {
 		try {
 			switch (serviceConfiguration.getService()) {
-				case XSUAA:
-					return new XsuaaToken(accessToken).withScopeConverter(xsuaaScopeConverter);
-				default:
-					throw new InvalidTokenException(
-							"AccessToken of service " + serviceConfiguration.getService() + " is not supported.");
+			case XSUAA:
+				return new XsuaaToken(accessToken).withScopeConverter(xsuaaScopeConverter);
+			default:
+				throw new InvalidTokenException(
+						"AccessToken of service " + serviceConfiguration.getService() + " is not supported.");
 			}
 		} catch (Exception e) {
 			throw new InvalidTokenException(e.getMessage());

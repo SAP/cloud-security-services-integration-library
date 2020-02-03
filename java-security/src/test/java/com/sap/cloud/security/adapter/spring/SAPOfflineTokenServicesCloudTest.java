@@ -103,7 +103,7 @@ public class SAPOfflineTokenServicesCloudTest {
 
 	@Test
 	public void createInstanceWithEmptyConfiguration_throwsException() {
-		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class));			cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class));
+		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class));
 		assertThatThrownBy(() -> cut.afterPropertiesSet()).isInstanceOf(IllegalArgumentException.class);
 	}
 
