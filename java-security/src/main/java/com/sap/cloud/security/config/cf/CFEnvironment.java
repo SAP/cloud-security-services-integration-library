@@ -79,7 +79,6 @@ public class CFEnvironment implements Environment {
 	 *             necessary with the unified broker plan, this method is
 	 *             deprecated.
 	 */
-	@Deprecated
 	List<OAuth2ServiceConfiguration> loadAllForService(Service service) {
 		return serviceConfigurations.getOrDefault(service, Collections.emptyList());
 	}

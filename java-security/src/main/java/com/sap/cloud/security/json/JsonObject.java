@@ -1,4 +1,3 @@
-
 package com.sap.cloud.security.json;
 
 import javax.annotation.Nullable;
