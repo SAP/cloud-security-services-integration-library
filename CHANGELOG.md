@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.4.3-SNAPSHOT
+- [java-security] Supports Validation for SAP ID Tokens - incompatible changes for some `TokenClaims.XSUAA` constants: `EMAIL`, `USER_NAME`, `FAMILY_NAME`, `GIVEN_NAME`
+- [java-security] XSUserInfoAdapter supports isInForeignMode.
+
 ## 2.4.2-SNAPSHOT
 - [java-security] XSA Support.
 
