@@ -6,6 +6,8 @@ import javax.annotation.Nonnull;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 
@@ -24,7 +26,7 @@ public class OAuth2ServiceConfigurationBuilder {
 
 	/**
 	 * Creates a builder for a dedicated identity ({@link Service})
-	 * 
+	 *
 	 * @param service
 	 *            the service
 	 * @return this builder
@@ -84,6 +86,9 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	public OAuth2ServiceConfigurationBuilder runInLegacyMode(boolean isLegacyMode) {
+		if (isLegacyMode && !service.equals(Service.XSUAA)) {
+			throw new UnsupportedOperationException("Legacy Mode is not supported for Service " + service);
+		}
 		this.runInLegacyMode = isLegacyMode;
 		return this;
 	}
@@ -91,11 +96,13 @@ public class OAuth2ServiceConfigurationBuilder {
 	/**
 	 * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) based on
 	 * the properties applied.
-	 * 
+	 *
 	 * @return the oauth2 service configuration.
 	 */
 	public OAuth2ServiceConfiguration build() {
 		return new OAuth2ServiceConfiguration() {
+
+			private final Pattern DOMAIN_PATTERN = Pattern.compile("[\\w-]+\\.(.+)");
 
 			@Override
 			public String getClientId() {
@@ -131,6 +138,21 @@ public class OAuth2ServiceConfigurationBuilder {
 			public String getDomain() {
 				if (service.equals(Service.XSUAA) && properties.containsKey(XSUAA.UAA_DOMAIN)) {
 					return properties.get(XSUAA.UAA_DOMAIN);
+				} else if (properties.containsKey(URL)) {
+					return extractDomain(properties.get(URL));
+				}
+				return null;
+			}
+
+			private String extractDomain(String url) {
+				String host = URI.create(url).getHost();
+
+				if (host.equals("localhost")) {
+					return "localhost";
+				}
+				Matcher matcher = DOMAIN_PATTERN.matcher(host);
+				if (matcher.matches()) {
+					return matcher.group(matcher.groupCount());
 				}
 				return null;
 			}
