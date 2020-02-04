@@ -6,12 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import static com.sap.cloud.security.token.TokenClaims.ISSUER;
-import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
-import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
