@@ -33,13 +33,12 @@ public class IasTokenTest {
 	}
 
 	@Test
-	@Ignore
-	// TODO IAS: need real token with test data
+	// TODO IAS: should return SAP User ID (guid)
 	public void getPrincipal() {
-		Principal principal = cut.getPrincipal();
-
-		assertThat(principal).isNotNull();
-		assertThat(principal.getName()).isEqualTo("TODO");
+		assertThatThrownBy(() -> {
+			cut.getPrincipal();
+		}).isInstanceOf(UnsupportedOperationException.class)
+				.hasMessageContaining("getPrincipal() is not yet supported for tokens of service IAS.");
 	}
 
 	@Test
