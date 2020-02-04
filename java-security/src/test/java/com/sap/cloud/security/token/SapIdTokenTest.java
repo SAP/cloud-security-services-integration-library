@@ -2,32 +2,30 @@ package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class IasTokenTest {
+public class SapIdTokenTest {
 
-	private IasToken cut;
+	private SapIdToken cut;
 
-	public IasTokenTest() throws IOException {
-		cut = new IasToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
+	public SapIdTokenTest() throws IOException {
+		cut = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
 	}
 
 	@Test
 	public void constructor_raiseIllegalArgumentExceptions() {
 		assertThatThrownBy(() -> {
-			new IasToken("");
+			new SapIdToken("");
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("accessToken must not be null / empty");
 
 		assertThatThrownBy(() -> {
-			new IasToken("abc");
+			new SapIdToken("abc");
 		}).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");
 	}
@@ -43,7 +41,10 @@ public class IasTokenTest {
 
 	@Test
 	public void getGrantType() {
-		assertThat(cut.getGrantType()).isEqualTo(GrantType.JWT_BEARER);
+		assertThatThrownBy(() -> {
+			cut.getGrantType();
+		}).isInstanceOf(UnsupportedOperationException.class)
+				.hasMessageContaining("getGrantType() is not supported for SAP ID tokens of service IAS.");
 	}
 
 	@Test

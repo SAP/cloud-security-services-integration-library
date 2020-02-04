@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import java.security.Principal;
 import java.util.List;
 
+import static com.sap.cloud.security.token.TokenClaims.USER_NAME;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**

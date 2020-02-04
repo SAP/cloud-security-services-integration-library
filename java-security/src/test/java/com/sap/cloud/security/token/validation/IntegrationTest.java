@@ -14,7 +14,7 @@ import java.util.Map;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
-import com.sap.cloud.security.token.IasToken;
+import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -116,7 +116,7 @@ public class IntegrationTest {
 				.withHttpClient(httpClientMock)
 				.build();
 
-		IasToken iasToken = new IasToken(
+		SapIdToken iasToken = new SapIdToken(
 				IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
 
 		ValidationResult result = tokenValidator.validate(iasToken);

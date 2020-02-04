@@ -117,10 +117,10 @@ public class JwtGeneratorTest {
 		String email = "john.doe@mail.de";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.XSUAA.EMAIL, email)
+				.withClaimValue(TokenClaims.EMAIL, email)
 				.createToken();
 
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.EMAIL)).isEqualTo(email);
+		assertThat(token.getClaimAsString(TokenClaims.EMAIL)).isEqualTo(email);
 	}
 
 	@Test

@@ -6,7 +6,7 @@ import static com.sap.cloud.security.token.TokenHeader.ALGORITHM;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
-import com.sap.cloud.security.token.IasToken;
+import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
@@ -216,7 +216,7 @@ public class JwtGenerator {
 
 		switch (service) {
 		case IAS:
-			return new IasToken(token);
+			return new SapIdToken(token);
 		case XSUAA:
 			return new XsuaaToken(token);
 		default:

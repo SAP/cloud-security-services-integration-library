@@ -13,14 +13,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IasToken extends AbstractToken {
-	static final Logger LOGGER = LoggerFactory.getLogger(IasToken.class);
+/**
+ * You can get further token claims from here: {@link TokenClaims.SAP_ID}.
+ */
+public class SapIdToken extends AbstractToken {
+	static final Logger LOGGER = LoggerFactory.getLogger(SapIdToken.class);
 
-	public IasToken(@Nonnull DecodedJwt decodedJwt) {
+	public SapIdToken(@Nonnull DecodedJwt decodedJwt) {
 		super(decodedJwt);
 	}
 
-	public IasToken(@Nonnull String accessToken) {
+	public SapIdToken(@Nonnull String accessToken) {
 		super(accessToken);
 	}
 
@@ -37,7 +40,7 @@ public class IasToken extends AbstractToken {
 
 	@Override
 	public GrantType getGrantType() {
-		return GrantType.JWT_BEARER;
+		throw new UnsupportedOperationException("getGrantType() is not supported for SAP ID tokens of service " + getService() + ".");
 	}
 
 	@Override
