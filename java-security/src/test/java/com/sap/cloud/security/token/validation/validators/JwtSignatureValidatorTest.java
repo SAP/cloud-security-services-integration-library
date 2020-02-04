@@ -1,7 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.token.IasToken;
+import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -37,7 +37,7 @@ public class JwtSignatureValidatorTest {
 	@Before
 	public void setup() throws IOException {
 		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
-		iasToken = new IasToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
+		iasToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 
 		xsuaaTokenSignedWithVerificationKey = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));

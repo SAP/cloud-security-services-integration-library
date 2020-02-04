@@ -19,6 +19,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	private Service service;
 	private boolean runInLegacyMode;
 	private final Map<String, String> properties = new HashMap<>();
+	private static final String LOCALHOST = "localhost";
 
 	private OAuth2ServiceConfigurationBuilder() {
 		// use forService factory method
@@ -147,8 +148,8 @@ public class OAuth2ServiceConfigurationBuilder {
 			private String extractDomain(String url) {
 				String host = URI.create(url).getHost();
 
-				if (host.equals("localhost")) {
-					return "localhost";
+				if (LOCALHOST.equals(host)) {
+					return LOCALHOST;
 				}
 				Matcher matcher = DOMAIN_PATTERN.matcher(host);
 				if (matcher.matches()) {

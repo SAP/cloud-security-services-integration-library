@@ -2,14 +2,14 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.token.IasToken;
+import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 
 public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	@Override
 	public Token extractFromHeader(String authorizationHeader) {
-		return new IasToken(authorizationHeader);
+		return new SapIdToken(authorizationHeader);
 	}
 
 	@Override

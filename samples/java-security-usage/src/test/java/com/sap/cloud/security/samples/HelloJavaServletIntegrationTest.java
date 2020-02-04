@@ -2,11 +2,13 @@ package com.sap.cloud.security.samples;
 
 import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.token.SecurityContext;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.junit.*;
 
 import java.io.IOException;
@@ -61,11 +63,14 @@ public class HelloJavaServletIntegrationTest {
 		String jwt = rule.getPreconfiguredJwtGenerator()
 				.withClaimValue(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS)
 				.withScopes(getGlobalScope("Read"))
+				.withClaimValue(TokenClaims.EMAIL, "tester@mail.com")
 				.createToken()
 				.getBearerAccessToken();
 		HttpGet request = createGetRequest(jwt);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK); // 200
+			assertThat(EntityUtils.toString(response.getEntity(), "UTF-8"))
+					.isEqualTo("You ('tester@mail.com') can access the application with the following scopes: '[xsapp!t0815.Read]'.");
 		}
 	}
 

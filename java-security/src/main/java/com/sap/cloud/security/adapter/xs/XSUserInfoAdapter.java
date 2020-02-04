@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
+import static com.sap.cloud.security.token.TokenClaims.*;
 
 public class XSUserInfoAdapter implements XSUserInfo {
 

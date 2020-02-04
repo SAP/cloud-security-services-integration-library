@@ -164,7 +164,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			case XSUAA:
 				return new XsuaaToken(accessToken).withScopeConverter(xsuaaScopeConverter);
 			case IAS:
-				return new IasToken(accessToken);
+				return new SapIdToken(accessToken);
 			default:
 				throw new InvalidTokenException(
 						"AccessToken of service " + serviceConfiguration.getService() + " is not supported.");

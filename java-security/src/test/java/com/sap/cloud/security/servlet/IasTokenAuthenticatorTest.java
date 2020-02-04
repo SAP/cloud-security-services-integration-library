@@ -4,7 +4,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.token.IasToken;
+import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.util.HttpClientTestFactory;
@@ -31,12 +31,12 @@ public class IasTokenAuthenticatorTest {
 
 	private final static HttpServletResponse HTTP_RESPONSE = Mockito.mock(HttpServletResponse.class);
 
-	private IasToken token;
+	private SapIdToken token;
 
 	private AbstractTokenAuthenticator cut;
 
 	public IasTokenAuthenticatorTest() throws IOException {
-		token = new IasToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
+		token = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 	}
 
 	@Before

@@ -58,7 +58,7 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getUserPrincipal() {
-		assertThat(userToken.getClaimAsString(TokenClaims.XSUAA.USER_NAME)).isEqualTo("testUser");
+		assertThat(userToken.getClaimAsString(TokenClaims.USER_NAME)).isEqualTo("testUser");
 		assertThat(userToken.getClaimAsString(TokenClaims.XSUAA.ORIGIN)).isEqualTo("userIdp");
 		assertThat(userToken.getPrincipal()).isNotNull();
 		assertThat(userToken.getPrincipal().getName()).isEqualTo("user/userIdp/testUser");

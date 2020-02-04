@@ -6,7 +6,7 @@ import static com.sap.cloud.security.token.TokenHeader.ALGORITHM;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
-import com.sap.cloud.security.token.IasToken;
+import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
@@ -33,7 +33,7 @@ public class JwtGenerator {
 
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
-	private final List<String> unsupportedClaims = Arrays.asList(new String[] { AUDIENCE });
+	private final List<String> unsupportedClaims = Arrays.asList(AUDIENCE);
 	private SignatureCalculator signatureCalculator;
 	private Service service;
 
@@ -199,9 +199,6 @@ public class JwtGenerator {
 		if (privateKey == null) {
 			throw new IllegalStateException("Private key was not set!");
 		}
-		if (privateKey == null) {
-			throw new IllegalStateException("Private key was not set!");
-		}
 		withHeaderParameter(ALGORITHM, signatureAlgorithm.value());
 		if (service == Service.IAS) {
 			jsonPayload.put(AUDIENCE, jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID));
@@ -216,7 +213,7 @@ public class JwtGenerator {
 
 		switch (service) {
 		case IAS:
-			return new IasToken(token);
+			return new SapIdToken(token);
 		case XSUAA:
 			return new XsuaaToken(token);
 		default:

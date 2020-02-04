@@ -31,7 +31,7 @@ public class HelloJavaServlet extends HttpServlet {
 		try {
 			StringBuilder message = new StringBuilder();
 			message.append("You ('");
-			message.append(token.getClaimAsString(TokenClaims.XSUAA.EMAIL));
+			message.append(token.getClaimAsString(TokenClaims.EMAIL));
 			message.append("') can access the application with the following scopes: '");
 			message.append(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
 			message.append("'.");

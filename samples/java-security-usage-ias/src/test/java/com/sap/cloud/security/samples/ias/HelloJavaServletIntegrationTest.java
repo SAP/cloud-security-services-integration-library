@@ -50,7 +50,7 @@ public class HelloJavaServletIntegrationTest {
 	@Test
 	public void request_withValidToken() throws IOException {
 		Token token = rule.getPreconfiguredJwtGenerator()
-				.withClaimValue(TokenClaims.IAS.EMAIL, "john.doe@email.com")
+				.withClaimValue(TokenClaims.EMAIL, "john.doe@email.com")
 				.createToken();
 		HttpGet request = createGetRequest(token.getBearerAccessToken());
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
