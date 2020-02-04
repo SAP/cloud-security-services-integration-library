@@ -125,7 +125,7 @@ SecurityContext.setToken(token);
 ```java
 Token token = SecurityContext.getToken();
 
-String email = token.getClaimAsString(TokenClaims.XSUAA.EMAIL);
+String email = token.getClaimAsString(TokenClaims.EMAIL);
 List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 java.security.Principal principal = token.getPrincipal();
 Instant expiredAt = token.getExpiration();
