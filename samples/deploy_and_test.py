@@ -4,13 +4,25 @@ import urllib.request
 import urllib.parse
 import json
 import unittest
+import logging
+import sys
+import os
+from getpass import getpass
 
 cf_api = 'https://api.cf.sap.hana.ondemand.com/v3'
 xsuaa_api = 'https://saschatest01.authentication.sap.hana.ondemand.com'
 xsuaa_api_2 = 'https://api.authentication.sap.hana.ondemand.com'
 
-username = ''
-password = ''
+username = os.getenv("CFUSER")
+password = os.getenv("CFPASSWORD")
+
+if (username is None):
+    print('Type username: ')
+    username = sys.stdin.readline()
+if (password is None):
+    password = getpass()
+
+logging.basicConfig(level=logging.INFO)
 
 
 class HttpUtil:
@@ -18,6 +30,7 @@ class HttpUtil:
     class HttpResponse:
         def __init__(self, response):
             self.response = response
+            logging.info(self)
 
         def status(self):
             return self.response.status
@@ -25,13 +38,18 @@ class HttpUtil:
         def body(self):
             return self.response.read().decode()
 
+        def __str__(self):
+            return "HTTP response status: " + str(self.response.status)
+
     def get_request(self, url, access_token=None, additional_headers={}):
+        logging.info('Performing get request to ' + url)
         req = urllib.request.Request(url, method='GET')
         self.__add_headers(req, access_token, additional_headers)
         res = urllib.request.urlopen(req)
         return HttpUtil.HttpResponse(res)
 
     def post_request(self, url, data=None, access_token=None, additional_headers={}):
+        logging.info('Performing post request to ' + url)
         req = urllib.request.Request(url, data=data, method='POST')
         self.__add_headers(req, access_token, additional_headers)
         res = urllib.request.urlopen(req)
@@ -45,7 +63,6 @@ class HttpUtil:
 
 
 def get_access_token(clientid, clientsecret, grant_type, username=None, password=None):
-
     post_req_body = urllib.parse.urlencode({'client_id': clientid,
                                             'client_secret': clientsecret,
                                             'grant_type': grant_type,
@@ -53,7 +70,6 @@ def get_access_token(clientid, clientsecret, grant_type, username=None, password
                                             'username': username,
                                             'password': password}).encode()
     url = xsuaa_api + '/oauth/token'
-
     resp = HttpUtil().post_request(url, data=post_req_body)
     return json.loads(resp.body()).get("access_token")
 
@@ -69,6 +85,7 @@ class ApiAccessServiceKey:
         service_key_output = subprocess.run(
             ['cf', 'service-key', name, self.service_key_name], capture_output=True)
         lines = service_key_output.stdout.decode().split('\n')
+        logging.info(lines)
         self.data = json.loads("".join(lines[1:]))
 
     def delete(self):
@@ -114,7 +131,7 @@ class CFUtil:
 
     def app_by_name(self, app_name):
         for app in self.apps:
-            if (app.get("name") == app_name):
+            if (app is not None and app.get("name") == app_name):
                 vcap_services = self.__vcap_services_by_guid(app.get('guid'))
                 return DeployedApp(vcap_services)
 
@@ -232,6 +249,7 @@ class TestJavaSecurity(unittest.TestCase):
     def test_endpoint(self):
         for endpoint in TestJavaSecurity.app.endpoints:
             for role in endpoint.required_roles:
+                print('Adding user to role: ', role)
                 TestJavaSecurity.apiAccess.add_user_to_group(
                     TestJavaSecurity.user_id, role)
             user_access_token = get_access_token(
@@ -239,6 +257,7 @@ class TestJavaSecurity(unittest.TestCase):
             url = 'https://{}-{}.cfapps.sap.hana.ondemand.com/{}'.format(
                 apps[0].name, 'C5295400', endpoint.path)
             body = HttpUtil().get_request(url, access_token=user_access_token).body()
+            logging.info(body)
             self.assertEqual(
                 body, "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(username))
 
