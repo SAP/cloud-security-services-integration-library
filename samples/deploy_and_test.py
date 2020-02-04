@@ -24,34 +24,37 @@ logging.basicConfig(level=logging.INFO)
 
 
 class TestJavaSecurity(unittest.TestCase):
-
     def setUp(self):
         self.app = CFApp(name='java-security-usage',
-                    xsuaa_service_name='xsuaa-java-security')
+                         xsuaa_service_name='xsuaa-java-security')
         self.sampleTestHelper = SampleTestHelper(self.app)
         self.sampleTestHelper.setUp()
 
-   def tearDown(self):
-       self.sampleTestHelper.tearDown()
+    def tearDown(self):
+        self.sampleTestHelper.tearDown()
 
     def test_hello_java_security(self):
         required_role = 'JAVA_SECURITY_SAMPLE_Viewer'
 
         logging.info('Adding user to role: ' + required_role)
-        self.sampleTestHelper.api_access().add_user_to_group(self.sampleTestHelper.user_guid, required_role)
+        self.sampleTestHelper.api_access().add_user_to_group(
+            self.sampleTestHelper.user_guid, required_role)
 
         url = 'https://{}-{}.{}/hello-java-security'.format(
             self.app.name,
-            self.sampleTestHelper.vars_parser.get_user_id(), 
+            self.sampleTestHelper.vars_parser.get_user_id(),
             self.sampleTestHelper.vars_parser.get_landscape_apps_domain())
-        
-        logging.info(url)    
 
-        actual_response = HttpUtil().get_request(url, access_token=self.sampleTestHelper.get_user_access_token()).body()
+        logging.info(url)
+
+        actual_response = HttpUtil().get_request(
+            url, access_token=self.sampleTestHelper.get_user_access_token()).body()
         logging.info(actual_response)
-        expected_response = "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(username)
+        expected_response = "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(
+            username)
         self.assertEqual(actual_response, expected_response)
         self.sampleTestHelper.tearDown()
+
 
 class SampleTestHelper:
 
@@ -204,9 +207,9 @@ class ApiAccessService:
 
     def __get_access_token(self):
         return self.http_util.get_access_token(
-            xsuaa_service_url=self.xsuaa_service_url, 
-            clientid=self.__get_clientid(), 
-            clientsecret=self.__get_clientcredentials(), 
+            xsuaa_service_url=self.xsuaa_service_url,
+            clientid=self.__get_clientid(),
+            clientsecret=self.__get_clientcredentials(),
             grant_type='client_credentials')
 
     def __get_clientid(self):
