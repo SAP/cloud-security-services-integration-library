@@ -135,7 +135,7 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 
 Token token = SecurityContext.getToken();
-String logonName = token.getClaimAsString(TokenClaims.XSUAA.USER_NAME);		
+String logonName = token.getClaimAsString(TokenClaims.USER_NAME);		
 ```
 
 > Note, that no `XSUserInfoException` is raised, in case the accessToken does not contain the requested claim.
