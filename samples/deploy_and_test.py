@@ -7,13 +7,12 @@ import unittest
 import logging
 import sys
 import os
+import time
 import re
 from getpass import getpass
 
 username = os.getenv('CFUSER')
 password = os.getenv('CFPASSWORD')
-# can be obtained from vars.yml
-landscape_apps_domain = 'cfapps.sap.hana.ondemand.com'
 
 if (username is None):
     print('Username: ')
@@ -28,39 +27,68 @@ class TestJavaSecurity(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cf_util = CFUtil()
-        cls.cf_api_endpoint = cf_util.cf_api_endpoint
-        cls.user_id = cf_util.user_id
         cls.app = CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security',
                         endpoints=[Endpoint(path='hello-java-security', required_roles=['JAVA_SECURITY_SAMPLE_Viewer'])])
-        cls.app.deploy()
-        app = cf_util.app_by_name(cls.app.name)
-        cls.xsuaa_api_url = app.get_credentials_property('apiurl')
-        cls.xsuaa_service_url = app.get_credentials_property('url')
-        cls.clientid = app.get_credentials_property('clientid')
-        cls.clientsecret = app.get_credentials_property('clientsecret')
-        cls.apiAccess = ApiAccessService(xsuaa_service_url=cls.xsuaa_service_url, xsuaa_api_url=cls.xsuaa_api_url)
-        cls.user_guid = cls.apiAccess.get_user_by_username(username).get('id')
+        cls.sampleTestHelper = SampleTestHelper(cls.app)
+        cls.sampleTestHelper.setUp()
 
     @classmethod
     def tearDownClass(cls):
-        cls.app.delete()
-        cls.apiAccess.delete()
+        cls.sampleTestHelper.tearDown()
 
-    def test_endpoint(self):
+    def test_hello_java_security(self):
+        sampleTest = TestJavaSecurity.sampleTestHelper
         for endpoint in TestJavaSecurity.app.endpoints:
             for role in endpoint.required_roles:
                 print('Adding user to role: ', role)
-                TestJavaSecurity.apiAccess.add_user_to_group(
-                    TestJavaSecurity.user_guid, role)
-            user_access_token = HttpUtil().get_access_token(TestJavaSecurity.xsuaa_service_url,
-                TestJavaSecurity.clientid, TestJavaSecurity.clientsecret, 'password', username=username, password=password)
+                sampleTest.api_access().add_user_to_group(
+                    sampleTest.user_guid, role)
+            user_access_token = HttpUtil().get_access_token(sampleTest.deployed_app().get_xsuaa_service_url(),
+                                                            sampleTest.deployed_app().get_clientid(),
+                                                            sampleTest.deployed_app().get_clientsecret(),
+                                                            'password', username=username, password=password)
             url = 'https://{}-{}.{}/{}'.format(
-                TestJavaSecurity.app.name, TestJavaSecurity.user_id, landscape_apps_domain, endpoint.path)
+                TestJavaSecurity.app.name, sampleTest.vars_parser.get_id(), sampleTest.vars_parser.get_landscape_apps_domain(), endpoint.path)
             body = HttpUtil().get_request(url, access_token=user_access_token).body()
             logging.info(body)
             self.assertEqual(
                 body, "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(username))
+
+
+class SampleTestHelper:
+
+    def __init__(self, app_to_test):
+        self.cf_util = CFUtil()
+        self.user_id = self.cf_util.user_id
+        self.app_to_test = app_to_test
+        self.__deployed_app = None
+        self.__api_access = None
+        self.vars_parser = VarsParser('./vars.yml')
+
+    def setUp(self):
+        self.app_to_test.deploy()
+
+    def tearDown(self):
+        self.app_to_test.delete()
+        self.__api_access.delete()
+
+    def api_access(self):
+        if (self.__api_access is None):
+            app = self.deployed_app()
+            self.__api_access = ApiAccessService(
+                xsuaa_service_url=app.get_xsuaa_service_url(), xsuaa_api_url=app.get_xsuaa_api_url())
+            self.user_guid = self.__api_access.get_user_by_username(
+                username).get('id')
+        return self.__api_access
+
+    def deployed_app(self):
+        if (self.__deployed_app is None):
+            time.sleep(2)  # waiting for deployed apps to show
+            deployed_app = self.cf_util.app_by_name(self.app_to_test.name)
+            if (deployed_app is None):
+                raise(Exception('Could not find app: ' + self.app_to_test.name))
+            self.__deployed_app = deployed_app
+        return self.__deployed_app
 
 
 class HttpUtil:
@@ -102,15 +130,14 @@ class HttpUtil:
 
     def get_access_token(self, xsuaa_service_url, clientid, clientsecret, grant_type, username=None, password=None):
         post_req_body = urllib.parse.urlencode({'client_id': clientid,
-                                            'client_secret': clientsecret,
-                                            'grant_type': grant_type,
-                                            'response_type': 'token',
-                                            'username': username,
-                                            'password': password}).encode()
+                                                'client_secret': clientsecret,
+                                                'grant_type': grant_type,
+                                                'response_type': 'token',
+                                                'username': username,
+                                                'password': password}).encode()
         url = xsuaa_service_url + '/oauth/token'
         resp = HttpUtil().post_request(url, data=post_req_body)
         return json.loads(resp.body()).get('access_token')
-
 
     def __add_headers(self, req, access_token, additional_headers):
         if (access_token is not None):
@@ -124,6 +151,7 @@ class HttpUtil:
             return HttpUtil.HttpResponse(res)
         except urllib.error.HTTPError as error:
             return HttpUtil.HttpResponse.error(error)
+
 
 class ApiAccessService:
 
@@ -148,7 +176,8 @@ class ApiAccessService:
 
     def get_user_by_username(self, username):
         url = '{}/Users'.format(self.xsuaa_api_url)
-        res = self.http_util.get_request(url, access_token=self.__get_access_token())
+        res = self.http_util.get_request(
+            url, access_token=self.__get_access_token())
         users = json.loads(res.body()).get('resources')
         for user in users:
             if (user.get('userName') == username):
@@ -159,8 +188,8 @@ class ApiAccessService:
             {'value': user_id, 'origin': 'ldap', 'type': 'USER'}).encode()
         url = '{}/Groups/{}/members'.format(self.xsuaa_api_url, group_id)
         return self.http_util.post_request(url, data=post_req_body,
-                                       access_token=self.__get_access_token(),
-                                       additional_headers={'Content-Type': 'application/json'})
+                                           access_token=self.__get_access_token(),
+                                           additional_headers={'Content-Type': 'application/json'})
 
     def __get_access_token(self):
         return self.http_util.get_access_token(self.xsuaa_service_url, self.__get_clientid(), self.__get_clientcredentials(), 'client_credentials')
@@ -206,11 +235,44 @@ class CFUtil:
         return env.get('system_env_json').get('VCAP_SERVICES')
 
     def __parse_target_output(self, target_output):
-        api_endpoint_match = re.search('api endpoint:(.*)', target_output)
-        user_id_match = re.search('user:(.*)', target_output)
+        api_endpoint_match = re.search(r'api endpoint:(.*)', target_output)
+        user_id_match = re.search(r'user:(.*)', target_output)
         api_endpoint = api_endpoint_match.group(1)
         user_id = user_id_match.group(1)
         return [api_endpoint.strip() + '/v3', user_id.strip()]
+
+
+class VarsParser:
+
+    """
+        This class parses the content of the vars.yml file in the samples directory, e.g:
+    >>> vars = VarsParser('# change to another value, e.g. your User ID\\nID: X0000000\\n# Choose cfapps.eu10.hana.ondemand.com for the EU10 landscape, cfapps.us10.hana.ondemand.com for US10\\nLANDSCAPE_APPS_DOMAIN: cfapps.sap.hana.ondemand.com\\n#LANDSCAPE_APPS_DOMAIN: api.cf.eu10.hana.ondemand.com\\n')
+    >>> vars.get_id()
+    'X0000000'
+    >>> vars.get_landscape_apps_domain()
+    'cfapps.sap.hana.ondemand.com'
+
+    """
+
+    def __init__(self, vars_file_content):
+        self.vars_file_content = self.__strip_comments(vars_file_content)
+
+    def get_id(self):
+        id_match = re.search(r'ID:(.*)', self.vars_file_content)
+        return id_match.group(1).strip()
+
+    def get_landscape_apps_domain(self):
+        landscape_match = re.search(r'LANDSCAPE_APPS_DOMAIN:(.*)',
+                                    self.vars_file_content)
+        return landscape_match.group(1).strip()
+
+    def __strip_comments(self, content):
+        result = ''
+        for line in content.split('\n'):
+            commented_line = re.search(r'\w*#', line)
+            if (commented_line is None):
+                result += line + '\n'
+        return result
 
 
 class DeployedApp:
@@ -222,17 +284,32 @@ class DeployedApp:
     'xsuaa-java-security'
     >>> app.get_credentials_property('clientsecret')
     'b1GhPeHArXQCimhsCiwOMzT8wOU='
+    >>> app.get_clientsecret()
+    'b1GhPeHArXQCimhsCiwOMzT8wOU='
+
     """
 
     def __init__(self, vcap_services):
         self.vcap_services = vcap_services
         self.xsuaa_properties = self.vcap_services.get('xsuaa')[0]
 
-    def get_credentials_property(self, property_name):
-        return self.xsuaa_properties.get('credentials').get(property_name)
-
     def get_name(self):
         return self.xsuaa_properties.get('name')
+
+    def get_xsuaa_api_url(self):
+        return self.get_credentials_property('apiurl')
+
+    def get_xsuaa_service_url(self):
+        return self.get_credentials_property('url')
+
+    def get_clientid(self):
+        return self.get_credentials_property('clientid')
+
+    def get_clientsecret(self):
+        return self.get_credentials_property('clientsecret')
+
+    def get_credentials_property(self, property_name):
+        return self.xsuaa_properties.get('credentials').get(property_name)
 
     def __str__(self):
         return json.dumps(self.vcap_services, indent=2)
