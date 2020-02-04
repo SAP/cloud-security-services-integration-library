@@ -10,12 +10,10 @@ import os
 import re
 from getpass import getpass
 
-uaa_api = 'https://saschatest01.authentication.sap.hana.ondemand.com'
-xsuaa_api = 'https://api.authentication.sap.hana.ondemand.com' 
-
 username = os.getenv('CFUSER')
 password = os.getenv('CFPASSWORD')
-landscape_apps_domain = 'cfapps.sap.hana.ondemand.com' # can be obtained from vars.yml
+# can be obtained from vars.yml
+landscape_apps_domain = 'cfapps.sap.hana.ondemand.com'
 
 if (username is None):
     print('Username: ')
@@ -30,15 +28,19 @@ class TestJavaSecurity(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.apiAccess = ApiAccessService()
+        cf_util = CFUtil()
+        cls.cf_api_endpoint = cf_util.cf_api_endpoint
+        cls.user_id = cf_util.user_id
         cls.app = CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security',
                         endpoints=[Endpoint(path='hello-java-security', required_roles=['JAVA_SECURITY_SAMPLE_Viewer'])])
         cls.app.deploy()
-        cls.cf_util = CFUtil()
-        app = cls.cf_util.app_by_name(cls.app.name)
-        cls.user_id = cls.apiAccess.get_user_by_username(username).get('id')
+        app = cf_util.app_by_name(cls.app.name)
+        cls.xsuaa_api_url = app.get_credentials_property('apiurl')
+        cls.xsuaa_service_url = app.get_credentials_property('url')
         cls.clientid = app.get_credentials_property('clientid')
         cls.clientsecret = app.get_credentials_property('clientsecret')
+        cls.apiAccess = ApiAccessService(xsuaa_service_url=cls.xsuaa_service_url, xsuaa_api_url=cls.xsuaa_api_url)
+        cls.user_guid = cls.apiAccess.get_user_by_username(username).get('id')
 
     @classmethod
     def tearDownClass(cls):
@@ -50,11 +52,11 @@ class TestJavaSecurity(unittest.TestCase):
             for role in endpoint.required_roles:
                 print('Adding user to role: ', role)
                 TestJavaSecurity.apiAccess.add_user_to_group(
-                    TestJavaSecurity.user_id, role)
-            user_access_token = get_access_token(
+                    TestJavaSecurity.user_guid, role)
+            user_access_token = HttpUtil().get_access_token(TestJavaSecurity.xsuaa_service_url,
                 TestJavaSecurity.clientid, TestJavaSecurity.clientsecret, 'password', username=username, password=password)
             url = 'https://{}-{}.{}/{}'.format(
-                TestJavaSecurity.app.name, TestJavaSecurity.cf_util.user_id, landscape_apps_domain, endpoint.path)
+                TestJavaSecurity.app.name, TestJavaSecurity.user_id, landscape_apps_domain, endpoint.path)
             body = HttpUtil().get_request(url, access_token=user_access_token).body()
             logging.info(body)
             self.assertEqual(
@@ -98,6 +100,18 @@ class HttpUtil:
         self.__add_headers(req, access_token, additional_headers)
         return self.__execute(req)
 
+    def get_access_token(self, xsuaa_service_url, clientid, clientsecret, grant_type, username=None, password=None):
+        post_req_body = urllib.parse.urlencode({'client_id': clientid,
+                                            'client_secret': clientsecret,
+                                            'grant_type': grant_type,
+                                            'response_type': 'token',
+                                            'username': username,
+                                            'password': password}).encode()
+        url = xsuaa_service_url + '/oauth/token'
+        resp = HttpUtil().post_request(url, data=post_req_body)
+        return json.loads(resp.body()).get('access_token')
+
+
     def __add_headers(self, req, access_token, additional_headers):
         if (access_token is not None):
             req.add_header('Authorization', 'Bearer ' + access_token)
@@ -111,24 +125,14 @@ class HttpUtil:
         except urllib.error.HTTPError as error:
             return HttpUtil.HttpResponse.error(error)
 
-
-def get_access_token(clientid, clientsecret, grant_type, username=None, password=None):
-    post_req_body = urllib.parse.urlencode({'client_id': clientid,
-                                            'client_secret': clientsecret,
-                                            'grant_type': grant_type,
-                                            'response_type': 'token',
-                                            'username': username,
-                                            'password': password}).encode()
-    url = uaa_api + '/oauth/token'
-    resp = HttpUtil().post_request(url, data=post_req_body)
-    return json.loads(resp.body()).get('access_token')
-
-
 class ApiAccessService:
 
-    def __init__(self, name='api-access-service'):
+    def __init__(self, xsuaa_service_url, xsuaa_api_url, name='api-access-service'):
         self.name = name
         self.service_key_name = self.name + '-sk'
+        self.xsuaa_api_url = xsuaa_api_url
+        self.xsuaa_service_url = xsuaa_service_url
+        self.http_util = HttpUtil()
         subprocess.run(['cf', 'create-service', 'xsuaa', 'apiaccess', name])
         subprocess.run(['cf', 'create-service-key', name,
                         self.service_key_name])
@@ -143,8 +147,8 @@ class ApiAccessService:
         subprocess.run(['cf', 'delete-service', '-f', self.name])
 
     def get_user_by_username(self, username):
-        url = '{}/Users'.format(xsuaa_api)
-        res = HttpUtil().get_request(url, access_token=self.__get_access_token())
+        url = '{}/Users'.format(self.xsuaa_api_url)
+        res = self.http_util.get_request(url, access_token=self.__get_access_token())
         users = json.loads(res.body()).get('resources')
         for user in users:
             if (user.get('userName') == username):
@@ -153,13 +157,13 @@ class ApiAccessService:
     def add_user_to_group(self, user_id, group_id):
         post_req_body = json.dumps(
             {'value': user_id, 'origin': 'ldap', 'type': 'USER'}).encode()
-        url = '{}/Groups/{}/members'.format(xsuaa_api, group_id)
-        return HttpUtil().post_request(url, data=post_req_body,
+        url = '{}/Groups/{}/members'.format(self.xsuaa_api_url, group_id)
+        return self.http_util.post_request(url, data=post_req_body,
                                        access_token=self.__get_access_token(),
                                        additional_headers={'Content-Type': 'application/json'})
 
     def __get_access_token(self):
-        return get_access_token(self.__get_clientid(), self.__get_clientcredentials(), 'client_credentials')
+        return self.http_util.get_access_token(self.xsuaa_service_url, self.__get_clientid(), self.__get_clientcredentials(), 'client_credentials')
 
     def __get_clientid(self):
         return self.data.get('clientid')
@@ -178,7 +182,7 @@ class CFUtil:
         target = subprocess.run(['cf', 'target'], capture_output=True)
 
         self.bearer_token = token.stdout.strip().decode()
-        [self.api_endpoint, self.user_id] = self.__parse_target_output(
+        [self.cf_api_endpoint, self.user_id] = self.__parse_target_output(
             target.stdout.decode())
         self.apps = self.__retrieve_apps()
 
@@ -194,11 +198,11 @@ class CFUtil:
         return json.loads(res.body())
 
     def __retrieve_apps(self):
-        return self.__get_with_token(self.api_endpoint + '/apps').get('resources')
+        return self.__get_with_token(self.cf_api_endpoint + '/apps').get('resources')
 
     def __vcap_services_by_guid(self, guid):
         env = self.__get_with_token(
-            self.api_endpoint + '/apps/{}/env'.format(guid))
+            self.cf_api_endpoint + '/apps/{}/env'.format(guid))
         return env.get('system_env_json').get('VCAP_SERVICES')
 
     def __parse_target_output(self, target_output):
@@ -206,7 +210,7 @@ class CFUtil:
         user_id_match = re.search('user:(.*)', target_output)
         api_endpoint = api_endpoint_match.group(1)
         user_id = user_id_match.group(1)
-        return [api_endpoint.strip(), user_id.strip()]
+        return [api_endpoint.strip() + '/v3', user_id.strip()]
 
 
 class DeployedApp:
