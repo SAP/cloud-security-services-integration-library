@@ -27,7 +27,7 @@ public interface XSUserInfo {
 	 * - subaccount id: identifier for the subaccount
 	 *
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.USER_NAME)} from
+	 *             {@code token.getClaimAsString(TokenClaims.USER_NAME)} from
 	 *             the {@code com.sap.cloud.security.token} package or with
 	 *             {@code token.getPrincipal()}.
 	 * @return user name
@@ -41,7 +41,7 @@ public interface XSUserInfo {
 	 * Given name of the user.
 	 *
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.GIVEN_NAME)} from
+	 *             {@code token.getClaimAsString(TokenClaims.GIVEN_NAME)} from
 	 *             the {@code com.sap.cloud.security.token} package. Only if it is
 	 *             not an external attribute.
 	 * @return given name
@@ -55,7 +55,7 @@ public interface XSUserInfo {
 	 * Familiy name of the user.
 	 *
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.FAMILY_NAME)}
+	 *             {@code token.getClaimAsString(TokenClaims.FAMILY_NAME)}
 	 *             from the {@code com.sap.cloud.security.token} package. Only if it
 	 *             is not an external attribute.
 	 * @return family name
@@ -147,7 +147,7 @@ public interface XSUserInfo {
 	 * Return the email of the user
 	 * 
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.EMAIL)} from the
+	 *             {@code token.getClaimAsString(TokenClaims.EMAIL)} from the
 	 *             {@code com.sap.cloud.security.token} package.
 	 * 
 	 * @return email

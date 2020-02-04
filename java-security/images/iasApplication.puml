@@ -10,8 +10,8 @@ JwtValidatorBuilder --> Application: CombinedValidator
 -> Application: anyProtectedFunction()
 
 
-Application -> IasToken: new("abyJhbGci1iJSUzI1NiJ9.eyJhdW...")
-IasToken --> Application: Token
+Application -> SapIdToken: new("abyJhbGci1iJSUzI1NiJ9.eyJhdW...")
+SapIdToken --> Application: Token
 
 Application -> CombinedValidator: validate(Token)
 CombinedValidator --> Application: ValidationResult
