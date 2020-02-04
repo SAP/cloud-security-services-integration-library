@@ -25,35 +25,33 @@ logging.basicConfig(level=logging.INFO)
 
 class TestJavaSecurity(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        cls.app = CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security',
-                        endpoints=[Endpoint(path='hello-java-security', required_roles=['JAVA_SECURITY_SAMPLE_Viewer'])])
-        cls.sampleTestHelper = SampleTestHelper(cls.app)
-        cls.sampleTestHelper.setUp()
+    def setUp(self):
+        self.app = CFApp(name='java-security-usage',
+                    xsuaa_service_name='xsuaa-java-security')
+        self.sampleTestHelper = SampleTestHelper(self.app)
+        self.sampleTestHelper.setUp()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.sampleTestHelper.tearDown()
+   def tearDown(self):
+       self.sampleTestHelper.tearDown()
 
     def test_hello_java_security(self):
-        sampleTest = TestJavaSecurity.sampleTestHelper
-        for endpoint in TestJavaSecurity.app.endpoints:
-            for role in endpoint.required_roles:
-                print('Adding user to role: ', role)
-                sampleTest.api_access().add_user_to_group(
-                    sampleTest.user_guid, role)
-            user_access_token = HttpUtil().get_access_token(sampleTest.deployed_app().get_xsuaa_service_url(),
-                                                            sampleTest.deployed_app().get_clientid(),
-                                                            sampleTest.deployed_app().get_clientsecret(),
-                                                            'password', username=username, password=password)
-            url = 'https://{}-{}.{}/{}'.format(
-                TestJavaSecurity.app.name, sampleTest.vars_parser.get_id(), sampleTest.vars_parser.get_landscape_apps_domain(), endpoint.path)
-            body = HttpUtil().get_request(url, access_token=user_access_token).body()
-            logging.info(body)
-            self.assertEqual(
-                body, "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(username))
+        required_role = 'JAVA_SECURITY_SAMPLE_Viewer'
 
+        logging.info('Adding user to role: ' + required_role)
+        self.sampleTestHelper.api_access().add_user_to_group(self.sampleTestHelper.user_guid, required_role)
+
+        url = 'https://{}-{}.{}/hello-java-security'.format(
+            self.app.name,
+            self.sampleTestHelper.vars_parser.get_user_id(), 
+            self.sampleTestHelper.vars_parser.get_landscape_apps_domain())
+        
+        logging.info(url)    
+
+        actual_response = HttpUtil().get_request(url, access_token=self.sampleTestHelper.get_user_access_token()).body()
+        logging.info(actual_response)
+        expected_response = "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(username)
+        self.assertEqual(actual_response, expected_response)
+        self.sampleTestHelper.tearDown()
 
 class SampleTestHelper:
 
@@ -63,14 +61,26 @@ class SampleTestHelper:
         self.app_to_test = app_to_test
         self.__deployed_app = None
         self.__api_access = None
-        self.vars_parser = VarsParser('./vars.yml')
+        vars_file = open('./vars.yml')
+        self.vars_parser = VarsParser(vars_file.read())
+        vars_file.close()
 
     def setUp(self):
         self.app_to_test.deploy()
+        time.sleep(2)  # waiting for deployed apps to be available
 
     def tearDown(self):
         self.app_to_test.delete()
         self.__api_access.delete()
+
+    def get_user_access_token(self):
+        return HttpUtil().get_access_token(
+            xsuaa_service_url=self.deployed_app().get_xsuaa_service_url(),
+            clientid=self.deployed_app().get_clientid(),
+            clientsecret=self.deployed_app().get_clientsecret(),
+            grant_type='password',
+            username=username,
+            password=password)
 
     def api_access(self):
         if (self.__api_access is None):
@@ -83,7 +93,6 @@ class SampleTestHelper:
 
     def deployed_app(self):
         if (self.__deployed_app is None):
-            time.sleep(2)  # waiting for deployed apps to show
             deployed_app = self.cf_util.app_by_name(self.app_to_test.name)
             if (deployed_app is None):
                 raise(Exception('Could not find app: ' + self.app_to_test.name))
@@ -108,6 +117,8 @@ class HttpUtil:
             return self.response.status
 
         def body(self):
+            if (self.response is None):
+                return None
             return self.response.read().decode()
 
         def __str__(self):
@@ -192,7 +203,11 @@ class ApiAccessService:
                                            additional_headers={'Content-Type': 'application/json'})
 
     def __get_access_token(self):
-        return self.http_util.get_access_token(self.xsuaa_service_url, self.__get_clientid(), self.__get_clientcredentials(), 'client_credentials')
+        return self.http_util.get_access_token(
+            xsuaa_service_url=self.xsuaa_service_url, 
+            clientid=self.__get_clientid(), 
+            clientsecret=self.__get_clientcredentials(), 
+            grant_type='client_credentials')
 
     def __get_clientid(self):
         return self.data.get('clientid')
@@ -202,7 +217,8 @@ class ApiAccessService:
 
     def __str__(self):
         formatted_data = json.dumps(self.data, indent=2)
-        return 'Name: {}, Service-Key-Name: {}, Data: {}'.format(self.name, self.service_key_name, formatted_data)
+        return 'Name: {}, Service-Key-Name: {}, Data: {}'.format(
+            self.name, self.service_key_name, formatted_data)
 
 
 class CFUtil:
@@ -247,7 +263,7 @@ class VarsParser:
     """
         This class parses the content of the vars.yml file in the samples directory, e.g:
     >>> vars = VarsParser('# change to another value, e.g. your User ID\\nID: X0000000\\n# Choose cfapps.eu10.hana.ondemand.com for the EU10 landscape, cfapps.us10.hana.ondemand.com for US10\\nLANDSCAPE_APPS_DOMAIN: cfapps.sap.hana.ondemand.com\\n#LANDSCAPE_APPS_DOMAIN: api.cf.eu10.hana.ondemand.com\\n')
-    >>> vars.get_id()
+    >>> vars.get_user_id()
     'X0000000'
     >>> vars.get_landscape_apps_domain()
     'cfapps.sap.hana.ondemand.com'
@@ -257,7 +273,7 @@ class VarsParser:
     def __init__(self, vars_file_content):
         self.vars_file_content = self.__strip_comments(vars_file_content)
 
-    def get_id(self):
+    def get_user_id(self):
         id_match = re.search(r'ID:(.*)', self.vars_file_content)
         return id_match.group(1).strip()
 
@@ -280,8 +296,6 @@ class DeployedApp:
         This class parses VCAP_SERVICES (as dictionary) and supplies its content, e.g.:
     >>> vcap_services = {'xsuaa': [{'label': 'xsuaa', 'provider': None, 'plan': 'application', 'name': 'xsuaa-java-security', 'tags': ['xsuaa'], 'instance_name': 'xsuaa-java-security', 'binding_name': None, 'credentials': {'tenantmode': 'dedicated', 'sburl': 'https://internal-xsuaa.authentication.sap.hana.ondemand.com', 'clientid': 'sb-java-security-usage!t1785', 'xsappname': 'java-security-usage!t1785', 'clientsecret': 'b1GhPeHArXQCimhsCiwOMzT8wOU=', 'url': 'https://saschatest01.authentication.sap.hana.ondemand.com', 'uaadomain': 'authentication.sap.hana.ondemand.com', 'verificationkey': '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx/jN5v1mp/TVn9nTQoYVIUfCsUDHa3Upr5tDZC7mzlTrN2PnwruzyS7w1Jd+StqwW4/vn87ua2YlZzU8Ob0jR4lbOPCKaHIi0kyNtJXQvQ7LZPG8epQLbx0IIP/WLVVVtB8bL5OWuHma3pUnibbmATtbOh5LksQ2zLMngEjUF52JQyzTpjoQkahp0BNe/drlAqO253keiY63FL6belKjJGmSqdnotSXxB2ym+HQ0ShaNvTFLEvi2+ObkyjGWgFpQaoCcGq0KX0y0mPzOvdFsNT+rBFdkHiK+Jl638Sbim1z9fItFbH9hiVwY37R9rLtH1YKi3PuATMjf/DJ7mUluDQIDAQAB-----END PUBLIC KEY-----', 'apiurl': 'https://api.authentication.sap.hana.ondemand.com', 'identityzone': 'saschatest01', 'identityzoneid': '54d48a27-0ff4-42b8-b39e-a2b6df64d78a', 'tenantid': '54d48a27-0ff4-42b8-b39e-a2b6df64d78a'}, 'syslog_drain_url': None, 'volume_mounts': []}]}
     >>> app = DeployedApp(vcap_services)
-    >>> app.get_name()
-    'xsuaa-java-security'
     >>> app.get_credentials_property('clientsecret')
     'b1GhPeHArXQCimhsCiwOMzT8wOU='
     >>> app.get_clientsecret()
@@ -292,9 +306,6 @@ class DeployedApp:
     def __init__(self, vcap_services):
         self.vcap_services = vcap_services
         self.xsuaa_properties = self.vcap_services.get('xsuaa')[0]
-
-    def get_name(self):
-        return self.xsuaa_properties.get('name')
 
     def get_xsuaa_api_url(self):
         return self.get_credentials_property('apiurl')
@@ -315,21 +326,11 @@ class DeployedApp:
         return json.dumps(self.vcap_services, indent=2)
 
 
-class Endpoint():
-    def __init__(self, path='/', required_roles=[]):
-        self.path = path
-        self.required_roles = required_roles
-
-    def __str__(self):
-        return 'Path: {}\nRoles: {}'.format(self.path, ', '.join(self.required_roles))
-
-
 class CFApp:
-    def __init__(self, name, xsuaa_service_name, endpoints=[], app_router_name=None):
+    def __init__(self, name, xsuaa_service_name, app_router_name=None):
         self.name = name
         self.xsuaa_service_name = xsuaa_service_name
         self.app_router_name = app_router_name
-        self.endpoints = endpoints
 
     def working_dir(self):
         return './' + self.name
@@ -349,13 +350,12 @@ class CFApp:
             subprocess.run(['cf',  'delete',  '-f', self.app_router_name])
 
     def __str__(self):
-        'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}, End-Points: {}'.format(
-            self.name, self.xsuaa_service_name, self.app_router_name, ', '.join(self.endpoints))
+        return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}'.format(
+            self.name, self.xsuaa_service_name, self.app_router_name)
 
 
 apps = [
-    CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security',
-          endpoints=[Endpoint(path='hello-java-security', required_roles=['JAVA_SECURITY_SAMPLE_Viewer'])]),
+    CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security'),
     CFApp(name='java-tokenclient-usage',
           xsuaa_service_name='xsuaa-token-client'),
     CFApp(name='sap-java-buildpack-api-usage',
