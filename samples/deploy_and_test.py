@@ -35,8 +35,6 @@ class TestJavaSecurity(unittest.TestCase):
 
     def test_hello_java_security(self):
         required_role = 'JAVA_SECURITY_SAMPLE_Viewer'
-
-        logging.info('Adding user to role: ' + required_role)
         self.sampleTestHelper.api_access().add_user_to_group(
             self.sampleTestHelper.user_guid, required_role)
 
@@ -44,12 +42,10 @@ class TestJavaSecurity(unittest.TestCase):
             self.app.name,
             self.sampleTestHelper.vars_parser.get_user_id(),
             self.sampleTestHelper.vars_parser.get_landscape_apps_domain())
-
-        logging.info(url)
-
         actual_response = HttpUtil().get_request(
             url, access_token=self.sampleTestHelper.get_user_access_token()).body()
         logging.info(actual_response)
+        
         expected_response = "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(
             username)
         self.assertEqual(actual_response, expected_response)
