@@ -1,8 +1,13 @@
 package com.sap.cloud.security.adapter.xs;
 
 import com.sap.cloud.security.adapter.xs.XSUserInfoAdapter;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.GrantType;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.xsa.security.container.XSUserInfoException;
@@ -10,7 +15,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 
@@ -18,7 +22,7 @@ import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class XSUserInfoAdapterTest {
 
@@ -34,7 +38,7 @@ public class XSUserInfoAdapterTest {
 
 	@Before
 	public void setUp() throws XSUserInfoException {
-		cut = new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)));
+		cut = spy(new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID))));
 	}
 
 	// TODO 22.01.20 c5295400: implement external context fallback tests
@@ -115,16 +119,6 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void testGetDBToken() throws XSUserInfoException {
-		assertThat(cut.getDBToken()).isEqualTo(cut.getAppToken());
-	}
-
-	@Test
-	public void testGetHdbToken() throws XSUserInfoException {
-		assertThat(cut.getHdbToken()).isEqualTo(cut.getAppToken());
-	}
-
-	@Test
 	public void testGetAppToken() throws IOException {
 		assertThat(cut.getAppToken()).isEqualTo(IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", UTF_8));
 	}
@@ -135,14 +129,27 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
+	public void testGetDBToken() throws XSUserInfoException {
+		when(cut.isInForeignMode()).thenReturn(false);
+		assertThat(cut.getDBToken()).isEqualTo(cut.getAppToken());
+	}
+
+	@Test
+	public void testGetHdbToken() throws XSUserInfoException {
+		when(cut.isInForeignMode()).thenReturn(false);
+		assertThat(cut.getHdbToken()).isEqualTo(cut.getAppToken());
+	}
+
+	@Test
 	public void getToken_fallbackToAccessToken() throws XSUserInfoException {
+		when(cut.isInForeignMode()).thenReturn(false);
 		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(token.getAccessToken());
 	}
 
 	@Test
 	public void getToken_fromExternalContext() throws XSUserInfoException {
 		String internalToken = "token";
-		JsonObject externalContextMock = Mockito.mock(JsonObject.class);
+		JsonObject externalContextMock = mock(JsonObject.class);
 		when(externalContextMock.getAsString(HDB_NAMEDUSER_SAML)).thenReturn(internalToken);
 		XsuaaToken mockToken = createMockToken(externalContextMock);
 
@@ -156,9 +163,10 @@ public class XSUserInfoAdapterTest {
 		String internalToken = "token";
 		XsuaaToken mockToken = createMockToken();
 		when(mockToken.getClaimAsString(HDB_NAMEDUSER_SAML)).thenReturn(internalToken);
-		when(mockToken.getClaimAsJsonObject(XS_USER_ATTRIBUTES)).thenReturn(Mockito.mock(JsonObject.class));
+		when(mockToken.getClaimAsJsonObject(XS_USER_ATTRIBUTES)).thenReturn(mock(JsonObject.class));
 
-		cut = new XSUserInfoAdapter(mockToken);
+		cut = spy(new XSUserInfoAdapter(mockToken));
+		when(cut.isInForeignMode()).thenReturn(false);
 
 		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(internalToken);
 	}
@@ -230,8 +238,8 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void testIsInForeignMode() throws XSUserInfoException {
-		assertThat(cut.isInForeignMode()).isFalse();
+	public void testIsByDefaultInForeignMode() throws XSUserInfoException {
+		assertThat(cut.isInForeignMode()).isTrue();
 	}
 
 	@Test
@@ -285,8 +293,52 @@ public class XSUserInfoAdapterTest {
 				.hasMessageContaining("Not implemented");
 	}
 
+	@Test
+	public void isByDefaultInForeignMode() throws XSUserInfoException {
+		assertThat(cut.isInForeignMode()).isTrue();
+	}
+
+	@Test
+	@Ignore
+	public void isForeignModeFalse_WhenTokenCloneIdMatchesBrokerAppId() throws XSUserInfoException {
+		String tokenClientId = "sb-clone1!b22|brokerplanmasterapp!b123"; // cid
+		String configurationAppId = "brokerplanmasterapp!b123";
+
+		XsuaaToken token = mock(XsuaaToken.class);
+		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(tokenClientId);
+
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+				.withClientId(tokenClientId)
+				.withProperty(CFConstants.XSUAA.APP_ID, configurationAppId)
+				.build();
+
+		cut = spy(new XSUserInfoAdapter(token, configuration));
+		when(cut.getSubdomain()).thenReturn("otherSubDomain");
+		assertThat(cut.isInForeignMode()).isFalse();
+	}
+
+	@Test
+	@Ignore
+	public void isForeignModeFalse_WhenClientIdAndPaasSubdomainMatches() throws XSUserInfoException {
+		String tokenClientId = "sb-application!t0123"; // cid
+		String tokenSubdomain = "brokerplanmasterapp!b123"; // ext_attr -> zdn
+
+		XsuaaToken token = mock(XsuaaToken.class);
+		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(tokenClientId);
+
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+				.withClientId(tokenClientId)
+				.withProperty("identityzone", tokenSubdomain)
+				.build();
+
+		cut = spy(new XSUserInfoAdapter(token, configuration));
+		when(cut.getSubdomain()).thenReturn(tokenSubdomain);
+		assertThat(cut.isInForeignMode()).isFalse();
+	}
+
+
 	private XsuaaToken createMockToken(GrantType grantType) {
-		XsuaaToken mockToken = Mockito.mock(XsuaaToken.class);
+		XsuaaToken mockToken = mock(XsuaaToken.class);
 		when(mockToken.getGrantType()).thenReturn(grantType);
 		return mockToken;
 	}

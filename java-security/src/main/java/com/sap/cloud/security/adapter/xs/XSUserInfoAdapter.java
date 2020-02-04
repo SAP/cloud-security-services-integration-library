@@ -1,5 +1,7 @@
 package com.sap.cloud.security.adapter.xs;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.GrantType;
@@ -27,8 +29,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	static final String ZDN = "zdn";
 	static final String SYSTEM = "SYSTEM";
 	static final String HDB = "HDB";
-	static final String EXTERNAL_ATTR = "ext_attr";
 	private final XsuaaToken xsuaaToken;
+	private OAuth2ServiceConfiguration configuration;
 
 	public XSUserInfoAdapter(Token xsuaaToken) throws XSUserInfoException {
 		if (!(xsuaaToken instanceof XsuaaToken)) {
@@ -42,6 +44,14 @@ public class XSUserInfoAdapter implements XSUserInfo {
 			throw new XSUserInfoException("token must not be null.");
 		}
 		this.xsuaaToken = xsuaaToken;
+	}
+
+	public XSUserInfoAdapter(Token xsuaaToken, OAuth2ServiceConfiguration configuration) throws XSUserInfoException {
+		if (!(xsuaaToken instanceof XsuaaToken)) {
+			throw new XSUserInfoException("token needs to be an instance of XsuaaToken.");
+		}
+		this.xsuaaToken = (XsuaaToken) xsuaaToken;
+		this.configuration = configuration;
 	}
 
 	@Override
@@ -89,6 +99,12 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
+	/**
+	 *  "ext_attr": {
+	 *         "enhancer": "XSUAA",
+	 *         "zdn": "paas-subdomain"
+	 *     },
+	 */
 	public String getSubdomain() throws XSUserInfoException {
 		return Optional.ofNullable(getExternalAttribute(ZDN)).orElseThrow(createXSUserInfoException(ZDN));
 	}
@@ -126,7 +142,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getToken(String namespace, String name) throws XSUserInfoException {
-		// TODO 22.01.20 c5295400: TODO becaues foreignMode = false this is always false
 		if (!(getGrantType().equals(GrantType.CLIENT_CREDENTIALS)) && hasAttributes() && isInForeignMode()) {
 			throw new XSUserInfoException("The SecurityContext has been initialized with an access token of a\n"
 					+ "foreign OAuth Client Id and/or Identity Zone. Furthermore, the\n"
@@ -211,13 +226,31 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
+	/**
+	 * Check if a token issued for another OAuth client has been forwarded to a
+	 * different client,
+	 *
+	 * @return true if token was forwarded or if it cannot be determined.
+	 * @throws XSUserInfoException
+	 *             if attribute is not available in the authentication token
+	 */
 	public boolean isInForeignMode() throws XSUserInfoException {
-		return false; // This is not supported
+		// TODO make more robust return true instead of exception
+		// TODO apply logs
+		if(configuration == null) {
+			return true; // default provide OAuth2ServiceConfiguration via constructor argument
+		}
+		if(getClientId().equals(configuration.getClientId()) &&
+			 getSubdomain().equals(configuration.getProperty("identityzone"))) {
+			return false;
+		} else if (matchesTokenClientIdToBrokerCloneAppId()) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
-	public String requestTokenForClient(String clientId, String clientSecret, String uaaUrl)
-			throws XSUserInfoException {
+	public String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) {
 		throw new UnsupportedOperationException("Not implemented.");
 	}
 
@@ -249,8 +282,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 				.map(claim -> claim.getAsString(attributeName)).orElse(null);
 	}
 
-	private String getExternalAttribute(String attributeName) throws XSUserInfoException {
-		return getAttributeFromClaimAsString(EXTERNAL_ATTR, attributeName);
+	String getExternalAttribute(String attributeName) throws XSUserInfoException {
+		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
 	}
 
 	private Supplier<XSUserInfoException> createXSUserInfoException(String attribute) {
@@ -272,6 +305,13 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		} catch (JsonParsingException e) {
 			throw createXSUserInfoException(claimName).get();
 		}
+	}
+
+	private boolean matchesTokenClientIdToBrokerCloneAppId() throws XSUserInfoException {
+		String appId = configuration.getProperty(CFConstants.XSUAA.APP_ID);
+		return appId.contains("!b") // broker plan
+				&& getClientId().contains("|")
+				&& getClientId().endsWith("|" + appId);
 	}
 
 }
