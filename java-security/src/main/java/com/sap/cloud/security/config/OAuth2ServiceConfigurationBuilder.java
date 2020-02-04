@@ -19,7 +19,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	private Service service;
 	private boolean runInLegacyMode;
 	private final Map<String, String> properties = new HashMap<>();
-	private static String LOCALHOST = "localhost";
+	private static final String LOCALHOST = "localhost";
 
 	private OAuth2ServiceConfigurationBuilder() {
 		// use forService factory method

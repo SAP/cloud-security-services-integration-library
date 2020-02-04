@@ -33,7 +33,7 @@ public class JwtGenerator {
 
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
-	private final List<String> unsupportedClaims = Arrays.asList(new String[] { AUDIENCE });
+	private final List<String> unsupportedClaims = Arrays.asList(AUDIENCE);
 	private SignatureCalculator signatureCalculator;
 	private Service service;
 
@@ -196,9 +196,6 @@ public class JwtGenerator {
 	 * @return the token.
 	 */
 	public Token createToken() {
-		if (privateKey == null) {
-			throw new IllegalStateException("Private key was not set!");
-		}
 		if (privateKey == null) {
 			throw new IllegalStateException("Private key was not set!");
 		}
