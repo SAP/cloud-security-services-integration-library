@@ -10,8 +10,8 @@ import os
 from getpass import getpass
 
 cf_api = 'https://api.cf.sap.hana.ondemand.com/v3'
-xsuaa_api = 'https://saschatest01.authentication.sap.hana.ondemand.com'
-xsuaa_api_2 = 'https://api.authentication.sap.hana.ondemand.com'
+uaa_api = 'https://saschatest01.authentication.sap.hana.ondemand.com'
+xsuaa_api = 'https://api.authentication.sap.hana.ondemand.com'
 
 username = os.getenv("CFUSER")
 password = os.getenv("CFPASSWORD")
@@ -28,9 +28,15 @@ logging.basicConfig(level=logging.INFO)
 class HttpUtil:
 
     class HttpResponse:
-        def __init__(self, response):
+
+        def __init__(self, response, error=None):
             self.response = response
+            self.err = error
             logging.info(self)
+
+        @classmethod
+        def error(cls, error):
+            return cls(None, error=error)
 
         def status(self):
             return self.response.status
@@ -39,28 +45,35 @@ class HttpUtil:
             return self.response.read().decode()
 
         def __str__(self):
-            return "HTTP response status: " + str(self.response.status)
+            if (self.response is None):
+                return "HTTP status: {}, {}".format(self.err.status, self.err.reason)
+            else:
+                return "HTTP response status: " + str(self.response.status)
 
     def get_request(self, url, access_token=None, additional_headers={}):
         logging.info('Performing get request to ' + url)
         req = urllib.request.Request(url, method='GET')
         self.__add_headers(req, access_token, additional_headers)
-        res = urllib.request.urlopen(req)
-        return HttpUtil.HttpResponse(res)
+        return self.__execute(req)
 
     def post_request(self, url, data=None, access_token=None, additional_headers={}):
         logging.info('Performing post request to ' + url)
         req = urllib.request.Request(url, data=data, method='POST')
         self.__add_headers(req, access_token, additional_headers)
-        res = urllib.request.urlopen(req)
-        return HttpUtil.HttpResponse(res)
+        return self.__execute(req)
 
     def __add_headers(self, req, access_token, additional_headers):
         if (access_token is not None):
             req.add_header('Authorization', 'Bearer ' + access_token)
         for header_key in additional_headers:
             req.add_header(header_key, additional_headers[header_key])
-
+    
+    def __execute(self, req):
+        try:
+            res = urllib.request.urlopen(req)
+            return HttpUtil.HttpResponse(res)
+        except urllib.error.HTTPError as error:
+            return HttpUtil.HttpResponse.error(error)        
 
 def get_access_token(clientid, clientsecret, grant_type, username=None, password=None):
     post_req_body = urllib.parse.urlencode({'client_id': clientid,
@@ -69,7 +82,7 @@ def get_access_token(clientid, clientsecret, grant_type, username=None, password
                                             'response_type': 'token',
                                             'username': username,
                                             'password': password}).encode()
-    url = xsuaa_api + '/oauth/token'
+    url = uaa_api + '/oauth/token'
     resp = HttpUtil().post_request(url, data=post_req_body)
     return json.loads(resp.body()).get("access_token")
 
@@ -85,7 +98,6 @@ class ApiAccessServiceKey:
         service_key_output = subprocess.run(
             ['cf', 'service-key', name, self.service_key_name], capture_output=True)
         lines = service_key_output.stdout.decode().split('\n')
-        logging.info(lines)
         self.data = json.loads("".join(lines[1:]))
 
     def delete(self):
@@ -94,7 +106,7 @@ class ApiAccessServiceKey:
         subprocess.run(['cf', 'delete-service', '-f', self.name])
 
     def get_user_by_username(self, username):
-        url = "{}/Users".format(xsuaa_api_2)
+        url = "{}/Users".format(xsuaa_api)
         res = HttpUtil().get_request(url, access_token=self.__get_access_token())
         users = json.loads(res.body()).get("resources")
         for user in users:
@@ -104,7 +116,7 @@ class ApiAccessServiceKey:
     def add_user_to_group(self, user_id, group_id):
         post_req_body = json.dumps(
             {'value': user_id, 'origin': 'ldap', 'type': 'USER'}).encode()
-        url = "{}/Groups/{}/members".format(xsuaa_api_2, group_id)
+        url = "{}/Groups/{}/members".format(xsuaa_api, group_id)
         return HttpUtil().post_request(url, data=post_req_body,
                                        access_token=self.__get_access_token(),
                                        additional_headers={'Content-Type': 'application/json'})
@@ -136,9 +148,7 @@ class CFUtil:
                 return DeployedApp(vcap_services)
 
     def __get_with_token(self, url):
-        res = HttpUtil().get_request(url, additional_headers={
-            'Authorization': self.bearer_token
-        })
+        res = HttpUtil().get_request(url, additional_headers={'Authorization': self.bearer_token})
         return json.loads(res.body())
 
     def __retrieve_apps(self):
