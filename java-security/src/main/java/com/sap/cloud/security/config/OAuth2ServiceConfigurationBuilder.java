@@ -26,7 +26,7 @@ public class OAuth2ServiceConfigurationBuilder {
 
 	/**
 	 * Creates a builder for a dedicated identity ({@link Service})
-	 * 
+	 *
 	 * @param service
 	 *            the service
 	 * @return this builder
@@ -96,7 +96,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	/**
 	 * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) based on
 	 * the properties applied.
-	 * 
+	 *
 	 * @return the oauth2 service configuration.
 	 */
 	public OAuth2ServiceConfiguration build() {
