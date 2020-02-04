@@ -25,6 +25,41 @@ if (password is None):
 logging.basicConfig(level=logging.INFO)
 
 
+class TestJavaSecurity(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.apiAccess = ApiAccessServiceKey('asdf')
+        cls.app = CFApp(name="java-security-usage", xsuaa_service_name="xsuaa-java-security",
+                        endpoints=[Endpoint(path='hello-java-security', required_roles=['JAVA_SECURITY_SAMPLE_Viewer'])])
+        cls.app.deploy()
+        cfUtil = CFUtil()
+        app = cfUtil.app_by_name(cls.app.name)
+        cls.user_id = cls.apiAccess.get_user_by_username(username).get('id')
+        cls.clientid = app.get_credentials_property('clientid')
+        cls.clientsecret = app.get_credentials_property('clientsecret')
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.app.delete()
+        cls.apiAccess.delete()
+
+    def test_endpoint(self):
+        for endpoint in TestJavaSecurity.app.endpoints:
+            for role in endpoint.required_roles:
+                print('Adding user to role: ', role)
+                TestJavaSecurity.apiAccess.add_user_to_group(
+                    TestJavaSecurity.user_id, role)
+            user_access_token = get_access_token(
+                TestJavaSecurity.clientid, TestJavaSecurity.clientsecret, 'password', username=username, password=password)
+            url = 'https://{}-{}.cfapps.sap.hana.ondemand.com/{}'.format(
+                apps[0].name, 'C5295400', endpoint.path)
+            body = HttpUtil().get_request(url, access_token=user_access_token).body()
+            logging.info(body)
+            self.assertEqual(
+                body, "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(username))
+
+
 class HttpUtil:
 
     class HttpResponse:
@@ -67,13 +102,14 @@ class HttpUtil:
             req.add_header('Authorization', 'Bearer ' + access_token)
         for header_key in additional_headers:
             req.add_header(header_key, additional_headers[header_key])
-    
+
     def __execute(self, req):
         try:
             res = urllib.request.urlopen(req)
             return HttpUtil.HttpResponse(res)
         except urllib.error.HTTPError as error:
-            return HttpUtil.HttpResponse.error(error)        
+            return HttpUtil.HttpResponse.error(error)
+
 
 def get_access_token(clientid, clientsecret, grant_type, username=None, password=None):
     post_req_body = urllib.parse.urlencode({'client_id': clientid,
@@ -148,7 +184,8 @@ class CFUtil:
                 return DeployedApp(vcap_services)
 
     def __get_with_token(self, url):
-        res = HttpUtil().get_request(url, additional_headers={'Authorization': self.bearer_token})
+        res = HttpUtil().get_request(url, additional_headers={
+            'Authorization': self.bearer_token})
         return json.loads(res.body())
 
     def __retrieve_apps(self):
@@ -235,42 +272,6 @@ apps = [
     CFApp(name="spring-webflux-security-xsuaa-usage", xsuaa_service_name="xsuaa-webflux",
           app_router_name="approuter-spring-webflux-security-xsuaa-usage")
 ]
-
-
-class TestJavaSecurity(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.apiAccess = ApiAccessServiceKey('asdf')
-        cls.app = CFApp(name="java-security-usage", xsuaa_service_name="xsuaa-java-security",
-                        endpoints=[Endpoint(path='hello-java-security', required_roles=['JAVA_SECURITY_SAMPLE_Viewer'])])
-        cls.app.deploy()
-        cfUtil = CFUtil()
-        app = cfUtil.app_by_name(cls.app.name)
-        cls.user_id = cls.apiAccess.get_user_by_username(username).get('id')
-        cls.clientid = app.get_credentials_property('clientid')
-        cls.clientsecret = app.get_credentials_property('clientsecret')
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.app.delete()
-        cls.apiAccess.delete()
-
-    def test_endpoint(self):
-        for endpoint in TestJavaSecurity.app.endpoints:
-            for role in endpoint.required_roles:
-                print('Adding user to role: ', role)
-                TestJavaSecurity.apiAccess.add_user_to_group(
-                    TestJavaSecurity.user_id, role)
-            user_access_token = get_access_token(
-                TestJavaSecurity.clientid, TestJavaSecurity.clientsecret, 'password', username=username, password=password)
-            url = 'https://{}-{}.cfapps.sap.hana.ondemand.com/{}'.format(
-                apps[0].name, 'C5295400', endpoint.path)
-            body = HttpUtil().get_request(url, access_token=user_access_token).body()
-            logging.info(body)
-            self.assertEqual(
-                body, "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(username))
-
 
 if __name__ == "__main__":
     import doctest
