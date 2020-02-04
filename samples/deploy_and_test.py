@@ -7,17 +7,18 @@ import unittest
 import logging
 import sys
 import os
+import re
 from getpass import getpass
 
-cf_api = 'https://api.cf.sap.hana.ondemand.com/v3'
 uaa_api = 'https://saschatest01.authentication.sap.hana.ondemand.com'
-xsuaa_api = 'https://api.authentication.sap.hana.ondemand.com'
+xsuaa_api = 'https://api.authentication.sap.hana.ondemand.com' 
 
 username = os.getenv('CFUSER')
 password = os.getenv('CFPASSWORD')
+landscape_apps_domain = 'cfapps.sap.hana.ondemand.com' # can be obtained from vars.yml
 
 if (username is None):
-    print('Type username: ')
+    print('Username: ')
     username = sys.stdin.readline()
 if (password is None):
     password = getpass()
@@ -29,12 +30,12 @@ class TestJavaSecurity(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.apiAccess = ApiAccessServiceKey('asdf')
+        cls.apiAccess = ApiAccessService()
         cls.app = CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security',
                         endpoints=[Endpoint(path='hello-java-security', required_roles=['JAVA_SECURITY_SAMPLE_Viewer'])])
         cls.app.deploy()
-        cfUtil = CFUtil()
-        app = cfUtil.app_by_name(cls.app.name)
+        cls.cf_util = CFUtil()
+        app = cls.cf_util.app_by_name(cls.app.name)
         cls.user_id = cls.apiAccess.get_user_by_username(username).get('id')
         cls.clientid = app.get_credentials_property('clientid')
         cls.clientsecret = app.get_credentials_property('clientsecret')
@@ -52,8 +53,8 @@ class TestJavaSecurity(unittest.TestCase):
                     TestJavaSecurity.user_id, role)
             user_access_token = get_access_token(
                 TestJavaSecurity.clientid, TestJavaSecurity.clientsecret, 'password', username=username, password=password)
-            url = 'https://{}-{}.cfapps.sap.hana.ondemand.com/{}'.format(
-                apps[0].name, 'C5295400', endpoint.path)
+            url = 'https://{}-{}.{}/{}'.format(
+                TestJavaSecurity.app.name, TestJavaSecurity.cf_util.user_id, landscape_apps_domain, endpoint.path)
             body = HttpUtil().get_request(url, access_token=user_access_token).body()
             logging.info(body)
             self.assertEqual(
@@ -123,9 +124,9 @@ def get_access_token(clientid, clientsecret, grant_type, username=None, password
     return json.loads(resp.body()).get('access_token')
 
 
-class ApiAccessServiceKey:
+class ApiAccessService:
 
-    def __init__(self, name):
+    def __init__(self, name='api-access-service'):
         self.name = name
         self.service_key_name = self.name + '-sk'
         subprocess.run(['cf', 'create-service', 'xsuaa', 'apiaccess', name])
@@ -174,7 +175,11 @@ class ApiAccessServiceKey:
 class CFUtil:
     def __init__(self):
         token = subprocess.run(['cf', 'oauth-token'], capture_output=True)
+        target = subprocess.run(['cf', 'target'], capture_output=True)
+
         self.bearer_token = token.stdout.strip().decode()
+        [self.api_endpoint, self.user_id] = self.__parse_target_output(
+            target.stdout.decode())
         self.apps = self.__retrieve_apps()
 
     def app_by_name(self, app_name):
@@ -189,11 +194,19 @@ class CFUtil:
         return json.loads(res.body())
 
     def __retrieve_apps(self):
-        return self.__get_with_token(cf_api + '/apps').get('resources')
+        return self.__get_with_token(self.api_endpoint + '/apps').get('resources')
 
     def __vcap_services_by_guid(self, guid):
-        env = self.__get_with_token(cf_api + '/apps/{}/env'.format(guid))
+        env = self.__get_with_token(
+            self.api_endpoint + '/apps/{}/env'.format(guid))
         return env.get('system_env_json').get('VCAP_SERVICES')
+
+    def __parse_target_output(self, target_output):
+        api_endpoint_match = re.search('api endpoint:(.*)', target_output)
+        user_id_match = re.search('user:(.*)', target_output)
+        api_endpoint = api_endpoint_match.group(1)
+        user_id = user_id_match.group(1)
+        return [api_endpoint.strip(), user_id.strip()]
 
 
 class DeployedApp:
