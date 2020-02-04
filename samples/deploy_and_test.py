@@ -13,8 +13,8 @@ cf_api = 'https://api.cf.sap.hana.ondemand.com/v3'
 uaa_api = 'https://saschatest01.authentication.sap.hana.ondemand.com'
 xsuaa_api = 'https://api.authentication.sap.hana.ondemand.com'
 
-username = os.getenv("CFUSER")
-password = os.getenv("CFPASSWORD")
+username = os.getenv('CFUSER')
+password = os.getenv('CFPASSWORD')
 
 if (username is None):
     print('Type username: ')
@@ -30,7 +30,7 @@ class TestJavaSecurity(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.apiAccess = ApiAccessServiceKey('asdf')
-        cls.app = CFApp(name="java-security-usage", xsuaa_service_name="xsuaa-java-security",
+        cls.app = CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security',
                         endpoints=[Endpoint(path='hello-java-security', required_roles=['JAVA_SECURITY_SAMPLE_Viewer'])])
         cls.app.deploy()
         cfUtil = CFUtil()
@@ -81,9 +81,9 @@ class HttpUtil:
 
         def __str__(self):
             if (self.response is None):
-                return "HTTP status: {}, {}".format(self.err.status, self.err.reason)
+                return 'HTTP status: {}, {}'.format(self.err.status, self.err.reason)
             else:
-                return "HTTP response status: " + str(self.response.status)
+                return 'HTTP response status: ' + str(self.response.status)
 
     def get_request(self, url, access_token=None, additional_headers={}):
         logging.info('Performing get request to ' + url)
@@ -120,7 +120,7 @@ def get_access_token(clientid, clientsecret, grant_type, username=None, password
                                             'password': password}).encode()
     url = uaa_api + '/oauth/token'
     resp = HttpUtil().post_request(url, data=post_req_body)
-    return json.loads(resp.body()).get("access_token")
+    return json.loads(resp.body()).get('access_token')
 
 
 class ApiAccessServiceKey:
@@ -134,7 +134,7 @@ class ApiAccessServiceKey:
         service_key_output = subprocess.run(
             ['cf', 'service-key', name, self.service_key_name], capture_output=True)
         lines = service_key_output.stdout.decode().split('\n')
-        self.data = json.loads("".join(lines[1:]))
+        self.data = json.loads(''.join(lines[1:]))
 
     def delete(self):
         subprocess.run(['cf', 'delete-service-key', '-f',
@@ -142,23 +142,23 @@ class ApiAccessServiceKey:
         subprocess.run(['cf', 'delete-service', '-f', self.name])
 
     def get_user_by_username(self, username):
-        url = "{}/Users".format(xsuaa_api)
+        url = '{}/Users'.format(xsuaa_api)
         res = HttpUtil().get_request(url, access_token=self.__get_access_token())
-        users = json.loads(res.body()).get("resources")
+        users = json.loads(res.body()).get('resources')
         for user in users:
-            if (user.get("userName") == username):
+            if (user.get('userName') == username):
                 return user
 
     def add_user_to_group(self, user_id, group_id):
         post_req_body = json.dumps(
             {'value': user_id, 'origin': 'ldap', 'type': 'USER'}).encode()
-        url = "{}/Groups/{}/members".format(xsuaa_api, group_id)
+        url = '{}/Groups/{}/members'.format(xsuaa_api, group_id)
         return HttpUtil().post_request(url, data=post_req_body,
                                        access_token=self.__get_access_token(),
                                        additional_headers={'Content-Type': 'application/json'})
 
     def __get_access_token(self):
-        return get_access_token(self.__get_clientid(), self.__get_clientcredentials(), "client_credentials")
+        return get_access_token(self.__get_clientid(), self.__get_clientcredentials(), 'client_credentials')
 
     def __get_clientid(self):
         return self.data.get('clientid')
@@ -179,7 +179,7 @@ class CFUtil:
 
     def app_by_name(self, app_name):
         for app in self.apps:
-            if (app is not None and app.get("name") == app_name):
+            if (app is not None and app.get('name') == app_name):
                 vcap_services = self.__vcap_services_by_guid(app.get('guid'))
                 return DeployedApp(vcap_services)
 
@@ -260,20 +260,20 @@ class CFApp:
 
 
 apps = [
-    CFApp(name="java-security-usage", xsuaa_service_name="xsuaa-java-security",
+    CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security',
           endpoints=[Endpoint(path='hello-java-security', required_roles=['JAVA_SECURITY_SAMPLE_Viewer'])]),
-    CFApp(name="java-tokenclient-usage",
-          xsuaa_service_name="xsuaa-token-client"),
-    CFApp(name="sap-java-buildpack-api-usage",
-          xsuaa_service_name="xsuaa-buildpack"),
-    CFApp(name="spring-security-basic-auth", xsuaa_service_name="xsuaa-basic"),
-    CFApp(name="spring-security-xsuaa-usage", xsuaa_service_name="xsuaa-authentication",
-          app_router_name="approuter-spring-security-xsuaa-usage"),
-    CFApp(name="spring-webflux-security-xsuaa-usage", xsuaa_service_name="xsuaa-webflux",
-          app_router_name="approuter-spring-webflux-security-xsuaa-usage")
+    CFApp(name='java-tokenclient-usage',
+          xsuaa_service_name='xsuaa-token-client'),
+    CFApp(name='sap-java-buildpack-api-usage',
+          xsuaa_service_name='xsuaa-buildpack'),
+    CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic'),
+    CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication',
+          app_router_name='approuter-spring-security-xsuaa-usage'),
+    CFApp(name='spring-webflux-security-xsuaa-usage', xsuaa_service_name='xsuaa-webflux',
+          app_router_name='approuter-spring-webflux-security-xsuaa-usage')
 ]
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     import doctest
     doctest.testmod()
     unittest.main()
