@@ -30,7 +30,8 @@ public class SapIdToken extends AbstractToken {
 	@Override
 	public Principal getPrincipal() {
 		// TODO IAS: should return SAP User ID (guid)
-		throw new UnsupportedOperationException("getPrincipal() is not yet supported for tokens of service " + getService() + ".");
+		throw new UnsupportedOperationException(
+				"getPrincipal() is not yet supported for tokens of service " + getService() + ".");
 	}
 
 	@Override
@@ -40,7 +41,8 @@ public class SapIdToken extends AbstractToken {
 
 	@Override
 	public GrantType getGrantType() {
-		throw new UnsupportedOperationException("getGrantType() is not supported for SAP ID tokens of service " + getService() + ".");
+		throw new UnsupportedOperationException(
+				"getGrantType() is not supported for SAP ID tokens of service " + getService() + ".");
 	}
 
 	@Override

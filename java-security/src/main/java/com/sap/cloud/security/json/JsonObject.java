@@ -104,7 +104,8 @@ public interface JsonObject {
 	 * Example:
 	 * 
 	 * <pre>
-	 * {@code
+	 * {
+	 * 	&#64;code
 	 * 	String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
 	 * 	JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName())
 	 * 			.get(0);
