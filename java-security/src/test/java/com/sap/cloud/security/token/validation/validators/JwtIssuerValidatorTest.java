@@ -42,6 +42,12 @@ public class JwtIssuerValidatorTest {
 	}
 
 	@Test
+	public void tokenIssuerWithoutHttpSchemeMatchesIdentityServiceDomain() {
+		when(token.getClaimAsString(ISSUER)).thenReturn("subdomain.accounts400.ondemand.com");
+		assertThat(cut.validate(token).isValid(), is(true));
+	}
+
+	@Test
 	public void validationFails_whenTokenIssuerDoesNotMatchIdentityServiceDomain() {
 		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts300.ondemand.com");
 		ValidationResult validationResult = cut.validate(token);

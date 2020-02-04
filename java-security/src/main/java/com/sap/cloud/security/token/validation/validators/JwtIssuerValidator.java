@@ -48,7 +48,7 @@ public class JwtIssuerValidator implements Validator<Token> {
 	private ValidationResult matchesTokenIssuerDomain(String issuer) {
 		URI issuerUri;
 		try {
-			issuerUri = new URI(issuer);
+			issuerUri = issuer.startsWith("http") ? new URI(issuer) : new URI("https://" + issuer);
 			if (issuerUri.getHost() != null && issuerUri.getHost().endsWith(domain)) {
 				return createValid();
 			}
