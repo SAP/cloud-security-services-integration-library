@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.IDENTITY_ZONE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 import static com.sap.cloud.security.token.TokenClaims.*;
 
@@ -241,7 +242,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 			return true; // default provide OAuth2ServiceConfiguration via constructor argument
 		}
 		if(getClientId().equals(configuration.getClientId()) &&
-			 getSubdomain().equals(configuration.getProperty("identityzone"))) {
+			 getSubdomain().equals(configuration.getProperty(IDENTITY_ZONE))) {
 			return false;
 		} else if (matchesTokenClientIdToBrokerCloneAppId()) {
 			return false;

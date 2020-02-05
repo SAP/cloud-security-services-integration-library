@@ -1,6 +1,5 @@
 package com.sap.cloud.security.adapter.xs;
 
-import com.sap.cloud.security.adapter.xs.XSUserInfoAdapter;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
@@ -13,12 +12,14 @@ import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 
 import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.IDENTITY_ZONE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,11 +35,17 @@ public class XSUserInfoAdapterTest {
 	public XSUserInfoAdapterTest() throws IOException {
 		emptyToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaEmptyToken.txt", UTF_8));
 		token = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", UTF_8));
+
 	}
 
 	@Before
 	public void setUp() throws XSUserInfoException {
-		cut = spy(new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID))));
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+				.withClientId("sb-clone1!b5|LR-master!b5")
+				.withProperty(CFConstants.XSUAA.APP_ID, "myAppId")
+				.withProperty(IDENTITY_ZONE, "paas")
+				.build();
+		cut = new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)), configuration);
 	}
 
 	// TODO 22.01.20 c5295400: implement external context fallback tests
@@ -130,19 +137,16 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void testGetDBToken() throws XSUserInfoException {
-		when(cut.isInForeignMode()).thenReturn(false);
 		assertThat(cut.getDBToken()).isEqualTo(cut.getAppToken());
 	}
 
 	@Test
 	public void testGetHdbToken() throws XSUserInfoException {
-		when(cut.isInForeignMode()).thenReturn(false);
 		assertThat(cut.getHdbToken()).isEqualTo(cut.getAppToken());
 	}
 
 	@Test
 	public void getToken_fallbackToAccessToken() throws XSUserInfoException {
-		when(cut.isInForeignMode()).thenReturn(false);
 		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(token.getAccessToken());
 	}
 
@@ -238,7 +242,8 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void testIsByDefaultInForeignMode() throws XSUserInfoException {
+	public void isForeignModeIsTrue_whenConfigurationIsNotAvailable() throws XSUserInfoException {
+		cut = new XSUserInfoAdapter(token);
 		assertThat(cut.isInForeignMode()).isTrue();
 	}
 
@@ -294,12 +299,6 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void isByDefaultInForeignMode() throws XSUserInfoException {
-		assertThat(cut.isInForeignMode()).isTrue();
-	}
-
-	@Test
-	@Ignore
 	public void isForeignModeFalse_WhenTokenCloneIdMatchesBrokerAppId() throws XSUserInfoException {
 		String tokenClientId = "sb-clone1!b22|brokerplanmasterapp!b123"; // cid
 		String configurationAppId = "brokerplanmasterapp!b123";
@@ -313,12 +312,11 @@ public class XSUserInfoAdapterTest {
 				.build();
 
 		cut = spy(new XSUserInfoAdapter(token, configuration));
-		when(cut.getSubdomain()).thenReturn("otherSubDomain");
+		doReturn("otherSubDomain").when(cut).getSubdomain();
 		assertThat(cut.isInForeignMode()).isFalse();
 	}
 
 	@Test
-	@Ignore
 	public void isForeignModeFalse_WhenClientIdAndPaasSubdomainMatches() throws XSUserInfoException {
 		String tokenClientId = "sb-application!t0123"; // cid
 		String tokenSubdomain = "brokerplanmasterapp!b123"; // ext_attr -> zdn
@@ -328,14 +326,27 @@ public class XSUserInfoAdapterTest {
 
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(tokenClientId)
-				.withProperty("identityzone", tokenSubdomain)
+				.withProperty(IDENTITY_ZONE, tokenSubdomain)
 				.build();
 
 		cut = spy(new XSUserInfoAdapter(token, configuration));
-		when(cut.getSubdomain()).thenReturn(tokenSubdomain);
+		doReturn(tokenSubdomain).when(cut).getSubdomain();
 		assertThat(cut.isInForeignMode()).isFalse();
 	}
 
+	@Test
+	public void isForeignModeTrue_whenClientIdDoesNotMatchSubdomainAndAppHasNoBrokerPlan() throws XSUserInfoException {
+		String tokenClientId = "sb-application!t0123"; // cid
+		XsuaaToken token = mock(XsuaaToken.class);
+		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(tokenClientId);
+
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+				.withProperty(APP_ID, "sb-application")
+				.build();
+
+		cut = new XSUserInfoAdapter(token, configuration);
+		assertThat(cut.isInForeignMode()).isTrue();
+	}
 
 	private XsuaaToken createMockToken(GrantType grantType) {
 		XsuaaToken mockToken = mock(XsuaaToken.class);
