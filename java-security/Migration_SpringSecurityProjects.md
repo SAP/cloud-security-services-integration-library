@@ -28,17 +28,17 @@ First make sure you have the following dependencies defined in your pom.xml:
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>api</artifactId>
-  <version>2.4.2-SNAPSHOT</version>
+  <version>2.4.3-SNAPSHOT</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security</artifactId>
-  <version>2.4.2-SNAPSHOT</version>
+  <version>2.4.3-SNAPSHOT</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security-test</artifactId>
-  <version>2.4.2-SNAPSHOT</version>
+  <version>2.4.3-SNAPSHOT</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -135,10 +135,10 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 
 Token token = SecurityContext.getToken();
-String logonName = token.getClaimAsString(TokenClaims.XSUAA.USER_NAME);		
+String logonName = token.getClaimAsString(TokenClaims.USER_NAME);		
 ```
 
-> Note, that no `XSUserInfoException` is raised, in case the accessToken does not contain the requested claim.
+> Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
 
 ## Fetch infos from Token - Part 2
 When you're done with the first part and need further information from the token you can use `XSUserInfoAdapter` in order to access the  deprecated methods.
@@ -193,7 +193,7 @@ Using the `SecurityTestRule` you can use a preconfigured `JwtGenerator` to creat
 String jwt = securityTestRule.getPreconfiguredJwtGenerator()
     .withScopes(WebSecurityConfig.DISPLAY_SCOPE, WebSecurityConfig.UPDATE_SCOPE)
     .createToken()
-    .getBearerAccessToken();
+    .getTokenValue();
 
 ```
 

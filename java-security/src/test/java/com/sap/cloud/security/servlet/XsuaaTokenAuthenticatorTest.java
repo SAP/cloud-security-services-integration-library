@@ -68,7 +68,7 @@ public class XsuaaTokenAuthenticatorTest {
 	public void validateWhenConfigurationIsNull() {
 		cut = new XsuaaTokenAuthenticator();
 
-		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getBearerAccessToken());
+		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getBearerTokenValue());
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 		assertThat(response.isAuthenticated()).isFalse();
@@ -99,7 +99,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 	@Test
 	public void validateRequest_validToken_containedInSecurityContext() {
-		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getBearerAccessToken());
+		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getBearerTokenValue());
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
@@ -110,7 +110,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 	@Test
 	public void validateRequest_validToken_listenerIsCalled() {
-		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getBearerAccessToken());
+		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getBearerTokenValue());
 		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
 		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 
@@ -126,7 +126,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 	@Test
 	public void validateRequest_invalidToken_listenerIsCalled() {
-		HttpServletRequest httpRequest = createRequestWithToken(invalidSignatureToken.getBearerAccessToken());
+		HttpServletRequest httpRequest = createRequestWithToken(invalidSignatureToken.getBearerTokenValue());
 		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
 		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 

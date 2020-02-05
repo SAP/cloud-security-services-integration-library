@@ -40,7 +40,7 @@ public class HelloJavaServletIntegrationTest {
 	}
 
 	@Test
-	public void requestWithEmptyAuthorizationHeader_unauthenticated() throws Exception {
+	public void requestWithEmptyAuthorizationHeader_unauthenticated() throws IOException {
 		HttpGet request = createGetRequest("");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
@@ -52,7 +52,7 @@ public class HelloJavaServletIntegrationTest {
 		Token token = rule.getPreconfiguredJwtGenerator()
 				.withClaimValue(TokenClaims.EMAIL, "john.doe@email.com")
 				.createToken();
-		HttpGet request = createGetRequest(token.getBearerAccessToken());
+		HttpGet request = createGetRequest(token.getTokenValue());
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
@@ -64,7 +64,7 @@ public class HelloJavaServletIntegrationTest {
 	public void request_withInvalidToken_unauthenticated() throws IOException {
 		HttpGet request = createGetRequest(rule.getPreconfiguredJwtGenerator()
 				.withClaimValue(TokenClaims.ISSUER, "INVALID Issuer")
-				.createToken().getBearerAccessToken());
+				.createToken().getTokenValue());
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 		}
@@ -73,7 +73,7 @@ public class HelloJavaServletIntegrationTest {
 	private HttpGet createGetRequest(String bearerToken) {
 		HttpGet httpGet = new HttpGet(rule.getApplicationServerUri() + HelloJavaServlet.ENDPOINT);
 		if(bearerToken != null) {
-			httpGet.setHeader(HttpHeaders.AUTHORIZATION, bearerToken);
+			httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken);
 		}
 		return httpGet;
 	}

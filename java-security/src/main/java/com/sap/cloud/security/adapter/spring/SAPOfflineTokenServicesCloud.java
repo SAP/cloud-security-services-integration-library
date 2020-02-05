@@ -140,7 +140,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 	@Override
 	public OAuth2AccessToken readAccessToken(String accessToken) {
-		throw new UnsupportedOperationException("Not supported: read access token");
+		throw new UnsupportedOperationException("Not supported: readAccessToken()");
 	}
 
 	/**

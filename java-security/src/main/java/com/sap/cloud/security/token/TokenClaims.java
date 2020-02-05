@@ -1,7 +1,7 @@
 package com.sap.cloud.security.token;
 
 /**
- * Constants denoting Jwt claims as specified here:
+ * Constants denoting JWT claims as specified here:
  * https://tools.ietf.org/html/rfc7519#section-4
  */
 public final class TokenClaims {
@@ -25,6 +25,7 @@ public final class TokenClaims {
 
 		public static final String ORIGIN = "origin";
 		public static final String GRANT_TYPE = "grant_type"; // OAuth grant type used for token creation
+		// TODO ask Markus / Martijn
 		public static final String SUBACCOUNT_ID = "zid"; // tenant GUID, identity zone id
 		public static final String CLIENT_ID = "cid"; // OAuth client identifier
 		public static final String SCOPES = "scope"; // list of scopes including application id, e.g.
@@ -33,12 +34,12 @@ public final class TokenClaims {
 		public static final String EXTERNAL_ATTRIBUTE_ENHANCER = "enhancer";
 	}
 
-	// SAP User token
+	/* SAP User token
 	public final class SAP_ID {
 		private SAP_ID() {
 		}
 
 		// public static final String SAP_ZONE_ID = "sap_zid";
 		// public static final String SAP_USER_ID = "sap_uid";
-	}
+	}*/
 }

@@ -146,6 +146,7 @@ public class OAuth2ServiceConfigurationBuilder {
 			}
 
 			private String extractDomain(String url) {
+				// TODO support https://accounts.sap.com
 				String host = URI.create(url).getHost();
 
 				if (LOCALHOST.equals(host)) {

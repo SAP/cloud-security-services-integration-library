@@ -18,7 +18,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>2.4.2-SNAPSHOT</version>
+    <version>2.4.3-SNAPSHOT</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -27,7 +27,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 Find an example on how to use the test utilities [here](/samples/java-security-usage).
 
 ### Jwt Generator
-Using `JwtGenerator` you can create tokens of type [`Token`](/java-security/src/main/java/com/sap/cloud/security/token/Token.java), which offers you a `getAccessToken()` method that returns the encoded and signed Jwt token. By default its signed with a random RSA key pair. In case you like to provide the token via `Authorization` header to your application use `getBearerAccessToken()` to get the access token prefixed with `Bearer `. 
+Using `JwtGenerator` you can create tokens of type [`Token`](/java-security/src/main/java/com/sap/cloud/security/token/Token.java), which offers you a `getTokenValue()` method that returns the encoded and signed Jwt token. By default its signed with a random RSA key pair. In case you like to provide the token via `Authorization` header to your application you need to prefix the access token with `Bearer `. 
 
 ```java
 Token token = JwtGenerator.getInstance(Service.XSUAA)
@@ -35,7 +35,7 @@ Token token = JwtGenerator.getInstance(Service.XSUAA)
                                 .withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId) // optional
                                 .createToken();
 
-String authorizationHeaderValue = token.getBearerAccessToken();
+String authorizationHeaderValue = `Bearer ` + token.getTokenValue();
 ```
 
 ### Unit Test Utilities
@@ -76,7 +76,7 @@ public class HelloJavaServletTest {
 		String jwt = rule.getPreconfiguredJwtGenerator()
 				.withScopes(SecurityTestRule.DEFAULT_APP_ID + ".Read")
 				.createToken()
-				.getBearerAccessToken();
+				.getTokenValue();
 		HttpGet request = createGetRequest(jwt);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -84,10 +84,10 @@ public class HelloJavaServletTest {
 		}
 	}
 
-	private HttpGet createGetRequest(String bearerToken) {
+	private HttpGet createGetRequest(String accessToken) {
 		HttpGet httpGet = new HttpGet(rule.getApplicationServerUri() + HelloJavaServlet.ENDPOINT);
-		if(bearerToken != null) {
-			httpGet.setHeader(HttpHeaders.AUTHORIZATION, bearerToken);
+		if(accessToken != null) {
+			httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 		}
 		return httpGet;
 	}

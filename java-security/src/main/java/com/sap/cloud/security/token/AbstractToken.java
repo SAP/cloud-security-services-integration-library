@@ -20,13 +20,13 @@ import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
 import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
 
 /**
- * Decodes and parses encoded access token (JWT) Token and provides access to
+ * Decodes and parses encoded JSON Web Token (JWT) and provides access to
  * token header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
 	protected final DefaultJsonObject tokenHeader;
 	protected final DefaultJsonObject tokenBody;
-	protected final String accessToken;
+	protected final String jwtToken;
 
 	public AbstractToken(@Nonnull DecodedJwt decodedJwt) {
 		this(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
@@ -36,18 +36,18 @@ public abstract class AbstractToken implements Token {
 	 * Creates a Token object for simple access to the header parameters and its
 	 * claims.
 	 * 
-	 * @param accessToken
-	 *            the encoded access token (Jwt or OIDC), e.g. from the
+	 * @param jwtToken
+	 *            the encoded JWT token (access_token or id_token), e.g. from the
 	 *            Authorization Header.
 	 */
-	public AbstractToken(@Nonnull String accessToken) {
-		this(Base64JwtDecoder.getInstance().decode(removeBearer(accessToken)));
+	public AbstractToken(@Nonnull String jwtToken) {
+		this(Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken)));
 	}
 
-	AbstractToken(String jsonHeader, String jsonPayload, String accessToken) {
+	AbstractToken(String jsonHeader, String jsonPayload, String jwtToken) {
 		tokenHeader = new DefaultJsonObject(jsonHeader);
 		tokenBody = new DefaultJsonObject(jsonPayload);
-		this.accessToken = accessToken;
+		this.jwtToken = jwtToken;
 	}
 
 	@Nullable
@@ -103,13 +103,8 @@ public abstract class AbstractToken implements Token {
 	}
 
 	@Override
-	public String getAccessToken() {
-		return accessToken;
-	}
-
-	@Override
-	public String getBearerAccessToken() {
-		return "Bearer " + accessToken;
+	public String getTokenValue() {
+		return jwtToken;
 	}
 
 	@Override
@@ -141,10 +136,10 @@ public abstract class AbstractToken implements Token {
 		};
 	}
 
-	private static String removeBearer(@Nonnull String accessToken) {
-		Assertions.assertHasText(accessToken, "accessToken must not be null / empty");
+	private static String removeBearer(@Nonnull String jwtToken) {
+		Assertions.assertHasText(jwtToken, "jwtToken must not be null / empty");
 		Pattern bearerPattern = Pattern.compile("[B|b]earer ");
-		return bearerPattern.matcher(accessToken).replaceFirst("");
+		return bearerPattern.matcher(jwtToken).replaceFirst("");
 	}
 
 	@Override
@@ -154,11 +149,11 @@ public abstract class AbstractToken implements Token {
 		if (!(o instanceof AbstractToken))
 			return false;
 		AbstractToken that = (AbstractToken) o;
-		return getAccessToken().equals(that.getAccessToken());
+		return getTokenValue().equals(that.getTokenValue());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getAccessToken());
+		return Objects.hash(getTokenValue());
 	}
 }

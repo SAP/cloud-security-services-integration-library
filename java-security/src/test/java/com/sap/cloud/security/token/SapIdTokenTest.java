@@ -22,7 +22,7 @@ public class SapIdTokenTest {
 	public void constructor_raiseIllegalArgumentExceptions() {
 		assertThatThrownBy(() -> {
 			new SapIdToken("");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("accessToken must not be null / empty");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("jwtToken must not be null / empty");
 
 		assertThatThrownBy(() -> {
 			new SapIdToken("abc");
@@ -37,14 +37,6 @@ public class SapIdTokenTest {
 			cut.getPrincipal();
 		}).isInstanceOf(UnsupportedOperationException.class)
 				.hasMessageContaining("getPrincipal() is not yet supported for tokens of service IAS.");
-	}
-
-	@Test
-	public void getGrantType() {
-		assertThatThrownBy(() -> {
-			cut.getGrantType();
-		}).isInstanceOf(UnsupportedOperationException.class)
-				.hasMessageContaining("getGrantType() is not supported for SAP ID tokens of service IAS.");
 	}
 
 	@Test

@@ -66,7 +66,7 @@ public class IasTokenAuthenticatorTest {
 	public void validateWhenConfigurationIsNull() {
 		cut = new IasTokenAuthenticator();
 
-		HttpServletRequest httpRequest = createRequestWithToken(token.getBearerAccessToken());
+		HttpServletRequest httpRequest = createRequestWithToken(token.getTokenValue());
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 		assertThat(response.isAuthenticated()).isFalse();
@@ -97,7 +97,7 @@ public class IasTokenAuthenticatorTest {
 
 	@Test
 	public void validateRequest_validToken_containedInSecurityContext() {
-		HttpServletRequest httpRequest = createRequestWithToken(token.getBearerAccessToken());
+		HttpServletRequest httpRequest = createRequestWithToken(token.getTokenValue());
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
@@ -108,7 +108,7 @@ public class IasTokenAuthenticatorTest {
 
 	@Test
 	public void validateRequest_validToken_listenerIsCalled() {
-		HttpServletRequest httpRequest = createRequestWithToken(token.getBearerAccessToken());
+		HttpServletRequest httpRequest = createRequestWithToken(token.getTokenValue());
 		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
 		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 
@@ -124,7 +124,7 @@ public class IasTokenAuthenticatorTest {
 
 	@Test
 	public void validateRequest_invalidToken_listenerIsCalled() {
-		HttpServletRequest httpRequest = createRequestWithToken(token.getBearerAccessToken() + "B");
+		HttpServletRequest httpRequest = createRequestWithToken(token.getTokenValue() + "B");
 		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
 		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 
@@ -144,7 +144,7 @@ public class IasTokenAuthenticatorTest {
 
 	private HttpServletRequest createRequestWithToken(String bearerAuthorizationHeader) {
 		HttpServletRequest httpRequest = createRequestWithoutToken();
-		when(httpRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(bearerAuthorizationHeader);
+		when(httpRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer " + bearerAuthorizationHeader);
 		return httpRequest;
 	}
 
