@@ -42,7 +42,7 @@ public class XSUserInfoAdapterTest {
 	public void setUp() throws XSUserInfoException {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId("sb-clone1!b5|LR-master!b5")
-				.withProperty(CFConstants.XSUAA.APP_ID, "myAppId")
+				.withProperty(CFConstants.XSUAA.APP_ID, "brokerplanmasterapp!b123")
 				.withProperty(IDENTITY_ZONE, "paas")
 				.build();
 		cut = new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)), configuration);
