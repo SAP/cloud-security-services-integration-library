@@ -5,10 +5,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
-import com.sap.cloud.security.token.GrantType;
-import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.token.XsuaaScopeConverter;
-import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.token.*;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -170,7 +167,7 @@ public class XSUserInfoAdapterTest {
 		when(mockToken.getClaimAsJsonObject(XS_USER_ATTRIBUTES)).thenReturn(mock(JsonObject.class));
 
 		cut = spy(new XSUserInfoAdapter(mockToken));
-		when(cut.isInForeignMode()).thenReturn(false);
+		doReturn(false).when(cut).isInForeignMode();
 
 		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(internalToken);
 	}
@@ -345,6 +342,26 @@ public class XSUserInfoAdapterTest {
 				.build();
 
 		cut = new XSUserInfoAdapter(token, configuration);
+		assertThat(cut.isInForeignMode()).isTrue();
+	}
+
+	@Test
+	public void isForeignModeTrue_whenClientIdIsMissing() throws XSUserInfoException {
+		cut = spy(new XSUserInfoAdapter(token, Mockito.mock(OAuth2ServiceConfiguration.class)));
+		doReturn("brokerplanmasterapp!b123").when(cut).getSubdomain();
+
+		doThrow(new XSUserInfoException("")).when(cut).getClientId();
+
+		assertThat(cut.isInForeignMode()).isTrue();
+	}
+
+	@Test
+	public void isForeignModeTrue_whenIdentityZoneIsMissing() throws XSUserInfoException {
+		cut = spy(new XSUserInfoAdapter(token, Mockito.mock(OAuth2ServiceConfiguration.class)));
+		doReturn("sb-application!t0123").when(cut).getClientId();
+
+		doThrow(new XSUserInfoException("")).when(cut).getSubdomain();
+
 		assertThat(cut.isInForeignMode()).isTrue();
 	}
 

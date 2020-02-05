@@ -10,6 +10,8 @@ import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.xsa.security.container.XSTokenRequest;
 import com.sap.xsa.security.container.XSUserInfo;
 import com.sap.xsa.security.container.XSUserInfoException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -20,6 +22,8 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 import static com.sap.cloud.security.token.TokenClaims.*;
 
 public class XSUserInfoAdapter implements XSUserInfo {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(XSUserInfoAdapter.class);
 
 	static final String EXTERNAL_CONTEXT = "ext_ctx";
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
@@ -235,16 +239,23 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public boolean isInForeignMode() throws XSUserInfoException {
-		// TODO make more robust return true instead of exception
-		// TODO apply logs
+	public boolean isInForeignMode()  {
+		final String clientId;
+		final String subdomain;
+		try {
+			clientId = getClientId();
+			subdomain = getSubdomain();
+		} catch (XSUserInfoException e) {
+			LOGGER.warn("Tried to access missing attribute when checking for foreign mode", e);
+			return true;
+		}
 		if(configuration == null) {
 			return true; // default provide OAuth2ServiceConfiguration via constructor argument
 		}
-		if(getClientId().equals(configuration.getClientId()) &&
-			 getSubdomain().equals(configuration.getProperty(IDENTITY_ZONE))) {
+		if(clientId.equals(configuration.getClientId()) &&
+			 subdomain.equals(configuration.getProperty(IDENTITY_ZONE))) {
 			return false;
-		} else if (matchesTokenClientIdToBrokerCloneAppId()) {
+		} else if (matchesTokenClientIdToBrokerCloneAppId(clientId, configuration.getProperty(CFConstants.XSUAA.APP_ID))) {
 			return false;
 		}
 		return true;
@@ -283,7 +294,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 				.map(claim -> claim.getAsString(attributeName)).orElse(null);
 	}
 
-	String getExternalAttribute(String attributeName) throws XSUserInfoException {
+	private String getExternalAttribute(String attributeName) throws XSUserInfoException {
 		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
 	}
 
@@ -308,11 +319,10 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		}
 	}
 
-	private boolean matchesTokenClientIdToBrokerCloneAppId() throws XSUserInfoException {
-		String appId = configuration.getProperty(CFConstants.XSUAA.APP_ID);
-		return appId.contains("!b") // broker plan
-				&& getClientId().contains("|")
-				&& getClientId().endsWith("|" + appId);
+	private boolean matchesTokenClientIdToBrokerCloneAppId(String clientId, String appid)  {
+		return appid.contains("!b") // broker plan
+				&& clientId.contains("|")
+				&& clientId.endsWith("|" + appid);
 	}
 
 }
