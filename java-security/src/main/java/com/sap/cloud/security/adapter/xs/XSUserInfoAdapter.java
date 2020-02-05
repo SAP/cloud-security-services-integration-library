@@ -137,7 +137,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getAppToken() {
-		return xsuaaToken.getAccessToken();
+		return xsuaaToken.getTokenValue();
 	}
 
 	@Override
@@ -160,11 +160,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 				token = xsuaaToken.getClaimAsString(HDB_NAMEDUSER_SAML);
 			}
 			if (token == null) {
-				token = xsuaaToken.getAccessToken();
+				token = xsuaaToken.getTokenValue();
 			}
 			return token;
 		} else if (name.equals("JobScheduler")) {
-			return xsuaaToken.getAccessToken();
+			return xsuaaToken.getTokenValue();
 		} else {
 			throw new XSUserInfoException("Invalid name " + name + " for namespace " + namespace);
 		}

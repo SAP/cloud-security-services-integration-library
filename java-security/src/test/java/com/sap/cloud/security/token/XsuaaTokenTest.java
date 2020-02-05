@@ -25,7 +25,7 @@ public class XsuaaTokenTest {
 	public void constructor_raiseIllegalArgumentExceptions() {
 		assertThatThrownBy(() -> {
 			new XsuaaToken("");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("accessToken must not be null / empty");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("jwtToken must not be null / empty");
 
 		assertThatThrownBy(() -> {
 			new XsuaaToken("abc");
@@ -72,8 +72,8 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getBearerAccessToken() {
-		assertThat(userToken.getBearerAccessToken()).startsWith("Bearer ");
+	public void getBearerTokenValue() {
+		assertThat(userToken.getBearerTokenValue()).startsWith("Bearer ");
 	}
 
 	@Test

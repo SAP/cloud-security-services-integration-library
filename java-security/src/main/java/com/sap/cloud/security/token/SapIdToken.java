@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * You can get further token claims from here: {@link TokenClaims.SAP_ID}.
+ * You can get further token claims from here: {@link TokenClaims}.
  */
 public class SapIdToken extends AbstractToken {
 	static final Logger LOGGER = LoggerFactory.getLogger(SapIdToken.class);
@@ -37,12 +37,6 @@ public class SapIdToken extends AbstractToken {
 	@Override
 	public Service getService() {
 		return Service.IAS;
-	}
-
-	@Override
-	public GrantType getGrantType() {
-		throw new UnsupportedOperationException(
-				"getGrantType() is not supported for SAP ID tokens of service " + getService() + ".");
 	}
 
 	@Override

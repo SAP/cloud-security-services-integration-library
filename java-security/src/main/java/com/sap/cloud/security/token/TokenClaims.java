@@ -1,7 +1,7 @@
 package com.sap.cloud.security.token;
 
 /**
- * Constants denoting Jwt claims as specified here:
+ * Constants denoting JWT claims as specified here:
  * https://tools.ietf.org/html/rfc7519#section-4
  */
 public final class TokenClaims {

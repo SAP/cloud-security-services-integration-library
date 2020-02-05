@@ -127,8 +127,8 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenJwtPayloadModified() {
-		String[] tokenHeaderPayloadSignature = xsuaaToken.getAccessToken().split(Pattern.quote("."));
-		String[] otherHeaderPayloadSignature = iasToken.getAccessToken().split(Pattern.quote("."));
+		String[] tokenHeaderPayloadSignature = xsuaaToken.getTokenValue().split(Pattern.quote("."));
+		String[] otherHeaderPayloadSignature = iasToken.getTokenValue().split(Pattern.quote("."));
 		String tokenWithOthersSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(otherHeaderPayloadSignature[1])
@@ -139,7 +139,7 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenJwtProvidesNoSignature() {
-		String[] tokenHeaderPayloadSignature = xsuaaToken.getAccessToken().split(Pattern.quote("."));
+		String[] tokenHeaderPayloadSignature = xsuaaToken.getTokenValue().split(Pattern.quote("."));
 		String tokenWithOthersSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
@@ -157,7 +157,7 @@ public class JwtSignatureValidatorTest {
 				.thenReturn(JsonWebKeySetFactory.createFromJson(
 						IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8)));
 
-		ValidationResult result = cut.validate(iasToken.getAccessToken(), "RS256", "default-kid-2",
+		ValidationResult result = cut.validate(iasToken.getTokenValue(), "RS256", "default-kid-2",
 				"https://myauth.com/jwks_uri", null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
@@ -167,7 +167,7 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNotRSA256() {
-		ValidationResult validationResult = cut.validate(xsuaaToken.getAccessToken(), "ES123", "key-id-1",
+		ValidationResult validationResult = cut.validate(xsuaaToken.getTokenValue(), "ES123", "key-id-1",
 				"https://myauth.com/jwks_uri", null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
@@ -176,7 +176,7 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNull() {
-		ValidationResult validationResult = cut.validate(xsuaaToken.getAccessToken(), "", "key-id-1",
+		ValidationResult validationResult = cut.validate(xsuaaToken.getTokenValue(), "", "key-id-1",
 				"https://myauth.com/jwks_uri", null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
@@ -188,7 +188,7 @@ public class JwtSignatureValidatorTest {
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(any())).thenThrow(OAuth2ServiceException.class);
 
-		ValidationResult result = cut.validate(xsuaaToken.getAccessToken(), "RS256", "key-id-1",
+		ValidationResult result = cut.validate(xsuaaToken.getTokenValue(), "RS256", "key-id-1",
 				"http://unavailable.com/token_keys", null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),

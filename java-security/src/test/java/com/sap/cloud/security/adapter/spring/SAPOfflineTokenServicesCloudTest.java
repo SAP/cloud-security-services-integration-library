@@ -58,7 +58,7 @@ public class SAPOfflineTokenServicesCloudTest {
 		assertThat(authentication.isAuthenticated()).isTrue();
 		assertThat(authentication.getOAuth2Request()).isNotNull();
 		assertThat(authentication.getOAuth2Request().getScope()).contains("ROLE_SERVICEBROKER", "uaa.resource");
-		assertThat(SecurityContext.getToken().getAccessToken()).isEqualTo(xsuaaToken);
+		assertThat(SecurityContext.getToken().getTokenValue()).isEqualTo(xsuaaToken);
 	}
 
 	@Test

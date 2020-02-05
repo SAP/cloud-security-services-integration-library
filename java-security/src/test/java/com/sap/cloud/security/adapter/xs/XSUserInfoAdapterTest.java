@@ -1,6 +1,5 @@
 package com.sap.cloud.security.adapter.xs;
 
-import com.sap.cloud.security.adapter.xs.XSUserInfoAdapter;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
@@ -141,9 +140,9 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void getToken_fallbackToAccessToken() throws XSUserInfoException {
+	public void getToken_fallbackToTokenValue() throws XSUserInfoException {
 		when(cut.isInForeignMode()).thenReturn(false);
-		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(token.getAccessToken());
+		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(token.getTokenValue());
 	}
 
 	@Test

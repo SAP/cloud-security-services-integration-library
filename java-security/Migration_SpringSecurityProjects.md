@@ -138,7 +138,7 @@ Token token = SecurityContext.getToken();
 String logonName = token.getClaimAsString(TokenClaims.USER_NAME);		
 ```
 
-> Note, that no `XSUserInfoException` is raised, in case the accessToken does not contain the requested claim.
+> Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
 
 ## Fetch infos from Token - Part 2
 When you're done with the first part and need further information from the token you can use `XSUserInfoAdapter` in order to access the  deprecated methods.
@@ -193,7 +193,7 @@ Using the `SecurityTestRule` you can use a preconfigured `JwtGenerator` to creat
 String jwt = securityTestRule.getPreconfiguredJwtGenerator()
     .withScopes(WebSecurityConfig.DISPLAY_SCOPE, WebSecurityConfig.UPDATE_SCOPE)
     .createToken()
-    .getBearerAccessToken();
+    .getTokenValue();
 
 ```
 
