@@ -250,6 +250,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 			return true;
 		}
 		if(configuration == null) {
+			LOGGER.info("No configuration provided -> falling back to foreignMode = true!");
 			return true; // default provide OAuth2ServiceConfiguration via constructor argument
 		}
 		if(clientId.equals(configuration.getClientId()) &&
