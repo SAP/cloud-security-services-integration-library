@@ -1,5 +1,7 @@
 package com.sap.cloud.security.adapter.xs;
 
+import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
@@ -238,7 +240,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		// TODO make more robust return true instead of exception
 		// TODO apply logs
 		if(configuration == null) {
-			return true; // default provide OAuth2ServiceConfiguration via constructor argument
+			configuration = Environments.getCurrent().getXsuaaConfiguration();
 		}
 		if(getClientId().equals(configuration.getClientId()) &&
 			 getSubdomain().equals(configuration.getProperty("identityzone"))) {
