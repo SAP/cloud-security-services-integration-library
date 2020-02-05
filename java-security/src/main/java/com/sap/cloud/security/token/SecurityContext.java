@@ -40,6 +40,18 @@ public class SecurityContext {
 	}
 
 	/**
+	 * Returns the token that is saved in thread wide storage.
+	 *
+	 *
+	 * @return the token or null if the storage is empty or the token
+	 * does not implement the {@code AccessToken} interface.
+	 */
+	@Nullable
+	public static AccessToken getAccessToken() {
+		return tokenStorage.get() instanceof AccessToken ?  (AccessToken) tokenStorage.get() : null;
+	}
+
+	/**
 	 * Clears the current Token from thread wide storage.
 	 */
 	public static void clearToken() {
