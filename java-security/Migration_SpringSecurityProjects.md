@@ -130,13 +130,12 @@ try {
 This can be easily replaced with the `Token` or `XsuaaToken` Api.
 
 ```java
-import com.sap.cloud.security.token.SecurityContext;
-import com.sap.cloud.security.token.AccessToken;
-import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.token.*;
 
 AccessToken token = SecurityContext.getAccessToken();
 String logonName = token.getClaimAsString(TokenClaims.USER_NAME);
-boolean hasDisplayScope = token.hasLocalScope("Display");				
+boolean hasDisplayScope = token.hasLocalScope("Display");	
+GrantType grantType = token.getGrantType();
 ```
 
 > Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
