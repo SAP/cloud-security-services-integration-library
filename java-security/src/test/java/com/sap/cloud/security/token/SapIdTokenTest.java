@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,12 +32,11 @@ public class SapIdTokenTest {
 	}
 
 	@Test
-	// TODO IAS: should return SAP User ID (guid)
+	// TODO IAS: need real token with test data
 	public void getPrincipal() {
-		assertThatThrownBy(() -> {
-			cut.getPrincipal();
-		}).isInstanceOf(UnsupportedOperationException.class)
-				.hasMessageContaining("getPrincipal() is not yet supported for tokens of service IAS.");
+		Principal principal = cut.getPrincipal();
+
+		assertThat(principal).isNull();
 	}
 
 	@Test

@@ -30,8 +30,7 @@ public class SapIdToken extends AbstractToken {
 	@Override
 	public Principal getPrincipal() {
 		// TODO IAS: should return SAP User ID (guid)
-		throw new UnsupportedOperationException(
-				"getPrincipal() is not yet supported for tokens of service " + getService() + ".");
+		return null;
 	}
 
 	@Override
