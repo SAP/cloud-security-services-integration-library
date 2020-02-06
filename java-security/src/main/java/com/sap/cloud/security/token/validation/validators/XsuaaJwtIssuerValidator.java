@@ -31,7 +31,7 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 	 *            {@link OAuth2ServiceConfiguration#getProperty(String)}
 	 */
 	public XsuaaJwtIssuerValidator(String uaaDomain) {
-		assertHasText(uaaDomain, "uaaDomain must not be null or empty.");
+		assertHasText(uaaDomain, "XsuaaJwtIssuerValidator requires uaaDomain.");
 		this.domain = uaaDomain;
 	}
 

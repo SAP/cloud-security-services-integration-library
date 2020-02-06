@@ -48,8 +48,8 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	public JwtSignatureValidator(OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
-		assertNotNull(tokenKeyService, "tokenKeyService must not be null.");
-		assertNotNull(tokenKeyService, "oidcConfigurationService must not be null.");
+		assertNotNull(tokenKeyService, "JwtSignatureValidator requires a tokenKeyService.");
+		assertNotNull(tokenKeyService, "JwtSignatureValidator requires a oidcConfigurationService.");
 
 		this.tokenKeyService = tokenKeyService;
 		this.oidcConfigurationService = oidcConfigurationService;

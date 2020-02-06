@@ -32,7 +32,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	}
 
 	public JwtAudienceValidator configureAnotherServiceInstance(String clientId) {
-		assertHasText(clientId, "clientId must not be null or empty.");
+		assertHasText(clientId, "JwtAudienceValidator requires a clientId.");
 		clientIds.add(clientId);
 		logger.info("configured JwtAudienceValidator with clientId {}.", clientId);
 

@@ -28,11 +28,11 @@ public class JwtIssuerValidatorTest {
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
 			new JwtIssuerValidator(null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("domain");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "domain");
 
 		assertThatThrownBy(() -> {
 			new JwtIssuerValidator(" ");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("domain");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "domain");
 	}
 
 	@Test
