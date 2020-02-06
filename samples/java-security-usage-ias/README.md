@@ -1,6 +1,6 @@
 # Description
-This sample is a Java back-end application running on the Cloud Foundry. On incoming requests it checks whether the user is authorized using the 
-[`OAuth2SecurityFilter`](src/main/java/com/sap/cloud/security/servlet/OAuth2SecurityFilter.java) which is defined in the [Java Security](../../java-security/) library.
+This sample is a Java back-end application running on the Cloud Foundry. For all incoming requests it checks whether the user is authorized using the 
+[`IasTokenAuthenticator`](/java-security/src/main/java/com/sap/cloud/security/servlet) which is defined in the [Java Security](../../java-security/) library.
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
