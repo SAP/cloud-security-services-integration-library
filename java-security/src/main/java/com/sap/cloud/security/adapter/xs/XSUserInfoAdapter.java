@@ -18,8 +18,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.IDENTITY_ZONE;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 public class XSUserInfoAdapter implements XSUserInfo {
 
@@ -111,7 +111,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 *     },
 	 */
 	public String getSubdomain() throws XSUserInfoException {
-		return Optional.ofNullable(getExternalAttribute(ZDN)).orElseThrow(createXSUserInfoException(ZDN));
+		return Optional.ofNullable(getExternalAttribute(ZDN)).orElse(null);
 	}
 
 	@Override
@@ -254,7 +254,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 			return true;
 		}
 		if (clientId.equals(configuration.getClientId()) &&
-				subdomain.equals(configuration.getProperty(IDENTITY_ZONE))) {
+				subdomain != null && subdomain.equals(configuration.getProperty(IDENTITY_ZONE))) {
 			return false;
 		} else if (matchesTokenClientIdToBrokerCloneAppId(clientId,
 				configuration.getProperty(CFConstants.XSUAA.APP_ID))) {
