@@ -15,8 +15,7 @@ username = os.getenv('CFUSER')
 password = os.getenv('CFPASSWORD')
 
 if (username is None):
-    print('Username: ', end='')
-    username = sys.stdin.readline()
+    username = input("Username: ")
 if (password is None):
     password = getpass()
 
