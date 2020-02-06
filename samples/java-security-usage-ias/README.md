@@ -19,7 +19,7 @@ mvn clean package
 ## Create the ias service instance
 Use the ias service broker and create a service instance (don't forget to replace the placeholders)
 ```shell
-cf create-service identity-beta default ias-java-security -c '{"redirect_uris": ["https://java-security-usage-ias-((ID)).((LANDSCAPE_APPS_DOMAIN))/uaa/login/callback/my-oidc"]}'
+cf create-service identity-beta default ias-java-security
 ```
 
 ## Configure the manifest
