@@ -15,7 +15,7 @@ username = os.getenv('CFUSER')
 password = os.getenv('CFPASSWORD')
 
 if (username is None):
-    print('Username: ')
+    print('Username: ', end='')
     username = sys.stdin.readline()
 if (password is None):
     password = getpass()
@@ -73,7 +73,7 @@ class TestJavaSecurity(unittest.TestCase):
 
         expected_response = "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(
             username)
-        self.assertIsNotNone(body)
+        self.assertIsNotNone(response_body)
         self.assertEqual(response_body, expected_response)
 
 
@@ -381,7 +381,7 @@ class CFApp:
         subprocess.run(['cf',  'delete', '-f', self.name])
         subprocess.run(
             ['cf',  'delete-service', '-f', self.xsuaa_service_name])
-        if (self.app_router_name != None):
+        if (self.app_router_name is not None):
             subprocess.run(['cf',  'delete',  '-f', self.app_router_name])
 
     def __str__(self):
