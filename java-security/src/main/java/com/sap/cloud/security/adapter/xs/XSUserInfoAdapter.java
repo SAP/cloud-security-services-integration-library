@@ -239,7 +239,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public boolean isInForeignMode()  {
+	public boolean isInForeignMode() {
+		if (configuration == null) {
+			LOGGER.info("No configuration provided -> falling back to foreignMode = true!");
+			return true; // default provide OAuth2ServiceConfiguration via constructor argument
+		}
 		final String clientId;
 		final String subdomain;
 		try {
@@ -249,14 +253,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 			LOGGER.warn("Tried to access missing attribute when checking for foreign mode", e);
 			return true;
 		}
-		if(configuration == null) {
-			LOGGER.info("No configuration provided -> falling back to foreignMode = true!");
-			return true; // default provide OAuth2ServiceConfiguration via constructor argument
-		}
-		if(clientId.equals(configuration.getClientId()) &&
-			 subdomain.equals(configuration.getProperty(IDENTITY_ZONE))) {
+		if (clientId.equals(configuration.getClientId()) &&
+				subdomain.equals(configuration.getProperty(IDENTITY_ZONE))) {
 			return false;
-		} else if (matchesTokenClientIdToBrokerCloneAppId(clientId, configuration.getProperty(CFConstants.XSUAA.APP_ID))) {
+		} else if (matchesTokenClientIdToBrokerCloneAppId(clientId,
+				configuration.getProperty(CFConstants.XSUAA.APP_ID))) {
 			return false;
 		}
 		return true;
@@ -320,7 +321,13 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		}
 	}
 
-	private boolean matchesTokenClientIdToBrokerCloneAppId(String clientId, String appid)  {
+	/**
+	 * Checks whether xsuaa broker plan is consumed and checks whether the client id suffix matches the appId.
+	 * @param clientId of token
+	 * @param appid the XS application name
+	 * @return
+	 */
+	private boolean matchesTokenClientIdToBrokerCloneAppId(String clientId, String appid) {
 		return appid.contains("!b") // broker plan
 				&& clientId.contains("|")
 				&& clientId.endsWith("|" + appid);
