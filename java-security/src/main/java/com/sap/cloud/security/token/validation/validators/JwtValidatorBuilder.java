@@ -13,8 +13,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 import static com.sap.cloud.security.config.Service.IAS;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.*;
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 
 /**
  * Class used to build a token validator for a oauth service configuration

@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.common.exceptions.InvalidTokenExcepti
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
-import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
@@ -141,7 +140,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 	@Override
 	public OAuth2AccessToken readAccessToken(String accessToken) {
-		throw new UnsupportedOperationException("Not supported: read access token");
+		throw new UnsupportedOperationException("Not supported: readAccessToken()");
 	}
 
 	/**

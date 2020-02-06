@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Represents a (JWT) access token.
+ * Represents a JSON Web Token (JWT).
  */
 public interface Token {
 
@@ -109,7 +109,7 @@ public interface Token {
 	Instant getNotBefore();
 
 	/**
-	 * Get the encoded authentication token, e.g. for token forwarding to another
+	 * Get the encoded jwt token, e.g. for token forwarding to another
 	 * app.
 	 *
 	 * <p>
@@ -117,24 +117,13 @@ public interface Token {
 	 *
 	 * @return the encoded token.
 	 */
-	String getAccessToken();
-
-	/**
-	 * Get the encoded authentication token with "Bearer " prefix, e.g. for
-	 * Authorization Http Header.
-	 *
-	 * <p>
-	 * Never expose this token via log or via HTTP.
-	 *
-	 * @return the encoded token.
-	 */
-	String getBearerAccessToken();
+	String getTokenValue();
 
 	/**
 	 * Returns a principal, which can be used to represent any entity, such as an
 	 * individual, a corporation, and a login id.
 	 *
-	 * @return the principal.
+	 * @return the principal or null if not yet implemented.
 	 */
 	Principal getPrincipal();
 
@@ -146,14 +135,7 @@ public interface Token {
 	Service getService();
 
 	/**
-	 * Returns the grant type of the jwt token. <br>
-	 *
-	 * @return the grant type
-	 **/
-	GrantType getGrantType();
-
-	/**
-	 * Returns the list of audiences the token is issued for. <br>
+	 * Returns the (empty) list of audiences the token is issued for. <br>
 	 *
 	 * @return the audiences.
 	 **/

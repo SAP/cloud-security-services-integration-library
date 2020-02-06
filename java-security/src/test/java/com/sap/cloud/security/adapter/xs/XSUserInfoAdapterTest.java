@@ -32,7 +32,6 @@ public class XSUserInfoAdapterTest {
 	public XSUserInfoAdapterTest() throws IOException {
 		emptyToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaEmptyToken.txt", UTF_8));
 		token = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", UTF_8));
-
 	}
 
 	@Before
@@ -143,8 +142,8 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void getToken_fallbackToAccessToken() throws XSUserInfoException {
-		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(token.getAccessToken());
+	public void getToken_fallbackToTokenValue() throws XSUserInfoException {
+		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(token.getTokenValue());
 	}
 
 	@Test
@@ -293,6 +292,23 @@ public class XSUserInfoAdapterTest {
 		assertThatThrownBy(() -> cut.requestToken(null))
 				.isInstanceOf(UnsupportedOperationException.class)
 				.hasMessageContaining("Not implemented");
+	}
+
+	@Test
+	public void getHdbToken() throws XSUserInfoException, IOException {
+		XsuaaToken token = new XsuaaToken(IOUtils.resourceToString("/xsuaaXsaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+				.withClientId("sb-java-hello-world!i1")
+				.withProperty(CFConstants.XSUAA.APP_ID, "java-hello-world!i1")
+				.withProperty(IDENTITY_ZONE, "uaa")
+				.withProperty("identityzoneid", "uaa")
+				.build();
+
+		cut = spy(new XSUserInfoAdapter(token, configuration));
+
+		assertThat(cut.isInForeignMode()).isFalse();
+		assertThat(cut.getHdbToken()).isNotNull();
+		assertThat(cut.getHdbToken()).startsWith("eyJhbGciOiAiUlMyNTYiLCJ0eXAiOiAiS");
 	}
 
 	@Test

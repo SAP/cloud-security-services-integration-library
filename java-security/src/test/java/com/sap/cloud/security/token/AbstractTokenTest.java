@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import org.apache.commons.io.IOUtils;
@@ -7,6 +8,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.Collections;
 
@@ -21,7 +23,17 @@ public class AbstractTokenTest {
 
 	public AbstractTokenTest() throws IOException {
 		jwtString = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
-		cut = TokenTestFactory.createFromAccessToken(jwtString);
+		cut = new AbstractToken(jwtString) {
+			@Override
+			public Principal getPrincipal() {
+				return null;
+			}
+
+			@Override
+			public Service getService() {
+				return null;
+			}
+		};
 	}
 
 	@Test
@@ -83,13 +95,8 @@ public class AbstractTokenTest {
 	}
 
 	@Test
-	public void getAccessToken() {
-		assertThat(cut.getAccessToken()).isEqualTo(jwtString);
-	}
-
-	@Test
-	public void getBearerAccessToken() {
-		assertThat(cut.getBearerAccessToken()).isEqualTo("Bearer " + cut.getAccessToken());
+	public void getTokenValue() {
+		assertThat(cut.getTokenValue()).isEqualTo(jwtString);
 	}
 
 	@Test

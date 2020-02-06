@@ -48,11 +48,11 @@ public class HelloJavaServletIntegrationTest {
 
 	@Test
 	public void requestWithValidTokenWithoutScopes_unauthorized() throws IOException {
-		String bearerAccessToken = rule.getPreconfiguredJwtGenerator()
+		String jwt = rule.getPreconfiguredJwtGenerator()
 				.withClaimValue(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS)
 				.createToken()
-				.getBearerAccessToken();
-		HttpGet request = createGetRequest(bearerAccessToken);
+				.getTokenValue();
+		HttpGet request = createGetRequest(jwt);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_FORBIDDEN); // 403
 		}
@@ -65,7 +65,7 @@ public class HelloJavaServletIntegrationTest {
 				.withScopes(getGlobalScope("Read"))
 				.withClaimValue(TokenClaims.EMAIL, "tester@mail.com")
 				.createToken()
-				.getBearerAccessToken();
+				.getTokenValue();
 		HttpGet request = createGetRequest(jwt);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK); // 200
@@ -74,10 +74,10 @@ public class HelloJavaServletIntegrationTest {
 		}
 	}
 
-	private HttpGet createGetRequest(String bearerToken) {
+	private HttpGet createGetRequest(String accessToken) {
 		HttpGet httpGet = new HttpGet(rule.getApplicationServerUri() + HelloJavaServlet.ENDPOINT);
-		if(bearerToken != null) {
-			httpGet.setHeader(HttpHeaders.AUTHORIZATION, bearerToken);
+		if(accessToken != null) {
+			httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 		}
 		return httpGet;
 	}

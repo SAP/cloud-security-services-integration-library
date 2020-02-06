@@ -132,4 +132,9 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 		return GrantType.from(getClaimAsString(GRANT_TYPE));
 	}
 
+	@Override
+	public String getBearerTokenValue() {
+		return "Bearer " + jwtToken;
+	}
+
 }

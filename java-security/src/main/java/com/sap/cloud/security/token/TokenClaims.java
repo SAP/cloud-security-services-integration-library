@@ -1,7 +1,7 @@
 package com.sap.cloud.security.token;
 
 /**
- * Constants denoting Jwt claims as specified here:
+ * Constants denoting JWT claims as specified here:
  * https://tools.ietf.org/html/rfc7519#section-4
  */
 public final class TokenClaims {
@@ -34,12 +34,12 @@ public final class TokenClaims {
 		public static final String EXTERNAL_ATTRIBUTE_ENHANCER = "enhancer";
 	}
 
-	// SAP User token
+	/* SAP User token
 	public final class SAP_ID {
 		private SAP_ID() {
 		}
 
 		// public static final String SAP_ZONE_ID = "sap_zid";
 		// public static final String SAP_USER_ID = "sap_uid";
-	}
+	}*/
 }

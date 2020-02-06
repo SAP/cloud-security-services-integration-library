@@ -77,7 +77,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 				fallbackPublicKey = configuration.getProperty("verificationkey");
 			}
 			keyId = getOrDefaultKeyId(token);
-			return validate(token.getAccessToken(),
+			return validate(token.getTokenValue(),
 					token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME),
 					keyId,
 					jwksUri,

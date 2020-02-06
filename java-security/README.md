@@ -3,7 +3,7 @@
 A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.org/html/rfc7519). 
 
 - Loads Identity Service Configuration from `VCAP_SERVICES` environment. The [`Environments`](src/main/java/com/sap/cloud/security/config/Environments.java) serves as central entry point to get or parse the  [`OAuth2ServiceConfiguration`](src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java) within SAP Cloud Platform.
-- Decodes and parses encoded access token (JWT) ([`Token`](src/main/java/com/sap/cloud/security/token/Token.java)) and provides access to token header parameters and claims.
+- Decodes and parses encoded JSON Web Tokens ([`Token`](src/main/java/com/sap/cloud/security/token/Token.java)) and provides convenient access to token header parameters and claims.
 - Validates the decoded token. The [`JwtValidatorBuilder`](src/main/java/com/sap/cloud/security/token/validation/validators/JwtValidatorBuilder.java) comprises the following mandatory checks:
   - Is the JWT used before the `exp` (expiration) time and eventually is it used after the `nbf` (not before) time ([`JwtTimestampValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/JwtTimestampValidator.java))?
@@ -99,7 +99,7 @@ JwtValidatorBuilder.getInstance(serviceConfig).withValidatorListener(validationL
 The validation listener needs to implement the [ValidationListener](src/main/java/com/sap/cloud/security/token/validation/ValidationListener.java) interface to be able to receive callbacks on validation success or failure.
 
 ### Create a Token Object 
-This decodes an encoded access token (Jwt token) and parses its json header and payload. The `Token` interface provides a simple access to its JWT header parameters and its claims.
+This decodes an encoded JSON Web Token (JWT) and parses its json header and payload. The `Token` interface provides a simple access to its JWT header parameters and its claims. You can find the claim constants in the ([`TokenClaims`](src/main/java/com/sap/cloud/security/token/TokenClaims.java)) class.
 
 ```java
 String authorizationHeader = "Bearer eyJhbGciOiJGUzI1NiJ2.eyJhh...";

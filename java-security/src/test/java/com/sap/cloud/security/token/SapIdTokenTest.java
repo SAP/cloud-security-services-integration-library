@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -22,7 +23,7 @@ public class SapIdTokenTest {
 	public void constructor_raiseIllegalArgumentExceptions() {
 		assertThatThrownBy(() -> {
 			new SapIdToken("");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("accessToken must not be null / empty");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("jwtToken must not be null / empty");
 
 		assertThatThrownBy(() -> {
 			new SapIdToken("abc");
@@ -31,20 +32,11 @@ public class SapIdTokenTest {
 	}
 
 	@Test
-	// TODO IAS: should return SAP User ID (guid)
+	// TODO IAS: need real token with test data
 	public void getPrincipal() {
-		assertThatThrownBy(() -> {
-			cut.getPrincipal();
-		}).isInstanceOf(UnsupportedOperationException.class)
-				.hasMessageContaining("getPrincipal() is not yet supported for tokens of service IAS.");
-	}
+		Principal principal = cut.getPrincipal();
 
-	@Test
-	public void getGrantType() {
-		assertThatThrownBy(() -> {
-			cut.getGrantType();
-		}).isInstanceOf(UnsupportedOperationException.class)
-				.hasMessageContaining("getGrantType() is not supported for SAP ID tokens of service IAS.");
+		assertThat(principal).isNull();
 	}
 
 	@Test

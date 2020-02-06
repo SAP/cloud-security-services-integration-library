@@ -51,7 +51,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		this.xsuaaToken = xsuaaToken;
 	}
 
-	public XSUserInfoAdapter(Token xsuaaToken, OAuth2ServiceConfiguration configuration) throws XSUserInfoException {
+	XSUserInfoAdapter(Token xsuaaToken, OAuth2ServiceConfiguration configuration) throws XSUserInfoException {
 		if (!(xsuaaToken instanceof XsuaaToken)) {
 			throw new XSUserInfoException("token needs to be an instance of XsuaaToken.");
 		}
@@ -142,7 +142,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getAppToken() {
-		return xsuaaToken.getAccessToken();
+		return xsuaaToken.getTokenValue();
 	}
 
 	@Override
@@ -165,11 +165,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 				token = xsuaaToken.getClaimAsString(HDB_NAMEDUSER_SAML);
 			}
 			if (token == null) {
-				token = xsuaaToken.getAccessToken();
+				token = xsuaaToken.getTokenValue();
 			}
 			return token;
 		} else if (name.equals("JobScheduler")) {
-			return xsuaaToken.getAccessToken();
+			return xsuaaToken.getTokenValue();
 		} else {
 			throw new XSUserInfoException("Invalid name " + name + " for namespace " + namespace);
 		}
@@ -296,7 +296,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 				.map(claim -> claim.getAsString(attributeName)).orElse(null);
 	}
 
-	private String getExternalAttribute(String attributeName) throws XSUserInfoException {
+	String getExternalAttribute(String attributeName) throws XSUserInfoException {
 		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
 	}
 

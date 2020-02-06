@@ -23,7 +23,7 @@ public class SecurityContext {
 	 *            token to be saved.
 	 */
 	public static void setToken(Token token) {
-		LOGGER.info("Sets access token of service {} to SecurityContext (thread-locally).",
+		LOGGER.info("Sets token of service {} to SecurityContext (thread-locally).",
 				token != null ? token.getService() : "null");
 		tokenStorage.set(token);
 	}
@@ -37,6 +37,18 @@ public class SecurityContext {
 	@Nullable
 	public static Token getToken() {
 		return tokenStorage.get();
+	}
+
+	/**
+	 * Returns the token that is saved in thread wide storage.
+	 *
+	 *
+	 * @return the token or null if the storage is empty or the token
+	 * does not implement the {@code AccessToken} interface.
+	 */
+	@Nullable
+	public static AccessToken getAccessToken() {
+		return tokenStorage.get() instanceof AccessToken ?  (AccessToken) tokenStorage.get() : null;
 	}
 
 	/**

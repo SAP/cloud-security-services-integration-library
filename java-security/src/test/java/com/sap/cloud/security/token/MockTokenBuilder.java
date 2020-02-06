@@ -23,17 +23,6 @@ public class MockTokenBuilder {
 		return this;
 	}
 
-	public MockTokenBuilder withClientId(String clientId) {
-		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(clientId);
-		return this;
-	}
-
-	// TODO XSUAA specifc
-	public MockTokenBuilder withScopes(String... scopes) {
-		when(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).thenReturn(Arrays.asList(scopes));
-		return this;
-	}
-
 	public AbstractToken build() {
 		return token;
 	}

@@ -313,10 +313,13 @@ public interface XSUserInfo {
 	 * Check if a token issued for another OAuth client has been forwarded to a
 	 * different client,
 	 *
-	 * @return true if token was forwarded or if it cannot be determined.
+	 * @deprecated tokens issued for a foreign OAuth Client Id and/or Identity Zone is no longer supported here.
+	 *
+	 * @return true if token was forwarded
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public boolean isInForeignMode() throws XSUserInfoException;
 
 	/**
