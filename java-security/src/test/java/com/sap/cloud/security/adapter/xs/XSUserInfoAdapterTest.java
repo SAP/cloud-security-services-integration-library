@@ -237,11 +237,6 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void testIsByDefaultInForeignMode() throws XSUserInfoException {
-		assertThat(cut.isInForeignMode()).isTrue();
-	}
-
-	@Test
 	public void testGetSubaccountId() throws XSUserInfoException {
 		assertThat(cut.getSubaccountId()).isEqualTo("paas");
 	}
@@ -294,7 +289,22 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void isByDefaultInForeignMode() throws XSUserInfoException {
-		assertThat(cut.isInForeignMode()).isTrue();
+		assertThat(cut.isInForeignMode()).isFalse();
+	}
+
+	@Test
+	public void getHdbToken() throws XSUserInfoException, IOException {
+		XsuaaToken token = new XsuaaToken(IOUtils.resourceToString("/xsuaaXsaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+				.withClientId("sb-java-hello-world!i1")
+				.withProperty(CFConstants.XSUAA.APP_ID, "java-hello-world!i1")
+				.withProperty("identityzone", "uaa")
+				.withProperty("identityzoneid", "uaa")
+				.build();
+		cut = spy(new XSUserInfoAdapter(token, configuration));
+		assertThat(cut.isInForeignMode()).isFalse();
+		assertThat(cut.getHdbToken()).isNotNull();
+		assertThat(cut.getHdbToken()).startsWith("eyJhbGciOiAiUlMyNTYiLCJ0eXAiOiAiS");
 	}
 
 	@Test

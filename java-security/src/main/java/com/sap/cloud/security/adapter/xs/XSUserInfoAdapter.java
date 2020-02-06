@@ -1,7 +1,5 @@
 package com.sap.cloud.security.adapter.xs;
 
-import com.sap.cloud.security.config.Environment;
-import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
@@ -48,7 +46,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		this.xsuaaToken = xsuaaToken;
 	}
 
-	public XSUserInfoAdapter(Token xsuaaToken, OAuth2ServiceConfiguration configuration) throws XSUserInfoException {
+	XSUserInfoAdapter(Token xsuaaToken, OAuth2ServiceConfiguration configuration) throws XSUserInfoException {
 		if (!(xsuaaToken instanceof XsuaaToken)) {
 			throw new XSUserInfoException("token needs to be an instance of XsuaaToken.");
 		}
@@ -144,6 +142,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getToken(String namespace, String name) throws XSUserInfoException {
+		// TODO 22.01.20 c5295400: TODO becaues foreignMode = false this is always false
 		if (!(getGrantType().equals(GrantType.CLIENT_CREDENTIALS)) && hasAttributes() && isInForeignMode()) {
 			throw new XSUserInfoException("The SecurityContext has been initialized with an access token of a\n"
 					+ "foreign OAuth Client Id and/or Identity Zone. Furthermore, the\n"
@@ -237,8 +236,12 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 *             if attribute is not available in the authentication token
 	 */
 	public boolean isInForeignMode() throws XSUserInfoException {
-		// TODO make more robust return true instead of exception
-		// TODO apply logs
+		/**
+		 * TODO make more robust return true instead of exception
+		 * TODO apply logs
+		 * TODO do not check on subdomain, as this is not provided in context of XSA
+
+
 		if(configuration == null) {
 			configuration = Environments.getCurrent().getXsuaaConfiguration();
 		}
@@ -248,7 +251,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		} else if (matchesTokenClientIdToBrokerCloneAppId()) {
 			return false;
 		}
-		return true;
+		return true;*/
+		return false;
 	}
 
 	@Override
