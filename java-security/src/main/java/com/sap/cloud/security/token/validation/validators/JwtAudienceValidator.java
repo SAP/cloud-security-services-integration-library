@@ -28,10 +28,10 @@ public class JwtAudienceValidator implements Validator<Token> {
 	private final List<String> clientIds = new ArrayList();
 
 	public JwtAudienceValidator(String clientId) {
-		configureAnotherServiceInstance(clientId);
+		configureTrustedClientId(clientId);
 	}
 
-	public JwtAudienceValidator configureAnotherServiceInstance(String clientId) {
+	JwtAudienceValidator configureTrustedClientId(String clientId) {
 		assertHasText(clientId, "JwtAudienceValidator requires a clientId.");
 		clientIds.add(clientId);
 		logger.info("configured JwtAudienceValidator with clientId {}.", clientId);

@@ -32,7 +32,7 @@ public class JwtAudienceValidatorTest {
 	@Test
 	public void validate_tokenAudienceMatchesForeignClientId() {
 		ValidationResult result = new JwtAudienceValidator("any")
-				.configureAnotherServiceInstance("foreignclient")
+				.configureTrustedClientId("foreignclient")
 				.validate(token);
 
 		assertThat(result.isValid()).isTrue();
@@ -53,7 +53,7 @@ public class JwtAudienceValidatorTest {
 	@Test
 	public void validationFails_when_NoTokenAudienceMatches() {
 		ValidationResult result = new JwtAudienceValidator("any")
-				.configureAnotherServiceInstance("anyother")
+				.configureTrustedClientId("anyother")
 				.validate(token);
 
 		assertThat(result.isErroneous()).isTrue();

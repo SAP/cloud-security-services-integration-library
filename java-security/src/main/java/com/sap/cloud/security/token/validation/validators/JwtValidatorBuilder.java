@@ -185,7 +185,7 @@ public class JwtValidatorBuilder {
 	private JwtAudienceValidator createAudienceValidator() {
 		JwtAudienceValidator jwtAudienceValidator = new JwtAudienceValidator(configuration.getClientId());
 		if (otherConfiguration != null) {
-			jwtAudienceValidator.configureAnotherServiceInstance(otherConfiguration.getClientId());
+			jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getClientId());
 		}
 		return jwtAudienceValidator;
 	}
