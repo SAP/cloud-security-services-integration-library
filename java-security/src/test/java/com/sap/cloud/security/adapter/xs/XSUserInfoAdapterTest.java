@@ -295,7 +295,7 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void getHdbToken() throws XSUserInfoException, IOException {
+	public void getHdbToken_AuthCodeToken_NoAttributes() throws XSUserInfoException, IOException {
 		XsuaaToken token = new XsuaaToken(IOUtils.resourceToString("/xsuaaXsaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId("sb-java-hello-world!i1")
@@ -306,7 +306,6 @@ public class XSUserInfoAdapterTest {
 
 		cut = spy(new XSUserInfoAdapter(token, configuration));
 
-		assertThat(cut.isInForeignMode()).isFalse();
 		assertThat(cut.getHdbToken()).isNotNull();
 		assertThat(cut.getHdbToken()).startsWith("eyJhbGciOiAiUlMyNTYiLCJ0eXAiOiAiS");
 	}
