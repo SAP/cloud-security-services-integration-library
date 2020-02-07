@@ -98,7 +98,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 */
 	protected abstract Token extractFromHeader(String authorizationHeader);
 
-	private Validator<Token> getOrCreateTokenValidator() {
+	protected Validator<Token> getOrCreateTokenValidator() {
 		if (tokenValidator == null) {
 			JwtValidatorBuilder jwtValidatorBuilder = JwtValidatorBuilder.getInstance(getServiceConfiguration())
 					.withHttpClient(httpClient);
