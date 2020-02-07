@@ -6,17 +6,20 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.GrantType;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.xsa.security.container.XSTokenRequest;
 import com.sap.xsa.security.container.XSUserInfo;
 import com.sap.xsa.security.container.XSUserInfoException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 public class XSUserInfoAdapter implements XSUserInfo {
 
@@ -29,6 +32,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	static final String ZDN = "zdn";
 	static final String SYSTEM = "SYSTEM";
 	static final String HDB = "HDB";
+	private static final Logger LOGGER = LoggerFactory.getLogger(XSUserInfoAdapter.class);
 	private final XsuaaToken xsuaaToken;
 	private OAuth2ServiceConfiguration configuration;
 
@@ -90,7 +94,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getIdentityZone() throws XSUserInfoException {
-		return getClaimValue(SUBACCOUNT_ID);
+		return getClaimValue(TokenClaims.XSUAA.SUBACCOUNT_ID);
 	}
 
 	@Override
@@ -106,7 +110,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 *     },
 	 */
 	public String getSubdomain() throws XSUserInfoException {
-		return Optional.ofNullable(getExternalAttribute(ZDN)).orElseThrow(createXSUserInfoException(ZDN));
+		return Optional.ofNullable(getExternalAttribute(ZDN)).orElse(null);
 	}
 
 	@Override
@@ -142,7 +146,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getToken(String namespace, String name) throws XSUserInfoException {
-		// TODO 22.01.20 c5295400: TODO becaues foreignMode = false this is always false
 		if (!(getGrantType().equals(GrantType.CLIENT_CREDENTIALS.toString())) && hasAttributes() && isInForeignMode()) {
 			throw new XSUserInfoException("The SecurityContext has been initialized with an access token of a\n"
 					+ "foreign OAuth Client Id and/or Identity Zone. Furthermore, the\n"
@@ -226,33 +229,39 @@ public class XSUserInfoAdapter implements XSUserInfo {
 				.orElseThrow(createXSUserInfoException(GRANT_TYPE));
 	}
 
-	@Override
 	/**
 	 * Check if a token issued for another OAuth client has been forwarded to a
 	 * different client,
 	 *
 	 * @return true if token was forwarded or if it cannot be determined.
-	 * @throws XSUserInfoException
-	 *             if attribute is not available in the authentication token
 	 */
-	public boolean isInForeignMode() throws XSUserInfoException {
-		/**
-		 * TODO make more robust return true instead of exception
-		 * TODO apply logs
-		 * TODO do not check on subdomain, as this is not provided in context of XSA
-
-
-		if(configuration == null) {
-			configuration = Environments.getCurrent().getXsuaaConfiguration();
+	@Override
+	public boolean isInForeignMode() {
+		if (configuration == null) {
+			LOGGER.info("No configuration provided -> falling back to foreignMode = true!");
+			return true; // default provide OAuth2ServiceConfiguration via constructor argument
 		}
-		if(getClientId().equals(configuration.getClientId()) &&
-			 getSubdomain().equals(configuration.getProperty("identityzone"))) {
-			return false;
-		} else if (matchesTokenClientIdToBrokerCloneAppId()) {
-			return false;
+		String tokenClientId, tokenIdentityZone;
+		try {
+			tokenClientId = getClientId();
+			tokenIdentityZone = getIdentityZone();
+		} catch (XSUserInfoException e) {
+			LOGGER.warn("Tried to access missing attribute when checking for foreign mode", e);
+			return true;
 		}
-		return true;*/
-		return false;
+		boolean clientIdsMatch = tokenClientId.equals(configuration.getClientId());
+		boolean identityZonesMatch = tokenIdentityZone
+				.equals(configuration.getProperty(CFConstants.XSUAA.IDENTITY_ZONE));
+		boolean isApplicationPlan = tokenClientId.contains("!t");
+		if (clientIdsMatch && (identityZonesMatch || isApplicationPlan)) {
+			return false; // no foreign mode
+		}
+		// in case of broker master: check trustedclientidsuffix
+		String bindingTrustedClientIdSuffix = configuration.getProperty(TRUSTED_CLIENT_ID_SUFFIX);
+		if (bindingTrustedClientIdSuffix != null && tokenClientId.endsWith(bindingTrustedClientIdSuffix)) {
+			return false; // no foreign mode
+		}
+		return true;
 	}
 
 	@Override
@@ -288,10 +297,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 				.map(claim -> claim.getAsString(attributeName)).orElse(null);
 	}
 
-	String getExternalAttribute(String attributeName) throws XSUserInfoException {
-		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
-	}
-
 	private Supplier<XSUserInfoException> createXSUserInfoException(String attribute) {
 		return () -> new XSUserInfoException("Invalid user attribute " + attribute);
 	}
@@ -313,11 +318,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		}
 	}
 
-	private boolean matchesTokenClientIdToBrokerCloneAppId() throws XSUserInfoException {
-		String appId = configuration.getProperty(CFConstants.XSUAA.APP_ID);
-		return appId.contains("!b") // broker plan
-				&& getClientId().contains("|")
-				&& getClientId().endsWith("|" + appId);
+	String getExternalAttribute(String attributeName) throws XSUserInfoException {
+		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
 	}
 
 }

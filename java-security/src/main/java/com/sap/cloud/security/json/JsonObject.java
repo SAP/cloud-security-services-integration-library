@@ -108,8 +108,8 @@ public interface JsonObject {
 	 * 	String vcapServices = System.getenv(CFConstants.VCAP_SERVICES);
 	 * 	JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName())
 	 * 			.get(0);
-	 * 	Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
-	 * 	Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS)
+	 * 	Map&lt;String, String&gt; xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
+	 * 	Map&lt;String, String&gt; credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS)
 	 * 			.getKeyValueMap();
 	 * }
 	 * </pre>
