@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.IDENTITY_ZONE;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.TRUSTED_CLIENT_ID_SUFFIX;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -350,7 +351,7 @@ public class XSUserInfoAdapterTest {
 				.withProperty(CFConstants.CLIENT_ID, tokenClientId)
 				.withProperty(CFConstants.XSUAA.APP_ID, configurationAppId)
 				.withProperty(IDENTITY_ZONE, "uaa")
-				.withProperty("trustedclientidsuffix", "|brokerplanmasterapp!b123")
+				.withProperty(TRUSTED_CLIENT_ID_SUFFIX, "|brokerplanmasterapp!b123")
 				.build();
 
 		cut = new XSUserInfoAdapter(token, configuration);

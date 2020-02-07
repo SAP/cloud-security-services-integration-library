@@ -234,8 +234,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * different client,
 	 *
 	 * @return true if token was forwarded or if it cannot be determined.
-	 * @throws XSUserInfoException
-	 *             if attribute is not available in the authentication token
 	 */
 	@Override
 	public boolean isInForeignMode() {
