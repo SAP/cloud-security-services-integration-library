@@ -4,10 +4,10 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
+import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.GrantType;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.xsa.security.container.XSTokenRequest;
 import com.sap.xsa.security.container.XSUserInfo;
 import com.sap.xsa.security.container.XSUserInfoException;
@@ -33,28 +33,26 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	static final String SYSTEM = "SYSTEM";
 	static final String HDB = "HDB";
 	private static final Logger LOGGER = LoggerFactory.getLogger(XSUserInfoAdapter.class);
-	private final XsuaaToken xsuaaToken;
+	private final AccessToken accessToken;
 	private OAuth2ServiceConfiguration configuration;
 
-	public XSUserInfoAdapter(Token xsuaaToken) throws XSUserInfoException {
-		if (!(xsuaaToken instanceof XsuaaToken)) {
-			throw new XSUserInfoException("token needs to be an instance of XsuaaToken.");
-		}
-		this.xsuaaToken = (XsuaaToken) xsuaaToken;
+	public XSUserInfoAdapter(Token accessToken) throws XSUserInfoException {
+		this(accessToken, null);
 	}
 
-	public XSUserInfoAdapter(XsuaaToken xsuaaToken) throws XSUserInfoException {
-		if (xsuaaToken == null) {
+	public XSUserInfoAdapter(AccessToken accessToken) throws XSUserInfoException {
+		if (accessToken == null) {
 			throw new XSUserInfoException("token must not be null.");
 		}
-		this.xsuaaToken = xsuaaToken;
+		this.accessToken = accessToken;
 	}
 
-	XSUserInfoAdapter(Token xsuaaToken, OAuth2ServiceConfiguration configuration) throws XSUserInfoException {
-		if (!(xsuaaToken instanceof XsuaaToken)) {
-			throw new XSUserInfoException("token needs to be an instance of XsuaaToken.");
+	XSUserInfoAdapter(Token accessToken, OAuth2ServiceConfiguration configuration) throws XSUserInfoException {
+		if (!(accessToken instanceof AccessToken)) {
+			throw new XSUserInfoException("token is of instance " + accessToken.getClass().getName()
+					+ " but needs to be an instance of XsuaaToken.");
 		}
-		this.xsuaaToken = (XsuaaToken) xsuaaToken;
+		this.accessToken = (AccessToken) accessToken;
 		this.configuration = configuration;
 	}
 
@@ -141,7 +139,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getAppToken() {
-		return xsuaaToken.getTokenValue();
+		return accessToken.getTokenValue();
 	}
 
 	@Override
@@ -158,17 +156,17 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		}
 		if (name.equals(HDB)) {
 			String token;
-			if (xsuaaToken.hasClaim(EXTERNAL_CONTEXT)) {
+			if (accessToken.hasClaim(EXTERNAL_CONTEXT)) {
 				token = getAttributeFromClaimAsString(EXTERNAL_CONTEXT, HDB_NAMEDUSER_SAML);
 			} else {
-				token = xsuaaToken.getClaimAsString(HDB_NAMEDUSER_SAML);
+				token = accessToken.getClaimAsString(HDB_NAMEDUSER_SAML);
 			}
 			if (token == null) {
-				token = xsuaaToken.getTokenValue();
+				token = accessToken.getTokenValue();
 			}
 			return token;
 		} else if (name.equals("JobScheduler")) {
-			return xsuaaToken.getTokenValue();
+			return accessToken.getTokenValue();
 		} else {
 			throw new XSUserInfoException("Invalid name " + name + " for namespace " + namespace);
 		}
@@ -183,7 +181,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	@Override
 	public boolean hasAttributes() throws XSUserInfoException {
 		checkNotGrantTypeClientCredentials("hasAttributes");
-		if (xsuaaToken.hasClaim(EXTERNAL_CONTEXT)) {
+		if (accessToken.hasClaim(EXTERNAL_CONTEXT)) {
 			JsonObject extContext = getClaimAsJsonObject(EXTERNAL_CONTEXT);
 			return extContext.contains(XS_USER_ATTRIBUTES) && !extContext.getJsonObject(EXTERNAL_CONTEXT).isEmpty();
 		} else {
@@ -198,13 +196,13 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public boolean checkScope(String scope) throws XSUserInfoException {
-		return xsuaaToken.hasScope(scope);
+		return accessToken.hasScope(scope);
 	}
 
 	@Override
 	public boolean checkLocalScope(String scope) throws XSUserInfoException {
 		try {
-			return xsuaaToken.hasLocalScope(scope);
+			return accessToken.hasLocalScope(scope);
 		} catch (IllegalArgumentException e) {
 			throw new XSUserInfoException(e.getMessage());
 		}
@@ -224,7 +222,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getGrantType() throws XSUserInfoException {
-		return Optional.ofNullable(xsuaaToken.getGrantType())
+		return Optional.ofNullable(accessToken.getGrantType())
 				.map(GrantType::toString)
 				.orElseThrow(createXSUserInfoException(GRANT_TYPE));
 	}
@@ -284,7 +282,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	private void checkNotGrantTypeClientCredentials(String methodName) throws XSUserInfoException {
-		if (GrantType.CLIENT_CREDENTIALS == xsuaaToken.getGrantType()) {
+		if (GrantType.CLIENT_CREDENTIALS == accessToken.getGrantType()) {
 			String message = String.format("Method '%s' is not supported for grant type '%s'", methodName,
 					GrantType.CLIENT_CREDENTIALS);
 			throw new XSUserInfoException(message + GrantType.CLIENT_CREDENTIALS);
@@ -302,7 +300,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	private String getClaimValue(String claimname) throws XSUserInfoException {
-		String value = xsuaaToken.getClaimAsString(claimname);
+		String value = accessToken.getClaimAsString(claimname);
 		if (value == null) {
 			throw new XSUserInfoException("Invalid user attribute " + claimname);
 		}
@@ -312,7 +310,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	@Nullable
 	private JsonObject getClaimAsJsonObject(String claimName) throws XSUserInfoException {
 		try {
-			return xsuaaToken.getClaimAsJsonObject(claimName);
+			return accessToken.getClaimAsJsonObject(claimName);
 		} catch (JsonParsingException e) {
 			throw createXSUserInfoException(claimName).get();
 		}
