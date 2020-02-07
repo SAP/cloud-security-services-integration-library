@@ -254,13 +254,20 @@ public class XSUserInfoAdapter implements XSUserInfo {
 				.equals(configuration.getProperty(CFConstants.XSUAA.IDENTITY_ZONE));
 		boolean isApplicationPlan = tokenClientId.contains("!t");
 		if (clientIdsMatch && (identityZonesMatch || isApplicationPlan)) {
+			LOGGER.info(
+					"Token not in foreign mode because because client ids  match and identityZonesMatch={}, isApplicationPlan={} ",
+					identityZonesMatch, isApplicationPlan);
 			return false; // no foreign mode
 		}
 		// in case of broker master: check trustedclientidsuffix
 		String bindingTrustedClientIdSuffix = configuration.getProperty(TRUSTED_CLIENT_ID_SUFFIX);
 		if (bindingTrustedClientIdSuffix != null && tokenClientId.endsWith(bindingTrustedClientIdSuffix)) {
+			LOGGER.info("Token not in foreign mode because token client id matches binding trusted client suffix");
 			return false; // no foreign mode
 		}
+		LOGGER.info(
+				"Token in foreign mode: clientIdsMatch={}, identityZonesMatch={}, isApplicationPlan={}, bindingTrustedClientIdSuffix={}",
+				clientIdsMatch, identityZonesMatch, isApplicationPlan, bindingTrustedClientIdSuffix);
 		return true;
 	}
 
