@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * This constructor requires a dependency to Spring oauth and web.
+ * This constructor requires a dependency to Spring oauth.
  * 
  * <pre>
  * {@code
@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
  * </dependency>
  * }
  * </pre>
+ * By default it used Apache Rest Client for communicating with the OAuth2 Server.
  */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
@@ -53,7 +54,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	private ScopeConverter xsuaaScopeConverter;
 
 	/**
-	 * Constructs an instance which can be used in the SAP CP Environment.
+	 * Constructs an instance which is preconfigured for XSUAA service configuration from SAP CP Environment.
 	 */
 	public SAPOfflineTokenServicesCloud() {
 		this(Environments.getCurrent().getXsuaaConfiguration());
