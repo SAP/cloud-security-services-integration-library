@@ -77,9 +77,6 @@ public class CFEnvironment implements Environment {
 	 *            the service name
 	 * @return the list of all found configurations or empty list, in case there are
 	 *         no service bindings.
-	 * @deprecated as multiple bindings of XSUAA identity service is not anymore
-	 *             necessary with the unified broker plan, this method is
-	 *             deprecated.
 	 */
 	List<OAuth2ServiceConfiguration> loadAllForService(Service service) {
 		return serviceConfigurations.getOrDefault(service, Collections.emptyList());
