@@ -37,7 +37,7 @@ class TestTokenClient(unittest.TestCase):
             self.app.name,
             self.sampleTestHelper.vars_parser.user_id,
             self.sampleTestHelper.vars_parser.landscape_apps_domain)
-        
+
         response = HttpUtil().get_request(url)
         body = response.body
         logging.info(body)
@@ -70,20 +70,47 @@ class TestJavaSecurity(unittest.TestCase):
         logging.info(resp.body)
         self.assertIsNotNone(resp.body)
         self.assertEqual(resp.body, expected_response)
-    
+
     def __perform_request(self):
         url = 'https://{}-{}.{}/hello-java-security'.format(
             self.app.name,
             self.sampleTestHelper.vars_parser.user_id,
             self.sampleTestHelper.vars_parser.landscape_apps_domain)
-        resp = HttpUtil().get_request(url, access_token=self.sampleTestHelper.get_user_access_token())
+        resp = HttpUtil().get_request(
+            url, access_token=self.sampleTestHelper.get_user_access_token())
         return resp
-    
+
     def __add_user_to_role(self):
         required_role = 'JAVA_SECURITY_SAMPLE_Viewer'
         logging.info("adding user to role")
         self.sampleTestHelper.get_api_access().add_user_to_group(
-            self.sampleTestHelper.user_guid, required_role)  
+            self.sampleTestHelper.user_guid, required_role)
+
+
+class TestSpringSecurity(unittest.TestCase):
+    def setUp(self):
+        self.app = CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication',
+                         app_router_name='approuter-spring-security-xsuaa-usage')
+        self.sampleTestHelper = SampleTestHelper(self.app)
+        self.sampleTestHelper.setUp()
+
+    def tearDown(self):
+        self.sampleTestHelper.tearDown()
+
+    def __perform_request(self, path):
+        url = 'https://{}-{}.{}/{}'.format(
+            self.app.name,
+            self.sampleTestHelper.vars_parser.user_id,
+            self.sampleTestHelper.vars_parser.landscape_apps_domain,
+            path)
+        resp = HttpUtil().get_request(
+            url, access_token=self.sampleTestHelper.get_user_access_token())
+        return resp
+
+    def test_sayHello(self):
+        # https://spring-security-xsuaa-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/v2/sayHello
+        resp = self.__perform_request('v2/sayHello')
+        self.assertEqual(resp.status, 403)
 
 
 class SampleTestHelper:
@@ -156,7 +183,6 @@ class HttpUtil:
             else:
                 body = self.body
             return 'HTTP status: {}, body: {}'.format(self.status, body)
-        
 
     def get_request(self, url, access_token=None, additional_headers={}):
         logging.info('Performing get request to ' + url)
@@ -375,10 +401,10 @@ class CFApp:
 
     def delete(self):
         subprocess.run(['cf',  'delete', '-f', self.name])
-        subprocess.run(
-            ['cf',  'delete-service', '-f', self.xsuaa_service_name])
         if (self.app_router_name is not None):
             subprocess.run(['cf',  'delete',  '-f', self.app_router_name])
+        subprocess.run(
+            ['cf',  'delete-service', '-f', self.xsuaa_service_name])
 
     def __str__(self):
         return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}'.format(
