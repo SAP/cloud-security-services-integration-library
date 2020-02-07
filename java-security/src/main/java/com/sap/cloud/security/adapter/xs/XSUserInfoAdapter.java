@@ -1,5 +1,7 @@
 package com.sap.cloud.security.adapter.xs;
 
+import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
@@ -37,7 +39,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	private OAuth2ServiceConfiguration configuration;
 
 	public XSUserInfoAdapter(Token accessToken) throws XSUserInfoException {
-		this(accessToken, null);
+		this(accessToken, Environments.getCurrent().getXsuaaConfiguration());
 	}
 
 	public XSUserInfoAdapter(AccessToken accessToken) throws XSUserInfoException {
