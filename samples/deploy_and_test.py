@@ -75,21 +75,35 @@ class TestJavaSecurity(unittest.TestCase):
 
 
 class TestSpringSecurity(unittest.TestCase):
+    
+    @classmethod
+    def setUpClass(cls):
+        app = CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication',
+            app_router_name='approuter-spring-security-xsuaa-usage')
+
+        cls.sampleTestHelper = SampleTestHelper(app)
+        cls.sampleTestHelper.setUp()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.sampleTestHelper.tearDown()
+
     def setUp(self):
-        self.app = CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication',
-                         app_router_name='approuter-spring-security-xsuaa-usage')
-        self.sampleTestHelper = SampleTestHelper(self.app)
-        self.sampleTestHelper.setUp()
-
-    def tearDown(self):
-        self.sampleTestHelper.tearDown()
-
+        self.sampleTestHelper = TestSpringSecurity.sampleTestHelper
+    
     def test_sayHello(self):
-        # https://spring-security-xsuaa-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/v2/sayHello
+        # https://spring-security-xsuaa-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello
         resp = self.sampleTestHelper.perform_get_request_with_token(
-            'v2/sayHello')
+            'v1/sayHello')
         self.assertEqual(resp.status, 403)
+        self.__add_user_to_role('Viewer')
+        resp = self.sampleTestHelper.perform_get_request_with_token(
+            'v1/sayHello')
+        self.assertEqual(resp.status, 200)
 
+    def __add_user_to_role(self, role):
+        self.sampleTestHelper.get_api_access().add_user_to_group(
+            self.sampleTestHelper.user_guid, role)
 
 class SampleTestHelper:
 
