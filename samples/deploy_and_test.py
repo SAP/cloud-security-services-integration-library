@@ -33,14 +33,9 @@ class TestTokenClient(unittest.TestCase):
         self.sampleTestHelper.tearDown()
 
     def test_hello_token_client(self):
-        url = 'https://{}-{}.{}/hello-token-client'.format(
-            self.app.name,
-            self.sampleTestHelper.vars_parser.user_id,
-            self.sampleTestHelper.vars_parser.landscape_apps_domain)
-
-        response = HttpUtil().get_request(url)
+        response = self.sampleTestHelper.perform_get_request_with_token(
+            'hello-token-client')
         body = response.body
-        logging.info(body)
 
         self.assertIsNotNone(body)
         self.assertRegex(body, "Access-Token: ")
@@ -59,26 +54,18 @@ class TestJavaSecurity(unittest.TestCase):
         self.sampleTestHelper.tearDown()
 
     def test_hello_java_security(self):
-        resp = self.__perform_request()
+        resp = self.sampleTestHelper.perform_get_request_with_token(
+            'hello-java-security')
         self.assertEqual(resp.status, 403)
 
         self.__add_user_to_role()
-        resp = self.__perform_request()
+        resp = self.sampleTestHelper.perform_get_request_with_token(
+            'hello-java-security')
 
         expected_response = "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(
             username)
-        logging.info(resp.body)
         self.assertIsNotNone(resp.body)
         self.assertEqual(resp.body, expected_response)
-
-    def __perform_request(self):
-        url = 'https://{}-{}.{}/hello-java-security'.format(
-            self.app.name,
-            self.sampleTestHelper.vars_parser.user_id,
-            self.sampleTestHelper.vars_parser.landscape_apps_domain)
-        resp = HttpUtil().get_request(
-            url, access_token=self.sampleTestHelper.get_user_access_token())
-        return resp
 
     def __add_user_to_role(self):
         required_role = 'JAVA_SECURITY_SAMPLE_Viewer'
@@ -97,19 +84,10 @@ class TestSpringSecurity(unittest.TestCase):
     def tearDown(self):
         self.sampleTestHelper.tearDown()
 
-    def __perform_request(self, path):
-        url = 'https://{}-{}.{}/{}'.format(
-            self.app.name,
-            self.sampleTestHelper.vars_parser.user_id,
-            self.sampleTestHelper.vars_parser.landscape_apps_domain,
-            path)
-        resp = HttpUtil().get_request(
-            url, access_token=self.sampleTestHelper.get_user_access_token())
-        return resp
-
     def test_sayHello(self):
         # https://spring-security-xsuaa-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/v2/sayHello
-        resp = self.__perform_request('v2/sayHello')
+        resp = self.sampleTestHelper.perform_get_request_with_token(
+            'v2/sayHello')
         self.assertEqual(resp.status, 403)
 
 
@@ -142,6 +120,16 @@ class SampleTestHelper:
             grant_type='password',
             username=username,
             password=password)
+
+    def perform_get_request_with_token(self, path):
+        url = 'https://{}-{}.{}/{}'.format(
+            self.app_to_test.name,
+            self.vars_parser.user_id,
+            self.vars_parser.landscape_apps_domain,
+            path)
+        resp = HttpUtil().get_request(
+            url, access_token=self.get_user_access_token())
+        return resp
 
     def get_api_access(self):
         if (self.__api_access is None):
