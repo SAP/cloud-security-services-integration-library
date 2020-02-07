@@ -1,0 +1,29 @@
+{
+    "user2policy": {
+        "Alice_readAll": [
+            "readAll"
+        ],
+        "Alice_readWrite": [
+            "readWrite"
+        ],
+        "Alice_countryCode": [
+            "countryCode"
+        ],
+        "Alice_salesOrders": [
+            "salesOrders"
+        ],
+        "Alice_salesOrdersIn": [
+            "SalesOrdersIn"
+        ],
+        "Alice_salesOrdersBetween": [
+            "salesOrdersBetween"
+        ],
+        "Alice_salesOrdersRes": [
+            "salesOrdersRes"
+        ],
+        "Alice_salesOrdersLike": [
+            "salesOrdersLike"
+        ],
+        "Bob": []
+    }
+}

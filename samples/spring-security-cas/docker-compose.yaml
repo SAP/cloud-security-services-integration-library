@@ -1,0 +1,17 @@
+version: '3.2'
+services:
+  opa:
+    image: openpolicyagent/opa:latest
+    ports:
+      - 8181:8181
+    volumes:
+      - type: bind
+        source: ./src/main/resources/amsBundle
+        target: /policies
+    command:
+      - "run"
+      - "--server"
+      - "--log-format=json-pretty"
+      - "--log-level=debug"
+      - "--set=decision_logs.console=true"
+      - "/policies"

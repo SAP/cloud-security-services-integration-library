@@ -1,0 +1,27 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          ias:
+            # manually created IAS application and user
+            provider: ias
+            client-id: ${vcap.services.spring-security-cas-ias.credentials.clientid}
+            client-secret: ${vcap.services.spring-security-cas-ias.credentials.clientsecret}
+            client-authentication-method: basic
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+          xsuaa:
+            provider: xsuaa
+            client-id: ${vcap.services.spring-security-cas-xsuaa.credentials.clientid}
+            client-secret: ${vcap.services.spring-security-cas-xsuaa.credentials.clientsecret}
+            client-authentication-method: basic
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+        provider:
+          ias:
+            issuer-uri: https://xs2security.accounts400.ondemand.com
+          xsuaa:
+            issuer-uri: https://ias-ks-test.authentication.sap.hana.ondemand.com/oauth/token

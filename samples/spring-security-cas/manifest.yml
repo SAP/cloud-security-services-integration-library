@@ -1,0 +1,21 @@
+---
+# Configuration:
+# configured for EU10. For other landscapes, please adopt LANDSCAPE_APPS_DOMAIN in ../vars.yml
+# If the route is occupied, you might need to change ID in ../vars.yml
+applications:
+# The sample application.
+- name: spring-security-cas
+  instances: 1
+  memory: 800M
+  routes:
+    - route: spring-security-cas-((ID)).((LANDSCAPE_APPS_DOMAIN))
+  path: target/spring-security-cas.jar
+  buildpacks:
+    - https://github.com/saescha/opa-builpack-PoC.git#bash
+    - java_buildpack
+  services:
+    - spring-security-cas-ias
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '[memory_calculator: {headroom: 10}]'
+    BUNDLE_PROVIDER:  https://abp.cfapps.sap.hana.ondemand.com/
+    BUNDLE_PATH: sap/cas/v1/bundles/amsBundle.tar.gz
