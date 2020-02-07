@@ -37,8 +37,11 @@ class TestTokenClient(unittest.TestCase):
             self.app.name,
             self.sampleTestHelper.vars_parser.user_id,
             self.sampleTestHelper.vars_parser.landscape_apps_domain)
+        
         response = HttpUtil().get_request(url)
         body = response.body
+        logging.info(body)
+
         self.assertIsNotNone(body)
         self.assertRegex(body, "Access-Token: ")
         self.assertRegex(body, "Access-Token-Payload: ")
@@ -56,24 +59,31 @@ class TestJavaSecurity(unittest.TestCase):
         self.sampleTestHelper.tearDown()
 
     def test_hello_java_security(self):
-        required_role = 'JAVA_SECURITY_SAMPLE_Viewer'
-        logging.info("adding user to role")
-        self.sampleTestHelper.get_api_access().add_user_to_group(
-            self.sampleTestHelper.user_guid, required_role)
-        logging.info("added user to role")
+        resp = self.__perform_request()
+        self.assertEqual(resp.status, 403)
+
+        self.__add_user_to_role()
+        resp = self.__perform_request()
+
+        expected_response = "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(
+            username)
+        logging.info(resp.body)
+        self.assertIsNotNone(resp.body)
+        self.assertEqual(resp.body, expected_response)
+    
+    def __perform_request(self):
         url = 'https://{}-{}.{}/hello-java-security'.format(
             self.app.name,
             self.sampleTestHelper.vars_parser.user_id,
             self.sampleTestHelper.vars_parser.landscape_apps_domain)
-
-        response_body = HttpUtil().get_request(
-            url, access_token=self.sampleTestHelper.get_user_access_token()).body
-        logging.info(response_body)
-
-        expected_response = "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(
-            username)
-        self.assertIsNotNone(response_body)
-        self.assertEqual(response_body, expected_response)
+        resp = HttpUtil().get_request(url, access_token=self.sampleTestHelper.get_user_access_token())
+        return resp
+    
+    def __add_user_to_role(self):
+        required_role = 'JAVA_SECURITY_SAMPLE_Viewer'
+        logging.info("adding user to role")
+        self.sampleTestHelper.get_api_access().add_user_to_group(
+            self.sampleTestHelper.user_guid, required_role)  
 
 
 class SampleTestHelper:
@@ -83,17 +93,15 @@ class SampleTestHelper:
         vars_file = open('./vars.yml')
         self.vars_parser = VarsParser(vars_file.read())
         vars_file.close()
+        self.cf_apps = CFApps()
         self.__deployed_app = None
         self.__api_access = None
-        self.__cf_util = None
 
     def setUp(self):
-        logging.info("setup test")
         self.app_to_test.deploy()
         time.sleep(2)  # waiting for deployed apps to be available
 
     def tearDown(self):
-        logging.info("tear down")
         self.app_to_test.delete()
         if self.__api_access is not None:
             self.__api_access.delete()
@@ -108,11 +116,6 @@ class SampleTestHelper:
             username=username,
             password=password)
 
-    def __get_cf_util(self):
-        if (self.__cf_util is None):
-            self.__cf_util = CFUtil()
-        return self.__cf_util
-
     def get_api_access(self):
         if (self.__api_access is None):
             deployed_app = self.get_deployed_app()
@@ -124,7 +127,7 @@ class SampleTestHelper:
 
     def get_deployed_app(self):
         if (self.__deployed_app is None):
-            deployed_app = self.__get_cf_util().app_by_name(self.app_to_test.name)
+            deployed_app = self.cf_apps.app_by_name(self.app_to_test.name)
             if (deployed_app is None):
                 raise(Exception('Could not find app: ' + self.app_to_test.name))
             self.__deployed_app = deployed_app
@@ -134,31 +137,26 @@ class SampleTestHelper:
 class HttpUtil:
 
     class HttpResponse:
-
         def __init__(self, response, error=None):
-            self.__response = response
-            self.__error = error
+            if (error):
+                self.body = error.reason
+                self.status = error.code
+            else:
+                self.body = response.read().decode()
+                self.status = response.status
             logging.info(self)
 
         @classmethod
         def error(cls, error):
-            return cls(None, error=error)
-
-        @property
-        def status(self):
-            return self.__response.status
-
-        @property
-        def body(self):
-            if (self.__response is None):
-                return None
-            return self.__response.read().decode()
+            return cls(response=None, error=error)
 
         def __str__(self):
-            if (self.__response is None):
-                return 'HTTP status: {}, {}'.format(self.__error.status, self.__error.reason)
+            if (len(self.body) > 100):
+                body = self.body[:100] + '... (truncated)'
             else:
-                return 'HTTP response status: ' + str(self.__response.status)
+                body = self.body
+            return 'HTTP status: {}, body: {}'.format(self.status, body)
+        
 
     def get_request(self, url, access_token=None, additional_headers={}):
         logging.info('Performing get request to ' + url)
@@ -192,9 +190,9 @@ class HttpUtil:
     def __execute(self, req):
         try:
             res = urllib.request.urlopen(req)
-            return HttpUtil.HttpResponse(res)
+            return HttpUtil.HttpResponse(response=res)
         except urllib.error.HTTPError as error:
-            return HttpUtil.HttpResponse.error(error)
+            return HttpUtil.HttpResponse.error(error=error)
 
 
 class ApiAccessService:
@@ -248,18 +246,17 @@ class ApiAccessService:
             self.name, self.service_key_name, formatted_data)
 
 
-class CFUtil:
+class CFApps:
     def __init__(self):
         token = subprocess.run(['cf', 'oauth-token'], capture_output=True)
         target = subprocess.run(['cf', 'target'], capture_output=True)
-
         self.bearer_token = token.stdout.strip().decode()
         [self.cf_api_endpoint, self.user_id] = self.__parse_target_output(
             target.stdout.decode())
-        self.apps = self.__retrieve_apps()
 
     def app_by_name(self, app_name):
-        for app in self.apps:
+        apps = self.__retrieve_apps()
+        for app in apps:
             if (app is not None and app.get('name') == app_name):
                 vcap_services = self.__vcap_services_by_guid(app.get('guid'))
                 return DeployedApp(vcap_services)
@@ -395,13 +392,21 @@ apps = [
     CFApp(name='sap-java-buildpack-api-usage',
           xsuaa_service_name='xsuaa-buildpack'),
     CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic'),
-    CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication',
-          app_router_name='approuter-spring-security-xsuaa-usage'),
     CFApp(name='spring-webflux-security-xsuaa-usage', xsuaa_service_name='xsuaa-webflux',
           app_router_name='approuter-spring-webflux-security-xsuaa-usage')
 ]
 
+
+def is_logged_off():
+    target = subprocess.run(['cf', 'target'], capture_output=True)
+    return not target or target.stdout.decode().startswith('FAILED')
+
+
 if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
-    unittest.main()
+    if (is_logged_off()):
+        print('To run this script you must be logged into CF via "cf login"')
+        print('Also make sure to change settings in vars.yml')
+    else:
+        import doctest
+        doctest.testmod()
+        unittest.main()
