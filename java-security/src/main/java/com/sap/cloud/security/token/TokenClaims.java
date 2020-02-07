@@ -20,6 +20,8 @@ public final class TokenClaims {
 	public static final String EMAIL = "email";
 
 	public final class XSUAA {
+
+
 		private XSUAA() {
 		}
 
@@ -32,6 +34,8 @@ public final class TokenClaims {
 														// "my-app!t123.Display"
 		public static final String EXTERNAL_ATTRIBUTE = "ext_attr";
 		public static final String EXTERNAL_ATTRIBUTE_ENHANCER = "enhancer";
+
+		public static final String TRUSTED_CLIENT_ID_SUFFIX = "trustedclientidsuffix";
 	}
 
 	/* SAP User token
