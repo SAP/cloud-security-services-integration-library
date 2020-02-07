@@ -30,7 +30,7 @@ public class JwtIssuerValidator implements Validator<Token> {
 	 *            {@link OAuth2ServiceConfiguration#getProperty(String)}
 	 */
 	public JwtIssuerValidator(String domain) {
-		assertHasText(domain, "domain must not be null or empty.");
+		assertHasText(domain, "JwtIssuerValidator requires a domain.");
 		this.domain = domain;
 	}
 

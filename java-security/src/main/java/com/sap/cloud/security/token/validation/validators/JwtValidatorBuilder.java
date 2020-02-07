@@ -169,7 +169,7 @@ public class JwtValidatorBuilder {
 		defaultValidators.add(signatureValidator);
 
 		if (customAudienceValidator == null) {
-			defaultValidators.add(createXsuaaAudienceValidator());
+			defaultValidators.add(createAudienceValidator());
 		}
 		if (configuration.getService() == XSUAA) {
 			if (!configuration.isLegacyMode()) {
@@ -182,7 +182,7 @@ public class JwtValidatorBuilder {
 		return defaultValidators;
 	}
 
-	private JwtAudienceValidator createXsuaaAudienceValidator() {
+	private JwtAudienceValidator createAudienceValidator() {
 		JwtAudienceValidator jwtAudienceValidator = new JwtAudienceValidator(configuration.getClientId());
 		if (otherConfiguration != null) {
 			jwtAudienceValidator.configureAnotherServiceInstance(otherConfiguration.getClientId());
