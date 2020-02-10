@@ -38,17 +38,6 @@ public interface AccessToken extends Token {
 	boolean hasLocalScope(@Nonnull String scope);
 
 	/**
-	 * Get the encoded jwt token with "Bearer " prefix, e.g. for
-	 * Authorization Http Header.
-	 *
-	 * <p>
-	 * Never expose this token via log or via HTTP.
-	 *
-	 * @return the encoded token.
-	 */
-	String getBearerTokenValue();
-
-	/**
 	 * Returns the grant type of the jwt token. <br>
 	 *
 	 * @return the grant type
