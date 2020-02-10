@@ -6,7 +6,6 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -26,6 +25,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,6 +50,7 @@ public class SecurityTestRuleTest {
 			.useApplicationServer(forService(XSUAA).usePort(APPLICATION_SERVER_PORT))
 			.addApplicationServlet(TestServlet.class, "/hi");
 
+
 	@Test
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys()
 			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
@@ -61,7 +62,7 @@ public class SecurityTestRuleTest {
 			List<JsonObject> tokenKeys = new DefaultJsonObject(readContent(response)).getJsonObjects("keys");
 			assertThat(tokenKeys).hasSize(1);
 			String publicKeyFromTokenKeys = tokenKeys.get(0).getAsString("value");
-			String encodedKey = Base64.encodeBase64String(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
+			String encodedKey = Base64.getEncoder().encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
 			assertThat(publicKeyFromTokenKeys).isEqualTo(encodedKey);
 		}
 	}
