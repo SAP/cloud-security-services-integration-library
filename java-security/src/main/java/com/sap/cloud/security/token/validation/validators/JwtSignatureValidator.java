@@ -74,7 +74,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 			}
 			keyId = getOrDefaultKeyId(token);
 			return validate(token.getTokenValue(),
-					token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME),
+					getOrDefaultSignatureAlgorithm(token),
 					keyId,
 					jwksUri,
 					fallbackPublicKey);
@@ -91,7 +91,17 @@ public class JwtSignatureValidator implements Validator<Token> {
 		if (token.hasHeaderParameter(KEY_ID_PARAMETER_NAME)) {
 			return token.getHeaderParameterAsString(KEY_ID_PARAMETER_NAME);
 		}
-		return DEFAULT_KEY_ID;
+		return DEFAULT_KEY_ID; // TODO IAS default key-id can be removed when IAS provides key id
+	}
+
+	@Nonnull
+	private String getOrDefaultSignatureAlgorithm(Token token) {
+		String algHeader = token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME);
+
+		if(JwtSignatureAlgorithm.fromValue(algHeader) == null) {
+			throw new IllegalArgumentException("Jwt token with signature algorithm '" + algHeader + "' is not supported.");
+		}
+		return JwtSignatureAlgorithm.RS256.value();
 	}
 
 	@Nonnull
@@ -99,10 +109,11 @@ public class JwtSignatureValidator implements Validator<Token> {
 		if (runInLegacyMode) {
 			return configuration.getUrl() + "/token_keys";
 		}
-		if (token.hasHeaderParameter(KEYS_URL_PARAMETER_NAME)) {
+		if (token.hasHeaderParameter(KEYS_URL_PARAMETER_NAME)) { // This was validated by XsuaaJwtIssuerValidator
 			return token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME);
 		}
-		if (token.hasClaim(ISSUER)) { // don't call in case of XSA AUth Code tokens
+		if (token.hasClaim(ISSUER)) { // This was validated by JwtIssuerValidator
+			// don't call in case of XSA Auth Code tokens as Issuer is not valid there
 			URI discoveryUri = DefaultOidcConfigurationService.getDiscoveryEndpointUri(token.getClaimAsString(ISSUER));
 			return oidcConfigurationService
 					.getOrRetrieveEndpoints(discoveryUri)
@@ -117,6 +128,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 			String fallbackPublicKey) {
 		assertHasText(token, "token must not be null or empty.");
 		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
+		assertHasText(tokenAlgorithm, "tokenAlgorithm must not be null or empty.");
 
 		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId,
 				URI.create(tokenKeysUrl), fallbackPublicKey);
@@ -135,10 +147,10 @@ public class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
-				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, String fallbackPublicKey) {
+								  String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, String fallbackPublicKey) {
 			ValidationResult validationResult;
 
-			validationResult = setJwtAlgorithm(tokenAlgorithm);
+			validationResult = setSupportedJwtAlgorithm(tokenAlgorithm);
 			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
@@ -167,14 +179,16 @@ public class JwtSignatureValidator implements Validator<Token> {
 			return validateTokenSignature(token, publicKey, publicSignature);
 		}
 
-		private ValidationResult setJwtAlgorithm(String tokenAlgorithm) {
+		private ValidationResult setSupportedJwtAlgorithm(String tokenAlgorithm) {
 			if (tokenAlgorithm != null) {
 				jwtSignatureAlgorithm = JwtSignatureAlgorithm.fromValue(tokenAlgorithm);
 				if (jwtSignatureAlgorithm != null) {
 					return createValid();
 				}
+				return createInvalid("Jwt token with signature algorithm '{}' is not supported.", tokenAlgorithm);
 			}
-			return createInvalid("Jwt token with signature algorithm '{}' can not be verified.", tokenAlgorithm);
+			jwtSignatureAlgorithm = JwtSignatureAlgorithm.RS256;
+			return createValid();
 		}
 
 		private ValidationResult setPublicKey(OAuth2TokenKeyServiceWithCache tokenKeyService, String keyId,

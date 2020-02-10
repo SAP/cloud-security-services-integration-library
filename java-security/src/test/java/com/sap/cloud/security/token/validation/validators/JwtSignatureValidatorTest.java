@@ -167,7 +167,7 @@ public class JwtSignatureValidatorTest {
 				"https://myauth.com/jwks_uri", null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
-				startsWith("Jwt token with signature algorithm 'ES123' can not be verified."));
+				startsWith("Jwt token with signature algorithm 'ES123' is not supported."));
 	}
 
 	@Test
@@ -176,17 +176,7 @@ public class JwtSignatureValidatorTest {
 				"https://myauth.com/jwks_uri", null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
-				startsWith("Jwt token with signature algorithm 'NONE' can not be verified."));
-	}
-
-
-	@Test
-	public void validationFails_whenTokenAlgorithmIsNull() {
-		ValidationResult validationResult = cut.validate(xsuaaToken.getTokenValue(), "", "key-id-1",
-				"https://myauth.com/jwks_uri", null);
-		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(),
-				startsWith("Jwt token with signature algorithm '' can not be verified."));
+				startsWith("Jwt token with signature algorithm 'NONE' is not supported."));
 	}
 
 	@Test
