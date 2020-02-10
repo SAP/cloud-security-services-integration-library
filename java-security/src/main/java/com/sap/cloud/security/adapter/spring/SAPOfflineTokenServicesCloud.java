@@ -8,8 +8,6 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
-import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.SpringOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.SpringOidcConfigurationService;
 import org.springframework.beans.factory.InitializingBean;
@@ -87,12 +85,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
 			RestOperations restOperations) {
 		this(serviceConfiguration, JwtValidatorBuilder.getInstance(serviceConfiguration)
-				.withOAuth2TokenKeyService(
-						OAuth2TokenKeyServiceWithCache.getInstance()
-								.withTokenKeyService(new SpringOAuth2TokenKeyService(restOperations)))
-				.withOidcConfigurationService(
-						OidcConfigurationServiceWithCache.getInstance()
-								.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations))));
+				.withOAuth2TokenKeyService(new SpringOAuth2TokenKeyService(restOperations))
+				.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations)));
 
 	}
 

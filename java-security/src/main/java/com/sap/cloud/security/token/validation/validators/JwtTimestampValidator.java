@@ -33,7 +33,7 @@ public class JwtTimestampValidator implements Validator<Token> {
 	private final Supplier<Instant> timeProvider;
 	private final TemporalAmount tolerance;
 
-	public JwtTimestampValidator() {
+	JwtTimestampValidator() {
 		this(Instant::now, DEFAULT_TOLERANCE);
 	}
 

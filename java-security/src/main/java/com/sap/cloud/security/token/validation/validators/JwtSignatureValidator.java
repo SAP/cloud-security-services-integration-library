@@ -46,7 +46,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 	private OAuth2ServiceConfiguration configuration;
 	private boolean runInLegacyMode;
 
-	public JwtSignatureValidator(OAuth2TokenKeyServiceWithCache tokenKeyService,
+	JwtSignatureValidator(OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
 		assertNotNull(tokenKeyService, "JwtSignatureValidator requires a tokenKeyService.");
 		assertNotNull(tokenKeyService, "JwtSignatureValidator requires a oidcConfigurationService.");
@@ -55,7 +55,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 		this.oidcConfigurationService = oidcConfigurationService;
 	}
 
-	public JwtSignatureValidator withOAuth2Configuration(OAuth2ServiceConfiguration configuration) {
+	JwtSignatureValidator withOAuth2Configuration(OAuth2ServiceConfiguration configuration) {
 		this.configuration = configuration;
 		return this;
 	}
@@ -138,7 +138,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 			return new Validation();
 		}
 
-		public ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
+		ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
 				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, String fallbackPublicKey) {
 			ValidationResult validationResult;
 

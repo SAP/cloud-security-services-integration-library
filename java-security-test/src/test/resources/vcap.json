@@ -21,5 +21,23 @@
     ],
     "volume_mounts": []
    }
-  ]
- }
+  ],
+  "identity-beta": [
+  {
+   "binding_name": null,
+   "credentials": {
+    "clientsecret": "secret",
+    "clientid": "T000310",
+    "url": "https://app.auth.com"
+   },
+   "instance_name": "myservice",
+   "label": "identity-beta",
+   "name": "myservice",
+   "plan": "default",
+   "provider": null,
+   "syslog_drain_url": null,
+   "tags": [],
+   "volume_mounts": []
+  }
+ ]
+}

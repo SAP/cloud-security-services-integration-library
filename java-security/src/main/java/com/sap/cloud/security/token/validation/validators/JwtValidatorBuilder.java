@@ -26,9 +26,8 @@ public class JwtValidatorBuilder {
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private OAuth2ServiceConfiguration configuration;
-	private OidcConfigurationServiceWithCache oidcConfigurationService = null;
-	private OAuth2TokenKeyServiceWithCache tokenKeyService = null;
-	private CloseableHttpClient httpClient = null;
+	private OidcConfigurationService oidcConfigurationService = null;
+	private OAuth2TokenKeyService tokenKeyService = null;
 	private OAuth2ServiceConfiguration otherConfiguration;
 	private Validator<Token> customAudienceValidator;
 
@@ -80,27 +79,27 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OAuth2TokenKeyServiceWithCache} instance.
+	 * {@link OAuth2TokenKeyService} instance.
 	 *
 	 * @param tokenKeyService
 	 *            your token key service
 	 * @return this builder
 	 */
-	public JwtValidatorBuilder withOAuth2TokenKeyService(OAuth2TokenKeyServiceWithCache tokenKeyService) {
+	public JwtValidatorBuilder withOAuth2TokenKeyService(OAuth2TokenKeyService tokenKeyService) {
 		this.tokenKeyService = tokenKeyService;
 		return this;
 	}
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OidcConfigurationServiceWithCache} instance.
+	 * {@link OAuth2TokenKeyService} instance.
 	 *
 	 * @param oidcConfigurationService
 	 *            your token key service
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withOidcConfigurationService(
-			OidcConfigurationServiceWithCache oidcConfigurationService) {
+			OidcConfigurationService oidcConfigurationService) {
 		this.oidcConfigurationService = oidcConfigurationService;
 		return this;
 	}
@@ -114,7 +113,8 @@ public class JwtValidatorBuilder {
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withHttpClient(CloseableHttpClient httpClient) {
-		this.httpClient = httpClient;
+		this.oidcConfigurationService = new DefaultOidcConfigurationService(httpClient);
+		this.tokenKeyService = new DefaultOAuth2TokenKeyService(httpClient);
 		return this;
 	}
 
@@ -193,22 +193,16 @@ public class JwtValidatorBuilder {
 
 	private OAuth2TokenKeyServiceWithCache getTokenKeyServiceWithCache() {
 		if (tokenKeyService != null) {
-			return tokenKeyService;
-		}
-		if (httpClient != null) {
 			return OAuth2TokenKeyServiceWithCache.getInstance()
-					.withTokenKeyService(new DefaultOAuth2TokenKeyService(httpClient));
+					.withTokenKeyService(tokenKeyService);
 		}
 		return OAuth2TokenKeyServiceWithCache.getInstance();
 	}
 
 	private OidcConfigurationServiceWithCache getOidcConfigurationServiceWithCache() {
 		if (oidcConfigurationService != null) {
-			return oidcConfigurationService;
-		}
-		if (httpClient != null) {
 			return OidcConfigurationServiceWithCache.getInstance()
-					.withOidcConfigurationService(new DefaultOidcConfigurationService(httpClient));
+					.withOidcConfigurationService(oidcConfigurationService);
 		}
 		return OidcConfigurationServiceWithCache.getInstance();
 	}

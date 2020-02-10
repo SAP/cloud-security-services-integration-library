@@ -27,7 +27,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	private final List<String> clientIds = new ArrayList();
 
-	public JwtAudienceValidator(String clientId) {
+	JwtAudienceValidator(String clientId) {
 		configureTrustedClientId(clientId);
 	}
 
