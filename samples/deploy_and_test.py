@@ -11,6 +11,28 @@ import time
 import re
 from getpass import getpass
 
+# Usage information
+# To run this script you must be logged into CF via 'cf login'
+# Also make sure to change settings in vars.yml to your needs.
+# This script deploys sample apps and fires post request against their endpoints.
+# For some samples it needs to create a password token for which you need
+# to provide your password (same as you would use for 'cf login').
+# You can do this by either supplying it via the system environment
+# variable 'CFPASSWORD' or by typing when the script prompts for the password.
+# The same goes for the username with the variable 'CFUSER'.
+
+# Dependencies
+# The script depends on python3 and the cloud foundry command line tool 'cf'.
+
+# Running the script
+# If the script is made executable, it can be started with ./deploy_and_test.py
+# It can also be started like so: python3 ./deploy_and_test.py
+# By default it will run all unit tests.
+# It is also possible to run specific test classes:
+# python3 -m unittest deploy_and_test.TestJavaSecurity.test_hello_java_security
+# This would only the run the test called 'test_hello_java_security'
+# inside the test class 'TestJavaSecurity' inside the deploy_and_test.py file.
+
 username = os.getenv('CFUSER')
 password = os.getenv('CFPASSWORD')
 
