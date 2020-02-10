@@ -5,9 +5,10 @@ import javax.annotation.Nullable;
 import java.util.Set;
 
 /**
- * Represents an access token in the format of a JSON Web Token (not a short opaque token).
- * In difference to a ID token the access token has no/less information about the user but
- * has information about the authorities (scopes).
+ * Represents an access token in the format of a JSON Web Token (not a short
+ * opaque token). In difference to a ID token the access token has no/less
+ * information about the user but has information about the authorities
+ * (scopes).
  */
 public interface AccessToken extends Token {
 

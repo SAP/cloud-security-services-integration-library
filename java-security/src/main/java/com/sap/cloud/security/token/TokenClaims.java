@@ -21,7 +21,6 @@ public final class TokenClaims {
 
 	public final class XSUAA {
 
-
 		private XSUAA() {
 		}
 
@@ -38,12 +37,10 @@ public final class TokenClaims {
 		public static final String TRUSTED_CLIENT_ID_SUFFIX = "trustedclientidsuffix";
 	}
 
-	/* SAP User token
-	public final class SAP_ID {
-		private SAP_ID() {
-		}
-
-		// public static final String SAP_ZONE_ID = "sap_zid";
-		// public static final String SAP_USER_ID = "sap_uid";
-	}*/
+	/*
+	 * SAP User token public final class SAP_ID { private SAP_ID() { }
+	 * 
+	 * // public static final String SAP_ZONE_ID = "sap_zid"; // public static final
+	 * String SAP_USER_ID = "sap_uid"; }
+	 */
 }

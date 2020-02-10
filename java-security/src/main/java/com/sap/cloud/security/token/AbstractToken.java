@@ -23,8 +23,8 @@ import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.ISSUED_AT;
 
 /**
- * Decodes and parses encoded JSON Web Token (JWT) and provides access to
- * token header parameters and claims.
+ * Decodes and parses encoded JSON Web Token (JWT) and provides access to token
+ * header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
 	protected final DefaultJsonObject tokenHeader;

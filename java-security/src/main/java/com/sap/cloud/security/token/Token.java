@@ -110,8 +110,7 @@ public interface Token {
 	Instant getNotBefore();
 
 	/**
-	 * Get the encoded jwt token, e.g. for token forwarding to another
-	 * app.
+	 * Get the encoded jwt token, e.g. for token forwarding to another app.
 	 *
 	 * <p>
 	 * Never expose this token via log or via HTTP.

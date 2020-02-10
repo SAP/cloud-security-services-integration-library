@@ -296,7 +296,8 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void getHdbToken_AuthCodeToken_NoAttributes() throws XSUserInfoException, IOException {
-		XsuaaToken token = new XsuaaToken(IOUtils.resourceToString("/xsuaaXsaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
+		XsuaaToken token = new XsuaaToken(
+				IOUtils.resourceToString("/xsuaaXsaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId("sb-java-hello-world!i1")
 				.withProperty(CFConstants.XSUAA.APP_ID, "java-hello-world!i1")
@@ -331,7 +332,6 @@ public class XSUserInfoAdapterTest {
 				.withProperty("identityzoneid", "uaa")
 				.build();
 
-
 		cut = new XSUserInfoAdapter(token, configuration);
 
 		assertThat(cut.getHdbToken()).isNotNull();
@@ -360,7 +360,8 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void isForeignModeFalse_WhenIdentityZoneDoesNotMatchButCliendIdIsApplicationPlan() throws XSUserInfoException {
+	public void isForeignModeFalse_WhenIdentityZoneDoesNotMatchButCliendIdIsApplicationPlan()
+			throws XSUserInfoException {
 		String tokenClientId = "sb-application!t0123"; // cid
 		String identityZone = "brokerplanmasterapp!b123"; // ext_attr -> zdn
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
@@ -383,7 +384,6 @@ public class XSUserInfoAdapterTest {
 				.withClientId(tokenClientId)
 				.withProperty(IDENTITY_ZONE, identityZone)
 				.build();
-
 
 		cut = createComponentUnderTestSpy(configuration);
 		doReturn(tokenClientId).when(cut).getClientId();
@@ -429,8 +429,8 @@ public class XSUserInfoAdapterTest {
 		return spy(new XSUserInfoAdapter(mock(XsuaaToken.class), mock(OAuth2ServiceConfiguration.class)));
 	}
 
-
-	private XSUserInfoAdapter createComponentUnderTestSpy(OAuth2ServiceConfiguration configuration) throws XSUserInfoException {
+	private XSUserInfoAdapter createComponentUnderTestSpy(OAuth2ServiceConfiguration configuration)
+			throws XSUserInfoException {
 		return spy(new XSUserInfoAdapter(Mockito.mock(XsuaaToken.class), configuration));
 	}
 

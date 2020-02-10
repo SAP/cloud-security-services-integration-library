@@ -103,10 +103,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	/**
-	 *  "ext_attr": {
-	 *         "enhancer": "XSUAA",
-	 *         "zdn": "paas-subdomain"
-	 *     },
+	 * "ext_attr": { "enhancer": "XSUAA", "zdn": "paas-subdomain" },
 	 */
 	public String getSubdomain() throws XSUserInfoException {
 		return Optional.ofNullable(getExternalAttribute(ZDN)).orElse(null);

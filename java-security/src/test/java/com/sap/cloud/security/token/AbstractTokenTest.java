@@ -91,7 +91,8 @@ public class AbstractTokenTest {
 
 	@Test
 	public void tokenWithLongExpiration_isNotExpired() {
-		AbstractToken tokenWithNoExpiration = new MockTokenBuilder().withExpiration(MockTokenBuilder.NO_EXPIRE_DATE).build();
+		AbstractToken tokenWithNoExpiration = new MockTokenBuilder().withExpiration(MockTokenBuilder.NO_EXPIRE_DATE)
+				.build();
 		when(tokenWithNoExpiration.isExpired()).thenCallRealMethod();
 
 		assertThat(tokenWithNoExpiration.isExpired()).isFalse();

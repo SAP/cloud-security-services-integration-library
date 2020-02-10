@@ -52,7 +52,8 @@ public class JwtAudienceValidatorTest {
 	@Test
 	public void validate_clientIdMatchesTokenAudienceWithoutDot() {
 		// configures token audience
-		Mockito.when(token.getAudiences()).thenReturn(Sets.newLinkedHashSet("client", "foreignclient", "sb-test4!t1.data.x"));
+		Mockito.when(token.getAudiences())
+				.thenReturn(Sets.newLinkedHashSet("client", "foreignclient", "sb-test4!t1.data.x"));
 
 		// configures audience validator with client-id from VCAP_SERVICES
 		ValidationResult result = new JwtAudienceValidator("sb-test4!t1")

@@ -34,7 +34,7 @@ public class JsonWebKeySetTest {
 	@Test
 	@Ignore
 	public void getKeyByAlgorithmAndId_returnsNull_whenKeyTypeDoesNotMatch() {
-		JwtSignatureAlgorithm differentKeyAlgorithm = JwtSignatureAlgorithm.RS256; //ES256
+		JwtSignatureAlgorithm differentKeyAlgorithm = JwtSignatureAlgorithm.RS256; // ES256
 
 		cut.put(JSON_WEB_KEY);
 

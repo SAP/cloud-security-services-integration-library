@@ -199,12 +199,11 @@ public class JwtSignatureValidatorTest {
 	@Test
 	@Ignore // Not yet supported
 	public void jsonECSignatureMatchesJWKS() {
-		/*{
-			"kty": "EC",
-				"kid": "key-id-1",
-				"alg": "ES256",
-				"value": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQgb5npLHd0Bk61bNnjK632uwmBfr\nF7I8hoPgaOZjyhh+BrPDO6CL6D/aW/yPObXXm7SpZogmRwGROcOA3yUleg==\n-----END PUBLIC KEY-----"
-		}*/
+		/*
+		 * { "kty": "EC", "kid": "key-id-1", "alg": "ES256", "value":
+		 * "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQgb5npLHd0Bk61bNnjK632uwmBfr\nF7I8hoPgaOZjyhh+BrPDO6CL6D/aW/yPObXXm7SpZogmRwGROcOA3yUleg==\n-----END PUBLIC KEY-----"
+		 * }
+		 */
 		String ecSignedToken = "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhdXRoMCJ9.4iVk3-Y0v4RT4_9IaQlp-8dZ_4fsTzIylgrPTDLrEvTHBTyVS3tgPbr2_IZfLETtiKRqCg0aQ5sh9eIsTTwB1g";
 		assertThat(cut.validate(ecSignedToken, "ES256", "key-id-1", null, null).isValid(), is(true));
 	}

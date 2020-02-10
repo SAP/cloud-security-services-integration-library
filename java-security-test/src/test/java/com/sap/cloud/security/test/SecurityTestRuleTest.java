@@ -50,7 +50,6 @@ public class SecurityTestRuleTest {
 			.useApplicationServer(forService(XSUAA).usePort(APPLICATION_SERVER_PORT))
 			.addApplicationServlet(TestServlet.class, "/hi");
 
-
 	@Test
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys()
 			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {

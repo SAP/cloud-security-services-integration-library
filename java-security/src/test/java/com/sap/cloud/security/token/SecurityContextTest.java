@@ -74,7 +74,8 @@ public class SecurityContextTest {
 	}
 
 	@Test
-	public void getAccessTokenReturnsNullIfTokenDoesNotImplementInterface() throws ExecutionException, InterruptedException, IOException {
+	public void getAccessTokenReturnsNullIfTokenDoesNotImplementInterface()
+			throws ExecutionException, InterruptedException, IOException {
 		SecurityContext.setToken(TOKEN);
 		assertThat(SecurityContext.getAccessToken()).isNull();
 	}

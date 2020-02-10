@@ -17,7 +17,6 @@ import java.util.Objects;
 import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.BEGIN_PUBLIC_KEY;
 import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.END_PUBLIC_KEY;
 
-
 class JsonWebKeyImpl implements JsonWebKey {
 	private final JwtSignatureAlgorithm keyAlgorithm;
 	private final String keyId;

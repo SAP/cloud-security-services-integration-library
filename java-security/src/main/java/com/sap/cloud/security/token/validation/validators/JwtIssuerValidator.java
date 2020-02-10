@@ -47,7 +47,7 @@ public class JwtIssuerValidator implements Validator<Token> {
 	private ValidationResult matchesTokenIssuerDomain(String issuer) {
 		URI issuerUri;
 		try {
-			if(!issuer.startsWith("http")) {
+			if (!issuer.startsWith("http")) {
 				return createInvalid(
 						"Issuer is not trusted because 'iss' claim '{}' does not provide a valid URI (missing http scheme). Please contact your Identity Provider Administrator.",
 						issuer);

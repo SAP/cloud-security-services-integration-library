@@ -44,7 +44,9 @@ import java.util.stream.Collectors;
  * </dependency>
  * }
  * </pre>
- * By default it used Apache Rest Client for communicating with the OAuth2 Server.
+ * 
+ * By default it used Apache Rest Client for communicating with the OAuth2
+ * Server.
  */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
@@ -55,7 +57,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	private ScopeConverter xsuaaScopeConverter;
 
 	/**
-	 * Constructs an instance which is preconfigured for XSUAA service configuration from SAP CP Environment.
+	 * Constructs an instance which is preconfigured for XSUAA service configuration
+	 * from SAP CP Environment.
 	 */
 	public SAPOfflineTokenServicesCloud() {
 		this(Environments.getCurrent().getXsuaaConfiguration());

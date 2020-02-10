@@ -117,7 +117,7 @@ public class JwtValidatorBuilder {
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withHttpClient(CloseableHttpClient httpClient) {
-		if(httpClient != null) {
+		if (httpClient != null) {
 			this.oidcConfigurationService = new DefaultOidcConfigurationService(httpClient);
 			this.tokenKeyService = new DefaultOAuth2TokenKeyService(httpClient);
 		}
@@ -191,7 +191,7 @@ public class JwtValidatorBuilder {
 
 	private JwtAudienceValidator createAudienceValidator() {
 		JwtAudienceValidator jwtAudienceValidator = new JwtAudienceValidator(configuration.getClientId());
-		if(configuration.hasProperty(CFConstants.XSUAA.APP_ID)) {
+		if (configuration.hasProperty(CFConstants.XSUAA.APP_ID)) {
 			jwtAudienceValidator.configureTrustedClientId(configuration.getProperty(CFConstants.XSUAA.APP_ID));
 		}
 		if (otherConfiguration != null) {

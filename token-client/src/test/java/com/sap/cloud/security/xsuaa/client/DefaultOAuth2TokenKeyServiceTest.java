@@ -84,8 +84,6 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 	}
 
-
-
 	private CloseableHttpResponse mockResponse() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString);
 		when(httpClient.execute(any())).thenReturn(response);

@@ -98,8 +98,9 @@ public class JwtSignatureValidator implements Validator<Token> {
 	private String getOrDefaultSignatureAlgorithm(Token token) {
 		String algHeader = token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME);
 
-		if(JwtSignatureAlgorithm.fromValue(algHeader) == null) {
-			throw new IllegalArgumentException("Jwt token with signature algorithm '" + algHeader + "' is not supported.");
+		if (JwtSignatureAlgorithm.fromValue(algHeader) == null) {
+			throw new IllegalArgumentException(
+					"Jwt token with signature algorithm '" + algHeader + "' is not supported.");
 		}
 		return JwtSignatureAlgorithm.RS256.value();
 	}
@@ -147,7 +148,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
-								  String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, String fallbackPublicKey) {
+				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, String fallbackPublicKey) {
 			ValidationResult validationResult;
 
 			validationResult = setSupportedJwtAlgorithm(tokenAlgorithm);
