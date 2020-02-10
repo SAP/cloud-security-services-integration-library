@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationListener;
@@ -190,6 +191,9 @@ public class JwtValidatorBuilder {
 
 	private JwtAudienceValidator createAudienceValidator() {
 		JwtAudienceValidator jwtAudienceValidator = new JwtAudienceValidator(configuration.getClientId());
+		if(configuration.hasProperty(CFConstants.XSUAA.APP_ID)) {
+			jwtAudienceValidator.configureTrustedClientId(configuration.getProperty(CFConstants.XSUAA.APP_ID));
+		}
 		if (otherConfiguration != null) {
 			jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getClientId());
 		}

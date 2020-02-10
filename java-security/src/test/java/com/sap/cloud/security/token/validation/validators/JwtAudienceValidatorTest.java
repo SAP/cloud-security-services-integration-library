@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +27,16 @@ public class JwtAudienceValidatorTest {
 		ValidationResult result = new JwtAudienceValidator("client")
 				.validate(token);
 
+		assertThat(result.isValid()).isTrue();
+	}
+
+	@Test
+	public void validate_tokenAudienceMatchesAppId() {
+		Mockito.when(token.getAudiences()).thenReturn(
+				Sets.newLinkedHashSet("appId!t1"));
+		ValidationResult result = new JwtAudienceValidator("sb-appId!t1")
+				.configureTrustedClientId("appId!t1")
+				.validate(token);
 		assertThat(result.isValid()).isTrue();
 	}
 
