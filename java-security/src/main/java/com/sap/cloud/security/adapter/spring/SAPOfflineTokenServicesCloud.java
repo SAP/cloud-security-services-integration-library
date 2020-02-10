@@ -21,12 +21,15 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * This constructor requires a dependency to Spring oauth.
- * 
+ *
  * <pre>
  * {@code
  * <dependency>
@@ -110,7 +113,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 		Set<String> scopes = token instanceof AccessToken
 				? ((AccessToken) token).getScopes()
-				: new LinkedHashSet<>();
+				: Collections.emptySet();
 		if (useLocalScopeAsAuthorities) {
 			scopes = xsuaaScopeConverter.convert(scopes);
 		}

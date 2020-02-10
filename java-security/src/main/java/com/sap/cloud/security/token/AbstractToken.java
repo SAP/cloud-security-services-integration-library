@@ -12,6 +12,7 @@ import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -111,7 +112,9 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public Set<String> getAudiences() {
-		return getClaimAsStringList(TokenClaims.AUDIENCE).stream().collect(Collectors.toSet());
+		Set<String> audiences = new LinkedHashSet<>();
+		audiences.addAll(getClaimAsStringList(TokenClaims.AUDIENCE));
+		return audiences;
 	}
 
 	protected Principal createPrincipalByName(String name) {
