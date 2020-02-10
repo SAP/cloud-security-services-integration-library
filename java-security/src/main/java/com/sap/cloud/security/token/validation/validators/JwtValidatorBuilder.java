@@ -162,23 +162,24 @@ public class JwtValidatorBuilder {
 	private List<Validator<Token>> createDefaultValidators() {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
-		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
-				getOidcConfigurationServiceWithCache()).runInLegacyMode(configuration.isLegacyMode());
-		signatureValidator.withOAuth2Configuration(configuration);
-		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
-		defaultValidators.add(signatureValidator);
 
-		if (customAudienceValidator == null) {
-			defaultValidators.add(createAudienceValidator());
-		}
 		if (configuration.getService() == XSUAA) {
 			if (!configuration.isLegacyMode()) {
 				defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
-
 		} else if (configuration.getService() == IAS) {
 			defaultValidators.add(new JwtIssuerValidator(configuration.getDomain()));
 		}
+		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
+				getOidcConfigurationServiceWithCache()).runInLegacyMode(configuration.isLegacyMode());
+		signatureValidator.withOAuth2Configuration(configuration);
+
+		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
+		defaultValidators.add(signatureValidator);
+		if (customAudienceValidator == null) {
+			defaultValidators.add(createAudienceValidator());
+		}
+
 		return defaultValidators;
 	}
 
