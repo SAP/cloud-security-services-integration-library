@@ -4,11 +4,9 @@ import com.sap.cloud.security.xsuaa.Assertions;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * This utility class translates XSUAA scopes that are specified in global form
