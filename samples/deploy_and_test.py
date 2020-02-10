@@ -447,17 +447,6 @@ class CFApp:
         return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}'.format(
             self.name, self.xsuaa_service_name, self.app_router_name)
 
-
-apps = [
-    CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security'),
-    CFApp(name='java-tokenclient-usage',
-          xsuaa_service_name='xsuaa-token-client'),
-    CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic'),
-    CFApp(name='spring-webflux-security-xsuaa-usage', xsuaa_service_name='xsuaa-webflux',
-          app_router_name='approuter-spring-webflux-security-xsuaa-usage')
-]
-
-
 def is_logged_off():
     target = subprocess.run(['cf', 'target'], capture_output=True)
     return not target or target.stdout.decode().startswith('FAILED')
