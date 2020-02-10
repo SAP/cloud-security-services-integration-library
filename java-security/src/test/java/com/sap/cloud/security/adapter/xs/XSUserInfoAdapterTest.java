@@ -317,7 +317,7 @@ public class XSUserInfoAdapterTest {
 
 		when(token.getTokenValue()).thenReturn(mockTokenValue);
 		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn("sb-margin-assurance-ui!i1");
-		when(token.getClaimAsString(TokenClaims.XSUAA.SUBACCOUNT_ID)).thenReturn("uaa");
+		when(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).thenReturn("uaa");
 		when(token.getGrantType()).thenReturn(GrantType.AUTHORIZATION_CODE);
 
 		JsonObject xsUserAttributes = mock(JsonObject.class);
@@ -344,7 +344,7 @@ public class XSUserInfoAdapterTest {
 		String configurationAppId = "brokerplanmasterapp!b123";
 		XsuaaToken token = mock(XsuaaToken.class);
 		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(tokenClientId);
-		when(token.getClaimAsString(TokenClaims.XSUAA.SUBACCOUNT_ID)).thenReturn("otherIdentityZone");
+		when(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).thenReturn("otherIdentityZone");
 
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(tokenClientId)

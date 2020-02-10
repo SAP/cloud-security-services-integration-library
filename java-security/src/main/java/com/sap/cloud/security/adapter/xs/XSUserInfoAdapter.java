@@ -93,7 +93,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getIdentityZone() throws XSUserInfoException {
-		return getClaimValue(TokenClaims.XSUAA.SUBACCOUNT_ID);
+		return getClaimValue(TokenClaims.XSUAA.ZONE_ID);
 	}
 
 	@Override

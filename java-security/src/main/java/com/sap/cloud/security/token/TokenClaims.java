@@ -27,7 +27,7 @@ public final class TokenClaims {
 
 		public static final String ORIGIN = "origin";
 		public static final String GRANT_TYPE = "grant_type"; // OAuth grant type used for token creation
-		public static final String SUBACCOUNT_ID = "zid"; // tenant GUID, identity zone id
+		public static final String ZONE_ID = "zid"; // tenant GUID, identity zone id, subaccount id
 		public static final String CLIENT_ID = "cid"; // OAuth client identifier
 		public static final String SCOPES = "scope"; // list of scopes including application id, e.g.
 														// "my-app!t123.Display"

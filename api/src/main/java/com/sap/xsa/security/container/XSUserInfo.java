@@ -85,7 +85,7 @@ public interface XSUserInfo {
 	 * Return identity zone which is the same like the subaccount id (tenant id).
 	 * 
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.SUBACCOUNT_ID)}
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)}
 	 *             from the {@code com.sap.cloud.security.token} package.
 	 * @return identity zone
 	 * @throws XSUserInfoException
@@ -99,7 +99,7 @@ public interface XSUserInfo {
 	 * id).
 	 * 
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.SUBACCOUNT_ID)}
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)}
 	 *             from the {@code com.sap.cloud.security.token} package.
 	 * @return subaccount identifier
 	 * @throws XSUserInfoException
