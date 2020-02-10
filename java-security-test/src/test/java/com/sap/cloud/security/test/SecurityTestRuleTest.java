@@ -1,10 +1,12 @@
 package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
-import com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -12,7 +14,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -24,8 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
@@ -50,19 +51,18 @@ public class SecurityTestRuleTest {
 			.addApplicationServlet(TestServlet.class, "/hi");
 
 	@Test
-	@Ignore
-	// TODO fix test setup
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys()
 			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 
 		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
-			/*JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(readContent(response));
-			PublicKey actualPublicKey = keySet
-					.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "default-kid").getPublicKey();
 
-			assertThat(actualPublicKey).isEqualTo(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH));*/
+			List<JsonObject> tokenKeys = new DefaultJsonObject(readContent(response)).getJsonObjects("keys");
+			assertThat(tokenKeys).hasSize(1);
+			String publicKeyFromTokenKeys = tokenKeys.get(0).getAsString("value");
+			String encodedKey = Base64.encodeBase64String(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
+			assertThat(publicKeyFromTokenKeys).isEqualTo(encodedKey);
 		}
 	}
 
