@@ -1,6 +1,5 @@
 package com.sap.cloud.security.adapter.xs;
 
-import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
