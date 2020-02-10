@@ -7,8 +7,8 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import javax.annotation.Nonnull;
 
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,11 +39,13 @@ public class SapIdToken extends AbstractToken {
 	}
 
 	@Override
-	public List<String> getAudiences() {
+	public Set<String> getAudiences() {
 		try {
 			return super.getAudiences();
 		} catch (JsonParsingException e) {
-			return Arrays.asList(getClaimAsString(TokenClaims.AUDIENCE));
+			final Set<String> audiences = new LinkedHashSet<>();
+			audiences.add(getClaimAsString(TokenClaims.AUDIENCE));
+			return audiences;
 		}
 	}
 }

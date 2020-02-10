@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
 import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
@@ -108,8 +110,8 @@ public abstract class AbstractToken implements Token {
 	}
 
 	@Override
-	public List<String> getAudiences() {
-		return getClaimAsStringList(TokenClaims.AUDIENCE);
+	public Set<String> getAudiences() {
+		return getClaimAsStringList(TokenClaims.AUDIENCE).stream().collect(Collectors.toSet());
 	}
 
 	protected Principal createPrincipalByName(String name) {

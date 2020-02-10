@@ -10,8 +10,8 @@ import com.sap.cloud.security.token.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Validates if the jwt access token is intended for the OAuth2 client of this
@@ -25,7 +25,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	private static final Logger logger = LoggerFactory.getLogger(JwtAudienceValidator.class);
 	private static final char DOT = '.';
 
-	private final List<String> clientIds = new ArrayList();
+	private final Set<String> clientIds = new LinkedHashSet<>();
 
 	JwtAudienceValidator(String clientId) {
 		configureTrustedClientId(clientId);
@@ -41,7 +41,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
-		List<String> allowedAudiences = getAllowedAudiences(token);
+		Set<String> allowedAudiences = getAllowedAudiences(token);
 		for (String configuredClientId : clientIds) {
 			if (allowedAudiences.contains(configuredClientId)) {
 				return ValidationResults.createValid();
@@ -59,8 +59,8 @@ public class JwtAudienceValidator implements Validator<Token> {
 	 * @param token
 	 * @return (empty) list of audiences
 	 */
-	static List<String> getAllowedAudiences(Token token) {
-		List<String> audiences = new ArrayList<>();
+	static Set<String> getAllowedAudiences(Token token) {
+		Set<String> audiences = new LinkedHashSet<>();
 
 		for (String audience : token.getAudiences()) {
 			if (audience.contains(".")) {

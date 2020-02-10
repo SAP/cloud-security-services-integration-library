@@ -2,6 +2,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
+import org.assertj.core.util.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -18,7 +19,8 @@ public class JwtAudienceValidatorTest {
 	@Before
 	public void setUp() {
 		token = Mockito.mock(Token.class);
-		Mockito.when(token.getAudiences()).thenReturn(Arrays.asList("client", "foreignclient", "sb-test4!t1.data"));
+		Mockito.when(token.getAudiences()).thenReturn(
+				Sets.newLinkedHashSet("client", "foreignclient", "sb-test4!t1.data"));
 	}
 
 	@Test
@@ -41,7 +43,7 @@ public class JwtAudienceValidatorTest {
 	@Test
 	public void validate_clientIdMatchesTokenAudienceWithoutDot() {
 		// configures token audience
-		Mockito.when(token.getAudiences()).thenReturn(Arrays.asList("client", "foreignclient", "sb-test4!t1.data.x"));
+		Mockito.when(token.getAudiences()).thenReturn(Sets.newLinkedHashSet("client", "foreignclient", "sb-test4!t1.data.x"));
 
 		// configures audience validator with client-id from VCAP_SERVICES
 		ValidationResult result = new JwtAudienceValidator("sb-test4!t1")
@@ -64,7 +66,7 @@ public class JwtAudienceValidatorTest {
 
 	@Test
 	public void validationShouldFilterEmptyAudiences() {
-		Mockito.when(token.getAudiences()).thenReturn(Arrays.asList(".", "test.", " .test2"));
+		Mockito.when(token.getAudiences()).thenReturn(Sets.newLinkedHashSet(".", "test.", " .test2"));
 
 		ValidationResult result = new JwtAudienceValidator("any")
 				.validate(token);
@@ -76,7 +78,7 @@ public class JwtAudienceValidatorTest {
 
 	@Test
 	public void validationFails_when_TokenAudiencesAreEmpty() {
-		Mockito.when(token.getAudiences()).thenReturn(Collections.emptyList());
+		Mockito.when(token.getAudiences()).thenReturn(Collections.emptySet());
 
 		ValidationResult result = new JwtAudienceValidator("any")
 				.validate(token);

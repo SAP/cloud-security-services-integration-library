@@ -20,6 +20,7 @@ import javax.annotation.Nonnull;
 import java.security.*;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
@@ -33,7 +34,8 @@ public class JwtGenerator {
 
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
-	private final List<String> unsupportedClaims = Arrays.asList(AUDIENCE);
+	private final Set<String> unsupportedClaims = Arrays.asList(AUDIENCE).stream().collect(Collectors.toSet());
+
 	private SignatureCalculator signatureCalculator;
 	private Service service;
 

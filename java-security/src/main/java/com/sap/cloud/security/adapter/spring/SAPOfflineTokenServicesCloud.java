@@ -108,9 +108,9 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			throws AuthenticationException, InvalidTokenException {
 		Token token = checkAndCreateToken(accessToken);
 
-		List<String> scopes = token instanceof AccessToken
+		Set<String> scopes = token instanceof AccessToken
 				? ((AccessToken) token).getScopes()
-				: Collections.EMPTY_LIST;
+				: new LinkedHashSet<>();
 		if (useLocalScopeAsAuthorities) {
 			scopes = xsuaaScopeConverter.convert(scopes);
 		}

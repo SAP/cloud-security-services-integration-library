@@ -1,8 +1,8 @@
 package com.sap.cloud.security.token;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 public interface ScopeConverter {
-	List<String> convert(Collection<String> scopes);
+	Set<String> convert(Collection<String> scopes);
 }

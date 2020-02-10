@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a JSON Web Token (JWT).
@@ -139,5 +140,5 @@ public interface Token {
 	 *
 	 * @return the audiences.
 	 **/
-	List<String> getAudiences();
+	Set<String> getAudiences();
 }
