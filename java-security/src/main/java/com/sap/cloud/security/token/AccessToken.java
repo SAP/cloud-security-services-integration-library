@@ -2,7 +2,7 @@ package com.sap.cloud.security.token;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Represents an access token in the format of a JSON Web Token (not a short opaque token).
@@ -16,7 +16,7 @@ public interface AccessToken extends Token {
 	 *
 	 * @return the list of the claim scope or empty list.
 	 */
-	List<String> getScopes();
+	Set<String> getScopes();
 
 	/**
 	 * Checks if a scope is available in the access token.
