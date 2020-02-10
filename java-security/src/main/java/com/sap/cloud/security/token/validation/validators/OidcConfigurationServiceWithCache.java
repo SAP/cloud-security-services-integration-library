@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
@@ -9,6 +9,10 @@ import java.util.concurrent.TimeUnit;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 
 /**
  * Decorates {@link OidcConfigurationService} with a cache, which gets looked up

@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.jwt;
+package com.sap.cloud.security.token.validation.validators;
 
 /**
  * This is represented by "kty" (Key Type) Parameter.

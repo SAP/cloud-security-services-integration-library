@@ -6,7 +6,6 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.xsuaa.client.*;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -51,8 +50,7 @@ public class JwtSignatureValidatorTest {
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")))
-						.thenReturn(JsonWebKeySetFactory.createFromJson(
-								IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8)));
+						.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
@@ -75,8 +73,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void iasOidc_RSASignatureMatchesJWKS() throws IOException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(URI.create("https://myoidcprovider.com/jwks_uri")))
-				.thenReturn(JsonWebKeySetFactory.createFromJson(
-						IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8)));
+				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 		assertThat(cut.validate(iasToken).isValid(), is(true));
 	}
 
@@ -154,8 +151,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFails_whenNoMatchingKey() throws IOException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(URI.create("https://myauth.com/jwks_uri")))
-				.thenReturn(JsonWebKeySetFactory.createFromJson(
-						IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8)));
+				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
 		ValidationResult result = cut.validate(iasToken.getTokenValue(), "RS256", "default-kid-2",
 				"https://myauth.com/jwks_uri", null);

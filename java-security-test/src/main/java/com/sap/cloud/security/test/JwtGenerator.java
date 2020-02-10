@@ -10,7 +10,7 @@ import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+import com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;

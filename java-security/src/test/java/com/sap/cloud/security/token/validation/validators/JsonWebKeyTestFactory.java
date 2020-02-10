@@ -1,8 +1,4 @@
-package com.sap.cloud.security.xsuaa.util;
-
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+package com.sap.cloud.security.token.validation.validators;
 
 public class JsonWebKeyTestFactory {
 

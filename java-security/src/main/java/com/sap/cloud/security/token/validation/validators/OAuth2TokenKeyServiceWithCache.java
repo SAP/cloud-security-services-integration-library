@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -14,10 +14,9 @@ import java.util.concurrent.TimeUnit;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 
 /**
  * Decorates {@link OAuth2TokenKeyService} with a cache, which gets looked up
@@ -124,7 +123,7 @@ public class OAuth2TokenKeyServiceWithCache {
 
 	private void retrieveTokenKeysAndFillCache(URI jwksUri)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		JsonWebKeySet keySet = getTokenKeyService().retrieveTokenKeys(jwksUri);
+		JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(getTokenKeyService().retrieveTokenKeys(jwksUri));
 		if (keySet == null) {
 			return;
 		}

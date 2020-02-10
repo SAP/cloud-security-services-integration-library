@@ -7,10 +7,8 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.CombiningValidator;
-import com.sap.cloud.security.token.validation.validators.JwtSignatureValidator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.client.*;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.*;
 import org.mockito.Mockito;
@@ -205,8 +203,7 @@ public class JwtGeneratorTest {
 		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaConfiguration();
 
 		OAuth2TokenKeyService tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
-				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
+		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
 				.withOAuth2TokenKeyService(tokenKeyServiceMock)
@@ -223,15 +220,14 @@ public class JwtGeneratorTest {
 
 	@Test
 	@Ignore
-	// TODO
+	// TODO fix test setup
 	public void createToken_discoverOidcJwksEndpoint_tokenIsValid() throws Exception {
 		System.setProperty("VCAP_SERVICES", IOUtils
 				.resourceToString("/vcap.json", StandardCharsets.UTF_8));
 		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaConfiguration();
 
 		OAuth2TokenKeyService tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(JsonWebKeySetFactory.createFromJson(
-				IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
+		when(tokenKeyServiceMock.retrieveTokenKeys(any())).thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
 
 		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("http://auth.com/token_keys"));

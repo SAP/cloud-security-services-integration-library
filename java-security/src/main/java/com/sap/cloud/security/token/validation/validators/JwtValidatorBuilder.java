@@ -84,7 +84,9 @@ public class JwtValidatorBuilder {
 	 * @param tokenKeyService
 	 *            your token key service
 	 * @return this builder
+	 * @deprecated for internal use only
 	 */
+	@Deprecated
 	public JwtValidatorBuilder withOAuth2TokenKeyService(OAuth2TokenKeyService tokenKeyService) {
 		this.tokenKeyService = tokenKeyService;
 		return this;
@@ -97,9 +99,10 @@ public class JwtValidatorBuilder {
 	 * @param oidcConfigurationService
 	 *            your token key service
 	 * @return this builder
+	 * @deprecated for internal use only
 	 */
-	public JwtValidatorBuilder withOidcConfigurationService(
-			OidcConfigurationService oidcConfigurationService) {
+	@Deprecated
+	public JwtValidatorBuilder withOidcConfigurationService(OidcConfigurationService oidcConfigurationService) {
 		this.oidcConfigurationService = oidcConfigurationService;
 		return this;
 	}
@@ -113,8 +116,10 @@ public class JwtValidatorBuilder {
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withHttpClient(CloseableHttpClient httpClient) {
-		this.oidcConfigurationService = new DefaultOidcConfigurationService(httpClient);
-		this.tokenKeyService = new DefaultOAuth2TokenKeyService(httpClient);
+		if(httpClient != null) {
+			this.oidcConfigurationService = new DefaultOidcConfigurationService(httpClient);
+			this.tokenKeyService = new DefaultOAuth2TokenKeyService(httpClient);
+		}
 		return this;
 	}
 

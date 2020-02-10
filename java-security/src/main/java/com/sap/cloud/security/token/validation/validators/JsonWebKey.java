@@ -1,18 +1,15 @@
-package com.sap.cloud.security.xsuaa.jwk;
+package com.sap.cloud.security.token.validation.validators;
 
 import javax.annotation.Nullable;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
-
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 /**
  * See also JSON Web Key (JWK) specification:
  * https://tools.ietf.org/html/rfc7517
  */
-public interface JsonWebKey {
+interface JsonWebKey {
 	String DEFAULT_KEY_ID = "default-kid";
 
 	/**

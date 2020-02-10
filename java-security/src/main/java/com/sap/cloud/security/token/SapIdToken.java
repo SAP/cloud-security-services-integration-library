@@ -29,7 +29,7 @@ public class SapIdToken extends AbstractToken {
 
 	@Override
 	public Principal getPrincipal() {
-		// TODO IAS: should return SAP User ID (guid)
+		// TODO IAS: should return SAP User ID (guid) if available in id token
 		return null;
 	}
 
