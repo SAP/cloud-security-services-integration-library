@@ -171,6 +171,16 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
+	public void validationFails_whenTokenAlgorithmIsNone() {
+		ValidationResult validationResult = cut.validate(xsuaaToken.getTokenValue(), "NONE", "key-id-1",
+				"https://myauth.com/jwks_uri", null);
+		assertThat(validationResult.isErroneous(), is(true));
+		assertThat(validationResult.getErrorDescription(),
+				startsWith("Jwt token with signature algorithm 'NONE' can not be verified."));
+	}
+
+
+	@Test
 	public void validationFails_whenTokenAlgorithmIsNull() {
 		ValidationResult validationResult = cut.validate(xsuaaToken.getTokenValue(), "", "key-id-1",
 				"https://myauth.com/jwks_uri", null);
@@ -197,7 +207,7 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	@Ignore
+	@Ignore // Not yet supported
 	public void jsonECSignatureMatchesJWKS() {
 		/*{
 			"kty": "EC",

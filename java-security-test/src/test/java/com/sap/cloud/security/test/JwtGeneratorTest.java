@@ -74,7 +74,7 @@ public class JwtGeneratorTest {
 		cut = JwtGenerator.getInstance(IAS, "T000310")
 				.withClaimValue("sub", "P176945")
 				.withClaimValue("scope", "john.doe")
-				.withClaimValue("iss", "https://application.auth.com")
+				.withClaimValue("iss", "https://application.myauth.com")
 				.withClaimValue("first_name", "john")
 				.withClaimValue("last_name", "doe")
 				.withClaimValue("email", "john.doe@email.org")
