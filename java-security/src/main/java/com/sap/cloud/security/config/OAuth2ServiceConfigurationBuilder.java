@@ -6,8 +6,6 @@ import javax.annotation.Nonnull;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 
@@ -103,8 +101,6 @@ public class OAuth2ServiceConfigurationBuilder {
 	public OAuth2ServiceConfiguration build() {
 		return new OAuth2ServiceConfiguration() {
 
-			private final Pattern DOMAIN_PATTERN = Pattern.compile("[\\w-]+\\.(.+)");
-
 			@Override
 			public String getClientId() {
 				return properties.get(CLIENT_ID);
@@ -139,22 +135,6 @@ public class OAuth2ServiceConfigurationBuilder {
 			public String getDomain() {
 				if (service.equals(Service.XSUAA) && properties.containsKey(XSUAA.UAA_DOMAIN)) {
 					return properties.get(XSUAA.UAA_DOMAIN);
-				} else if (properties.containsKey(URL)) {
-					return extractDomain(properties.get(URL));
-				}
-				return null;
-			}
-
-			private String extractDomain(String url) {
-				// TODO support https://accounts.sap.com and custom domains
-				String host = URI.create(url).getHost();
-
-				if (LOCALHOST.equals(host)) {
-					return LOCALHOST;
-				}
-				Matcher matcher = DOMAIN_PATTERN.matcher(host);
-				if (matcher.matches()) {
-					return matcher.group(matcher.groupCount());
 				}
 				return null;
 			}

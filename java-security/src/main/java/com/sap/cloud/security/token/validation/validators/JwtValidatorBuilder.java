@@ -173,7 +173,7 @@ public class JwtValidatorBuilder {
 				defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
 		} else if (configuration.getService() == IAS) {
-			defaultValidators.add(new JwtIssuerValidator(configuration.getDomain()));
+			defaultValidators.add(new JwtIssuerValidator(configuration.getUrl()));
 		}
 		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
 				getOidcConfigurationServiceWithCache()).runInLegacyMode(configuration.isLegacyMode());

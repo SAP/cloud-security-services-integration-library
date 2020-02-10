@@ -145,6 +145,6 @@ public class IntegrationTest {
 
 		ValidationResult result = tokenValidator.validate(xsuaaToken);
 		assertThat(result.isValid()).isFalse();
-		assertThat(result.getErrorDescription()).startsWith("Issuer is not trusted because 'iss' 'http://auth.com' does not match domain 'myauth.com' of the identity service");
+		assertThat(result.getErrorDescription()).startsWith("Issuer is not trusted because 'iss' 'http://auth.com' does not match host 'myauth.com' of the identity provider");
 	}
 }

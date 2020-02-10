@@ -63,8 +63,9 @@ public interface OAuth2ServiceConfiguration {
 	/**
 	 * Domain (without subdomain) of identity service instance.
 	 *
-	 * @return domain
+	 * @return domain or null if not provided
 	 */
+	@Nullable
 	String getDomain();
 
 	/**
