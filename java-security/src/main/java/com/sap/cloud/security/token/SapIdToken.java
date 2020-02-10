@@ -23,8 +23,8 @@ public class SapIdToken extends AbstractToken {
 		super(decodedJwt);
 	}
 
-	public SapIdToken(@Nonnull String accessToken) {
-		super(accessToken);
+	public SapIdToken(@Nonnull String idToken) {
+		super(idToken);
 	}
 
 	@Override

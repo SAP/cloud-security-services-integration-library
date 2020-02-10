@@ -53,8 +53,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	}
 
 	/**
-	 * Retrieve audiences from token. In case the audience list is empty, take
-	 * audiences based on the scope names.
+	 * Retrieve audiences from token.
 	 *
 	 * @param token
 	 * @return (empty) list of audiences
@@ -64,6 +63,8 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 		for (String audience : token.getAudiences()) {
 			if (audience.contains(".")) {
+				// CF UAA derives the audiences from the scopes.
+				// In case the scopes contains namespaces, these needs to be removed.
 				String aud = audience.substring(0, audience.indexOf(DOT)).trim();
 				if (!aud.isEmpty()) {
 					audiences.add(aud);
