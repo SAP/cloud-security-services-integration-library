@@ -25,8 +25,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 public class OAuth2TokenKeyServiceWithCache {
 	private OAuth2TokenKeyService tokenKeyService; // access via getter
 	private Cache<String, PublicKey> cache; // access via getter
-	private long cacheValidityInSeconds = 6000;
-	private long cacheSize = 100;
+	private long cacheValidityInSeconds = 600; // old keys should expire after 15 minutes
+	private long cacheSize = 1000;
 
 	private OAuth2TokenKeyServiceWithCache() {
 		// use getInstance factory method
@@ -50,8 +50,8 @@ public class OAuth2TokenKeyServiceWithCache {
 	 * @return this
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheTime(int timeInSeconds) {
-		if (timeInSeconds <= 6000) {
-			throw new IllegalArgumentException("The cache validity must be minimum 6000 seconds");
+		if (timeInSeconds <= 600) {
+			throw new IllegalArgumentException("The cache validity must be minimum 600 seconds");
 		}
 		this.cacheValidityInSeconds = timeInSeconds;
 		return this;
@@ -65,8 +65,8 @@ public class OAuth2TokenKeyServiceWithCache {
 	 * @return this
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheSize(int size) {
-		if (size <= 100) {
-			throw new IllegalArgumentException("The cache size must be 100 or more");
+		if (size <= 1000) {
+			throw new IllegalArgumentException("The cache size must be 1000 or more");
 		}
 		this.cacheSize = size;
 		return this;

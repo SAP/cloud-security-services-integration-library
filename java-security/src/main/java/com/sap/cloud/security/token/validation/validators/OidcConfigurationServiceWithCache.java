@@ -21,8 +21,8 @@ import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 public class OidcConfigurationServiceWithCache {
 	private OidcConfigurationService oidcConfigurationService; // access via getter
 	private Cache<String, OAuth2ServiceEndpointsProvider> cache;
-	private long cacheValidityInSeconds = 6000;
-	private long cacheSize = 100;
+	private long cacheValidityInSeconds = 600; // Revert after 15 Minutes
+	private long cacheSize = 1000;
 
 	private OidcConfigurationServiceWithCache() {
 		// use getInstance factory method
@@ -59,8 +59,8 @@ public class OidcConfigurationServiceWithCache {
 	 * @return this
 	 */
 	public OidcConfigurationServiceWithCache withCacheTime(int timeInSeconds) {
-		if (timeInSeconds <= 6000) {
-			throw new IllegalArgumentException("The cache validity must be minimum 6000 seconds");
+		if (timeInSeconds <= 600) {
+			throw new IllegalArgumentException("The cache validity must be minimum 600 seconds");
 		}
 		this.cacheValidityInSeconds = timeInSeconds;
 		return this;
@@ -75,8 +75,8 @@ public class OidcConfigurationServiceWithCache {
 	 * @return this
 	 */
 	public OidcConfigurationServiceWithCache withCacheSize(int size) {
-		if (size <= 100) {
-			throw new IllegalArgumentException("The cache size must be 100 or more");
+		if (size <= 1000) {
+			throw new IllegalArgumentException("The cache size must be 1000 or more");
 		}
 		this.cacheSize = size;
 		return this;
