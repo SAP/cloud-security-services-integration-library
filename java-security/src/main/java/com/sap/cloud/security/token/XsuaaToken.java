@@ -7,6 +7,7 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.security.Principal;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -84,7 +85,9 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 
 	@Override
 	public Set<String> getScopes() {
-		return getClaimAsStringList(TokenClaims.XSUAA.SCOPES).stream().collect(Collectors.toSet());
+		LinkedHashSet<String> scopes = new LinkedHashSet<>();
+		scopes.addAll(getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
+		return scopes;
 	}
 
 	@Override
