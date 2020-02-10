@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
 import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
