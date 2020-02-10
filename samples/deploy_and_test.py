@@ -58,7 +58,7 @@ class TestJavaSecurity(unittest.TestCase):
             'hello-java-security')
         self.assertEqual(resp.status, 403)
 
-        self.__add_user_to_role()
+        self.sampleTestHelper.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
         resp = self.sampleTestHelper.perform_get_request_with_token(
             'hello-java-security')
 
@@ -66,13 +66,6 @@ class TestJavaSecurity(unittest.TestCase):
             username)
         self.assertIsNotNone(resp.body)
         self.assertEqual(resp.body, expected_response)
-
-    def __add_user_to_role(self):
-        required_role = 'JAVA_SECURITY_SAMPLE_Viewer'
-        logging.info("adding user to role")
-        self.sampleTestHelper.get_api_access().add_user_to_group(
-            self.sampleTestHelper.user_guid, required_role)
-
 
 class TestSpringSecurity(unittest.TestCase):
     
@@ -92,18 +85,35 @@ class TestSpringSecurity(unittest.TestCase):
         self.sampleTestHelper = TestSpringSecurity.sampleTestHelper
     
     def test_sayHello(self):
-        # https://spring-security-xsuaa-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello
         resp = self.sampleTestHelper.perform_get_request_with_token(
             'v1/sayHello')
         self.assertEqual(resp.status, 403)
-        self.__add_user_to_role('Viewer')
+        self.sampleTestHelper.add_user_to_role('Viewer')
         resp = self.sampleTestHelper.perform_get_request_with_token(
             'v1/sayHello')
         self.assertEqual(resp.status, 200)
 
-    def __add_user_to_role(self, role):
-        self.sampleTestHelper.get_api_access().add_user_to_group(
-            self.sampleTestHelper.user_guid, role)
+class TestJavaBuildpackApiUsage(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        app = CFApp(name='sap-java-buildpack-api-usage', xsuaa_service_name='xsuaa-buildpack', app_router_name='approuter-sap-java-buildpack-api-usage')
+        cls.sampleTestHelper = SampleTestHelper(app)
+        cls.sampleTestHelper.setUp()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.sampleTestHelper.tearDown()
+
+
+    def test_hello_token_servlet(self):
+        self.sampleTestHelper = TestJavaBuildpackApiUsage.sampleTestHelper
+        resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
+        self.assertEqual(resp.status, 403)
+        self.sampleTestHelper.add_user_to_role('Buildpack_API_Viewer')
+        resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
+        self.assertEqual(resp.status, 200)
+        self.assertRegex(resp.body, username)
 
 class SampleTestHelper:
 
@@ -124,6 +134,9 @@ class SampleTestHelper:
         self.app_to_test.delete()
         if self.__api_access is not None:
             self.__api_access.delete()
+
+    def add_user_to_role(self, role):
+        self.get_api_access().add_user_to_group(self.user_guid, role)
 
     def get_user_access_token(self):
         deployed_app = self.get_deployed_app()
@@ -417,8 +430,6 @@ apps = [
     CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security'),
     CFApp(name='java-tokenclient-usage',
           xsuaa_service_name='xsuaa-token-client'),
-    CFApp(name='sap-java-buildpack-api-usage',
-          xsuaa_service_name='xsuaa-buildpack'),
     CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic'),
     CFApp(name='spring-webflux-security-xsuaa-usage', xsuaa_service_name='xsuaa-webflux',
           app_router_name='approuter-spring-webflux-security-xsuaa-usage')
