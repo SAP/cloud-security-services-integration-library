@@ -56,7 +56,7 @@ public class JwtTimestampValidator implements Validator<Token> {
 			return ValidationResults.createInvalid("Jwt does not contain expiration (exp) claim. Cannot be validated!");
 		}
 
-		Instant notBefore = token.getNotBefore();
+		Instant notBefore = token.getNotBefore(); // considers "iat" as well
 		if (notBefore != null && validationResult.isValid()) {
 			validationResult = checkNotBefore(notBefore);
 		}
