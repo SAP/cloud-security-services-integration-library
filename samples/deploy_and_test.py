@@ -130,12 +130,10 @@ class TestJavaBuildpackApiUsage(unittest.TestCase):
 
     def test_hello_token_servlet(self):
         self.sampleTestHelper = TestJavaBuildpackApiUsage.sampleTestHelper
-        resp = self.sampleTestHelper.perform_get_request_with_token(
-            'hello-token')
+        resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
         self.assertEqual(resp.status, 403)
         self.sampleTestHelper.add_user_to_role('Buildpack_API_Viewer')
-        resp = self.sampleTestHelper.perform_get_request_with_token(
-            'hello-token')
+        resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
         self.assertEqual(resp.status, 200)
         self.assertRegex(resp.body, username)
 
@@ -194,7 +192,8 @@ class SampleTestHelper:
         if (self.__api_access is None):
             deployed_app = self.get_deployed_app()
             self.__api_access = ApiAccessService(
-                xsuaa_service_url=deployed_app.xsuaa_service_url, xsuaa_api_url=deployed_app.xsuaa_api_url)
+                xsuaa_service_url=deployed_app.xsuaa_service_url,
+                xsuaa_api_url=deployed_app.xsuaa_api_url)
         return self.__api_access
 
     def get_deployed_app(self):
@@ -337,14 +336,13 @@ class CFApps:
         token = subprocess.run(['cf', 'oauth-token'], capture_output=True)
         target = subprocess.run(['cf', 'target'], capture_output=True)
         self.bearer_token = token.stdout.strip().decode()
-        [self.cf_api_endpoint, self.user_id, space_name] = self.__parse_target_output(
-            target.stdout.decode())
-        self.space_guid = subprocess.run(
-            ['cf', 'space', space_name, '--guid'], capture_output=True).stdout.decode().strip()
+        [self.cf_api_endpoint, self.user_id, space_name] = self.__parse_target_output(target.stdout.decode())
+        space =  subprocess.run(['cf', 'space', space_name, '--guid'], capture_output=True)
+        self.space_guid = space.stdout.decode().strip()
 
     def app_by_name(self, app_name):
-        paginated_apps = self.__get_with_token(
-            self.cf_api_endpoint + '/apps?space_guids={}&names={}'.format(self.space_guid, app_name))
+        url = '{}/apps?space_guids={}&names={}'.format(self.cf_api_endpoint, self.space_guid, app_name)
+        paginated_apps = self.__get_with_token(url)
         app = self.__get_first_paginated_resource(paginated_apps)
         if (app is None):
             logging.error('App {} not found'.format(app_name))
@@ -465,11 +463,11 @@ class CFApp:
         return './' + self.name
 
     def deploy(self):
-        subprocess.run(['cf', 'create-service', 'xsuaa', 'application',
-                        self.xsuaa_service_name, '-c', 'xs-security.json'], cwd=self.working_dir)
+        subprocess.run(['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', 'xs-security.json'],
+            cwd=self.working_dir)
         subprocess.run(['mvn', 'clean', 'verify'], cwd=self.working_dir)
-        subprocess.run(['cf', 'push', '--vars-file',
-                        '../vars.yml'], cwd=self.working_dir)
+        subprocess.run(['cf', 'push', '--vars-file','../vars.yml'],
+            cwd=self.working_dir)
 
     def delete(self):
         subprocess.run(['cf', 'delete', '-f', self.name])
