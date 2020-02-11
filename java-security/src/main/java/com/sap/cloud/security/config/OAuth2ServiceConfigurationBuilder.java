@@ -17,7 +17,6 @@ public class OAuth2ServiceConfigurationBuilder {
 	private Service service;
 	private boolean runInLegacyMode;
 	private final Map<String, String> properties = new HashMap<>();
-	private static final String LOCALHOST = "localhost";
 
 	private OAuth2ServiceConfigurationBuilder() {
 		// use forService factory method
@@ -129,14 +128,6 @@ public class OAuth2ServiceConfigurationBuilder {
 			@Override
 			public Service getService() {
 				return service;
-			}
-
-			@Override
-			public String getDomain() {
-				if (service.equals(Service.XSUAA) && properties.containsKey(XSUAA.UAA_DOMAIN)) {
-					return properties.get(XSUAA.UAA_DOMAIN);
-				}
-				return null;
 			}
 
 			@Override
