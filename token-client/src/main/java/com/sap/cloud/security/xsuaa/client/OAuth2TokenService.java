@@ -52,7 +52,8 @@ public interface OAuth2TokenService {
 	 * @return the OAuth2AccessToken.
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
-	 * @deprecated instead use jwt bearer {{@link #retrieveAccessTokenViaJwtBearerTokenGrant(URI, ClientCredentials, String, String, Map)}}.
+	 * @deprecated instead use jwt bearer
+	 *             {{@link #retrieveAccessTokenViaJwtBearerTokenGrant(URI, ClientCredentials, String, String, Map)}}.
 	 */
 	@Deprecated
 	OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,

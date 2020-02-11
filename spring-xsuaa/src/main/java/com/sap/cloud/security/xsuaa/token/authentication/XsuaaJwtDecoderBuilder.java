@@ -1,28 +1,25 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
-
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.web.client.RestOperations;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class XsuaaJwtDecoderBuilder {
 
-	private XsuaaServiceConfiguration configuration;
 	int decoderCacheValidity; // in seconds
 	int decoderCacheSize;
-	OAuth2TokenValidator<Jwt> xsuaaTokenValidators;
-	OAuth2TokenValidator<Jwt> defaultTokenValidators;
 	Collection<PostValidationAction> postValidationActions;
+	private XsuaaServiceConfiguration configuration;
 	private RestOperations restOperations;
+	private List<OAuth2TokenValidator<Jwt>> xsuaaTokenValidators;
 
 	/**
 	 * Utility for building a JWT decoder configuration
@@ -32,8 +29,8 @@ public class XsuaaJwtDecoderBuilder {
 	 */
 	public XsuaaJwtDecoderBuilder(XsuaaServiceConfiguration configuration) {
 		this.configuration = configuration;
-		withDefaultValidators(JwtValidators.createDefault());
-		withTokenValidators(new XsuaaAudienceValidator(configuration));
+		xsuaaTokenValidators = new ArrayList<>();
+		xsuaaTokenValidators.add(new XsuaaAudienceValidator(configuration));
 		withDecoderCacheSize(100);
 		withDecoderCacheTime(900);
 	}
@@ -44,11 +41,8 @@ public class XsuaaJwtDecoderBuilder {
 	 * @return JwtDecoder
 	 */
 	public JwtDecoder build() {
-		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = new DelegatingOAuth2TokenValidator<>(
-				defaultTokenValidators,
-				xsuaaTokenValidators);
 		XsuaaJwtDecoder jwtDecoder = new XsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
-				combinedTokenValidators, postValidationActions);
+				getValidators(), postValidationActions);
 		Optional.ofNullable(restOperations).ifPresent(jwtDecoder::setRestOperations);
 		return jwtDecoder;
 	}
@@ -59,11 +53,13 @@ public class XsuaaJwtDecoderBuilder {
 	 * @return ReactiveJwtDecoder
 	 */
 	public ReactiveJwtDecoder buildAsReactive() {
-		DelegatingOAuth2TokenValidator<Jwt> combinedTokenValidators = new DelegatingOAuth2TokenValidator<>(
-				defaultTokenValidators,
-				xsuaaTokenValidators);
-		return new ReactiveXsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize,
-				combinedTokenValidators, postValidationActions);
+		return new ReactiveXsuaaJwtDecoder(configuration, decoderCacheValidity, decoderCacheSize, getValidators(),
+				postValidationActions);
+	}
+
+	private DelegatingOAuth2TokenValidator<Jwt> getValidators() {
+		return new DelegatingOAuth2TokenValidator<>(new DelegatingOAuth2TokenValidator<>(xsuaaTokenValidators),
+				JwtValidators.createDefault());
 	}
 
 	/**
@@ -113,11 +109,8 @@ public class XsuaaJwtDecoderBuilder {
 	 *            the token validators
 	 * @return this
 	 */
-	// var arg it is only being assigned to a OAuth2TokenValidator<Jwt>[], therefore
-	// its type safe.
-	@SuppressWarnings("unchecked")
 	public XsuaaJwtDecoderBuilder withTokenValidators(OAuth2TokenValidator<Jwt>... tokenValidators) {
-		this.xsuaaTokenValidators = new DelegatingOAuth2TokenValidator<>(tokenValidators);
+		xsuaaTokenValidators = Arrays.asList(tokenValidators);
 		return this;
 	}
 
@@ -135,8 +128,15 @@ public class XsuaaJwtDecoderBuilder {
 		return this;
 	}
 
-	XsuaaJwtDecoderBuilder withDefaultValidators(OAuth2TokenValidator<Jwt>... defaultTokenValidators) {
-		this.defaultTokenValidators = new DelegatingOAuth2TokenValidator<>(defaultTokenValidators);
+	/**
+	 * Disables the JWT {@link XsuaaAudienceValidator} which is enabled by default.
+	 *
+	 * @return the builder itself.
+	 */
+	public XsuaaJwtDecoderBuilder withoutXsuaaAudienceValidator() {
+		xsuaaTokenValidators = xsuaaTokenValidators.stream()
+				.filter(validator -> !(validator instanceof XsuaaAudienceValidator))
+				.collect(Collectors.toList());
 		return this;
 	}
 

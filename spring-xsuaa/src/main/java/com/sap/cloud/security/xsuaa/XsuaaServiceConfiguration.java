@@ -44,14 +44,14 @@ public interface XsuaaServiceConfiguration {
 	 *
 	 * @return certificates
 	 */
-	@Nullable
-	String getCertificates();
+	// @Nullable
+	// String getCertificates();
 
 	/**
 	 * Private key the certificate is signed with.
 	 *
 	 * @return private key
 	 */
-	@Nullable
-	String getPrivateKey();
+	// @Nullable
+	// String getPrivateKey();
 }

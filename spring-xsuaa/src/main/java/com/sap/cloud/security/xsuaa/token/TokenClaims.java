@@ -1,8 +1,5 @@
 package com.sap.cloud.security.xsuaa.token;
 
-/**
- * Class with public constants denoting custom XSUAA Jwt claims.
- */
 public final class TokenClaims {
 	private TokenClaims() {
 		throw new IllegalStateException("Utility class");

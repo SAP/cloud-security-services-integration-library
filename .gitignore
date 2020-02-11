@@ -40,3 +40,5 @@ bin
 *.ipr
 
 vim.exe.stackdump
+
+__pycache__/

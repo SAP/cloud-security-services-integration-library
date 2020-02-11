@@ -12,7 +12,7 @@ public class OAuth2TokenServiceConstants {
 	public static final String CLIENT_ID = "client_id";
 	public static final String CLIENT_SECRET = "client_secret";
 	public static final String USERNAME = "username";
-	public static final String PASSWORD = "password";
+	public static final String PASSWORD = "password"; // NOSONAR
 	public static final String ASSERTION = "assertion";
 	static final String MASTER_CLIENT_ID = "master_client_id";
 	static final String CLONE_CERTIFICATE = "clone_certificate";
@@ -21,10 +21,11 @@ public class OAuth2TokenServiceConstants {
 	public static final String GRANT_TYPE_USER_TOKEN = "user_token";
 	public static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
 	public static final String GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
-	public static final String GRANT_TYPE_PASSWORD = "password";
+	public static final String GRANT_TYPE_PASSWORD = "password"; // NOSONAR
 	public static final String GRANT_TYPE_JWT_BEARER = "urn:ietf:params:oauth:grant-type:jwt-bearer";
 	public static final String GRANT_TYPE_CLIENT_X509 = "client_x509";
-
+	public static final String GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code"; // not supported by token-client
+																						// lib
 
 	public static final String TOKEN_TYPE_OPAQUE = "opaque";
 

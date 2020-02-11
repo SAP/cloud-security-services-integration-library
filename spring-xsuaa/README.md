@@ -6,9 +6,11 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 
 ## Configuration
 
+These (spring) dependencies needs to be provided:
+
 ### Maven Dependencies
 ```xml
-<dependency>
+<dependency> <!-- includes spring-security-oauth2 -->
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-oauth2-jose</artifactId>
 </dependency>
@@ -23,7 +25,7 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>2.3.0-SNAPSHOT</version>
+    <version>2.4.4</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
@@ -38,7 +40,7 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.3.0-SNAPSHOT</version>
+    <version>2.4.4</version>
 </dependency>
 ```
 

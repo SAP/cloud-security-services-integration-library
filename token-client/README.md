@@ -23,7 +23,7 @@ The Resource owner password credentials (i.e., username and password) can be use
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.3.0-SNAPSHOT</version>
+    <version>2.4.4</version>
 </dependency>
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
@@ -45,18 +45,6 @@ The `DefaultOAuth2TokenService` can also be instantiated with a custom `Closeabl
 
 > The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. 
 
-#### Setup Apache Rest client for mutual TLS 
-```java
-SSLContext sslContext = SSLContextFactory.getInstance().create(<certificate>, <key>);
-
-SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
-
-CloseableHttpClient httpClient = HttpClients.custom()
-        .setSSLContext(sslContext)
-        .setSSLSocketFactory(socketFactory)
-        .build();
-```
-> The `<certificate>` represents the the PEM encoded certificate chain and `<key>` is the private key the certificate is signed with. Both are placeholders for the information you get from the XSUAA service binding.
 
 ## Configuration for Java/Spring Applications
 
@@ -69,7 +57,7 @@ CloseableHttpClient httpClient = HttpClients.custom()
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.3.0-SNAPSHOT</version>
+    <version>2.4.4</version>
 </dependency>
 ```
 
@@ -92,7 +80,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.3.0-SNAPSHOT</version>
+    <version>2.4.4</version>
 </dependency>
 ```
 
@@ -143,7 +131,6 @@ XsuaaToken jwtToken = SpringSecurityContext.getToken();
 
 OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
                 .token(jwtToken)
-                .clientId(<client_id>) // this is optional
                 .subdomain(jwtToken.getSubdomain()) // this is optional      
                 .attributes(additionalAttributes) // this is optional
                 .execute();

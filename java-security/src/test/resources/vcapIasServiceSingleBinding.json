@@ -1,0 +1,20 @@
+{
+  "identity-beta": [
+    {
+      "binding_name": null,
+      "credentials": {
+        "clientsecret": "pCghfbrLudwzXM2fPq7YSIhujAmpHj_I0DeMKHKRAqs=",
+        "clientid": "T000310",
+        "url": "https://myauth.com"
+      },
+      "instance_name": "myservice",
+      "label": "identity-beta",
+      "name": "myservice",
+      "plan": "default",
+      "provider": null,
+      "syslog_drain_url": null,
+      "tags": [],
+      "volume_mounts": []
+    }
+  ]
+}

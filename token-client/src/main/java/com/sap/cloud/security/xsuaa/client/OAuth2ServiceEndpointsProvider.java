@@ -22,7 +22,7 @@ public interface OAuth2ServiceEndpointsProvider {
 	/**
 	 * Returns Jwt Key Set URI (JWKS) as specified in
 	 * /.well-known/openid-configuration.
-	 * 
+	 *
 	 * @return jwks_uri , e.g. {@code https://oauth.server.com/token_keys}
 	 */
 	URI getJwksUri();

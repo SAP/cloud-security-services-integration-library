@@ -1,7 +1,5 @@
 package com.sap.cloud.security.xsuaa.util;
 
-import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +10,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
+
 public class UriUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(UriUtil.class);
+
+	private UriUtil() {
+		// use static methods
+	}
 
 	/**
 	 * Utility method that replaces the subdomain of the URI with the given
@@ -76,25 +81,25 @@ public class UriUtil {
 	/**
 	 * Utility method that expands the path of the URI.
 	 *
-	 * @param uri
+	 * @param baseUri
 	 *            the URI to be replaced.
 	 * @param pathToAppend
 	 *            the path to append.
 	 * @return the URI with the path.
 	 */
-	public static URI expandPath(URI uri, String pathToAppend) {
-		assertNotNull(uri, "the uri parameter must not be null");
-		assertHasText(pathToAppend, "the path parameter must not be null or ''");
+	// TODO rename to getUriWithPathAppended
+	@Nonnull
+	public static URI expandPath(URI baseUri, String pathToAppend) {
 		try {
-			String newPath = uri.getPath() + pathToAppend;
-			return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(),
-					replaceDoubleSlashes(newPath), uri.getQuery(), uri.getFragment());
+			String newPath = baseUri.getPath() + pathToAppend;
+			return new URI(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(),
+					replaceDoubleSlashes(newPath), baseUri.getQuery(), baseUri.getFragment());
 		} catch (URISyntaxException e) {
-			logger.error("Could not set path {} in given uri {}", pathToAppend, uri);
 			throw new IllegalStateException(e);
 		}
 	}
 
+	@Nonnull
 	private static String replaceDoubleSlashes(String newPath) {
 		return newPath.replaceAll("//", "/");
 	}

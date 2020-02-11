@@ -1,10 +1,11 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.xsuaa.util.UriUtil;
+
 import java.net.URI;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
-
-import com.sap.cloud.security.xsuaa.util.UriUtil;
+import static com.sap.cloud.security.xsuaa.util.UriUtil.expandPath;
 
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final URI baseUri;
@@ -14,7 +15,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private static final String DELEGATION_TOKEN_ENDPOINT = "/delegation/oauth/token";
 
 	/**
-	 * Creates a new XsuaaRestClient.
+	 * Creates a new XsuaaDefaultEndpoints.
 	 *
 	 * @param baseUri
 	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
@@ -26,7 +27,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	}
 
 	/**
-	 * Creates a new XsuaaRestClient.
+	 * Creates a new XsuaaDefaultEndpoints.
 	 *
 	 * @param baseUri
 	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
@@ -38,17 +39,17 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 
 	@Override
 	public URI getTokenEndpoint() {
-		return UriUtil.expandPath(baseUri, TOKEN_ENDPOINT);
+		return expandPath(baseUri, TOKEN_ENDPOINT);
 	}
 
 	@Override
 	public URI getAuthorizeEndpoint() {
-		return UriUtil.expandPath(baseUri, AUTHORIZE_ENDPOINT);
+		return expandPath(baseUri, AUTHORIZE_ENDPOINT);
 	}
 
 	@Override
 	public URI getJwksUri() {
-		return UriUtil.expandPath(baseUri, KEYSET_ENDPOINT);
+		return expandPath(baseUri, KEYSET_ENDPOINT);
 	}
 
 	public URI getDelegationTokenEndpoint() {

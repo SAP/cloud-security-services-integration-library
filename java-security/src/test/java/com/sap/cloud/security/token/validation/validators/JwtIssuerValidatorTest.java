@@ -1,0 +1,105 @@
+package com.sap.cloud.security.token.validation.validators;
+
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.ValidationResult;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.net.URI;
+
+import static com.sap.cloud.security.token.TokenClaims.ISSUER;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
+
+public class JwtIssuerValidatorTest {
+
+	private JwtIssuerValidator cut;
+	private Token token;
+
+	@Before
+	public void setup() {
+		cut = new JwtIssuerValidator(URI.create("https://accounts400.ondemand.com"));
+		token = Mockito.mock(Token.class);
+	}
+
+	@Test
+	public void constructor_throwsOnNullValues() {
+		assertThatThrownBy(() -> {
+			new JwtIssuerValidator(null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "url");
+	}
+
+	@Test
+	public void tokenIssuerMatchesIdentityProviderUrl() {
+		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com");
+		assertThat(cut.validate(token).isValid(), is(true));
+	}
+
+	@Test
+	public void tokenIssuerWithoutHttpSchemeMatchesIdentityProviderUrl() {
+		when(token.getClaimAsString(ISSUER)).thenReturn("subdomain.accounts400.ondemand.com");
+
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isErroneous(), is(true));
+		assertThat(validationResult.getErrorDescription(), startsWith(
+				"Issuer is not trusted because 'iss' claim 'subdomain.accounts400.ondemand.com' does not provide a valid URI (missing http scheme)."));
+	}
+
+	@Test
+	public void tokenIssuerMatchesIdentityProviderUrlWithPath() {
+		cut = new JwtIssuerValidator(URI.create("https://accounts400.ondemand.com/oauth/token"));
+		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com");
+		assertThat(cut.validate(token).isValid(), is(true));
+	}
+
+	@Test
+	public void validationFails_whenTokenIssuerDoesNotMatchIdentityProviderUrl() {
+		when(token.getClaimAsString(ISSUER)).thenReturn("https://accounts300.ondemand.com");
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isErroneous(), is(true));
+		assertThat(validationResult.getErrorDescription(), startsWith(
+				"Issuer is not trusted because 'iss' 'https://accounts300.ondemand.com' does not match host 'accounts400.ondemand.com' of the identity provider."));
+	}
+
+	@Test
+	public void validationFails_whenTokenIssuerEndsWithIdentityProviderUrlQueryParameter() {
+		cut = new JwtIssuerValidator(URI.create("https://accounts400.ondemand.com/token/oauth"));
+		when(token.getClaimAsString(ISSUER)).thenReturn("https://otherDomain.org?accounts400.ondemand.com");
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isErroneous(), is(true));
+		assertThat(validationResult.getErrorDescription(), startsWith(
+				"Issuer is not trusted because 'iss' 'https://otherDomain.org?accounts400.ondemand.com' does not match host 'accounts400.ondemand.com' of the identity provider."));
+	}
+
+	@Test
+	public void validationFails_whenTokenIssuerIsEmpty() {
+		when(token.getClaimAsString(ISSUER)).thenReturn(" ");
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isErroneous(), is(true));
+		assertThat(validationResult.getErrorDescription(),
+				startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
+	}
+
+	@Test
+	public void validationFails_whenTokenIssuerIsNull() {
+		when(token.getClaimAsString(ISSUER)).thenReturn(null);
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isErroneous(), is(true));
+		assertThat(validationResult.getErrorDescription(),
+				startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
+	}
+
+	@Test
+	public void validationFails_whenTokenIssuerIsNotAValidUri() {
+		Token token = Mockito.mock(Token.class);
+		when(token.getClaimAsString(ISSUER)).thenReturn("\0://myauth.com");
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isErroneous(), is(true));
+		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because"));
+	}
+
+}

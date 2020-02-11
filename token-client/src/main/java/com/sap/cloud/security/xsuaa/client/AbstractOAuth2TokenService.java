@@ -11,15 +11,12 @@ import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
+import static com.sap.cloud.security.xsuaa.http.HttpHeadersFactory.*;
 
 public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 
-	protected final HttpHeadersFactory httpHeadersFactory;
-
 	public AbstractOAuth2TokenService() {
-		this.httpHeadersFactory = new HttpHeadersFactory();
 	}
 
 	@Override
@@ -36,7 +33,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
-		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
+		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
 		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
 	}
@@ -56,7 +53,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
-		HttpHeaders headers = httpHeadersFactory.createWithAuthorizationBearerHeader(token);
+		HttpHeaders headers = HttpHeadersFactory.createWithAuthorizationBearerHeader(token);
 
 		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
 	}
@@ -75,7 +72,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 				.withClientCredentials(clientCredentials)
 				.buildAsMap();
 
-		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
+		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
 		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpointUri, subdomain), headers, parameters);
 	}
@@ -98,7 +95,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
-		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
+		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
 		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, parameters);
 	}
@@ -118,7 +115,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
-		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
+		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
 		return requestAccessToken(UriUtil.replaceSubdomain(tokenEndpoint, subdomain), headers, parameters);
 	}
@@ -139,7 +136,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
-		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
+		HttpHeaders headers = createWithoutAuthorizationHeader();
 
 		return requestAccessToken(UriUtil.replaceSubdomain(delegationEndpointUri, subdomain), headers, parameters);
 	}
@@ -162,7 +159,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
-		HttpHeaders headers = httpHeadersFactory.createWithoutAuthorizationHeader();
+		HttpHeaders headers = createWithoutAuthorizationHeader();
 
 		return requestAccessToken(UriUtil.replaceSubdomain(delegationEndpointUri, subdomain), headers, parameters);
 	}

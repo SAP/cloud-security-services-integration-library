@@ -2,10 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.4.4 
+- [java-security] Initial / released version of the new plain Java security libraries as documented [here](/README.md#token-validation-for-java-applications).
+
+## 2.3.2
+- [spring-xsuaa] Fix vulnerability issues and increased Spring versions.
+- [spring-xsuaa] **Bug fix** in TokenBrokerResolver: Second configured authentication method was ignored.
+
 ## 2.3.0
 - Issue: Spring tests fail with version `2.2.0`, when auto-configuration is disabled and no `RestOperations` bean is specified.
 - [token-client] Supports basically JWT Bearer Token Grant as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#jwt-bearer-token-grant).
-- [token-client] Supports the setup of mTLS with X509 client certificates. Use [`SSLContextFactory`](/token-client/src/main/java/com/sap/cloud/security/xsuaa/mtls/SSLContextFactory.java) to configure a `SSLContext` for Apache Rest Client to identify your client with the XSUAA identity service as documented [here](/token-client/README.md).
+- [token-client] **Bug fix** for state issue in HttpHeaderFactor ([#200](/issues/200)) that causes interference between different types of token flows.
+- [spring-xsuaa] Supports (ignores) xsuaa bindings of plan "apiaccess".
 
 ## 2.2.0
 - [spring-xsuaa] `PropertySourceFactory` supports custom property sources and default can optionally be disabled with  `spring.xsuaa.disable-default-property-source=true`
@@ -14,7 +22,7 @@ All notable changes to this project will be documented in this file.
 - Internally, we've cleaned up maven dependencies (converged versions) and 
   - removed transient dependency of `spring-security-oauth2` to `jackson`.
   - introduced `org.owasp.dependency-check-maven` which performs CVSS checks.
-- [token-client] supports password token flows as documented [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/token-client).
+- [token-client] Supports password token flows as documented [here](/token-client).
 
 ## 2.1.0
 * `token-client` library supports [Apache Http Client](https://hc.apache.org/) (without any Spring dependencies). Have also a look at the [java-tokenclient-usage](/samples/java-tokenclient-usage) sample application.
