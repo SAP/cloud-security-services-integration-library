@@ -220,7 +220,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	//@Ignore
+	@Ignore
 	// TODO fix test setup
 	public void createToken_discoverOidcJwksEndpoint_tokenIsValid() throws Exception {
 		System.setProperty("VCAP_SERVICES", IOUtils
