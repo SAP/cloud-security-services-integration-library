@@ -7,8 +7,8 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import javax.annotation.Nonnull;
 
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +23,13 @@ public class SapIdToken extends AbstractToken {
 		super(decodedJwt);
 	}
 
-	public SapIdToken(@Nonnull String accessToken) {
-		super(accessToken);
+	public SapIdToken(@Nonnull String idToken) {
+		super(idToken);
 	}
 
 	@Override
 	public Principal getPrincipal() {
-		// TODO IAS: should return SAP User ID (guid)
+		// TODO IAS: should return SAP User ID (guid) if available in id token
 		return null;
 	}
 
@@ -39,11 +39,13 @@ public class SapIdToken extends AbstractToken {
 	}
 
 	@Override
-	public List<String> getAudiences() {
+	public Set<String> getAudiences() {
 		try {
 			return super.getAudiences();
 		} catch (JsonParsingException e) {
-			return Arrays.asList(getClaimAsString(TokenClaims.AUDIENCE));
+			final Set<String> audiences = new LinkedHashSet<>();
+			audiences.add(getClaimAsString(TokenClaims.AUDIENCE));
+			return audiences;
 		}
 	}
 }

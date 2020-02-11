@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.cloud.security.token.validation.validators;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,6 +10,9 @@ import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,14 +41,14 @@ public class OidcConfigurationServiceWithCacheTest {
 
 	@Test
 	public void changeCacheConfiguration() {
-		cut = cut.withCacheSize(101).withCacheTime(6001);
+		cut = cut.withCacheSize(1001).withCacheTime(601);
 
 		assertThatThrownBy(() -> {
-			cut = cut.withCacheSize(100).withCacheTime(6001);
+			cut = cut.withCacheSize(1000).withCacheTime(601);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("size");
 
 		assertThatThrownBy(() -> {
-			cut = cut.withCacheSize(101).withCacheTime(6000);
+			cut = cut.withCacheSize(1001).withCacheTime(600);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("validity");
 	}
 

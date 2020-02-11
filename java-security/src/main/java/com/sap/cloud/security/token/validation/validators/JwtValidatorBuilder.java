@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationListener;
@@ -26,9 +27,8 @@ public class JwtValidatorBuilder {
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private OAuth2ServiceConfiguration configuration;
-	private OidcConfigurationServiceWithCache oidcConfigurationService = null;
-	private OAuth2TokenKeyServiceWithCache tokenKeyService = null;
-	private CloseableHttpClient httpClient = null;
+	private OidcConfigurationService oidcConfigurationService = null;
+	private OAuth2TokenKeyService tokenKeyService = null;
 	private OAuth2ServiceConfiguration otherConfiguration;
 	private Validator<Token> customAudienceValidator;
 
@@ -80,27 +80,30 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OAuth2TokenKeyServiceWithCache} instance.
+	 * {@link OAuth2TokenKeyService} instance.
 	 *
 	 * @param tokenKeyService
 	 *            your token key service
 	 * @return this builder
+	 * @deprecated for internal use only
 	 */
-	public JwtValidatorBuilder withOAuth2TokenKeyService(OAuth2TokenKeyServiceWithCache tokenKeyService) {
+	@Deprecated
+	public JwtValidatorBuilder withOAuth2TokenKeyService(OAuth2TokenKeyService tokenKeyService) {
 		this.tokenKeyService = tokenKeyService;
 		return this;
 	}
 
 	/**
 	 * Overwrite in case you want to configure your own
-	 * {@link OidcConfigurationServiceWithCache} instance.
+	 * {@link OAuth2TokenKeyService} instance.
 	 *
 	 * @param oidcConfigurationService
 	 *            your token key service
 	 * @return this builder
+	 * @deprecated for internal use only
 	 */
-	public JwtValidatorBuilder withOidcConfigurationService(
-			OidcConfigurationServiceWithCache oidcConfigurationService) {
+	@Deprecated
+	public JwtValidatorBuilder withOidcConfigurationService(OidcConfigurationService oidcConfigurationService) {
 		this.oidcConfigurationService = oidcConfigurationService;
 		return this;
 	}
@@ -114,7 +117,10 @@ public class JwtValidatorBuilder {
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withHttpClient(CloseableHttpClient httpClient) {
-		this.httpClient = httpClient;
+		if (httpClient != null) {
+			this.oidcConfigurationService = new DefaultOidcConfigurationService(httpClient);
+			this.tokenKeyService = new DefaultOAuth2TokenKeyService(httpClient);
+		}
 		return this;
 	}
 
@@ -162,52 +168,51 @@ public class JwtValidatorBuilder {
 	private List<Validator<Token>> createDefaultValidators() {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
-		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
-				getOidcConfigurationServiceWithCache()).runInLegacyMode(configuration.isLegacyMode());
-		signatureValidator.withOAuth2Configuration(configuration);
-		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
-		defaultValidators.add(signatureValidator);
 
-		if (customAudienceValidator == null) {
-			defaultValidators.add(createAudienceValidator());
-		}
 		if (configuration.getService() == XSUAA) {
 			if (!configuration.isLegacyMode()) {
 				defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
-
 		} else if (configuration.getService() == IAS) {
-			defaultValidators.add(new JwtIssuerValidator(configuration.getDomain()));
+			defaultValidators.add(new JwtIssuerValidator(configuration.getUrl()));
 		}
+		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(
+				configuration,
+				getTokenKeyServiceWithCache(),
+				getOidcConfigurationServiceWithCache());
+		defaultValidators.add(signatureValidator);
+
+		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
+		if (customAudienceValidator == null) {
+			defaultValidators.add(createAudienceValidator());
+		}
+
 		return defaultValidators;
 	}
 
 	private JwtAudienceValidator createAudienceValidator() {
 		JwtAudienceValidator jwtAudienceValidator = new JwtAudienceValidator(configuration.getClientId());
+		if (configuration.hasProperty(CFConstants.XSUAA.APP_ID)) {
+			jwtAudienceValidator.configureTrustedClientId(configuration.getProperty(CFConstants.XSUAA.APP_ID));
+		}
 		if (otherConfiguration != null) {
-			jwtAudienceValidator.configureAnotherServiceInstance(otherConfiguration.getClientId());
+			jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getClientId());
 		}
 		return jwtAudienceValidator;
 	}
 
 	private OAuth2TokenKeyServiceWithCache getTokenKeyServiceWithCache() {
 		if (tokenKeyService != null) {
-			return tokenKeyService;
-		}
-		if (httpClient != null) {
 			return OAuth2TokenKeyServiceWithCache.getInstance()
-					.withTokenKeyService(new DefaultOAuth2TokenKeyService(httpClient));
+					.withTokenKeyService(tokenKeyService);
 		}
 		return OAuth2TokenKeyServiceWithCache.getInstance();
 	}
 
 	private OidcConfigurationServiceWithCache getOidcConfigurationServiceWithCache() {
 		if (oidcConfigurationService != null) {
-			return oidcConfigurationService;
-		}
-		if (httpClient != null) {
 			return OidcConfigurationServiceWithCache.getInstance()
-					.withOidcConfigurationService(new DefaultOidcConfigurationService(httpClient));
+					.withOidcConfigurationService(oidcConfigurationService);
 		}
 		return OidcConfigurationServiceWithCache.getInstance();
 	}

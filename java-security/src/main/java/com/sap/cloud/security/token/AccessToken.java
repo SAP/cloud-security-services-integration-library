@@ -2,12 +2,13 @@ package com.sap.cloud.security.token;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.Set;
 
 /**
- * Represents an access token in the format of a JSON Web Token (not a short opaque token).
- * In difference to a ID token the access token has no/less information about the user but
- * has information about the authorities (scopes).
+ * Represents an access token in the format of a JSON Web Token (not a short
+ * opaque token). In difference to a ID token the access token has no/less
+ * information about the user but has information about the authorities
+ * (scopes).
  */
 public interface AccessToken extends Token {
 
@@ -16,7 +17,7 @@ public interface AccessToken extends Token {
 	 *
 	 * @return the list of the claim scope or empty list.
 	 */
-	List<String> getScopes();
+	Set<String> getScopes();
 
 	/**
 	 * Checks if a scope is available in the access token.
@@ -36,17 +37,6 @@ public interface AccessToken extends Token {
 	 * @return true if local scope is available
 	 **/
 	boolean hasLocalScope(@Nonnull String scope);
-
-	/**
-	 * Get the encoded jwt token with "Bearer " prefix, e.g. for
-	 * Authorization Http Header.
-	 *
-	 * <p>
-	 * Never expose this token via log or via HTTP.
-	 *
-	 * @return the encoded token.
-	 */
-	String getBearerTokenValue();
 
 	/**
 	 * Returns the grant type of the jwt token. <br>

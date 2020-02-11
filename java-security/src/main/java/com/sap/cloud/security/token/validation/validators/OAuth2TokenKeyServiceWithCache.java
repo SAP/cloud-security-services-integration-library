@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -14,10 +14,9 @@ import java.util.concurrent.TimeUnit;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKey;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeyImpl;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 
 /**
  * Decorates {@link OAuth2TokenKeyService} with a cache, which gets looked up
@@ -26,8 +25,8 @@ import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 public class OAuth2TokenKeyServiceWithCache {
 	private OAuth2TokenKeyService tokenKeyService; // access via getter
 	private Cache<String, PublicKey> cache; // access via getter
-	private long cacheValidityInSeconds = 6000;
-	private long cacheSize = 100;
+	private long cacheValidityInSeconds = 600; // old keys should expire after 15 minutes
+	private long cacheSize = 1000;
 
 	private OAuth2TokenKeyServiceWithCache() {
 		// use getInstance factory method
@@ -51,8 +50,8 @@ public class OAuth2TokenKeyServiceWithCache {
 	 * @return this
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheTime(int timeInSeconds) {
-		if (timeInSeconds <= 6000) {
-			throw new IllegalArgumentException("The cache validity must be minimum 6000 seconds");
+		if (timeInSeconds <= 600) {
+			throw new IllegalArgumentException("The cache validity must be minimum 600 seconds");
 		}
 		this.cacheValidityInSeconds = timeInSeconds;
 		return this;
@@ -66,8 +65,8 @@ public class OAuth2TokenKeyServiceWithCache {
 	 * @return this
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheSize(int size) {
-		if (size <= 100) {
-			throw new IllegalArgumentException("The cache size must be 100 or more");
+		if (size <= 1000) {
+			throw new IllegalArgumentException("The cache size must be 1000 or more");
 		}
 		this.cacheSize = size;
 		return this;
@@ -124,7 +123,7 @@ public class OAuth2TokenKeyServiceWithCache {
 
 	private void retrieveTokenKeysAndFillCache(URI jwksUri)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		JsonWebKeySet keySet = getTokenKeyService().retrieveTokenKeys(jwksUri);
+		JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(getTokenKeyService().retrieveTokenKeys(jwksUri));
 		if (keySet == null) {
 			return;
 		}

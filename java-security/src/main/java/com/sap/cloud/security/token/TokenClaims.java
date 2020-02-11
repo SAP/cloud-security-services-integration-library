@@ -20,26 +20,27 @@ public final class TokenClaims {
 	public static final String EMAIL = "email";
 
 	public final class XSUAA {
+
 		private XSUAA() {
 		}
 
 		public static final String ORIGIN = "origin";
 		public static final String GRANT_TYPE = "grant_type"; // OAuth grant type used for token creation
-		// TODO ask Markus / Martijn
-		public static final String SUBACCOUNT_ID = "zid"; // tenant GUID, identity zone id
+		public static final String ZONE_ID = "zid"; // tenant GUID, identity zone id, subaccount id
 		public static final String CLIENT_ID = "cid"; // OAuth client identifier
 		public static final String SCOPES = "scope"; // list of scopes including application id, e.g.
 														// "my-app!t123.Display"
 		public static final String EXTERNAL_ATTRIBUTE = "ext_attr";
+		public static final String ISSUED_AT = "iat";
 		public static final String EXTERNAL_ATTRIBUTE_ENHANCER = "enhancer";
+
+		public static final String TRUSTED_CLIENT_ID_SUFFIX = "trustedclientidsuffix";
 	}
 
-	/* SAP User token
-	public final class SAP_ID {
-		private SAP_ID() {
-		}
-
-		// public static final String SAP_ZONE_ID = "sap_zid";
-		// public static final String SAP_USER_ID = "sap_uid";
-	}*/
+	/*
+	 * SAP User token public final class SAP_ID { private SAP_ID() { }
+	 * 
+	 * // public static final String SAP_ZONE_ID = "sap_zid"; // public static final
+	 * String SAP_USER_ID = "sap_uid"; }
+	 */
 }

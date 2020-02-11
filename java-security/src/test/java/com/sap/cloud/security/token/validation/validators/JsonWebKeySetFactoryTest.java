@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.jwk;
+package com.sap.cloud.security.token.validation.validators;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -12,8 +12,6 @@ import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 public class JsonWebKeySetFactoryTest {
 

@@ -30,7 +30,7 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 	 *            the domain of the identity service
 	 *            {@link OAuth2ServiceConfiguration#getProperty(String)}
 	 */
-	public XsuaaJwtIssuerValidator(String uaaDomain) {
+	XsuaaJwtIssuerValidator(String uaaDomain) {
 		assertHasText(uaaDomain, "XsuaaJwtIssuerValidator requires uaaDomain.");
 		this.domain = uaaDomain;
 	}

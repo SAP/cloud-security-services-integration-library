@@ -12,16 +12,19 @@ import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
 import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.ISSUED_AT;
 
 /**
- * Decodes and parses encoded JSON Web Token (JWT) and provides access to
- * token header parameters and claims.
+ * Decodes and parses encoded JSON Web Token (JWT) and provides access to token
+ * header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
 	protected final DefaultJsonObject tokenHeader;
@@ -92,14 +95,16 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public boolean isExpired() {
-		return getExpiration() == null ? false
+		return getExpiration() == null ? true
 				: getExpiration().isBefore(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 	}
 
 	@Nullable
 	@Override
 	public Instant getNotBefore() {
-		return tokenBody.getAsInstant(NOT_BEFORE);
+		return tokenBody.contains(NOT_BEFORE)
+				? tokenBody.getAsInstant(NOT_BEFORE)
+				: tokenBody.getAsInstant(ISSUED_AT);
 	}
 
 	@Override
@@ -108,8 +113,10 @@ public abstract class AbstractToken implements Token {
 	}
 
 	@Override
-	public List<String> getAudiences() {
-		return getClaimAsStringList(TokenClaims.AUDIENCE);
+	public Set<String> getAudiences() {
+		Set<String> audiences = new LinkedHashSet<>();
+		audiences.addAll(getClaimAsStringList(TokenClaims.AUDIENCE));
+		return audiences;
 	}
 
 	protected Principal createPrincipalByName(String name) {

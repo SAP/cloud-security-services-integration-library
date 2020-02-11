@@ -1,11 +1,11 @@
-package com.sap.cloud.security.xsuaa.jwt;
+package com.sap.cloud.security.token.validation.validators;
 
 /**
  * This is represented by "kty" (Key Type) Parameter.
  * https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1
  */
 public enum JwtSignatureAlgorithm {
-	RS256("RSA", "RS256", "SHA256withRSA"), ES256("EC", "ES256", "SHA256withECDSA"); // Eliptic curve
+	RS256("RSA", "RS256", "SHA256withRSA")/* , ES256("EC", "ES256", "SHA256withECDSA")// Eliptic curve */;
 
 	private final String type;
 	private final String value;

@@ -27,8 +27,8 @@ public interface XSUserInfo {
 	 * - subaccount id: identifier for the subaccount
 	 *
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.USER_NAME)} from
-	 *             the {@code com.sap.cloud.security.token} package or with
+	 *             {@code token.getClaimAsString(TokenClaims.USER_NAME)} from the
+	 *             {@code com.sap.cloud.security.token} package or with
 	 *             {@code token.getPrincipal()}.
 	 * @return user name
 	 * @throws XSUserInfoException
@@ -41,9 +41,9 @@ public interface XSUserInfo {
 	 * Given name of the user.
 	 *
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.GIVEN_NAME)} from
-	 *             the {@code com.sap.cloud.security.token} package. Only if it is
-	 *             not an external attribute.
+	 *             {@code token.getClaimAsString(TokenClaims.GIVEN_NAME)} from the
+	 *             {@code com.sap.cloud.security.token} package. Only if it is not
+	 *             an external attribute.
 	 * @return given name
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
@@ -55,9 +55,9 @@ public interface XSUserInfo {
 	 * Familiy name of the user.
 	 *
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.FAMILY_NAME)}
-	 *             from the {@code com.sap.cloud.security.token} package. Only if it
-	 *             is not an external attribute.
+	 *             {@code token.getClaimAsString(TokenClaims.FAMILY_NAME)} from the
+	 *             {@code com.sap.cloud.security.token} package. Only if it is not
+	 *             an external attribute.
 	 * @return family name
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
@@ -85,8 +85,8 @@ public interface XSUserInfo {
 	 * Return identity zone which is the same like the subaccount id (tenant id).
 	 * 
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.SUBACCOUNT_ID)}
-	 *             from the {@code com.sap.cloud.security.token} package.
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)} from
+	 *             the {@code com.sap.cloud.security.token} package.
 	 * @return identity zone
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
@@ -99,8 +99,8 @@ public interface XSUserInfo {
 	 * id).
 	 * 
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.SUBACCOUNT_ID)}
-	 *             from the {@code com.sap.cloud.security.token} package.
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)} from
+	 *             the {@code com.sap.cloud.security.token} package.
 	 * @return subaccount identifier
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token

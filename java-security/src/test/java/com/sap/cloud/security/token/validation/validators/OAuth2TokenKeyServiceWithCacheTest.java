@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.cloud.security.token.validation.validators;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -12,14 +12,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.assertj.core.api.Assertions;
 import org.mockito.Mockito;
-
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 
 public class OAuth2TokenKeyServiceWithCacheTest {
 	OAuth2TokenKeyServiceWithCache cut;
@@ -30,8 +29,7 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	public void setup() throws IOException {
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock.retrieveTokenKeys(TOKEN_KEYS_URI))
-				.thenReturn(JsonWebKeySetFactory.createFromJson(
-						IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8)));
+				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
 
 		cut = OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock);
 	}
@@ -43,14 +41,14 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 
 	@Test
 	public void changeCacheConfiguration() {
-		cut = cut.withCacheSize(101).withCacheTime(6001);
+		cut = cut.withCacheSize(1001).withCacheTime(601);
 
 		assertThatThrownBy(() -> {
-			cut = cut.withCacheSize(100).withCacheTime(6001);
+			cut = cut.withCacheSize(1000).withCacheTime(601);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("size");
 
 		assertThatThrownBy(() -> {
-			cut = cut.withCacheSize(101).withCacheTime(6000);
+			cut = cut.withCacheSize(1001).withCacheTime(600);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("validity");
 	}
 

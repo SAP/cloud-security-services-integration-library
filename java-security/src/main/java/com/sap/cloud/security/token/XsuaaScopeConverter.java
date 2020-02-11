@@ -3,11 +3,10 @@ package com.sap.cloud.security.token;
 import com.sap.cloud.security.xsuaa.Assertions;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * This utility class translates XSUAA scopes that are specified in global form
@@ -28,11 +27,15 @@ public class XsuaaScopeConverter implements ScopeConverter {
 	}
 
 	@Override
-	public List<String> convert(Collection<String> scopes) {
-		return scopes.stream()
-				.map(this::convertToLocalScope)
-				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
+	public Set<String> convert(Collection<String> scopes) {
+		Set<String> convertedScopes = new LinkedHashSet<>();
+		for (String scope : scopes) {
+			String convertedScope = convertToLocalScope(scope);
+			if (convertedScope != null) {
+				convertedScopes.add(convertedScope);
+			}
+		}
+		return convertedScopes;
 	}
 
 	private String convertToLocalScope(String scope) {

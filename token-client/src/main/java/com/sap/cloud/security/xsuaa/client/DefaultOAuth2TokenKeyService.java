@@ -1,8 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -29,24 +27,20 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public JsonWebKeySet retrieveTokenKeys(URI tokenKeysEndpointUri) throws OAuth2ServiceException {
+	public String retrieveTokenKeys(URI tokenKeysEndpointUri) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
 		try (CloseableHttpResponse response = httpClient.execute(request)) {
 			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
 			int statusCode = response.getStatusLine().getStatusCode();
-			return handleResponse(bodyAsString, statusCode);
+			if (statusCode == HttpStatus.SC_OK) {
+				return bodyAsString;
+			} else {
+				throw OAuth2ServiceException
+						.createWithStatusCodeAndResponseBody("Error retrieving token keys", statusCode, bodyAsString);
+			}
 		} catch (IOException e) {
 			throw new OAuth2ServiceException("Error retrieving token keys: " + e.getMessage());
-		}
-	}
-
-	private JsonWebKeySet handleResponse(String bodyAsString, int statusCode) throws OAuth2ServiceException {
-		if (statusCode == HttpStatus.SC_OK) {
-			return JsonWebKeySetFactory.createFromJson(bodyAsString);
-		} else {
-			throw OAuth2ServiceException
-					.createWithStatusCodeAndResponseBody("Error retrieving token keys", statusCode, bodyAsString);
 		}
 	}
 

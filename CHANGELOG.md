@@ -2,28 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.4.3-SNAPSHOT
-- [java-security] Supports Validation for SAP ID Tokens which results into these incompatible changes:
-  - constant `TokenClaims.XSUAA.EMAIL` -> `TokenClaims.EMAIL`
-  - constant `TokenClaims.XSUAA.USER_NAME` -> `TokenClaims.USER_NAME`
-  - constant `TokenClaims.XSUAA.FAMILY_NAME` -> `TokenClaims.FAMILY_NAME`
-  - constant `TokenClaims.XSUAA.GIVEN_NAME` -> `TokenClaims.GIVEN_NAME
-  - api rename Token.getAccessToken()` renamed to `Token.getTokenValue()`
-  - api deleted `Token.getBearerAccessToken()` as it fits not to a ID token. You can compensate with `"Bearer " + Token.getTokenValue()`
-  - api move `Token.getGrantType()` to `AccessToken.getGrantType()` interface.
-- [java-security] `XSUserInfoAdapter` supports `isInForeignMode()` method.
-  
-  
-## 2.4.2-SNAPSHOT
-- [java-security] XSA Support.
-
-## 2.4.1-SNAPSHOT
-- [java-security] Migration Guide and some little improvements / enhancements.
-
-## 2.4.0-SNAPSHOT
-- [java-security] Initial / Snapshot version of the new plain Java security libraries as documented [here](/README.md#token-validation-for-java-applications).
-- [token-client] [OidcConfigurationServiceWithCache](/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/OidcConfigurationServiceWithCache.java) supports basically Open-id Configuration endpoints as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#openid-connect-flow).
-- [token-client] [OAuth2TokenKeyServiceWithCache](/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/OAuth2TokenKeyServiceWithCache.java) supports JWKS endpoint with cache of identity service as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#token-keys).
+## 2.4.4 
+- [java-security] Initial / released version of the new plain Java security libraries as documented [here](/README.md#token-validation-for-java-applications).
 
 ## 2.3.2
 - [spring-xsuaa] Fix vulnerability issues and increased Spring versions.
