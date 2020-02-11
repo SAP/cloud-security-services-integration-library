@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.4.4 
+## 2.4.5 
 - [java-security] Initial / released version of the new plain Java security libraries as documented [here](/README.md#token-validation-for-java-applications).
 
 ## 2.3.2
