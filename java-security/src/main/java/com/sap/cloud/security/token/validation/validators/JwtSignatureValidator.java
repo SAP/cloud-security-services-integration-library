@@ -10,6 +10,7 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static java.nio.charset.StandardCharsets.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
@@ -20,6 +21,7 @@ import java.util.Base64;
 import java.util.regex.Pattern;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
@@ -40,25 +42,16 @@ public class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private final OidcConfigurationServiceWithCache oidcConfigurationService;
 	private OAuth2ServiceConfiguration configuration;
-	private boolean runInLegacyMode;
 
-	JwtSignatureValidator(OAuth2TokenKeyServiceWithCache tokenKeyService,
+	JwtSignatureValidator(OAuth2ServiceConfiguration configuration, OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
+		assertNotNull(configuration, "JwtSignatureValidator requires configuration.");
 		assertNotNull(tokenKeyService, "JwtSignatureValidator requires a tokenKeyService.");
 		assertNotNull(tokenKeyService, "JwtSignatureValidator requires a oidcConfigurationService.");
 
+		this.configuration = configuration;
 		this.tokenKeyService = tokenKeyService;
 		this.oidcConfigurationService = oidcConfigurationService;
-	}
-
-	JwtSignatureValidator withOAuth2Configuration(OAuth2ServiceConfiguration configuration) {
-		this.configuration = configuration;
-		return this;
-	}
-
-	JwtSignatureValidator runInLegacyMode(boolean isLegacyMode) {
-		this.runInLegacyMode = isLegacyMode;
-		return this;
 	}
 
 	@Override
@@ -85,7 +78,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	@Nonnull
 	private String getOrDefaultKeyId(Token token) {
-		if (runInLegacyMode) {
+		if (configuration.isLegacyMode()) {
 			return KEY_ID_VALUE_LEGACY;
 		}
 		if (token.hasHeaderParameter(KEY_ID_PARAMETER_NAME)) {
@@ -98,7 +91,8 @@ public class JwtSignatureValidator implements Validator<Token> {
 	private String getOrDefaultSignatureAlgorithm(Token token) {
 		String algHeader = token.getHeaderParameterAsString(ALGORITHM_PARAMETER_NAME);
 
-		if (JwtSignatureAlgorithm.fromValue(algHeader) == null) {
+		if (token.hasHeaderParameter(ALGORITHM_PARAMETER_NAME)
+				&& JwtSignatureAlgorithm.fromValue(algHeader) == null) { // check whether alg is supported
 			throw new IllegalArgumentException(
 					"Jwt token with signature algorithm '" + algHeader + "' is not supported.");
 		}
@@ -107,29 +101,37 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 	@Nonnull
 	private String getOrRequestJwksUri(Token token) throws OAuth2ServiceException, IllegalArgumentException {
-		if (runInLegacyMode) {
+		if (configuration.isLegacyMode()) {
+			// hard-code with trusted url in case of XSA Auth Code tokens
 			return configuration.getUrl() + "/token_keys";
 		}
-		if (token.hasHeaderParameter(KEYS_URL_PARAMETER_NAME)) { // This was validated by XsuaaJwtIssuerValidator
+		if (configuration.getService() == Service.XSUAA && token.hasHeaderParameter(KEYS_URL_PARAMETER_NAME)) {
+			// 'jku' was validated by XsuaaJwtIssuerValidator
 			return token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME);
 		}
-		if (token.hasClaim(ISSUER)) { // This was validated by JwtIssuerValidator
-			// don't call in case of XSA Auth Code tokens as Issuer is not valid there
+		if (configuration.getService() != Service.XSUAA && token.hasClaim(ISSUER)) {
+			// 'iss' claim was validated by JwtIssuerValidator
+			// don't call in case of XSA Auth Code tokens as issuer is not valid there
+			// as XSUAA issuer contains often localhost this was not validated as well
 			URI discoveryUri = DefaultOidcConfigurationService.getDiscoveryEndpointUri(token.getClaimAsString(ISSUER));
-			return oidcConfigurationService
+			URI jkuUri = oidcConfigurationService
 					.getOrRetrieveEndpoints(discoveryUri)
-					.getJwksUri().toString();
+					.getJwksUri();
+			if(jkuUri != null) {
+				return jkuUri.toString();
+			}
 		}
 		throw new IllegalArgumentException(
-				"Token signature can not be validated as jwks uri can not be determined: Token does neither provide 'jku' header nor 'issuer' claim.");
+				"Token signature can not be validated as jwks uri can not be determined: Token does not provide the required 'jku' header or 'issuer' claim.");
 	}
 
 	// for testing
 	ValidationResult validate(String token, String tokenAlgorithm, String tokenKeyId, String tokenKeysUrl,
-			String fallbackPublicKey) {
+			@Nullable String fallbackPublicKey) {
 		assertHasText(token, "token must not be null or empty.");
-		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
 		assertHasText(tokenAlgorithm, "tokenAlgorithm must not be null or empty.");
+		assertHasText(tokenKeyId, "tokenKeyId must not be null or empty.");
+		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
 
 		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId,
 				URI.create(tokenKeysUrl), fallbackPublicKey);
@@ -148,7 +150,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
-				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, String fallbackPublicKey) {
+				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, @Nullable String fallbackPublicKey) {
 			ValidationResult validationResult;
 
 			validationResult = setSupportedJwtAlgorithm(tokenAlgorithm);
@@ -165,7 +167,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 
 					} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 						return createInvalid(
-								"Error occurred during signature validation: ({}). Fallback with configured verificationkey was not successful.",
+								"Error occurred during signature validation: ({}). Fallback with configured 'verificationkey' was not successful.",
 								e.getMessage());
 					}
 				} else {
@@ -188,7 +190,6 @@ public class JwtSignatureValidator implements Validator<Token> {
 				}
 				return createInvalid("Jwt token with signature algorithm '{}' is not supported.", tokenAlgorithm);
 			}
-			jwtSignatureAlgorithm = JwtSignatureAlgorithm.RS256;
 			return createValid();
 		}
 

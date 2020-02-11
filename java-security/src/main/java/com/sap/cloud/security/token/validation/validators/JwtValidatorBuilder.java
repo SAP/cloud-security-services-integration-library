@@ -176,12 +176,13 @@ public class JwtValidatorBuilder {
 		} else if (configuration.getService() == IAS) {
 			defaultValidators.add(new JwtIssuerValidator(configuration.getUrl()));
 		}
-		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(getTokenKeyServiceWithCache(),
-				getOidcConfigurationServiceWithCache()).runInLegacyMode(configuration.isLegacyMode());
-		signatureValidator.withOAuth2Configuration(configuration);
+		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(
+				configuration,
+				getTokenKeyServiceWithCache(),
+				getOidcConfigurationServiceWithCache());
+		defaultValidators.add(signatureValidator);
 
 		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
-		defaultValidators.add(signatureValidator);
 		if (customAudienceValidator == null) {
 			defaultValidators.add(createAudienceValidator());
 		}
