@@ -52,24 +52,6 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
 </dependency>
 ```
 
-You may need to add the following profile to allow snapshot versions:
-```xml
-<profiles>
-    <profile>
-        <id>allow-snapshots</id>
-        <activation><activeByDefault>true</activeByDefault></activation>
-        <repositories>
-            <repository>
-                <id>snapshots-repo</id>
-                <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                <releases><enabled>false</enabled></releases>
-                <snapshots><enabled>true</enabled></snapshots>
-            </repository>
-        </repositories>
-    </profile>
-</profiles>
-```
-
 ## Basic Usage
 
 ### Setup Step 1: Load the Service Configuration(s)

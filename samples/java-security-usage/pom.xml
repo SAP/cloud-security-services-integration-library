@@ -6,21 +6,6 @@
     <version>2.4.4</version>
     <packaging>jar</packaging>
 
-    <profiles>
-        <profile>
-            <id>allow-snapshots</id>
-            <activation><activeByDefault>true</activeByDefault></activation>
-            <repositories>
-                <repository>
-                    <id>snapshots-repo</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                    <releases><enabled>false</enabled></releases>
-                    <snapshots><enabled>true</enabled></snapshots>
-                </repository>
-            </repositories>
-        </profile>
-    </profiles>
-
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
