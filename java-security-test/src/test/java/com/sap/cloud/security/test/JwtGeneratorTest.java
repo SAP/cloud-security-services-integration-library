@@ -2,6 +2,8 @@ package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
@@ -220,29 +222,29 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	@Ignore
-	// TODO fix test setup
 	public void createToken_discoverOidcJwksEndpoint_tokenIsValid() throws Exception {
-		System.setProperty("VCAP_SERVICES", IOUtils
-				.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaConfiguration();
+		String clientId = "T000310";
+		String url = "https://app.auth.com";
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(IAS)
+				.withUrl(url)
+				.withClientId(clientId)
+				.build();
 
 		OAuth2TokenKeyService tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
 				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
-
 		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("http://auth.com/token_keys"));
-
 		OidcConfigurationService oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
 		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
 				.withOAuth2TokenKeyService(tokenKeyServiceMock)
+				.withOidcConfigurationService(oidcConfigServiceMock)
 				.build();
 
-		Token token = cut
-				.withClaimValue(TokenClaims.ISSUER, "http://auth.com")
+		Token token = JwtGenerator.getInstance(Service.IAS, clientId)
+				.withClaimValue(TokenClaims.ISSUER, url)
 				.withPrivateKey(keys.getPrivate())
 				.withExpiration(JwtGenerator.NO_EXPIRE_DATE)
 				.createToken();
