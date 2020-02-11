@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 import subprocess
 import urllib.request
-import urllib.parse
+from urllib.parse import urlencode
+
 import json
 import unittest
 import logging
-import sys
 import os
 import time
 import re
 from getpass import getpass
 
 # Usage information
-# To run this script you must be logged into CF via 'cf login'
-# Also make sure to change settings in vars.yml to your needs.
-# This script deploys sample apps and fires post request against their endpoints.
-# For some samples it needs to create a password token for which you need
-# to provide your password (same as you would use for 'cf login').
-# You can do this by either supplying it via the system environment
-# variable 'CFPASSWORD' or by typing when the script prompts for the password.
-# The same goes for the username with the variable 'CFUSER'.
+# To run this script you must be logged into CF via 'cf login' Also make sure
+# to change settings in vars.yml to your needs.  This script deploys sample
+# apps and fires post request against their endpoints.  For some samples it
+# needs to create a password token for which you need to provide your password
+# (same as you would use for 'cf login').  You can do this by either supplying
+# it via the system environment variable 'CFPASSWORD' or by typing when the
+# script prompts for the password.  The same goes for the username with the
+# variable 'CFUSER'.
 
 # Dependencies
 # The script depends on python3 and the cloud foundry command line tool 'cf'.
@@ -84,17 +84,19 @@ class TestJavaSecurity(unittest.TestCase):
         resp = self.sampleTestHelper.perform_get_request_with_token(
             'hello-java-security')
 
-        expected_response = "You ('{}') can access the application with the following scopes: '[openid, java-security-usage!t1785.Read]'.".format(
-            username)
+        xsappname = self.sampleTestHelper.get_deployed_app().get_credentials_property('xsappname')
+        expected_response = "You ('{}') can access the application with the following scopes: '[openid, {}.Read]'.".format(username, xsappname)
         self.assertIsNotNone(resp.body)
         self.assertEqual(resp.body, expected_response)
 
+
 class TestSpringSecurity(unittest.TestCase):
-    
+
     @classmethod
     def setUpClass(cls):
-        app = CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication',
-            app_router_name='approuter-spring-security-xsuaa-usage')
+        app = CFApp(name='spring-security-xsuaa-usage', 
+                    xsuaa_service_name='xsuaa-authentication',
+                    app_router_name='approuter-spring-security-xsuaa-usage')
 
         cls.sampleTestHelper = SampleTestHelper(app)
         cls.sampleTestHelper.setUp()
@@ -105,7 +107,7 @@ class TestSpringSecurity(unittest.TestCase):
 
     def setUp(self):
         self.sampleTestHelper = TestSpringSecurity.sampleTestHelper
-    
+
     def test_sayHello(self):
         resp = self.sampleTestHelper.perform_get_request_with_token(
             'v1/sayHello')
@@ -115,11 +117,14 @@ class TestSpringSecurity(unittest.TestCase):
             'v1/sayHello')
         self.assertEqual(resp.status, 200)
 
+
 class TestJavaBuildpackApiUsage(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        app = CFApp(name='sap-java-buildpack-api-usage', xsuaa_service_name='xsuaa-buildpack', app_router_name='approuter-sap-java-buildpack-api-usage')
+        app = CFApp(name='sap-java-buildpack-api-usage', 
+                    xsuaa_service_name='xsuaa-buildpack',
+                    app_router_name='approuter-sap-java-buildpack-api-usage')
         cls.sampleTestHelper = SampleTestHelper(app)
         cls.sampleTestHelper.setUp()
 
@@ -127,20 +132,22 @@ class TestJavaBuildpackApiUsage(unittest.TestCase):
     def tearDownClass(cls):
         cls.sampleTestHelper.tearDown()
 
-
     def test_hello_token_servlet(self):
         self.sampleTestHelper = TestJavaBuildpackApiUsage.sampleTestHelper
-        resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
+        resp = self.sampleTestHelper.perform_get_request_with_token(
+            'hello-token')
         self.assertEqual(resp.status, 403)
         self.sampleTestHelper.add_user_to_role('Buildpack_API_Viewer')
-        resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
+        resp = self.sampleTestHelper.perform_get_request_with_token(
+            'hello-token')
         self.assertEqual(resp.status, 200)
         self.assertRegex(resp.body, username)
+
 
 class SampleTestHelper:
 
     def __init__(self, app_to_test):
-        self.app_to_test = app_to_test
+        self.__app_to_test = app_to_test
         vars_file = open('./vars.yml')
         self.vars_parser = VarsParser(vars_file.read())
         vars_file.close()
@@ -149,18 +156,23 @@ class SampleTestHelper:
         self.__api_access = None
 
     def setUp(self):
-        self.app_to_test.deploy()
+        self.__app_to_test.deploy()
         time.sleep(2)  # waiting for deployed apps to be available
 
     def tearDown(self):
-        self.app_to_test.delete()
+        self.__app_to_test.delete()
         if self.__api_access is not None:
             self.__api_access.delete()
 
     def add_user_to_role(self, role):
-        self.get_api_access().add_user_to_group(self.user_guid, role)
+        user = self.get_api_access().get_user_by_username(username)
+        user_id = user.get('id')
+        resp = self.get_api_access().add_user_to_group(user_id, role)
+        if (not resp.is_ok):
+            logging.error("Could not set role " + role)
+            exit()
 
-    def get_user_access_token(self):
+    def __get_user_access_token(self):
         deployed_app = self.get_deployed_app()
         return HttpUtil().get_access_token(
             xsuaa_service_url=deployed_app.xsuaa_service_url,
@@ -172,28 +184,29 @@ class SampleTestHelper:
 
     def perform_get_request_with_token(self, path):
         url = 'https://{}-{}.{}/{}'.format(
-            self.app_to_test.name,
+            self.__app_to_test.name,
             self.vars_parser.user_id,
             self.vars_parser.landscape_apps_domain,
             path)
-        resp = HttpUtil().get_request(
-            url, access_token=self.get_user_access_token())
-        return resp
+        access_token = self.__get_user_access_token()
+        if (access_token is None):
+            logging.error("Cannot continue without access token")
+            exit()
+        return HttpUtil().get_request(url, access_token=access_token)
 
     def get_api_access(self):
         if (self.__api_access is None):
             deployed_app = self.get_deployed_app()
             self.__api_access = ApiAccessService(
                 xsuaa_service_url=deployed_app.xsuaa_service_url, xsuaa_api_url=deployed_app.xsuaa_api_url)
-            self.user_guid = self.__api_access.get_user_by_username(
-                username).get('id')
         return self.__api_access
 
     def get_deployed_app(self):
         if (self.__deployed_app is None):
-            deployed_app = self.cf_apps.app_by_name(self.app_to_test.name)
+            deployed_app = self.cf_apps.app_by_name(self.__app_to_test.name)
             if (deployed_app is None):
-                raise(Exception('Could not find app: ' + self.app_to_test.name))
+                logging.error('Could not find app: ' + self.__app_to_test.name)
+                exit()
             self.__deployed_app = deployed_app
         return self.__deployed_app
 
@@ -205,9 +218,11 @@ class HttpUtil:
             if (error):
                 self.body = error.reason
                 self.status = error.code
+                self.is_ok = False
             else:
                 self.body = response.read().decode()
                 self.status = response.status
+                self.is_ok = True
             logging.info(self)
 
         @classmethod
@@ -215,8 +230,8 @@ class HttpUtil:
             return cls(response=None, error=error)
 
         def __str__(self):
-            if (len(self.body) > 100):
-                body = self.body[:100] + '... (truncated)'
+            if (len(self.body) > 150):
+                body = self.body[:150] + '... (truncated)'
             else:
                 body = self.body
             return 'HTTP status: {}, body: {}'.format(self.status, body)
@@ -228,21 +243,25 @@ class HttpUtil:
         return self.__execute(req)
 
     def post_request(self, url, data=None, access_token=None, additional_headers={}):
-        logging.info('Performing post request to ' + url)
+        logging.info('Performing POST request to ' + url)
         req = urllib.request.Request(url, data=data, method='POST')
         self.__add_headers(req, access_token, additional_headers)
         return self.__execute(req)
 
     def get_access_token(self, xsuaa_service_url, clientid, clientsecret, grant_type, username=None, password=None):
-        post_req_body = urllib.parse.urlencode({'client_id': clientid,
-                                                'client_secret': clientsecret,
-                                                'grant_type': grant_type,
-                                                'response_type': 'token',
-                                                'username': username,
-                                                'password': password}).encode()
+        post_req_body = urlencode({'client_id': clientid,
+                                   'client_secret': clientsecret,
+                                   'grant_type': grant_type,
+                                   'response_type': 'token',
+                                   'username': username,
+                                   'password': password}).encode()
         url = xsuaa_service_url + '/oauth/token'
         resp = HttpUtil().post_request(url, data=post_req_body)
-        return json.loads(resp.body).get('access_token')
+        if (resp.is_ok):
+            return json.loads(resp.body).get('access_token')
+        else:
+            logging.error('Could not retrieve access token')
+            return None
 
     def __add_headers(self, req, access_token, additional_headers):
         if (access_token is not None):
@@ -280,21 +299,29 @@ class ApiAccessService:
         subprocess.run(['cf', 'delete-service', '-f', self.name])
 
     def get_user_by_username(self, username):
-        url = '{}/Users'.format(self.xsuaa_api_url)
+        query_parameters = urlencode(
+            {'filter': 'userName eq "{}"'.format(username)})
+        url = '{}/Users?{}'.format(self.xsuaa_api_url, query_parameters)
         res = self.http_util.get_request(
             url, access_token=self.__get_access_token())
+        if (not res.is_ok):
+            self.__panic_user_not_found()
         users = json.loads(res.body).get('resources')
-        for user in users:
-            if (user.get('userName') == username):
-                return user
+        if (users is None or len(users) < 1):
+            self.__panic_user_not_found()
+        return users[0]
 
-    def add_user_to_group(self, user_id, group_id):
+    def add_user_to_group(self, user_id, group_name):
         post_req_body = json.dumps(
             {'value': user_id, 'origin': 'ldap', 'type': 'USER'}).encode()
-        url = '{}/Groups/{}/members'.format(self.xsuaa_api_url, group_id)
+        url = '{}/Groups/{}/members'.format(self.xsuaa_api_url, group_name)
         return self.http_util.post_request(url, data=post_req_body,
                                            access_token=self.__get_access_token(),
                                            additional_headers={'Content-Type': 'application/json'})
+
+    def __panic_user_not_found(self):
+        logging.error('Could not find user {}'.format(username))
+        exit()
 
     def __get_access_token(self):
         return self.http_util.get_access_token(
@@ -314,23 +341,33 @@ class CFApps:
         token = subprocess.run(['cf', 'oauth-token'], capture_output=True)
         target = subprocess.run(['cf', 'target'], capture_output=True)
         self.bearer_token = token.stdout.strip().decode()
-        [self.cf_api_endpoint, self.user_id] = self.__parse_target_output(
+        [self.cf_api_endpoint, self.user_id, space_name] = self.__parse_target_output(
             target.stdout.decode())
+        self.space_guid = subprocess.run(
+            ['cf', 'space', space_name, '--guid'], capture_output=True).stdout.decode().strip()
 
     def app_by_name(self, app_name):
-        apps = self.__retrieve_apps()
-        for app in apps:
-            if (app is not None and app.get('name') == app_name):
-                vcap_services = self.__vcap_services_by_guid(app.get('guid'))
-                return DeployedApp(vcap_services)
+        paginated_apps = self.__get_with_token(
+            self.cf_api_endpoint + '/apps?space_guids={}&names={}'.format(self.space_guid, app_name))
+        app = self.__get_first_paginated_resource(paginated_apps)
+        if (app is None):
+            logging.error('App {} not found'.format(app_name))
+            exit()
+        vcap_services = self.__vcap_services_by_guid(app.get('guid'))
+        return DeployedApp(vcap_services)
+
+    def __get_first_paginated_resource(self, paginated_resources):
+        pagination = paginated_resources.get('pagination')
+        if (pagination and pagination.get('total_results') > 0):
+            if (pagination.get('total_results') > 1):
+                logging.warn(
+                    'More than one resource found, taking the first one!')
+            return paginated_resources.get('resources')[0]
 
     def __get_with_token(self, url):
         res = HttpUtil().get_request(url, additional_headers={
             'Authorization': self.bearer_token})
         return json.loads(res.body)
-
-    def __retrieve_apps(self):
-        return self.__get_with_token(self.cf_api_endpoint + '/apps').get('resources')
 
     def __vcap_services_by_guid(self, guid):
         env = self.__get_with_token(
@@ -340,9 +377,11 @@ class CFApps:
     def __parse_target_output(self, target_output):
         api_endpoint_match = re.search(r'api endpoint:(.*)', target_output)
         user_id_match = re.search(r'user:(.*)', target_output)
+        space_match = re.search(r'space:(.*)', target_output)
         api_endpoint = api_endpoint_match.group(1)
         user_id = user_id_match.group(1)
-        return [api_endpoint.strip() + '/v3', user_id.strip()]
+        space_name = space_match.group(1)
+        return [api_endpoint.strip() + '/v3', user_id.strip(), space_name.strip()]
 
 
 class VarsParser:
@@ -446,6 +485,7 @@ class CFApp:
     def __str__(self):
         return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}'.format(
             self.name, self.xsuaa_service_name, self.app_router_name)
+
 
 def is_logged_off():
     target = subprocess.run(['cf', 'target'], capture_output=True)
