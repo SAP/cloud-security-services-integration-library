@@ -55,8 +55,7 @@ class TestTokenClient(unittest.TestCase):
         self.sampleTestHelper.tearDown()
 
     def test_hello_token_client(self):
-        response = self.sampleTestHelper.perform_get_request_with_token(
-            'hello-token-client')
+        response = self.sampleTestHelper.perform_get_request_with_token('hello-token-client')
         body = response.body
 
         self.assertIsNotNone(body)
@@ -81,8 +80,7 @@ class TestJavaSecurity(unittest.TestCase):
         self.assertEqual(resp.status, 403)
 
         self.sampleTestHelper.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
-        resp = self.sampleTestHelper.perform_get_request_with_token(
-            'hello-java-security')
+        resp = self.sampleTestHelper.perform_get_request_with_token('hello-java-security')
 
         xsappname = self.sampleTestHelper.get_deployed_app().get_credentials_property('xsappname')
         expected_response = "You ('{}') can access the application with the following scopes: '[openid, {}.Read]'.".format(username, xsappname)
@@ -94,7 +92,7 @@ class TestSpringSecurity(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        app = CFApp(name='spring-security-xsuaa-usage', 
+        app = CFApp(name='spring-security-xsuaa-usage',
                     xsuaa_service_name='xsuaa-authentication',
                     app_router_name='approuter-spring-security-xsuaa-usage')
 
@@ -109,12 +107,10 @@ class TestSpringSecurity(unittest.TestCase):
         self.sampleTestHelper = TestSpringSecurity.sampleTestHelper
 
     def test_sayHello(self):
-        resp = self.sampleTestHelper.perform_get_request_with_token(
-            'v1/sayHello')
+        resp = self.sampleTestHelper.perform_get_request_with_token('v1/sayHello')
         self.assertEqual(resp.status, 403)
         self.sampleTestHelper.add_user_to_role('Viewer')
-        resp = self.sampleTestHelper.perform_get_request_with_token(
-            'v1/sayHello')
+        resp = self.sampleTestHelper.perform_get_request_with_token('v1/sayHello')
         self.assertEqual(resp.status, 200)
 
 
@@ -122,7 +118,7 @@ class TestJavaBuildpackApiUsage(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        app = CFApp(name='sap-java-buildpack-api-usage', 
+        app = CFApp(name='sap-java-buildpack-api-usage',
                     xsuaa_service_name='xsuaa-buildpack',
                     app_router_name='approuter-sap-java-buildpack-api-usage')
         cls.sampleTestHelper = SampleTestHelper(app)
@@ -476,11 +472,11 @@ class CFApp:
                         '../vars.yml'], cwd=self.working_dir)
 
     def delete(self):
-        subprocess.run(['cf',  'delete', '-f', self.name])
+        subprocess.run(['cf', 'delete', '-f', self.name])
         if (self.app_router_name is not None):
-            subprocess.run(['cf',  'delete',  '-f', self.app_router_name])
+            subprocess.run(['cf', 'delete', '-f', self.app_router_name])
         subprocess.run(
-            ['cf',  'delete-service', '-f', self.xsuaa_service_name])
+            ['cf', 'delete-service', '-f', self.xsuaa_service_name])
 
     def __str__(self):
         return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}'.format(
