@@ -44,7 +44,7 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.4.4</version>
+    <version>2.4.5</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
