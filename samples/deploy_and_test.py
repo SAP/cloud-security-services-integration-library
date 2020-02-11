@@ -77,16 +77,17 @@ class TestJavaSecurity(unittest.TestCase):
     def test_hello_java_security(self):
         resp = self.sampleTestHelper.perform_get_request_with_token(
             'hello-java-security')
-        self.assertEqual(resp.status, 403)
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
         self.sampleTestHelper.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
         resp = self.sampleTestHelper.perform_get_request_with_token('hello-java-security')
 
         xsappname = self.sampleTestHelper.get_deployed_app().get_credentials_property('xsappname')
-        expected_response = "You ('{}') can access the application with the following scopes: '[openid, {}.Read]'.".format(username, xsappname)
-        self.assertIsNotNone(resp.body)
-        self.assertEqual(resp.body, expected_response)
+        expected_scope = xsappname + '.Read'
 
+        self.assertIsNotNone(resp.body)
+        self.assertRegex(resp.body, username, "Did not find username '{}' in response body".format(username))
+        self.assertRegex(resp.body, expected_scope, "Expected to find scope '{}' in response body: ".format(expected_scope))
 
 class TestSpringSecurity(unittest.TestCase):
 
@@ -108,11 +109,11 @@ class TestSpringSecurity(unittest.TestCase):
 
     def test_sayHello(self):
         resp = self.sampleTestHelper.perform_get_request_with_token('v1/sayHello')
-        self.assertEqual(resp.status, 403)
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
         self.sampleTestHelper.add_user_to_role('Viewer')
         resp = self.sampleTestHelper.perform_get_request_with_token('v1/sayHello')
-        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
         xsappname = self.sampleTestHelper.get_deployed_app().get_credentials_property('xsappname')
         self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
         json.loads(resp.body)
@@ -135,10 +136,10 @@ class TestJavaBuildpackApiUsage(unittest.TestCase):
     def test_hello_token_servlet(self):
         self.sampleTestHelper = TestJavaBuildpackApiUsage.sampleTestHelper
         resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
-        self.assertEqual(resp.status, 403)
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
         self.sampleTestHelper.add_user_to_role('Buildpack_API_Viewer')
         resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
-        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
         self.assertRegex(resp.body, username, 'Expected to find username in response')
 
 
