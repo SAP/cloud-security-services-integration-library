@@ -1,16 +1,14 @@
-package com.sap.cloud.security.xsuaa.jwk;
+package com.sap.cloud.security.token.validation.validators;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
-
-public class JsonWebKeySetFactory {
+class JsonWebKeySetFactory {
 
 	private JsonWebKeySetFactory() {
 	}
 
-	public static JsonWebKeySet createFromJson(String json) {
+	static JsonWebKeySet createFromJson(String json) {
 		JsonWebKeySet keySet = new JsonWebKeySet();
 		if (json != null) {
 			JSONArray keys = new JSONObject(json).getJSONArray(JsonWebKeyConstants.KEYS_PARAMETER_NAME);

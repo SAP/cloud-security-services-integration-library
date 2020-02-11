@@ -82,16 +82,25 @@ public class AbstractTokenTest {
 	}
 
 	@Test
-	public void tokenWithouthExpirationDate_isNotExpired() {
-		AbstractToken neverExpires = new MockTokenBuilder().withExpiration(null).build();
-		when(neverExpires.isExpired()).thenCallRealMethod();
+	public void tokenWithoutExpirationDate_isExpired() {
+		AbstractToken tokenWithoutExpiration = new MockTokenBuilder().withExpiration(null).build();
+		when(tokenWithoutExpiration.isExpired()).thenCallRealMethod();
 
-		assertThat(neverExpires.isExpired()).isFalse();
+		assertThat(tokenWithoutExpiration.isExpired()).isTrue();
+	}
+
+	@Test
+	public void tokenWithLongExpiration_isNotExpired() {
+		AbstractToken tokenWithNoExpiration = new MockTokenBuilder().withExpiration(MockTokenBuilder.NO_EXPIRE_DATE)
+				.build();
+		when(tokenWithNoExpiration.isExpired()).thenCallRealMethod();
+
+		assertThat(tokenWithNoExpiration.isExpired()).isFalse();
 	}
 
 	@Test
 	public void getNotBefore_notContained_shouldBeNull() {
-		assertThat(cut.getNotBefore()).isNull();
+		assertThat(String.valueOf(cut.getNotBefore().toEpochMilli())).startsWith("1572017569"); // consider iat
 	}
 
 	@Test

@@ -1,9 +1,8 @@
-package com.sap.cloud.security.xsuaa.jwk;
+package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.xsuaa.jwk.JsonWebKeyConstants.*;
+import com.sap.cloud.security.xsuaa.Assertions;
 
 import javax.annotation.Nullable;
-
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -15,10 +14,10 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Objects;
 
-import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.BEGIN_PUBLIC_KEY;
+import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.END_PUBLIC_KEY;
 
-public class JsonWebKeyImpl implements JsonWebKey {
+class JsonWebKeyImpl implements JsonWebKey {
 	private final JwtSignatureAlgorithm keyAlgorithm;
 	private final String keyId;
 	private final String pemEncodedPublicKey;
@@ -26,7 +25,7 @@ public class JsonWebKeyImpl implements JsonWebKey {
 	private final String publicExponent;
 	private PublicKey publicKey;
 
-	public JsonWebKeyImpl(JwtSignatureAlgorithm keyAlgorithm, @Nullable String keyId, String modulus,
+	JsonWebKeyImpl(JwtSignatureAlgorithm keyAlgorithm, @Nullable String keyId, String modulus,
 			String publicExponent, @Nullable String pemEncodedPublicKey) {
 		Assertions.assertNotNull(keyAlgorithm, "keyAlgorithm must be not null");
 		this.keyId = keyId != null ? keyId : DEFAULT_KEY_ID;

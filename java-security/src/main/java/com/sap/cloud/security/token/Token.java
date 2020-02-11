@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a JSON Web Token (JWT).
@@ -109,8 +110,7 @@ public interface Token {
 	Instant getNotBefore();
 
 	/**
-	 * Get the encoded jwt token, e.g. for token forwarding to another
-	 * app.
+	 * Get the encoded jwt token, e.g. for token forwarding to another app.
 	 *
 	 * <p>
 	 * Never expose this token via log or via HTTP.
@@ -139,5 +139,5 @@ public interface Token {
 	 *
 	 * @return the audiences.
 	 **/
-	List<String> getAudiences();
+	Set<String> getAudiences();
 }

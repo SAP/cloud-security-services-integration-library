@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.jwk;
+package com.sap.cloud.security.token.validation.validators;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -6,13 +6,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
-
-public class JsonWebKeySet {
+class JsonWebKeySet {
 
 	private Set<JsonWebKey> jsonWebKeys;
 
-	public JsonWebKeySet() {
+	JsonWebKeySet() {
 		jsonWebKeys = new HashSet<>();
 	}
 

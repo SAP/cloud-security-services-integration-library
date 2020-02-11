@@ -82,8 +82,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getIasConfiguration().getService()).isEqualTo(Service.IAS);
 		assertThat(cut.getIasConfiguration().getClientId()).isEqualTo("T000310");
 		assertThat(cut.getIasConfiguration().getClientSecret()).startsWith("pCghfbrL");
-		assertThat(cut.getIasConfiguration().getDomain()).isEqualTo("auth.com");
-		assertThat(cut.getIasConfiguration().getUrl().toString()).isEqualTo("https://app.auth.com");
+		assertThat(cut.getIasConfiguration().getUrl().toString()).isEqualTo("https://myauth.com");
 		assertThat(cut.getIasConfiguration().isLegacyMode()).isFalse();
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();

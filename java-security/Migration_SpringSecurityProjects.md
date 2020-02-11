@@ -28,17 +28,17 @@ First make sure you have the following dependencies defined in your pom.xml:
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>api</artifactId>
-  <version>2.4.3-SNAPSHOT</version>
+  <version>2.4.4</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security</artifactId>
-  <version>2.4.3-SNAPSHOT</version>
+  <version>2.4.4</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security-test</artifactId>
-  <version>2.4.3-SNAPSHOT</version>
+  <version>2.4.4</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -100,7 +100,7 @@ Or
 ```java
 ...
 .authorizeRequests()
-	.antMatchers(POST, "/api/v1/ads/**").access(#oauth2.hasScopeMatching('Update')) //instead of $xsappname.Update
+	.antMatchers(POST, "/api/v1/ads/**").access(#oauth2.hasScopeMatching('Update')) //instead of '${xs.appname}.Update'
 ```
 
 
@@ -130,12 +130,12 @@ try {
 This can be easily replaced with the `Token` or `XsuaaToken` Api.
 
 ```java
-import com.sap.cloud.security.token.SecurityContext;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.token.*;
 
-Token token = SecurityContext.getToken();
-String logonName = token.getClaimAsString(TokenClaims.USER_NAME);		
+AccessToken token = SecurityContext.getAccessToken();
+String logonName = token.getClaimAsString(TokenClaims.USER_NAME);
+boolean hasDisplayScope = token.hasLocalScope("Display");	
+GrantType grantType = token.getGrantType();
 ```
 
 > Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.

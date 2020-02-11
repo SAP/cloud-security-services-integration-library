@@ -10,8 +10,8 @@ import com.sap.cloud.security.token.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Validates if the jwt access token is intended for the OAuth2 client of this
@@ -25,14 +25,14 @@ public class JwtAudienceValidator implements Validator<Token> {
 	private static final Logger logger = LoggerFactory.getLogger(JwtAudienceValidator.class);
 	private static final char DOT = '.';
 
-	private final List<String> clientIds = new ArrayList();
+	private final Set<String> clientIds = new LinkedHashSet<>();
 
-	public JwtAudienceValidator(String clientId) {
-		configureAnotherServiceInstance(clientId);
+	JwtAudienceValidator(String clientId) {
+		configureTrustedClientId(clientId);
 	}
 
-	public JwtAudienceValidator configureAnotherServiceInstance(String clientId) {
-		assertHasText(clientId, "clientId must not be null or empty.");
+	JwtAudienceValidator configureTrustedClientId(String clientId) {
+		assertHasText(clientId, "JwtAudienceValidator requires a clientId.");
 		clientIds.add(clientId);
 		logger.info("configured JwtAudienceValidator with clientId {}.", clientId);
 
@@ -41,7 +41,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
-		List<String> allowedAudiences = getAllowedAudiences(token);
+		Set<String> allowedAudiences = getAllowedAudiences(token);
 		for (String configuredClientId : clientIds) {
 			if (allowedAudiences.contains(configuredClientId)) {
 				return ValidationResults.createValid();
@@ -53,17 +53,18 @@ public class JwtAudienceValidator implements Validator<Token> {
 	}
 
 	/**
-	 * Retrieve audiences from token. In case the audience list is empty, take
-	 * audiences based on the scope names.
+	 * Retrieve audiences from token.
 	 *
 	 * @param token
 	 * @return (empty) list of audiences
 	 */
-	static List<String> getAllowedAudiences(Token token) {
-		List<String> audiences = new ArrayList<>();
+	static Set<String> getAllowedAudiences(Token token) {
+		Set<String> audiences = new LinkedHashSet<>();
 
 		for (String audience : token.getAudiences()) {
 			if (audience.contains(".")) {
+				// CF UAA derives the audiences from the scopes.
+				// In case the scopes contains namespaces, these needs to be removed.
 				String aud = audience.substring(0, audience.indexOf(DOT)).trim();
 				if (!aud.isEmpty()) {
 					audiences.add(aud);

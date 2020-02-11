@@ -10,7 +10,7 @@ import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
+import com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -20,6 +20,7 @@ import javax.annotation.Nonnull;
 import java.security.*;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
@@ -33,7 +34,8 @@ public class JwtGenerator {
 
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
-	private final List<String> unsupportedClaims = Arrays.asList(AUDIENCE);
+	private final Set<String> unsupportedClaims = Arrays.asList(AUDIENCE).stream().collect(Collectors.toSet());
+
 	private SignatureCalculator signatureCalculator;
 	private Service service;
 

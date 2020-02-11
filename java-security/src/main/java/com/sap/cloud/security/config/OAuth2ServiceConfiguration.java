@@ -61,13 +61,6 @@ public interface OAuth2ServiceConfiguration {
 	Service getService();
 
 	/**
-	 * Domain (without subdomain) of identity service instance.
-	 *
-	 * @return domain
-	 */
-	String getDomain();
-
-	/**
 	 * Returns true, in case of XSUAA service runs in legacy mode.
 	 *
 	 * @return true in case it runs in legacy mode.

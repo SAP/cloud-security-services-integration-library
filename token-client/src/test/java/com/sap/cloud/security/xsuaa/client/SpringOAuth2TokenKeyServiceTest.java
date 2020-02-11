@@ -1,8 +1,5 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +12,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,7 +43,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 	@Test
 	public void retrieveTokenKeys_endpointUriIsNull_throwsException() throws OAuth2ServiceException {
-		assertThatThrownBy(() -> retrieveTokenKeys(null))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -55,7 +51,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 	public void retrieveTokenKeys_usesGivenURI() throws OAuth2ServiceException {
 		mockResponse();
 
-		retrieveTokenKeys();
+		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI);
 
 		Mockito.verify(restOperationsMock, times(1))
 				.getForEntity(TOKEN_KEYS_ENDPOINT_URI, String.class);
@@ -65,19 +61,9 @@ public class SpringOAuth2TokenKeyServiceTest {
 	public void retrieveTokenKeys_badResponse_throwsException() {
 		String errorMessage = "useful error message";
 		mockResponse(errorMessage, HttpStatus.BAD_REQUEST);
-		assertThatThrownBy(() -> retrieveTokenKeys())
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorMessage);
-	}
-
-	@Test
-	public void retrieveTokenKeys_containsBothKeys() throws OAuth2ServiceException {
-		mockResponse();
-
-		JsonWebKeySet response = retrieveTokenKeys();
-
-		assertThat(response.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "key-id-0")).isNotNull();
-		assertThat(response.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "key-id-1")).isNotNull();
 	}
 
 	private void mockResponse() {
@@ -90,11 +76,4 @@ public class SpringOAuth2TokenKeyServiceTest {
 				.thenReturn(stringResponseEntity);
 	}
 
-	private JsonWebKeySet retrieveTokenKeys() throws OAuth2ServiceException {
-		return retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI);
-	}
-
-	private JsonWebKeySet retrieveTokenKeys(URI tokenKeysEndpointUri) throws OAuth2ServiceException {
-		return cut.retrieveTokenKeys(tokenKeysEndpointUri);
-	}
 }

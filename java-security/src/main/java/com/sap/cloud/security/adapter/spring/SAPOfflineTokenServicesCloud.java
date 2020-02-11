@@ -8,8 +8,6 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyServiceWithCache;
-import com.sap.cloud.security.xsuaa.client.OidcConfigurationServiceWithCache;
 import com.sap.cloud.security.xsuaa.client.SpringOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.SpringOidcConfigurationService;
 import org.springframework.beans.factory.InitializingBean;
@@ -23,12 +21,15 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This constructor requires a dependency to Spring oauth and web.
- * 
+ * This constructor requires a dependency to Spring oauth.
+ *
  * <pre>
  * {@code
  * <dependency>
@@ -43,6 +44,9 @@ import java.util.stream.Collectors;
  * </dependency>
  * }
  * </pre>
+ * 
+ * By default it used Apache Rest Client for communicating with the OAuth2
+ * Server.
  */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
@@ -53,7 +57,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	private ScopeConverter xsuaaScopeConverter;
 
 	/**
-	 * Constructs an instance which can be used in the SAP CP Environment.
+	 * Constructs an instance which is preconfigured for XSUAA service configuration
+	 * from SAP CP Environment.
 	 */
 	public SAPOfflineTokenServicesCloud() {
 		this(Environments.getCurrent().getXsuaaConfiguration());
@@ -86,12 +91,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
 			RestOperations restOperations) {
 		this(serviceConfiguration, JwtValidatorBuilder.getInstance(serviceConfiguration)
-				.withOAuth2TokenKeyService(
-						OAuth2TokenKeyServiceWithCache.getInstance()
-								.withTokenKeyService(new SpringOAuth2TokenKeyService(restOperations)))
-				.withOidcConfigurationService(
-						OidcConfigurationServiceWithCache.getInstance()
-								.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations))));
+				.withOAuth2TokenKeyService(new SpringOAuth2TokenKeyService(restOperations))
+				.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations)));
 
 	}
 
@@ -113,9 +114,9 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			throws AuthenticationException, InvalidTokenException {
 		Token token = checkAndCreateToken(accessToken);
 
-		List<String> scopes = token instanceof AccessToken
+		Set<String> scopes = token instanceof AccessToken
 				? ((AccessToken) token).getScopes()
-				: Collections.EMPTY_LIST;
+				: Collections.emptySet();
 		if (useLocalScopeAsAuthorities) {
 			scopes = xsuaaScopeConverter.convert(scopes);
 		}

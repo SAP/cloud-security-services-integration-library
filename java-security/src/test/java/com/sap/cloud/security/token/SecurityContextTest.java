@@ -1,15 +1,17 @@
 package com.sap.cloud.security.token;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SecurityContextTest {
 
@@ -69,6 +71,20 @@ public class SecurityContextTest {
 		executorService.submit(() -> SecurityContext.clearToken()).get(); // run and await other thread
 
 		assertThat(SecurityContext.getToken()).isEqualTo(TOKEN);
+	}
+
+	@Test
+	public void getAccessTokenReturnsNullIfTokenDoesNotImplementInterface()
+			throws ExecutionException, InterruptedException, IOException {
+		SecurityContext.setToken(TOKEN);
+		assertThat(SecurityContext.getAccessToken()).isNull();
+	}
+
+	@Test
+	public void getAccessTokenReturns() throws ExecutionException, InterruptedException, IOException {
+		AccessToken accessToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
+		SecurityContext.setToken(accessToken);
+		assertThat(SecurityContext.getAccessToken()).isEqualTo(accessToken);
 	}
 
 }

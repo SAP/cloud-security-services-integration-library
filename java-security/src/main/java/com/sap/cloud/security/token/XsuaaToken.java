@@ -7,7 +7,8 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.security.Principal;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import static com.sap.cloud.security.token.TokenClaims.USER_NAME;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
@@ -82,8 +83,10 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	}
 
 	@Override
-	public List<String> getScopes() {
-		return getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
+	public Set<String> getScopes() {
+		LinkedHashSet<String> scopes = new LinkedHashSet<>();
+		scopes.addAll(getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
+		return scopes;
 	}
 
 	@Override
@@ -130,11 +133,6 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	@Override
 	public GrantType getGrantType() {
 		return GrantType.from(getClaimAsString(GRANT_TYPE));
-	}
-
-	@Override
-	public String getBearerTokenValue() {
-		return "Bearer " + jwtToken;
 	}
 
 }

@@ -1,12 +1,10 @@
-package com.sap.cloud.security.xsuaa.jwk;
+package com.sap.cloud.security.token.validation.validators;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import com.sap.cloud.security.xsuaa.util.JsonWebKeyTestFactory;
 
 public class JsonWebKeyTest {
 	private JsonWebKey cut;

@@ -27,11 +27,11 @@ public class XsuaaJwtIssuerValidatorTest {
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
 			new XsuaaJwtIssuerValidator(null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("uaaDomain");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("XsuaaJwtIssuerValidator", "uaaDomain");
 
 		assertThatThrownBy(() -> {
 			new XsuaaJwtIssuerValidator(" ");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("uaaDomain");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("XsuaaJwtIssuerValidator", "uaaDomain");
 	}
 
 	@Test

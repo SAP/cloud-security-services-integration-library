@@ -23,6 +23,7 @@ public class CFConstants {
 		private XSUAA() {
 		}
 
+		public static final String IDENTITY_ZONE = "identityzone";
 		public static final String UAA_DOMAIN = "uaadomain";
 		public static final String APP_ID = "xsappname";
 	}
