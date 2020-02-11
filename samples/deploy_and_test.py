@@ -109,9 +109,13 @@ class TestSpringSecurity(unittest.TestCase):
     def test_sayHello(self):
         resp = self.sampleTestHelper.perform_get_request_with_token('v1/sayHello')
         self.assertEqual(resp.status, 403)
+
         self.sampleTestHelper.add_user_to_role('Viewer')
         resp = self.sampleTestHelper.perform_get_request_with_token('v1/sayHello')
         self.assertEqual(resp.status, 200)
+        xsappname = self.sampleTestHelper.get_deployed_app().get_credentials_property('xsappname')
+        self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
+        json.loads(resp.body)
 
 
 class TestJavaBuildpackApiUsage(unittest.TestCase):
@@ -135,7 +139,7 @@ class TestJavaBuildpackApiUsage(unittest.TestCase):
         self.sampleTestHelper.add_user_to_role('Buildpack_API_Viewer')
         resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
         self.assertEqual(resp.status, 200)
-        self.assertRegex(resp.body, username)
+        self.assertRegex(resp.body, username, 'Expected to find username in response')
 
 
 class SampleTestHelper:
@@ -186,7 +190,10 @@ class SampleTestHelper:
         if (access_token is None):
             logging.error("Cannot continue without access token")
             exit()
-        return HttpUtil().get_request(url, access_token=access_token)
+        logging.info('GET request with access token to ' + url)
+        resp =  HttpUtil().get_request(url, access_token=access_token)
+        logging.info('Response: ' + str(resp))
+        return resp
 
     def get_api_access(self):
         if (self.__api_access is None):
@@ -218,7 +225,7 @@ class HttpUtil:
                 self.body = response.read().decode()
                 self.status = response.status
                 self.is_ok = True
-            logging.info(self)
+            logging.debug(self)
 
         @classmethod
         def error(cls, error):
@@ -232,13 +239,13 @@ class HttpUtil:
             return 'HTTP status: {}, body: {}'.format(self.status, body)
 
     def get_request(self, url, access_token=None, additional_headers={}):
-        logging.info('Performing get request to ' + url)
+        logging.debug('Performing GET request to ' + url)
         req = urllib.request.Request(url, method='GET')
         self.__add_headers(req, access_token, additional_headers)
         return self.__execute(req)
 
     def post_request(self, url, data=None, access_token=None, additional_headers={}):
-        logging.info('Performing POST request to ' + url)
+        logging.debug('Performing POST request to ' + url)
         req = urllib.request.Request(url, data=data, method='POST')
         self.__add_headers(req, access_token, additional_headers)
         return self.__execute(req)
@@ -287,6 +294,7 @@ class ApiAccessService:
             ['cf', 'service-key', name, self.service_key_name], capture_output=True)
         lines = service_key_output.stdout.decode().split('\n')
         self.data = json.loads(''.join(lines[1:]))
+        logging.debug('Created ' + str(self))
 
     def delete(self):
         subprocess.run(['cf', 'delete-service-key', '-f',
