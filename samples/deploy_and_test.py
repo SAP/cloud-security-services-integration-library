@@ -37,6 +37,7 @@ from getpass import getpass
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 class CredentialsProvider:
     def __init__(self):
         self.username = self.__get_env_variable('CFUSER', lambda: input("Username: "))
@@ -48,7 +49,9 @@ class CredentialsProvider:
             value = prompt_function()
         return value
 
+
 credentials = CredentialsProvider()
+
 
 class SampleTest(abc.ABC, unittest.TestCase):
 
@@ -123,7 +126,6 @@ class SampleTest(abc.ABC, unittest.TestCase):
             username=self.credentials.username,
             password=self.credentials.password)
 
-
     def __perform_get_request(self, path, access_token=None, additional_headers={}):
         url = 'https://{}-{}.{}/{}'.format(
             self.get_app().name,
@@ -135,11 +137,12 @@ class SampleTest(abc.ABC, unittest.TestCase):
         logging.info('Response: ' + str(resp))
         return resp
 
+
 class TestTokenClient(SampleTest):
 
     def get_app(self):
         return CFApp(name='java-tokenclient-usage', xsuaa_service_name='xsuaa-token-client')
-    
+
     def test_hello_token_client(self):
         response = self.perform_get_request('hello-token-client')
         self.assertEquals(response.status, 200, 'Expected HTTP status 200')
@@ -152,7 +155,7 @@ class TestTokenClient(SampleTest):
 
 class TestJavaSecurity(SampleTest):
 
-    def get_app(self): 
+    def get_app(self):
         CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security')
 
     def test_hello_java_security(self):
@@ -175,9 +178,9 @@ class TestJavaSecurity(SampleTest):
 
 class TestSpringSecurity(SampleTest):
 
-    def get_app(self): 
-        return CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication', 
-            app_router_name='approuter-spring-security-xsuaa-usage')
+    def get_app(self):
+        return CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication',
+                     app_router_name='approuter-spring-security-xsuaa-usage')
 
     def test_sayHello(self):
         resp = self.perform_get_request('v1/sayHello')
@@ -198,8 +201,8 @@ class TestJavaBuildpackApiUsage(SampleTest):
 
     def get_app(self):
         return CFApp(name='sap-java-buildpack-api-usage',
-                    xsuaa_service_name='xsuaa-buildpack',
-                    app_router_name='approuter-sap-java-buildpack-api-usage')
+                     xsuaa_service_name='xsuaa-buildpack',
+                     app_router_name='approuter-sap-java-buildpack-api-usage')
 
     def test_hello_token_servlet(self):
         resp = self.perform_get_request('hello-token')
@@ -235,10 +238,10 @@ class SpringSecurityBasicAuthTest(SampleTest):
 class SpringWebfluxSecurityXsuaaUsage(SampleTest):
 
     def get_app(self):
-        return CFApp(name='spring-webflux-security-xsuaa-usage', 
-            xsuaa_service_name='xsuaa-webflux', 
-            app_router_name='approuter-spring-webflux-security-xsuaa-usage')
-    
+        return CFApp(name='spring-webflux-security-xsuaa-usage',
+                     xsuaa_service_name='xsuaa-webflux',
+                     app_router_name='approuter-spring-webflux-security-xsuaa-usage')
+
     def test_say_hello(self):
         resp = self.perform_get_request('/v1/sayHello')
         self.assertEqual(resp.status, 401)
@@ -252,6 +255,7 @@ class SpringWebfluxSecurityXsuaaUsage(SampleTest):
         self.assertEqual(resp.status, 200)
 
         print(resp.body)
+
 
 class HttpUtil:
 
@@ -537,6 +541,7 @@ def is_logged_off():
     target = subprocess.run(['cf', 'target'], capture_output=True)
     return not target or target.stdout.decode().startswith('FAILED')
 
+
 if __name__ == '__main__':
     if (is_logged_off()):
         print('To run this script you must be logged into CF via "cf login"')
@@ -546,4 +551,3 @@ if __name__ == '__main__':
         doctest.testmod()
         unittest.main()
         credentials = CredentialsProvider()
-
