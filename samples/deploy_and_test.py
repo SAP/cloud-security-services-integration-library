@@ -2,7 +2,8 @@
 import subprocess
 import urllib.request
 from urllib.parse import urlencode
-
+from urllib.error import HTTPError
+from base64 import b64encode
 import json
 import unittest
 import logging
@@ -33,13 +34,16 @@ from getpass import getpass
 # This would only the run the test called 'test_hello_java_security'
 # inside the test class 'TestJavaSecurity' inside the deploy_and_test.py file.
 
-username = os.getenv('CFUSER')
-password = os.getenv('CFPASSWORD')
 
-if (username is None):
-    username = input("Username: ")
-if (password is None):
-    password = getpass()
+def get_env_variable(env_variable_name, prompt_function):
+    value = os.getenv(env_variable_name)
+    if (value is None):
+        value = prompt_function()
+    return value
+
+
+username: str = get_env_variable('CFUSER', lambda: input("Username: "))
+password: str = get_env_variable('CFPASSWORD', lambda: getpass())
 
 logging.basicConfig(level=logging.INFO)
 
@@ -75,8 +79,7 @@ class TestJavaSecurity(unittest.TestCase):
         self.sampleTestHelper.tearDown()
 
     def test_hello_java_security(self):
-        resp = self.sampleTestHelper.perform_get_request_with_token(
-            'hello-java-security')
+        resp = self.sampleTestHelper.perform_get_request_with_token('hello-java-security')
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
         self.sampleTestHelper.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
@@ -121,26 +124,42 @@ class TestSpringSecurity(unittest.TestCase):
 
 class TestJavaBuildpackApiUsage(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         app = CFApp(name='sap-java-buildpack-api-usage',
                     xsuaa_service_name='xsuaa-buildpack',
                     app_router_name='approuter-sap-java-buildpack-api-usage')
-        cls.sampleTestHelper = SampleTestHelper(app)
-        cls.sampleTestHelper.setUp()
+        self.sampleTestHelper = SampleTestHelper(app)
+        self.sampleTestHelper.setUp()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.sampleTestHelper.tearDown()
+    def tearDown(self):
+        self.sampleTestHelper.tearDown()
 
     def test_hello_token_servlet(self):
-        self.sampleTestHelper = TestJavaBuildpackApiUsage.sampleTestHelper
         resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
         self.sampleTestHelper.add_user_to_role('Buildpack_API_Viewer')
         resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
         self.assertRegex(resp.body, username, 'Expected to find username in response')
+
+
+class SpringSecurityBasicAuthTest(unittest.TestCase):
+
+    def setUp(self):
+        app = CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic')
+        self.sampleTestHelper = SampleTestHelper(app)
+        self.sampleTestHelper.setUp()
+
+    def tearDown(self):
+        self.sampleTestHelper.tearDown()
+
+    def test_hello_token(self):
+        authorization_value = b64encode(bytes(username + ':' + password, 'utf-8')).decode("ascii")
+        resp = self.sampleTestHelper.perform_get_request('hello-token', {'Authorization': 'Basic ' + authorization_value})
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        self.sampleTestHelper.add_user_to_role('BASIC_AUTH_API_Viewer')
+        resp = self.sampleTestHelper.perform_get_request('hello-token', {'Authorization': 'Basic ' + authorization_value})
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
 
 
 class SampleTestHelper:
@@ -164,12 +183,39 @@ class SampleTestHelper:
             self.__api_access.delete()
 
     def add_user_to_role(self, role):
-        user = self.get_api_access().get_user_by_username(username)
+        user = self.__get_api_access().get_user_by_username(username)
         user_id = user.get('id')
-        resp = self.get_api_access().add_user_to_group(user_id, role)
+        resp = self.__get_api_access().add_user_to_group(user_id, role)
         if (not resp.is_ok):
             logging.error("Could not set role " + role)
             exit()
+
+    def perform_get_request(self, path, additional_headers={}):
+        return self.__perform_get_request(path=path, additional_headers=additional_headers)
+
+    def perform_get_request_with_token(self, path, additional_headers={}):
+        access_token = self.__get_user_access_token()
+        if (access_token is None):
+            logging.error("Cannot continue without access token")
+            exit()
+        return self.__perform_get_request(path=path, access_token=self.__get_user_access_token(), additional_headers=additional_headers)
+
+    def get_deployed_app(self):
+        if (self.__deployed_app is None):
+            deployed_app = self.cf_apps.app_by_name(self.__app_to_test.name)
+            if (deployed_app is None):
+                logging.error('Could not find app: ' + self.__app_to_test.name)
+                exit()
+            self.__deployed_app = deployed_app
+        return self.__deployed_app
+
+    def __get_api_access(self):
+        if (self.__api_access is None):
+            deployed_app = self.get_deployed_app()
+            self.__api_access = ApiAccessService(
+                xsuaa_service_url=deployed_app.xsuaa_service_url,
+                xsuaa_api_url=deployed_app.xsuaa_api_url)
+        return self.__api_access
 
     def __get_user_access_token(self):
         deployed_app = self.get_deployed_app()
@@ -181,37 +227,16 @@ class SampleTestHelper:
             username=username,
             password=password)
 
-    def perform_get_request_with_token(self, path):
+    def __perform_get_request(self, path, access_token=None, additional_headers={}):
         url = 'https://{}-{}.{}/{}'.format(
             self.__app_to_test.name,
             self.vars_parser.user_id,
             self.vars_parser.landscape_apps_domain,
             path)
-        access_token = self.__get_user_access_token()
-        if (access_token is None):
-            logging.error("Cannot continue without access token")
-            exit()
-        logging.info('GET request with access token to ' + url)
-        resp =  HttpUtil().get_request(url, access_token=access_token)
+        logging.info('GET request to {} {}'.format(url, 'using access token' if access_token else ''))
+        resp = HttpUtil().get_request(url, access_token=access_token, additional_headers=additional_headers)
         logging.info('Response: ' + str(resp))
         return resp
-
-    def get_api_access(self):
-        if (self.__api_access is None):
-            deployed_app = self.get_deployed_app()
-            self.__api_access = ApiAccessService(
-                xsuaa_service_url=deployed_app.xsuaa_service_url,
-                xsuaa_api_url=deployed_app.xsuaa_api_url)
-        return self.__api_access
-
-    def get_deployed_app(self):
-        if (self.__deployed_app is None):
-            deployed_app = self.cf_apps.app_by_name(self.__app_to_test.name)
-            if (deployed_app is None):
-                logging.error('Could not find app: ' + self.__app_to_test.name)
-                exit()
-            self.__deployed_app = deployed_app
-        return self.__deployed_app
 
 
 class HttpUtil:
@@ -276,7 +301,7 @@ class HttpUtil:
         try:
             res = urllib.request.urlopen(req)
             return HttpUtil.HttpResponse(response=res)
-        except urllib.error.HTTPError as error:
+        except HTTPError as error:
             return HttpUtil.HttpResponse.error(error=error)
 
 
