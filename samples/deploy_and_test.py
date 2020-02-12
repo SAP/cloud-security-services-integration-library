@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import abc
 import subprocess
 import urllib.request
 from urllib.parse import urlencode
@@ -34,164 +35,60 @@ from getpass import getpass
 # This would only the run the test called 'test_hello_java_security'
 # inside the test class 'TestJavaSecurity' inside the deploy_and_test.py file.
 
+logging.basicConfig(level=logging.DEBUG)
 
-def get_env_variable(env_variable_name, prompt_function):
-    value = os.getenv(env_variable_name)
-    if (value is None):
-        value = prompt_function()
-    return value
+class CredentialsProvider:
+    def __init__(self):
+        self.username = self.__get_env_variable('CFUSER', lambda: input("Username: "))
+        self.password = self.__get_env_variable('CFPASSWORD', lambda: getpass())
 
+    def __get_env_variable(self, env_variable_name, prompt_function):
+        value = os.getenv(env_variable_name)
+        if (value is None):
+            value = prompt_function()
+        return value
 
-username: str = get_env_variable('CFUSER', lambda: input("Username: "))
-password: str = get_env_variable('CFPASSWORD', lambda: getpass())
+credentials = CredentialsProvider()
 
-logging.basicConfig(level=logging.INFO)
+class SampleTest(unittest.TestCase):
 
+    __metaclass__ = abc.ABCMeta
 
-class TestTokenClient(unittest.TestCase):
-    def setUp(self):
-        self.app = CFApp(name='java-tokenclient-usage',
-                         xsuaa_service_name='xsuaa-token-client')
-        self.sampleTestHelper = SampleTestHelper(self.app)
-        self.sampleTestHelper.setUp()
-
-    def tearDown(self):
-        self.sampleTestHelper.tearDown()
-
-    def test_hello_token_client(self):
-        response = self.sampleTestHelper.perform_get_request_with_token('hello-token-client')
-        body = response.body
-
-        self.assertIsNotNone(body)
-        self.assertRegex(body, "Access-Token: ")
-        self.assertRegex(body, "Access-Token-Payload: ")
-        self.assertRegex(body, "Expired-At: ")
-
-
-class TestJavaSecurity(unittest.TestCase):
-    def setUp(self):
-        self.app = CFApp(name='java-security-usage',
-                         xsuaa_service_name='xsuaa-java-security')
-        self.sampleTestHelper = SampleTestHelper(self.app)
-        self.sampleTestHelper.setUp()
-
-    def tearDown(self):
-        self.sampleTestHelper.tearDown()
-
-    def test_hello_java_security(self):
-        resp = self.sampleTestHelper.perform_get_request_with_token('hello-java-security')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
-
-        self.sampleTestHelper.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
-        resp = self.sampleTestHelper.perform_get_request_with_token('hello-java-security')
-
-        xsappname = self.sampleTestHelper.get_deployed_app().get_credentials_property('xsappname')
-        expected_scope = xsappname + '.Read'
-
-        self.assertIsNotNone(resp.body)
-        self.assertRegex(resp.body, username, "Did not find username '{}' in response body".format(username))
-        self.assertRegex(resp.body, expected_scope, "Expected to find scope '{}' in response body: ".format(expected_scope))
-
-class TestSpringSecurity(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        app = CFApp(name='spring-security-xsuaa-usage',
-                    xsuaa_service_name='xsuaa-authentication',
-                    app_router_name='approuter-spring-security-xsuaa-usage')
-
-        cls.sampleTestHelper = SampleTestHelper(app)
-        cls.sampleTestHelper.setUp()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.sampleTestHelper.tearDown()
+    @abc.abstractmethod
+    def app(self):
+        """Should return the sample app that should be tested """
+        return CFApp('', '')
 
     def setUp(self):
-        self.sampleTestHelper = TestSpringSecurity.sampleTestHelper
-
-    def test_sayHello(self):
-        resp = self.sampleTestHelper.perform_get_request_with_token('v1/sayHello')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
-
-        self.sampleTestHelper.add_user_to_role('Viewer')
-        resp = self.sampleTestHelper.perform_get_request_with_token('v1/sayHello')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
-        xsappname = self.sampleTestHelper.get_deployed_app().get_credentials_property('xsappname')
-        self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
-        json.loads(resp.body)
-
-
-class TestJavaBuildpackApiUsage(unittest.TestCase):
-
-    def setUp(self):
-        app = CFApp(name='sap-java-buildpack-api-usage',
-                    xsuaa_service_name='xsuaa-buildpack',
-                    app_router_name='approuter-sap-java-buildpack-api-usage')
-        self.sampleTestHelper = SampleTestHelper(app)
-        self.sampleTestHelper.setUp()
-
-    def tearDown(self):
-        self.sampleTestHelper.tearDown()
-
-    def test_hello_token_servlet(self):
-        resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
-        self.sampleTestHelper.add_user_to_role('Buildpack_API_Viewer')
-        resp = self.sampleTestHelper.perform_get_request_with_token('hello-token')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
-        self.assertRegex(resp.body, username, 'Expected to find username in response')
-
-
-class SpringSecurityBasicAuthTest(unittest.TestCase):
-
-    def setUp(self):
-        app = CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic')
-        self.sampleTestHelper = SampleTestHelper(app)
-        self.sampleTestHelper.setUp()
-
-    def tearDown(self):
-        self.sampleTestHelper.tearDown()
-
-    def test_hello_token(self):
-        authorization_value = b64encode(bytes(username + ':' + password, 'utf-8')).decode("ascii")
-        resp = self.sampleTestHelper.perform_get_request('hello-token', {'Authorization': 'Basic ' + authorization_value})
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
-        self.sampleTestHelper.add_user_to_role('BASIC_AUTH_API_Viewer')
-        resp = self.sampleTestHelper.perform_get_request('hello-token', {'Authorization': 'Basic ' + authorization_value})
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
-
-
-class SampleTestHelper:
-
-    def __init__(self, app_to_test):
-        self.__app_to_test = app_to_test
         vars_file = open('./vars.yml')
         self.vars_parser = VarsParser(vars_file.read())
         vars_file.close()
         self.cf_apps = CFApps()
         self.__deployed_app = None
         self.__api_access = None
+        self.credentials = credentials
 
-    def setUp(self):
-        self.__app_to_test.deploy()
+        self.app().deploy()
         time.sleep(2)  # waiting for deployed apps to be available
 
     def tearDown(self):
-        self.__app_to_test.delete()
+        self.app().delete()
         if self.__api_access is not None:
             self.__api_access.delete()
 
     def add_user_to_role(self, role):
-        user = self.__get_api_access().get_user_by_username(username)
+        user = self.__get_api_access().get_user_by_username(self.credentials.username)
         user_id = user.get('id')
         resp = self.__get_api_access().add_user_to_group(user_id, role)
         if (not resp.is_ok):
             logging.error("Could not set role " + role)
             exit()
 
-    def perform_get_request(self, path, additional_headers={}):
-        return self.__perform_get_request(path=path, additional_headers=additional_headers)
+    def perform_get_request(self, path, username_password=None):
+        for username, password in username_password:
+            authorization_value = b64encode(bytes(username + ':' + password, 'utf-8')).decode("ascii")
+            return self.__perform_get_request(path=path, additional_headers={'Authorization': 'Basic ' + authorization_value})
+        return self.__perform_get_request(path=path)
 
     def perform_get_request_with_token(self, path, additional_headers={}):
         access_token = self.__get_user_access_token()
@@ -202,9 +99,9 @@ class SampleTestHelper:
 
     def get_deployed_app(self):
         if (self.__deployed_app is None):
-            deployed_app = self.cf_apps.app_by_name(self.__app_to_test.name)
+            deployed_app = self.cf_apps.app_by_name(self.app().name)
             if (deployed_app is None):
-                logging.error('Could not find app: ' + self.__app_to_test.name)
+                logging.error('Could not find app: ' + self.app().name)
                 exit()
             self.__deployed_app = deployed_app
         return self.__deployed_app
@@ -224,12 +121,13 @@ class SampleTestHelper:
             clientid=deployed_app.clientid,
             clientsecret=deployed_app.clientsecret,
             grant_type='password',
-            username=username,
-            password=password)
+            username=self.credentials.username,
+            password=self.credentials.password)
+
 
     def __perform_get_request(self, path, access_token=None, additional_headers={}):
         url = 'https://{}-{}.{}/{}'.format(
-            self.__app_to_test.name,
+            self.app().name,
             self.vars_parser.user_id,
             self.vars_parser.landscape_apps_domain,
             path)
@@ -237,6 +135,88 @@ class SampleTestHelper:
         resp = HttpUtil().get_request(url, access_token=access_token, additional_headers=additional_headers)
         logging.info('Response: ' + str(resp))
         return resp
+
+class TestTokenClient(SampleTest):
+
+    def app(self):
+        return CFApp(name='java-tokenclient-usage', xsuaa_service_name='xsuaa-token-client')
+    
+    def test_hello_token_client(self):
+        response = self.perform_get_request_with_token('hello-token-client')
+        body = response.body
+
+        self.assertIsNotNone(body)
+        self.assertRegex(body, "Access-Token: ")
+        self.assertRegex(body, "Access-Token-Payload: ")
+        self.assertRegex(body, "Expired-At: ")
+
+
+class TestJavaSecurity(SampleTest):
+
+    def app(self): 
+        CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security')
+
+    def test_hello_java_security(self):
+        resp = self.perform_get_request_with_token('hello-java-security')
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+
+        self.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
+        resp = self.perform_get_request_with_token('hello-java-security')
+
+        xsappname = self.get_deployed_app().get_credentials_property('xsappname')
+        expected_scope = xsappname + '.Read'
+
+        self.assertIsNotNone(resp.body)
+        self.assertRegex(resp.body, self.credentials.username, "Did not find username '{}' in response body".format(self.credentials.username))
+        self.assertRegex(resp.body, expected_scope, "Expected to find scope '{}' in response body: ".format(expected_scope))
+
+
+class TestSpringSecurity(SampleTest):
+
+    def app(self): 
+        return CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication', 
+            app_router_name='approuter-spring-security-xsuaa-usage')
+
+    def test_sayHello(self):
+        resp = self.perform_get_request_with_token('v1/sayHello')
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+
+        self.add_user_to_role('Viewer')
+        resp = self.perform_get_request_with_token('v1/sayHello')
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        xsappname = self.get_deployed_app().get_credentials_property('xsappname')
+        self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
+        json.loads(resp.body)
+
+
+class TestJavaBuildpackApiUsage(SampleTest):
+
+    def app(self):
+        return CFApp(name='sap-java-buildpack-api-usage',
+                    xsuaa_service_name='xsuaa-buildpack',
+                    app_router_name='approuter-sap-java-buildpack-api-usage')
+
+    def test_hello_token_servlet(self):
+        resp = self.perform_get_request_with_token('hello-token')
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        self.add_user_to_role('Buildpack_API_Viewer')
+        resp = self.perform_get_request_with_token('hello-token')
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
+
+
+class SpringSecurityBasicAuthTest(SampleTest):
+
+    def app(self):
+        return CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic')
+
+    def test_hello_token(self):
+        resp = self.perform_get_request('hello-token', {'username': self.credentials.username, 'password': self.credentials.password})
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+
+        self.add_user_to_role('BASIC_AUTH_API_Viewer')
+        resp = self.perform_get_request('hello-token', {'username': self.credentials.username, 'password': self.credentials.password})
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
 
 
 class HttpUtil:
@@ -292,10 +272,14 @@ class HttpUtil:
             return None
 
     def __add_headers(self, req, access_token, additional_headers):
-        if (access_token is not None):
-            req.add_header('Authorization', 'Bearer ' + access_token)
+        if (access_token):
+            self.__add_header(req, 'Authorization', 'Bearer ' + access_token)
         for header_key in additional_headers:
-            req.add_header(header_key, additional_headers[header_key])
+            self.__add_header(req, header_key, additional_headers[header_key])
+
+    def __add_header(self, req, header_name, header_value):
+        logging.debug('adding HTTP header {} -> {}'.format(header_name, header_value))
+        req.add_header(header_name, header_value)
 
     def __execute(self, req):
         try:
@@ -334,10 +318,10 @@ class ApiAccessService:
         res = self.http_util.get_request(
             url, access_token=self.__get_access_token())
         if (not res.is_ok):
-            self.__panic_user_not_found()
+            self.__panic_user_not_found(username)
         users = json.loads(res.body).get('resources')
         if (users is None or len(users) < 1):
-            self.__panic_user_not_found()
+            self.__panic_user_not_found(username)
         return users[0]
 
     def add_user_to_group(self, user_id, group_name):
@@ -348,7 +332,7 @@ class ApiAccessService:
                                            access_token=self.__get_access_token(),
                                            additional_headers={'Content-Type': 'application/json'})
 
-    def __panic_user_not_found(self):
+    def __panic_user_not_found(self, username):
         logging.error('Could not find user {}'.format(username))
         exit()
 
@@ -371,7 +355,7 @@ class CFApps:
         target = subprocess.run(['cf', 'target'], capture_output=True)
         self.bearer_token = token.stdout.strip().decode()
         [self.cf_api_endpoint, self.user_id, space_name] = self.__parse_target_output(target.stdout.decode())
-        space =  subprocess.run(['cf', 'space', space_name, '--guid'], capture_output=True)
+        space = subprocess.run(['cf', 'space', space_name, '--guid'], capture_output=True)
         self.space_guid = space.stdout.decode().strip()
 
     def app_by_name(self, app_name):
@@ -497,11 +481,9 @@ class CFApp:
         return './' + self.name
 
     def deploy(self):
-        subprocess.run(['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', 'xs-security.json'],
-            cwd=self.working_dir)
+        subprocess.run(['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', 'xs-security.json'], cwd=self.working_dir)
         subprocess.run(['mvn', 'clean', 'verify'], cwd=self.working_dir)
-        subprocess.run(['cf', 'push', '--vars-file','../vars.yml'],
-            cwd=self.working_dir)
+        subprocess.run(['cf', 'push', '--vars-file', '../vars.yml'], cwd=self.working_dir)
 
     def delete(self):
         subprocess.run(['cf', 'delete', '-f', self.name])
@@ -519,7 +501,6 @@ def is_logged_off():
     target = subprocess.run(['cf', 'target'], capture_output=True)
     return not target or target.stdout.decode().startswith('FAILED')
 
-
 if __name__ == '__main__':
     if (is_logged_off()):
         print('To run this script you must be logged into CF via "cf login"')
@@ -528,3 +509,5 @@ if __name__ == '__main__':
         import doctest
         doctest.testmod()
         unittest.main()
+        credentials = CredentialsProvider()
+
