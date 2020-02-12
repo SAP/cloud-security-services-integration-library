@@ -141,9 +141,9 @@ class TestTokenClient(SampleTest):
         return CFApp(name='java-tokenclient-usage', xsuaa_service_name='xsuaa-token-client')
     
     def test_hello_token_client(self):
-        response = self.perform_get_request_with_token('hello-token-client')
+        response = self.perform_get_request('hello-token-client')
+        self.assertEquals(response.status, 200, 'Expected HTTP status 200')
         body = response.body
-
         self.assertIsNotNone(body)
         self.assertRegex(body, "Access-Token: ")
         self.assertRegex(body, "Access-Token-Payload: ")
@@ -156,6 +156,9 @@ class TestJavaSecurity(SampleTest):
         CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security')
 
     def test_hello_java_security(self):
+        resp = self.perform_get_request('hello-java-security')
+        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+
         resp = self.perform_get_request_with_token('hello-java-security')
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
@@ -177,6 +180,9 @@ class TestSpringSecurity(SampleTest):
             app_router_name='approuter-spring-security-xsuaa-usage')
 
     def test_sayHello(self):
+        resp = self.perform_get_request('v1/sayHello')
+        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+
         resp = self.perform_get_request_with_token('v1/sayHello')
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
@@ -196,8 +202,12 @@ class TestJavaBuildpackApiUsage(SampleTest):
                     app_router_name='approuter-sap-java-buildpack-api-usage')
 
     def test_hello_token_servlet(self):
+        resp = self.perform_get_request('hello-token')
+        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+
         resp = self.perform_get_request_with_token('hello-token')
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+
         self.add_user_to_role('Buildpack_API_Viewer')
         resp = self.perform_get_request_with_token('hello-token')
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
@@ -210,14 +220,38 @@ class SpringSecurityBasicAuthTest(SampleTest):
         return CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic')
 
     def test_hello_token(self):
-        # TODO this always returns 200 OK even without assigned
+        # TODO this always returns HTTP status 200 OK even without assigned role
         # resp = self.perform_get_request('hello-token', username=self.credentials.username, password=self.credentials.password)
         # self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+
+        resp = self.perform_get_request('/hello-token')
+        self.assertEqual(resp.status, 401)
 
         self.add_user_to_role('BASIC_AUTH_API_Viewer')
         resp = self.perform_get_request('hello-token', username=self.credentials.username, password=self.credentials.password)
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
 
+
+class SpringWebfluxSecurityXsuaaUsage(SampleTest):
+
+    def get_app(self):
+        return CFApp(name='spring-webflux-security-xsuaa-usage', 
+            xsuaa_service_name='xsuaa-webflux', 
+            app_router_name='approuter-spring-webflux-security-xsuaa-usage')
+    
+    def test_say_hello(self):
+        resp = self.perform_get_request('/v1/sayHello')
+        self.assertEqual(resp.status, 401)
+
+        # TODO this always returns HTTP status 200 even without assigned role
+        # resp = self.perform_get_request_with_token('/v1/sayHello')
+        # self.assertEqual(resp.status, 403)
+
+        self.add_user_to_role('Webflux_API_Viewer')
+        resp = self.perform_get_request_with_token('/v1/sayHello')
+        self.assertEqual(resp.status, 200)
+
+        print(resp.body)
 
 class HttpUtil:
 
