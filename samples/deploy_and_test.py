@@ -38,7 +38,7 @@ from getpass import getpass
 logging.basicConfig(level=logging.DEBUG)
 
 
-class CredentialsProvider:
+class Credentials:
     def __init__(self):
         self.username = self.__get_env_variable('CFUSER', lambda: input("Username: "))
         self.password = self.__get_env_variable('CFPASSWORD', lambda: getpass())
@@ -50,7 +50,7 @@ class CredentialsProvider:
         return value
 
 
-credentials = CredentialsProvider()
+credentials = Credentials()
 
 
 class SampleTest(abc.ABC, unittest.TestCase):
@@ -223,16 +223,16 @@ class SpringSecurityBasicAuthTest(SampleTest):
         return CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic')
 
     def test_hello_token(self):
-        # TODO this always returns HTTP status 200 OK even without assigned role
-        # resp = self.perform_get_request('hello-token', username=self.credentials.username, password=self.credentials.password)
-        # self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
-
-        resp = self.perform_get_request('/hello-token')
+        resp = self.perform_get_request('hello-token')
         self.assertEqual(resp.status, 401)
+
+        resp = self.perform_get_request('hello-token', username=self.credentials.username, password=self.credentials.password)
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
         self.add_user_to_role('BASIC_AUTH_API_Viewer')
         resp = self.perform_get_request('hello-token', username=self.credentials.username, password=self.credentials.password)
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
 class SpringWebfluxSecurityXsuaaUsage(SampleTest):
@@ -243,18 +243,16 @@ class SpringWebfluxSecurityXsuaaUsage(SampleTest):
                      app_router_name='approuter-spring-webflux-security-xsuaa-usage')
 
     def test_say_hello(self):
-        resp = self.perform_get_request('/v1/sayHello')
+        resp = self.perform_get_request('v1/sayHello')
         self.assertEqual(resp.status, 401)
 
-        # TODO this always returns HTTP status 200 even without assigned role
-        # resp = self.perform_get_request_with_token('/v1/sayHello')
-        # self.assertEqual(resp.status, 403)
+        resp = self.perform_get_request_with_token('/v1/sayHello')
+        self.assertEqual(resp.status, 403)
 
         self.add_user_to_role('Webflux_API_Viewer')
-        resp = self.perform_get_request_with_token('/v1/sayHello')
-        self.assertEqual(resp.status, 200)
-
-        print(resp.body)
+        resp = self.perform_get_request_with_token('v1/sayHello')
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
 class HttpUtil:
@@ -550,4 +548,3 @@ if __name__ == '__main__':
         import doctest
         doctest.testmod()
         unittest.main()
-        credentials = CredentialsProvider()
