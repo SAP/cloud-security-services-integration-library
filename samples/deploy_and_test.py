@@ -79,6 +79,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
             self.__api_access.delete()
 
     def add_user_to_role(self, role):
+        logging.info('Assigning role collection {} for user {}'.format(role, self.credentials.username))
         user = self.__get_api_access().get_user_by_username(self.credentials.username)
         user_id = user.get('id')
         resp = self.__get_api_access().add_user_to_group(user_id, role)
@@ -225,10 +226,11 @@ class SpringSecurityBasicAuthTest(SampleTest):
         resp = self.perform_get_request('/hello-token')
         self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
 
-        # TODO this fails. Ressource not scope protected?
-        # resp = self.perform_get_request('/hello-token', username=self.credentials.username, password=self.credentials.password)
-        # self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        resp = self.perform_get_request('/hello-token', username=self.credentials.username, password=self.credentials.password)
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
+    def test_hello_token_status_ok(self):
+        # second test needed because tokens are cached in application
         self.add_user_to_role('BASIC_AUTH_API_Viewer')
         resp = self.perform_get_request('/hello-token', username=self.credentials.username, password=self.credentials.password)
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
