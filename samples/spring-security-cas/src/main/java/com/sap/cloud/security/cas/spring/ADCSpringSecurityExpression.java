@@ -53,10 +53,10 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 
 		OidcUser user = (OidcUser)oauthAuth.getPrincipal();
 
-		OpenPolicyAgentRequest request = new OpenPolicyAgentRequest("readAll", user.getEmail()) // TODO update to getUserName()?
+		OpenPolicyAgentRequest request = new OpenPolicyAgentRequest("readAll", user.getGivenName()) // TODO update to getUserName()?
 						.withAction(action);
 		boolean isAuthorized = checkAuthorization(request);
-		logger.info("Has user {} authorization with policy '{}' and action '{}' ? {}", user.getEmail(), "readAll", action, isAuthorized);
+		logger.info("Has user {} authorization with policy '{}' and action '{}' ? {}", user.getGivenName(), "readAll", action, isAuthorized);
 
 		return isAuthorized;
 	}

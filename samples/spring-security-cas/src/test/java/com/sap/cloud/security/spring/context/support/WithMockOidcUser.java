@@ -1,0 +1,122 @@
+/*
+ * Copyright 2002-2014 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.sap.cloud.security.spring.context.support;
+
+import org.springframework.core.annotation.AliasFor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.test.context.support.*;
+import org.springframework.test.context.TestContext;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.lang.annotation.*;
+
+/**
+ * TODO: extract as library or contribute to spring security test
+ */
+
+/**
+ * When used with {@link WithSecurityContextTestExecutionListener} this annotation can be
+ * added to a test method to emulate running with a mocked user. In order to work with
+ * {@link MockMvc} The {@link SecurityContext} that is used will have the following
+ * properties:
+ *
+ * <ul>
+ * <li>The {@link SecurityContext} created with be that of
+ * {@link SecurityContextHolder#createEmptyContext()}</li>
+ * <li>It will be populated with an {@link OAuth2AuthenticationToken} that uses
+ * the username of either {@link #value()} or {@link #username()},
+ * {@link GrantedAuthority} that are specified by {@link #roles()}, and a password
+ * specified by {@link #password()}.
+ * </ul>
+ *
+ * @see WithUserDetails
+ *
+ * @author Nena Raab
+ */
+@Target({ ElementType.METHOD, ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
+@WithSecurityContext(factory = WithMockOidcUserSecurityContextFactory.class)
+public @interface WithMockOidcUser {
+	/**
+	 * Convenience mechanism for specifying the username. The default is "user". If
+	 * {@link #username()} is specified it will be used instead of {@link #value()}
+	 * @return
+	 */
+	String value() default "user";
+
+	/**
+	 * The username to be used. Note that {@link #value()} is a synonym for
+	 * {@link #username()}, but if {@link #username()} is specified it will take
+	 * precedence.
+	 * @return
+	 */
+	String username() default "";
+
+	/**
+	 * <p>
+	 * The scopes to use. The default is "openid". A {@link GrantedAuthority} will be created
+	 * for each value within roles. Each value in roles will automatically be prefixed
+	 * with "ROLE_". For example, the default will result in "ROLE_USER" being used.
+	 * </p>
+	 * <p>
+	 * If {@link #authorities()} is specified this property cannot be changed from the default.
+	 * </p>
+	 *
+	 * @return
+	 */
+	String[] roles() default {};
+
+	/**
+	 * <p>
+	 * The authorities to use. A {@link GrantedAuthority} will be created for each value.
+	 * </p>
+	 *
+	 * <p>
+	 * If this property is specified then {@link #roles()} is not used. This differs from
+	 * {@link #roles()} in that it does not prefix the values passed in automatically.
+	 * </p>
+	 *
+	 * @return
+	 */
+	String[] authorities() default { "openid" };
+
+	/**
+	 * The password to be used. The default is "password".
+	 * @return
+	 */
+	String password() default "password";
+
+	/**
+	 * The password to be used. The default is "clientId".
+	 * @return
+	 */
+	String clientId() default "clientId";
+
+	/**
+	 * Determines when the {@link SecurityContext} is setup. The default is before
+	 * {@link TestExecutionEvent#TEST_METHOD} which occurs during
+	 * {@link org.springframework.test.context.TestExecutionListener#beforeTestMethod(TestContext)}
+	 * @return the {@link TestExecutionEvent} to initialize before
+	 * @since 5.1
+	 */
+	@AliasFor(annotation = WithSecurityContext.class)
+	TestExecutionEvent setupBefore() default TestExecutionEvent.TEST_METHOD;
+}

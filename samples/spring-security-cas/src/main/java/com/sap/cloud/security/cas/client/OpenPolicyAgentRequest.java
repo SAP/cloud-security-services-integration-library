@@ -1,8 +1,6 @@
 package com.sap.cloud.security.cas.client;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,9 +12,8 @@ public class OpenPolicyAgentRequest {
 
     private Map<String, Object> input = new HashMap<>();
 
-    // TODO!!!! hard codes to user Alice
     public OpenPolicyAgentRequest(String policy, String uniqueUserId) {
-        input.put(USER, /*uniqueUserId +*/ "Alice_" + policy);
+        input.put(USER, uniqueUserId + "_" + policy);
     }
 
     public OpenPolicyAgentRequest withAction(String action) {

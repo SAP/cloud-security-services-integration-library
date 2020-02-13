@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 @EnableWebSecurity(debug = true)
 //@EnableOAuth2Sso
+// https://spring.io/guides/tutorials/spring-boot-oauth2/
+// https://www.baeldung.com/spring-security-openid-connect
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override

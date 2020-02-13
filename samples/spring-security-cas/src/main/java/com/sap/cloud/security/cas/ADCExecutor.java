@@ -32,6 +32,8 @@ public class ADCExecutor {
 
         adcProcess = pb.start();
 
+        LOGGER.info("started adc process");
+
         new Thread(new DumpInputRunnable(adcProcess, adcProcess.getInputStream())).start();
         new Thread(new DumpInputRunnable(adcProcess, adcProcess.getErrorStream())).start();
     }
