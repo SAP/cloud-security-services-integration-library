@@ -35,7 +35,7 @@ from getpass import getpass
 # This would only the run the test called 'test_hello_java_security'
 # inside the test class 'TestJavaSecurity' inside the deploy_and_test.py file.
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 class Credentials:
@@ -127,7 +127,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
             password=self.credentials.password)
 
     def __perform_get_request(self, path, access_token=None, additional_headers={}):
-        url = 'https://{}-{}.{}/{}'.format(
+        url = 'https://{}-{}.{}{}'.format(
             self.get_app().name,
             self.vars_parser.user_id,
             self.vars_parser.landscape_apps_domain,
@@ -144,7 +144,7 @@ class TestTokenClient(SampleTest):
         return CFApp(name='java-tokenclient-usage', xsuaa_service_name='xsuaa-token-client')
 
     def test_hello_token_client(self):
-        response = self.perform_get_request('hello-token-client')
+        response = self.perform_get_request('/hello-token-client')
         self.assertEquals(response.status, 200, 'Expected HTTP status 200')
         body = response.body
         self.assertIsNotNone(body)
@@ -156,21 +156,20 @@ class TestTokenClient(SampleTest):
 class TestJavaSecurity(SampleTest):
 
     def get_app(self):
-        CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security')
+        return CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security')
 
     def test_hello_java_security(self):
-        resp = self.perform_get_request('hello-java-security')
-        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+        resp = self.perform_get_request('/hello-java-security')
+        self.assertEquals(resp.status, 401, 'Expected HTTP status 401')
 
-        resp = self.perform_get_request_with_token('hello-java-security')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        resp = self.perform_get_request_with_token('/hello-java-security')
+        self.assertEquals(resp.status, 403, 'Expected HTTP status 403')
 
         self.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
-        resp = self.perform_get_request_with_token('hello-java-security')
-
+        resp = self.perform_get_request_with_token('/hello-java-security')
+        self.assertEquals(resp.status, 200, 'Expected HTTP status 200')
         xsappname = self.get_deployed_app().get_credentials_property('xsappname')
         expected_scope = xsappname + '.Read'
-
         self.assertIsNotNone(resp.body)
         self.assertRegex(resp.body, self.credentials.username, "Did not find username '{}' in response body".format(self.credentials.username))
         self.assertRegex(resp.body, expected_scope, "Expected to find scope '{}' in response body: ".format(expected_scope))
@@ -183,15 +182,15 @@ class TestSpringSecurity(SampleTest):
                      app_router_name='approuter-spring-security-xsuaa-usage')
 
     def test_sayHello(self):
-        resp = self.perform_get_request('v1/sayHello')
-        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+        resp = self.perform_get_request('/v1/sayHello')
+        self.assertEquals(resp.status, 401, 'Expected HTTP status 401')
 
-        resp = self.perform_get_request_with_token('v1/sayHello')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        resp = self.perform_get_request_with_token('/v1/sayHello')
+        self.assertEquals(resp.status, 403, 'Expected HTTP status 403')
 
         self.add_user_to_role('Viewer')
-        resp = self.perform_get_request_with_token('v1/sayHello')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        resp = self.perform_get_request_with_token('/v1/sayHello')
+        self.assertEquals(resp.status, 200, 'Expected HTTP status 200')
         xsappname = self.get_deployed_app().get_credentials_property('xsappname')
         self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
         json.loads(resp.body)
@@ -205,15 +204,15 @@ class TestJavaBuildpackApiUsage(SampleTest):
                      app_router_name='approuter-sap-java-buildpack-api-usage')
 
     def test_hello_token_servlet(self):
-        resp = self.perform_get_request('hello-token')
-        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+        resp = self.perform_get_request('/hello-token')
+        self.assertEquals(resp.status, 401, 'Expected HTTP status 401')
 
-        resp = self.perform_get_request_with_token('hello-token')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        resp = self.perform_get_request_with_token('/hello-token')
+        self.assertEquals(resp.status, 403, 'Expected HTTP status 403')
 
         self.add_user_to_role('Buildpack_API_Viewer')
-        resp = self.perform_get_request_with_token('hello-token')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        resp = self.perform_get_request_with_token('/hello-token')
+        self.assertEquals(resp.status, 200, 'Expected HTTP status 200')
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
@@ -223,15 +222,15 @@ class SpringSecurityBasicAuthTest(SampleTest):
         return CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic')
 
     def test_hello_token(self):
-        resp = self.perform_get_request('hello-token')
-        self.assertEqual(resp.status, 401)
+        resp = self.perform_get_request('/hello-token')
+        self.assertEquals(resp.status, 401, 'Expected HTTP status 401')
 
         resp = self.perform_get_request('hello-token', username=self.credentials.username, password=self.credentials.password)
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
         self.add_user_to_role('BASIC_AUTH_API_Viewer')
-        resp = self.perform_get_request('hello-token', username=self.credentials.username, password=self.credentials.password)
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        resp = self.perform_get_request('/hello-token', username=self.credentials.username, password=self.credentials.password)
+        self.assertEquals(resp.status, 200, 'Expected HTTP status 200')
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
@@ -243,15 +242,15 @@ class SpringWebfluxSecurityXsuaaUsage(SampleTest):
                      app_router_name='approuter-spring-webflux-security-xsuaa-usage')
 
     def test_say_hello(self):
-        resp = self.perform_get_request('v1/sayHello')
-        self.assertEqual(resp.status, 401)
+        resp = self.perform_get_request('/v1/sayHello')
+        self.assertEquals(resp.status, 401, 'Expected HTTP status 401')
 
         resp = self.perform_get_request_with_token('/v1/sayHello')
-        self.assertEqual(resp.status, 403)
+        self.assertEquals(resp.status, 403, 'Expected HTTP status 403')
 
         self.add_user_to_role('Webflux_API_Viewer')
-        resp = self.perform_get_request_with_token('v1/sayHello')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        resp = self.perform_get_request_with_token('/v1/sayHello')
+        self.assertEquals(resp.status, 200, 'Expected HTTP status 200')
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
