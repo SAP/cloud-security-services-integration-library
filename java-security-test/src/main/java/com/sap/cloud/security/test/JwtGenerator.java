@@ -102,8 +102,7 @@ public class JwtGenerator {
 	public JwtGenerator withClaimValue(String claimName, JsonObject object) {
 		assertClaimIsSupported(claimName);
 		try {
-			JSONObject wrappedObject = new JSONObject(object.toString());
-			jsonPayload.put(claimName, wrappedObject);
+			jsonPayload.put(claimName, object);
 		} catch (JSONException e) {
 			throw new JsonParsingException(e.getMessage());
 		}
