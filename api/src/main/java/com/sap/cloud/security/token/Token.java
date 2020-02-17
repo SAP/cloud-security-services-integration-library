@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Represents a JSON Web Token (JWT).
+ * Represents a JSON Web com.sap.cloud.security.token.Token (JWT).
  */
 public interface Token {
 
