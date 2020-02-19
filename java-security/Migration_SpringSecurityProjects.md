@@ -1,6 +1,10 @@
 # Migration Guide for Applications that use Spring Security and java-container-security
 
-This migration guide is a step-by-step guide explaining how to replace the SAP-internal Java Container Security Client library with this open-source version.
+This migration guide is a step-by-step guide explaining how to replace the following SAP-internal Java Container Security Client libraries
+- com.sap.xs2.security:java-container-security
+- com.sap.cloud.security.xsuaa:java-container-security  
+
+with this open-source version.
 
 ## Maven Dependencies
 To use the new [java-security](/java-security) client library the dependencies declared in maven `pom.xml` need to be updated.
@@ -8,6 +12,7 @@ To use the new [java-security](/java-security) client library the dependencies d
 First make sure you have the following dependencies defined in your pom.xml:
 
 ```xml
+<-- updated spring-security dependencies -->
 <dependency>
   <groupId>org.springframework.security.oauth</groupId>
   <artifactId>spring-security-oauth2</artifactId>
@@ -17,11 +22,6 @@ First make sure you have the following dependencies defined in your pom.xml:
   <groupId>org.springframework</groupId>
   <artifactId>spring-aop</artifactId>
   <version>4.3.25.RELEASE</version>
-</dependency>
-<dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-web</artifactId>
-    <version>5.2.3.RELEASE</version>
 </dependency>
 
 <-- new java-security dependencies -->
@@ -84,6 +84,7 @@ protected SAPOfflineTokenServicesCloud offlineTokenServices() {
 You might need to fix your java imports to get rid of the old import for the `SAPOfflineTokenServicesCloud` class.
 
 ### XML-based
+As you may have updated the 
 
 In case of XML-based Spring (Security) configuration you need to replace your current `SAPOfflineTokenServicesCloud` bean definition with that:
 
@@ -216,4 +217,10 @@ Now you can test the service manually in the browser using the `Postman` chrome 
 When your code compiles again you should first check that all your unit tests are running again. If you can test your
 application locally make sure that it is still working and finally test the application in cloud foundry.
 
+## Troubleshoot
+- org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line 51 in XML document from ServletContext resource [/WEB-INF/spring-security.xml] is invalid; nested exception is org.xml.sax.SAXParseException; lineNumber: 51; columnNumber: 118; cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'oauth:resource-server'.
+[Stackoverflow: no declaration can be found for element 'oauth:authorization-server'](https://stackoverflow.com/questions/32484988/the-matching-wildcard-is-strict-but-no-declaration-can-be-found-for-element-oa)
+
+## Issues
+In case you face issues to apply the migration steps feel free to open a Issue here on [Github.com](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new).
 
