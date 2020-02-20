@@ -19,17 +19,17 @@ import java.util.*;
 public class DefaultJsonObject implements JsonObject {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultJsonObject.class);
-	private final String jsonString;
+
 	private JSONObject jsonObject;
 
 	/**
 	 * Create an instance
-	 * 
+	 *
 	 * @param jsonString
 	 *            the content in json format that should be parsed.
 	 */
 	public DefaultJsonObject(String jsonString) {
-		this.jsonString = jsonString;
+		this.jsonObject = createJsonObject(jsonString);
 	}
 
 	@Override
@@ -163,15 +163,17 @@ public class DefaultJsonObject implements JsonObject {
 	}
 
 	private JSONObject getJsonObject() {
-		if (jsonObject == null) {
-			try {
-				jsonObject = new JSONObject(jsonString);
-			} catch (JSONException e) {
-				LOGGER.error("Given json string '{}' is not valid, error message: {}", jsonString, e.getMessage());
-				throw new JsonParsingException(e.getMessage());
-			}
-		}
 		return jsonObject;
+	}
+
+	private JSONObject createJsonObject(String jsonString) {
+		try {
+			JSONObject createdJsonObject = new JSONObject(jsonString);
+			return createdJsonObject;
+		} catch (JSONException e) {
+			LOGGER.error("Given json string '{}' is not valid, error message: {}", jsonString, e.getMessage());
+			throw new JsonParsingException(e.getMessage());
+		}
 	}
 
 }
