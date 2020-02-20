@@ -3,6 +3,8 @@ package com.sap.cloud.security.json;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.time.DateTimeException;
@@ -16,6 +18,7 @@ import java.util.*;
  */
 public class DefaultJsonObject implements JsonObject {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultJsonObject.class);
 	private final String jsonString;
 	private JSONObject jsonObject;
 
@@ -164,6 +167,7 @@ public class DefaultJsonObject implements JsonObject {
 			try {
 				jsonObject = new JSONObject(jsonString);
 			} catch (JSONException e) {
+				LOGGER.error("Given json string '{}' is not valid, error message: {}", jsonString, e.getMessage());
 				throw new JsonParsingException(e.getMessage());
 			}
 		}
