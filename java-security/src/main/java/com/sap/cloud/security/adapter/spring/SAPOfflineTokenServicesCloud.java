@@ -113,7 +113,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	@Override
 	public OAuth2Authentication loadAuthentication(@Nonnull String accessToken)
 			throws AuthenticationException, InvalidTokenException {
-		XsuaaToken token = checkAndCreateToken(accessToken);
+		// TODO IAS support
+		AccessToken token = checkAndCreateToken(accessToken);
 		Set<String> scopes = token.getScopes();
 		if (useLocalScopeAsAuthorities) {
 			scopes = xsuaaScopeConverter.convert(scopes);
@@ -122,7 +123,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		if (validationResult.isValid()) {
 			SecurityContext.setToken(token);
 			final AuthorizationRequest clientAuthentication = createAuthorizationRequest(token, scopes);
-			Authentication userAuthentication = null; // TODO 20.02.20 c5295400: no SAPUserDetails support. Using spring alternative?
+			Authentication userAuthentication = null; // TODO no SAPUserDetails support. Using spring
+														// alternative?
 			return new OAuth2Authentication(clientAuthentication.createOAuth2Request(), userAuthentication);
 		} else {
 			throw new InvalidTokenException(validationResult.getErrorDescription());
@@ -154,8 +156,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		return this;
 	}
 
-	private AuthorizationRequest createAuthorizationRequest(XsuaaToken token, Set<String> scopes) {
-		// TODO 20.02.20 c5295400: 'client_id' was used in original implementation instead of 'cid'
+	private AuthorizationRequest createAuthorizationRequest(AccessToken token, Set<String> scopes) {
+		// TODO 'client_id' was used in original implementation instead of 'cid'
 		String tokenClientId = token.getClaimAsString("client_id");
 		final AuthorizationRequest clientAuthentication = new AuthorizationRequest(tokenClientId, scopes);
 		clientAuthentication.setAuthorities(getAuthorities(scopes));
