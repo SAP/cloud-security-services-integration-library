@@ -3,7 +3,12 @@ package com.sap.cloud.security.adapter.spring;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.token.*;
+import com.sap.cloud.security.token.AccessToken;
+import com.sap.cloud.security.token.ScopeConverter;
+import com.sap.cloud.security.token.SecurityContext;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.XsuaaScopeConverter;
+import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
@@ -12,6 +17,7 @@ import com.sap.cloud.security.xsuaa.client.SpringOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.SpringOidcConfigurationService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
@@ -28,7 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This constructor requires a dependency to Spring oauth.
+ * This constructor requires a dependency to Spring-security oauth, which will be deprecated soon.
  *
  * <pre>
  * {@code
@@ -45,8 +51,20 @@ import java.util.stream.Collectors;
  * }
  * </pre>
  * 
- * By default it used Apache Rest Client for communicating with the OAuth2
- * Server.
+ * By default it used Apache Rest Client for communicating with the OAuth2 Server.<br>
+ *
+ * Spring Security framework initializes the {@link org.springframework.security.core.context.SecurityContext}
+ * with the {@code OAuth2Authentication} which is provided as part of {@link #loadAuthentication} method. <br>
+ * This gives you the following options:
+ * <li>
+ *     <ul>All Spring security features are supported that uses
+ *     {@link org.springframework.security.core.context.SecurityContext#getAuthentication()}</ul>
+ *     <ul>You can access the {@code Authentication} via {@link SecurityContextHolder#getContext()}
+ *     also within asynchronous threads.</ul>
+ *     <ul>You can access the {@code Token} via {@link SpringSecurityContext#getToken()}
+ *     also within asynchronous threads.</ul>
+ * </li>
+ *
  */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
@@ -114,24 +132,33 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			throws AuthenticationException, InvalidTokenException {
 		Token token = checkAndCreateToken(accessToken);
 
+		ValidationResult validationResult = tokenValidator.validate(token);
+
+		if (validationResult.isErroneous()) {
+			throw new InvalidTokenException(validationResult.getErrorDescription());
+		}
+
+		return getOAuth2Authentication(token, serviceConfiguration.getClientId(), getScopes(token));
+	}
+
+	static OAuth2Authentication getOAuth2Authentication(Token token, String clientId, Set<String> scopes) {
+
+		AuthorizationRequest authorizationRequest = new AuthorizationRequest(new HashMap<>(), null,
+				clientId, scopes.stream().collect(Collectors.toSet()), new HashSet<>(),
+				null,
+				true, "", "", null);
+		SecurityContext.setToken(token);
+		return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), null);
+	}
+
+	private Set<String> getScopes(Token token) {
 		Set<String> scopes = token instanceof AccessToken
 				? ((AccessToken) token).getScopes()
 				: Collections.emptySet();
 		if (useLocalScopeAsAuthorities) {
 			scopes = xsuaaScopeConverter.convert(scopes);
 		}
-		ValidationResult validationResult = tokenValidator.validate(token);
-
-		if (validationResult.isValid()) {
-			AuthorizationRequest authorizationRequest = new AuthorizationRequest(new HashMap<>(), null,
-					serviceConfiguration.getClientId(), scopes.stream().collect(Collectors.toSet()), new HashSet<>(),
-					null,
-					true, "", "", null);
-			SecurityContext.setToken(token);
-			return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), null);
-		} else {
-			throw new InvalidTokenException(validationResult.getErrorDescription());
-		}
+		return scopes;
 	}
 
 	@Override
