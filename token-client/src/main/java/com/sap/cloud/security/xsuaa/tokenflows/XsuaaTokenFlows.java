@@ -69,10 +69,7 @@ public class XsuaaTokenFlows implements Serializable {
 	 * @return the {@link UserTokenFlow} builder object.
 	 */
 	public UserTokenFlow userTokenFlow() {
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(oAuth2TokenService, endpointsProvider,
-				clientCredentials);
-
-		return new UserTokenFlow(oAuth2TokenService, refreshTokenFlow, endpointsProvider, clientCredentials);
+		return new UserTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
 	}
 
 	/**
