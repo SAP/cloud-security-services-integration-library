@@ -1,0 +1,16 @@
+{
+  "ext_attr": {
+    "enhancer": "XSUAA",
+    "serviceinstanceid": "brokerCloneServiceInstanceId",
+    "zdn": "uaa",
+    "acl": ["app1!t23"]
+  },
+  "scope": [
+    "openid", "testScope", "testApp.localScope"
+  ],
+  "empty_list" : [],
+  "grant_type": "urn:ietf:params:oauth:grant-type:saml2-bearer",
+  "email": "test@uaa.org",
+  "exp": 1542416800,
+  "az_attr": {"external_id":"abcd1234"}
+}

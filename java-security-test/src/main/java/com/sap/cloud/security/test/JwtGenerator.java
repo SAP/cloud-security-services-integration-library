@@ -4,19 +4,23 @@ import static com.sap.cloud.security.token.TokenClaims.AUDIENCE;
 import static com.sap.cloud.security.token.TokenHeader.ALGORITHM;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
+import com.sap.cloud.security.test.util.FileReaderUtil;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.security.*;
 import java.time.Instant;
 import java.util.*;
@@ -98,11 +102,12 @@ public class JwtGenerator {
 	 * @param object
 	 *            the string value of the claim to be set.
 	 * @return the builder object.
+	 * @throws JsonParsingException if the given object does not contain valid json.
 	 */
 	public JwtGenerator withClaimValue(String claimName, JsonObject object) {
 		assertClaimIsSupported(claimName);
 		try {
-			jsonPayload.put(claimName, object);
+			jsonPayload.put(claimName, new JSONObject(object.asJsonString()));
 		} catch (JSONException e) {
 			throw new JsonParsingException(e.getMessage());
 		}
@@ -121,6 +126,31 @@ public class JwtGenerator {
 	public JwtGenerator withClaimValues(String claimName, String... values) {
 		assertClaimIsSupported(claimName);
 		jsonPayload.put(claimName, values);
+		return this;
+	}
+
+	/**
+	 * This method will fill the token with all the claims that are defined inside the given
+	 * file. The file must contain a valid json object. The path to the file must be specified
+	 * like described in {@link FileReaderUtil#fileContentToString(java.lang.String)}.
+	 *
+	 * @throws JsonParsingException if the file does not contain a valid json object.
+	 * @throws IOException when the file cannot be read or does not exist.
+	 * @param claimsJsonFilePath the file path to the file containing the claims in json format.
+	 * @return the builder object.
+	 */
+	public JwtGenerator withClaimsFromFile(String claimsJsonFilePath) throws IOException {
+		String claimsJson = FileReaderUtil.fileContentToString(claimsJsonFilePath);
+		JSONObject claimsAsJsonObject;
+		try {
+			claimsAsJsonObject = new JSONObject(claimsJson);
+		} catch (JSONException e) {
+			throw new JsonParsingException(e.getMessage());
+		}
+		for (String key: claimsAsJsonObject.keySet()) {
+			Object value = claimsAsJsonObject.get(key);
+			jsonPayload.put(key, value);
+		}
 		return this;
 	}
 

@@ -117,4 +117,10 @@ public interface JsonObject {
 	 * @return the json properties as key-value map
 	 */
 	Map<String, String> getKeyValueMap();
+
+	/**
+	 * Returns the json object as a json string.
+	 * @return the json object in string representation.
+	 */
+	String asJsonString();
 }

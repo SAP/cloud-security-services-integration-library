@@ -110,6 +110,11 @@ public class DefaultJsonObject implements JsonObject {
 		return map;
 	}
 
+	@Override
+	public String asJsonString() {
+		return jsonObject.toString();
+	}
+
 	private List<JsonObject> convertToJsonObjects(JSONArray jsonArray) {
 		List<JsonObject> jsonObjects = new ArrayList<>();
 		jsonArray.forEach(jsonArrayObject -> {

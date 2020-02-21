@@ -23,9 +23,7 @@ public class RSAKeysTest {
 	@Test
 	public void fromKeyFiles() throws IOException, InvalidKeySpecException,
 			NoSuchAlgorithmException {
-		String privateKeyPath = IOUtils.resourceToURL("/privateKey.txt").getPath();
-		String publicKeyPath = IOUtils.resourceToURL("/publicKey.txt").getPath();
-		RSAKeys keys = RSAKeys.fromKeyFiles(publicKeyPath, privateKeyPath);
+		RSAKeys keys = RSAKeys.fromKeyFiles("/publicKey.txt", "/privateKey.txt");
 
 		assertThat(keys.getPrivate()).isNotNull();
 		assertThat(keys.getPublic()).isNotNull();
