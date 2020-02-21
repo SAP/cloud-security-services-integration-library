@@ -40,18 +40,15 @@ public class SecurityContextTest {
 	@Test
 	public void setTokenAndGet() {
 		SecurityContext.setToken(TOKEN);
-		Token token = SecurityContext.getToken();
-
-		assertThat(token).isEqualTo(TOKEN);
+		assertThat(SecurityContext.getToken()).isEqualTo(TOKEN);
 	}
 
 	@Test
 	public void clear_removesToken() {
 		SecurityContext.setToken(TOKEN);
 		SecurityContext.clearToken();
-		Token token = SecurityContext.getToken();
 
-		assertThat(token).isNull();
+		assertThat(SecurityContext.getToken()).isNull();
 	}
 
 	@Test
@@ -74,14 +71,13 @@ public class SecurityContextTest {
 	}
 
 	@Test
-	public void getAccessTokenReturnsNullIfTokenDoesNotImplementInterface()
-			throws ExecutionException, InterruptedException, IOException {
+	public void getAccessTokenReturnsNullIfTokenDoesNotImplementInterface() {
 		SecurityContext.setToken(TOKEN);
 		assertThat(SecurityContext.getAccessToken()).isNull();
 	}
 
 	@Test
-	public void getAccessTokenReturns() throws ExecutionException, InterruptedException, IOException {
+	public void getAccessTokenReturns() throws IOException {
 		AccessToken accessToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
 		SecurityContext.setToken(accessToken);
 		assertThat(SecurityContext.getAccessToken()).isEqualTo(accessToken);
