@@ -16,7 +16,10 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.SpringOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.SpringOidcConfigurationService;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
@@ -27,10 +30,7 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -143,18 +143,19 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		if (validationResult.isErroneous()) {
 			throw new InvalidTokenException(validationResult.getErrorDescription());
 		}
+		SecurityContext.setToken(token);
 
 		return getOAuth2Authentication(token, serviceConfiguration.getClientId(), getScopes(token));
 	}
 
 	static OAuth2Authentication getOAuth2Authentication(Token token, String clientId, Set<String> scopes) {
+		Authentication userAuthentication = null; // TODO no SAPUserDetails support. Using spring alternative?
 
-		AuthorizationRequest authorizationRequest = new AuthorizationRequest(new HashMap<>(), null,
-				clientId, scopes.stream().collect(Collectors.toSet()), new HashSet<>(),
-				null,
-				true, "", "", null);
-		SecurityContext.setToken(token);
-		return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), null);
+		final AuthorizationRequest authorizationRequest = new AuthorizationRequest(clientId, scopes);
+		authorizationRequest.setAuthorities(getAuthorities(scopes));
+		authorizationRequest.setApproved(true);
+
+		return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), userAuthentication);
 	}
 
 	private Set<String> getScopes(Token token) {
@@ -192,12 +193,17 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		return this;
 	}
 
+	private static Set<GrantedAuthority> getAuthorities(Collection<String> scopes) {
+		return scopes.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
+	}
+
 	private Token checkAndCreateToken(@Nonnull String accessToken) {
 		try {
 			switch (serviceConfiguration.getService()) {
 			case XSUAA:
 				return new XsuaaToken(accessToken).withScopeConverter(xsuaaScopeConverter);
 			default:
+				// TODO support IAS
 				throw new InvalidTokenException(
 						"AccessToken of service " + serviceConfiguration.getService() + " is not supported.");
 			}

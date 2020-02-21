@@ -17,6 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.*;
 import java.time.Instant;
 import java.util.*;
@@ -98,12 +101,13 @@ public class JwtGenerator {
 	 * @param object
 	 *            the string value of the claim to be set.
 	 * @return the builder object.
+	 * @throws JsonParsingException
+	 *             if the given object does not contain valid json.
 	 */
 	public JwtGenerator withClaimValue(String claimName, JsonObject object) {
 		assertClaimIsSupported(claimName);
 		try {
-			JSONObject wrappedObject = new JSONObject(object.toString());
-			jsonPayload.put(claimName, wrappedObject);
+			jsonPayload.put(claimName, new JSONObject(object.asJsonString()));
 		} catch (JSONException e) {
 			throw new JsonParsingException(e.getMessage());
 		}
@@ -122,6 +126,33 @@ public class JwtGenerator {
 	public JwtGenerator withClaimValues(String claimName, String... values) {
 		assertClaimIsSupported(claimName);
 		jsonPayload.put(claimName, values);
+		return this;
+	}
+
+	/**
+	 * This method will fill the token with all the claims that are defined inside
+	 * the given file. The file must contain a valid json object.
+	 *
+	 * @throws JsonParsingException
+	 *             if the file does not contain a valid json object.
+	 * @throws IOException
+	 *             when the file cannot be read or does not exist.
+	 * @param claimsJsonFilePath
+	 *            the file path to the file containing the claims in json format.
+	 * @return the builder object.
+	 */
+	public JwtGenerator withClaimsFromFile(String claimsJsonFilePath) throws IOException {
+		String claimsJson = new String(Files.readAllBytes(Paths.get(claimsJsonFilePath)));
+		JSONObject claimsAsJsonObject;
+		try {
+			claimsAsJsonObject = new JSONObject(claimsJson);
+		} catch (JSONException e) {
+			throw new JsonParsingException(e.getMessage());
+		}
+		for (String key : claimsAsJsonObject.keySet()) {
+			Object value = claimsAsJsonObject.get(key);
+			jsonPayload.put(key, value);
+		}
 		return this;
 	}
 
