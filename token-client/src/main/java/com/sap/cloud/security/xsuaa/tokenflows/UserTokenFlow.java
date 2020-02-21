@@ -32,8 +32,6 @@ import com.sap.xsa.security.container.XSTokenRequest;
  */
 public class UserTokenFlow {
 
-	private static final String UAA_USER_SCOPE = "uaa.user";
-	private static final String SCOPE_CLAIM = "scope";
 	private static final String AUTHORITIES = "authorities";
 
 	private XsuaaTokenFlowRequest request;
@@ -146,12 +144,6 @@ public class UserTokenFlow {
 					"User token not set. Make sure to have called the token() method on UserTokenFlow builder.");
 		}
 
-		boolean isUserToken = hasScope(token, UAA_USER_SCOPE);
-		if (!isUserToken) {
-			throw new IllegalStateException(
-					"JWT token does not include scope 'uaa.user'. Only user tokens can be exchanged for another user token.");
-		}
-
 		if (!request.isValid()) {
 			throw new IllegalArgumentException(
 					"User token flow request is not valid. Make sure all mandatory fields are set.");
@@ -223,30 +215,6 @@ public class UserTokenFlow {
 			throw new TokenFlowException(
 					String.format("Error requesting token with grant_type 'user_token': %s", e.getMessage()), e);
 		}
-	}
-
-	/**
-	 * Checks if a given scope is contained inside the given token.
-	 *
-	 * @param token
-	 *            - the token to check the scope for.
-	 * @param scope
-	 *            - the scope to check for.
-	 * @return {@code true} if the scope is contained, {@code false} otherwise.
-	 */
-	private boolean hasScope(String token, String scope) {
-		String claims = new Base64JwtDecoder().decode(token).getPayload();
-		try {
-			JSONObject rootObject = new JSONObject(claims);
-			JSONArray scopesArray = rootObject.getJSONArray(SCOPE_CLAIM);
-			for (Iterator scopes = scopesArray.iterator(); scopes.hasNext();)
-				if (scopes.next().equals(scope)) {
-					return true;
-				}
-		} catch (JSONException e) {
-			return false;
-		}
-		return false;
 	}
 
 	@Nullable

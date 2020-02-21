@@ -120,17 +120,6 @@ public class UserTokenFlowTest {
 	}
 
 	@Test
-	public void execute_throwsIfTokenDoesNotContainUaaUserScope() {
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow,
-					endpointsProvider, clientCredentials)
-							.token(new JwtGenerator().getToken().getTokenValue()) // contains no uaa.user scope
-							.execute();
-		}).isInstanceOf(IllegalStateException.class)
-				.hasMessageContaining("JWT token does not include scope 'uaa.user'");
-	}
-
-	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		when(mockTokenService
 				.retrieveAccessTokenViaJwtBearerTokenGrant(eq(TOKEN_ENDPOINT_URI),
