@@ -2,12 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.4.6 
-- [java-security] Provides with SpringSecurityContext` an alternative way of accessing jwt tokens for Spring applications in asynchronous threads.
+## 2.5.0
+- [java-security-test] `JwtGenerator.withClaimsFromFile` accepts claims from a file.
+- [java-security] Provides with `SpringSecurityContext` an alternative way of accessing jwt tokens for Spring applications in asynchronous threads.
 - [token-client] The `UserTokenFlow` has used the "user_token" grant type together with the "refresh_token" grant type in order to do the token exchange.
 After the consumption of UAA 4.27 we can adapt the grant type "urn:ietf:params:oauth:grant-type:jwt-bearer". 
 This reduces the round trips to the XSUAA from 2 to 1. Further, it eliminates the need for the user to have scope "uaa.user". The feature flag `xsuaa.userTokenFlow.useJwtBearer` has become obsolete. 
-
 
 ## 2.4.5
 - [java-security] Initial / released version of the new plain Java security libraries as documented [here](/README.md#token-validation-for-java-applications).
