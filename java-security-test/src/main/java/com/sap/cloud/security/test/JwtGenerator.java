@@ -4,16 +4,13 @@ import static com.sap.cloud.security.token.TokenClaims.AUDIENCE;
 import static com.sap.cloud.security.token.TokenHeader.ALGORITHM;
 
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
-import com.sap.cloud.security.test.util.FileReaderUtil;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -21,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.*;
 import java.time.Instant;
 import java.util.*;
@@ -132,9 +131,7 @@ public class JwtGenerator {
 
 	/**
 	 * This method will fill the token with all the claims that are defined inside
-	 * the given file. The file must contain a valid json object. The path to the
-	 * file must be specified like described in
-	 * {@link FileReaderUtil#fileContentToString(java.lang.String)}.
+	 * the given file. The file must contain a valid json object.
 	 *
 	 * @throws JsonParsingException
 	 *             if the file does not contain a valid json object.
@@ -145,7 +142,7 @@ public class JwtGenerator {
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaimsFromFile(String claimsJsonFilePath) throws IOException {
-		String claimsJson = FileReaderUtil.fileContentToString(claimsJsonFilePath);
+		String claimsJson = new String(Files.readAllBytes(Paths.get(claimsJsonFilePath)));
 		JSONObject claimsAsJsonObject;
 		try {
 			claimsAsJsonObject = new JSONObject(claimsJson);

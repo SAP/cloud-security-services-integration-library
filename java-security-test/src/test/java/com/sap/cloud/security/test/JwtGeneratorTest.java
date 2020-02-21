@@ -57,7 +57,9 @@ public class JwtGeneratorTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		keys = RSAKeys.fromKeyFiles("/publicKey.txt", "/privateKey.txt");
+		String publicKeyPath = getPathToResourcesFile("/publicKey.txt");
+		String privateKeyPath = getPathToResourcesFile("/privateKey.txt");
+		keys = RSAKeys.fromKeyFiles(publicKeyPath, privateKeyPath);
 	}
 
 	@Before
@@ -227,7 +229,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void loadClaimsFromFile_containsStringClaims() throws IOException {
-		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
+		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.EMAIL)).isEqualTo("test@uaa.org");
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE))
@@ -236,14 +238,14 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void loadClaimsFromFile_containsExpirationClaim() throws IOException {
-		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
+		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
 
 		assertThat(token.getExpiration()).isEqualTo(Instant.ofEpochSecond(1542416800));
 	}
 
 	@Test
 	public void loadClaimsFromFile_containsJsonObjectClaims() throws IOException {
-		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
+		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
 
 		JsonObject externalAttributes = token.getClaimAsJsonObject("ext_attr");
 
@@ -254,7 +256,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void loadClaimsFromFile_containsListClaims() throws IOException {
-		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
+		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
 
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
 				.containsExactly("openid", "testScope", "testApp.localScope");
@@ -338,6 +340,10 @@ public class JwtGeneratorTest {
 
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isTrue();
+	}
+
+	private static String getPathToResourcesFile(String filePathInResources) throws IOException {
+		return IOUtils.resourceToURL(filePathInResources).getPath();
 	}
 
 }

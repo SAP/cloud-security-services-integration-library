@@ -1,8 +1,8 @@
 package com.sap.cloud.security.test;
 
-import com.sap.cloud.security.test.util.FileReaderUtil;
-
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -19,9 +19,13 @@ public class RSAKeys {
 
 	private final KeyPair keyPair;
 
+	private RSAKeys(KeyPair keyPair) {
+		this.keyPair = keyPair;
+	}
+
 	/**
 	 * Generates a random RSA keypair.
-	 * 
+	 *
 	 * @return the instance.
 	 */
 	public static RSAKeys generate() {
@@ -30,10 +34,8 @@ public class RSAKeys {
 	}
 
 	/**
-	 * Creates an instance with the given key pair. The path to the key files must
-	 * be specified like described here
-	 * {@link FileReaderUtil#fileContentToString(java.lang.String)}. For more
-	 * information see {@link RSAKeys#loadPublicKey(String)} and
+	 * Creates an instance with the given key pair. For more information see
+	 * {@link RSAKeys#loadPublicKey(String)} and
 	 * {@link RSAKeys#loadPrivateKey(String)}.
 	 *
 	 * @param publicKeyPath
@@ -56,31 +58,8 @@ public class RSAKeys {
 	}
 
 	/**
-	 *
-	 * @return the public key of the pair.
-	 */
-	public PublicKey getPublic() {
-		return keyPair.getPublic();
-	}
-
-	/**
-	 *
-	 * @return the private key of the pair.
-	 */
-	public PrivateKey getPrivate() {
-		return keyPair.getPrivate();
-	}
-
-	private RSAKeys(KeyPair keyPair) {
-		this.keyPair = keyPair;
-	}
-
-	/**
-	 * Loads the public key from the given file. The path to the key file must be
-	 * specified like described here
-	 * {@link FileReaderUtil#fileContentToString(java.lang.String)}. The key is
-	 * expected to be encoded according to the X.509 standard and in base64 format
-	 * (pem).
+	 * Loads the public key from the given file. The key is expected to be encoded
+	 * according to the X.509 standard and in base64 format (pem).
 	 *
 	 * @param publicKeyPath
 	 *            the path to the key file.
@@ -101,10 +80,8 @@ public class RSAKeys {
 	}
 
 	/**
-	 * Loads the private key from the given file. The path to the key file must be
-	 * specified like described here
-	 * {@link FileReaderUtil#fileContentToString(java.lang.String)}. The key is
-	 * expected to be according to PKCS #8 standard and in base64 format (pem).
+	 * Loads the private key from the given file. The key is expected to be
+	 * according to PKCS #8 standard and in base64 format (pem).
 	 *
 	 * @param privateKeyPath
 	 *            the path to the key file.
@@ -129,7 +106,7 @@ public class RSAKeys {
 	}
 
 	private static String readFileAndReplaceBeginEnd(String filePath) throws IOException {
-		String content = FileReaderUtil.fileContentToString(filePath);
+		String content = new String(Files.readAllBytes(Paths.get(filePath)));
 		String newLinesRemoved = content.replaceAll("\\r|\\n", "");
 		return newLinesRemoved.replaceAll(KEY_BEGIN_END_REGEX, "");
 	}
@@ -140,6 +117,22 @@ public class RSAKeys {
 		} catch (NoSuchAlgorithmException e) {
 			throw new UnsupportedOperationException(e);
 		}
+	}
+
+	/**
+	 *
+	 * @return the public key of the pair.
+	 */
+	public PublicKey getPublic() {
+		return keyPair.getPublic();
+	}
+
+	/**
+	 *
+	 * @return the private key of the pair.
+	 */
+	public PrivateKey getPrivate() {
+		return keyPair.getPrivate();
 	}
 
 }
