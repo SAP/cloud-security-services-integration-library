@@ -117,7 +117,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 			URI jkuUri = oidcConfigurationService
 					.getOrRetrieveEndpoints(discoveryUri)
 					.getJwksUri();
-			if(jkuUri != null) {
+			if (jkuUri != null) {
 				return jkuUri.toString();
 			}
 		}

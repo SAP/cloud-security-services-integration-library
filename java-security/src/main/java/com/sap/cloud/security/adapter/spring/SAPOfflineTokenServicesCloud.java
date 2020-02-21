@@ -34,7 +34,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * This constructor requires a dependency to Spring-security oauth, which will be deprecated soon.
+ * This constructor requires a dependency to Spring-security oauth, which will
+ * be deprecated soon.
  *
  * <pre>
  * {@code
@@ -51,19 +52,24 @@ import java.util.stream.Collectors;
  * }
  * </pre>
  * 
- * By default it used Apache Rest Client for communicating with the OAuth2 Server.<br>
+ * By default it used Apache Rest Client for communicating with the OAuth2
+ * Server.<br>
  *
- * Spring Security framework initializes the {@link org.springframework.security.core.context.SecurityContext}
- * with the {@code OAuth2Authentication} which is provided as part of {@link #loadAuthentication} method. <br>
+ * Spring Security framework initializes the
+ * {@link org.springframework.security.core.context.SecurityContext} with the
+ * {@code OAuth2Authentication} which is provided as part of
+ * {@link #loadAuthentication} method. <br>
  * This gives you the following options:
- * <li>
- *     <ul>All Spring security features are supported that uses
- *     {@link org.springframework.security.core.context.SecurityContext#getAuthentication()}</ul>
- *     <ul>You can access the {@code Authentication} via {@link SecurityContextHolder#getContext()}
- *     also within asynchronous threads.</ul>
- *     <ul>You can access the {@code Token} via {@link SpringSecurityContext#getToken()}
- *     also within asynchronous threads.</ul>
- * </li>
+ * <ul>
+ * <li>All Spring security features are supported that uses
+ * {@link org.springframework.security.core.context.SecurityContext#getAuthentication()}</li>
+ * <li>You can access the {@code Authentication} via
+ * {@link SecurityContextHolder#getContext()} also within asynchronous
+ * threads.</li>
+ * <li>You can access the {@code Token} via
+ * {@link SpringSecurityContext#getToken()} also within asynchronous
+ * threads.</li>
+ * </ul>
  *
  */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
