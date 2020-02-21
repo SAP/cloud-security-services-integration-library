@@ -23,7 +23,7 @@ The Resource owner password credentials (i.e., username and password) can be use
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.4.6</version>
+    <version>2.5.0</version>
 </dependency>
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
@@ -57,7 +57,7 @@ The `DefaultOAuth2TokenService` can also be instantiated with a custom `Closeabl
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.4.6</version>
+    <version>2.5.0</version>
 </dependency>
 ```
 
@@ -80,7 +80,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.4.6</version>
+    <version>2.5.0</version>
 </dependency>
 ```
 
