@@ -2,7 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.4.5 
+## 2.4.6 
+- [java-security]  Provides with SpringSecurityContext` an alternative way of accessing jwt tokens for Spring applications in asynchronous threads.
+
+## 2.4.5
 - [java-security] Initial / released version of the new plain Java security libraries as documented [here](/README.md#token-validation-for-java-applications).
 
 ## 2.3.2
