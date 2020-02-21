@@ -10,7 +10,6 @@ import java.util.Set;
  * information about the user but has information about the authorities
  * (scopes).
  */
-
 public interface AccessToken extends Token {
 
 	/**
