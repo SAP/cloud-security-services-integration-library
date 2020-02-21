@@ -3,7 +3,6 @@ package com.sap.cloud.security.token;
 import org.mockito.Mockito;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.GregorianCalendar;
 
 import static org.mockito.Mockito.when;
