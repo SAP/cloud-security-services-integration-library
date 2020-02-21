@@ -196,6 +196,20 @@ class TestSpringSecurity(SampleTest):
         self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
         json.loads(resp.body)
 
+    #def test_tokenFlows(self):
+        #resp = self.perform_get_request_with_token('/v2/sayHello')
+        #self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+
+        #resp = self.perform_get_request_with_token('/v3/requestClientCredentialsToken')
+        #self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+
+        #resp = self.perform_get_request_with_token('/v3/requestUserToken')
+        #self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+
+        #pathWithRefreshToken = '/v3/requestRefreshToken/' + resp.body
+        #resp = self.perform_get_request_with_token(pathWithRefreshToken)
+        #self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+
 
 class TestJavaBuildpackApiUsage(SampleTest):
 
