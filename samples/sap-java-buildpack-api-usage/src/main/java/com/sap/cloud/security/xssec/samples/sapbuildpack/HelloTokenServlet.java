@@ -40,17 +40,17 @@ public class HelloTokenServlet extends HttpServlet {
 
 		try {
 			response.getWriter().append("Client ID: ").append("" + userInfo.getClientId());
-		response.getWriter().append("\n");
+			response.getWriter().append("\n");
 			response.getWriter().append("Email: ").append("" + userInfo.getEmail());
-		response.getWriter().append("\n");
+			response.getWriter().append("\n");
 			response.getWriter().append("Family Name: ").append("" + userInfo.getFamilyName());
-		response.getWriter().append("\n");
+			response.getWriter().append("\n");
 			response.getWriter().append("First Name: ").append("" + userInfo.getGivenName());
-		response.getWriter().append("\n");
+			response.getWriter().append("\n");
 			response.getWriter().append("OAuth Grant Type: ").append("" + userInfo.getGrantType());
-		response.getWriter().append("\n");
+			response.getWriter().append("\n");
 			response.getWriter().append("OAuth Token: ").append("" + userInfo.getAppToken());
-		response.getWriter().append("\n");
+			response.getWriter().append("\n");
 
 		} catch (XSUserInfoException e) {
 			e.printStackTrace(response.getWriter());
