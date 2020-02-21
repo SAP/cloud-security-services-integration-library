@@ -102,7 +102,8 @@ public class JwtGenerator {
 	 * @param object
 	 *            the string value of the claim to be set.
 	 * @return the builder object.
-	 * @throws JsonParsingException if the given object does not contain valid json.
+	 * @throws JsonParsingException
+	 *             if the given object does not contain valid json.
 	 */
 	public JwtGenerator withClaimValue(String claimName, JsonObject object) {
 		assertClaimIsSupported(claimName);
@@ -130,13 +131,17 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * This method will fill the token with all the claims that are defined inside the given
-	 * file. The file must contain a valid json object. The path to the file must be specified
-	 * like described in {@link FileReaderUtil#fileContentToString(java.lang.String)}.
+	 * This method will fill the token with all the claims that are defined inside
+	 * the given file. The file must contain a valid json object. The path to the
+	 * file must be specified like described in
+	 * {@link FileReaderUtil#fileContentToString(java.lang.String)}.
 	 *
-	 * @throws JsonParsingException if the file does not contain a valid json object.
-	 * @throws IOException when the file cannot be read or does not exist.
-	 * @param claimsJsonFilePath the file path to the file containing the claims in json format.
+	 * @throws JsonParsingException
+	 *             if the file does not contain a valid json object.
+	 * @throws IOException
+	 *             when the file cannot be read or does not exist.
+	 * @param claimsJsonFilePath
+	 *            the file path to the file containing the claims in json format.
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaimsFromFile(String claimsJsonFilePath) throws IOException {
@@ -147,7 +152,7 @@ public class JwtGenerator {
 		} catch (JSONException e) {
 			throw new JsonParsingException(e.getMessage());
 		}
-		for (String key: claimsAsJsonObject.keySet()) {
+		for (String key : claimsAsJsonObject.keySet()) {
 			Object value = claimsAsJsonObject.get(key);
 			jsonPayload.put(key, value);
 		}

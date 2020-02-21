@@ -14,15 +14,18 @@ import java.util.Optional;
 public class FileReaderUtil {
 
 	/**
-	 * Loads the content of the file with the specified path.
-	 * The path can either be specified relative to the current directory or as an absolute path.
-	 * If it is an absolute path it will try to load the content from resources, e.g.
-	 * {@code fileContentToString("/test.txt")} would load the file test.txt inside the resources directory.
-	 * If it is not absolute it tries to load the file relative to the current directory.
+	 * Loads the content of the file with the specified path. The path can either be
+	 * specified relative to the current directory or as an absolute path. If it is
+	 * an absolute path it will try to load the content from resources, e.g.
+	 * {@code fileContentToString("/test.txt")} would load the file test.txt inside
+	 * the resources directory. If it is not absolute it tries to load the file
+	 * relative to the current directory.
 	 *
-	 * @param filePath the path to the file.
+	 * @param filePath
+	 *            the path to the file.
 	 * @return the content of the file as string
-	 * @throws IOException if the file cannot be read.
+	 * @throws IOException
+	 *             if the file cannot be read.
 	 */
 	public static String fileContentToString(String filePath) throws IOException {
 		Path path = Paths.get(filePath);

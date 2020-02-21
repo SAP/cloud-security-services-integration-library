@@ -222,7 +222,7 @@ public class JwtGeneratorTest {
 		File emptyFile = temporaryFolder.newFile("empty");
 
 		assertThatThrownBy(() -> cut.withClaimsFromFile(emptyFile.getPath()).createToken())
-			.isInstanceOf(JsonParsingException.class);
+				.isInstanceOf(JsonParsingException.class);
 	}
 
 	@Test
@@ -230,7 +230,8 @@ public class JwtGeneratorTest {
 		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.EMAIL)).isEqualTo("test@uaa.org");
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE)).isEqualTo("urn:ietf:params:oauth:grant-type:saml2-bearer");
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE))
+				.isEqualTo("urn:ietf:params:oauth:grant-type:saml2-bearer");
 	}
 
 	@Test

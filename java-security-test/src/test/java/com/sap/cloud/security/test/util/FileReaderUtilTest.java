@@ -14,7 +14,8 @@ public class FileReaderUtilTest {
 	private final String expectedFileContent;
 
 	public FileReaderUtilTest() throws IOException {
-		expectedFileContent = IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8);;
+		expectedFileContent = IOUtils.resourceToString("/vcap.json", StandardCharsets.UTF_8);
+		;
 	}
 
 	@Test
