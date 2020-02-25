@@ -108,14 +108,6 @@ public class InitializeSpringSecurityContextTest {
 		Assert.assertEquals(callCountAfterFirstCall, XsuaaRequestDispatcher.getCallCount());
 	}
 
-	@Test(expected = JwtException.class)
-	public void missingJkuFails() {
-		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
-				.setJwtHeaderKeyId("legacy-token-key").setJku(null).getToken().getTokenValue();
-
-		jwtDecoder.decode(jwt);
-	}
-
 	@Test(expected = JwtValidationException.class)
 	// An error occurred while attempting to decode the Jwt: Jwt expired at ...
 	public void decodeExpiredToken_raisesValidationException() {
