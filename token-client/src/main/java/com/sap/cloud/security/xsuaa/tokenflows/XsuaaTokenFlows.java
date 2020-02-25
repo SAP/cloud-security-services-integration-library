@@ -60,9 +60,7 @@ public class XsuaaTokenFlows implements Serializable {
 	}
 
 	/**
-	 * Creates a new User Token Flow builder object. The token passed needs to
-	 * contain the scope {@code uaa.user}, otherwise an exception will be thrown
-	 * when the flow is executed. <br>
+	 * Creates a new User Token Flow builder object.
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
 	 * 

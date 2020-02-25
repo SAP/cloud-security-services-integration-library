@@ -149,7 +149,6 @@ OAuth2TokenResponse clientCredentialsToken = tokenFlows.passwordTokenFlow()
 
 
 Make sure to read the API documentation of the `XsuaaTokenFlows` API, to understand what the individual token flows' parameters are for.
-Also note, that the **user token flow** requires an input token that has the scope `uaa.user` to succeed.
 
 
 ## Samples

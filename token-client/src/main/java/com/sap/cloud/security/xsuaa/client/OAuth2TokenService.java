@@ -42,8 +42,7 @@ public interface OAuth2TokenService {
 	 *            the client id and secret of the OAuth client, the recipient of the
 	 *            token.
 	 * @param token
-	 *            the user bearer token, that represents an authenticated user that
-	 *            must have uaa.user scope.
+	 *            the user bearer token, that represents an authenticated user.
 	 * @param subdomain
 	 *            optionally indicates what Identity Zone this request goes to by
 	 *            supplying a subdomain (tenant).

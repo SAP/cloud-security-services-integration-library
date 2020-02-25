@@ -123,8 +123,7 @@ public class UserTokenFlow {
 	 *             - in case not all mandatory fields of the token flow request have
 	 *             been set.
 	 * @throws IllegalStateException
-	 *             - in case the user token has not been set or does not include
-	 *             scope 'uaa.user'
+	 *             - in case the user token has not been set
 	 */
 	private void checkRequest(XSTokenRequest request) throws IllegalArgumentException {
 		if (token == null) {
