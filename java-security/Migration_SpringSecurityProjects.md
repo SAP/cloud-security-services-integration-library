@@ -109,7 +109,7 @@ Or
 <sec:intercept-url pattern="/rest/addressbook/deletedata" access="#oauth2.hasScope('Delete')" method="GET" />
 ```
 
-## Fetch infos from Token - Part 1
+## Fetch basic infos from Token
 You may have code parts that requests information from the access token, like the user's name, its tenant, and so on. So, look up your code to find its usage.
 
 
@@ -141,8 +141,8 @@ GrantType grantType = token.getGrantType();
 
 > Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
 
-## Fetch infos from Token - Part 2
-When you're done with the first part and need further information from the token you can use `XSUserInfoAdapter` in order to access the  deprecated methods.
+## Fetch further `XSUserInfo` infos from Token
+When you're done with the first part and need further information from the token you can use `XSUserInfoAdapter` in order to access the remaining methods exposed by [`XSUserInfo`](/api/src/main/java/com/sap/xsa/security/container/XSUserInfo.java) Interface.
 
 ```java
 try {
