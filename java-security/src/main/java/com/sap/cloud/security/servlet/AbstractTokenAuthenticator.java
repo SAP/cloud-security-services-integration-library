@@ -53,7 +53,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 				return unauthenticated(httpResponse, "Authorization header is missing.");
 			}
 		}
-		return TokenAuthenticationResult.createUnauthenticated("Could not process request " + request);
+		return TokenAuthenticatorResult.createUnauthenticated("Could not process request " + request);
 	}
 
 	public AbstractTokenAuthenticator withHttpClient(CloseableHttpClient httpClient) {
@@ -115,11 +115,11 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		} catch (IOException e) {
 			logger.error("Could not send unauthenticated response!", e);
 		}
-		return TokenAuthenticationResult.createUnauthenticated(message);
+		return TokenAuthenticatorResult.createUnauthenticated(message);
 	}
 
 	protected TokenAuthenticationResult authenticated(Token token) {
-		return TokenAuthenticationResult.createAuthenticated(Collections.emptyList(), token);
+		return TokenAuthenticatorResult.createAuthenticated(Collections.emptyList(), token);
 	}
 
 	private boolean headerIsAvailable(String authorizationHeader) {

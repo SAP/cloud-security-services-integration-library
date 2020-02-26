@@ -1,12 +1,10 @@
 package com.sap.cloud.security.test;
 
-import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySet;
-import com.sap.cloud.security.xsuaa.jwk.JsonWebKeySetFactory;
-import com.sap.cloud.security.xsuaa.jwt.JwtSignatureAlgorithm;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -30,6 +28,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.ApplicationServerOptions.forService;
 import static org.assertj.core.api.Assertions.assertThat;

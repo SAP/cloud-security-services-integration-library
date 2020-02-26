@@ -42,7 +42,8 @@ public class XsaJwtSignatureValidatorTest {
 		 *     "iss": "http://xsa-a272d86a-0f74-448c-93d1-6b78903d1543/UAA/oauth/token"
 		 * }
 		 */
-		xsaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaXsaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
+		xsaToken = new XsuaaToken(
+				IOUtils.resourceToString("/xsuaaXsaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
 
 		mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(mockConfiguration.getService()).thenReturn(Service.XSUAA);

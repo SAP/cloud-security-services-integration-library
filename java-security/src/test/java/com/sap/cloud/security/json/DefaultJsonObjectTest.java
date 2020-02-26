@@ -48,6 +48,11 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
+	public void createWithmalformedJsonString_throwsException() {
+		assertThatThrownBy(() -> new DefaultJsonObject("")).isInstanceOf(JsonParsingException.class);
+	}
+
+	@Test
 	public void getAsString_keyExists_returnsStringValue() {
 		assertThat(cut.getAsString(KEY_1)).isEqualTo(STRING_TEXT);
 	}
@@ -168,13 +173,6 @@ public class DefaultJsonObjectTest {
 	@Test
 	public void getJsonObjects_propertyExistsButIsNotAnArray_throwsException() {
 		assertThatThrownBy(() -> cut.getJsonObjects(KEY_1)).isInstanceOf(JsonParsingException.class);
-	}
-
-	@Test
-	public void getJsonObjects_malformedJson_throwsException() {
-		cut = new DefaultJsonObject("");
-
-		assertThatThrownBy(() -> cut.getJsonObject(KEY_1)).isInstanceOf(JsonParsingException.class);
 	}
 
 	private DefaultJsonObject createJsonParser(String key, Object value) {

@@ -1,7 +1,5 @@
 package com.sap.cloud.security.servlet;
 
-import com.sap.cloud.security.token.Token;
-
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 

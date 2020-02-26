@@ -2,21 +2,31 @@ package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.json.JsonObject;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
-import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.CombiningValidator;
+import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import org.apache.commons.io.IOUtils;
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import sun.security.rsa.RSAPublicKeyImpl;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -24,6 +34,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Base64;
+import java.util.List;
 import java.util.Properties;
 
 import static com.sap.cloud.security.config.Service.IAS;
@@ -41,10 +52,13 @@ public class JwtGeneratorTest {
 	private JwtGenerator cut;
 	private Properties originalSystemProperties;
 
+	@ClassRule
+	public static TemporaryFolder temporaryFolder = new TemporaryFolder(Paths.get(".").toFile());
+
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		String publicKeyPath = IOUtils.resourceToURL("/publicKey.txt").getPath();
-		String privateKeyPath = IOUtils.resourceToURL("/privateKey.txt").getPath();
+		String publicKeyPath = getPathToResourcesFile("/publicKey.txt");
+		String privateKeyPath = getPathToResourcesFile("/privateKey.txt");
 		keys = RSAKeys.fromKeyFiles(publicKeyPath, privateKeyPath);
 	}
 
@@ -173,6 +187,83 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
+	public void withClaimValue_asJsonObjectContainingString() {
+		Token token = cut.withClaimValue("key1", new DefaultJsonObject("{\"key2\" : \"abc\"}"))
+				.createToken();
+
+		JsonObject object = token.getClaimAsJsonObject("key1");
+		assertThat(object).isNotNull();
+		assertThat(object.getAsString("key2")).isEqualTo("abc");
+	}
+
+	@Test
+	public void withClaimValue_asJsonObjectContainingJsonObject() {
+		Token token = cut.withClaimValue("key1", new DefaultJsonObject("{\"key2\" : {\"key3\": \"theValue\"}}"))
+				.createToken();
+
+		JsonObject object = token.getClaimAsJsonObject("key1");
+		assertThat(object).isNotNull();
+		JsonObject innerObject = object.getJsonObject("key2");
+		assertThat(innerObject).isNotNull();
+		assertThat(innerObject.getAsString("key3")).isEqualTo("theValue");
+	}
+
+	@Test
+	public void withClaimValue_asJsonObjectContainingList() {
+		Token token = cut.withClaimValue("key1", new DefaultJsonObject("{\"key2\": [\"a\", \"b\"]}"))
+				.createToken();
+
+		JsonObject object = token.getClaimAsJsonObject("key1");
+		assertThat(object).isNotNull();
+		List<String> list = object.getAsList("key2", String.class);
+		assertThat(list).containsExactly("a", "b");
+	}
+
+	@Test
+	public void loadClaimsFromFile_doesNotContainValidJson_throwsException() throws IOException {
+		File emptyFile = temporaryFolder.newFile("empty");
+
+		assertThatThrownBy(() -> cut.withClaimsFromFile(emptyFile.getPath()).createToken())
+				.isInstanceOf(JsonParsingException.class);
+	}
+
+	@Test
+	public void loadClaimsFromFile_containsStringClaims() throws IOException {
+		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+
+		assertThat(token.getClaimAsString(TokenClaims.EMAIL)).isEqualTo("test@uaa.org");
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE))
+				.isEqualTo("urn:ietf:params:oauth:grant-type:saml2-bearer");
+	}
+
+	@Test
+	public void loadClaimsFromFile_containsExpirationClaim() throws IOException {
+		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+
+		assertThat(token.getExpiration()).isEqualTo(Instant.ofEpochSecond(1542416800));
+	}
+
+	@Test
+	public void loadClaimsFromFile_containsJsonObjectClaims() throws IOException {
+		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+
+		JsonObject externalAttributes = token.getClaimAsJsonObject("ext_attr");
+
+		assertThat(externalAttributes).isNotNull();
+		assertThat(externalAttributes.getAsString("enhancer")).isEqualTo("XSUAA");
+		assertThat(externalAttributes.getAsList("acl", String.class)).containsExactly("app1!t23");
+	}
+
+	@Test
+	public void loadClaimsFromFile_containsListClaims() throws IOException {
+		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+
+		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
+				.containsExactly("openid", "testScope", "testApp.localScope");
+		assertThat(token.getClaimAsStringList("empty_list")).isEmpty();
+	}
+
+	@Test
 	public void createToken_signatureCalculation_NoSuchAlgorithmExceptionTurnedIntoRuntimeException() {
 		cut = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new NoSuchAlgorithmException();
@@ -220,35 +311,39 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	@Ignore
-	// TODO fix test setup
 	public void createToken_discoverOidcJwksEndpoint_tokenIsValid() throws Exception {
-		System.setProperty("VCAP_SERVICES", IOUtils
-				.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaConfiguration();
+		String clientId = "T000310";
+		String url = "https://app.auth.com";
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(IAS)
+				.withUrl(url)
+				.withClientId(clientId)
+				.build();
 
 		OAuth2TokenKeyService tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
 				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
-
 		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("http://auth.com/token_keys"));
-
 		OidcConfigurationService oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
 		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
 				.withOAuth2TokenKeyService(tokenKeyServiceMock)
+				.withOidcConfigurationService(oidcConfigServiceMock)
 				.build();
 
-		Token token = cut
-				.withClaimValue(TokenClaims.ISSUER, "http://auth.com")
+		Token token = JwtGenerator.getInstance(Service.IAS, clientId)
+				.withClaimValue(TokenClaims.ISSUER, url)
 				.withPrivateKey(keys.getPrivate())
 				.withExpiration(JwtGenerator.NO_EXPIRE_DATE)
 				.createToken();
 
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isTrue();
+	}
+
+	private static String getPathToResourcesFile(String filePathInResources) throws IOException {
+		return IOUtils.resourceToURL(filePathInResources).getPath();
 	}
 
 }
