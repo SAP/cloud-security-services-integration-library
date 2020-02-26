@@ -145,10 +145,10 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		}
 		SecurityContext.setToken(token);
 
-		return getOAuth2Authentication(token, serviceConfiguration.getClientId(), getScopes(token));
+		return getOAuth2Authentication(serviceConfiguration.getClientId(), getScopes(token));
 	}
 
-	static OAuth2Authentication getOAuth2Authentication(Token token, String clientId, Set<String> scopes) {
+	static OAuth2Authentication getOAuth2Authentication(String clientId, Set<String> scopes) {
 		Authentication userAuthentication = null; // TODO no SAPUserDetails support. Using spring alternative?
 
 		final AuthorizationRequest authorizationRequest = new AuthorizationRequest(clientId, scopes);

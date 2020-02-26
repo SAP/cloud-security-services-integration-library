@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
@@ -65,6 +66,7 @@ public class SAPOfflineTokenServicesCloudTest {
 				.map(GrantedAuthority::getAuthority).collect(
 						Collectors.toList());
 		assertThat(authorities).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
+		assertThat(authentication.getAuthorities()).contains(new SimpleGrantedAuthority("uaa.resource"));
 		assertThat(SecurityContext.getToken().getTokenValue()).isEqualTo(xsuaaToken);
 	}
 
@@ -80,6 +82,8 @@ public class SAPOfflineTokenServicesCloudTest {
 		cut.setLocalScopeAsAuthorities(true);
 		authentication = cut.loadAuthentication(xsuaaToken);
 		assertThat(authentication.getOAuth2Request().getScope()).containsExactly("localScope");
+		assertThat(authentication.getAuthorities().size()).isEqualTo(1);
+		assertThat(authentication.getAuthorities()).contains(new SimpleGrantedAuthority("localScope"));
 	}
 
 	@Test
