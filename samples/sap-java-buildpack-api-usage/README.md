@@ -3,7 +3,7 @@ This sample uses the SAP application router as a web server and forwards request
 In a typcal UI5 application, the application router server HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
 
 # Coding
-The [web.xml](src/main/webapp/WEB-INF/web.xml) of the application must use auth-method with value `XSUAA. This enables authentication of requests using incoming OAuth authentication tokens.
+The [web.xml](src/main/webapp/WEB-INF/web.xml) of the application must use auth-method with value `XSUAA`. This enables authentication of requests using incoming OAuth authentication tokens.
 
 ```xml
 <web-app>
@@ -14,7 +14,7 @@ The [web.xml](src/main/webapp/WEB-INF/web.xml) of the application must use auth-
 </web-app> 
 ```
 
-In your Web Servlet, use then the `@ServletSecurity` annotations as implemented here [HelloTokenServlet](/samples/sap-java-buildpack-api-usage/src/main/java/sample/sapjavabuildpack/xsuaa/HelloTokenServlet.java).
+In your Web Servlet, use then the `@ServletSecurity` annotations as implemented in [HelloTokenServlet](/samples/sap-java-buildpack-api-usage/src/main/java/sample/sapbuildpack/xsuaa/HelloTokenServlet.java).
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
