@@ -27,7 +27,7 @@ from getpass import getpass
 # The script depends on python3 and the cloud foundry command line tool 'cf'.
 
 # Running the script
-# If the script is made executable, it can be started with ./deploy_and_test.py
+# If the script is made executable, it can be started with cd
 # It can also be started like so: python3 ./deploy_and_test.py
 # By default it will run all unit tests.
 # It is also possible to run specific test classes:
@@ -196,16 +196,19 @@ class TestSpringSecurity(SampleTest):
         self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
         json.loads(resp.body)
 
-    #def test_tokenFlows(self):
-        #resp = self.perform_get_request_with_token('/v2/sayHello')
-        #self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+    def test_tokenFlows(self):
+        self.add_user_to_role('Viewer')
 
-        #resp = self.perform_get_request_with_token('/v3/requestClientCredentialsToken')
-        #self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        resp = self.perform_get_request_with_token('/v2/sayHello')
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
 
-        #resp = self.perform_get_request_with_token('/v3/requestUserToken')
-        #self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        resp = self.perform_get_request_with_token('/v3/requestClientCredentialsToken')
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
 
+        resp = self.perform_get_request_with_token('/v3/requestUserToken')
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+
+        # TODO fetch refresh token from resp.body
         #pathWithRefreshToken = '/v3/requestRefreshToken/' + resp.body
         #resp = self.perform_get_request_with_token(pathWithRefreshToken)
         #self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
