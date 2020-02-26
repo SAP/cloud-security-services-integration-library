@@ -17,6 +17,8 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,6 +33,7 @@ public class SpringSecurityContextTest {
 	AccessToken token;
 	SapIdToken sapIdToken;
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+	private static final Set<String> NO_SCOPES = Collections.EMPTY_SET;
 
 	@Before
 	public void setUp() throws IOException {
@@ -50,26 +53,38 @@ public class SpringSecurityContextTest {
 
 	@Test
 	public void getToken() {
-		setToken(sapIdToken);
+		setToken(sapIdToken, NO_SCOPES);
 		assertThat(SpringSecurityContext.getToken()).isEqualTo(sapIdToken);
 	}
 
 	@Test
 	public void getAccessToken() {
-		setToken(token);
+		setToken(token, NO_SCOPES);
 		assertThat(SpringSecurityContext.getAccessToken()).isEqualTo(token);
+	}
+
+	@Test
+	public void getAccessTokenScopes() {
+		Set<String> scopes = new HashSet<>();
+		scopes.add("Scope1");
+		scopes.add("Scope2");
+
+		setToken(token, scopes);
+		assertThat(SpringSecurityContext.getAccessToken().getScopes().isEmpty());
+		assertThat(SpringSecurityContext.getAccessToken().hasLocalScope("Scope1")).isTrue();
+		assertThat(SpringSecurityContext.getAccessToken().hasLocalScope("Scope3")).isFalse();
 	}
 
 	@Test
 	@Ignore // TODO IAS Support
 	public void getAccessTokenReturnsNullIfTokenDoesNotImplementInterface() {
-		setToken(sapIdToken);
+		setToken(sapIdToken, NO_SCOPES);
 		assertThat(SpringSecurityContext.getAccessToken()).isNull();
 	}
 
 	@Test
 	public void clear_removesToken() {
-		setToken(token);
+		setToken(token, NO_SCOPES);
 		SpringSecurityContext.clear();
 
 		assertThat(SpringSecurityContext.getToken()).isNull();
@@ -77,7 +92,7 @@ public class SpringSecurityContextTest {
 
 	@Test
 	public void tokenNotAvailableInDifferentThread() throws ExecutionException, InterruptedException {
-		setToken(token);
+		setToken(token, NO_SCOPES);
 
 		Future<Token> tokenInOtherThread = executorService.submit(() -> SpringSecurityContext.getToken());
 
@@ -87,17 +102,17 @@ public class SpringSecurityContextTest {
 	@Test
 	public void clearingTokenInDifferentThreadDoesNotAffectMainThread()
 			throws ExecutionException, InterruptedException {
-		setToken(token);
+		setToken(token, NO_SCOPES);
 
 		executorService.submit(() -> SpringSecurityContext.clear()).get(); // run and await other thread
 
 		assertThat(SpringSecurityContext.getToken()).isEqualTo(token);
 	}
 
-	private static void setToken(Token token) {
+	private static void setToken(Token token, Set<String> scopes) {
 		SecurityContext context = new SecurityContextImpl();
-		OAuth2Authentication authentication = SAPOfflineTokenServicesCloud.getOAuth2Authentication(token,
-				"clientId", Collections.EMPTY_SET);
+		OAuth2Authentication authentication = SAPOfflineTokenServicesCloud.getOAuth2Authentication(
+				"clientId", scopes);
 
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_VALUE)).thenReturn(token.getTokenValue());

@@ -6,11 +6,15 @@ import com.sap.cloud.security.token.XsuaaToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -43,7 +47,7 @@ public class SpringSecurityContext {
 			OAuth2AuthenticationDetails authDetails = (OAuth2AuthenticationDetails) authentication.getDetails();
 			String tokenValue = authDetails.getTokenValue();
 			// TODO IAS Support
-			return new XsuaaToken(tokenValue);
+			return new XsuaaTokenWithGrantedAuthorities(tokenValue, authentication.getAuthorities());
 		}
 		return null;
 	}
@@ -66,6 +70,26 @@ public class SpringSecurityContext {
 	 */
 	public static void clear() {
 		SecurityContextHolder.clearContext();
+	}
+
+	/**
+	 * This class extends the {@link XsuaaToken} and takes the scopes from Spring
+	 * {@link GrantedAuthority} to perform the {@link #hasLocalScope(String)} check.
+	 * Therefore make sure that you've configured local scopes as authorities using
+	 * {@link SAPOfflineTokenServicesCloud#setLocalScopeAsAuthorities(boolean)}.
+	 */
+	private static class XsuaaTokenWithGrantedAuthorities extends XsuaaToken {
+		private final Collection<? extends GrantedAuthority> authorities;
+
+		public XsuaaTokenWithGrantedAuthorities(String tokenValue, @Nullable Collection<? extends GrantedAuthority> authorities) {
+			super(tokenValue);
+			this.authorities = authorities;
+		}
+
+		@Override
+		public boolean hasLocalScope(@Nonnull String scope) {
+			return authorities.contains(new SimpleGrantedAuthority(scope));
+		}
 	}
 
 }
