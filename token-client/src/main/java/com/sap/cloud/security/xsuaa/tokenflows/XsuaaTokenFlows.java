@@ -60,19 +60,14 @@ public class XsuaaTokenFlows implements Serializable {
 	}
 
 	/**
-	 * Creates a new User Token Flow builder object. The token passed needs to
-	 * contain the scope {@code uaa.user}, otherwise an exception will be thrown
-	 * when the flow is executed. <br>
+	 * Creates a new User Token Flow builder object.
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
 	 * 
 	 * @return the {@link UserTokenFlow} builder object.
 	 */
 	public UserTokenFlow userTokenFlow() {
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(oAuth2TokenService, endpointsProvider,
-				clientCredentials);
-
-		return new UserTokenFlow(oAuth2TokenService, refreshTokenFlow, endpointsProvider, clientCredentials);
+		return new UserTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
 	}
 
 	/**

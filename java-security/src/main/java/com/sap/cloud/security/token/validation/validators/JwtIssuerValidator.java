@@ -17,12 +17,12 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 
 /**
- * Validates that the jwt token is issued by a trust worthy identity
- * provider. <br>
+ * Validates that the jwt token is issued by a trust worthy identity provider.
+ * <br>
  * It applies the following checks:
  * <ul>
- *     <li>'iss' claim available</li>
- *     <li>'iss' claim matches url of trusted identity provider</li>
+ * <li>'iss' claim available</li>
+ * <li>'iss' claim matches url of trusted identity provider</li>
  * </ul>
  * These checks are a prerequisite for using the `JwtSignatureValidator`.
  */

@@ -32,7 +32,8 @@ public class IdTokenSignatureValidatorTest {
 	OAuth2ServiceEndpointsProvider endpointsProviderMock;
 	private OidcConfigurationService oidcConfigurationServiceMock;
 	private static final URI JKU_URI = URI.create("https://application.myauth.com/jwks_uri");
-	private static final URI DISCOVERY_URI = URI.create("https://application.myauth.com" + OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT);
+	private static final URI DISCOVERY_URI = URI
+			.create("https://application.myauth.com" + OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT);
 
 	@Before
 	public void setup() throws IOException {
@@ -63,7 +64,7 @@ public class IdTokenSignatureValidatorTest {
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(JKU_URI))
-				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,

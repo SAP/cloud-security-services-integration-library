@@ -1,6 +1,5 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.samples.tmp.JettyTokenAuthenticator;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
@@ -14,7 +13,6 @@ import org.eclipse.jetty.webapp.*;
 import java.net.URL;
 import java.util.Arrays;
 
-import static com.sap.cloud.security.config.cf.CFConstants.*;
 
 /**
  * This class is used to start the sample as standalone application which does not rely on
@@ -35,7 +33,6 @@ public class Application {
 	private static Server createJettyServer() {
 		WebAppContext context = new WebAppContext();
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
-		String appId = Environments.getCurrent().getXsuaaConfiguration().getProperty(XSUAA.APP_ID);
 		security.setAuthenticator(new JettyTokenAuthenticator(new XsuaaTokenAuthenticator()));
 		context.setSecurityHandler(security);
 		context.setConfigurations(new Configuration[] {
