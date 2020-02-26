@@ -32,7 +32,7 @@ The [Application Router](./approuter/package.json) is used to provide a single e
 ## Compile the Java application
 Run maven to package the application
 ```shell
-`mvn clean package`
+mvn clean package
 ```
 
 ## Create the xsuaa service instance
