@@ -6,7 +6,7 @@ This library serves as slim client for some XSUAA `/oauth/token` token endpoints
 Furthermore it introduces a new API to support the following token flows:
 
 * **User Token Flow**.  
-The idea behind a User Token exchange is to separate service-specific access scopes into separate tokens. For example, if Service A has scopes specific to its functionality and Service B has other scopes, the intention is that there is no single Jwt token that contains all of these scopes. As of version `2.5.0` the `grant_type`=`urn:ietf:params:oauth:grant-type:jwt-bearer` is used ([RFC 7523](https://tools.ietf.org/html/rfc7523)).
+The idea behind a User Token exchange is to separate service-specific access scopes into separate tokens. For example, if Service A has scopes specific to its functionality and Service B has other scopes, the intention is that there is no single Jwt token that contains all of these scopes. As of version `2.5.1` the `grant_type`=`urn:ietf:params:oauth:grant-type:jwt-bearer` is used ([RFC 7523](https://tools.ietf.org/html/rfc7523)).
 * **Client Credentials Flow**.  
 The Client Credentials ([RFC 6749, section 4.4](https://tools.ietf.org/html/rfc6749#section-4.4)) is used by clients to obtain an access token outside of the context of a user. It is used for non interactive applications (a CLI, a batch job, or for service-2-service communication) where the token is issued to the application itself, instead of an end user for accessing resources without principal propagation. 
 * **Refresh Token Flow**.  
@@ -23,7 +23,7 @@ The Resource owner password credentials (i.e., username and password) can be use
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.5.0</version>
+    <version>2.5.1</version>
 </dependency>
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
@@ -57,7 +57,7 @@ The `DefaultOAuth2TokenService` can also be instantiated with a custom `Closeabl
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.5.0</version>
+    <version>2.5.1</version>
 </dependency>
 ```
 
@@ -80,7 +80,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.5.0</version>
+    <version>2.5.1</version>
 </dependency>
 ```
 

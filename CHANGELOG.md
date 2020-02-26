@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.5.1
+- [java-api] As preparation for the SAP Java Buildpack the interfaces, as well as the `SecurityContext` is extracted to [java-api](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/java-api).
+- [java-security] `AccessToken`s provided via the `SpringSecurityContext` should also support the `hasLocalScope` method.
+
 ## 2.5.0
 - [java-security-test] `JwtGenerator.withClaimsFromFile` accepts claims from a file.
 - [java-security] Provides with `SpringSecurityContext` an alternative way of accessing jwt tokens for Spring applications in asynchronous threads.
