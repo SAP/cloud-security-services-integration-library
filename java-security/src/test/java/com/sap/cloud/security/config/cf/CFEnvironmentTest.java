@@ -183,4 +183,26 @@ public class CFEnvironmentTest {
 		assertThat(CFEnvironment.getInstance().getXsuaaConfiguration()).isNull();
 		// assertThat(cut.getIasConfiguration()).isNull(); // TODO IAS
 	}
+
+	@Test
+	public void loadXsuaa_UseApplicationOverBroker() {
+		String allBindings = "{\"xsuaa\": ["
+				+ "{\"plan\": \"broker\", \"credentials\": {}},"
+				+ "{\"plan\": \"application\", \"credentials\": {}}]}";
+		cut = CFEnvironment.getInstance((str) -> allBindings, (str) -> null);
+
+		OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
+		assertThat(Plan.from(config.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);
+	}
+
+	@Test
+	public void loadXsuaaLegacy() {
+		String allBindings = "{\"xsuaa\": ["
+				+ "{\"plan\": \"default\", \"credentials\": {}},"
+				+ "{\"plan\": \"space\", \"credentials\": {}}]}";
+		cut = CFEnvironment.getInstance((str) -> allBindings, (str) -> null);
+
+		OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
+		assertThat(Plan.from(config.getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
+	}
 }
