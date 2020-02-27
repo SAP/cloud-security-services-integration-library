@@ -29,4 +29,8 @@ public class DefaultADCService implements ADCService {
             throw new UnsupportedOperationException("Apache Http client not yet supported.");
         }
 
-    }
+        public boolean ping(URI adcUri) {
+            throw new UnsupportedOperationException("Apache Http client not yet supported.");
+        }
+
+}

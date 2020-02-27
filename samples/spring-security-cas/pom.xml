@@ -87,10 +87,26 @@
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
+                <artifactId>dependency-check-maven</artifactId>
+                <version>5.2.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skipProvidedScope>true</skipProvidedScope>
+                </configuration>
             </plugin>
         </plugins>
     </build>

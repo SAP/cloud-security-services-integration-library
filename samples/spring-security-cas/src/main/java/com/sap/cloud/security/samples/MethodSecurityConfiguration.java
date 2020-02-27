@@ -31,4 +31,5 @@ public class MethodSecurityConfiguration extends GlobalMethodSecurityConfigurati
 				ADCSpringSecurityExpressionHandler.getInstance(adcService, URI.create(adcUrl));
 		return expressionHandler;
 	}
+
 }

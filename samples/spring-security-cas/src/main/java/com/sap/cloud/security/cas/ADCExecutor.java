@@ -28,6 +28,7 @@ public class ADCExecutor {
     }
 
     public void start() throws IOException {
+        LOGGER.info("start adc process...");
         ProcessBuilder pb = new ProcessBuilder( "/bin/bash", System.getenv("OPA_START") );
 
         adcProcess = pb.start();
@@ -47,7 +48,7 @@ public class ADCExecutor {
         new Thread(new DumpInputRunnable(adcProcess, adcProcess.getErrorStream())).start();
     }
 
-    public String getVersion() throws ADCException, InterruptedException, IOException {
+    public String getVersion() throws InterruptedException, IOException {
         Process process = Runtime.getRuntime().exec("/home/vcap/app/opa version");
         process.waitFor();
         int exitValue = process.exitValue();

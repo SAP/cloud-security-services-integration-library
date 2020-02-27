@@ -10,9 +10,7 @@ public class OpenPolicyAgentResponse {
 
 
     public OpenPolicyAgentResponse() {
-
     }
-
 
     public boolean getResult() {
         return this.result;

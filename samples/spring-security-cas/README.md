@@ -72,7 +72,7 @@ To deploy the application, the following steps are required:
 ## Compile the Java application
 Run maven to package the application
 ```shell
-mvn clean package -DskipTests
+mvn clean package
 ```
 
 > Note: As of now the JUnit tests may not run unless you've launched OPA as part of the docker container.

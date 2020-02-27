@@ -7,4 +7,6 @@ import java.net.URI;
  */
 public interface ADCService {
     OpenPolicyAgentResponse isUserAuthorized(URI adcUri, OpenPolicyAgentRequest request);
+
+    boolean ping(URI adcUri);
 }

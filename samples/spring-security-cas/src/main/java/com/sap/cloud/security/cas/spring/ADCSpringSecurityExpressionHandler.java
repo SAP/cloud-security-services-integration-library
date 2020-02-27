@@ -26,7 +26,6 @@ public class ADCSpringSecurityExpressionHandler extends DefaultMethodSecurityExp
 		return instance;
 	}
 
-
 	@Override
 	protected MethodSecurityExpressionOperations createSecurityExpressionRoot(
 			Authentication authentication, MethodInvocation invocation) {
