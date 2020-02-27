@@ -18,6 +18,7 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<!-- [OPTIONAL] only required when you need further user information (XSUserInfo) request.getUserPrincipal() -->
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>api</artifactId>
