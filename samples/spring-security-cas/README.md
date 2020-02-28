@@ -54,7 +54,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=cloud
 ```
 
 ### Test
-When your application is successfully started (pls check the console logs) use a Rest client such as `Postman Chrome Extension`. Then you can perform a GET request to `http://localhost:8080/v1/method` and set an `Authorization` header with the value 
+When your application is successfully started (pls check the console logs) use a Rest client such as `Postman Chrome Extension`. Then you can perform a GET request to `http://localhost:8080/authorized` and set an `Authorization` header with the value 
 ```
 Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImprdSI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzMxOTUvdG9rZW5fa2V5cyIsImtpZCI6ImxlZ2FjeS10b2tlbi1rZXkifQ.eyJleHRfYXR0ciI6eyJ6ZG4iOiIifSwiemlkIjoidWFhIiwiemRuIjoiIiwiZ3JhbnRfdHlwZSI6InVybjppZXRmOnBhcmFtczpvYXV0aDpncmFudC10eXBlOnNhbWwyLWJlYXJlciIsInVzZXJfbmFtZSI6IkJvYmJ5Iiwib3JpZ2luIjoidXNlcklkcCIsImV4cCI6Njk3NDAzMTYwMCwiaWF0IjoxNTgwOTgwNTk0LCJlbWFpbCI6IkJvYmJ5QHRlc3Qub3JnIiwiY2lkIjoic2Itc3ByaW5nLXNlY3VyaXR5LWFkYy11c2FnZSF0MTQ4NjYifQ.xYjcNcYOIr2He5F70UqO1jU9gqlBmPsuPFgN6ym2gv9t6lDgqGnYJW9LA5qn-TJF0s4P-CebZwsqSoZyNcU_x_cwIXbaXGn_SqA_TWiQ4rzHqb-tHy78ReKHbls0P7j2aeaRBK_-l5Yr4qTbRtXMaxkYdN4F3yiYDJh1fpqdiLqaxrVP0W3c13CkR6HjzHDmWK_d4VkEakU4IdU2UUcYpbyijtYca-tLlFw2aZKCdYn2PZkRO8l00vX7ymd-wqOv6mmnttiitBBmTo62wd_x0USOG1sHEOzSlE40J0T4TB7JK08jvsX6wzLtAnMiBAaHPf_o48YGmHWNNbnGmsW2KQ
 ```
@@ -75,7 +75,6 @@ Run maven to package the application
 mvn clean package
 ```
 
-
 ## Create the ias service instance
 Use the ias service broker and create a service instance (don't forget to replace the placeholders)
 ```shell
@@ -92,33 +91,14 @@ Deploy the application using cf push. It will expect 1 GB of free memory quota.
 cf push --vars-file ../vars.yml
 ```
 
-## Access the application via cURL
-After successful deployment, when accessing your application endpoints on Cloud Foundry, you get redirected to a login-screen to authenticate yourself. But your application will respond with error status code `403` (`unauthorized`) in case you do not have any Policies assigned.
+## Access the application
+After successful deployment, when accessing your application endpoints on Cloud Foundry, you get redirected to a login-screen to authenticate yourself. 
 
-- Get an id token via `cURL`. Make sure that you replace the placeholders `clientid`, `clientsecret` and `url` (without `https://` !!!) according to the service configuration that are stored as system environment variable `VCAP_SERVICES.identity-beta.credentials`. You can get them using `cf env spring-security-cas-ias`. 
-
-```
-curl -X POST \
-  https://<<clientid>>:<<clientsecret>>@<<url>>/oauth2/token \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'grant_type=password&username=<<your ias user>>&password=<<your ias password>>'
-```
-
-Copy the `id_token` into your clipboard.
-
-- Access the application via `curl`. Don't forget to fill the placeholders.
-```
-curl -X GET \
-  https://spring-security-cas-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/v1/method \
-  -H 'Authorization: Bearer <<your id_token>>'
-```
-
-This GET request executes a method secured with Spring Global Method Security. 
-This method requires a policy e.g. `john.doe@sap.com_read`. You should see something like this:
-```
-You ('<your email>') are authenticated and can access the application.
-```
-
+- `https://spring-security-cas-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>`  
+TODO
+- `https://spring-security-cas-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/authenticated`
+- `https://spring-security-cas-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/authorized`  
+This GET request executes a method secured with Spring Global Method Security. It will respond with error status code `403` (`unauthorized`) in case you do not have any Policies assigned, that grants access for action `read` on resources `SalesOrders`.
 
 ## Clean-Up
 Finally delete your application and your service instances using the following commands:
