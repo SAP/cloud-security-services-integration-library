@@ -24,9 +24,8 @@ public class Application {
 		URI adcUrl = URI.create(Optional.ofNullable(ctx.getEnvironment().getProperty("OPA_URL"))
 				.orElse("http://localhost:8181"));
 		try {
-			if(!adcService.ping(adcUrl)) {
-				ADCExecutor.get().start();
-				// TODO required? adcService.ping(adcUrl);
+			if(!adcService.ping(adcUrl)) { // TODO this can be done as part of health check
+				ADCExecutor.get().start(); // TODO can probably be deleted in future
 			}
 		} catch (Exception e){
 			System.out.println("ADC Start error: ");
