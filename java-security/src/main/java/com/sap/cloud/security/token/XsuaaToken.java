@@ -3,6 +3,8 @@ package com.sap.cloud.security.token;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,6 +22,7 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 public class XsuaaToken extends AbstractToken implements AccessToken {
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>
+	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaToken.class);
 	private ScopeConverter scopeConverter;
 
 	/**
@@ -44,6 +47,38 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	}
 
 	/**
+	 * Get unique principal name of a user.
+	 *
+	 * @param origin
+	 *            of the access token
+	 * @param userName
+	 *            of the access token
+	 * @return unique principal name or <code>null</code> if origin or user name is
+	 *         <code>null</code> or empty. Origin must also not contain a '/'
+	 *         character.
+	 */
+	static String getUniquePrincipalName(String origin, String userName) {
+		if (isNullOrEmpty(origin)) {
+			LOGGER.warn("origin claim not set in JWT. Cannot create unique user name. Returning null.");
+			return null;
+		}
+		if (isNullOrEmpty(userName)) {
+			LOGGER.warn("user_name claim not set in JWT. Cannot create unique user name. Returning null.");
+			return null;
+		}
+		if (origin.contains("/")) {
+			LOGGER.warn(
+					"Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returning null.");
+			return null;
+		}
+		return String.format(UNIQUE_USER_NAME_FORMAT, origin, userName);
+	}
+
+	private static boolean isNullOrEmpty(String string) {
+		return string == null || string.isEmpty();
+	}
+
+	/**
 	 * Configures a scope converter, e.g. required for the
 	 * {@link #hasLocalScope(String)}
 	 *
@@ -55,31 +90,6 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	public XsuaaToken withScopeConverter(@Nullable ScopeConverter converter) {
 		this.scopeConverter = converter;
 		return this;
-	}
-
-	/**
-	 * Get unique principal name of a user.
-	 *
-	 * @param origin
-	 *            of the access token
-	 * @param userLoginName
-	 *            of the access token
-	 * @return unique principal name
-	 *
-	 * @throws IllegalArgumentException
-	 */
-	static String getUniquePrincipalName(String origin, String userLoginName) {
-		Assertions.assertHasText(origin,
-				"Origin claim not set in JWT. Cannot create unique user name. Returning null.");
-		Assertions.assertHasText(userLoginName,
-				"User login name claim not set in JWT. Cannot create unique user name. Returning null.");
-
-		if (origin.contains("/")) {
-			throw new IllegalArgumentException(
-					"Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returing null.");
-		}
-
-		return String.format(UNIQUE_USER_NAME_FORMAT, origin, userLoginName);
 	}
 
 	@Override
