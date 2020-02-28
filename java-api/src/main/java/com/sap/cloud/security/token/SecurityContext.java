@@ -55,6 +55,9 @@ public class SecurityContext {
 	 * Clears the current Token from thread wide storage.
 	 */
 	public static void clearToken() {
+		final Token token = tokenStorage.get();
+		LOGGER.debug("Token of service {} removed from SecurityContext (thread-locally).",
+				token != null ? token.getService() : "null");
 		tokenStorage.remove();
 	}
 
