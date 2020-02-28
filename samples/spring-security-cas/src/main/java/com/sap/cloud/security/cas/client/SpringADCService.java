@@ -35,8 +35,8 @@ public class SpringADCService implements ADCService {
     }
 
     @Override
-    public boolean ping(URI adcUri) {
-        URI adcHealthEndpoint = expandPath(adcUri, "/v1/policies");
+    public boolean ping(URI adcBaseUri) {
+        URI adcHealthEndpoint = expandPath(adcBaseUri, "/health");
         try {
             boolean isHealthy = restOperations.getForEntity(adcHealthEndpoint, Object.class).getStatusCode() == HttpStatus.OK;
             LOGGER.info("Ping ADC service {}: {}", adcHealthEndpoint, isHealthy);
