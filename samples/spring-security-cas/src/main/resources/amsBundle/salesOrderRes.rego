@@ -7,6 +7,7 @@ import data.user2policy as u2p
 # }
 salesOrdersRes {
     u2p[input.user][_] == "salesOrdersRes"
+    input.action == "read"
     resources := ["SalesOrders", "SalesOrderItems", "SalesOrderLists"]
     input.resource == resources[_]
 }

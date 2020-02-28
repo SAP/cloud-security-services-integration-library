@@ -45,18 +45,24 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 	//        return "#oauth2.hasScope('" + getGlobalScope(localScope) + "')";
 	//    }
 
-	public boolean readAll(String action) {
-		// TODO IAS Support
+	// TODO https://github.wdf.sap.corp/CPSecurity/CAS/blob/master/architecture/AMS_DETAILS.MD#spring-security-library
+	public boolean hasRule(String action) {
+		return hasRule(action, null);
+	}
 
+	public boolean hasRule(String action, String resource) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		OAuth2AuthenticationToken oauthAuth = (OAuth2AuthenticationToken)auth;
 
-		OidcUser user = (OidcUser)oauthAuth.getPrincipal();
+		// TODO IAS Support
+		OidcUser user = (OidcUser) oauthAuth.getPrincipal();
+		String userId = user.getGivenName(); // TODO update to unique user id
+		OpenPolicyAgentRequest request = new OpenPolicyAgentRequest(userId)
+				.withAction(action)
+				.withResource(resource);
 
-		OpenPolicyAgentRequest request = new OpenPolicyAgentRequest("readAll", user.getGivenName()) // TODO update to getUserName()?
-						.withAction(action);
 		boolean isAuthorized = checkAuthorization(request);
-		logger.info("Has user {} authorization with policy '{}' and action '{}' ? {}", user.getGivenName(), "readAll", action, isAuthorized);
+		logger.info("Is user {} authorized to perform action '{}' on resource '{}' ? {}", userId, action, resource, isAuthorized);
 
 		return isAuthorized;
 	}

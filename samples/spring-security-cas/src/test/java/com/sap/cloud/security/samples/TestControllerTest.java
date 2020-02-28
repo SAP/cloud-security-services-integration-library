@@ -52,7 +52,7 @@ public class TestControllerTest {
     }
 
     @Test
-    @WithMockOidcUser(username="Alice")
+    @WithMockOidcUser(username="Alice_salesOrdersRes")
     public void readWith_Alice_readAll_200() throws Exception {
         mockMvc.perform(get("/authorized"))
                 .andExpect(status().isOk());

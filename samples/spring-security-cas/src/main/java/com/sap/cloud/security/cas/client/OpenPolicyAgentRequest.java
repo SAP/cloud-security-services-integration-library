@@ -9,15 +9,25 @@ import java.util.Map;
 public class OpenPolicyAgentRequest {
     private static final String USER = "user";
     private static final String ACTION = "action";
+    private static final String RESOURCE = "resource";
 
     private Map<String, Object> input = new HashMap<>();
 
-    public OpenPolicyAgentRequest(String policy, String uniqueUserId) {
-        input.put(USER, uniqueUserId + "_" + policy);
+    public OpenPolicyAgentRequest(String uniqueUserId) {
+        input.put(USER, uniqueUserId);
     }
 
     public OpenPolicyAgentRequest withAction(String action) {
-        input.put(ACTION, action);
+        if (action != null) {
+            input.put(ACTION, action);
+        }
+        return this;
+    }
+
+    public OpenPolicyAgentRequest withResource(String resource) {
+        if (resource != null) {
+            input.put(RESOURCE, resource);
+        }
         return this;
     }
 

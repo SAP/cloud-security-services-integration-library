@@ -32,7 +32,7 @@ public class TestController {
      * access the method. Otherwise a 403 error will be returned.
      */
     @GetMapping(value = "/authorized")
-    @PreAuthorize("readAll('read')") // policy und action
+    @PreAuthorize("hasRule('read', 'SalesOrders')") // grant rule <action> on <resource>
     public String callMethodRemotely(@AuthenticationPrincipal OidcUser principal) {
         return "Read-protected method called! " + principal.getGivenName();
     }
