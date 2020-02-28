@@ -2,6 +2,7 @@ package com.sap.cloud.security.test;
 
 import static com.sap.cloud.security.token.TokenClaims.AUDIENCE;
 import static com.sap.cloud.security.token.TokenHeader.ALGORITHM;
+import static com.sap.cloud.security.token.TokenHeader.JWKS_URL;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
@@ -31,8 +32,8 @@ import java.util.stream.Collectors;
 public class JwtGenerator {
 	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
 
-	private static final Logger logger = LoggerFactory.getLogger(JwtGenerator.class);
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(JwtGenerator.class);
+	private static final String DEFAULT_JWKS_URL = "http://localhost";
 	private static final char DOT = '.';
 
 	private final JSONObject jsonHeader = new JSONObject();
@@ -59,9 +60,17 @@ public class JwtGenerator {
 		instance.service = service;
 		instance.signatureCalculator = signatureCalculator;
 		instance.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
+		setTokenDefaults(clientId, instance);
+		return instance;
+	}
+
+	private static void setTokenDefaults(String clientId, JwtGenerator instance) {
+		instance.withHeaderParameter(ALGORITHM, instance.signatureAlgorithm.value());
 		instance.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId);
 		instance.withExpiration(NO_EXPIRE_DATE);
-		return instance;
+		if (instance.service == Service.XSUAA) {
+			instance.withHeaderParameter(JWKS_URL, DEFAULT_JWKS_URL);
+		}
 	}
 
 	/**
@@ -232,26 +241,33 @@ public class JwtGenerator {
 		if (privateKey == null) {
 			throw new IllegalStateException("Private key was not set!");
 		}
-		withHeaderParameter(ALGORITHM, signatureAlgorithm.value());
+
+		createAudienceClaim();
+
+		switch (service) {
+		case IAS:
+			return new SapIdToken(createTokenAsString());
+		case XSUAA:
+			return new XsuaaToken(createTokenAsString());
+		default:
+			throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
+		}
+	}
+
+	private void createAudienceClaim() {
 		if (service == Service.IAS) {
 			jsonPayload.put(AUDIENCE, jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID));
 		} else {
 			jsonPayload.put(AUDIENCE, Arrays.asList(jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID)));
 		}
+	}
+
+	private String createTokenAsString() {
 		String header = base64Encode(jsonHeader.toString().getBytes());
 		String payload = base64Encode(jsonPayload.toString().getBytes());
 		String headerAndPayload = header + DOT + payload;
 		String signature = calculateSignature(headerAndPayload);
-		String token = headerAndPayload + DOT + signature;
-
-		switch (service) {
-		case IAS:
-			return new SapIdToken(token);
-		case XSUAA:
-			return new XsuaaToken(token);
-		default:
-			throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
-		}
+		return headerAndPayload + DOT + signature;
 	}
 
 	private static byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm signatureAlgorithm,
@@ -267,13 +283,13 @@ public class JwtGenerator {
 			return base64Encode(signatureCalculator
 					.calculateSignature(privateKey, signatureAlgorithm, headerAndPayload.getBytes()));
 		} catch (NoSuchAlgorithmException e) {
-			logger.error("Algorithm '{}' not found.", signatureAlgorithm.javaSignature());
+			LOGGER.error("Algorithm '{}' not found.", signatureAlgorithm.javaSignature());
 			throw new UnsupportedOperationException(e);
 		} catch (SignatureException e) {
-			logger.error("Error creating JWT signature.");
+			LOGGER.error("Error creating JWT signature.");
 			throw new UnsupportedOperationException(e);
 		} catch (InvalidKeyException e) {
-			logger.error("Invalid private key.");
+			LOGGER.error("Invalid private key.");
 			throw new UnsupportedOperationException(e);
 		}
 	}
