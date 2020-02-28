@@ -43,14 +43,14 @@ Find the current API documentation of OPA (Open Policy Agent) [here](https://www
 
 
 ### Configure the local environment
-You need to configure the Url of the Authorization Decision Controller (`OPA_URL`) as part of system environment variable or via the [application-uaamock.properties](src/main/resources/application-uaamock.properties). 
-You can enter the url of the ADC service that runs locally, e.g. in a docker container.
+The Url of the Authorization Decision Controller (`OPA_URL`) is configured as part of system environment variable or in case of Spring via the [application.yml](src/main/resources/application.yml). 
+In this sample, if it is not configured `http://localhost:8181` is taken as default, which points to the [opa docker container](docker-compose.yaml).
 
 ### Start application
 ```
 docker-compose up -d
 source localEnvironmentSetup.sh
-mvn spring-boot:run -Dspring-boot.run.profiles=cloud,uaamock
+mvn spring-boot:run -Dspring-boot.run.profiles=cloud
 ```
 
 ### Test
@@ -74,11 +74,6 @@ Run maven to package the application
 ```shell
 mvn clean package
 ```
-
-> Note: As of now the JUnit tests may not run unless you've launched OPA as part of the docker container.
-> In case the ADC service does not run at `http://localhost:9888` you need to overwrite the `OPA_URL`
-> as part of system environment variable or via the [application-uaamock.properties](src/main/resources/application-uaamock.properties). 
-
 
 
 ## Create the ias service instance
