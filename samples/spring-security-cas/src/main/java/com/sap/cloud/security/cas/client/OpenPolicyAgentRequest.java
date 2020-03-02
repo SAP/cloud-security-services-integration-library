@@ -31,14 +31,19 @@ public class OpenPolicyAgentRequest {
         return this;
     }
 
-    /*public static class Attribute {
-        public final String name;
-        public final List<String> values;
-
-        public Attribute(String name, String... values) {
-            this.name = name;
-            this.values = Arrays.asList(values);
+    public OpenPolicyAgentRequest withAttribute(String attributeName, String attributeValue) {
+        if (attributeName != null) {
+            input.put(attributeName, attributeValue);
         }
+        return this;
+    }
+
+    public OpenPolicyAgentRequest withAttributes(String... attributeExpressions) {
+        for (String attribute : attributeExpressions) {
+            String[] parts = attribute.split("=");
+            withAttribute(parts[0], parts[1]);
+        }
+        return this;
     }
 
     /**

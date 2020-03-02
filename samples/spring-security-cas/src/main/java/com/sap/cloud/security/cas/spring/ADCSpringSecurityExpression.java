@@ -14,12 +14,14 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 
 /**
  * TODO: extract as library
  */
 public class ADCSpringSecurityExpression extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
 
+	private static final String[] NO_ATTRIBUTES = new String[]{};
 	private ADCService service;
 	private URI adcUri;
 
@@ -46,11 +48,28 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 	//    }
 
 	// TODO https://github.wdf.sap.corp/CPSecurity/CAS/blob/master/architecture/AMS_DETAILS.MD#spring-security-library
-	public boolean hasRule(String action) {
-		return hasRule(action, null);
+
+	public boolean onAction(String action) {
+		return onResourceAction(null, action, NO_ATTRIBUTES);
 	}
 
-	public boolean hasRule(String action, String resource) {
+	public boolean onAction(String action, String... attributes) {
+		return onResourceAction(null, action, attributes);
+	}
+
+	public boolean onResource(String resource) {
+		return onResourceAction(resource, null, NO_ATTRIBUTES);
+	}
+
+	public boolean onResource(String resource, String... attributes) {
+		return onResourceAction(resource, null, attributes);
+	}
+
+	public boolean onResourceAction(String resource, String action) {
+		return onResourceAction(resource, action, NO_ATTRIBUTES);
+	}
+
+	public boolean onResourceAction(String resource, String action, String... attributes) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		OAuth2AuthenticationToken oauthAuth = (OAuth2AuthenticationToken)auth;
 
@@ -59,17 +78,18 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 		String userId = user.getGivenName(); // TODO update to unique user id
 		OpenPolicyAgentRequest request = new OpenPolicyAgentRequest(userId)
 				.withAction(action)
-				.withResource(resource);
+				.withResource(resource)
+				.withAttributes(attributes);
 
 		boolean isAuthorized = checkAuthorization(request);
-		logger.info("Is user {} authorized to perform action '{}' on resource '{}' ? {}", userId, action, resource, isAuthorized);
+		logger.info("Is user {} authorized to perform action '{}' on resource '{}' and attributes '{}' ? {}", userId, action, resource, attributes, isAuthorized);
 
 		return isAuthorized;
 	}
 
+
 	private boolean checkAuthorization(OpenPolicyAgentRequest request) {
 		URI adcUri = expandPath(this.adcUri, "/v1/data/rbac/allow");
-
 		try {
 			return service.isUserAuthorized(adcUri, request).getResult();
 		} catch (Exception e) { // TODO improve
@@ -79,6 +99,7 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 	}
 
 	@Override public void setFilterObject(Object o) {
+		Object filter = o;
 	}
 
 	@Override public Object getFilterObject() {

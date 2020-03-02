@@ -40,22 +40,43 @@ public class TestControllerTest {
     @Test
     @WithMockOidcUser(username="Any")
     public void readWithoutPermission_403() throws Exception {
-        mockMvc.perform(get("/authorized"))
+        mockMvc.perform(get("/readSalesOrders"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockOidcUser(username="Bob")
     public void readWith_Bob_403() throws Exception {
-        mockMvc.perform(get("/authorized"))
+        mockMvc.perform(get("/readSalesOrders"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockOidcUser(username="Alice_salesOrdersRes")
-    public void readWith_Alice_readAll_200() throws Exception {
-        mockMvc.perform(get("/authorized"))
+    public void readWith_Alice_readSalesOrders_200() throws Exception {
+        mockMvc.perform(get("/readSalesOrders"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockOidcUser(username="Alice_salesOrdersBetween")
+    public void readWith_Alice_readGermanSalesOrderWithId100_200() throws Exception {
+        mockMvc.perform(get("/readSalesOrderById/DE/101"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockOidcUser(username="Alice_salesOrdersBetween")
+    public void readWith_Alice_readGermanSalesOrderWithId300() throws Exception {
+        mockMvc.perform(get("/readSalesOrderById/DE/300"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockOidcUser(username="Alice_salesOrdersBetween")
+    public void readWith_Alice_readSalesOrderFromOtherCountries() throws Exception {
+        mockMvc.perform(get("/readSalesOrderById/US/100"))
+                .andExpect(status().isForbidden());
     }
 
 }
