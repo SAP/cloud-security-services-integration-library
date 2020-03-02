@@ -7,6 +7,7 @@ import data.user2policy as u2p
 # }
 salesOrdersBetween {
     u2p[input.user][_] == "salesOrdersBetween"
+    input.resource == "SalesOrders"
     input.action == "read"
     input.Country == "DE"
     input.SalesID >= 100

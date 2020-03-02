@@ -50,7 +50,13 @@ public class TestController {
         return "Read-protected SalesOrder resource accessed!";
     }
 
-    @PreAuthorize("onResourceAction('SalesOrders', 'read', 'Country='+#country,'SalesID='+#id)") // grant rule <action> on <resource>
+    @PreAuthorize("onAction('read', 'Country='+#country)") // grant rule <action> on any resource where Country = 'DE'
+    @GetMapping(value = "/readByCountry/{country}")
+    public String readResourcesInCountry(@PathVariable String country) {
+        return "Read-protected resource in country = " + country + " accessed!";
+    }
+
+    @PreAuthorize("onResourceAction('SalesOrders', 'read', 'Country='+#country,'SalesID='+#id)")  // grant rule <action> on <resource> where Country = {country} AND SalesID = {id}
     @GetMapping(value = "/readSalesOrderById/{country}/{id}")
     public String readSelectedSalesOrder(@PathVariable String country, @PathVariable String id) {
         return "Read-protected SalesOrder with attributes country = " + country +  " and id " + id + " accessed!";

@@ -53,29 +53,43 @@ public class TestControllerTest {
 
     @Test
     @WithMockOidcUser(username="Alice_salesOrdersRes")
-    public void readWith_Alice_readSalesOrders_200() throws Exception {
+    public void readWith_Alice_salesOrders_200() throws Exception {
         mockMvc.perform(get("/readSalesOrders"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockOidcUser(username="Alice_salesOrdersBetween")
-    public void readWith_Alice_readGermanSalesOrderWithId100_200() throws Exception {
+    public void readWith_Alice_germanSalesOrderWithId100_200() throws Exception {
         mockMvc.perform(get("/readSalesOrderById/DE/101"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockOidcUser(username="Alice_salesOrdersBetween")
-    public void readWith_Alice_readGermanSalesOrderWithId300() throws Exception {
+    public void readWith_Alice_germanSalesOrderWithId300() throws Exception {
         mockMvc.perform(get("/readSalesOrderById/DE/300"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockOidcUser(username="Alice_salesOrdersBetween")
-    public void readWith_Alice_readSalesOrderFromOtherCountries() throws Exception {
+    public void readWith_Alice_salesOrderFromOtherCountries() throws Exception {
         mockMvc.perform(get("/readSalesOrderById/US/100"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockOidcUser(username="Alice_countryCode")
+    public void readWith_Alice_germanResource() throws Exception {
+        mockMvc.perform(get("/readByCountry/DE"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockOidcUser(username="Alice_countryCode")
+    public void readWith_Alice_americanResource() throws Exception {
+        mockMvc.perform(get("/readByCountry/US"))
                 .andExpect(status().isForbidden());
     }
 
