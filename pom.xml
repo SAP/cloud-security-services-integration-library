@@ -63,7 +63,7 @@
 		<spring.security.jwt.version>1.0.10.RELEASE</spring.security.jwt.version>
 		<reactor.version>3.2.8.RELEASE</reactor.version>
 		<log4j.version>2.11.2</log4j.version>
-		<slf4j.api.version>1.7.28</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
+		<slf4j.api.version>1.7.30</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20190722</org.json.version>
 		<google.jsr305.version>3.0.2</google.jsr305.version>
 		<apache.httpclient.version>4.5.9</apache.httpclient.version>
@@ -102,6 +102,11 @@
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>token-client</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>java-api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -202,6 +207,12 @@
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.api.version}</version>
+			</dependency>
+			<dependency> <!-- only use in test scope -->
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>${slf4j.api.version}</version>
+				<scope>test</scope>
 			</dependency>
 			<!-- other -->
 			<dependency>
