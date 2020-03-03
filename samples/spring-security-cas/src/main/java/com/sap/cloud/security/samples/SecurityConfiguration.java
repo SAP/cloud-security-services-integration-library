@@ -16,7 +16,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // keep / open, everything else only with authentication
         http.antMatcher("/**").authorizeRequests()
-                .antMatchers("/").permitAll()
+                .antMatchers("/health").permitAll()
                 .anyRequest().authenticated()
                 .and().oauth2Login(); // TODO use @EnableOAuth2Sso
     }

@@ -3,7 +3,7 @@ package rbac
 import data.user2policy as u2p
 
 # DEFINE POLICY salesOrders {
-#    GRANT RULE read WHERE Country = "DE" AND SalesID BETWEEN (100,200)
+#    GRANT RULE read ON SalesOrders WHERE Country = "DE" AND SalesID BETWEEN (100,200)
 # }
 salesOrdersBetween {
     u2p[input.user][_] == "salesOrdersBetween"
