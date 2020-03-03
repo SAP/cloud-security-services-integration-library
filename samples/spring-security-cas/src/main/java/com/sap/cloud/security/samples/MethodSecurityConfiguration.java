@@ -5,6 +5,7 @@ import com.sap.cloud.security.cas.client.SpringADCService;
 import com.sap.cloud.security.cas.spring.ADCSpringSecurityExpressionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -23,12 +24,19 @@ public class MethodSecurityConfiguration extends GlobalMethodSecurityConfigurati
 	@Value("${OPA_URL:http://localhost:8181}")
 	private String adcUrl;
 
+	/**
+	 * TODO: extract as library: SpringBoot Autoconfiguration
+	 */
+	@Bean
+	ADCService adcService() {
+		RestTemplate restTemplate = this.restTemplate != null ? this.restTemplate : new RestTemplate();
+		return new SpringADCService(restTemplate);
+	}
+
 	@Override
 	protected MethodSecurityExpressionHandler createExpressionHandler() {
-		RestTemplate restTemplate = this.restTemplate != null ? this.restTemplate : new RestTemplate();
-		ADCService adcService = new SpringADCService(restTemplate);
 		ADCSpringSecurityExpressionHandler expressionHandler =
-				ADCSpringSecurityExpressionHandler.getInstance(adcService, URI.create(adcUrl));
+				ADCSpringSecurityExpressionHandler.getInstance(adcService(), URI.create(adcUrl));
 		return expressionHandler;
 	}
 

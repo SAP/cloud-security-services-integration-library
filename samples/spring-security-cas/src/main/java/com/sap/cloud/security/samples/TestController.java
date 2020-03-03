@@ -1,18 +1,36 @@
 package com.sap.cloud.security.samples;
 
+import com.sap.cloud.security.cas.client.ADCException;
+import com.sap.cloud.security.cas.client.ADCService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
+
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 public class TestController {
 
-    @GetMapping(value = "/")  //Health check, not secured
-    public String healthCheck() {
+    @Autowired
+    ADCService adcService;
 
+    @Value("${OPA_URL:http://localhost:8181}")
+    private String adcUrl;
+
+    @GetMapping(value = "/health")  //Health check, not secured
+    @ResponseStatus(OK)
+    public String healthCheck() {
+        if(!adcService.ping(URI.create(adcUrl))) { // TODO this can be done as part of health check
+            throw new ADCException("Application is not healthy: ADC Service is not up and running.");
+        }
         return "OK";
     }
 
