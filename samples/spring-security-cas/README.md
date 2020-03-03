@@ -50,7 +50,7 @@ In this sample, if it is not configured `http://localhost:8181` is taken as defa
 ```
 docker-compose up -d
 source localEnvironmentSetup.sh
-mvn spring-boot:run -Dspring-boot.run.profiles=cloud
+mvn spring-boot:run
 ```
 
 ### Test

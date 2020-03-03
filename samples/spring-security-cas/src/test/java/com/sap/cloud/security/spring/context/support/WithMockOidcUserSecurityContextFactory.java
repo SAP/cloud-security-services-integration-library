@@ -74,7 +74,7 @@ final class WithMockOidcUserSecurityContextFactory implements
 
 		OidcUser principal = new DefaultOidcUser(grantedAuthorities,
 				new OidcIdTokenFactory(userName, withUser.clientId()).build(),
-				"attributes");
+				"name"); // TODO nameAttributekey must be configurable
 		Authentication authentication = new OAuth2AuthenticationToken(
 				principal, principal.getAuthorities(), withUser.clientId());
 
@@ -92,8 +92,7 @@ final class WithMockOidcUserSecurityContextFactory implements
 			claims.put  ("client_id", clientId); // mandatory
 			claims.put("iat", issuedAt.getEpochSecond());
 			claims.put("exp", expiredAt.getEpochSecond());
-			claims.put("attributes", "value"); // mandatory TODO understand purpose
-			claims.put("given_name", userName); // TODO understand how to configure unique name
+			claims.put("name", userName); // TODO nameAttributekey must be configurable
 			claims.put("email", userName + "@test.org");
 		}
 

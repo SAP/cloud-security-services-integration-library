@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
 
 /**
  * TODO: extract as library
@@ -70,12 +69,8 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 	}
 
 	public boolean onResourceAction(String resource, String action, String... attributes) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		OAuth2AuthenticationToken oauthAuth = (OAuth2AuthenticationToken)auth;
+		String userId = getUserId();
 
-		// TODO IAS Support
-		OidcUser user = (OidcUser) oauthAuth.getPrincipal();
-		String userId = user.getGivenName(); // TODO update to unique user id
 		OpenPolicyAgentRequest request = new OpenPolicyAgentRequest(userId)
 				.withAction(action)
 				.withResource(resource)
@@ -87,6 +82,14 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 		return isAuthorized;
 	}
 
+	private String getUserId() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		OAuth2AuthenticationToken oauthAuth = (OAuth2AuthenticationToken)auth;
+
+		// TODO IAS Support
+		OidcUser user = (OidcUser) oauthAuth.getPrincipal();
+		return user.getName(); // TODO update to unique user id
+	}
 
 	private boolean checkAuthorization(OpenPolicyAgentRequest request) {
 		URI adcUri = expandPath(this.adcUri, "/v1/data/rbac/allow");
