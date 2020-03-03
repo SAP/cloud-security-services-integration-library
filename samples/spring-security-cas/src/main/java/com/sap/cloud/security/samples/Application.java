@@ -1,6 +1,6 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.cas.ADCExecutor;
+import com.sap.cloud.security.cas.client.ADCException;
 import com.sap.cloud.security.cas.client.ADCService;
 import com.sap.cloud.security.cas.client.SpringADCService;
 import org.springframework.boot.SpringApplication;
@@ -23,13 +23,8 @@ public class Application {
 
 		URI adcUrl = URI.create(Optional.ofNullable(ctx.getEnvironment().getProperty("OPA_URL"))
 				.orElse("http://localhost:8181"));
-		try {
-			if(!adcService.ping(adcUrl)) { // TODO this can be done as part of health check
-				ADCExecutor.get().start(); // TODO can probably be deleted in future
-			}
-		} catch (Exception e){
-			System.out.println("ADC Start error: ");
-			System.out.println(e.getStackTrace());
+		if(!adcService.ping(adcUrl)) { // TODO this can be done as part of health check
+			throw new ADCException("Application is not healthy: ADC Service is not up and running.");
 		}
 	}
 
