@@ -65,7 +65,8 @@ SLF4J: Defaulting to no-operation (NOP) logger implementation
 ```
 In this case you need to add a logger implementation dependency to your application.
 See the slf4j [documentation](http://www.slf4j.org/codes.html#StaticLoggerBinder)
-for more information.
+for more information and a [list](http://www.slf4j.org/manual.html#swapping) of available
+logger options.
 
 ## Basic Usage
 
