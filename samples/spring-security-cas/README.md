@@ -113,6 +113,6 @@ This GET request executes a method secured with Spring Global Method Security. I
 Finally delete your application and your service instances using the following commands:
 ```
 docker rm --force spring-security-cas_opa_1
-cf delete cf delete spring-security-cas-usage
+cf delete spring-security-cas
 cf delete-service spring-security-cas-ias
 ```
