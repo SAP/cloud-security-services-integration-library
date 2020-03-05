@@ -218,10 +218,18 @@ When your code compiles again you should first check that all your unit tests ar
 application locally make sure that it is still working and finally test the application in cloud foundry.
 
 ## Troubleshoot
-- org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line 51 in XML document from ServletContext resource [/WEB-INF/spring-security.xml] is invalid; nested exception is org.xml.sax.SAXParseException; lineNumber: 51; columnNumber: 118; cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'oauth:resource-server'.
-You can fix this by changing the schema location to https for oauth2 as below in the spring security xml. With this change, the local jar is available and solves the issue of server trying to connect to get the jar and fails due to some restrictions.
-xml. xsi:schemaLocation="http://www.springframework.org/schema/security/oauth2
+- org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException  
+```
+org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line XX in XML document from ServletContext resource [/WEB-INF/spring-security.xml] is invalid; 
+nested exception is org.xml.sax.SAXParseException; lineNumber: 51; columnNumber: 118; cvc-complex-type.2.4.c: 
+The matching wildcard is strict, but no declaration can be found for element 'oauth:resource-server'.
+```  
+You can fix this by changing the schema location to `https` for `oauth2` as below in the spring security xml. With this change, the local jar is available and solves the issue of server trying to connect to get the jar and fails due to some restrictions.
+
+```
+xsi:schemaLocation="http://www.springframework.org/schema/security/oauth2
 https://www.springframework.org/schema/security/spring-security-oauth2.xsd
+```
 
 
 ## Issues
