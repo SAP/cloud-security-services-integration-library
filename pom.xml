@@ -105,7 +105,7 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>${project.groupId}</groupId>
+				<groupId>${parent-groupId}</groupId>
 				<artifactId>java-api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -125,8 +125,8 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>core</artifactId>
+				<groupId>${parent-groupId}</groupId>
+				<artifactId>java-security</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<!-- spring -->
