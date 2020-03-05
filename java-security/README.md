@@ -55,7 +55,7 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
 ### Logging
 
 This library uses [slf4j](http://www.slf4j.org/) for logging. It only ships the [slf4j-api module](https://mvnrepository.com/artifact/org.slf4j/slf4j-api) and no actual logger implementation.
-For the loggin to work slf4j needs to find a valid logger implementation at runtime. 
+For the logging to work slf4j needs to find a valid logger implementation at runtime. 
 If your app is deployed via buildpack then you will have one available and logging should just work.
 
 If there is no valid logger binding at runtime you will see an error message like this:
