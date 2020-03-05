@@ -20,26 +20,20 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: Build spring-security-basic-auth
-        with:
-          path: /samples/spring-security-basic-auth
+        run: cd samples/spring-security-basic-auth
         run: mvn -B package --file pom.xml
       - name: Build spring-security-xsuaa-usage
-        with:
-          path: /samples/spring-security-xsuaa-usage
+        run: cd samples/spring-security-xsuaa-usage
         run: mvn -B package --file pom.xml
       - name: Build spring-webflux-security-xsuaa-usage
-        with:
-          path: /samples/spring-webflux-security-xsuaa-usage
+        run: cd samples/spring-webflux-security-xsuaa-usage
         run: mvn -B package --file pom.xml
       - name: Build java-security-usage
-        with:
-          path: /samples/java-security-usage
+        run: cd samples/java-security-usage
         run: mvn -B package --file pom.xml
       - name: Build sap-java-buildpack-api-usage
-        with:
-          path: /samples/sap-java-buildpack-api-usage
+        run: cd samples/sap-java-buildpack-api-usage
         run: mvn -B package --file pom.xml
       - name: Build java-tokenclient-usage
-        with:
-          path: /samples/java-tokenclient-usage
+        run: cd samples/java-tokenclient-usage
         run: mvn -B package --file pom.xml
