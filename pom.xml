@@ -58,7 +58,6 @@
 		<!-- make sure that spring core and spring boot versions are compatible-->
 		<spring.core.version>5.2.3.RELEASE</spring.core.version>
 		<spring.boot.version>2.2.4.RELEASE</spring.boot.version>
-		<spring.security.version>5.2.1.RELEASE</spring.security.version>
 		<spring.security.oauth2.version>2.4.0.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.0.10.RELEASE</spring.security.jwt.version>
 		<reactor.version>3.2.8.RELEASE</reactor.version>
@@ -153,13 +152,13 @@
 				<version>${spring.core.version}</version>
 			</dependency>
 			<!-- spring security-->
-			<dependency>
+			<!--dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-bom</artifactId>
 				<version>${spring.security.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
-			</dependency>
+			</dependency-->
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-jwt</artifactId>
