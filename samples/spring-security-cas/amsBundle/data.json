@@ -24,6 +24,9 @@
         "Alice_salesOrdersLike": [
             "salesOrdersLike"
         ],
-        "Bob": []
+        "Bob": [],
+        "YourUserId": [
+            "countryCode"
+        ]
     }
 }

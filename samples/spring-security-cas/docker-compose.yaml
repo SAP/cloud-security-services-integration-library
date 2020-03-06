@@ -6,7 +6,7 @@ services:
       - 8181:8181
     volumes:
       - type: bind
-        source: ./src/main/resources/amsBundle
+        source: ./amsBundle
         target: /policies
     command:
       - "run"
