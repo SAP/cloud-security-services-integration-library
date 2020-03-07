@@ -1,7 +1,14 @@
 <!DOCTYPE HTML>
 <html>
-	<head></head>
+	<head>Spring Security &amp; XSUAA</head>
 	<body>
-		Welcome to our Index Page
+	<ul>
+		<li><a href="/v1/sayHello">GET request that provides XSUAA user token details, but only if token matches.</a><li>
+		<li><a href="/v1/method">GET request executes a method secured with Spring Global Method Security.</a><li>
+		<li><a href="/v1/getAdminData">GET request to read sensitive data via Global Method Security. You will get a 403 (UNAUTHORIZED), in case you do not have Admin scope.</a><li>
+		<li><a href="/v2/sayHello">GET request that logs generic Jwt info, but only if token matches.</a><li>
+		<li><a href="/v3/requestClientCredentialsToken">GET request that requests the client credentials Jwt token and writes it into the log.</a><li>
+		<li><a href="/v3/requestUserToken">GET request that exchanges a Jwt token for a potential different client.</a><li>
+	</ul>
 	</body>
 </html>
