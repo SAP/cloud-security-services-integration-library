@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.5.2
+- [java-api], [java-security], [token-client] works with logger api `slf4j-api`, do not provide implementation.
+- [xsuaa-spring-boot-starter] update spring-boot (security) dependency versions [#239](https://github.com/SAP/cloud-security-xsuaa-integration/issues/239).
+
 ## 2.5.1
 - [java-api] As preparation for the SAP Java Buildpack the interfaces, as well as the `SecurityContext` is extracted to [java-api](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/java-api).
 - [java-security] `AccessToken`s provided via the `SpringSecurityContext` should also support the `hasLocalScope` method.
