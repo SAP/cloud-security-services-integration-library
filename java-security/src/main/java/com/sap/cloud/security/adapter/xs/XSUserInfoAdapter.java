@@ -271,12 +271,12 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) {
-		throw new UnsupportedOperationException("Not implemented.");
+		throw new UnsupportedOperationException("Not implemented. Use token-client library instead.");
 	}
 
 	@Override
 	public String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException {
-		throw new UnsupportedOperationException("Not implemented.");
+		throw new UnsupportedOperationException("Not implemented. Use token-client library instead.");
 	}
 
 	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName)
