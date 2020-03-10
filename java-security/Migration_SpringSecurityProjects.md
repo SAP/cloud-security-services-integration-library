@@ -12,19 +12,17 @@ To use the new [java-security](/java-security) client library the dependencies d
 First make sure you have the following dependencies defined in your pom.xml:
 
 ```xml
-<-- updated spring-security dependencies -->
+<!-- take the latest spring-security dependencies -->
 <dependency>
   <groupId>org.springframework.security.oauth</groupId>
   <artifactId>spring-security-oauth2</artifactId>
-  <version>2.4.0.RELEASE</version>
 </dependency>
 <dependency>
   <groupId>org.springframework</groupId>
   <artifactId>spring-aop</artifactId>
-  <version>4.3.25.RELEASE</version>
 </dependency>
 
-<-- new java-security dependencies -->
+<!-- new java-security dependencies -->
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>api</artifactId>
@@ -35,6 +33,8 @@ First make sure you have the following dependencies defined in your pom.xml:
   <artifactId>java-security</artifactId>
   <version>2.5.2</version>
 </dependency>
+
+<!-- new java-security dependencies for unit tests -->
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security-test</artifactId>
@@ -50,6 +50,10 @@ Now you are ready to **remove** the **`java-container-security`** client library
   <groupId>com.sap.xs2.security</groupId>
   <artifactId>java-container-security</artifactId>
 </dependency>
+<dependency>
+  <groupId>com.sap.xs2.security</groupId>
+  <artifactId>java-container-security-api</artifactId>
+</dependency>
 ```
 Or
 ```xml
@@ -57,7 +61,13 @@ Or
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>java-container-security</artifactId>
 </dependency>
+<dependency>
+  <groupId>com.sap.cloud.security.xsuaa</groupId>
+  <artifactId>api</artifactId>
+</dependency>
 ```
+
+Make sure that you do not refer to any other sap security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
 
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
