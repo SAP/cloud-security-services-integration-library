@@ -5,7 +5,10 @@ import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
-import com.sap.cloud.security.token.*;
+import com.sap.cloud.security.token.GrantType;
+import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.token.XsuaaScopeConverter;
+import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -137,6 +140,14 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
+	public void testGetDBToken_onEmptyToken_throwsException() throws XSUserInfoException {
+		cut = new XSUserInfoAdapter(emptyToken);
+
+		assertThatThrownBy(() -> cut.getDBToken()).isInstanceOf(XSUserInfoException.class);
+		assertThatThrownBy(() -> cut.getHdbToken()).isInstanceOf(XSUserInfoException.class);
+	}
+
+	@Test
 	public void testGetHdbToken() throws XSUserInfoException {
 		assertThat(cut.getHdbToken()).isEqualTo(cut.getAppToken());
 	}
@@ -187,8 +198,14 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void testHasAttributes() throws XSUserInfoException {
+	public void testHasAttributes_true() throws XSUserInfoException {
 		assertThat(cut.hasAttributes()).isTrue();
+	}
+
+	@Test
+	public void testHasAttributes_false() throws XSUserInfoException {
+		cut = new XSUserInfoAdapter(emptyToken);
+		assertThat(cut.hasAttributes()).isFalse();
 	}
 
 	@Test

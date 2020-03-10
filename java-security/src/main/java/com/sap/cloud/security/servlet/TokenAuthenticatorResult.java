@@ -3,7 +3,6 @@ package com.sap.cloud.security.servlet;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.Assertions;
 
-import javax.annotation.Nullable;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,13 +11,13 @@ import java.util.Collections;
  * Class to collect the result of the authentication performed by a
  * {@link TokenAuthenticator}.
  */
-public class TokenAuthenticationResult {
+class TokenAuthenticatorResult implements TokenAuthenticationResult {
 
 	private Collection<String> scopes = Collections.emptyList();
 	private Token token = null;
 	private String reason = "";
 
-	private TokenAuthenticationResult() {
+	private TokenAuthenticatorResult() {
 		// use static create methods
 	}
 
@@ -29,9 +28,9 @@ public class TokenAuthenticationResult {
 	 *            the reason why the request is not authenticated.
 	 * @return a {@link TokenAuthenticationResult}.
 	 */
-	public static final TokenAuthenticationResult createUnauthenticated(String reason) {
+	public static TokenAuthenticationResult createUnauthenticated(String reason) {
 		Assertions.assertHasText(reason, "Reason must contain text");
-		TokenAuthenticationResult result = new TokenAuthenticationResult();
+		TokenAuthenticatorResult result = new TokenAuthenticatorResult();
 		result.reason = reason;
 		return result;
 	}
@@ -44,7 +43,7 @@ public class TokenAuthenticationResult {
 	 * @return a {@link TokenAuthenticationResult}.
 	 */
 	public static TokenAuthenticationResult createAuthenticated(Collection<String> scopes, Token token) {
-		TokenAuthenticationResult result = new TokenAuthenticationResult();
+		TokenAuthenticatorResult result = new TokenAuthenticatorResult();
 		result.scopes = scopes;
 		result.token = token;
 		return result;
@@ -55,7 +54,7 @@ public class TokenAuthenticationResult {
 	 * 
 	 * @return the token.
 	 */
-	@Nullable
+	@Override
 	public Token getToken() {
 		return token;
 	}
@@ -65,7 +64,7 @@ public class TokenAuthenticationResult {
 	 * 
 	 * @return the principal.
 	 */
-	@Nullable
+	@Override
 	public Principal getPrincipal() {
 		return token.getPrincipal();
 	}
@@ -75,6 +74,7 @@ public class TokenAuthenticationResult {
 	 * 
 	 * @return the scopes as a list of strings.
 	 */
+	@Override
 	public Collection<String> getScopes() {
 		return scopes;
 	}
@@ -82,6 +82,7 @@ public class TokenAuthenticationResult {
 	/**
 	 * @return true if authenticated.
 	 */
+	@Override
 	public boolean isAuthenticated() {
 		return reason.isEmpty();
 	}
@@ -92,6 +93,7 @@ public class TokenAuthenticationResult {
 	 * @return the textual description why the request was not authenticated. Empty
 	 *         string if authenticated.
 	 */
+	@Override
 	public String getUnauthenticatedReason() {
 		return reason;
 	}

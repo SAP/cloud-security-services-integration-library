@@ -41,7 +41,7 @@ public class JwtSignatureValidatorTest {
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(any()))
-				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+						.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,

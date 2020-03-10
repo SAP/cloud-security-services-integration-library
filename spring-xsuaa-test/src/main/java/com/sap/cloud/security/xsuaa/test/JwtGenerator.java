@@ -15,6 +15,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
+import org.springframework.util.Assert;
+
+import static com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders.JKU;
+import static com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders.KID;
 
 /**
  * Create tokens with a fixed private/public key and dummy values. The client
@@ -54,6 +58,7 @@ public class JwtGenerator {
 
 	// must match the port defined in XsuaaMockWebServer
 	private static final int MOCK_XSUAA_DEFAULT_PORT = 33195;
+	private static final String INITIAL_JKU = "null";
 	public static final Date NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime();
 	public static final int NO_EXPIRE = Integer.MAX_VALUE;
 	public static final String CLIENT_ID = "sb-xsapplication!t895";
@@ -66,31 +71,14 @@ public class JwtGenerator {
 	private final String identityZoneId;
 	private final String subdomain;
 
-	private String jku;
+	private String jku = INITIAL_JKU;
 	private String[] scopes;
 	private String userName = "testuser";
 	private String jwtHeaderKeyId = "legacy-token-key";
+	private int port;
 	private Map<String, List<String>> attributes = new HashMap<>();
 	private Map<String, Object> customClaims = new LinkedHashMap();
 	private boolean deriveAudiences = false;
-
-	/**
-	 * Specifies clientId of the JWT token claim.
-	 *
-	 * @param clientId
-	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
-	 *            value of the JWT token claims "client_id" and "cid". A token is
-	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
-	 *            service configuration (VCAP_SERVICES).
-	 * @param port
-	 *            the port that is used to connect to the XSUAA mock web server.
-	 */
-	public JwtGenerator(String clientId, int port) {
-		this.clientId = clientId;
-		this.subdomain = "";
-		this.identityZoneId = DEFAULT_IDENTITY_ZONE_ID;
-		this.jku = createJku(subdomain, port);
-	}
 
 	/**
 	 * Specifies clientId of the JWT token claim.
@@ -104,6 +92,23 @@ public class JwtGenerator {
 	public JwtGenerator(String clientId) {
 		this(clientId, MOCK_XSUAA_DEFAULT_PORT);
 	}
+
+	/**
+	 * Specifies clientId of the JWT token claim.
+	 *
+	 * @param clientId
+	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
+	 *            value of the JWT token claims "client_id" and "cid". A token is
+	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
+	 *            service configuration (VCAP_SERVICES).
+	 * @param port
+	 *            the port that is used to connect to the XSUAA mock web server.
+	 */
+	public JwtGenerator(String clientId, int port) {
+		this(clientId, "", DEFAULT_IDENTITY_ZONE_ID);
+		this.port = port;
+	}
+
 
 	/**
 	 * Overwrites some default values of the JWT token claims.
@@ -126,7 +131,7 @@ public class JwtGenerator {
 		this.clientId = clientId;
 		this.subdomain = subdomain;
 		this.identityZoneId = identityZoneId;
-		this.jku = createJku(subdomain, MOCK_XSUAA_DEFAULT_PORT);
+		this.port = MOCK_XSUAA_DEFAULT_PORT;
 	}
 
 	/**
@@ -246,6 +251,18 @@ public class JwtGenerator {
 	}
 
 	/**
+	 * Sets the port which is used to retrieve the verification keys
+	 *
+	 * @param port
+	 * 			the port that is used to connect to the XSUAA mock web server.
+	 * @return the JwtGenerator itself
+	 */
+	public JwtGenerator setPort(int port) {
+		this.port = port;
+		return this;
+	}
+
+	/**
 	 * Builds a basic Jwt with the given clientId, userName, scopes, user attributes
 	 * claims and the keyId header.
 	 *
@@ -266,12 +283,15 @@ public class JwtGenerator {
 		for (Map.Entry<String, Object> customClaim : customClaims.entrySet()) {
 			claimsSetBuilder.claim(customClaim.getKey(), customClaim.getValue());
 		}
-		return createFromClaims(claimsSetBuilder.build().toString(), getHeaderMap(jwtHeaderKeyId, jku));
+		return createFromClaims(claimsSetBuilder.build().toString(), getHeaderMap(jwtHeaderKeyId, getOrCreateJku()));
 	}
 
-	private static String createJku(String subdomain, int port) {
-		String subdomainPart = subdomain != null && !subdomain.equals("") ? "/" + subdomain : "";
-		return "http://localhost:" + port + subdomainPart + "/token_keys";
+	private String getOrCreateJku() {
+		if(INITIAL_JKU.equals(jku)) {
+			String subdomainPart = subdomain != null && !subdomain.equals("") ? "/" + subdomain : "";
+			return "http://localhost:" + port + subdomainPart + "/token_keys";
+		}
+		return jku;
 	}
 
 	private List<String> deriveAudiencesFromScopes(String[] scopes) {
@@ -314,7 +334,7 @@ public class JwtGenerator {
 	public Jwt createFromTemplate(String pathToTemplate) throws IOException {
 		String claimsFromTemplate = IOUtils.resourceToString(pathToTemplate, StandardCharsets.UTF_8);
 		String claimsWithReplacements = replacePlaceholders(claimsFromTemplate);
-		return createFromClaims(claimsWithReplacements, getHeaderMap(jwtHeaderKeyId, jku));
+		return createFromClaims(claimsWithReplacements, getHeaderMap(jwtHeaderKeyId, getOrCreateJku()));
 	}
 
 	/**
@@ -380,7 +400,7 @@ public class JwtGenerator {
 	 * @return a basic set of claims
 	 */
 	public Map<String, String> getBasicHeaders() {
-		return getHeaderMap(jwtHeaderKeyId, jku);
+		return getHeaderMap(jwtHeaderKeyId, getOrCreateJku());
 	}
 
 	private static Jwt createFromClaims(String claims, Map<String, String> headers) {
@@ -388,13 +408,13 @@ public class JwtGenerator {
 		return convertTokenToOAuthJwt(token);
 	}
 
-	private static Map<String, String> getHeaderMap(String jwtHeaderKeyId, String jku) {
+	private static Map<String, String> getHeaderMap(String jwtHeaderKeyId, String jwtKeyUrl) {
 		Map<String, String> headers = new HashMap<>();
 		if (jwtHeaderKeyId != null) {
-			headers.put("kid", jwtHeaderKeyId);
+			headers.put(KID, jwtHeaderKeyId);
 		}
-		if (jku != null) {
-			headers.put("jku", jku);
+		if (jwtKeyUrl != null) {
+			headers.put(JKU, jwtKeyUrl);
 		}
 		return headers;
 	}

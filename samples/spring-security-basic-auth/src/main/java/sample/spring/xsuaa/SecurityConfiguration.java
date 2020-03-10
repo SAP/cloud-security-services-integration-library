@@ -37,7 +37,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 		// @formatter:off
 		http.authorizeRequests()
-				.antMatchers("/hello-token").hasAuthority("openid")
+				.antMatchers("/hello-token").hasAuthority("Display")
 				.anyRequest().authenticated()
 			.and()
 				.sessionManagement()
@@ -64,7 +64,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Bean
 	Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
 		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
-//		converter.setLocalScopeAsAuthorities(true);
+		converter.setLocalScopeAsAuthorities(true);
 		return converter;
 	}
 

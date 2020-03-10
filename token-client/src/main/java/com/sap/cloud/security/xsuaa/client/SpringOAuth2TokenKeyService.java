@@ -32,6 +32,9 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		} catch (HttpClientErrorException ex) {
 			throw OAuth2ServiceException.createWithStatusCodeAndResponseBody("Error retrieving token keys",
 					ex.getStatusCode().value(), ex.getResponseBodyAsString());
+		} catch (Exception e) {
+			throw OAuth2ServiceException.createWithStatusCodeAndResponseBody("Unexpected error retrieving token keys",
+					500, e.getMessage());
 		}
 	}
 

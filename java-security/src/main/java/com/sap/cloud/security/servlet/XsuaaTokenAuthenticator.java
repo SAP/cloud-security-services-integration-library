@@ -29,7 +29,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 	protected TokenAuthenticationResult authenticated(Token token) {
 		Collection<String> translatedScopes = getScopeConverter()
 				.convert(((XsuaaToken) token).getScopes());
-		return TokenAuthenticationResult.createAuthenticated(translatedScopes, token);
+		return TokenAuthenticatorResult.createAuthenticated(translatedScopes, token);
 	}
 
 	private ScopeConverter getScopeConverter() {

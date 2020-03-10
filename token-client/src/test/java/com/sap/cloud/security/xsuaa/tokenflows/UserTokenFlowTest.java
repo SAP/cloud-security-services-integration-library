@@ -1,22 +1,16 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
-import static com.sap.cloud.security.xsuaa.tokenflows.UserTokenFlow.FF_USE_JWT_BEARER_GRANT_TYPE;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -36,9 +30,6 @@ public class UserTokenFlowTest {
 	@Mock
 	private OAuth2TokenService mockTokenService;
 
-	@Mock
-	RefreshTokenFlow mockRefreshTokenFlow;
-
 	private String userTokenToBeExchanged;
 	private OAuth2TokenResponse dummyAccessToken;
 	private ClientCredentials clientCredentials;
@@ -47,64 +38,27 @@ public class UserTokenFlowTest {
 
 	private static final String JWT_ACCESS_TOKEN = "4bfad399ca10490da95c2b5eb4451d53";
 
-	@BeforeClass
-	@Deprecated
-	public static void activateJwtBearerFeatureFlag() {
-		String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-		String appConfigPath = rootPath + "application.properties";
-
-		Properties appProps = new Properties();
-		try {
-			appProps.setProperty(FF_USE_JWT_BEARER_GRANT_TYPE, "true");
-			appProps.store(new FileWriter(appConfigPath), "enable feature flag FF_USE_JWT_BEARER_GRANT_TYPE");
-		} catch (IOException e) {
-		}
-	}
-
-	@AfterClass
-	@Deprecated
-	public static void removeJwtBearerFeatureFlag() {
-		String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-		String appConfigPath = rootPath + "application.properties";
-
-		Properties appProps = new Properties();
-		try {
-			appProps.remove(FF_USE_JWT_BEARER_GRANT_TYPE);
-			appProps.store(new FileWriter(appConfigPath), "remove feature flag FF_USE_JWT_BEARER_GRANT_TYPE");
-		} catch (IOException e) {
-		}
-	}
-
 	@Before
-	public void setup() throws TokenFlowException {
-		this.userTokenToBeExchanged = buildMockJwt();
+	public void setup() {
+		this.userTokenToBeExchanged = new JwtGenerator().getToken().getTokenValue();;
 		this.dummyAccessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, REFRESH_TOKEN);
 		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
 		this.endpointsProvider = new XsuaaDefaultEndpoints(XSUAA_BASE_URI);
-		this.cut = new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, endpointsProvider, clientCredentials);
-	}
-
-	private String buildMockJwt() {
-		return new JwtGenerator().addScopes("uaa.user").getToken().getTokenValue();
+		this.cut = new UserTokenFlow(mockTokenService, endpointsProvider, clientCredentials);
 	}
 
 	@Test
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new UserTokenFlow(null, mockRefreshTokenFlow, endpointsProvider, clientCredentials);
+			new UserTokenFlow(null, endpointsProvider, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
 		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, null,
-					endpointsProvider, clientCredentials);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RefreshTokenFlow");
-
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, null, clientCredentials);
+			new UserTokenFlow(mockTokenService, null, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
 
 		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, endpointsProvider, null);
+			new UserTokenFlow(mockTokenService, endpointsProvider, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientCredentials");
 	}
 
@@ -117,17 +71,6 @@ public class UserTokenFlowTest {
 		assertThatThrownBy(() -> {
 			cut.execute();
 		}).isInstanceOf(IllegalStateException.class).hasMessageContaining("User token not set");
-	}
-
-	@Test
-	public void execute_throwsIfTokenDoesNotContainUaaUserScope() {
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow,
-					endpointsProvider, clientCredentials)
-							.token(new JwtGenerator().getToken().getTokenValue()) // contains no uaa.user scope
-							.execute();
-		}).isInstanceOf(IllegalStateException.class)
-				.hasMessageContaining("JWT token does not include scope 'uaa.user'");
 	}
 
 	@Test
@@ -144,7 +87,7 @@ public class UserTokenFlowTest {
 					.execute();
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
-						"Error requesting token with grant_type 'user_token'");
+						"Error requesting token with grant_type 'urn:ietf:params:oauth:grant-type:jwt-bearer'");
 	}
 
 	@Test
@@ -165,7 +108,7 @@ public class UserTokenFlowTest {
 	@Test
 	public void execute_withSubdomain() throws TokenFlowException, OAuth2ServiceException {
 		String subdomain = "subdomain";
-		cut = new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, endpointsProvider, clientCredentials);
+		cut = new UserTokenFlow(mockTokenService, endpointsProvider, clientCredentials);
 
 		when(mockTokenService
 				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), eq(subdomain), any()))

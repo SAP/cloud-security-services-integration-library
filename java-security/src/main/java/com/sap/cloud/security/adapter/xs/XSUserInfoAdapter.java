@@ -181,9 +181,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		checkNotGrantTypeClientCredentials("hasAttributes");
 		if (accessToken.hasClaim(EXTERNAL_CONTEXT)) {
 			JsonObject extContext = getClaimAsJsonObject(EXTERNAL_CONTEXT);
-			return extContext.contains(XS_USER_ATTRIBUTES) && !extContext.getJsonObject(EXTERNAL_CONTEXT).isEmpty();
+			return extContext != null && extContext.contains(XS_USER_ATTRIBUTES) && !extContext
+					.getJsonObject(EXTERNAL_CONTEXT).isEmpty();
 		} else {
-			return !getClaimAsJsonObject(XS_USER_ATTRIBUTES).isEmpty();
+			JsonObject xsUserAttributes = getClaimAsJsonObject(XS_USER_ATTRIBUTES);
+			return !(xsUserAttributes == null || xsUserAttributes.isEmpty());
 		}
 	}
 
@@ -269,12 +271,12 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) {
-		throw new UnsupportedOperationException("Not implemented.");
+		throw new UnsupportedOperationException("Not implemented. Use token-client library instead.");
 	}
 
 	@Override
 	public String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException {
-		throw new UnsupportedOperationException("Not implemented.");
+		throw new UnsupportedOperationException("Not implemented. Use token-client library instead.");
 	}
 
 	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName)

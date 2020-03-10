@@ -12,11 +12,15 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -57,7 +61,12 @@ public class SAPOfflineTokenServicesCloudTest {
 
 		assertThat(authentication.isAuthenticated()).isTrue();
 		assertThat(authentication.getOAuth2Request()).isNotNull();
-		assertThat(authentication.getOAuth2Request().getScope()).contains("ROLE_SERVICEBROKER", "uaa.resource");
+		assertThat(authentication.getOAuth2Request().getScope()).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
+		Collection<String> authorities = authentication.getOAuth2Request().getAuthorities().stream()
+				.map(GrantedAuthority::getAuthority).collect(
+						Collectors.toList());
+		assertThat(authorities).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
+		assertThat(authentication.getAuthorities()).contains(new SimpleGrantedAuthority("uaa.resource"));
 		assertThat(SecurityContext.getToken().getTokenValue()).isEqualTo(xsuaaToken);
 	}
 
@@ -68,12 +77,13 @@ public class SAPOfflineTokenServicesCloudTest {
 		cut.afterPropertiesSet();
 
 		OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
-		assertThat(authentication.getOAuth2Request().getScope()).containsExactly("testApp.localScope", "openid",
-				"testScope");
+		assertThat(authentication.getOAuth2Request().getScope()).containsExactlyInAnyOrder("testApp.localScope", "openid", "testScope");
 
 		cut.setLocalScopeAsAuthorities(true);
 		authentication = cut.loadAuthentication(xsuaaToken);
 		assertThat(authentication.getOAuth2Request().getScope()).containsExactly("localScope");
+		assertThat(authentication.getAuthorities().size()).isEqualTo(1);
+		assertThat(authentication.getAuthorities()).contains(new SimpleGrantedAuthority("localScope"));
 	}
 
 	@Test

@@ -100,17 +100,20 @@ public class CFEnvironment implements Environment {
 		return env != null ? env : "{}";
 	}
 
-	private OAuth2ServiceConfiguration loadXsuaa() {
+	OAuth2ServiceConfiguration loadXsuaa() {
 		Optional<OAuth2ServiceConfiguration> applicationService = Optional
 				.ofNullable(loadForServicePlan(XSUAA, Plan.APPLICATION));
 		Optional<OAuth2ServiceConfiguration> brokerService = Optional
 				.ofNullable(loadForServicePlan(XSUAA, Plan.BROKER));
 		Optional<OAuth2ServiceConfiguration> legacyService = Optional
 				.ofNullable(loadForServicePlan(XSUAA, Plan.SPACE));
-		if (applicationService.isPresent()) {
-			return applicationService.get();
-		}
-		return brokerService.orElse(legacyService.orElse(null));
+		Optional<OAuth2ServiceConfiguration> legacyServiceSimple = Optional
+				.ofNullable(loadForServicePlan(XSUAA, Plan.DEFAULT));
+
+		return applicationService.orElse(
+				brokerService.orElse(
+						legacyService.orElse(
+								legacyServiceSimple.orElse(null))));
 	}
 
 	/**
