@@ -1,7 +1,4 @@
 package com.sap.cloud.security.xsuaa;
-/**
- * 
- */
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -63,9 +60,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 		return uaadomain;
 	}
 
-	/*
-	 * @Override public String getCertificates() { return certificates; }
-	 * 
-	 * @Override public String getPrivateKey() { return privateKey; }
-	 */
+	@Override public String getCertificates() { return certificates; }
+
+	@Override public String getPrivateKey() { return privateKey; }
 }

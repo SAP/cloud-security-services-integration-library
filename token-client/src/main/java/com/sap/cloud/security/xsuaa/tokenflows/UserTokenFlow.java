@@ -3,15 +3,11 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
-import javax.annotation.Nullable;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
@@ -19,7 +15,6 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 /**
@@ -184,7 +179,6 @@ public class UserTokenFlow {
 			optionalParameter.put(AUTHORITIES, authorities); // places JSON inside the URI !?!
 		}
 
-		String refreshToken = null;
 		try {
 			return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
 					request.getTokenEndpoint(),
@@ -224,44 +218,6 @@ public class UserTokenFlow {
 							GRANT_TYPE_JWT_BEARER,
 							e.getMessage()),
 					e);
-		}
-	}
-
-	/**
-	 * Checks if a given scope is contained inside the given token.
-	 *
-	 * @param token
-	 *            - the token to check the scope for.
-	 * @param scope
-	 *            - the scope to check for.
-	 * @return {@code true} if the scope is contained, {@code false} otherwise.
-	 */
-	private boolean hasScope(String token, String scope) {
-		String claims = new Base64JwtDecoder().decode(token).getPayload();
-		try {
-			JSONObject rootObject = new JSONObject(claims);
-			JSONArray scopesArray = rootObject.getJSONArray(SCOPE_CLAIM);
-			for (Iterator scopes = scopesArray.iterator(); scopes.hasNext();)
-				if (scopes.next().equals(scope)) {
-					return true;
-				}
-		} catch (JSONException e) {
-			return false;
-		}
-		return false;
-	}
-
-	@Nullable
-	private String readFromPropertyFile(String property) {
-		String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-		String appConfigPath = rootPath + "application.properties";
-
-		Properties appProps = new Properties();
-		try {
-			appProps.load(new FileInputStream(appConfigPath));
-			return appProps.getProperty(property);
-		} catch (IOException e) {
-			return null;
 		}
 	}
 

@@ -50,7 +50,7 @@ cf create-service-broker ks1-q4-broker ks-user 123456 https://ks1-broker-q4-<ID>
 
 Now `cf m` will list you also your `ks1-q4-<ID>` and we can create an instance of it in the next step.
 
-> `123456` is the password, that matches the user/password information in `SBF_BROKER_CREDENTIALS_HASH` as part of the `manifest.yml.
+> `123456` is the password, that matches the user/password information in `SBF_BROKER_CREDENTIALS_HASH` as part of the `manifest.yml`.
 
 
 ## Create KS1 Consumer Application
