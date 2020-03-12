@@ -6,6 +6,8 @@ This migration guide is a step-by-step guide explaining how to replace the follo
 
 with this open-source version.
 
+## Disclaimer: The java-container-security as well as this solution bases on `org.springframework.security.oauth:spring-security-oauth2` which gets deprecated soon.
+
 ## Maven Dependencies
 To use the new [java-security](/java-security) client library the dependencies declared in maven `pom.xml` need to be updated.
 
@@ -13,6 +15,7 @@ First make sure you have the following dependencies defined in your pom.xml:
 
 ```xml
 <!-- take the latest spring-security dependencies -->
+<!-- Spring deprecates it as it gets replaced with libs of groupId "org.springframework.security" -->
 <dependency>
   <groupId>org.springframework.security.oauth</groupId>
   <artifactId>spring-security-oauth2</artifactId>
@@ -182,7 +185,8 @@ public class TestSecurityConfig {
 				.withProperty(CFConstants.XSUAA.APP_ID, SecurityTestRule.DEFAULT_APP_ID)
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
 				.build();
-		return new SAPOfflineTokenServicesCloud(configuration);
+
+		return new SAPOfflineTokenServicesCloud(configuration).setLocalScopeAsAuthorities(true);
 	}
 }
 ```
@@ -195,14 +199,18 @@ In your unit test you might want to generate jwt tokens and have them validated.
 @ClassRule
 public static SecurityTestRule securityTestRule =
 	SecurityTestRule.getInstance(Service.XSUAA)
-		.setKeys("src/test/resources/publicKey.txt", "src/test/resources/privateKey.txt");
+		.setKeys("/publicKey.txt", "/privateKey.txt");
 ```
 
 Using the `SecurityTestRule` you can use a preconfigured `JwtGenerator` to create JWT tokens with custom scopes for your tests. It configures the JwtGenerator in such a way that **it uses the public key from the [`publicKey.txt`](/java-security-test/src/main/resources) file to sign the token.**
 
 ```java
+static final String XSAPPNAME = SecurityTestRule.DEFAULT_APP_ID;
+static final String DISPLAY_SCOPE = XSAPPNAME + ".Display";
+static final String UPDATE_SCOPE = XSAPPNAME + ".Update";
+
 String jwt = securityTestRule.getPreconfiguredJwtGenerator()
-    .withScopes(WebSecurityConfig.DISPLAY_SCOPE, WebSecurityConfig.UPDATE_SCOPE)
+    .withScopes(DISPLAY_SCOPE, UPDATE_SCOPE)
     .createToken()
     .getTokenValue();
 

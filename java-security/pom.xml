@@ -52,6 +52,7 @@
 		</dependency>
 
 		<!-- optionally needed for the spring adapter used by migration projects -->
+		<!-- this deprecates as it gets replaced with libs of groupId "org.springframework.security" -->
 		<dependency>
 			<groupId>org.springframework.security.oauth</groupId>
 			<artifactId>spring-security-oauth2</artifactId>
