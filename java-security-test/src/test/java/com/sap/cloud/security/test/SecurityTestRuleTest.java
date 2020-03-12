@@ -40,8 +40,8 @@ public class SecurityTestRuleTest {
 	private static final int PORT = 8484;
 	private static final int APPLICATION_SERVER_PORT = 8383;
 	private static final String UTF_8 = StandardCharsets.UTF_8.displayName();
-	private static final String PUBLIC_KEY_PATH = "src/main/resources/publicKey.txt";
-	private static final String PRIVATE_KEY_PATH = "src/main/resources/privateKey.txt";
+	private static final String PUBLIC_KEY_PATH = "/publicKey.txt";
+	private static final String PRIVATE_KEY_PATH = "/privateKey.txt";
 
 	@ClassRule
 	public static SecurityTestRule cut = SecurityTestRule.getInstance(XSUAA)

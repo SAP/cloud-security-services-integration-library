@@ -57,9 +57,7 @@ public class JwtGeneratorTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		String publicKeyPath = getPathToResourcesFile("/publicKey.txt");
-		String privateKeyPath = getPathToResourcesFile("/privateKey.txt");
-		keys = RSAKeys.fromKeyFiles(publicKeyPath, privateKeyPath);
+		keys = RSAKeys.fromKeyFiles("/publicKey.txt", "/privateKey.txt");
 	}
 
 	@Before

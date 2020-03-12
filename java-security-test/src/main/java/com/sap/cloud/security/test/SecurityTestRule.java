@@ -176,9 +176,9 @@ public class SecurityTestRule extends ExternalResource {
 	 * for test convenience.
 	 *
 	 * @param publicKeyPath
-	 *            path to public key file.
+	 *            resource path to public key file.
 	 * @param privateKeyPath
-	 *            path to private key file.
+	 *            resource path to private key file.
 	 * @return the rule itself.
 	 */
 	public SecurityTestRule setKeys(String publicKeyPath, String privateKeyPath) {
