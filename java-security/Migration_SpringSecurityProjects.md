@@ -75,7 +75,7 @@ After the dependencies have been changed, the spring security configuration need
 If your security configuration was using the `SAPOfflineTokenServicesCloud` class from the `java-container-security` library,
 you need to change it slightly to use the `SAPOfflineTokenServicesCloud` adapter class from the new library.
 
-> Note: There is no replacement for `SAPPropertyPlaceholderConfigurer` as you can always parameterize the `SAPOfflineTokenServicesCloud` bean with your ``.
+> Note: There is no replacement for `SAPPropertyPlaceholderConfigurer` as you can always parameterize the `SAPOfflineTokenServicesCloud` bean with your `OAuth2ServiceConfiguration`.
 
 ### Code-based
 
