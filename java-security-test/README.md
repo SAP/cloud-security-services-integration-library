@@ -10,6 +10,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 ## Requirements
 - Java 8
 - maven 3.3.9 or later
+- JUnit 4 (!)
 
 ## Configuration
 
@@ -93,3 +94,8 @@ public class HelloJavaServletTest {
 	}
 }
 ```
+
+## Samples
+The `java-security-test` library is used in the following samples:
+- [java-security-usage](/samples/java-security-usage)
+- [spring-security-xsuaa-usage](/samples/spring-security-xsuaa-usage)

@@ -1,8 +1,7 @@
 package com.sap.cloud.security.test;
 
 import static com.sap.cloud.security.token.TokenClaims.AUDIENCE;
-import static com.sap.cloud.security.token.TokenHeader.ALGORITHM;
-import static com.sap.cloud.security.token.TokenHeader.JWKS_URL;
+import static com.sap.cloud.security.token.TokenHeader.*;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
@@ -34,6 +33,7 @@ public class JwtGenerator {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtGenerator.class);
 	private static final String DEFAULT_JWKS_URL = "http://localhost";
+	private static final String DEFAULT_KEY_ID = "default-kid";
 	private static final char DOT = '.';
 
 	private final JSONObject jsonHeader = new JSONObject();
@@ -66,6 +66,7 @@ public class JwtGenerator {
 
 	private static void setTokenDefaults(String clientId, JwtGenerator instance) {
 		instance.withHeaderParameter(ALGORITHM, instance.signatureAlgorithm.value());
+		instance.withHeaderParameter(KEY_ID, DEFAULT_KEY_ID);
 		instance.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId);
 		instance.withExpiration(NO_EXPIRE_DATE);
 		if (instance.service == Service.XSUAA) {
