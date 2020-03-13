@@ -25,7 +25,7 @@ public class TestController {
     @Value("${OPA_URL:http://localhost:8181}")
     private String adcUrl;
 
-    @GetMapping(value = "/health")  //Health check, not secured
+    @GetMapping(value = "/health")  // health check, not secured
     @ResponseStatus(OK)
     public String healthCheck() {
         if(!adcService.ping(URI.create(adcUrl))) { // TODO this can be done as part of health check
@@ -50,31 +50,31 @@ public class TestController {
      * Only if the request principal has the given privilege he/she is allowed to
      * access the method. Otherwise a 403 error will be returned.
      */
-    @PreAuthorize("onAction('read')") // grant rule <action> on any resource
+    @PreAuthorize("forAction('read')") // grant rule <action> on any resource
     @GetMapping(value = "/read")
     public String read() {
         return "Read-protected method called!";
     }
 
-    @PreAuthorize("onResource('SalesOrders')") // grant rule * on <resource>
+    @PreAuthorize("forResource('SalesOrders')") // grant rule * on <resource>
     @GetMapping(value = "/salesOrders")
     public String salesOrders() {
         return "Protected SalesOrder resource accessed!";
     }
 
-    @PreAuthorize("onResourceAction('SalesOrders', 'read')") // grant rule <action> on <resource>
+    @PreAuthorize("forResourceAction('SalesOrders', 'read')") // grant rule <action> on <resource>
     @GetMapping(value = "/readSalesOrders")
     public String readSelectedSalesOrder() {
         return "Read-protected SalesOrder resource accessed!";
     }
 
-    @PreAuthorize("onAction('read', 'Country='+#country)") // grant rule <action> on any resource where Country = 'DE'
+    @PreAuthorize("forAction('read', 'Country='+#country)") // grant rule <action> on any resource with <attributeValueMap>
     @GetMapping(value = "/readByCountry/{country}")
     public String readResourcesInCountry(@PathVariable String country) {
         return "Read-protected resource in country = " + country + " accessed!";
     }
 
-    @PreAuthorize("onResourceAction('SalesOrders', 'read', 'Country='+#country,'SalesID='+#id)")  // grant rule <action> on <resource> where Country = {country} AND SalesID = {id}
+    @PreAuthorize("forResourceAction('SalesOrders', 'read', 'Country='+#country, 'SalesID='+#id)")  // grant rule <action> on <resource> with <attributeValueMap>
     @GetMapping(value = "/readSalesOrderById/{country}/{id}")
     public String readSelectedSalesOrder(@PathVariable String country, @PathVariable String id) {
         return "Read-protected SalesOrder with attributes country = " + country +  " and id " + id + " accessed!";

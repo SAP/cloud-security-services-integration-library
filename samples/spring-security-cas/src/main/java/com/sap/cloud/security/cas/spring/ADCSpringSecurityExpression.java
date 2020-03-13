@@ -48,27 +48,27 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 
 	// TODO https://github.wdf.sap.corp/CPSecurity/CAS/blob/master/architecture/AMS_DETAILS.MD#spring-security-library
 
-	public boolean onAction(String action) {
-		return onResourceAction(null, action, NO_ATTRIBUTES);
+	public boolean forAction(String action) {
+		return forResourceAction(null, action, NO_ATTRIBUTES);
 	}
 
-	public boolean onAction(String action, String... attributes) {
-		return onResourceAction(null, action, attributes);
+	public boolean forAction(String action, String... attributes) {
+		return forResourceAction(null, action, attributes);
 	}
 
-	public boolean onResource(String resource) {
-		return onResourceAction(resource, null, NO_ATTRIBUTES);
+	public boolean forResource(String resource) {
+		return forResourceAction(resource, null, NO_ATTRIBUTES);
 	}
 
-	public boolean onResource(String resource, String... attributes) {
-		return onResourceAction(resource, null, attributes);
+	public boolean forResource(String resource, String... attributes) {
+		return forResourceAction(resource, null, attributes);
 	}
 
-	public boolean onResourceAction(String resource, String action) {
-		return onResourceAction(resource, action, NO_ATTRIBUTES);
+	public boolean forResourceAction(String resource, String action) {
+		return forResourceAction(resource, action, NO_ATTRIBUTES);
 	}
 
-	public boolean onResourceAction(String resource, String action, String... attributes) {
+	public boolean forResourceAction(String resource, String action, String... attributes) {
 		String userId = getUserId();
 
 		OpenPolicyAgentRequest request = new OpenPolicyAgentRequest(userId)
