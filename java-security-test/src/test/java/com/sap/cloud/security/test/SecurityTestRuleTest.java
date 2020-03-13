@@ -56,13 +56,18 @@ public class SecurityTestRuleTest {
 
 		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+			String expEncodedKey = Base64.getEncoder().encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
+
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
 
 			List<JsonObject> tokenKeys = new DefaultJsonObject(readContent(response)).getJsonObjects("keys");
 			assertThat(tokenKeys).hasSize(1);
 			String publicKeyFromTokenKeys = tokenKeys.get(0).getAsString("value");
-			String encodedKey = Base64.getEncoder().encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
-			assertThat(publicKeyFromTokenKeys).isEqualTo(encodedKey);
+			assertThat(publicKeyFromTokenKeys).isEqualTo(expEncodedKey);
+			assertThat(publicKeyFromTokenKeys).contains("d5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbW");
+
+			String modulusFromTokenKeys = tokenKeys.get(0).getAsString("n"); // public key modulus
+			assertThat(modulusFromTokenKeys).contains("9mK_tc-vOXojlJcMm0VRvYvMLIDlIfj1BrkC_IYLpS2Vl1OTG8AS0xAgBDEG3EUzVU6JZKuIuuxD-iXrBySBQA2y");
 		}
 	}
 
