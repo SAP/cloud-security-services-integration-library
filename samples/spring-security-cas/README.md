@@ -8,6 +8,7 @@ that stores and bundles application specific policy and data.
 - the **Authorization Decision Controller (ADC)**  
 that uses the [open source **Open Policy Agent (OPA)**](https://www.openpolicyagent.org/) to decide whether a given user has the policy to perform a dedicated action on a dedicated resource.
 
+![](images/casApplication.png)
 
 # Test Locally
 
