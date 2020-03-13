@@ -48,7 +48,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers("/v1/sayHello").hasAuthority("Read")
 				.antMatchers("/v2/*").hasAuthority("Read")
 				.antMatchers("/v3/*").hasAuthority("Read")
-				.anyRequest().authenticated()
+				.anyRequest().denyAll()
 			.and()
 				.oauth2ResourceServer()
 				.jwt()
