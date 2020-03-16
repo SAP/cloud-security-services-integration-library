@@ -6,7 +6,12 @@ This migration guide is a step-by-step guide explaining how to replace the follo
 
 with this open-source version.
 
-## Disclaimer: The java-container-security as well as this solution bases on `org.springframework.security.oauth:spring-security-oauth2` which gets deprecated soon.
+## Deprecation Notice
+
+The Spring Security OAuth project is deprecated. The latest OAuth 2.0 support is provided by Spring Security. See the [OAuth 2.0 Migration Guide](https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide) for further details.
+
+The `java-container-security` as well as the `SAPOfflineTokenServicesCloud` provided as part of the current solution bases on `org.springframework.security.oauth:spring-security-oauth2` which is deprecated. Please follow up [issue #213](https://github.com/SAP/cloud-security-xsuaa-integration/issues/213). 
+
 
 ## Maven Dependencies
 To use the new [java-security](/java-security) client library the dependencies declared in maven `pom.xml` need to be updated.
