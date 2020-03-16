@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -52,8 +53,10 @@ public class JwtGeneratorTest {
 	private JwtGenerator cut;
 	private Properties originalSystemProperties;
 
+	private static final Path RESOURCES_PATH = Paths.get(JwtGeneratorTest.class.getResource("/").getPath());
+
 	@ClassRule
-	public static TemporaryFolder temporaryFolder = new TemporaryFolder(Paths.get(".").toFile());
+	public static TemporaryFolder temporaryFolder = new TemporaryFolder(RESOURCES_PATH.toFile());
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
@@ -220,14 +223,16 @@ public class JwtGeneratorTest {
 	@Test
 	public void loadClaimsFromFile_doesNotContainValidJson_throwsException() throws IOException {
 		File emptyFile = temporaryFolder.newFile("empty");
+		String temporaryFolderName = emptyFile.getParentFile().getName();
+		String resourcePath = "/" + temporaryFolderName + "/empty";
 
-		assertThatThrownBy(() -> cut.withClaimsFromFile(emptyFile.getPath()).createToken())
+		assertThatThrownBy(() -> cut.withClaimsFromFile(resourcePath).createToken())
 				.isInstanceOf(JsonParsingException.class);
 	}
 
 	@Test
 	public void loadClaimsFromFile_containsStringClaims() throws IOException {
-		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.EMAIL)).isEqualTo("test@uaa.org");
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE))
@@ -236,14 +241,14 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void loadClaimsFromFile_containsExpirationClaim() throws IOException {
-		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		assertThat(token.getExpiration()).isEqualTo(Instant.ofEpochSecond(1542416800));
 	}
 
 	@Test
 	public void loadClaimsFromFile_containsJsonObjectClaims() throws IOException {
-		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		JsonObject externalAttributes = token.getClaimAsJsonObject("ext_attr");
 
@@ -254,7 +259,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void loadClaimsFromFile_containsListClaims() throws IOException {
-		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
 				.containsExactly("openid", "testScope", "testApp.localScope");
@@ -338,10 +343,6 @@ public class JwtGeneratorTest {
 
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isTrue();
-	}
-
-	private static String getPathToResourcesFile(String filePathInResources) throws IOException {
-		return IOUtils.resourceToURL(filePathInResources).getPath();
 	}
 
 }

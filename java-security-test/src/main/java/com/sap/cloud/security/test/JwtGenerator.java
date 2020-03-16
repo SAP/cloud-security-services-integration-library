@@ -11,6 +11,7 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -18,8 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.time.Instant;
 import java.util.*;
@@ -147,12 +147,12 @@ public class JwtGenerator {
 	 *             if the file does not contain a valid json object.
 	 * @throws IOException
 	 *             when the file cannot be read or does not exist.
-	 * @param claimsJsonFilePath
-	 *            the file path to the file containing the claims in json format.
+	 * @param claimsJsonResource
+	 *            the resource path to the file containing the claims in json format, e.g. "/claims.json"
 	 * @return the builder object.
 	 */
-	public JwtGenerator withClaimsFromFile(String claimsJsonFilePath) throws IOException {
-		String claimsJson = new String(Files.readAllBytes(Paths.get(claimsJsonFilePath)));
+	public JwtGenerator withClaimsFromFile(String claimsJsonResource) throws IOException {
+		String claimsJson = IOUtils.resourceToString(claimsJsonResource, StandardCharsets.UTF_8);
 		JSONObject claimsAsJsonObject;
 		try {
 			claimsAsJsonObject = new JSONObject(claimsJson);
