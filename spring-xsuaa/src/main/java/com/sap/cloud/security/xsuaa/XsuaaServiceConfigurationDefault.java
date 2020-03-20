@@ -33,6 +33,9 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Value("${xsuaa.certificate:}")
 	private String certificates;
 
+	@Value("${xsuaa.verificationkey:}")
+	private String verificationKey;
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -61,6 +64,11 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Override
 	public String getUaaDomain() {
 		return uaadomain;
+	}
+
+	@Override
+	public String getVerificationKey() {
+		return verificationKey;
 	}
 
 	/*

@@ -1,6 +1,5 @@
 package com.sap.cloud.security.xsuaa;
 
-import javax.annotation.Nullable;
 
 public interface XsuaaServiceConfiguration {
 	/**
@@ -38,6 +37,13 @@ public interface XsuaaServiceConfiguration {
 	 * @return uaaDomain
 	 */
 	String getUaaDomain();
+
+	/**
+	 * The pem encoded public key for offline token verification.
+	 *
+	 * @return the pem encoded verification key
+	 */
+	String getVerificationKey();
 
 	/**
 	 * PEM encoded certificate chain.
