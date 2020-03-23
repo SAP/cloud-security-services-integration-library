@@ -41,6 +41,7 @@ import java.util.Properties;
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.JwtGenerator.SignatureCalculator;
+import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_APP_ID;
 import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_CLIENT_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -162,6 +163,25 @@ public class JwtGeneratorTest {
 		Token token = cut.withScopes(scopes).createToken();
 
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactly(scopes);
+	}
+
+	@Test
+	public void withLocalScopes_containsGivenScopesAsLocalScopesWhenServiceIsXsuaa() {
+		String scopeRead = "Read";
+		String scopeWrite = "Write";
+		Token token = cut
+				.withAppId(DEFAULT_APP_ID)
+				.withLocalScopes(scopeRead, scopeWrite).createToken();
+
+		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
+				.containsExactlyInAnyOrder(DEFAULT_APP_ID + "." + scopeRead, DEFAULT_APP_ID + "." + scopeWrite);
+	}
+
+	@Test
+	public void withLocalScopes_withoutAppId_throwsException() {
+		assertThatThrownBy(() -> cut.withLocalScopes("Read").createToken())
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("appId has not been set!");
 	}
 
 	@Test

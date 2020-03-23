@@ -24,6 +24,7 @@ import java.security.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
@@ -45,6 +46,7 @@ public class JwtGenerator {
 
 	private JwtSignatureAlgorithm signatureAlgorithm;
 	private PrivateKey privateKey;
+	private String appId;
 
 	private JwtGenerator() {
 		// see factory method getInstance()
@@ -228,6 +230,44 @@ public class JwtGenerator {
 		} else {
 			throw new UnsupportedOperationException("Scopes are not supported for service " + service);
 		}
+		return this;
+	}
+
+	/**
+	 * Works like {@link #withScopes(String...)}} but prefixes the scopes with "appId.".
+	 * For example if the appId is "xsapp" an exemplary scope "Read" will be converted
+	 * to "xsapp.Read".
+	 *
+	 * Make sure the appId has been via {@link #withAppId(String)} before calling this method.
+	 * Note that this is specific to tokens of service type {@link Service#XSUAA}.
+	 *
+	 * @param scopes
+	 * @return the JwtGenerator itself
+	 * @throws IllegalStateException
+	 *             if the appId has not been set via {@link #withAppId(String)}
+	 */
+	public JwtGenerator withLocalScopes(String... scopes) {
+		if (appId == null) {
+			throw new IllegalStateException("Cannot create local scopes because appId has not been set!");
+		} else {
+			String[] localScopes = Stream.of(scopes)
+							.map(scope -> appId + "." + scope)
+							.collect(Collectors.toList())
+							.toArray(new String[] {});
+			return withScopes(localScopes);
+		}
+	}
+
+	/**
+	 * This method does not actually set data on the token itself but sets
+	 * the appId that is used by {@link #withLocalScopes(String...)} to create
+	 * the local scopes.
+	 *
+	 * @param appId the appId to be used for local scopes creation
+	 * @return the JwtGenerator itself
+	 */
+	public JwtGenerator withAppId(String appId) {
+		this.appId = appId;
 		return this;
 	}
 
