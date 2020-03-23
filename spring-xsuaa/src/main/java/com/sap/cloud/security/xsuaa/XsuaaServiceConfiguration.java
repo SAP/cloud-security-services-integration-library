@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa;
 
+import org.springframework.lang.Nullable;
 
 public interface XsuaaServiceConfiguration {
 	/**
@@ -43,6 +44,7 @@ public interface XsuaaServiceConfiguration {
 	 *
 	 * @return the pem encoded verification key
 	 */
+	@Nullable
 	String getVerificationKey();
 
 	/**
