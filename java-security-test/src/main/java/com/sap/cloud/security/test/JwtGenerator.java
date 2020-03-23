@@ -150,7 +150,8 @@ public class JwtGenerator {
 	 * @throws IOException
 	 *             when the file cannot be read or does not exist.
 	 * @param claimsJsonResource
-	 *            the resource path to the file containing the claims in json format, e.g. "/claims.json"
+	 *            the resource path to the file containing the claims in json
+	 *            format, e.g. "/claims.json"
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaimsFromFile(String claimsJsonResource) throws IOException {
@@ -234,12 +235,13 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Works like {@link #withScopes(String...)}} but prefixes the scopes with "appId.".
-	 * For example if the appId is "xsapp" an exemplary scope "Read" will be converted
-	 * to "xsapp.Read".
+	 * Works like {@link #withScopes(String...)}} but prefixes the scopes with
+	 * "appId.". For example if the appId is "xsapp" an exemplary scope "Read" will
+	 * be converted to "xsapp.Read".
 	 *
-	 * Make sure the appId has been via {@link #withAppId(String)} before calling this method.
-	 * Note that this is specific to tokens of service type {@link Service#XSUAA}.
+	 * Make sure the appId has been via {@link #withAppId(String)} before calling
+	 * this method. Note that this is specific to tokens of service type
+	 * {@link Service#XSUAA}.
 	 *
 	 * @param scopes
 	 * @return the JwtGenerator itself
@@ -251,19 +253,20 @@ public class JwtGenerator {
 			throw new IllegalStateException("Cannot create local scopes because appId has not been set!");
 		} else {
 			String[] localScopes = Stream.of(scopes)
-							.map(scope -> appId + "." + scope)
-							.collect(Collectors.toList())
-							.toArray(new String[] {});
+					.map(scope -> appId + "." + scope)
+					.collect(Collectors.toList())
+					.toArray(new String[] {});
 			return withScopes(localScopes);
 		}
 	}
 
 	/**
-	 * This method does not actually set data on the token itself but sets
-	 * the appId that is used by {@link #withLocalScopes(String...)} to create
-	 * the local scopes.
+	 * This method does not actually set data on the token itself but sets the appId
+	 * that is used by {@link #withLocalScopes(String...)} to create the local
+	 * scopes.
 	 *
-	 * @param appId the appId to be used for local scopes creation
+	 * @param appId
+	 *            the appId to be used for local scopes creation
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator withAppId(String appId) {
