@@ -10,15 +10,12 @@ import java.security.Principal;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.sap.cloud.security.token.TokenClaims.SAP_GLOBAL_USER_ID;
 
 /**
  * You can get further token claims from here: {@link TokenClaims}.
  */
 public class SapIdToken extends AbstractToken {
-	static final Logger LOGGER = LoggerFactory.getLogger(SapIdToken.class);
-
 	public SapIdToken(@Nonnull DecodedJwt decodedJwt) {
 		super(decodedJwt);
 	}
@@ -29,8 +26,7 @@ public class SapIdToken extends AbstractToken {
 
 	@Override
 	public Principal getPrincipal() {
-		// TODO IAS: should return SAP User ID (guid) if available in id token
-		return null;
+		return createPrincipalByName(getClaimAsString(SAP_GLOBAL_USER_ID));
 	}
 
 	@Override
