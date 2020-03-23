@@ -47,7 +47,8 @@ public interface Environment {
 	 * returned.
 	 *
 	 * @return the service configuration to be used for token exchange
-	 *         {@link com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows}
+	 *
+	 * @see <a href="https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java">com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows</a>
 	 */
 	@Nullable
 	OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange();
