@@ -87,7 +87,7 @@ public class UserTokenFlowTest {
 					.execute();
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
-						"Error requesting token with grant_type 'user_token'");
+						"Error requesting token with grant_type 'urn:ietf:params:oauth:grant-type:jwt-bearer'");
 	}
 
 	@Test

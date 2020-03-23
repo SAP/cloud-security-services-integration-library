@@ -6,39 +6,53 @@ This migration guide is a step-by-step guide explaining how to replace the follo
 
 with this open-source version.
 
+## Prerequisite
+**Please note, that as of now, this Migration Guide is NOT intended for applications using SAP Java Buildpack.**   
+You're using the SAP Java Buildpack, if you can find the `sap_java_buildpack` in the deployment descriptor of your application, e.g. in your `manifest.yml` file.
+
+This [documentation](Migration_SAPJavaBuildpackProjects.md) describes the setup when using SAP Java Buildpack.
+
+## Deprecation Notice
+
+The Spring Security OAuth project is deprecated. The latest OAuth 2.0 support is provided by Spring Security. See the [OAuth 2.0 Migration Guide](https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide) for further details.
+
+The `java-container-security` as well as the `SAPOfflineTokenServicesCloud` provided as part of the current solution bases on `org.springframework.security.oauth:spring-security-oauth2` which is deprecated. Please follow up [issue #213](https://github.com/SAP/cloud-security-xsuaa-integration/issues/213). 
+
+
 ## Maven Dependencies
 To use the new [java-security](/java-security) client library the dependencies declared in maven `pom.xml` need to be updated.
 
 First make sure you have the following dependencies defined in your pom.xml:
 
 ```xml
-<-- updated spring-security dependencies -->
+<!-- take the latest spring-security dependencies -->
+<!-- Spring deprecates it as it gets replaced with libs of groupId "org.springframework.security" -->
 <dependency>
   <groupId>org.springframework.security.oauth</groupId>
   <artifactId>spring-security-oauth2</artifactId>
-  <version>2.4.0.RELEASE</version>
 </dependency>
 <dependency>
   <groupId>org.springframework</groupId>
   <artifactId>spring-aop</artifactId>
-  <version>4.3.25.RELEASE</version>
 </dependency>
 
-<-- new java-security dependencies -->
+<!-- new java-security dependencies -->
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>api</artifactId>
-  <version>2.5.1</version>
+  <version>2.5.2</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security</artifactId>
-  <version>2.5.1</version>
+  <version>2.5.2</version>
 </dependency>
+
+<!-- new java-security dependencies for unit tests -->
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security-test</artifactId>
-  <version>2.5.1</version>
+  <version>2.5.2</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -50,6 +64,10 @@ Now you are ready to **remove** the **`java-container-security`** client library
   <groupId>com.sap.xs2.security</groupId>
   <artifactId>java-container-security</artifactId>
 </dependency>
+<dependency>
+  <groupId>com.sap.xs2.security</groupId>
+  <artifactId>java-container-security-api</artifactId>
+</dependency>
 ```
 Or
 ```xml
@@ -57,7 +75,13 @@ Or
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>java-container-security</artifactId>
 </dependency>
+<dependency>
+  <groupId>com.sap.cloud.security.xsuaa</groupId>
+  <artifactId>api</artifactId>
+</dependency>
 ```
+
+Make sure that you do not refer to any other sap security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
 
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
@@ -65,7 +89,7 @@ After the dependencies have been changed, the spring security configuration need
 If your security configuration was using the `SAPOfflineTokenServicesCloud` class from the `java-container-security` library,
 you need to change it slightly to use the `SAPOfflineTokenServicesCloud` adapter class from the new library.
 
-> Note: There is no replacement for `SAPPropertyPlaceholderConfigurer` as you can always parameterize the `SAPOfflineTokenServicesCloud` bean with your ``.
+> Note: There is no replacement for `SAPPropertyPlaceholderConfigurer` as you can always parameterize the `SAPOfflineTokenServicesCloud` bean with your `OAuth2ServiceConfiguration`.
 
 ### Code-based
 
@@ -172,7 +196,8 @@ public class TestSecurityConfig {
 				.withProperty(CFConstants.XSUAA.APP_ID, SecurityTestRule.DEFAULT_APP_ID)
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
 				.build();
-		return new SAPOfflineTokenServicesCloud(configuration);
+
+		return new SAPOfflineTokenServicesCloud(configuration).setLocalScopeAsAuthorities(true);
 	}
 }
 ```
@@ -185,14 +210,18 @@ In your unit test you might want to generate jwt tokens and have them validated.
 @ClassRule
 public static SecurityTestRule securityTestRule =
 	SecurityTestRule.getInstance(Service.XSUAA)
-		.setKeys("src/test/resources/publicKey.txt", "src/test/resources/privateKey.txt");
+		.setKeys("/publicKey.txt", "/privateKey.txt");
 ```
 
 Using the `SecurityTestRule` you can use a preconfigured `JwtGenerator` to create JWT tokens with custom scopes for your tests. It configures the JwtGenerator in such a way that **it uses the public key from the [`publicKey.txt`](/java-security-test/src/main/resources) file to sign the token.**
 
 ```java
+static final String XSAPPNAME = SecurityTestRule.DEFAULT_APP_ID;
+static final String DISPLAY_SCOPE = XSAPPNAME + ".Display";
+static final String UPDATE_SCOPE = XSAPPNAME + ".Update";
+
 String jwt = securityTestRule.getPreconfiguredJwtGenerator()
-    .withScopes(WebSecurityConfig.DISPLAY_SCOPE, WebSecurityConfig.UPDATE_SCOPE)
+    .withScopes(DISPLAY_SCOPE, UPDATE_SCOPE)
     .createToken()
     .getTokenValue();
 
@@ -218,8 +247,19 @@ When your code compiles again you should first check that all your unit tests ar
 application locally make sure that it is still working and finally test the application in cloud foundry.
 
 ## Troubleshoot
-- org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line 51 in XML document from ServletContext resource [/WEB-INF/spring-security.xml] is invalid; nested exception is org.xml.sax.SAXParseException; lineNumber: 51; columnNumber: 118; cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'oauth:resource-server'.
-[Stackoverflow: no declaration can be found for element 'oauth:authorization-server'](https://stackoverflow.com/questions/32484988/the-matching-wildcard-is-strict-but-no-declaration-can-be-found-for-element-oa)
+- org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException  
+```
+org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line XX in XML document from ServletContext resource [/WEB-INF/spring-security.xml] is invalid; 
+nested exception is org.xml.sax.SAXParseException; lineNumber: 51; columnNumber: 118; cvc-complex-type.2.4.c: 
+The matching wildcard is strict, but no declaration can be found for element 'oauth:resource-server'.
+```  
+You can fix this by changing the schema location to `https` for `oauth2` as below in the spring security xml. With this change, the local jar is available and solves the issue of server trying to connect to get the jar and fails due to some restrictions.
+
+```
+xsi:schemaLocation="http://www.springframework.org/schema/security/oauth2
+https://www.springframework.org/schema/security/spring-security-oauth2.xsd
+```
+
 
 ## Issues
 In case you face issues to apply the migration steps feel free to open a Issue here on [Github.com](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new).

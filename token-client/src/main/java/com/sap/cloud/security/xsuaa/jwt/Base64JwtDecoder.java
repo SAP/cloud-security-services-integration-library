@@ -44,7 +44,7 @@ public final class Base64JwtDecoder {
 	}
 
 	private String base64Decode(String encoded) {
-		byte[] decodedBytes = Base64.getDecoder().decode(encoded);
+		byte[] decodedBytes = Base64.getUrlDecoder().decode(encoded);
 		return new String(decodedBytes, StandardCharsets.UTF_8);
 	}
 

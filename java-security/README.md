@@ -1,9 +1,9 @@
 # SAP CP Java Security Library
 
-A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.org/html/rfc7519). 
+Token Validation for Java applications.
 
 - Loads Identity Service Configuration from `VCAP_SERVICES` environment. The [`Environments`](src/main/java/com/sap/cloud/security/config/Environments.java) serves as central entry point to get or parse the  [`OAuth2ServiceConfiguration`](src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java) within SAP Cloud Platform.
-- Decodes and parses encoded JSON Web Tokens ([`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java)) and provides convenient access to token header parameters and claims.
+- Decodes and parses encoded JSON Web Tokens ([`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java)) and provides convenient access to token header parameters and claims. A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.org/html/rfc7519). 
 - Validates the decoded token. The [`JwtValidatorBuilder`](src/main/java/com/sap/cloud/security/token/validation/validators/JwtValidatorBuilder.java) comprises the following mandatory checks:
   - Is the JWT used before the `exp` (expiration) time and eventually is it used after the `nbf` (not before) time ([`JwtTimestampValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/JwtTimestampValidator.java))?
@@ -44,13 +44,29 @@ A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.or
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.5.1</version>
+    <version>2.5.2</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpclient</artifactId>
 </dependency>
 ```
+
+### Logging
+
+This library uses [slf4j](http://www.slf4j.org/) for logging. It only ships the [slf4j-api module](https://mvnrepository.com/artifact/org.slf4j/slf4j-api) and no actual logger implementation.
+For the logging to work slf4j needs to find a valid logger implementation at runtime. 
+If your app is deployed via buildpack then you will have one available and logging should just work.
+
+If there is no valid logger binding at runtime you will see an error message like this:
+```log
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+```
+In this case you need to add a logger implementation dependency to your application.
+See the slf4j [documentation](http://www.slf4j.org/codes.html#StaticLoggerBinder)
+for more information and a [list](http://www.slf4j.org/manual.html#swapping) of available
+logger options.
 
 ## Basic Usage
 

@@ -30,6 +30,7 @@ import javax.servlet.Servlet;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
@@ -142,7 +143,15 @@ public class SecurityTestRule extends ExternalResource {
 		return this;
 	}
 
-	SecurityTestRule addApplicationServletFilter(Class<? extends Filter> filterClass) {
+	/**
+	 * Adds a filter to the servlet server. Only has an effect when used in
+	 * conjunction with {@link #useApplicationServer}.
+	 *
+	 * @param filterClass
+	 *            the filter class that should intercept with incoming requests.
+	 * @return the rule itself.
+	 */
+	public SecurityTestRule addApplicationServletFilter(Class<? extends Filter> filterClass) {
 		applicationServletFilters.add(new FilterHolder(filterClass));
 		return this;
 	}
@@ -168,9 +177,9 @@ public class SecurityTestRule extends ExternalResource {
 	 * for test convenience.
 	 *
 	 * @param publicKeyPath
-	 *            path to public key file.
+	 *            resource path to public key file.
 	 * @param privateKeyPath
-	 *            path to private key file.
+	 *            resource path to private key file.
 	 * @return the rule itself.
 	 */
 	public SecurityTestRule setKeys(String publicKeyPath, String privateKeyPath) {
@@ -326,9 +335,12 @@ public class SecurityTestRule extends ExternalResource {
 	}
 
 	private String createDefaultTokenKeyResponse() throws IOException {
+		String encodedPublicKeyModulus = Base64.getUrlEncoder().encodeToString(((RSAPublicKey) keys.getPublic()).getModulus().toByteArray());
+		String encodedPublicKey = Base64.getEncoder().encodeToString(keys.getPublic().getEncoded());
 		return IOUtils.resourceToString("/token_keys_template.json", StandardCharsets.UTF_8)
 				.replace("$kid", "default-kid")
-				.replace("$public_key", Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()));
+				.replace("$public_key", encodedPublicKey)
+				.replace("$modulus", encodedPublicKeyModulus);
 	}
 
 	private String createDefaultOidcConfigurationResponse() throws IOException {

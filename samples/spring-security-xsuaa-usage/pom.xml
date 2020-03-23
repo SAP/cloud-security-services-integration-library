@@ -14,7 +14,7 @@
 
 	<groupId>com.sap.cloud.security.samples</groupId>
 	<artifactId>spring-security-xsuaa-usage</artifactId>
-	<version>2.5.1</version>
+	<version>2.5.2</version>
 	<name>spring-security-xsuaa-usage</name>
 
 	<properties>
@@ -39,12 +39,20 @@
             <artifactId>xsuaa-spring-boot-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+		
+		<!-- test dependencies-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>java-security-test</artifactId>
+			<version>2.5.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<finalName>${project.artifactId}</finalName>

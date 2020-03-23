@@ -1,7 +1,7 @@
 package com.sap.cloud.security.test;
 
 import static com.sap.cloud.security.token.TokenClaims.AUDIENCE;
-import static com.sap.cloud.security.token.TokenHeader.ALGORITHM;
+import static com.sap.cloud.security.token.TokenHeader.*;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
@@ -11,6 +11,7 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -18,8 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.time.Instant;
 import java.util.*;
@@ -31,8 +31,9 @@ import java.util.stream.Collectors;
 public class JwtGenerator {
 	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
 
-	private static final Logger logger = LoggerFactory.getLogger(JwtGenerator.class);
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(JwtGenerator.class);
+	private static final String DEFAULT_JWKS_URL = "http://localhost";
+	private static final String DEFAULT_KEY_ID = "default-kid";
 	private static final char DOT = '.';
 
 	private final JSONObject jsonHeader = new JSONObject();
@@ -59,9 +60,18 @@ public class JwtGenerator {
 		instance.service = service;
 		instance.signatureCalculator = signatureCalculator;
 		instance.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
+		setTokenDefaults(clientId, instance);
+		return instance;
+	}
+
+	private static void setTokenDefaults(String clientId, JwtGenerator instance) {
+		instance.withHeaderParameter(ALGORITHM, instance.signatureAlgorithm.value());
+		instance.withHeaderParameter(KEY_ID, DEFAULT_KEY_ID);
 		instance.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId);
 		instance.withExpiration(NO_EXPIRE_DATE);
-		return instance;
+		if (instance.service == Service.XSUAA) {
+			instance.withHeaderParameter(JWKS_URL, DEFAULT_JWKS_URL);
+		}
 	}
 
 	/**
@@ -137,12 +147,12 @@ public class JwtGenerator {
 	 *             if the file does not contain a valid json object.
 	 * @throws IOException
 	 *             when the file cannot be read or does not exist.
-	 * @param claimsJsonFilePath
-	 *            the file path to the file containing the claims in json format.
+	 * @param claimsJsonResource
+	 *            the resource path to the file containing the claims in json format, e.g. "/claims.json"
 	 * @return the builder object.
 	 */
-	public JwtGenerator withClaimsFromFile(String claimsJsonFilePath) throws IOException {
-		String claimsJson = new String(Files.readAllBytes(Paths.get(claimsJsonFilePath)));
+	public JwtGenerator withClaimsFromFile(String claimsJsonResource) throws IOException {
+		String claimsJson = IOUtils.resourceToString(claimsJsonResource, StandardCharsets.UTF_8);
 		JSONObject claimsAsJsonObject;
 		try {
 			claimsAsJsonObject = new JSONObject(claimsJson);
@@ -232,26 +242,33 @@ public class JwtGenerator {
 		if (privateKey == null) {
 			throw new IllegalStateException("Private key was not set!");
 		}
-		withHeaderParameter(ALGORITHM, signatureAlgorithm.value());
+
+		createAudienceClaim();
+
+		switch (service) {
+		case IAS:
+			return new SapIdToken(createTokenAsString());
+		case XSUAA:
+			return new XsuaaToken(createTokenAsString());
+		default:
+			throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
+		}
+	}
+
+	private void createAudienceClaim() {
 		if (service == Service.IAS) {
 			jsonPayload.put(AUDIENCE, jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID));
 		} else {
 			jsonPayload.put(AUDIENCE, Arrays.asList(jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID)));
 		}
+	}
+
+	private String createTokenAsString() {
 		String header = base64Encode(jsonHeader.toString().getBytes());
 		String payload = base64Encode(jsonPayload.toString().getBytes());
 		String headerAndPayload = header + DOT + payload;
 		String signature = calculateSignature(headerAndPayload);
-		String token = headerAndPayload + DOT + signature;
-
-		switch (service) {
-		case IAS:
-			return new SapIdToken(token);
-		case XSUAA:
-			return new XsuaaToken(token);
-		default:
-			throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
-		}
+		return headerAndPayload + DOT + signature;
 	}
 
 	private static byte[] calculateSignature(PrivateKey privateKey, JwtSignatureAlgorithm signatureAlgorithm,
@@ -267,13 +284,13 @@ public class JwtGenerator {
 			return base64Encode(signatureCalculator
 					.calculateSignature(privateKey, signatureAlgorithm, headerAndPayload.getBytes()));
 		} catch (NoSuchAlgorithmException e) {
-			logger.error("Algorithm '{}' not found.", signatureAlgorithm.javaSignature());
+			LOGGER.error("Algorithm '{}' not found.", signatureAlgorithm.javaSignature());
 			throw new UnsupportedOperationException(e);
 		} catch (SignatureException e) {
-			logger.error("Error creating JWT signature.");
+			LOGGER.error("Error creating JWT signature.");
 			throw new UnsupportedOperationException(e);
 		} catch (InvalidKeyException e) {
-			logger.error("Invalid private key.");
+			LOGGER.error("Invalid private key.");
 			throw new UnsupportedOperationException(e);
 		}
 	}

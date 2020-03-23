@@ -89,18 +89,12 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getUniquePrincipalName_raiseIllegalArgumentExceptions() {
-		assertThatThrownBy(() -> {
-			XsuaaToken.getUniquePrincipalName("origin/", "user");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("/");
-
-		assertThatThrownBy(() -> {
-			XsuaaToken.getUniquePrincipalName("origin", "");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("User");
-
-		assertThatThrownBy(() -> {
-			XsuaaToken.getUniquePrincipalName("", "user");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Origin");
+	public void getUniquePrincipalName_cannotBeCreated_returnsNull() {
+		assertThat(XsuaaToken.getUniquePrincipalName("origin/", "user")).isNull();
+		assertThat(XsuaaToken.getUniquePrincipalName("origin", "")).isNull();
+		assertThat(XsuaaToken.getUniquePrincipalName("", "user")).isNull();
+		assertThat(XsuaaToken.getUniquePrincipalName(null, "user")).isNull();
+		assertThat(XsuaaToken.getUniquePrincipalName("origin", null)).isNull();
 	}
 
 	@Test
