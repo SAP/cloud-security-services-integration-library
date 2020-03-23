@@ -214,6 +214,7 @@ public class SecurityTestRule extends ExternalResource {
 		case XSUAA:
 			jwtGenerator
 					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+					.withAppId(DEFAULT_APP_ID)
 					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
 			break;
 		default:
