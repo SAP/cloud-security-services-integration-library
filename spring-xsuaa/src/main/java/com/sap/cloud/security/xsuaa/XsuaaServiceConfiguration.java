@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa;
 
-import org.springframework.lang.Nullable;
+import javax.annotation.Nullable;
 
 public interface XsuaaServiceConfiguration {
 	/**

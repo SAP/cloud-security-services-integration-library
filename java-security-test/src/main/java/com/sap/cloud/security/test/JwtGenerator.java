@@ -236,12 +236,10 @@ public class JwtGenerator {
 
 	/**
 	 * Works like {@link #withScopes(String...)}} but prefixes the scopes with
-	 * "appId.". For example if the appId is "xsapp" an exemplary scope "Read" will
-	 * be converted to "xsapp.Read".
-	 *
-	 * Make sure the appId has been via {@link #withAppId(String)} before calling
-	 * this method. Note that this is specific to tokens of service type
-	 * {@link Service#XSUAA}.
+	 * "appId.". For example if the appId is "xsapp", the scope "Read" will be
+	 * converted to "xsapp.Read". Make sure the appId has been via
+	 * {@link #withAppId(String)} before calling this method.
+	 * Note that this is specific to tokens of service type {@link Service#XSUAA}.
 	 *
 	 * @param scopes
 	 * @return the JwtGenerator itself

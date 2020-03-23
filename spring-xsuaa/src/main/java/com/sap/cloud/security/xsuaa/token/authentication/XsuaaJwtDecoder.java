@@ -80,6 +80,14 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		return verifiedToken;
 	}
 
+	public void setTokenInfoExtractor(TokenInfoExtractor tokenInfoExtractor) {
+		this.tokenInfoExtractor = tokenInfoExtractor;
+	}
+
+	public void setRestOperations(RestOperations restOperations) {
+		this.restOperations = restOperations;
+	}
+
 	private Jwt verifyToken(JWT jwt) {
 		try {
 			String jku = tokenInfoExtractor.getJku(jwt);
@@ -182,13 +190,4 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
 	}
 
-
-
-	public void setTokenInfoExtractor(TokenInfoExtractor tokenInfoExtractor) {
-		this.tokenInfoExtractor = tokenInfoExtractor;
-	}
-
-	public void setRestOperations(RestOperations restOperations) {
-		this.restOperations = restOperations;
-	}
 }
