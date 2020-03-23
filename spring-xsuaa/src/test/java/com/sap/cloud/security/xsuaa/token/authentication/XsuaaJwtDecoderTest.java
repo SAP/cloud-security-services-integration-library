@@ -2,6 +2,7 @@ package com.sap.cloud.security.xsuaa.token.authentication;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,11 +22,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(SpringRunner.class)
 @TestPropertySource(
-		properties = {
-		"xsuaa.uaadomain=localhost",
-		"xsuaa.clientid=sb-clientId!t0815",
-		"xsuaa.verificationkey=-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTNVTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9YoU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GPn38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4oQIDAQAB-----END PUBLIC KEY-----"
-})
+		locations = "/XsuaaJwtDecoderTest.properties"
+)
 @ContextConfiguration(classes = XsuaaServiceConfigurationDefault.class)
 public class XsuaaJwtDecoderTest {
 
@@ -39,7 +37,7 @@ public class XsuaaJwtDecoderTest {
 
 		final Jwt jwt = cut.decode(token);
 
-		assertThat(jwt.getClaimAsString("cid")).isEqualTo("sb-clientId!t0815");
+		assertThat(jwt.getClaimAsString(TokenClaims.CLAIM_CLIENT_ID)).isEqualTo("sb-clientId!t0815");
 	}
 
 	@Test
