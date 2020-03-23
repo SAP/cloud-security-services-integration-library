@@ -93,6 +93,7 @@ public class JwtGeneratorTest {
 				.withClaimValue("first_name", "john")
 				.withClaimValue("last_name", "doe")
 				.withClaimValue("email", "john.doe@email.org")
+				.withClaimValue(TokenClaims.SAP_GLOBAL_USER_ID, "1234567890")
 				.withPrivateKey(keys.getPrivate());
 		Token token = cut.createToken();
 
@@ -100,6 +101,7 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsString(TokenClaims.AUDIENCE)).isEqualTo("T000310");
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("T000310");
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
+		assertThat(token.getPrincipal().getName()).isEqualTo("1234567890");
 		String encodedModulusN = Base64.getUrlEncoder()
 				.encodeToString(((RSAPublicKeyImpl) keys.getPublic()).getModulus().toByteArray());
 		assertThat(encodedModulusN).startsWith("AJtUGmczI7RHx3");
