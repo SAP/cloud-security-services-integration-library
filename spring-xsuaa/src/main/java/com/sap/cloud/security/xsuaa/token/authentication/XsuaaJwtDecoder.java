@@ -186,7 +186,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	}
 
 	private RSAPublicKey createPublicKey(String pemEncodedPublicKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
-		X509EncodedKeySpec spec = new X509EncodedKeySpec(Base64.getDecoder().decode(convertPEMKey(pemEncodedPublicKey)));
+		byte[] decodedKey = Base64.getDecoder().decode(convertPEMKey(pemEncodedPublicKey));
+		X509EncodedKeySpec spec = new X509EncodedKeySpec(decodedKey);
 		return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
 	}
 
