@@ -46,7 +46,7 @@ public class JwtGenerator {
 
 	private JwtSignatureAlgorithm signatureAlgorithm;
 	private PrivateKey privateKey;
-	private String appId;
+	private String appId; // this is specific to XSUAA service
 	private List<String> scopes = new ArrayList<>();
 	private List<String> localScopes = new ArrayList<>();
 
@@ -243,7 +243,7 @@ public class JwtGenerator {
 	/**
 	 * Works like {@link #withScopes(String...)}} but prefixes the scopes with
 	 * "appId.". For example if the appId is "xsapp", the scope "Read" will be
-	 * converted to "xsapp.Read". Make sure the appId has been via
+	 * converted to "xsapp.Read". Make sure the appId has been set via
 	 * {@link #withAppId(String)} before calling this method. Consecutive calls of
 	 * this method will overwrite the data that has previously been set. Calls of
 	 * this method however do not overwrite the data set via
@@ -310,9 +310,9 @@ public class JwtGenerator {
 	}
 
 	private void putScopesInJsonPayload() {
-		List<String> resultingScopes = Stream.concat(localScopes.stream(), scopes.stream())
-				.collect(Collectors.toList());
-		jsonPayload.put(TokenClaims.XSUAA.SCOPES, resultingScopes);
+		String[] resultingScopes = Stream.concat(localScopes.stream(), scopes.stream())
+				.collect(Collectors.toList()).toArray(new String[]{});
+		withClaimValues(TokenClaims.XSUAA.SCOPES, resultingScopes);
 	}
 
 	private void createAudienceClaim() {
