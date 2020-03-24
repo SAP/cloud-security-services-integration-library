@@ -8,11 +8,12 @@ with this open-source version.
 
 **Please note, that this Migration Guide is NOT intended for applications that leverage token validation and authorization checks using SAP Java Buildpack.** This [documentation](https://github.com/SAP/cloud-security-xsuaa-integration#token-validation-for-java-web-applications-using-sap-java-buildpack) describes the setup when using SAP Java Buildpack.
 
-## Deprecation Notice
+## Prerequisite: Migrate to Spring 5
 
-The Spring Security OAuth project is deprecated. The latest OAuth 2.0 support is provided by Spring Security. See the [OAuth 2.0 Migration Guide](https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide) for further details.
-
-The `java-container-security` as well as the `SAPOfflineTokenServicesCloud` provided as part of the current solution bases on `org.springframework.security.oauth:spring-security-oauth2` which is deprecated. Please follow up [issue #213](https://github.com/SAP/cloud-security-xsuaa-integration/issues/213). 
+- spring boot 2
+- spring framework 5
+- link to official spring 5 migration guide
+- sample --> bulletinboard commit
 
 
 ## Maven Dependencies
