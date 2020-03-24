@@ -41,6 +41,11 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 		return uaaDomain;
 	}
 
+	@Override
+	public String getVerificationKey() {
+		return null;
+	}
+
 	/*
 	 * @Nullable
 	 * 

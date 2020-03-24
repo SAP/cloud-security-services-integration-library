@@ -75,12 +75,13 @@ public class SecurityTestRuleTest {
 	public void generatesTokenWithOtherClaimsAndHeaderParameter() {
 		Token generatedToken = cut.getPreconfiguredJwtGenerator()
 				.withClaimValue(TokenClaims.ISSUER, "issuer")
-				.withScopes(SecurityTestRule.DEFAULT_APP_ID + ".scope1")
+				.withLocalScopes("scope1")
 				.withHeaderParameter(TokenHeader.TYPE, "type").createToken();
 
 		assertThat(generatedToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
 				.isEqualTo(SecurityTestRule.DEFAULT_CLIENT_ID);
-		assertThat(generatedToken.getClaimAsStringList(TokenClaims.XSUAA.SCOPES).size()).isEqualTo(1);
+		assertThat(generatedToken.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
+				.containsExactly(SecurityTestRule.DEFAULT_APP_ID + ".scope1");
 		assertThat(generatedToken.getClaimAsString(TokenClaims.ISSUER)).isEqualTo("issuer");
 		assertThat(generatedToken.getHeaderParameterAsString(TokenHeader.TYPE)).isEqualTo("type");
 	}
