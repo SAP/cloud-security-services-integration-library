@@ -47,6 +47,8 @@ public class JwtGenerator {
 	private JwtSignatureAlgorithm signatureAlgorithm;
 	private PrivateKey privateKey;
 	private String appId;
+	private List<String> scopes = new ArrayList<>();
+	private List<String> localScopes = new ArrayList<>();
 
 	private JwtGenerator() {
 		// see factory method getInstance()
@@ -216,8 +218,11 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the roles as claim "scope" to the jwt. Note that this is specific to
-	 * tokens of service type {@link Service#XSUAA}.
+	 * Sets the roles as claim "scope" to the jwt. Consecutive calls of this method
+	 * will overwrite the data that has previously been set. Calls of this method
+	 * however do not overwrite the data set via
+	 * {@link #withLocalScopes(String...)}}. Note that this is specific to tokens of
+	 * service type {@link Service#XSUAA}.
 	 *
 	 * @param scopes
 	 *            the scopes that should be part of the token
@@ -227,7 +232,8 @@ public class JwtGenerator {
 	 */
 	public JwtGenerator withScopes(String... scopes) {
 		if (service == Service.XSUAA) {
-			withClaimValues(TokenClaims.XSUAA.SCOPES, scopes);
+			this.scopes = Arrays.asList(scopes);
+			putScopesInJsonPayload();
 		} else {
 			throw new UnsupportedOperationException("Scopes are not supported for service " + service);
 		}
@@ -238,8 +244,12 @@ public class JwtGenerator {
 	 * Works like {@link #withScopes(String...)}} but prefixes the scopes with
 	 * "appId.". For example if the appId is "xsapp", the scope "Read" will be
 	 * converted to "xsapp.Read". Make sure the appId has been via
-	 * {@link #withAppId(String)} before calling this method.
-	 * Note that this is specific to tokens of service type {@link Service#XSUAA}.
+	 * {@link #withAppId(String)} before calling this method. Consecutive calls of
+	 * this method will overwrite the data that has previously been set. Calls of
+	 * this method however do not overwrite the data set via
+	 * {@link #withScopes(String...)}}. Note that this is specific to tokens of
+	 * service type {@link Service#XSUAA}.
+	 *
 	 *
 	 * @param scopes
 	 * @return the JwtGenerator itself
@@ -249,13 +259,16 @@ public class JwtGenerator {
 	public JwtGenerator withLocalScopes(String... scopes) {
 		if (appId == null) {
 			throw new IllegalStateException("Cannot create local scopes because appId has not been set!");
-		} else {
-			String[] localScopes = Stream.of(scopes)
-					.map(scope -> appId + "." + scope)
-					.collect(Collectors.toList())
-					.toArray(new String[] {});
-			return withScopes(localScopes);
 		}
+		if (service == Service.XSUAA) {
+			localScopes = Stream.of(scopes)
+					.map(scope -> appId + "." + scope)
+					.collect(Collectors.toList());
+			putScopesInJsonPayload();
+		} else {
+			throw new UnsupportedOperationException("Scopes are not supported for service " + service);
+		}
+		return this;
 	}
 
 	/**
@@ -294,6 +307,12 @@ public class JwtGenerator {
 		default:
 			throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
 		}
+	}
+
+	private void putScopesInJsonPayload() {
+		List<String> resultingScopes = Stream.concat(localScopes.stream(), scopes.stream())
+				.collect(Collectors.toList());
+		jsonPayload.put(TokenClaims.XSUAA.SCOPES, resultingScopes);
 	}
 
 	private void createAudienceClaim() {

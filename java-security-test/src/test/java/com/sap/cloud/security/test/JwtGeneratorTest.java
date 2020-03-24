@@ -178,6 +178,36 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
+	public void consecutiveScopeCallsOverwriteOldData() {
+		String writeScope = "Write";
+		String openidScope = "openid";
+		Token token = cut
+				.withAppId(DEFAULT_APP_ID)
+				.withLocalScopes("Read")
+				.withLocalScopes(writeScope)
+				.withScopes("test")
+				.withScopes(openidScope)
+				.createToken();
+
+		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
+				.containsExactlyInAnyOrder(openidScope, DEFAULT_APP_ID + "." + writeScope);
+	}
+
+	@Test
+	public void withScopesAndLocalScopes_containsBothScopeTypes() {
+		String openidScope = "openid";
+		String writeScope = "Write";
+		Token token = cut
+				.withAppId(DEFAULT_APP_ID)
+				.withLocalScopes(writeScope)
+				.withScopes(openidScope)
+				.createToken();
+
+		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
+				.containsExactlyInAnyOrder(openidScope, DEFAULT_APP_ID + "." + writeScope);
+	}
+
+	@Test
 	public void withLocalScopes_withoutAppId_throwsException() {
 		assertThatThrownBy(() -> cut.withLocalScopes("Read").createToken())
 				.isInstanceOf(IllegalStateException.class)
