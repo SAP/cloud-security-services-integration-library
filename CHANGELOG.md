@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.5.3
+- [spring-xsuaa] `XsuaaJwtDecoder` supports verificationkey from `VCAP_SERVICES` as fallback public key
+- [java-security-test] `JwtGenerator` supports `withLocalScopes()`
+- [java-security] `SapIdToken` should return value of claim "sap_uid" (SAPGlobalUserID) as Principal name
+- [java-security] `JwtAudienceValidator` Support Audience Validation of Xsuaa Broker clones: NGPBUG-111540
+- [java-api] enhanced with config interfaces, which are relevant for SAP Java Buildpack 
+- [api] changes `XSUserInfoException` from `Exception` to `RuntimeException`. This reflects change in `java-container-security` (version `3.12.0`).
+
 ## 2.5.2
 - [java-api], [java-security], [token-client] works with logger api `slf4j-api` and does no longer provide the slf4j-implementation. Please have a look at the [java-security/README.md#logging](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/README.md#logging) documentation.
 - [xsuaa-spring-boot-starter] update spring-boot (security) dependency versions [#239](https://github.com/SAP/cloud-security-xsuaa-integration/issues/239).
