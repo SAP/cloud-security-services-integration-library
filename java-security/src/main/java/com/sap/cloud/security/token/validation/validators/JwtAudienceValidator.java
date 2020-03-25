@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -42,14 +43,33 @@ public class JwtAudienceValidator implements Validator<Token> {
 	@Override
 	public ValidationResult validate(Token token) {
 		Set<String> allowedAudiences = getAllowedAudiences(token);
+		return Optional.ofNullable(validateDefault(allowedAudiences))
+				.orElse(
+					Optional.ofNullable(validateAudienceOfXsuaaBrokerClone(allowedAudiences))
+				.orElse(ValidationResults.createInvalid("Jwt token with audience {} is not issued for these clientIds: {}.", allowedAudiences,
+						clientIds)));
+	}
+
+	private ValidationResult validateDefault(Set<String> allowedAudiences) {
 		for (String configuredClientId : clientIds) {
 			if (allowedAudiences.contains(configuredClientId)) {
 				return ValidationResults.createValid();
 			}
 		}
-		return ValidationResults
-				.createInvalid("Jwt token with audience {} is not issued for these clientIds: {}.", allowedAudiences,
-						clientIds);
+		return null;
+	}
+
+	private ValidationResult validateAudienceOfXsuaaBrokerClone(Set<String> allowedAudiences) {
+		for (String configuredClientId : clientIds) {
+			if (configuredClientId.contains("!b")) {
+				for (String audience : allowedAudiences) {
+					if (audience.contains("|") && audience.endsWith("|" + configuredClientId)) {
+						return ValidationResults.createValid();
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

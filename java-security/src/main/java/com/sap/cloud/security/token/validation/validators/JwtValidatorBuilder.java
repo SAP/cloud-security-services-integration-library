@@ -197,6 +197,9 @@ public class JwtValidatorBuilder {
 		}
 		if (otherConfiguration != null) {
 			jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getClientId());
+			if (otherConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
+				jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
+			}
 		}
 		return jwtAudienceValidator;
 	}
