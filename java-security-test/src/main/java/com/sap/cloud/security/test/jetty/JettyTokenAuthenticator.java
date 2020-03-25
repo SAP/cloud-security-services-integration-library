@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.Subject;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +23,7 @@ import java.util.Set;
  */
 public class JettyTokenAuthenticator implements Authenticator {
 
-	private static final Logger logger = LoggerFactory.getLogger(JettyTokenAuthenticator.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JettyTokenAuthenticator.class);
 
 	private final TokenAuthenticator tokenAuthenticator;
 
@@ -32,8 +34,23 @@ public class JettyTokenAuthenticator implements Authenticator {
 	@Override
 	public Authentication validateRequest(ServletRequest request, ServletResponse response, boolean mandatory) {
 		TokenAuthenticationResult tokenAuthenticationResult = tokenAuthenticator.validateRequest(request, response);
-		return tokenAuthenticationResult.isAuthenticated() ? createAuthentication(tokenAuthenticationResult)
-				: Authentication.UNAUTHENTICATED;
+		if (tokenAuthenticationResult.isAuthenticated()) {
+			return createAuthentication(tokenAuthenticationResult);
+		} else {
+			sendUnauthenticatedResponse(response, tokenAuthenticationResult.getUnauthenticatedReason());
+			return Authentication.UNAUTHENTICATED;
+		}
+	}
+
+	private void sendUnauthenticatedResponse(ServletResponse response, String unauthenticatedReason)  {
+		if (response instanceof  HttpServletResponse) {
+			try {
+				HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+				httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, unauthenticatedReason); // 401
+			} catch (IOException e) {
+				LOGGER.error("Failed to send error response", e);
+			}
+		}
 	}
 
 	@Override
