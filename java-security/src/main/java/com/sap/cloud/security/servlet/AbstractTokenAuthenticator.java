@@ -16,7 +16,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +32,6 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
 		if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
-			HttpServletResponse httpResponse = (HttpServletResponse) response;
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
@@ -43,14 +41,13 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 						SecurityContext.setToken(token);
 						return authenticated(token);
 					} else {
-						return unauthenticated(httpResponse,
-								"Error during token validation: " + result.getErrorDescription());
+						return unauthenticated("Error during token validation: " + result.getErrorDescription());
 					}
 				} catch (Exception e) {
-					return unauthenticated(httpResponse, "Unexpected error occurred: " + e.getMessage());
+					return unauthenticated("Unexpected error occurred: " + e.getMessage());
 				}
 			} else {
-				return unauthenticated(httpResponse, "Authorization header is missing.");
+				return unauthenticated("Authorization header is missing.");
 			}
 		}
 		return TokenAuthenticatorResult.createUnauthenticated("Could not process request " + request);
@@ -108,13 +105,8 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return tokenValidator;
 	}
 
-	private TokenAuthenticationResult unauthenticated(HttpServletResponse httpResponse, String message) {
+	private TokenAuthenticationResult unauthenticated(String message) {
 		logger.warn("Request could not be authenticated: {}.", message);
-		try {
-			httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, message);
-		} catch (IOException e) {
-			logger.error("Could not send unauthenticated response!", e);
-		}
 		return TokenAuthenticatorResult.createUnauthenticated(message);
 	}
 
