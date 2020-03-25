@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
+import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { XsuaaResourceServerJwkAutoConfiguration.class, XsuaaAutoConfiguration.class })
@@ -92,6 +93,14 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 	}
 
 	@Test
+	public void userConfigurationCanOverrideDefaultRestClientBeans() {
+		contextRunner.withUserConfiguration(RestClientConfiguration.class)
+				.run((context) -> {
+					assertThat(context.containsBean("xsuaaJwtDecoder"), is(true));
+				});
+	}
+
+	@Test
 	public void autoConfigurationDisabledWhenSpringReactorIsActive() {
 		ReactiveWebApplicationContextRunner contextRunner = new ReactiveWebApplicationContextRunner()
 				.withConfiguration(
@@ -110,5 +119,20 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 		public JwtDecoder customJwtDecoder() {
 			return new NimbusJwtDecoderJwkSupport("http://localhost:8080/uaa/oauth/token_keys");
 		}
+	}
+
+	@Configuration
+	public static class RestClientConfiguration {
+
+		@Bean
+		public RestTemplate myRestTemplate() {
+			return new RestTemplate();
+		}
+
+		@Bean
+		public RestTemplate xsuaaRestOperations() {
+			return new RestTemplate();
+		}
+
 	}
 }

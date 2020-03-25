@@ -42,9 +42,9 @@ public class XsuaaTokenFlowAutoConfiguration {
 	 * Creates a new {@link XsuaaTokenFlows} bean that applications can auto-wire
 	 * into their controllers to perform a programmatic token flow exchange.
 	 *
-	 * @param restOperations
+	 * @param xsuaaRestOperations
 	 *            - the {@link RestOperations} to use for the token flow exchange.
-	 * @param serviceConfiguration
+	 * @param xsuaaServiceConfiguration
 	 *            - the {@link XsuaaServiceConfiguration} to configure the Xsuaa
 	 *            Base Url.
 	 * @return the {@link XsuaaTokenFlows} API.
@@ -52,14 +52,13 @@ public class XsuaaTokenFlowAutoConfiguration {
 	@Bean
 	@ConditionalOnBean({ XsuaaServiceConfiguration.class, RestOperations.class })
 	@ConditionalOnMissingBean
-	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations restOperations,
-			XsuaaServiceConfiguration serviceConfiguration) {
-
-		logger.info("auto-configures XsuaaTokenFlows");
-		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl());
-		ClientCredentials clientCredentials = new ClientCredentials(serviceConfiguration.getClientId(),
-				serviceConfiguration.getClientSecret());
-		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(restOperations);
+	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations xsuaaRestOperations,
+			XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+		logger.info("auto-configures XsuaaTokenFlows using restOperations of type: " + xsuaaRestOperations);
+		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaServiceConfiguration.getUaaUrl());
+		ClientCredentials clientCredentials = new ClientCredentials(xsuaaServiceConfiguration.getClientId(),
+				xsuaaServiceConfiguration.getClientSecret());
+		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(xsuaaRestOperations);
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCredentials);
 	}
 }
