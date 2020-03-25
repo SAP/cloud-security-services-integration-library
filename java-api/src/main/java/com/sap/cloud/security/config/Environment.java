@@ -36,7 +36,7 @@ public interface Environment {
 	 * @return the OAuth service configuration or null, in case there is no instance
 	 */
 	@Nullable
-	OAuth2ServiceConfiguration getIasConfiguration(); // TODO IAS
+	OAuth2ServiceConfiguration getIasConfiguration();
 
 	/**
 	 * Returns number of Xsuaa identity service instances.

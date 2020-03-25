@@ -50,7 +50,7 @@ public class CFEnvironment implements Environment {
 	}
 
 	@Nullable
-	// @Override // TODO IAS
+	@Override
 	public OAuth2ServiceConfiguration getIasConfiguration() {
 		return loadAllForService(IAS).stream().filter(Objects::nonNull).findFirst().orElse(null);
 	}
