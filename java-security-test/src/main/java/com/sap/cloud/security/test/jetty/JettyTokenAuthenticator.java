@@ -42,8 +42,8 @@ public class JettyTokenAuthenticator implements Authenticator {
 		}
 	}
 
-	private void sendUnauthenticatedResponse(ServletResponse response, String unauthenticatedReason)  {
-		if (response instanceof  HttpServletResponse) {
+	private void sendUnauthenticatedResponse(ServletResponse response, String unauthenticatedReason) {
+		if (response instanceof HttpServletResponse) {
 			try {
 				HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 				httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, unauthenticatedReason); // 401

@@ -336,7 +336,8 @@ public class SecurityTestRule extends ExternalResource {
 	}
 
 	private String createDefaultTokenKeyResponse() throws IOException {
-		String encodedPublicKeyModulus = Base64.getUrlEncoder().encodeToString(((RSAPublicKey) keys.getPublic()).getModulus().toByteArray());
+		String encodedPublicKeyModulus = Base64.getUrlEncoder()
+				.encodeToString(((RSAPublicKey) keys.getPublic()).getModulus().toByteArray());
 		String encodedPublicKey = Base64.getEncoder().encodeToString(keys.getPublic().getEncoded());
 		return IOUtils.resourceToString("/token_keys_template.json", StandardCharsets.UTF_8)
 				.replace("$kid", "default-kid")

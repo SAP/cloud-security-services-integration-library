@@ -67,7 +67,8 @@ public class JwtAudienceValidatorTest {
 	public void validate_brokerClientIdMatchesCloneAudience() {
 		// configures token audience
 		Mockito.when(token.getAudiences())
-				.thenReturn(Sets.newLinkedHashSet("sb-f7016e93-8665-4b73-9b46-f99d7808fe3c!b446|" + XSUAA_BROKER_XSAPPNAME));
+				.thenReturn(Sets
+						.newLinkedHashSet("sb-f7016e93-8665-4b73-9b46-f99d7808fe3c!b446|" + XSUAA_BROKER_XSAPPNAME));
 
 		// configures audience validator with client-id from VCAP_SERVICES
 		ValidationResult result = new JwtAudienceValidator("sb-" + XSUAA_BROKER_XSAPPNAME)

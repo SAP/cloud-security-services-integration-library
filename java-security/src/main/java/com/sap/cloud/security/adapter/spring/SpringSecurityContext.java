@@ -81,7 +81,8 @@ public class SpringSecurityContext {
 	private static class XsuaaTokenWithGrantedAuthorities extends XsuaaToken {
 		private final Collection<? extends GrantedAuthority> authorities;
 
-		public XsuaaTokenWithGrantedAuthorities(String tokenValue, @Nullable Collection<? extends GrantedAuthority> authorities) {
+		public XsuaaTokenWithGrantedAuthorities(String tokenValue,
+				@Nullable Collection<? extends GrantedAuthority> authorities) {
 			super(tokenValue);
 			this.authorities = authorities;
 		}

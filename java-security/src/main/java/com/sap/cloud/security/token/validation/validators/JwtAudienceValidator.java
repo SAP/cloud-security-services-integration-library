@@ -45,9 +45,11 @@ public class JwtAudienceValidator implements Validator<Token> {
 		Set<String> allowedAudiences = getAllowedAudiences(token);
 		return Optional.ofNullable(validateDefault(allowedAudiences))
 				.orElse(
-					Optional.ofNullable(validateAudienceOfXsuaaBrokerClone(allowedAudiences))
-				.orElse(ValidationResults.createInvalid("Jwt token with audience {} is not issued for these clientIds: {}.", allowedAudiences,
-						clientIds)));
+						Optional.ofNullable(validateAudienceOfXsuaaBrokerClone(allowedAudiences))
+								.orElse(ValidationResults.createInvalid(
+										"Jwt token with audience {} is not issued for these clientIds: {}.",
+										allowedAudiences,
+										clientIds)));
 	}
 
 	private ValidationResult validateDefault(Set<String> allowedAudiences) {

@@ -311,7 +311,7 @@ public class JwtGenerator {
 
 	private void putScopesInJsonPayload() {
 		String[] resultingScopes = Stream.concat(localScopes.stream(), scopes.stream())
-				.collect(Collectors.toList()).toArray(new String[]{});
+				.collect(Collectors.toList()).toArray(new String[] {});
 		withClaimValues(TokenClaims.XSUAA.SCOPES, resultingScopes);
 	}
 

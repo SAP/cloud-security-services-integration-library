@@ -38,16 +38,8 @@ public class IdTokenSignatureValidatorTest {
 	@Before
 	public void setup() throws IOException {
 		/**
-		 * Header
-		 * --------
-		 * {
-		 *     "alg": "RS256"
-		 * }
-		 * Payload
-		 * --------
-		 * {
-		 *     "iss": "https://application.myauth.com"
-		 * }
+		 * Header -------- { "alg": "RS256" } Payload -------- { "iss":
+		 * "https://application.myauth.com" }
 		 */
 		iasToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 

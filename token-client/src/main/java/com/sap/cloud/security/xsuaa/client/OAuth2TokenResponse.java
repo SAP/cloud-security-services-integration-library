@@ -67,7 +67,8 @@ public class OAuth2TokenResponse {
 	 * An OAuth2 refresh token. Clients typically use the refresh token to obtain a
 	 * new access token without the need for the user to authenticate again.
 	 * 
-	 * Note with version 2.5.0 the UserTokenFlow (Jwt Bearer) does not provide any longer Refresh Token. 
+	 * Note with version 2.5.0 the UserTokenFlow (Jwt Bearer) does not provide any
+	 * longer Refresh Token.
 	 *
 	 * @return the refresh token - can only be used once!
 	 */

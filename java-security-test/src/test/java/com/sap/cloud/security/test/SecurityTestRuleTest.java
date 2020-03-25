@@ -56,7 +56,8 @@ public class SecurityTestRuleTest {
 
 		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
-			String expEncodedKey = Base64.getEncoder().encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
+			String expEncodedKey = Base64.getEncoder()
+					.encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
 
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
 
@@ -64,10 +65,12 @@ public class SecurityTestRuleTest {
 			assertThat(tokenKeys).hasSize(1);
 			String publicKeyFromTokenKeys = tokenKeys.get(0).getAsString("value");
 			assertThat(publicKeyFromTokenKeys).isEqualTo(expEncodedKey);
-			assertThat(publicKeyFromTokenKeys).contains("d5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbW");
+			assertThat(publicKeyFromTokenKeys)
+					.contains("d5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbW");
 
 			String modulusFromTokenKeys = tokenKeys.get(0).getAsString("n"); // public key modulus
-			assertThat(modulusFromTokenKeys).contains("9mK_tc-vOXojlJcMm0VRvYvMLIDlIfj1BrkC_IYLpS2Vl1OTG8AS0xAgBDEG3EUzVU6JZKuIuuxD-iXrBySBQA2y");
+			assertThat(modulusFromTokenKeys).contains(
+					"9mK_tc-vOXojlJcMm0VRvYvMLIDlIfj1BrkC_IYLpS2Vl1OTG8AS0xAgBDEG3EUzVU6JZKuIuuxD-iXrBySBQA2y");
 		}
 	}
 

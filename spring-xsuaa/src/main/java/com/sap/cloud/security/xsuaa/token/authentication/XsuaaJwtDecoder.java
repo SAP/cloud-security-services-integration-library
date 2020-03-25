@@ -172,7 +172,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(verficationKey).build();
 			decoder.setJwtValidator(tokenValidators);
 			return decoder.decode(token);
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e){
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 			throw new JwtException(e.getMessage());
 		}
 	}
@@ -185,7 +185,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		return key;
 	}
 
-	private RSAPublicKey createPublicKey(String pemEncodedPublicKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+	private RSAPublicKey createPublicKey(String pemEncodedPublicKey)
+			throws NoSuchAlgorithmException, InvalidKeySpecException {
 		byte[] decodedKey = Base64.getDecoder().decode(convertPEMKey(pemEncodedPublicKey));
 		X509EncodedKeySpec spec = new X509EncodedKeySpec(decodedKey);
 		return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);

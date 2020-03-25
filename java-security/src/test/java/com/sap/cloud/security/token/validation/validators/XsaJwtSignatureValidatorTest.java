@@ -31,16 +31,8 @@ public class XsaJwtSignatureValidatorTest {
 	@Before
 	public void setup() throws IOException {
 		/**
-		 * Header
-		 * --------
-		 * {
-		 *     "alg": "RS256",
-		 * }
-		 * Payload
-		 * --------
-		 * {
-		 *     "iss": "http://xsa-a272d86a-0f74-448c-93d1-6b78903d1543/UAA/oauth/token"
-		 * }
+		 * Header -------- { "alg": "RS256", } Payload -------- { "iss":
+		 * "http://xsa-a272d86a-0f74-448c-93d1-6b78903d1543/UAA/oauth/token" }
 		 */
 		xsaToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaXsaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
