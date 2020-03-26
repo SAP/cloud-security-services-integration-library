@@ -2,7 +2,7 @@
 
 This migration guide is a step-by-step guide explaining how to replace the following SAP-internal Java Container Security Client libraries
 - com.sap.xs2.security:java-container-security
-- com.sap.cloud.security.xsuaa:java-container-security  
+- com.sap.cloud.security.xsuaa:java-container-security
 
 with this open-source version.
 
@@ -11,14 +11,14 @@ with this open-source version.
 ## Prerequisite: Migrate to Spring 5
 
 If your application does not already use Spring 5 you need to upgrade to Spring
-5 first to be able to use [spring-xsuaa](/spring-xsuaa).
+5 first to use [spring-xsuaa](/spring-xsuaa).
 Likewise if you use Spring Boot make sure that you use Spring Boot 2.
 
 Your application is probably using Spring Security OAuth 2.x which is being deprecated with
 Spring 5. The successor is Spring Security 5.2.x but it is not 100% compatible with Spring
 Security OAuth 2.x. See the
 [official migration guide](https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide)
-for more information. 
+for more information.
 
 We already migrated the [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads/)
 application. You take look at 
@@ -57,41 +57,39 @@ Make sure that you do not refer to any other sap security library with group-id 
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
 
-One difference between `java-container-security` and [spring-xsuaa](/spring-xsuaa) is that [spring-xsuaa](/spring-xsuaa)
+One difference between `java-container-security` and [spring-xsuaa](/spring-xsuaa) is that spring-xsuaa
 does not provide the `SAPOfflineTokenServicesCloud` class. This is because `SAPOfflineTokenServicesCloud` requires 
 Spring Security Oauth 2.x which is being deprecated in Spring 5.
 This is documented in the official [migration guide](https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide).
 
 This means that you have to remove the  `SAPOfflineTokenServicesCloud` bean from your security configuration
-and adapt the `HttpSecurity` configuration.
+and adapt the `HttpSecurity` configuration. This involves the following steps:
 
 - The `@EnableResourceServer` annotation must be removed because it is configured using the Spring Security DSL
 syntax. See the [documentation](/spring-xsuaa/#setup-security-context-for-http-requests).
-- The antMatchers must be configured to check against the authorities. For this the `TokenAuthenticationConverter`
+- The `antMatchers` must be configured to check against the authorities. For this the `TokenAuthenticationConverter`
   needs to be configured like described in the [documentation](/spring-xsuaa/#setup-security-context-for-http-requests).
 
-The (cloud-bulletinboard-ads)[https://github.com/SAP-samples/cloud-bulletinboard-ads] has been migrated from 
-Spring 4 to Spring 5 in conjunction with this library.
-[This commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/f5f085d94f30fe670aafdabc811fe07bc6533f6b)
-shows the changes to the security relevant parts of the application.
-You can also see the java-container-security library being replaced in the `pom.xml`.
-Have a look at the
+We already migrated the [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads) application from
+Spring 4 to Spring 5 and
+[this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/f5f085d94f30fe670aafdabc811fe07bc6533f6b)
+shows the changes to the security relevant parts.
+Also take a look at the
 [security config](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/f5f085d94f30fe670aafdabc811fe07bc6533f6b#diff-791eb47e5dbb9bcd7e54c7dd36c9f9dfL1)
 which contains the most security relevant changes.
 
-
 ### XML-based
+
 TODO ???
 
 ## Fetch basic infos from Token
-You may have code parts that requests information from the access token, like the user's name, its tenant, and so on. So, look up your code to find its usage.
 
+You may have code parts that requests information from the access token, like the user's name, its tenant, and so on. So, look up your code to find its usage.
 
 ```java
 import com.sap.xs2.security.container.SecurityContext;
 import com.sap.xs2.security.container.UserInfo;
 import com.sap.xs2.security.container.UserInfoException;
-
 
 try {
 	UserInfo userInfo = SecurityContext.getUserInfo();
@@ -99,19 +97,16 @@ try {
 } catch (UserInfoException e) {
 	// handle exception
 }
-
 ```
 
 There is no `UserInfo` anymore. To obtain the token from the thread local storage, you
 have to use Spring's `SecurityContext` managed by the `SecurityContextHolder`.
 It will contain a `com.sap.cloud.security.xsuaa.token.Token`.
-This is explained in the
-[usage section](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#usage)
-of the documentation.
+This is explained in the [usage section](/spring-xsuaa#usage) of the documentation.
 
 > Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
 
-## Fetch further `XSUserInfo` infos from Token
+## Special `XSUserInfo` methods
 The `XSUserInfo` provides some special methods that are not available in
 the `com.sap.cloud.security.xsuaa.token.Token`.
 
