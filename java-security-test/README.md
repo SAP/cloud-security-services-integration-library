@@ -36,7 +36,7 @@ Token token = JwtGenerator.getInstance(Service.XSUAA)
                                 .withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId) // optional
                                 .createToken();
 
-String authorizationHeaderValue = `Bearer ` + token.getTokenValue();
+String authorizationHeaderValue = 'Bearer ' + token.getTokenValue();
 ```
 
 ### Unit Test Utilities
