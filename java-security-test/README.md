@@ -75,7 +75,8 @@ public class HelloJavaServletTest {
 	@Test
 	public void requestWithValidToken_ok() throws IOException {
 		String jwt = rule.getPreconfiguredJwtGenerator()
-				.withScopes(SecurityTestRule.DEFAULT_APP_ID + ".Read")
+				.withScopes("openid")
+				.withLocalScopes("Read") // SecurityTestRule.DEFAULT_APP_ID + ".Read"
 				.createToken()
 				.getTokenValue();
 		HttpGet request = createGetRequest(jwt);
