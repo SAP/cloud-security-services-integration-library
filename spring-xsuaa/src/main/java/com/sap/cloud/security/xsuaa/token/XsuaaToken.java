@@ -1,21 +1,6 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_CLIENT_ID;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_EMAIL;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_FAMILY_NAME;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_GIVEN_NAME;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_GRANT_TYPE;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ORIGIN;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_USER_NAME;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ZDN;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_ZONE_ID;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
+import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
@@ -24,28 +9,29 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.util.Assert;
 
-import net.minidev.json.JSONArray;
+import java.time.Instant;
+import java.util.*;
+
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
+
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 
 /**
  * Custom XSUAA token implementation.
- *
+ * <p>
  * This class inherits Spring Security's standard Jwt implementation and can be
  * used interchangeably with it.
  */
 public class XsuaaToken extends Jwt implements Token {
-	private static final long serialVersionUID = -836947635254353927L;
-
-	private static final Logger logger = LoggerFactory.getLogger(XsuaaToken.class);
-
 	static final String GRANTTYPE_SAML2BEARER = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>
-
 	static final String CLAIM_SERVICEINSTANCEID = "serviceinstanceid";
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	static final String CLAIM_EXTERNAL_ATTR = "ext_attr";
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
-
+	private static final long serialVersionUID = -836947635254353927L;
+	private static final Logger logger = LoggerFactory.getLogger(XsuaaToken.class);
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();
 
 	/**
@@ -67,13 +53,19 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	@Override
+	public Instant getExpiration() {
+		return getExpiresAt();
+	}
+
+	@Override
 	public String getPassword() {
 		return null;
 	}
 
 	@Override
 	public String getUsername() {
-		if (GRANTTYPE_CLIENTCREDENTIAL.equals(getGrantType())) {
+		if (OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS.equals(getGrantType()) ||
+				OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_X509.equalsIgnoreCase(getGrantType())) {
 			return String.format(UNIQUE_CLIENT_NAME_FORMAT, getClientId());
 		} else {
 			return getUniquePrincipalName(getOrigin(), getLogonName());

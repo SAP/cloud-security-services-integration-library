@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>2.0.0</version>
+		<version>2.5.3</version>
 	</parent>
 
 	<artifactId>spring-xsuaa</artifactId>
@@ -18,87 +18,64 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>${spring.core.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-jose</artifactId>
-			<version>${spring.security.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-to-slf4j</artifactId>
-			<version>2.11.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-resource-server</artifactId>
-			<version>${spring.security.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-autoconfigure</artifactId>
-			<version>${spring.boot.version}</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<scope>provided</scope>
-			<version>${servlet.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>api</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>token-client</artifactId>
-			<version>${project.version}</version>
-
 		</dependency>
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
-			<version>${caffeine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-core</artifactId>
-			<version>${reactor.version}</version>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.security.oauth</groupId>
-			<artifactId>spring-security-oauth2</artifactId>
-			<version>2.3.6.RELEASE</version>
-			<scope>compile</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>spring-beans</artifactId>
-					<groupId>org.springframework</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>spring-context</artifactId>
-					<groupId>org.springframework</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<version>${spring.boot.version}</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -110,38 +87,36 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-jwt</artifactId>
-			<version>1.0.9.RELEASE</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.6</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>2.23.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>spring-xsuaa-test</artifactId>
-			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-test</artifactId>
-			<version>LATEST</version>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
@@ -157,6 +132,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>${maven.source.plugin.version}</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -229,9 +205,4 @@
 		</plugins>
 	</build>
 
-	<properties>
-		<caffeine.version>2.6.2</caffeine.version>
-		<servlet.version>3.1.0</servlet.version>
-		<reactor.version>3.2.8.RELEASE</reactor.version>
-	</properties>
 </project>

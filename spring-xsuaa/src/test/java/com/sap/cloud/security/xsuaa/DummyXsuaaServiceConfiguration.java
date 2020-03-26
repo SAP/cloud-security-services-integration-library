@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa;
 
+import javax.annotation.Nullable;
+
 public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration {
 
 	private String clientId;
@@ -38,4 +40,19 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 	public String getUaaDomain() {
 		return uaaDomain;
 	}
+
+	@Override
+	public String getVerificationKey() {
+		return null;
+	}
+
+	/*
+	 * @Nullable
+	 * 
+	 * @Override public String getCertificates() { return null; }
+	 * 
+	 * @Nullable
+	 * 
+	 * @Override public String getPrivateKey() { return null; }
+	 */
 }

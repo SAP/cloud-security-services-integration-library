@@ -141,7 +141,6 @@ public class TestController {
      * B on behalf of a user therefore has to exchange the user's Jwt token against a token for Service A and B respectively
      * before calling these services. This scenario is handled by the user token flow.
      * <p>
-     * <b>Note:</b> In order to be able to exchange the token, the input token needs to contain the scope {@code uaa.user}.<br>
      *
      *
      * @param jwt - the Jwt as a result of authentication.

@@ -1,0 +1,31 @@
+{
+  "xsuaa": [
+   {
+    "binding_name": null,
+    "credentials": {
+     "clientid": "xs2.usertoken",
+     "clientsecret": "secret",
+     "identityzone": "uaa",
+     "identityzoneid": "uaa",
+     "sburl": "http://localhost/uaa",
+     "tenantmode": "dedicated",
+     "uaadomain": "auth.com",
+     "url": "https://auth.com",
+     "verificationkey": "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmNM3OXfZS0Uu8eYZXCgGWFgVWQX6MHnadYk3zHZ5PIPeDY3ApaSGpMEiVwn1cT6KUVHMLHcmz1gsNy74pCnmCa22W7J3BoZulzR0A37ayMVrRHh3nffgySk8u581l02bvbcpab3e3EotSN5LixGT1VWZvDbalXf6n5kq459NWL6ZzkEs20MrOEk5cLdnsigTQUHSKIQ5TpldyDkJMm2zwOlrB2R984+QdlDFmoVH7Yaujxr2g0Z96u7W9Imik6wTiFc8W7eUXfhPGn7reVLq1/5o2Nz0Jx0ejFHDwTGncs+k1RBS6DbpTOMr9tkJEc3ZsX3Ft4OtqCkRXI5hUma+HwIDAQAB-----END PUBLIC KEY-----",
+     "xsappname": "java-hello-world",
+     "certificate" : "-----BEGIN CERTIFICATE-----\nMIID1TCCAr2gAwIBAgIMILoEsnLQBu8AAA1vMA0GCSqGSIb3DQEBCwUAMEgxCzAJ\nBgNVBAYTAkRFMRwwGgYDVQQKDBNTQVAgVHJ1c3QgQ29tbXVuaXR5MRswGQYDVQQD\nDBJTQVAgUGFzc3BvcnQgQ0EgRzIwHhcNMTkwOTE5MDkwNTA2WhcNMjAwOTE5MDkw\nNTA2WjCBqTELMAkGA1UEBhMCREUxHDAaBgNVBAoTE1NBUCBUcnVzdCBDb21tdW5p\ndHkxHTAbBgNVBAsTFHhzdWFhLXNlcnZpY2UtYnJva2VyMRwwGgYDVQQLExNDZXJ0\naWZpY2F0ZSBTZXJ2aWNlMRAwDgYDVQQHEwdzYXAtdWFhMS0wKwYDVQQDEyQ2ZDA0\nZTM5YS0zMzAzLTRkZjAtODAwMi1lZjVjZWY5ZGQ0OWYwggEiMA0GCSqGSIb3DQEB\nAQUAA4IBDwAwggEKAoIBAQDUxaHoQf3lRAev2K0L7w91SSzG6uEgyM8NePSzUiZl\nJSoXbb8F4qBqX7P+1e9USO2fBCJ2BgpRqUdbFDc4O1XH5p61cW0Rg8Vr52PrrayZ\nK4jG2N3ae0DGNA6QLxf3IwnWSgxJYo3MOBPBaRHQ2cQbGO6x8q3f4HoPiVylLpf7\neElYhBD5EHlo+cu/TJqbcE9rKD6HU1500DzUQwm3AHXLSROpj27uXfj+uziVaUxL\n7p7QbnElB37Iw/QxNr03aA8F1X7UALDDemAVqwFhRW1KWv4RM0kmB0GpY7xdOdsC\nK0NxW4sElNpEIsIESUKbLERmUBPTgSWU4uxSwQNWvpLvAgMBAAGjXTBbMAkGA1Ud\nEwQCMAAwDgYDVR0PAQH/BAQDAgTwMB0GA1UdDgQWBBR7ew6WDSCVR0MaXy+5Y3+P\nRedCwDAfBgNVHSMEGDAWgBSp7mnloV/30J2B2jAFTiIrAKefnjANBgkqhkiG9w0B\nAQsFAAOCAQEAIl1tIC0SXLbS5feBRzmh45P+0ZziCRdWqJYKp8BS8cRP3yuYLYUp\n/ouaY4N9VmfpNpwIedg+TA0hhKZv4Ig+d46pfaYbJQY5W7ew7Aj3mQC9chg370NC\nsQvROKJUwf9mEr2uZTd2u+tUuFiPtE3MfbYm/nY2YgWhnvTf5UUnREYmmeoEljoA\n/c75JUScWR7PiRJJ3KGUSfB2B8AQZHUDB1nzIl0LNL/1rapHSKZqDG9qxwdNMkJl\nNwuFx53d2Rzq3z2B4lvuOd2YzqwwPmUKvijaryj8GGiF/BggFNDkiMZ9bP8YnkwI\n3yTzzPyEXC6F49wRHFRREu0OXs1rsiYtVw==\n-----END CERTIFICATE-----",
+     "key" : "-----BEGIN RSA PRIVATE KEY-----\\nMIIEogIBAAKCAQEA1MWh6EH95UQHr9itC+8PdUksxurhIMjPDXj0s1ImZSUqF22/\\nBeKgal+z/tXvVEjtnwQidgYKUalHWxQ3ODtVx+"
+    },
+    "instance_name": "mw-xsuaa",
+    "label": "xsuaa",
+    "name": "example-xsuaa",
+    "plan": "default",
+    "provider": null,
+    "syslog_drain_url": null,
+    "tags": [
+     "xsuaa"
+    ],
+    "volume_mounts": []
+   }
+  ]
+ }

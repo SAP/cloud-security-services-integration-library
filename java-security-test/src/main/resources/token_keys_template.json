@@ -1,0 +1,13 @@
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "e": "AQAB",
+      "use": "sig",
+      "kid": "$kid",
+      "alg": "RS256",
+      "value": "$public_key",
+      "n": "$modulus"
+    }
+  ]
+}

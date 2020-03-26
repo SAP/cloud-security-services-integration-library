@@ -25,7 +25,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -106,14 +105,6 @@ public class InitializeSpringSecurityContextTest {
 
 		jwtDecoder.decode(jwt);
 		Assert.assertEquals(callCountAfterFirstCall, XsuaaRequestDispatcher.getCallCount());
-	}
-
-	@Test(expected = JwtException.class)
-	public void missingJkuFails() {
-		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
-				.setJwtHeaderKeyId("legacy-token-key").setJku(null).getToken().getTokenValue();
-
-		jwtDecoder.decode(jwt);
 	}
 
 	@Test(expected = JwtValidationException.class)

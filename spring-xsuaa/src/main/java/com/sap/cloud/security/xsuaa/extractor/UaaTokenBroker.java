@@ -12,18 +12,16 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 
 /**
- * @deprecated in favor of {@link #UaaTokenBroker(OAuth2TokenService)}. We are
- *             going to delete that in 3.0.0.
+ * @deprecated in favor of {@link OAuth2TokenService}. We are going to delete
+ *             that in 3.0.0.
  */
-class UaaTokenBroker implements TokenBroker {
+public class UaaTokenBroker implements TokenBroker {
 
 	private final static Logger logger = LoggerFactory.getLogger(UaaTokenBroker.class);
 
-	private final RestTemplate restTemplate;
 	private OAuth2TokenService oAuth2TokenService;
 
 	public UaaTokenBroker(RestTemplate restTemplate) {
-		this.restTemplate = restTemplate;
 		this.oAuth2TokenService = new XsuaaOAuth2TokenService(restTemplate);
 	}
 
@@ -32,7 +30,6 @@ class UaaTokenBroker implements TokenBroker {
 	}
 
 	UaaTokenBroker(OAuth2TokenService tokenService) {
-		this.restTemplate = new RestTemplate();
 		oAuth2TokenService = tokenService;
 	}
 
@@ -44,7 +41,7 @@ class UaaTokenBroker implements TokenBroker {
 					URI.create(tokenURL), new ClientCredentials(clientId, clientSecret), null, null).getAccessToken();
 		} catch (OAuth2ServiceException ex) {
 			logger.warn("Cannot obtain Client Credentials Access Token for clientId {}.", clientId);
-			throw new TokenBrokerException("Cannot obtain Client Credentials Access Token from given clientId.", ex);
+			throw new TokenBrokerException("Cannot obtain Client Credentials Access Token for given clientId.", ex);
 		}
 	}
 
@@ -56,8 +53,8 @@ class UaaTokenBroker implements TokenBroker {
 					URI.create(tokenURL), new ClientCredentials(clientId, clientSecret), username, password, null, null)
 					.getAccessToken();
 		} catch (OAuth2ServiceException ex) {
-			logger.warn("Cannot obtain Token from given user / password.");
-			throw new TokenBrokerException("Cannot obtain Token from given user / password.", ex);
+			logger.warn("Cannot obtain Token for user / password {}.", username);
+			throw new TokenBrokerException("Cannot obtain Token for given user / password.", ex);
 		}
 	}
 

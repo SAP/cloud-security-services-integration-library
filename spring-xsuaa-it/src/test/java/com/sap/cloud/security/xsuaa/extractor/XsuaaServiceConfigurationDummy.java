@@ -9,6 +9,7 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 	String uaaUrl;
 	String uaaDomain;
 	String appId;
+	String verificationKey;
 
 	@Override
 	public String getClientId() {
@@ -34,5 +35,20 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 	public String getUaaDomain() {
 		return uaaDomain;
 	}
+
+	@Override
+	public String getVerificationKey() {
+		return verificationKey;
+	}
+
+	/*
+	 * @Nullable
+	 * 
+	 * @Override public String getCertificates() { return null; }
+	 * 
+	 * @Nullable
+	 * 
+	 * @Override public String getPrivateKey() { return null; }
+	 */
 
 }

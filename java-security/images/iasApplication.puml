@@ -1,0 +1,20 @@
+@startuml
+-> Application: setup()
+Application --> Environments: getCurrent().getIasConfiguration()
+
+Environments -> Application: OAuth2ServiceConfiguration
+
+Application -> JwtValidatorBuilder: getInstance(OAuth2ServiceConfiguration).build()
+JwtValidatorBuilder --> Application: CombinedValidator
+
+-> Application: anyProtectedFunction()
+
+
+Application -> SapIdToken: new("abyJhbGci1iJSUzI1NiJ9.eyJhdW...")
+SapIdToken --> Application: Token
+
+Application -> CombinedValidator: validate(Token)
+CombinedValidator --> Application: ValidationResult
+@enduml
+
+

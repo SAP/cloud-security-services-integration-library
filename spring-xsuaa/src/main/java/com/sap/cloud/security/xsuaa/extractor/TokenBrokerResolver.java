@@ -5,27 +5,32 @@ import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
 /**
  * Analyse authentication header and obtain token from UAA
- * 
+ *
  * For using this feature also in multi tenancy mode request-parameter
- * {@code X-Identity-Zone-Subdomain} must be set or the
+ * {@code X-Identity-Zone-Subdomain} must be set (or the
  * AuthenticationInformationExtractor needs to be implemented).
  *
  */
@@ -33,17 +38,17 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 	private static final Logger logger = LoggerFactory.getLogger(TokenBrokerResolver.class);
 
-	private static final String BASIC_CREDENTIAL = "basic";
-	private static final String AUTHORIZATION_HEADER = "Authorization";
+	private static final String AUTH_BASIC_CREDENTIAL = HttpServletRequest.BASIC_AUTH;
+	private static final String AUTH_HEADER = "Authorization";
 	private static final String OAUTH_TOKEN_PATH = "/oauth/token";
-
-	private static final String BEARER_TYPE = "bearer";
+	private static final String AUTH_BEARER = "bearer";
 
 	private XsuaaServiceConfiguration configuration;
 
 	private Cache tokenCache;
 	private TokenBroker tokenBroker;
 	private AuthenticationInformationExtractor authenticationConfig;
+	private XsuaaTokenFlows xsuaaTokenFlows;
 
 	/**
 	 * @param configuration
@@ -84,6 +89,10 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		this.tokenCache = tokenCache;
 		this.tokenBroker = new UaaTokenBroker(tokenService);
 		this.authenticationConfig = authenticationConfig;
+		this.xsuaaTokenFlows = new XsuaaTokenFlows(
+				tokenService,
+				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
+				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
 	}
 
 	/**
@@ -98,7 +107,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	 */
 	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache,
 			AuthenticationMethod... authenticationMethods) {
-		this(configuration, tokenCache, new UaaTokenBroker(),
+		this(configuration, tokenCache, new XsuaaOAuth2TokenService(new RestTemplate()),
 				new DefaultAuthenticationInformationExtractor(authenticationMethods));
 	}
 
@@ -107,7 +116,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		try {
 			return extractToken(request);
 		} catch (TokenBrokerException e) {
-			logger.warn("Error obtaining token:" + e.getMessage(), e);
+			logger.warn("Error obtaining token: " + e.getMessage(), e);
 			return null;
 		}
 	}
@@ -119,11 +128,14 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 		String oauthTokenUrl = getOAuthTokenUrl(request);
 
+		ClientCredentials clientCredentials = new ClientCredentials(configuration.getClientId(),
+				configuration.getClientSecret());
 		for (AuthenticationMethod credentialType : authenticationMethods) {
-			Enumeration<String> headers = request.getHeaders(AUTHORIZATION_HEADER);
-			String token = getBrokerToken(credentialType, headers, oauthTokenUrl);
-			if (!StringUtils.isEmpty(token)) {
-				return token;
+			for (String authHeaderValue : Collections.list(request.getHeaders(AUTH_HEADER))) {
+				String token = getBrokerToken(credentialType, authHeaderValue, oauthTokenUrl, clientCredentials);
+				if (!StringUtils.isEmpty(token)) {
+					return token;
+				}
 			}
 		}
 		return null;
@@ -153,58 +165,54 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		return oauthTokenUrl;
 	}
 
-	private String getBrokerToken(AuthenticationMethod credentialType, Enumeration<String> headers,
-			String oauthTokenUrl) throws TokenBrokerException {
-		ClientCredentials clientCredentials = new ClientCredentials(configuration.getClientId(),
-				configuration.getClientSecret());
-		while (headers.hasMoreElements()) {
-			String header = headers.nextElement();
-			switch (credentialType) {
-			case OAUTH2:
-				return extractAuthorizationHeader(BEARER_TYPE, header);
-			case BASIC:
-				String basicAuthHeader = extractAuthorizationHeader(BASIC_CREDENTIAL, header);
-				ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
-						basicAuthHeader);
-				if (userCredentialsFromHeader != null) {
-					String cacheKey = createSecureHash(oauthTokenUrl, clientCredentials.toString(),
-							userCredentialsFromHeader.toString());
-					String cachedToken = tokenCache.get(cacheKey, String.class);
-					if (cachedToken != null) {
-						logger.info("return (basic) access token for {} from cache", cacheKey);
-						return cachedToken;
-					} else {
-						String token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl,
-								clientCredentials.getId(),
-								clientCredentials.getSecret(), userCredentialsFromHeader.getId(),
-								userCredentialsFromHeader.getSecret());
-						tokenCache.put(cacheKey, token);
-						return token;
-					}
+	private String getBrokerToken(AuthenticationMethod credentialType, String authHeaderValue,
+			String oauthTokenUrl, ClientCredentials clientCredentials) throws TokenBrokerException {
+		switch (credentialType) {
+		case OAUTH2:
+			return extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
+		case BASIC:
+			String basicAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL, authHeaderValue);
+			ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
+					basicAuthHeader);
+			if (userCredentialsFromHeader != null) {
+				String cacheKey = createSecureHash(oauthTokenUrl, clientCredentials.toString(),
+						userCredentialsFromHeader.toString());
+				String cachedToken = tokenCache.get(cacheKey, String.class);
+				if (cachedToken != null) {
+					logger.debug("return (basic) access token for {} from cache", cacheKey);
+					return cachedToken;
+				} else {
+					String token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl,
+							clientCredentials.getId(),
+							clientCredentials.getSecret(), userCredentialsFromHeader.getId(),
+							userCredentialsFromHeader.getSecret());
+					tokenCache.put(cacheKey, token);
+					return token;
 				}
-				break;
-			case CLIENT_CREDENTIALS:
-				String clientCredentialsAuthHeader = extractAuthorizationHeader(BASIC_CREDENTIAL, header);
-				ClientCredentials clientCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
-						clientCredentialsAuthHeader);
-				if (clientCredentialsFromHeader != null) {
-					String cacheKey = createSecureHash(oauthTokenUrl, clientCredentialsFromHeader.toString());
-					String cachedToken = tokenCache.get(cacheKey, String.class);
-					if (cachedToken != null) {
-						logger.info("return (client-credentials) access token for {} from cache", cacheKey);
-						return cachedToken;
-					} else {
-						String token = tokenBroker
-								.getAccessTokenFromClientCredentials(oauthTokenUrl, clientCredentialsFromHeader.getId(),
-										clientCredentialsFromHeader.getSecret());
-						tokenCache.put(cacheKey, token);
-						return token;
-					}
-				}
-				break;
-			default:
-				return null;
 			}
+			break;
+		case CLIENT_CREDENTIALS:
+			String clientCredentialsAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL,
+					authHeaderValue);
+			ClientCredentials clientCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
+					clientCredentialsAuthHeader);
+			if (clientCredentialsFromHeader != null) {
+				String cacheKey = createSecureHash(oauthTokenUrl, clientCredentialsFromHeader.toString());
+				String cachedToken = tokenCache.get(cacheKey, String.class);
+				if (cachedToken != null) {
+					logger.debug("return (client-credentials) access token for {} from cache", cacheKey);
+					return cachedToken;
+				} else {
+					String token = tokenBroker
+							.getAccessTokenFromClientCredentials(oauthTokenUrl, clientCredentialsFromHeader.getId(),
+									clientCredentialsFromHeader.getSecret());
+					tokenCache.put(cacheKey, token);
+					return token;
+				}
+			}
+			break;
+		default:
+			return null;
 		}
 		return null;
 	}
@@ -239,9 +247,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		}
 	}
 
-	private String extractAuthorizationHeader(String credentialName, String httpHeader) {
-		if ((httpHeader.toLowerCase().startsWith(credentialName.toLowerCase()))) {
-			String authorizationHeaderValue = httpHeader.substring(credentialName.length()).trim();
+	private String extractAuthenticationFromHeader(String authenticationMethod, String authHeaderValue) {
+		if ((authHeaderValue.toLowerCase().startsWith(authenticationMethod.toLowerCase()))) {
+			String authorizationHeaderValue = authHeaderValue.substring(authenticationMethod.length()).trim();
 			int index = authorizationHeaderValue.indexOf(',');
 			if (index > 0) {
 				authorizationHeaderValue = authorizationHeaderValue.substring(0, index);
@@ -257,5 +265,23 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 	public void setAuthenticationConfig(AuthenticationInformationExtractor authenticationConfig) {
 		this.authenticationConfig = authenticationConfig;
+	}
+
+	/**
+	 * Returns the subdomain claim "zdn" of a given OIDC access token (JWT bearer).
+	 *
+	 * @param encodedJwtToken
+	 *            - the token to check the scope for.
+	 * @return subdomain or null.
+	 */
+	@Nullable
+	private String parseSubdomainFromOIDCToken(String encodedJwtToken) {
+		String claims = new Base64JwtDecoder().decode(encodedJwtToken).getPayload();
+		try {
+			JSONObject rootObject = new JSONObject(claims);
+			return rootObject.getString(TokenClaims.CLAIM_ZDN); // OIDC token from IAS does not contain this claim
+		} catch (JSONException e) {
+			return null;
+		}
 	}
 }

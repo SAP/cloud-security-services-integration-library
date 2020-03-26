@@ -33,10 +33,6 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 	private Collection<PostValidationAction> postValidationActions;
 	private TokenInfoExtractor tokenInfoExtractor;
 
-	private static final String EXT_ATTR = "ext_attr";
-	private static final String ZDN = "zdn";
-	private static final String ZID = "zid";
-
 	// var arg it is only being converted to a List<OAuth2TokenValidator<Jwt>>,
 	// therefore its type safe.
 	ReactiveXsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds,

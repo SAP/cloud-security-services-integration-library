@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,7 +40,7 @@ public class ClientCredentialsTokenFlowTest {
 	@Before
 	public void setup() {
 		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
-		this.endpointsProvider = new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri);
+		this.endpointsProvider = new XsuaaDefaultEndpoints(XSUAA_BASE_URI);
 		this.cut = new ClientCredentialsTokenFlow(mockTokenService, endpointsProvider, clientCredentials);
 	}
 
@@ -63,7 +64,7 @@ public class ClientCredentialsTokenFlowTest {
 		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
 
 		Mockito.when(mockTokenService
-				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						isNull(), isNull()))
 				.thenReturn(accessToken);
 
@@ -75,7 +76,7 @@ public class ClientCredentialsTokenFlowTest {
 	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		Mockito.when(mockTokenService
-				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						isNull(), isNull()))
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
@@ -83,7 +84,7 @@ public class ClientCredentialsTokenFlowTest {
 			cut.execute();
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
-						"Error requesting user token with grant_type 'client_credentials': exception executed REST call");
+						"Error requesting technical user token with grant_type 'client_credentials': exception executed REST call");
 	}
 
 	@Test
@@ -94,7 +95,7 @@ public class ClientCredentialsTokenFlowTest {
 		additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
 
 		Mockito.when(mockTokenService
-				.retrieveAccessTokenViaClientCredentialsGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						isNull(), isNotNull()))
 				.thenReturn(accessToken);
 

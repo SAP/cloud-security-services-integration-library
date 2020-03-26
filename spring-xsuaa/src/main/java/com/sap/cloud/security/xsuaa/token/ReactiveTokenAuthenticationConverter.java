@@ -25,6 +25,14 @@ public class ReactiveTokenAuthenticationConverter implements Converter<Jwt, Mono
 	/**
 	 * This method allows to overwrite the default behavior of the
 	 * {@link Token#getAuthorities()} implementation.
+	 *
+	 * @param extractLocalScopesOnly
+	 *            * true when {@link Token#getAuthorities()} should only extract
+	 *            local * scopes. Local scopes means that non-application specific
+	 *            scopes * are filtered out and scopes are returned without appId
+	 *            prefix, * e.g. "Display". Creates a new converter with a new *
+	 *            {@link LocalAuthoritiesExtractor}
+	 * @return the token authenticator itself
 	 */
 	public ReactiveTokenAuthenticationConverter setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {
 		this.converter.setLocalScopeAsAuthorities(extractLocalScopesOnly);

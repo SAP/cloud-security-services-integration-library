@@ -1,10 +1,11 @@
 # Description
-This sample uses the SAP application router as a web server and forwards requests to a Java Spring back-end application running on Cloud Foundry.
-In a typcal UI5 application, the application router serves HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
+This sample uses the SAP application router as OAuth client and forwards as reverse proxy the requests to a Java Spring back-end application running on Cloud Foundry.
+In a typical UI5 application, the application router serves HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
 
 # Coding
-This sample is using the spring-security project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure JWT for authentication.
-Please see the [`spring-xsuaa` descriptions](../spring-xsuaa/README.md) for details.
+This sample is using the [`spring-xsuaa` descriptions](/spring-xsuaa/) library which bases on [spring-security](https://github.com/spring-projects/spring-security) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure JWT for authentication.
+
+Furthermore it demonstrates how to leverage the token flows provided by the [Token Client](/token-client/) library to request / exchange access tokens.
 
 # Deployment To Cloud Foundry
 To deploy the application, the following steps are required:
@@ -32,7 +33,7 @@ Use the [xs-security.json](./xs-security.json) to define the authentication sett
 cf create-service xsuaa application xsuaa-authentication -c xs-security.json
 ```
 
-## Configuration the manifest
+## Configure the manifest
 The [vars](../vars.yml) contains hosts and paths that you might need to adopt.
 
 ## Deploy the application
@@ -59,8 +60,7 @@ After deployment, the AppRouter will trigger authentication automatically when y
 * `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/getAdminData` - GET request to read sensitive data via Global Method Security. You will get a `403` (UNAUTHORIZED), in case you do not have `Admin` scope.
 * `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v2/sayHello` - GET request that logs generic Jwt info, but only if token matches. 
 * `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v3/requestClientCredentialsToken` - GET request that requests the client credentials Jwt token and writes it into the log. 
-* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v3/requestUserToken` - GET request that exchanges a Jwt token for a potential different client. It returns a refresh token.
-* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v3/requestRefreshToken/<<your refresh token>>` - GET request that retrieves a Jwt token for a refresh token and writes it into the log. 
+* `https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v3/requestUserToken` - GET request that exchanges a Jwt token for a potential different client.
 
 Have a look into the logs with:
 ```

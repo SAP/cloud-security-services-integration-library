@@ -3,7 +3,7 @@ This sample uses the SAP application router as a web server and forwards request
 In a typcal UI5 application, the application router server HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
 
 # Coding
-The [web.xml](src/main/webapp/WEB-INF/web.xml) of the application must use auth-method with value XSUAA. This enables authentication of requests using incoming OAuth authentication tokens.
+The [web.xml](src/main/webapp/WEB-INF/web.xml) of the application must use auth-method with value `XSUAA`. This enables authentication of requests using incoming OAuth authentication tokens.
 
 ```xml
 <web-app>
@@ -14,62 +14,7 @@ The [web.xml](src/main/webapp/WEB-INF/web.xml) of the application must use auth-
 </web-app> 
 ```
 
-In the Java coding, use the `@ServletSecurity` annotations:
-```java
-package com.sap.cloud.security.xssec.samples.sapbuildpack;
-
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.annotation.HttpConstraint;
-import javax.servlet.annotation.ServletSecurity;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.sap.xsa.security.container.XSUserInfo;
-import com.sap.xsa.security.container.XSUserInfoException;
-
-/**
- * Servlet implementation class HelloTokenServlet
- */
-@WebServlet("/hello-token")
-
-// configure servlet to check against scope "$XSAPPNAME.Display"
-@ServletSecurity(@HttpConstraint(rolesAllowed = { "Display" }))
-public class HelloTokenServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		response.setContentType("text/plain");
-		XSUserInfo userInfo = (XSUserInfo) request.getUserPrincipal();
-
-		try {
-			response.getWriter().append("Client ID: ").append("" + userInfo.getClientId());
-			response.getWriter().append("\n");
-			response.getWriter().append("Email: ").append("" + userInfo.getEmail());
-			response.getWriter().append("\n");
-			response.getWriter().append("Family Name: ").append("" + userInfo.getFamilyName());
-			response.getWriter().append("\n");
-			response.getWriter().append("First Name: ").append("" + userInfo.getGivenName());
-			response.getWriter().append("\n");
-			response.getWriter().append("OAuth Grant Type: ").append("" + userInfo.getGrantType());
-			response.getWriter().append("\n");
-			response.getWriter().append("OAuth Token: ").append("" + userInfo.getAppToken());
-			response.getWriter().append("\n");
-
-		} catch (XSUserInfoException e) {
-			e.printStackTrace(response.getWriter());
-		}
-	}
-}
-```
+In your Web Servlet, use then the `@ServletSecurity` annotations as implemented in [HelloTokenServlet](/samples/sap-java-buildpack-api-usage/src/main/java/sample/sapbuildpack/xsuaa/HelloTokenServlet.java).
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
@@ -96,7 +41,7 @@ Use the [xs-security.json](./xs-security.json) to define the authentication sett
 cf create-service xsuaa application xsuaa-buildpack -c xs-security.json
 ```
 
-## Configuration the manifest
+## Configure the manifest
 The [vars](../vars.yml) contains hosts and paths that need to be adopted.
 
 ## Deploy the application

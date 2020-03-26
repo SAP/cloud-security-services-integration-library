@@ -1,9 +1,9 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+import static com.sap.cloud.security.xsuaa.util.UriUtil.expandPath;
 
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final URI baseUri;
@@ -12,7 +12,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private static final String KEYSET_ENDPOINT = "/token_keys";
 
 	/**
-	 * Creates a new XsuaaRestClient.
+	 * Creates a new XsuaaDefaultEndpoints.
 	 *
 	 * @param baseUri
 	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
@@ -24,7 +24,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	}
 
 	/**
-	 * Creates a new XsuaaRestClient.
+	 * Creates a new XsuaaDefaultEndpoints.
 	 *
 	 * @param baseUri
 	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
@@ -36,30 +36,17 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 
 	@Override
 	public URI getTokenEndpoint() {
-		return getUriWithPathAppended(TOKEN_ENDPOINT);
+		return expandPath(baseUri, TOKEN_ENDPOINT);
 	}
 
 	@Override
 	public URI getAuthorizeEndpoint() {
-		return getUriWithPathAppended(AUTHORIZE_ENDPOINT);
+		return expandPath(baseUri, AUTHORIZE_ENDPOINT);
 	}
 
 	@Override
 	public URI getJwksUri() {
-		return getUriWithPathAppended(KEYSET_ENDPOINT);
+		return expandPath(baseUri, KEYSET_ENDPOINT);
 	}
 
-	private URI getUriWithPathAppended(String pathToAppend) {
-		try {
-			String newPath = baseUri.getPath() + pathToAppend;
-			return new URI(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(),
-					replaceDoubleSlashes(newPath), baseUri.getQuery(), baseUri.getFragment());
-		} catch (URISyntaxException e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
-	private String replaceDoubleSlashes(String newPath) {
-		return newPath.replaceAll("//", "/");
-	}
 }

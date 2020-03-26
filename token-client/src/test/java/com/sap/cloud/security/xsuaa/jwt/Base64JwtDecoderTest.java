@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class Base64JwtDecoderTest {
 
@@ -18,7 +19,7 @@ public class Base64JwtDecoderTest {
 		String expectedDecodedJWTPayload = "{\"jti\":\"e3c30e2474cd46609a262eda9d9dc26d\",\"ext_attr\":{\"enhancer\":\"XSUAA\",\"zdn\":\"acme-enterprises\"},\"xs.system.attributes\":{\"xs.rolecollections\":[]},\"given_name\":\"Andrea Maria\",\"xs.user.attributes\":{},\"family_name\":\"Millsap\",\"sub\":\"1234\",\"scope\":[\"openid\",\"uaa.user\"],\"client_id\":\"my-app1\",\"cid\":\"my-app1\",\"azp\":\"my-app1\",\"grant_type\":\"authorization_code\",\"user_id\":\"1234\",\"origin\":\"ldap\",\"user_name\":\"am.millsap@sap.com\",\"email\":\"am.millsap@sap.com\",\"auth_time\":1564785720,\"rev_sig\":\"87e7c016\",\"iat\":1564785720,\"exp\":1564785721,\"iss\":\"http://acme-enterprises.example.com/uaa/oauth/token\",\"zid\":\"2345\",\"aud\":[\"my-app1\",\"uaa\",\"openid\"]}";
 		String expectedDecodedJWTHeader = "{\"alg\":\"HS256\",\"jku\":\"https://acme-enterprises.authentication.example.com/token_keys\",\"kid\":\"key-id-1\",\"typ\":\"JWT\"}";
 		String expectedDecodedJWTSignature = "yqEcFR3EkzVSfVo3tfxsl9kc6KtCSe75-al5cTZbzhk";
-		DecodedJwt decodedJwt = new Base64JwtDecoder().decode(encodedJwt);
+		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(encodedJwt);
 		assertEquals(expectedDecodedJWTPayload, decodedJwt.getPayload());
 		assertEquals(expectedDecodedJWTHeader, decodedJwt.getHeader());
 		assertEquals(expectedDecodedJWTSignature, decodedJwt.getSignature());
@@ -27,13 +28,20 @@ public class Base64JwtDecoderTest {
 	@Test
 	public void itThrowsIfJwtDoesNotConsistOfThreeSegments() {
 		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Failed to split JWT into exactly 3 parts");
+		expectedException.expectMessage("JWT token does not consist of 'header'.'payload'.'signature'.");
 
-		new Base64JwtDecoder().decode("invalid");
+		Base64JwtDecoder.getInstance().decode("invalid");
 	}
 
 	@Test
 	public void itAllowsEmptyPayload() {
+		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode("header..signature");
+		assertEquals("", decodedJwt.getPayload());
+	}
+
+	@Test
+	@Deprecated // will be deleted with version 3.0.0
+	public void deprecatedConstructor() {
 		DecodedJwt decodedJwt = new Base64JwtDecoder().decode("header..signature");
 		assertEquals("", decodedJwt.getPayload());
 	}

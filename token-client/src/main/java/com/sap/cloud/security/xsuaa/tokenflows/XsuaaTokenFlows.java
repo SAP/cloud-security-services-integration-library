@@ -41,11 +41,10 @@ public class XsuaaTokenFlows implements Serializable {
 	 * String clientSecret = "<<get your client secret from your service binding>>";
 	 * String xsuaaBaseUrl = "<<get your xsuaa base url from service binding>>";
 	 *
-	 * OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaBaseUrl);
-	 * ClientCredentials clientCredentials = new ClientCredentials(clientId, clientSecret);
-	 * RestOperations restOperations = new RestTemplate();
-	 *
-	 * XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(restOperations, endpointsProvider, clientCredentials);
+	 * XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+	     *                           new DefaultOAuth2TokenService(), 
+	     *                           new XsuaaDefaultEndpoints(xsuaaBaseUrl), 
+	     *                           new ClientCredentials(clientId, clientSecret));
 	 * }
 	 *            </pre>
 	 */
@@ -61,19 +60,13 @@ public class XsuaaTokenFlows implements Serializable {
 	}
 
 	/**
-	 * Creates a new User Token Flow builder object. The token passed needs to
-	 * contain the scope {@code uaa.user}, otherwise an exception will be thrown
-	 * when the flow is executed. <br>
-	 * Token, authorize and key set endpoints will be derived relative to the base
-	 * URI.
+	 * Creates a new User Token Flow builder object. Token, authorize and key set
+	 * endpoints will be derived relative to the base URI.
 	 * 
 	 * @return the {@link UserTokenFlow} builder object.
 	 */
 	public UserTokenFlow userTokenFlow() {
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(oAuth2TokenService, endpointsProvider,
-				clientCredentials);
-
-		return new UserTokenFlow(oAuth2TokenService, refreshTokenFlow, endpointsProvider, clientCredentials);
+		return new UserTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
 	}
 
 	/**
@@ -92,10 +85,20 @@ public class XsuaaTokenFlows implements Serializable {
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
 	 * 
-	 * @return the {@link ClientCredentialsTokenFlow} builder object.
+	 * @return the {@link RefreshTokenFlow} builder object.
 	 */
 	public RefreshTokenFlow refreshTokenFlow() {
 		return new RefreshTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
 	}
 
+	/**
+	 * Creates a new Refresh Token Flow builder object.<br>
+	 * Token, authorize and key set endpoints will be derived relative to the base
+	 * URI.
+	 *
+	 * @return the {@link PasswordTokenFlow} builder object.
+	 */
+	public PasswordTokenFlow passwordTokenFlow() {
+		return new PasswordTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
+	}
 }

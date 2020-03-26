@@ -5,21 +5,19 @@ import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.JwtValidationException;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.util.Assert;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -27,14 +25,17 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.springframework.web.client.RestOperations;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
 	Cache<String, JwtDecoder> cache;
 	private OAuth2TokenValidator<Jwt> tokenValidators;
 	private Collection<PostValidationAction> postValidationActions;
 	private TokenInfoExtractor tokenInfoExtractor;
+	private RestOperations restOperations;
 
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
 			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
@@ -43,6 +44,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 				.maximumSize(cacheSize)
 				.build();
 		this.tokenValidators = tokenValidators;
+		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
 
 		this.tokenInfoExtractor = new TokenInfoExtractor() {
 			@Override
@@ -60,8 +62,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 				return xsuaaServiceConfiguration.getUaaDomain();
 			}
 		};
-
-		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.EMPTY_LIST;
+		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.emptyList();
 	}
 
 	@Override
@@ -74,17 +75,35 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		} catch (ParseException ex) {
 			throw new JwtException("Error initializing JWT decoder: " + ex.getMessage());
 		}
+		final Jwt verifiedToken = verifyToken(jwt);
+		postValidationActions.forEach(action -> action.perform(verifiedToken));
+		return verifiedToken;
+	}
 
-		String jku = tokenInfoExtractor.getJku(jwt);
-		String kid = tokenInfoExtractor.getKid(jwt);
-		String uaaDomain = tokenInfoExtractor.getUaaDomain(jwt);
+	public void setTokenInfoExtractor(TokenInfoExtractor tokenInfoExtractor) {
+		this.tokenInfoExtractor = tokenInfoExtractor;
+	}
 
+	public void setRestOperations(RestOperations restOperations) {
+		this.restOperations = restOperations;
+	}
+
+	private Jwt verifyToken(JWT jwt) {
+		try {
+			String jku = tokenInfoExtractor.getJku(jwt);
+			String kid = tokenInfoExtractor.getKid(jwt);
+			String uaaDomain = tokenInfoExtractor.getUaaDomain(jwt);
+			return verifyTokenOnline(jwt.getParsedString(), jku, kid, uaaDomain);
+		} catch (JwtException e) {
+			return tryToVerifyWithOfflineKey(jwt.getParsedString(), e);
+		}
+	}
+
+	private Jwt verifyTokenOnline(String token, String jku, String kid, String uaaDomain) {
 		try {
 			canVerifyWithOnlineKey(jku, kid, uaaDomain);
 			validateJKU(jku, uaaDomain);
 			Jwt verifiedToken = verifyWithOnlineKey(token, jku, kid);
-
-			postValidationActions.forEach(act -> act.perform(verifiedToken));
 
 			return verifiedToken;
 		} catch (JwtValidationException ex) {
@@ -134,11 +153,43 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	// TODO extract into separate class / bean
 	private JwtDecoder getDecoder(String jku) {
 		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jku);
+		Optional.ofNullable(restOperations).ifPresent(decoder::setRestOperations);
 		decoder.setJwtValidator(tokenValidators);
 		return decoder;
 	}
 
-	public void setTokenInfoExtractor(TokenInfoExtractor tokenInfoExtractor) {
-		this.tokenInfoExtractor = tokenInfoExtractor;
+	private Jwt tryToVerifyWithOfflineKey(String token, JwtException onlineVerificationException) {
+		String verificationKey = xsuaaServiceConfiguration.getVerificationKey();
+		if (verificationKey == null || verificationKey.isEmpty()) {
+			throw onlineVerificationException;
+		}
+		return verifyWithOfflineKey(token, verificationKey);
 	}
+
+	private Jwt verifyWithOfflineKey(String token, String verificationKey) {
+		try {
+			RSAPublicKey verficationKey = createPublicKey(verificationKey);
+			NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(verficationKey).build();
+			decoder.setJwtValidator(tokenValidators);
+			return decoder.decode(token);
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			throw new JwtException(e.getMessage());
+		}
+	}
+
+	// TODO: move this code into token-client?
+	private static String convertPEMKey(String pemEncodedKey) {
+		String key = pemEncodedKey;
+		key = key.replace("-----BEGIN PUBLIC KEY-----", "");
+		key = key.replace("-----END PUBLIC KEY-----", "");
+		return key;
+	}
+
+	private RSAPublicKey createPublicKey(String pemEncodedPublicKey)
+			throws NoSuchAlgorithmException, InvalidKeySpecException {
+		byte[] decodedKey = Base64.getDecoder().decode(convertPEMKey(pemEncodedPublicKey));
+		X509EncodedKeySpec spec = new X509EncodedKeySpec(decodedKey);
+		return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
+	}
+
 }

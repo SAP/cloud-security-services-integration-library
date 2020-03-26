@@ -1,13 +1,8 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
+import com.sap.cloud.security.xsuaa.extractor.DefaultAuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -16,14 +11,15 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 
-import com.sap.cloud.security.xsuaa.extractor.DefaultAuthoritiesExtractor;
-import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class SpringSecurityContextTest {
-
-	private static final int NUM_OF_THREADS = 2;
-	private static int countThreads;
 
 	private Jwt token_1;
 	private Jwt token_2;
@@ -65,9 +61,8 @@ public class SpringSecurityContextTest {
 	 */
 	@Test
 	public void setSecurityContext() throws InterruptedException, ExecutionException {
-		SpringSecurityContextTest.countThreads = 0;
 
-		ExecutorService executor = Executors.newFixedThreadPool(10);
+		ExecutorService executor = Executors.newFixedThreadPool(2);
 
 		Future<Token> future_1 = executor.submit(() -> {
 			initSecurityContextWithToken(token_1);
@@ -78,9 +73,6 @@ public class SpringSecurityContextTest {
 			return SpringSecurityContext.getToken();
 		});
 
-		while (!future_1.isDone() || !future_2.isDone()) {
-			Thread.sleep(100);
-		}
 		assertEquals(SUBDOMAIN_1, future_1.get().getSubdomain());
 		assertEquals(SUBDOMAIN_1 + "-id", future_1.get().getSubaccountId());
 
@@ -94,12 +86,5 @@ public class SpringSecurityContextTest {
 
 		// initialize SpringSecurityContext with provided token
 		SpringSecurityContext.init(token.getTokenValue(), mockXsuaaJwtDecoder, new DefaultAuthoritiesExtractor());
-
-		// wait on other threads
-		SpringSecurityContextTest.countThreads++;
-		while (SpringSecurityContextTest.countThreads < NUM_OF_THREADS) {
-			Thread.sleep(100);
-		}
-		// now all threads have invoked the init(...) method
 	}
 }

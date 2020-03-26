@@ -42,8 +42,7 @@ public interface OAuth2TokenService {
 	 *            the client id and secret of the OAuth client, the recipient of the
 	 *            token.
 	 * @param token
-	 *            the user bearer token, that represents an authenticated user that
-	 *            must have uaa.user scope.
+	 *            the user bearer token, that represents an authenticated user.
 	 * @param subdomain
 	 *            optionally indicates what Identity Zone this request goes to by
 	 *            supplying a subdomain (tenant).
@@ -52,7 +51,8 @@ public interface OAuth2TokenService {
 	 * @return the OAuth2AccessToken.
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
-	 * @deprecated instead use jwt bearer.
+	 * @deprecated instead use jwt bearer
+	 *             {{@link #retrieveAccessTokenViaJwtBearerTokenGrant(URI, ClientCredentials, String, String, Map)}}.
 	 */
 	@Deprecated
 	OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
@@ -61,7 +61,7 @@ public interface OAuth2TokenService {
 			throws OAuth2ServiceException;
 
 	/**
-	 * Requests access token from OAuth Server with refresh-token
+	 * Requests access token from OAuth Server with refresh-token.
 	 *
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
@@ -82,6 +82,8 @@ public interface OAuth2TokenService {
 			String refreshToken, @Nullable String subdomain) throws OAuth2ServiceException;
 
 	/**
+	 * Requests access token from OAuth Server with user / password.
+	 *
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
 	 * @param clientCredentials
@@ -102,6 +104,28 @@ public interface OAuth2TokenService {
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri, ClientCredentials clientCredentials,
 			String username, String password, @Nullable String subdomain,
+			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
+
+	/**
+	 * @param tokenEndpointUri
+	 *            the token endpoint URI.
+	 * @param clientCredentials
+	 *            the client id and secret of the OAuth client, the recipient of the
+	 *            token.
+	 * @param token
+	 *            the JWT token identifying representing the user to be
+	 *            authenticated
+	 * @param subdomain
+	 *            optionally indicates what Identity Zone this request goes to by
+	 *            supplying a subdomain (tenant).
+	 * @param optionalParameters
+	 *            optional request parameters, can be null.
+	 * @return the OAuth2AccessToken
+	 * @throws OAuth2ServiceException
+	 *             in case of an error during the http request.
+	 */
+	OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
+			ClientCredentials clientCredentials, String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException;
 
 }

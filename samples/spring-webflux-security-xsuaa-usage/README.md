@@ -6,7 +6,7 @@ To deploy the application, the following steps are required:
 - Configure the Application Router
 - Compile the Java application
 - Create an XSUAA service instance
-- Configure manifest.yml
+- Configure the manifest.yml
 - Deploy the application
 - Assign Role to your user
 - Access the application
@@ -27,7 +27,7 @@ Use the [xs-security.json](./xs-security.json) to define the authentication sett
 cf create-service xsuaa application xsuaa-webflux -c xs-security.json
 ```
 
-## Configuration the manifest
+## Configure the manifest
 The [vars](../vars.yml) contains hosts and paths that you might need to adopt.
 
 ## Deploy the application

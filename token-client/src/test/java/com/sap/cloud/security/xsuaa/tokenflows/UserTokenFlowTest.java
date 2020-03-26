@@ -1,10 +1,10 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
@@ -31,56 +30,36 @@ public class UserTokenFlowTest {
 	@Mock
 	private OAuth2TokenService mockTokenService;
 
-	@Mock
-	RefreshTokenFlow mockRefreshTokenFlow;
-
-	private String mockJwt;
-	private String invalidMockJwt;
+	private String userTokenToBeExchanged;
+	private OAuth2TokenResponse dummyAccessToken;
 	private ClientCredentials clientCredentials;
 	private UserTokenFlow cut;
 	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	private static final String JWT_ACCESS_TOKEN = "4bfad399ca10490da95c2b5eb4451d53";
-	private static final String REFRESH_TOKEN = "99e2cecfa54f4957a782f07168915b69-r";
 
 	@Before
-	public void setup() throws TokenFlowException {
-		this.mockJwt = buildMockJwt();
-		this.invalidMockJwt = buildInvalidMockJwt();
+	public void setup() {
+		this.userTokenToBeExchanged = new JwtGenerator().getToken().getTokenValue();
+		;
+		this.dummyAccessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, REFRESH_TOKEN);
 		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
-		this.endpointsProvider = new XsuaaDefaultEndpoints(TestConstants.xsuaaBaseUri);
-		this.cut = new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, endpointsProvider, clientCredentials);
-
-		// configure Refresh Token Flow Mock
-		when(mockRefreshTokenFlow.execute()).thenReturn(new OAuth2TokenResponse(mockJwt, 4711, null));
-		when(mockRefreshTokenFlow.refreshToken(anyString())).thenReturn(mockRefreshTokenFlow);
-	}
-
-	private String buildMockJwt() {
-		return new JwtGenerator().addScopes("uaa.user").getToken().getTokenValue();
-	}
-
-	private String buildInvalidMockJwt() {
-		return new JwtGenerator().getToken().getTokenValue();
+		this.endpointsProvider = new XsuaaDefaultEndpoints(XSUAA_BASE_URI);
+		this.cut = new UserTokenFlow(mockTokenService, endpointsProvider, clientCredentials);
 	}
 
 	@Test
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new UserTokenFlow(null, mockRefreshTokenFlow, endpointsProvider, clientCredentials);
+			new UserTokenFlow(null, endpointsProvider, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
 		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, null,
-					endpointsProvider, clientCredentials);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("RefreshTokenFlow");
-
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, null, clientCredentials);
+			new UserTokenFlow(mockTokenService, null, clientCredentials);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
 
 		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow, endpointsProvider, null);
+			new UserTokenFlow(mockTokenService, endpointsProvider, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientCredentials");
 	}
 
@@ -96,73 +75,53 @@ public class UserTokenFlowTest {
 	}
 
 	@Test
-	public void test_execute_throwsIfTokenDoesNotContainUaaUserScope() {
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, mockRefreshTokenFlow,
-					endpointsProvider, clientCredentials)
-							.token(invalidMockJwt)
-							.execute();
-		}).isInstanceOf(IllegalStateException.class)
-				.hasMessageContaining("JWT token does not include scope 'uaa.user'");
-	}
-
-	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		when(mockTokenService
-				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						eq(mockJwt),
+				.retrieveAccessTokenViaJwtBearerTokenGrant(eq(TOKEN_ENDPOINT_URI),
+						eq(clientCredentials),
+						eq(userTokenToBeExchanged),
 						isNull(), isNull()))
 								.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
-			cut.token(mockJwt)
+			cut.token(userTokenToBeExchanged)
 					.execute();
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
-						"Error requesting token with grant_type 'user_token'");
+						"Error requesting token with grant_type 'urn:ietf:params:oauth:grant-type:jwt-bearer'");
 	}
 
 	@Test
 	public void execute() throws TokenFlowException, OAuth2ServiceException {
-		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, REFRESH_TOKEN);
-
 		when(mockTokenService
-				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						eq(mockJwt),
+				.retrieveAccessTokenViaJwtBearerTokenGrant(eq(TOKEN_ENDPOINT_URI),
+						eq(clientCredentials),
+						eq(userTokenToBeExchanged),
 						isNull(), isNull()))
-								.thenReturn(accessToken);
+								.thenReturn(dummyAccessToken);
 
-		OAuth2TokenResponse jwt = cut.token(mockJwt)
+		OAuth2TokenResponse jwt = cut.token(userTokenToBeExchanged)
 				.execute();
 
-		assertThat(jwt.getAccessToken(), is(mockJwt));
-
+		assertThat(jwt.getAccessToken(), is(dummyAccessToken.getAccessToken()));
 	}
 
 	@Test
 	public void execute_withSubdomain() throws TokenFlowException, OAuth2ServiceException {
-		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, REFRESH_TOKEN);
 		String subdomain = "subdomain";
-		RefreshTokenFlow refreshTokenFlow = new RefreshTokenFlow(mockTokenService, endpointsProvider,
-				clientCredentials);
-		cut = new UserTokenFlow(mockTokenService, refreshTokenFlow, endpointsProvider, clientCredentials);
+		cut = new UserTokenFlow(mockTokenService, endpointsProvider, clientCredentials);
 
 		when(mockTokenService
-				.retrieveAccessTokenViaUserTokenGrant(any(), any(), any(), any(), any()))
-						.thenReturn(accessToken);
+				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), eq(subdomain), any()))
+						.thenReturn(dummyAccessToken);
 
-		cut.subdomain(subdomain).token(mockJwt).execute();
+		OAuth2TokenResponse jwt = cut.subdomain(subdomain).token(userTokenToBeExchanged).execute();
 
-		Mockito.verify(mockTokenService, times(1))
-				.retrieveAccessTokenViaUserTokenGrant(any(), any(), any(), eq(subdomain), any());
-		Mockito.verify(mockTokenService, times(1))
-				.retrieveAccessTokenViaRefreshToken(any(), any(), any(), eq(subdomain));
+		assertThat(jwt.getAccessToken(), is(dummyAccessToken.getAccessToken()));
 	}
 
 	@Test
 	public void execute_withAdditionalAuthorities() throws TokenFlowException, OAuth2ServiceException {
-		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, REFRESH_TOKEN);
-
 		Map<String, String> additionalAuthorities = new HashMap<String, String>();
 		additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
 
@@ -170,16 +129,16 @@ public class UserTokenFlowTest {
 		additionalAuthoritiesParam.put("authorities", "{\"az_attr\":{\"DummyAttribute\":\"DummyAttributeValue\"}}");
 
 		when(mockTokenService
-				.retrieveAccessTokenViaUserTokenGrant(eq(TestConstants.tokenEndpointUri), eq(clientCredentials),
-						eq(mockJwt),
+				.retrieveAccessTokenViaJwtBearerTokenGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
+						eq(userTokenToBeExchanged),
 						isNull(), eq(additionalAuthoritiesParam)))
-								.thenReturn(accessToken);
+								.thenReturn(dummyAccessToken);
 
-		OAuth2TokenResponse jwt = cut.token(mockJwt)
+		OAuth2TokenResponse jwt = cut.token(userTokenToBeExchanged)
 				.attributes(additionalAuthorities)
 				.execute();
 
-		assertThat(jwt.getAccessToken(), is(mockJwt));
+		assertThat(jwt.getAccessToken(), is(dummyAccessToken.getAccessToken()));
 	}
 
 }

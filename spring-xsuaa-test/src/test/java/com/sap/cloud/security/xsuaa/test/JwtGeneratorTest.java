@@ -38,6 +38,13 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
+	public void testWithIndiviualPort() {
+		Jwt jwt = jwtGenerator.setPort(1234).getToken();
+		assertThat(jwt.getHeaders(),
+				hasEntry(TokenHeaders.JKU, "http://localhost:1234/my-subaccount-subdomain/token_keys"));
+	}
+
+	@Test
 	public void testParameterizedJwtToken() {
 		jwtGenerator.setUserName(MY_USER_NAME);
 		Jwt jwt = jwtGenerator.getToken();

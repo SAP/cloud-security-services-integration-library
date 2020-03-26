@@ -1,6 +1,8 @@
 package com.sap.cloud.security.xsuaa;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -11,8 +13,6 @@ import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
-
-import net.minidev.json.parser.ParseException;
 
 /**
  * Part of Auto Configuration {@link XsuaaAutoConfiguration}
@@ -32,48 +32,58 @@ import net.minidev.json.parser.ParseException;
  *
  */
 public class XsuaaServicePropertySourceFactory implements PropertySourceFactory {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private static final Logger logger = LoggerFactory.getLogger(XsuaaServicePropertySourceFactory.class);
+
 	protected static final String XSUAA_PREFIX = "xsuaa.";
-	private static final String XSUAA_PROPERTYIES_KEY = "xsuaa";
+	private static final String XSUAA_PROPERTIES_KEY = "xsuaa";
 	public static final String CLIENT_ID = "xsuaa.clientid";
 	public static final String CLIENT_SECRET = "xsuaa.clientsecret";
 	public static final String URL = "xsuaa.url";
 	public static final String UAA_DOMAIN = "xsuaa.uaadomain";
 
-	private static final String[] XSUAA_ATTRIBUTES = new String[] { "clientid", "clientsecret", "identityzoneid",
-			"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname" };
-
-	private Properties xsuaaProperties = null;
+	private static final List<String> XSUAA_ATTRIBUTES = Arrays
+			.asList(new String[] { "clientid", "clientsecret", "identityzoneid",
+					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
+					"certificate",
+					"key" });
 
 	public XsuaaServicePropertySourceFactory() {
 	}
 
 	@Override
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
+		Properties properties = null;
 		XsuaaServicesParser vcapServicesParser = null;
-		if (xsuaaProperties == null) {
-			if (resource != null && resource.getResource().getFilename() != null
-					&& !resource.getResource().getFilename().isEmpty()) {
-				vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
-			} else {
-				vcapServicesParser = new XsuaaServicesParser();
-			}
-			xsuaaProperties = getConfigurationProperties(vcapServicesParser);
+		if (resource != null && resource.getResource().getFilename() != null
+				&& !resource.getResource().getFilename().isEmpty()) {
+			vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
+		} else {
+			vcapServicesParser = new XsuaaServicesParser();
 		}
-		return new PropertiesPropertySource(XSUAA_PROPERTYIES_KEY, xsuaaProperties);
+		logger.info("Parse {} XSUAA properties.");
+		properties = vcapServicesParser.parseCredentials();
+		logger.info("Parsed {} XSUAA properties.", properties.size());
+		return create(XSUAA_PROPERTIES_KEY, properties);
 	}
 
-	protected Properties getConfigurationProperties(XsuaaServicesParser vcapServicesParser) throws IOException {
-		try {
-			Properties xsuaaProperties = new Properties();
-			for (String attributeName : XSUAA_ATTRIBUTES) {
-				vcapServicesParser.getAttribute(attributeName).ifPresent(
-						attributeValue -> xsuaaProperties.put(XSUAA_PREFIX + attributeName, attributeValue));
+	/**
+	 * Creates a PropertySource object for a map of xsuaa properties.
+	 *
+	 * @param name
+	 *            of the propertySource. Use only "xsuaa" as name in case you like
+	 *            to overwrite/set all properties.
+	 * @param properties
+	 *            map of xsuaa properties.
+	 * @return created @Code{PropertySource}
+	 */
+	public static PropertySource create(String name, Properties properties) {
+		for (final String property : properties.stringPropertyNames()) {
+			if (XSUAA_ATTRIBUTES.contains(property)) {
+				properties.setProperty(XSUAA_PREFIX + property, properties.remove(property).toString());
+			} else {
+				logger.info("Property {} is not considered as part of PropertySource.", property);
 			}
-			logger.info("Extracted {} XSUAA properties", xsuaaProperties.size());
-			return xsuaaProperties;
-		} catch (ParseException ex) {
-			throw new IOException(ex);
 		}
+		return new PropertiesPropertySource(name, properties);
 	}
 }

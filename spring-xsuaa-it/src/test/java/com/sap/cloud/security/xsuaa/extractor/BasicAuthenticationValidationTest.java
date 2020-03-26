@@ -73,6 +73,17 @@ public class BasicAuthenticationValidationTest {
 	}
 
 	@Test
+	public void testToken_testdomain_oauth_and_client_credentials() throws Exception {
+		SecurityConfiguration.tokenBrokerResolver.setAuthenticationConfig(
+				new DefaultAuthenticationInformationExtractor(AuthenticationMethod.OAUTH2,
+						AuthenticationMethod.CLIENT_CREDENTIALS));
+		this.mvc.perform(
+				get("/user").with(new BasicTokenRequestPostProcessor("sb-java-hello-world", "basic.clientsecret")))
+				.andExpect(status().isOk()).andExpect(content().string(containsString("client/sb-java-hello-world")));
+
+	}
+
+	@Test
 	public void testToken_testdomain_basic_fail() throws Exception {
 		SecurityConfiguration.tokenBrokerResolver
 				.setAuthenticationConfig(new DefaultAuthenticationInformationExtractor(AuthenticationMethod.OAUTH2));

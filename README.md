@@ -13,15 +13,19 @@ Typical UI5 applications consist of a server providing the HTML content and one 
 OAuth resource servers (as the one in step 4) require libraries for validating access tokens.
 
 ## Token Validation for Java web applications using SAP Java Buildpack
-The SAP Java Buildpack integrates token validation into the tomcat server. Application developers requiring authentication and authorization information in their application use the interfaces defined in [api](./api) to obtain like user name and scopes.
+The SAP Java Buildpack integrates token validation into the tomcat server. Application developers requiring authentication and authorization information in their application use the interfaces defined in [api](./api) to obtain information like user name and scopes.
 
 ### Requirements
 - Java 8
 - maven 3.3.9 or later
-- The application is deployed using the SAP Java Buildpack
+- The application is deployed using the SAP Java Buildpack with version <= `v1.24.1`
+- You use `sap_java_buildpack` (e.g. in your `manifest.yml`)
+
+### Upcoming (Incompatible) Change
+SAP Java Buildpacks makes use of deprecated (Spring) Security libraries and needs to be updated. The new SAP Java Buildpack version will use the [`java-security`](/java-security) library. Please expect little migration efforts in the api for accessing token information. A Migration Guide will be provided. 
 
 ### Sample
-See [sap-java-builpack-api-uage](samples/sap-java-buildpack-api-usage) for an example.
+See [sap-java-builpack-api-usage](samples/sap-java-buildpack-api-usage) for an example.
 
 ## Token Exchange for Java applications
 Applications requiring access tokens (Jwt) use the Token Flows API defined in [token-client](./token-client) to obtain Jwt tokens for their clients (applications) or for their users.
@@ -31,7 +35,22 @@ Applications requiring access tokens (Jwt) use the Token Flows API defined in [t
 - maven 3.3.9 or later
 
 ### Sample
-See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
+- See [java-tokenclient-usage](samples/java-tokenclient-usage) for an example.
+- See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
+
+## Token Validation for Java applications
+Application developers requiring authentication and authorization information in their application use the libraries defined in [java-security](./java-security) to obtain token information like user name.
+
+### Requirements
+- Java 8
+- maven 3.3.9 or later
+
+### Sample
+See [java-security-usage](samples/java-security-usage) for an example.
+
+### Additional (test) utilities
+- [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.
+
 
 ## Token Validation for Java Spring Boot web applications
 Spring Boot provides OAuth resource servers. Application developers requiring authentication and authorization information in their application use the libraries defined in [spring-xsuaa](./spring-xsuaa) to obtain token information like user name and scopes.
@@ -68,5 +87,5 @@ Libraries and information provided here is around the topic of integrating with 
 Open an issue in GitHub
 
 # License
-Copyright (c) 2018-2019 SAP SE or an SAP affiliate company. All rights reserved.
+Copyright (c) 2018-2020 SAP SE or an SAP affiliate company. All rights reserved.
 This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file [LICENSE.md].
