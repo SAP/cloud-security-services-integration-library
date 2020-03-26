@@ -12,6 +12,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -87,6 +88,15 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	protected abstract OAuth2ServiceConfiguration getServiceConfiguration();
 
 	/**
+	 * Return other configured service configurations or null if not
+	 * configured.
+	 *
+	 * @return the other service configuration or null
+	 */
+	@Nullable
+	protected abstract OAuth2ServiceConfiguration getOtherServiceConfiguration();
+
+	/**
 	 * Extracts the {@link Token} from the authorization header.
 	 *
 	 * @param authorizationHeader
@@ -99,6 +109,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		if (tokenValidator == null) {
 			JwtValidatorBuilder jwtValidatorBuilder = JwtValidatorBuilder.getInstance(getServiceConfiguration())
 					.withHttpClient(httpClient);
+			jwtValidatorBuilder.configureAnotherServiceInstance(getOtherServiceConfiguration());
 			validationListeners.forEach(jwtValidatorBuilder::withValidatorListener);
 			tokenValidator = jwtValidatorBuilder.build();
 		}
