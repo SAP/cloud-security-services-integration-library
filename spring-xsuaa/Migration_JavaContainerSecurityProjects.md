@@ -10,52 +10,26 @@ with this open-source version.
 
 ## Prerequisite: Migrate to Spring 5
 
-- spring boot 2
-- spring framework 5
-- link to official spring 5 migration guide
-- sample --> bulletinboard commit
+If your application does not already use Spring 5 you need to upgrade to Spring
+5 first to be able to use [spring-xsuaa](/spring-xsuaa).
+Likewise if you use Spring Boot make sure that you use Spring Boot 2.
 
+Your application is probably using Spring Security OAuth 2.x which is being deprecated with
+Spring 5. The successor is Spring Security 5.2.x but it is not 100% compatible with Spring
+Security OAuth 2.x. See the
+[official migration guide](https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide)
+for more information. 
+
+We already migrated the [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads/)
+application. You take look at 
+[this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/cffe04c95ae06e5b9c56fa827585bd127b57a765)
+which shows what had to be changed to migrate an application from Spring 4 to Spring 5.
 
 ## Maven Dependencies
-To use the new [java-security](/java-security) client library the dependencies declared in maven `pom.xml` need to be updated.
-
-First make sure you have the following dependencies defined in your pom.xml:
-
-```xml
-<!-- take the latest spring-security dependencies -->
-<!-- Spring deprecates it as it gets replaced with libs of groupId "org.springframework.security" -->
-<dependency>
-  <groupId>org.springframework.security.oauth</groupId>
-  <artifactId>spring-security-oauth2</artifactId>
-</dependency>
-<dependency>
-  <groupId>org.springframework</groupId>
-  <artifactId>spring-aop</artifactId>
-</dependency>
-
-<!-- new java-security dependencies -->
-<dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>api</artifactId>
-  <version>2.5.2</version>
-</dependency>
-<dependency>
-  <groupId>com.sap.cloud.security</groupId>
-  <artifactId>java-security</artifactId>
-  <version>2.5.2</version>
-</dependency>
-
-<!-- new java-security dependencies for unit tests -->
-<dependency>
-  <groupId>com.sap.cloud.security</groupId>
-  <artifactId>java-security-test</artifactId>
-  <version>2.5.2</version>
-  <scope>test</scope>
-</dependency>
-```
-
-
-Now you are ready to **remove** the **`java-container-security`** client library by deleting the following lines from the pom.xml:
+To use the new [spring-xsuaa](/spring-xsuaa) client library the dependencies declared in maven `pom.xml` need to be changed.
+See the [documentation](/spring-xsuaa#configuration) on what to add to your `pom.xml`.
+After you have added to new dependencies you are ready to **remove** the **`java-container-security`** client library by
+deleting the following lines from the pom.xml:
 ```xml
 <dependency>
   <groupId>com.sap.xs2.security</groupId>
@@ -83,52 +57,31 @@ Make sure that you do not refer to any other sap security library with group-id 
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
 
-If your security configuration was using the `SAPOfflineTokenServicesCloud` class from the `java-container-security` library,
-you need to change it slightly to use the `SAPOfflineTokenServicesCloud` adapter class from the new library.
+One difference between `java-container-security` and [spring-xsuaa](/spring-xsuaa) is that [spring-xsuaa](/spring-xsuaa)
+does not provide the `SAPOfflineTokenServicesCloud` class. This is because `SAPOfflineTokenServicesCloud` requires 
+Spring Security Oauth 2.x which is being deprecated in Spring 5.
+This is documented in the official [migration guide](https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide).
 
-> Note: There is no replacement for `SAPPropertyPlaceholderConfigurer` as you can always parameterize the `SAPOfflineTokenServicesCloud` bean with your `OAuth2ServiceConfiguration`.
+This means that you have to remove the  `SAPOfflineTokenServicesCloud` bean from your security configuration
+and adapt the `HttpSecurity` configuration.
 
-### Code-based
+- The `@EnableResourceServer` annotation must be removed because it is configured using the Spring Security DSL
+syntax. See the [documentation](/spring-xsuaa/#setup-security-context-for-http-requests).
+- The antMatchers must be configured to check against the authorities. For this the `TokenAuthenticationConverter`
+  needs to be configured like described in the [documentation](/spring-xsuaa/#setup-security-context-for-http-requests).
 
-For example see the following snippet on how to instantiate the `SAPOfflineTokenServicesCloud`. 
+The (cloud-bulletinboard-ads)[https://github.com/SAP-samples/cloud-bulletinboard-ads] has been migrated from 
+Spring 4 to Spring 5 in conjunction with this library.
+[This commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/f5f085d94f30fe670aafdabc811fe07bc6533f6b)
+shows the changes to the security relevant parts of the application.
+You can also see the java-container-security library being replaced in the `pom.xml`.
+Have a look at the
+[security config](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/f5f085d94f30fe670aafdabc811fe07bc6533f6b#diff-791eb47e5dbb9bcd7e54c7dd36c9f9dfL1)
+which contains the most security relevant changes.
 
-```java
-@Bean
-@Profile("cloud")
-protected SAPOfflineTokenServicesCloud offlineTokenServices() {
-	return new SAPOfflineTokenServicesCloud(
-				Environments.getCurrent().getXsuaaConfiguration(), //optional
-				new RestTemplate())                                //optional
-			.setLocalScopeAsAuthorities(true);                         //optional
-}
-```
-You might need to fix your java imports to get rid of the old import for the `SAPOfflineTokenServicesCloud` class.
 
 ### XML-based
-As you may have updated the 
-
-In case of XML-based Spring (Security) configuration you need to replace your current `SAPOfflineTokenServicesCloud` bean definition with that:
-
-```xml
-<bean id="offlineTokenServices"
-         class="com.sap.cloud.security.adapter.spring.SAPOfflineTokenServicesCloud">
-		<property name="localScopeAsAuthorities" value="true" />
-</bean>
-```
-
-With `localScopeAsAuthorities` you can perform spring scope checks without referring to the XS application name (application id), e.g. `myapp!t1234`. For example:
-
-Or
-```java
-...
-.authorizeRequests()
-	.antMatchers(POST, "/api/v1/ads/**").access(#oauth2.hasScopeMatching('Update')) //instead of '${xs.appname}.Update'
-```
-
-
-```xml
-<sec:intercept-url pattern="/rest/addressbook/deletedata" access="#oauth2.hasScope('Delete')" method="GET" />
-```
+TODO ???
 
 ## Fetch basic infos from Token
 You may have code parts that requests information from the access token, like the user's name, its tenant, and so on. So, look up your code to find its usage.
@@ -149,62 +102,31 @@ try {
 
 ```
 
-This can be easily replaced with the `Token` or `XsuaaToken` Api.
-
-```java
-import com.sap.cloud.security.token.*;
-
-AccessToken token = SecurityContext.getAccessToken();
-String logonName = token.getClaimAsString(TokenClaims.USER_NAME);
-boolean hasDisplayScope = token.hasLocalScope("Display");	
-GrantType grantType = token.getGrantType();
-```
+There is no `UserInfo` anymore. To obtain the token from the thread local storage, you
+have to use Spring's `SecurityContext` managed by the `SecurityContextHolder`.
+It will contain a `com.sap.cloud.security.xsuaa.token.Token`.
+This is explained in the
+[usage section](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#usage)
+of the documentation.
 
 > Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
 
 ## Fetch further `XSUserInfo` infos from Token
+The `XSUserInfo` provides some special methods that are not available in
+the `com.sap.cloud.security.xsuaa.token.Token`.
 
-TODO - compare "Token" with "XSUserInfo" HDB Token z.b getHdbToken...
+> TODO actually `com.sap.cloud.security.xsuaa.token.Token` contains a lot less
+> methdos than `XsuaaToken`. Should `XsuaaToken` be described here?
 
-When you're done with the first part and need further information from the token you can use `XSUserInfoAdapter` in order to access the remaining methods exposed by [`XSUserInfo`](/api/src/main/java/com/sap/xsa/security/container/XSUserInfo.java) Interface.
+See the following table for methods that are not available anymore:
 
-```java
-try {
-	XSUserInfo userInfo = new XSUserInfoAdapter(token);
-	String dbToken = userInfo.getHdbToken();
-} catch (XSUserInfoException e) {
-	// handle exception
-}
-```
-
-## Further Spring Usages
-
-https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#check-authorization-within-a-method
-
-## Test Code Changes
-
-### Security configuration for tests
-If you want to overwrite the service configuration of the `SAPOfflineTokenServicesCloud` for your test, you can do so by
-using some test constants provided by the test library. The following snippet shows how to do that:
-```java 
-import static com.sap.cloud.security.config.cf.CFConstants.*;
-
-@Configuration
-public class TestSecurityConfig {
-	@Bean
-	@Primary
-	public SAPOfflineTokenServicesCloud sapOfflineTokenServices() {
-		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
-				.forService(Service.XSUAA)
-				.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
-				.withProperty(CFConstants.XSUAA.APP_ID, SecurityTestRule.DEFAULT_APP_ID)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
-				.build();
-
-		return new SAPOfflineTokenServicesCloud(configuration).setLocalScopeAsAuthorities(true);
-	}
-}
-```
+- getDBToken()
+- getHdbToken()
+- getToken(namespace, name)
+- getAttribute(attributeName)
+- hasAttributes()
+- getSystemAttribute(attributeName)
+- isInForeignMode()
 
 ### Unit testing 
 In your unit test you might want to generate jwt tokens and have them validated. The new [java-security-test](/java-security-test) library provides it's own `JwtGenerator`.  This can be embedded using the new 
@@ -220,18 +142,12 @@ public static SecurityTestRule securityTestRule =
 Using the `SecurityTestRule` you can use a preconfigured `JwtGenerator` to create JWT tokens with custom scopes for your tests. It configures the JwtGenerator in such a way that **it uses the public key from the [`publicKey.txt`](/java-security-test/src/main/resources) file to sign the token.**
 
 ```java
-static final String XSAPPNAME = SecurityTestRule.DEFAULT_APP_ID;
-static final String DISPLAY_SCOPE = XSAPPNAME + ".Display";
-static final String UPDATE_SCOPE = XSAPPNAME + ".Update";
-
 String jwt = securityTestRule.getPreconfiguredJwtGenerator()
-    .withScopes(DISPLAY_SCOPE, UPDATE_SCOPE)
+    .withAppId(SecurityTestRule.DEFAULT_APP_ID)
+    .withLocalScopes("Display", "Update")
     .createToken()
     .getTokenValue();
-
 ```
-
-Make sure, that your JUnit tests are running.
 
 ## Enable local testing
 For local testing you might need to provide custom `VCAP_SERVICES` before you run the application. 
@@ -241,7 +157,7 @@ under `xsuaa/credentials` for jwt validation:
 - `"verificationkey" : "<public key your jwt token is signed with>"`
 
 Before calling the service you need to provide a digitally signed JWT token to simulate that you are an authenticated user. 
-- Therefore simply set a breakpoint in `JWTGenerator.createToken()` and run your `JUnit` tests to fetch the value of `jwt` from there. 
+- Therefore simply set a breakpoint in `JwtGenerator.createToken()` and run your `JUnit` tests to fetch the value of `jwt` from there. 
 
 Now you can test the service manually in the browser using the `Postman` chrome plugin and check whether the secured functions can be accessed when providing a valid generated Jwt Token.
 
@@ -273,6 +189,3 @@ In case you face issues to apply the migration steps feel free to open a Issue h
 ## Samples
 - refer to https://github.com/SAP-samples/cloud-bulletinboard-ads/blob/Documentation/Security/Exercise_24_MakeYourApplicationSecure.md
 - https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-xsuaa-usage
-
-
-
