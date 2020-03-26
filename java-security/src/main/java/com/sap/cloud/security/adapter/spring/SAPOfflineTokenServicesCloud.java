@@ -144,7 +144,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	 * @return the instance itself
 	 */
 	public SAPOfflineTokenServicesCloud withAnotherServiceConfiguration(OAuth2ServiceConfiguration otherServiceConfiguration) {
-		jwtValidatorBuilder.configureAnotherServiceInstance(serviceConfiguration);
+		jwtValidatorBuilder.configureAnotherServiceInstance(otherServiceConfiguration);
 		return this;
 	}
 
