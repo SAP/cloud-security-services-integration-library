@@ -14,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JwtAudienceValidatorTest {
 
 	private Token token;
+	private String XSUAA_BROKER_XSAPPNAME = "brokerplanmasterapp!b123";
 
 	@Before
 	public void setUp() {
@@ -57,6 +58,35 @@ public class JwtAudienceValidatorTest {
 
 		// configures audience validator with client-id from VCAP_SERVICES
 		ValidationResult result = new JwtAudienceValidator("sb-test4!t1")
+				.validate(token);
+
+		assertThat(result.isValid()).isTrue(); // should match
+	}
+
+	@Test
+	public void validate_brokerClientIdMatchesCloneAudience() {
+		// configures token audience
+		Mockito.when(token.getAudiences())
+				.thenReturn(Sets
+						.newLinkedHashSet("sb-f7016e93-8665-4b73-9b46-f99d7808fe3c!b446|" + XSUAA_BROKER_XSAPPNAME));
+
+		// configures audience validator with client-id from VCAP_SERVICES
+		ValidationResult result = new JwtAudienceValidator("sb-" + XSUAA_BROKER_XSAPPNAME)
+				.configureTrustedClientId(XSUAA_BROKER_XSAPPNAME)
+				.validate(token);
+
+		assertThat(result.isValid()).isTrue(); // should match
+	}
+
+	@Test
+	public void validationFails_brokerClientIdDoesNotMatchCloneAudience() {
+		// configures token audience
+		Mockito.when(token.getAudiences())
+				.thenReturn(Sets.newLinkedHashSet("sb-f7016e93-8665-4b73-9b46-f99d7808fe3c!b446|ANOTHERAPP!b12"));
+
+		// configures audience validator with client-id from VCAP_SERVICES
+		ValidationResult result = new JwtAudienceValidator("sb-ANOTHERAPP!b12")
+				.configureTrustedClientId("ANOTHERAPP!b12")
 				.validate(token);
 
 		assertThat(result.isValid()).isTrue(); // should match

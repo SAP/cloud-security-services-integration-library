@@ -28,12 +28,11 @@ public class SpringSecurityContext {
 		if (authentication == null) {
 			throw new AccessDeniedException("Access forbidden: not authenticated");
 		}
-
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Assert.state(principal != null, "Principal must not be null");
-		Assert.state(principal instanceof Token, "Unexpected principal type");
-
-		return (Token) principal;
+		if(principal instanceof Token) {
+			return (Token) principal;
+		}
+		throw new AccessDeniedException("Access forbidden: SecurityContextHolder does not contain a principal of type 'Token' " + principal);
 	}
 
 	/**

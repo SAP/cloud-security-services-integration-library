@@ -310,9 +310,9 @@ public class JwtGenerator {
 	}
 
 	private void putScopesInJsonPayload() {
-		String[] resultingScopes = Stream.concat(localScopes.stream(), scopes.stream())
-				.collect(Collectors.toList()).toArray(new String[]{});
-		withClaimValues(TokenClaims.XSUAA.SCOPES, resultingScopes);
+		List<String> resultingScopes = Stream.concat(localScopes.stream(), scopes.stream())
+				.collect(Collectors.toList());
+		jsonPayload.put(TokenClaims.XSUAA.SCOPES, resultingScopes);
 	}
 
 	private void createAudienceClaim() {

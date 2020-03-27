@@ -40,7 +40,8 @@ public class JwtGeneratorTest {
 	@Test
 	public void testWithIndiviualPort() {
 		Jwt jwt = jwtGenerator.setPort(1234).getToken();
-		assertThat(jwt.getHeaders(), hasEntry(TokenHeaders.JKU, "http://localhost:1234/my-subaccount-subdomain/token_keys"));
+		assertThat(jwt.getHeaders(),
+				hasEntry(TokenHeaders.JKU, "http://localhost:1234/my-subaccount-subdomain/token_keys"));
 	}
 
 	@Test

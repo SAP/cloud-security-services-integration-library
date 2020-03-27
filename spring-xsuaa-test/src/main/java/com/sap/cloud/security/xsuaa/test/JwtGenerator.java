@@ -109,7 +109,6 @@ public class JwtGenerator {
 		this.port = port;
 	}
 
-
 	/**
 	 * Overwrites some default values of the JWT token claims.
 	 *
@@ -254,7 +253,7 @@ public class JwtGenerator {
 	 * Sets the port which is used to retrieve the verification keys
 	 *
 	 * @param port
-	 * 			the port that is used to connect to the XSUAA mock web server.
+	 *            the port that is used to connect to the XSUAA mock web server.
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator setPort(int port) {
@@ -287,7 +286,7 @@ public class JwtGenerator {
 	}
 
 	private String getOrCreateJku() {
-		if(INITIAL_JKU.equals(jku)) {
+		if (INITIAL_JKU.equals(jku)) {
 			String subdomainPart = subdomain != null && !subdomain.equals("") ? "/" + subdomain : "";
 			return "http://localhost:" + port + subdomainPart + "/token_keys";
 		}

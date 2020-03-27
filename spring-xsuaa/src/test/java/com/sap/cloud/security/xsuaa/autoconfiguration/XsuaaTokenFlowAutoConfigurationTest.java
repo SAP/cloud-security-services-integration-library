@@ -1,7 +1,9 @@
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { XsuaaAutoConfiguration.class, XsuaaTokenFlowAutoConfiguration.class,
@@ -87,6 +90,14 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 				});
 	}
 
+	@Test
+	public void userConfigurationCanOverrideDefaultRestClientBeans() {
+		contextRunner.withUserConfiguration(XsuaaTokenFlowAutoConfigurationTest.RestClientConfiguration.class)
+				.run((context) -> {
+					Assert.assertThat(context.containsBean("xsuaaTokenFlows"), is(true));
+				});
+	}
+
 	@Configuration
 	public static class UserConfiguration {
 		@Bean
@@ -95,5 +106,20 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 			return new XsuaaTokenFlows(new XsuaaOAuth2TokenService(restOperations),
 					new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()), new ClientCredentials("id", "secret"));
 		}
+	}
+
+	@Configuration
+	public static class RestClientConfiguration {
+
+		@Bean
+		public RestTemplate myRestTemplate() {
+			return new RestTemplate();
+		}
+
+		@Bean
+		public RestTemplate xsuaaRestOperations() {
+			return new RestTemplate();
+		}
+
 	}
 }

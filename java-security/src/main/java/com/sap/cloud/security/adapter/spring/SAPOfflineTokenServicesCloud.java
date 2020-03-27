@@ -128,6 +128,21 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		}
 	}
 
+	/**
+	 * Configure another XSUAA instance, e.g. of plan broker.
+	 *
+	 * @param otherServiceConfiguration
+	 *            another service configuration. You can use
+	 *            {@link com.sap.cloud.security.config.cf.CFEnvironment#getXsuaaConfigurationForTokenExchange()} in order to
+	 *            load additional broker service configuration from the binding information in your
+	 *            environment.
+	 * @return the instance itself
+	 */
+	public SAPOfflineTokenServicesCloud withAnotherServiceConfiguration(OAuth2ServiceConfiguration otherServiceConfiguration) {
+		jwtValidatorBuilder.configureAnotherServiceInstance(otherServiceConfiguration);
+		return this;
+	}
+
 	@Override
 	public OAuth2Authentication loadAuthentication(@Nonnull String accessToken)
 			throws AuthenticationException, InvalidTokenException {
