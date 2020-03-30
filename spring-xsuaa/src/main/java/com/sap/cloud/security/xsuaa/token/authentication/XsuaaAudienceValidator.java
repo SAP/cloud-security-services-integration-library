@@ -33,6 +33,11 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 		appIdClientIdMap.put(xsuaaServiceConfiguration.getAppId(), xsuaaServiceConfiguration.getClientId());
 	}
 
+	/**
+	 *
+	 * @param appId, e.g. test3!b1
+	 * @param clientId, e.g. sb-clone1!b22|test3!b1
+	 */
 	public void configureAnotherXsuaaInstance(String appId, String clientId) {
 		Assert.notNull(appId, "'appId' is required");
 		Assert.notNull(clientId, "'clientId' is required");
