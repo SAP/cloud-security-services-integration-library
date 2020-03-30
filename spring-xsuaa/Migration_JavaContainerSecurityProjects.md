@@ -187,7 +187,7 @@ application locally make sure that it is still working and finally test the appl
 
 ### Multiple XSUAA Bindings
 
-If your application is bound to two XSUAA service instances (of plan `application` and broker`), you could run into the following issue:
+If your application is bound to two XSUAA service instances (of plan `application` and `broker`), you run into the following issue:
 
 ```
 Caused by: java.lang.RuntimeException: Found more than one xsuaa binding. There can only be one.
@@ -197,10 +197,6 @@ at com.sap.cloud.security.xsuaa.XsuaaServicesParser.getAttribute(XsuaaServicesPa
 at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.getConfigurationProperties(XsuaaServicePropertySourceFactory.java:65)
 at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.createPropertySource(XsuaaServicePropertySourceFactory.java:55)
 at org.springframework.context.annotation.ConfigurationClassParser.processPropertySource(ConfigurationClassParser.java:452)
-at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:271)
-at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:242)
-at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:199)
-at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:167)
 ```
 As of today, the library does not support more than one XSUAA binding. Follow these steps, to adapt your configuration:
 
