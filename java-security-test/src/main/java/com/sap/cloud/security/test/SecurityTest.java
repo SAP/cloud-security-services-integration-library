@@ -59,7 +59,6 @@ public class SecurityTest {
     // mock server
     protected WireMockServer wireMockServer;
     protected RSAKeys keys;
-    protected int wireMockPort = 0;
     protected Service service;
 
     protected String clientId = DEFAULT_CLIENT_ID;
@@ -160,7 +159,6 @@ public class SecurityTest {
      */
     public SecurityTest setPort(int port) {
         wireMockServer = new WireMockServer(options().port(port));
-        this.wireMockPort = port;
         return this;
     }
 
@@ -318,12 +316,11 @@ public class SecurityTest {
         }
         if(!wireMockServer.isRunning()) {
             wireMockServer.start();
-            wireMockPort = wireMockServer.port();
         } else {
             wireMockServer.resetAll();
         }
         OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
-                String.format(LOCALHOST_PATTERN, wireMockPort));
+                String.format(LOCALHOST_PATTERN, wireMockServer.port()));
         wireMockServer.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
                 .willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
         wireMockServer.stubFor(get(urlEqualTo(DISCOVERY_ENDPOINT_DEFAULT))
