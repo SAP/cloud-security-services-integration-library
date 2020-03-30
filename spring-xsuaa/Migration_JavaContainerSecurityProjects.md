@@ -210,9 +210,9 @@ As of today, the library does not support more than one XSUAA binding. Follow th
     @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = {""})
     ```
 2. Instead, provide your own implementation of `XsuaaSecurityConfiguration` interface to access the primary xsuaa service configuration of your application (chose the service instance of plan `application` here), which are exposed in the `VCAP_SERVICES` system environment variable (in Cloud Foundry).
-
     For that you may want to leverage the [`java-security`]() library:
-    ```
+
+    ```java
     import com.sap.cloud.security.config.Environment;
     import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
     import com.sap.cloud.security.config.cf.CFConstants;
