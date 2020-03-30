@@ -216,11 +216,15 @@ public static SecurityTestRule securityTestRule =
 Using the `SecurityTestRule` you can use a preconfigured `JwtGenerator` to create JWT tokens with custom scopes for your tests. It configures the JwtGenerator in such a way that **it uses the public key from the [`publicKey.txt`](/java-security-test/src/main/resources) file to sign the token.**
 
 ```java
+static final String XSAPPNAME = SecurityTestRule.DEFAULT_APP_ID;
+static final String DISPLAY_SCOPE = XSAPPNAME + ".Display";
+static final String UPDATE_SCOPE = XSAPPNAME + ".Update";
+
 String jwt = securityTestRule.getPreconfiguredJwtGenerator()
-    .withAppId(SecurityTestRule.DEFAULT_APP_ID)
-    .withLocalScopes("Display", "Update")
+    .withScopes(DISPLAY_SCOPE, UPDATE_SCOPE)
     .createToken()
     .getTokenValue();
+
 ```
 
 Make sure, that your JUnit tests are running.
@@ -233,7 +237,7 @@ under `xsuaa/credentials` for jwt validation:
 - `"verificationkey" : "<public key your jwt token is signed with>"`
 
 Before calling the service you need to provide a digitally signed JWT token to simulate that you are an authenticated user. 
-- Therefore simply set a breakpoint in `JwtGenerator.createToken()` and run your `JUnit` tests to fetch the value of `jwt` from there. 
+- Therefore simply set a breakpoint in `JWTGenerator.createToken()` and run your `JUnit` tests to fetch the value of `jwt` from there. 
 
 Now you can test the service manually in the browser using the `Postman` chrome plugin and check whether the secured functions can be accessed when providing a valid generated Jwt Token.
 
