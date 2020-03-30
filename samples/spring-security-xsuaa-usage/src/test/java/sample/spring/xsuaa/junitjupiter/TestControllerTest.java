@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,43 +18,41 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.test.SecurityTestInitializer;
-import com.sap.cloud.security.test.SecurityTestRule;
+import com.sap.cloud.security.test.SecurityTest;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(properties = { "xsuaa.uaadomain=localhost", "xsuaa.xsappname=xsapp!t0815",
 		"xsuaa.clientid=sb-clientId!t0815" })
 public class TestControllerTest {
+
 	@Autowired
 	private MockMvc mvc;
 
-	private static SecurityTestInitializer securityTestInitializer = new SecurityTestInitializer(Service.XSUAA);
+	private static SecurityTest securityTest = new SecurityTest(Service.XSUAA);
 
-	private String jwt = securityTestInitializer.getPreconfiguredJwtGenerator()
-			.withScopes(SecurityTestRule.DEFAULT_APP_ID + ".Read").createToken().getTokenValue();
-	private String jwtAdmin = securityTestInitializer.getPreconfiguredJwtGenerator()
-			.withScopes(SecurityTestRule.DEFAULT_APP_ID + ".Read", SecurityTestRule.DEFAULT_APP_ID + ".Admin")
+	private String jwt = securityTest.getPreconfiguredJwtGenerator()
+			.withLocalScopes("Read")
+			.createToken().getTokenValue();
+
+	private String jwtAdmin = securityTest.getPreconfiguredJwtGenerator()
+			.withLocalScopes("Read", "Admin")
 			.createToken().getTokenValue();
 
 	@BeforeEach
 	public void setup() throws Exception {
-		securityTestInitializer.setupStub();
-	}
-
-	@AfterEach
-	public void reset() {
-		securityTestInitializer.resetStub();
+		securityTest.setup();
 	}
 
 	@AfterAll
 	public static void tearDown() {
-		securityTestInitializer.tearDown();
+		securityTest.tearDown();
 	}
 
 	@Test
 	public void v1_sayHello() throws Exception {
-		String response = mvc.perform(get("/v1/sayHello").with(bearerToken(jwtAdmin))).andExpect(status().isOk())
+		String response = mvc.perform(get("/v1/sayHello").with(bearerToken(jwtAdmin)))
+				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
 
 		assertTrue(response.contains("sb-clientId!t0815"));
@@ -66,23 +63,28 @@ public class TestControllerTest {
 
 	@Test
 	public void v2_sayHello() throws Exception {
-		String response = mvc.perform(get("/v2/sayHello").with(bearerToken(jwt))).andExpect(status().isOk()).andReturn()
-				.getResponse().getContentAsString();
+		String response = mvc
+				.perform(get("/v2/sayHello").with(bearerToken(jwt)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
 
 		assertTrue(response.contains("Hello Jwt-Protected World!"));
 	}
 
 	@Test
 	public void v1_readData_OK() throws Exception {
-		String response = mvc.perform(get("/v1/method").with(bearerToken(jwt))).andExpect(status().isOk()).andReturn()
-				.getResponse().getContentAsString();
+		String response = mvc
+				.perform(get("/v1/method").with(bearerToken(jwt)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
 
 		assertTrue(response.contains("Read-protected method called!"));
 	}
 
 	@Test
 	public void v1_accessSensitiveData_OK() throws Exception {
-		String response = mvc.perform(get("/v1/getAdminData").with(bearerToken(jwtAdmin))).andExpect(status().isOk())
+		String response = mvc.perform(get("/v1/getAdminData").with(bearerToken(jwtAdmin)))
+				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
 
 		assertTrue(response.contains("You got the sensitive data"));
@@ -90,14 +92,17 @@ public class TestControllerTest {
 
 	@Test
 	public void v1_accessSensitiveData_Forbidden() throws Exception {
-		String jwtNoScopes = securityTestInitializer.getPreconfiguredJwtGenerator().createToken().getTokenValue();
+		String jwtNoScopes = securityTest.getPreconfiguredJwtGenerator()
+				.createToken().getTokenValue();
 
-		mvc.perform(get("/v1/getAdminData").with(bearerToken(jwtNoScopes))).andExpect(status().isForbidden());
+		mvc.perform(get("/v1/getAdminData").with(bearerToken(jwtNoScopes)))
+				.andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void v1_accessSensitiveData_unauthenticated() throws Exception {
-		mvc.perform(get("/v1/getAdminData")).andExpect(status().isUnauthorized());
+		mvc.perform(get("/v1/getAdminData"))
+				.andExpect(status().isUnauthorized());
 	}
 
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
