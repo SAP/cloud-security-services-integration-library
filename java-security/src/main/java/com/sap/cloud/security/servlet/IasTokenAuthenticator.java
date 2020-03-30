@@ -5,6 +5,8 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 
+import javax.annotation.Nullable;
+
 public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	@Override
@@ -20,5 +22,11 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 			throw new IllegalStateException("There must be a service configuration.");
 		}
 		return config;
+	}
+
+	@Nullable
+	@Override
+	protected OAuth2ServiceConfiguration getOtherServiceConfiguration() {
+		return null;
 	}
 }
