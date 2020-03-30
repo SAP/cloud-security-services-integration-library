@@ -37,8 +37,8 @@ public class CFConstants {
 	}
 
 	/**
-	 * Represents the service plans on CF marketplace.
-	 * The various plans are considered in {@link CFEnvironment#loadXsuaa()}
+	 * Represents the service plans on CF marketplace. The various plans are
+	 * considered in {@code CFEnvironment#loadXsuaa()}
 	 */
 	public enum Plan {
 		DEFAULT, BROKER, APPLICATION, SPACE;

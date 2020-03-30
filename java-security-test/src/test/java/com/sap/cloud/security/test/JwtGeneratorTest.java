@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -40,6 +41,7 @@ import java.util.Properties;
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.JwtGenerator.SignatureCalculator;
+import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_APP_ID;
 import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_CLIENT_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,8 +54,10 @@ public class JwtGeneratorTest {
 	private JwtGenerator cut;
 	private Properties originalSystemProperties;
 
+	private static final Path RESOURCES_PATH = Paths.get(JwtGeneratorTest.class.getResource("/").getPath());
+
 	@ClassRule
-	public static TemporaryFolder temporaryFolder = new TemporaryFolder(Paths.get(".").toFile());
+	public static TemporaryFolder temporaryFolder = new TemporaryFolder(RESOURCES_PATH.toFile());
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
@@ -90,6 +94,7 @@ public class JwtGeneratorTest {
 				.withClaimValue("first_name", "john")
 				.withClaimValue("last_name", "doe")
 				.withClaimValue("email", "john.doe@email.org")
+				.withClaimValue(TokenClaims.SAP_GLOBAL_USER_ID, "1234567890")
 				.withPrivateKey(keys.getPrivate());
 		Token token = cut.createToken();
 
@@ -97,6 +102,7 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsString(TokenClaims.AUDIENCE)).isEqualTo("T000310");
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("T000310");
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
+		assertThat(token.getPrincipal().getName()).isEqualTo("1234567890");
 		String encodedModulusN = Base64.getUrlEncoder()
 				.encodeToString(((RSAPublicKeyImpl) keys.getPublic()).getModulus().toByteArray());
 		assertThat(encodedModulusN).startsWith("AJtUGmczI7RHx3");
@@ -162,6 +168,55 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
+	public void withLocalScopes_containsGivenScopesAsLocalScopesWhenServiceIsXsuaa() {
+		String scopeRead = "Read";
+		String scopeWrite = "Write";
+		Token token = cut
+				.withAppId(DEFAULT_APP_ID)
+				.withLocalScopes(scopeRead, scopeWrite).createToken();
+
+		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
+				.containsExactlyInAnyOrder(DEFAULT_APP_ID + "." + scopeRead, DEFAULT_APP_ID + "." + scopeWrite);
+	}
+
+	@Test
+	public void consecutiveScopeCallsOverwriteOldData() {
+		String writeScope = "Write";
+		String openidScope = "openid";
+		Token token = cut
+				.withAppId(DEFAULT_APP_ID)
+				.withLocalScopes("Read")
+				.withLocalScopes(writeScope)
+				.withScopes("test")
+				.withScopes(openidScope)
+				.createToken();
+
+		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
+				.containsExactlyInAnyOrder(openidScope, DEFAULT_APP_ID + "." + writeScope);
+	}
+
+	@Test
+	public void withScopesAndLocalScopes_containsBothScopeTypes() {
+		String openidScope = "openid";
+		String writeScope = "Write";
+		Token token = cut
+				.withAppId(DEFAULT_APP_ID)
+				.withLocalScopes(writeScope)
+				.withScopes(openidScope)
+				.createToken();
+
+		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
+				.containsExactlyInAnyOrder(openidScope, DEFAULT_APP_ID + "." + writeScope);
+	}
+
+	@Test
+	public void withLocalScopes_withoutAppId_throwsException() {
+		assertThatThrownBy(() -> cut.withLocalScopes("Read").createToken())
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("appId has not been set!");
+	}
+
+	@Test
 	public void withScopes_serviceIsIAS_throwsUnsupportedOperationException() {
 		cut = JwtGenerator.getInstance(IAS, "T00001234").withPrivateKey(keys.getPrivate());
 		assertThatThrownBy(() -> cut.withScopes("firstScope").createToken())
@@ -220,14 +275,16 @@ public class JwtGeneratorTest {
 	@Test
 	public void loadClaimsFromFile_doesNotContainValidJson_throwsException() throws IOException {
 		File emptyFile = temporaryFolder.newFile("empty");
+		String temporaryFolderName = emptyFile.getParentFile().getName();
+		String resourcePath = "/" + temporaryFolderName + "/empty";
 
-		assertThatThrownBy(() -> cut.withClaimsFromFile(emptyFile.getPath()).createToken())
+		assertThatThrownBy(() -> cut.withClaimsFromFile(resourcePath).createToken())
 				.isInstanceOf(JsonParsingException.class);
 	}
 
 	@Test
 	public void loadClaimsFromFile_containsStringClaims() throws IOException {
-		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.EMAIL)).isEqualTo("test@uaa.org");
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE))
@@ -236,14 +293,14 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void loadClaimsFromFile_containsExpirationClaim() throws IOException {
-		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		assertThat(token.getExpiration()).isEqualTo(Instant.ofEpochSecond(1542416800));
 	}
 
 	@Test
 	public void loadClaimsFromFile_containsJsonObjectClaims() throws IOException {
-		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		JsonObject externalAttributes = token.getClaimAsJsonObject("ext_attr");
 
@@ -254,7 +311,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void loadClaimsFromFile_containsListClaims() throws IOException {
-		final Token token = cut.withClaimsFromFile(getPathToResourcesFile("/claims.json")).createToken();
+		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
 				.containsExactly("openid", "testScope", "testApp.localScope");
@@ -338,10 +395,6 @@ public class JwtGeneratorTest {
 
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isTrue();
-	}
-
-	private static String getPathToResourcesFile(String filePathInResources) throws IOException {
-		return IOUtils.resourceToURL(filePathInResources).getPath();
 	}
 
 }

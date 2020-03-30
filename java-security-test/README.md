@@ -19,7 +19,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>2.5.2</version>
+    <version>2.5.3</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -36,7 +36,7 @@ Token token = JwtGenerator.getInstance(Service.XSUAA)
                                 .withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId) // optional
                                 .createToken();
 
-String authorizationHeaderValue = `Bearer ` + token.getTokenValue();
+String authorizationHeaderValue = 'Bearer ' + token.getTokenValue();
 ```
 
 ### Unit Test Utilities
@@ -75,7 +75,8 @@ public class HelloJavaServletTest {
 	@Test
 	public void requestWithValidToken_ok() throws IOException {
 		String jwt = rule.getPreconfiguredJwtGenerator()
-				.withScopes(SecurityTestRule.DEFAULT_APP_ID + ".Read")
+				.withScopes("openid")
+				.withLocalScopes("Read") // SecurityTestRule.DEFAULT_APP_ID + ".Read"
 				.createToken()
 				.getTokenValue();
 		HttpGet request = createGetRequest(jwt);

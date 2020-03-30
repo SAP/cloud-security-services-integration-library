@@ -46,10 +46,10 @@ public class XsuaaResourceServerJwkAutoConfiguration {
 	@ConditionalOnWebApplication(type = Type.SERVLET)
 	@ConditionalOnMissingBean
 	public JwtDecoder xsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration,
-			RestOperations restOperations) {
-		logger.info("auto-configures JwtDecoder");
+			RestOperations xsuaaRestOperations) {
+		logger.info("auto-configures JwtDecoder using restOperations of type: " + xsuaaRestOperations);
 		return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration)
-				.withRestOperations(restOperations)
+				.withRestOperations(xsuaaRestOperations)
 				.build();
 	}
 }

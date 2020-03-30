@@ -60,9 +60,8 @@ public class XsuaaTokenFlows implements Serializable {
 	}
 
 	/**
-	 * Creates a new User Token Flow builder object.
-	 * Token, authorize and key set endpoints will be derived relative to the base
-	 * URI.
+	 * Creates a new User Token Flow builder object. Token, authorize and key set
+	 * endpoints will be derived relative to the base URI.
 	 * 
 	 * @return the {@link UserTokenFlow} builder object.
 	 */

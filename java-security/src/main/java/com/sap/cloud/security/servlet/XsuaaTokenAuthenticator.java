@@ -5,6 +5,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.*;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
@@ -23,6 +24,12 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 			throw new IllegalStateException("There must be a service configuration.");
 		}
 		return config;
+	}
+
+	@Nullable
+	@Override
+	protected OAuth2ServiceConfiguration getOtherServiceConfiguration() {
+		return Environments.getCurrent().getXsuaaConfigurationForTokenExchange();
 	}
 
 	@Override

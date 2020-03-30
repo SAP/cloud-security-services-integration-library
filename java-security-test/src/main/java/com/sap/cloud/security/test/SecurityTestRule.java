@@ -214,6 +214,7 @@ public class SecurityTestRule extends ExternalResource {
 		case XSUAA:
 			jwtGenerator
 					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+					.withAppId(DEFAULT_APP_ID)
 					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
 			break;
 		default:
@@ -335,7 +336,8 @@ public class SecurityTestRule extends ExternalResource {
 	}
 
 	private String createDefaultTokenKeyResponse() throws IOException {
-		String encodedPublicKeyModulus = Base64.getUrlEncoder().encodeToString(((RSAPublicKey) keys.getPublic()).getModulus().toByteArray());
+		String encodedPublicKeyModulus = Base64.getUrlEncoder()
+				.encodeToString(((RSAPublicKey) keys.getPublic()).getModulus().toByteArray());
 		String encodedPublicKey = Base64.getEncoder().encodeToString(keys.getPublic().getEncoded());
 		return IOUtils.resourceToString("/token_keys_template.json", StandardCharsets.UTF_8)
 				.replace("$kid", "default-kid")
