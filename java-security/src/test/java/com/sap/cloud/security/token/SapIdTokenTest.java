@@ -2,12 +2,10 @@ package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,11 +31,8 @@ public class SapIdTokenTest {
 	}
 
 	@Test
-	@Ignore // TODO IAS : principal should return SAP User ID (guid)
 	public void getPrincipal() {
-		Principal principal = cut.getPrincipal();
-
-		assertThat(principal).isNull();
+		assertThat(cut.getPrincipal().getName()).isEqualTo("1234567890");
 	}
 
 	@Test

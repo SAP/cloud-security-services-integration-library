@@ -165,7 +165,10 @@ public class UserTokenFlow {
 					optionalParameter);
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
-					String.format("Error requesting token with grant_type 'urn:ietf:params:oauth:grant-type:jwt-bearer': %s", e.getMessage()), e);
+					String.format(
+							"Error requesting token with grant_type 'urn:ietf:params:oauth:grant-type:jwt-bearer': %s",
+							e.getMessage()),
+					e);
 		}
 	}
 

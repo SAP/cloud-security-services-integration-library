@@ -30,13 +30,13 @@ public class TestControllerTest {
     private MockMvc mvc;
 
     private String jwt = rule.getPreconfiguredJwtGenerator()
-            .withScopes(SecurityTestRule.DEFAULT_APP_ID + ".Read")
+            .withLocalScopes("Read")
             //.withClaimValue(TokenClaims.XSUAA.ORIGIN, "sap-default") // optional
             //.withClaimValue(TokenClaims.USER_NAME, "John") // optional
             .createToken().getTokenValue();
 
     private String jwtAdmin = rule.getPreconfiguredJwtGenerator()
-            .withScopes(SecurityTestRule.DEFAULT_APP_ID + ".Read", SecurityTestRule.DEFAULT_APP_ID + ".Admin")
+            .withLocalScopes("Read", "Admin")
             .createToken().getTokenValue();
 
     @ClassRule

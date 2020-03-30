@@ -32,26 +32,14 @@ public class XsuaaJwtSignatureValidatorTest {
 	@Before
 	public void setup() throws IOException {
 		/**
-		 * Header
-		 * --------
-		 * {
-		 *     "alg": "RS256",
-		 *     "jku": "https://authentication.stagingaws.hanavlab.ondemand.com/token_keys",
-		 *     "kid": "key-id-1"
-		 * }
-		 * Payload
-		 * --------
-		 * {
-		 *     "iss": "http://localhost:8080/uaa/oauth/token"
-		 * }
+		 * Header -------- { "alg": "RS256", "jku":
+		 * "https://authentication.stagingaws.hanavlab.ondemand.com/token_keys", "kid":
+		 * "key-id-1" } Payload -------- { "iss":
+		 * "http://localhost:8080/uaa/oauth/token" }
 		 */
 		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
 		/**
-		 * Header
-		 * --------
-		 * {
-		 *     "jku": "http://localhost:65148/token_keys",
-		 *     "alg": "RS256"
+		 * Header -------- { "jku": "http://localhost:65148/token_keys", "alg": "RS256"
 		 * }
 		 */
 		xsuaaTokenSignedWithVerificationKey = new XsuaaToken(
@@ -81,16 +69,8 @@ public class XsuaaJwtSignatureValidatorTest {
 	public void validationFails_whenNoJkuHeaderButIssuerIsGiven() throws IOException {
 		/**
 		 *
-		 * Header
-		 * --------
-		 * {
-		 *     "alg": "RS256"
-		 * }
-		 * Payload
-		 * --------
-		 * {
-		 *     "iss": "https://application.myauth.com"
-		 * }
+		 * Header -------- { "alg": "RS256" } Payload -------- { "iss":
+		 * "https://application.myauth.com" }
 		 */
 		Token tokenWithoutJkuButIssuer = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 		ValidationResult result = cut.validate(tokenWithoutJkuButIssuer);

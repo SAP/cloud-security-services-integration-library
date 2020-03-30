@@ -6,7 +6,11 @@ This migration guide is a step-by-step guide explaining how to replace the follo
 
 with this open-source version.
 
-**Please note, that this Migration Guide is NOT intended for applications that leverage token validation and authorization checks using SAP Java Buildpack.** This [documentation](https://github.com/SAP/cloud-security-xsuaa-integration#token-validation-for-java-web-applications-using-sap-java-buildpack) describes the setup when using SAP Java Buildpack.
+## Prerequisite
+**Please note, that as of now, this Migration Guide is NOT intended for applications using SAP Java Buildpack.**   
+You're using the SAP Java Buildpack, if you can find the `sap_java_buildpack` in the deployment descriptor of your application, e.g. in your `manifest.yml` file.
+
+This [documentation](Migration_SAPJavaBuildpackProjects.md) describes the setup when using SAP Java Buildpack.
 
 ## Deprecation Notice
 
@@ -36,19 +40,19 @@ First make sure you have the following dependencies defined in your pom.xml:
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>api</artifactId>
-  <version>2.5.2</version>
+  <version>2.6.0</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security</artifactId>
-  <version>2.5.2</version>
+  <version>2.6.0</version>
 </dependency>
 
 <!-- new java-security dependencies for unit tests -->
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security-test</artifactId>
-  <version>2.5.2</version>
+  <version>2.6.0</version>
   <scope>test</scope>
 </dependency>
 ```

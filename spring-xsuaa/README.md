@@ -25,7 +25,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>2.5.2</version>
+    <version>2.6.0</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
@@ -40,7 +40,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.5.2</version>
+    <version>2.6.0</version>
 </dependency>
 ```
 
@@ -52,9 +52,35 @@ Auto-configuration class | Description
 ---- | --------
 [XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java) | Adds `xsuaa.*` properties to Spring's Environment. The properties are by default parsed from `VCAP_SERVICES` system environment variables and can be overwritten by properties such as `xsuaa.xsappname` e.g. for testing purposes. Furthermore it exposes a `XsuaaServiceConfiguration` bean that can be used to access xsuaa service information.  Alternatively you can access them with `@Value` annotation e.g. `@Value("${xsuaa.xsappname:}") String appId`.
 [XsuaaResourceServerJwkAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaResourceServerJwkAutoConfiguration.java) | Configures a `JwtDecoder` bean with a JWK (JSON Web Keys) endpoint from where to download the tenant (subdomain) specific public key.
+[XsuaaTokenFlowAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean for a given `RestOperations` and `XsuaaServiceConfiguration` bean to fetch the XSUAA service binding information.
 
 You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 
+#### RestTemplate / RestOperations
+
+Please note, in case your application exposes already one or more Spring beans of type `RestOperations` (or its subclasses such as `RestTemplate`), `XsuaaAutoConfiguration` will not create a bean, but reuses the existing one. 
+
+In case there are multiple ones the auto-configurations do not know, which `RestOperations` bean to select. In this case you can annotate the preferred `RestOperations` bean with `@Primary`.
+
+In case you do not want to use the `RestOperations` bean, that is specified in your Spring application context but still like to leverage the auto-configuration of `spring-xsuaa` you can also provide a dedicated bean with name `xsuaaRestOperations`:
+
+```
+@Configuration
+public static class RestClientConfiguration {
+
+    @Bean
+    @LoadBalanced
+    public OAuth2RestTemplate myOAuth2RestTemplate() {
+        return new OAuth2RestTemplate(...);
+    }
+
+    @Bean
+    public RestTemplate xsuaaRestOperations() {
+        return new RestTemplate();
+    }
+
+}
+```
 
 ### Setup Security Context for HTTP requests
 Configure the OAuth resource server
@@ -184,3 +210,8 @@ public Map<String, String> message() {
    As of version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage auto-configuration.
    Make use of the Xsuaa Spring Boot Starter dependency as explained [here](README.md#maven-dependencies).     
 
+- `NoUniqueBeanDefinitionException`, APPLICATION FAILED TO START
+    ```
+    Parameter 1 of method xsuaaJwtDecoder in com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration required a single bean, but 2 were found...
+    ```
+  In case you use the `xsuaa-spring-boot-starter`, read the [Auto-configuration](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#auto-configuration) section.

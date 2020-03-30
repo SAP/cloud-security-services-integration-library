@@ -19,6 +19,7 @@ The SAP Java Buildpack integrates token validation into the tomcat server. Appli
 - Java 8
 - maven 3.3.9 or later
 - The application is deployed using the SAP Java Buildpack with version <= `v1.24.1`
+- You use `sap_java_buildpack` (e.g. in your `manifest.yml`)
 
 ### Upcoming (Incompatible) Change
 SAP Java Buildpacks makes use of deprecated (Spring) Security libraries and needs to be updated. The new SAP Java Buildpack version will use the [`java-security`](/java-security) library. Please expect little migration efforts in the api for accessing token information. A Migration Guide will be provided. 

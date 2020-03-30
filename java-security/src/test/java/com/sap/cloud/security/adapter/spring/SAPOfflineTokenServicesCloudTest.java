@@ -61,7 +61,8 @@ public class SAPOfflineTokenServicesCloudTest {
 
 		assertThat(authentication.isAuthenticated()).isTrue();
 		assertThat(authentication.getOAuth2Request()).isNotNull();
-		assertThat(authentication.getOAuth2Request().getScope()).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
+		assertThat(authentication.getOAuth2Request().getScope()).containsExactlyInAnyOrder("ROLE_SERVICEBROKER",
+				"uaa.resource");
 		Collection<String> authorities = authentication.getOAuth2Request().getAuthorities().stream()
 				.map(GrantedAuthority::getAuthority).collect(
 						Collectors.toList());
@@ -77,7 +78,8 @@ public class SAPOfflineTokenServicesCloudTest {
 		cut.afterPropertiesSet();
 
 		OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
-		assertThat(authentication.getOAuth2Request().getScope()).containsExactlyInAnyOrder("testApp.localScope", "openid", "testScope");
+		assertThat(authentication.getOAuth2Request().getScope()).containsExactlyInAnyOrder("testApp.localScope",
+				"openid", "testScope");
 
 		cut.setLocalScopeAsAuthorities(true);
 		authentication = cut.loadAuthentication(xsuaaToken);
@@ -125,6 +127,17 @@ public class SAPOfflineTokenServicesCloudTest {
 		cut = new SAPOfflineTokenServicesCloud(mockConfiguration);
 		cut.afterPropertiesSet();
 		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
+	}
+
+	@Test
+	public void createInstanceWithAnotherConfiguration() {
+		OAuth2ServiceConfiguration otherConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		when(otherConfiguration.getClientId()).thenReturn("clientId");
+
+		cut.withAnotherServiceConfiguration(otherConfiguration);
+		cut.afterPropertiesSet();
+		Mockito.verify(jwtValidatorBuilderMock,
+				times(1)).configureAnotherServiceInstance(otherConfiguration);
 	}
 
 	@Test

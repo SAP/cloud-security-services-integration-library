@@ -40,3 +40,4 @@ bin
 vim.exe.stackdump
 
 __pycache__/
+/.metadata/
