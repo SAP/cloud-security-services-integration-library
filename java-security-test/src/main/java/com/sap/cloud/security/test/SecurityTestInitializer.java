@@ -98,7 +98,7 @@ public class SecurityTestInitializer {
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
-	 * before the {@link #before()} method. The application server will be started
+	 * before the {@code before()} method. The application server will be started
 	 * with default options for the given {@link Service}, see
 	 * {@link ApplicationServerOptions#forService(Service)} for details. By default
 	 * the servlet server will listen on a free random port. Use
