@@ -10,7 +10,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 ## Requirements
 - Java 8
 - maven 3.3.9 or later
-- JUnit 4 (!)
+- JUnit 4, 5
 
 ## Configuration
 
@@ -19,7 +19,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>2.5.3</version>
+    <version>2.6.0</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -42,9 +42,13 @@ String authorizationHeaderValue = 'Bearer ' + token.getTokenValue();
 ### Unit Test Utilities
 In case you want to test your secured web application as part of your JUnit tests you need to generate JWT tokens and in order to validate the token you need also to mock the jwks endpoint of the identity service e.g. xsuaa. 
 
-The `SecurityTestRule` uses third-party library [WireMock](http://wiremock.org/docs/getting-started/) to stub outgoing calls to the identity service. Furthermore it pre-configures the `JwtGenerator`, so that the token is signed with a private key which matches the public key provided by the jwks endpoint (on behalf of WireMock). Furthermore you can specify the `clientId` for token generation, that it can be validated by the predefined set of Jwt validators.
+The `java-security-test` library uses third-party library [WireMock](http://wiremock.org/docs/getting-started/) to stub outgoing calls to the identity service. Furthermore it pre-configures the `JwtGenerator`, so that the token is signed with a private key which matches the public key provided by the jwks endpoint (on behalf of WireMock). Furthermore you can specify the `clientId` for token generation, that it can be validated by the predefined set of Jwt validators.
 
-Optionally, you can configure the `SecurityTestRule` to start an embedded Jetty servlet container that comes equipped with an [authenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java). The authenticator checks whether a request is done by an authenticated AND authorized party. You can also add your own servlets to the container. Only requests that contain a valid authorization header will be passed through to the servlet. See the following test code that triggers HTTP requests against the servlet container. One request does not contain the token inside the authorization header and is expected to result in HTTP 401 (unauthenticated). The other contains a valid token and is expected to succeed.
+Optionally, you can configure `java-security-test` to start an embedded Jetty servlet container that comes equipped with an [authenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java). The authenticator checks whether a request is done by an authenticated AND authorized party. You can also add your own servlets to the container. Only requests that contain a valid authorization header will be passed through to the servlet. See the following test code that triggers HTTP requests against the servlet container. One request does not contain the token inside the authorization header and is expected to result in HTTP `401` (unauthenticated). The other contains a valid token and is expected to succeed.
+
+
+#### JUnit 4
+Use `SecurityTestRule`, which is an `ExternalResource` that set up `WireMock` and optionally the Jetty servlet container before a test, and guarantee to tear it down afterward.
 
 ```java
 import static com.sap.cloud.security.config.Service.XSUAA;
@@ -92,6 +96,34 @@ public class HelloJavaServletTest {
 			httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 		}
 		return httpGet;
+	}
+}
+```
+#### JUnit 5
+JUnit 5 does no longer support `Rule`. You can configure a static `SecurityTest` instance. The `setup` method starts `WireMock` and optionally the Jetty servlet container, if not yet running. Furthermore, it resets `WireMock` and reconfigures the stubs. Finally, call the `tearDown` method to stop the running server(s):
+
+```java
+public class HelloJavaTest {
+
+	private static SecurityTest securityTest = new SecurityTest(Service.XSUAA);
+
+	private String jwt = securityTest.getPreconfiguredJwtGenerator()
+						.withLocalScopes("Read")
+						.createToken().getTokenValue();
+	
+	@BeforeEach
+	public void setup() throws Exception {
+		securityTest.setup();
+	}
+
+	@AfterAll
+	public static void tearDown() {
+		securityTest.tearDown();
+	}
+
+	@Test
+	public void v1_sayHello() throws Exception {
+		...
 	}
 }
 ```

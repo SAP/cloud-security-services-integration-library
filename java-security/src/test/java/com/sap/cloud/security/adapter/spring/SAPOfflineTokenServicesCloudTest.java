@@ -148,6 +148,17 @@ public class SAPOfflineTokenServicesCloudTest {
 	}
 
 	@Test
+	public void createInstanceWithAnotherConfiguration() {
+		OAuth2ServiceConfiguration otherConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		when(otherConfiguration.getClientId()).thenReturn("clientId");
+
+		cut.withAnotherServiceConfiguration(otherConfiguration);
+		cut.afterPropertiesSet();
+		Mockito.verify(jwtValidatorBuilderMock,
+				times(1)).configureAnotherServiceInstance(otherConfiguration);
+	}
+
+	@Test
 	public void afterPropertiesSet() {
 		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class), jwtValidatorBuilderMock);
 
