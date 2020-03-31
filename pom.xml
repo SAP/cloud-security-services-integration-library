@@ -56,9 +56,9 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.source.plugin.version>3.1.0</maven.source.plugin.version>
 		<!-- make sure that spring core and spring boot versions are compatible-->
-		<spring.boot.version>2.2.5.RELEASE</spring.boot.version>
-		<spring.core.version>5.2.4.RELEASE</spring.core.version>
-		<spring.security.version>5.2.2.RELEASE</spring.security.version>
+		<spring.boot.version>2.2.6.RELEASE</spring.boot.version>
+		<spring.core.version>5.2.5.RELEASE</spring.core.version>
+		<spring.security.version>5.3.0.RELEASE</spring.security.version>
 		<spring.security.oauth2.version>2.4.0.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.0.RELEASE</spring.security.jwt.version>
 		<reactor.version>3.2.8.RELEASE</reactor.version>
