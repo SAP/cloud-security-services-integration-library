@@ -40,6 +40,14 @@ public interface XsuaaServiceConfiguration {
 	String getUaaDomain();
 
 	/**
+	 * The pem encoded public key for offline token verification.
+	 *
+	 * @return the pem encoded verification key
+	 */
+	@Nullable
+	String getVerificationKey();
+
+	/**
 	 * PEM encoded certificate chain.
 	 *
 	 * @return certificates

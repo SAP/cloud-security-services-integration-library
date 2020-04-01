@@ -40,8 +40,8 @@ public class SecurityTestRuleTest {
 	private static final int PORT = 8484;
 	private static final int APPLICATION_SERVER_PORT = 8383;
 	private static final String UTF_8 = StandardCharsets.UTF_8.displayName();
-	private static final String PUBLIC_KEY_PATH = "src/main/resources/publicKey.txt";
-	private static final String PRIVATE_KEY_PATH = "src/main/resources/privateKey.txt";
+	private static final String PUBLIC_KEY_PATH = "/publicKey.txt";
+	private static final String PRIVATE_KEY_PATH = "/privateKey.txt";
 
 	@ClassRule
 	public static SecurityTestRule cut = SecurityTestRule.getInstance(XSUAA)
@@ -56,13 +56,21 @@ public class SecurityTestRuleTest {
 
 		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+			String expEncodedKey = Base64.getEncoder()
+					.encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
+
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
 
 			List<JsonObject> tokenKeys = new DefaultJsonObject(readContent(response)).getJsonObjects("keys");
 			assertThat(tokenKeys).hasSize(1);
 			String publicKeyFromTokenKeys = tokenKeys.get(0).getAsString("value");
-			String encodedKey = Base64.getEncoder().encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
-			assertThat(publicKeyFromTokenKeys).isEqualTo(encodedKey);
+			assertThat(publicKeyFromTokenKeys).isEqualTo(expEncodedKey);
+			assertThat(publicKeyFromTokenKeys)
+					.contains("d5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbW");
+
+			String modulusFromTokenKeys = tokenKeys.get(0).getAsString("n"); // public key modulus
+			assertThat(modulusFromTokenKeys).contains(
+					"9mK_tc-vOXojlJcMm0VRvYvMLIDlIfj1BrkC_IYLpS2Vl1OTG8AS0xAgBDEG3EUzVU6JZKuIuuxD-iXrBySBQA2y");
 		}
 	}
 
@@ -70,12 +78,13 @@ public class SecurityTestRuleTest {
 	public void generatesTokenWithOtherClaimsAndHeaderParameter() {
 		Token generatedToken = cut.getPreconfiguredJwtGenerator()
 				.withClaimValue(TokenClaims.ISSUER, "issuer")
-				.withScopes(SecurityTestRule.DEFAULT_APP_ID + ".scope1")
+				.withLocalScopes("scope1")
 				.withHeaderParameter(TokenHeader.TYPE, "type").createToken();
 
 		assertThat(generatedToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
 				.isEqualTo(SecurityTestRule.DEFAULT_CLIENT_ID);
-		assertThat(generatedToken.getClaimAsStringList(TokenClaims.XSUAA.SCOPES).size()).isEqualTo(1);
+		assertThat(generatedToken.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
+				.containsExactly(SecurityTestRule.DEFAULT_APP_ID + ".scope1");
 		assertThat(generatedToken.getClaimAsString(TokenClaims.ISSUER)).isEqualTo("issuer");
 		assertThat(generatedToken.getHeaderParameterAsString(TokenHeader.TYPE)).isEqualTo("type");
 	}
@@ -83,7 +92,8 @@ public class SecurityTestRuleTest {
 	@Test
 	public void testRuleIsInitializedCorrectly() {
 		assertThat(cut.getApplicationServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
-		assertThat(cut.getWireMockRule()).isNotNull();
+		//assertThat(cut.getWireMockRule()).isNotNull();
+		assertThat(cut.getWireMockServer()).isNotNull();
 		assertThat(cut.createToken().getTokenValue())
 				.isEqualTo(cut.getPreconfiguredJwtGenerator().createToken().getTokenValue());
 	}
@@ -139,7 +149,7 @@ public class SecurityTestRuleTest {
 		@Test
 		public void testRuleIsInitializedCorrectly() {
 			assertThat(rule.getApplicationServerUri()).isNull();
-			assertThat(rule.getWireMockRule()).isNotNull();
+			assertThat(rule.getWireMockServer()).isNotNull();
 		}
 	}
 

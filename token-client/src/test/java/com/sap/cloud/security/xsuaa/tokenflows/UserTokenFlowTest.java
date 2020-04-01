@@ -40,7 +40,8 @@ public class UserTokenFlowTest {
 
 	@Before
 	public void setup() {
-		this.userTokenToBeExchanged = new JwtGenerator().getToken().getTokenValue();;
+		this.userTokenToBeExchanged = new JwtGenerator().getToken().getTokenValue();
+		;
 		this.dummyAccessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, REFRESH_TOKEN);
 		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
 		this.endpointsProvider = new XsuaaDefaultEndpoints(XSUAA_BASE_URI);
@@ -87,7 +88,7 @@ public class UserTokenFlowTest {
 					.execute();
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
-						"Error requesting token with grant_type 'user_token'");
+						"Error requesting token with grant_type 'urn:ietf:params:oauth:grant-type:jwt-bearer'");
 	}
 
 	@Test

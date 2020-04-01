@@ -567,3 +567,4 @@ if __name__ == '__main__':
         import doctest
         doctest.testmod()
         unittest.main()
+        subprocess.run(['mvn', 'delete-orphaned-routes', '-f'])
