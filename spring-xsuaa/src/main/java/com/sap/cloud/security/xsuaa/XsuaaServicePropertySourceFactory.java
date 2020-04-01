@@ -60,7 +60,6 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 		} else {
 			vcapServicesParser = new XsuaaServicesParser();
 		}
-		logger.info("Parse {} XSUAA properties.");
 		properties = vcapServicesParser.parseCredentials();
 		logger.info("Parsed {} XSUAA properties.", properties.size());
 		return create(XSUAA_PROPERTIES_KEY, properties);
