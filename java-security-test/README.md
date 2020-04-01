@@ -106,10 +106,6 @@ JUnit 5 does no longer support `Rule`. You can configure a static `SecurityTest`
 public class HelloJavaTest {
 
 	private static SecurityTest securityTest = new SecurityTest(Service.XSUAA);
-
-	private String jwt = securityTest.getPreconfiguredJwtGenerator()
-						.withLocalScopes("Read")
-						.createToken().getTokenValue();
 	
 	@BeforeEach
 	public void setup() throws Exception {
@@ -123,6 +119,10 @@ public class HelloJavaTest {
 
 	@Test
 	public void v1_sayHello() throws Exception {
+		String jwt = securityTest.getPreconfiguredJwtGenerator()
+						.withLocalScopes("Read")
+						.createToken().getTokenValue();
+		// call endpoint with Authorization header "Bearer <jwt>" 			
 		...
 	}
 }
