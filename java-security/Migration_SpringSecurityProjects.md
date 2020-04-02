@@ -16,7 +16,7 @@ This [documentation](Migration_SAPJavaBuildpackProjects.md) describes the setup 
 
 The Spring Security OAuth project is deprecated. The latest OAuth 2.0 support is provided by Spring Security. See the [OAuth 2.0 Migration Guide](https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide) for further details.
 
-The `java-container-security` as well as the `SAPOfflineTokenServicesCloud` provided as part of the current solution bases on `org.springframework.security.oauth:spring-security-oauth2` which is deprecated. Please follow up [issue #213](https://github.com/SAP/cloud-security-xsuaa-integration/issues/213). 
+The `java-container-security` as well as the `SAPOfflineTokenServicesCloud` provided as part of the current solution bases on `org.springframework.security.oauth:spring-security-oauth2` which is deprecated. In case of Spring-Boot application you may want to follow this [Migration Guide](/spring-xsuaa/Migration_JavaContainerSecurityProjects.md).
 
 
 ## Maven Dependencies
