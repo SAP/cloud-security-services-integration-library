@@ -8,7 +8,7 @@ Typical UI5 applications consist of a server providing the HTML content and one 
 1. Upon authentication, the web application uses the code issued by the authorization server to request an access token
 1. The web application uses the access token to request data from the OAuth resource server. The OAuth resource server validates the token using online or offline validation.
 
-![OAuth 2.0 Authorization code flow](./images/oauth.png)
+![OAuth 2.0 Authorization code flow](docs/oauth.png)
 
 OAuth resource servers (as the one in step 4) require libraries for validating access tokens.
 
