@@ -79,13 +79,16 @@ and adapt the `HttpSecurity` configuration. This involves the following steps:
 - The `antMatchers` must be configured to check against the authorities. For this the `TokenAuthenticationConverter`
   needs to be configured like described in the [docs](/spring-xsuaa/#setup-security-context-for-http-requests).
 
-We already migrated the [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads) application and
+We already added `spring-xsuaa` and `java-security-test` to the [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads) application and
 [this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/f5f085d94f30fe670aafdabc811fe07bc6533f6b)
-shows the changes to the security relevant parts.
+shows the security relevant parts.
 
-Also take a look at the
-[security config](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/f5f085d94f30fe670aafdabc811fe07bc6533f6b#diff-791eb47e5dbb9bcd7e54c7dd36c9f9dfL1)
-which contains the most security relevant changes.
+
+### SAP_JWT_TRUST_ACL obsolete
+There is no need to configure `SAP_JWT_TRUST_ACL` within your deployment descriptor such as `manifest.yml`. 
+Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (JWT) as part of the `aud` claim.
+
+Whether the token is issued for your application or not is now validated by the [`XsuaaAudienceValidator`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/authentication/XsuaaAudienceValidator.java).
 
 ## Fetch data from token
 
@@ -136,7 +139,7 @@ See the following table for methods that are not available anymore and workaroun
 | `requestTokenForClient` | Was removed with version `2.0.0`in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library.
 
 
-#### XsuaaToken
+### XsuaaToken implements Spring Jwt
 The runtime type of `Token` is `XsuaaToken`. `XsuaaToken` provides additional
 methods that can be used to extract data from the token since it is a subclass of
 `org.springframework.security.oauth2.jwt.Jwt`. So you can for example read
