@@ -133,6 +133,12 @@ Or
 <sec:intercept-url pattern="/rest/addressbook/deletedata" access="#oauth2.hasScope('Delete')" method="GET" />
 ```
 
+### SAP_JWT_TRUST_ACL obsolete
+There is no need to configure `SAP_JWT_TRUST_ACL` within your deployment descriptor such as `manifest.yml`. 
+Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (JWT) as part of the `aud` claim.
+
+Whether the token is issued for your application or not is now validated by the [`JwtAudienceValidator`](/java-security/src/main/java/com/sap/cloud/security/token/validation/validators/JwtAudienceValidator.java).
+
 ## Fetch basic infos from Token
 You may have code parts that requests information from the access token, like the user's name, its tenant, and so on. So, look up your code to find its usage.
 
