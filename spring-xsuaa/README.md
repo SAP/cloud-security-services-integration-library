@@ -64,7 +64,7 @@ In case there are multiple ones the auto-configurations do not know, which `Rest
 
 In case you do not want to use the `RestOperations` bean, that is specified in your Spring application context but still like to leverage the auto-configuration of `spring-xsuaa` you can also provide a dedicated bean with name `xsuaaRestOperations`:
 
-```
+```java
 @Configuration
 public static class RestClientConfiguration {
 
@@ -118,7 +118,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 }
 ```
-
 
 ### Setup Security Context for non-HTTP requests
 In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message / event or you've requested from XSUAA directly:
