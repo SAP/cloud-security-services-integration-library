@@ -90,6 +90,59 @@ Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (
 
 Whether the token is issued for your application or not is now validated by the [`XsuaaAudienceValidator`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/authentication/XsuaaAudienceValidator.java).
 
+### Multiple XSUAA Bindings
+You can skip this section, in case your application is bound to only one Xsuaa service instance. The library does not support multiple XSUAA bindings of plan `application` and `broker`. **The Xsuaa service instance of plan `api` is ignored.**
+
+Then you need to adapt your **Spring Security Configuration** as following:
+
+1. You need to get rid of  `XsuaaServicePropertySourceFactory`, because `XsuaaServicesParser` raises the error.
+ * In case you make use of `xsuaa-spring-boot-starter` Spring Boot starter, you need to disable auto-configuration within your `*.properties` / or `*.yaml` file:
+    ```java
+    spring.xsuaa.multiple-bindings = true
+    ```
+ * Or, make sure that your code does not contain
+    ```java
+    @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = {""})
+    ```
+2. Instead, provide your own implementation of `XsuaaSecurityConfiguration` interface to access the primary Xsuaa service configuration of your application (chose the service instance of plan `application` here), which are exposed in the `VCAP_SERVICES` system environment variable (in Cloud Foundry). As of version `2.6.1` you can implement it like that: 
+
+    ```java
+    import com.sap.cloud.security.xsuaa.XsuaaCredentials;
+    import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationCustom;
+   
+    ...
+   
+    @Bean
+    @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan application>>.credentials")
+    public XsuaaCredentials xsuaaCredentials() {
+        return new XsuaaCredentials(); // primary Xsuaa service binding, e.g. application
+    }
+
+    @Bean
+    public XsuaaServiceConfiguration customXsuaaConfig() {
+        return new XsuaaServiceConfigurationCustom(xsuaaCredentials()); // secondary Xsuaa service binding
+    }
+    ```
+
+3. You need to overwrite `JwtDecoder` bean so that the `AudienceValidator` checks the JWT audience not only against the client id of the primary Xsuaa service instance, but also of the binding of plan `broker`. As of version `2.6.1` you can implement it like that: 
+    ```java
+    @Bean
+    @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan broker>>.credentials")
+    public UaaCredentials brokerCredentials() {
+        return new XsuaaCredentials();
+    }
+   
+    @Bean
+    JwtDecoder getJwtDecoder() {
+       UaaCredentials brokerXsuaaCredentials = brokerCredentials();
+   
+       XsuaaAudienceValidator audienceValidator = new XsuaaAudienceValidator(customXsuaaConfig());
+       // audienceValidator.configureAnotherXsuaaInstance("test3!b1", "sb-clone1!b22|test3!b1");
+       audienceValidator.configureAnotherXsuaaInstance(brokerXsuaaCredentials.getXsAppName(), brokerXsuaaCredentials.getClientId())
+       return new XsuaaJwtDecoderBuilder(customXsuaaConfig()).withTokenValidators(audienceValidator).build();
+    }
+    ```
+
 ## Fetch data from token
 
 You may have code parts that requests information from the access token using `XSUserInfo userInfo = SecurityContext.getUserInfo()`, like the user's name, its tenant, and so on. So, look up your code to find its usage.
@@ -189,7 +242,7 @@ application locally make sure that it is still working and finally test the appl
 
 ## Troubleshoot
 
-### Multiple XSUAA Bindings
+### Multiple XSUAA Bindings (broker & application)
 
 If your application is bound to two XSUAA service instances (of of plan `application` and another one of plan `broker`), you run into the following issue:
 
@@ -202,55 +255,9 @@ at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.getConfigurati
 at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.createPropertySource(XsuaaServicePropertySourceFactory.java:55)
 at org.springframework.context.annotation.ConfigurationClassParser.processPropertySource(ConfigurationClassParser.java:452)
 ``` 
-The library does not support more than one XSUAA binding. Follow these steps, to adapt your **Spring Security Configuration**:
 
-1. You need to get rid of  `XsuaaServicePropertySourceFactory`, because `XsuaaServicesParser` raises the error.
- * In case you make use of `xsuaa-spring-boot-starter` Spring Boot starter, you need to disable auto-configuration within your `*.properties` / or `*.yaml` file:
-    ```java
-    spring.xsuaa.multiple-bindings = true
-    ```
- * Or, make sure that your code does not contain
-    ```java
-    @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = {""})
-    ```
-2. Instead, provide your own implementation of `XsuaaSecurityConfiguration` interface to access the primary xsuaa service configuration of your application (chose the service instance of plan `application` here), which are exposed in the `VCAP_SERVICES` system environment variable (in Cloud Foundry). As of version `2.6.1` you can implement it like that: 
+The library does not support more than one XSUAA binding. Follow [these steps]((#multiple-xsuaa-bindings)), to adapt your **Spring Security Configuration**.
 
-    ```java
-    import com.sap.cloud.security.xsuaa.XsuaaCredentials;
-    import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationCustom;
-   
-    ...
-   
-    @Bean
-    @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan application>>.credentials")
-    public XsuaaCredentials xsuaaCredentials() {
-        return new XsuaaCredentials();
-    }
-
-    @Bean
-    public XsuaaServiceConfiguration customXsuaaConfig() {
-        return new XsuaaServiceConfigurationCustom(xsuaaCredentials());
-    }
-    ```
-
-3. You need to overwrite `JwtDecoder` bean so that the `AudienceValidator` checks the JWT audience not only against the client id of the primary Xsuaa service instance, but also of the binding of plan `broker`. As of version `2.6.1` you can implement it like that: 
-    ```java
-    @Bean
-    @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan broker>>.credentials")
-    public UaaCredentials brokerCredentials() {
-        return new XsuaaCredentials();
-    }
-   
-    @Bean
-    JwtDecoder getJwtDecoder() {
-       UaaCredentials brokerXsuaaCredentials = brokerCredentials();
-   
-       XsuaaAudienceValidator audienceValidator = new XsuaaAudienceValidator(customXsuaaConfig());
-       // audienceValidator.configureAnotherXsuaaInstance("test3!b1", "sb-clone1!b22|test3!b1");
-       audienceValidator.configureAnotherXsuaaInstance(brokerXsuaaCredentials.getXsAppName(), brokerXsuaaCredentials.getClientId())
-       return new XsuaaJwtDecoderBuilder(customXsuaaConfig()).withTokenValidators(audienceValidator).build();
-    }
-    ```
 
 ## Issues
 In case you face issues to apply the migration steps feel free to open a Issue here on [Github.com](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new).
