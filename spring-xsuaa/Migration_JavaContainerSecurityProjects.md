@@ -192,7 +192,7 @@ See the following table for methods that are not available anymore and workaroun
 | `requestTokenForClient` | Was removed with version `2.0.0`in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library.
 
 
-### XsuaaToken implements Spring Jwt
+### XsuaaToken
 The runtime type of `Token` is `XsuaaToken`. `XsuaaToken` provides additional
 methods that can be used to extract data from the token since it is a subclass of
 `org.springframework.security.oauth2.jwt.Jwt`. So you can for example read
