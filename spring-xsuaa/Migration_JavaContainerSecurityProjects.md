@@ -109,7 +109,8 @@ have to use Spring's `SecurityContext` managed by the `SecurityContextHolder`.
 It will contain a `com.sap.cloud.security.xsuaa.token.Token`.
 This is explained in the [usage section](/spring-xsuaa#usage) of the documentation.
 
-> Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
+### Exception Handling
+Unlike `XSUserInfo` interface there is no `XSUserInfoException` raised, in case the token does not contain the requested claim. You can check the interface, whether it can also return a `Nullable`. Then you can either perform a null check or check in advance, whether the claim is provided as part of the token, e.g. `Token.hasClaim(TokenClaims.CLAIM_CLIENT_ID)`.
 
 ### Special `XSUserInfo` methods
 The `XSUserInfo` interface provides some special methods that are not available in
@@ -117,22 +118,22 @@ the `com.sap.cloud.security.xsuaa.token.Token`.
 
 See the following table for methods that are not available anymore and workarounds.
 
-| XSUserInfo method       | Workaround                                                                                       |
+
+| XSUserInfo method       | Workaround in `spring.xsuaa`                                                                                      |
 |-------------------------|--------------------------------------------------------------------------------------------------|
-| `checkLocalScope`       | Checks if a local scopes ist contained in `scope` claim. See section [XsuaaToken](#xsuaatoken). |
-| `checkScope`            | Checks if a scope is contained in `scope` claim. See section [XsuaaToken](#xsuaatoken).         |
+| `checkLocalScope`       | Adapt the default behaviour of `TokenAuthenticationConverter.setLocalScopeAsAuthorities(true)` to let `getAuthorities` return local scopes. |
+| `checkScope`            | Use `getScopes` and check if the scope is contained.|
 | `getAttribute`          | Use `getXSUserAttribute`.                                                                        |
 | `getDBToken`            | Not implemented.                                                                                 |
 | `getHdbToken`           | Not implemented.                                                                                 |
-| `getIdentityZone`       | This reads claim `zid`. See section [XsuaaToken](#xsuaatoken).                                  |
-| `getIdentityZone`       | This reads claim `zid`. See section [XsuaaToken](#xsuaatoken).                                  |
-| `getJsonValue`          | Not implemented.                                                                                 |
+| `getIdentityZone`       | Use `getSubaccountId`.                                                                 |
+| `getJsonValue`          | Use `containsClaim` and `getClaimAsString`. See section [XsuaaToken](#xsuaatoken).                                                                                |
 | `getSystemAttribute`    | This extracts data from `xs.system.attributes` claim. See section [XsuaaToken](#xsuaatoken).    |
 | `getToken`              | Not implemented.                                                                                 |
 | `hasAttributes`         | Use `getXSUserAttribute` and check of the attribute is available.                                |
 | `isInForeignMode`       | Not implemented.                                                                                 |
-| `requestToken`          | Not implemented.                                                                                 |
-| `requestTokenForClient` | Not implemented.  
+| `requestToken`          | Was removed with version `2.0.0`in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library. 
+| `requestTokenForClient` | Was removed with version `2.0.0`in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library.
 
 
 #### XsuaaToken
