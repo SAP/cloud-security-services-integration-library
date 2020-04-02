@@ -244,7 +244,7 @@ application locally make sure that it is still working and finally test the appl
 
 ### Multiple XSUAA Bindings (broker & application)
 
-If your application is bound to two XSUAA service instances (of of plan `application` and another one of plan `broker`), you run into the following issue:
+If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), you run into the following issue:
 
 ```
 Caused by: java.lang.RuntimeException: Found more than one xsuaa binding. There can only be one.
