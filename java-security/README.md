@@ -155,6 +155,12 @@ The authenticator is used in the following [sample](/samples/java-security-usage
 ## Test Utilities
 You can find the test utilities documented [here](/java-security-test).
 
+## Issues
+
+This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
+If you have classpath related  issues involving JSON you should take a look at the
+[Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
+
 ## Specs und References
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)
 2. [OpenID Connect Core 1.0 incorporating errata set 1](https://openid.net/specs/openid-connect-core-1_0.html)

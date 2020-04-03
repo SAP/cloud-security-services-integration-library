@@ -151,6 +151,12 @@ OAuth2TokenResponse clientCredentialsToken = tokenFlows.passwordTokenFlow()
 Make sure to read the API documentation of the `XsuaaTokenFlows` API, to understand what the individual token flows' parameters are for.
 
 
+## Issues
+
+This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
+If you have classpath related  issues involving JSON you should take a look at the
+[Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
+
 ## Samples
 - [Java sample](/samples/java-tokenclient-usage)
 - [Spring Boot sample](/samples/spring-security-xsuaa-usage)

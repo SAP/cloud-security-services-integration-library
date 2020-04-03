@@ -12,6 +12,9 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 - maven 3.3.9 or later
 - JUnit 4, 5
 
+> If you use spring-boot-starter-test, you might be facing json classpath issues. See the [Issues](#Issues)
+> section for more information.
+
 ## Configuration
 
 ### Maven Dependencies
@@ -127,6 +130,12 @@ public class HelloJavaTest {
 	}
 }
 ```
+
+## Issues
+
+This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
+If you have classpath related  issues involving JSON you should take a look at the
+[Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 ## Samples
 The `java-security-test` library is used in the following samples:
