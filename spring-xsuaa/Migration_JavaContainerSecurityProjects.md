@@ -32,7 +32,7 @@ for more information.
 
 We already migrated the [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads/)
 application. You can take a look at 
-[this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/cffe04c95ae06e5b9c56fa827585bd127b57a765)
+[this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/b6cc7b08b9b5b7862b1a04eb3bc72cb3c28626f8)
 which shows what had to be changed to migrate our open-SAP course application from Spring 4 to Spring 5.
 
 ## Maven Dependencies
@@ -80,7 +80,7 @@ and adapt the `HttpSecurity` configuration. This involves the following steps:
   needs to be configured like described in the [docs](/spring-xsuaa/#setup-security-context-for-http-requests).
 
 We already added `spring-xsuaa` and `java-security-test` to the [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads) application and
-[this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/f5f085d94f30fe670aafdabc811fe07bc6533f6b)
+[this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/95022c15ea1d854b2071a4709a283bb73b4a3c9a)
 shows the security relevant parts.
 
 
@@ -263,5 +263,5 @@ The library does not support more than one XSUAA binding. Follow [these steps]((
 In case you face issues to apply the migration steps feel free to open a Issue here on [Github.com](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new).
 
 ## Samples
-- [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads/blob/Documentation/Security/Exercise_24_MakeYourApplicationSecure.md)
+- [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads/tree/solution-24-Make-App-Secure-Spring5)
 - [spring-security-xsuaa usage sample](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-xsuaa-usage)
