@@ -80,7 +80,7 @@ and adapt the `HttpSecurity` configuration. This involves the following steps:
   needs to be configured like described in the [docs](/spring-xsuaa/#setup-security-context-for-http-requests).
 
 We already added `spring-xsuaa` and `java-security-test` to the [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads) application and
-[this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/95022c15ea1d854b2071a4709a283bb73b4a3c9a)
+[this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/585c7a1a9763c627009fda03a6424e0328df3c5a)
 shows the security relevant parts.
 
 
