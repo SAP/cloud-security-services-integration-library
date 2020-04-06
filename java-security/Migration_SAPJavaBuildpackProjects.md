@@ -1,6 +1,7 @@
 # Migration Guide for Applications that use SAP Java Buildpack and java-container-security
 
 **This document is only applicable as soon as the integration of this security library into the buildpack as been finished!**
+
 This migration document is a step-by-step guide explaining how to migrate existing buildpack applications
 that make use of java-container-security-api to the new security api.
 
@@ -68,8 +69,8 @@ In the old version of the buildpack the user principal could be obtained via:
 XSUserInfo userInfo = (XSUserInfo) request.getUserPrincipal();
 ```
 
-This is not possible anymore because getUserPrincipal does not return a `XSUserInfo` anymore. Instead it returns an
-`com.sap.cloud.security.token.AccessToken` object. So you can cast it to `AccessToken`:
+This is not possible anymore because getUserPrincipal does not return a `XSUserInfo`. Instead it returns an
+`com.sap.cloud.security.token.AccessToken` object which the user principal can be cast to:
 
 ```java
 AccessToken accessToken = (AccessToken) request.getUserPrincipal();
@@ -129,9 +130,8 @@ not available. They will return `null` to show the absence of data.
 ### Principal name <a name="principal-name"></a>
 
 The `Token` interface defines the `getPrincipal()` method that returns a `java.security.Principal` which provides a
-`getName()` method.  If the underlying token is a xsuaa token then this will return `user/<origin>/<logonName>` if it is
-a user token or `client/<clientid>` if it is a client credentials or X509 token. It does not return the static string
-'client_credentials_principal_name' anymore.
+`getName()` method.  If the underlying token is a xsuaa token with grant type `user_token` then this will return `user/<origin>/<logonName>` otherwise `client/<clientid>` will be returned. It does not return the static string
+'client_credentials_principal_name' anymore!
 
 ### External attributes <a name="external-attributes"></a>
 
@@ -203,9 +203,9 @@ AccessToken token = SecurityContext.getAccessToken();
 ```
 
 ### UserInfoHolder
-It is also still possible to use the `UserInfoHolder` to obtain the `UserInfo` object.
+It is also still possible to use the `UserInfoHolder` to obtain the `UserInfo` object. The difference between XSUserInfo and AccessToken is described in section [Access token](#access-token).
 
-The difference between XSUserInfo and AccessToken is described in section [Access token](#access-token).
+> We recommend to use the `SecurityContext` with the `Token` interface instead of `UserInfoHolder` if the user holder specific methods are not needed.
 
 ## General buildpack usage information
 
