@@ -256,7 +256,7 @@ at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.createProperty
 at org.springframework.context.annotation.ConfigurationClassParser.processPropertySource(ConfigurationClassParser.java:452)
 ``` 
 
-The library does not support more than one XSUAA binding. Follow [these steps]((#multiple-xsuaa-bindings)), to adapt your **Spring Security Configuration**.
+The library does not support more than one XSUAA binding. Follow [these steps](#multiple-xsuaa-bindings), to adapt your **Spring Security Configuration**.
 
 
 ## Issues
