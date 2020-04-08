@@ -225,7 +225,6 @@ public class SecurityTest {
      *
      * @return an instance of WireMockServer
      */
-    @Nullable
     public WireMockServer getWireMockServer() {
         return wireMockServer;
     }

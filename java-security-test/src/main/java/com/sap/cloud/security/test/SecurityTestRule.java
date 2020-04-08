@@ -177,6 +177,8 @@ public class SecurityTestRule extends ExternalResource {
 
 	/**
 	 * @deprecated use {@link #getWireMockServer()} method instead.
+	 * Note that WireMockServer is the base class of WireMockRule.
+	 *
 	 */
 	@Nullable
 	@Deprecated
@@ -190,7 +192,7 @@ public class SecurityTestRule extends ExternalResource {
 	 * a detailed explanation on how to configure wire mock here:
 	 * http://wiremock.org/docs/getting-started/
 	 *
-	 * @return an instance of WireMockRule or null if cast to WireMockRule can not be performed.
+	 * @return an instance of WireMockRule or null.
 	 */
 	@Nullable
 	public WireMockServer getWireMockServer() {
