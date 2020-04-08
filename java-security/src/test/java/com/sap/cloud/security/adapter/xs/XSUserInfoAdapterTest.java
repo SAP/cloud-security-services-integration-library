@@ -46,7 +46,6 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void constructors() throws XSUserInfoException {
-		Object object = token;
 		assertThat(new XSUserInfoAdapter((Object)token).getLogonName()).isEqualTo("TestUser");
 		assertThat(new XSUserInfoAdapter((Token)token).getLogonName()).isEqualTo("TestUser");
 		assertThat(new XSUserInfoAdapter((AccessToken) token).getLogonName()).isEqualTo("TestUser");
@@ -57,7 +56,6 @@ public class XSUserInfoAdapterTest {
 				.hasMessageContaining("String")
 				.hasMessageContaining("instance of AccessToken");
 	}
-
 
 	// TODO: implement external context fallback tests
 	@Test
