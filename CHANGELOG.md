@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.6.0
+## 2.6.1
 - [spring-xsuaa] SpringSecurityContext throws `AccessDeniedException` instead of `IllegalStateException` when authentication does not contain principal of type Token.
 - [java-security] `JwtAudienceValidator` Support Audience Validation of Xsuaa Broker clones (multiple xsuaa bindings): NGPBUG-111540.
 - [java-security-test] Basic support fo JUnit 5 (Jupiter).
