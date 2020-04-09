@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
@@ -88,7 +88,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 					assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));
 					assertThat(context.containsBean("customJwtDecoder"), is(true));
 					assertThat(context.getBean("customJwtDecoder"),
-							instanceOf(NimbusJwtDecoderJwkSupport.class));
+							instanceOf(NimbusJwtDecoder.class));
 				});
 	}
 
@@ -117,7 +117,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 
 		@Bean
 		public JwtDecoder customJwtDecoder() {
-			return new NimbusJwtDecoderJwkSupport("http://localhost:8080/uaa/oauth/token_keys");
+			return NimbusJwtDecoder.withJwkSetUri("http://localhost:8080/uaa/oauth/token_keys").build();
 		}
 	}
 
