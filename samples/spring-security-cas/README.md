@@ -54,7 +54,7 @@ cf create-service xsuaa application spring-security-cas-authn -c '{ "xsappname":
 ```
 NOT YET SUPPORTED: Alternatively you can also create an IAS service instance (update the redirect uri to your "LANDSCAPE_APPS_DOMAIN")
 ```shell
-cf create-service identity-broker-beta default spring-security-cas-authn -c '{"oauth2-configuration":{"redirect-uris": ["https://*.cfapps.sap.hana.ondemand.com/login/oauth2/code/ias"]}}''
+cf create-service identity-beta default spring-security-cas-authn -c '{"oauth2-configuration":{"redirect-uris": ["https://*.cfapps.sap.hana.ondemand.com/login/oauth2/code/ias", "http://localhost:8080/login/oauth2/code/myoauthserver", "http://localhost:8080/login"]}}'
 ```
 
 ## Configure the local environment
@@ -125,7 +125,7 @@ cf push --vars-file ../vars.yml
 ```
 
 ## Access the application
-After successful deployment, when accessing your application endpoints on Cloud Foundry, you get redirected to a login-screen to authenticate yourself. 
+After successful deployment, when accessing your application endpoints on Cloud Foundry, you get redirected to a login-screen to authenticate yourself.
 
 - `https://spring-security-cas-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/health` should return "ok" (Status Code `200`). If not please check the application logs using `cf logs spring-security-cas --recent`, whether the OPA (ADC) Service is unavailable.
 - `https://spring-security-cas-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/readByCountry/{country}`  
