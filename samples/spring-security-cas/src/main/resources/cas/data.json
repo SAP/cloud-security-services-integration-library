@@ -1,0 +1,23 @@
+{
+    "user2policy": {
+        "Alice_readAll@test.com": [
+            "readAll"
+        ],
+        "Alice_readWrite@test.com": [
+            "readWrite"
+        ],
+        "Alice_countryCode@test.com": [
+            "countryCode"
+        ],
+        "Alice_salesOrders@test.com": [
+            "salesOrders2"
+        ],
+        "Alice_salesOrdersBetween@test.com": [
+            "salesOrdersBetween"
+        ],
+        "Bob.noAuthorization@test.com": [],
+        "YourUserId": [
+            "countryCode"
+        ]
+    }
+}

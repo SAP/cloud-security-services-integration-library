@@ -92,7 +92,7 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 	}
 
 	private boolean checkAuthorization(OpenPolicyAgentRequest request) {
-		URI adcUri = expandPath(this.adcUri, "/v1/data/rbac/allow");
+		URI adcUri = expandPath(this.adcUri, "/v1/data/cas/allow");
 		try {
 			return service.isUserAuthorized(adcUri, request).getResult();
 		} catch (Exception e) { // TODO improve
