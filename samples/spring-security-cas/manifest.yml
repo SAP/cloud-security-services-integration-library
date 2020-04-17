@@ -11,12 +11,10 @@ applications:
     - route: spring-security-cas-((ID)).((LANDSCAPE_APPS_DOMAIN))
   path: target/spring-security-cas.jar
   buildpacks:
-    - https://github.com/saescha/opa-builpack-PoC.git#sidecar
+    - https://github.com/saescha/opa-builpack-PoC.git#s3
     - java_buildpack
   services:
+    - spring-security-cas-ams
     - spring-security-cas-authn
   env:
     JBP_CONFIG_OPEN_JDK_JRE: '[memory_calculator: {headroom: 10}]'
-    # TODO update when https://abp.cfapps... supports bundle upload
-    BUNDLE_PROVIDER:  https://abp1.cfapps.sap.hana.ondemand.com/
-    BUNDLE_PATH: sap/cas/v1/bundles/((ID)).tar.gz

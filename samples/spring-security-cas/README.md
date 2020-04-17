@@ -54,7 +54,13 @@ cf create-service xsuaa application spring-security-cas-authn -c '{ "xsappname":
 ```
 NOT YET SUPPORTED: Alternatively you can also create an IAS service instance (update the redirect uri to your "LANDSCAPE_APPS_DOMAIN")
 ```shell
-cf create-service identity-beta default spring-security-cas-authn -c '{"oauth2-configuration":{"redirect-uris": ["https://*.cfapps.sap.hana.ondemand.com/login/oauth2/code/ias", "http://localhost:8080/login/oauth2/code/myoauthserver", "http://localhost:8080/login"]}}'
+cf create-service identity-beta default spring-security-cas-authn -c '{"oauth2-configuration":{"redirect-uris": ["https://*.cfapps.sap.hana.ondemand.com/login/oauth2/code/myoauthserver", "http://localhost:8080/login/oauth2/code/myoauthserver", "http://localhost:8080/login"]}}'
+```
+
+## Create the AMS service instance
+NOT YET SUPPORTED:
+```
+cf create-service ams standard spring-security-cas-ams
 ```
 
 ## Configure the local environment
@@ -108,14 +114,6 @@ On Cloud Foundry the ADC Service gets deployed together with your application (a
 ## Configure the manifest
 The [vars](../vars.yml) contains hosts and paths that need to be adopted.
 
-## Upload your user-specific bundle
-You have to make sure that the bundle serves your bundle, with your user-policy assignments. So, we need to upload all files from the `amsBundle` folder. We have to perform a `POST` request to the ABP service `https://abp.cfapps.sap.hana.ondemand.com/sap/cas/v1/bundles/((ID)).tar.gz` and specify your files in context of `data` form parameter as depicted in the screen shot below. 
-
-> Don't forget to replace the `((ID))` placeholder accordingly (as specified in `../vars.yml`)!!
-
-![](images/postmanUploadBundle.png)
-
-
 ## Compile and deploy the application
 Deploy te application using `cf push`. It will expect 800MB of free memory quota.
 
@@ -139,4 +137,5 @@ docker rm --force spring-security-cas_opa_1
 cf delete-service-key spring-security-cas-authn spring-security-cas-sk
 cf delete spring-security-cas
 cf delete-service spring-security-cas-authn
+cf delete-service spring-security-cas-ams
 ```
