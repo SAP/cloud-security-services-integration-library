@@ -1,12 +1,14 @@
 package com.sap.cloud.security.cas.client;
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * TODO: extract as library
  */
-public class OpenPolicyAgentRequest {
+public class ADCServiceRequest {
     private String casUserId = "user";
     private String casAction;
     private String casResource;
@@ -14,33 +16,33 @@ public class OpenPolicyAgentRequest {
 
     private Map<String, Object> input = new HashMap<>();
 
-    public OpenPolicyAgentRequest(String userId) {
+    public ADCServiceRequest(String userId) {
         this.casUserId = userId;
     }
 
-    public OpenPolicyAgentRequest withAction(String action) {
+    public ADCServiceRequest withAction(String action) {
         this.casAction = action;
         return this;
     }
 
-    public OpenPolicyAgentRequest withResource(String resource) {
+    public ADCServiceRequest withResource(String resource) {
         this.casResource = resource;
         return this;
     }
 
-    public OpenPolicyAgentRequest withAttribute(String attributeName, Object attributeValue) {
+    public ADCServiceRequest withAttribute(String attributeName, Object attributeValue) {
         if (attributeName != null) {
             input.put(attributeName, attributeValue);
         }
         return this;
     }
 
-    public OpenPolicyAgentRequest withUserAttributes(Map<String, String> userAttributes) {
+    public ADCServiceRequest withUserAttributes(Map<String, String> userAttributes) {
         // TODO
         return this;
     }
 
-    public OpenPolicyAgentRequest withAttributes(String... attributeExpressions) {
+    public ADCServiceRequest withAttributes(String... attributeExpressions) {
         for (String attribute : attributeExpressions) {
             String[] parts = attribute.split("=");
             String value = parts[1];
@@ -58,17 +60,23 @@ public class OpenPolicyAgentRequest {
     }
 
     /**
-     * Required for HttpMessageConverter.
+     * Required for Spring HttpMessageConverter.
      * @return
      */
     public Map<String, Object> getInput() {
         DefaultAttributes casAttributes = new DefaultAttributes(casUserId, null, casAction, casResource);
-        input.put("$cas", casAttributes.getInput());
+        input.put("$cas", casAttributes.getAsMap());
         return this.input;
     }
 
+    public String getInputJson() {
+        JSONObject inputJsonObject = new JSONObject();
+        inputJsonObject.put("input", getInput());
+        return inputJsonObject.toString();
+    }
+
     private static class DefaultAttributes {
-        private Map<String, Object> cas = new HashMap<>();
+        private Map<String, String> cas = new HashMap<>();
 
         private static final String USER_ID = "userID";
         //private static final String ZONE_ID = "zoneId";
@@ -91,8 +99,9 @@ public class OpenPolicyAgentRequest {
          * Required for HttpMessageConverter.
          * @return
          */
-        public Map<String, Object> getInput() {
+        public Map<String, String> getAsMap() {
             return this.cas;
         }
+
     }
 }

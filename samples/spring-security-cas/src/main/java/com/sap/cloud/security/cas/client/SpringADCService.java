@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 
-import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -24,13 +23,13 @@ public class SpringADCService implements ADCService {
     }
 
     @Override
-    public OpenPolicyAgentResponse isUserAuthorized(URI adcUri, OpenPolicyAgentRequest request) {
+    public ADCServiceResponse isUserAuthorized(URI adcUri, ADCServiceRequest request) {
         HttpEntity<?> httpRequest = new HttpEntity<>(request);
         try {
-            return restOperations.postForObject(adcUri, httpRequest, OpenPolicyAgentResponse.class);
+            return restOperations.postForObject(adcUri, httpRequest, ADCServiceResponse.class);
         } catch (RestClientException e) {
             LOGGER.error("Error accessing ADC service {}: {}.", adcUri, e.getCause(), e);
-            return new OpenPolicyAgentResponse();
+            return new ADCServiceResponse();
         }
     }
 

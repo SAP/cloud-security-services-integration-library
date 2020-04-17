@@ -1,11 +1,22 @@
 package com.sap.cloud.security.cas.client;
 
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.stream.Collectors;
 
 /**
  * TODO: extract as library
@@ -24,9 +35,37 @@ public class DefaultADCService implements ADCService {
         }
 
         @Override
-        public OpenPolicyAgentResponse isUserAuthorized(URI adcUri, OpenPolicyAgentRequest request) {
-           // TODO
-            throw new UnsupportedOperationException("Apache Http client not yet supported.");
+        public ADCServiceResponse isUserAuthorized(URI adcUri, ADCServiceRequest request) {
+            HttpPost httpPost;
+            boolean accessAllowed = false;
+            ADCServiceResponse response = new ADCServiceResponse();
+
+            try {
+                URIBuilder builder = new URIBuilder(adcUri);
+                httpPost = new HttpPost(builder.build());
+                httpPost.setEntity(new StringEntity(request.getInputJson()));
+
+                try (CloseableHttpResponse httpResponse = httpClient.execute(httpPost)) {
+                    int statusCode = httpResponse.getStatusLine().getStatusCode();
+                    String responseContent = null;
+                    if (statusCode == HttpStatus.SC_OK) {
+                        LOGGER.info("Successfully requested ADC service (status code: {})", statusCode);
+                        // TODO use HttpClientUtil?
+                        responseContent = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()))
+                                .lines().collect(Collectors.joining(System.lineSeparator()));
+                        response.setResult(responseContent.toString());
+                    } else {
+                        LOGGER.error("Error requesting ADC service (status code: {}): {}", statusCode, responseContent);
+                    }
+                } catch (IOException e) {
+                    LOGGER.error("Unexpected error retrieving JWT token: " + e.getMessage(), e);
+                }
+            } catch (URISyntaxException e) {
+                LOGGER.error("Error building url: {}", e.getMessage(), e);
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.error("Error set entity (body) with json {}: {}", request.getInputJson(), e.getMessage(), e);
+            }
+            return response;
         }
 
         public boolean ping(URI adcUri) {

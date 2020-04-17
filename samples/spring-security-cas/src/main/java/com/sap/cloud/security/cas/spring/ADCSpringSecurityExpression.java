@@ -1,6 +1,6 @@
 package com.sap.cloud.security.cas.spring;
 
-import com.sap.cloud.security.cas.client.OpenPolicyAgentRequest;
+import com.sap.cloud.security.cas.client.ADCServiceRequest;
 import com.sap.cloud.security.cas.client.ADCService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 	public boolean forResourceAction(String resource, String action, String... attributes) {
 		String userId = getUserId();
 
-		OpenPolicyAgentRequest request = new OpenPolicyAgentRequest(userId)
+		ADCServiceRequest request = new ADCServiceRequest(userId)
 				.withAction(action)
 				.withResource(resource)
 				.withAttributes(attributes);
@@ -91,7 +91,7 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 		return user.getName(); // TODO update to unique user id
 	}
 
-	private boolean checkAuthorization(OpenPolicyAgentRequest request) {
+	private boolean checkAuthorization(ADCServiceRequest request) {
 		URI adcUri = expandPath(this.adcUri, "/v1/data/cas/allow");
 		try {
 			return service.isUserAuthorized(adcUri, request).getResult();

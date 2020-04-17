@@ -1,6 +1,7 @@
 package com.sap.cloud.security.samples;
 
 import com.sap.cloud.security.cas.client.ADCService;
+import com.sap.cloud.security.cas.client.DefaultADCService;
 import com.sap.cloud.security.cas.client.SpringADCService;
 import com.sap.cloud.security.cas.spring.ADCSpringSecurityExpressionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,8 @@ public class MethodSecurityConfiguration extends GlobalMethodSecurityConfigurati
 	@Bean
 	ADCService adcService() {
 		RestTemplate restTemplate = this.restTemplate != null ? this.restTemplate : new RestTemplate();
-		return new SpringADCService(restTemplate);
+		//return new SpringADCService(restTemplate);
+		return new DefaultADCService();
 	}
 
 	@Override
