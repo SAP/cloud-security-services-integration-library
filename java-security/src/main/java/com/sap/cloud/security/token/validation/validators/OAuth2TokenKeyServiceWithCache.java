@@ -9,11 +9,13 @@ import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
@@ -24,9 +26,10 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
  */
 public class OAuth2TokenKeyServiceWithCache {
 	private OAuth2TokenKeyService tokenKeyService; // access via getter
-	private Cache<String, PublicKey> cache; // access via getter
+	private Cache<String, JsonWebKeySet> cache; // access via getter
 	private long cacheValidityInSeconds = 600; // old keys should expire after 15 minutes
 	private long cacheSize = 1000;
+	private Ticker cacheTicker;
 
 	private OAuth2TokenKeyServiceWithCache() {
 		// use getInstance factory method
@@ -39,6 +42,21 @@ public class OAuth2TokenKeyServiceWithCache {
 	 */
 	public static OAuth2TokenKeyServiceWithCache getInstance() {
 		OAuth2TokenKeyServiceWithCache instance = new OAuth2TokenKeyServiceWithCache();
+		instance.cacheTicker = Ticker.systemTicker();
+		return instance;
+	}
+
+	/**
+	 * Creates a new instance and sets the cache ticker. This is used for testing.
+	 *
+	 * @param cacheTicker
+	 * 			ticker the cache uses to determine time
+	 *
+	 * @return the new instance.
+	 */
+	static OAuth2TokenKeyServiceWithCache getInstance(Ticker cacheTicker) {
+		OAuth2TokenKeyServiceWithCache instance = new OAuth2TokenKeyServiceWithCache();
+		instance.cacheTicker = cacheTicker;
 		return instance;
 	}
 
@@ -112,30 +130,34 @@ public class OAuth2TokenKeyServiceWithCache {
 		assertHasText(keyId, "keyId must not be null.");
 		assertNotNull(keyUri, "keyUrl must not be null.");
 
-		String cacheKey = getUniqueCacheKey(keyAlgorithm, keyId, keyUri);
+		String cacheKey = getUniqueCacheKey(keyUri);
 
-		PublicKey publicKey = getCache().getIfPresent(cacheKey);
-		if (publicKey == null) {
+		JsonWebKeySet jsonWebKeySet = getCache().getIfPresent(cacheKey);
+		if (jsonWebKeySet == null) {
 			retrieveTokenKeysAndFillCache(keyUri);
 		}
-		return getCache().getIfPresent(cacheKey);
+		JsonWebKey jsonWebKey = getMatchingJsonWebKeyFromCache(cacheKey, keyAlgorithm, keyId);
+		return jsonWebKey == null ? null : jsonWebKey.getPublicKey();
 	}
 
-	private void retrieveTokenKeysAndFillCache(URI jwksUri)
-			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+	@Nullable
+	private JsonWebKey getMatchingJsonWebKeyFromCache(String cacheKey, JwtSignatureAlgorithm algorithm, String keyId) {
+		JsonWebKeySet jsonWebKeySet = getCache().getIfPresent(cacheKey);
+		return jsonWebKeySet == null ? null : jsonWebKeySet.getKeyByAlgorithmAndId(algorithm, keyId);
+	}
+
+	private void retrieveTokenKeysAndFillCache(URI jwksUri) throws OAuth2ServiceException {
 		JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(getTokenKeyService().retrieveTokenKeys(jwksUri));
 		if (keySet == null) {
 			return;
 		}
-		Set<JsonWebKey> jwks = keySet.getAll();
-		for (JsonWebKey jwk : jwks) {
-			getCache().put(getUniqueCacheKey(jwk.getKeyAlgorithm(), jwk.getId(), jwksUri), jwk.getPublicKey());
-		}
+		getCache().put(getUniqueCacheKey(jwksUri), keySet);
 	}
 
-	private Cache<String, PublicKey> getCache() {
+	private Cache<String, JsonWebKeySet> getCache() {
 		if (cache == null) {
 			cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
+					.ticker(cacheTicker)
 					.maximumSize(cacheSize)
 					.build();
 		}
@@ -155,8 +177,8 @@ public class OAuth2TokenKeyServiceWithCache {
 		}
 	}
 
-	public static String getUniqueCacheKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI jwksUri) {
-		return jwksUri + String.valueOf(JsonWebKeyImpl.calculateUniqueId(keyAlgorithm, keyId));
+	public static String getUniqueCacheKey(URI jwksUri) {
+		return jwksUri.toString();
 	}
 
 }
