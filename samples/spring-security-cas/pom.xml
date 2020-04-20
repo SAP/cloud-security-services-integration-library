@@ -26,8 +26,8 @@
             <version>${apache.httpclient.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.security</groupId>
-            <artifactId>java-cas</artifactId>
+            <groupId>com.sap.cloud.security.cas</groupId>
+            <artifactId>java</artifactId>
             <version>${sap.cloud.security.version}</version>
         </dependency>
         <dependency>

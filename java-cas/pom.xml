@@ -10,8 +10,8 @@
 		<version>2.6.1</version>
 	</parent>
 
-	<groupId>com.sap.cloud.security</groupId>
-	<artifactId>java-cas</artifactId>
+	<groupId>com.sap.cloud.security.cas</groupId>
+	<artifactId>java</artifactId>
 	<name>java-cas</name>
 	<packaging>jar</packaging>
 
