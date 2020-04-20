@@ -3,7 +3,9 @@ package com.sap.cloud.security.cas.client;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * TODO: extract as library
@@ -12,7 +14,15 @@ public class ADCServiceRequest {
     private String casUserId = "user";
     private String casAction;
     private String casResource;
-
+    private Map<String, Object> appAttributes = new HashMap();
+    private Map<String, String> userAttributes = new HashMap();
+    private static Set<String> claimsToBeIgnored = new HashSet() {{
+        add("aud");
+        add("iss");
+        add("exp");
+        add("cid");
+        add("sub");
+    }};
 
     private Map<String, Object> input = new HashMap<>();
 
@@ -32,13 +42,13 @@ public class ADCServiceRequest {
 
     public ADCServiceRequest withAttribute(String attributeName, Object attributeValue) {
         if (attributeName != null) {
-            input.put(attributeName, attributeValue);
+            appAttributes.put(attributeName, attributeValue);
         }
         return this;
     }
 
     public ADCServiceRequest withUserAttributes(Map<String, String> userAttributes) {
-        // TODO
+        this.userAttributes.putAll(userAttributes);
         return this;
     }
 
@@ -65,7 +75,18 @@ public class ADCServiceRequest {
      */
     public Map<String, Object> getInput() {
         DefaultAttributes casAttributes = new DefaultAttributes(casUserId, null, casAction, casResource);
+
         input.put("$cas", casAttributes.getAsMap());
+
+        if(!userAttributes.isEmpty()) {
+            claimsToBeIgnored.forEach((claimToBeIgnored)->userAttributes.remove(claimToBeIgnored));
+            input.put("$user", userAttributes);
+        }
+
+        if(!appAttributes.isEmpty()) {
+            input.put("$app", appAttributes);
+        }
+
         return this.input;
     }
 
@@ -78,7 +99,7 @@ public class ADCServiceRequest {
     private static class DefaultAttributes {
         private Map<String, String> cas = new HashMap<>();
 
-        private static final String USER_ID = "userID";
+        private static final String USER_ID = "userId";
         //private static final String ZONE_ID = "zoneId";
         private static final String ACTION = "action";
         private static final String RESOURCE = "resource";

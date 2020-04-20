@@ -21,15 +21,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20190722</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${apache.httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sap.cloud.security</groupId>
+            <artifactId>java-cas</artifactId>
+            <version>${sap.cloud.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -113,6 +112,19 @@
                 <configuration>
                     <skipProvidedScope>true</skipProvidedScope>
                 </configuration>
+            </plugin>
+            <plugin>
+                <!-- This can be removed when *.DCL files are compiled on the server -->
+                <groupId>com.sap.security.cas.dcl</groupId>
+                <artifactId>dcl-compiler-plugin</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -1,6 +1,5 @@
 package com.sap.cloud.security.cas.client;
 
-import org.springframework.lang.Nullable;
 
 import java.net.URI;
 

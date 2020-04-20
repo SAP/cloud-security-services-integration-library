@@ -37,7 +37,6 @@ public class DefaultADCService implements ADCService {
         @Override
         public ADCServiceResponse isUserAuthorized(URI adcUri, ADCServiceRequest request) {
             HttpPost httpPost;
-            boolean accessAllowed = false;
             ADCServiceResponse response = new ADCServiceResponse();
 
             try {
