@@ -150,12 +150,14 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		return decoder.decode(token);
 	}
 
-	// TODO extract into separate class / bean
 	private JwtDecoder getDecoder(String jku) {
-		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jku);
-		Optional.ofNullable(restOperations).ifPresent(decoder::setRestOperations);
-		decoder.setJwtValidator(tokenValidators);
-		return decoder;
+		NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder jwkSetUriJwtDecoderBuilder = NimbusJwtDecoder.withJwkSetUri(jku);
+		if (restOperations != null) {
+			jwkSetUriJwtDecoderBuilder.restOperations(restOperations);
+		}
+		NimbusJwtDecoder jwtDecoder = jwkSetUriJwtDecoderBuilder.build();
+		jwtDecoder.setJwtValidator(tokenValidators);
+		return jwtDecoder;
 	}
 
 	private Jwt tryToVerifyWithOfflineKey(String token, JwtException onlineVerificationException) {

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -37,21 +38,23 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	private final AccessToken accessToken;
 	private OAuth2ServiceConfiguration configuration;
 
+	public XSUserInfoAdapter(Object accessToken) throws XSUserInfoException {
+		this(accessToken, null);
+	}
+
 	public XSUserInfoAdapter(Token accessToken) throws XSUserInfoException {
 		this(accessToken, Environments.getCurrent().getXsuaaConfiguration());
 	}
 
 	public XSUserInfoAdapter(AccessToken accessToken) throws XSUserInfoException {
-		if (accessToken == null) {
-			throw new XSUserInfoException("token must not be null.");
-		}
-		this.accessToken = accessToken;
+		this(accessToken, null);
 	}
 
-	XSUserInfoAdapter(Token accessToken, OAuth2ServiceConfiguration configuration) throws XSUserInfoException {
+	XSUserInfoAdapter(Object accessToken, OAuth2ServiceConfiguration configuration) throws XSUserInfoException {
 		if (!(accessToken instanceof AccessToken)) {
-			throw new XSUserInfoException("token is of instance " + accessToken.getClass().getName()
-					+ " but needs to be an instance of XsuaaToken.");
+			String type = Objects.isNull(accessToken) ? null : accessToken.getClass().getName();
+			throw new XSUserInfoException("token is of instance " + type
+					+ " but needs to be an instance of AccessToken.");
 		}
 		this.accessToken = (AccessToken) accessToken;
 		this.configuration = configuration;

@@ -5,10 +5,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
-import com.sap.cloud.security.token.GrantType;
-import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.token.XsuaaScopeConverter;
-import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.token.*;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -47,7 +44,20 @@ public class XSUserInfoAdapterTest {
 		cut = new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)), configuration);
 	}
 
-	// TODO 22.01.20 c5295400: implement external context fallback tests
+	@Test
+	public void constructors() throws XSUserInfoException {
+		assertThat(new XSUserInfoAdapter((Object)token).getLogonName()).isEqualTo("TestUser");
+		assertThat(new XSUserInfoAdapter((Token)token).getLogonName()).isEqualTo("TestUser");
+		assertThat(new XSUserInfoAdapter((AccessToken) token).getLogonName()).isEqualTo("TestUser");
+		assertThatThrownBy(() -> new XSUserInfoAdapter(null)).isInstanceOf(XSUserInfoException.class)
+				.hasMessageContaining("null")
+				.hasMessageContaining("instance of AccessToken");
+		assertThatThrownBy(() -> new XSUserInfoAdapter("Tester")).isInstanceOf(XSUserInfoException.class)
+				.hasMessageContaining("String")
+				.hasMessageContaining("instance of AccessToken");
+	}
+
+	// TODO: implement external context fallback tests
 	@Test
 	public void testGetLogonName() throws XSUserInfoException {
 		assertThat(cut.getLogonName()).isEqualTo("TestUser");

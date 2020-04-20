@@ -12,6 +12,9 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 - maven 3.3.9 or later
 - JUnit 4, 5
 
+> If you use spring-boot-starter-test, you might be facing json classpath issues. See the [Issues](#Issues)
+> section for more information.
+
 ## Configuration
 
 ### Maven Dependencies
@@ -19,7 +22,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>2.6.0</version>
+    <version>2.6.2</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -106,10 +109,6 @@ JUnit 5 does no longer support `Rule`. You can configure a static `SecurityTest`
 public class HelloJavaTest {
 
 	private static SecurityTest securityTest = new SecurityTest(Service.XSUAA);
-
-	private String jwt = securityTest.getPreconfiguredJwtGenerator()
-						.withLocalScopes("Read")
-						.createToken().getTokenValue();
 	
 	@BeforeEach
 	public void setup() throws Exception {
@@ -123,10 +122,20 @@ public class HelloJavaTest {
 
 	@Test
 	public void v1_sayHello() throws Exception {
+		String jwt = securityTest.getPreconfiguredJwtGenerator()
+						.withLocalScopes("Read")
+						.createToken().getTokenValue();
+		// call endpoint with Authorization header "Bearer <jwt>" 			
 		...
 	}
 }
 ```
+
+## Issues
+
+This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
+If you have classpath related  issues involving JSON you should take a look at the
+[Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 ## Samples
 The `java-security-test` library is used in the following samples:

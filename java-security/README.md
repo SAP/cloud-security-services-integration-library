@@ -44,7 +44,7 @@ Token Validation for Java applications.
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.6.0</version>
+    <version>2.6.2</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -154,6 +154,12 @@ The authenticator is used in the following [sample](/samples/java-security-usage
 
 ## Test Utilities
 You can find the test utilities documented [here](/java-security-test).
+
+## Issues
+
+This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
+If you have classpath related  issues involving JSON you should take a look at the
+[Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 ## Specs und References
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)

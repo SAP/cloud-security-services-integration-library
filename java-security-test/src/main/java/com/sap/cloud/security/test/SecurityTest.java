@@ -225,7 +225,6 @@ public class SecurityTest {
      *
      * @return an instance of WireMockServer
      */
-    @Nullable
     public WireMockServer getWireMockServer() {
         return wireMockServer;
     }
@@ -333,13 +332,32 @@ public class SecurityTest {
      * to avoid unwanted side-effects.
      */
     public void tearDown() {
-        wireMockServer.shutdown();
+        shutdownWireMock();
         try {
             if (useApplicationServer) {
                 applicationServer.stop();
             }
         } catch (Exception e) {
             LOGGER.error("Failed to stop jetty server", e);
+        }
+    }
+
+    /**
+     * The {@code shutdown} method of WireMock does not block the main thread.
+     * This can cause issues if one static {@link SecurityTestRule}
+     * is reused in many test classes. Therefore we wait until the WireMock server
+     * has really been shutdown (or the maximum amount of tries has been reached).
+     */
+    private void shutdownWireMock() {
+        wireMockServer.shutdown();
+        int maxTries = 100;
+        for (int tries = 0; tries < maxTries && wireMockServer.isRunning(); tries++) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                LOGGER.warn("Got interrupted while waiting for WireMock to shutdown. Giving up!");
+                break;
+            }
         }
     }
 }

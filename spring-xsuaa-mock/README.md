@@ -17,7 +17,7 @@ The default implementation offers already valid *token_keys* for JWT tokens, tha
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa-mock</artifactId>
-    <version>2.6.0</version>
+    <version>2.6.2</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 - provided with org.springframework.boot:spring-boot-starter:jar -->
     <groupId>org.springframework.boot</groupId>
@@ -72,3 +72,6 @@ String jwtToken = new JwtGenerator(yourClientId, yourSubdomain).setJwtHeaderKeyI
 ```
 
 Then your Mock Web Server is called for example with `http://localhost:33195/testdomain/token_keys` and can be configured in such a way, that it provides different token keys for different domains. The domain `testdomain` is already handled by the default [`XsuaaRequestDispatcher`](src/main/java/com/sap/cloud/security/xsuaa/mock/XsuaaRequestDispatcher.java) implementation.
+
+## Samples
+- [cloud-application-security-sample](https://github.com/SAP-samples/cloud-application-security-sample)
