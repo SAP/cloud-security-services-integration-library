@@ -18,3 +18,4 @@ applications:
     - spring-security-cas-authn
   env:
     JBP_CONFIG_OPEN_JDK_JRE: '[memory_calculator: {headroom: 10}]'
+    BUNDLE_PATH: /BOOT-INF/classes

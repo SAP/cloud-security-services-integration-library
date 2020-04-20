@@ -6,7 +6,7 @@ services:
       - 8181:8181
     volumes:
       - type: bind
-        source: ./src/main/resources/cas
+        source: ./target/classes/cas
         target: /policies
     command:
       - "run"
