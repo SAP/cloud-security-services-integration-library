@@ -29,8 +29,13 @@ First, get familiar with the Authorization Decision Controller (ADC) service whi
     ```
     {
         "input": {
-            "user": "Alice_readAll",
-            "action": "read"
+            "$cas": {
+                "userId": "Alice_countryCode@test.com",
+                "action": "read"
+            },
+            "$app": {
+            	"CountryCode": "IT"
+            }
         }
     }
     ```
@@ -38,12 +43,17 @@ First, get familiar with the Authorization Decision Controller (ADC) service whi
     ```
     {
         "input": {
-            "user": "Alice_readAll",
-            "action": "debug"
+            "$cas": {
+                "userId": "Alice_countryCode@test.com",
+                "action": "read"
+            },
+            "$app": {
+            	"CountryCode": "DE"
+            }
         }
     }
     ```
-    ... should return `false`, as the user has no policy assigned with `action`="`debug`". 
+    ... should return `false`, as the user has no policy assigned with `CountryCode`="`DE`". 
 
 3. Find the current API documentation of OPA [here](https://www.openpolicyagent.org/docs/latest/rest-api/).
 
@@ -115,7 +125,7 @@ On Cloud Foundry the ADC Service gets deployed together with your application (a
 The [vars](../vars.yml) contains hosts and paths that need to be adopted.
 
 ## Compile and deploy the application
-Deploy te application using `cf push`. It will expect 800MB of free memory quota.
+Deploy the application using `cf push`. It will expect 800MB of free memory quota.
 
 ```shell
 mvn clean package
