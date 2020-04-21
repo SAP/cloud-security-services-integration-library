@@ -6,11 +6,10 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.*;
-import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -43,8 +42,7 @@ public class XSUserInfoAdapterTest {
 				.withProperty(CFConstants.XSUAA.APP_ID, "brokerplanmasterapp!b123")
 				.withProperty(IDENTITY_ZONE, "paas")
 				.build();
-		cut = new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)), configuration,
-				mock(OAuth2TokenService.class));
+		cut = new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)), configuration);
 	}
 
 	@Test
@@ -320,7 +318,7 @@ public class XSUserInfoAdapterTest {
 				.withProperty("identityzoneid", "uaa")
 				.build();
 
-		cut = new XSUserInfoAdapter(token, configuration, new DefaultOAuth2TokenService());
+		cut = new XSUserInfoAdapter(token, configuration);
 
 		assertThat(cut.getHdbToken()).isNotNull();
 		assertThat(cut.getHdbToken()).startsWith("eyJhbGciOiAiUlMyNTYiLCJ0eXAiOiAiS");
@@ -347,7 +345,7 @@ public class XSUserInfoAdapterTest {
 				.withProperty("identityzoneid", "uaa")
 				.build();
 
-		cut = new XSUserInfoAdapter(token, configuration, new DefaultOAuth2TokenService());
+		cut = new XSUserInfoAdapter(token, configuration);
 
 		assertThat(cut.getHdbToken()).isNotNull();
 		assertThat(cut.getHdbToken()).isEqualTo(mockTokenValue);
@@ -369,7 +367,7 @@ public class XSUserInfoAdapterTest {
 				.withProperty(TRUSTED_CLIENT_ID_SUFFIX, "|brokerplanmasterapp!b123")
 				.build();
 
-		cut = new XSUserInfoAdapter(token, configuration, new DefaultOAuth2TokenService());
+		cut = new XSUserInfoAdapter(token, configuration);
 
 		assertThat(cut.isInForeignMode()).isFalse();
 	}
@@ -458,14 +456,13 @@ public class XSUserInfoAdapterTest {
 	}
 
 	private XSUserInfoAdapter createComponentUnderTestSpy() throws XSUserInfoException {
-		return spy(new XSUserInfoAdapter(mock(XsuaaToken.class), mock(OAuth2ServiceConfiguration.class),
-				new DefaultOAuth2TokenService()));
+		return spy(new XSUserInfoAdapter(mock(XsuaaToken.class), mock(OAuth2ServiceConfiguration.class)));
 	}
 
 	private XSUserInfoAdapter createComponentUnderTestSpy(OAuth2ServiceConfiguration configuration)
 			throws XSUserInfoException {
 		return spy(
-				new XSUserInfoAdapter(Mockito.mock(XsuaaToken.class), configuration, new DefaultOAuth2TokenService()));
+				new XSUserInfoAdapter(Mockito.mock(XsuaaToken.class), configuration));
 	}
 
 	private XsuaaToken createMockToken(GrantType grantType) {

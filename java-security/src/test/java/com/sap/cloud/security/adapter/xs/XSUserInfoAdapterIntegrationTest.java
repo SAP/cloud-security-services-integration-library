@@ -67,8 +67,8 @@ public class XSUserInfoAdapterIntegrationTest {
 		OAuth2ServiceConfiguration xsuaaConfiguration = CFEnvironment.getInstance().getXsuaaConfiguration();
 		String appId = xsuaaConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
 		XsuaaToken accessToken = new XsuaaToken(token).withScopeConverter(new XsuaaScopeConverter(appId));
-		XSUserInfoAdapter xsUserInfoAdapter = new XSUserInfoAdapter(accessToken, xsuaaConfiguration,
-				oAuth2TokenService);
+		XSUserInfoAdapter xsUserInfoAdapter = new XSUserInfoAdapter(accessToken, xsuaaConfiguration);
+		xsUserInfoAdapter.setOAuth2TokenService(oAuth2TokenService);
 		return xsUserInfoAdapter;
 	}
 

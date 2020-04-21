@@ -53,18 +53,17 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	private final AccessToken accessToken;
 	private final OAuth2ServiceConfiguration configuration;
-	private final OAuth2TokenService oAuth2TokenService;
+	private OAuth2TokenService oAuth2TokenService;
 
 	public XSUserInfoAdapter(Object accessToken) {
-		this(accessToken, Environments.getCurrent().getXsuaaConfiguration(), new DefaultOAuth2TokenService());
+		this(accessToken, Environments.getCurrent().getXsuaaConfiguration());
 	}
 
 	public XSUserInfoAdapter(AccessToken accessToken) {
-		this(accessToken, Environments.getCurrent().getXsuaaConfiguration(), new DefaultOAuth2TokenService());
+		this(accessToken, Environments.getCurrent().getXsuaaConfiguration());
 	}
 
-	XSUserInfoAdapter(Object accessToken, OAuth2ServiceConfiguration configuration,
-			OAuth2TokenService oAuth2TokenService) {
+	XSUserInfoAdapter(Object accessToken, OAuth2ServiceConfiguration configuration) {
 		if (!(accessToken instanceof AccessToken)) {
 			String type = Objects.isNull(accessToken) ? null : accessToken.getClass().getName();
 			throw new XSUserInfoException("token is of instance " + type
@@ -72,7 +71,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		}
 		this.accessToken = (AccessToken) accessToken;
 		this.configuration = configuration;
-		this.oAuth2TokenService = oAuth2TokenService;
 	}
 
 	/*
@@ -303,9 +301,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
-	public String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) {
-		String url = uaaUrl != null ? uaaUrl + "/oauth/token" : null;
-		return performTokenFlow(url, XSTokenRequest.TYPE_USER_TOKEN, clientId, clientSecret, new HashMap<>());
+	public String requestTokenForClient(String clientId, String clientSecret, String baseUaaUrl) {
+		return performTokenFlow(baseUaaUrl, XSTokenRequest.TYPE_USER_TOKEN, clientId, clientSecret, new HashMap<>());
 	}
 
 	@Override
@@ -314,12 +311,24 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		if (!tokenRequest.isValid()) {
 			throw new XSUserInfoException("Invalid grant type or missing parameters for requested grant type.");
 		}
-
 		String tokenEndpoint = tokenRequest.getTokenEndpoint().toString();
 		String baseUrl = tokenEndpoint.replace(tokenRequest.getTokenEndpoint().getPath(), "");
 		Map<String, String> additionalAuthAttributes = tokenRequest.getAdditionalAuthorizationAttributes();
-		return performTokenFlow(baseUrl, tokenRequest.getType(),
-				tokenRequest.getClientId(), tokenRequest.getClientSecret(), additionalAuthAttributes);
+		return performTokenFlow(baseUrl, tokenRequest.getType(), tokenRequest.getClientId(),
+				tokenRequest.getClientSecret(), additionalAuthAttributes);
+	}
+
+	private OAuth2TokenService getOrCreateOAuth2TokenService() {
+		if (oAuth2TokenService == null) {
+			oAuth2TokenService = new DefaultOAuth2TokenService(); // TODO implement
+			//oAuth2TokenService = new XsuaaOAuth2TokenService(new RestTemplate());
+		}
+		return oAuth2TokenService;
+	}
+
+	// for tests
+	void setOAuth2TokenService(OAuth2TokenService oAuth2TokenService) {
+		this.oAuth2TokenService = oAuth2TokenService;
 	}
 
 	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName) {
@@ -369,23 +378,24 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
 	}
 
-	private String performTokenFlow(String baseUrl, int tokenRequestType, String clientId, String clientSecret,
+	private String performTokenFlow(String baseUaaUrl, int tokenRequestType, String clientId, String clientSecret,
 			Map<String, String> additionalAuthAttributes) {
 		try {
+			Assertions.assertNotNull(getOrCreateOAuth2TokenService(), "OAuth2TokenService must not be null!");
 			ClientCredentials clientCredentials = new ClientCredentials(clientId, clientSecret);
-			XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(oAuth2TokenService,
-					new XsuaaDefaultEndpoints(baseUrl), clientCredentials);
-			return performRequest(tokenRequestType, clientCredentials, additionalAuthAttributes, xsuaaTokenFlows);
+			XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(getOrCreateOAuth2TokenService(),
+					new XsuaaDefaultEndpoints(baseUaaUrl), clientCredentials);
+			return performRequest(xsuaaTokenFlows, tokenRequestType, additionalAuthAttributes);
 		} catch (RuntimeException e) {
 			throw new XSUserInfoException(e.getMessage());
 		}
 	}
 
-	private String performRequest(int tokenRequestType, ClientCredentials clientCredentials,
-			Map<String, String> additionalAuthAttributes, XsuaaTokenFlows xsuaaTokenFlows) {
+	private String performRequest(XsuaaTokenFlows xsuaaTokenFlows, int tokenRequestType,
+			Map<String, String> additionalAuthAttributes) {
 		switch (tokenRequestType) {
 		case XSTokenRequest.TYPE_USER_TOKEN:
-			return performUserTokenFlow(clientCredentials.getId(), xsuaaTokenFlows, additionalAuthAttributes);
+			return performUserTokenFlow(xsuaaTokenFlows, additionalAuthAttributes);
 		case XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN:
 			return performClientCredentialsFlow(xsuaaTokenFlows, additionalAuthAttributes);
 		default:
@@ -394,8 +404,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		}
 	}
 
-	private String performUserTokenFlow(String clientId, XsuaaTokenFlows xsuaaTokenFlows,
-			Map<String, String> additionalAuthAttributes) {
+	private String performUserTokenFlow(XsuaaTokenFlows xsuaaTokenFlows, Map<String, String> additionalAuthAttributes) {
 		String userToken;
 		try {
 			userToken = xsuaaTokenFlows.userTokenFlow()
@@ -404,7 +413,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 					.attributes(additionalAuthAttributes)
 					.execute().getAccessToken();
 		} catch (TokenFlowException e) {
-			throw new XSUserInfoException("Error performing User Token Flow. See exception cause.", e);
+			LOGGER.error("Error performing User Token Flow", e);
+			throw new XSUserInfoException("Error performing User Token Flow.", e);
 		}
 		return userToken;
 	}
@@ -418,7 +428,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 					.attributes(additionalAuthAttributes)
 					.execute().getAccessToken();
 		} catch (TokenFlowException e) {
-			throw new XSUserInfoException("Error performing Client Credentials Flow. See exception cause.", e);
+			LOGGER.error("Error performing Client Credentials Flow", e);
+			throw new XSUserInfoException("Error performing Client Credentials Flow..", e);
 		}
 		return ccfToken;
 	}
