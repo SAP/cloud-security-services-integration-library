@@ -1,13 +1,18 @@
 package com.sap.cloud.security.config;
 
+import org.slf4j.LoggerFactory;
+
 /**
  * Represents a supported identity service.
  */
 public enum Service {
+
 	XSUAA("xsuaa"), IAS(getIasServiceName());
 
 	private static String getIasServiceName() {
-		return System.getenv("IAS_SERVICE_NAME"); // TODO as of now its "identity-beta"
+		String iasServiceName = System.getenv("IAS_SERVICE_NAME"); // TODO as of now its "identity-beta"
+		LoggerFactory.getLogger(Service.class).error("IAS Service is not yet supported!!!");
+		return iasServiceName;
 	}
 
 	private final String cloudFoundryName;
@@ -24,7 +29,7 @@ public enum Service {
 	 */
 	public String getCFName() {
 		if(this == IAS && cloudFoundryName == null) {
-			throw new UnsupportedOperationException("IAS Service is not yet supported.");
+			LoggerFactory.getLogger(Service.class).error("IAS Service is not yet supported!!!"); // TODO remove
 		}
 		return cloudFoundryName;
 	}
