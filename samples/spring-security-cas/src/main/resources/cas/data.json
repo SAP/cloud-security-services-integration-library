@@ -16,7 +16,13 @@
             "salesOrdersBetween"
         ],
         "Bob.noAuthorization@test.com": [],
-        "YourUserId": [
+        "P001025": [
+            "countryCode"
+        ],
+        "P176945": [
+            "countryCode"
+        ],
+        "P184533": [
             "countryCode"
         ]
     }

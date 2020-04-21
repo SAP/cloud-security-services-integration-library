@@ -30,7 +30,7 @@ public class MethodSecurityConfiguration extends GlobalMethodSecurityConfigurati
 	 */
 	@Bean
 	ADCService adcService() {
-		RestTemplate restTemplate = this.restTemplate != null ? this.restTemplate : new RestTemplate();
+		//RestTemplate restTemplate = this.restTemplate != null ? this.restTemplate : new RestTemplate();
 		//return new SpringADCService(restTemplate);
 		return new DefaultADCService();
 	}

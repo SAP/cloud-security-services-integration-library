@@ -34,7 +34,7 @@ First, get familiar with the Authorization Decision Controller (ADC) service whi
                 "action": "read"
             },
             "$app": {
-            	"CountryCode": "IT"
+                "CountryCode": "IT"
             }
         }
     }
@@ -43,12 +43,12 @@ First, get familiar with the Authorization Decision Controller (ADC) service whi
     ```
     {
         "input": {
-            "$cas": {
+            "$cas": {  
                 "userId": "Alice_countryCode@test.com",
                 "action": "read"
             },
             "$app": {
-            	"CountryCode": "DE"
+                "CountryCode": "DE"
             }
         }
     }
@@ -99,12 +99,12 @@ mvn spring-boot:run
 When your application is successfully started (pls check the console logs) you can perform the following GET-requests with your browser:
 
 - `http://localhost:8080/health` should return "ok" (Status Code `200`). If not please check the application logs using `cf logs spring-security-cas --recent`, whether the OPA (ADC) Service is unavailable.
-- `http://localhost:8080/readByCountry/DE`  
-This GET request executes a method secured with Spring Global Method Security. It will respond with error status code `403` (`unauthorized`) in case you do not have any policy assigned, that grants access for action `read` on any resources in `Country` = `<your country Code, e.g. 'DE'>`.
+- `http://localhost:8080/readByCountry/IT`  
+This GET request executes a method secured with Spring Global Method Security. It will respond with error status code `403` (`unauthorized`) in case you do not have any policy assigned, that grants access for action `read` on any resources in `Country` = `<your country Code, e.g. 'IT'>`.
 
 Check the application logs on your console to find out the user id and the result of the authorization check. 
 ```
-Is user <your user-id> authorized to perform action 'read' on resource 'null' and attributes '[Country=DE]' ? false
+Is user <your user-id> authorized to perform action 'read' on resource 'null' and attributes '[Country=IT]' ? false
 ```
 In case you have a lack of permissions you need to make sure that you (`<your user-id>`) have the same policy in `src/main/resources/amsBundle/data.json` assigned like the user with id `Alice_countryCode`. Afterwards you need to restart the docker-container 
 ```
@@ -137,7 +137,7 @@ After successful deployment, when accessing your application endpoints on Cloud 
 
 - `https://spring-security-cas-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/health` should return "ok" (Status Code `200`). If not please check the application logs using `cf logs spring-security-cas --recent`, whether the OPA (ADC) Service is unavailable.
 - `https://spring-security-cas-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/readByCountry/{country}`  
-This GET request executes a method secured with Spring Global Method Security. It will respond with error status code `403` (`unauthorized`) in case you do not have any Policies assigned, that grants access for action `read` on any resources in `Country` = `<your country Code, e.g. 'DE'>`.
+This GET request executes a method secured with Spring Global Method Security. It will respond with error status code `403` (`unauthorized`) in case you do not have any Policies assigned, that grants access for action `read` on any resources in `Country` = `<your country Code, e.g. 'IT'>`.
 
 
 ## Clean-Up
