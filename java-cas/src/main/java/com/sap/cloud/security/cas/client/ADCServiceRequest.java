@@ -90,7 +90,7 @@ public class ADCServiceRequest {
         return this.input;
     }
 
-    public String getInputJson() {
+    public String asInputJson() {
         JSONObject inputJsonObject = new JSONObject();
         inputJsonObject.put("input", getInput());
         return inputJsonObject.toString();

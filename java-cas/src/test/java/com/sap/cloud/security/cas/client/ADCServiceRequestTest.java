@@ -13,7 +13,7 @@ public class ADCServiceRequestTest {
     @Test
     public void withAllRequiredCasAttributes() {
         ADCServiceRequest request = new ADCServiceRequest("uid");
-        assertEquals("{\"input\":{\"$cas\":{\"userId\":\"uid\"}}}", request.getInputJson());
+        assertEquals("{\"input\":{\"$cas\":{\"userId\":\"uid\"}}}", request.asInputJson());
     }
 
     @Test
@@ -21,7 +21,7 @@ public class ADCServiceRequestTest {
         ADCServiceRequest request = new ADCServiceRequest("uid");
         request.withAction("theAction");
         request.withResource("theResource");
-        assertEquals("{\"input\":{\"$cas\":{\"resource\":\"theResource\",\"action\":\"theAction\",\"userId\":\"uid\"}}}", request.getInputJson());
+        assertEquals("{\"input\":{\"$cas\":{\"resource\":\"theResource\",\"action\":\"theAction\",\"userId\":\"uid\"}}}", request.asInputJson());
     }
 
     @Test
@@ -30,7 +30,7 @@ public class ADCServiceRequestTest {
         request.withAttribute("attr", "attrValue");
         request.withAttribute("attr_double", 1.234);
         request.withAttribute("attr_integer", 567);
-        assertEquals("{\"input\":{\"$cas\":{\"userId\":\"uid\"},\"$app\":{\"attr\":\"attrValue\",\"attr_double\":1.234,\"attr_integer\":567}}}", request.getInputJson());
+        assertEquals("{\"input\":{\"$cas\":{\"userId\":\"uid\"},\"$app\":{\"attr\":\"attrValue\",\"attr_double\":1.234,\"attr_integer\":567}}}", request.asInputJson());
     }
 
     @Test
@@ -41,6 +41,6 @@ public class ADCServiceRequestTest {
             put("use", "useThis");
         }};
         request.withUserAttributes(userAttributes);
-        assertEquals("{\"input\":{\"$cas\":{\"userId\":\"uid\"},\"$user\":{\"use\":\"useThis\"}}}", request.getInputJson());
+        assertEquals("{\"input\":{\"$cas\":{\"userId\":\"uid\"},\"$user\":{\"use\":\"useThis\"}}}", request.asInputJson());
     }
 }

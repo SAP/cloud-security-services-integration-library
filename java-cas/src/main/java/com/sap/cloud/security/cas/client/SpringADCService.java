@@ -6,9 +6,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 /**
  * TODO: extract as library
@@ -18,8 +20,16 @@ public class SpringADCService implements ADCService {
 
     private final RestOperations restOperations;
 
+    public SpringADCService() {
+       this(null);
+    }
+
     public SpringADCService(RestOperations restOperations) {
-        this.restOperations = restOperations;
+        if (Objects.nonNull(restOperations)) {
+            this.restOperations = restOperations;
+        } else {
+            this.restOperations = new RestTemplate();
+        }
     }
 
     @Override

@@ -43,7 +43,7 @@ public class DefaultADCService implements ADCService {
         try {
             URIBuilder builder = new URIBuilder(adcUri);
             httpPost = new HttpPost(builder.build());
-            httpPost.setEntity(new StringEntity(request.getInputJson()));
+            httpPost.setEntity(new StringEntity(request.asInputJson()));
 
             try (CloseableHttpResponse httpResponse = httpClient.execute(httpPost)) {
                 int statusCode = httpResponse.getStatusLine().getStatusCode();
@@ -63,7 +63,7 @@ public class DefaultADCService implements ADCService {
         } catch (URISyntaxException e) {
             LOGGER.error("Error building url: {}", e.getMessage(), e);
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error("Error set entity (body) with json {}: {}", request.getInputJson(), e.getMessage(), e);
+            LOGGER.error("Error set entity (body) with json {}: {}", request.asInputJson(), e.getMessage(), e);
         }
         return response;
     }
