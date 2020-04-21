@@ -161,7 +161,7 @@ public class SecurityTestRuleTest {
 		@Test
 		public void testRuleIsInitializedCorrectly() {
 			assertThat(rule.getApplicationServerUri()).isNull();
-			assertThat(rule.getWireMockRule()).isNotNull();
+			assertThat(rule.getWireMockServer()).isNotNull();
 		}
 
 	}
