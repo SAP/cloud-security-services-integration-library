@@ -1,5 +1,6 @@
 package com.sap.cloud.security.adapter.spring;
 
+import com.sap.cloud.security.adapter.spring.SAPOfflineTokenServicesCloud;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
@@ -31,10 +32,12 @@ public class SAPOfflineTokenServicesCloudTest {
 
 	private SAPOfflineTokenServicesCloud cut;
 	private String xsuaaToken;
+	private String iasToken;
 	private JwtValidatorBuilder jwtValidatorBuilderMock;
 
 	public SAPOfflineTokenServicesCloudTest() throws IOException {
 		xsuaaToken = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
+		iasToken = IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8);
 	}
 
 	@Before
@@ -69,6 +72,21 @@ public class SAPOfflineTokenServicesCloudTest {
 		assertThat(authorities).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
 		assertThat(authentication.getAuthorities()).contains(new SimpleGrantedAuthority("uaa.resource"));
 		assertThat(SecurityContext.getToken().getTokenValue()).isEqualTo(xsuaaToken);
+	}
+
+	@Test
+	public void loadAuthentication_ias() {
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
+				.forService(Service.IAS)
+				.withProperty(CFConstants.CLIENT_ID, "clientId")
+				.build();
+
+		cut = new SAPOfflineTokenServicesCloud(configuration, jwtValidatorBuilderMock);
+
+		cut.afterPropertiesSet();
+		OAuth2Authentication authentication = cut.loadAuthentication(iasToken);
+
+		assertThat(authentication.isAuthenticated()).isTrue();
 	}
 
 	@Test

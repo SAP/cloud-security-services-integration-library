@@ -3,12 +3,7 @@ package com.sap.cloud.security.adapter.spring;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.token.AccessToken;
-import com.sap.cloud.security.token.ScopeConverter;
-import com.sap.cloud.security.token.SecurityContext;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaScopeConverter;
-import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
@@ -217,6 +212,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			switch (serviceConfiguration.getService()) {
 			case XSUAA:
 				return new XsuaaToken(accessToken).withScopeConverter(xsuaaScopeConverter);
+			case IAS:
+				return new SapIdToken(accessToken);
 			default:
 				// TODO support IAS
 				throw new InvalidTokenException(

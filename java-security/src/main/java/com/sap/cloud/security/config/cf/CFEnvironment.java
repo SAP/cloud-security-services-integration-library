@@ -1,5 +1,6 @@
 package com.sap.cloud.security.config.cf;
 
+import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
@@ -49,12 +50,9 @@ public class CFEnvironment implements Environment {
 	}
 
 	@Nullable
-	// @Override // TODO IAS
+	@Override
 	public OAuth2ServiceConfiguration getIasConfiguration() {
-		// TODO IAS
-		// return
-		// loadAll(IAS).stream().filter(Objects::nonNull).findFirst().orElse(null);
-		throw new UnsupportedOperationException("Bindings of IAS Identity Service is not yet supported.");
+		return loadAllForService(IAS).stream().filter(Objects::nonNull).findFirst().orElse(null);
 	}
 
 	@Override
