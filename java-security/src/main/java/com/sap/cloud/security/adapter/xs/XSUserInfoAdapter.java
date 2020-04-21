@@ -406,10 +406,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		} catch (TokenFlowException e) {
 			throw new XSUserInfoException("Error performing User Token Flow. See exception cause.", e);
 		}
-
-		LOGGER.info("Got the exchanged token for 3rd party service (clientId: {}) : {}", clientId, userToken);
-		LOGGER.info("You can now call the 3rd party service passing the exchanged token value: {}. ", userToken);
-
 		return userToken;
 	}
 
@@ -424,9 +420,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		} catch (TokenFlowException e) {
 			throw new XSUserInfoException("Error performing Client Credentials Flow. See exception cause.", e);
 		}
-
-		LOGGER.info("Got the Client Credentials Flow Token: {}", ccfToken);
-
 		return ccfToken;
 	}
 
