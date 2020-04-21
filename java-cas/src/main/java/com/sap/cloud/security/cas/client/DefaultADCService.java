@@ -1,7 +1,10 @@
 package com.sap.cloud.security.cas.client;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
@@ -22,53 +25,82 @@ import java.util.stream.Collectors;
  * TODO: extract as library
  */
 public class DefaultADCService implements ADCService {
-        private static final Logger LOGGER = LoggerFactory.getLogger(DefaultADCService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultADCService.class);
 
-        private final CloseableHttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
-        public DefaultADCService() {
-            this.httpClient = HttpClients.createDefault();
-        }
+    public DefaultADCService() {
+        this.httpClient = HttpClients.createDefault();
+    }
 
-        public DefaultADCService(CloseableHttpClient client) {
-            this.httpClient = client;
-        }
+    public DefaultADCService(CloseableHttpClient client) {
+        this.httpClient = client;
+    }
 
-        @Override
-        public ADCServiceResponse isUserAuthorized(URI adcUri, ADCServiceRequest request) {
-            HttpPost httpPost;
-            ADCServiceResponse response = new ADCServiceResponse();
+    @Override
+    public ADCServiceResponse isUserAuthorized(URI adcUri, ADCServiceRequest request) {
+        HttpPost httpPost;
+        ADCServiceResponse response = new ADCServiceResponse();
 
-            try {
-                URIBuilder builder = new URIBuilder(adcUri);
-                httpPost = new HttpPost(builder.build());
-                httpPost.setEntity(new StringEntity(request.getInputJson()));
+        try {
+            URIBuilder builder = new URIBuilder(adcUri);
+            httpPost = new HttpPost(builder.build());
+            httpPost.setEntity(new StringEntity(request.getInputJson()));
 
-                try (CloseableHttpResponse httpResponse = httpClient.execute(httpPost)) {
-                    int statusCode = httpResponse.getStatusLine().getStatusCode();
-                    String responseContent = null;
-                    if (statusCode == HttpStatus.SC_OK) {
-                        LOGGER.info("Successfully requested ADC service (status code: {})", statusCode);
-                        // TODO use HttpClientUtil?
-                        responseContent = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()))
-                                .lines().collect(Collectors.joining(System.lineSeparator()));
-                        response.setResult(responseContent.toString());
-                    } else {
-                        LOGGER.error("Error requesting ADC service (status code: {}): {}", statusCode, responseContent);
-                    }
-                } catch (IOException e) {
-                    LOGGER.error("Unexpected error retrieving JWT token: " + e.getMessage(), e);
+            try (CloseableHttpResponse httpResponse = httpClient.execute(httpPost)) {
+                int statusCode = httpResponse.getStatusLine().getStatusCode();
+                String responseContent = null;
+                if (statusCode == HttpStatus.SC_OK) {
+                    LOGGER.info("Successfully requested ADC service (status code: {})", statusCode);
+                    // TODO use HttpClientUtil?
+                    responseContent = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()))
+                            .lines().collect(Collectors.joining(System.lineSeparator()));
+                    response.setResult(responseContent.toString());
+                } else {
+                    LOGGER.error("Error requesting ADC service (status code: {}): {}", statusCode, responseContent);
                 }
-            } catch (URISyntaxException e) {
-                LOGGER.error("Error building url: {}", e.getMessage(), e);
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.error("Error set entity (body) with json {}: {}", request.getInputJson(), e.getMessage(), e);
+            } catch (IOException e) {
+                LOGGER.error("Unexpected error retrieving JWT token: " + e.getMessage(), e);
             }
-            return response;
+        } catch (URISyntaxException e) {
+            LOGGER.error("Error building url: {}", e.getMessage(), e);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("Error set entity (body) with json {}: {}", request.getInputJson(), e.getMessage(), e);
         }
+        return response;
+    }
 
-        public boolean ping(URI adcUri) {
-            throw new UnsupportedOperationException("Apache Http client not yet supported.");
+    public boolean ping(URI adcBaseUri) {
+        URI adcHealthEndpoint = expandPath(adcBaseUri, "/health");
+        HttpGet httpGet = new HttpGet(adcHealthEndpoint);
+        try (CloseableHttpResponse httpResponse = httpClient.execute(httpGet)) {
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            String responseContent = null;
+            if (statusCode == HttpStatus.SC_OK) {
+                LOGGER.info("Successfully requested ADC service (status code: {})", statusCode);
+                return true;
+            } else {
+                LOGGER.error("Error requesting ADC service (status code: {}): {}", statusCode, responseContent);
+            }
+        } catch (IOException e) {
+            LOGGER.error("Unexpected error retrieving JWT token: " + e.getMessage(), e);
         }
+        return false;
+    }
+
+    // TODO replace with UriUtil.expandPath
+    public static URI expandPath(URI baseUri, String pathToAppend) {
+        try {
+            String newPath = baseUri.getPath() + pathToAppend;
+            return new URI(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(),
+                    replaceDoubleSlashes(newPath), baseUri.getQuery(), baseUri.getFragment());
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static String replaceDoubleSlashes(String newPath) {
+        return newPath.replaceAll("//", "/");
+    }
 
 }
