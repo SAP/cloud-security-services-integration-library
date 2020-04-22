@@ -53,6 +53,9 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	private final AccessToken accessToken;
 	private final OAuth2ServiceConfiguration configuration;
+	/**
+	 * Use {@link #getOrCreateOAuth2TokenService()} for access.
+	 */
 	private OAuth2TokenService oAuth2TokenService;
 
 	public XSUserInfoAdapter(Object accessToken) {
@@ -318,12 +321,60 @@ public class XSUserInfoAdapter implements XSUserInfo {
 				tokenRequest.getClientSecret(), additionalAuthAttributes);
 	}
 
+	/**
+	 * Tries to create an OAuth2TokenService and throws UnsupportedOperationException if it fails.
+	 *
+	 * @throws UnsupportedOperationException if it cannot create the service.
+	 * @return the created OAuth2TokenService
+	 */
 	private OAuth2TokenService getOrCreateOAuth2TokenService() {
 		if (oAuth2TokenService == null) {
-			oAuth2TokenService = new DefaultOAuth2TokenService(); // TODO implement
-			//oAuth2TokenService = new XsuaaOAuth2TokenService(new RestTemplate());
+			oAuth2TokenService = tryToCreateDefaultOAuth2TokenService();
+			if (oAuth2TokenService == null) {
+				oAuth2TokenService = tryToCreateXsuaaOAuth2TokenService();
+			}
+		}
+		if (oAuth2TokenService == null) {
+			throw new UnsupportedOperationException("Failed to create OAuth2TokenService. "
+					+ "Make sure your project has a dependency to either spring-web or apache HTTP client.");
 		}
 		return oAuth2TokenService;
+	}
+
+	/**
+	 * This method tries to create a {@link DefaultOAuth2TokenService} instance
+	 * which can fail because the required dependency (apache HTTP client) might
+	 * be missing. In this case a {@link java.lang.NoClassDefFoundError} is
+	 * thrown which is a {@link LinkageError} that needs to be caught
+	 * in addition to exceptions!
+	 *
+	 * @return the {@link DefaultOAuth2TokenService} instance or null if it could not be created.
+	 */
+	private OAuth2TokenService tryToCreateDefaultOAuth2TokenService() {
+		LOGGER.debug("Trying to create DefaultOAuth2TokenService.");
+		try {
+			return new DefaultOAuth2TokenService();
+		} catch (Exception | LinkageError e) {
+			LOGGER.debug("Failed to create DefaultOAuth2TokenService.", e);
+		}
+		return null;
+	}
+
+	/**
+	 *
+	 * Similar to {@link #tryToCreateDefaultOAuth2TokenService()} except it tries to create
+	 * {@link XsuaaOAuth2TokenService} and internally depends on spring-web.
+	 *
+	 * @return the {@link XsuaaOAuth2TokenService} or null if it could not be created.
+	 */
+	private OAuth2TokenService tryToCreateXsuaaOAuth2TokenService() {
+		LOGGER.debug("Trying to create XsuaaOAuth2TokenService.");
+		try {
+			return new XsuaaOAuth2TokenService();
+		} catch (Exception | LinkageError e) {
+			LOGGER.debug("Failed to create XsuaaOAuth2TokenService.", e);
+		}
+		return null;
 	}
 
 	// for tests
@@ -381,7 +432,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	private String performTokenFlow(String baseUaaUrl, int tokenRequestType, String clientId, String clientSecret,
 			Map<String, String> additionalAuthAttributes) {
 		try {
-			Assertions.assertNotNull(getOrCreateOAuth2TokenService(), "OAuth2TokenService must not be null!");
 			ClientCredentials clientCredentials = new ClientCredentials(clientId, clientSecret);
 			XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(getOrCreateOAuth2TokenService(),
 					new XsuaaDefaultEndpoints(baseUaaUrl), clientCredentials);
