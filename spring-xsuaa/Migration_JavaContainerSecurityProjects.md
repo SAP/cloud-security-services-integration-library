@@ -104,7 +104,7 @@ Then you need to adapt your **Spring Security Configuration** as following:
     ```java
     @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = {""})
     ```
-2. Instead, provide your own implementation of `XsuaaSecurityConfiguration` interface to access the primary Xsuaa service configuration of your application (chose the service instance of plan `application` here), which are exposed in the `VCAP_SERVICES` system environment variable (in Cloud Foundry). As of version `2.6.1` you can implement it like that: 
+2. Instead, provide your own implementation of `XsuaaSecurityConfiguration` interface to access the primary Xsuaa service configuration of your application (chose the service instance of plan `application` here), which are exposed in the `VCAP_SERVICES` system environment variable (in Cloud Foundry). As of version `2.6.2` you can implement it like that: 
 
     ```java
     import com.sap.cloud.security.xsuaa.XsuaaCredentials;
@@ -124,7 +124,7 @@ Then you need to adapt your **Spring Security Configuration** as following:
     }
     ```
 
-3. You need to overwrite `JwtDecoder` bean so that the `AudienceValidator` checks the JWT audience not only against the client id of the primary Xsuaa service instance, but also of the binding of plan `broker`. As of version `2.6.1` you can implement it like that: 
+3. You need to overwrite `JwtDecoder` bean so that the `AudienceValidator` checks the JWT audience not only against the client id of the primary Xsuaa service instance, but also of the binding of plan `broker`. As of version `2.6.2` you can implement it like that: 
     ```java
     @Bean
     @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan broker>>.credentials")

@@ -27,7 +27,7 @@ public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguratio
     }
 
     @Override public String getUaaDomain() {
-        return getUaaDomain();
+        return credentials.getUaaDomain();
     }
 
     @Nullable @Override public String getVerificationKey() {
