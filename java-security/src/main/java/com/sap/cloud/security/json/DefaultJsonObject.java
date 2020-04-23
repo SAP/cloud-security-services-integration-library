@@ -176,7 +176,7 @@ public class DefaultJsonObject implements JsonObject {
 			JSONObject createdJsonObject = new JSONObject(jsonString);
 			return createdJsonObject;
 		} catch (JSONException e) {
-			LOGGER.error("Given json string '{}' is not valid, error message: {}", jsonString, e.getMessage());
+			LOGGER.error("Given json string '{}' is not valid, error message: {}", jsonString, e.getMessage(), e);
 			throw new JsonParsingException(e.getMessage());
 		}
 	}

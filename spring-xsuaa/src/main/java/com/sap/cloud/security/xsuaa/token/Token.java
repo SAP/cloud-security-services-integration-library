@@ -11,7 +11,7 @@ import java.util.Date;
 public interface Token extends UserDetails {
 
 	/**
-	 * Use
+	 * @deprecated use
 	 * {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants#GRANT_TYPE_CLIENT_CREDENTIALS}
 	 * instead
 	 */

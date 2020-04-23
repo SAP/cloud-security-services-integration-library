@@ -70,7 +70,7 @@ public class SpringSecurityContextTest {
 		scopes.add("Scope2");
 
 		setToken(token, scopes);
-		assertThat(SpringSecurityContext.getAccessToken().getScopes().isEmpty());
+		assertThat(SpringSecurityContext.getAccessToken().getScopes()).isEmpty();
 		assertThat(SpringSecurityContext.getAccessToken().hasLocalScope("Scope1")).isTrue();
 		assertThat(SpringSecurityContext.getAccessToken().hasLocalScope("Scope3")).isFalse();
 	}

@@ -12,6 +12,10 @@ import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
 
 public class SpringSecurityContext {
 
+	private SpringSecurityContext() {
+		// singleton, hide public constructor
+	}
+
 	/**
 	 * Obtain the Token object from the Spring Security Context
 	 * {@link SecurityContextHolder}

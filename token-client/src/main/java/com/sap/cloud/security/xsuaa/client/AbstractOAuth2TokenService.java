@@ -12,6 +12,7 @@ import java.util.Map;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
+@java.lang.SuppressWarnings("squid:S1192")
 public abstract class AbstractOAuth2TokenService implements OAuth2TokenService {
 
 	public AbstractOAuth2TokenService() {

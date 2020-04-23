@@ -188,6 +188,8 @@ public interface XSUserInfo {
 	 * @return the token
 	 * @throws XSUserInfoException
 	 *             if token is not available in the authentication token
+	 *
+	 * @deprecated use {@link #getHdbToken()} instead.
 	 */
 	@Deprecated
 	public String getToken(String namespace, String name) throws XSUserInfoException;

@@ -76,6 +76,6 @@ public class UriUtil {
 
 	@Nonnull
 	private static String replaceDoubleSlashes(String newPath) {
-		return newPath.replaceAll("//", "/");
+		return newPath.replace("//", "/");
 	}
 }

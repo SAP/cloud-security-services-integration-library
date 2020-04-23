@@ -6,6 +6,7 @@ import java.util.Objects;
 import static com.sap.cloud.security.xsuaa.Assertions.*;
 
 public class ClientCredentials {
+	private static final long serialVersionUID = 2405162041950251807L;
 
 	private final String clientSecret;
 	private final String clientId;

@@ -23,9 +23,9 @@ public class AuthenticationToken extends JwtAuthenticationToken {
 
 		// Here is where the actual magic happens.
 		// The Jwt is exchanged for another implementation.
-		XsuaaToken token = new XsuaaToken(getToken());
-		token.setAuthorities(this.getAuthorities());
-		this.token = token;
+		XsuaaToken xsuaaToken = new XsuaaToken(getToken());
+		xsuaaToken.setAuthorities(this.getAuthorities());
+		this.token = xsuaaToken;
 	}
 
 	@Override

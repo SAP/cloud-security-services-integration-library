@@ -177,7 +177,7 @@ public class SecurityTest {
 		try {
 			this.keys = RSAKeys.fromKeyFiles(publicKeyPath, privateKeyPath);
 		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-			throw new RuntimeException(e);
+			throw new UnsupportedOperationException(e);
 		}
 		return this;
 	}

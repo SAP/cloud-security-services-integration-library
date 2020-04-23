@@ -76,7 +76,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		this.configuration = configuration;
 	}
 
-	/*
+	/**
 	 * Loading the token from the security context like this is not supported!
 	 *
 	 * XSUserInfoAdapter() { Authentication auth =
