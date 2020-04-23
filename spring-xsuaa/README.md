@@ -199,6 +199,9 @@ public Map<String, String> message() {
 }
 ```
 
+## Samples
+- [spring-security-xsuaa-usage](/samples/spring-security-xsuaa-usage) 
+
 ## Troubleshoot
 
 - Compile error when upgrading from version `1.5.0` to `1.6.0`:  
