@@ -144,6 +144,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 	}
 
+	@java.lang.SuppressWarnings("squid:S2259")
 	private Jwt verifyWithOnlineKey(String token, String jku, String kid) {
 		String cacheKey = jku + kid;
 		JwtDecoder decoder = cache.get(cacheKey, k -> this.getDecoder(jku));
