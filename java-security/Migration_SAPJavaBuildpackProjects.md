@@ -40,7 +40,6 @@ You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand 
 
 
 ## Further References
-- [help.sap.com](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/ead7ee64f96f4c42bacbf0ae23d4135b.html)
 - [(SAP-internal) api versions provided with the buildpack](https://wiki.wdf.sap.corp/wiki/display/xs2java/Component+Versions)
 
 
