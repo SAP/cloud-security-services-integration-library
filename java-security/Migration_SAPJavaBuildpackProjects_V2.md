@@ -13,7 +13,7 @@ Furthermore this guide is considered as [prerequisite](Migration_SAPJavaBuildpac
 
 
 ## Adapt Maven Dependencies <a name="maven"></a>
-To use the latest API exposed by SAP Java Buildpack version as of version `x.y.z` the dependencies declared in maven `pom.xml` need to be updated.
+To use the latest API exposed by SAP Java Buildpack version as of version `x.y.z` the dependency declared in maven `pom.xml` needs to be adapted.
 
 First make sure you have the following dependency defined in your pom.xml:
 ```xml
@@ -31,13 +31,13 @@ Now you are ready to **remove** the dependency to the **`api`** by deleting the 
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>api</artifactId>
     <version>2.6.2</version>
-    <scope>provided</scope> <!-- provided with buildpack -->
+    <scope>provided</scope>
 </dependency>
 ```
 The dependency `com.sap.cloud.security:java-api` is the new api exposed by the SAP Java Buildpack as of version `x.y.z`.
 
 ## Adapt Environment Variable
-As the API is incompatible with the former one, You have to tell the SAP Java Buildpack, that you want to use the latest api. This is done by providing the `ENABLE_SECURITY_JAVA_API_V2` environment variable as part of your deployment descriptor, e.g. in your `manifest.yml` file.
+As the new `java-api` is incompatible with the former one, You have to tell the SAP Java Buildpack, that you want to use the latest api. This is done by providing the `ENABLE_SECURITY_JAVA_API_V2` environment variable as part of your deployment descriptor, e.g. in your `manifest.yml` file.
 
 With that the SAP Java Buildpack will provide `com.sap.cloud.security.token.AccessToken` instead of `XSUserInfo` in tomcat principal object. 
 
