@@ -86,7 +86,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * auth).getOAuth2Request().getExtensions().get("sap"); if (extension != null) {
 	 * this.foreignMode = extension.isForeignMode(); } } }
 	 */
-
 	@Override
 	public String getLogonName() {
 		checkNotGrantTypeClientCredentials("getLogonName");
@@ -315,16 +314,18 @@ public class XSUserInfoAdapter implements XSUserInfo {
 			throw new XSUserInfoException("Invalid grant type or missing parameters for requested grant type.");
 		}
 		String tokenEndpoint = tokenRequest.getTokenEndpoint().toString();
-		String baseUrl = tokenEndpoint.replace(tokenRequest.getTokenEndpoint().getPath(), "");
+		String baseUaaUrl = tokenEndpoint.replace(tokenRequest.getTokenEndpoint().getPath(), "");
 		Map<String, String> additionalAuthAttributes = tokenRequest.getAdditionalAuthorizationAttributes();
-		return performTokenFlow(baseUrl, tokenRequest.getType(), tokenRequest.getClientId(),
+		return performTokenFlow(baseUaaUrl, tokenRequest.getType(), tokenRequest.getClientId(),
 				tokenRequest.getClientSecret(), additionalAuthAttributes);
 	}
 
 	/**
-	 * Tries to create an OAuth2TokenService and throws UnsupportedOperationException if it fails.
+	 * Tries to create an OAuth2TokenService and throws
+	 * UnsupportedOperationException if it fails.
 	 *
-	 * @throws UnsupportedOperationException if it cannot create the service.
+	 * @throws UnsupportedOperationException
+	 *             if it cannot create the service.
 	 * @return the created OAuth2TokenService
 	 */
 	private OAuth2TokenService getOrCreateOAuth2TokenService() {
@@ -343,12 +344,13 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	/**
 	 * This method tries to create a {@link DefaultOAuth2TokenService} instance
-	 * which can fail because the required dependency (apache HTTP client) might
-	 * be missing. In this case a {@link java.lang.NoClassDefFoundError} is
-	 * thrown which is a {@link LinkageError} that needs to be caught
-	 * in addition to exceptions!
+	 * which can fail because the required dependency (apache HTTP client) might be
+	 * missing. In this case a {@link java.lang.NoClassDefFoundError} is thrown
+	 * which is a {@link LinkageError} that needs to be caught in addition to
+	 * exceptions!
 	 *
-	 * @return the {@link DefaultOAuth2TokenService} instance or null if it could not be created.
+	 * @return the {@link DefaultOAuth2TokenService} instance or null if it could
+	 *         not be created.
 	 */
 	private OAuth2TokenService tryToCreateDefaultOAuth2TokenService() {
 		LOGGER.debug("Trying to create DefaultOAuth2TokenService.");
@@ -362,10 +364,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	/**
 	 *
-	 * Similar to {@link #tryToCreateDefaultOAuth2TokenService()} except it tries to create
-	 * {@link XsuaaOAuth2TokenService} and internally depends on spring-web.
+	 * Similar to {@link #tryToCreateDefaultOAuth2TokenService()} except it tries to
+	 * create {@link XsuaaOAuth2TokenService} and internally depends on spring-web.
 	 *
-	 * @return the {@link XsuaaOAuth2TokenService} or null if it could not be created.
+	 * @return the {@link XsuaaOAuth2TokenService} or null if it could not be
+	 *         created.
 	 */
 	private OAuth2TokenService tryToCreateXsuaaOAuth2TokenService() {
 		LOGGER.debug("Trying to create XsuaaOAuth2TokenService.");

@@ -133,7 +133,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	 @Deprecated
+	@Deprecated
 	public String getJsonValue(String attribute) throws XSUserInfoException;
 
 	/**
@@ -189,7 +189,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if token is not available in the authentication token
 	 */
-	 @Deprecated
+	@Deprecated
 	public String getToken(String namespace, String name) throws XSUserInfoException;
 
 	/**

@@ -92,7 +92,7 @@ public class SecurityTestRuleTest {
 	@Test
 	public void testRuleIsInitializedCorrectly() {
 		assertThat(cut.getApplicationServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
-		//assertThat(cut.getWireMockRule()).isNotNull();
+		// assertThat(cut.getWireMockRule()).isNotNull();
 		assertThat(cut.getWireMockServer()).isNotNull();
 		assertThat(cut.createToken().getTokenValue())
 				.isEqualTo(cut.getPreconfiguredJwtGenerator().createToken().getTokenValue());

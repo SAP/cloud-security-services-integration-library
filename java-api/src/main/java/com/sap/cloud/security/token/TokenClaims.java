@@ -39,9 +39,8 @@ public final class TokenClaims {
 	}
 
 	// SAP User token
-	/* public final class SAP_ID {
-		private SAP_ID() { }
-		// service_instance_id
-	}*/
+	/*
+	 * public final class SAP_ID { private SAP_ID() { } // service_instance_id }
+	 */
 
 }

@@ -88,8 +88,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	protected abstract OAuth2ServiceConfiguration getServiceConfiguration();
 
 	/**
-	 * Return other configured service configurations or null if not
-	 * configured.
+	 * Return other configured service configurations or null if not configured.
 	 *
 	 * @return the other service configuration or null
 	 */

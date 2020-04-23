@@ -28,7 +28,7 @@ public enum Service {
 	 * @return name of the identity service in context of Cloud Foundry environment.
 	 */
 	public String getCFName() {
-		if(this == IAS && cloudFoundryName == null) {
+		if (this == IAS && cloudFoundryName == null) {
 			LoggerFactory.getLogger(Service.class).error("IAS Service is not yet supported!!!"); // TODO remove
 		}
 		return cloudFoundryName;

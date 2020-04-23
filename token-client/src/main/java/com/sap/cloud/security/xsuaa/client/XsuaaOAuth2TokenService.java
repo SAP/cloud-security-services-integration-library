@@ -37,8 +37,6 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		this.restOperations = restOperations;
 	}
 
-
-
 	@Override
 	protected OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
