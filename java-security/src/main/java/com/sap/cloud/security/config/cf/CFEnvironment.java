@@ -22,6 +22,8 @@ import java.util.function.UnaryOperator;
  */
 public class CFEnvironment implements Environment {
 
+	private static final String EMPTY_JSON = "{}";
+
 	private Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations;
 	private UnaryOperator<String> systemEnvironmentProvider;
 	private UnaryOperator<String> systemPropertiesProvider;
@@ -90,7 +92,11 @@ public class CFEnvironment implements Environment {
 		if (env == null) {
 			env = systemEnvironmentProvider.apply(VCAP_SERVICES);
 		}
-		return env != null ? env : "{}";
+		return emptyStringOrNull(env) ? EMPTY_JSON : env;
+	}
+
+	private boolean emptyStringOrNull(String env) {
+		return env == null || env.trim().isEmpty();
 	}
 
 	private String extractVcapApplicationJson() {

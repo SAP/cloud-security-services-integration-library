@@ -10,6 +10,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Nonnull;
@@ -27,10 +28,16 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	private final RestOperations restOperations;
 	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 
+	public XsuaaOAuth2TokenService() {
+		this(new RestTemplate());
+	}
+
 	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations) {
 		assertNotNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
 	}
+
+
 
 	@Override
 	protected OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
