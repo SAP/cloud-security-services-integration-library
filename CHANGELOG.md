@@ -3,9 +3,16 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.6.2
-- [java-security] `XSUserInfoAdapter` provides full compatible implementation of `com.sap.xsa.security.container.XSUserInfo.java` interface.
+- [java-security] `XSUserInfoAdapter` provides full compatible implementation of `com.sap.xsa.security.container.XSUserInfo.java` interface. Support token exchanges using `XsuaaTokenFlows` api.
+- [spring-xsuaa] Improve support of multiple XSUAA Bindings as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/spring-xsuaa/Migration_JavaContainerSecurityProjects.md#multiple-xsuaa-bindings).
 
 ## 2.6.1
+- [spring-xsuaa-starter] Upgrade Spring versions:
+  - spring.boot.version: 2.2.5.RELEASE --> 2.2.6.RELEASE
+  - spring.core.version: 5.2.4.RELEASE --> 5.2.5.RELEASE
+  - spring.security.version: 5.2.2.RELEASE --> 5.3.1.RELEASE
+
+## 2.6.0
 - [spring-xsuaa] SpringSecurityContext throws `AccessDeniedException` instead of `IllegalStateException` when authentication does not contain principal of type Token.
 - [java-security] `JwtAudienceValidator` Support Audience Validation of Xsuaa Broker clones (multiple xsuaa bindings): NGPBUG-111540.
 - [java-security-test] Basic support fo JUnit 5 (Jupiter).
