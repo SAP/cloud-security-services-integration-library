@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 
+@java.lang.SuppressWarnings("squid:S1214")
 public interface Token extends UserDetails {
 
 	/**

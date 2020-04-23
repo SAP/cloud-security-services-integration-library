@@ -9,6 +9,7 @@ import com.sap.cloud.security.xsuaa.mock.autoconfiguration.XsuaaMockAutoConfigur
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { XsuaaMockAutoConfiguration.class, MockXsuaaServiceConfiguration.class })
+@java.lang.SuppressWarnings("squid:S2699")
 public class ApplicationTest {
 
 	@Test
