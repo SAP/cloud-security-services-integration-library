@@ -3,7 +3,7 @@
 
 **This document is only applicable for J2EE web applications securing their application with SAP Java Buildpack.** The SAP Java Buildpack version `x.y.z` does not any longer use Spring and deprecated SAP-internal security libraries. 
 
-This migration document is a step-by-step guide explaining how to replace your dependencies to the deprecated SAP-internal security libraries with the open-sourced one. Furthermore the guide explains how to switch to the latest API, provided by the SAP Java Buildpack as of version `x.y.z`.
+This migration document is a step-by-step guide explaining how to replace your dependencies to the deprecated SAP-internal security libraries with the open-sourced ones.
 
 ## Prerequisites
 
@@ -33,7 +33,7 @@ The above mentioned dependencies should be removed / replaced with those:
 </dependency>
 ```
 
-Furthermore, make sure that you do not refer to any other sap security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
+Furthermore, make sure that you do not refer to any other SAP-internal security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
 
 #### Congratulation! With that you're Done!
 You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand what needs to be done to leverage the new api that is exposed by the SAP Java Buildpack as of version `x.y.z`.
