@@ -171,12 +171,12 @@ public class DefaultJsonObject implements JsonObject {
 		return jsonObject;
 	}
 
+	@java.lang.SuppressWarnings("squid:S2139")
 	private JSONObject createJsonObject(String jsonString) {
 		try {
-			JSONObject createdJsonObject = new JSONObject(jsonString);
-			return createdJsonObject;
+			return new JSONObject(jsonString);
 		} catch (JSONException e) {
-			LOGGER.error("Given json string '{}' is not valid, error message: {}", jsonString, e.getMessage(), e);
+			LOGGER.error("Given json string '{}' is not valid, error message: {}", jsonString, e.getMessage());
 			throw new JsonParsingException(e.getMessage());
 		}
 	}
