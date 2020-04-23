@@ -36,7 +36,7 @@ The above mentioned dependencies should be removed / replaced with those:
 Furthermore, make sure that you do not refer to any other SAP-internal security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
 
 #### Congratulation! With that you're Done!
-You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand what needs to be done to leverage the new api that is exposed by the SAP Java Buildpack as of version `x.y.z`.
+You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand what needs to be done to leverage the new `java-api that is exposed by the SAP Java Buildpack as of version `x.y.z`.
 
 
 ## Further References
