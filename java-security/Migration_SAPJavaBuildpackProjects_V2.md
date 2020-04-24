@@ -62,7 +62,7 @@ AccessToken accessToken = SecurityContext.getAccessToken();
 
 
 ### New Feature: SAP Java Buildpack without application roles
-In case you are not interested in Authorization checks with application specific roles in your J2EE application, this is now possible. You can just disable local scopes as authorities in the buildpack via the system environment variable `DISABLE_LOCAL_SCOPE_AS_AUTHORITIES. By default it is set to `false`. If it is set to true, then the scopes/role check will not be performed on the local scopes but on the original scopes which are part of the `scope` claim of the token, such as "openid".
+In case you are not interested in Authorization checks with application specific roles in your J2EE application, this is now possible. You can just disable local scopes as authorities in the buildpack via the system environment variable `DISABLE_LOCAL_SCOPE_AS_AUTHORITIES`. By default it is set to `false`. If it is set to true, then the scopes/role check will not be performed on the local scopes but on the original scopes which are part of the `scope` claim of the token, such as "openid".
 
 ```java
 @WebServlet(HelloJavaServlet.ENDPOINT)
