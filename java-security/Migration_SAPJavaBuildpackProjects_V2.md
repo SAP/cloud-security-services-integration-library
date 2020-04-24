@@ -7,10 +7,9 @@ This migration document is a step-by-step guide explaining how to leverage the n
 
 ## Prerequisites
 
-Please note, this Migration Guide is only intended for applications, using SAP Java Buildpack. You're using the SAP Java Buildpack, if you can find the `sap_java_buildpack` in the deployment descriptor of your application, e.g. in your `manifest.yml` file.
+Please note, this Migration Guide is only intended for applications, using SAP Java Buildpack. You're using the SAP Java Buildpack if you can find the `sap_java_buildpack` in the deployment descriptor of your application, e.g. in your `manifest.yml` file.
 
-Furthermore this guide is considered as [prerequisite](Migration_SAPJavaBuildpackProjects.md).
-
+Furthermore [this guide](Migration_SAPJavaBuildpackProjects.md) is considered as prerequisite. Before you proceed, make sure you have completed it first.
 
 ## Adapt Maven Dependencies <a name="maven"></a>
 To use the latest API exposed by SAP Java Buildpack version as of version `x.y.z` the dependency declared in maven `pom.xml` needs to be adapted.
@@ -37,7 +36,7 @@ Now you are ready to **remove** the dependency to the **`api`** by deleting the 
 The dependency `com.sap.cloud.security:java-api` is the new api exposed by the SAP Java Buildpack as of version `x.y.z`.
 
 ## Adapt Environment Variable
-As the new `java-api` is incompatible with the former one, You have to tell the SAP Java Buildpack, that you want to use the latest api. This is done by providing the `ENABLE_SECURITY_JAVA_API_V2` environment variable as part of your deployment descriptor, e.g. in your `manifest.yml` file.
+As the new `java-api` is incompatible with the former one, you have to tell the SAP Java Buildpack, that you want to use the latest api. This is done by setting the `ENABLE_SECURITY_JAVA_API_V2` environment variable to `true` as part of your deployment descriptor, e.g. in your `manifest.yml` file.
 
 With that the SAP Java Buildpack will provide `com.sap.cloud.security.token.AccessToken` instead of `XSUserInfo` in tomcat principal object. 
 
@@ -62,7 +61,7 @@ AccessToken accessToken = SecurityContext.getAccessToken();
 
 
 ### New Feature: SAP Java Buildpack without application roles
-In case you are not interested in Authorization checks with application specific roles in your J2EE application, this is now possible. You can just disable local scopes as authorities in the buildpack via the system environment variable `DISABLE_LOCAL_SCOPE_AS_AUTHORITIES`. By default it is set to `false`. If it is set to true, then the scopes/role check will not be performed on the local scopes but on the original scopes which are part of the `scope` claim of the token, such as "openid".
+In case you are not interested in Authorization checks with application specific roles in your J2EE application, this is now possible. You can just disable local scopes as authorities in the buildpack via the system environment variable `DISABLE_LOCAL_SCOPE_AS_AUTHORITIES`. By default it is set to `false`. If it is set to `true`, then the scopes/role check will not be performed on the local scopes but on the original scopes which are part of the `scope` claim of the token, such as "openid".
 
 ```java
 @WebServlet(HelloJavaServlet.ENDPOINT)
