@@ -7,12 +7,12 @@ This migration document is a step-by-step guide explaining how to replace your d
 
 ## Prerequisites
 
-Please note, this Migration Guide is only intended for applications, using SAP Java Buildpack. You're using the SAP Java Buildpack, if you can find the `sap_java_buildpack` in the deployment descriptor of your application, e.g. in your `manifest.yml` file.
+Please note, this Migration Guide is only intended for applications using SAP Java Buildpack. You're using the SAP Java Buildpack if you can find the `sap_java_buildpack` in the deployment descriptor of your application, e.g. in your `manifest.yml` file.
 
 
 ## Cleanup Maven Dependencies <a name="maven"></a>
 
-Your buildpack application has probably in the `pom.xml` a dependency to one of the deprecated sap-internal security api projects:
+First check the `pom.xml` of your application for dependencies to the deprecated sap-internal security api projects:
 
 groupId (deprecated) | artifactId (deprecated) 
 --- | --- 
@@ -22,7 +22,7 @@ com.sap.cloud.security.xsuaa | java-container-security-api
 
 **If you do not have any of the api projects above as dependency you can skip this guide!**
 
-The above mentioned dependencies should be removed / replaced with those:
+The above mentioned dependencies should be removed / replaced with this one:
 
 ```xml
 <dependency>
