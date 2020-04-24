@@ -39,7 +39,4 @@ Furthermore, make sure that you do not refer to any other SAP-internal security 
 You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand what needs to be done to leverage the new `java-api` that is exposed by the SAP Java Buildpack as of version `x.y.z`.
 
 
-## Further References
-- [(SAP-internal) api versions provided with the buildpack](https://wiki.wdf.sap.corp/wiki/display/xs2java/Component+Versions)
-
 
