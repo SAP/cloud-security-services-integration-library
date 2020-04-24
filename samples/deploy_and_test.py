@@ -53,6 +53,7 @@ class Credentials:
 credentials = Credentials()
 
 
+# Abstract base class for sample app tests classes 
 class SampleTest(abc.ABC, unittest.TestCase):
 
     @abc.abstractmethod
@@ -94,11 +95,11 @@ class SampleTest(abc.ABC, unittest.TestCase):
         return self.__perform_get_request(path=path)
 
     def perform_get_request_with_token(self, path, additional_headers={}):
-        access_token = self.__get_user_access_token()
+        access_token = self.get_token().get('access_token')
         if (access_token is None):
             logging.error("Cannot continue without access token")
             exit()
-        return self.__perform_get_request(path=path, access_token=self.__get_user_access_token(), additional_headers=additional_headers)
+        return self.__perform_get_request(path=path, access_token=access_token, additional_headers=additional_headers)
 
     def get_deployed_app(self):
         if (self.__deployed_app is None):
@@ -109,6 +110,16 @@ class SampleTest(abc.ABC, unittest.TestCase):
             self.__deployed_app = deployed_app
         return self.__deployed_app
 
+    def get_token(self):
+        deployed_app = self.get_deployed_app()
+        return HttpUtil().get_token(
+            xsuaa_service_url=deployed_app.xsuaa_service_url,
+            clientid=deployed_app.clientid,
+            clientsecret=deployed_app.clientsecret,
+            grant_type='password',
+            username=self.credentials.username,
+            password=self.credentials.password)
+
     def __get_api_access(self):
         if (self.__api_access is None):
             deployed_app = self.get_deployed_app()
@@ -116,16 +127,6 @@ class SampleTest(abc.ABC, unittest.TestCase):
                 xsuaa_service_url=deployed_app.xsuaa_service_url,
                 xsuaa_api_url=deployed_app.xsuaa_api_url)
         return self.__api_access
-
-    def __get_user_access_token(self):
-        deployed_app = self.get_deployed_app()
-        return HttpUtil().get_access_token(
-            xsuaa_service_url=deployed_app.xsuaa_service_url,
-            clientid=deployed_app.clientid,
-            clientsecret=deployed_app.clientsecret,
-            grant_type='password',
-            username=self.credentials.username,
-            password=self.credentials.password)
 
     def __perform_get_request(self, path, access_token=None, additional_headers={}):
         url = 'https://{}-{}.{}{}'.format(
@@ -194,11 +195,9 @@ class TestSpringSecurity(SampleTest):
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
         xsappname = self.get_deployed_app().get_credentials_property('xsappname')
         self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
-        json.loads(resp.body)
 
     def test_tokenFlows(self):
         self.add_user_to_role('Viewer')
-
         resp = self.perform_get_request_with_token('/v2/sayHello')
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
 
@@ -207,11 +206,11 @@ class TestSpringSecurity(SampleTest):
 
         resp = self.perform_get_request_with_token('/v3/requestUserToken')
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
-
-        # TODO fetch refresh token from resp.body
-        #pathWithRefreshToken = '/v3/requestRefreshToken/' + resp.body
-        #resp = self.perform_get_request_with_token(pathWithRefreshToken)
-        #self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+       
+        token = self.get_token()
+        pathWithRefreshToken = '/v3/requestRefreshToken/' + token.get('refresh_token')
+        resp = self.perform_get_request_with_token(pathWithRefreshToken)
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
 
 
 class TestJavaBuildpackApiUsage(SampleTest):
@@ -311,7 +310,7 @@ class HttpUtil:
         self.__add_headers(req, access_token, additional_headers)
         return self.__execute(req)
 
-    def get_access_token(self, xsuaa_service_url, clientid, clientsecret, grant_type, username=None, password=None):
+    def get_token(self, xsuaa_service_url, clientid, clientsecret, grant_type, username=None, password=None):
         post_req_body = urlencode({'client_id': clientid,
                                    'client_secret': clientsecret,
                                    'grant_type': grant_type,
@@ -321,7 +320,7 @@ class HttpUtil:
         url = xsuaa_service_url + '/oauth/token'
         resp = HttpUtil().post_request(url, data=post_req_body)
         if (resp.is_ok):
-            return json.loads(resp.body).get('access_token')
+            return json.loads(resp.body)
         else:
             logging.error('Could not retrieve access token')
             return None
@@ -392,11 +391,12 @@ class ApiAccessService:
         exit()
 
     def __get_access_token(self):
-        return self.http_util.get_access_token(
+        token = self.http_util.get_token(
             xsuaa_service_url=self.xsuaa_service_url,
             clientid=self.data.get('clientid'),
             clientsecret=self.data.get('clientsecret'),
             grant_type='client_credentials')
+        return token.get('access_token')
 
     def __str__(self):
         formatted_data = json.dumps(self.data, indent=2)
@@ -545,7 +545,7 @@ class CFApp:
     def delete(self):
         subprocess.run(['cf', 'delete', '-f', '-r', self.name])
         if (self.app_router_name is not None):
-            subprocess.run(['cf', 'delete', '-f', self.app_router_name])
+            subprocess.run(['cf', 'delete', '-f', '-r', self.app_router_name])
         subprocess.run(
             ['cf', 'delete-service', '-f', self.xsuaa_service_name])
 
