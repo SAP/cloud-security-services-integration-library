@@ -32,7 +32,18 @@ public class IasSecurityFilter implements Filter {
 			chain.doFilter(request, response) ;
 		} else {
 			LOGGER.debug("UNAUTHENTICATED");
-			((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			sendUnauthenticatedResponse(authenticationResult.getUnauthenticatedReason());
+		}
+	}
+
+	private void sendUnauthenticatedResponse(ServletResponse response, String unauthenticatedReason)  {
+		if (response instanceof HttpServletResponse) {
+			try {
+				HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+				httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, unauthenticatedReason); // 401
+			} catch (IOException e) {
+				LOGGER.error("Failed to send error response", e);
+			}
 		}
 	}
 

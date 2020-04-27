@@ -48,7 +48,7 @@ public class IntegrationTest {
 	}
 
 	@Test
-	public void validationFails_withXsuaaCombiningValidator() throws IOException {
+	public void xsuaaTokenValidationSucceeds_withXsuaaCombiningValidator() throws IOException {
 		String vcapServices = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
 		JsonObject serviceJsonObject = new DefaultJsonObject(vcapServices).getJsonObjects(Service.XSUAA.getCFName())
 				.get(0);
