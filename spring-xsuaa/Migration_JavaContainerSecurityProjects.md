@@ -104,7 +104,7 @@ Then you need to adapt your **Spring Security Configuration** as following:
     ```java
     @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = {""})
     ```
-2. Instead, provide your own implementation of `XsuaaSecurityConfiguration` interface to access the primary Xsuaa service configuration of your application (chose the service instance of plan `application` here), which are exposed in the `VCAP_SERVICES` system environment variable (in Cloud Foundry). As of version `2.6.2` you can implement it like that: 
+2. Instead, provide your own implementation of `XsuaaSecurityConfiguration` interface to access the **primary Xsuaa service configuration** of your application (chose the service instance of plan `application` here), which are exposed in the `VCAP_SERVICES` system environment variable (in Cloud Foundry). As of version `2.6.2` you can implement it like that: 
 
     ```java
     import com.sap.cloud.security.xsuaa.XsuaaCredentials;
@@ -120,7 +120,7 @@ Then you need to adapt your **Spring Security Configuration** as following:
 
     @Bean
     public XsuaaServiceConfiguration customXsuaaConfig() {
-        return new XsuaaServiceConfigurationCustom(xsuaaCredentials()); // secondary Xsuaa service binding
+        return new XsuaaServiceConfigurationCustom(xsuaaCredentials());
     }
     ```
 
@@ -129,17 +129,17 @@ Then you need to adapt your **Spring Security Configuration** as following:
     @Bean
     @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan broker>>.credentials")
     public XsuaaCredentials brokerCredentials() {
-        return new XsuaaCredentials();
+        return new XsuaaCredentials(); // secondary Xsuaa service binding, e.g. broker
     }
    
     @Bean
     JwtDecoder getJwtDecoder() {
        XsuaaCredentials brokerXsuaaCredentials = brokerCredentials();
    
-       XsuaaAudienceValidator audienceValidator = new XsuaaAudienceValidator(customXsuaaConfig());
-       // audienceValidator.configureAnotherXsuaaInstance("test3!b1", "sb-clone1!b22|test3!b1");
-       audienceValidator.configureAnotherXsuaaInstance(brokerXsuaaCredentials.getXsAppName(), brokerXsuaaCredentials.getClientId())
-       return new XsuaaJwtDecoderBuilder(customXsuaaConfig()).withTokenValidators(audienceValidator).build();
+       XsuaaAudienceValidator customAudienceValidator = new XsuaaAudienceValidator(customXsuaaConfig());
+       // customAudienceValidator.configureAnotherXsuaaInstance("test3!b1", "sb-clone1!b22|test3!b1");
+       customAudienceValidator.configureAnotherXsuaaInstance(brokerXsuaaCredentials.getXsAppName(), brokerXsuaaCredentials.getClientId())
+       return new XsuaaJwtDecoderBuilder(customXsuaaConfig()).withTokenValidators(customAudienceValidator).build();
     }
     ```
 
