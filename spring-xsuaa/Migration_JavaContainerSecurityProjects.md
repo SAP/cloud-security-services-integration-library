@@ -128,13 +128,13 @@ Then you need to adapt your **Spring Security Configuration** as following:
     ```java
     @Bean
     @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan broker>>.credentials")
-    public UaaCredentials brokerCredentials() {
+    public XsuaaCredentials brokerCredentials() {
         return new XsuaaCredentials();
     }
    
     @Bean
     JwtDecoder getJwtDecoder() {
-       UaaCredentials brokerXsuaaCredentials = brokerCredentials();
+       XsuaaCredentials brokerXsuaaCredentials = brokerCredentials();
    
        XsuaaAudienceValidator audienceValidator = new XsuaaAudienceValidator(customXsuaaConfig());
        // audienceValidator.configureAnotherXsuaaInstance("test3!b1", "sb-clone1!b22|test3!b1");
