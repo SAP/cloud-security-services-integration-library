@@ -1,6 +1,8 @@
 package com.sap.cloud.security.config;
 
 import com.sap.cloud.security.xsuaa.Assertions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
@@ -14,6 +16,9 @@ import static com.sap.cloud.security.config.cf.CFConstants.*;
  * dedicated identity ({@link Service}) based on the properties applied.
  */
 public class OAuth2ServiceConfigurationBuilder {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2ServiceConfigurationBuilder.class);
+
 	private Service service;
 	private boolean runInLegacyMode;
 	private final Map<String, String> properties = new HashMap<>();
@@ -31,6 +36,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 */
 	public static OAuth2ServiceConfigurationBuilder forService(@Nonnull Service service) {
 		Assertions.assertNotNull(service, "Service must not be null!");
+		checkIasAndLogWarning(service);
 		OAuth2ServiceConfigurationBuilder instance = new OAuth2ServiceConfigurationBuilder();
 		instance.service = service;
 		return instance;
@@ -136,6 +142,12 @@ public class OAuth2ServiceConfigurationBuilder {
 			}
 		};
 
+	}
+
+	private static void checkIasAndLogWarning(Service service) {
+		if (service == Service.IAS) {
+			LOGGER.warn("IAS Service is not yet supported!");
+		}
 	}
 
 }
