@@ -4,10 +4,18 @@ import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
 public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(IasTokenAuthenticator.class);
+
+	public IasTokenAuthenticator(){
+		LOGGER.warn("IAS Service is not yet supported!");
+	}
 
 	@Override
 	public Token extractFromHeader(String authorizationHeader) {
