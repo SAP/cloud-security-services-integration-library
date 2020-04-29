@@ -1,22 +1,15 @@
 package com.sap.cloud.security.config;
 
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 public class ServiceTest {
 
-	@Rule
-	public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-
-	@Before
-	public void setUp() {
-		environmentVariables.clear("IAS_SERVICE_NAME");
-	}
-
+	/**
+	 * This test assumes that the system variable "IAS_SERVICE_NAME" is not set. It should be
+	 * removed as soon as {@link Service#IAS} is supported.
+	 */
 	@Test
 	public void getCFNameOfIasWhenEnvironmentVariableIsNotSet_shouldReturnNull() {
 		assertThat(Service.IAS.getCFName()).isNull();
