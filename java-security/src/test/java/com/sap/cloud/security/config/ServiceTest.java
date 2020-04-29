@@ -1,5 +1,6 @@
 package com.sap.cloud.security.config;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
@@ -11,17 +12,19 @@ public class ServiceTest {
 	@Rule
 	public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
-	@Test
-	public void getCFName_shouldReturnNull() {
+	@Before
+	public void setUp() {
 		environmentVariables.clear("IAS_SERVICE_NAME");
+	}
+
+	@Test
+	public void getCFNameOfIasWhenEnvironmentVariableIsNotSet_shouldReturnNull() {
 		assertThat(Service.IAS.getCFName()).isNull();
 	}
 
-	//	TODO only one of the test runs because enums are only initialized once (singleton)
-//	@Test
-//	public void getCFName_shouldReturnName() {
-//		environmentVariables.set("IAS_SERVICE_NAME", "identity-beta");
-//		assertThat(Service.IAS.getCFName()).isEqualTo("identity-beta");
-//	}
+	@Test
+	public void getCFNameOfXsuaa_shouldReturnCorrectName() {
+		assertThat(Service.XSUAA.getCFName()).isEqualTo("xsuaa");
+	}
 
 }
