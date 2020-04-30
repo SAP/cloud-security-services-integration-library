@@ -1,6 +1,6 @@
 @startuml
--> "Authorization Decision Controller (OPA)" : setup
-"Authorization Decision Controller (OPA)" -> "Authorization Bundle Provider (ABP)": GET ABP_URL/sap/cas/v1/bundles/amsBundle.tar.gz
+-> "Authorization Decision Controller (ADC)" : setup
+"Authorization Decision Controller (ADC)" -> "Authorization Bundle Provider (ABP)": GET ABP_URL/sap/cas/v1/bundles/amsBundle.tar.gz
 
 @enduml
 

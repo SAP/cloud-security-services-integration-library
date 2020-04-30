@@ -1,10 +1,10 @@
 @startuml
 
 -> Application: /health
-Application -> "Authorization Decision Controller (OPA)" : GET OPA_URL/health
+Application -> "Authorization Decision Controller (ADC)" : GET ADC_URL/health
 
 -> Application: /readByCountry/{country}
-Application -> "Authorization Decision Controller (OPA)" : POST OPA_URL/v1/data/rbac/allow
+Application -> "Authorization Decision Controller (ADC)" : POST ADC_URL/v1/data/rbac/allow
 
 @enduml
 
