@@ -1,5 +1,9 @@
 # XSUAA Security Xsuaa Mock Library
 
+## Deprecation Note
+**This is in maintaince mode, don't use it for new projects!**
+Instead, make use of [`java-security-test`](/java-security-test) testing library, which uses WireMock, supports JUnit 4 and JUnit 5 and can be enhanced easily. Have a look at the [spring-security-xsuaa-usage](/samples/spring-security-xsuaa-usage) as usage reference.
+
 ## Description
 This library enhances the spring-xsuaa project. This includes a `XsuaaMockWebServer` web server for the Xsuaa service that can provide *token_keys* for an offline JWT token validation. This is required only when there is no Xsuaa service (OAuth resource-server) in place, which is only the case in context of unit tests, as well as when running your Spring boot application locally.
 
