@@ -5,13 +5,11 @@ import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
-import com.sap.cloud.security.token.GrantType;
-import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.token.XsuaaScopeConverter;
-import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.token.*;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -47,7 +45,19 @@ public class XSUserInfoAdapterTest {
 		cut = new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)), configuration);
 	}
 
-	// TODO 22.01.20 c5295400: implement external context fallback tests
+	@Test
+	public void constructors() throws XSUserInfoException {
+		assertThat(new XSUserInfoAdapter((Object) token).getLogonName()).isEqualTo("TestUser");
+		assertThat(new XSUserInfoAdapter((Token) token).getLogonName()).isEqualTo("TestUser");
+		assertThat(new XSUserInfoAdapter((AccessToken) token).getLogonName()).isEqualTo("TestUser");
+		assertThatThrownBy(() -> new XSUserInfoAdapter(null)).isInstanceOf(XSUserInfoException.class)
+				.hasMessageContaining("null")
+				.hasMessageContaining("instance of AccessToken");
+		assertThatThrownBy(() -> new XSUserInfoAdapter("Tester")).isInstanceOf(XSUserInfoException.class)
+				.hasMessageContaining("String")
+				.hasMessageContaining("instance of AccessToken");
+	}
+
 	@Test
 	public void testGetLogonName() throws XSUserInfoException {
 		assertThat(cut.getLogonName()).isEqualTo("TestUser");
@@ -298,20 +308,6 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void testRequestTokenForClient_isNotImplemented() {
-		assertThatThrownBy(() -> cut.requestTokenForClient("", "", ""))
-				.isInstanceOf(UnsupportedOperationException.class)
-				.hasMessageContaining("Not implemented");
-	}
-
-	@Test
-	public void testRequestToken_isNotImplemented() {
-		assertThatThrownBy(() -> cut.requestToken(null))
-				.isInstanceOf(UnsupportedOperationException.class)
-				.hasMessageContaining("Not implemented");
-	}
-
-	@Test
 	public void getHdbToken_AuthCodeToken_NoAttributes() throws XSUserInfoException, IOException {
 		XsuaaToken token = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaXsaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
@@ -394,6 +390,23 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
+	public void isForeignModeFalse_WhenIdentityZoneDoesNotMatchButCliendIdIsBrokerPlan()
+			throws XSUserInfoException {
+		String tokenClientId = "sb-application!b0123"; // cid
+		String identityZone = "brokerplanmasterapp!b123"; // ext_attr -> zdn
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+				.withClientId(tokenClientId)
+				.withProperty(IDENTITY_ZONE, identityZone)
+				.build();
+
+		cut = createComponentUnderTestSpy(configuration);
+		doReturn(tokenClientId).when(cut).getClientId();
+		doReturn("otherIdentityZone").when(cut).getIdentityZone();
+
+		assertThat(cut.isInForeignMode()).isFalse();
+	}
+
+	@Test
 	public void isForeignModeFalse_WhenClientIdAndIdentityZonesMatch() throws XSUserInfoException {
 		String tokenClientId = "sb-application"; // cid
 		String identityZone = "brokerplanmasterapp!b123"; // ext_attr -> zdn
@@ -448,7 +461,8 @@ public class XSUserInfoAdapterTest {
 
 	private XSUserInfoAdapter createComponentUnderTestSpy(OAuth2ServiceConfiguration configuration)
 			throws XSUserInfoException {
-		return spy(new XSUserInfoAdapter(Mockito.mock(XsuaaToken.class), configuration));
+		return spy(
+				new XSUserInfoAdapter(Mockito.mock(XsuaaToken.class), configuration));
 	}
 
 	private XsuaaToken createMockToken(GrantType grantType) {

@@ -4,6 +4,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.servlet.IasTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticator;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
 import com.sap.cloud.security.xsuaa.Assertions;
@@ -46,7 +47,7 @@ public class ApplicationServerOptions {
 
 	/**
 	 * Creates an instance of ApplicationServerOptions.
-	 * 
+	 *
 	 * @param service
 	 *            the identity service
 	 * @return the application server options.
@@ -58,10 +59,13 @@ public class ApplicationServerOptions {
 		case XSUAA:
 			instance = forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
 			break;
-		/*
-		 * SecurityTestRule case IAS: instance = new ApplicationServerOptions(new
-		 * IasTokenAuthenticator()); break;
-		 */
+		case IAS:
+			instance = new ApplicationServerOptions(new IasTokenAuthenticator()
+					.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
+							.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
+							.withUrl("http://localhost")
+							.build()));
+			break;
 		default:
 			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
 		}

@@ -8,10 +8,11 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 
+@java.lang.SuppressWarnings("squid:S1214")
 public interface Token extends UserDetails {
 
 	/**
-	 * Use
+	 * @deprecated use
 	 * {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants#GRANT_TYPE_CLIENT_CREDENTIALS}
 	 * instead
 	 */

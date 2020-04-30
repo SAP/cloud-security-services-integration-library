@@ -38,6 +38,7 @@ import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 @EnableWebSecurity
 @EnableCaching
 @Profile({ "test.api.basic" })
+@java.lang.SuppressWarnings("squid:S2696")
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	public static TokenBrokerResolver tokenBrokerResolver; // make static for tests

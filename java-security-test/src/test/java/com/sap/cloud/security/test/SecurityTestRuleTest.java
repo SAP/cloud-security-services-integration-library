@@ -1,6 +1,5 @@
 package com.sap.cloud.security.test;
 
-import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.Token;
@@ -29,6 +28,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.ApplicationServerOptions.forService;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,7 +92,7 @@ public class SecurityTestRuleTest {
 	@Test
 	public void testRuleIsInitializedCorrectly() {
 		assertThat(cut.getApplicationServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
-		//assertThat(cut.getWireMockRule()).isNotNull();
+		// assertThat(cut.getWireMockRule()).isNotNull();
 		assertThat(cut.getWireMockServer()).isNotNull();
 		assertThat(cut.createToken().getTokenValue())
 				.isEqualTo(cut.getPreconfiguredJwtGenerator().createToken().getTokenValue());
@@ -153,14 +153,15 @@ public class SecurityTestRuleTest {
 		}
 	}
 
-	// TODO IAS
-	public static class SecurityTestRuleApplicationServerFaults {
+	public static class SecurityTestRuleApplicationServer_IAS {
+
+		@Rule
+		public SecurityTestRule rule = SecurityTestRule.getInstance(IAS);
 
 		@Test
-		public void onlyXsuaaIsSupportedYet() {
-			assertThatThrownBy(() -> SecurityTestRule.getInstance(Service.IAS))
-					.isInstanceOf(UnsupportedOperationException.class)
-					.hasMessageContaining(String.format("Identity Service %s is not yet supported", Service.IAS));
+		public void testRuleIsInitializedCorrectly() {
+			assertThat(rule.getApplicationServerUri()).isNull();
+			assertThat(rule.getWireMockServer()).isNotNull();
 		}
 
 	}

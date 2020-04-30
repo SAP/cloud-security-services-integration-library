@@ -89,7 +89,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 		if (tokenAudiences != null) {
 			for (String audience : tokenAudiences) {
 				if (audience.contains(".")) {
-					String aud = audience.substring(0, audience.indexOf("."));
+					String aud = audience.substring(0, audience.indexOf('.'));
 					allAudiences.add(aud);
 				} else {
 					allAudiences.add(audience);
@@ -101,7 +101,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 		if (allAudiences.size() == 0) {
 			for (String scope : getScopes(token)) {
 				if (scope.contains(".")) {
-					String aud = scope.substring(0, scope.indexOf("."));
+					String aud = scope.substring(0, scope.indexOf('.'));
 					allAudiences.add(aud);
 				}
 			}

@@ -543,7 +543,7 @@ class CFApp:
         subprocess.run(['cf', 'push', '--vars-file', '../vars.yml'], cwd=self.working_dir)
 
     def delete(self):
-        subprocess.run(['cf', 'delete', '-f', self.name])
+        subprocess.run(['cf', 'delete', '-f', '-r', self.name])
         if (self.app_router_name is not None):
             subprocess.run(['cf', 'delete', '-f', self.app_router_name])
         subprocess.run(
@@ -567,4 +567,3 @@ if __name__ == '__main__':
         import doctest
         doctest.testmod()
         unittest.main()
-        subprocess.run(['mvn', 'delete-orphaned-routes', '-f'])

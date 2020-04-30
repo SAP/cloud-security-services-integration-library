@@ -51,13 +51,22 @@ public class JsonWebKeySetTest {
 	}
 
 	@Test
+	public void getKeyByAlgorithmAndId_returnsDefault_whenKeyIdMatchesDefault() {
+		cut.put(JSON_WEB_KEY);
+
+		cut.put(JsonWebKeyTestFactory.createDefault());
+
+		String keyId = cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getKeyAlgorithm(), DEFAULT_KEY_ID).getId();
+		assertThat(keyId).isEqualTo(DEFAULT_KEY_ID);
+	}
+
+	@Test
 	public void getKeyByAlgorithmAndId_returnsNull_whenKeyIdDoesNotMatch() {
 		cut.put(JSON_WEB_KEY);
 
 		cut.put(JsonWebKeyTestFactory.createDefault());
 
-		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getKeyAlgorithm(), DEFAULT_KEY_ID).getId()
-				.equals(DEFAULT_KEY_ID));
+		assertThat(cut.getKeyByAlgorithmAndId(JSON_WEB_KEY.getKeyAlgorithm(), "not-existing")).isNull();
 	}
 
 	@Test

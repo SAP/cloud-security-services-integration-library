@@ -1,5 +1,6 @@
 package com.sap.cloud.security.config.cf;
 
+import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
@@ -20,6 +21,8 @@ import java.util.function.UnaryOperator;
  * parsing the {@code VCAP_SERVICES} system environment variable.
  */
 public class CFEnvironment implements Environment {
+
+	private static final String EMPTY_JSON = "{}";
 
 	private Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations;
 	private UnaryOperator<String> systemEnvironmentProvider;
@@ -49,12 +52,9 @@ public class CFEnvironment implements Environment {
 	}
 
 	@Nullable
-	// @Override // TODO IAS
+	@Override
 	public OAuth2ServiceConfiguration getIasConfiguration() {
-		// TODO IAS
-		// return
-		// loadAll(IAS).stream().filter(Objects::nonNull).findFirst().orElse(null);
-		throw new UnsupportedOperationException("Bindings of IAS Identity Service is not yet supported.");
+		return loadAllForService(IAS).stream().filter(Objects::nonNull).findFirst().orElse(null);
 	}
 
 	@Override
@@ -92,7 +92,11 @@ public class CFEnvironment implements Environment {
 		if (env == null) {
 			env = systemEnvironmentProvider.apply(VCAP_SERVICES);
 		}
-		return env != null ? env : "{}";
+		return emptyStringOrNull(env) ? EMPTY_JSON : env;
+	}
+
+	private boolean emptyStringOrNull(String env) {
+		return env == null || env.trim().isEmpty();
 	}
 
 	private String extractVcapApplicationJson() {

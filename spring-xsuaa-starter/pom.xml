@@ -14,11 +14,11 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>2.6.0</version>
+		<version>2.6.2</version>
 	</parent>
 
 	<artifactId>xsuaa-spring-boot-starter</artifactId>
-	<version>2.6.0</version>
+	<version>2.6.2</version>
 	<name>SAP Spring Boot Xsuaa Starter</name>
 	<description>SAP Starter for integrating application with XSUAA service</description>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>

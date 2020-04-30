@@ -54,7 +54,7 @@ public class XsuaaTokenFlowAutoConfiguration {
 	@ConditionalOnMissingBean
 	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations xsuaaRestOperations,
 			XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-		logger.info("auto-configures XsuaaTokenFlows using restOperations of type: " + xsuaaRestOperations);
+		logger.debug("auto-configures XsuaaTokenFlows using restOperations of type: {}", xsuaaRestOperations);
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
 				xsuaaServiceConfiguration.getUaaUrl());
 		ClientCredentials clientCredentials = new ClientCredentials(xsuaaServiceConfiguration.getClientId(),

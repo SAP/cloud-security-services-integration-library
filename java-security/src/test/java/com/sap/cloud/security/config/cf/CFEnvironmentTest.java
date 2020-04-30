@@ -75,17 +75,14 @@ public class CFEnvironmentTest {
 				"Please check the service binding.");
 	}
 
-	// TODO IAS
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void getConfigurationOfOneIasInstance() {
 		cut = CFEnvironment.getInstance((str) -> vcapIas, (str) -> null);
 		assertThat(cut.getIasConfiguration()).isSameAs(cut.getIasConfiguration());
 		assertThat(cut.getIasConfiguration().getService()).isEqualTo(Service.IAS);
-		assertThat(cut.getIasConfiguration().getClientId()).isEqualTo("T000297");
+		assertThat(cut.getIasConfiguration().getClientId()).isEqualTo("T000310");
 		assertThat(cut.getIasConfiguration().getClientSecret()).startsWith("pCghfbrL");
-		// assertThat(cut.getIasServiceConfiguration().getDomain()).isEqualTo("auth.com");
-		assertThat(cut.getIasConfiguration().getUrl().toString())
-				.isEqualTo("https://application.acc.ondemand.com");
+		assertThat(cut.getIasConfiguration().getUrl().toString()).isEqualTo("https://myauth.com");
 		assertThat(cut.getIasConfiguration().isLegacyMode()).isFalse();
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
@@ -106,7 +103,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
 
-		// assertThat(cut.getIasConfiguration()).isNull(); // TODO IAS
+		assertThat(cut.getIasConfiguration()).isNull();
 	}
 
 	@Test
@@ -181,7 +178,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isNull();
 		assertThat(cut.loadForServicePlan(Service.IAS, Plan.DEFAULT)).isNull();
 		assertThat(CFEnvironment.getInstance().getXsuaaConfiguration()).isNull();
-		// assertThat(cut.getIasConfiguration()).isNull(); // TODO IAS
+		assertThat(cut.getIasConfiguration()).isNull();
 	}
 
 	@Test
@@ -204,5 +201,29 @@ public class CFEnvironmentTest {
 
 		OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
 		assertThat(Plan.from(config.getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
+	}
+
+	@Test
+	public void getXsuaaConfiguration_noVcapServices_doesNotThrowExceptions() {
+		cut = CFEnvironment.getInstance((any) -> null, (any) -> null);
+
+		assertThat(cut.getXsuaaConfiguration()).isNull();
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
+	}
+
+	@Test
+	public void getXsuaaConfiguration_vcapServicesEmptyString_doesNotThrowExceptions() {
+		cut = CFEnvironment.getInstance((any) -> "", (any) -> "");
+
+		assertThat(cut.getXsuaaConfiguration()).isNull();
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
+	}
+
+	@Test
+	public void getXsuaaConfiguration_vcapServicesEmptyJson_doesNotThrowExceptions() {
+		cut = CFEnvironment.getInstance((any) -> "{}", (any) -> "{}");
+
+		assertThat(cut.getXsuaaConfiguration()).isNull();
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
 	}
 }

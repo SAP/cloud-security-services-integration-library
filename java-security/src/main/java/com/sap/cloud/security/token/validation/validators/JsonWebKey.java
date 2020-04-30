@@ -10,6 +10,7 @@ import java.security.spec.InvalidKeySpecException;
  * https://tools.ietf.org/html/rfc7517
  */
 interface JsonWebKey {
+	@java.lang.SuppressWarnings("squid:S1214")
 	String DEFAULT_KEY_ID = "default-kid";
 
 	/**
