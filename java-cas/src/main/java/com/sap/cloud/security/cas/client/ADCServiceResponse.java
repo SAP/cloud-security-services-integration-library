@@ -9,6 +9,7 @@ public class ADCServiceResponse {
 
     private boolean result = false;
     public static ADCServiceResponse DEFAULT = new ADCServiceResponse();
+    private static final String ADC_RESULT_KEY = "result";
 
 
     public ADCServiceResponse() {
@@ -36,7 +37,9 @@ public class ADCServiceResponse {
      */
     public void setResult(String jsonContent) {
         JSONObject jsonObject = new JSONObject(jsonContent);
-        this.result = jsonObject.getBoolean("result");
+        if(jsonObject.has(ADC_RESULT_KEY)) {
+            this.result = jsonObject.getBoolean(ADC_RESULT_KEY);
+        }
     }
 
 }

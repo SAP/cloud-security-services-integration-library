@@ -49,7 +49,7 @@ public class DefaultADCService implements ADCService {
                 int statusCode = httpResponse.getStatusLine().getStatusCode();
                 String responseContent = null;
                 if (statusCode == HttpStatus.SC_OK) {
-                    LOGGER.info("Successfully requested ADC service (status code: {})", statusCode);
+                    LOGGER.debug("Successfully requested ADC service (status code: {})", statusCode);
                     // TODO use HttpClientUtil?
                     responseContent = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()))
                             .lines().collect(Collectors.joining(System.lineSeparator()));
