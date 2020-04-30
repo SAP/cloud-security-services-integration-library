@@ -6,7 +6,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity//(debug = true)
 //@EnableOAuth2Sso
 // https://spring.io/guides/tutorials/spring-boot-oauth2/
 // https://www.baeldung.com/spring-security-openid-connect

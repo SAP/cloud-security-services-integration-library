@@ -15,11 +15,14 @@ that uses the [open source **Open Policy Agent (OPA)**](https://www.openpolicyag
 ## Access Authorization Decision Controller (ADC)
 First, get familiar with the Authorization Decision Controller (ADC) service which uses the OPA policy engine.
 
-1. Start the Open Policy Agent (OPA) locally as part of a docker container:  
+1. Build your project and start the Open Policy Agent (OPA) locally as part of a docker container:  
     ```
+    mvn clean package
     docker-compose up -d
     ```  
-   > This starts a docker container with OPA on that url `http://localhost:8181`. It preconfigures OPA with all files that are provided in the `amsBundle` folder.
+   > With `mvn clean package` the `dcl-compiler-plugin` maven plugin generates based on the `src/main/resources/cas/*.dcl` files `*.rego` files that can be consumed by the OPA and puts them into the `target/classes/cas` folder. 
+                                                                                                                                                                          
+   > With `docker-compose` the docker container with OPA is preconfigured with all generated `*.rego` files. And the OPA service is accessible at OPA_URL = http://localhost:8181/v1/policies.
 
 2. Perform some requests (using [`Postman` REST client](https://www.postman.com/))
 
