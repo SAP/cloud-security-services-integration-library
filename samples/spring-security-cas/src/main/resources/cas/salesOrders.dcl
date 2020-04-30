@@ -35,3 +35,15 @@ POLICY salesOrdersBetween {
 POLICY salesOrdersLT {
 	GRANT read ON salesOrders WHERE salesID <= 700;
 }
+
+TEST salesOrdersLTTest {
+    GRANT read ON salesOrders POLICY salesOrdersLT INPUT {
+        salesID: -1
+    }, {
+        salesID: 700
+    };
+
+    DENY read ON salesOrders POLICY salesOrdersLT INPUT {
+        salesID: 701
+    };
+}

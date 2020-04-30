@@ -16,6 +16,7 @@
     <properties>
         <java.version>1.8</java.version>
         <sap.cloud.security.version>2.6.1</sap.cloud.security.version>
+        <sap.cloud.security.cas.dcl>1.0.0-SNAPSHOT</sap.cloud.security.cas.dcl>
         <apache.httpclient.version>4.5.8</apache.httpclient.version>
     </properties>
 
@@ -117,12 +118,28 @@
                 <!-- This can be removed when *.DCL files are compiled on the server -->
                 <groupId>com.sap.security.cas.dcl</groupId>
                 <artifactId>dcl-compiler-plugin</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>${sap.cloud.security.cas.dcl}</version>
                 <executions>
                     <execution>
                         <goals>
                             <goal>compile</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.sap.security.cas.dcl</groupId>
+                <artifactId>dcl-surefire-plugin</artifactId>
+                <version>${sap.cloud.security.cas.dcl}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <verbose>true</verbose>
+                            <prefix>${project.groupId}:${project.artifactId}:</prefix>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
