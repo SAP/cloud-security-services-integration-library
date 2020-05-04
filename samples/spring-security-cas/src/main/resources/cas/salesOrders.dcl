@@ -1,10 +1,10 @@
 schema {
 		salesID: Number,
 		CountryCode: String,
-	$user: {
-        "name": string,
-         country: string,
-        "PersNumber": Number
+        $user: {
+            "name": string,
+             country: string,
+            "PersNumber": Number
         }
 }
 

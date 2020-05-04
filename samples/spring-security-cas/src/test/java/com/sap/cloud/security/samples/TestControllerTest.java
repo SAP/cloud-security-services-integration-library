@@ -72,14 +72,6 @@ public class TestControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Ignore // TODO enhance Between with countryCode
-    @Test
-    @WithMockOidcUser(username="Alice_salesOrdersBetween@test.com")
-    public void readWith_Alice_salesOrderFromOtherCountries_403() throws Exception {
-        mockMvc.perform(get("/readSalesOrderById/US/100"))
-                .andExpect(status().isForbidden());
-    }
-
     @Test
     @WithMockOidcUser(username="Alice_countryCode@test.com")
     public void readWith_Alice_italianResource_200() throws Exception {
