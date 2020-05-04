@@ -1,4 +1,4 @@
-# wil be ignored and not be part of bundle -> overhead 
+# wil be ignored and not be part of bundle -> overhead
 TEST salesOrdersLTTest {
     GRANT read ON salesOrders POLICY salesOrdersLT INPUT {
         salesID: -1
