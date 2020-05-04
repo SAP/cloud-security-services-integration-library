@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TestControllerTest {
+public class SalesOrderControllerTest {
 
     //TODO @Value("${ADC_URL:http://localhost:8181}")
     private static String adcUrl = "http://localhost:8181/";
@@ -38,51 +38,50 @@ public class TestControllerTest {
     }
 
     @Test
-    @WithMockOidcUser(username="Any@unknown.org")
-    public void readWithoutPermission_403() throws Exception {
-        mockMvc.perform(get("/readSalesOrders"))
-                .andExpect(status().isForbidden());
+    public void readWithoutPermission_401() throws Exception {
+        mockMvc.perform(get("/salesOrders"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockOidcUser(username="Bob.noAuthorization@test.com")
     public void readWith_Bob_403() throws Exception {
-        mockMvc.perform(get("/readSalesOrders"))
+        mockMvc.perform(get("/salesOrders"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockOidcUser(username="Alice_salesOrders@test.com")
     public void readWith_Alice_salesOrders_200() throws Exception {
-        mockMvc.perform(get("/readSalesOrders"))
+        mockMvc.perform(get("/salesOrders"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockOidcUser(username="Alice_salesOrdersBetween@test.com")
     public void readWith_Alice_italianSalesOrderWithId101_200() throws Exception {
-        mockMvc.perform(get("/readSalesOrderById/IT/101"))
+        mockMvc.perform(get("/salesOrders/readByCountryAndId/IT/101"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockOidcUser(username="Alice_salesOrdersBetween@test.com")
     public void readWith_Alice_italianSalesOrderWithId501_403() throws Exception {
-        mockMvc.perform(get("/readSalesOrderById/IT/501"))
+        mockMvc.perform(get("/salesOrders/readByCountryAndId/IT/501"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockOidcUser(username="Alice_countryCode@test.com")
     public void readWith_Alice_italianResource_200() throws Exception {
-        mockMvc.perform(get("/readByCountry/IT"))
+        mockMvc.perform(get("/salesOrders/readByCountry/IT"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockOidcUser(username="Alice_countryCode@test.com")
     public void readWith_Alice_americanResource_403() throws Exception {
-        mockMvc.perform(get("/readByCountry/US"))
+        mockMvc.perform(get("/salesOrders/readByCountry/US"))
                 .andExpect(status().isForbidden());
     }
 
