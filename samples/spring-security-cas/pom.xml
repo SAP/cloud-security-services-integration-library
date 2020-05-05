@@ -85,12 +85,6 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.sap.cloud.security</groupId>
-            <artifactId>java-security-test</artifactId>
-            <version>${sap.cloud.security.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

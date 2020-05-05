@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 package com.sap.cloud.security.spring.context.support;
-// package org.springframework.security.test.context.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+
+import java.time.Instant;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WithMockOidcUserSecurityContextTests {
@@ -37,49 +38,41 @@ public class WithMockOidcUserSecurityContextTests {
     @Before
     public void setup() {
         factory = new WithMockOidcUserSecurityContextFactory();
+        when(withUser.value()).thenReturn("valueUser");
         when(withUser.clientId()).thenReturn("clientid");
-        when(withUser.roles()).thenReturn(new String[] { "openid" });
-        when(withUser.authorities()).thenReturn(new String[] {});
+        when(withUser.authorities()).thenReturn(new String[] { "openid" });
+        when(withUser.nameTokenClaim()).thenReturn("sub");
+        when(withUser.name()).thenReturn("");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void usernameNull() {
+    public void userNameValueNullRaiseException() {
+        when(withUser.value()).thenReturn(null);
         factory.createSecurityContext(withUser);
     }
 
+    public void valueDefaultsUserIdWhenUserNameIsNull() {
+        when(withUser.name()).thenReturn(null);
+        assertThat(factory.createSecurityContext(withUser).getAuthentication().getName())
+                .isEqualTo("valueUser");
+    }
+
     @Test
-    public void valueDefaultsUsername() {
-        when(withUser.value()).thenReturn("valueUser");
+    public void valueDefaultsUserIdWhenUserNameIsNotSet() {
+        assertThat(factory.createSecurityContext(withUser).getAuthentication().getName())
+                .isEqualTo("valueUser");
+    }
+
+    @Test
+    public void userNamePrioritizedOverValue() {
+        when(withUser.name()).thenReturn("customUser");
 
         assertThat(factory.createSecurityContext(withUser).getAuthentication().getName())
-                .isEqualTo(withUser.value());
+                .isEqualTo("customUser");
     }
 
     @Test
-    public void usernamePrioritizedOverValue() {
-        //TODO when(withUser.value()).thenReturn("valueUser");
-        when(withUser.username()).thenReturn("customUser");
-
-        assertThat(factory.createSecurityContext(withUser).getAuthentication().getName())
-                .isEqualTo(withUser.username());
-    }
-
-    @Test
-    public void rolesWorks() {
-        when(withUser.value()).thenReturn("valueUser");
-        when(withUser.roles()).thenReturn(new String[] { "USER", "CUSTOM" });
-        when(withUser.authorities()).thenReturn(new String[] {});
-
-        assertThat(
-                factory.createSecurityContext(withUser).getAuthentication()
-                        .getAuthorities()).extracting("authority").containsOnly(
-                "ROLE_USER", "ROLE_CUSTOM");
-    }
-
-    @Test
-    public void authoritiesWorks() {
-        when(withUser.value()).thenReturn("valueUser");
-        // TODO when(withUser.roles()).thenReturn(new String[] { "USER" });
+    public void overwriteAuthorities() {
         when(withUser.authorities()).thenReturn(new String[] { "USER", "CUSTOM" });
 
         assertThat(
@@ -88,22 +81,24 @@ public class WithMockOidcUserSecurityContextTests {
                 "USER", "CUSTOM");
     }
 
-    @Test(expected = IllegalStateException.class)
-    @Ignore
-    public void authoritiesAndRolesInvalid() {
-        when(withUser.value()).thenReturn("valueUser");
-        when(withUser.roles()).thenReturn(new String[] { "CUSTOM" });
-        when(withUser.authorities()).thenReturn(new String[] { "USER", "CUSTOM" });
+    @Test
+    public void overwriteNameTokenClaim() {
+        when(withUser.nameTokenClaim()).thenReturn("userNameClaim");
 
-        factory.createSecurityContext(withUser);
+        Object authn = factory.createSecurityContext(withUser).getAuthentication().getPrincipal();
+        assertThat(authn).isInstanceOf(OidcUser.class);
+        assertThat(((OidcUser)authn).getClaims()).containsKey("userNameClaim");
+        assertThat(((OidcUser)authn).getClaims()).doesNotContainKey("sub");
+        assertThat(((OidcUser) authn).getName()).isEqualTo("valueUser");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void rolesWithRolePrefixFails() {
-        when(withUser.value()).thenReturn("valueUser");
-        when(withUser.roles()).thenReturn(new String[] { "ROLE_FAIL" });
-        when(withUser.authorities()).thenReturn(new String[] {});
+    @Test
+    public void claimNotExpired() {
+        when(withUser.nameTokenClaim()).thenReturn("userNameClaim");
 
-        factory.createSecurityContext(withUser);
+        OidcUser oidcUser = (OidcUser) factory.createSecurityContext(withUser).getAuthentication().getPrincipal();
+        assertThat(oidcUser.getIssuedAt().compareTo(Instant.now())).isNegative();
+        assertThat(oidcUser.getExpiresAt().compareTo(Instant.now())).isPositive();
     }
+
 }

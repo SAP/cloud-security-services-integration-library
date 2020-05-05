@@ -47,14 +47,12 @@ import java.util.*;
 final class WithMockOidcUserSecurityContextFactory implements
 		WithSecurityContextFactory<WithMockOidcUser> {
 
-	//TODO skip if adc server is not running
-
 	public SecurityContext createSecurityContext(WithMockOidcUser withUser) {
-		String userName = StringUtils.hasLength(withUser.username()) ? withUser
-				.username() : withUser.value();
-		if (userName == null) {
+		String userId = StringUtils.hasLength(withUser.name()) ? withUser
+				.name() : withUser.value();
+		if (userId == null) {
 			throw new IllegalArgumentException(withUser
-					+ " cannot have null username on both username and value properties");
+					+ " cannot have null userId on both userId and value properties");
 		}
 
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
@@ -62,19 +60,10 @@ final class WithMockOidcUserSecurityContextFactory implements
 			grantedAuthorities.add(new SimpleGrantedAuthority(authority));
 		}
 
-		if (grantedAuthorities.isEmpty()) {
-			for (String role : withUser.roles()) {
-				if (role.startsWith("ROLE_")) {
-					throw new IllegalArgumentException("roles cannot start with ROLE_ Got "
-							+ role);
-				}
-				grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-			}
-		}
-
 		OidcUser principal = new DefaultOidcUser(grantedAuthorities,
-				new OidcIdTokenFactory(userName, withUser.clientId()).build(),
-				"name"); // TODO nameAttributekey must be configurable
+				new OidcIdTokenFactory(userId, withUser.clientId(), withUser.nameTokenClaim()).build(),
+				withUser.nameTokenClaim());
+
 		Authentication authentication = new OAuth2AuthenticationToken(
 				principal, principal.getAuthorities(), withUser.clientId());
 
@@ -88,27 +77,21 @@ final class WithMockOidcUserSecurityContextFactory implements
 		final Instant expiredAt = new GregorianCalendar().toInstant().plusSeconds(600);
 		final Instant issuedAt = new GregorianCalendar().toInstant().minusSeconds(3);
 
-		public OidcIdTokenFactory(String userName, String clientId) {
-			claims.put  ("client_id", clientId); // mandatory
+		OidcIdTokenFactory(String userId, String clientId, String userIdClaimName) {
+			claims.put("client_id", clientId); // mandatory
 			claims.put("iat", issuedAt.getEpochSecond());
 			claims.put("exp", expiredAt.getEpochSecond());
-			claims.put("name", userName); // TODO nameAttributekey must be configurable
-			claims.put("email", userName + "@test.org");
+			claims.put(userIdClaimName, userId);
+			claims.put("email", userId + "@test.org");
 		}
 
 		public OidcIdToken build() {
-			return new OidcIdToken(getToken(), issuedAt, expiredAt, claims);
+			return new OidcIdToken(emptyTokenBase64Encode(), issuedAt, expiredAt, claims);
 		}
 
-		private String getToken() {
-			ObjectMapper mapper = new ObjectMapper();
-			ObjectNode root = mapper.createObjectNode();
-			String jwtToken = root.toString();
-			return base64Encode(jwtToken.getBytes());
-		}
-
-		private String base64Encode(byte[] bytes) {
-			return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+		private String emptyTokenBase64Encode() {
+			byte[] emptyToken = "{}".getBytes();
+			return Base64.getUrlEncoder().withoutPadding().encodeToString(emptyToken);
 		}
 	}
 }

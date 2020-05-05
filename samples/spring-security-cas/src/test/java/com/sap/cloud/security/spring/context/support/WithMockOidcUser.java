@@ -18,7 +18,6 @@ package com.sap.cloud.security.spring.context.support;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.test.context.support.*;
 import org.springframework.test.context.TestContext;
@@ -27,27 +26,22 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.lang.annotation.*;
 
 /**
- * TODO: extract as library or contribute to spring security test
- */
-
-/**
  * When used with {@link WithSecurityContextTestExecutionListener} this annotation can be
  * added to a test method to emulate running with a mocked user. In order to work with
  * {@link MockMvc} The {@link SecurityContext} that is used will have the following
  * properties:
  *
  * <ul>
- * <li>The {@link SecurityContext} created with be that of
- * {@link SecurityContextHolder#createEmptyContext()}</li>
- * <li>It will be populated with an {@link OAuth2AuthenticationToken} that uses
- * the username of either {@link #value()} or {@link #username()},
- * {@link GrantedAuthority} that are specified by {@link #roles()}, and a password
- * specified by {@link #password()}.
+ * <li>The Authentication that is populated in the {@link SecurityContext} is of type {@link OAuth2AuthenticationToken}.</li>
+ * <li>The principal on the Authentication is Spring Security’s User object of type {@code OidcUser}.</li>
+ * <li>The default User has the username of "user", {@link #value()} or {@link #name()} and does not have to exist.</li>
+ * <li>The default User has and a single GrantedAuthority {@link GrantedAuthority} or those that are specified by {@link #authorities()}.</li>
  * </ul>
  *
  * @see WithUserDetails
  *
  * @author Nena Raab
+ *
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
@@ -57,46 +51,34 @@ import java.lang.annotation.*;
 public @interface WithMockOidcUser {
 	/**
 	 * Convenience mechanism for specifying the username. The default is "user". If
-	 * {@link #username()} is specified it will be used instead of {@link #value()}
+	 * {@link #name()} is specified it will be used instead of {@link #value()}
 	 * @return
 	 */
 	String value() default "user";
 
 	/**
-	 * The username to be used. Note that {@link #value()} is a synonym for
-	 * {@link #username()}, but if {@link #username()} is specified it will take
+	 * The user name oder user id (subject) to be used. Note that {@link #value()} is a synonym for
+	 * {@link #name()}, but if {@link #name()} is specified it will take
 	 * precedence.
 	 * @return
 	 */
-	String username() default "";
+	String name() default "";
 
 	/**
 	 * <p>
-	 * The scopes to use. The default is "openid". A {@link GrantedAuthority} will be created
-	 * for each value within roles. Each value in roles will automatically be prefixed
-	 * with "ROLE_". For example, the default will result in "ROLE_USER" being used.
+	 * The authorities to use. The default is "openid". A {@link GrantedAuthority} will be created for each value.
 	 * </p>
-	 * <p>
-	 * If {@link #authorities()} is specified this property cannot be changed from the default.
-	 * </p>
-	 *
-	 * @return
-	 */
-	String[] roles() default {};
-
-	/**
-	 * <p>
-	 * The authorities to use. A {@link GrantedAuthority} will be created for each value.
-	 * </p>
-	 *
-	 * <p>
-	 * If this property is specified then {@link #roles()} is not used. This differs from
-	 * {@link #roles()} in that it does not prefix the values passed in automatically.
-	 * </p>
-	 *
+	 **
 	 * @return
 	 */
 	String[] authorities() default { "openid" };
+
+	/**
+	 * The name of the OIDC token claim that contains the subject identifier that identifies the End-User.
+	 * The default is "sub".
+	 * @return
+	 */
+	String nameTokenClaim() default "sub";
 
 	/**
 	 * The password to be used. The default is "clientId".

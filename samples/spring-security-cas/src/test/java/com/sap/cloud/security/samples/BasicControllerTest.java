@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestTemplate;
@@ -40,16 +41,10 @@ public class BasicControllerTest {
     }
 
     @Test
-    @WithMockOidcUser(username="Any@unknown.org")
+    @WithMockOidcUser(name = "Any@unknown.org" )
     public void authenticateWithoutPermission_200() throws Exception {
         mockMvc.perform(get("/authenticate"))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    public void authenticateWithAnonymousUser_401() throws Exception {
-        mockMvc.perform(get("/authenticate"))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test

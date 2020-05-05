@@ -31,8 +31,7 @@ public class WithMockOidcUserTests {
         WithMockOidcUser mockUser = AnnotatedElementUtils.findMergedAnnotation(Annotated.class,
                 WithMockOidcUser.class);
         assertThat(mockUser.value()).isEqualTo("user");
-        assertThat(mockUser.username()).isEmpty();
-        assertThat(mockUser.roles()).isEmpty();
+        assertThat(mockUser.name()).isEmpty();
         assertThat(mockUser.authorities()).containsOnly("openid");
         assertThat(mockUser.clientId()).isEqualTo("clientId");
         assertThat(mockUser.setupBefore()).isEqualByComparingTo(TestExecutionEvent.TEST_METHOD);
