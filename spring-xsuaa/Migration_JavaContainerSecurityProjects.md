@@ -133,7 +133,7 @@ Then you need to adapt your **Spring Security Configuration** as following:
     }
    
     @Bean
-    JwtDecoder getJwtDecoder() {
+    public JwtDecoder getJwtDecoder() {
        XsuaaCredentials brokerXsuaaCredentials = brokerCredentials();
    
        XsuaaAudienceValidator customAudienceValidator = new XsuaaAudienceValidator(customXsuaaConfig());
@@ -142,6 +142,7 @@ Then you need to adapt your **Spring Security Configuration** as following:
        return new XsuaaJwtDecoderBuilder(customXsuaaConfig()).withTokenValidators(customAudienceValidator).build();
     }
     ```
+ 4. Right now, you have to make sure that the `TokenAuthenticationConverter` is NOT configured to check for local scopes (`setLocalScopeAsAuthorities(false)`). This will be supported in one of the next versions!
 
 ## Fetch data from token
 
@@ -258,6 +259,21 @@ at org.springframework.context.annotation.ConfigurationClassParser.processProper
 
 The library does not support more than one XSUAA binding. Follow [these steps](#multiple-xsuaa-bindings), to adapt your **Spring Security Configuration**.
 
+### Configuration property name `vcap.services.<<xsuaa instance name>>.credentials` is not valid
+We recognized that this error is raised, when your instance name contains upper cases. 
+Alternatively you can then define your `XsuaaCredentials` Bean the following way:
+```
+@Bean
+public XsuaaCredentials xsuaaCredentials() {
+    final XsuaaCredentials result = new XsuaaCredentials();
+    result.setXsAppName(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.xsappname"));
+    result.setClientId(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.clientid"));
+    result.setClientSecret(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.clientsecret"));
+    result.setUaaDomain(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.uaadomain"));
+    result.setUrl(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.url"));
+    return result;
+}
+```
 
 ## Issues
 In case you face issues to apply the migration steps feel free to open a Issue here on [Github.com](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new).
