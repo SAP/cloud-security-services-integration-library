@@ -19,6 +19,7 @@
         <sap.cloud.security.cas.dcl>1.0.0-SNAPSHOT</sap.cloud.security.cas.dcl>
         <apache.httpclient.version>4.5.8</apache.httpclient.version>
         <spring-security.version>5.3.1.RELEASE</spring-security.version>
+        <junit.jupiter.version>5.6.2</junit.jupiter.version>
     </properties>
 
     <dependencies>
@@ -61,8 +62,9 @@
 
         <!-- test utilities -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
