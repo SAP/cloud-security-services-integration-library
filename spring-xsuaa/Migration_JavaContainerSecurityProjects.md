@@ -138,7 +138,7 @@ Then you need to adapt your **Spring Security Configuration** as following:
    
        XsuaaAudienceValidator customAudienceValidator = new XsuaaAudienceValidator(customXsuaaConfig());
        // customAudienceValidator.configureAnotherXsuaaInstance("test3!b1", "sb-clone1!b22|test3!b1");
-       customAudienceValidator.configureAnotherXsuaaInstance(brokerXsuaaCredentials.getXsAppName(), brokerXsuaaCredentials.getClientId())
+       customAudienceValidator.configureAnotherXsuaaInstance(brokerXsuaaCredentials.getXsAppName(), brokerXsuaaCredentials.getClientId());
        return new XsuaaJwtDecoderBuilder(customXsuaaConfig()).withTokenValidators(customAudienceValidator).build();
     }
     ```
