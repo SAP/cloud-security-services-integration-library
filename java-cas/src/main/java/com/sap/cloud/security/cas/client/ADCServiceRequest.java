@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO: extract as library
+ * TODO: extract as interface
  */
 public class ADCServiceRequest {
     private String casUserId = "user";

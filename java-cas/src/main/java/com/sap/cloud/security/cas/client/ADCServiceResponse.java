@@ -3,7 +3,7 @@ package com.sap.cloud.security.cas.client;
 import org.json.JSONObject;
 
 /**
- * TODO: extract as library
+ * TODO: extract as interface
  */
 public class ADCServiceResponse {
 

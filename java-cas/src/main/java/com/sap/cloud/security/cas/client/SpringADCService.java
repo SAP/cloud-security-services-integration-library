@@ -13,9 +13,9 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 
 /**
- * TODO: extract as library
+ * TODO: use WebClient instead of RestTemplate
  */
-public class SpringADCService implements ADCService {
+/**public class SpringADCService implements ADCService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpringADCService.class);
 
     private final RestOperations restOperations;
@@ -70,4 +70,4 @@ public class SpringADCService implements ADCService {
     private static String replaceDoubleSlashes(String newPath) {
         return newPath.replaceAll("//", "/");
     }
-}
+}*/

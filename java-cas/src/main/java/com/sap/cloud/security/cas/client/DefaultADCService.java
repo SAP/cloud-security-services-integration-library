@@ -20,7 +20,7 @@ import java.net.URISyntaxException;
 import java.util.stream.Collectors;
 
 /**
- * TODO: extract as library
+ * TODO: extract as interface
  */
 public class DefaultADCService implements ADCService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultADCService.class);
