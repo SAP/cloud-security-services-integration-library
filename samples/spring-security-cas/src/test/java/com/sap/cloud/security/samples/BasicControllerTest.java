@@ -1,6 +1,6 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.cas.client.SpringADCService;
+import com.sap.cloud.security.cas.client.DefaultADCService;
 import com.sap.cloud.security.spring.context.support.WithMockOidcUser;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 
@@ -28,7 +27,7 @@ public class BasicControllerTest {
 
     @BeforeAll
     public static void adcServiceRunning() {
-        assumeTrue(new SpringADCService(new RestTemplate()).ping(URI.create(adcUrl)));
+        assumeTrue(new DefaultADCService().ping(URI.create(adcUrl)));
     }
 
     @Test
