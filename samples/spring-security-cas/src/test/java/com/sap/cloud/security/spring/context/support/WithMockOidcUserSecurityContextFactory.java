@@ -15,9 +15,6 @@
  */
 package com.sap.cloud.security.spring.context.support;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -82,7 +79,6 @@ final class WithMockOidcUserSecurityContextFactory implements
 			claims.put("iat", issuedAt.getEpochSecond());
 			claims.put("exp", expiredAt.getEpochSecond());
 			claims.put(userIdClaimName, userId);
-			claims.put("email", userId + "@test.org");
 		}
 
 		public OidcIdToken build() {
