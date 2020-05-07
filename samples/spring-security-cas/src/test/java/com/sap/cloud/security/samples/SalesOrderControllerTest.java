@@ -39,7 +39,7 @@ public class SalesOrderControllerTest {
     }
 
     @Test
-    @WithMockOidcUser(name = "Alice_salesOrders@test.com")
+    @WithMockOidcUser(name = "Alice_salesOrders@test.com", authorities = {"read:salesOrders"})
     public void readWith_Alice_salesOrders_200() throws Exception {
         mockMvc.perform(get("/salesOrders"))
                 .andExpect(status().isOk());
