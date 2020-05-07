@@ -8,17 +8,17 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ADCServiceRequestTest {
+public class AdcServiceRequestTest {
 
     @Test
     public void withAllRequiredCasAttributes() {
-        ADCServiceRequest request = new ADCServiceRequest("uid");
+        DefaultAdcServiceRequest request = new DefaultAdcServiceRequest("uid");
         assertEquals("{\"input\":{\"$cas\":{\"userId\":\"uid\"}}}", request.asInputJson());
     }
 
     @Test
     public void withAllCasAttributes() {
-        ADCServiceRequest request = new ADCServiceRequest("uid");
+        DefaultAdcServiceRequest request = new DefaultAdcServiceRequest("uid");
         request.withAction("theAction");
         request.withResource("theResource");
         assertEquals("{\"input\":{\"$cas\":{\"resource\":\"theResource\",\"action\":\"theAction\",\"userId\":\"uid\"}}}", request.asInputJson());
@@ -26,7 +26,7 @@ public class ADCServiceRequestTest {
 
     @Test
     public void withAttributes() {
-        ADCServiceRequest request = new ADCServiceRequest("uid");
+        DefaultAdcServiceRequest request = new DefaultAdcServiceRequest("uid");
         request.withAttribute("attr", "attrValue");
         request.withAttribute("attr_double", 1.234);
         request.withAttribute("attr_integer", 567);
@@ -35,7 +35,7 @@ public class ADCServiceRequestTest {
 
     @Test
     public void withUserAttributes() {
-        ADCServiceRequest request = new ADCServiceRequest("uid");
+        DefaultAdcServiceRequest request = new DefaultAdcServiceRequest("uid");
         Map<String, String> userAttributes = new HashMap() {{
             put("sub", "ignore");
             put("use", "useThis");

@@ -1,5 +1,8 @@
 package com.sap.cloud.security.cas.client;
 
+import com.sap.cloud.security.cas.client.api.AdcService;
+import com.sap.cloud.security.cas.client.api.AdcServiceRequest;
+import com.sap.cloud.security.cas.client.api.AdcServiceResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -19,29 +22,33 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.stream.Collectors;
 
-/**
- * TODO: extract as interface
- */
-public class DefaultADCService implements ADCService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultADCService.class);
+public class DefaultAdcService implements AdcService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAdcService.class);
 
     private final CloseableHttpClient httpClient;
+    private URI baseUrl;
 
-    public DefaultADCService() {
-        this.httpClient = HttpClients.createDefault();
+    public DefaultAdcService(String adcUrl) {
+        this(URI.create(adcUrl), HttpClients.createDefault());
     }
 
-    public DefaultADCService(CloseableHttpClient client) {
+    public DefaultAdcService(URI adcUrl) {
+        this(adcUrl, HttpClients.createDefault());
+    }
+
+    public DefaultAdcService(URI baseUrl, CloseableHttpClient client) {
+        this.baseUrl = baseUrl;
         this.httpClient = client;
     }
 
     @Override
-    public ADCServiceResponse isUserAuthorized(URI adcUri, ADCServiceRequest request) {
+    public AdcServiceResponse isUserAuthorized(AdcServiceRequest request) {
+        URI adcAllowedEndpoint = expandPath(baseUrl, "/v1/data/cas/allow");
         HttpPost httpPost;
-        ADCServiceResponse response = new ADCServiceResponse();
+        AdcServiceResponse response = new DefaultAdcServiceResponse();
 
         try {
-            URIBuilder builder = new URIBuilder(adcUri);
+            URIBuilder builder = new URIBuilder(adcAllowedEndpoint);
             httpPost = new HttpPost(builder.build());
             httpPost.setEntity(new StringEntity(request.asInputJson()));
 
@@ -68,8 +75,8 @@ public class DefaultADCService implements ADCService {
         return response;
     }
 
-    public boolean ping(URI adcBaseUri) {
-        URI adcHealthEndpoint = expandPath(adcBaseUri, "/health");
+    public boolean ping() {
+        URI adcHealthEndpoint = expandPath(baseUrl, "/health");
         HttpGet httpGet = new HttpGet(adcHealthEndpoint);
         try (CloseableHttpResponse httpResponse = httpClient.execute(httpGet)) {
             int statusCode = httpResponse.getStatusLine().getStatusCode();

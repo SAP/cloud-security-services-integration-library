@@ -1,58 +1,55 @@
 package com.sap.cloud.security.cas.client;
 
+import com.sap.cloud.security.cas.client.api.AdcServiceRequest;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * TODO: extract as interface
+ * This {@code AdcServiceRequest} implementation makes use of org.json Json Parser.
  */
-public class ADCServiceRequest {
+public class DefaultAdcServiceRequest implements AdcServiceRequest {
     private String casUserId = "user";
     private String casAction;
     private String casResource;
     private Map<String, Object> appAttributes = new HashMap();
     private Map<String, String> userAttributes = new HashMap();
-    private static Set<String> claimsToBeIgnored = new HashSet() {{
-        add("aud");
-        add("iss");
-        add("exp");
-        add("cid");
-        add("sub");
-    }};
 
     private Map<String, Object> input = new HashMap<>();
 
-    public ADCServiceRequest(String userId) {
+    public DefaultAdcServiceRequest(String userId) {
         this.casUserId = userId;
     }
 
-    public ADCServiceRequest withAction(String action) {
+    @Override
+    public AdcServiceRequest withAction(String action) {
         this.casAction = action;
         return this;
     }
 
-    public ADCServiceRequest withResource(String resource) {
+    @Override
+    public AdcServiceRequest withResource(String resource) {
         this.casResource = resource;
         return this;
     }
 
-    public ADCServiceRequest withAttribute(String attributeName, Object attributeValue) {
+    @Override
+    public AdcServiceRequest withAttribute(String attributeName, Object attributeValue) {
         if (attributeName != null) {
             appAttributes.put(attributeName, attributeValue);
         }
         return this;
     }
 
-    public ADCServiceRequest withUserAttributes(Map<String, String> userAttributes) {
+    @Override
+    public AdcServiceRequest withUserAttributes(Map<String, String> userAttributes) {
         this.userAttributes.putAll(userAttributes);
         return this;
     }
 
-    public ADCServiceRequest withAttributes(String... attributeExpressions) {
+    @Override
+    public AdcServiceRequest withAttributes(String... attributeExpressions) {
         for (String attribute : attributeExpressions) {
             String[] parts = attribute.split("=");
             String value = parts[1];
@@ -73,13 +70,14 @@ public class ADCServiceRequest {
      * Required for Spring HttpMessageConverter.
      * @return
      */
+    @Override
     public Map<String, Object> getInput() {
         DefaultAttributes casAttributes = new DefaultAttributes(casUserId, null, casAction, casResource);
 
         input.put("$cas", casAttributes.getAsMap());
 
         if(!userAttributes.isEmpty()) {
-            claimsToBeIgnored.forEach((claimToBeIgnored)->userAttributes.remove(claimToBeIgnored));
+            CLAIMS_TO_BE_IGNORED.forEach((claimToBeIgnored)->userAttributes.remove(claimToBeIgnored));
             input.put("$user", userAttributes);
         }
 
@@ -90,13 +88,14 @@ public class ADCServiceRequest {
         return this.input;
     }
 
+    @Override
     public String asInputJson() {
         JSONObject inputJsonObject = new JSONObject();
         inputJsonObject.put("input", getInput());
         return inputJsonObject.toString();
     }
 
-    private static class DefaultAttributes {
+    public static class DefaultAttributes {
         private Map<String, String> cas = new HashMap<>();
 
         private static final String USER_ID = "userId";

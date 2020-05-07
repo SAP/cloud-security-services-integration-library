@@ -1,32 +1,32 @@
 package com.sap.cloud.security.cas.client;
 
+import com.sap.cloud.security.cas.client.api.AdcServiceResponse;
 import org.json.JSONObject;
 
 /**
- * TODO: extract as interface
+ * This {@code AdcServiceResponse} implementation makes use of org.json Json Parser
+ * to extract the result from ADC response.
  */
-public class ADCServiceResponse {
+public class DefaultAdcServiceResponse implements AdcServiceResponse {
 
     private boolean result = false;
-    public static ADCServiceResponse DEFAULT = new ADCServiceResponse();
+    public static AdcServiceResponse DEFAULT = new DefaultAdcServiceResponse();
     private static final String ADC_RESULT_KEY = "result";
 
 
-    public ADCServiceResponse() {
+    public DefaultAdcServiceResponse() {
     }
 
-    public ADCServiceResponse(String jsonContent) {
+    public DefaultAdcServiceResponse(String jsonContent) {
         this.setResult(jsonContent);
     }
 
+    @Override
     public boolean getResult() {
         return this.result;
     }
 
-    /**
-     * For Spring usage.
-     * @param result
-     */
+     @Override
     public void setResult(boolean result) {
         this.result = result;
     }
@@ -35,6 +35,7 @@ public class ADCServiceResponse {
      *
      * @param jsonContent
      */
+    @Override
     public void setResult(String jsonContent) {
         JSONObject jsonObject = new JSONObject(jsonContent);
         if(jsonObject.has(ADC_RESULT_KEY)) {
