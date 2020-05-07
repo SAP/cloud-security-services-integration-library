@@ -1,4 +1,4 @@
-package com.sap.cloud.security.cas.client;
+package com.sap.cloud.security.cas.spring;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

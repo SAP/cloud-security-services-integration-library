@@ -1,6 +1,6 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.cas.client.DefaultADCService;
+import com.sap.cloud.security.cas.client.DefaultAdcService;
 import com.sap.cloud.security.spring.context.support.WithMockOidcUser;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -28,7 +28,7 @@ public class SalesOrderControllerTest {
 
     @BeforeAll
     public static void adcServiceRunning() {
-        assumeTrue(new DefaultADCService().ping(URI.create(adcUrl)));
+        assumeTrue(new DefaultAdcService(URI.create(adcUrl)).ping());
     }
 
     @Test

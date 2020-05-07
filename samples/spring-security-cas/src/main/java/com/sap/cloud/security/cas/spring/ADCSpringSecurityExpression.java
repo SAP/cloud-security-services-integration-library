@@ -1,7 +1,8 @@
 package com.sap.cloud.security.cas.spring;
 
-import com.sap.cloud.security.cas.client.ADCServiceRequest;
-import com.sap.cloud.security.cas.client.ADCService;
+import com.sap.cloud.security.cas.client.api.AdcServiceRequest;
+import com.sap.cloud.security.cas.client.DefaultAdcServiceRequest;
+import com.sap.cloud.security.cas.client.api.AdcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
@@ -12,32 +13,22 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 /**
  * TODO: extract as library
  */
-public class ADCSpringSecurityExpression extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
+public class AdcSpringSecurityExpression extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
 
 	private static final String[] NO_ATTRIBUTES = new String[]{};
-	private ADCService service;
-	private URI adcUri;
-
+	private AdcService service;
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public ADCSpringSecurityExpression(Authentication authentication) {
+	public AdcSpringSecurityExpression(Authentication authentication) {
 		super(authentication);
 		setTrustResolver(new AuthenticationTrustResolverImpl());
 	}
 
-	public ADCSpringSecurityExpression withOpenPolicyAgentService(ADCService service) {
+	public AdcSpringSecurityExpression withAdcService(AdcService service) {
 		this.service = service;
-		return this;
-	}
-
-	public ADCSpringSecurityExpression withAdcUri(URI adcUri) {
-		this.adcUri = adcUri;
 		return this;
 	}
 
@@ -45,8 +36,6 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 	//        // http://docs.spring.io/spring-security/oauth/apidocs/org/springframework/security/oauth2/provider/expression/OAuth2SecurityExpressionMethods.html
 	//        return "#oauth2.hasScope('" + getGlobalScope(localScope) + "')";
 	//    }
-
-	// TODO https://github.wdf.sap.corp/CPSecurity/CAS/blob/master/architecture/AMS_DETAILS.MD#spring-security-library
 
 	public boolean forAction(String action) {
 		return forResourceAction(null, action, NO_ATTRIBUTES);
@@ -71,7 +60,7 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 	public boolean forResourceAction(String resource, String action, String... attributes) {
 		String userId = getUserId();
 
-		ADCServiceRequest request = new ADCServiceRequest(userId)
+		AdcServiceRequest request = new DefaultAdcServiceRequest(userId)
 				.withAction(action)
 				.withResource(resource)
 				.withAttributes(attributes);
@@ -91,10 +80,9 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 		return user.getName(); // TODO update to unique user id
 	}
 
-	private boolean checkAuthorization(ADCServiceRequest request) {
-		URI adcUri = expandPath(this.adcUri, "/v1/data/cas/allow");
+	private boolean checkAuthorization(AdcServiceRequest request) {
 		try {
-			return service.isUserAuthorized(adcUri, request).getResult();
+			return service.isUserAuthorized(request).getResult();
 		} catch (Exception e) { // TODO improve
 			logger.error("Error accessing ADC service.", e);
 		}
@@ -120,15 +108,4 @@ public class ADCSpringSecurityExpression extends SecurityExpressionRoot implemen
 		return null;
 	}
 
-	// TODO replace with UriUtil.expandPath
-	private URI expandPath(URI uri, String pathToAppend) {
-		try {
-			String newPath = uri.getPath() + pathToAppend;
-			return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(),
-					newPath, uri.getQuery(), uri.getFragment());
-		} catch (URISyntaxException e) {
-			logger.error("Could not set path {} in given uri {}", pathToAppend, uri);
-			throw new IllegalStateException(e);
-		}
-	}
 }

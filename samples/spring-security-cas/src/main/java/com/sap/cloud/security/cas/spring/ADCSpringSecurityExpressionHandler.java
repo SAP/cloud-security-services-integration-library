@@ -1,36 +1,31 @@
 package com.sap.cloud.security.cas.spring;
 
-import com.sap.cloud.security.cas.client.ADCService;
+import com.sap.cloud.security.cas.client.api.AdcService;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
 
-import java.net.URI;
-
 /**
  * TODO: extract as library
  */
-public class ADCSpringSecurityExpressionHandler extends DefaultMethodSecurityExpressionHandler {
-	private ADCService service;
-	private URI adcUrl;
+public class AdcSpringSecurityExpressionHandler extends DefaultMethodSecurityExpressionHandler {
+	private AdcService service;
 
-	private ADCSpringSecurityExpressionHandler() {
+	private AdcSpringSecurityExpressionHandler() {
 		// use factory methods instead
 	}
 
-	public static ADCSpringSecurityExpressionHandler getInstance(ADCService service, URI adcUrl) {
-		ADCSpringSecurityExpressionHandler instance = new ADCSpringSecurityExpressionHandler();
+	public static AdcSpringSecurityExpressionHandler getInstance(AdcService service) {
+		AdcSpringSecurityExpressionHandler instance = new AdcSpringSecurityExpressionHandler();
 		instance.service = service;
-		instance.adcUrl = adcUrl;
 		return instance;
 	}
 
 	@Override
 	protected MethodSecurityExpressionOperations createSecurityExpressionRoot(
 			Authentication authentication, MethodInvocation invocation) {
-		return new ADCSpringSecurityExpression(authentication)
-						.withOpenPolicyAgentService(service)
-						.withAdcUri(adcUrl);
+		return new AdcSpringSecurityExpression(authentication)
+						.withAdcService(service);
 	}
 }
