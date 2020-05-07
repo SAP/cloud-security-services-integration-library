@@ -109,7 +109,7 @@
             </plugin>
             <plugin>
                 <!-- This can be removed when *.DCL files are compiled on the server -->
-                <groupId>com.sap.security.cas.dcl</groupId>
+                <groupId>com.sap.cloud.security.cas.dcl</groupId>
                 <artifactId>dcl-compiler-plugin</artifactId>
                 <version>${sap.cloud.security.cas.dcl}</version>
                 <executions>
@@ -121,7 +121,7 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.sap.security.cas.dcl</groupId>
+                <groupId>com.sap.cloud.security.cas.dcl</groupId>
                 <artifactId>dcl-surefire-plugin</artifactId>
                 <version>${sap.cloud.security.cas.dcl}</version>
                 <executions>
