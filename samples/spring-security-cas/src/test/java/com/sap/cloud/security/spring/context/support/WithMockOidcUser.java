@@ -49,6 +49,8 @@ import java.lang.annotation.*;
 @Documented
 @WithSecurityContext(factory = WithMockOidcUserSecurityContextFactory.class)
 public @interface WithMockOidcUser {
+	String DEFAULT_SCOPE = "SCOPE_openid";
+
 	/**
 	 * Convenience mechanism for specifying the username. The default is "user". If
 	 * {@link #name()} is specified it will be used instead of {@link #value()}
@@ -66,12 +68,13 @@ public @interface WithMockOidcUser {
 
 	/**
 	 * <p>
-	 * The authorities to use. The default is "openid". A {@link GrantedAuthority} will be created for each value.
+	 * The authorities, that should be mapped to {@code GrantedAuthority}.
+	 * The default is "SCOPE_openid". A {@link GrantedAuthority} will be created for each value.
 	 * </p>
 	 **
 	 * @return
 	 */
-	String[] authorities() default { "openid" };
+	String[] authorities() default { "SCOPE_openid" };
 
 	/**
 	 * The name of the OIDC token claim that contains the subject identifier that identifies the End-User.

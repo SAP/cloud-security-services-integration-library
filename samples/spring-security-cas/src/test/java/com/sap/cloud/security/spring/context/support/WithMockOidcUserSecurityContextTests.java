@@ -39,8 +39,8 @@ public class WithMockOidcUserSecurityContextTests {
     public void setup() {
         factory = new WithMockOidcUserSecurityContextFactory();
         when(withUser.value()).thenReturn("valueUser");
-        when(withUser.clientId()).thenReturn("clientid");
-        when(withUser.authorities()).thenReturn(new String[] { "openid" });
+        when(withUser.clientId()).thenReturn("clientId");
+        when(withUser.authorities()).thenReturn(new String[] { WithMockOidcUser.DEFAULT_SCOPE });
         when(withUser.nameTokenClaim()).thenReturn("sub");
         when(withUser.name()).thenReturn("");
     }
