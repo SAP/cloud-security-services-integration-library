@@ -32,4 +32,4 @@ jobs:
       - name: Build java-tokenclient-usage
         run: cd samples/java-tokenclient-usage; mvn -B package --file pom.xml
       - name: Build spring-security-cas
-          run: cd java-cas; mvn -B package --file pom.xml; cd ../samples/spring-security-cas; mvn -B package --file pom.xml
+        run: cd java-cas; mvn -B package --file pom.xml; cd ../samples/spring-security-cas; mvn -B package --file pom.xml
