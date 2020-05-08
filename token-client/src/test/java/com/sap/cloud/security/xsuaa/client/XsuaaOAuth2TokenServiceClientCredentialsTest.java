@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +53,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void initialize_throwsIfRestOperationsIsNull() {
-		new XsuaaOAuth2TokenService(null);
+		new XsuaaOAuth2TokenService(null, CacheConfiguration.DEFAULT);
 	}
 
 	@Test
