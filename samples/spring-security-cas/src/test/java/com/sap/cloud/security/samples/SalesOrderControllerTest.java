@@ -11,7 +11,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.net.URI;
+import java.util.stream.Collectors;
 
+import static com.sap.cloud.security.spring.context.support.MockOidcTokenRequestPostProcessor.userToken;
+import static com.sap.cloud.security.spring.context.support.MockOidcTokenRequestPostProcessor.userTokenWithAuthorities;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -35,7 +38,7 @@ public class SalesOrderControllerTest {
     @Test
     public void readWith_Bob_403() throws Exception {
         mockMvc.perform(get("/salesOrders")
-                .with(oidcLogin().idToken(token -> token.claim("sub", "Bob.noAuthorization@test.com"))))
+                .with(userToken("Bob.noAuthorization@test.com")))
                 .andExpect(status().isForbidden());
     }
 
@@ -43,9 +46,7 @@ public class SalesOrderControllerTest {
     //@WithMockOidcUser(name = "Alice_salesOrders@test.com", authorities = {"read:salesOrders"})
     public void readWith_Alice_salesOrders_200() throws Exception {
         mockMvc.perform(get("/salesOrders")
-                .with(oidcLogin()
-                        .idToken(token -> token.claim("sub", "Alice_salesOrders@test.com"))
-                        .authorities(new SimpleGrantedAuthority("read:salesOrders"))))
+                .with(userTokenWithAuthorities("Alice_salesOrders@test.com", "read:salesOrders")))
                 .andExpect(status().isOk());
     }
 
@@ -53,7 +54,7 @@ public class SalesOrderControllerTest {
     //@WithMockOidcUser(name = "Alice_salesOrdersBetween@test.com")
     public void readWith_Alice_italianSalesOrderWithId101_200() throws Exception {
         mockMvc.perform(get("/salesOrders/readByCountryAndId/IT/101")
-                .with(oidcLogin().idToken(token -> token.claim("sub", "Alice_salesOrdersBetween@test.com"))))
+                .with(userToken("Alice_salesOrdersBetween@test.com")))
                 .andExpect(status().isOk());
     }
 
@@ -61,7 +62,7 @@ public class SalesOrderControllerTest {
     //@WithMockOidcUser(name = "Alice_salesOrdersBetween@test.com")
     public void readWith_Alice_italianSalesOrderWithId501_403() throws Exception {
         mockMvc.perform(get("/salesOrders/readByCountryAndId/IT/501")
-                .with(oidcLogin().idToken(token -> token.claim("sub", "Alice_salesOrdersBetween@test.com"))))
+                .with(userToken("Alice_salesOrdersBetween@test.com")))
                 .andExpect(status().isForbidden());
     }
 
@@ -69,7 +70,7 @@ public class SalesOrderControllerTest {
     //@WithMockOidcUser(name ="Alice_countryCode@test.com")
     public void readWith_Alice_italianResource_200() throws Exception {
         mockMvc.perform(get("/salesOrders/readByCountry/IT")
-                .with(oidcLogin().idToken(token -> token.claim("sub", "Alice_countryCode@test.com"))))
+                .with(userToken("Alice_countryCode@test.com")))
                 .andExpect(status().isOk());
     }
 
@@ -77,7 +78,7 @@ public class SalesOrderControllerTest {
     //@WithMockOidcUser(name ="Alice_countryCode@test.com")
     public void readWith_Alice_americanResource_403() throws Exception {
         mockMvc.perform(get("/salesOrders/readByCountry/US")
-                .with(oidcLogin().idToken(token -> token.claim("sub", "Alice_countryCode@test.com"))))
+                .with(userToken("Alice_countryCode@test.com")))
                 .andExpect(status().isForbidden());
     }
 
