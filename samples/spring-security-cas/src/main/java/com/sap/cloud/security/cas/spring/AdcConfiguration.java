@@ -1,11 +1,5 @@
 package com.sap.cloud.security.cas.spring;
 
-import com.sap.cloud.security.cas.client.DefaultAdcService;
-import com.sap.cloud.security.cas.client.api.AdcService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 /**
  * TODO
  *  - check whether it works on CF (can load OPA_URL) timely

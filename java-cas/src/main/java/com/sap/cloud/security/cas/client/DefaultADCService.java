@@ -1,8 +1,8 @@
 package com.sap.cloud.security.cas.client;
 
-import com.sap.cloud.security.cas.client.api.AdcService;
-import com.sap.cloud.security.cas.client.api.AdcServiceRequest;
-import com.sap.cloud.security.cas.client.api.AdcServiceResponse;
+import com.sap.cloud.security.cas.client.AdcService;
+import com.sap.cloud.security.cas.client.AdcServiceRequest;
+import com.sap.cloud.security.cas.client.AdcServiceResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;

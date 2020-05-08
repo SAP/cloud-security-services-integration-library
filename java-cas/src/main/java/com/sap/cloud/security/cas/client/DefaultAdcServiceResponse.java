@@ -1,6 +1,5 @@
 package com.sap.cloud.security.cas.client;
 
-import com.sap.cloud.security.cas.client.api.AdcServiceResponse;
 import org.json.JSONObject;
 
 /**
@@ -26,10 +25,10 @@ public class DefaultAdcServiceResponse implements AdcServiceResponse {
         return this.result;
     }
 
-     @Override
-    public void setResult(boolean result) {
-        this.result = result;
-    }
+    //@Override
+    //public void setResult(boolean result) {
+    //    this.result = result;
+    //}
 
     /**
      *

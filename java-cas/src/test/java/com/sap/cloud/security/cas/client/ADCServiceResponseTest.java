@@ -1,7 +1,6 @@
 package com.sap.cloud.security.cas.client;
 
 
-import com.sap.cloud.security.cas.client.api.AdcServiceResponse;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

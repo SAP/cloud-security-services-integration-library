@@ -1,7 +1,7 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.cas.client.api.AdcException;
-import com.sap.cloud.security.cas.client.api.AdcService;
+import com.sap.cloud.security.cas.client.AdcException;
+import com.sap.cloud.security.cas.client.AdcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;

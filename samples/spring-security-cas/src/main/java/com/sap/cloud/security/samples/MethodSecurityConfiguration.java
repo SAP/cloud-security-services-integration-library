@@ -1,6 +1,6 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.cas.client.api.AdcService;
+import com.sap.cloud.security.cas.client.AdcService;
 import com.sap.cloud.security.cas.client.DefaultAdcService;
 import com.sap.cloud.security.cas.spring.AdcSpringSecurityExpressionHandler;
 import org.springframework.beans.factory.annotation.Value;

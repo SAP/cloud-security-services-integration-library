@@ -1,6 +1,5 @@
 package com.sap.cloud.security.cas.client;
 
-import com.sap.cloud.security.cas.client.api.AdcServiceRequest;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -70,8 +69,7 @@ public class DefaultAdcServiceRequest implements AdcServiceRequest {
      * Required for Spring HttpMessageConverter.
      * @return
      */
-    @Override
-    public Map<String, Object> getInput() {
+    private Map<String, Object> getInput() {
         DefaultAttributes casAttributes = new DefaultAttributes(casUserId, null, casAction, casResource);
 
         input.put("$cas", casAttributes.getAsMap());

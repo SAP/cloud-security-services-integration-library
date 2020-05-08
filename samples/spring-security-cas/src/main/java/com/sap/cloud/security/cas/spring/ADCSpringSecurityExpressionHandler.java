@@ -1,6 +1,6 @@
 package com.sap.cloud.security.cas.spring;
 
-import com.sap.cloud.security.cas.client.api.AdcService;
+import com.sap.cloud.security.cas.client.AdcService;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;

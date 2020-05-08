@@ -14,8 +14,14 @@
 	<artifactId>java</artifactId>
 	<name>java-cas</name>
 	<packaging>jar</packaging>
+	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.sap.cloud.security.cas</groupId>
+			<artifactId>java-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>

@@ -1,8 +1,8 @@
 package com.sap.cloud.security.cas.spring;
 
-import com.sap.cloud.security.cas.client.api.AdcServiceRequest;
+import com.sap.cloud.security.cas.client.AdcServiceRequest;
 import com.sap.cloud.security.cas.client.DefaultAdcServiceRequest;
-import com.sap.cloud.security.cas.client.api.AdcService;
+import com.sap.cloud.security.cas.client.AdcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.expression.SecurityExpressionRoot;

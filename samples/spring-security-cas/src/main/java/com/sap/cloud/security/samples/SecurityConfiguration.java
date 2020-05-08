@@ -1,9 +1,6 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.cas.client.DefaultAdcServiceRequest;
-import com.sap.cloud.security.cas.client.api.AdcService;
-import com.sap.cloud.security.cas.client.api.AdcServiceRequest;
-import com.sap.cloud.security.cas.client.api.AdcServiceResponse;
+import com.sap.cloud.security.cas.client.AdcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,17 +10,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
-import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.PUT;
 
 @Configuration
 @EnableWebSecurity(debug = true)

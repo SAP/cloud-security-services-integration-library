@@ -38,9 +38,6 @@ import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 import com.sap.cloud.security.xsuaa.token.Token;
 
-import testservice.api.nohttp.MyEventHandler;
-import testservice.api.nohttp.SecurityConfiguration;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
 		XsuaaAutoConfiguration.class,
