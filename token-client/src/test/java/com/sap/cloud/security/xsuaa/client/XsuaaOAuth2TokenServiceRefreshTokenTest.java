@@ -54,11 +54,6 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 		responseMap.put(EXPIRES_IN, "43199");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void initialize_throwsIfRestOperationsIsNull() {
-		new XsuaaOAuth2TokenService(null, CacheConfiguration.DEFAULT);
-	}
-
 	@Test
 	public void retrieveToken_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
