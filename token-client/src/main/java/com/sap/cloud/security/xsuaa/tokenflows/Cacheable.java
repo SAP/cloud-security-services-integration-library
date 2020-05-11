@@ -1,10 +1,10 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import javax.annotation.Nonnull;
 
 public interface Cacheable {
 
-    @NonNull
+    @Nonnull
     CacheConfiguration getCacheConfiguration();
 
     void clearCache();
