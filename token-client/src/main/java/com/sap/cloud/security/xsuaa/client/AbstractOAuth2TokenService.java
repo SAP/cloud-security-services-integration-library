@@ -65,7 +65,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	}
 
 	private boolean isCacheEnabled() {
-		return !CacheConfiguration.NO_CACHE.equals(getCacheConfiguration());
+		return !CacheConfiguration.CACHE_DISABLED.equals(getCacheConfiguration());
 	}
 
 	@Override

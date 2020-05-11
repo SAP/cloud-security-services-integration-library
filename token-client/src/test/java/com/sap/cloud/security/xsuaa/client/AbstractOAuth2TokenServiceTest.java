@@ -30,7 +30,7 @@ public class AbstractOAuth2TokenServiceTest {
 
 	@Test
 	public void retrieveAccessTokenViaClientCredentials_noCache_responseNotNull() throws OAuth2ServiceException {
-		cut = new TestOAuth2TokenService(CacheConfiguration.NO_CACHE);
+		cut = new TestOAuth2TokenService(CacheConfiguration.CACHE_DISABLED);
 		OAuth2TokenResponse oAuth2TokenResponse = retrieveAccessTokenViaClientCredentials();
 		assertThat(oAuth2TokenResponse).isNotNull();
 	}
@@ -111,7 +111,7 @@ public class AbstractOAuth2TokenServiceTest {
 
 	@Test
 	public void requestAccessToken_cacheGloballyDisabled_requestsFreshTokens() throws OAuth2ServiceException {
-		cut = new TestOAuth2TokenService(CacheConfiguration.NO_CACHE);
+		cut = new TestOAuth2TokenService(CacheConfiguration.CACHE_DISABLED);
 
 		OAuth2TokenResponse firstResponse = retrieveAccessTokenViaClientCredentials();
 		OAuth2TokenResponse secondResponse = retrieveAccessTokenViaClientCredentials();
