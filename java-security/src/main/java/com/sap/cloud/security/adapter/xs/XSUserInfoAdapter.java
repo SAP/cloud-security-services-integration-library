@@ -122,12 +122,18 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getIdentityZone() {
-		return getClaimValue(TokenClaims.XSUAA.ZONE_ID);
+		return getSubaccountId();
 	}
 
 	@Override
 	public String getSubaccountId() {
-		return getIdentityZone();
+		return getClaimValue(TokenClaims.XSUAA.ZONE_ID);
+	}
+
+	@Override
+	public String getZoneId() {
+		String global_zone_id = getClaimValue(TokenClaims.SAP_GLOBAL_ZONE_ID);
+		return Objects.nonNull(global_zone_id) ? global_zone_id : getSubaccountId();
 	}
 
 	@Override

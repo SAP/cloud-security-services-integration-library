@@ -87,6 +87,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	String getIdentityZone() throws XSUserInfoException;
 
 	/**
@@ -101,6 +102,18 @@ public interface XSUserInfo {
 	 *             if attribute is not available in the authentication token
 	 */
 	public String getSubaccountId() throws XSUserInfoException;
+
+	/**
+	 * Return zone identifier.
+	 *
+	 * @deprecated Can be replaced with
+	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)} from
+	 *             the {@code com.sap.cloud.security.token} package.
+	 * @return zone identifier
+	 * @throws XSUserInfoException
+	 *             if attribute is not available in the authentication token
+	 */
+	String getZoneId() throws XSUserInfoException;
 
 	/**
 	 * Still Supported via {@code XSUserInfoAdapter} from the
