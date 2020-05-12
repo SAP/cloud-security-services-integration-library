@@ -26,6 +26,7 @@ public class ClientCredentialsTokenFlow {
 
 	private XsuaaTokenFlowRequest request;
 	private OAuth2TokenService tokenService;
+	private boolean disableCache = false;
 
 	/**
 	 * Creates a new instance.
@@ -73,6 +74,18 @@ public class ClientCredentialsTokenFlow {
 	 */
 	public ClientCredentialsTokenFlow subdomain(String subdomain) {
 		request.setSubdomain(subdomain);
+		return this;
+	}
+
+	/**
+	 * Can be used to disable the cache for the flow.
+	 * 
+	 * @param disableCache
+	 *            - disables cache when set to {@code true}.
+	 * @return this builder.
+	 */
+	public ClientCredentialsTokenFlow disableCache(boolean disableCache) {
+		this.disableCache = disableCache;
 		return this;
 	}
 
@@ -132,7 +145,7 @@ public class ClientCredentialsTokenFlow {
 			OAuth2TokenResponse accessToken = tokenService
 					.retrieveAccessTokenViaClientCredentialsGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
-							request.getSubdomain(), requestParameter);
+							request.getSubdomain(), requestParameter, disableCache);
 			return accessToken;
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
