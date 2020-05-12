@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.security.Principal;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.sap.cloud.security.token.TokenClaims.USER_NAME;
@@ -145,4 +146,8 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 		return GrantType.from(getClaimAsString(GRANT_TYPE));
 	}
 
+	@Override
+	public String getZoneId() {
+		return Objects.nonNull(super.getZoneId()) ? super.getZoneId() : getClaimAsString(ZONE_ID);
+	}
 }

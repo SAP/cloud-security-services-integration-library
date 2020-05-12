@@ -140,4 +140,12 @@ public interface Token {
 	 * @return the audiences.
 	 **/
 	Set<String> getAudiences();
+
+
+	/**
+	 * Returns the Zone identifier, which can be used as tenant GUID.
+	 *
+	 * @return the unique Zone identifier.
+	 */
+	String getZoneId();
 }
