@@ -52,7 +52,6 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 		responseMap.put(EXPIRES_IN, "43199");
 	}
 
-
 	@Test
 	public void retrieveToken_throwsOnNullValues() {
 		assertThatThrownBy(() -> {

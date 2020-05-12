@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
-public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService  {
+public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultOAuth2TokenService.class);
 
@@ -44,7 +44,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService  {
 		this(HttpClients.createDefault(), cacheConfiguration);
 	}
 
-	public DefaultOAuth2TokenService(@Nonnull CloseableHttpClient client, @Nonnull CacheConfiguration cacheConfiguration) {
+	public DefaultOAuth2TokenService(@Nonnull CloseableHttpClient client,
+			@Nonnull CacheConfiguration cacheConfiguration) {
 		this.httpClient = client;
 		this.cacheConfiguration = cacheConfiguration;
 	}

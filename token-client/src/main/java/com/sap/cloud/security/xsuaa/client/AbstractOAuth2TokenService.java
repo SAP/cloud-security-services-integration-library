@@ -27,15 +27,17 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	private final Ticker ticker; // used for cache testing
 
 	public AbstractOAuth2TokenService() {
-		 this(Ticker.systemTicker(), false);
+		this(Ticker.systemTicker(), false);
 	}
 
 	/**
 	 * This constructor is used for testing purposes only.
 	 *
-	 * @param cacheTicker will be used in the cache to determine the time.
-	 * @param sameThreadCache set to true disables maintenance jobs of the cache. This makes
-	 *                        the cache slower but more predictable for testing.
+	 * @param cacheTicker
+	 *            will be used in the cache to determine the time.
+	 * @param sameThreadCache
+	 *            set to true disables maintenance jobs of the cache. This makes the
+	 *            cache slower but more predictable for testing.
 	 */
 	AbstractOAuth2TokenService(Ticker cacheTicker, boolean sameThreadCache) {
 		ticker = cacheTicker;
@@ -65,7 +67,6 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain);
 	}
-
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@Nonnull URI tokenEndpointUri,
@@ -172,12 +173,12 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 			@Nullable String subdomain) throws OAuth2ServiceException {
 		URI tokenEndpointUriWithSubdomainReplaced = UriUtil.replaceSubdomain(tokenEndpointUri, subdomain);
 		if (isCacheEnabled()) {
-			return getOrRequestResponse(headers, tokenEndpointUriWithSubdomainReplaced, additionalParameters);
+			return getOrRequestAccessToken(headers, tokenEndpointUriWithSubdomainReplaced, additionalParameters);
 		}
 		return requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
 	}
 
-	private OAuth2TokenResponse getOrRequestResponse(HttpHeaders headers, URI tokenEndpointUriWithSubdomainReplaced,
+	private OAuth2TokenResponse getOrRequestAccessToken(HttpHeaders headers, URI tokenEndpointUriWithSubdomainReplaced,
 			Map<String, String> additionalParameters) throws OAuth2ServiceException {
 		CacheKey cacheKey = new CacheKey(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
 		OAuth2TokenResponse oAuth2TokenResponse = getOrCreateResponseCache().getIfPresent(cacheKey);
@@ -195,16 +196,16 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	private Cache<CacheKey, OAuth2TokenResponse> getOrCreateResponseCache() {
 		if (responseCache == null) {
-			responseCache = createCache();
+			responseCache = createResponseCache();
 		}
 		return responseCache;
 	}
 
-	private Cache<CacheKey, OAuth2TokenResponse> createCache() {
+	private Cache<CacheKey, OAuth2TokenResponse> createResponseCache() {
 		Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder()
-						.maximumSize(getCacheConfiguration().getCacheSize())
-						.ticker(ticker)
-						.expireAfterWrite(getCacheConfiguration().getExpireAfterWrite());
+				.maximumSize(getCacheConfiguration().getCacheSize())
+				.ticker(ticker)
+				.expireAfterWrite(getCacheConfiguration().getExpireAfterWrite());
 		if (sameThreadCache) {
 			cacheBuilder.executor(Runnable::run);
 		}

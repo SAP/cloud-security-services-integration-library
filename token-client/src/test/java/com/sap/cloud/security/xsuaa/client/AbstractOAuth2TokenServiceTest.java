@@ -40,7 +40,8 @@ public class AbstractOAuth2TokenServiceTest {
 	}
 
 	@Test
-	public void retrieveAccessTokenViaRefreshToken_twoDistinctRequests_onlyTwoRequestCalls() throws OAuth2ServiceException {
+	public void retrieveAccessTokenViaRefreshToken_twoDistinctRequests_onlyTwoRequestCalls()
+			throws OAuth2ServiceException {
 		retrieveAccessTokenViaRefreshToken("refreshToken");
 		retrieveAccessTokenViaRefreshToken("another refreshToken");
 		retrieveAccessTokenViaRefreshToken("refreshToken");
@@ -49,7 +50,8 @@ public class AbstractOAuth2TokenServiceTest {
 	}
 
 	@Test
-	public void retrieveAccessTokenViaPasswordGrant_twoDistinctRequests_onlyTwoRequestCalls() throws OAuth2ServiceException {
+	public void retrieveAccessTokenViaPasswordGrant_twoDistinctRequests_onlyTwoRequestCalls()
+			throws OAuth2ServiceException {
 		retrieveAccessTokenViaPasswordGrant("user1");
 		retrieveAccessTokenViaPasswordGrant("user2");
 		retrieveAccessTokenViaPasswordGrant("user1");
@@ -58,7 +60,8 @@ public class AbstractOAuth2TokenServiceTest {
 	}
 
 	@Test
-	public void retrieveAccessTokenViaClientCredentials_twoDistinctRequests_onlyTwoRequestCalls() throws OAuth2ServiceException {
+	public void retrieveAccessTokenViaClientCredentials_twoDistinctRequests_onlyTwoRequestCalls()
+			throws OAuth2ServiceException {
 		retrieveAccessTokenViaClientCredentials();
 		retrieveAccessTokenViaClientCredentials(new ClientCredentials("other client id", "secret"));
 		retrieveAccessTokenViaClientCredentials();
@@ -67,7 +70,8 @@ public class AbstractOAuth2TokenServiceTest {
 	}
 
 	@Test
-	public void retrieveAccessTokenViaJwtBearerTokenGrant_twoDistinctRequests_onlyTwoRequestCalls() throws OAuth2ServiceException {
+	public void retrieveAccessTokenViaJwtBearerTokenGrant_twoDistinctRequests_onlyTwoRequestCalls()
+			throws OAuth2ServiceException {
 		retrieveAccessTokenViaJwtBearerTokenGrant("token");
 		retrieveAccessTokenViaJwtBearerTokenGrant("differentToken");
 		retrieveAccessTokenViaJwtBearerTokenGrant("token");
@@ -90,7 +94,6 @@ public class AbstractOAuth2TokenServiceTest {
 
 		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
 	}
-
 
 	@Test
 	public void requestAccessToken_differentAdditionalParameters_requestsFreshToken() throws OAuth2ServiceException {
@@ -173,12 +176,12 @@ public class AbstractOAuth2TokenServiceTest {
 				optionalParameters);
 	}
 
-
 	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials() throws OAuth2ServiceException {
 		return retrieveAccessTokenViaClientCredentials(clientCredentials());
 	}
 
-	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials(ClientCredentials clientCredentials) throws OAuth2ServiceException {
+	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials(ClientCredentials clientCredentials)
+			throws OAuth2ServiceException {
 		return cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials, SUBDOMAIN,
 				null);
 	}
@@ -188,7 +191,8 @@ public class AbstractOAuth2TokenServiceTest {
 				SUBDOMAIN, null);
 	}
 
-	private OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri) throws OAuth2ServiceException {
+	private OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri)
+			throws OAuth2ServiceException {
 		return cut.retrieveAccessTokenViaPasswordGrant(tokenEndpointUri, clientCredentials(), "username", "password",
 				SUBDOMAIN, null);
 	}
@@ -197,7 +201,8 @@ public class AbstractOAuth2TokenServiceTest {
 		return retrieveAccessTokenViaRefreshToken(refreshToken, SUBDOMAIN);
 	}
 
-	private OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(String refreshToken, String subdomain) throws OAuth2ServiceException {
+	private OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(String refreshToken, String subdomain)
+			throws OAuth2ServiceException {
 		return cut.retrieveAccessTokenViaRefreshToken(TOKEN_ENDPOINT_URI, clientCredentials(), refreshToken, subdomain);
 	}
 
@@ -215,7 +220,8 @@ public class AbstractOAuth2TokenServiceTest {
 			this.cacheConfiguration = cacheConfiguration;
 		}
 
-		@Override protected OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
+		@Override
+		protected OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
 				Map<String, String> parameters) {
 			tokenRequestCallCount++;
 			return new OAuth2TokenResponse("", 1L, null);
@@ -228,7 +234,7 @@ public class AbstractOAuth2TokenServiceTest {
 
 	}
 
-	private static class TestCacheTicker implements  Ticker {
+	private static class TestCacheTicker implements Ticker {
 		long elapsed = 0;
 
 		@Override
@@ -237,7 +243,7 @@ public class AbstractOAuth2TokenServiceTest {
 		}
 
 		public void advance(Duration duration) {
-			this.elapsed = elapsed + duration.toNanos();;
+			this.elapsed = elapsed + duration.toNanos();
 		}
 
 		public void reset() {

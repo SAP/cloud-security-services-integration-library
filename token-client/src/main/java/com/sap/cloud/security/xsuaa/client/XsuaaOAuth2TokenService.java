@@ -42,7 +42,8 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		this(restOperations, CacheConfiguration.DEFAULT);
 	}
 
-	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations, @Nonnull CacheConfiguration cacheConfiguration) {
+	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations,
+			@Nonnull CacheConfiguration cacheConfiguration) {
 		assertNotNull(restOperations, "restOperations is required");
 		assertNotNull(cacheConfiguration, "cacheConfiguration is required");
 		this.cacheConfiguration = cacheConfiguration;
