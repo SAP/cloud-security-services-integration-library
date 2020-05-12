@@ -373,11 +373,10 @@ public class XSUserInfoAdapterIntegrationTest {
 		ClientCredentials clientCredentials = new ClientCredentials(request.getClientId(), request.getClientSecret());
 		URI tokenEndpointUri = URI.create(request.getTokenEndpoint() + "/oauth/token");
 		when(oAuth2TokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-				eq(tokenEndpointUri),
-				eq(clientCredentials),
-				eq(correctEnduserInfo.getAppToken()),
-				any(),
-				anyMap())).thenReturn(oAuth2TokenResponse);
+				eq(tokenEndpointUri), eq(clientCredentials),
+				eq(correctEnduserInfo.getAppToken()), any(),
+				anyMap(), anyBoolean()))
+						.thenReturn(oAuth2TokenResponse);
 		when(oAuth2TokenResponse.getAccessToken()).thenReturn(testToken);
 
 		// execute flow

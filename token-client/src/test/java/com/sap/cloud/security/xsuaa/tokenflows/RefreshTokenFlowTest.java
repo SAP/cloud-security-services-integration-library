@@ -89,7 +89,7 @@ public class RefreshTokenFlowTest {
 		when(mockTokenService
 				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						eq(REFRESH_TOKEN), isNull(), anyBoolean()))
-				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
+								.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
 			cut.refreshToken(REFRESH_TOKEN)
@@ -111,7 +111,7 @@ public class RefreshTokenFlowTest {
 		when(mockTokenService
 				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						eq(REFRESH_TOKEN), isNull(), anyBoolean()))
-				.thenReturn(accessToken);
+								.thenReturn(accessToken);
 		return accessToken;
 	}
 

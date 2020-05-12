@@ -136,7 +136,7 @@ public class UserTokenFlowTest {
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						eq(exchangeToken),
-						isNull(), eq(additionalAuthoritiesParam), anyBoolean())
+						isNull(), eq(additionalAuthoritiesParam), anyBoolean());
 	}
 
 	private OAuth2TokenResponse mockRetrieveAccessToken() throws OAuth2ServiceException {

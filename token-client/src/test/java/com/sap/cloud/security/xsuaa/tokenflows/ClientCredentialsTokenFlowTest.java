@@ -73,7 +73,7 @@ public class ClientCredentialsTokenFlowTest {
 		when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						isNull(), isNull(), anyBoolean()))
-				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
+								.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
 			cut.execute();
@@ -122,7 +122,7 @@ public class ClientCredentialsTokenFlowTest {
 		when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						any(), any(), anyBoolean()))
-				.thenReturn(accessToken);
+								.thenReturn(accessToken);
 		return accessToken;
 	}
 

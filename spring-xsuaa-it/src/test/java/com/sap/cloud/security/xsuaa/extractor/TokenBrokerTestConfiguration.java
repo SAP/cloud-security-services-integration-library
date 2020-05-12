@@ -38,7 +38,8 @@ public class TokenBrokerTestConfiguration {
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
 					ClientCredentials clientCredentials, @Nullable String subdomain,
-					@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
+					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
+					throws OAuth2ServiceException {
 				try {
 					return new OAuth2TokenResponse("token_cc", 100, null);
 				} catch (Exception e) {
@@ -49,13 +50,15 @@ public class TokenBrokerTestConfiguration {
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
 					ClientCredentials clientCredentials, String token, @Nullable String subdomain,
-					@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
+					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
+					throws OAuth2ServiceException {
 				return null;
 			}
 
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri,
-					ClientCredentials clientCredentials, String refreshToken, @Nullable String subdomain)
+					ClientCredentials clientCredentials, String refreshToken, @Nullable String subdomain,
+					boolean disableCacheForRequest)
 					throws OAuth2ServiceException {
 				return null;
 			}
@@ -63,7 +66,8 @@ public class TokenBrokerTestConfiguration {
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri,
 					ClientCredentials clientCredentials, String username, String password, @Nullable String subdomain,
-					@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
+					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
+					throws OAuth2ServiceException {
 				try {
 					if ("https://mydomain.auth.com/oauth/token".equals(tokenEndpointUri.toString())) {
 						if ("myuser".equals(username) && "mypass".equals(password)
@@ -86,7 +90,8 @@ public class TokenBrokerTestConfiguration {
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
 					ClientCredentials clientCredentials, String token, @Nullable String subdomain,
-					@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
+					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
+					throws OAuth2ServiceException {
 				return null;
 			}
 		};
