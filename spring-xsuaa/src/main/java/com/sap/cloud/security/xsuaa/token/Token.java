@@ -32,7 +32,6 @@ public interface Token extends UserDetails {
 	 * Returns the Zone identifier, which can be used as tenant GUID.
 	 *
 	 * @return the unique Zone identifier.
-	 * @Since 2.7.x
 	 */
 	String getZoneId();
 

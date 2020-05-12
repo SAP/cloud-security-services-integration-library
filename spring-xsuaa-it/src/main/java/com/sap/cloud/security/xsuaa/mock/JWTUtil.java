@@ -1,8 +1,8 @@
 package com.sap.cloud.security.xsuaa.mock;
 
-import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-
 import java.io.IOException;
+
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 
 public class JWTUtil {
 
