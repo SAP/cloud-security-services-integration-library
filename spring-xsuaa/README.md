@@ -1,4 +1,4 @@
-# XSUAA Security 
+# SAP CP Spring XSUAA Security Library 
 
 ## Integrate in a OAuth resource server
 
