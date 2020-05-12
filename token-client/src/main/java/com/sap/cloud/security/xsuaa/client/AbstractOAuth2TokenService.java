@@ -7,7 +7,6 @@ import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,26 +46,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return getOAuth2TokenResponse(tokenEndpointUri, parameters, headers, subdomain);
+		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain);
 	}
 
-	private OAuth2TokenResponse getOAuth2TokenResponse(@Nonnull URI tokenEndpointUri, Map<String, String> parameters, HttpHeaders headers, @Nullable String subdomain) throws OAuth2ServiceException {
-		URI tokenEndpointUriWithSubdomainReplaced = UriUtil.replaceSubdomain(tokenEndpointUri, subdomain);
-		if (isCacheEnabled()) {
-			CacheKey cacheKey = new CacheKey(tokenEndpointUriWithSubdomainReplaced, headers, parameters);
-			OAuth2TokenResponse oAuth2TokenResponse = getOrCreateResponseCache().getIfPresent(cacheKey);
-			if (oAuth2TokenResponse == null) {
-				getOrCreateResponseCache()
-						.put(cacheKey, requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, parameters));
-			}
-			return getOrCreateResponseCache().getIfPresent(cacheKey);
-		}
-		return requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, parameters);
-	}
-
-	private boolean isCacheEnabled() {
-		return !CacheConfiguration.CACHE_DISABLED.equals(getCacheConfiguration());
-	}
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@Nonnull URI tokenEndpointUri,
@@ -85,7 +67,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		HttpHeaders headers = HttpHeadersFactory.createWithAuthorizationBearerHeader(token);
 
-		return getOAuth2TokenResponse(tokenEndpointUri, parameters, headers, subdomain);
+		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain);
 	}
 
 	@Override
@@ -104,7 +86,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return getOAuth2TokenResponse(tokenEndpointUri, parameters, headers, subdomain);
+		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain);
 	}
 
 	@Override
@@ -127,7 +109,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return getOAuth2TokenResponse(tokenEndpoint, parameters, headers, subdomain);
+		return getOAuth2TokenResponse(tokenEndpoint, headers, parameters, subdomain);
 	}
 
 	@Override
@@ -147,7 +129,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return getOAuth2TokenResponse(tokenEndpoint, parameters, headers, subdomain);
+		return getOAuth2TokenResponse(tokenEndpoint, headers, parameters, subdomain);
 	}
 
 	/**
@@ -168,8 +150,32 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	protected abstract OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException;
 
+	private OAuth2TokenResponse getOAuth2TokenResponse(@Nonnull URI tokenEndpointUri, HttpHeaders headers,
+			Map<String, String> additionalParameters,
+			@Nullable String subdomain) throws OAuth2ServiceException {
+		URI tokenEndpointUriWithSubdomainReplaced = UriUtil.replaceSubdomain(tokenEndpointUri, subdomain);
+		if (isCacheEnabled()) {
+			return getOrRequestResponse(headers, tokenEndpointUriWithSubdomainReplaced, additionalParameters);
+		}
+		return requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
+	}
 
-	@NonNull
+	private OAuth2TokenResponse getOrRequestResponse(HttpHeaders headers, URI tokenEndpointUriWithSubdomainReplaced,
+			Map<String, String> additionalParameters) throws OAuth2ServiceException {
+		CacheKey cacheKey = new CacheKey(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
+		OAuth2TokenResponse oAuth2TokenResponse = getOrCreateResponseCache().getIfPresent(cacheKey);
+		if (oAuth2TokenResponse == null) {
+			getOrCreateResponseCache()
+					.put(cacheKey, requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers,
+							additionalParameters));
+		}
+		return getOrCreateResponseCache().getIfPresent(cacheKey);
+	}
+
+	private boolean isCacheEnabled() {
+		return !CacheConfiguration.CACHE_DISABLED.equals(getCacheConfiguration());
+	}
+
 	private Cache<CacheKey, OAuth2TokenResponse> getOrCreateResponseCache() {
 		if (responseCache == null) {
 			responseCache = Caffeine.newBuilder()
@@ -194,8 +200,10 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
+			if (this == o)
+				return true;
+			if (o == null || getClass() != o.getClass())
+				return false;
 			CacheKey cacheKey = (CacheKey) o;
 			return Objects.equals(tokenEndpointUri, cacheKey.tokenEndpointUri) &&
 					Objects.equals(headers, cacheKey.headers) &&
