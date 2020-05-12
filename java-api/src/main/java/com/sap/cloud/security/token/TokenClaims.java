@@ -19,7 +19,7 @@ public final class TokenClaims {
 	public static final String FAMILY_NAME = "family_name";
 	public static final String EMAIL = "email";
 	public static final String SAP_GLOBAL_USER_ID = "sap_uid";
-	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid";
+	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // tenant GUID
 
 	public final class XSUAA {
 
