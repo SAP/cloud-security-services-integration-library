@@ -5,7 +5,6 @@ import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Map;
@@ -13,6 +12,7 @@ import java.util.Map;
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -25,8 +25,8 @@ public class PasswordTokenFlowTest {
 
 	@Before
 	public void setUp() {
-		tokenService = Mockito.mock(OAuth2TokenService.class);
-		endpointsProvider = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
+		tokenService = mock(OAuth2TokenService.class);
+		endpointsProvider = mock(OAuth2ServiceEndpointsProvider.class);
 
 		when(endpointsProvider.getTokenEndpoint()).thenReturn(TOKEN_ENDPOINT_URI);
 
@@ -104,7 +104,7 @@ public class PasswordTokenFlowTest {
 	public void allRequiredParametersAreUsed() throws Exception {
 		executeRequest();
 
-		Mockito.verify(tokenService, times(1))
+		verify(tokenService, times(1))
 				.retrieveAccessTokenViaPasswordGrant(eq(TOKEN_ENDPOINT_URI), eq(CLIENT_CREDENTIALS), eq(
 						USERNAME),
 						eq(PASSWORD), any(), any(), eq(false));
@@ -115,7 +115,7 @@ public class PasswordTokenFlowTest {
 		String newSubdomain = "staging";
 		createValidRequest().subdomain(newSubdomain).execute();
 
-		Mockito.verify(tokenService, times(1))
+		verify(tokenService, times(1))
 				.retrieveAccessTokenViaPasswordGrant(any(), any(), any(),
 						any(), eq(newSubdomain), any(), anyBoolean());
 	}
@@ -138,7 +138,7 @@ public class PasswordTokenFlowTest {
 
 		createValidRequest().optionalParameters(givenParameters).execute();
 
-		Mockito.verify(tokenService, times(1))
+		verify(tokenService, times(1))
 				.retrieveAccessTokenViaPasswordGrant(any(), any(), any(),
 						any(), any(), eq(equalParameters), anyBoolean());
 	}
@@ -167,7 +167,7 @@ public class PasswordTokenFlowTest {
 	}
 
 	private void verifyThatDisableCacheIs(boolean disableCache) throws OAuth2ServiceException {
-		Mockito.verify(tokenService, times(1))
+		verify(tokenService, times(1))
 				.retrieveAccessTokenViaPasswordGrant(any(), any(), any(),
 						any(), any(), any(), eq(disableCache));
 	}

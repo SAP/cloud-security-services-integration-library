@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -14,7 +15,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
@@ -37,7 +37,7 @@ public class UserTokenFlowTest {
 
 	@Before
 	public void setup() {
-		this.mockTokenService = Mockito.mock(OAuth2TokenService.class);
+		this.mockTokenService = mock(OAuth2TokenService.class);
 		this.cut = new UserTokenFlow(mockTokenService, endpointsProvider, clientCredentials);
 	}
 
@@ -85,7 +85,7 @@ public class UserTokenFlowTest {
 		OAuth2TokenResponse response = cut.token(exchangeToken).execute();
 
 		assertThat(response.getAccessToken(), is(mockedResponse.getAccessToken()));
-		Mockito.verify(mockTokenService, times(1))
+		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(endpointsProvider.getTokenEndpoint(),
 						clientCredentials, exchangeToken, null,
 						null, false);
@@ -99,7 +99,7 @@ public class UserTokenFlowTest {
 		OAuth2TokenResponse response = cut.subdomain(subdomain).token(exchangeToken).execute();
 
 		assertThat(response.getAccessToken(), is(mockedResponse.getAccessToken()));
-		Mockito.verify(mockTokenService, times(1))
+		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), eq(subdomain), any(), anyBoolean());
 	}
 
@@ -110,12 +110,12 @@ public class UserTokenFlowTest {
 		OAuth2TokenResponse response = cut.disableCache(true).token(exchangeToken).execute();
 
 		assertThat(response.getAccessToken(), is(mockedResponse.getAccessToken()));
-		Mockito.verify(mockTokenService, times(1))
+		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(), any(), eq(true));
 
 		cut.disableCache(false).token(exchangeToken).execute();
 
-		Mockito.verify(mockTokenService, times(1))
+		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(), any(), eq(false));
 	}
 
@@ -133,10 +133,10 @@ public class UserTokenFlowTest {
 				.execute();
 
 		assertThat(actualResponse.getAccessToken(), is(mockedResponse.getAccessToken()));
-		Mockito.verify(mockTokenService, times(1))
+		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						eq(exchangeToken),
-						isNull(), eq(additionalAuthoritiesParam), anyBoolean());
+						isNull(), eq(additionalAuthoritiesParam), anyBoolean())
 	}
 
 	private OAuth2TokenResponse mockRetrieveAccessToken() throws OAuth2ServiceException {

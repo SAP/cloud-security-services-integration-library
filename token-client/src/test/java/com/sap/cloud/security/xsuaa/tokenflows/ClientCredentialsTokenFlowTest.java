@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
 import java.util.HashMap;
@@ -14,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
@@ -70,7 +70,7 @@ public class ClientCredentialsTokenFlowTest {
 
 	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
-		Mockito.when(mockTokenService
+		when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						isNull(), isNull(), anyBoolean()))
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
@@ -91,7 +91,7 @@ public class ClientCredentialsTokenFlowTest {
 		OAuth2TokenResponse response = cut.attributes(additionalAuthorities).execute();
 
 		assertThat(response.getAccessToken(), is(accessToken.getAccessToken()));
-		Mockito.verify(mockTokenService, times(1))
+		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						isNull(), isNotNull(), anyBoolean());
 	}
@@ -112,14 +112,14 @@ public class ClientCredentialsTokenFlowTest {
 	}
 
 	private void verifyTokenServiceCall(boolean disableCache) throws OAuth2ServiceException {
-		Mockito.verify(mockTokenService, times(1))
+		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						isNull(), isNull(), eq(disableCache));
 	}
 
 	private OAuth2TokenResponse mockRetrieveAccessToken() throws OAuth2ServiceException {
 		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
-		Mockito.when(mockTokenService
+		when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						any(), any(), anyBoolean()))
 				.thenReturn(accessToken);
