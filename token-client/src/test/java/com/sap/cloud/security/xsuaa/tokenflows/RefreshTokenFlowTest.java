@@ -4,8 +4,8 @@ import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.times;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -66,24 +66,29 @@ public class RefreshTokenFlowTest {
 
 	@Test
 	public void execute() throws TokenFlowException, OAuth2ServiceException {
-		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
+		OAuth2TokenResponse accessToken = mockRetrieveAccessToken();
 
-		Mockito.when(mockTokenService
-				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
-						eq(REFRESH_TOKEN), isNull()))
-				.thenReturn(accessToken);
+		OAuth2TokenResponse response = cut.refreshToken(REFRESH_TOKEN).execute();
 
-		OAuth2TokenResponse jwt = cut.refreshToken(REFRESH_TOKEN)
-				.execute();
+		assertThat(response.getAccessToken(), is(accessToken.getAccessToken()));
+		verifyRetrieveAccessTokenCalledWith(REFRESH_TOKEN, false);
+	}
 
-		assertThat(jwt.getAccessToken(), is(accessToken.getAccessToken()));
+	@Test
+	public void execute_disableCacheIsUsed() throws TokenFlowException, OAuth2ServiceException {
+		OAuth2TokenResponse accessToken = mockRetrieveAccessToken();
+
+		OAuth2TokenResponse response = cut.refreshToken(REFRESH_TOKEN).disableCache(true).execute();
+
+		assertThat(response.getAccessToken(), is(accessToken.getAccessToken()));
+		verifyRetrieveAccessTokenCalledWith(REFRESH_TOKEN, true);
 	}
 
 	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		Mockito.when(mockTokenService
 				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
-						eq(REFRESH_TOKEN), isNull()))
+						eq(REFRESH_TOKEN), isNull(), anyBoolean()))
 				.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
@@ -92,6 +97,22 @@ public class RefreshTokenFlowTest {
 		}).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
 						"Error refreshing token with grant_type 'refresh_token': exception executed REST call");
+	}
+
+	private void verifyRetrieveAccessTokenCalledWith(String refreshToken, boolean disableCacheForRequest)
+			throws OAuth2ServiceException {
+		Mockito.verify(mockTokenService, times(1))
+				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
+						eq(refreshToken), isNull(), eq(disableCacheForRequest));
+	}
+
+	private OAuth2TokenResponse mockRetrieveAccessToken() throws OAuth2ServiceException {
+		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
+		Mockito.when(mockTokenService
+				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
+						eq(REFRESH_TOKEN), isNull(), anyBoolean()))
+				.thenReturn(accessToken);
+		return accessToken;
 	}
 
 }
