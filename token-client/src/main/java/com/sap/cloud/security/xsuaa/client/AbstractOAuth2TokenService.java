@@ -2,6 +2,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
@@ -22,7 +23,23 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	private Cache<CacheKey, OAuth2TokenResponse> responseCache;
 
+	private final boolean sameThreadCache; // used for cache testing
+	private final Ticker ticker; // used for cache testing
+
 	public AbstractOAuth2TokenService() {
+		 this(Ticker.systemTicker(), false);
+	}
+
+	/**
+	 * This constructor is used for testing purposes only.
+	 *
+	 * @param cacheTicker will be used in the cache to determine the time.
+	 * @param sameThreadCache set to true disables maintenance jobs of the cache. This makes
+	 *                        the cache slower but more predictable for testing.
+	 */
+	AbstractOAuth2TokenService(Ticker cacheTicker, boolean sameThreadCache) {
+		ticker = cacheTicker;
+		this.sameThreadCache = sameThreadCache;
 	}
 
 	@Override
@@ -178,12 +195,20 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	private Cache<CacheKey, OAuth2TokenResponse> getOrCreateResponseCache() {
 		if (responseCache == null) {
-			responseCache = Caffeine.newBuilder()
-					.maximumSize(getCacheConfiguration().getCacheSize())
-					.expireAfterWrite(getCacheConfiguration().getExpireAfterWrite())
-					.build();
+			responseCache = createCache();
 		}
 		return responseCache;
+	}
+
+	private Cache<CacheKey, OAuth2TokenResponse> createCache() {
+		Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder()
+						.maximumSize(getCacheConfiguration().getCacheSize())
+						.ticker(ticker)
+						.expireAfterWrite(getCacheConfiguration().getExpireAfterWrite());
+		if (sameThreadCache) {
+			cacheBuilder.executor(Runnable::run);
+		}
+		return cacheBuilder.build();
 	}
 
 	private class CacheKey {

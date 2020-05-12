@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
 import org.assertj.core.util.Maps;
@@ -7,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,11 +17,13 @@ public class AbstractOAuth2TokenServiceTest {
 
 	public static final URI TOKEN_ENDPOINT_URI = URI.create("http://test.token.endpoint/oauth/token");
 	public static final String SUBDOMAIN = "subdomain";
+	private final static TestCacheTicker TEST_CACHE_TICKER = new TestCacheTicker();
 	private TestOAuth2TokenService cut;
 
 	@Before
 	public void setUp() {
 		cut = new TestOAuth2TokenService(CacheConfiguration.DEFAULT);
+		TEST_CACHE_TICKER.reset();
 	}
 
 	@Test
@@ -138,6 +142,27 @@ public class AbstractOAuth2TokenServiceTest {
 		assertThat(firstResponse).isSameAs(secondResponse);
 	}
 
+	@Test
+	public void requestAccessToken_tokensAreInvalidatedAfterTime_requestsFreshToken() throws OAuth2ServiceException {
+		OAuth2TokenResponse firstResponse = retrieveAccessTokenViaClientCredentials();
+		TEST_CACHE_TICKER.advance(CacheConfiguration.DEFAULT.getExpireAfterWrite());
+		OAuth2TokenResponse secondResponse = retrieveAccessTokenViaClientCredentials();
+
+		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
+		assertThat(firstResponse).isNotSameAs(secondResponse);
+	}
+
+	@Test
+	public void requestAccessToken_cacheIsFull_requestsFreshToken() throws OAuth2ServiceException {
+		cut = new TestOAuth2TokenService(new CacheConfiguration(Duration.ofMinutes(10), 1));
+		OAuth2TokenResponse user1Response = retrieveAccessTokenViaPasswordGrant("user1");
+		OAuth2TokenResponse user2Response = retrieveAccessTokenViaPasswordGrant("user2");
+		OAuth2TokenResponse secondUser1Response = retrieveAccessTokenViaPasswordGrant("user1");
+
+		assertThat(user1Response).isNotSameAs(secondUser1Response).isNotSameAs(user2Response);
+		assertThat(cut.tokenRequestCallCount).isEqualTo(3);
+	}
+
 	private OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(String token) throws OAuth2ServiceException {
 		return retrieveAccessTokenViaJwtBearerTokenGrant(token, null);
 	}
@@ -180,12 +205,13 @@ public class AbstractOAuth2TokenServiceTest {
 		return new ClientCredentials("clientId", "clientSecret");
 	}
 
-	private class TestOAuth2TokenService extends AbstractOAuth2TokenService {
+	private static class TestOAuth2TokenService extends AbstractOAuth2TokenService {
 
 		private final CacheConfiguration cacheConfiguration;
 		private int tokenRequestCallCount = 0;
 
 		public TestOAuth2TokenService(CacheConfiguration cacheConfiguration) {
+			super(TEST_CACHE_TICKER, true);
 			this.cacheConfiguration = cacheConfiguration;
 		}
 
@@ -200,5 +226,22 @@ public class AbstractOAuth2TokenServiceTest {
 			return cacheConfiguration;
 		}
 
+	}
+
+	private static class TestCacheTicker implements  Ticker {
+		long elapsed = 0;
+
+		@Override
+		public long read() {
+			return elapsed;
+		}
+
+		public void advance(Duration duration) {
+			this.elapsed = elapsed + duration.toNanos();;
+		}
+
+		public void reset() {
+			elapsed = 0;
+		}
 	}
 }
