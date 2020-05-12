@@ -23,8 +23,18 @@ public interface Token extends UserDetails {
 	 * Returns the subaccount identifier, which can be used as tenant GUID.
 	 *
 	 * @return the subaccount identifier.
+	 * @deprecated use {@link #getZoneId()} instead
 	 */
+	@Deprecated
 	String getSubaccountId();
+
+	/**
+	 * Returns the Zone identifier, which can be used as tenant GUID.
+	 *
+	 * @return the unique Zone identifier.
+	 * @Since 2.7.x
+	 */
+	String getZoneId();
 
 	/**
 	 * Returns the subdomain of the calling tenant's subaccount.
@@ -57,8 +67,8 @@ public interface Token extends UserDetails {
 	 * <li><b>user login name:</b> name of the user in an identity provider,
 	 * provided by this method.
 	 * <li><b>origin:</b> alias to an identity provider, see {@link #getOrigin()}.
-	 * <li><b>subaccount id:</b> identifier for the subaccount, see
-	 * {@link #getSubaccountId()}.
+	 * <li><b>zone id:</b> identifier for the zone, see
+	 * {@link #getZoneId()}.
 	 * </ul>
 	 *
 	 * @return unique principal name or null if it can not be determined.

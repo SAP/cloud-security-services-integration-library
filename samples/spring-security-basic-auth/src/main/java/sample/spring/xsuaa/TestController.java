@@ -18,6 +18,7 @@ public class TestController {
 		result.put("grant type", token.getGrantType());
 		result.put("client id", token.getClientId());
 		result.put("subaccount id", token.getSubaccountId());
+		result.put("zone id", token.getZoneId());
 		result.put("logon name", token.getLogonName());
 		result.put("family name", token.getFamilyName());
 		result.put("given name", token.getGivenName());

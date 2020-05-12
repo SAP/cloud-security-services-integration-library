@@ -16,6 +16,7 @@ public final class TokenClaims {
 	public static final String CLAIM_GRANT_TYPE = "grant_type";
 	public static final String CLAIM_ZDN = "zdn";
 	public static final String CLAIM_ZONE_ID = "zid";
+	public static final String CLAIM_GLOBAL_ZONE_ID = "zone_uuid";
 	public static final String CLAIM_ISSUER = "iss";
 	public static final String CLAIM_JKU = "jku";
 	public static final String CLAIM_KID = "kid";

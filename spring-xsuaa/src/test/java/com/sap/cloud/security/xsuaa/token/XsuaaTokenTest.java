@@ -138,6 +138,7 @@ public class XsuaaTokenTest {
 		token = createToken(claimsSetBuilder);
 
 		assertThat(token.getSubaccountId(), is(zoneId));
+		assertThat(token.getZoneId(), is(zoneId));
 	}
 
 	@Test

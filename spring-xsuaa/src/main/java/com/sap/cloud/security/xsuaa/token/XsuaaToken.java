@@ -174,6 +174,12 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	@Override
+	public String getZoneId() {
+		String global_zone_id = getClaimAsString(CLAIM_GLOBAL_ZONE_ID);
+		return Objects.nonNull(global_zone_id) ? global_zone_id : getSubaccountId();
+	}
+
+	@Override
 	public String getSubdomain() {
 		return getStringAttributeFromClaim(CLAIM_ZDN, CLAIM_EXTERNAL_ATTR);
 	}
