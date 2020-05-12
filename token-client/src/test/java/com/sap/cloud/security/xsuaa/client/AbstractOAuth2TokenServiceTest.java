@@ -63,7 +63,7 @@ public class AbstractOAuth2TokenServiceTest {
 	public void retrieveAccessTokenViaClientCredentials_twoDistinctRequests_onlyTwoRequestCalls()
 			throws OAuth2ServiceException {
 		retrieveAccessTokenViaClientCredentials();
-		retrieveAccessTokenViaClientCredentials(new ClientCredentials("other client id", "secret"));
+		retrieveAccessTokenViaClientCredentials(new ClientCredentials("other client id", "secret"), false);
 		retrieveAccessTokenViaClientCredentials();
 
 		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
@@ -166,6 +166,17 @@ public class AbstractOAuth2TokenServiceTest {
 		assertThat(cut.tokenRequestCallCount).isEqualTo(3);
 	}
 
+	@Test
+	public void requestAccessToken_cacheDisabledForRequest_requestsFreshTokens() throws OAuth2ServiceException {
+		OAuth2TokenResponse firstResponse = retrieveAccessTokenViaClientCredentials(clientCredentials(), false);
+		OAuth2TokenResponse secondResponse = retrieveAccessTokenViaClientCredentials(clientCredentials(), true);
+		OAuth2TokenResponse lastResponse = retrieveAccessTokenViaClientCredentials(clientCredentials(), false);
+
+		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
+		assertThat(firstResponse).isNotSameAs(secondResponse);
+		assertThat(firstResponse).isSameAs(lastResponse);
+	}
+
 	private OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(String token) throws OAuth2ServiceException {
 		return retrieveAccessTokenViaJwtBearerTokenGrant(token, null);
 	}
@@ -177,13 +188,14 @@ public class AbstractOAuth2TokenServiceTest {
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials() throws OAuth2ServiceException {
-		return retrieveAccessTokenViaClientCredentials(clientCredentials());
+		return retrieveAccessTokenViaClientCredentials(clientCredentials(), false);
 	}
 
-	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials(ClientCredentials clientCredentials)
+	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials(ClientCredentials clientCredentials,
+			boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
 		return cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials, SUBDOMAIN,
-				null);
+				null, disableCacheForRequest);
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(String username) throws OAuth2ServiceException {

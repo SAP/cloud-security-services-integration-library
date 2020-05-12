@@ -72,7 +72,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@Nonnull URI tokenEndpointUri,
 			@Nonnull ClientCredentials clientCredentials,
-			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
+			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
 		assertNotNull(clientCredentials, "clientCredentials is required");
@@ -85,7 +85,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain);
+		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain, disableCacheForRequest);
 	}
 
 	@Override
@@ -105,13 +105,14 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		HttpHeaders headers = HttpHeadersFactory.createWithAuthorizationBearerHeader(token);
 
-		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain);
+		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain, false);
 	}
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(@Nonnull URI tokenEndpointUri,
 			@Nonnull ClientCredentials clientCredentials,
-			@Nonnull String refreshToken, String subdomain) throws OAuth2ServiceException {
+			@Nonnull String refreshToken, String subdomain, boolean disableCacheForRequest)
+			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
 		assertNotNull(clientCredentials, "clientCredentials is required");
 		assertNotNull(refreshToken, "refreshToken is required");
@@ -124,13 +125,14 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain);
+		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain, disableCacheForRequest);
 	}
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(@Nonnull URI tokenEndpoint,
 			@Nonnull ClientCredentials clientCredentials, @Nonnull String username, @Nonnull String password,
-			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters)
+			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters,
+			boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpoint, "tokenEndpoint is required");
 		assertNotNull(clientCredentials, "clientCredentials are required");
@@ -147,13 +149,14 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return getOAuth2TokenResponse(tokenEndpoint, headers, parameters, subdomain);
+		return getOAuth2TokenResponse(tokenEndpoint, headers, parameters, subdomain, disableCacheForRequest);
 	}
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpoint,
 			ClientCredentials clientCredentials, String token, @Nullable String subdomain,
-			@Nullable Map<String, String> optionalParameters) throws OAuth2ServiceException {
+			@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
+			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpoint, "tokenEndpoint is required");
 		assertNotNull(clientCredentials, "clientCredentials are required");
 		assertNotNull(token, "token is required");
@@ -167,7 +170,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
 
-		return getOAuth2TokenResponse(tokenEndpoint, headers, parameters, subdomain);
+		return getOAuth2TokenResponse(tokenEndpoint, headers, parameters, subdomain, disableCacheForRequest);
 	}
 
 	/**
@@ -190,9 +193,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	private OAuth2TokenResponse getOAuth2TokenResponse(@Nonnull URI tokenEndpointUri, HttpHeaders headers,
 			Map<String, String> additionalParameters,
-			@Nullable String subdomain) throws OAuth2ServiceException {
+			@Nullable String subdomain, boolean disableCacheForRequest) throws OAuth2ServiceException {
 		URI tokenEndpointUriWithSubdomainReplaced = UriUtil.replaceSubdomain(tokenEndpointUri, subdomain);
-		if (isCacheEnabled()) {
+		if (isCacheDisabled() || disableCacheForRequest) {
 			return getOrRequestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
 		}
 		return requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
@@ -209,8 +212,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 		return responseCache.getIfPresent(cacheKey);
 	}
 
-	private boolean isCacheEnabled() {
-		return !CacheConfiguration.CACHE_DISABLED.equals(getCacheConfiguration());
+	private boolean isCacheDisabled() {
+		return CacheConfiguration.CACHE_DISABLED.equals(getCacheConfiguration());
 	}
 
 	private Cache<CacheKey, OAuth2TokenResponse> createResponseCache(Ticker cacheTicker, boolean sameThreadCache) {
