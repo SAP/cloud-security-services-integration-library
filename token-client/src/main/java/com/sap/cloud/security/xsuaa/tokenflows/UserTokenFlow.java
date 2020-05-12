@@ -32,6 +32,7 @@ public class UserTokenFlow {
 	private XsuaaTokenFlowRequest request;
 	private String token;
 	private OAuth2TokenService tokenService;
+	private boolean disableCache = false;
 
 	/**
 	 * Creates a new instance.
@@ -96,6 +97,18 @@ public class UserTokenFlow {
 	}
 
 	/**
+	 * Can be used to disable the cache for the flow.
+	 *
+	 * @param disableCache
+	 *            - disables cache when set to {@code true}.
+	 * @return this builder.
+	 */
+	public UserTokenFlow disableCache(boolean disableCache) {
+		this.disableCache = disableCache;
+		return this;
+	}
+
+	/**
 	 * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT
 	 * token is returned. <br>
 	 * Note, that in a standard flow, only the refresh token would be returned.
@@ -155,14 +168,11 @@ public class UserTokenFlow {
 			optionalParameter.put(AUTHORITIES, authorities); // places JSON inside the URI !?!
 		}
 
-		String refreshToken = null;
 		try {
 			return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
 					request.getTokenEndpoint(),
 					new ClientCredentials(request.getClientId(), request.getClientSecret()),
-					token,
-					request.getSubdomain(),
-					optionalParameter);
+					token, request.getSubdomain(), optionalParameter, disableCache);
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format(
