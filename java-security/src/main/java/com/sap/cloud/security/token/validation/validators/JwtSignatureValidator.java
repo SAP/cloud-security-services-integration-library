@@ -100,7 +100,7 @@ public class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	@Nonnull
-	private String getOrRequestJwksUri(Token token) throws OAuth2ServiceException, IllegalArgumentException {
+	private String getOrRequestJwksUri(Token token) throws OAuth2ServiceException {
 		if (configuration.isLegacyMode()) {
 			// hard-code with trusted url in case of XSA Auth Code tokens
 			return configuration.getUrl() + "/token_keys";

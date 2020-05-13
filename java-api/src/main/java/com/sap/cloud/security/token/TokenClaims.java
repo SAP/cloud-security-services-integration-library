@@ -37,4 +37,10 @@ public final class TokenClaims {
 
 		public static final String TRUSTED_CLIENT_ID_SUFFIX = "trustedclientidsuffix";
 	}
+
+	// SAP User token
+	/*
+	 * public final class SAP_ID { private SAP_ID() { } // service_instance_id }
+	 */
+
 }

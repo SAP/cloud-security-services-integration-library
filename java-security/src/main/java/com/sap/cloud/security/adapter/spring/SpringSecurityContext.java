@@ -27,7 +27,6 @@ import java.util.Objects;
  * asynchronous threads.
  */
 public class SpringSecurityContext {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SpringSecurityContext.class);
 
 	private SpringSecurityContext() {
 	}

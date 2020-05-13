@@ -133,6 +133,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	public String getJsonValue(String attribute) throws XSUserInfoException;
 
 	/**
@@ -154,6 +155,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if db token is not available in the authentication token
 	 */
+	@Deprecated
 	public String getDBToken() throws XSUserInfoException;
 
 	/**
@@ -186,7 +188,10 @@ public interface XSUserInfo {
 	 * @return the token
 	 * @throws XSUserInfoException
 	 *             if token is not available in the authentication token
+	 *
+	 * @deprecated use {@link #getHdbToken()} instead.
 	 */
+	@Deprecated
 	public String getToken(String namespace, String name) throws XSUserInfoException;
 
 	/**
@@ -237,7 +242,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	public boolean checkScope(String scope) throws XSUserInfoException;
 
 	/**
@@ -253,7 +257,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	@Deprecated
 	public boolean checkLocalScope(String scope) throws XSUserInfoException;
 
 	/**
@@ -334,7 +337,6 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if an error occurs during token exchange
 	 */
-	@Deprecated
 	public String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException;
 
 }

@@ -9,7 +9,6 @@ This migration document is a step-by-step guide explaining how to replace your d
 
 Please note, this Migration Guide is only intended for applications using SAP Java Buildpack. You're using the SAP Java Buildpack if you can find the `sap_java_buildpack` in the deployment descriptor of your application, e.g. in your `manifest.yml` file.
 
-
 ## Cleanup Maven Dependencies <a name="maven"></a>
 
 First check the `pom.xml` of your application for dependencies to the deprecated sap-internal security api projects:

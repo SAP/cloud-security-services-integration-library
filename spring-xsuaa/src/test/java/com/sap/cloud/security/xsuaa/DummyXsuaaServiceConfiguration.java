@@ -1,7 +1,5 @@
 package com.sap.cloud.security.xsuaa;
 
-import javax.annotation.Nullable;
-
 public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration {
 
 	private String clientId;

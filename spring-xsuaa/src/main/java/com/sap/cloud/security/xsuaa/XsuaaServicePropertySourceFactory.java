@@ -47,9 +47,6 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 					"certificate",
 					"key" });
 
-	public XsuaaServicePropertySourceFactory() {
-	}
-
 	@Override
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
 		Properties properties = null;

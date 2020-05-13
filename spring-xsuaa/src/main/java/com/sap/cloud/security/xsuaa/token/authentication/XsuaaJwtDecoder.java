@@ -135,8 +135,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			if (jkuUri.getHost() == null) {
 				throw new JwtException("JKU of token is not valid");
 			} else if (!jkuUri.getHost().endsWith(uaadomain)) {
-				logger.warn(String.format("Error: Do not trust jku '%s' because it does not match uaa domain '%s'",
-						jku, uaadomain));
+				logger.warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'",
+						jku, uaadomain);
 				throw new JwtException("JKU of token header is not trusted");
 			}
 		} catch (URISyntaxException e) {
@@ -144,18 +144,21 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 	}
 
+	@java.lang.SuppressWarnings("squid:S2259")
 	private Jwt verifyWithOnlineKey(String token, String jku, String kid) {
 		String cacheKey = jku + kid;
 		JwtDecoder decoder = cache.get(cacheKey, k -> this.getDecoder(jku));
 		return decoder.decode(token);
 	}
 
-	// TODO extract into separate class / bean
 	private JwtDecoder getDecoder(String jku) {
-		NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jku);
-		Optional.ofNullable(restOperations).ifPresent(decoder::setRestOperations);
-		decoder.setJwtValidator(tokenValidators);
-		return decoder;
+		NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder jwkSetUriJwtDecoderBuilder = NimbusJwtDecoder.withJwkSetUri(jku);
+		if (restOperations != null) {
+			jwkSetUriJwtDecoderBuilder.restOperations(restOperations);
+		}
+		NimbusJwtDecoder jwtDecoder = jwkSetUriJwtDecoderBuilder.build();
+		jwtDecoder.setJwtValidator(tokenValidators);
+		return jwtDecoder;
 	}
 
 	private Jwt tryToVerifyWithOfflineKey(String token, JwtException onlineVerificationException) {
