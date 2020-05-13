@@ -3,7 +3,7 @@
 
 **This document is only applicable for J2EE web applications securing their application with SAP Java Buildpack.** 
 
-This migration document is a step-by-step guide explaining how to leverage the new api that is exposed by the SAP Java Buildpack as of version `x.y.z`.
+This migration document is a step-by-step guide explaining how to leverage the new api that is exposed by the SAP Java Buildpack as of version `1.26.0`.
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@ Please note, this Migration Guide is only intended for applications, using SAP J
 Furthermore [this guide](Migration_SAPJavaBuildpackProjects.md) is considered as prerequisite. Before you proceed, make sure you have completed it first.
 
 ## Adapt Maven Dependencies <a name="maven"></a>
-To use the latest API exposed by SAP Java Buildpack version as of version `x.y.z` the dependency declared in maven `pom.xml` needs to be adapted.
+To use the latest API exposed by SAP Java Buildpack version as of version `1.26.0` the dependency declared in maven `pom.xml` needs to be adapted.
 
 First make sure you have the following dependency defined in your pom.xml:
 ```xml
@@ -33,7 +33,7 @@ Now you are ready to **remove** the dependency to the **`api`** by deleting the 
     <scope>provided</scope>
 </dependency>
 ```
-The dependency `com.sap.cloud.security:java-api` is the new api exposed by the SAP Java Buildpack as of version `x.y.z`.
+The dependency `com.sap.cloud.security:java-api` is the new api exposed by the SAP Java Buildpack as of version `1.26.0`.
 
 ## Adapt Environment Variable
 As the new `java-api` is incompatible with the former one, you have to tell the SAP Java Buildpack, that you want to use the latest api. This is done by setting the `ENABLE_SECURITY_JAVA_API_V2` environment variable to `true` as part of your deployment descriptor, e.g. in your `manifest.yml` file.
