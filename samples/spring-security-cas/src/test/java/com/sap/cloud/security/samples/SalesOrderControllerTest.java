@@ -1,22 +1,19 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.cas.client.DefaultAdcService;
+import com.sap.cloud.security.cas.client.AdcServiceDefault;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.net.URI;
-import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.spring.context.support.MockOidcTokenRequestPostProcessor.userToken;
 import static com.sap.cloud.security.spring.context.support.MockOidcTokenRequestPostProcessor.userTokenWithAuthorities;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,7 +29,7 @@ public class SalesOrderControllerTest {
 
     @BeforeAll
     public static void adcServiceRunning() {
-        assumeTrue(new DefaultAdcService(URI.create(adcUrl)).ping());
+        assumeTrue(new AdcServiceDefault(URI.create(adcUrl)).ping());
     }
 
     @Test

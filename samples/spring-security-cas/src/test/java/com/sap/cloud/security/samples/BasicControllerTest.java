@@ -1,6 +1,6 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.cas.client.DefaultAdcService;
+import com.sap.cloud.security.cas.client.AdcServiceDefault;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class BasicControllerTest {
 
     @BeforeAll
     public static void adcServiceRunning() {
-        assumeTrue(new DefaultAdcService(URI.create(adcUrl)).ping());
+        assumeTrue(new AdcServiceDefault(URI.create(adcUrl)).ping());
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.sap.cloud.security.samples;
 
 import com.sap.cloud.security.cas.client.AdcService;
-import com.sap.cloud.security.cas.client.DefaultAdcService;
+import com.sap.cloud.security.cas.client.AdcServiceDefault;
 import com.sap.cloud.security.cas.spring.AdcSpringSecurityExpressionHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +23,7 @@ public class MethodSecurityConfiguration extends GlobalMethodSecurityConfigurati
     @Bean
     AdcService adcService() {
         //return new SpringADCService(); // TODO need to support WebClient
-        return new DefaultAdcService(adcUrl);
+        return new AdcServiceDefault(adcUrl);
     }
 
 

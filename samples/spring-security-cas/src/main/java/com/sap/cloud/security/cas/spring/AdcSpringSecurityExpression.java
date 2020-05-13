@@ -1,7 +1,7 @@
 package com.sap.cloud.security.cas.spring;
 
 import com.sap.cloud.security.cas.client.AdcServiceRequest;
-import com.sap.cloud.security.cas.client.DefaultAdcServiceRequest;
+import com.sap.cloud.security.cas.client.AdcServiceRequestDefault;
 import com.sap.cloud.security.cas.client.AdcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 	public boolean forResourceAction(String resource, String action, String... attributes) {
 		String userId = getUserId();
 
-		AdcServiceRequest request = new DefaultAdcServiceRequest(userId)
+		AdcServiceRequest request = new AdcServiceRequestDefault(userId)
 				.withAction(action)
 				.withResource(resource)
 				.withAttributes(attributes);
