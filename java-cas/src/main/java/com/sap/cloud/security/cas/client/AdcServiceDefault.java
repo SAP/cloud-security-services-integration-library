@@ -1,8 +1,5 @@
 package com.sap.cloud.security.cas.client;
 
-import com.sap.cloud.security.cas.client.AdcService;
-import com.sap.cloud.security.cas.client.AdcServiceRequest;
-import com.sap.cloud.security.cas.client.AdcServiceResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -22,21 +19,21 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.stream.Collectors;
 
-public class DefaultAdcService implements AdcService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAdcService.class);
+public class AdcServiceDefault implements AdcService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdcServiceDefault.class);
 
     private final CloseableHttpClient httpClient;
     private URI baseUrl;
 
-    public DefaultAdcService(String adcUrl) {
+    public AdcServiceDefault(String adcUrl) {
         this(URI.create(adcUrl), HttpClients.createDefault());
     }
 
-    public DefaultAdcService(URI adcUrl) {
+    public AdcServiceDefault(URI adcUrl) {
         this(adcUrl, HttpClients.createDefault());
     }
 
-    public DefaultAdcService(URI baseUrl, CloseableHttpClient client) {
+    public AdcServiceDefault(URI baseUrl, CloseableHttpClient client) {
         this.baseUrl = baseUrl;
         this.httpClient = client;
     }
@@ -45,7 +42,7 @@ public class DefaultAdcService implements AdcService {
     public AdcServiceResponse isUserAuthorized(AdcServiceRequest request) {
         URI adcAllowedEndpoint = expandPath(baseUrl, "/v1/data/cas/allow");
         HttpPost httpPost;
-        AdcServiceResponse response = new DefaultAdcServiceResponse();
+        AdcServiceResponse response = new AdcServiceResponseDefault();
 
         try {
             URIBuilder builder = new URIBuilder(adcAllowedEndpoint);

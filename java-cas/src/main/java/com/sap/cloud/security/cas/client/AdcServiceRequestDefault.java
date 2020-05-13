@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * This {@code AdcServiceRequest} implementation makes use of org.json Json Parser.
  */
-public class DefaultAdcServiceRequest implements AdcServiceRequest {
+public class AdcServiceRequestDefault implements AdcServiceRequest {
     private String casUserId = "user";
     private String casAction;
     private String casResource;
@@ -17,7 +17,7 @@ public class DefaultAdcServiceRequest implements AdcServiceRequest {
 
     private Map<String, Object> input = new HashMap<>();
 
-    public DefaultAdcServiceRequest(String userId) {
+    public AdcServiceRequestDefault(String userId) {
         this.casUserId = userId;
     }
 

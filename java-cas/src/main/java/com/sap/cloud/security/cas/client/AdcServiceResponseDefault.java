@@ -6,17 +6,17 @@ import org.json.JSONObject;
  * This {@code AdcServiceResponse} implementation makes use of org.json Json Parser
  * to extract the result from ADC response.
  */
-public class DefaultAdcServiceResponse implements AdcServiceResponse {
+public class AdcServiceResponseDefault implements AdcServiceResponse {
 
     private boolean result = false;
-    public static AdcServiceResponse DEFAULT = new DefaultAdcServiceResponse();
+    public static AdcServiceResponse DEFAULT = new AdcServiceResponseDefault();
     private static final String ADC_RESULT_KEY = "result";
 
 
-    public DefaultAdcServiceResponse() {
+    public AdcServiceResponseDefault() {
     }
 
-    public DefaultAdcServiceResponse(String jsonContent) {
+    public AdcServiceResponseDefault(String jsonContent) {
         this.setResult(jsonContent);
     }
 
