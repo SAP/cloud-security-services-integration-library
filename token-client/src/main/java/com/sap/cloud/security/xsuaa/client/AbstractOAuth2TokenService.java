@@ -193,18 +193,18 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 			@Nullable String subdomain) throws OAuth2ServiceException {
 		URI tokenEndpointUriWithSubdomainReplaced = UriUtil.replaceSubdomain(tokenEndpointUri, subdomain);
 		if (isCacheEnabled()) {
-			return getOrRequestAccessToken(headers, tokenEndpointUriWithSubdomainReplaced, additionalParameters);
+			return getOrRequestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
 		}
 		return requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
 	}
 
-	private OAuth2TokenResponse getOrRequestAccessToken(HttpHeaders headers, URI tokenEndpointUriWithSubdomainReplaced,
-			Map<String, String> additionalParameters) throws OAuth2ServiceException {
-		CacheKey cacheKey = new CacheKey(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
+	private OAuth2TokenResponse getOrRequestAccessToken(URI tokenEndpointUriWithSubdomainReplaced, HttpHeaders headers,
+			Map<String, String> parameters) throws OAuth2ServiceException {
+		CacheKey cacheKey = new CacheKey(tokenEndpointUriWithSubdomainReplaced, headers, parameters);
 		OAuth2TokenResponse oAuth2TokenResponse = responseCache.getIfPresent(cacheKey);
 		if (oAuth2TokenResponse == null) {
 			responseCache.put(cacheKey, requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers,
-					additionalParameters));
+					parameters));
 		}
 		return responseCache.getIfPresent(cacheKey);
 	}
