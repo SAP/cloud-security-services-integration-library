@@ -212,12 +212,10 @@ public class AbstractOAuth2TokenServiceTest {
 
 	private static class TestOAuth2TokenService extends AbstractOAuth2TokenService {
 
-		private final CacheConfiguration cacheConfiguration;
 		private int tokenRequestCallCount = 0;
 
 		public TestOAuth2TokenService(CacheConfiguration cacheConfiguration) {
-			super(TEST_CACHE_TICKER, true);
-			this.cacheConfiguration = cacheConfiguration;
+			super(TEST_CACHE_TICKER, true, cacheConfiguration);
 		}
 
 		@Override
@@ -225,11 +223,6 @@ public class AbstractOAuth2TokenServiceTest {
 				Map<String, String> parameters) {
 			tokenRequestCallCount++;
 			return new OAuth2TokenResponse("", 1L, null);
-		}
-
-		@Override
-		public CacheConfiguration getCacheConfiguration() {
-			return cacheConfiguration;
 		}
 
 	}

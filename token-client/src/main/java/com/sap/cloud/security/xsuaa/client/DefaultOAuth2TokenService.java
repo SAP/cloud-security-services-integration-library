@@ -30,7 +30,6 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	private static final Logger logger = LoggerFactory.getLogger(DefaultOAuth2TokenService.class);
 
 	private final CloseableHttpClient httpClient;
-	private final CacheConfiguration cacheConfiguration;
 
 	public DefaultOAuth2TokenService() {
 		this(HttpClients.createDefault(), CacheConfiguration.DEFAULT);
@@ -46,13 +45,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	public DefaultOAuth2TokenService(@Nonnull CloseableHttpClient client,
 			@Nonnull CacheConfiguration cacheConfiguration) {
+		super(cacheConfiguration);
 		this.httpClient = client;
-		this.cacheConfiguration = cacheConfiguration;
-	}
-
-	@Override
-	public CacheConfiguration getCacheConfiguration() {
-		return cacheConfiguration;
 	}
 
 	@Override

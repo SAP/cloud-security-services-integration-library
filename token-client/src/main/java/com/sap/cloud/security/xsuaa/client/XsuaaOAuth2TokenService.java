@@ -28,7 +28,6 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private final RestOperations restOperations;
 	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
-	private CacheConfiguration cacheConfiguration;
 
 	public XsuaaOAuth2TokenService() {
 		this(new RestTemplate(), CacheConfiguration.DEFAULT);
@@ -44,15 +43,9 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations,
 			@Nonnull CacheConfiguration cacheConfiguration) {
+		super(cacheConfiguration);
 		assertNotNull(restOperations, "restOperations is required");
-		assertNotNull(cacheConfiguration, "cacheConfiguration is required");
-		this.cacheConfiguration = cacheConfiguration;
 		this.restOperations = restOperations;
-	}
-
-	@Override
-	public CacheConfiguration getCacheConfiguration() {
-		return this.cacheConfiguration;
 	}
 
 	@Override

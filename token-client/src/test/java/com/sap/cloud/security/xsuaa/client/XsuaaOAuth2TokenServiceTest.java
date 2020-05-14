@@ -9,7 +9,7 @@ public class XsuaaOAuth2TokenServiceTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void initialize_throwsIfRestOperationsIsNull() {
-		new XsuaaOAuth2TokenService(null, Mockito.mock(CacheConfiguration.class));
+		new XsuaaOAuth2TokenService(null, CacheConfiguration.CACHE_DISABLED);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

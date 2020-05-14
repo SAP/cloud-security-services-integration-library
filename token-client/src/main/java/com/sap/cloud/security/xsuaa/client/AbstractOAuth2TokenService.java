@@ -3,6 +3,7 @@ package com.sap.cloud.security.xsuaa.client;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Ticker;
+import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
@@ -21,13 +22,22 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 @java.lang.SuppressWarnings("squid:S1192")
 public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, Cacheable {
 
-	private Cache<CacheKey, OAuth2TokenResponse> responseCache;
-
-	private final boolean sameThreadCache; // used for cache testing
-	private final Ticker ticker; // used for cache testing
+	private final Cache<CacheKey, OAuth2TokenResponse> responseCache;
+	private final CacheConfiguration cacheConfiguration;
 
 	public AbstractOAuth2TokenService() {
-		this(Ticker.systemTicker(), false);
+		this(Ticker.systemTicker(), false, CacheConfiguration.DEFAULT);
+	}
+
+	/**
+	 * Constructor used to overwrite the default cache configuration.
+	 *
+	 * @param cacheConfiguration
+	 *            the cache configuration used to configure the cache.
+	 */
+	public AbstractOAuth2TokenService(CacheConfiguration cacheConfiguration) {
+		this(Ticker.systemTicker(), false, cacheConfiguration);
+
 	}
 
 	/**
@@ -38,15 +48,25 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	 * @param sameThreadCache
 	 *            set to true disables maintenance jobs of the cache. This makes the
 	 *            cache slower but more predictable for testing.
+	 * @param cacheConfiguration
+	 *            sets the cache configuration used to configure or disable the
+	 *            cache.
 	 */
-	AbstractOAuth2TokenService(Ticker cacheTicker, boolean sameThreadCache) {
-		ticker = cacheTicker;
-		this.sameThreadCache = sameThreadCache;
+	AbstractOAuth2TokenService(Ticker cacheTicker, boolean sameThreadCache, CacheConfiguration cacheConfiguration) {
+		Assertions.assertNotNull(cacheConfiguration, "cacheConfiguration is required");
+		this.cacheConfiguration = cacheConfiguration;
+		this.responseCache = createResponseCache(cacheTicker, sameThreadCache);
 	}
 
 	@Override
 	public void clearCache() {
-		getOrCreateResponseCache().invalidateAll();
+		responseCache.invalidateAll();
+	}
+
+	@Override
+	@Nonnull
+	public CacheConfiguration getCacheConfiguration() {
+		return cacheConfiguration;
 	}
 
 	@Override
@@ -181,30 +201,22 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	private OAuth2TokenResponse getOrRequestAccessToken(HttpHeaders headers, URI tokenEndpointUriWithSubdomainReplaced,
 			Map<String, String> additionalParameters) throws OAuth2ServiceException {
 		CacheKey cacheKey = new CacheKey(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
-		OAuth2TokenResponse oAuth2TokenResponse = getOrCreateResponseCache().getIfPresent(cacheKey);
+		OAuth2TokenResponse oAuth2TokenResponse = responseCache.getIfPresent(cacheKey);
 		if (oAuth2TokenResponse == null) {
-			getOrCreateResponseCache()
-					.put(cacheKey, requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers,
-							additionalParameters));
+			responseCache.put(cacheKey, requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers,
+					additionalParameters));
 		}
-		return getOrCreateResponseCache().getIfPresent(cacheKey);
+		return responseCache.getIfPresent(cacheKey);
 	}
 
 	private boolean isCacheEnabled() {
 		return !CacheConfiguration.CACHE_DISABLED.equals(getCacheConfiguration());
 	}
 
-	private Cache<CacheKey, OAuth2TokenResponse> getOrCreateResponseCache() {
-		if (responseCache == null) {
-			responseCache = createResponseCache();
-		}
-		return responseCache;
-	}
-
-	private Cache<CacheKey, OAuth2TokenResponse> createResponseCache() {
+	private Cache<CacheKey, OAuth2TokenResponse> createResponseCache(Ticker cacheTicker, boolean sameThreadCache) {
 		Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder()
 				.maximumSize(getCacheConfiguration().getCacheSize())
-				.ticker(ticker)
+				.ticker(cacheTicker)
 				.expireAfterWrite(getCacheConfiguration().getExpireAfterWrite());
 		if (sameThreadCache) {
 			cacheBuilder.executor(Runnable::run);
