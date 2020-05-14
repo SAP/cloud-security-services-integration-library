@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.http;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class HttpHeaders {
 
@@ -9,13 +9,17 @@ public class HttpHeaders {
 	public static final String ACCEPT = "Accept";
 	public static final String CONTENT_TYPE = "Content-Type";
 
-	private final List<HttpHeader> headers;
+	private final Set<HttpHeader> headers;
 
-	public HttpHeaders(List<HttpHeader> headers) {
-		this.headers = headers;
+	public HttpHeaders(HttpHeader... headers) {
+		this(Arrays.asList(headers));
 	}
 
-	public List<HttpHeader> getHeaders() {
+	public HttpHeaders(Collection<HttpHeader> headers) {
+		this.headers = headers.stream().collect(Collectors.toSet());
+	}
+
+	public Set<HttpHeader> getHeaders() {
 		return headers;
 	}
 
