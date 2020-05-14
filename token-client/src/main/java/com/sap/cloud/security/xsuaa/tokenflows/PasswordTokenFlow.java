@@ -121,5 +121,4 @@ public class PasswordTokenFlow {
 			throw new IllegalStateException(message);
 		}
 	}
-
 }

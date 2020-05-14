@@ -50,7 +50,7 @@ public class TokenBrokerTestConfiguration {
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
 					ClientCredentials clientCredentials, String token, @Nullable String subdomain,
-					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
+					@Nullable Map<String, String> optionalParameters)
 					throws OAuth2ServiceException {
 				return null;
 			}

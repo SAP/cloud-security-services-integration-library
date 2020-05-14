@@ -215,7 +215,8 @@ public class AbstractOAuth2TokenServiceTest {
 
 	private OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(String refreshToken, String subdomain)
 			throws OAuth2ServiceException {
-		return cut.retrieveAccessTokenViaRefreshToken(TOKEN_ENDPOINT_URI, clientCredentials(), refreshToken, subdomain, false);
+		return cut.retrieveAccessTokenViaRefreshToken(TOKEN_ENDPOINT_URI, clientCredentials(), refreshToken, subdomain,
+				false);
 	}
 
 	private ClientCredentials clientCredentials() {
