@@ -200,13 +200,13 @@ public class AbstractOAuth2TokenServiceTest {
 
 	private OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(String username) throws OAuth2ServiceException {
 		return cut.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, clientCredentials(), username, "password",
-				SUBDOMAIN, null);
+				SUBDOMAIN, null, false);
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri)
 			throws OAuth2ServiceException {
 		return cut.retrieveAccessTokenViaPasswordGrant(tokenEndpointUri, clientCredentials(), "username", "password",
-				SUBDOMAIN, null);
+				SUBDOMAIN, null, false);
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(String refreshToken) throws OAuth2ServiceException {
@@ -215,7 +215,7 @@ public class AbstractOAuth2TokenServiceTest {
 
 	private OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(String refreshToken, String subdomain)
 			throws OAuth2ServiceException {
-		return cut.retrieveAccessTokenViaRefreshToken(TOKEN_ENDPOINT_URI, clientCredentials(), refreshToken, subdomain);
+		return cut.retrieveAccessTokenViaRefreshToken(TOKEN_ENDPOINT_URI, clientCredentials(), refreshToken, subdomain, false);
 	}
 
 	private ClientCredentials clientCredentials() {

@@ -65,7 +65,7 @@ public class ClientCredentialsTokenFlowTest {
 		OAuth2TokenResponse response = cut.execute();
 
 		assertThat(response.getAccessToken(), is(accessToken.getAccessToken()));
-		verifyTokenServiceCall(false);
+		verifyThatDisableCacheIs(false);
 	}
 
 	@Test
@@ -103,15 +103,15 @@ public class ClientCredentialsTokenFlowTest {
 		OAuth2TokenResponse response = cut.disableCache(true).execute();
 
 		assertThat(response.getAccessToken(), is(accessToken.getAccessToken()));
-		verifyTokenServiceCall(true);
+		verifyThatDisableCacheIs(true);
 
 		cut.disableCache(false).execute();
 
-		verifyTokenServiceCall(false);
+		verifyThatDisableCacheIs(false);
 
 	}
 
-	private void verifyTokenServiceCall(boolean disableCache) throws OAuth2ServiceException {
+	private void verifyThatDisableCacheIs(boolean disableCache) throws OAuth2ServiceException {
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						isNull(), isNull(), eq(disableCache));
