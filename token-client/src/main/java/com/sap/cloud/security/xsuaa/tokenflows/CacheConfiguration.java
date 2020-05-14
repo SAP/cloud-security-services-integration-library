@@ -1,5 +1,9 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+
+import com.sap.cloud.security.xsuaa.Assertions;
+
+import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.util.Objects;
 
@@ -21,7 +25,21 @@ public class CacheConfiguration {
 	private final Duration expireAfterWrite;
 	private final int cacheSize;
 
-	public CacheConfiguration(Duration expireAfterWrite, int cacheSize) {
+	/**
+	 * Creates a new {@link CacheConfiguration} instance with the given properties.
+	 * See {@link CacheConfiguration#getExpireAfterWrite()} and
+	 * {@link CacheConfiguration#getCacheSize()} for a explanation of the respective properties.
+	 *
+	 * @param expireAfterWrite the expire after write cache property.
+	 * @param cacheSize the cache size property.
+	 * @return a new {@link CacheConfiguration} instance.
+	 */
+	public static CacheConfiguration getInstance(@Nonnull Duration expireAfterWrite, int cacheSize) {
+		Assertions.assertNotNull(expireAfterWrite, "Expire after write must not be null!");
+		return new CacheConfiguration(expireAfterWrite, cacheSize);
+	}
+
+	private CacheConfiguration(Duration expireAfterWrite, int cacheSize) {
 		this.expireAfterWrite = expireAfterWrite;
 		this.cacheSize = cacheSize;
 	}
@@ -32,6 +50,7 @@ public class CacheConfiguration {
 	 *
 	 * @return duration of expire after write.
 	 */
+	@Nonnull
 	public Duration getExpireAfterWrite() {
 		return expireAfterWrite;
 	}

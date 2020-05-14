@@ -157,7 +157,7 @@ public class AbstractOAuth2TokenServiceTest {
 
 	@Test
 	public void requestAccessToken_cacheIsFull_requestsFreshToken() throws OAuth2ServiceException {
-		cut = new TestOAuth2TokenService(new CacheConfiguration(Duration.ofMinutes(10), 1));
+		cut = new TestOAuth2TokenService(CacheConfiguration.getInstance(Duration.ofMinutes(10), 1));
 		OAuth2TokenResponse user1Response = retrieveAccessTokenViaPasswordGrant("user1");
 		OAuth2TokenResponse user2Response = retrieveAccessTokenViaPasswordGrant("user2");
 		OAuth2TokenResponse secondUser1Response = retrieveAccessTokenViaPasswordGrant("user1");
