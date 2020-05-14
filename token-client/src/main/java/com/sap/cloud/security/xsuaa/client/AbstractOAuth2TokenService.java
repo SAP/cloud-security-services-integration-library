@@ -196,9 +196,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 			@Nullable String subdomain, boolean disableCacheForRequest) throws OAuth2ServiceException {
 		URI tokenEndpointUriWithSubdomainReplaced = UriUtil.replaceSubdomain(tokenEndpointUri, subdomain);
 		if (isCacheDisabled() || disableCacheForRequest) {
-			return getOrRequestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
+			return requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
 		}
-		return requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
+		return getOrRequestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
 	}
 
 	private OAuth2TokenResponse getOrRequestAccessToken(URI tokenEndpointUriWithSubdomainReplaced, HttpHeaders headers,
