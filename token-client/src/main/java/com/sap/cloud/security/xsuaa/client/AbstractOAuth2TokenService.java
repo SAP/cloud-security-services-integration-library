@@ -13,6 +13,9 @@ import com.sap.cloud.security.xsuaa.util.UriUtil;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.URI;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
@@ -26,7 +29,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	private final CacheConfiguration cacheConfiguration;
 
 	public AbstractOAuth2TokenService() {
-		this(Ticker.systemTicker(), false, CacheConfiguration.DEFAULT);
+		this(CacheConfiguration.DEFAULT, Ticker.systemTicker(), false);
 	}
 
 	/**
@@ -36,23 +39,23 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	 *            the cache configuration used to configure the cache.
 	 */
 	public AbstractOAuth2TokenService(CacheConfiguration cacheConfiguration) {
-		this(Ticker.systemTicker(), false, cacheConfiguration);
+		this(cacheConfiguration, Ticker.systemTicker(), false);
 
 	}
 
 	/**
 	 * This constructor is used for testing purposes only.
 	 *
+	 * @param cacheConfiguration
+	 *            sets the cache configuration used to configure or disable the
+	 *            cache.
 	 * @param cacheTicker
 	 *            will be used in the cache to determine the time.
 	 * @param sameThreadCache
 	 *            set to true disables maintenance jobs of the cache. This makes the
 	 *            cache slower but more predictable for testing.
-	 * @param cacheConfiguration
-	 *            sets the cache configuration used to configure or disable the
-	 *            cache.
 	 */
-	AbstractOAuth2TokenService(Ticker cacheTicker, boolean sameThreadCache, CacheConfiguration cacheConfiguration) {
+	AbstractOAuth2TokenService(CacheConfiguration cacheConfiguration, Ticker cacheTicker, boolean sameThreadCache) {
 		Assertions.assertNotNull(cacheConfiguration, "cacheConfiguration is required");
 		this.cacheConfiguration = cacheConfiguration;
 		this.responseCache = createResponseCache(cacheTicker, sameThreadCache);
@@ -202,15 +205,38 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 		return getOrRequestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers, additionalParameters);
 	}
 
-	private OAuth2TokenResponse getOrRequestAccessToken(URI tokenEndpointUriWithSubdomainReplaced, HttpHeaders headers,
+	private OAuth2TokenResponse getOrRequestAccessToken(URI tokenEndpoint, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
-		CacheKey cacheKey = new CacheKey(tokenEndpointUriWithSubdomainReplaced, headers, parameters);
+		CacheKey cacheKey = new CacheKey(tokenEndpoint, headers, parameters);
 		OAuth2TokenResponse oAuth2TokenResponse = responseCache.getIfPresent(cacheKey);
 		if (oAuth2TokenResponse == null) {
-			responseCache.put(cacheKey, requestAccessToken(tokenEndpointUriWithSubdomainReplaced, headers,
-					parameters));
+			getAndCacheToken(cacheKey);
+		} else {
+			// check if token in cache should be refreshed
+			Duration delta = getCacheConfiguration().getTokenExpirationDelta();
+			Instant expiration = oAuth2TokenResponse.getExpiredAt().minus(delta);
+			if (expiration.isBefore(Instant.now(getClock()))) {
+				// refresh (soon) expired token
+				getAndCacheToken(cacheKey);
+			}
 		}
 		return responseCache.getIfPresent(cacheKey);
+	}
+
+	/**
+	 * By default {@link Clock#systemUTC()} is used to determine of a cached token
+	 * has reached its expiration (exp) point in time. This method can be overridden
+	 * for testing purposes.
+	 *
+	 * @return the {@link Clock}
+	 */
+	protected Clock getClock() {
+		return Clock.systemUTC();
+	}
+
+	private void getAndCacheToken(CacheKey cacheKey) throws OAuth2ServiceException {
+		responseCache.put(cacheKey,
+				requestAccessToken(cacheKey.tokenEndpointUri, cacheKey.headers, cacheKey.parameters));
 	}
 
 	private boolean isCacheDisabled() {
