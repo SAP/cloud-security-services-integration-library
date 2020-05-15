@@ -11,6 +11,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static com.sap.cloud.security.config.Service.IAS;
@@ -108,6 +110,36 @@ public class JwtValidatorBuilderTest {
 		assertThat(validators)
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
 				.contains(tokenValidator);
+	}
+
+	@Test
+	public void configureOtherServiceInstances() {
+		Collection clientIds = new ArrayList();
+		JwtAudienceValidator audienceValidator;
+
+		OAuth2ServiceConfiguration xsuaaConfig1 = xsuaaConfigBuilder.build();
+		OAuth2ServiceConfiguration xsuaaConfig2 = OAuth2ServiceConfigurationBuilder.forService(XSUAA)
+				.withClientId("sb-test-app2!b222").build();
+		OAuth2ServiceConfiguration xsuaaConfig3 = OAuth2ServiceConfigurationBuilder.forService(XSUAA)
+				.withClientId("sb-test-app3!b333").build();
+
+		clientIds.add(xsuaaConfig1.getClientId());
+		clientIds.add(xsuaaConfig2.getClientId());
+		clientIds.add(xsuaaConfig3.getClientId());
+
+		CombiningValidator<Token> combiningValidator = JwtValidatorBuilder
+				.getInstance(xsuaaConfig1)
+				.configureAnotherServiceInstance(xsuaaConfig2)
+				.configureAnotherServiceInstance(xsuaaConfig3)
+				.build();
+
+		for (Validator validator: combiningValidator.getValidators()) {
+			if(validator instanceof JwtAudienceValidator) {
+				assertThat(((JwtAudienceValidator) validator).clientIds).containsAll(clientIds);
+				return;
+			}
+		}
+		assertThat(true).isFalse(); // should never be called
 	}
 
 }

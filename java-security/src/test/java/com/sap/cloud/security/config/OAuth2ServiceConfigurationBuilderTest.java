@@ -78,4 +78,44 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		assertThat(configuration.getUrl()).isEqualTo(URI.create(url));
 	}
 
+	@Test
+	public void equals_sameClientId() {
+		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
+													.forService(Service.XSUAA)
+													.withClientId("client-id")
+													.build();;
+
+		assertThat(cut.withClientId("client-id").build()).isEqualTo(config);
+	}
+
+	@Test
+	public void notEquals_differentClientId() {
+		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
+				.forService(Service.XSUAA)
+				.withClientId("client-id")
+				.build();;
+
+		assertThat(cut.withClientId("client-id2").build()).isNotEqualTo(config);
+	}
+
+	@Test
+	public void sameHashCode() {
+		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
+				.forService(Service.XSUAA)
+				.withClientId("client-id").withClientSecret("secret")
+				.build();;
+
+		assertThat(cut.withClientId("client-id").withClientSecret("secret").build().hashCode()).isEqualTo(config.hashCode());
+	}
+
+	@Test
+	public void notSameHashCode() {
+		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
+				.forService(Service.XSUAA)
+				.withClientId("client-id").withClientSecret("secret")
+				.build();;
+
+		assertThat(cut.withClientId("client-id2").withClientSecret("secret-2").build().hashCode()).isNotEqualTo(config.hashCode());
+	}
+
 }

@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 
@@ -112,7 +113,7 @@ public class OAuth2ServiceConfigurationBuilder {
 
 			@Override
 			public URI getUrl() {
-				return URI.create(properties.get(URL));
+				return hasProperty(URL) ? URI.create(properties.get(URL)) : null;
 			}
 
 			@Override
@@ -134,8 +135,33 @@ public class OAuth2ServiceConfigurationBuilder {
 			public boolean isLegacyMode() {
 				return runInLegacyMode;
 			}
+
+			@Override
+			public boolean equals(Object o) {
+				if (this == o)
+					return true;
+				if (o == null || getClass() != o.getClass())
+					return false;
+
+				OAuth2ServiceConfiguration that = (OAuth2ServiceConfiguration) o;
+
+				return
+						Objects.equals(this.getClientId(), that.getClientId()) &&
+						Objects.equals(this.getClientSecret(), that.getClientSecret()) &&
+						Objects.equals(this.isLegacyMode(), that.isLegacyMode()) &&
+						Objects.equals(this.getUrl(), that.getUrl()) &&
+						Objects.equals(this.getService(), that.getService());
+			}
+
+			@Override
+			public int hashCode() {
+				String join = String.join(":", getClientId() + getClientSecret());
+				return Objects.hash(join);
+			}
+
 		};
 
 	}
+
 
 }

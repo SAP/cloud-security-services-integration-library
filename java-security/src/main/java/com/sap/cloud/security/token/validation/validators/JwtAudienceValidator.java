@@ -26,7 +26,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	private static final Logger logger = LoggerFactory.getLogger(JwtAudienceValidator.class);
 	private static final char DOT = '.';
 
-	private final Set<String> clientIds = new LinkedHashSet<>();
+	final Set<String> clientIds = new LinkedHashSet<>();
 
 	JwtAudienceValidator(String clientId) {
 		configureTrustedClientId(clientId);
