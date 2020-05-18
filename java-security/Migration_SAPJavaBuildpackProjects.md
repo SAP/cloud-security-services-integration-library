@@ -1,7 +1,7 @@
 # Migration Guide for J2EE Web Applications that use SAP Java Buildpack for securing their applications
 
 
-**This document is only applicable for J2EE web applications securing their application with SAP Java Buildpack.** The SAP Java Buildpack version `1.26.0` does not any longer use Spring and deprecated SAP-internal security libraries. 
+**This document is only applicable for J2EE web applications securing their application with SAP Java Buildpack.** The SAP Java Buildpack version `1.26.0` does not any longer provide deprecated SAP-internal security libraries and does not longer depend on Spring security. 
 
 This migration document is a step-by-step guide explaining how to replace your dependencies to the deprecated SAP-internal security libraries with the open-sourced ones.
 
