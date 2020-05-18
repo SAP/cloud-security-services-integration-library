@@ -48,7 +48,8 @@ public class SAPOfflineTokenServicesCloudTest {
 				.build();
 
 		jwtValidatorBuilderSpy = Mockito.spy(JwtValidatorBuilder.getInstance(configuration));
-		doReturn(new CombiningValidator<>(token -> ValidationResults.createValid())).when(jwtValidatorBuilderSpy).build();
+		doReturn(new CombiningValidator<>(token -> ValidationResults.createValid())).when(jwtValidatorBuilderSpy)
+				.build();
 
 		cut = new SAPOfflineTokenServicesCloud(configuration, jwtValidatorBuilderSpy);
 		SecurityContext.clearToken();

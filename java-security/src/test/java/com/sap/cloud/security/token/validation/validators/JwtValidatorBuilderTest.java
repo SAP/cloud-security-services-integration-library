@@ -134,8 +134,8 @@ public class JwtValidatorBuilderTest {
 				.configureAnotherServiceInstance(xsuaaConfig3)
 				.build();
 
-		for (Validator validator: combiningValidator.getValidators()) {
-			if(validator instanceof JwtAudienceValidator) {
+		for (Validator validator : combiningValidator.getValidators()) {
+			if (validator instanceof JwtAudienceValidator) {
 				assertThat(((JwtAudienceValidator) validator).getTrustedClients()).containsAll(clientIds);
 				return;
 			}

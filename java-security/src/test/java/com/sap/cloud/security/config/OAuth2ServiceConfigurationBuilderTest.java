@@ -81,9 +81,9 @@ public class OAuth2ServiceConfigurationBuilderTest {
 	@Test
 	public void equals_sameClientId() {
 		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
-													.forService(Service.XSUAA)
-													.withClientId("client-id")
-													.build();
+				.forService(Service.XSUAA)
+				.withClientId("client-id")
+				.build();
 
 		assertThat(cut.withClientId("client-id").build()).isEqualTo(config);
 	}
@@ -105,7 +105,8 @@ public class OAuth2ServiceConfigurationBuilderTest {
 				.withClientId("client-id").withClientSecret("secret")
 				.build();
 
-		assertThat(cut.withClientId("client-id").withClientSecret("secret").build().hashCode()).isEqualTo(config.hashCode());
+		assertThat(cut.withClientId("client-id").withClientSecret("secret").build().hashCode())
+				.isEqualTo(config.hashCode());
 	}
 
 	@Test
@@ -115,7 +116,8 @@ public class OAuth2ServiceConfigurationBuilderTest {
 				.withClientId("client-id").withClientSecret("secret")
 				.build();
 
-		assertThat(cut.withClientId("client-id2").withClientSecret("secret-2").build().hashCode()).isNotEqualTo(config.hashCode());
+		assertThat(cut.withClientId("client-id2").withClientSecret("secret-2").build().hashCode())
+				.isNotEqualTo(config.hashCode());
 	}
 
 }

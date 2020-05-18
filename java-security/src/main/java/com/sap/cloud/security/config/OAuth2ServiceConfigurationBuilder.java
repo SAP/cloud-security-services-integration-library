@@ -145,8 +145,7 @@ public class OAuth2ServiceConfigurationBuilder {
 
 				OAuth2ServiceConfiguration that = (OAuth2ServiceConfiguration) o;
 
-				return
-						Objects.equals(this.getClientId(), that.getClientId()) &&
+				return Objects.equals(this.getClientId(), that.getClientId()) &&
 						Objects.equals(this.getClientSecret(), that.getClientSecret()) &&
 						Objects.equals(this.isLegacyMode(), that.isLegacyMode()) &&
 						Objects.equals(this.getUrl(), that.getUrl()) &&
@@ -162,6 +161,5 @@ public class OAuth2ServiceConfigurationBuilder {
 		};
 
 	}
-
 
 }

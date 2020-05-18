@@ -13,7 +13,7 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IasTokenAuthenticator.class);
 
-	public IasTokenAuthenticator(){
+	public IasTokenAuthenticator() {
 		LOGGER.warn("IAS Service is not yet supported!");
 	}
 
