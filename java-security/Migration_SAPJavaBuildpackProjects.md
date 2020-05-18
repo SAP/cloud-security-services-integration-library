@@ -15,7 +15,7 @@ First check the `pom.xml` of your application for dependencies to the deprecated
 
 groupId (deprecated) | artifactId (deprecated) 
 --- | --- 
-com.sap.xs2.security | api 
+com.sap.xs2.security | java-container-security-api 
 com.sap.cloud.security.xssec | api 
 com.sap.cloud.security.xsuaa | java-container-security-api 
 
