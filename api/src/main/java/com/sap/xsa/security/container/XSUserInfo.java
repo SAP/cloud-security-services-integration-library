@@ -103,8 +103,10 @@ public interface XSUserInfo {
 	public String getSubaccountId() throws XSUserInfoException;
 
 	/**
-	 * Still Supported via {@code XSUserInfoAdapter} from the
+	 *
+	 * Supported via {@code XSUserInfoAdapter} from the
 	 * {@code com.sap.cloud.security.adapter.xs} package.
+	 * Also available on tokens of type {@code XsuaaToken} from java-security.
 	 * 
 	 * @return the subdomain
 	 * @throws XSUserInfoException
