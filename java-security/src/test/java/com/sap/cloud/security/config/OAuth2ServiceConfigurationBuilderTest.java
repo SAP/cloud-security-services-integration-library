@@ -83,7 +83,7 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
 													.forService(Service.XSUAA)
 													.withClientId("client-id")
-													.build();;
+													.build();
 
 		assertThat(cut.withClientId("client-id").build()).isEqualTo(config);
 	}
@@ -93,7 +93,7 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
 				.withClientId("client-id")
-				.build();;
+				.build();
 
 		assertThat(cut.withClientId("client-id2").build()).isNotEqualTo(config);
 	}
@@ -103,7 +103,7 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
 				.withClientId("client-id").withClientSecret("secret")
-				.build();;
+				.build();
 
 		assertThat(cut.withClientId("client-id").withClientSecret("secret").build().hashCode()).isEqualTo(config.hashCode());
 	}
@@ -113,7 +113,7 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
 				.withClientId("client-id").withClientSecret("secret")
-				.build();;
+				.build();
 
 		assertThat(cut.withClientId("client-id2").withClientSecret("secret-2").build().hashCode()).isNotEqualTo(config.hashCode());
 	}

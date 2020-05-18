@@ -5,6 +5,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.*;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -135,11 +136,11 @@ public class JwtValidatorBuilderTest {
 
 		for (Validator validator: combiningValidator.getValidators()) {
 			if(validator instanceof JwtAudienceValidator) {
-				assertThat(((JwtAudienceValidator) validator).clientIds).containsAll(clientIds);
+				assertThat(((JwtAudienceValidator) validator).getTrustedClients()).containsAll(clientIds);
 				return;
 			}
 		}
-		assertThat(true).isFalse(); // should never be called
+		Assert.fail("No JwtAudienceValidator found that contains all clientIds!"); // should never be called
 	}
 
 }

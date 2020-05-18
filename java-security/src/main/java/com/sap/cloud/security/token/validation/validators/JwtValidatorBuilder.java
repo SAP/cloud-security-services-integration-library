@@ -27,7 +27,7 @@ public class JwtValidatorBuilder {
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private OAuth2ServiceConfiguration configuration;
-	private Set<OAuth2ServiceConfiguration> otherConfigurations = new HashSet();
+	private final Set<OAuth2ServiceConfiguration> otherConfigurations = new HashSet();
 	private OidcConfigurationService oidcConfigurationService = null;
 	private OAuth2TokenKeyService tokenKeyService = null;
 	private Validator<Token> customAudienceValidator;

@@ -26,7 +26,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	private static final Logger logger = LoggerFactory.getLogger(JwtAudienceValidator.class);
 	private static final char DOT = '.';
 
-	final Set<String> clientIds = new LinkedHashSet<>();
+	private final Set<String> trustedClients = new LinkedHashSet<>();
 
 	JwtAudienceValidator(String clientId) {
 		configureTrustedClientId(clientId);
@@ -34,7 +34,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	JwtAudienceValidator configureTrustedClientId(String clientId) {
 		assertHasText(clientId, "JwtAudienceValidator requires a clientId.");
-		clientIds.add(clientId);
+		trustedClients.add(clientId);
 		logger.info("configured JwtAudienceValidator with clientId {}.", clientId);
 
 		return this;
@@ -49,11 +49,11 @@ public class JwtAudienceValidator implements Validator<Token> {
 								.orElse(ValidationResults.createInvalid(
 										"Jwt token with audience {} is not issued for these clientIds: {}.",
 										allowedAudiences,
-										clientIds)));
+										trustedClients)));
 	}
 
 	private ValidationResult validateDefault(Set<String> allowedAudiences) {
-		for (String configuredClientId : clientIds) {
+		for (String configuredClientId : trustedClients) {
 			if (allowedAudiences.contains(configuredClientId)) {
 				return ValidationResults.createValid();
 			}
@@ -62,10 +62,10 @@ public class JwtAudienceValidator implements Validator<Token> {
 	}
 
 	private ValidationResult validateAudienceOfXsuaaBrokerClone(Set<String> allowedAudiences) {
-		for (String configuredClientId : clientIds) {
+		for (String configuredClientId : trustedClients) {
 			if (configuredClientId.contains("!b")) {
 				for (String audience : allowedAudiences) {
-					if (audience.contains("|") && audience.endsWith("|" + configuredClientId)) {
+					if (audience.endsWith("|" + configuredClientId)) {
 						return ValidationResults.createValid();
 					}
 				}
@@ -84,18 +84,22 @@ public class JwtAudienceValidator implements Validator<Token> {
 		Set<String> audiences = new LinkedHashSet<>();
 
 		for (String audience : token.getAudiences()) {
-			if (audience.contains(".")) {
+			if (!audience.contains("" + DOT)) {
+				audiences.add(audience);
+			} else {
 				// CF UAA derives the audiences from the scopes.
 				// In case the scopes contains namespaces, these needs to be removed.
 				String aud = audience.substring(0, audience.indexOf(DOT)).trim();
 				if (!aud.isEmpty()) {
 					audiences.add(aud);
 				}
-			} else {
-				audiences.add(audience);
 			}
 		}
 		return audiences;
+	}
+
+	Set<String> getTrustedClients() {
+		return trustedClients;
 	}
 
 }
