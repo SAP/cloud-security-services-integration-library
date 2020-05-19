@@ -105,8 +105,8 @@ public interface XSUserInfo {
 	/**
 	 *
 	 * Supported via {@code XSUserInfoAdapter} from the
-	 * {@code com.sap.cloud.security.adapter.xs} package.
-	 * Also available on tokens of type {@code XsuaaToken} from java-security.
+	 * {@code com.sap.cloud.security.adapter.xs} package. Also available on tokens
+	 * of type {@code XsuaaToken} from java-security.
 	 * 
 	 * @return the subdomain
 	 * @throws XSUserInfoException
@@ -334,6 +334,9 @@ public interface XSUserInfo {
 	 * @param tokenRequest
 	 *            request data
 	 * @deprecated can be replaced with token flows from the token-client library.
+	 *             For client credentials flow you can also use
+	 *             {@link #requestTokenForClient(String, String, String)}. Will be
+	 *             removed with version 3.0.0.
 	 * @return requested token
 	 * @throws XSUserInfoException
 	 *             if an error occurs during token exchange
