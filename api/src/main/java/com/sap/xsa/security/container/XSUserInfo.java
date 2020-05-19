@@ -34,7 +34,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String getLogonName() throws XSUserInfoException;
+	String getLogonName() throws XSUserInfoException;
 
 	/**
 	 * Given name of the user.
@@ -47,7 +47,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String getGivenName() throws XSUserInfoException;
+	String getGivenName() throws XSUserInfoException;
 
 	/**
 	 * Familiy name of the user.
@@ -60,7 +60,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String getFamilyName() throws XSUserInfoException;
+	String getFamilyName() throws XSUserInfoException;
 
 	/**
 	 * Return the user origin. The origin is an alias that refers to a user store in
@@ -75,7 +75,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String getOrigin() throws XSUserInfoException;
+	String getOrigin() throws XSUserInfoException;
 
 	/**
 	 * Return identity zone which is the same like the subaccount id (tenant id).
@@ -100,17 +100,19 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String getSubaccountId() throws XSUserInfoException;
+	String getSubaccountId() throws XSUserInfoException;
 
 	/**
-	 * Still Supported via {@code XSUserInfoAdapter} from the
-	 * {@code com.sap.cloud.security.adapter.xs} package.
+	 *
+	 * Supported via {@code XSUserInfoAdapter} from the
+	 * {@code com.sap.cloud.security.adapter.xs} package. Also available on tokens
+	 * of type {@code XsuaaToken} from java-security.
 	 * 
 	 * @return the subdomain
 	 * @throws XSUserInfoException
 	 *             if subdomain is not available in the authentication token
 	 */
-	public String getSubdomain() throws XSUserInfoException;
+	String getSubdomain() throws XSUserInfoException;
 
 	/**
 	 * Return the client id of the authentication token
@@ -122,7 +124,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String getClientId() throws XSUserInfoException;
+	String getClientId() throws XSUserInfoException;
 
 	/**
 	 * @deprecated Can be replaced with {@code token.getClaimAsString(attribute)}
@@ -134,7 +136,7 @@ public interface XSUserInfo {
 	 *             if attribute is not available in the authentication token
 	 */
 	@Deprecated
-	public String getJsonValue(String attribute) throws XSUserInfoException;
+	String getJsonValue(String attribute) throws XSUserInfoException;
 
 	/**
 	 * Return the email of the user
@@ -147,7 +149,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String getEmail() throws XSUserInfoException;
+	String getEmail() throws XSUserInfoException;
 
 	/**
 	 * @deprecated use {@link #getHdbToken()} instead.
@@ -156,7 +158,7 @@ public interface XSUserInfo {
 	 *             if db token is not available in the authentication token
 	 */
 	@Deprecated
-	public String getDBToken() throws XSUserInfoException;
+	String getDBToken() throws XSUserInfoException;
 
 	/**
 	 * Still Supported via {@code XSUserInfoAdapter} from the
@@ -166,7 +168,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if db token is not available in the authentication token
 	 */
-	public String getHdbToken() throws XSUserInfoException;
+	String getHdbToken() throws XSUserInfoException;
 
 	/**
 	 * Return authentication token
@@ -175,7 +177,7 @@ public interface XSUserInfo {
 	 *             {@code com.sap.cloud.security.token} package.
 	 * @return authentication token
 	 */
-	public String getAppToken();
+	String getAppToken();
 
 	/**
 	 * Still Supported via {@code XSUserInfoAdapter} from the
@@ -192,7 +194,7 @@ public interface XSUserInfo {
 	 * @deprecated use {@link #getHdbToken()} instead.
 	 */
 	@Deprecated
-	public String getToken(String namespace, String name) throws XSUserInfoException;
+	String getToken(String namespace, String name) throws XSUserInfoException;
 
 	/**
 	 * Return user attributes.
@@ -206,7 +208,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String[] getAttribute(String attributeName) throws XSUserInfoException;
+	String[] getAttribute(String attributeName) throws XSUserInfoException;
 
 	/**
 	 * Check if the authentication token contains user attributes. Still Supported
@@ -217,7 +219,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public boolean hasAttributes() throws XSUserInfoException;
+	boolean hasAttributes() throws XSUserInfoException;
 
 	/**
 	 * Still Supported via {@code XSUserInfoAdapter} from the
@@ -229,7 +231,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if system attribute is not available in the authentication token
 	 */
-	public String[] getSystemAttribute(String attributeName) throws XSUserInfoException;
+	String[] getSystemAttribute(String attributeName) throws XSUserInfoException;
 
 	/**
 	 * Check if a scope is present in the authentication token
@@ -242,7 +244,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public boolean checkScope(String scope) throws XSUserInfoException;
+	boolean checkScope(String scope) throws XSUserInfoException;
 
 	/**
 	 * Check if a "local" scope is available in the authentication token according
@@ -257,7 +259,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public boolean checkLocalScope(String scope) throws XSUserInfoException;
+	boolean checkLocalScope(String scope) throws XSUserInfoException;
 
 	/**
 	 * Return additional authentication attributes included by the OAuth client
@@ -272,7 +274,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String getAdditionalAuthAttribute(String attributeName) throws XSUserInfoException;
+	String getAdditionalAuthAttribute(String attributeName) throws XSUserInfoException;
 
 	/**
 	 * In case of xsuaa broker plan tokens, it contains the service instance id
@@ -284,7 +286,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String getCloneServiceInstanceId() throws XSUserInfoException;
+	String getCloneServiceInstanceId() throws XSUserInfoException;
 
 	/**
 	 * OAuth Grant Type used for this token
@@ -298,7 +300,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public String getGrantType() throws XSUserInfoException;
+	String getGrantType() throws XSUserInfoException;
 
 	/**
 	 * Check if a token issued for another OAuth client has been forwarded to a
@@ -309,7 +311,7 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
-	public boolean isInForeignMode() throws XSUserInfoException;
+	boolean isInForeignMode() throws XSUserInfoException;
 
 	/**
 	 * @param clientId
@@ -324,19 +326,22 @@ public interface XSUserInfo {
 	 * @throws XSUserInfoException
 	 *             if an error occurs during token request
 	 */
-	@Deprecated
-	public String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
+	String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
 
 	/**
 	 * Exchange a token into a token from another service instance
-	 * 
+	 *
 	 * @param tokenRequest
 	 *            request data
 	 * @deprecated can be replaced with token flows from the token-client library.
+	 *             For client credentials flow you can also use
+	 *             {@link #requestTokenForClient(String, String, String)}. Will be
+	 *             removed with version 3.0.0.
 	 * @return requested token
 	 * @throws XSUserInfoException
 	 *             if an error occurs during token exchange
 	 */
-	public String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException;
+	@Deprecated
+	String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException;
 
 }

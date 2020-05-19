@@ -31,8 +31,9 @@ public final class TokenClaims {
 		public static final String ZONE_ID = "zid"; // tenant GUID, identity zone id, subaccount id
 		public static final String CLIENT_ID = "cid"; // OAuth client identifier
 		public static final String SCOPES = "scope"; // list of scopes including app id, e.g. "my-app!t123.Display"
-		public static final String EXTERNAL_ATTRIBUTE = "ext_attr";
 		public static final String ISSUED_AT = "iat";
+		public static final String EXTERNAL_ATTRIBUTE = "ext_attr";
+		public static final String EXTERNAL_ATTRIBUTE_ZDN = "zdn";
 		public static final String EXTERNAL_ATTRIBUTE_ENHANCER = "enhancer";
 
 		public static final String TRUSTED_CLIENT_ID_SUFFIX = "trustedclientidsuffix";
