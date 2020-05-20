@@ -27,7 +27,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 public class OAuth2TokenKeyServiceWithCache {
 	private OAuth2TokenKeyService tokenKeyService; // access via getter
 	private Cache<String, JsonWebKeySet> cache; // access via getter
-	private long cacheValidityInSeconds = 600; // old keys should expire after 15 minutes
+	private long cacheValidityInSeconds = 600; // old keys should expire after 10 minutes
 	private long cacheSize = 1000;
 	private Ticker cacheTicker;
 
