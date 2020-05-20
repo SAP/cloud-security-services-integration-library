@@ -8,22 +8,26 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
-import java.time.Duration;
+import java.time.*;
 import java.util.Map;
 
+import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AbstractOAuth2TokenServiceTest {
 
 	public static final URI TOKEN_ENDPOINT_URI = URI.create("http://test.token.endpoint/oauth/token");
 	public static final String SUBDOMAIN = "subdomain";
-	private final static TestCacheTicker TEST_CACHE_TICKER = new TestCacheTicker();
+	private static final Instant NOW = LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0).toInstant(UTC);
+	public static final CacheConfiguration TEST_CACHE_CONFIGURATION = CacheConfiguration.DEFAULT;
+
 	private TestOAuth2TokenService cut;
 
 	@Before
 	public void setUp() {
-		cut = new TestOAuth2TokenService(CacheConfiguration.DEFAULT);
-		TEST_CACHE_TICKER.reset();
+		cut = new TestOAuth2TokenService(TEST_CACHE_CONFIGURATION);
 	}
 
 	@Test
@@ -63,7 +67,7 @@ public class AbstractOAuth2TokenServiceTest {
 	public void retrieveAccessTokenViaClientCredentials_twoDistinctRequests_onlyTwoRequestCalls()
 			throws OAuth2ServiceException {
 		retrieveAccessTokenViaClientCredentials();
-		retrieveAccessTokenViaClientCredentials(new ClientCredentials("other client id", "secret"));
+		retrieveAccessTokenViaClientCredentials(new ClientCredentials("other client id", "secret"), false);
 		retrieveAccessTokenViaClientCredentials();
 
 		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
@@ -148,7 +152,7 @@ public class AbstractOAuth2TokenServiceTest {
 	@Test
 	public void requestAccessToken_tokensAreInvalidatedAfterTime_requestsFreshToken() throws OAuth2ServiceException {
 		OAuth2TokenResponse firstResponse = retrieveAccessTokenViaClientCredentials();
-		TEST_CACHE_TICKER.advance(CacheConfiguration.DEFAULT.getExpireAfterWrite());
+		cut.advanceTime(TEST_CACHE_CONFIGURATION.getExpireAfterWrite());
 		OAuth2TokenResponse secondResponse = retrieveAccessTokenViaClientCredentials();
 
 		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
@@ -157,13 +161,58 @@ public class AbstractOAuth2TokenServiceTest {
 
 	@Test
 	public void requestAccessToken_cacheIsFull_requestsFreshToken() throws OAuth2ServiceException {
-		cut = new TestOAuth2TokenService(CacheConfiguration.getInstance(Duration.ofMinutes(10), 1));
+		cut = new TestOAuth2TokenService(cacheConfigurationWithSize(1));
 		OAuth2TokenResponse user1Response = retrieveAccessTokenViaPasswordGrant("user1");
 		OAuth2TokenResponse user2Response = retrieveAccessTokenViaPasswordGrant("user2");
 		OAuth2TokenResponse secondUser1Response = retrieveAccessTokenViaPasswordGrant("user1");
 
 		assertThat(user1Response).isNotSameAs(secondUser1Response).isNotSameAs(user2Response);
 		assertThat(cut.tokenRequestCallCount).isEqualTo(3);
+	}
+
+	@Test
+	public void requestAccessToken_cacheDisabledForRequest_requestsFreshTokens() throws OAuth2ServiceException {
+		OAuth2TokenResponse firstResponse = retrieveAccessTokenViaClientCredentials(clientCredentials(), false);
+		OAuth2TokenResponse secondResponse = retrieveAccessTokenViaClientCredentials(clientCredentials(), true);
+		OAuth2TokenResponse lastResponse = retrieveAccessTokenViaClientCredentials(clientCredentials(), false);
+
+		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
+		assertThat(firstResponse).isNotSameAs(secondResponse);
+		assertThat(firstResponse).isSameAs(lastResponse);
+	}
+
+	@Test
+	public void requestAccessToken_expiredToken_requestsFreshTokens() throws OAuth2ServiceException {
+		cut = new TestOAuth2TokenService(TEST_CACHE_CONFIGURATION);
+		cut.setExpiredAt(NOW.minus(Duration.ofHours(1)));
+
+		retrieveAccessTokenViaClientCredentials();
+		retrieveAccessTokenViaClientCredentials();
+
+		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
+	}
+
+	@Test
+	public void requestAccessToken_expireNotInDelta_cacheUsed() throws OAuth2ServiceException {
+		cut = new TestOAuth2TokenService(cacheConfigurationWithDelta(Duration.ofSeconds(10)));
+		cut.setExpiredAt(NOW.plus(Duration.ofSeconds(30)));
+
+		retrieveAccessTokenViaClientCredentials();
+		retrieveAccessTokenViaClientCredentials();
+
+		assertThat(cut.tokenRequestCallCount).isEqualTo(1);
+	}
+
+	@Test
+	public void requestAccessToken_timeAdvancedAndGotExpired_requestsFreshToken() throws OAuth2ServiceException {
+		cut = new TestOAuth2TokenService(cacheConfigurationWithDelta(Duration.ofSeconds(10)));
+		cut.setExpiredAt(NOW.plus(Duration.ofSeconds(30)));
+
+		retrieveAccessTokenViaClientCredentials();
+		cut.advanceTime(Duration.ofSeconds(25));
+		retrieveAccessTokenViaClientCredentials();
+
+		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(String token) throws OAuth2ServiceException {
@@ -177,24 +226,25 @@ public class AbstractOAuth2TokenServiceTest {
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials() throws OAuth2ServiceException {
-		return retrieveAccessTokenViaClientCredentials(clientCredentials());
+		return retrieveAccessTokenViaClientCredentials(clientCredentials(), false);
 	}
 
-	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials(ClientCredentials clientCredentials)
+	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials(ClientCredentials clientCredentials,
+			boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
 		return cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials, SUBDOMAIN,
-				null);
+				null, disableCacheForRequest);
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(String username) throws OAuth2ServiceException {
 		return cut.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, clientCredentials(), username, "password",
-				SUBDOMAIN, null);
+				SUBDOMAIN, null, false);
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri)
 			throws OAuth2ServiceException {
 		return cut.retrieveAccessTokenViaPasswordGrant(tokenEndpointUri, clientCredentials(), "username", "password",
-				SUBDOMAIN, null);
+				SUBDOMAIN, null, false);
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(String refreshToken) throws OAuth2ServiceException {
@@ -203,28 +253,59 @@ public class AbstractOAuth2TokenServiceTest {
 
 	private OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(String refreshToken, String subdomain)
 			throws OAuth2ServiceException {
-		return cut.retrieveAccessTokenViaRefreshToken(TOKEN_ENDPOINT_URI, clientCredentials(), refreshToken, subdomain);
+		return cut.retrieveAccessTokenViaRefreshToken(TOKEN_ENDPOINT_URI, clientCredentials(), refreshToken, subdomain,
+				false);
 	}
 
 	private ClientCredentials clientCredentials() {
 		return new ClientCredentials("clientId", "clientSecret");
 	}
 
+	private CacheConfiguration cacheConfigurationWithDelta(Duration delta) {
+		return CacheConfiguration.getInstance(TEST_CACHE_CONFIGURATION.getExpireAfterWrite(),
+				TEST_CACHE_CONFIGURATION.getCacheSize(), delta);
+	}
+
+	private CacheConfiguration cacheConfigurationWithSize(int size) {
+		return CacheConfiguration.getInstance(TEST_CACHE_CONFIGURATION.getExpireAfterWrite(), size,
+				TEST_CACHE_CONFIGURATION.getTokenExpirationDelta());
+	}
+
 	private static class TestOAuth2TokenService extends AbstractOAuth2TokenService {
 
+		private final static TestCacheTicker testCacheTicker = new TestCacheTicker();
 		private int tokenRequestCallCount = 0;
+		private Instant expiredAt = NOW.plus(Duration.ofDays(1));
+		private Clock clock = Clock.fixed(NOW, UTC);
 
 		public TestOAuth2TokenService(CacheConfiguration cacheConfiguration) {
-			super(TEST_CACHE_TICKER, true, cacheConfiguration);
+			super(cacheConfiguration, testCacheTicker, true);
+			testCacheTicker.reset();
+		}
+
+		public void setExpiredAt(Instant expiredAt) {
+			this.expiredAt = expiredAt;
+		}
+
+		public void advanceTime(Duration duration) {
+			clock = Clock.offset(clock, duration);
+			testCacheTicker.advance(duration);
+		}
+
+		@Override
+		protected Clock getClock() {
+			return clock;
 		}
 
 		@Override
 		protected OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
 				Map<String, String> parameters) {
 			tokenRequestCallCount++;
-			return new OAuth2TokenResponse("", 1L, null);
+			OAuth2TokenResponse responseMock = mock(OAuth2TokenResponse.class);
+			when(responseMock.getAccessToken()).thenReturn("token");
+			when(responseMock.getExpiredAt()).thenReturn(expiredAt);
+			return responseMock;
 		}
-
 	}
 
 	private static class TestCacheTicker implements Ticker {

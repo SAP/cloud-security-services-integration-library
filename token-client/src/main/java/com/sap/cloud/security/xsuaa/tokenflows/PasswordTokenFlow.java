@@ -14,6 +14,7 @@ public class PasswordTokenFlow {
 	private String password;
 	private String subdomain;
 	private Map<String, String> optionalParameters;
+	private boolean disableCache = false;
 
 	public PasswordTokenFlow(@Nonnull OAuth2TokenService tokenService,
 			@Nonnull OAuth2ServiceEndpointsProvider endpointsProvider,
@@ -44,7 +45,7 @@ public class PasswordTokenFlow {
 		try {
 			return tokenService
 					.retrieveAccessTokenViaPasswordGrant(endpointsProvider.getTokenEndpoint(), clientCredentials,
-							username, password, subdomain, optionalParameters);
+							username, password, subdomain, optionalParameters, disableCache);
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format("Error requesting user token with grant_type 'client_credentials': %s",
@@ -100,6 +101,18 @@ public class PasswordTokenFlow {
 	 */
 	public PasswordTokenFlow optionalParameters(Map<String, String> optionalParameters) {
 		this.optionalParameters = optionalParameters;
+		return this;
+	}
+
+	/**
+	 * Can be used to disable the cache for the flow.
+	 *
+	 * @param disableCache
+	 *            - disables cache when set to {@code true}.
+	 * @return this builder.
+	 */
+	public PasswordTokenFlow disableCache(boolean disableCache) {
+		this.disableCache = disableCache;
 		return this;
 	}
 

@@ -377,7 +377,8 @@ public class XSUserInfoAdapterIntegrationTest {
 				eq(clientCredentials),
 				eq(correctEnduserInfo.getAppToken()),
 				any(),
-				anyMap())).thenReturn(oAuth2TokenResponse);
+				anyMap(),
+				anyBoolean())).thenReturn(oAuth2TokenResponse);
 		when(oAuth2TokenResponse.getAccessToken()).thenReturn(testToken);
 
 		// execute flow

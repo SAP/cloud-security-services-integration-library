@@ -38,6 +38,4 @@ public class HttpHeadersTest {
 		assertThat(headers2).isNotEqualTo(headers3);
 	}
 
-
-
 }

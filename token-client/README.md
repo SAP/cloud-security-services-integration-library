@@ -45,6 +45,11 @@ The `DefaultOAuth2TokenService` can also be instantiated with a custom `Closeabl
 
 > The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. 
 
+##### Cache
+
+By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache can be configured by providing an
+`CacheConfiguration` object as constructor parameter. The cache can be disabled by using the
+`CacheConfiguration.CACHE_DISABLED` configuration.
 
 ## Configuration for Java/Spring Applications
 
@@ -71,6 +76,12 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                                     new ClientCredentials(<client_id>, <client_secret>));
 ```
 > The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. In case you leverage the spring-xsuaa library you can also use [`XsuaaServiceConfiguration`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfiguration.java) class.
+
+##### Cache
+
+By default, the `XsuaaOAuth2TokenService` caches tokens internally. The Cache can be configured by providing an
+`CacheConfiguration` object as constructor parameter. The cache can be disabled by using the
+`CacheConfiguration.CACHE_DISABLED` configuration.
 
 ## Configuration for Spring Boot Applications
 
@@ -113,6 +124,7 @@ Obtain a client credentials token:
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.clientCredentialsTokenFlow()
                                                     .subdomain(jwtToken.getSubdomain()) // this is optional 
+                                                    .disableCache(true)                 // optionally disables token cache for request
                                                     .execute();
 ```
 ### Refresh Token Flow
@@ -122,6 +134,7 @@ In case you have a refresh token and want to obtain an access token:
 OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
                               .refreshToken(<refresh_token>)
                               .subdomain(jwtToken.getSubdomain()) // this is optional 
+                              .disableCache(true)                 // optionally disables token cache for request
                               .execute();
 ```
 ### User Token Flow
@@ -132,7 +145,8 @@ XsuaaToken jwtToken = SpringSecurityContext.getToken();
 OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
                 .token(jwtToken)
                 .subdomain(jwtToken.getSubdomain()) // this is optional      
-                .attributes(additionalAttributes) // this is optional
+                .disableCache(true)                 // optionally disables token cache for request
+                .attributes(additionalAttributes)   // this is optional
                 .execute();
 ```
 
@@ -142,6 +156,7 @@ In order to obtain an access token for a user:
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.passwordTokenFlow()
                                                     .subdomain(jwtToken.getSubdomain()) // this is optional
+                                                    .disableCache(true)                 // optionally disables token cache for request
                                                     .username(<your username>)
                                                     .password(<your password>)
                                                     .execute();
