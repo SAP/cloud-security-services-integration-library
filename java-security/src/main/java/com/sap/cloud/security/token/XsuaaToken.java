@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.security.Principal;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.sap.cloud.security.token.TokenClaims.USER_NAME;
@@ -143,6 +144,25 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	@Override
 	public GrantType getGrantType() {
 		return GrantType.from(getClaimAsString(GRANT_TYPE));
+	}
+
+	/**
+	 * Returns the value of the subdomain (zdn) from the external attribute ext_attr
+	 * (ext_attr) claim. If the external attribute or the subdomain is missing, it
+	 * returns {@code null}.
+	 *
+	 * @return the subdomain or {@code null}
+	 */
+	@Nullable
+	public String getSubdomain() {
+		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN);
+	}
+
+	@Nullable
+	private String getAttributeFromClaimAsString(String claimName, String attributeName) {
+		return Optional.ofNullable(getClaimAsJsonObject(claimName))
+				.map(claim -> claim.getAsString(attributeName))
+				.orElse(null);
 	}
 
 }

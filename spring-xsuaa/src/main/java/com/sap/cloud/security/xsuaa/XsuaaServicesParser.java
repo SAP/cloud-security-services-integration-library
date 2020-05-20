@@ -139,9 +139,9 @@ public class XsuaaServicesParser {
 			JSONObject binding = (JSONObject) jsonArray.get(i);
 			JSONArray tags = (JSONArray) binding.get(TAGS);
 
+			Optional<String> planName = Optional.ofNullable(binding.getAsString("plan"));
+			boolean isApiAccessPlan = (planName.isPresent() && planName.get().equals("apiaccess")) ? true : false;
 			for (int j = 0; j < tags.size(); j++) {
-				boolean isApiAccessPlan = binding.getAsString("plan").equals("apiaccess");
-
 				if (tags.get(j).equals(tag) && !isApiAccessPlan) {
 					if (xsuaaBinding == null) {
 						xsuaaBinding = binding;
