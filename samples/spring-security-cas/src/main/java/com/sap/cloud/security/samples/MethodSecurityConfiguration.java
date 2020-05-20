@@ -22,7 +22,6 @@ public class MethodSecurityConfiguration extends GlobalMethodSecurityConfigurati
      */
     @Bean
     AdcService adcService() {
-        //return new SpringADCService(); // TODO need to support WebClient
         return new AdcServiceDefault(adcUrl);
     }
 

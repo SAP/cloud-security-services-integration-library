@@ -102,7 +102,7 @@ mvn spring-boot:run
 When your application is successfully started (pls check the console logs) you can perform the following GET-requests with your browser:
 
 - `http://localhost:8080/health` should return "ok" (Status Code `200`). If not please check the application logs using `cf logs spring-security-cas --recent`, whether the OPA (ADC) Service is unavailable.
-- `http://localhost:8080/readByCountry/IT`  
+- `http://localhost:8080/salesOrders/readByCountry/IT`  
 This GET request executes a method secured with Spring Global Method Security. It will respond with error status code `403` (`unauthorized`) in case you do not have any policy assigned, that grants access for action `read` on any resources in `Country` = `<your country Code, e.g. 'IT'>`.
 
 Check the application logs on your console to find out the user id and the result of the authorization check. 
@@ -139,7 +139,7 @@ cf push --vars-file ../vars.yml
 After successful deployment, when accessing your application endpoints on Cloud Foundry, you get redirected to a login-screen to authenticate yourself.
 
 - `https://spring-security-cas-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/health` should return "ok" (Status Code `200`). If not please check the application logs using `cf logs spring-security-cas --recent`, whether the OPA (ADC) Service is unavailable.
-- `https://spring-security-cas-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/readByCountry/{country}`  
+- `https://spring-security-cas-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/salesOrders/readByCountry/{country}`  
 This GET request executes a method secured with Spring Global Method Security. It will respond with error status code `403` (`unauthorized`) in case you do not have any Policies assigned, that grants access for action `read` on any resources in `Country` = `<your country Code, e.g. 'IT'>`.
 
 

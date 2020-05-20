@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/salesOrders")
-//@PreAuthorize("forResource('salesOrders')") // TODO check
 public class SalesOrderController {
 
     /**
