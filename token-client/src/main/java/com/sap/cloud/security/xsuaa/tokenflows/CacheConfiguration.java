@@ -14,7 +14,7 @@ public class CacheConfiguration {
 	/**
 	 * Creates the default cache configuration.
 	 */
-	public static final CacheConfiguration DEFAULT = new CacheConfiguration(Duration.ofMinutes(15), 100);
+	public static final CacheConfiguration DEFAULT = new CacheConfiguration(Duration.ofMinutes(10), 1000);
 
 	/**
 	 * Special cache configuration used to disable caching.
