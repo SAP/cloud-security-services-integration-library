@@ -12,7 +12,7 @@ This includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) 
 
  All of them are returned as [`Jwt`](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/oauth2/jwt/Jwt.html), which offers you a `getTokenValue()` method that returns the encoded and signed Jwt token. You need to prefix this one with `Bearer ` in case you like to provide it via `Authorization` header to your application.
 
- > In most cases the Jwt gets Base64 encoded and signed with this [private key](src/main/resources/privateKey.txt).
+ > In most cases the Jwt gets Base64 encoded and signed with this [private key](src/main/resources/spring-xsuaa-privateKey.txt).
 
 
 ## Requirements
