@@ -1,6 +1,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -29,10 +30,20 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 
 	public XsuaaOAuth2TokenService() {
-		this(new RestTemplate());
+		this(new RestTemplate(), CacheConfiguration.DEFAULT);
+	}
+
+	public XsuaaOAuth2TokenService(@Nonnull CacheConfiguration cacheConfiguration) {
+		this(new RestTemplate(), cacheConfiguration);
 	}
 
 	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations) {
+		this(restOperations, CacheConfiguration.DEFAULT);
+	}
+
+	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations,
+			@Nonnull CacheConfiguration cacheConfiguration) {
+		super(cacheConfiguration);
 		assertNotNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
 	}

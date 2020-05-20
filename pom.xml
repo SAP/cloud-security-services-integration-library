@@ -67,7 +67,7 @@
 		<org.json.version>20190722</org.json.version>
 		<google.jsr305.version>3.0.2</google.jsr305.version>
 		<apache.httpclient.version>4.5.9</apache.httpclient.version>
-		<caffeine.version>2.6.1</caffeine.version>
+		<caffeine.version>2.8.2</caffeine.version>
 		<commons.io.version>2.6</commons.io.version>
 		<javax.servlet.api.version>3.0.1</javax.servlet.api.version>
 		<mockwebserver.version>3.9.1</mockwebserver.version>
