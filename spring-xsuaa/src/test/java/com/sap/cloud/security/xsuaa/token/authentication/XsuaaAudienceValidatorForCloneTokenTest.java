@@ -60,7 +60,7 @@ public class XsuaaAudienceValidatorForCloneTokenTest {
 
 		List<OAuth2Error> errors = new ArrayList<>(result.getErrors());
 		Assert.assertThat(errors.get(0).getDescription(),
-				is("Jwt token audience matches none of these: [test1!t1, brokerplanmasterapp!b123]"));
+				is("Jwt token with allowed audiences [] matches none of these: [test1!t1, brokerplanmasterapp!b123]"));
 		Assert.assertThat(errors.get(0).getErrorCode(), is(OAuth2ErrorCodes.INVALID_CLIENT));
 	}
 
