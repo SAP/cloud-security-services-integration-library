@@ -15,7 +15,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
-import org.springframework.util.Assert;
 
 import static com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders.JKU;
 import static com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders.KID;
@@ -63,7 +62,7 @@ public class JwtGenerator {
 	public static final int NO_EXPIRE = Integer.MAX_VALUE;
 	public static final String CLIENT_ID = "sb-xsapplication!t895";
 	public static final String DEFAULT_IDENTITY_ZONE_ID = "uaa";
-	private static final String PRIVATE_KEY_FILE = "/privateKey.txt";
+	private static final String PRIVATE_KEY_FILE = "/spring-xsuaa-privateKey.txt";
 	// see XsuaaToken.GRANTTYPE_SAML2BEARER
 	private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 

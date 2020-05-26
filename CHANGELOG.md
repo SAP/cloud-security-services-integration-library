@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.7.0
+- [token-client] By default requested tokens are now cached. You can disable the cache globally or per request as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/token-client).
+- [java-security]  
+  - `XSUserInfoAdapter` provides now the subdomain that is required for token exchange via `getSubdomain()` method.
+  - Avoid warning messages "IAS Service is not yet supported!".
+- [spring-xsuaa-test]  
+  - renamed file `privateKey.txt` to `spring-xsuaa-privateKey.txt` and `publicKey.txt` to `spring-xsuaa-publicKey.txt` to avoid name clashes in context of CAP, which results in a strange `IllegalArgumentException:failed to construct sequence from byte[]: DEF length 1213 object truncated by 2`. This can happen when you use `java-security-test` and `spring-xsuaa-test` in parallel.
+  - For new applications `spring-xsuaa-test` can be replaced in favor of `java-security-test` for unit testing. For testing your app locally you can setup your local environment with the `VCAP_SERVICES` in order to test with your XSUAA instance on Cloud Foundry.  
+- [spring-xsuaa-starter] Upgrade Spring versions:
+  - spring.boot.version: 2.2.6.RELEASE --> 2.3.0.RELEASE
+  - spring.core.version: 5.2.5.RELEASE --> 5.2.6.RELEASE
+  - spring.security.version: 5.3.1.RELEASE --> 5.3.2.RELEASE
+  - spring.security.oauth2:  2.4.0.RELEASE -> 2.4.1.RELEASE
+
 ## 2.6.2
 - [java-security] `XSUserInfoAdapter` provides full compatible implementation of `com.sap.xsa.security.container.XSUserInfo.java` interface. Support token exchanges using `XsuaaTokenFlows` api.
 - [spring-xsuaa] Improve support of multiple XSUAA Bindings as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/spring-xsuaa/Migration_JavaContainerSecurityProjects.md#multiple-xsuaa-bindings).

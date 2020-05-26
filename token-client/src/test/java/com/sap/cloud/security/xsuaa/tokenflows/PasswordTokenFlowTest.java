@@ -5,7 +5,6 @@ import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Map;
@@ -13,6 +12,7 @@ import java.util.Map;
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -24,9 +24,9 @@ public class PasswordTokenFlowTest {
 	private PasswordTokenFlow cut;
 
 	@Before
-	public void setUp() throws OAuth2ServiceException {
-		tokenService = Mockito.mock(OAuth2TokenService.class);
-		endpointsProvider = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
+	public void setUp() {
+		tokenService = mock(OAuth2TokenService.class);
+		endpointsProvider = mock(OAuth2ServiceEndpointsProvider.class);
 
 		when(endpointsProvider.getTokenEndpoint()).thenReturn(TOKEN_ENDPOINT_URI);
 
@@ -74,7 +74,7 @@ public class PasswordTokenFlowTest {
 
 	@Test
 	public void execute_returnsCorrectAccessTokenInResponse() throws Exception {
-		returnValidResponse();
+		mockValidResponse();
 
 		OAuth2TokenResponse actualResponse = executeRequest();
 
@@ -84,7 +84,7 @@ public class PasswordTokenFlowTest {
 	@Test
 	public void execute_ReturnsDifferentAccessTokenInResponse() throws Exception {
 		String otherAccessToken = "qwertyqwerty";
-		returnValidResponse(otherAccessToken);
+		mockValidResponse(otherAccessToken);
 
 		OAuth2TokenResponse actualResponse = executeRequest();
 
@@ -93,7 +93,7 @@ public class PasswordTokenFlowTest {
 
 	@Test
 	public void execute_ReturnsRefreshTokenInResponse() throws Exception {
-		returnValidResponse();
+		mockValidResponse();
 
 		OAuth2TokenResponse actualResponse = executeRequest();
 
@@ -104,10 +104,10 @@ public class PasswordTokenFlowTest {
 	public void allRequiredParametersAreUsed() throws Exception {
 		executeRequest();
 
-		Mockito.verify(tokenService, times(1))
+		verify(tokenService, times(1))
 				.retrieveAccessTokenViaPasswordGrant(eq(TOKEN_ENDPOINT_URI), eq(CLIENT_CREDENTIALS), eq(
 						USERNAME),
-						eq(PASSWORD), any(), any());
+						eq(PASSWORD), any(), any(), eq(false));
 	}
 
 	@Test
@@ -115,9 +115,18 @@ public class PasswordTokenFlowTest {
 		String newSubdomain = "staging";
 		createValidRequest().subdomain(newSubdomain).execute();
 
-		Mockito.verify(tokenService, times(1))
+		verify(tokenService, times(1))
 				.retrieveAccessTokenViaPasswordGrant(any(), any(), any(),
-						any(), eq(newSubdomain), any());
+						any(), eq(newSubdomain), any(), anyBoolean());
+	}
+
+	@Test
+	public void disableCacheIsUsed() throws Exception {
+		createValidRequest().disableCache(true).execute();
+		verifyThatDisableCacheIs(true);
+
+		createValidRequest().disableCache(false).execute();
+		verifyThatDisableCacheIs(false);
 	}
 
 	@Test
@@ -129,9 +138,9 @@ public class PasswordTokenFlowTest {
 
 		createValidRequest().optionalParameters(givenParameters).execute();
 
-		Mockito.verify(tokenService, times(1))
+		verify(tokenService, times(1))
 				.retrieveAccessTokenViaPasswordGrant(any(), any(), any(),
-						any(), any(), eq(equalParameters));
+						any(), any(), eq(equalParameters), anyBoolean());
 	}
 
 	private OAuth2TokenResponse executeRequest() throws TokenFlowException {
@@ -142,19 +151,24 @@ public class PasswordTokenFlowTest {
 		return cut.username(USERNAME).password(PASSWORD);
 	}
 
-	private void returnValidResponse() throws OAuth2ServiceException {
+	private void mockValidResponse() throws OAuth2ServiceException {
 		OAuth2TokenResponse validResponse = new OAuth2TokenResponse(ACCESS_TOKEN, EXPIRED_IN, REFRESH_TOKEN);
 		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME,
 				PASSWORD,
-				null, null))
+				null, null, false))
 						.thenReturn(validResponse);
 	}
 
-	private void returnValidResponse(String accessToken) throws OAuth2ServiceException {
+	private void mockValidResponse(String accessToken) throws OAuth2ServiceException {
 		OAuth2TokenResponse validResponse = new OAuth2TokenResponse(accessToken, EXPIRED_IN, REFRESH_TOKEN);
 		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME,
-				PASSWORD,
-				null, null))
+				PASSWORD, null, null, false))
 						.thenReturn(validResponse);
+	}
+
+	private void verifyThatDisableCacheIs(boolean disableCache) throws OAuth2ServiceException {
+		verify(tokenService, times(1))
+				.retrieveAccessTokenViaPasswordGrant(any(), any(), any(),
+						any(), any(), any(), eq(disableCache));
 	}
 }

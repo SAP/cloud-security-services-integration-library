@@ -125,7 +125,8 @@ public class XsuaaAudienceValidatorTest {
 				.validate(tokenWithoutAudienceButScopes);
 		Assert.assertTrue(result.hasErrors());
 		List<OAuth2Error> errors = new ArrayList<>(result.getErrors());
-		Assert.assertThat(errors.get(0).getDescription(), is("Jwt token audience matches none of these: [test2!t1]"));
+		String expectedDescription = "Jwt token with allowed audiences [test3!t1] matches none of these: [test2!t1]";
+		Assert.assertThat(errors.get(0).getDescription(), is(expectedDescription));
 		Assert.assertThat(errors.get(0).getErrorCode(), is(OAuth2ErrorCodes.INVALID_CLIENT));
 	}
 

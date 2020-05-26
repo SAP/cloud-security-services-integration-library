@@ -18,7 +18,7 @@ public final class TokenClaims {
 	public static final String GIVEN_NAME = "given_name";
 	public static final String FAMILY_NAME = "family_name";
 	public static final String EMAIL = "email";
-	public static final String SAP_GLOBAL_USER_ID = "sap_uid";
+	public static final String SAP_GLOBAL_USER_ID = "user_uuid";
 	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // tenant GUID
 
 	public final class XSUAA {
@@ -32,8 +32,9 @@ public final class TokenClaims {
 		public static final String SUBACCOUNT_ID = "subaccountid"; // in most cases equals to the identity zone
 		public static final String CLIENT_ID = "cid"; // OAuth client identifier
 		public static final String SCOPES = "scope"; // list of scopes including app id, e.g. "my-app!t123.Display"
-		public static final String EXTERNAL_ATTRIBUTE = "ext_attr";
 		public static final String ISSUED_AT = "iat";
+		public static final String EXTERNAL_ATTRIBUTE = "ext_attr";
+		public static final String EXTERNAL_ATTRIBUTE_ZDN = "zdn";
 		public static final String EXTERNAL_ATTRIBUTE_ENHANCER = "enhancer";
 
 		public static final String TRUSTED_CLIENT_ID_SUFFIX = "trustedclientidsuffix";
