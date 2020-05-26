@@ -142,7 +142,7 @@ Then you need to adapt your **Spring Security Configuration** as following:
        return new XsuaaJwtDecoderBuilder(customXsuaaConfig()).withTokenValidators(customAudienceValidator).build();
     }
     ```
- 4. Right now, you have to make sure that the `TokenAuthenticationConverter` is NOT configured to check for local scopes (`setLocalScopeAsAuthorities(false)`).
+ 4. Note: In case you would like to configure authorization checks for scopes that are specified in context of different XSUAA service instances local scope names (without `xsappname` prefix) are not unique. So, make sure that `TokenAuthenticationConverter` is NOT configured to check for local scopes (`setLocalScopeAsAuthorities(false)`)!
 
 ## Fetch data from token
 
