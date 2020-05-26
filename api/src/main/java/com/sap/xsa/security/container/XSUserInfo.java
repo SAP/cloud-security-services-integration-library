@@ -90,8 +90,9 @@ public interface XSUserInfo {
 
 	/**
 	 * Return subaccount identifier which is in most cases same like the
-	 * identity zone. DO NOT longer use this method to gets the unique tenant id!
-	 * Do only use this for metering purposes.
+	 * identity zone.
+	 * DO only use this for metering purposes.
+	 * DO NOT longer use this method to get the unique tenant id"! For that use {@link #getZoneId()}.
 	 *
 	 * @return subaccount identifier
 	 * @throws XSUserInfoException
