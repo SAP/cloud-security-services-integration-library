@@ -36,20 +36,4 @@ public class LocalAuthoritiesExtractorTest {
                 new SimpleGrantedAuthority("Scope2"));
     }
 
-    @Test
-    public void extractLocalScopesOfTwoApps() {
-        cut = new LocalAuthoritiesExtractor("appId!1234", "appId2!777");
-        assertThat(cut.getAuthorities(token)).containsExactlyInAnyOrder(
-                new SimpleGrantedAuthority("Scope1"),
-                new SimpleGrantedAuthority("Scope2"),
-                new SimpleGrantedAuthority("Scope3"));
-    }
-
-    @Test
-    public void extractLocalScopesOfTwoApps_SameScopeName() {
-        cut = new LocalAuthoritiesExtractor("appId!1234", "appId2!888");
-        assertThat(cut.getAuthorities(token)).containsExactlyInAnyOrder(
-                new SimpleGrantedAuthority("Scope1"),
-                new SimpleGrantedAuthority("Scope2"));
-    }
 }
