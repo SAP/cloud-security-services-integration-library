@@ -105,10 +105,13 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getAudiences() {
-		assertThat(clientCredentialsToken.getAudiences()).isNotEmpty();
-		assertThat(clientCredentialsToken.getAudiences()).hasSize(2);
-		assertThat(clientCredentialsToken.getAudiences()).contains("uaa");
-		assertThat(clientCredentialsToken.getAudiences()).contains("sap_osb");
+		assertThat(clientCredentialsToken.getAudiences()).containsExactlyInAnyOrder("uaa", "sap_osb");
+	}
+
+	@Test
+	public void getSubdomain() {
+		assertThat(clientCredentialsToken.getSubdomain()).isNull();
+		assertThat(userToken.getSubdomain()).isEqualTo("theSubdomain");
 	}
 
 }

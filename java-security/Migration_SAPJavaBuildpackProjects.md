@@ -19,7 +19,7 @@ First make sure you have the following dependencies defined in your pom.xml:
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>api</artifactId>
-  <version>2.6.2</version>
+  <version>2.7.1</version>
   <scope>provided</scope>
 </dependency>
 ```

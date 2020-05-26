@@ -355,7 +355,8 @@ public class SecurityTest {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				LOGGER.warn("Got interrupted while waiting for WireMock to shutdown. Giving up!");
-				break;
+				Thread.currentThread().interrupt(); // restore the interrupted status
+				break; // stop blocking
 			}
 		}
 	}

@@ -30,29 +30,26 @@ First make sure you have the following dependencies defined in your pom.xml:
 <dependency>
   <groupId>org.springframework.security.oauth</groupId>
   <artifactId>spring-security-oauth2</artifactId>
-</dependency>
-<dependency>
-  <groupId>org.springframework</groupId>
-  <artifactId>spring-aop</artifactId>
+  <version>2.4.1.RELEASE</version> <!-- chose the latest from maven repository -->
 </dependency>
 
 <!-- new java-security dependencies -->
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>api</artifactId>
-  <version>2.6.2</version>
+  <version>2.7.1</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security</artifactId>
-  <version>2.6.2</version>
+  <version>2.7.1</version>
 </dependency>
 
 <!-- new java-security dependencies for unit tests -->
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security-test</artifactId>
-  <version>2.6.2</version>
+  <version>2.7.1</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -172,7 +169,7 @@ GrantType grantType = token.getGrantType();
 > Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
 
 ## Fetch further `XSUserInfo` infos from Token
-When you're done with the first part and need further information from the token you can use `XSUserInfoAdapter` in order to access the remaining methods exposed by [`XSUserInfo`](/api/src/main/java/com/sap/xsa/security/container/XSUserInfo.java) Interface.
+When you're done with the first part and need further information from the token you can use `XSUserInfoAdapter` in order to access the remaining methods exposed by the [`XSUserInfo`](/api/src/main/java/com/sap/xsa/security/container/XSUserInfo.java) Interface.
 
 ```java
 try {
@@ -253,18 +250,32 @@ When your code compiles again you should first check that all your unit tests ar
 application locally make sure that it is still working and finally test the application in cloud foundry.
 
 ## Troubleshoot
+- Error in the aplication log similar to this one
+	```
+	Configuration problem: You cannot use a spring-security-4.0.xsd or spring-security-4.1.xsd schema with Spring Security 4.2. Please update your schema declarations to the 4.2 schema. Offending resource: ServletContext resource [/WEB-INF/spring-security.xml]
+	```  
+	You can fix this by removing the Spring versions of the schema declaration in the file `/WEB-INF/spring-security.xml`. Without explicit versions set, the latest version will be used.
+	```
+	xsi:schemaLocation="http://www.springframework.org/schema/security/oauth2
+			    http://www.springframework.org/schema/security/spring-security-oauth2.xsd
+			    http://www.springframework.org/schema/security
+			    http://www.springframework.org/schema/security/spring-security.xsd
+			    http://www.springframework.org/schema/beans
+			    http://www.springframework.org/schema/beans/spring-beans.xsd
+	```
+	
 - org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException  
-```
-org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line XX in XML document from ServletContext resource [/WEB-INF/spring-security.xml] is invalid; 
-nested exception is org.xml.sax.SAXParseException; lineNumber: 51; columnNumber: 118; cvc-complex-type.2.4.c: 
-The matching wildcard is strict, but no declaration can be found for element 'oauth:resource-server'.
-```  
-You can fix this by changing the schema location to `https` for `oauth2` as below in the spring security xml. With this change, the local jar is available and solves the issue of server trying to connect to get the jar and fails due to some restrictions.
+	```
+	org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line XX in XML document from ServletContext resource [/WEB-INF/spring-security.xml] is invalid; 
+	nested exception is org.xml.sax.SAXParseException; lineNumber: 51; columnNumber: 118; cvc-complex-type.2.4.c: 
+	The matching wildcard is strict, but no declaration can be found for element 'oauth:resource-server'.
+	```  
+	You can fix this by changing the schema location to `https` for `oauth2` as below in the `/WEB-INF/spring-security.xml`. With this change, the local jar is available and solves the issue of server trying to connect to get the jar and fails due to some restrictions.
 
-```
-xsi:schemaLocation="http://www.springframework.org/schema/security/oauth2
-https://www.springframework.org/schema/security/spring-security-oauth2.xsd
-```
+	```
+	xsi:schemaLocation="http://www.springframework.org/schema/security/oauth2
+	https://www.springframework.org/schema/security/spring-security-oauth2.xsd
+	```
 
 
 ## Issues
