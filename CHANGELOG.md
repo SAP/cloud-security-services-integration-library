@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.7.1
+- [java-security] rename Token claim "sap_uid" to „user_uuid“ 
+- Improve AudienceValidator logs
+
 ## 2.7.0
 - [token-client] By default requested tokens are now cached. You can disable the cache globally or per request as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/token-client).
 - [java-security]  
