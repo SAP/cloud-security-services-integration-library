@@ -304,6 +304,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String requestTokenForClient(String clientId, String clientSecret, String baseUaaUrl) {
+		return performTokenFlow(baseUaaUrl, XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN, clientId, clientSecret, new HashMap<>());
+	}
+
+	@Override
+	public String requestTokenForUser(String clientId, String clientSecret, String baseUaaUrl) {
 		return performTokenFlow(baseUaaUrl, XSTokenRequest.TYPE_USER_TOKEN, clientId, clientSecret, new HashMap<>());
 	}
 
@@ -432,12 +437,19 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
 	}
 
+	/**
+	 * Getter for XsuaaTokenFlows object that can be overridden for testing purposes.
+	 */
+	XsuaaTokenFlows getXsuaaTokenFlows(String baseUaaUrl, ClientCredentials clientCredentials) {
+		return new XsuaaTokenFlows(getOrCreateOAuth2TokenService(),
+				new XsuaaDefaultEndpoints(baseUaaUrl), clientCredentials);
+	}
+
 	private String performTokenFlow(String baseUaaUrl, int tokenRequestType, String clientId, String clientSecret,
 			Map<String, String> additionalAuthAttributes) {
 		try {
 			ClientCredentials clientCredentials = new ClientCredentials(clientId, clientSecret);
-			XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(getOrCreateOAuth2TokenService(),
-					new XsuaaDefaultEndpoints(baseUaaUrl), clientCredentials);
+			XsuaaTokenFlows xsuaaTokenFlows = getXsuaaTokenFlows(baseUaaUrl, clientCredentials);
 			return performRequest(xsuaaTokenFlows, tokenRequestType, additionalAuthAttributes);
 		} catch (RuntimeException e) {
 			throw new XSUserInfoException(e.getMessage());
