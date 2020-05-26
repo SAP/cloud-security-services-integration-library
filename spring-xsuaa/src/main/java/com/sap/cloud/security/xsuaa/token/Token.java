@@ -31,6 +31,7 @@ public interface Token extends UserDetails {
 
 	/**
 	 * Return zone identifier which should be used as tenant discriminator (tenant id).
+	 * For most of the old subaccounts this matches the id returned by {@link #getSubaccountId()}.
 	 *
 	 * @return the zone identifier.
 	 */

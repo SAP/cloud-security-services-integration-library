@@ -102,6 +102,7 @@ public interface XSUserInfo {
 
 	/**
 	 * Return zone identifier which should be used as tenant discriminator (tenant id).
+	 * For most of the old subaccounts this matches the id returned by {@link #getSubaccountId()}.
 	 *
 	 * @deprecated Can be replaced with
 	 *             {@code token.getZoneId()} from
