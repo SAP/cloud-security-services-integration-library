@@ -143,9 +143,10 @@ public interface Token {
 
 
 	/**
-	 * Returns the Zone identifier, which can be used as tenant GUID.
+	 * Returns the Zone identifier, which can be used as tenant discriminator (tenant guid).
 	 *
 	 * @return the unique Zone identifier.
 	 */
 	String getZoneId();
+
 }

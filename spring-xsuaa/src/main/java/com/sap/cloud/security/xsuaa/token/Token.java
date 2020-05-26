@@ -20,18 +20,19 @@ public interface Token extends UserDetails {
 	static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
 
 	/**
-	 * Returns the subaccount identifier, which can be used as tenant GUID.
+	 * Return subaccount identifier which is in most cases same like the
+	 * identity zone. DO NOT longer use this method to gets the unique tenant id!
+	 * Do only use this for metering purposes.
 	 *
 	 * @return the subaccount identifier.
 	 * @deprecated use {@link #getZoneId()} instead
 	 */
-	@Deprecated
 	String getSubaccountId();
 
 	/**
-	 * Returns the Zone identifier, which can be used as tenant GUID.
+	 * Return zone identifier which should be used as tenant discriminator (tenant id).
 	 *
-	 * @return the unique Zone identifier.
+	 * @return the zone identifier.
 	 */
 	String getZoneId();
 

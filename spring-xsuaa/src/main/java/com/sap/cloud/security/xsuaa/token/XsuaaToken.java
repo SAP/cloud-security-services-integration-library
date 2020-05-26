@@ -30,6 +30,7 @@ public class XsuaaToken extends Jwt implements Token {
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	static final String CLAIM_EXTERNAL_ATTR = "ext_attr";
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
+	static final String CLAIM_SUBACCOUNT_ID = "subaccountid";
 	private static final long serialVersionUID = -836947635254353927L;
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaToken.class);
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();
@@ -117,7 +118,7 @@ public class XsuaaToken extends Jwt implements Token {
 
 		if (origin.contains("/")) {
 			logger.warn(
-					"Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returing null.");
+					"Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returning null.");
 			return null;
 		}
 
@@ -170,13 +171,12 @@ public class XsuaaToken extends Jwt implements Token {
 
 	@Override
 	public String getSubaccountId() {
-		return getClaimAsString(CLAIM_ZONE_ID);
+		return hasClaim(CLAIM_SUBACCOUNT_ID) ? getClaimAsString(CLAIM_SUBACCOUNT_ID) : getClaimAsString(CLAIM_ZONE_ID);
 	}
 
 	@Override
 	public String getZoneId() {
-		String global_zone_id = getClaimAsString(CLAIM_GLOBAL_ZONE_ID);
-		return Objects.nonNull(global_zone_id) ? global_zone_id : getSubaccountId();
+		return hasClaim(CLAIM_GLOBAL_ZONE_ID) ? getClaimAsString(CLAIM_GLOBAL_ZONE_ID) : getClaimAsString(CLAIM_ZONE_ID);
 	}
 
 	@Override

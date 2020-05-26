@@ -78,11 +78,9 @@ public interface XSUserInfo {
 	public String getOrigin() throws XSUserInfoException;
 
 	/**
-	 * Return identity zone which is the same like the subaccount id (tenant id).
+	 * Return identity zone which is in most cases same like the subaccount identifier.
 	 * 
-	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)} from
-	 *             the {@code com.sap.cloud.security.token} package.
+	 * @deprecated Can be replaced with {@link #getSubaccountId()}.
 	 * @return identity zone
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
@@ -91,12 +89,10 @@ public interface XSUserInfo {
 	String getIdentityZone() throws XSUserInfoException;
 
 	/**
-	 * Return subaccount identifier which is the same like the identity zone (tenant
-	 * id).
-	 * 
-	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)} from
-	 *             the {@code com.sap.cloud.security.token} package.
+	 * Return subaccount identifier which is in most cases same like the
+	 * identity zone. DO NOT longer use this method to gets the unique tenant id!
+	 * Do only use this for metering purposes.
+	 *
 	 * @return subaccount identifier
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
@@ -104,10 +100,10 @@ public interface XSUserInfo {
 	public String getSubaccountId() throws XSUserInfoException;
 
 	/**
-	 * Return zone identifier.
+	 * Return zone identifier which should be used as tenant discriminator (tenant id).
 	 *
 	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)} from
+	 *             {@code token.getZoneId()} from
 	 *             the {@code com.sap.cloud.security.token} package.
 	 * @return zone identifier
 	 * @throws XSUserInfoException
@@ -116,7 +112,7 @@ public interface XSUserInfo {
 	String getZoneId() throws XSUserInfoException;
 
 	/**
-	 * Still Supported via {@code XSUserInfoAdapter} from the
+	 * Still supported via {@code XSUserInfoAdapter} from the
 	 * {@code com.sap.cloud.security.adapter.xs} package.
 	 * 
 	 * @return the subdomain
