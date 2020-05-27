@@ -2,6 +2,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
+import com.sap.cloud.security.xsuaa.util.TokenLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -82,11 +83,12 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
 		@SuppressWarnings("unchecked")
 		Map<String, String> accessTokenMap = responseEntity.getBody();
-		LOGGER.debug("Received response: {}", responseEntity.getBody());
 
 		String accessToken = accessTokenMap.get(ACCESS_TOKEN);
 		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
 		String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
+		TokenLogger.logToken(accessToken, "Received access token");
+		TokenLogger.logToken(refreshToken, "Received refresh token");
 		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken);
 	}
 

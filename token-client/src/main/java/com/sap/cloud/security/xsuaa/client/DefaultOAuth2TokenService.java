@@ -4,6 +4,7 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import com.sap.cloud.security.xsuaa.util.TokenLogger;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -84,7 +85,6 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	private OAuth2TokenResponse handleResponse(HttpResponse response) throws IOException {
 		String responseBody = HttpClientUtil.extractResponseBodyAsString(response);
 		Map<String, Object> accessTokenMap = new JSONObject(responseBody).toMap();
-		LOGGER.debug("Received response {}", accessTokenMap); //remove
 		return convertToOAuth2TokenResponse(accessTokenMap);
 	}
 
@@ -93,7 +93,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		String accessToken = getParameter(accessTokenMap, ACCESS_TOKEN);
 		String refreshToken = getParameter(accessTokenMap, REFRESH_TOKEN);
 		String expiresIn = getParameter(accessTokenMap, EXPIRES_IN);
-
+		TokenLogger.logToken(accessToken, "Received access token");
+		TokenLogger.logToken(refreshToken, "Received refresh token");
 		return new OAuth2TokenResponse(accessToken, convertExpiresInToLong(expiresIn),
 				refreshToken);
 	}
