@@ -31,6 +31,7 @@ public class DefaultOAuth2TokenServiceTest {
 	private static final String VALID_JSON_RESPONSE = String
 			.format("{expires_in: 1234, access_token: %s, refresh_token: %s}",
 					ACCESS_TOKEN, REFRESH_TOKEN);
+	private static final URI TOKEN_ENDPOINT_URI = URI.create("https://subdomain.myauth.server.com/oauth/token");
 
 	private CloseableHttpClient mockHttpClient;
 	private DefaultOAuth2TokenService cut;
@@ -90,14 +91,15 @@ public class DefaultOAuth2TokenServiceTest {
 
 		assertThatThrownBy(() -> requestAccessToken())
 				.isInstanceOf(OAuth2ServiceException.class)
-				.hasMessageContaining(unauthorizedResponseText);
+				.hasMessageContaining(unauthorizedResponseText)
+				.hasMessageContaining(String.valueOf(HttpStatus.SC_UNAUTHORIZED))
+				.hasMessageContaining(TOKEN_ENDPOINT_URI.toString());
 	}
 
 	private OAuth2TokenResponse requestAccessToken() throws OAuth2ServiceException {
-		URI tokenEndpointUri = URI.create("https://subdomain.myauth.server.com/oauth/token");
 		HttpHeaders withoutAuthorizationHeader = HttpHeadersFactory.createWithoutAuthorizationHeader();
 		Map<String, String> parameters = Collections.emptyMap();
-		return cut.requestAccessToken(tokenEndpointUri, withoutAuthorizationHeader, parameters);
+		return cut.requestAccessToken(TOKEN_ENDPOINT_URI, withoutAuthorizationHeader, parameters);
 	}
 
 }
