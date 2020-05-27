@@ -314,6 +314,8 @@ public interface XSUserInfo {
 	boolean isInForeignMode() throws XSUserInfoException;
 
 	/**
+	 * Performs a client credentials token flow.
+	 *
 	 * @param clientId
 	 *            client id
 	 * @param clientSecret
@@ -327,6 +329,22 @@ public interface XSUserInfo {
 	 *             if an error occurs during token request
 	 */
 	String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
+
+	/**
+	 * Performs a user token flow.
+	 *
+	 * @param clientId
+	 *            client id
+	 * @param clientSecret
+	 *            client secret
+	 * @param uaaUrl
+	 *            the uaa url
+	 * @return the token
+	 * @deprecated can be replaced with token flows from the token-client library.
+	 * @throws XSUserInfoException
+	 * 				if an error occurs during token request
+	 */
+	String requestTokenForUser(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
 
 	/**
 	 * Exchange a token into a token from another service instance
