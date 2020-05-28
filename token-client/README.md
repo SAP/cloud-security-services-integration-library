@@ -168,19 +168,15 @@ Make sure to read the API documentation of the `XsuaaTokenFlows` API, to underst
 ## Troubleshooting
 
 For troubleshooting problems with the token service, you can set the logging level for the 
-`com.sap.cloud.security.xsuaa` package to debug. Have a look at the 
+`com.sap.cloud.security` package to `DEBUG`. Have a look at the 
 [Logging](/java-security/README.md#logging) section for more information on logging.
 
-If you need more detailed network data in your logs, you can enable debugging for your HTTP client.
+If you need more detailed network data in your logs, you can also enable debugging for your HTTP client.
 Note that this might leak encoded tokens into your logs. Use with care! 
 For java applications using `HttpClient`, see the  
 [logging documentation](https://hc.apache.org/httpcomponents-client-4.5.x/logging.html).
 For spring applications using rest template, you can set
 `org.springframework.web.client.RestTemplate` to log level `DEBUG`. 
-
-### Debug for Java with Apache 
-
-### Debug for Spring / Boot 
 
 ## Issues
 
