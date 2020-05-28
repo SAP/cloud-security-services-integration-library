@@ -73,6 +73,14 @@ public class TokenLoggerTest {
 		assertThat(debugLogCaptor.getAllValues())
 				.containsExactly("useful description", TokenLogger.convertToReadableFormat(TOKEN));
 	}
+	@Test
+	public void logToken_descriptionIsNull_logsTokenOnly() {
+		ArgumentCaptor<String> debugLogCaptor = ArgumentCaptor.forClass(String.class);
+		cut.logToken(TOKEN, null);
+
+		verify(loggerMock, times(1)).debug(debugLogCaptor.capture());
+		assertThat(debugLogCaptor.getValue()).isEqualTo(TokenLogger.convertToReadableFormat(TOKEN));
+	}
 
 	@Test
 	public void logToken_doesNotLogSignatureNorEncodedToken() {
