@@ -47,7 +47,7 @@ public class TokenLogger {
 	 * @param description
 	 *            an optional textual description of the token being logged
 	 */
-	public void logToken(String token, @Nullable String description) {
+	public void logDebug(String token, @Nullable String description) {
 		if (!wrappedLogger.isDebugEnabled()) {
 			return;
 		}
@@ -66,7 +66,7 @@ public class TokenLogger {
 	 * Utility method to transform a encoded token to a human readable format while
 	 * omitting the token signature. This can be used to inspect the token for
 	 * debugging purposes. This method does not log the token! Use
-	 * {@link #logToken(String, String)} for this. If the token is malformed or
+	 * {@link #logDebug(String, String)} for this. If the token is malformed or
 	 * null, this method will return the empty string and not throw exceptions.
 	 *
 	 * @param token

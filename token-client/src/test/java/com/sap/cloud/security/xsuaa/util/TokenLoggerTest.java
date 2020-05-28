@@ -8,8 +8,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 
-import java.util.stream.Collectors;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -66,7 +64,7 @@ public class TokenLoggerTest {
 	@Test
 	public void logToken_containsDescriptionAndConvertedToken() {
 		ArgumentCaptor<String> debugLogCaptor = ArgumentCaptor.forClass(String.class);
-		cut.logToken(TOKEN, "useful description");
+		cut.logDebug(TOKEN, "useful description");
 
 		verify(loggerMock, times(1)).debug(debugLogCaptor.capture());
 
@@ -77,7 +75,7 @@ public class TokenLoggerTest {
 	@Test
 	public void logToken_descriptionIsNull_logsTokenOnly() {
 		ArgumentCaptor<String> debugLogCaptor = ArgumentCaptor.forClass(String.class);
-		cut.logToken(TOKEN, null);
+		cut.logDebug(TOKEN, null);
 
 		verify(loggerMock, times(1)).debug(debugLogCaptor.capture());
 		assertThat(debugLogCaptor.getValue()).isEqualTo(TokenLogger.convertToReadableFormat(TOKEN));
@@ -86,7 +84,7 @@ public class TokenLoggerTest {
 	@Test
 	public void logToken_doesNotLogSignatureNorEncodedToken() {
 		ArgumentCaptor<String> debugLogCaptor = ArgumentCaptor.forClass(String.class);
-		cut.logToken(TOKEN, "");
+		cut.logDebug(TOKEN, "");
 
 		verify(loggerMock, times(1)).debug(debugLogCaptor.capture());
 
@@ -97,7 +95,7 @@ public class TokenLoggerTest {
 
 	@Test
 	public void logToken_tokenIsNotDecodable_doesNotLog() {
-		cut.logToken("not.a.token", "useful description");
+		cut.logDebug("not.a.token", "useful description");
 
 		verify(loggerMock, times(1)).isDebugEnabled();
 		verifyNoMoreInteractions(loggerMock);

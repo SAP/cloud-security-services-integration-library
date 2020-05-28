@@ -29,7 +29,6 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 	private final RestOperations restOperations;
-	private final TokenLogger tokenLogger;
 
 	public XsuaaOAuth2TokenService() {
 		this(new RestTemplate(), CacheConfiguration.DEFAULT);
@@ -48,7 +47,6 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		super(cacheConfiguration);
 		assertNotNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
-		this.tokenLogger = TokenLogger.getInstance(LOGGER);
 	}
 
 	@Override
@@ -89,8 +87,6 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		String accessToken = accessTokenMap.get(ACCESS_TOKEN);
 		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
 		String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
-		tokenLogger.logToken(accessToken, "Received access token:");
-		tokenLogger.logToken(refreshToken, "Received refresh token:");
 		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken);
 	}
 
