@@ -105,7 +105,8 @@ public class CacheConfiguration {
 		return Objects.hash(expireAfterWrite, cacheSize);
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return "CacheConfiguration{" +
 				"expireAfterWrite=" + expireAfterWrite +
 				", cacheSize=" + cacheSize +

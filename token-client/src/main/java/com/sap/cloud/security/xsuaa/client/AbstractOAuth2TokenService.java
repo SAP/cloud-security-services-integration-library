@@ -214,7 +214,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	private OAuth2TokenResponse getOrRequestAccessToken(URI tokenEndpoint, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
-		LOGGER.debug("Getting token for token endpoint uri={} with headers={} and parameters={}", tokenEndpoint, headers, parameters);
+		LOGGER.debug("Getting token for token endpoint uri={} with headers={} and parameters={}", tokenEndpoint,
+				headers, parameters);
 		CacheKey cacheKey = new CacheKey(tokenEndpoint, headers, parameters);
 		OAuth2TokenResponse oAuth2TokenResponse = responseCache.getIfPresent(cacheKey);
 		if (oAuth2TokenResponse == null) {
@@ -296,7 +297,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 			return Objects.hash(tokenEndpointUri, headers, parameters);
 		}
 
-		@Override public String toString() {
+		@Override
+		public String toString() {
 			return "CacheKey{" +
 					"tokenEndpointUri=" + tokenEndpointUri +
 					", headers=" + headers +

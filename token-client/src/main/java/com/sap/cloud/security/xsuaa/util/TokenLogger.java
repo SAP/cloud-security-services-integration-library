@@ -16,11 +16,12 @@ public class TokenLogger {
 	private static final Logger INTERNAL_LOGGER = LoggerFactory.getLogger(TokenLogger.class);
 
 	private final Logger wrappedLogger;
-	private String convertedToken;
 
 	/**
 	 * Creates a new instance for the given {@coder logger}.
-	 * @param logger the logger that is used to log the token
+	 * 
+	 * @param logger
+	 *            the logger that is used to log the token
 	 * @return a new instance
 	 */
 	public static TokenLogger getInstance(Logger logger) {
@@ -33,12 +34,15 @@ public class TokenLogger {
 	}
 
 	/**
-	 * Decodes the given {@code token} string using {@link #convertToReadableFormat(String)}
-	 * and logs the payload and header content on debug logging level with the provided logger.
-	 * A description can be provided that will be logged alongside the token.
+	 * Decodes the given {@code token} string using
+	 * {@link #convertToReadableFormat(String)} and logs the payload and header
+	 * content on debug logging level with the provided logger. A description can be
+	 * provided that will be logged alongside the token.
 	 *
-	 * @param token       the encoded jwt token string
-	 * @param description an optional textual description of the token being logged
+	 * @param token
+	 *            the encoded jwt token string
+	 * @param description
+	 *            an optional textual description of the token being logged
 	 */
 	public void logToken(String token, @Nullable String description) {
 		if (!wrappedLogger.isDebugEnabled()) {
@@ -55,15 +59,14 @@ public class TokenLogger {
 	}
 
 	/**
-	 * Utility method to transform a encoded token to a human readable format
-	 * while omitting the token signature. This can be used to inspect the token
-	 * for debugging purposes.
-	 * This method does not log the token! Use {@link #logToken(String, String)}
-	 * for this.
-	 * If the token is malformed or null, this method will return the empty string
-	 * and not throw exceptions.
+	 * Utility method to transform a encoded token to a human readable format while
+	 * omitting the token signature. This can be used to inspect the token for
+	 * debugging purposes. This method does not log the token! Use
+	 * {@link #logToken(String, String)} for this. If the token is malformed or
+	 * null, this method will return the empty string and not throw exceptions.
 	 *
-	 * @param token the jwt string
+	 * @param token
+	 *            the jwt string
 	 * @return readable format of the token
 	 */
 	public static String convertToReadableFormat(String token) {

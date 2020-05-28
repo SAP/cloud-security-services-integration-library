@@ -63,7 +63,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	private OAuth2TokenResponse executeRequest(HttpPost httpPost) throws OAuth2ServiceException {
-		LOGGER.debug("Requesting access token from url {} with headers {}", httpPost.getURI(), httpPost.getAllHeaders());
+		LOGGER.debug("Requesting access token from url {} with headers {}", httpPost.getURI(),
+				httpPost.getAllHeaders());
 		try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
 			int statusCode = response.getStatusLine().getStatusCode();
 			LOGGER.debug("Received statusCode {}", statusCode);

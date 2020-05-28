@@ -27,12 +27,11 @@ public class TokenLoggerTest {
 			.getToken().getTokenValue();
 	private static final DecodedJwt DECODED_JWT = Base64JwtDecoder.getInstance().decode(TOKEN);
 
-
 	private TokenLogger cut;
 	private Logger loggerMock;
 
 	@Before
-	public void setUp()  {
+	public void setUp() {
 		loggerMock = mock(Logger.class);
 		when(loggerMock.isDebugEnabled()).thenReturn(true);
 		cut = TokenLogger.getInstance(loggerMock);

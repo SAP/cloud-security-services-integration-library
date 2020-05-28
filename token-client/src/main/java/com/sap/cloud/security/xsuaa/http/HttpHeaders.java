@@ -38,7 +38,8 @@ public class HttpHeaders {
 		return Objects.hash(headers);
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return "HttpHeaders{" +
 				"headers=" + headers +
 				'}';
