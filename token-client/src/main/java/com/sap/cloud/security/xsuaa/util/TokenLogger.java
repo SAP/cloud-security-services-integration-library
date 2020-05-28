@@ -8,17 +8,20 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
+import static java.lang.System.*;
+
 /**
  * Logs the decoded jwt token.
  */
 public class TokenLogger {
 
+	private static final String TAB = "\t";
 	private static final Logger INTERNAL_LOGGER = LoggerFactory.getLogger(TokenLogger.class);
 
 	private final Logger wrappedLogger;
 
 	/**
-	 * Creates a new instance for the given {@coder logger}.
+	 * Creates a new instance for the given {@code logger}.
 	 * 
 	 * @param logger
 	 *            the logger that is used to log the token
@@ -53,9 +56,10 @@ public class TokenLogger {
 			return;
 		}
 		if (description != null) {
-			wrappedLogger.debug(description);
+			wrappedLogger.debug(description + lineSeparator() + convertedToken);
+		} else {
+			wrappedLogger.debug(convertedToken);
 		}
-		wrappedLogger.debug(convertedToken);
 	}
 
 	/**
@@ -73,10 +77,10 @@ public class TokenLogger {
 		StringBuilder stringBuilder = new StringBuilder();
 		try {
 			DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(token);
-			stringBuilder.append("Jwt header" + System.lineSeparator());
-			stringBuilder.append("\t" + decodedJwt.getHeader());
-			stringBuilder.append("Jwt payload" + System.lineSeparator());
-			stringBuilder.append("\t" + decodedJwt.getPayload());
+			stringBuilder.append("Jwt header" + lineSeparator());
+			stringBuilder.append(TAB + decodedJwt.getHeader() + lineSeparator());
+			stringBuilder.append("Jwt payload" + lineSeparator());
+			stringBuilder.append(TAB + decodedJwt.getPayload() + lineSeparator());
 		} catch (Exception e) {
 			INTERNAL_LOGGER.debug("Could not convert token to readable format:", e.getMessage());
 			return "";

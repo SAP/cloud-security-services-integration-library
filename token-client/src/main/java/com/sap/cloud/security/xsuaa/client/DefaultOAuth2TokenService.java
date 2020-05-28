@@ -97,8 +97,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		String accessToken = getParameter(accessTokenMap, ACCESS_TOKEN);
 		String refreshToken = getParameter(accessTokenMap, REFRESH_TOKEN);
 		String expiresIn = getParameter(accessTokenMap, EXPIRES_IN);
-		tokenLogger.logToken(accessToken, "Received access token");
-		tokenLogger.logToken(refreshToken, "Received refresh token");
+		tokenLogger.logToken(accessToken, "Received access token:");
+		tokenLogger.logToken(refreshToken, "Received refresh token:");
 		return new OAuth2TokenResponse(accessToken, convertExpiresInToLong(expiresIn),
 				refreshToken);
 	}

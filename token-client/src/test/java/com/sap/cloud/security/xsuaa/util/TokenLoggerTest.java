@@ -68,10 +68,11 @@ public class TokenLoggerTest {
 		ArgumentCaptor<String> debugLogCaptor = ArgumentCaptor.forClass(String.class);
 		cut.logToken(TOKEN, "useful description");
 
-		verify(loggerMock, times(2)).debug(debugLogCaptor.capture());
+		verify(loggerMock, times(1)).debug(debugLogCaptor.capture());
 
-		assertThat(debugLogCaptor.getAllValues())
-				.containsExactly("useful description", TokenLogger.convertToReadableFormat(TOKEN));
+		assertThat(debugLogCaptor.getValue())
+				.contains("useful description")
+				.contains(TokenLogger.convertToReadableFormat(TOKEN));
 	}
 	@Test
 	public void logToken_descriptionIsNull_logsTokenOnly() {
@@ -87,11 +88,9 @@ public class TokenLoggerTest {
 		ArgumentCaptor<String> debugLogCaptor = ArgumentCaptor.forClass(String.class);
 		cut.logToken(TOKEN, "");
 
-		verify(loggerMock, times(2)).debug(debugLogCaptor.capture());
+		verify(loggerMock, times(1)).debug(debugLogCaptor.capture());
 
-		String logs = debugLogCaptor.getAllValues().stream().collect(Collectors.joining(" "));
-
-		assertThat(logs)
+		assertThat(debugLogCaptor.getValue())
 				.doesNotContain(TOKEN)
 				.doesNotContain(DECODED_JWT.getSignature());
 	}
