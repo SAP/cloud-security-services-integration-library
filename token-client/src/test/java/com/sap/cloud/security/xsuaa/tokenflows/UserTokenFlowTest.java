@@ -1,9 +1,9 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -15,6 +15,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
@@ -69,7 +70,7 @@ public class UserTokenFlowTest {
 	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		when(mockTokenService
-				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), isNull(), isNull(), anyBoolean()))
+				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), isNull(), any(), anyBoolean()))
 						.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> cut.token(exchangeToken).execute())
@@ -84,11 +85,11 @@ public class UserTokenFlowTest {
 
 		OAuth2TokenResponse response = cut.token(exchangeToken).execute();
 
-		assertThat(response.getAccessToken(), is(mockedResponse.getAccessToken()));
+		assertThat(response.getAccessToken()).isSameAs(mockedResponse.getAccessToken());
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(endpointsProvider.getTokenEndpoint(),
 						clientCredentials, exchangeToken, null,
-						null, false);
+						emptyMap(), false);
 	}
 
 	@Test
@@ -98,9 +99,32 @@ public class UserTokenFlowTest {
 
 		OAuth2TokenResponse response = cut.subdomain(subdomain).token(exchangeToken).execute();
 
-		assertThat(response.getAccessToken(), is(mockedResponse.getAccessToken()));
+		assertThat(response.getAccessToken()).isSameAs(mockedResponse.getAccessToken());
+
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), eq(subdomain), any(), anyBoolean());
+	}
+
+	@Test
+	public void execute_withScopes() throws TokenFlowException, OAuth2ServiceException {
+		ArgumentCaptor<Map<String, String>> optionalParametersCaptor = ArgumentCaptor.forClass(Map.class);
+		OAuth2TokenResponse mockedResponse = mockRetrieveAccessToken();
+
+		OAuth2TokenResponse response = cut.scopes("scope1", "scope2").token(exchangeToken).execute();
+
+		assertThat(response.getAccessToken()).isSameAs(mockedResponse.getAccessToken());
+		verify(mockTokenService, times(1))
+				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(),
+						optionalParametersCaptor.capture(), anyBoolean());
+
+		Map<String, String> optionalParameters = optionalParametersCaptor.getValue();
+		assertThat(optionalParameters).containsKey("scope");
+		assertThat(optionalParameters.get("scope")).isEqualTo("scope1, scope2");
+	}
+
+	@Test
+	public void execute_withScopesSetToNull_throwsException() {
+		assertThatThrownBy(() -> cut.scopes(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -109,7 +133,7 @@ public class UserTokenFlowTest {
 
 		OAuth2TokenResponse response = cut.disableCache(true).token(exchangeToken).execute();
 
-		assertThat(response.getAccessToken(), is(mockedResponse.getAccessToken()));
+		assertThat(response.getAccessToken()).isSameAs(mockedResponse.getAccessToken());
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(), any(), eq(true));
 
@@ -132,7 +156,7 @@ public class UserTokenFlowTest {
 				.attributes(additionalAuthorities)
 				.execute();
 
-		assertThat(actualResponse.getAccessToken(), is(mockedResponse.getAccessToken()));
+		assertThat(actualResponse.getAccessToken()).isSameAs(mockedResponse.getAccessToken());
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						eq(exchangeToken),
