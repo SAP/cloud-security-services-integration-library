@@ -217,21 +217,21 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	private OAuth2TokenResponse getOrRequestAccessToken(URI tokenEndpoint, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
-		LOGGER.debug("Token requested for endpoint uri={} with headers={} and parameters={}", tokenEndpoint,
+		LOGGER.debug("Token was requested for endpoint uri={} with headers={} and parameters={}", tokenEndpoint,
 				headers, parameters);
 		CacheKey cacheKey = new CacheKey(tokenEndpoint, headers, parameters);
 		OAuth2TokenResponse oAuth2TokenResponse = responseCache.getIfPresent(cacheKey);
 		if (oAuth2TokenResponse == null) {
-			LOGGER.debug("Token not found in cache");
+			LOGGER.debug("Token not found in cache, requesting a new one");
 			getAndCacheToken(cacheKey);
 		} else {
-			LOGGER.debug("Token found in cache");
+			LOGGER.debug("The token was found in cache");
 			// check if token in cache should be refreshed
 			Duration delta = getCacheConfiguration().getTokenExpirationDelta();
 			Instant expiration = oAuth2TokenResponse.getExpiredAt().minus(delta);
 			if (expiration.isBefore(Instant.now(getClock()))) {
 				// refresh (soon) expired token
-				LOGGER.debug("Cached token needs to be refreshed");
+				LOGGER.debug("The cached token needs to be refreshed, requesting a new one");
 				getAndCacheToken(cacheKey);
 			}
 		}
