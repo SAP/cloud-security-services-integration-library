@@ -32,6 +32,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultOAuth2TokenService.class);
 
 	private final CloseableHttpClient httpClient;
+	private final TokenLogger tokenLogger;
 
 	public DefaultOAuth2TokenService() {
 		this(HttpClients.createDefault(), CacheConfiguration.DEFAULT);
@@ -50,6 +51,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		super(cacheConfiguration);
 		Assertions.assertNotNull(httpClient, "http client is required");
 		this.httpClient = httpClient;
+		this.tokenLogger = TokenLogger.getInstance(LOGGER);
+
 	}
 
 	@Override
@@ -93,8 +96,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		String accessToken = getParameter(accessTokenMap, ACCESS_TOKEN);
 		String refreshToken = getParameter(accessTokenMap, REFRESH_TOKEN);
 		String expiresIn = getParameter(accessTokenMap, EXPIRES_IN);
-		TokenLogger.logToken(accessToken, "Received access token");
-		TokenLogger.logToken(refreshToken, "Received refresh token");
+		tokenLogger.logToken(accessToken, "Received access token");
+		tokenLogger.logToken(refreshToken, "Received refresh token");
 		return new OAuth2TokenResponse(accessToken, convertExpiresInToLong(expiresIn),
 				refreshToken);
 	}
