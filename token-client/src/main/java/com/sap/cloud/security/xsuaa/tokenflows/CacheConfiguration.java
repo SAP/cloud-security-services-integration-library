@@ -104,4 +104,13 @@ public class CacheConfiguration {
 	public int hashCode() {
 		return Objects.hash(expireAfterWrite, cacheSize);
 	}
+
+	@Override
+	public String toString() {
+		return "CacheConfiguration{" +
+				"expireAfterWrite=" + expireAfterWrite +
+				", cacheSize=" + cacheSize +
+				", tokenExpirationDelta=" + tokenExpirationDelta +
+				'}';
+	}
 }

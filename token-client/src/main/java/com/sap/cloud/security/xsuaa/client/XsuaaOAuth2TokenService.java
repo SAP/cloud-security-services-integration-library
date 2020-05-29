@@ -2,6 +2,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
+import com.sap.cloud.security.xsuaa.util.TokenLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -26,8 +27,8 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
  */
 public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
+	private static Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 	private final RestOperations restOperations;
-	private static Logger logger = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 
 	public XsuaaOAuth2TokenService() {
 		this(new RestTemplate(), CacheConfiguration.DEFAULT);
@@ -65,6 +66,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> responseEntity = null;
 		try {
+			LOGGER.debug("Requesting access token from url='{}' and headers={}", requestUri, springHeaders);
 			responseEntity = restOperations.postForEntity(requestUri, requestEntity, Map.class);
 		} catch (HttpClientErrorException ex) {
 			String warningMsg = String.format(
@@ -74,13 +76,13 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		} catch (HttpServerErrorException ex) {
 			String warningMsg = String.format("Server error while obtaining access token from XSUAA (%s): %s",
 					ex.getStatusCode(), ex.getResponseBodyAsString());
-			logger.error(warningMsg, ex);
+			LOGGER.error(warningMsg, ex);
 			throw new OAuth2ServiceException(warningMsg);
 		}
+		LOGGER.debug("Received statusCode {}", responseEntity.getStatusCode());
 
 		@SuppressWarnings("unchecked")
 		Map<String, String> accessTokenMap = responseEntity.getBody();
-		logger.debug("Request Access Token: {}", responseEntity.getBody());
 
 		String accessToken = accessTokenMap.get(ACCESS_TOKEN);
 		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
