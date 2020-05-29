@@ -14,6 +14,8 @@ public class OAuth2TokenServiceConstants {
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password"; // NOSONAR
 	public static final String ASSERTION = "assertion";
+	public static final String AUTHORITIES = "authorities";
+	public static final String SCOPE = "scope";
 
 	public static final String GRANT_TYPE = "grant_type";
 	public static final String GRANT_TYPE_USER_TOKEN = "user_token";
