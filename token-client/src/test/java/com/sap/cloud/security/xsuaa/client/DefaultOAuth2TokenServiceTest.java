@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Map;
 
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,7 +53,7 @@ public class DefaultOAuth2TokenServiceTest {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse("{}");
 		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(response);
 
-		assertThatThrownBy(() -> requestAccessToken(Collections.emptyMap()))
+		assertThatThrownBy(() -> requestAccessToken(emptyMap()))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining("expires_in");
 	}
@@ -63,7 +63,7 @@ public class DefaultOAuth2TokenServiceTest {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(VALID_JSON_RESPONSE);
 		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(response);
 
-		OAuth2TokenResponse re = requestAccessToken(Collections.emptyMap());
+		OAuth2TokenResponse re = requestAccessToken(emptyMap());
 
 		assertThat(re.getAccessToken()).isEqualTo(ACCESS_TOKEN);
 		assertThat(re.getRefreshToken()).isEqualTo(REFRESH_TOKEN);
@@ -93,17 +93,16 @@ public class DefaultOAuth2TokenServiceTest {
 				.createHttpResponse(unauthorizedResponseText, HttpStatus.SC_UNAUTHORIZED);
 		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(response);
 
-		assertThatThrownBy(() -> requestAccessToken(Collections.emptyMap()))
+		assertThatThrownBy(() -> requestAccessToken(emptyMap()))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(unauthorizedResponseText)
 				.hasMessageContaining(String.valueOf(HttpStatus.SC_UNAUTHORIZED))
 				.hasMessageContaining(TOKEN_ENDPOINT_URI.toString());
 	}
 
-	private OAuth2TokenResponse requestAccessToken() throws OAuth2ServiceException {
+	private OAuth2TokenResponse requestAccessToken(Map<String, String> optionalParameters) throws OAuth2ServiceException {
 		HttpHeaders withoutAuthorizationHeader = HttpHeadersFactory.createWithoutAuthorizationHeader();
-		Map<String, String> parameters = Collections.emptyMap();
-		return cut.requestAccessToken(TOKEN_ENDPOINT_URI, withoutAuthorizationHeader, parameters);
+		return cut.requestAccessToken(TOKEN_ENDPOINT_URI, withoutAuthorizationHeader, optionalParameters);
 	}
 
 }
