@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 
 /**
  * Interface for components that manage a cache configured with
- * {@link TokenCacheConfiguration}.
+ * {@link CacheConfiguration}.
  */
 public interface Cacheable {
 

@@ -21,7 +21,8 @@ public class AbstractOAuth2TokenServiceTest {
 	public static final URI TOKEN_ENDPOINT_URI = URI.create("http://test.token.endpoint/oauth/token");
 	public static final String SUBDOMAIN = "subdomain";
 	private static final Instant NOW = LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0).toInstant(UTC);
-	public static final TokenCacheConfiguration TEST_CACHE_CONFIGURATION = TokenCacheConfiguration.defaultConfiguration();
+	public static final TokenCacheConfiguration TEST_CACHE_CONFIGURATION = TokenCacheConfiguration
+			.defaultConfiguration();
 
 	private TestOAuth2TokenService cut;
 

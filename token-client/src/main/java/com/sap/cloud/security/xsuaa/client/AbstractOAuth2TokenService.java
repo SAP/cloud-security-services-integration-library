@@ -55,7 +55,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	 *            set to true disables maintenance jobs of the cache. This makes the
 	 *            cache slower but more predictable for testing.
 	 */
-	AbstractOAuth2TokenService(TokenCacheConfiguration tokenCacheConfiguration, Ticker cacheTicker, boolean sameThreadCache) {
+	AbstractOAuth2TokenService(TokenCacheConfiguration tokenCacheConfiguration, Ticker cacheTicker,
+			boolean sameThreadCache) {
 		Assertions.assertNotNull(tokenCacheConfiguration, "cacheConfiguration is required");
 		this.tokenCacheConfiguration = tokenCacheConfiguration;
 		this.responseCache = createResponseCache(cacheTicker, sameThreadCache);

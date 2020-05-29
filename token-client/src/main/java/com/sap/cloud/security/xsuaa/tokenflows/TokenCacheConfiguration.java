@@ -22,15 +22,18 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 	private final Duration tokenExpirationDelta;
 
 	/**
-	 * Creates a new {@link TokenCacheConfiguration} instance with the given properties.
-	 * See {@link TokenCacheConfiguration#getCacheDuration()},
-	 * {@link TokenCacheConfiguration#getCacheSize()} and
-	 * {@link TokenCacheConfiguration#getTokenExpirationDelta()} for a explanation of the
-	 * respective properties.
+	 * Creates a new {@link TokenCacheConfiguration} instance with the given
+	 * properties. See {@link CacheConfiguration#getCacheDuration()},
+	 * {@link CacheConfiguration#getCacheSize()} and
+	 * {@link TokenCacheConfiguration#getTokenExpirationDelta()} for an explanation
+	 * of the respective properties.
 	 *
-	 * @param cacheDuration        the cache duration property.
-	 * @param cacheSize            the cache size property.
-	 * @param tokenExpirationDelta the token expiration delta.
+	 * @param cacheDuration
+	 *            the cache duration property.
+	 * @param cacheSize
+	 *            the cache size property.
+	 * @param tokenExpirationDelta
+	 *            the token expiration delta.
 	 * @return a new {@link TokenCacheConfiguration} instance.
 	 */
 	public static TokenCacheConfiguration getInstance(@Nonnull Duration cacheDuration, int cacheSize,

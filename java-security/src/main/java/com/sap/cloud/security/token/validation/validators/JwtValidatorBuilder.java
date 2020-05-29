@@ -70,7 +70,9 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Use to configure the token key cache.
-	 * @param tokenKeyCacheConfiguration the cache configuration
+	 * 
+	 * @param tokenKeyCacheConfiguration
+	 *            the cache configuration
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withCacheConfiguration(CacheConfiguration tokenKeyCacheConfiguration) {

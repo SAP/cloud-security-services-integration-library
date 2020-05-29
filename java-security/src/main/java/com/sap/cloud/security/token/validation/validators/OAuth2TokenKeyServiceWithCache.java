@@ -74,7 +74,8 @@ public class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	/**
 	 * Use to configure the token key cache.
 	 *
-	 * @param cacheConfiguration the cache configuration
+	 * @param cacheConfiguration
+	 *            the cache configuration
 	 * @return this tokenKeyServiceWithCache
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheConfiguration(CacheConfiguration cacheConfiguration) {

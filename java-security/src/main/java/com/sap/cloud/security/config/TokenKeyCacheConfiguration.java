@@ -16,15 +16,27 @@ public class TokenKeyCacheConfiguration implements CacheConfiguration {
 	private Duration cacheDuration;
 	private int cacheSize;
 
+	/**
+	 * Creates a new {@link TokenKeyCacheConfiguration} instance with the given
+	 * properties. See {@link CacheConfiguration#getCacheDuration()} and
+	 * {@link CacheConfiguration#getCacheSize()} for an explanation of the
+	 * respective properties.
+	 *
+	 * @param cacheDuration
+	 *            the cache duration property.
+	 * @param cacheSize
+	 *            the cache size property.
+	 * @return a new {@link TokenKeyCacheConfiguration} instance.
+	 */
 	public static TokenKeyCacheConfiguration getInstance(Duration cacheDuration, int cacheSize) {
 		Assertions.assertNotNull(cacheDuration, "The cache duration write must not be null!");
 		return new TokenKeyCacheConfiguration(cacheDuration, cacheSize);
 	}
 
 	/**
-	 * The default configuration for the token key cache.
-	 * The default cache size is 1000.
-	 * The default cache duration is 10 minutes.
+	 * The default configuration for the token key cache. The default cache size is
+	 * 1000. The default cache duration is 10 minutes.
+	 * 
 	 * @return the default configuration
 	 */
 	public static TokenKeyCacheConfiguration defaultConfiguration() {

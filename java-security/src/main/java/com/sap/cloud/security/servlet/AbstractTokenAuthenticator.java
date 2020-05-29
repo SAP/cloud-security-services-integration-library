@@ -59,7 +59,9 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	/**
 	 * Use to configure the token key cache.
-	 * @param cacheConfiguration the cache configuration
+	 * 
+	 * @param cacheConfiguration
+	 *            the cache configuration
 	 * @return this authenticator
 	 */
 	public AbstractTokenAuthenticator withCacheConfiguration(CacheConfiguration cacheConfiguration) {
@@ -69,7 +71,9 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	/**
 	 * Use to configure the HttpClient that is used to retrieve token keys.
-	 * @param httpClient the HttpClient
+	 * 
+	 * @param httpClient
+	 *            the HttpClient
 	 * @return this authenticator
 	 */
 	public AbstractTokenAuthenticator withHttpClient(CloseableHttpClient httpClient) {
@@ -79,7 +83,9 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	/**
 	 * Use to override the service configuration used.
-	 * @param serviceConfiguration the service configuration to use
+	 * 
+	 * @param serviceConfiguration
+	 *            the service configuration to use
 	 * @return this authenticator
 	 */
 	public AbstractTokenAuthenticator withServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {

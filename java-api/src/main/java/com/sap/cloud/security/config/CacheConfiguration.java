@@ -8,8 +8,8 @@ import java.time.Duration;
 public interface CacheConfiguration {
 
 	/**
-	 * Returns the duration of the expire after write property of the cache.
-	 * Cached elements are automatically invalidated after this fixed duration has elapsed.
+	 * Returns the duration of the expire after write property of the cache. Cached
+	 * elements are automatically invalidated after this fixed duration has elapsed.
 	 *
 	 * @return duration of expire after write.
 	 */
