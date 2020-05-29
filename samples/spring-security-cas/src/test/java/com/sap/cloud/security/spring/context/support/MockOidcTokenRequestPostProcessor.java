@@ -17,7 +17,7 @@ public class MockOidcTokenRequestPostProcessor {
 
     public static RequestPostProcessor userTokenWithAuthorities(final String userName, final String... authorities) {
         Set<GrantedAuthority> grantedAuthoritySet = new HashSet<>();
-        grantedAuthoritySet.add(new SimpleGrantedAuthority("SCOPE_openid"));
+        //grantedAuthoritySet.add(new SimpleGrantedAuthority("SCOPE_openid"));
         for (String authority: authorities) {
             grantedAuthoritySet.add(new SimpleGrantedAuthority(authority));
         }
