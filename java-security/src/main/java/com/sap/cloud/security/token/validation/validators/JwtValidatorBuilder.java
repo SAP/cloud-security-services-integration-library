@@ -194,7 +194,6 @@ public class JwtValidatorBuilder {
 		}
 		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
 		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);
-		tokenKeyServiceWithCache.withCacheConfiguration(tokenKeyCacheConfiguration);
 		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(
 				configuration,
 				tokenKeyServiceWithCache,
