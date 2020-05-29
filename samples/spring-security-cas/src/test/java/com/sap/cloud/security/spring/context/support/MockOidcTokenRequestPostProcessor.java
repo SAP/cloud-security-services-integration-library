@@ -9,7 +9,7 @@ import java.util.Set;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 
-public class MockOidcTokenRequestPostProcessor {
+/*public class MockOidcTokenRequestPostProcessor {
 
     public static RequestPostProcessor userToken(final String userName) {
         return oidcLogin().idToken(token -> token.claim("sub", userName));
@@ -25,4 +25,4 @@ public class MockOidcTokenRequestPostProcessor {
                 .idToken(token -> token.claim("sub", userName))
                 .authorities(grantedAuthoritySet);
     }
-}
+}*/

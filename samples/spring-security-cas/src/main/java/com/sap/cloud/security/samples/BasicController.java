@@ -33,8 +33,7 @@ public class BasicController {
 
     @GetMapping(value = "/authenticate") // redirects to login page
     public String secured(@AuthenticationPrincipal OidcUser principal) {
-        String name = principal.getGivenName();
-
+        String name = principal.getName();
         if (name == null) {
             name = principal.getEmail();
         }

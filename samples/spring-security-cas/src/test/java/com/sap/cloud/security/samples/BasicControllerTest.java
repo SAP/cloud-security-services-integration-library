@@ -1,6 +1,7 @@
 package com.sap.cloud.security.samples;
 
 import com.sap.cloud.security.cas.client.AdcServiceDefault;
+import com.sap.cloud.security.spring.context.support.WithMockOidcUser;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,9 @@ public class BasicControllerTest {
     }
 
     @Test
+    @WithMockOidcUser("somOtherUsername")
     public void authenticateWithoutPermission_200() throws Exception {
-        mockMvc.perform(get("/authenticate").with(oidcLogin()))
+        mockMvc.perform(get("/authenticate"))//.with(oidcLogin()))
                 .andExpect(status().isOk());
     }
 
