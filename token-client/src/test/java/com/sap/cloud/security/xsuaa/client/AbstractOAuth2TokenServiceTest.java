@@ -2,7 +2,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class AbstractOAuth2TokenServiceTest {
 	public static final URI TOKEN_ENDPOINT_URI = URI.create("http://test.token.endpoint/oauth/token");
 	public static final String SUBDOMAIN = "subdomain";
 	private static final Instant NOW = LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0).toInstant(UTC);
-	public static final CacheConfiguration TEST_CACHE_CONFIGURATION = CacheConfiguration.DEFAULT;
+	public static final TokenCacheConfiguration TEST_CACHE_CONFIGURATION = TokenCacheConfiguration.defaultConfiguration();
 
 	private TestOAuth2TokenService cut;
 
@@ -38,7 +38,7 @@ public class AbstractOAuth2TokenServiceTest {
 
 	@Test
 	public void retrieveAccessTokenViaClientCredentials_noCache_responseNotNull() throws OAuth2ServiceException {
-		cut = new TestOAuth2TokenService(CacheConfiguration.CACHE_DISABLED);
+		cut = new TestOAuth2TokenService(TokenCacheConfiguration.cacheDisabled());
 		OAuth2TokenResponse oAuth2TokenResponse = retrieveAccessTokenViaClientCredentials();
 		assertThat(oAuth2TokenResponse).isNotNull();
 	}
@@ -122,7 +122,7 @@ public class AbstractOAuth2TokenServiceTest {
 
 	@Test
 	public void requestAccessToken_cacheGloballyDisabled_requestsFreshTokens() throws OAuth2ServiceException {
-		cut = new TestOAuth2TokenService(CacheConfiguration.CACHE_DISABLED);
+		cut = new TestOAuth2TokenService(TokenCacheConfiguration.cacheDisabled());
 
 		OAuth2TokenResponse firstResponse = retrieveAccessTokenViaClientCredentials();
 		OAuth2TokenResponse secondResponse = retrieveAccessTokenViaClientCredentials();
@@ -152,7 +152,7 @@ public class AbstractOAuth2TokenServiceTest {
 	@Test
 	public void requestAccessToken_tokensAreInvalidatedAfterTime_requestsFreshToken() throws OAuth2ServiceException {
 		OAuth2TokenResponse firstResponse = retrieveAccessTokenViaClientCredentials();
-		cut.advanceTime(TEST_CACHE_CONFIGURATION.getExpireAfterWrite());
+		cut.advanceTime(TEST_CACHE_CONFIGURATION.getCacheDuration());
 		OAuth2TokenResponse secondResponse = retrieveAccessTokenViaClientCredentials();
 
 		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
@@ -261,13 +261,13 @@ public class AbstractOAuth2TokenServiceTest {
 		return new ClientCredentials("clientId", "clientSecret");
 	}
 
-	private CacheConfiguration cacheConfigurationWithDelta(Duration delta) {
-		return CacheConfiguration.getInstance(TEST_CACHE_CONFIGURATION.getExpireAfterWrite(),
+	private TokenCacheConfiguration cacheConfigurationWithDelta(Duration delta) {
+		return TokenCacheConfiguration.getInstance(TEST_CACHE_CONFIGURATION.getCacheDuration(),
 				TEST_CACHE_CONFIGURATION.getCacheSize(), delta);
 	}
 
-	private CacheConfiguration cacheConfigurationWithSize(int size) {
-		return CacheConfiguration.getInstance(TEST_CACHE_CONFIGURATION.getExpireAfterWrite(), size,
+	private TokenCacheConfiguration cacheConfigurationWithSize(int size) {
+		return TokenCacheConfiguration.getInstance(TEST_CACHE_CONFIGURATION.getCacheDuration(), size,
 				TEST_CACHE_CONFIGURATION.getTokenExpirationDelta());
 	}
 
@@ -278,8 +278,8 @@ public class AbstractOAuth2TokenServiceTest {
 		private Instant expiredAt = NOW.plus(Duration.ofDays(1));
 		private Clock clock = Clock.fixed(NOW, UTC);
 
-		public TestOAuth2TokenService(CacheConfiguration cacheConfiguration) {
-			super(cacheConfiguration, testCacheTicker, true);
+		public TestOAuth2TokenService(TokenCacheConfiguration tokenCacheConfiguration) {
+			super(tokenCacheConfiguration, testCacheTicker, true);
 			testCacheTicker.reset();
 		}
 

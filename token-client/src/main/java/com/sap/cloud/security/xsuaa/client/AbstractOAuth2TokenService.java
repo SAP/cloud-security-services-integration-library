@@ -6,7 +6,7 @@ import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
-import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
 
@@ -26,27 +26,27 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, Cacheable {
 
 	private final Cache<CacheKey, OAuth2TokenResponse> responseCache;
-	private final CacheConfiguration cacheConfiguration;
+	private final TokenCacheConfiguration tokenCacheConfiguration;
 
 	public AbstractOAuth2TokenService() {
-		this(CacheConfiguration.DEFAULT, Ticker.systemTicker(), false);
+		this(TokenCacheConfiguration.defaultConfiguration(), Ticker.systemTicker(), false);
 	}
 
 	/**
 	 * Constructor used to overwrite the default cache configuration.
 	 *
-	 * @param cacheConfiguration
+	 * @param tokenCacheConfiguration
 	 *            the cache configuration used to configure the cache.
 	 */
-	public AbstractOAuth2TokenService(CacheConfiguration cacheConfiguration) {
-		this(cacheConfiguration, Ticker.systemTicker(), false);
+	public AbstractOAuth2TokenService(TokenCacheConfiguration tokenCacheConfiguration) {
+		this(tokenCacheConfiguration, Ticker.systemTicker(), false);
 
 	}
 
 	/**
 	 * This constructor is used for testing purposes only.
 	 *
-	 * @param cacheConfiguration
+	 * @param tokenCacheConfiguration
 	 *            sets the cache configuration used to configure or disable the
 	 *            cache.
 	 * @param cacheTicker
@@ -55,9 +55,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	 *            set to true disables maintenance jobs of the cache. This makes the
 	 *            cache slower but more predictable for testing.
 	 */
-	AbstractOAuth2TokenService(CacheConfiguration cacheConfiguration, Ticker cacheTicker, boolean sameThreadCache) {
-		Assertions.assertNotNull(cacheConfiguration, "cacheConfiguration is required");
-		this.cacheConfiguration = cacheConfiguration;
+	AbstractOAuth2TokenService(TokenCacheConfiguration tokenCacheConfiguration, Ticker cacheTicker, boolean sameThreadCache) {
+		Assertions.assertNotNull(tokenCacheConfiguration, "cacheConfiguration is required");
+		this.tokenCacheConfiguration = tokenCacheConfiguration;
 		this.responseCache = createResponseCache(cacheTicker, sameThreadCache);
 	}
 
@@ -68,8 +68,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	@Override
 	@Nonnull
-	public CacheConfiguration getCacheConfiguration() {
-		return cacheConfiguration;
+	public TokenCacheConfiguration getCacheConfiguration() {
+		return tokenCacheConfiguration;
 	}
 
 	@Override
@@ -240,14 +240,14 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	}
 
 	private boolean isCacheDisabled() {
-		return CacheConfiguration.CACHE_DISABLED.equals(getCacheConfiguration());
+		return getCacheConfiguration().isCacheDisabled();
 	}
 
 	private Cache<CacheKey, OAuth2TokenResponse> createResponseCache(Ticker cacheTicker, boolean sameThreadCache) {
 		Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder()
 				.maximumSize(getCacheConfiguration().getCacheSize())
 				.ticker(cacheTicker)
-				.expireAfterWrite(getCacheConfiguration().getExpireAfterWrite());
+				.expireAfterWrite(getCacheConfiguration().getCacheDuration());
 		if (sameThreadCache) {
 			cacheBuilder.executor(Runnable::run);
 		}
