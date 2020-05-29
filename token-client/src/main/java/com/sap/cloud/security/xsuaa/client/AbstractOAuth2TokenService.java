@@ -242,12 +242,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	private void logDebug(OAuth2TokenResponse response) {
 		String accessToken = response.getAccessToken();
-		String refreshToken = response.getRefreshToken();
 		if (accessToken != null) {
 			tokenLogger.logDebug(accessToken, "Access token:");
-		}
-		if (refreshToken != null) {
-			tokenLogger.logDebug(refreshToken, "Refresh token:");
 		}
 	}
 
