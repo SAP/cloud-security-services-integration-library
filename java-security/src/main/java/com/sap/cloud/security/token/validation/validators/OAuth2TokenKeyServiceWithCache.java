@@ -3,30 +3,34 @@ package com.sap.cloud.security.token.validation.validators;
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.time.Duration;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.sap.cloud.security.config.CacheConfiguration;
+import com.sap.cloud.security.config.TokenKeyCacheConfiguration;
+import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
 
 /**
  * Decorates {@link OAuth2TokenKeyService} with a cache, which gets looked up
  * before the identity service is requested via http.
  */
-public class OAuth2TokenKeyServiceWithCache {
+public class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	private OAuth2TokenKeyService tokenKeyService; // access via getter
 	private Cache<String, PublicKey> cache; // access via getter
-	private long cacheValidityInSeconds = 600; // old keys should expire after 15 minutes
-	private long cacheSize = 1000;
+	private CacheConfiguration cacheConfiguration = TokenKeyCacheConfiguration.defaultConfiguration();
 
 	private OAuth2TokenKeyServiceWithCache() {
 		// use getInstance factory method
@@ -50,10 +54,8 @@ public class OAuth2TokenKeyServiceWithCache {
 	 * @return this
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheTime(int timeInSeconds) {
-		if (timeInSeconds <= 600) {
-			throw new IllegalArgumentException("The cache validity must be minimum 600 seconds");
-		}
-		this.cacheValidityInSeconds = timeInSeconds;
+		withCacheConfiguration(TokenKeyCacheConfiguration
+				.getInstance(Duration.ofSeconds(timeInSeconds), this.cacheConfiguration.getCacheSize()));
 		return this;
 	}
 
@@ -65,10 +67,19 @@ public class OAuth2TokenKeyServiceWithCache {
 	 * @return this
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheSize(int size) {
-		if (size <= 1000) {
-			throw new IllegalArgumentException("The cache size must be 1000 or more");
-		}
-		this.cacheSize = size;
+		withCacheConfiguration(TokenKeyCacheConfiguration.getInstance(cacheConfiguration.getCacheDuration(), size));
+		return this;
+	}
+
+	/**
+	 * Use to configure the token key cache.
+	 *
+	 * @param cacheConfiguration the cache configuration
+	 * @return this tokenKeyServiceWithCache
+	 */
+	public OAuth2TokenKeyServiceWithCache withCacheConfiguration(CacheConfiguration cacheConfiguration) {
+		checkCacheConfiguration(cacheConfiguration);
+		this.cacheConfiguration = cacheConfiguration;
 		return this;
 	}
 
@@ -121,6 +132,18 @@ public class OAuth2TokenKeyServiceWithCache {
 		return getCache().getIfPresent(cacheKey);
 	}
 
+	private void checkCacheConfiguration(CacheConfiguration cacheConfiguration) {
+		Assertions.assertNotNull(cacheConfiguration, "CacheConfiguration must not be null!");
+		int size = cacheConfiguration.getCacheSize();
+		long timeInSeconds = cacheConfiguration.getCacheDuration().getSeconds();
+		if (size < 1000) {
+			throw new IllegalArgumentException("The cache size must be 1000 or more");
+		}
+		if (timeInSeconds < 600) {
+			throw new IllegalArgumentException("The cache validity must be minimum 600 seconds");
+		}
+	}
+
 	private void retrieveTokenKeysAndFillCache(URI jwksUri)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(getTokenKeyService().retrieveTokenKeys(jwksUri));
@@ -135,8 +158,9 @@ public class OAuth2TokenKeyServiceWithCache {
 
 	private Cache<String, PublicKey> getCache() {
 		if (cache == null) {
-			cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
-					.maximumSize(cacheSize)
+			cache = Caffeine.newBuilder()
+					.expireAfterWrite(cacheConfiguration.getCacheDuration())
+					.maximumSize(cacheConfiguration.getCacheSize())
 					.build();
 		}
 		return cache;
@@ -149,6 +173,13 @@ public class OAuth2TokenKeyServiceWithCache {
 		return tokenKeyService;
 	}
 
+	@Nonnull
+	@Override
+	public CacheConfiguration getCacheConfiguration() {
+		return cacheConfiguration;
+	}
+
+	@Override
 	public void clearCache() {
 		if (cache != null) {
 			cache.invalidateAll();

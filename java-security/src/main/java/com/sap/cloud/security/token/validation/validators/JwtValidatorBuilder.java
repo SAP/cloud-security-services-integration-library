@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
@@ -31,6 +32,7 @@ public class JwtValidatorBuilder {
 	private OidcConfigurationService oidcConfigurationService = null;
 	private OAuth2TokenKeyService tokenKeyService = null;
 	private Validator<Token> customAudienceValidator;
+	private CacheConfiguration tokenKeyCacheConfiguration;
 
 	private JwtValidatorBuilder() {
 		// use getInstance factory method
@@ -63,6 +65,16 @@ public class JwtValidatorBuilder {
 	 */
 	public JwtValidatorBuilder with(Validator<Token> validator) {
 		validators.add(validator);
+		return this;
+	}
+
+	/**
+	 * Use to configure the token key cache.
+	 * @param tokenKeyCacheConfiguration the cache configuration
+	 * @return this builder
+	 */
+	public JwtValidatorBuilder withCacheConfiguration(CacheConfiguration tokenKeyCacheConfiguration) {
+		this.tokenKeyCacheConfiguration = tokenKeyCacheConfiguration;
 		return this;
 	}
 
@@ -178,9 +190,12 @@ public class JwtValidatorBuilder {
 		} else if (configuration.getService() == IAS) {
 			defaultValidators.add(new JwtIssuerValidator(configuration.getUrl()));
 		}
+		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
+		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);
+		tokenKeyServiceWithCache.withCacheConfiguration(tokenKeyCacheConfiguration);
 		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(
 				configuration,
-				getTokenKeyServiceWithCache(),
+				tokenKeyServiceWithCache,
 				getOidcConfigurationServiceWithCache());
 		defaultValidators.add(signatureValidator);
 
