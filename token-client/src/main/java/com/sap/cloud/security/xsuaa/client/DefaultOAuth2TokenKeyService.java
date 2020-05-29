@@ -37,6 +37,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 				return bodyAsString;
 			} else {
 				throw OAuth2ServiceException.builder("Error retrieving token keys")
+						.withUri(tokenKeysEndpointUri)
 						.withStatusCode(statusCode)
 						.withResponseBody(bodyAsString)
 						.build();
