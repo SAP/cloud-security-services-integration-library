@@ -1,2 +1,2 @@
 export VCAP_APPLICATION='{}' # required when cloud profile is active
-export VCAP_SERVICES='{ "myoauthserver": [ { "credentials": { "clientid": "5f577fc8-10c7-4779-8840-96bd62368ba8", "clientsecret": "2LLV03@BdHDOeScOwDXk8hY--@GUjKXi" }, "name": "spring-security-cas-authn" } ] }'
+export VCAP_SERVICES='{ "myoauthserver": [ { "credentials": { "clientid": "f2d2fde2-21c3-4ee2-832b-d35a8c6c8c20", "clientsecret": "nYpLVv0WA_?pk4/5h8Rcj20vi0jyx51" }, "name": "spring-security-cas-authn" } ] }'

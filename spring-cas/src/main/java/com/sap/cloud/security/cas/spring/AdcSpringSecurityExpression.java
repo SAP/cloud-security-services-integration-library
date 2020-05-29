@@ -1,17 +1,15 @@
 package com.sap.cloud.security.cas.spring;
 
+import com.sap.cloud.security.cas.client.AdcService;
 import com.sap.cloud.security.cas.client.AdcServiceRequest;
 import com.sap.cloud.security.cas.client.AdcServiceRequestDefault;
-import com.sap.cloud.security.cas.client.AdcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+
 
 /**
  * TODO: extract as library
@@ -72,12 +70,13 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 	}
 
 	private String getUserId() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		/*Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		OAuth2AuthenticationToken oauthAuth = (OAuth2AuthenticationToken)auth;
 
 		// TODO IAS Support
 		OidcUser user = (OidcUser) oauthAuth.getPrincipal();
-		return user.getName(); // TODO update to unique user id
+		return user.getName(); // TODO update to unique user id*/
+		return authentication.getName();
 	}
 
 	private boolean checkAuthorization(AdcServiceRequest request) {

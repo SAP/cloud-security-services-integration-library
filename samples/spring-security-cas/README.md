@@ -86,7 +86,7 @@ This demo application can be tested locally in a hybrid setup. That means that t
     ```
 
 1. Open the `/src/main/resources/application.yml` file and configure the `issuer_uri` with the `url`. In case of xsuaa service instance, you have to enhance the url by `/oauth/token`. Save the file changes.
-1. Open the `localEnvironmentSetup.sh` file and update`the values for clientid` and `clientsecret` accordingly. Save the file changes.
+1. Open the `localEnvironmentSetup.sh` file and update the values for `clientid` and `clientsecret` accordingly. Save the file changes.
 
 > Note: The url of the Authorization Decision Controller (`OPA_URL`) is configured as system environment variable or as part of [application.yml](src/main/resources/application.yml) in case of Spring applications. 
 In this sample, if `OPA_URL` is not configured `http://localhost:8181` is taken as default, which points to the [opa docker container](docker-compose.yaml).

@@ -1,12 +1,5 @@
 package com.sap.cloud.security.cas.spring;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Objects;
-
 /**
  * TODO: use WebClient instead of RestTemplate
  */

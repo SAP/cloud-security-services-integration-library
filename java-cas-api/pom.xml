@@ -7,7 +7,7 @@
 	<groupId>com.sap.cloud.security.cas</groupId>
 	<artifactId>java-api</artifactId>
 	<name>java-cas-api</name>
-	<version>2.6.2</version>
+	<version>2.7.1</version>
 
 	<packaging>jar</packaging>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
