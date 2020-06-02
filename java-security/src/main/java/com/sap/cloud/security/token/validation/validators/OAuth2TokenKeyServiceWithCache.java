@@ -22,12 +22,16 @@ import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Decorates {@link OAuth2TokenKeyService} with a cache, which gets looked up
  * before the identity service is requested via http.
  */
 public class OAuth2TokenKeyServiceWithCache implements Cacheable {
+	private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2TokenKeyServiceWithCache.class);
+
 	private OAuth2TokenKeyService tokenKeyService; // access via getter
 	private Cache<String, PublicKey> cache; // access via getter
 	private CacheConfiguration cacheConfiguration = TokenKeyCacheConfiguration.defaultConfiguration();
@@ -47,12 +51,14 @@ public class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	/**
-	 * Caches the Json web keys. Overwrite the cache time (default: 900 seconds).
+	 * Caches the Json web keys. Overwrite the cache time (default: 600 seconds).
 	 *
+	 * @deprecated in favor of {@link #withCacheConfiguration(CacheConfiguration)}
 	 * @param timeInSeconds
 	 *            time to cache the signing keys
 	 * @return this
 	 */
+	@Deprecated
 	public OAuth2TokenKeyServiceWithCache withCacheTime(int timeInSeconds) {
 		withCacheConfiguration(TokenKeyCacheConfiguration
 				.getInstance(Duration.ofSeconds(timeInSeconds), this.cacheConfiguration.getCacheSize()));
@@ -60,20 +66,25 @@ public class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	/**
-	 * Caches the Json web keys. Overwrite the size of the cache (default: 100).
+	 * Caches the Json web keys. Overwrite the size of the cache (default: 1000).
 	 *
+	 * @deprecated in favor of {@link #withCacheConfiguration(CacheConfiguration)}
 	 * @param size
 	 *            number of cached json web keys.
 	 * @return this
 	 */
+	@Deprecated
 	public OAuth2TokenKeyServiceWithCache withCacheSize(int size) {
 		withCacheConfiguration(TokenKeyCacheConfiguration.getInstance(cacheConfiguration.getCacheDuration(), size));
 		return this;
 	}
 
 	/**
-	 * Use to configure the token key cache.
+	 * Configures the token key cache. Use {@link TokenKeyCacheConfiguration#getInstance(Duration, int)}
+	 * to pass a custom configuration.
 	 *
+	 * Note that the cache size must be 1000 or more and the cache duration must be at
+	 * least 600 seconds!
 	 * @param cacheConfiguration
 	 *            the cache configuration
 	 * @return this tokenKeyServiceWithCache
@@ -81,6 +92,8 @@ public class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	public OAuth2TokenKeyServiceWithCache withCacheConfiguration(CacheConfiguration cacheConfiguration) {
 		checkCacheConfiguration(cacheConfiguration);
 		this.cacheConfiguration = cacheConfiguration;
+		LOGGER.debug("Configured token key cache with cacheDuration={} seconds and cacheSize={}",
+				cacheConfiguration.getCacheDuration().getSeconds(), cacheConfiguration.getCacheSize());
 		return this;
 	}
 
