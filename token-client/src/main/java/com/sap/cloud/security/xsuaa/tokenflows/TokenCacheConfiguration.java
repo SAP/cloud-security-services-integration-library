@@ -105,6 +105,15 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 		return Objects.hash(cacheDuration, cacheSize);
 	}
 
+	@Override
+	public String toString() {
+		return "TokenCacheConfiguration{" +
+				"cacheDuration=" + cacheDuration +
+				", cacheSize=" + cacheSize +
+				", tokenExpirationDelta=" + tokenExpirationDelta +
+				'}';
+	}
+
 	private static class DisabledCache extends TokenCacheConfiguration {
 
 		private DisabledCache() {

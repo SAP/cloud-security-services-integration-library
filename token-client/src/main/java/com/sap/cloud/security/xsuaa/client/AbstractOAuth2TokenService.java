@@ -8,7 +8,10 @@ import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
+import com.sap.cloud.security.xsuaa.util.TokenLogger;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,8 +28,10 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 @java.lang.SuppressWarnings("squid:S1192")
 public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, Cacheable {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractOAuth2TokenService.class);
 	private final Cache<CacheKey, OAuth2TokenResponse> responseCache;
 	private final TokenCacheConfiguration tokenCacheConfiguration;
+	private final TokenLogger tokenLogger;
 
 	public AbstractOAuth2TokenService() {
 		this(TokenCacheConfiguration.defaultConfiguration(), Ticker.systemTicker(), false);
@@ -60,6 +65,12 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 		Assertions.assertNotNull(tokenCacheConfiguration, "cacheConfiguration is required");
 		this.tokenCacheConfiguration = tokenCacheConfiguration;
 		this.responseCache = createResponseCache(cacheTicker, sameThreadCache);
+		this.tokenLogger = TokenLogger.getInstance(LOGGER);
+		if (isCacheDisabled()) {
+			LOGGER.debug("Configured token service with cache disabled");
+		} else {
+			LOGGER.debug("Configured token service with {}", tokenCacheConfiguration);
+		}
 	}
 
 	@Override
@@ -208,20 +219,34 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	private OAuth2TokenResponse getOrRequestAccessToken(URI tokenEndpoint, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
+		LOGGER.debug("Token was requested for endpoint uri={} with headers={} and parameters={}", tokenEndpoint,
+				headers, parameters);
 		CacheKey cacheKey = new CacheKey(tokenEndpoint, headers, parameters);
 		OAuth2TokenResponse oAuth2TokenResponse = responseCache.getIfPresent(cacheKey);
 		if (oAuth2TokenResponse == null) {
+			LOGGER.debug("Token not found in cache, requesting a new one");
 			getAndCacheToken(cacheKey);
 		} else {
+			LOGGER.debug("The token was found in cache");
 			// check if token in cache should be refreshed
 			Duration delta = getCacheConfiguration().getTokenExpirationDelta();
 			Instant expiration = oAuth2TokenResponse.getExpiredAt().minus(delta);
 			if (expiration.isBefore(Instant.now(getClock()))) {
 				// refresh (soon) expired token
+				LOGGER.debug("The cached token needs to be refreshed, requesting a new one");
 				getAndCacheToken(cacheKey);
 			}
 		}
-		return responseCache.getIfPresent(cacheKey);
+		OAuth2TokenResponse response = responseCache.getIfPresent(cacheKey);
+		logDebug(response);
+		return response;
+	}
+
+	private void logDebug(OAuth2TokenResponse response) {
+		String accessToken = response.getAccessToken();
+		if (accessToken != null) {
+			tokenLogger.logDebug(accessToken, "Access token:");
+		}
 	}
 
 	/**
@@ -282,6 +307,15 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 		@Override
 		public int hashCode() {
 			return Objects.hash(tokenEndpointUri, headers, parameters);
+		}
+
+		@Override
+		public String toString() {
+			return "CacheKey{" +
+					"tokenEndpointUri=" + tokenEndpointUri +
+					", headers=" + headers +
+					", parameters=" + parameters +
+					'}';
 		}
 	}
 

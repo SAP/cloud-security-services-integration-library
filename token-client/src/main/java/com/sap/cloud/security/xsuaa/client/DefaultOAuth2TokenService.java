@@ -28,7 +28,7 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
 public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
-	private static final Logger logger = LoggerFactory.getLogger(DefaultOAuth2TokenService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultOAuth2TokenService.class);
 
 	private final CloseableHttpClient httpClient;
 
@@ -59,16 +59,24 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	private OAuth2TokenResponse executeRequest(HttpPost httpPost) throws OAuth2ServiceException {
+		LOGGER.debug("Requesting access token from url {} with headers {}", httpPost.getURI(),
+				httpPost.getAllHeaders());
 		try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
 			int statusCode = response.getStatusLine().getStatusCode();
+			LOGGER.debug("Received statusCode {}", statusCode);
 			if (statusCode == HttpStatus.SC_OK) {
 				return handleResponse(response);
 			} else {
 				String responseBodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
-				throw OAuth2ServiceException
-						.createWithStatusCodeAndResponseBody("Error retrieving JWT token", statusCode,
-								responseBodyAsString);
+				LOGGER.debug("Received response body: {}", responseBodyAsString);
+				throw OAuth2ServiceException.builder("Error retrieving JWT token")
+						.withStatusCode(statusCode)
+						.withUri(httpPost.getURI())
+						.withResponseBody(responseBodyAsString)
+						.build();
 			}
+		} catch (OAuth2ServiceException e) {
+			throw e;
 		} catch (IOException e) {
 			throw new OAuth2ServiceException("Unexpected error retrieving JWT token: " + e.getMessage());
 		}
@@ -77,7 +85,6 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	private OAuth2TokenResponse handleResponse(HttpResponse response) throws IOException {
 		String responseBody = HttpClientUtil.extractResponseBodyAsString(response);
 		Map<String, Object> accessTokenMap = new JSONObject(responseBody).toMap();
-		logger.debug("Request Access Token: {}", accessTokenMap);
 		return convertToOAuth2TokenResponse(accessTokenMap);
 	}
 
@@ -86,7 +93,6 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		String accessToken = getParameter(accessTokenMap, ACCESS_TOKEN);
 		String refreshToken = getParameter(accessTokenMap, REFRESH_TOKEN);
 		String expiresIn = getParameter(accessTokenMap, EXPIRES_IN);
-
 		return new OAuth2TokenResponse(accessToken, convertExpiresInToLong(expiresIn),
 				refreshToken);
 	}
