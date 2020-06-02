@@ -80,11 +80,13 @@ public class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	/**
-	 * Configures the token key cache. Use {@link TokenKeyCacheConfiguration#getInstance(Duration, int)}
-	 * to pass a custom configuration.
+	 * Configures the token key cache. Use
+	 * {@link TokenKeyCacheConfiguration#getInstance(Duration, int)} to pass a
+	 * custom configuration.
 	 *
-	 * Note that the cache size must be 1000 or more and the cache duration must be at
-	 * least 600 seconds!
+	 * Note that the cache size must be 1000 or more and the cache duration must be
+	 * at least 600 seconds!
+	 * 
 	 * @param cacheConfiguration
 	 *            the cache configuration
 	 * @return this tokenKeyServiceWithCache

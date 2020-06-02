@@ -135,7 +135,6 @@ public class DefaultJsonObjectTest {
 				.isInstanceOf(JsonParsingException.class);
 	}
 
-
 	@Test
 	public void getJsonObject_propertyExists_returnsJsonObject() {
 		cut = createJsonParser(KEY_1, createJsonObjectString(KEY_1, STRING_VALUE));

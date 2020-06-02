@@ -80,7 +80,6 @@ public class DefaultJsonObject implements JsonObject {
 		return null;
 	}
 
-
 	@Override
 	@Nullable
 	public JsonObject getJsonObject(String name) {
