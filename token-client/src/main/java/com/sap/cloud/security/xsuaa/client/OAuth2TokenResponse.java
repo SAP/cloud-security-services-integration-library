@@ -83,8 +83,8 @@ public class OAuth2TokenResponse {
 		try {
 			decodedJwt = getDecodedAccessToken();
 		} catch (IllegalArgumentException e) {
+			return super.toString();
 		}
-
-		return decodedJwt != null ? decodedJwt.toString() : super.toString();
+		return decodedJwt.toString();
 	}
 }
