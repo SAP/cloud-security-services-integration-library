@@ -342,7 +342,7 @@ public interface XSUserInfo {
 	 * @return the token
 	 * @deprecated can be replaced with token flows from the token-client library.
 	 * @throws XSUserInfoException
-	 * 				if an error occurs during token request
+	 *             if an error occurs during token request
 	 */
 	String requestTokenForUser(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
 

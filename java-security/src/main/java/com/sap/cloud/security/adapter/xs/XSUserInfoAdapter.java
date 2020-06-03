@@ -304,7 +304,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String requestTokenForClient(String clientId, String clientSecret, String baseUaaUrl) {
-		return performTokenFlow(baseUaaUrl, XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN, clientId, clientSecret, new HashMap<>());
+		return performTokenFlow(baseUaaUrl, XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN, clientId, clientSecret,
+				new HashMap<>());
 	}
 
 	@Override
@@ -438,7 +439,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	/**
-	 * Getter for XsuaaTokenFlows object that can be overridden for testing purposes.
+	 * Getter for XsuaaTokenFlows object that can be overridden for testing
+	 * purposes.
 	 */
 	XsuaaTokenFlows getXsuaaTokenFlows(String baseUaaUrl, ClientCredentials clientCredentials) {
 		return new XsuaaTokenFlows(getOrCreateOAuth2TokenService(),

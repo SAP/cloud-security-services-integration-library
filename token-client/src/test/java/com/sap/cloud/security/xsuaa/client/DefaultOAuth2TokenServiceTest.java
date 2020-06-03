@@ -100,7 +100,8 @@ public class DefaultOAuth2TokenServiceTest {
 				.hasMessageContaining(TOKEN_ENDPOINT_URI.toString());
 	}
 
-	private OAuth2TokenResponse requestAccessToken(Map<String, String> optionalParameters) throws OAuth2ServiceException {
+	private OAuth2TokenResponse requestAccessToken(Map<String, String> optionalParameters)
+			throws OAuth2ServiceException {
 		HttpHeaders withoutAuthorizationHeader = HttpHeadersFactory.createWithoutAuthorizationHeader();
 		return cut.requestAccessToken(TOKEN_ENDPOINT_URI, withoutAuthorizationHeader, optionalParameters);
 	}

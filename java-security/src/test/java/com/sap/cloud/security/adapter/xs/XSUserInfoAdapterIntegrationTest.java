@@ -401,10 +401,10 @@ public class XSUserInfoAdapterIntegrationTest {
 				eq(correctEnduserInfo.getAppToken()),
 				any(),
 				anyMap()))
-				.thenThrow(OAuth2ServiceException.builder("Unauthorized")
-					.withStatusCode(org.apache.http.HttpStatus.SC_UNAUTHORIZED)
-					.withUri(tokenEndpointUri)
-					.build());
+						.thenThrow(OAuth2ServiceException.builder("Unauthorized")
+								.withStatusCode(org.apache.http.HttpStatus.SC_UNAUTHORIZED)
+								.withUri(tokenEndpointUri)
+								.build());
 
 		// execute flow
 		correctEnduserInfo.requestToken(request);

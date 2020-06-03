@@ -302,7 +302,6 @@ public class XSUserInfoAdapterTest {
 		verify(xsuaaTokenFlowsMock, times(1)).clientCredentialsTokenFlow();
 	}
 
-
 	@Test
 	public void requestTokenForUser() throws TokenFlowException {
 		String clientId = "theClientId";
@@ -324,7 +323,6 @@ public class XSUserInfoAdapterTest {
 		verify(userTokenFlowMock, times(1)).token(token);
 		verify(xsuaaTokenFlowsMock, times(1)).userTokenFlow();
 	}
-
 
 	@Test
 	public void testGetOrigin_grantTypeClientCredentials_throwsException() throws XSUserInfoException {
@@ -500,7 +498,6 @@ public class XSUserInfoAdapterTest {
 
 		assertThat(cut.isInForeignMode()).isTrue();
 	}
-
 
 	private XSUserInfoAdapter createComponentUnderTestSpy() throws XSUserInfoException {
 		return spy(new XSUserInfoAdapter(mock(XsuaaToken.class), mock(OAuth2ServiceConfiguration.class)));

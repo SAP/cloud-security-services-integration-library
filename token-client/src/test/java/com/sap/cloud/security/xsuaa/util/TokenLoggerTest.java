@@ -72,6 +72,7 @@ public class TokenLoggerTest {
 				.contains("useful description")
 				.contains(TokenLogger.convertToReadableFormat(TOKEN));
 	}
+
 	@Test
 	public void logToken_descriptionIsNull_logsTokenOnly() {
 		ArgumentCaptor<String> debugLogCaptor = ArgumentCaptor.forClass(String.class);

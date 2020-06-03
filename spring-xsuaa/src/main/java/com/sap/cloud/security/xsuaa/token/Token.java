@@ -13,8 +13,8 @@ public interface Token extends UserDetails {
 
 	/**
 	 * @deprecated use
-	 * {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants#GRANT_TYPE_CLIENT_CREDENTIALS}
-	 * instead
+	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants#GRANT_TYPE_CLIENT_CREDENTIALS}
+	 *             instead
 	 */
 	@Deprecated
 	static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";

@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
  */
 public class ClientCredentialsTokenFlow {
 
-
 	private XsuaaTokenFlowRequest request;
 	private OAuth2TokenService tokenService;
 	private boolean disableCache = false;
