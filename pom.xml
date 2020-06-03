@@ -84,6 +84,7 @@
 		<module>java-api</module>
 		<module>java-cas-api</module>
 		<module>java-cas</module>
+		<module>spring-cas</module>
 		<module>java-security</module>
 		<module>java-security-test</module>
 		<module>spring-xsuaa</module>
