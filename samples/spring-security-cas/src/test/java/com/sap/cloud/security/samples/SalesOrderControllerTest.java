@@ -34,7 +34,6 @@ public class SalesOrderControllerTest {
 
     @Test
     @WithMockOidcUser(name="Bob.noAuthorization@test.com")
-    @WithMockUser
     public void readWith_Bob_403() throws Exception {
         mockMvc.perform(get("/salesOrders"))
                 .andExpect(status().isForbidden());
