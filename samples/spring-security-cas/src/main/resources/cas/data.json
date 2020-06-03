@@ -1,29 +1,31 @@
 {
     "user2policy": {
-        "Alice_readAll@test.com": [
-            "readAll"
-        ],
-        "Alice_readWrite@test.com": [
-            "readWrite"
-        ],
-        "Alice_countryCode@test.com": [
-            "countryCode"
-        ],
-        "Alice_salesOrders@test.com": [
-            "salesOrders2"
-        ],
-        "Alice_salesOrdersBetween@test.com": [
-            "salesOrdersBetween"
-        ],
-        "Bob.noAuthorization@test.com": [],
-        "P001025": [
-            "countryCode"
-        ],
-        "P176945": [
-            "countryCode"
-        ],
-        "P184533": [
-            "countryCode"
-        ]
+        "zone-a": {
+            "Alice_readAll@test.com": [
+                "readAll"
+            ],
+            "Alice_readWrite@test.com": [
+                "readWrite"
+            ],
+            "Alice_countryCode@test.com": [
+                "countryCode"
+            ],
+            "Alice_salesOrders@test.com": [
+                "salesOrders2"
+            ],
+            "Alice_salesOrdersBetween@test.com": [
+                "salesOrdersBetween"
+            ],
+            "Bob.noAuthorization@test.com": [],
+            "P001025": [
+                "countryCode"
+            ],
+            "P176945": [
+                "countryCode"
+            ],
+            "e46077a9-572e-4c7a-bd41-88dfa9ebbe55": [
+                "countryCode"
+            ]
+        }
     }
 }

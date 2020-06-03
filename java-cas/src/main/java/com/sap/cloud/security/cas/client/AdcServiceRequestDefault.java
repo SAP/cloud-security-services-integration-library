@@ -9,7 +9,8 @@ import java.util.Map;
  * This {@code AdcServiceRequest} implementation makes use of org.json Json Parser.
  */
 public class AdcServiceRequestDefault implements AdcServiceRequest {
-    private String casUserId = "user";
+    private String userId = "userId";
+    private String zoneId = "zoneId";
     private String casAction;
     private String casResource;
     private Map<String, Object> appAttributes = new HashMap();
@@ -17,8 +18,9 @@ public class AdcServiceRequestDefault implements AdcServiceRequest {
 
     private Map<String, Object> input = new HashMap<>();
 
-    public AdcServiceRequestDefault(String userId) {
-        this.casUserId = userId;
+    public AdcServiceRequestDefault(String zoneId, String userId) {
+        this.userId = userId;
+        this.zoneId = zoneId;
     }
 
     @Override
@@ -70,7 +72,7 @@ public class AdcServiceRequestDefault implements AdcServiceRequest {
      * @return
      */
     private Map<String, Object> getInput() {
-        DefaultAttributes casAttributes = new DefaultAttributes(casUserId, null, casAction, casResource);
+        DefaultAttributes casAttributes = new DefaultAttributes(userId, zoneId, casAction, casResource);
 
         input.put("$cas", casAttributes.getAsMap());
 
@@ -97,11 +99,14 @@ public class AdcServiceRequestDefault implements AdcServiceRequest {
         private Map<String, String> cas = new HashMap<>();
 
         private static final String USER_ID = "userId";
-        //private static final String ZONE_ID = "zoneId";
+        private static final String ZONE_ID = "zoneId";
         private static final String ACTION = "action";
         private static final String RESOURCE = "resource";
 
         DefaultAttributes(String sapUserId, String sapZoneId, String action, String resource) {
+            if (sapZoneId != null) {
+                cas.put(ZONE_ID, sapZoneId);
+            }
             if (sapUserId != null) {
                 cas.put(USER_ID, sapUserId);
             }

@@ -57,8 +57,9 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 
 	public boolean forResourceAction(String resource, String action, String... attributes) {
 		String userId = getUserId();
+		String zoneId = "zone-a"; // TODO zid claim
 
-		AdcServiceRequest request = new AdcServiceRequestDefault(userId)
+		AdcServiceRequest request = new AdcServiceRequestDefault(zoneId, userId)
 				.withAction(action)
 				.withResource(resource)
 				.withAttributes(attributes);

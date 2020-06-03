@@ -12,13 +12,13 @@ public class AdcServiceRequestDefaultTest {
 
     @Test
     public void withAllRequiredCasAttributes() {
-        AdcServiceRequestDefault request = new AdcServiceRequestDefault("uid");
+        AdcServiceRequestDefault request = new AdcServiceRequestDefault("zone-a", "uid");
         assertEquals("{\"input\":{\"$cas\":{\"userId\":\"uid\"}}}", request.asInputJson());
     }
 
     @Test
     public void withAllCasAttributes() {
-        AdcServiceRequestDefault request = new AdcServiceRequestDefault("uid");
+        AdcServiceRequestDefault request = new AdcServiceRequestDefault("zone-a", "uid");
         request.withAction("theAction");
         request.withResource("theResource");
         assertEquals("{\"input\":{\"$cas\":{\"resource\":\"theResource\",\"action\":\"theAction\",\"userId\":\"uid\"}}}", request.asInputJson());
@@ -26,7 +26,7 @@ public class AdcServiceRequestDefaultTest {
 
     @Test
     public void withAttributes() {
-        AdcServiceRequestDefault request = new AdcServiceRequestDefault("uid");
+        AdcServiceRequestDefault request = new AdcServiceRequestDefault("zone-a", "uid");
         request.withAttribute("attr", "attrValue");
         request.withAttribute("attr_double", 1.234);
         request.withAttribute("attr_integer", 567);
@@ -35,7 +35,7 @@ public class AdcServiceRequestDefaultTest {
 
     @Test
     public void withUserAttributes() {
-        AdcServiceRequestDefault request = new AdcServiceRequestDefault("uid");
+        AdcServiceRequestDefault request = new AdcServiceRequestDefault("zone-a", "uid");
         Map<String, String> userAttributes = new HashMap() {{
             put("sub", "ignore");
             put("use", "useThis");

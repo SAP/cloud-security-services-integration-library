@@ -38,7 +38,7 @@ public class BasicController {
             name = principal.getEmail();
         }
         return "Congratulation, " + name
-                + "! You just logged in successfully.";
+                + "! You just logged in successfully (zoneId : " + principal.getAttribute("zid") + ").";
     }
 
     @PreAuthorize("forAction('read')") // grant rule <action> on any resource

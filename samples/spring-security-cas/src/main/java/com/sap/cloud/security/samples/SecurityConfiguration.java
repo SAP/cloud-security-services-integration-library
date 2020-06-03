@@ -47,6 +47,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     OidcUserAuthority oidcUserAuthority = (OidcUserAuthority)authority;
 
                     String userId = oidcUserAuthority.getIdToken().getSubject();
+                    // TODO String zoneId = oidcUserAuthority.getIdToken();
                     // TODO request adc service for all "action:resource"-authorities
                     mappedAuthorities.add(new SimpleGrantedAuthority("read:salesOrders"));
                 } else if (GrantedAuthority.class.isInstance(authority)) {
