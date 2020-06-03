@@ -86,6 +86,7 @@ final class WithMockOidcUserSecurityContextFactory implements
 		claims.put(IAT, issuedAt.getEpochSecond());
 		claims.put(EXP, expiredAt.getEpochSecond());
 		claims.put(SUB, userId);
+		claims.put("zone_uuid", "zone-a"); // TODO enhance with custom claims
 
 		return new OidcIdToken("id-token", issuedAt, expiredAt, claims);
 	}
