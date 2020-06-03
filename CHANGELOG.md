@@ -3,11 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.7.1
-- [java-security] rename Token claim "sap_uid" to „user_uuid“ 
+- [java-security] 
+  - rename Token claim "sap_uid" to „user_uuid“.
+  - Token Key Cache can now be customized via `XsuaaTokenAuthenticator`
+  - `XSUserInfoAdapter` supports `requestTokenForUser()` method
 - [spring-xsuaa] Improve logs of Audience Validators.
-- [token-client] more detailed debug logs and details to exception; decoded token gets logged.
-- [token-client] supports optional `scope` parameter to reduce scopes that are provided via `CientCredentialsTokenFlow` or `UserTokenFlow`.
-- [java-security] Token Key Cache can now be customized.
+- [token-client]
+  - more detailed debug logs and details to exception; decoded token gets logged.
+  - supports optional `scope` parameter to reduce scopes that are provided via `CientCredentialsTokenFlow` or `UserTokenFlow`.
+
 
 ## 2.7.0
 - [token-client] By default requested tokens are now cached. You can disable the cache globally or per request as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/token-client).
