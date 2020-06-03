@@ -86,14 +86,13 @@ public class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 *
 	 * Note that the cache size must be 1000 or more and the cache duration must be
 	 * at least 600 seconds!
-	 * 
+	 *
 	 * @param cacheConfiguration
 	 *            the cache configuration
 	 * @return this tokenKeyServiceWithCache
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheConfiguration(CacheConfiguration cacheConfiguration) {
-		checkCacheConfiguration(cacheConfiguration);
-		this.cacheConfiguration = cacheConfiguration;
+		this.cacheConfiguration = getCheckedConfiguration(cacheConfiguration);
 		LOGGER.debug("Configured token key cache with cacheDuration={} seconds and cacheSize={}",
 				cacheConfiguration.getCacheDuration().getSeconds(), cacheConfiguration.getCacheSize());
 		return this;
@@ -148,16 +147,25 @@ public class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		return getCache().getIfPresent(cacheKey);
 	}
 
-	private void checkCacheConfiguration(CacheConfiguration cacheConfiguration) {
+	private TokenKeyCacheConfiguration getCheckedConfiguration(CacheConfiguration cacheConfiguration) {
 		Assertions.assertNotNull(cacheConfiguration, "CacheConfiguration must not be null!");
 		int size = cacheConfiguration.getCacheSize();
-		long timeInSeconds = cacheConfiguration.getCacheDuration().getSeconds();
+		Duration duration = cacheConfiguration.getCacheDuration();
 		if (size < 1000) {
-			throw new IllegalArgumentException("The cache size must be 1000 or more");
+			int currentSize = getCacheConfiguration().getCacheSize();
+			LOGGER.error("Tried to set cache size to {} but the cache size must be 1000 or more."
+					+ " Cache size will remain at: {}", size, currentSize);
+			size = currentSize;
 		}
-		if (timeInSeconds < 600) {
-			throw new IllegalArgumentException("The cache validity must be minimum 600 seconds");
+		if (duration.getSeconds() < 600) {
+			Duration currentDuration = getCacheConfiguration().getCacheDuration();
+			LOGGER.error(
+					"Tried to set cache duration to {} seconds but the cache duration must be at least 600 seconds."
+							+ " Cache duration will remain at: {} seconds",
+					duration.getSeconds(), currentDuration.getSeconds());
+			duration = currentDuration;
 		}
+		return TokenKeyCacheConfiguration.getInstance(duration, size);
 	}
 
 	private void retrieveTokenKeysAndFillCache(URI jwksUri)
