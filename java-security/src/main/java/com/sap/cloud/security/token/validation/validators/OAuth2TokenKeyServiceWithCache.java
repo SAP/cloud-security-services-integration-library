@@ -94,7 +94,7 @@ public class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	public OAuth2TokenKeyServiceWithCache withCacheConfiguration(CacheConfiguration cacheConfiguration) {
 		this.cacheConfiguration = getCheckedConfiguration(cacheConfiguration);
 		LOGGER.debug("Configured token key cache with cacheDuration={} seconds and cacheSize={}",
-				cacheConfiguration.getCacheDuration().getSeconds(), cacheConfiguration.getCacheSize());
+				getCacheConfiguration().getCacheDuration().getSeconds(), getCacheConfiguration().getCacheSize());
 		return this;
 	}
 
