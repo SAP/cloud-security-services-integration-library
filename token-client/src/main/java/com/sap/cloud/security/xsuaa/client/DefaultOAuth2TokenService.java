@@ -2,7 +2,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -33,20 +33,20 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	private final CloseableHttpClient httpClient;
 
 	public DefaultOAuth2TokenService() {
-		this(HttpClients.createDefault(), CacheConfiguration.DEFAULT);
+		this(HttpClients.createDefault(), TokenCacheConfiguration.defaultConfiguration());
 	}
 
 	public DefaultOAuth2TokenService(@Nonnull CloseableHttpClient httpClient) {
-		this(httpClient, CacheConfiguration.DEFAULT);
+		this(httpClient, TokenCacheConfiguration.defaultConfiguration());
 	}
 
-	public DefaultOAuth2TokenService(@Nonnull CacheConfiguration cacheConfiguration) {
-		this(HttpClients.createDefault(), cacheConfiguration);
+	public DefaultOAuth2TokenService(@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
+		this(HttpClients.createDefault(), tokenCacheConfiguration);
 	}
 
 	public DefaultOAuth2TokenService(@Nonnull CloseableHttpClient httpClient,
-			@Nonnull CacheConfiguration cacheConfiguration) {
-		super(cacheConfiguration);
+			@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
+		super(tokenCacheConfiguration);
 		Assertions.assertNotNull(httpClient, "http client is required");
 		this.httpClient = httpClient;
 	}
