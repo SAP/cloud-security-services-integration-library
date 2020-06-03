@@ -6,9 +6,9 @@ import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
-import com.sap.cloud.security.xsuaa.util.TokenLogger;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,6 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractOAuth2TokenService.class);
 	private final Cache<CacheKey, OAuth2TokenResponse> responseCache;
 	private final TokenCacheConfiguration tokenCacheConfiguration;
-	private final TokenLogger tokenLogger;
 
 	public AbstractOAuth2TokenService() {
 		this(TokenCacheConfiguration.defaultConfiguration(), Ticker.systemTicker(), false);
@@ -65,7 +64,6 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 		Assertions.assertNotNull(tokenCacheConfiguration, "cacheConfiguration is required");
 		this.tokenCacheConfiguration = tokenCacheConfiguration;
 		this.responseCache = createResponseCache(cacheTicker, sameThreadCache);
-		this.tokenLogger = TokenLogger.getInstance(LOGGER);
 		if (isCacheDisabled()) {
 			LOGGER.debug("Configured token service with cache disabled");
 		} else {
@@ -243,9 +241,14 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	}
 
 	private void logDebug(OAuth2TokenResponse response) {
-		String accessToken = response.getAccessToken();
-		if (accessToken != null) {
-			tokenLogger.logDebug(accessToken, "Access token:");
+		if(!LOGGER.isDebugEnabled()){
+			return;
+		}
+		try {
+			DecodedJwt decodedJwt = response.getDecodedAccessToken();
+			LOGGER.debug("Access token: {}", decodedJwt);
+		} catch (IllegalArgumentException e) {
+			LOGGER.debug("Access token can not be logged. {}", e.getMessage());
 		}
 	}
 
