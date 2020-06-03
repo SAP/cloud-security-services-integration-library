@@ -9,7 +9,9 @@ import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
-
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 /**
  * TODO: extract as library
@@ -57,7 +59,7 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 
 	public boolean forResourceAction(String resource, String action, String... attributes) {
 		String userId = getUserId();
-		String zoneId = "zone-a"; // TODO zid claim
+		String zoneId = getZoneId(); // TODO zid claim
 
 		AdcServiceRequest request = new AdcServiceRequestDefault(zoneId, userId)
 				.withAction(action)
@@ -65,7 +67,7 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 				.withAttributes(attributes);
 
 		boolean isAuthorized = checkAuthorization(request);
-		logger.info("Is user {} authorized to perform action '{}' on resource '{}' and attributes '{}' ? {}", userId, action, resource, attributes, isAuthorized);
+		logger.info("Is user {} (zoneId {}) authorized to perform action '{}' on resource '{}' and attributes '{}' ? {}", userId, zoneId, action, resource, attributes, isAuthorized);
 
 		return isAuthorized;
 	}
@@ -78,6 +80,15 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 		OidcUser user = (OidcUser) oauthAuth.getPrincipal();
 		return user.getName(); // TODO update to unique user id*/
 		return authentication.getName();
+	}
+
+	private String getZoneId() {
+		String zoneId = null;
+		if (authentication.getPrincipal() instanceof OAuth2AuthenticatedPrincipal) {
+			OAuth2AuthenticatedPrincipal userPrincipal = (OAuth2AuthenticatedPrincipal)authentication.getPrincipal();
+			zoneId = (String) userPrincipal.getAttributes().getOrDefault("zone_uuid", userPrincipal.getAttribute("zid")); // TODO
+		}
+		return zoneId; //TODO
 	}
 
 	private boolean checkAuthorization(AdcServiceRequest request) {
