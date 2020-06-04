@@ -20,7 +20,7 @@ import com.sap.cloud.security.token.validation.Validator;
  * service. In case of XSUAA does the token key url (jku JWT header parameter)
  * must match the identity service domain.
  */
-public class XsuaaJwtIssuerValidator implements Validator<Token> {
+class XsuaaJwtIssuerValidator implements Validator<Token> {
 	private final String domain;
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 

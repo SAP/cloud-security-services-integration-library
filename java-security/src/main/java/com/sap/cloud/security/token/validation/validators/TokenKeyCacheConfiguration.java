@@ -1,5 +1,6 @@
-package com.sap.cloud.security.config;
+package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.xsuaa.Assertions;
 
 import javax.annotation.Nonnull;
@@ -8,7 +9,7 @@ import java.time.Duration;
 /**
  *
  */
-public class TokenKeyCacheConfiguration implements CacheConfiguration {
+class TokenKeyCacheConfiguration implements CacheConfiguration {
 
 	private static final TokenKeyCacheConfiguration DEFAULT = TokenKeyCacheConfiguration
 			.getInstance(Duration.ofMinutes(10), 1000);
@@ -28,7 +29,7 @@ public class TokenKeyCacheConfiguration implements CacheConfiguration {
 	 *            the cache size property.
 	 * @return a new {@link TokenKeyCacheConfiguration} instance.
 	 */
-	public static TokenKeyCacheConfiguration getInstance(Duration cacheDuration, int cacheSize) {
+	static TokenKeyCacheConfiguration getInstance(Duration cacheDuration, int cacheSize) {
 		Assertions.assertNotNull(cacheDuration, "The cache duration write must not be null!");
 		return new TokenKeyCacheConfiguration(cacheDuration, cacheSize);
 	}
@@ -39,7 +40,7 @@ public class TokenKeyCacheConfiguration implements CacheConfiguration {
 	 * 
 	 * @return the default configuration
 	 */
-	public static TokenKeyCacheConfiguration defaultConfiguration() {
+	static TokenKeyCacheConfiguration defaultConfiguration() {
 		return DEFAULT;
 	}
 

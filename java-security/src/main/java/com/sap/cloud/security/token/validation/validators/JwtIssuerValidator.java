@@ -26,7 +26,7 @@ import com.sap.cloud.security.token.validation.Validator;
  * </ul>
  * These checks are a prerequisite for using the `JwtSignatureValidator`.
  */
-public class JwtIssuerValidator implements Validator<Token> {
+class JwtIssuerValidator implements Validator<Token> {
 	private final URI url;
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 

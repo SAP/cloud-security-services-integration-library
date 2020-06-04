@@ -16,7 +16,6 @@ import java.util.Set;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.sap.cloud.security.config.CacheConfiguration;
-import com.sap.cloud.security.config.TokenKeyCacheConfiguration;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
@@ -29,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * Decorates {@link OAuth2TokenKeyService} with a cache, which gets looked up
  * before the identity service is requested via http.
  */
-public class OAuth2TokenKeyServiceWithCache implements Cacheable {
+class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2TokenKeyServiceWithCache.class);
 
 	private OAuth2TokenKeyService tokenKeyService; // access via getter
