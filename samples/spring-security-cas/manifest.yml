@@ -4,7 +4,7 @@
 # If the route is occupied, you might need to change ID in ../vars.yml
 applications:
 # The sample application.
-- name: spring-security-cas
+- name: spring-security-cas-((ID))
   instances: 1
   memory: 800M
   routes:
