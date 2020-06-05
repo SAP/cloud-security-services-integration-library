@@ -18,6 +18,7 @@ applications:
     - java_buildpack
   env:
     JBP_CONFIG_OPEN_JDK_JRE: '[memory_calculator: {headroom: 10}]'
+    BUNDLE_PATH: /BOOT-INF/classes
     AMS_DATA:  >
       {
         "root": "/BOOT-INF/classes/",
