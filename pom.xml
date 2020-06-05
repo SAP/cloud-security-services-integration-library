@@ -79,19 +79,10 @@
 	</properties>
 
 	<modules>
-		<module>api</module>
-		<module>token-client</module>
-		<module>java-api</module>
+		<!-- TODO -->
 		<module>java-cas-api</module>
 		<module>java-cas</module>
 		<module>spring-cas</module>
-		<module>java-security</module>
-		<module>java-security-test</module>
-		<module>spring-xsuaa</module>
-		<module>spring-xsuaa-it</module>
-		<module>spring-xsuaa-test</module>
-		<module>spring-xsuaa-mock</module>
-		<module>spring-xsuaa-starter</module>
 	</modules>
 
 	<dependencyManagement>
