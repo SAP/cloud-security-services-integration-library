@@ -10,7 +10,7 @@ that uses the [open source **Open Policy Agent (OPA)**](https://www.openpolicyag
 
 ![](images/casApplication.png)
 
-# Prerequisite
+# Prerequisites
 - Java 8 JDK
 ```
 $ java -version
@@ -26,6 +26,15 @@ Default locale: en_US, platform encoding: UTF-8
 OS name: "mac os x", version: "10.15.5", arch: "x86_64", family: "mac"
 ```
 > make sure that it points to the correct Java JDK version.
+- Docker-Compose / Docker as described [here](https://docs.docker.com/compose/install/)
+```
+$ docker-compose -version
+docker-compose version 1.24.1, build 4667896b
+```
+
+- Cloud Foundry Subaccount that fulfills these criterias:
+  - Zone-enabled 
+  - `cf marketplace` provides `ams` service
 
 # Test Locally
 
@@ -45,7 +54,7 @@ First, get familiar with the Authorization Decision Controller (ADC) service whi
 
     * `<OPA_URL>/v1/data` returns the users and their policies  
     * `<OPA_URL>/v1/policies` lists the divers policies
-    * `<OPA_URL>/v1/data/rbac/allow` POST request with Content-Type: application/json` and payload:
+    * `<OPA_URL>/v1/data/rbac/allow` POST request with Content-Type: `application/json` and payload:
     ```
     {
         "input": {
@@ -88,7 +97,7 @@ cf create-service identity-beta default spring-security-cas-authn -c '{"oauth2-c
 ```
 
 ## Create the AMS service instance
-NOT YET SUPPORTED:
+NOT YET SUPPORTED (on Cloud Foundry marketplace):
 ```
 cf create-service ams standard spring-security-cas-ams
 ```
@@ -122,18 +131,18 @@ When your application is successfully started (pls check the console logs) you c
 - `http://localhost:8080/salesOrders/readByCountry/IT`  
 This GET request executes a method secured with Spring Global Method Security. It will respond with error status code `403` (`unauthorized`) in case you do not have any policy assigned, that grants access for action `read` on any resources in `Country` = `<your country Code, e.g. 'IT'>`.
 
-Check the application logs on your console to find out the user id and the result of the authorization check. 
+## Assign Permission
+Check the application logs on your console to find out the user id and the zone id and the result of the authorization check. 
 ```
 Is user <your user-id> authorized to perform action 'read' on resource 'null' and attributes '[Country=IT]' ? false
 ```
-In case you have a lack of permissions you need to make sure that you (`<your user-id>`) have the same policy in `src/main/resources/amsBundle/data.json` assigned like the user with id `Alice_countryCode`. Afterwards you need to restart the docker-container 
+In case you have a lack of permissions you need to make sure that you (`<your user-id>`) has the same policy in `src/main/resources/amsBundle/data.json` assigned like the user with id `Alice_countryCode`. Afterwards you need to restart the docker-container 
 ```
 docker restart spring-security-cas_opa_1
 ```
 Now repeat the forbidden test requests.
 
 Alternatively you can also debug the [TestControllerTest](src/test/java/sample.spring.adc/TestControllerTest.java) JUnit Test. 
-
 
 # Deployment on Cloud Foundry
 
