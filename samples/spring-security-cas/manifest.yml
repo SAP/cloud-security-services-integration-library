@@ -14,8 +14,12 @@ applications:
     - spring-security-cas-authn
     - spring-security-cas-ams
   buildpacks:
-    - https://github.com/saescha/opa-builpack-PoC.git#s3
+    - https://github.com/saescha/opa-builpack-PoC.git#tar_upload
     - java_buildpack
   env:
     JBP_CONFIG_OPEN_JDK_JRE: '[memory_calculator: {headroom: 10}]'
-    BUNDLE_PATH: /BOOT-INF/classes
+    AMS_DATA:  >
+      {
+        "root": "/BOOT-INF/classes/",
+        "directories": ["cas/"]
+      }
