@@ -11,6 +11,8 @@ that uses the [open source **Open Policy Agent (OPA)**](https://www.openpolicyag
 ![](images/casApplication.png)
 
 # Prerequisites
+
+## Tools
 - Java 8 JDK
 ```
 $ java -version
@@ -32,11 +34,17 @@ $ docker-compose -version
 docker-compose version 1.24.1, build 4667896b
 ```
 
-- Cloud Foundry Subaccount that fulfills these criterias:
-  - Zone-enabled 
-  - `cf marketplace` provides `ams` service
+- New Cloud Foundry Subaccount that fulfills these criteria:
+  - Zone-enabled (!)
+  - Provides `ams` service
+  ```
+  $ cf marketplace
+  ...
+  ams   standard    Authorization Management Service                               
+  ...
+  ```
   
-## Clone repository and install cas client libraries
+## Clone repository and install CAS client libraries
 You need to clone the repository that includes the sample and all its dependent libraries, that are not yet provided on Maven central:
 ```bash
 git clone -b cas https://github.com/SAP/cloud-security-xsuaa-integration.git
@@ -45,14 +53,14 @@ mvn clean install
 ```
 
 ## The Sample Project
-The sample project is located in `samples/spring-security-cas`. It is a Spring-Boot application.
+The sample project is located in `samples/spring-security-cas`. It is a Spring-Boot application, which is build with Maven dependency plugin.
 
 # Test Locally
 
 ## Access Authorization Decision Controller (ADC)
 First, get familiar with the Authorization Decision Controller (ADC) service which uses the OPA policy engine.
 
-1. Build your sample project (`samples/spring-security-cas`) and start the Open Policy Agent (OPA) locally as part of a docker container:  
+1. Build your sample project (`samples/spring-security-cas) and start the Open Policy Agent (OPA) locally as part of a docker container:  
     ```
     mvn clean package
     docker-compose up -d
@@ -108,9 +116,9 @@ cf create-service identity-beta default spring-security-cas-authn -c '{"oauth2-c
 ```
 
 ## Create the AMS service instance
-NOT YET SUPPORTED (on Cloud Foundry marketplace):
+NOT YET SUPPORTED (on Cloud Foundry marketplace), don't forget to replace `<<ID>>` with your d/c/i-User.
 ```
-cf create-service ams standard spring-security-cas-ams-ID
+cf create-service ams standard spring-security-cas-ams-<<ID>>
 ```
 
 ## Configure the local environment
@@ -147,8 +155,14 @@ Check the application logs on your console to find out the user id and the zone 
 ```
 Is user <your user-id> (zoneId <your user-id>) authorized to perform action 'read' on resource 'null' and attributes '[Country=IT]' ? true
 ```
-In case you have a lack of permissions you need to make sure that you (`<your user-id>`) has the same policy in `src/main/resources/amsBundle/data.json` assigned like the user with id `Alice_countryCode`. Afterwards you need to restart the docker-container:
+
+In case you have a lack of permissions you need to make sure that you (from `<zone-id>`, `<user-id>`) have the same policy in `src/main/resources/amsBundle/data.json` assigned like the user with id `Alice_countryCode`. 
+
+
+
+Afterwards you need to rebuild and restart the docker-container:
 ```
+mvn clean package
 docker restart spring-security-cas_opa_1
 ```
 Now repeat the forbidden test request.

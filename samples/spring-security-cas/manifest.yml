@@ -12,7 +12,7 @@ applications:
   path: target/spring-security-cas.jar
   services:
     - spring-security-cas-authn
-    - spring-security-cas-ams
+    - spring-security-cas-ams-((ID))
   buildpacks:
     - https://github.com/saescha/opa-builpack-PoC.git#tar_upload
     - java_buildpack
