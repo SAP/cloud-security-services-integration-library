@@ -10,6 +10,23 @@ that uses the [open source **Open Policy Agent (OPA)**](https://www.openpolicyag
 
 ![](images/casApplication.png)
 
+# Prerequisite
+- Java 8 JDK
+```
+$ java -version
+openjdk version "1.8.0_222"
+```
+> make sure `JAVA_HOME` system environment variable is set ([HOWTO](https://www.baeldung.com/java-home-on-windows-7-8-10-mac-os-x-linux)).
+- Maven
+```
+$ mvn --version
+Maven home: /usr/local/Cellar/maven/3.6.2/libexec
+Java version: 1.8.0_222, vendor: AdoptOpenJDK, runtime: /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre
+Default locale: en_US, platform encoding: UTF-8
+OS name: "mac os x", version: "10.15.5", arch: "x86_64", family: "mac"
+```
+> make sure that it points to the correct Java JDK version.
+
 # Test Locally
 
 ## Access Authorization Decision Controller (ADC)
