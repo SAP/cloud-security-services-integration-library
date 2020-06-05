@@ -28,6 +28,11 @@
             "e46077a9-572e-4c7a-bd41-88dfa9ebbe55": [
                 "countryCode"
             ]
+        },
+        "<<zone-id>>": {
+            "<<user-id>>": [
+                "countryCode"
+            ]
         }
     }
 }

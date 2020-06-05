@@ -153,7 +153,7 @@ This GET request executes a method secured with Spring Global Method Security. I
 ## Assign Permission
 Check the application logs on your console to find out the user id and the zone id and the result of the authorization check. 
 ```
-Is user <your user-id> (zoneId <your user-id>) authorized to perform action 'read' on resource 'null' and attributes '[Country=IT]' ? true
+Is user <your user-id> (zoneId <your zone-id>) authorized to perform action 'read' on resource 'null' and attributes '[Country=IT]' ? true
 ```
 
 In case you have a lack of permissions you need to make sure that you (from `<zone-id>`, `<user-id>`) have the same policy in `src/main/resources/amsBundle/data.json` assigned like the user with id `Alice_countryCode`. 
@@ -199,7 +199,7 @@ Finally delete your application and your service instances using the following c
 ```
 docker rm --force spring-security-cas_opa_1
 cf delete-service-key spring-security-cas-authn spring-security-cas-sk
-cf delete spring-security-cas
+cf delete spring-security-cas-<<ID>>
 cf delete-service spring-security-cas-authn
-cf delete-service spring-security-cas-ams
+cf delete-service spring-security-cas-ams-<<ID>>
 ```
