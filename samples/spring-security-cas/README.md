@@ -35,13 +35,24 @@ docker-compose version 1.24.1, build 4667896b
 - Cloud Foundry Subaccount that fulfills these criterias:
   - Zone-enabled 
   - `cf marketplace` provides `ams` service
+  
+## Clone repository and install cas client libraries
+You need to clone the repository that includes the sample and all its dependent libraries, that are not yet provided on Maven central:
+```bash
+git clone -b cas https://github.com/SAP/cloud-security-xsuaa-integration.git
+cd cloud-security-xsuaa-integration
+mvn clean install
+```
+
+## The Sample Project
+The sample project is located in `samples/spring-security-cas`. It is a Spring-Boot application.
 
 # Test Locally
 
 ## Access Authorization Decision Controller (ADC)
 First, get familiar with the Authorization Decision Controller (ADC) service which uses the OPA policy engine.
 
-1. Build your project and start the Open Policy Agent (OPA) locally as part of a docker container:  
+1. Build your sample project (`samples/spring-security-cas`) and start the Open Policy Agent (OPA) locally as part of a docker container:  
     ```
     mvn clean package
     docker-compose up -d
@@ -99,7 +110,7 @@ cf create-service identity-beta default spring-security-cas-authn -c '{"oauth2-c
 ## Create the AMS service instance
 NOT YET SUPPORTED (on Cloud Foundry marketplace):
 ```
-cf create-service ams standard spring-security-cas-ams
+cf create-service ams standard spring-security-cas-ams-ID
 ```
 
 ## Configure the local environment
@@ -134,13 +145,13 @@ This GET request executes a method secured with Spring Global Method Security. I
 ## Assign Permission
 Check the application logs on your console to find out the user id and the zone id and the result of the authorization check. 
 ```
-Is user <your user-id> authorized to perform action 'read' on resource 'null' and attributes '[Country=IT]' ? false
+Is user <your user-id> (zoneId <your user-id>) authorized to perform action 'read' on resource 'null' and attributes '[Country=IT]' ? true
 ```
-In case you have a lack of permissions you need to make sure that you (`<your user-id>`) has the same policy in `src/main/resources/amsBundle/data.json` assigned like the user with id `Alice_countryCode`. Afterwards you need to restart the docker-container 
+In case you have a lack of permissions you need to make sure that you (`<your user-id>`) has the same policy in `src/main/resources/amsBundle/data.json` assigned like the user with id `Alice_countryCode`. Afterwards you need to restart the docker-container:
 ```
 docker restart spring-security-cas_opa_1
 ```
-Now repeat the forbidden test requests.
+Now repeat the forbidden test request.
 
 Alternatively you can also debug the [TestControllerTest](src/test/java/sample.spring.adc/TestControllerTest.java) JUnit Test. 
 
