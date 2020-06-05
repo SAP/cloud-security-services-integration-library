@@ -151,7 +151,7 @@ On Cloud Foundry the ADC Service gets deployed together with your application (a
 ![](images/adc_abpInteraction.png)
 
 ## Configure the manifest
-The [vars](../vars.yml) contains hosts and paths that need to be adopted.
+The [vars](../vars.yml) contains hosts and paths that need to be adopted. Use your d/c/i-User as ID and use `cfapps.sap.hana.ondemand.com` as `LANDSCAPE_APPS_DOMAIN`.
 
 ## Compile and deploy the application
 Deploy the application using `cf push`. It will expect 800MB of free memory quota.
