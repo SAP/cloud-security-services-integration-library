@@ -15,7 +15,7 @@ If you find messages like:
 `java.lang.NoSuchMethodError: org.json.JSONArray.forEach`
 or
 `java.lang.NoSuchMethodError: org.json.JSONObject.isEmpty`
-you are most likely using an too old version of `org.json`, see section [Old org.json version](#Old-org.json-version) for more information.
+you are most likely using an too old version of `org.json`, see section [Old org.json version](#Old-org-json-version) for more information.
 If you have linkage errors complaining about duplicated definitions, please take a look at [Conflicting library](#Conflicting-library).
 
 ## Analyze dependencies
