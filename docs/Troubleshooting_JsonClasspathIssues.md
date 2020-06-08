@@ -15,7 +15,7 @@ If you find messages like:
 `java.lang.NoSuchMethodError: org.json.JSONArray.forEach`
 or
 `java.lang.NoSuchMethodError: org.json.JSONObject.isEmpty`
-you are most likely using an too old version of `org.json`, see section [Old org.json version](#Old-org-json-version) for more information.
+you are most likely using an too old version of `org.json`, see section [Old json version](#Old-json-version) for more information.
 If you have linkage errors complaining about duplicated definitions, please take a look at [Conflicting library](#Conflicting-library).
 
 ## Analyze dependencies
@@ -58,7 +58,7 @@ This will generate an output like this:
 Here you see that `com.sap.cloud.security:java-security` brings in `org.json:json` with version `20190722`.
 If you search for 'json' you might find other libraries that also bring in `org.json` or other json libraries.
 
-## Old org.json version
+## Old json version
 
 Before you proceeded, make sure you know how to create the dependency tree of your application described [here](#Analyze-dependencies).
 
