@@ -23,7 +23,7 @@ The Resource owner password credentials (i.e., username and password) can be use
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.6.2</version>
+    <version>2.7.1</version>
 </dependency>
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
@@ -45,6 +45,11 @@ The `DefaultOAuth2TokenService` can also be instantiated with a custom `Closeabl
 
 > The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. 
 
+##### Cache
+
+By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache can be configured by providing an
+`CacheConfiguration` object as constructor parameter. The cache can be disabled by using the
+`CacheConfiguration.CACHE_DISABLED` configuration.
 
 ## Configuration for Java/Spring Applications
 
@@ -57,7 +62,7 @@ The `DefaultOAuth2TokenService` can also be instantiated with a custom `Closeabl
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.6.2</version>
+    <version>2.7.1</version>
 </dependency>
 ```
 
@@ -72,6 +77,12 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 ```
 > The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. In case you leverage the spring-xsuaa library you can also use [`XsuaaServiceConfiguration`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfiguration.java) class.
 
+##### Cache
+
+By default, the `XsuaaOAuth2TokenService` caches tokens internally. The Cache can be configured by providing an
+`CacheConfiguration` object as constructor parameter. The cache can be disabled by using the
+`CacheConfiguration.CACHE_DISABLED` configuration.
+
 ## Configuration for Spring Boot Applications
 
 #### Maven Dependencies
@@ -80,7 +91,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.6.2</version>
+    <version>2.7.1</version>
 </dependency>
 ```
 
@@ -113,6 +124,7 @@ Obtain a client credentials token:
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.clientCredentialsTokenFlow()
                                                     .subdomain(jwtToken.getSubdomain()) // this is optional 
+                                                    .disableCache(true)                 // optionally disables token cache for request
                                                     .execute();
 ```
 ### Refresh Token Flow
@@ -122,6 +134,7 @@ In case you have a refresh token and want to obtain an access token:
 OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
                               .refreshToken(<refresh_token>)
                               .subdomain(jwtToken.getSubdomain()) // this is optional 
+                              .disableCache(true)                 // optionally disables token cache for request
                               .execute();
 ```
 ### User Token Flow
@@ -132,7 +145,8 @@ XsuaaToken jwtToken = SpringSecurityContext.getToken();
 OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
                 .token(jwtToken)
                 .subdomain(jwtToken.getSubdomain()) // this is optional      
-                .attributes(additionalAttributes) // this is optional
+                .disableCache(true)                 // optionally disables token cache for request
+                .attributes(additionalAttributes)   // this is optional
                 .execute();
 ```
 
@@ -142,6 +156,7 @@ In order to obtain an access token for a user:
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.passwordTokenFlow()
                                                     .subdomain(jwtToken.getSubdomain()) // this is optional
+                                                    .disableCache(true)                 // optionally disables token cache for request
                                                     .username(<your username>)
                                                     .password(<your password>)
                                                     .execute();
@@ -150,6 +165,18 @@ OAuth2TokenResponse clientCredentialsToken = tokenFlows.passwordTokenFlow()
 
 Make sure to read the API documentation of the `XsuaaTokenFlows` API, to understand what the individual token flows' parameters are for.
 
+## Troubleshooting
+
+For troubleshooting problems with the token service, you can set the logging level for the 
+`com.sap.cloud.security` package to `DEBUG`. Have a look at the 
+[Logging](/java-security/README.md#logging) section for more information on logging.
+
+If you need more detailed network data in your logs, you can also enable debugging for your HTTP client.
+Note that this might leak encoded tokens into your logs. Use with care! 
+For java applications using `HttpClient`, see the  
+[logging documentation](https://hc.apache.org/httpcomponents-client-4.5.x/logging.html).
+For spring applications using rest template, you can set
+`org.springframework.web.client.RestTemplate` to log level `DEBUG`. 
 
 ## Issues
 

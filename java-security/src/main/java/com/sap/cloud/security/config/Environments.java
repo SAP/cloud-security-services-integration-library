@@ -20,7 +20,8 @@ public class Environments {
 	 * @return the current environment
 	 */
 	public static Environment getCurrent() {
-		// TODO Kubernetes: probe in which environment it runs currently: CF or Kubernetes
+		// TODO Kubernetes: probe in which environment it runs currently: CF or
+		// Kubernetes
 		return cfEnvironment;
 	}
 

@@ -32,29 +32,24 @@ First make sure you have the following dependencies defined in your pom.xml:
   <artifactId>spring-security-oauth2</artifactId>
   <version>2.4.1.RELEASE</version> <!-- chose the latest from maven repository -->
 </dependency>
-<dependency>
-  <groupId>org.springframework</groupId>
-  <artifactId>spring-aop</artifactId>
-  <version>4.3.27.RELEASE</version> <!-- chose the latest from maven repository -->
-</dependency>
 
 <!-- new java-security dependencies -->
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>api</artifactId>
-  <version>2.6.2</version>
+  <version>2.7.1</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security</artifactId>
-  <version>2.6.2</version>
+  <version>2.7.1</version>
 </dependency>
 
 <!-- new java-security dependencies for unit tests -->
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security-test</artifactId>
-  <version>2.6.2</version>
+  <version>2.7.1</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -211,7 +206,7 @@ public class TestSecurityConfig {
 ```
 
 ### Unit testing 
-In your unit test you might want to generate jwt tokens and have them validated. The new [java-security-test](/java-security-test) library provides it's own `JwtGenerator`.  This can be embedded using the new 
+In your unit test you might want to generate jwt tokens and have them validated. The [java-security-test](/java-security-test) library provides it's own `JwtGenerator`.  This can be embedded using the 
 `SecurityTestRule`. See the following snippet as example: 
 
 ```java
@@ -234,8 +229,9 @@ String jwt = securityTestRule.getPreconfiguredJwtGenerator()
     .getTokenValue();
 
 ```
-
 Make sure, that your JUnit tests are running.
+
+The `java-security-test` library provides also JUnit 5 support as described [here](/java-security-test).
 
 ## Enable local testing
 For local testing you might need to provide custom `VCAP_SERVICES` before you run the application. 
@@ -259,14 +255,14 @@ application locally make sure that it is still working and finally test the appl
 	```
 	Configuration problem: You cannot use a spring-security-4.0.xsd or spring-security-4.1.xsd schema with Spring Security 4.2. Please update your schema declarations to the 4.2 schema. Offending resource: ServletContext resource [/WEB-INF/spring-security.xml]
 	```  
-	You can fix this by updating the Spring versions as part of the schema declaration in the file `/WEB-INF/spring-security.xml` as suggested as part of the error log, e.g:
+	You can fix this by removing the Spring versions of the schema declaration in the file `/WEB-INF/spring-security.xml`. Without explicit versions set, the latest version will be used.
 	```
 	xsi:schemaLocation="http://www.springframework.org/schema/security/oauth2
-			    http://www.springframework.org/schema/security/spring-security-oauth2-2.0.xsd
+			    http://www.springframework.org/schema/security/spring-security-oauth2.xsd
 			    http://www.springframework.org/schema/security
-			    http://www.springframework.org/schema/security/spring-security-4.2.xsd
+			    http://www.springframework.org/schema/security/spring-security.xsd
 			    http://www.springframework.org/schema/beans
-			    http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+			    http://www.springframework.org/schema/beans/spring-beans.xsd
 	```
 	
 - org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException  

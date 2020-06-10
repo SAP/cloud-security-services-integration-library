@@ -51,21 +51,25 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 		try (CloseableHttpResponse response = httpClient.execute(request)) {
 			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
 			int statusCode = response.getStatusLine().getStatusCode();
-			return handleResponse(bodyAsString, statusCode);
+			return handleResponse(bodyAsString, statusCode, discoveryEndpointUri);
 		} catch (IOException e) {
-			throw new OAuth2ServiceException(
-					"Error retrieving configured oidc endpoints from " + discoveryEndpointUri + " : " + e.getMessage());
+			throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints: " + e.getMessage())
+					.withUri(discoveryEndpointUri)
+					.build();
 		}
 	}
 
-	private OAuth2ServiceEndpointsProvider handleResponse(String bodyAsString, int statusCode)
+	private OAuth2ServiceEndpointsProvider handleResponse(String bodyAsString, int statusCode,
+			URI discoveryEndpointUri)
 			throws OAuth2ServiceException {
 		if (statusCode == HttpStatus.SC_OK) {
 			return new OidcEndpointsProvider(bodyAsString);
 		} else {
-			throw OAuth2ServiceException
-					.createWithStatusCodeAndResponseBody("Error retrieving configured oidc endpoints", statusCode,
-							bodyAsString);
+			throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
+					.withUri(discoveryEndpointUri)
+					.withStatusCode(statusCode)
+					.withResponseBody(bodyAsString)
+					.build();
 		}
 	}
 

@@ -1,22 +1,20 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 /**
@@ -27,11 +25,11 @@ import com.sap.xsa.security.container.XSTokenRequest;
  */
 public class UserTokenFlow {
 
-	private static final String AUTHORITIES = "authorities";
-
 	private XsuaaTokenFlowRequest request;
 	private String token;
 	private OAuth2TokenService tokenService;
+	private boolean disableCache = false;
+	private List<String> scopes = new ArrayList<>();
 
 	/**
 	 * Creates a new instance.
@@ -96,6 +94,36 @@ public class UserTokenFlow {
 	}
 
 	/**
+	 * Sets the scope attribute for the token request. This will restrict the scope
+	 * of the created token to the scopes provided. By default the scope is not
+	 * restricted and the created token contains all granted scopes.
+	 *
+	 * If you specify a scope that is not authorized for the user, the token request
+	 * will fail.
+	 *
+	 * @param scopes
+	 *            - one or many scopes as string.
+	 * @return this builder.
+	 */
+	public UserTokenFlow scopes(@Nonnull String... scopes) {
+		Assertions.assertNotNull(scopes, "Scopes must not be null!");
+		this.scopes = Arrays.asList(scopes);
+		return this;
+	}
+
+	/**
+	 * Can be used to disable the cache for the flow.
+	 *
+	 * @param disableCache
+	 *            - disables cache when set to {@code true}.
+	 * @return this builder.
+	 */
+	public UserTokenFlow disableCache(boolean disableCache) {
+		this.disableCache = disableCache;
+		return this;
+	}
+
+	/**
 	 * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT
 	 * token is returned. <br>
 	 * Note, that in a standard flow, only the refresh token would be returned.
@@ -147,22 +175,23 @@ public class UserTokenFlow {
 	 *             in case of an error during the flow.
 	 */
 	private OAuth2TokenResponse requestUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
-		Map<String, String> optionalParameter = null;
+		Map<String, String> optionalParameter = new HashMap<>();
 		String authorities = buildAuthorities(request);
 
 		if (authorities != null) {
-			optionalParameter = new HashMap<>();
 			optionalParameter.put(AUTHORITIES, authorities); // places JSON inside the URI !?!
 		}
 
-		String refreshToken = null;
+		String scopesParameter = scopes.stream().collect(Collectors.joining(", "));
+		if (!scopesParameter.isEmpty()) {
+			optionalParameter.put(SCOPE, scopesParameter);
+		}
+
 		try {
 			return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
 					request.getTokenEndpoint(),
 					new ClientCredentials(request.getClientId(), request.getClientSecret()),
-					token,
-					request.getSubdomain(),
-					optionalParameter);
+					token, request.getSubdomain(), optionalParameter, disableCache);
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format(

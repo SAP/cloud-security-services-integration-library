@@ -63,6 +63,8 @@ public class SpringOAuth2TokenKeyServiceTest {
 		mockResponse(errorMessage, HttpStatus.BAD_REQUEST);
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI))
 				.isInstanceOf(OAuth2ServiceException.class)
+				.hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+				.hasMessageContaining(String.valueOf(HttpStatus.BAD_REQUEST.value()))
 				.hasMessageContaining(errorMessage);
 	}
 

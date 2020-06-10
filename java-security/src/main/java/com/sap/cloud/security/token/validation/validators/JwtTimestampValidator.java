@@ -22,7 +22,7 @@ import java.util.function.Supplier;
  * See specification: https://tools.ietf.org/html/rfc7519#section-4.1.4
  * https://tools.ietf.org/html/rfc7519#section-4.1.5
  */
-public class JwtTimestampValidator implements Validator<Token> {
+class JwtTimestampValidator implements Validator<Token> {
 
 	/**
 	 * Implementers MAY provide for some small leeway, usually no more than a few
