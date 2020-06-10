@@ -206,7 +206,7 @@ public class TestSecurityConfig {
 ```
 
 ### Unit testing 
-In your unit test you might want to generate jwt tokens and have them validated. The new [java-security-test](/java-security-test) library provides it's own `JwtGenerator`.  This can be embedded using the new 
+In your unit test you might want to generate jwt tokens and have them validated. The [java-security-test](/java-security-test) library provides it's own `JwtGenerator`.  This can be embedded using the 
 `SecurityTestRule`. See the following snippet as example: 
 
 ```java
@@ -229,8 +229,9 @@ String jwt = securityTestRule.getPreconfiguredJwtGenerator()
     .getTokenValue();
 
 ```
-
 Make sure, that your JUnit tests are running.
+
+The `java-security-test` library provides also JUnit 5 support as described [here](/java-security-test).
 
 ## Enable local testing
 For local testing you might need to provide custom `VCAP_SERVICES` before you run the application. 
