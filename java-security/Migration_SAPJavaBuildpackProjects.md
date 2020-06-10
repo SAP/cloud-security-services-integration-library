@@ -1,7 +1,7 @@
 # Migration Guide for J2EE Web Applications that use SAP Java Buildpack for securing their applications
 
 
-**This document is only applicable for J2EE web applications securing their application with SAP Java Buildpack.** The SAP Java Buildpack version `1.26.0` does not any longer provide deprecated SAP-internal security libraries and does not longer depend on Spring security. 
+**This document is only applicable for J2EE web applications securing their application with SAP Java Buildpack.** The SAP Java Buildpack version `1.26.1` does not any longer provide deprecated SAP-internal security libraries and does not longer depend on Spring security. 
 
 This migration document is a step-by-step guide explaining how to replace your dependencies to the deprecated SAP-internal security libraries with the open-sourced ones.
 
@@ -27,7 +27,7 @@ The above mentioned dependencies should be removed / replaced with this one:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>api</artifactId>
-    <version>2.6.2</version>
+    <version>2.7.1</version>
     <scope>provided</scope> <!-- provided with buildpack -->
 </dependency>
 ```
@@ -35,7 +35,10 @@ The above mentioned dependencies should be removed / replaced with this one:
 Furthermore, make sure that you do not refer to any other SAP-internal security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
 
 #### Congratulation! With that you're Done!
-You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand what needs to be done to leverage the new `java-api` that is exposed by the SAP Java Buildpack as of version `1.26.0`.
+You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand what needs to be done to leverage the new `java-api` that is exposed by the SAP Java Buildpack as of version `1.26.1`.
+
+### Sample
+- [J2EE java web servlet sample using SAP Java Buildpack](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/sap-java-buildpack-api-usage)
 
 
 
