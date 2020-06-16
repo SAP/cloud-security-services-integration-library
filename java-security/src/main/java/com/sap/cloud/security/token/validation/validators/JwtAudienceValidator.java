@@ -3,6 +3,7 @@ package com.sap.cloud.security.token.validation.validators;
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
@@ -10,9 +11,7 @@ import com.sap.cloud.security.token.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Validates if the jwt access token is intended for the OAuth2 client of this
@@ -92,6 +91,15 @@ public class JwtAudienceValidator implements Validator<Token> {
 				}
 			} else {
 				audiences.add(audience);
+			}
+		}
+		// extract audience (app-id) from scopes
+		if (audiences.size() == 0) {
+			for (String scope : token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)) {
+				if (scope.contains(".")) {
+					String aud = scope.substring(0, scope.indexOf('.'));
+					audiences.add(aud);
+				}
 			}
 		}
 		return audiences;
