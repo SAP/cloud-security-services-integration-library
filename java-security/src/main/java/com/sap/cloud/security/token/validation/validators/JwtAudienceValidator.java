@@ -3,6 +3,7 @@ package com.sap.cloud.security.token.validation.validators;
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
@@ -10,9 +11,7 @@ import com.sap.cloud.security.token.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Validates if the jwt access token is intended for the OAuth2 client of this
@@ -86,7 +85,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 			if (audience.contains(".")) {
 				// CF UAA derives the audiences from the scopes.
 				// In case the scopes contains namespaces, these needs to be removed.
-				String aud = audience.substring(0, audience.indexOf(DOT)).trim();
+				String aud = extractAppId(audience);
 				if (!aud.isEmpty()) {
 					audiences.add(aud);
 				}
@@ -94,7 +93,25 @@ public class JwtAudienceValidator implements Validator<Token> {
 				audiences.add(audience);
 			}
 		}
+		// extract audience (app-id) from scopes
+		if (audiences.isEmpty()) {
+			for (String scope : token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)) {
+				if (scope.contains(".")) {
+					audiences.add(extractAppId(scope));
+				}
+			}
+		}
 		return audiences;
+	}
+
+	/**
+	 * In case of audiences, the namespaces are trimmed.
+	 * In case of scopes, the namespaces and the scope names are trimmed.
+	 * @param scopeOrAudience
+	 * @return
+	 */
+	static String extractAppId(String scopeOrAudience) {
+		return scopeOrAudience.substring(0, scopeOrAudience.indexOf(DOT)).trim();
 	}
 
 }
