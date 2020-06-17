@@ -85,7 +85,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 			if (audience.contains(".")) {
 				// CF UAA derives the audiences from the scopes.
 				// In case the scopes contains namespaces, these needs to be removed.
-				String aud = audience.substring(0, audience.indexOf(DOT)).trim();
+				String aud = extractAppId(audience);
 				if (!aud.isEmpty()) {
 					audiences.add(aud);
 				}
@@ -94,15 +94,24 @@ public class JwtAudienceValidator implements Validator<Token> {
 			}
 		}
 		// extract audience (app-id) from scopes
-		if (audiences.size() == 0) {
+		if (audiences.isEmpty()) {
 			for (String scope : token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)) {
 				if (scope.contains(".")) {
-					String aud = scope.substring(0, scope.indexOf('.'));
-					audiences.add(aud);
+					audiences.add(extractAppId(scope));
 				}
 			}
 		}
 		return audiences;
+	}
+
+	/**
+	 * In case of audiences, the namespaces are trimmed.
+	 * In case of scopes, the namespaces and the scope names are trimmed.
+	 * @param scopeOrAudience
+	 * @return
+	 */
+	static String extractAppId(String scopeOrAudience) {
+		return scopeOrAudience.substring(0, scopeOrAudience.indexOf(DOT)).trim();
 	}
 
 }
