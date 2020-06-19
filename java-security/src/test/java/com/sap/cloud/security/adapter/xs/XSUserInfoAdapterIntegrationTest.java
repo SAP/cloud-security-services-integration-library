@@ -125,7 +125,7 @@ public class XSUserInfoAdapterIntegrationTest {
 	@Test
 	public void getIdentityZone() {
 		assertEquals("uaa", infoUser.getIdentityZone());
-		assertEquals("uaa", infoUser.getSubaccountId());
+		assertEquals("uaa", infoUser.getZoneId());
 	}
 
 	@Test

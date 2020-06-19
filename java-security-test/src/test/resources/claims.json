@@ -12,5 +12,6 @@
   "grant_type": "urn:ietf:params:oauth:grant-type:saml2-bearer",
   "email": "test@uaa.org",
   "exp": 1542416800,
-  "az_attr": {"external_id":"abcd1234"}
+  "az_attr": {"external_id":"abcd1234"},
+  "xs.system.attributes": {"subaccountid": "test-subaccount"}
 }

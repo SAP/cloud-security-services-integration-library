@@ -13,7 +13,8 @@
     "xs.saml.groups": [
       "g1"
     ],
-    "xs.rolecollections": ["rc1"]
+    "xs.rolecollections": ["rc1"],
+    "subaccountid": "test-subaccount"
   },
   "sub": "1002191",
   "scope": [

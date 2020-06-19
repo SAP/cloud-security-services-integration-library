@@ -7,7 +7,6 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.GrantType;
-import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
@@ -42,7 +41,9 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	static final String EXTERNAL_CONTEXT = "ext_ctx";
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
+	// new with SECAUTH-806
 	static final String XS_SYSTEM_ATTRIBUTES = "xs.system.attributes";
+	static final String CLAIM_SUBACCOUNT_ID = "subaccountid";
 	static final String HDB_NAMEDUSER_SAML = "hdb.nameduser.saml";
 	static final String SERVICEINSTANCEID = "serviceinstanceid";
 	static final String ZDN = "zdn";
@@ -122,12 +123,18 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getIdentityZone() {
-		return getClaimValue(TokenClaims.XSUAA.ZONE_ID);
+		return getClaimValue(ZONE_ID);
 	}
 
 	@Override
 	public String getSubaccountId() {
-		return getIdentityZone();
+		String subaccountId = getAttributeFromClaimAsString(XS_SYSTEM_ATTRIBUTES, CLAIM_SUBACCOUNT_ID);
+		return (subaccountId == null || "".equals(subaccountId)) ? getClaimValue(ZONE_ID) : subaccountId;
+	}
+
+	@Override
+	public String getZoneId() {
+		return accessToken.hasClaim(SAP_GLOBAL_ZONE_ID) ? accessToken.getClaimAsString(SAP_GLOBAL_ZONE_ID) : getClaimValue(ZONE_ID);
 	}
 
 	@Override

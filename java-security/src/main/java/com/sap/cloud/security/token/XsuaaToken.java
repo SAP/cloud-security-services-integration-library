@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.security.Principal;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -165,4 +166,8 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 				.orElse(null);
 	}
 
+	@Override
+	public String getZoneId() {
+		return Objects.nonNull(super.getZoneId()) ? super.getZoneId() : getClaimAsString(ZONE_ID);
+	}
 }
