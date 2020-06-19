@@ -67,6 +67,7 @@ public class XsuaaTokenTest {
 		assertThat(token.getGivenName(), nullValue());
 		assertThat(token.getEmail(), is("testUser@test.org"));
 		assertThat(token.getZoneId(), is(zoneId));
+		assertThat(token.getSubaccountId(), is(zoneId));
 		assertThat(token.isAccountNonLocked(), is(true));
 		assertThat(token.isAccountNonExpired(), is(true));
 		assertThat(token.getAuthorities().size(), is(0));

@@ -23,7 +23,7 @@ public interface Token extends UserDetails {
 	 * Return subaccount identifier which is in most cases same like the
 	 * identity zone.
 	 * DO only use this for metering purposes.
-	 * DO NOT longer use this method to get the unique tenant id"! For that use {@link #getZoneId()}.
+	 * DO NOT longer use this method to get the unique tenant id! For that use {@link #getZoneId()}.
 	 *
 	 * @return the subaccount identifier.
 	 */
@@ -68,8 +68,7 @@ public interface Token extends UserDetails {
 	 * <li><b>user login name:</b> name of the user in an identity provider,
 	 * provided by this method.
 	 * <li><b>origin:</b> alias to an identity provider, see {@link #getOrigin()}.
-	 * <li><b>zone id:</b> identifier for the zone, see
-	 * {@link #getZoneId()}.
+	 * <li><b>zone id:</b> identifier for the zone, see {@link #getZoneId()}.
 	 * </ul>
 	 *
 	 * @return unique principal name or null if it can not be determined.
