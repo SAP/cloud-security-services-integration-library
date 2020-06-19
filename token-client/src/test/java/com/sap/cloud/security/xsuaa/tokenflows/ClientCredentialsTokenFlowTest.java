@@ -1,9 +1,11 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -14,6 +16,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -64,15 +67,18 @@ public class ClientCredentialsTokenFlowTest {
 
 		OAuth2TokenResponse response = cut.execute();
 
-		assertThat(response.getAccessToken(), is(accessToken.getAccessToken()));
-		verifyThatDisableCacheIs(false);
+		assertThat(response.getAccessToken()).isSameAs(accessToken.getAccessToken());
+		verifyThatDisableCacheAttributeIs(false);
+		verify(mockTokenService, times(1))
+				.retrieveAccessTokenViaClientCredentialsGrant(endpointsProvider.getTokenEndpoint(),
+						clientCredentials, null, emptyMap(), false);
 	}
 
 	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
-						isNull(), isNull(), anyBoolean()))
+						isNull(), anyMap(), anyBoolean()))
 								.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
@@ -84,16 +90,45 @@ public class ClientCredentialsTokenFlowTest {
 
 	@Test
 	public void execute_withAdditionalAuthorities() throws TokenFlowException, OAuth2ServiceException {
+		ArgumentCaptor<Map<String, String>> optionalParametersCaptor = ArgumentCaptor.forClass(Map.class);
+
 		OAuth2TokenResponse accessToken = mockRetrieveAccessToken();
 		Map<String, String> additionalAuthorities = new HashMap<>();
 		additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
 
 		OAuth2TokenResponse response = cut.attributes(additionalAuthorities).execute();
 
-		assertThat(response.getAccessToken(), is(accessToken.getAccessToken()));
+		assertThat(response.getAccessToken()).isSameAs(accessToken.getAccessToken());
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
-						isNull(), isNotNull(), anyBoolean());
+						isNull(), optionalParametersCaptor.capture(), anyBoolean());
+		Map<String, String> optionalParameters = optionalParametersCaptor.getValue();
+
+		assertThat(optionalParameters).containsKey(AUTHORITIES);
+		assertThat(optionalParameters.get(AUTHORITIES)).isNotEmpty();
+	}
+
+	@Test
+	public void execute_WithScopes() throws OAuth2ServiceException, TokenFlowException {
+		ArgumentCaptor<Map<String, String>> optionalParametersCaptor = ArgumentCaptor.forClass(Map.class);
+
+		OAuth2TokenResponse accessToken = mockRetrieveAccessToken();
+
+		OAuth2TokenResponse response = cut.scopes("myFirstScope", "theOtherScope").execute();
+		assertThat(response.getAccessToken()).isSameAs(accessToken.getAccessToken());
+
+		verify(mockTokenService, times(1))
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
+						isNull(), optionalParametersCaptor.capture(), anyBoolean());
+
+		Map<String, String> optionalParameters = optionalParametersCaptor.getValue();
+		assertThat(optionalParameters).containsKey(SCOPE);
+		assertThat(optionalParameters.get(SCOPE)).isEqualTo("myFirstScope, theOtherScope");
+	}
+
+	@Test
+	public void execute_withScopesSetToNull_throwsException() throws OAuth2ServiceException, TokenFlowException {
+		assertThatThrownBy(() -> cut.scopes(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -102,19 +137,19 @@ public class ClientCredentialsTokenFlowTest {
 
 		OAuth2TokenResponse response = cut.disableCache(true).execute();
 
-		assertThat(response.getAccessToken(), is(accessToken.getAccessToken()));
-		verifyThatDisableCacheIs(true);
+		assertThat(response.getAccessToken()).isSameAs(accessToken.getAccessToken());
+		verifyThatDisableCacheAttributeIs(true);
 
 		cut.disableCache(false).execute();
 
-		verifyThatDisableCacheIs(false);
+		verifyThatDisableCacheAttributeIs(false);
 
 	}
 
-	private void verifyThatDisableCacheIs(boolean disableCache) throws OAuth2ServiceException {
+	private void verifyThatDisableCacheAttributeIs(boolean disableCache) throws OAuth2ServiceException {
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
-						isNull(), isNull(), eq(disableCache));
+						isNull(), anyMap(), eq(disableCache));
 	}
 
 	private OAuth2TokenResponse mockRetrieveAccessToken() throws OAuth2ServiceException {

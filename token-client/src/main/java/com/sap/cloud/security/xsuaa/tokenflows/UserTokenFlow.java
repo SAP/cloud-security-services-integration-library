@@ -1,22 +1,20 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 /**
@@ -27,12 +25,11 @@ import com.sap.xsa.security.container.XSTokenRequest;
  */
 public class UserTokenFlow {
 
-	private static final String AUTHORITIES = "authorities";
-
 	private XsuaaTokenFlowRequest request;
 	private String token;
 	private OAuth2TokenService tokenService;
 	private boolean disableCache = false;
+	private List<String> scopes = new ArrayList<>();
 
 	/**
 	 * Creates a new instance.
@@ -93,6 +90,24 @@ public class UserTokenFlow {
 	 */
 	public UserTokenFlow subdomain(String subdomain) {
 		this.request.setSubdomain(subdomain);
+		return this;
+	}
+
+	/**
+	 * Sets the scope attribute for the token request. This will restrict the scope
+	 * of the created token to the scopes provided. By default the scope is not
+	 * restricted and the created token contains all granted scopes.
+	 *
+	 * If you specify a scope that is not authorized for the user, the token request
+	 * will fail.
+	 *
+	 * @param scopes
+	 *            - one or many scopes as string.
+	 * @return this builder.
+	 */
+	public UserTokenFlow scopes(@Nonnull String... scopes) {
+		Assertions.assertNotNull(scopes, "Scopes must not be null!");
+		this.scopes = Arrays.asList(scopes);
 		return this;
 	}
 
@@ -160,12 +175,16 @@ public class UserTokenFlow {
 	 *             in case of an error during the flow.
 	 */
 	private OAuth2TokenResponse requestUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
-		Map<String, String> optionalParameter = null;
+		Map<String, String> optionalParameter = new HashMap<>();
 		String authorities = buildAuthorities(request);
 
 		if (authorities != null) {
-			optionalParameter = new HashMap<>();
 			optionalParameter.put(AUTHORITIES, authorities); // places JSON inside the URI !?!
+		}
+
+		String scopesParameter = scopes.stream().collect(Collectors.joining(", "));
+		if (!scopesParameter.isEmpty()) {
+			optionalParameter.put(SCOPE, scopesParameter);
 		}
 
 		try {

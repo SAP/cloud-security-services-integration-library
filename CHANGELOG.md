@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.7.2
+- [java-security] 
+  - Audience Validation accepts tokens of grant type `user_token` that does not provide `aud` claim. In that case `JwtAudienceValidator` derives the audiences from the scopes.
+#### :exclamation: IMPORTANT Update
+  - Use `getSubaccountId()` only to fetch the subaccount id, e.g. for calling the metering API for user-based pricing. 
+  - **In case you are interested in the customers tenant GUID make use of `getZoneId()` instead!** 
+  - In upcoming releases - especially for new subaccounts - subaccount id will no longer match the tenant GUID which is provided via the xsuaa access token as `zid` claim or via the ias oidc token as `zone_uuid` claim.
+
+## 2.7.1
+- [java-security] 
+  - rename Token claim "sap_uid" to „user_uuid“.
+  - Token Key Cache can now be customized via `XsuaaTokenAuthenticator`
+  - `XSUserInfoAdapter` supports `requestTokenForUser()` method
+- [spring-xsuaa] Improve logs of Audience Validators.
+- [token-client]
+  - more detailed debug logs and details to exception; decoded token gets logged.
+  - supports optional `scope` parameter to reduce scopes that are provided via `CientCredentialsTokenFlow` or `UserTokenFlow`.
+
+
 ## 2.7.0
 - [token-client] By default requested tokens are now cached. You can disable the cache globally or per request as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/token-client).
 - [java-security]  

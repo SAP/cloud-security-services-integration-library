@@ -72,6 +72,19 @@ public interface JsonObject {
 	Instant getAsInstant(String name);
 
 	/**
+	 * Returns a {@link Long} identified by the given property {@code name}. If the
+	 * property with the given name is not found, null is returned.
+	 *
+	 * @param name
+	 * @return the {@link Long} object.
+	 * @throws JsonParsingException
+	 *             if the json object identified by the given property does not
+	 *             represent a long value
+	 */
+	@Nullable
+	Long getAsLong(String name);
+
+	/**
 	 * Returns a nested JSON object as @{link JsonObject} instance.
 	 * 
 	 * @param name

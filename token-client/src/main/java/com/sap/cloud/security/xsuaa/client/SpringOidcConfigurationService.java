@@ -28,14 +28,18 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
 				return new DefaultOidcConfigurationService.OidcEndpointsProvider(response.getBody());
 			} else {
-				throw OAuth2ServiceException.createWithStatusCodeAndResponseBody(
-						"Error retrieving configured oidc endpoints",
-						response.getStatusCodeValue(), response.getBody());
+				throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
+						.withUri(discoveryEndpointUri)
+						.withStatusCode(response.getStatusCodeValue())
+						.withResponseBody(response.getBody())
+						.build();
 			}
 		} catch (HttpClientErrorException ex) {
-			throw OAuth2ServiceException.createWithStatusCodeAndResponseBody(
-					"Error retrieving configured oidc endpoints",
-					ex.getStatusCode().value(), ex.getResponseBodyAsString());
+			throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
+					.withUri(discoveryEndpointUri)
+					.withStatusCode(ex.getStatusCode().value())
+					.withResponseBody(ex.getResponseBodyAsString())
+					.build();
 		}
 	}
 

@@ -37,4 +37,11 @@ public class HttpHeaders {
 	public int hashCode() {
 		return Objects.hash(headers);
 	}
+
+	@Override
+	public String toString() {
+		return "HttpHeaders{" +
+				"headers=" + headers +
+				'}';
+	}
 }

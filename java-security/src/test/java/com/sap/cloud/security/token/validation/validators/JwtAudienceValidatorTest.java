@@ -1,13 +1,16 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import org.assertj.core.util.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -127,5 +130,26 @@ public class JwtAudienceValidatorTest {
 		assertThat(result.getErrorDescription())
 				.isEqualTo("Jwt token with audience [] is not issued for these clientIds: [any].");
 	}
+
+	@Test
+	public void extractAudiencesFromTokenScopes() {
+		ArrayList<String> scopes = new ArrayList();
+		scopes.add("client.read");
+		scopes.add("test1!t1.read");
+		scopes.add("client.write");
+		scopes.add("xsappid.namespace.ns.write");
+		scopes.add("openid");
+
+		// configures token audience
+		Mockito.when(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).thenReturn(scopes);
+		Mockito.when(token.getAudiences()).thenReturn(Sets.newHashSet());
+
+		// configures audience validator with client-id from VCAP_SERVICES
+		Set audiences = JwtAudienceValidator.getAllowedAudiences(token);
+
+		assertThat(audiences.size()).isEqualTo(3);
+		assertThat(audiences).containsExactlyInAnyOrder("test1!t1", "client", "xsappid");
+	}
+
 
 }

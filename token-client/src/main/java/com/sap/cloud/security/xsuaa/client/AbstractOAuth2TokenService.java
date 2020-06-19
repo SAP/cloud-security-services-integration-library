@@ -6,9 +6,12 @@ import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
-import com.sap.cloud.security.xsuaa.tokenflows.CacheConfiguration;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,28 +28,29 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 @java.lang.SuppressWarnings("squid:S1192")
 public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, Cacheable {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractOAuth2TokenService.class);
 	private final Cache<CacheKey, OAuth2TokenResponse> responseCache;
-	private final CacheConfiguration cacheConfiguration;
+	private final TokenCacheConfiguration tokenCacheConfiguration;
 
 	public AbstractOAuth2TokenService() {
-		this(CacheConfiguration.DEFAULT, Ticker.systemTicker(), false);
+		this(TokenCacheConfiguration.defaultConfiguration(), Ticker.systemTicker(), false);
 	}
 
 	/**
 	 * Constructor used to overwrite the default cache configuration.
 	 *
-	 * @param cacheConfiguration
+	 * @param tokenCacheConfiguration
 	 *            the cache configuration used to configure the cache.
 	 */
-	public AbstractOAuth2TokenService(CacheConfiguration cacheConfiguration) {
-		this(cacheConfiguration, Ticker.systemTicker(), false);
+	public AbstractOAuth2TokenService(TokenCacheConfiguration tokenCacheConfiguration) {
+		this(tokenCacheConfiguration, Ticker.systemTicker(), false);
 
 	}
 
 	/**
 	 * This constructor is used for testing purposes only.
 	 *
-	 * @param cacheConfiguration
+	 * @param tokenCacheConfiguration
 	 *            sets the cache configuration used to configure or disable the
 	 *            cache.
 	 * @param cacheTicker
@@ -55,10 +59,16 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	 *            set to true disables maintenance jobs of the cache. This makes the
 	 *            cache slower but more predictable for testing.
 	 */
-	AbstractOAuth2TokenService(CacheConfiguration cacheConfiguration, Ticker cacheTicker, boolean sameThreadCache) {
-		Assertions.assertNotNull(cacheConfiguration, "cacheConfiguration is required");
-		this.cacheConfiguration = cacheConfiguration;
+	AbstractOAuth2TokenService(TokenCacheConfiguration tokenCacheConfiguration, Ticker cacheTicker,
+			boolean sameThreadCache) {
+		Assertions.assertNotNull(tokenCacheConfiguration, "cacheConfiguration is required");
+		this.tokenCacheConfiguration = tokenCacheConfiguration;
 		this.responseCache = createResponseCache(cacheTicker, sameThreadCache);
+		if (isCacheDisabled()) {
+			LOGGER.debug("Configured token service with cache disabled");
+		} else {
+			LOGGER.debug("Configured token service with {}", tokenCacheConfiguration);
+		}
 	}
 
 	@Override
@@ -68,8 +78,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	@Override
 	@Nonnull
-	public CacheConfiguration getCacheConfiguration() {
-		return cacheConfiguration;
+	public TokenCacheConfiguration getCacheConfiguration() {
+		return tokenCacheConfiguration;
 	}
 
 	@Override
@@ -207,20 +217,39 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	private OAuth2TokenResponse getOrRequestAccessToken(URI tokenEndpoint, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
-		CacheKey cacheKey = new CacheKey(tokenEndpoint, headers, parameters);
+		LOGGER.debug("Token was requested for endpoint uri={} with headers={} and parameters={}", tokenEndpoint,
+				headers, parameters);
+		CacheKey cacheKey = new CacheKey(tokenEndpoint, parameters);
 		OAuth2TokenResponse oAuth2TokenResponse = responseCache.getIfPresent(cacheKey);
 		if (oAuth2TokenResponse == null) {
-			getAndCacheToken(cacheKey);
+			LOGGER.debug("Token not found in cache, requesting a new one");
+			getAndCacheToken(cacheKey, headers);
 		} else {
+			LOGGER.debug("The token was found in cache");
 			// check if token in cache should be refreshed
 			Duration delta = getCacheConfiguration().getTokenExpirationDelta();
 			Instant expiration = oAuth2TokenResponse.getExpiredAt().minus(delta);
 			if (expiration.isBefore(Instant.now(getClock()))) {
 				// refresh (soon) expired token
-				getAndCacheToken(cacheKey);
+				LOGGER.debug("The cached token needs to be refreshed, requesting a new one");
+				getAndCacheToken(cacheKey, headers);
 			}
 		}
-		return responseCache.getIfPresent(cacheKey);
+		OAuth2TokenResponse response = responseCache.getIfPresent(cacheKey);
+		logDebug(response);
+		return response;
+	}
+
+	private void logDebug(OAuth2TokenResponse response) {
+		if(!LOGGER.isDebugEnabled()){
+			return;
+		}
+		try {
+			DecodedJwt decodedJwt = response.getDecodedAccessToken();
+			LOGGER.debug("Access token: {}", decodedJwt);
+		} catch (IllegalArgumentException e) {
+			LOGGER.debug("Access token can not be logged. {}", e.getMessage());
+		}
 	}
 
 	/**
@@ -234,20 +263,20 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 		return Clock.systemUTC();
 	}
 
-	private void getAndCacheToken(CacheKey cacheKey) throws OAuth2ServiceException {
+	private void getAndCacheToken(CacheKey cacheKey, HttpHeaders headers) throws OAuth2ServiceException {
 		responseCache.put(cacheKey,
-				requestAccessToken(cacheKey.tokenEndpointUri, cacheKey.headers, cacheKey.parameters));
+				requestAccessToken(cacheKey.tokenEndpointUri, headers, cacheKey.parameters));
 	}
 
 	private boolean isCacheDisabled() {
-		return CacheConfiguration.CACHE_DISABLED.equals(getCacheConfiguration());
+		return getCacheConfiguration().isCacheDisabled();
 	}
 
 	private Cache<CacheKey, OAuth2TokenResponse> createResponseCache(Ticker cacheTicker, boolean sameThreadCache) {
 		Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder()
 				.maximumSize(getCacheConfiguration().getCacheSize())
 				.ticker(cacheTicker)
-				.expireAfterWrite(getCacheConfiguration().getExpireAfterWrite());
+				.expireAfterWrite(getCacheConfiguration().getCacheDuration());
 		if (sameThreadCache) {
 			cacheBuilder.executor(Runnable::run);
 		}
@@ -257,12 +286,10 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	private class CacheKey {
 
 		private final URI tokenEndpointUri;
-		private final HttpHeaders headers;
 		private final Map<String, String> parameters;
 
-		public CacheKey(URI tokenEndpointUri, HttpHeaders headers, Map<String, String> parameters) {
+		public CacheKey(URI tokenEndpointUri, Map<String, String> parameters) {
 			this.tokenEndpointUri = tokenEndpointUri;
-			this.headers = headers;
 			this.parameters = parameters;
 		}
 
@@ -274,13 +301,20 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 				return false;
 			CacheKey cacheKey = (CacheKey) o;
 			return Objects.equals(tokenEndpointUri, cacheKey.tokenEndpointUri) &&
-					Objects.equals(headers, cacheKey.headers) &&
 					Objects.equals(parameters, cacheKey.parameters);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(tokenEndpointUri, headers, parameters);
+			return Objects.hash(tokenEndpointUri, parameters);
+		}
+
+		@Override
+		public String toString() {
+			return "CacheKey{" +
+					"tokenEndpointUri=" + tokenEndpointUri +
+					", parameters=" + parameters +
+					'}';
 		}
 	}
 
