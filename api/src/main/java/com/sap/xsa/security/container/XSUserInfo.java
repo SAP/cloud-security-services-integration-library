@@ -80,7 +80,7 @@ public interface XSUserInfo {
 	/**
 	 * Return identity zone which is in most cases same like the subaccount identifier.
 	 * 
-	 * @deprecated Can be replaced with {@link #getSubaccountId()}.
+	 * @deprecated Have to be replaced with {@link #getZoneId()} or {@link #getSubaccountId()}.
 	 * @return identity zone
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token

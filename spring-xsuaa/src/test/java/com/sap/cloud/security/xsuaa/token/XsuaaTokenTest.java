@@ -32,7 +32,6 @@ public class XsuaaTokenTest {
 	private XsuaaToken token;
 	private Jwt jwtSaml;
 	private Jwt jwtCC;
-	private Jwt jwtCCNoAttributes;
 	private JWTClaimsSet.Builder claimsSetBuilder = null;
 	private String xsAppName = "my-app-name!t400";
 	private String scopeRead = xsAppName + "." + "Read";
@@ -53,7 +52,6 @@ public class XsuaaTokenTest {
 
 		jwtSaml = new JwtGenerator().createFromTemplate("/saml.txt");
 		jwtCC = JwtGenerator.createFromFile("/token_cc.txt");
-		jwtCCNoAttributes = JwtGenerator.createFromFile("/token_cc_noattr.txt");
 	}
 
 	@Test
@@ -68,7 +66,7 @@ public class XsuaaTokenTest {
 		assertThat(token.getFamilyName(), nullValue());
 		assertThat(token.getGivenName(), nullValue());
 		assertThat(token.getEmail(), is("testUser@test.org"));
-		assertThat(token.getSubaccountId(), is(zoneId));
+		assertThat(token.getZoneId(), is(zoneId));
 		assertThat(token.isAccountNonLocked(), is(true));
 		assertThat(token.isAccountNonExpired(), is(true));
 		assertThat(token.getAuthorities().size(), is(0));
@@ -139,6 +137,12 @@ public class XsuaaTokenTest {
 
 		assertThat(token.getSubaccountId(), is(zoneId));
 		assertThat(token.getZoneId(), is(zoneId));
+	}
+
+	@Test
+	public void getSubaccountIdFromSystemAttributes() throws IOException {
+		Token token = new XsuaaToken(jwtSaml);
+		Assert.assertEquals("test-subaccount", token.getSubaccountId());
 	}
 
 	@Test

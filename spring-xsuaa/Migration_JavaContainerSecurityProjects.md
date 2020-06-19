@@ -183,7 +183,8 @@ See the following table for methods that are not available anymore and workaroun
 | `getAttribute`          | Use `getXSUserAttribute`.                                                                        |
 | `getDBToken`            | Not implemented.                                                                                 |
 | `getHdbToken`           | Not implemented.                                                                                 |
-| `getIdentityZone`       | Use `getSubaccountId`.                                                                 |
+| `getIdentityZone`       | Use `getZoneId` to get the tenant GUID or use `getSubaccountId` to get subaccount id, e.g. to provide it to the metering API.  
+                                                             |
 | `getJsonValue`          | Use `containsClaim` and `getClaimAsString`. See section [XsuaaToken](#xsuaatoken).                                                                                |
 | `getSystemAttribute`    | This extracts data from `xs.system.attributes` claim. See section [XsuaaToken](#xsuaatoken).    |
 | `getToken`              | Not implemented.                                                                                 |
