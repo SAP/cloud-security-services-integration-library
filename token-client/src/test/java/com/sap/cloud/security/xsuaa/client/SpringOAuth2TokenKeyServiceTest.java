@@ -4,6 +4,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestOperations;
@@ -20,7 +22,7 @@ import static org.mockito.Mockito.*;
 public class SpringOAuth2TokenKeyServiceTest {
 
 	public static final URI TOKEN_KEYS_ENDPOINT_URI = URI.create("https://token.endpoint.io/token_keys");
-	private RestOperations restOperationsMock;
+	private RestOperations restOperationsSpy;
 	private SpringOAuth2TokenKeyService cut;
 
 	private final String jsonWebKeysAsString;
@@ -31,8 +33,8 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 	@Before
 	public void setUp() throws Exception {
-		restOperationsMock = mock(RestOperations.class);
-		cut = new SpringOAuth2TokenKeyService(restOperationsMock);
+		restOperationsSpy = spy(RestOperations.class);
+		cut = new SpringOAuth2TokenKeyService(restOperationsSpy);
 	}
 
 	@Test
@@ -53,8 +55,8 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI);
 
-		Mockito.verify(restOperationsMock, times(1))
-				.getForEntity(TOKEN_KEYS_ENDPOINT_URI, String.class);
+		Mockito.verify(restOperationsSpy, times(1))
+				.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
 	}
 
 	@Test
@@ -74,7 +76,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 	private void mockResponse(String responseAsString, HttpStatus httpStatus) {
 		ResponseEntity<String> stringResponseEntity = new ResponseEntity<>(responseAsString, httpStatus);
-		when(restOperationsMock.getForEntity(any(URI.class), eq(String.class)))
+		when(restOperationsSpy.exchange(any(URI.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
 				.thenReturn(stringResponseEntity);
 	}
 
