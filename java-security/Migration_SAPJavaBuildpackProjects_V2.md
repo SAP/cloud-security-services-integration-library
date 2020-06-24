@@ -9,7 +9,7 @@ This migration document is a step-by-step guide explaining how to leverage the n
 
 Please note, this Migration Guide is only intended for applications, using SAP Java Buildpack. You're using the SAP Java Buildpack if you can find the `sap_java_buildpack` in the deployment descriptor of your application, e.g. in your `manifest.yml` file.
 
-Furthermore [this guide](Migration_SAPJavaBuildpackProjects.md) is considered as prerequisite. Before you proceed, make sure you have completed it first.
+**Before you proceed, make sure you have completed [this guide](Migration_SAPJavaBuildpackProjects.md).**
 
 ## Adapt Maven Dependencies <a name="maven"></a>
 To use the latest API exposed by SAP Java Buildpack version as of version `1.26.1` the dependency declared in maven `pom.xml` needs to be adapted.
@@ -72,7 +72,8 @@ public class HelloJavaServlet extends HttpServlet {
 ```
 
 ### Sample using new API
-- [J2EE java web servlet sample using SAP Java Buildpack](https://github.com/SAP/cloud-security-xsuaa-integration/tree/UpdatedBuildpackSample/samples/sap-java-buildpack-api-usage)
+- [J2EE java web servlet sample using SAP Java Buildpack](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/sap-java-buildpack-api-usage)
+
 
 ## Further References
 - [help.sap.com](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/ead7ee64f96f4c42bacbf0ae23d4135b.html)
