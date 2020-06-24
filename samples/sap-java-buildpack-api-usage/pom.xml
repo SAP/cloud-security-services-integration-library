@@ -12,10 +12,10 @@
 	</properties>
 
 	<dependencies>
-		<!-- [OPTIONAL] only required when you need further user information (XSUserInfo) request.getUserPrincipal() -->
+		<!-- [OPTIONAL] only required when you need further user information (AccessToken) from request.getUserPrincipal() -->
 		<dependency>
-			<groupId>com.sap.cloud.security.xsuaa</groupId>
-			<artifactId>api</artifactId>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>java-api</artifactId>
 			<version>${sap.cloud.security.version}</version>
 			<scope>provided</scope>
 		</dependency>
