@@ -36,7 +36,9 @@ public class JwtValidatorBuilderTest {
 		OAuth2ServiceConfiguration configuration = xsuaaConfigBuilder.build();
 		JwtValidatorBuilder builder_1 = JwtValidatorBuilder.getInstance(configuration);
 		JwtValidatorBuilder builder_2 = JwtValidatorBuilder.getInstance(configuration);
+		JwtValidatorBuilder builder_3 = JwtValidatorBuilder.getInstance(xsuaaConfigBuilder.build());
 		assertThat(builder_1).isSameAs(builder_2);
+		assertThat(builder_1).isSameAs(builder_3);
 	}
 
 	@Test

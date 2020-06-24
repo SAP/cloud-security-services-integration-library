@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 
@@ -98,44 +99,72 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * @return the oauth2 service configuration.
 	 */
 	public OAuth2ServiceConfiguration build() {
-		return new OAuth2ServiceConfiguration() {
-
-			@Override
-			public String getClientId() {
-				return properties.get(CLIENT_ID);
-			}
-
-			@Override
-			public String getClientSecret() {
-				return properties.get(CLIENT_SECRET);
-			}
-
-			@Override
-			public URI getUrl() {
-				return URI.create(properties.get(URL));
-			}
-
-			@Override
-			public String getProperty(String name) {
-				return properties.get(name);
-			}
-
-			@Override
-			public boolean hasProperty(String name) {
-				return properties.containsKey(name);
-			}
-
-			@Override
-			public Service getService() {
-				return service;
-			}
-
-			@Override
-			public boolean isLegacyMode() {
-				return runInLegacyMode;
-			}
-		};
-
+		return new OAuth2ServiceConfigurationImpl(properties, service, runInLegacyMode);
 	}
 
+	private class OAuth2ServiceConfigurationImpl implements OAuth2ServiceConfiguration {
+
+		private final Map<String, String> properties;
+		private final boolean runInLegacyMode;
+		private final Service service;
+
+		private OAuth2ServiceConfigurationImpl(@Nonnull Map<String, String> properties,
+				@Nonnull Service service, boolean runInLegacyMode) {
+			this.properties = properties;
+			this.service = service;
+			this.runInLegacyMode = runInLegacyMode;
+		}
+
+		@Override
+		public String getClientId() {
+			return properties.get(CLIENT_ID);
+		}
+
+		@Override
+		public String getClientSecret() {
+			return properties.get(CLIENT_SECRET);
+		}
+
+		@Override
+		public URI getUrl() {
+			return URI.create(properties.get(URL));
+		}
+
+		@Override
+		public String getProperty(String name) {
+			return properties.get(name);
+		}
+
+		@Override
+		public boolean hasProperty(String name) {
+			return properties.containsKey(name);
+		}
+
+		@Override
+		public Service getService() {
+			return service;
+		}
+
+		@Override
+		public boolean isLegacyMode() {
+			return runInLegacyMode;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o)
+				return true;
+			if (o == null || getClass() != o.getClass())
+				return false;
+			OAuth2ServiceConfigurationImpl that = (OAuth2ServiceConfigurationImpl) o;
+			return runInLegacyMode == that.runInLegacyMode &&
+					properties.equals(that.properties) &&
+					service == that.service;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(properties, runInLegacyMode, service);
+		}
+	}
 }
