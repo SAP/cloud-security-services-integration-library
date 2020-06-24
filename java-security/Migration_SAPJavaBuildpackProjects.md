@@ -35,10 +35,17 @@ The above mentioned dependencies should be removed / replaced with this one:
 Furthermore, make sure that you do not refer to any other SAP-internal security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
 
 #### Congratulation! With that you're Done!
+
+
+### Get stuck with migration
+[Open an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new) and provide details like client-lib / migration guide / issue you’re facing.
+
+### [OPTIONAL] Leverage new API and features
 You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand what needs to be done to leverage the new `java-api` that is exposed by the SAP Java Buildpack as of version `1.26.1`.
 
-### Sample
-- [J2EE java web servlet sample using SAP Java Buildpack](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/sap-java-buildpack-api-usage)
+
+
+
 
 
 
