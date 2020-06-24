@@ -34,6 +34,9 @@ public final class TokenClaims {
 		public static final String ISSUED_AT = "iat";
 		public static final String EXTERNAL_ATTRIBUTE = "ext_attr";
 		public static final String EXTERNAL_ATTRIBUTE_ZDN = "zdn";
+		// new with SECAUTH-806
+		public static final String EXTERNAL_ATTRIBUTE_SUBACCOUNTID = "subaccountid";
+		@Deprecated
 		public static final String EXTERNAL_ATTRIBUTE_ENHANCER = "enhancer";
 
 		public static final String TRUSTED_CLIENT_ID_SUFFIX = "trustedclientidsuffix";
