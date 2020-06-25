@@ -38,7 +38,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
  * - checks whether the jwt is unchanged and signed with a private key that
  * matches the PublicKey.
  */
-public class JwtSignatureValidator implements Validator<Token> {
+class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private final OidcConfigurationServiceWithCache oidcConfigurationService;
 	private OAuth2ServiceConfiguration configuration;

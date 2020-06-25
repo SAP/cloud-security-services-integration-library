@@ -91,9 +91,9 @@ Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (
 Whether the token is issued for your application or not is now validated by the [`XsuaaAudienceValidator`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/authentication/XsuaaAudienceValidator.java).
 
 ### Multiple XSUAA Bindings
-You can skip this section, in case your application is bound to only one Xsuaa service instance. The library does not support multiple XSUAA bindings of plan `application` and `broker`. **The Xsuaa service instance of plan `api` is ignored.**
+You can skip this section, in case your application is bound to only one Xsuaa service instance. The `xsuaa-spring-boot-starter` does not support multiple XSUAA bindings of plan `application` and `broker`. **The Xsuaa service instance of plan `api` is ignored.**
 
-Then you need to adapt your **Spring Security Configuration** as following:
+In case of multiple bindings you need to adapt your **Spring Security Configuration** as following:
 
 1. You need to get rid of  `XsuaaServicePropertySourceFactory`, because `XsuaaServicesParser` raises the error.
  * In case you make use of `xsuaa-spring-boot-starter` Spring Boot starter, you need to disable auto-configuration within your `*.properties` / or `*.yaml` file:
@@ -183,7 +183,8 @@ See the following table for methods that are not available anymore and workaroun
 | `getAttribute`          | Use `getXSUserAttribute`.                                                                        |
 | `getDBToken`            | Not implemented.                                                                                 |
 | `getHdbToken`           | Not implemented.                                                                                 |
-| `getIdentityZone`       | Use `getSubaccountId`.                                                                 |
+| `getIdentityZone`       | Use `getZoneId` to get the tenant GUID or use `getSubaccountId` to get subaccount id, e.g. to provide it to the metering API.  
+                                                             |
 | `getJsonValue`          | Use `containsClaim` and `getClaimAsString`. See section [XsuaaToken](#xsuaatoken).                                                                                |
 | `getSystemAttribute`    | This extracts data from `xs.system.attributes` claim. See section [XsuaaToken](#xsuaatoken).    |
 | `getToken`              | Not implemented.                                                                                 |

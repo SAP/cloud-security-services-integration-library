@@ -71,6 +71,15 @@ public class DefaultJsonObject implements JsonObject {
 		return null;
 	}
 
+	@Nullable
+	@Override
+	public Long getAsLong(String name) {
+		if (contains(name)) {
+			return getLong(name).orElse(null);
+		}
+		return null;
+	}
+
 	@Override
 	@Nullable
 	public JsonObject getJsonObject(String name) {

@@ -4,7 +4,6 @@
         <notes><![CDATA[
         This suppresses CVE-2018-1258 which is necessary because of a bug in the dependency-check plugin itself
         and needs to be active until it is resolved: https://github.com/jeremylong/DependencyCheck/issues/1827
-        It will expire on March 1. 2020 to force reevaluation and might be expanded further.
         ]]></notes>
         <cve>CVE-2018-1258</cve>
     </suppress>

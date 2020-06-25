@@ -44,7 +44,7 @@ Token Validation for Java applications.
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.7.1</version>
+    <version>2.7.2</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -153,7 +153,20 @@ For the integration of different Identity Services the [`TokenAuthenticator`](/j
 The authenticator is used in the following [sample](/samples/java-security-usage).
 
 ## Test Utilities
-You can find the test utilities documented [here](/java-security-test).
+You can find the JUnit test utilities documented [here](/java-security-test).
+
+## Enable local testing for XSUAA Identity Service
+When you like to test/debug your secured application rest API locally (offline) you need to provide custom `VCAP_SERVICES` before you run the application. The security library requires the following key value pairs in the `VCAP_SERVICES`
+under `xsuaa/credentials` for jwt validation:
+- `"uaadomain" : "localhost"`
+- `"verificationkey" : "<public key your jwt token is signed with>"`
+
+Before calling the service you need to provide a digitally signed JWT token to simulate that you are an authenticated user. 
+You can use the `JWTGenerator`, which is provided with [java-security-test](/java-security-test) test library. 
+
+Now you can test the service manually in the browser using a REST client such as `Postman` chrome plugin and provide the generated JWT token as `Authorization` header to access the secured functions.
+
+A detailed step-by-step description and a sample can be found [here](https://github.com/SAP-samples/cloud-bulletinboard-ads/blob/Documentation/Security/Exercise_24_MakeYourApplicationSecure.md#step-5-run-and-test-the-service-locally).
 
 ## Issues
 

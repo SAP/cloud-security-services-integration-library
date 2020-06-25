@@ -74,10 +74,10 @@ public class SpringSecurityContextTest {
 		});
 
 		assertEquals(SUBDOMAIN_1, future_1.get().getSubdomain());
-		assertEquals(SUBDOMAIN_1 + "-id", future_1.get().getSubaccountId());
+		assertEquals(SUBDOMAIN_1 + "-id", future_1.get().getZoneId());
 
 		assertEquals(SUBDOMAIN_2, future_2.get().getSubdomain());
-		assertEquals(SUBDOMAIN_2 + "-id", future_2.get().getSubaccountId());
+		assertEquals(SUBDOMAIN_2 + "-id", future_2.get().getZoneId());
 	}
 
 	private static void initSecurityContextWithToken(Jwt token) throws InterruptedException {

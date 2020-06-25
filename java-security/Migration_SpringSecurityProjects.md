@@ -37,19 +37,19 @@ First make sure you have the following dependencies defined in your pom.xml:
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>api</artifactId>
-  <version>2.7.1</version>
+  <version>2.7.2</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security</artifactId>
-  <version>2.7.1</version>
+  <version>2.7.2</version>
 </dependency>
 
 <!-- new java-security dependencies for unit tests -->
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security-test</artifactId>
-  <version>2.7.1</version>
+  <version>2.7.2</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -206,7 +206,7 @@ public class TestSecurityConfig {
 ```
 
 ### Unit testing 
-In your unit test you might want to generate jwt tokens and have them validated. The new [java-security-test](/java-security-test) library provides it's own `JwtGenerator`.  This can be embedded using the new 
+In your unit test you might want to generate jwt tokens and have them validated. The [java-security-test](/java-security-test) library provides it's own `JwtGenerator`.  This can be embedded using the 
 `SecurityTestRule`. See the following snippet as example: 
 
 ```java
@@ -229,8 +229,9 @@ String jwt = securityTestRule.getPreconfiguredJwtGenerator()
     .getTokenValue();
 
 ```
-
 Make sure, that your JUnit tests are running.
+
+The `java-security-test` library provides also JUnit 5 support as described [here](/java-security-test).
 
 ## Enable local testing
 For local testing you might need to provide custom `VCAP_SERVICES` before you run the application. 

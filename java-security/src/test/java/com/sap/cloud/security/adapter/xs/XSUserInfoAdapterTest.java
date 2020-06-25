@@ -6,10 +6,15 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.*;
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
+import com.sap.cloud.security.xsuaa.tokenflows.ClientCredentialsTokenFlow;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
+import com.sap.cloud.security.xsuaa.tokenflows.UserTokenFlow;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -276,8 +281,54 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
+	public void testGetSubaccountIdFromSystemAttributes() throws XSUserInfoException {
+		String token = "eyJqa3UiOiJodHRwOi8vbG9jYWxob3N0Iiwia2lkIjoiZGVmYXVsdC1raWQiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOlsic2ItY2xpZW50SWQhdDA4MTUiXSwiZXh0X2F0dHIiOnsiZW5oYW5jZXIiOiJYU1VBQSIsInpkbiI6InVhYSIsImFjbCI6WyJhcHAxIXQyMyJdLCJzZXJ2aWNlaW5zdGFuY2VpZCI6ImJyb2tlckNsb25lU2VydmljZUluc3RhbmNlSWQifSwiYXpfYXR0ciI6eyJleHRlcm5hbF9pZCI6ImFiY2QxMjM0In0sImdyYW50X3R5cGUiOiJ1cm46aWV0ZjpwYXJhbXM6b2F1dGg6Z3JhbnQtdHlwZTpzYW1sMi1iZWFyZXIiLCJzY29wZSI6WyJvcGVuaWQiLCJ0ZXN0U2NvcGUiLCJ0ZXN0QXBwLmxvY2FsU2NvcGUiXSwiZW1wdHlfbGlzdCI6W10sInhzLnN5c3RlbS5hdHRyaWJ1dGVzIjp7InN1YmFjY291bnRpZCI6InRlc3Qtc3ViYWNjb3VudCJ9LCJleHAiOjE1NDI0MTY4MDAsImVtYWlsIjoidGVzdEB1YWEub3JnIiwiY2lkIjoic2ItY2xpZW50SWQhdDA4MTUifQ.dbCiJFDooPvJ0Sla3pnVXn5exNcVw7dKPgaDF3w_mFS6HqkzhxSwujy0PHtolHlaD1PztZ-6Lyi_eWqlIP3QjIxXKAkf2b3BcAF6WDRX3p5h8Noql9UDoNvYSNImdQcDWN2cZ5q2TzIv2X46HwW0cFP86oKFykALvp_CHlW1GKeJ8VdSWHoMJlOsdoKrLe68HKkIot1yjLsVr9i5LlsQm1EwR_GijLZeDHQNnYL2i_XWOhz3o6bjlcXicdhUaXEBp9CRvb0zucSYbTWJB5tV4e4i0GShXioX6qJG5NOgBZqsigUEaWACfO7Cmdzbr7AsVTlxb_mww9fF7wSAzrW1zA";
+		cut = new XSUserInfoAdapter(new XsuaaToken(token));
+		assertThat(cut.getSubaccountId()).isEqualTo("test-subaccount");
+	}
+
+	@Test
 	public void testGetOrigin() throws XSUserInfoException {
 		assertThat(cut.getOrigin()).isEqualTo("useridp");
+	}
+
+	@Test
+	public void requestTokenForClient() throws TokenFlowException {
+		String clientId = "theClientId";
+		String clientSecret = "theClientSecret";
+		String uaaBaseUrl = "http://oauth.base.url/oauth/token";
+
+		XsuaaTokenFlows xsuaaTokenFlowsMock = Mockito.mock(XsuaaTokenFlows.class);
+		doReturn(clientCredentialsTokenFlowMock()).when(xsuaaTokenFlowsMock).clientCredentialsTokenFlow();
+		cut = createComponentUnderTestSpy();
+		doReturn(xsuaaTokenFlowsMock).when(cut).getXsuaaTokenFlows(anyString(), any(ClientCredentials.class));
+
+		cut.requestTokenForClient(clientId, clientSecret, uaaBaseUrl);
+
+		verify(cut, times(1)).getXsuaaTokenFlows(eq(uaaBaseUrl), eq(new ClientCredentials(clientId, clientSecret)));
+		verify(xsuaaTokenFlowsMock, times(1)).clientCredentialsTokenFlow();
+	}
+
+	@Test
+	public void requestTokenForUser() throws TokenFlowException {
+		String clientId = "theClientId";
+		String clientSecret = "theClientSecret";
+		String uaaBaseUrl = "http://oauth.base.url/oauth/token";
+		String token = "token";
+
+		XsuaaTokenFlows xsuaaTokenFlowsMock = Mockito.mock(XsuaaTokenFlows.class);
+		UserTokenFlow userTokenFlowMock = userTokenFlowMock();
+		doReturn(userTokenFlowMock).when(xsuaaTokenFlowsMock).userTokenFlow();
+		cut = createComponentUnderTestSpy();
+		doReturn(xsuaaTokenFlowsMock).when(cut).getXsuaaTokenFlows(anyString(), any(ClientCredentials.class));
+		doReturn(token).when(cut).getAppToken();
+
+		cut.requestTokenForUser(clientId, clientSecret, uaaBaseUrl);
+
+		verify(cut, times(1)).getXsuaaTokenFlows(eq(uaaBaseUrl), eq(new ClientCredentials(clientId, clientSecret)));
+		verify(cut, times(1)).getAppToken();
+		verify(userTokenFlowMock, times(1)).token(token);
+		verify(xsuaaTokenFlowsMock, times(1)).userTokenFlow();
 	}
 
 	@Test
@@ -482,4 +533,20 @@ public class XSUserInfoAdapterTest {
 		return mockToken;
 	}
 
+	private UserTokenFlow userTokenFlowMock() throws TokenFlowException {
+		UserTokenFlow userTokenFlowMock = mock(UserTokenFlow.class);
+		when(userTokenFlowMock.subdomain(any())).thenReturn(userTokenFlowMock);
+		when(userTokenFlowMock.attributes(any())).thenReturn(userTokenFlowMock);
+		when(userTokenFlowMock.token(any())).thenReturn(userTokenFlowMock);
+		when(userTokenFlowMock.execute()).thenReturn(Mockito.mock(OAuth2TokenResponse.class));
+		return userTokenFlowMock;
+	}
+
+	private ClientCredentialsTokenFlow clientCredentialsTokenFlowMock() throws TokenFlowException {
+		ClientCredentialsTokenFlow clientCredentialsTokenFlowMock = mock(ClientCredentialsTokenFlow.class);
+		when(clientCredentialsTokenFlowMock.subdomain(any())).thenReturn(clientCredentialsTokenFlowMock);
+		when(clientCredentialsTokenFlowMock.attributes(any())).thenReturn(clientCredentialsTokenFlowMock);
+		when(clientCredentialsTokenFlowMock.execute()).thenReturn(Mockito.mock(OAuth2TokenResponse.class));
+		return clientCredentialsTokenFlowMock;
+	}
 }

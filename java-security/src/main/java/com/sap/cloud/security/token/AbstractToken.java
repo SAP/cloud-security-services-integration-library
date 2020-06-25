@@ -163,4 +163,9 @@ public abstract class AbstractToken implements Token {
 	public int hashCode() {
 		return Objects.hash(getTokenValue());
 	}
+
+	@Override
+	public String getZoneId() {
+		return getClaimAsString(TokenClaims.SAP_GLOBAL_ZONE_ID);
+	}
 }

@@ -78,24 +78,22 @@ public interface XSUserInfo {
 	String getOrigin() throws XSUserInfoException;
 
 	/**
-	 * Return identity zone which is the same like the subaccount id (tenant id).
+	 * Return identity zone which is in most cases same like the subaccount identifier.
 	 * 
-	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)} from
-	 *             the {@code com.sap.cloud.security.token} package.
+	 * @deprecated Have to be replaced with {@link #getZoneId()} or {@link #getSubaccountId()}.
 	 * @return identity zone
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
 	 */
+	@Deprecated
 	String getIdentityZone() throws XSUserInfoException;
 
 	/**
-	 * Return subaccount identifier which is the same like the identity zone (tenant
-	 * id).
-	 * 
-	 * @deprecated Can be replaced with
-	 *             {@code token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)} from
-	 *             the {@code com.sap.cloud.security.token} package.
+	 * Return subaccount identifier which is in most cases same like the
+	 * identity zone.
+	 * DO only use this for metering purposes.
+	 * DO NOT longer use this method to get the unique tenant id! For that use {@link #getZoneId()}.
+	 *
 	 * @return subaccount identifier
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
@@ -103,11 +101,23 @@ public interface XSUserInfo {
 	String getSubaccountId() throws XSUserInfoException;
 
 	/**
+	 * Return zone identifier which should be used as tenant discriminator (tenant id).
+	 * For most of the old subaccounts this matches the id returned by {@link #getSubaccountId()}.
 	 *
+	 * @deprecated Can be replaced with
+	 *             {@code token.getZoneId()} from
+	 *             the {@code com.sap.cloud.security.token} package.
+	 * @return zone identifier
+	 * @throws XSUserInfoException
+	 *             if attribute is not available in the authentication token
+	 */
+	String getZoneId() throws XSUserInfoException;
+
+	/**
 	 * Supported via {@code XSUserInfoAdapter} from the
 	 * {@code com.sap.cloud.security.adapter.xs} package. Also available on tokens
 	 * of type {@code XsuaaToken} from java-security.
-	 * 
+	 *
 	 * @return the subdomain
 	 * @throws XSUserInfoException
 	 *             if subdomain is not available in the authentication token
@@ -314,6 +324,8 @@ public interface XSUserInfo {
 	boolean isInForeignMode() throws XSUserInfoException;
 
 	/**
+	 * Performs a client credentials token flow.
+	 *
 	 * @param clientId
 	 *            client id
 	 * @param clientSecret
@@ -327,6 +339,22 @@ public interface XSUserInfo {
 	 *             if an error occurs during token request
 	 */
 	String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
+
+	/**
+	 * Performs a user token flow.
+	 *
+	 * @param clientId
+	 *            client id
+	 * @param clientSecret
+	 *            client secret
+	 * @param uaaUrl
+	 *            the uaa url
+	 * @return the token
+	 * @deprecated can be replaced with token flows from the token-client library.
+	 * @throws XSUserInfoException
+	 *             if an error occurs during token request
+	 */
+	String requestTokenForUser(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
 
 	/**
 	 * Exchange a token into a token from another service instance
