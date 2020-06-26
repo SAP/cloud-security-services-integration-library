@@ -169,7 +169,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	 */
 	@Nullable
 	public String getSubaccountId() {
-		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
+		return Optional.ofNullable(getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID)).orElse(getZoneId());
 	}
 
 	@Nullable
