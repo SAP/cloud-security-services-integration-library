@@ -159,6 +159,19 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN);
 	}
 
+	/**
+	 * Returns subaccount identifier which is in most cases same like the identity
+	 * zone. DO only use this for metering purposes. DO NOT longer use this method
+	 * to get the unique tenant id! For that use {@link #getZoneId()}.
+	 *
+	 * @return subaccount identifier or {@code null}
+	 */
+	@Nullable
+	public String getSubaccountId() {
+		return Optional.ofNullable(getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID))
+				.orElse(getClaimAsString(ZONE_ID));
+	}
+
 	@Nullable
 	private String getAttributeFromClaimAsString(String claimName, String attributeName) {
 		return Optional.ofNullable(getClaimAsJsonObject(claimName))

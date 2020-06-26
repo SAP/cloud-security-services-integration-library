@@ -1,14 +1,17 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.DefaultJsonObject;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 public class XsuaaTokenTest {
 
@@ -112,6 +115,25 @@ public class XsuaaTokenTest {
 	public void getSubdomain() {
 		assertThat(clientCredentialsToken.getSubdomain()).isNull();
 		assertThat(userToken.getSubdomain()).isEqualTo("theSubdomain");
+	}
+
+	@Test
+	public void getSubaccountId() {
+		XsuaaToken userTokenWithSubaccountId = Mockito.spy(userToken);
+		when(userTokenWithSubaccountId.getClaimAsJsonObject(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE))
+				.thenReturn(new DefaultJsonObject("{\"subaccountid\": \"abc123\"}"));
+
+		assertThat(userTokenWithSubaccountId.getSubaccountId()).isEqualTo("abc123");
+	}
+
+	@Test
+	public void getSubaccountId_noSubaccountId_fallsBackToZoneId() {
+		assertThat(clientCredentialsToken.getSubaccountId()).isEqualTo("uaa");
+	}
+
+	@Test
+	public void getSubaccountId_noSubaccountIdAndNoFallback_isNull() {
+		assertThat(userToken.getSubaccountId()).isNull();
 	}
 
 }
