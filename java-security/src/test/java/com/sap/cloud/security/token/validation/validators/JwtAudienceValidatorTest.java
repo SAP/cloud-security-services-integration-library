@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -24,6 +25,7 @@ public class JwtAudienceValidatorTest {
 		token = Mockito.mock(Token.class);
 		Mockito.when(token.getAudiences()).thenReturn(
 				Sets.newLinkedHashSet("client", "foreignclient", "sb-test4!t1.data"));
+		Mockito.when(token.getService()).thenReturn(Service.XSUAA);
 	}
 
 	@Test
@@ -61,6 +63,19 @@ public class JwtAudienceValidatorTest {
 
 		// configures audience validator with client-id from VCAP_SERVICES
 		ValidationResult result = new JwtAudienceValidator("sb-test4!t1")
+				.validate(token);
+
+		assertThat(result.isValid()).isTrue(); // should match
+	}
+
+	@Test
+	public void validate_tokenClientIdMatchesTrustedClientId() {
+		// configures token audience
+		Mockito.when(token.hasClaim(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(true);
+		Mockito.when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn("sb-myclientid!t1");
+
+		// configures audience validator with client-id from VCAP_SERVICES
+		ValidationResult result = new JwtAudienceValidator("sb-myclientid!t1")
 				.validate(token);
 
 		assertThat(result.isValid()).isTrue(); // should match

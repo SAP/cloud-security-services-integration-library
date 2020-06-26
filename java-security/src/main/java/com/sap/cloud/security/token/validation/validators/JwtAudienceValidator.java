@@ -2,6 +2,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -81,6 +82,10 @@ public class JwtAudienceValidator implements Validator<Token> {
 	static Set<String> getAllowedAudiences(Token token) {
 		Set<String> audiences = new LinkedHashSet<>();
 
+		if(Service.XSUAA.equals(token.getService()) && token.hasClaim(TokenClaims.XSUAA.CLIENT_ID)) {
+			audiences.add(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID));
+		}
+
 		for (String audience : token.getAudiences()) {
 			if (audience.contains(".")) {
 				// CF UAA derives the audiences from the scopes.
@@ -94,7 +99,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 			}
 		}
 		// extract audience (app-id) from scopes
-		if (audiences.isEmpty()) {
+		if (audiences.isEmpty() && Service.XSUAA.equals(token.getService())) {
 			for (String scope : token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)) {
 				if (scope.contains(".")) {
 					audiences.add(extractAppId(scope));
