@@ -19,7 +19,7 @@ First make sure you have the following dependency defined in your pom.xml:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-api</artifactId>
-    <version>2.7.2</version>
+    <version>2.7.3</version>
     <scope>provided</scope> <!-- provided with buildpack -->
 </dependency>
 ```
@@ -29,7 +29,7 @@ Now you are ready to **remove** the dependency to the **`api`** by deleting the 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>api</artifactId>
-    <version>2.7.2</version>
+    <version>2.7.3</version>
     <scope>provided</scope>
 </dependency>
 ```

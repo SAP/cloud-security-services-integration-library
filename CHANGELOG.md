@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.7.3
+- [java-security] 
+  - Audience Validation is skipped when `client_id` of token matches the trusted client. This is relevant to support tokens of grant type `user_token` that contains no scopes.
+  - provides the subaccount identifier from the `ext_attr` claim.
+- [spring-xsuaa] provides the subaccount identifier from the `ext_attr` claim.
+
 ## 2.7.2
 - [java-security] 
   - Audience Validation accepts tokens of grant type `user_token` that does not provide `aud` claim. In that case `JwtAudienceValidator` derives the audiences from the scopes.
