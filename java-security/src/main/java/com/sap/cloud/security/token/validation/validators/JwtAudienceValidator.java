@@ -2,6 +2,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -42,34 +43,46 @@ public class JwtAudienceValidator implements Validator<Token> {
 	@Override
 	public ValidationResult validate(Token token) {
 		Set<String> allowedAudiences = getAllowedAudiences(token);
-		return Optional.ofNullable(validateDefault(allowedAudiences))
-				.orElseGet(() -> Optional.ofNullable(validateAudienceOfXsuaaBrokerClone(allowedAudiences))
-						.orElseGet(() -> ValidationResults.createInvalid(
-								"Jwt token with audience {} is not issued for these clientIds: {}.",
-								allowedAudiences,
-								clientIds)));
+
+		if(validateSameClientId(token) || validateDefault(allowedAudiences)
+				|| validateAudienceOfXsuaaBrokerClone(allowedAudiences)) {
+			return ValidationResults.createValid();
+		}
+		return ValidationResults.createInvalid(
+				"Jwt token with audience {} is not issued for these clientIds: {}.",
+				allowedAudiences, clientIds);
 	}
 
-	private ValidationResult validateDefault(Set<String> allowedAudiences) {
-		for (String configuredClientId : clientIds) {
-			if (allowedAudiences.contains(configuredClientId)) {
-				return ValidationResults.createValid();
+	private boolean validateSameClientId(Token token) {
+		if(Service.XSUAA.equals(token.getService()) && token.hasClaim(TokenClaims.XSUAA.CLIENT_ID)) {
+			String clientId = token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID);
+			if(clientIds.contains(clientId)) {
+				return true;
 			}
 		}
-		return null;
+		return false;
 	}
 
-	private ValidationResult validateAudienceOfXsuaaBrokerClone(Set<String> allowedAudiences) {
+	private boolean validateDefault(Set<String> allowedAudiences) {
+		for (String configuredClientId : clientIds) {
+			if (allowedAudiences.contains(configuredClientId)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean validateAudienceOfXsuaaBrokerClone(Set<String> allowedAudiences) {
 		for (String configuredClientId : clientIds) {
 			if (configuredClientId.contains("!b")) {
 				for (String audience : allowedAudiences) {
 					if (audience.contains("|") && audience.endsWith("|" + configuredClientId)) {
-						return ValidationResults.createValid();
+						return true;
 					}
 				}
 			}
 		}
-		return null;
+		return false;
 	}
 
 	/**
@@ -94,7 +107,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 			}
 		}
 		// extract audience (app-id) from scopes
-		if (audiences.isEmpty()) {
+		if (audiences.isEmpty() && Service.XSUAA.equals(token.getService())) {
 			for (String scope : token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)) {
 				if (scope.contains(".")) {
 					audiences.add(extractAppId(scope));

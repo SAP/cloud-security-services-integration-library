@@ -41,12 +41,9 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	static final String EXTERNAL_CONTEXT = "ext_ctx";
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
-	// new with SECAUTH-806
 	static final String XS_SYSTEM_ATTRIBUTES = "xs.system.attributes";
-	static final String CLAIM_SUBACCOUNT_ID = "subaccountid";
 	static final String HDB_NAMEDUSER_SAML = "hdb.nameduser.saml";
 	static final String SERVICEINSTANCEID = "serviceinstanceid";
-	static final String ZDN = "zdn";
 	static final String SYSTEM = "SYSTEM";
 	static final String HDB = "HDB";
 
@@ -127,9 +124,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
+	/**
+	 * "ext_attr": { "enhancer": "XSUAA", "subaccountid": "my-subaccount-1234" },
+	 */
 	public String getSubaccountId() {
-		String subaccountId = getAttributeFromClaimAsString(XS_SYSTEM_ATTRIBUTES, CLAIM_SUBACCOUNT_ID);
-		return (subaccountId == null || "".equals(subaccountId)) ? getClaimValue(ZONE_ID) : subaccountId;
+		return Optional.ofNullable(getExternalAttribute(EXTERNAL_ATTRIBUTE_SUBACCOUNTID)).orElse(getClaimValue(ZONE_ID));
 	}
 
 	@Override
@@ -142,7 +141,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * "ext_attr": { "enhancer": "XSUAA", "zdn": "paas-subdomain" },
 	 */
 	public String getSubdomain() {
-		return Optional.ofNullable(getExternalAttribute(ZDN)).orElse(null);
+		return Optional.ofNullable(getExternalAttribute(EXTERNAL_ATTRIBUTE_ZDN)).orElse(null);
 	}
 
 	@Override

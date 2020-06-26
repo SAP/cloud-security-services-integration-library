@@ -13,8 +13,7 @@
     "xs.saml.groups": [
       "g1"
     ],
-    "xs.rolecollections": ["rc1"],
-    "subaccountid": "test-subaccount"
+    "xs.rolecollections": ["rc1"]
   },
   "sub": "1002191",
   "scope": [
@@ -47,6 +46,7 @@
   },
   "ext_attr": {
     "serviceinstanceid": "abcd1234",
-    "zdn": "testsubdomain"
+    "zdn": "testsubdomain",
+    "subaccountid": "test-subaccount"
   }
 }

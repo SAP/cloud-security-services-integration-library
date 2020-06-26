@@ -32,7 +32,6 @@ public class XsuaaToken extends Jwt implements Token {
 	static final String CLAIM_EXTERNAL_ATTR = "ext_attr";
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
 	// new with SECAUTH-806
-	static final String CLAIM_XS_SYSTEM_ATTRIBUTES = "xs.system.attributes";
 	static final String CLAIM_SUBACCOUNT_ID = "subaccountid";
 	//
 	private static final long serialVersionUID = -836947635254353927L;
@@ -175,8 +174,8 @@ public class XsuaaToken extends Jwt implements Token {
 
 	@Override
 	public String getSubaccountId() {
-		String subaccountId = getStringAttributeFromClaim(CLAIM_SUBACCOUNT_ID, CLAIM_XS_SYSTEM_ATTRIBUTES);
-		return isEmpty(subaccountId) ? getClaimAsString(CLAIM_ZONE_ID) : subaccountId;
+		String externalAttribute = getStringAttributeFromClaim(CLAIM_SUBACCOUNT_ID, CLAIM_EXTERNAL_ATTR);
+		return isEmpty(externalAttribute) ? getClaimAsString(CLAIM_ZONE_ID) : externalAttribute;
 	}
 
 	@Override
