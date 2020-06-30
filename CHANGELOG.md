@@ -3,8 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.7.4
-- [java-security] 
-  - Audience Validation is skipped when `client_id` of broker-clone token matches the trusted client. This is relevant to support tokens of grant type `user_token` that contains no scopes.
+- [java-security] Audience Validation validates to true when the derived `client_id` of broker-clone token matches the trusted client. This is relevant to support tokens of grant type `user_token` that contains no scopes.
 
 ## 2.7.3
 - [java-security] 
