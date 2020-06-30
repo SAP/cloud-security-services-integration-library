@@ -42,7 +42,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
-		Set<String> allowedAudiences = getAllowedAudiences(token);
+		Set<String> allowedAudiences = extractAudiencesFromToken(token);
 
 		if(validateDefault(allowedAudiences)
 				|| validateAudienceOfXsuaaBrokerClone(allowedAudiences)) {
@@ -81,12 +81,8 @@ public class JwtAudienceValidator implements Validator<Token> {
 	 * @param token
 	 * @return (empty) list of audiences
 	 */
-	static Set<String> getAllowedAudiences(Token token) {
+	static Set<String> extractAudiencesFromToken(Token token) {
 		Set<String> audiences = new LinkedHashSet<>();
-
-		if(Service.XSUAA.equals(token.getService()) && token.hasClaim(TokenClaims.XSUAA.CLIENT_ID)) {
-			audiences.add(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID));
-		}
 
 		for (String audience : token.getAudiences()) {
 			if (audience.contains(".")) {
@@ -100,14 +96,21 @@ public class JwtAudienceValidator implements Validator<Token> {
 				audiences.add(audience);
 			}
 		}
-		// extract audience (app-id) from scopes
-		if (token.getAudiences().isEmpty() && Service.XSUAA.equals(token.getService())) {
-			for (String scope : token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)) {
-				if (scope.contains(".")) {
-					audiences.add(extractAppId(scope));
+
+		if (Service.XSUAA.equals(token.getService())) {
+			if (token.hasClaim(TokenClaims.XSUAA.CLIENT_ID)) {
+				audiences.add(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID));
+			}
+			// extract audience (app-id) from scopes
+			if (token.getAudiences().isEmpty()) {
+				for (String scope : token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)) {
+					if (scope.contains(".")) {
+						audiences.add(extractAppId(scope));
+					}
 				}
 			}
 		}
+		logger.info("The audiences that are derived from the token: {}.", audiences);
 		return audiences;
 	}
 

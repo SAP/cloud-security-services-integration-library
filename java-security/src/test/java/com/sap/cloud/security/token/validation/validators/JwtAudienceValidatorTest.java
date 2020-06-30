@@ -11,7 +11,6 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -186,7 +185,7 @@ public class JwtAudienceValidatorTest {
 		Mockito.when(token.getAudiences()).thenReturn(Collections.EMPTY_SET);
 
 		// configures audience validator with client-id from VCAP_SERVICES
-		Set audiences = JwtAudienceValidator.getAllowedAudiences(token);
+		Set audiences = JwtAudienceValidator.extractAudiencesFromToken(token);
 
 		assertThat(audiences.size()).isEqualTo(3);
 		assertThat(audiences).containsExactlyInAnyOrder("test1!t1", "client", "xsappid");
