@@ -63,7 +63,6 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 		// case 1 : token issued by own client (or master)
 		if (clientId.equals(tokenClientId)
 				|| (appId.contains("!b")
-						&& tokenClientId.contains("|")
 						&& tokenClientId.endsWith("|" + appId))) {
 			return true;
 		} else {

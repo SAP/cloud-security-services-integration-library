@@ -44,23 +44,13 @@ public class JwtAudienceValidator implements Validator<Token> {
 	public ValidationResult validate(Token token) {
 		Set<String> allowedAudiences = getAllowedAudiences(token);
 
-		if(validateSameClientId(token) || validateDefault(allowedAudiences)
+		if(validateDefault(allowedAudiences)
 				|| validateAudienceOfXsuaaBrokerClone(allowedAudiences)) {
 			return ValidationResults.createValid();
 		}
 		return ValidationResults.createInvalid(
 				"Jwt token with audience {} is not issued for these clientIds: {}.",
-				allowedAudiences, clientIds);
-	}
-
-	private boolean validateSameClientId(Token token) {
-		if(Service.XSUAA.equals(token.getService()) && token.hasClaim(TokenClaims.XSUAA.CLIENT_ID)) {
-			String clientId = token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID);
-			if(clientIds.contains(clientId)) {
-				return true;
-			}
-		}
-		return false;
+				token.getAudiences(), clientIds);
 	}
 
 	private boolean validateDefault(Set<String> allowedAudiences) {
@@ -76,7 +66,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 		for (String configuredClientId : clientIds) {
 			if (configuredClientId.contains("!b")) {
 				for (String audience : allowedAudiences) {
-					if (audience.contains("|") && audience.endsWith("|" + configuredClientId)) {
+					if (audience.endsWith("|" + configuredClientId)) {
 						return true;
 					}
 				}
@@ -94,6 +84,10 @@ public class JwtAudienceValidator implements Validator<Token> {
 	static Set<String> getAllowedAudiences(Token token) {
 		Set<String> audiences = new LinkedHashSet<>();
 
+		if(Service.XSUAA.equals(token.getService()) && token.hasClaim(TokenClaims.XSUAA.CLIENT_ID)) {
+			audiences.add(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID));
+		}
+
 		for (String audience : token.getAudiences()) {
 			if (audience.contains(".")) {
 				// CF UAA derives the audiences from the scopes.
@@ -107,7 +101,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 			}
 		}
 		// extract audience (app-id) from scopes
-		if (audiences.isEmpty() && Service.XSUAA.equals(token.getService())) {
+		if (token.getAudiences().isEmpty() && Service.XSUAA.equals(token.getService())) {
 			for (String scope : token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)) {
 				if (scope.contains(".")) {
 					audiences.add(extractAppId(scope));
