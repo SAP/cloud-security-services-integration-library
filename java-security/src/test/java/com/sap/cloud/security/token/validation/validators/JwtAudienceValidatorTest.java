@@ -26,6 +26,8 @@ public class JwtAudienceValidatorTest {
 		Mockito.when(token.getAudiences()).thenReturn(
 				Sets.newLinkedHashSet("client", "foreignclient", "sb-test4!t1.data"));
 		Mockito.when(token.getService()).thenReturn(Service.XSUAA);
+		Mockito.when(token.hasClaim(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(true);
+		Mockito.when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn("client");
 	}
 
 	@Test
@@ -59,7 +61,7 @@ public class JwtAudienceValidatorTest {
 	public void validate_clientIdMatchesTokenAudienceWithoutDot() {
 		// configures token audience
 		Mockito.when(token.getAudiences())
-				.thenReturn(Sets.newLinkedHashSet("client", "foreignclient", "sb-test4!t1.data.x"));
+				.thenReturn(Sets.newLinkedHashSet("client", "sb-test4!t1.data.x"));
 
 		// configures audience validator with client-id from VCAP_SERVICES
 		ValidationResult result = new JwtAudienceValidator("sb-test4!t1")
@@ -70,12 +72,11 @@ public class JwtAudienceValidatorTest {
 
 	@Test
 	public void validate_tokenClientIdMatchesTrustedClientId() {
-		// configures token audience
-		Mockito.when(token.hasClaim(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(true);
-		Mockito.when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn("sb-myclientid!t1");
+		Mockito.when(token.getAudiences()).thenReturn(Collections.emptySet());
+		Mockito.when(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).thenReturn(Collections.EMPTY_LIST);
 
 		// configures audience validator with client-id from VCAP_SERVICES
-		ValidationResult result = new JwtAudienceValidator("sb-myclientid!t1")
+		ValidationResult result = new JwtAudienceValidator("client")
 				.validate(token);
 
 		assertThat(result.isValid()).isTrue(); // should match
@@ -94,6 +95,30 @@ public class JwtAudienceValidatorTest {
 				.validate(token);
 
 		assertThat(result.isValid()).isTrue(); // should match
+	}
+
+	@Test
+	public void validate_tokenClientIdMatchesTrustedBrokerClientId() {
+		Mockito.when(token.getAudiences()).thenReturn(Collections.emptySet());
+		Mockito.when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn("sb-clone-app-id!b123|" + XSUAA_BROKER_XSAPPNAME);
+
+		// configures audience validator with client-id from VCAP_SERVICES
+		ValidationResult result = new JwtAudienceValidator(XSUAA_BROKER_XSAPPNAME)
+				.validate(token);
+
+		assertThat(result.isValid()).isTrue(); // should match
+	}
+
+	@Test
+	public void validate_tokenClientIdDoesNotMatchTrustedBrokerClientId() {
+		Mockito.when(token.getAudiences()).thenReturn(Collections.emptySet());
+		Mockito.when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn("sb-clone-app-id!b123|-" + XSUAA_BROKER_XSAPPNAME);
+
+		// configures audience validator with client-id from VCAP_SERVICES
+		ValidationResult result = new JwtAudienceValidator(XSUAA_BROKER_XSAPPNAME)
+				.validate(token);
+
+		assertThat(result.isValid()).isFalse(); // should match
 	}
 
 	@Test
@@ -119,7 +144,7 @@ public class JwtAudienceValidatorTest {
 		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
 				.isEqualTo(
-						"Jwt token with audience [client, foreignclient, sb-test4!t1] is not issued for these clientIds: [any, anyother].");
+						"Jwt token with audience [client, foreignclient, sb-test4!t1.data] is not issued for these clientIds: [any, anyother].");
 	}
 
 	@Test
@@ -131,7 +156,7 @@ public class JwtAudienceValidatorTest {
 
 		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
-				.isEqualTo("Jwt token with audience [test] is not issued for these clientIds: [any].");
+				.isEqualTo("Jwt token with audience [., test.,  .test2] is not issued for these clientIds: [any].");
 	}
 
 	@Test
@@ -157,10 +182,10 @@ public class JwtAudienceValidatorTest {
 
 		// configures token audience
 		Mockito.when(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).thenReturn(scopes);
-		Mockito.when(token.getAudiences()).thenReturn(Sets.newHashSet());
+		Mockito.when(token.getAudiences()).thenReturn(Collections.EMPTY_SET);
 
 		// configures audience validator with client-id from VCAP_SERVICES
-		Set audiences = JwtAudienceValidator.getAllowedAudiences(token);
+		Set audiences = JwtAudienceValidator.extractAudiencesFromToken(token);
 
 		assertThat(audiences.size()).isEqualTo(3);
 		assertThat(audiences).containsExactlyInAnyOrder("test1!t1", "client", "xsappid");
