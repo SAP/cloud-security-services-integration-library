@@ -196,7 +196,7 @@ public class JwtValidatorBuilder {
 		public ValidationResult validate(Token token) {
 			ValidationResult validationResult = super.validate(token);
 			if (validationResult.isErroneous()) {
-				LOGGER.debug("Validation failed for token:{}{}", System.lineSeparator(), token);
+				LOGGER.debug("Token that caused the failed validation: {}{}", System.lineSeparator(), token);
 			}
 			return validationResult;
 		}

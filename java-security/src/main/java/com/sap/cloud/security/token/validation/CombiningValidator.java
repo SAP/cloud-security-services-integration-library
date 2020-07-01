@@ -1,6 +1,8 @@
 package com.sap.cloud.security.token.validation;
 
 import com.sap.cloud.security.xsuaa.Assertions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -18,6 +20,7 @@ public class CombiningValidator<T> implements Validator<T> {
 
 	private final List<Validator<T>> validators;
 	private final Set<ValidationListener> validationListeners = new HashSet<>();
+	private static final Logger LOGGER = LoggerFactory.getLogger(CombiningValidator.class);
 
 	public CombiningValidator(List<Validator<T>> validators) {
 		Assertions.assertNotNull(validators, "validators must not be null.");
@@ -34,6 +37,7 @@ public class CombiningValidator<T> implements Validator<T> {
 		for (Validator<T> validator : validators) {
 			ValidationResult result = validator.validate(t);
 			if (result.isErroneous()) {
+				LOGGER.debug("Validator that caused the failed validation: {}", validator.getClass().getName());
 				validationListeners.forEach(listener -> listener.onValidationError(result));
 				return result;
 			}
