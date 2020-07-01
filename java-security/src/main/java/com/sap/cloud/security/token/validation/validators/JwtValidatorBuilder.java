@@ -6,10 +6,13 @@ import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationListener;
+import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -24,6 +27,8 @@ import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
  * Custom validators can be added via {@link #with(Validator)} method.
  */
 public class JwtValidatorBuilder {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JwtValidatorBuilder.class);
+
 	private static Map<OAuth2ServiceConfiguration, JwtValidatorBuilder> instances = new HashMap<>();
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
@@ -176,9 +181,25 @@ public class JwtValidatorBuilder {
 		List<Validator<Token>> allValidators = createDefaultValidators();
 		allValidators.addAll(validators);
 
-		CombiningValidator<Token> combiningValidator = new CombiningValidator<>(allValidators);
+		CombiningValidator<Token> combiningValidator = new CombiningTokenValidator(allValidators);
 		validationListeners.forEach(combiningValidator::registerValidationListener);
 		return combiningValidator;
+	}
+
+	private class CombiningTokenValidator extends CombiningValidator<Token> {
+
+		public CombiningTokenValidator(List<Validator<Token>> validators) {
+			super(validators);
+		}
+
+		@Override
+		public ValidationResult validate(Token token) {
+			ValidationResult validationResult = super.validate(token);
+			if (validationResult.isErroneous()) {
+				LOGGER.debug("Validation failed for token:{}{}", System.lineSeparator(), token);
+			}
+			return validationResult;
+		}
 	}
 
 	private List<Validator<Token>> createDefaultValidators() {
