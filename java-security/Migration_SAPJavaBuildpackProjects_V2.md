@@ -51,8 +51,32 @@ boolean hasDisplayScope = token.hasLocalScope("Display");
 > Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
 
 ## Additional Hints
-### UserInfoHolder
-It is also still possible to use the `UserInfoHolder` to obtain the `XSUserInfo` object. This would require a dependency to `com.sap.cloud.security.xsuaa:api`.
+
+### Fetch further `XSUserInfo` infos from Token
+When you're done with the first part and need further information from the token you have two options to access the remaining methods exposed by the [`XSUserInfo`](/api/src/main/java/com/sap/xsa/security/container/XSUserInfo.java) Interface.
+
+This would again require a dependency to the legacy api:
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>api</artifactId>
+    <version>2.7.3</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+#### Option 1: UserInfoHolder
+It is also still possible to use the `UserInfoHolder` to obtain the `XSUserInfo` object. 
+#### Option 2: XSUserInfoAdapter
+You can use `XSUserInfoAdapter`:
+```java
+try {
+	XSUserInfo userInfo = new XSUserInfoAdapter(token);
+	String dbToken = userInfo.getHdbToken();
+} catch (XSUserInfoException e) {
+	// handle exception
+}
+```
 
 
 ### New Feature: SecurityContext <a name="security-context"></a>
