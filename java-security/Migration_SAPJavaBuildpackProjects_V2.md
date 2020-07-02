@@ -41,9 +41,14 @@ As the new `java-api` is incompatible with the former one, you have to tell the 
 With that the SAP Java Buildpack will provide `com.sap.cloud.security.token.AccessToken` instead of `XSUserInfo` in tomcat principal object. 
 
 ```java
-AccessToken userInfo = (AccessToken) request.getUserPrincipal();
-```
+import com.sap.cloud.security.token.*;
 
+AccessToken userInfo = (AccessToken) request.getUserPrincipal();
+
+String logonName = token.getClaimAsString(TokenClaims.USER_NAME);
+boolean hasDisplayScope = token.hasLocalScope("Display");
+```
+> Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
 
 ## Additional Hints
 ### UserInfoHolder
