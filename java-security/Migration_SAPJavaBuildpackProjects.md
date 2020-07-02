@@ -34,7 +34,14 @@ The above mentioned dependencies should be removed / replaced with this one:
 
 Furthermore, make sure that you do not refer to any other SAP-internal security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
 
-#### Congratulation! With that you're Done!
+### SAP_JWT_TRUST_ACL obsolete
+There is no need to configure `SAP_JWT_TRUST_ACL` within your deployment descriptor such as `manifest.yml`. 
+Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (JWT) as part of the `aud` claim.
+
+Whether the token is issued for your application or not is now validated by the [`JwtAudienceValidator`](/java-security/src/main/java/com/sap/cloud/security/token/validation/validators/JwtAudienceValidator.java).
+
+
+### Congratulation! With that you're Done!
 
 
 ### Get stuck with migration
