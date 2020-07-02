@@ -252,6 +252,19 @@ public class XsuaaTokenTest {
 		assertThat(token.getAppToken(), startsWith("eyJhbGciOiJSUzI1NiIsInR5"));
 	}
 
+	@Test
+	public void getName_sameAsGetUsername() {
+		token = createToken(claimsSetBuilder);
+
+		assertThat(token.getName(), is(token.getUsername()));
+	}
+	@Test
+	public void getAttributes_sameAsGetClaims() {
+		token = createToken(claimsSetBuilder);
+
+		assertThat(token.getAttributes(), is(token.getClaims()));
+	}
+
 	private Jwt buildMockJwt() {
 		Map<String, Object> jwtHeaders = new HashMap<String, Object>();
 		jwtHeaders.put("dummyHeader", "dummyHeaderValue");

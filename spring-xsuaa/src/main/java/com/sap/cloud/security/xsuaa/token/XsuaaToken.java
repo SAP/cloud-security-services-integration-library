@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.util.Assert;
@@ -23,7 +24,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
  * This class inherits Spring Security's standard Jwt implementation and can be
  * used interchangeably with it.
  */
-public class XsuaaToken extends Jwt implements Token {
+public class XsuaaToken extends Jwt implements Token, OAuth2AuthenticatedPrincipal {
 	static final String GRANTTYPE_SAML2BEARER = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>
@@ -269,4 +270,13 @@ public class XsuaaToken extends Jwt implements Token {
 		return attributeValues;
 	}
 
+	@Override
+	public String getName() {
+		return getUsername();
+	}
+
+	@Override
+	public Map<String, Object> getAttributes() {
+		return getClaims();
+	}
 }
