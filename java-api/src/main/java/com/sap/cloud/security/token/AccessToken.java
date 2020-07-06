@@ -48,19 +48,20 @@ public interface AccessToken extends Token {
 	GrantType getGrantType();
 
 	/**
-	 * Returns the String value of attribute of claim. <br>
+	 * Returns the String value of a claim attribute. <br>
 	 * <code>
 	 *     "claimName": {
 	 *         "attributeName": "attributeValueAsString"
 	 *     },
-	 *     </code> Example: <br>
+	 *     </code><br>
+	 * Example: <br>
 	 * <code>
 	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 	 *
 	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
 	 *     </code>
 	 * 
-	 * @return the String value of attribute of claim.
+	 * @return the String value of a claim attribute.
 	 **/
 	@Nullable
 	default String getAttributeFromClaimAsString(String claimName, String attributeName) {
