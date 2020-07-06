@@ -28,7 +28,7 @@ public enum Service {
 	 */
 	public String getCFName() {
 		if (this == IAS && cloudFoundryName == null) {
-			LoggerFactory.getLogger(Service.class).error("IAS Service is not yet supported!!!"); // TODO remove
+			LoggerFactory.getLogger(Service.class).info("IAS Service is not yet supported!!!"); // TODO remove
 		}
 		return cloudFoundryName;
 	}
