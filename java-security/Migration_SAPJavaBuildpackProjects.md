@@ -43,16 +43,16 @@ Whether the token is issued for your application or not is now validated by the 
 
 ### Congratulation! With that you're Done!
 
-### Troubleshooting
+## Troubleshooting
 
 If you get stuck with migrating your application, 
 [open an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
-and provide details like 
+and provide these details 
 - migration guide, e.g. java-security/Migration_SAPJavaBuildpackProjects.md
 - client-lib version you have used before, e.g. com.sap.cloud.security.xssec:api version 3.11.0
 - client-lib version you have migrated to, e.g. com.sap.cloud.security.xsuaa:api version 2.7.3
-- buildpack version, e.g. 1.26.1 (as described below)
-- debug logs (as described below)
+- [SAP buildpack version](#get-buildpack-version), e.g. 1.26.1 
+- [debug logs](#increase-log-level-to-debug)
 - issue you’re facing.
 
 #### Get buildpack version
@@ -96,5 +96,5 @@ cf set-env <your app name> SET_LOGGING_LEVEL "{com.sap.xs.security: DEBUG, com.s
 You need to restage your application for the changes to take effect.
 
 
-### [OPTIONAL] Leverage new API and features
+## [OPTIONAL] Leverage new API and features
 You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand what needs to be done to leverage the new `java-api` that is exposed by the SAP Java Buildpack as of version `1.26.1`.
