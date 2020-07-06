@@ -45,16 +45,54 @@ Whether the token is issued for your application or not is now validated by the 
 
 ### Troubleshooting
 
-If you run into issues with the migration of your application, you can increase the logging level. 
-This helps to identify the root cause of the issue. In the buildpack this can be done by setting the `SET_LOGGING_LEVEL`
+If you get stuck with migrating your application you can follow the steps described in this section
+to troubleshoot the issue. 
+
+#### Check buildpack version
+
+To identify the root cause of your issue it is helpful to know which version of the 
+SAP Java Buildpack your application is using. 
+The buildpack being used is defined in the `manifest.yml` file via the
+[buildpacks](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack) option.
+If it is set to `sap_java_buildpack` then the **newest** available version of the SAP Java buildpack is used.
+The command `cf buildpacks` gives you a list of buildpacks available in your environment.
+With this you can find out which version of the buildpack your application is actually using.
+
+Lets say in your `manifest.yml` the buildpack is set to `sap_java_buildpack`. This means the newest
+available version is being used! Now you check the available buildpacks with `cf buildpacks`
+which will give you something like  this:
+
+```sh
+Getting buildpacks...
+
+buildpack                       position   enabled   locked   filename                                             stack
+staticfile_buildpack            1          true      false    staticfile_buildpack-cached-cflinuxfs3-v1.5.5.zip    cflinuxfs3
+java_buildpack                  2          true      false    java_buildpack-cached-cflinuxfs3-v4.31.1.zip         cflinuxfs3
+.
+.
+.
+sap_java_buildpack              12         true      false    sap_java_buildpack-v1.26.1.zip
+sap_java_buildpack_1_26         13         true      false    sap_java_buildpack-v1.26.1.zip
+sap_java_buildpack_1_25         14         true      false    sap_java_buildpack-v1.25.0.zip
+sap_java_buildpack_1_24         15         true      false    sap_java_buildpack-v1.24.1.zip
+```
+
+Here you can see that the newest SAP Java Buildpack is `sap_java_buildpack_1_26` and therefore your application
+is using the SAP Java Buildpack version `1.26.x`!
+
+#### Increase log level 
+
+You should also increase the logging level in your application. This can be done by setting the `SET_LOGGING_LEVEL`
 environment variable for your application. You can do this in the `manifest.yml` with the `env` option like so:
 
 ```yaml
 env:
     SET_LOGGING_LEVEL: '{com.sap.xs.security: DEBUG, com.sap.cloud.security: DEBUG}'
 ```
+
 After you have made changes to the `manifest.yml` you need do re-deploy your app.
 This sets the logging level for this library and the security parts of the buildpack to `DEBUG`.
+
 For a running application this can also be done with the `cf` command line tool:
 
 ```shell
@@ -63,16 +101,10 @@ cf set-env <your app name> SET_LOGGING_LEVEL "{com.sap.xs.security: DEBUG, com.s
 
 You need to restage your application for the changes to take effect.
 
+#### Open an issue
 If you are still stuck with migration, please
 [open an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
-and provide details like client-lib / migration guide / issue you’re facing and, when available, (debug) logs.
+and provide details like client-lib / migration guide / buildpack version / issue you’re facing and, when available, (debug) logs.
 
 ### [OPTIONAL] Leverage new API and features
 You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand what needs to be done to leverage the new `java-api` that is exposed by the SAP Java Buildpack as of version `1.26.1`.
-
-
-
-
-
-
-
