@@ -44,7 +44,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	public ValidationResult validate(Token token) {
 		Set<String> allowedAudiences = extractAudiencesFromToken(token);
 
-		if(validateDefault(allowedAudiences)
+		if (validateDefault(allowedAudiences)
 				|| validateAudienceOfXsuaaBrokerClone(allowedAudiences)) {
 			return ValidationResults.createValid();
 		}
@@ -115,8 +115,9 @@ public class JwtAudienceValidator implements Validator<Token> {
 	}
 
 	/**
-	 * In case of audiences, the namespaces are trimmed.
-	 * In case of scopes, the namespaces and the scope names are trimmed.
+	 * In case of audiences, the namespaces are trimmed. In case of scopes, the
+	 * namespaces and the scope names are trimmed.
+	 * 
 	 * @param scopeOrAudience
 	 * @return
 	 */

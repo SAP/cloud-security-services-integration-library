@@ -241,7 +241,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	}
 
 	private void logDebug(OAuth2TokenResponse response) {
-		if(!LOGGER.isDebugEnabled()){
+		if (!LOGGER.isDebugEnabled()) {
 			return;
 		}
 		try {
