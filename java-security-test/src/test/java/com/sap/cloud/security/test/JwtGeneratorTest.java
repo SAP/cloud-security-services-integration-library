@@ -1,22 +1,11 @@
 package com.sap.cloud.security.test;
 
-import com.sap.cloud.security.config.Environments;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
-import com.sap.cloud.security.token.validation.CombiningValidator;
-import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
-import org.apache.commons.io.IOUtils;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
@@ -24,8 +13,6 @@ import sun.security.rsa.RSAPublicKeyImpl;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
@@ -36,13 +23,11 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.List;
-import java.util.Properties;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.JwtGenerator.SignatureCalculator;
-import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_APP_ID;
-import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_CLIENT_ID;
+import static com.sap.cloud.security.test.SecurityTestRule.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,7 +37,6 @@ public class JwtGeneratorTest {
 
 	private static RSAKeys keys;
 	private JwtGenerator cut;
-	private Properties originalSystemProperties;
 
 	private static final Path RESOURCES_PATH = Paths.get(JwtGeneratorTest.class.getResource("/").getPath());
 
@@ -66,13 +50,7 @@ public class JwtGeneratorTest {
 
 	@Before
 	public void setUp() {
-		originalSystemProperties = System.getProperties();
 		cut = JwtGenerator.getInstance(XSUAA, DEFAULT_CLIENT_ID).withPrivateKey(keys.getPrivate());
-	}
-
-	@After
-	public void tearDown() {
-		System.setProperties(originalSystemProperties);
 	}
 
 	@Test
@@ -159,7 +137,7 @@ public class JwtGeneratorTest {
 		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(tokenKeyServiceUrl);
 	}
 
-	@Test
+		@Test
 	public void withScopes_containsScopeWhenServiceIsXsuaa() {
 		String[] scopes = new String[] { "openid", "app1.scope" };
 		Token token = cut.withScopes(scopes).createToken();
@@ -340,61 +318,6 @@ public class JwtGeneratorTest {
 			throw new InvalidKeyException();
 		}, "sb-client!1234").withPrivateKey(keys.getPrivate());
 		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
-	}
-
-	@Test
-	public void createToken_tokenIsValid() throws IOException {
-		System.setProperty("VCAP_SERVICES", IOUtils
-				.resourceToString("/vcap.json", StandardCharsets.UTF_8));
-		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaConfiguration();
-
-		OAuth2TokenKeyService tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
-				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
-
-		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
-				.withOAuth2TokenKeyService(tokenKeyServiceMock)
-				.build();
-
-		Token token = cut
-				.withHeaderParameter(TokenHeader.JWKS_URL, "http://auth.com/token_keys")
-				.withExpiration(JwtGenerator.NO_EXPIRE_DATE)
-				.createToken();
-
-		ValidationResult result = tokenValidator.validate(token);
-		assertThat(result.isValid()).isTrue();
-	}
-
-	@Test
-	public void createToken_discoverOidcJwksEndpoint_tokenIsValid() throws Exception {
-		String clientId = "T000310";
-		String url = "https://app.auth.com";
-		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(IAS)
-				.withUrl(url)
-				.withClientId(clientId)
-				.build();
-
-		OAuth2TokenKeyService tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(any()))
-				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
-		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
-		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("http://auth.com/token_keys"));
-		OidcConfigurationService oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
-		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);
-
-		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
-				.withOAuth2TokenKeyService(tokenKeyServiceMock)
-				.withOidcConfigurationService(oidcConfigServiceMock)
-				.build();
-
-		Token token = JwtGenerator.getInstance(Service.IAS, clientId)
-				.withClaimValue(TokenClaims.ISSUER, url)
-				.withPrivateKey(keys.getPrivate())
-				.withExpiration(JwtGenerator.NO_EXPIRE_DATE)
-				.createToken();
-
-		ValidationResult result = tokenValidator.validate(token);
-		assertThat(result.isValid()).isTrue();
 	}
 
 }
