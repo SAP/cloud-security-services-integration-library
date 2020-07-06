@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.7.5
+- [java-api] `AcessToken` provides `getAttributeFromClaimAsString(String claimName, String attributeName)` to access for example `ext_attr` values such as `subaccountid`...
+- [java-security] provide debug logs for failing token validation, see [troubleshoot](/java-security/Migration_SAPJavaBuildpackProjects.md).
+- [java-security-test] Fixed default value for jku token header to `http://localhost/token_keys`
+
 ## 2.7.4
 - [java-security] Audience Validation validates to true when the derived `client_id` of broker-clone token matches the trusted client. This is relevant to support tokens of grant type `user_token` that contains no scopes.
 
@@ -20,7 +25,7 @@ All notable changes to this project will be documented in this file.
   - In upcoming releases - especially for new subaccounts - subaccount id will no longer match the tenant GUID which is provided via the xsuaa access token as `zid` claim or via the ias oidc token as `zone_uuid` claim.
 
 ## 2.7.1
-- [java-security] 
+- [java-security] (SAP Java Buildpack version 1.26.1)
   - rename Token claim "sap_uid" to „user_uuid“.
   - Token Key Cache can now be customized via `XsuaaTokenAuthenticator`
   - `XSUserInfoAdapter` supports `requestTokenForUser()` method
