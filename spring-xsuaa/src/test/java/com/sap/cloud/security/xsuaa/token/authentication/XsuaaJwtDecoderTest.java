@@ -57,7 +57,7 @@ public class XsuaaJwtDecoderTest {
 	public void decode_whenJwksContainsInvalidJwksDomain_throwsException() throws IOException {
 		String token = IOUtils.resourceToString("/token_user.txt", StandardCharsets.UTF_8);
 
-		XsuaaJwtDecoder cut = (XsuaaJwtDecoder)new XsuaaJwtDecoderBuilder(configuration).build();
+		XsuaaJwtDecoder cut = (XsuaaJwtDecoder) new XsuaaJwtDecoderBuilder(configuration).build();
 		cut.setTokenInfoExtractor(new TokenInfoExtractorImpl("https://subdomain.wrongoauth.ondemand.com/token_keys"));
 
 		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
@@ -68,7 +68,7 @@ public class XsuaaJwtDecoderTest {
 	public void decode_whenJwksContainsInvalidPath_throwsException() throws IOException {
 		String token = IOUtils.resourceToString("/token_cc.txt", StandardCharsets.UTF_8);
 
-		XsuaaJwtDecoder cut = (XsuaaJwtDecoder)new XsuaaJwtDecoderBuilder(configuration).build();
+		XsuaaJwtDecoder cut = (XsuaaJwtDecoder) new XsuaaJwtDecoderBuilder(configuration).build();
 		cut.setTokenInfoExtractor(new TokenInfoExtractorImpl("https://subdomain.myauth.ondemand.com/wrong_endpoint"));
 
 		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
@@ -79,7 +79,7 @@ public class XsuaaJwtDecoderTest {
 	public void decode_whenJwksContainQueryParameters_throwsException() throws IOException {
 		String token = IOUtils.resourceToString("/token_cc.txt", StandardCharsets.UTF_8);
 
-		XsuaaJwtDecoder cut = (XsuaaJwtDecoder)new XsuaaJwtDecoderBuilder(configuration).build();
+		XsuaaJwtDecoder cut = (XsuaaJwtDecoder) new XsuaaJwtDecoderBuilder(configuration).build();
 		cut.setTokenInfoExtractor(new TokenInfoExtractorImpl("https://subdomain.myauth.ondemand.com/token_keys?a=b"));
 
 		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
@@ -91,15 +91,17 @@ public class XsuaaJwtDecoderTest {
 	public void decode_whenJwksContainsFragment_throwsException() throws IOException {
 		String token = IOUtils.resourceToString("/token_cc.txt", StandardCharsets.UTF_8);
 
-		XsuaaJwtDecoder cut = (XsuaaJwtDecoder)new XsuaaJwtDecoderBuilder(configuration).build();
-		cut.setTokenInfoExtractor(new TokenInfoExtractorImpl("https://subdomain.myauth.ondemand.com/token_keys#token_keys"));
+		XsuaaJwtDecoder cut = (XsuaaJwtDecoder) new XsuaaJwtDecoderBuilder(configuration).build();
+		cut.setTokenInfoExtractor(
+				new TokenInfoExtractorImpl("https://subdomain.myauth.ondemand.com/token_keys#token_keys"));
 
 		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
 				.hasMessageContaining("Jwt token does not contain a valid 'jku' header parameter:");
 
 	}
 
-	private static class TokenInfoExtractorImpl implements com.sap.cloud.security.xsuaa.token.authentication.TokenInfoExtractor {
+	private static class TokenInfoExtractorImpl
+			implements com.sap.cloud.security.xsuaa.token.authentication.TokenInfoExtractor {
 		private String jku;
 
 		public TokenInfoExtractorImpl(String jku) {

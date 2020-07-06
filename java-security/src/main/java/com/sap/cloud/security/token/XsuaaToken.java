@@ -172,13 +172,6 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 				.orElse(getClaimAsString(ZONE_ID));
 	}
 
-	@Nullable
-	public String getAttributeFromClaimAsString(String claimName, String attributeName) {
-		return Optional.ofNullable(getClaimAsJsonObject(claimName))
-				.map(claim -> claim.getAsString(attributeName))
-				.orElse(null);
-	}
-
 	@Override
 	public String getZoneId() {
 		return Objects.nonNull(super.getZoneId()) ? super.getZoneId() : getClaimAsString(ZONE_ID);
