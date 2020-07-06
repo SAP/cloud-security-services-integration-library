@@ -173,7 +173,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	}
 
 	@Nullable
-	private String getAttributeFromClaimAsString(String claimName, String attributeName) {
+	public String getAttributeFromClaimAsString(String claimName, String attributeName) {
 		return Optional.ofNullable(getClaimAsJsonObject(claimName))
 				.map(claim -> claim.getAsString(attributeName))
 				.orElse(null);

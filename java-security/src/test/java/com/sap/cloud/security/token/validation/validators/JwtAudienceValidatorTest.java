@@ -73,7 +73,6 @@ public class JwtAudienceValidatorTest {
 	@Test
 	public void validate_tokenClientIdMatchesTrustedClientId() {
 		Mockito.when(token.getAudiences()).thenReturn(Collections.emptySet());
-		Mockito.when(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).thenReturn(Collections.EMPTY_LIST);
 
 		// configures audience validator with client-id from VCAP_SERVICES
 		ValidationResult result = new JwtAudienceValidator("client")
@@ -112,7 +111,7 @@ public class JwtAudienceValidatorTest {
 	@Test
 	public void validate_tokenClientIdDoesNotMatchTrustedBrokerClientId() {
 		Mockito.when(token.getAudiences()).thenReturn(Collections.emptySet());
-		Mockito.when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn("sb-clone-app-id!b123|-" + XSUAA_BROKER_XSAPPNAME);
+		Mockito.when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn("sb-clone-app-id!b123|xxx" + XSUAA_BROKER_XSAPPNAME);
 
 		// configures audience validator with client-id from VCAP_SERVICES
 		ValidationResult result = new JwtAudienceValidator(XSUAA_BROKER_XSAPPNAME)
