@@ -45,28 +45,26 @@ Whether the token is issued for your application or not is now validated by the 
 
 ### Troubleshooting
 
-If you get stuck with migrating your application you can follow the steps described in this section
-to troubleshoot the issue. 
+If you get stuck with migrating your application, 
+[open an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
+and provide details like 
+- migration guide, e.g. java-security/Migration_SAPJavaBuildpackProjects.md
+- client-lib version you have used before, e.g. com.sap.cloud.security.xssec:api version 3.11.0
+- client-lib version you have migrated to, e.g. com.sap.cloud.security.xsuaa:api version 2.7.3
+- buildpack version, e.g. 1.26.1 (as described below)
+- debug logs (as described below)
+- issue you’re facing.
 
-#### Check buildpack version
+#### Get buildpack version
 
-To identify the root cause of your issue it is helpful to know which version of the 
-SAP Java Buildpack your application is using. 
-The buildpack being used is defined in the `manifest.yml` file via the
-[buildpacks](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack) option.
+The buildpack being used is defined in your deployment descriptor e.g. as part of the `manifest.yml` file via the
+[buildpacks](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack) attribute.
+
 If it is set to `sap_java_buildpack` then the **newest** available version of the SAP Java buildpack is used.
-The command `cf buildpacks` gives you a list of buildpacks available in your environment.
-With this you can find out which version of the buildpack your application is actually using.
-
-Lets say in your `manifest.yml` the buildpack is set to `sap_java_buildpack`. This means the newest
-available version is being used! Now you check the available buildpacks with `cf buildpacks`
-which will give you something like  this:
+Use command `cf buildpacks` to get the exact version of `sap_java_buildpack`:
 
 ```sh
-Getting buildpacks...
-
 buildpack                       position   enabled   locked   filename                                             stack
-staticfile_buildpack            1          true      false    staticfile_buildpack-cached-cflinuxfs3-v1.5.5.zip    cflinuxfs3
 java_buildpack                  2          true      false    java_buildpack-cached-cflinuxfs3-v4.31.1.zip         cflinuxfs3
 .
 .
@@ -74,13 +72,9 @@ java_buildpack                  2          true      false    java_buildpack-cac
 sap_java_buildpack              12         true      false    sap_java_buildpack-v1.26.1.zip
 sap_java_buildpack_1_26         13         true      false    sap_java_buildpack-v1.26.1.zip
 sap_java_buildpack_1_25         14         true      false    sap_java_buildpack-v1.25.0.zip
-sap_java_buildpack_1_24         15         true      false    sap_java_buildpack-v1.24.1.zip
 ```
 
-Here you can see that the newest SAP Java Buildpack is `sap_java_buildpack_1_26` and therefore your application
-is using the SAP Java Buildpack version `1.26.x`!
-
-#### Increase log level 
+#### Increase log level to `DEBUG`
 
 You should also increase the logging level in your application. This can be done by setting the `SET_LOGGING_LEVEL`
 environment variable for your application. You can do this in the `manifest.yml` with the `env` option like so:
@@ -101,10 +95,6 @@ cf set-env <your app name> SET_LOGGING_LEVEL "{com.sap.xs.security: DEBUG, com.s
 
 You need to restage your application for the changes to take effect.
 
-#### Open an issue
-If you are still stuck with migration, please
-[open an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
-and provide details like client-lib / migration guide / buildpack version / issue you’re facing and, when available, (debug) logs.
 
 ### [OPTIONAL] Leverage new API and features
 You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand what needs to be done to leverage the new `java-api` that is exposed by the SAP Java Buildpack as of version `1.26.1`.
