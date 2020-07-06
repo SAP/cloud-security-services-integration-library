@@ -137,7 +137,7 @@ public class JwtGeneratorTest {
 		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(tokenKeyServiceUrl);
 	}
 
-		@Test
+	@Test
 	public void withScopes_containsScopeWhenServiceIsXsuaa() {
 		String[] scopes = new String[] { "openid", "app1.scope" };
 		Token token = cut.withScopes(scopes).createToken();
