@@ -43,10 +43,15 @@ With that the SAP Java Buildpack will provide `com.sap.cloud.security.token.Acce
 ```java
 import com.sap.cloud.security.token.*;
 
-AccessToken userInfo = (AccessToken) request.getUserPrincipal();
+@Override
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	
+    AccessToken userInfo = (AccessToken) request.getUserPrincipal();
 
-String logonName = token.getClaimAsString(TokenClaims.USER_NAME);
-boolean hasDisplayScope = token.hasLocalScope("Display");
+    String logonName = token.getClaimAsString(TokenClaims.USER_NAME);
+    boolean hasDisplayScope = token.hasLocalScope("Display");
+    ...
+}
 ```
 > Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
 
