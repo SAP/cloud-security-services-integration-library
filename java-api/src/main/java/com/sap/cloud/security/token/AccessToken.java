@@ -2,6 +2,7 @@ package com.sap.cloud.security.token;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -45,4 +46,27 @@ public interface AccessToken extends Token {
 	 **/
 	@Nullable
 	GrantType getGrantType();
+
+	/**
+	 * Returns the String value of a claim attribute. <br>
+	 * <code>
+	 *     "claimName": {
+	 *         "attributeName": "attributeValueAsString"
+	 *     },
+	 *     </code><br>
+	 * Example: <br>
+	 * <code>
+	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
+	 *
+	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
+	 *     </code>
+	 * 
+	 * @return the String value of a claim attribute.
+	 **/
+	@Nullable
+	default String getAttributeFromClaimAsString(String claimName, String attributeName) {
+		return Optional.ofNullable(getClaimAsJsonObject(claimName))
+				.map(claim -> claim.getAsString(attributeName))
+				.orElse(null);
+	}
 }

@@ -140,7 +140,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 				logger.warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'.",
 						jku, uaadomain);
 				throw new JwtException("Do not trust 'jku' token header.");
-			} else if (!jkuUri.getPath().endsWith("token_keys") || !isEmpty(jkuUri.getQuery()) || !isEmpty(jkuUri.getFragment())) {
+			} else if (!jkuUri.getPath().endsWith("token_keys") || !isEmpty(jkuUri.getQuery())
+					|| !isEmpty(jkuUri.getFragment())) {
 				logger.warn("Error: Do not trust jku '{}' because it contains invalid path, query or fragment.", jku);
 				throw new JwtException("Jwt token does not contain a valid 'jku' header parameter: " + jkuUri);
 			}

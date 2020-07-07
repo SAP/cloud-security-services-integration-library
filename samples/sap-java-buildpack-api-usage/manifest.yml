@@ -17,6 +17,7 @@ applications:
   services:
     - xsuaa-buildpack
   env:
+    SET_LOGGING_LEVEL: '{com.sap.xs.security: DEBUG, com.sap.cloud.security: DEBUG}'
     ENABLE_SECURITY_JAVA_API_V2: true
 # Application Router as web server
 - name: approuter-sap-java-buildpack-api-usage

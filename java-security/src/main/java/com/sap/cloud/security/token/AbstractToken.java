@@ -27,12 +27,14 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.ISSUED_AT;
  * header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
+	private final DecodedJwt decodedJwt;
 	protected final DefaultJsonObject tokenHeader;
 	protected final DefaultJsonObject tokenBody;
-	protected final String jwtToken;
 
 	public AbstractToken(@Nonnull DecodedJwt decodedJwt) {
-		this(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
+		this.tokenHeader = new DefaultJsonObject(decodedJwt.getHeader());
+		this.tokenBody = new DefaultJsonObject(decodedJwt.getPayload());
+		this.decodedJwt = decodedJwt;
 	}
 
 	/**
@@ -45,12 +47,6 @@ public abstract class AbstractToken implements Token {
 	 */
 	public AbstractToken(@Nonnull String jwtToken) {
 		this(Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken)));
-	}
-
-	AbstractToken(String jsonHeader, String jsonPayload, String jwtToken) {
-		tokenHeader = new DefaultJsonObject(jsonHeader);
-		tokenBody = new DefaultJsonObject(jsonPayload);
-		this.jwtToken = jwtToken;
 	}
 
 	@Nullable
@@ -109,7 +105,7 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public String getTokenValue() {
-		return jwtToken;
+		return decodedJwt.getEncodedToken();
 	}
 
 	@Override
@@ -167,5 +163,10 @@ public abstract class AbstractToken implements Token {
 	@Override
 	public String getZoneId() {
 		return getClaimAsString(TokenClaims.SAP_GLOBAL_ZONE_ID);
+	}
+
+	@Override
+	public String toString() {
+		return decodedJwt.toString();
 	}
 }

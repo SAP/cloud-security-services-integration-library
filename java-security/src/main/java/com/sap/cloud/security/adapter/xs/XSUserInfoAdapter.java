@@ -128,12 +128,14 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * "ext_attr": { "enhancer": "XSUAA", "subaccountid": "my-subaccount-1234" },
 	 */
 	public String getSubaccountId() {
-		return Optional.ofNullable(getExternalAttribute(EXTERNAL_ATTRIBUTE_SUBACCOUNTID)).orElse(getClaimValue(ZONE_ID));
+		return Optional.ofNullable(getExternalAttribute(EXTERNAL_ATTRIBUTE_SUBACCOUNTID))
+				.orElse(getClaimValue(ZONE_ID));
 	}
 
 	@Override
 	public String getZoneId() {
-		return accessToken.hasClaim(SAP_GLOBAL_ZONE_ID) ? accessToken.getClaimAsString(SAP_GLOBAL_ZONE_ID) : getClaimValue(ZONE_ID);
+		return accessToken.hasClaim(SAP_GLOBAL_ZONE_ID) ? accessToken.getClaimAsString(SAP_GLOBAL_ZONE_ID)
+				: getClaimValue(ZONE_ID);
 	}
 
 	@Override

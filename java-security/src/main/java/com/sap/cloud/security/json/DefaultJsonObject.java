@@ -190,4 +190,8 @@ public class DefaultJsonObject implements JsonObject {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return jsonObject.toString(2);
+	}
 }

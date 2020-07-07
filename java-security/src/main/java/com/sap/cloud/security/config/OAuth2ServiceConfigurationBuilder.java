@@ -166,5 +166,14 @@ public class OAuth2ServiceConfigurationBuilder {
 		public int hashCode() {
 			return Objects.hash(properties, runInLegacyMode, service);
 		}
+
+		@Override
+		public String toString() {
+			return "OAuth2ServiceConfigurationImpl{" +
+					"properties=" + properties +
+					", service=" + service +
+					", legacyMode=" + isLegacyMode() +
+					'}';
+		}
 	}
 }

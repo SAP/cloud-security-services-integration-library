@@ -78,9 +78,11 @@ public interface XSUserInfo {
 	String getOrigin() throws XSUserInfoException;
 
 	/**
-	 * Return identity zone which is in most cases same like the subaccount identifier.
+	 * Return identity zone which is in most cases same like the subaccount
+	 * identifier.
 	 * 
-	 * @deprecated Have to be replaced with {@link #getZoneId()} or {@link #getSubaccountId()}.
+	 * @deprecated Have to be replaced with {@link #getZoneId()} or
+	 *             {@link #getSubaccountId()}.
 	 * @return identity zone
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
@@ -91,8 +93,8 @@ public interface XSUserInfo {
 	/**
 	 * Return subaccount identifier.
 	 *
-	 * DO only use this for metering purposes.
-	 * DO NOT longer use this method to get the unique tenant id! For that use {@link #getZoneId()}.
+	 * DO only use this for metering purposes. DO NOT longer use this method to get
+	 * the unique tenant id! For that use {@link #getZoneId()}.
 	 *
 	 * @return subaccount identifier
 	 * @throws XSUserInfoException
@@ -101,12 +103,12 @@ public interface XSUserInfo {
 	String getSubaccountId() throws XSUserInfoException;
 
 	/**
-	 * Return zone identifier which should be used as tenant discriminator (tenant id).
-	 * For most of the old subaccounts this matches the id returned by {@link #getSubaccountId()}.
+	 * Return zone identifier which should be used as tenant discriminator (tenant
+	 * id). For most of the old subaccounts this matches the id returned by
+	 * {@link #getSubaccountId()}.
 	 *
-	 * @deprecated Can be replaced with
-	 *             {@code token.getZoneId()} from
-	 *             the {@code com.sap.cloud.security.token} package.
+	 * @deprecated Can be replaced with {@code token.getZoneId()} from the
+	 *             {@code com.sap.cloud.security.token} package.
 	 * @return zone identifier
 	 * @throws XSUserInfoException
 	 *             if attribute is not available in the authentication token
