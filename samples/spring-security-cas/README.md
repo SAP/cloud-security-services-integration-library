@@ -67,13 +67,13 @@ First, get familiar with the Authorization Decision Controller (ADC) service whi
     ```  
    > With `mvn clean package` the `dcl-compiler-plugin` maven plugin generates based on the `src/main/resources/cas/*.dcl` files `*.rego` files that can be consumed by the OPA and puts them into the `target/classes/cas` folder. 
                                                                                                                                                                           
-   > With `docker-compose` the docker container with OPA is preconfigured with all generated `*.rego` files. And the OPA service is accessible at OPA_URL = http://localhost:8181/v1/policies.
+   > With `docker-compose` the docker container with OPA is preconfigured with all generated `*.rego` files. And the OPA service is accessible at ADC_URL = http://localhost:8181/v1/policies.
 
 2. Perform some requests (using [`Postman` REST client](https://www.postman.com/))
 
-    * `<OPA_URL>/v1/data` returns the users and their policies  
-    * `<OPA_URL>/v1/policies` lists the divers policies
-    * `<OPA_URL>/v1/data/rbac/allow` POST request with Content-Type: `application/json` and payload:
+    * `<ADC_URL>/v1/data` returns the users and their policies  
+    * `<ADC_URL>/v1/policies` lists the divers policies
+    * `<ADC_URL>/v1/data/rbac/allow` POST request with Content-Type: `application/json` and payload:
     ```
     {
         "input": {
@@ -133,8 +133,8 @@ This demo application can be tested locally in a hybrid setup. That means that t
 1. Open the `/src/main/resources/application.yml` file and configure the `issuer_uri` with the `url`. In case of xsuaa service instance, you have to enhance the url by `/oauth/token`. Save the file changes.
 1. Open the `localEnvironmentSetup.sh` file and update the values for `clientid` and `clientsecret` accordingly. Save the file changes.
 
-> Note: The url of the Authorization Decision Controller (`OPA_URL`) is configured as system environment variable or as part of [application.yml](src/main/resources/application.yml) in case of Spring applications. 
-In this sample, if `OPA_URL` is not configured `http://localhost:8181` is taken as default, which points to the [opa docker container](docker-compose.yaml).
+> Note: The url of the Authorization Decision Controller (`ADC_URL`) is configured as system environment variable or as part of [application.yml](src/main/resources/application.yml) in case of Spring applications. 
+In this sample, if `ADC_URL` is not configured `http://localhost:8181` is taken as default, which points to the [opa docker container](docker-compose.yaml).
 
 ## Start application locally
 ```

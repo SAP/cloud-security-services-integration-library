@@ -19,7 +19,7 @@ public class BasicController {
     @Autowired
     AdcService adcService;
 
-    @Value("${OPA_URL:http://localhost:8181}")
+    @Value("${ADC_URL:http://localhost:8181}")
     private String adcUrl;
 
     @GetMapping(value = "/health")  // health check, not secured

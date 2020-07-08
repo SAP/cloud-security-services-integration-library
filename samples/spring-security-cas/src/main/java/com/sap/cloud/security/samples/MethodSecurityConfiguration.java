@@ -14,7 +14,7 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfiguration extends GlobalMethodSecurityConfiguration {
 
-    @Value("${OPA_URL:http://localhost:8181}")
+    @Value("${ADC_URL:http://localhost:8181}")
     private String adcUrl;
 
     /**
