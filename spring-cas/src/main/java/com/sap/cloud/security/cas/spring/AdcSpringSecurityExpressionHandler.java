@@ -7,7 +7,7 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.core.Authentication;
 
 /**
- * TODO: extract as library
+ * TODO can be auto-configured.
  */
 public class AdcSpringSecurityExpressionHandler extends DefaultMethodSecurityExpressionHandler {
 	private AdcService service;

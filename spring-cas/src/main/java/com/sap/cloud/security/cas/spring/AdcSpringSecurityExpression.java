@@ -12,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
 /**
- * TODO: extract as library
  */
 public class AdcSpringSecurityExpression extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
 
