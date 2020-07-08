@@ -13,7 +13,8 @@ public class AdcServiceRequestDefaultTest {
     @Test
     public void withAllRequiredCasAttributes() {
         AdcServiceRequestDefault request = new AdcServiceRequestDefault("zone-a", "uid");
-        assertEquals("{\"input\":{\"$cas\":{\"userId\":\"uid\"}}}", request.asInputJson());
+        assertEquals("{\"input\":{\"$cas\":{\"zoneId\":\"zone-a\",\"userId\":\"uid\"}}}", request.asInputJson());
+
     }
 
     @Test
@@ -21,7 +22,7 @@ public class AdcServiceRequestDefaultTest {
         AdcServiceRequestDefault request = new AdcServiceRequestDefault("zone-a", "uid");
         request.withAction("theAction");
         request.withResource("theResource");
-        assertEquals("{\"input\":{\"$cas\":{\"resource\":\"theResource\",\"action\":\"theAction\",\"userId\":\"uid\"}}}", request.asInputJson());
+        assertEquals("{\"input\":{\"$cas\":{\"zoneId\":\"zone-a\",\"action\":\"theAction\",\"resource\":\"theResource\",\"userId\":\"uid\"}}}", request.asInputJson());
     }
 
     @Test
@@ -30,7 +31,7 @@ public class AdcServiceRequestDefaultTest {
         request.withAttribute("attr", "attrValue");
         request.withAttribute("attr_double", 1.234);
         request.withAttribute("attr_integer", 567);
-        assertEquals("{\"input\":{\"$cas\":{\"userId\":\"uid\"},\"$app\":{\"attr\":\"attrValue\",\"attr_double\":1.234,\"attr_integer\":567}}}", request.asInputJson());
+        assertEquals("{\"input\":{\"$cas\":{\"zoneId\":\"zone-a\",\"userId\":\"uid\"},\"$app\":{\"attr\":\"attrValue\",\"attr_double\":1.234,\"attr_integer\":567}}}", request.asInputJson());
     }
 
     @Test
@@ -41,6 +42,6 @@ public class AdcServiceRequestDefaultTest {
             put("use", "useThis");
         }};
         request.withUserAttributes(userAttributes);
-        assertEquals("{\"input\":{\"$cas\":{\"userId\":\"uid\"},\"$user\":{\"use\":\"useThis\"}}}", request.asInputJson());
+        assertEquals("{\"input\":{\"$cas\":{\"zoneId\":\"zone-a\",\"userId\":\"uid\"},\"$user\":{\"use\":\"useThis\"}}}", request.asInputJson());
     }
 }
