@@ -43,7 +43,7 @@ Whether the token is issued for your application or not is now validated by the 
 
 ### Congratulation! With that you're Done!
 
-## Troubleshooting
+## Troubleshoot
 
 If you get stuck with migrating your application, 
 [open an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
@@ -55,7 +55,7 @@ and provide these details
 - [debug logs](#increase-log-level-to-debug)
 - issue you’re facing.
 
-#### Get buildpack version
+### Get buildpack version
 
 The buildpack being used is defined in your deployment descriptor e.g. as part of the `manifest.yml` file via the
 [buildpacks](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack) attribute.
@@ -74,7 +74,7 @@ sap_java_buildpack_1_26         13         true      false    sap_java_buildpack
 sap_java_buildpack_1_25         14         true      false    sap_java_buildpack-v1.25.0.zip
 ```
 
-#### Increase log level to `DEBUG`
+### Increase log level to `DEBUG`
 
 You should also increase the logging level in your application. This can be done by setting the `SET_LOGGING_LEVEL`
 environment variable for your application. You can do this in the `manifest.yml` with the `env` option like so:
