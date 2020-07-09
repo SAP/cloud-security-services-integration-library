@@ -280,5 +280,5 @@ application locally make sure that it is still working and finally test the appl
 
 
 ## Issues
-In case you face issues to apply the migration steps feel free to open a Issue here on [Github.com](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new).
+In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue.
 
