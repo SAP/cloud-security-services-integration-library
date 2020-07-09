@@ -202,8 +202,38 @@ public Map<String, String> message() {
 ## Samples
 - [spring-security-xsuaa-usage](/samples/spring-security-xsuaa-usage) 
 
-## Troubleshoot
+## Troubleshooting
 
+In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
+and provide these details:
+- security related dependencies, get dependency tree with `mvn dependency:tree`
+- [debug logs](#increase-log-level-to-debug)
+- issue you’re facing.
+
+#### Increase log level to `DEBUG`
+
+First, configure the Debug log level for Spring Framework Web and all Security related libs. This can be done as part of your `application.yml` or `application.properties` file.
+
+```yaml
+logging.level:
+  com.sap: DEBUG                      # set SAP-class loggers to DEBUG. Set to ERROR for production setups.
+  org.springframework: ERROR          # set to DEBUG to see all beans loaded and auto-config conditions met.
+  org.springframework.security: DEBUG # set to ERROR for production setups. 
+  org.springframework.web: DEBUG      # set to ERROR for production setups.
+```
+
+Then, in case you like to see what different filters are applied to particular request then set the debug flag to true in `@EnableWebSecurity` annotation:
+```java
+@Configuration
+@EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+   ...
+}
+```
+
+Finally you need do re-deploy your application for the changes to take effect.
+
+#### Known issues
 - Compile error when upgrading from version `1.5.0` to `1.6.0`:  
   ```
   java.lang.IllegalStateException: Failed to load ApplicationContext
@@ -216,4 +246,4 @@ public Map<String, String> message() {
     ```
     Parameter 1 of method xsuaaJwtDecoder in com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration required a single bean, but 2 were found...
     ```
-  In case you use the `xsuaa-spring-boot-starter`, read the [Auto-configuration](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#auto-configuration) section.
+  In case you use the `xsuaa-spring-boot-starter`, read the [auto-configuration](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#auto-configuration) section.
