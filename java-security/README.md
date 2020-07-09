@@ -221,6 +221,11 @@ cf set-env <your app name> SET_LOGGING_LEVEL "{com.sap.xs.security: DEBUG, com.s
 
 You need to restage your application for the changes to take effect.
 
+### Known Issues
+
+This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.	## Troubleshoot
+If you have classpath related  issues involving JSON you should take a look at the	
+[Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 ## Specs und References
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)
