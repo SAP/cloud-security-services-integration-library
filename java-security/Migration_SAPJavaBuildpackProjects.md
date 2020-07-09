@@ -43,58 +43,8 @@ Whether the token is issued for your application or not is now validated by the 
 
 ### Congratulation! With that you're Done!
 
-## Troubleshoot
-
-If you get stuck with migrating your application, 
-[open an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
-and provide these details 
-- migration guide, e.g. java-security/Migration_SAPJavaBuildpackProjects.md
-- client-lib version you have used before, e.g. com.sap.cloud.security.xssec:api version 3.11.0
-- client-lib version you have migrated to, e.g. com.sap.cloud.security.xsuaa:api version 2.7.3
-- [SAP buildpack version](#get-buildpack-version), e.g. 1.26.1 
-- [debug logs](#increase-log-level-to-debug)
-- issue you’re facing.
-
-### Get buildpack version
-
-The buildpack being used is defined in your deployment descriptor e.g. as part of the `manifest.yml` file via the
-[buildpacks](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack) attribute.
-
-If it is set to `sap_java_buildpack` then the **newest** available version of the SAP Java buildpack is used.
-Use command `cf buildpacks` to get the exact version of `sap_java_buildpack`:
-
-```sh
-buildpack                       position   enabled   locked   filename                                             stack
-java_buildpack                  2          true      false    java_buildpack-cached-cflinuxfs3-v4.31.1.zip         cflinuxfs3
-.
-.
-.
-sap_java_buildpack              12         true      false    sap_java_buildpack-v1.26.1.zip
-sap_java_buildpack_1_26         13         true      false    sap_java_buildpack-v1.26.1.zip
-sap_java_buildpack_1_25         14         true      false    sap_java_buildpack-v1.25.0.zip
-```
-
-### Increase log level to `DEBUG`
-
-You should also increase the logging level in your application. This can be done by setting the `SET_LOGGING_LEVEL`
-environment variable for your application. You can do this in the `manifest.yml` with the `env` option like so:
-
-```yaml
-env:
-    SET_LOGGING_LEVEL: '{com.sap.xs.security: DEBUG, com.sap.cloud.security: DEBUG}'
-```
-
-After you have made changes to the `manifest.yml` you need do re-deploy your app.
-This sets the logging level for this library and the security parts of the buildpack to `DEBUG`.
-
-For a running application this can also be done with the `cf` command line tool:
-
-```shell
-cf set-env <your app name> SET_LOGGING_LEVEL "{com.sap.xs.security: DEBUG, com.sap.cloud.security: DEBUG}"
-```
-
-You need to restage your application for the changes to take effect.
-
+## Issues
+In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue.
 
 ## [OPTIONAL] Leverage new API and features
 You can continue [here](Migration_SAPJavaBuildpackProjects_V2.md) to understand what needs to be done to leverage the new `java-api` that is exposed by the SAP Java Buildpack as of version `1.26.1`.
