@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 /**
  * TODO
  *  - check whether it works on CF (can load ADC_URL) timely
- *  - check whether we can expose AdcService as Spring Service
  */
 @Configuration
 public class AdcServiceConfiguration {
