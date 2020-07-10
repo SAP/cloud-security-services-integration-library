@@ -76,15 +76,6 @@ public class XsuaaJwtIssuerValidatorTest {
 	}
 
 	@Test
-	public void validationFails_whenJwksContainsParameter() {
-		when(token.getHeaderParameterAsString(JWKS_URL)).thenReturn("\0://myauth.com");
-		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(),
-				containsString("Jwt token does not contain a valid uri as 'jku' header parameter"));
-	}
-
-	@Test
 	public void validationFails_whenJwksDoesNotContainAValidPath() {
 		when(token.getHeaderParameterAsString(JWKS_URL))
 				.thenReturn("https://subdomain.myauth.ondemand.com/wrong_endpoint");
@@ -95,7 +86,7 @@ public class XsuaaJwtIssuerValidatorTest {
 	}
 
 	@Test
-	public void validationFails_whenJwksContainQueryParameters() {
+	public void validationFails_whenJwksContainsQueryParameters() {
 		when(token.getHeaderParameterAsString(JWKS_URL))
 				.thenReturn("https://subdomain.myauth.ondemand.com/token_keys?a=b");
 		ValidationResult validationResult = cut.validate(token);
