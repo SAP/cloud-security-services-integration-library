@@ -187,7 +187,7 @@ public class JwtValidatorBuilder {
 
 		if (configuration.getService() == XSUAA) {
 			if (!configuration.isLegacyMode()) {
-				defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
+				defaultValidators.add(new XsuaaJkuValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
 		} else if (configuration.getService() == IAS) {
 			defaultValidators.add(new JwtIssuerValidator(configuration.getUrl()));

@@ -106,7 +106,7 @@ class JwtSignatureValidator implements Validator<Token> {
 			return configuration.getUrl() + "/token_keys";
 		}
 		if (configuration.getService() == Service.XSUAA && token.hasHeaderParameter(KEYS_URL_PARAMETER_NAME)) {
-			// 'jku' was validated by XsuaaJwtIssuerValidator
+			// 'jku' was validated by XsuaaJkuValidator
 			return token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME);
 		}
 		if (configuration.getService() != Service.XSUAA && token.hasClaim(ISSUER)) {

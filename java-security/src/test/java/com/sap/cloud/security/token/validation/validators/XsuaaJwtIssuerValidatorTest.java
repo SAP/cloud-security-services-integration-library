@@ -12,25 +12,25 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-public class XsuaaJwtIssuerValidatorTest {
-	private XsuaaJwtIssuerValidator cut;
+public class XsuaaJkuValidatorTest {
+	private XsuaaJkuValidator cut;
 	private Token token;
 
 	@Before
 	public void setup() {
-		cut = new XsuaaJwtIssuerValidator("myauth.ondemand.com");
+		cut = new XsuaaJkuValidator("myauth.ondemand.com");
 		token = Mockito.mock(Token.class);
 	}
 
 	@Test
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new XsuaaJwtIssuerValidator(null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("XsuaaJwtIssuerValidator", "uaaDomain");
+			new XsuaaJkuValidator(null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("XsuaaJkuValidator", "uaaDomain");
 
 		assertThatThrownBy(() -> {
-			new XsuaaJwtIssuerValidator(" ");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("XsuaaJwtIssuerValidator", "uaaDomain");
+			new XsuaaJkuValidator(" ");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("XsuaaJkuValidator", "uaaDomain");
 	}
 
 	@Test
