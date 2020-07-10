@@ -8,7 +8,8 @@ Token Validation for Java applications.
   - Is the JWT used before the `exp` (expiration) time and eventually is it used after the `nbf` (not before) time ([`JwtTimestampValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/JwtTimestampValidator.java))?
   - Is the JWT issued by a trust worthy identity service ([`JwtIssuerValidator`](
- src/main/java/com/sap/cloud/security/token/validation/validators/JwtIssuerValidator.java))? In case of XSUAA does the token key url (`jku` JWT header parameter) match the identity service domain?
+ src/main/java/com/sap/cloud/security/token/validation/validators/JwtIssuerValidator.java))? In case of XSUAA does the JWT provides a valid `jku` token header parameter that points to a JWKS url from a trust worthy identity service ([`XsuaaJkuValidator`](
+ src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJkuValidator.java)) as it matches the uaa domain?
   - Is the JWT intended for the OAuth2 client of this application? The `aud` (audience) claim identifies the recipients the JWT is issued for ([`XsuaaJwtAudienceValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJwtAudienceValidator.java)).
   - Is the JWT signed with the public key of the trust-worthy identity service? With that it also makes sure that the payload and the header of the JWT is unchanged ([`JwtSignatureValidator`](
