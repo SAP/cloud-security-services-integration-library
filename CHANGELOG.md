@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 - [java-api] `AcessToken` provides `getAttributeFromClaimAsString(String claimName, String attributeName)` to access for example `ext_attr` values such as `subaccountid`...
 - [java-security] provide debug logs for failing token validation, see [troubleshoot](/java-security/Migration_SAPJavaBuildpackProjects.md).
 - [java-security-test] Fixed default value for jku token header to `http://localhost/token_keys`
+- [samples] Upgraded [approuter](https://www.npmjs.com/package/@sap/approuter) version to "^8.2.0"
 
 ## 2.7.4
 - [java-security] Audience Validation validates to true when the derived `client_id` of broker-clone token matches the trusted client. This is relevant to support tokens of grant type `user_token` that contains no scopes.
