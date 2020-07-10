@@ -19,9 +19,6 @@ public class BasicController {
     @Autowired
     AdcService adcService;
 
-    @Value("${ADC_URL:http://localhost:8181}")
-    private String adcUrl;
-
     @GetMapping(value = "/health")  // health check, not secured
     @ResponseStatus(OK)
     public String healthCheck() {

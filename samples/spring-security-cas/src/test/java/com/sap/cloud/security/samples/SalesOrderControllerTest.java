@@ -1,17 +1,14 @@
 package com.sap.cloud.security.samples;
 
-import com.sap.cloud.security.cas.client.AdcServiceDefault;
-
+import com.sap.cloud.security.cas.client.AdcService;
 import com.sap.cloud.security.spring.context.support.WithMockOidcUser;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.net.URI;
 
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -19,17 +16,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Support non-static @BeforeAll
 public class SalesOrderControllerTest {
-
-    //TODO @Value("${ADC_URL:http://localhost:8181}")
-    private static String adcUrl = "http://localhost:8181/";
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private AdcService adcService;
+
     @BeforeAll
-    public static void adcServiceRunning() {
-        assumeTrue(new AdcServiceDefault(URI.create(adcUrl)).ping());
+    public void adcServiceRunning() {
+        assumeTrue(adcService.ping());
     }
 
     @Test

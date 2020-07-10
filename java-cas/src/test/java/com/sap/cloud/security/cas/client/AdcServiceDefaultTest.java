@@ -51,6 +51,16 @@ class AdcServiceDefaultTest {
 	}
 
 	@Test
+	void isUserAuthorized_responseEmpty_isFalse() throws IOException {
+		CloseableHttpResponse responseMock = createResponse("{}", HttpStatus.SC_OK);
+		when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(responseMock);
+
+		AdcServiceResponse response = cut.isUserAuthorized(createRequest());
+
+		assertFalse(response.getResult());
+	}
+
+	@Test
 	void isUserAuthorized_httpNotFound_isFalse() throws IOException {
 		CloseableHttpResponse responseMock = createResponse( HttpStatus.SC_NOT_FOUND);
 		when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(responseMock);

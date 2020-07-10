@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration= \
+com.sap.cloud.security.cas.spring.AdcServiceConfiguration, \
+com.sap.cloud.security.cas.spring.MethodSecurityConfiguration
