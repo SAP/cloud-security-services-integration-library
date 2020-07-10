@@ -5,11 +5,9 @@ import com.sap.cloud.security.cas.client.AdcServiceRequest;
 import com.sap.cloud.security.cas.client.AdcServiceResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -20,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AutoConfigurationTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(AdcConfiguration.class));
+			.withConfiguration(AutoConfigurations.of(AdcServiceConfiguration.class));
 
 	@Test
 	void adcService_isCreated() {

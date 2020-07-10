@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
  *  - check whether we can expose AdcService as Spring Service
  */
 @Configuration
-public class AdcConfiguration {
+public class AdcServiceConfiguration {
 
     @Value("${ADC_URL:http://localhost:8181}")
     private String adcUrl;
@@ -23,4 +23,5 @@ public class AdcConfiguration {
 	public AdcService adcService() {
         return new AdcServiceDefault(adcUrl);
     }
+
 }
