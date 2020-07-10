@@ -59,7 +59,8 @@ class JwtIssuerValidator implements Validator<Token> {
 						issuer);
 			}
 			issuerUri = new URI(issuer);
-			if (issuerUri.getHost() != null && issuerUri.getHost().endsWith(url.getHost())) {
+			if (issuerUri.getQuery() == null && issuerUri.getFragment() == null
+					&& issuerUri.getHost() != null && issuerUri.getHost().endsWith(url.getHost())) {
 				return createValid();
 			}
 		} catch (URISyntaxException e) {
