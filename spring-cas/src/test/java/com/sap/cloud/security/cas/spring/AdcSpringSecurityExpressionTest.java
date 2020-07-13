@@ -25,17 +25,15 @@ class AdcSpringSecurityExpressionTest {
 	private static final String ZONE_ID = "theZoneId";
 	private AdcSpringSecurityExpression cut;
 	private AdcService adcService;
+	private ArgumentCaptor<AdcServiceRequest> adcServiceRequestArgumentCaptor;
 
 	@BeforeEach
 	void setUp() {
-		DefaultOAuth2AuthenticatedPrincipal authenticatedPrincipal = new DefaultOAuth2AuthenticatedPrincipal(
-				"theUserId", Maps.newHashMap("zone_uuid", ZONE_ID), Collections.emptyList());
-		Authentication authentication = new TestingAuthenticationToken(authenticatedPrincipal, null);
 		adcService = Mockito.mock(AdcService.class);
+		adcServiceRequestArgumentCaptor = ArgumentCaptor.forClass(AdcServiceRequest.class);
 		when(adcService.isUserAuthorized(any())).thenReturn(createResponse(true));
-		cut = new AdcSpringSecurityExpression(authentication).withAdcService(adcService);
+		cut = new AdcSpringSecurityExpression(createAuthentication()).withAdcService(adcService);
 	}
-
 
 	@Test
 	void forResourceAction_isAuthorized() {
@@ -68,13 +66,9 @@ class AdcSpringSecurityExpressionTest {
 
 	@Test
 	void forResourceAction_createsServiceRequest() {
-		ArgumentCaptor<AdcServiceRequest> adcServiceRequestArgumentCaptor = ArgumentCaptor
-				.forClass(AdcServiceRequest.class);
-
 		cut.forResourceAction("theResource", "theAction", "theAttribute=theValue");
 
-		verify(adcService).isUserAuthorized(adcServiceRequestArgumentCaptor.capture());
-		AdcServiceRequest request = adcServiceRequestArgumentCaptor.getValue();
+		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
 		assertThat(request).isNotNull();
 		assertThat(request.asInputJson())
 				.contains("theResource", "theAction", "theAttribute", "theValue", USER_ID, ZONE_ID);
@@ -82,59 +76,52 @@ class AdcSpringSecurityExpressionTest {
 
 	@Test
 	void forAction_createsServiceRequest() {
-		ArgumentCaptor<AdcServiceRequest> adcServiceRequestArgumentCaptor = ArgumentCaptor
-				.forClass(AdcServiceRequest.class);
-
 		cut.forAction("theAction", "theAttribute=theValue");
 
-		verify(adcService).isUserAuthorized(adcServiceRequestArgumentCaptor.capture());
-		AdcServiceRequest request = adcServiceRequestArgumentCaptor.getValue();
+		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
 		assertThat(request).isNotNull();
 		assertThat(request.asInputJson()).contains("theAction", "theAttribute", "theValue", USER_ID, ZONE_ID);
 	}
 
 	@Test
 	void forResource_createsServiceRequest() {
-		ArgumentCaptor<AdcServiceRequest> adcServiceRequestArgumentCaptor = ArgumentCaptor
-				.forClass(AdcServiceRequest.class);
-
 		cut.forResource("theResource", "attributeKey=attributeValue");
 
-		verify(adcService).isUserAuthorized(adcServiceRequestArgumentCaptor.capture());
-		AdcServiceRequest request = adcServiceRequestArgumentCaptor.getValue();
+		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
 		assertThat(request).isNotNull();
 		assertThat(request.asInputJson()).contains("theResource", "attributeKey", "attributeValue", USER_ID, ZONE_ID);
 	}
 
 	@Test
-	void forResource_withoutAttributes_createsServiceRequest() {
-		ArgumentCaptor<AdcServiceRequest> adcServiceRequestArgumentCaptor = ArgumentCaptor
-				.forClass(AdcServiceRequest.class);
-
+	void forResourceWithoutAttributes_createsServiceRequest() {
 		cut.forResource("theResource");
 
-		verify(adcService).isUserAuthorized(adcServiceRequestArgumentCaptor.capture());
-		AdcServiceRequest request = adcServiceRequestArgumentCaptor.getValue();
+		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
 		assertThat(request).isNotNull();
 		assertThat(request.asInputJson()).contains("theResource", USER_ID, ZONE_ID);
 	}
 
 	@Test
-	void forAction_withoutAttributes_createsServiceRequest() {
-		ArgumentCaptor<AdcServiceRequest> adcServiceRequestArgumentCaptor = ArgumentCaptor
-				.forClass(AdcServiceRequest.class);
-
+	void forActioWithoutAttributes_createsServiceRequest() {
 		cut.forAction("theAction");
 
-		verify(adcService).isUserAuthorized(adcServiceRequestArgumentCaptor.capture());
-		AdcServiceRequest request = adcServiceRequestArgumentCaptor.getValue();
+		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
 		assertThat(request).isNotNull();
 		assertThat(request.asInputJson()).contains("theAction", USER_ID, ZONE_ID);
 	}
 
+	private AdcServiceRequest verifyIsUserAuthorizedCalled() {
+		verify(adcService).isUserAuthorized(adcServiceRequestArgumentCaptor.capture());
+		return adcServiceRequestArgumentCaptor.getValue();
+	}
 
 	private AdcServiceResponse createResponse(boolean value) {
 		return new AdcServiceResponseDefault(String.format("{\"result\": \"%s\"}", value));
 	}
 
+	private Authentication createAuthentication() {
+		DefaultOAuth2AuthenticatedPrincipal authenticatedPrincipal = new DefaultOAuth2AuthenticatedPrincipal(
+				"theUserId", Maps.newHashMap("zone_uuid", ZONE_ID), Collections.emptyList());
+		return new TestingAuthenticationToken(authenticatedPrincipal, null);
+	}
 }
