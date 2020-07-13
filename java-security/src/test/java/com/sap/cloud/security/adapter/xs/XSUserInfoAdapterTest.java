@@ -174,14 +174,11 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void getToken_fromExternalContext() throws XSUserInfoException {
-		String internalToken = "token";
-		JsonObject externalContextMock = mock(JsonObject.class);
-		when(externalContextMock.getAsString(HDB_NAMEDUSER_SAML)).thenReturn(internalToken);
-		XsuaaToken mockToken = createMockToken(externalContextMock);
+		XsuaaToken mockToken = createMockToken("token");
 
 		cut = new XSUserInfoAdapter(mockToken);
 
-		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo(internalToken);
+		assertThat(cut.getToken(XSUserInfoAdapter.SYSTEM, XSUserInfoAdapter.HDB)).isEqualTo("token");
 	}
 
 	@Test
@@ -526,10 +523,11 @@ public class XSUserInfoAdapterTest {
 		return createMockToken(GrantType.SAML2_BEARER);
 	}
 
-	private XsuaaToken createMockToken(JsonObject externalContext) {
+	private XsuaaToken createMockToken(String internalToken) {
 		final XsuaaToken mockToken = createMockToken();
 		when(mockToken.hasClaim(EXTERNAL_CONTEXT)).thenReturn(true);
-		when(mockToken.getClaimAsJsonObject(EXTERNAL_CONTEXT)).thenReturn(externalContext);
+		when(mockToken.getAttributeFromClaimAsString(EXTERNAL_CONTEXT, HDB_NAMEDUSER_SAML)).thenReturn(internalToken);
+
 		return mockToken;
 	}
 

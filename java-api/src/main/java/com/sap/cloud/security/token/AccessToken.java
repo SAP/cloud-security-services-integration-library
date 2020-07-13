@@ -1,7 +1,10 @@
 package com.sap.cloud.security.token;
 
+import com.sap.cloud.security.json.JsonObject;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 
@@ -68,5 +71,14 @@ public interface AccessToken extends Token {
 		return Optional.ofNullable(getClaimAsJsonObject(claimName))
 				.map(claim -> claim.getAsString(attributeName))
 				.orElse(null);
+	}
+
+	@Nullable
+	default String[] getAttributeFromClaimAsStringList(String claimName, String attributeName) {
+		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);
+		return Optional.ofNullable(claimAsJsonObject)
+				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class))
+				.map(values -> values.toArray(new String[] {}))
+				.orElse(new String[]{});
 	}
 }

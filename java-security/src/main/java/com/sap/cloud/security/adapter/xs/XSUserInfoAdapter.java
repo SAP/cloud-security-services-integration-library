@@ -192,7 +192,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		if (name.equals(HDB)) {
 			String token;
 			if (accessToken.hasClaim(EXTERNAL_CONTEXT)) {
-				token = getAttributeFromClaimAsString(EXTERNAL_CONTEXT, HDB_NAMEDUSER_SAML);
+				token = accessToken.getAttributeFromClaimAsString(EXTERNAL_CONTEXT, HDB_NAMEDUSER_SAML);
 			} else {
 				token = accessToken.getClaimAsString(HDB_NAMEDUSER_SAML);
 			}
@@ -247,7 +247,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getAdditionalAuthAttribute(String attributeName) {
-		return Optional.ofNullable(getAttributeFromClaimAsString(CLAIM_ADDITIONAL_AZ_ATTR, attributeName))
+		return Optional.ofNullable(accessToken.getAttributeFromClaimAsString(CLAIM_ADDITIONAL_AZ_ATTR, attributeName))
 				.orElseThrow(createXSUserInfoException(attributeName));
 	}
 
@@ -400,11 +400,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName) {
-		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);
-		return Optional.ofNullable(claimAsJsonObject)
-				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class))
-				.map(values -> values.toArray(new String[] {}))
-				.orElseThrow(createXSUserInfoException(attributeName));
+		String[] result = accessToken.getAttributeFromClaimAsStringList(claimName, attributeName);
+		if (result.length == 0) {
+			throw createXSUserInfoException(attributeName).get();
+		}
+		return result;
 	}
 
 	private void checkNotGrantTypeClientCredentials(String methodName) {
@@ -413,12 +413,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 					GrantType.CLIENT_CREDENTIALS);
 			throw new XSUserInfoException(message + GrantType.CLIENT_CREDENTIALS);
 		}
-	}
-
-	@Nullable
-	private String getAttributeFromClaimAsString(String claimName, String attributeName) {
-		return Optional.ofNullable(getClaimAsJsonObject(claimName))
-				.map(claim -> claim.getAsString(attributeName)).orElse(null);
 	}
 
 	private Supplier<XSUserInfoException> createXSUserInfoException(String attribute) {
@@ -443,7 +437,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	String getExternalAttribute(String attributeName) {
-		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
+		return accessToken.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
 	}
 
 	/**
@@ -504,7 +498,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 					.execute().getAccessToken();
 		} catch (TokenFlowException e) {
 			LOGGER.error("Error performing Client Credentials Flow", e);
-			throw new XSUserInfoException("Error performing Client Credentials Flow..", e);
+			throw new XSUserInfoException("Error performing Client Credentials Flow.", e);
 		}
 		return ccfToken;
 	}
