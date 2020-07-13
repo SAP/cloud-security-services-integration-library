@@ -12,17 +12,22 @@ import org.mockito.Mockito;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
+import static com.sap.cloud.security.cas.spring.AdcSpringSecurityExpression.USER_UUID_KEY;
+import static com.sap.cloud.security.cas.spring.AdcSpringSecurityExpression.ZONE_UUID_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class AdcSpringSecurityExpressionTest {
 
-	private static final String USER_ID = "theUserId";
-	private static final String ZONE_ID = "theZoneId";
+	private static final String USER_UUID = "theUserId";
+	private static final String ZONE_UUID = "theZoneId";
 	private AdcSpringSecurityExpression cut;
 	private AdcService adcService;
 	private ArgumentCaptor<AdcServiceRequest> adcServiceRequestArgumentCaptor;
@@ -71,7 +76,7 @@ class AdcSpringSecurityExpressionTest {
 		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
 		assertThat(request).isNotNull();
 		assertThat(request.asInputJson())
-				.contains("theResource", "theAction", "theAttribute", "theValue", USER_ID, ZONE_ID);
+				.contains("theResource", "theAction", "theAttribute", "theValue", USER_UUID, ZONE_UUID);
 	}
 
 	@Test
@@ -80,7 +85,7 @@ class AdcSpringSecurityExpressionTest {
 
 		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
 		assertThat(request).isNotNull();
-		assertThat(request.asInputJson()).contains("theAction", "theAttribute", "theValue", USER_ID, ZONE_ID);
+		assertThat(request.asInputJson()).contains("theAction", "theAttribute", "theValue", USER_UUID, ZONE_UUID);
 	}
 
 	@Test
@@ -89,7 +94,8 @@ class AdcSpringSecurityExpressionTest {
 
 		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
 		assertThat(request).isNotNull();
-		assertThat(request.asInputJson()).contains("theResource", "attributeKey", "attributeValue", USER_ID, ZONE_ID);
+		assertThat(request.asInputJson()).contains("theResource", "attributeKey", "attributeValue", USER_UUID,
+				ZONE_UUID);
 	}
 
 	@Test
@@ -98,7 +104,7 @@ class AdcSpringSecurityExpressionTest {
 
 		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
 		assertThat(request).isNotNull();
-		assertThat(request.asInputJson()).contains("theResource", USER_ID, ZONE_ID);
+		assertThat(request.asInputJson()).contains("theResource", USER_UUID, ZONE_UUID);
 	}
 
 	@Test
@@ -107,7 +113,24 @@ class AdcSpringSecurityExpressionTest {
 
 		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
 		assertThat(request).isNotNull();
-		assertThat(request.asInputJson()).contains("theAction", USER_ID, ZONE_ID);
+		assertThat(request.asInputJson()).contains("theAction", USER_UUID, ZONE_UUID);
+	}
+
+	@Test
+	void forResourceAction_with_createsServiceRequest() {
+		JwtAuthenticationToken authentication = Mockito.mock(JwtAuthenticationToken.class);
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(USER_UUID_KEY, USER_UUID);
+		attributes.put(ZONE_UUID_KEY, ZONE_UUID);
+		when(authentication.getTokenAttributes()).thenReturn(attributes);
+		cut = new AdcSpringSecurityExpression(authentication).withAdcService(adcService);
+
+		cut.forResourceAction("theResource", "theAction", "theAttribute=theValue");
+
+		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
+		assertThat(request).isNotNull();
+		assertThat(request.asInputJson())
+				.contains("theResource", "theAction", "theAttribute", "theValue", USER_UUID, ZONE_UUID);
 	}
 
 	private AdcServiceRequest verifyIsUserAuthorizedCalled() {
@@ -120,8 +143,10 @@ class AdcSpringSecurityExpressionTest {
 	}
 
 	private Authentication createAuthentication() {
+		Map<String, Object> attributes = Maps.newHashMap(ZONE_UUID_KEY, ZONE_UUID);
+		attributes.put(USER_UUID_KEY, USER_UUID);
 		DefaultOAuth2AuthenticatedPrincipal authenticatedPrincipal = new DefaultOAuth2AuthenticatedPrincipal(
-				"theUserId", Maps.newHashMap("zone_uuid", ZONE_ID), Collections.emptyList());
+				"", attributes, Collections.emptyList());
 		return new TestingAuthenticationToken(authenticatedPrincipal, null);
 	}
 }

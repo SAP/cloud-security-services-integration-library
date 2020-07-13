@@ -10,17 +10,31 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 /**
  */
 public class AdcSpringSecurityExpression extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
-
 	private static final String[] NO_ATTRIBUTES = new String[]{};
-	private AdcService service;
+
+	public static final String ZONE_UUID_KEY = "zone_uuid";
+	public static final String USER_UUID_KEY = "user_uuid";
+	public static final String ZID = "zid";
+
 	private Logger logger = LoggerFactory.getLogger(getClass());
+	private AdcService service;
+	private String userId;
+	private String zoneId;
 
 	public AdcSpringSecurityExpression(Authentication authentication) {
 		super(authentication);
+		extractAttributesFromPrincipal(authentication.getPrincipal());
+		setTrustResolver(new AuthenticationTrustResolverImpl());
+	}
+
+	public AdcSpringSecurityExpression(JwtAuthenticationToken authentication) {
+		super(authentication);
+		extractAttributesFromAuthentication(authentication);
 		setTrustResolver(new AuthenticationTrustResolverImpl());
 	}
 
@@ -55,8 +69,6 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 	}
 
 	public boolean forResourceAction(String resource, String action, String... attributes) {
-		String userId = getUserId();
-		String zoneId = getZoneId(); // TODO zid claim
 
 		AdcServiceRequest request = new AdcServiceRequestDefault(zoneId, userId)
 				.withAction(action)
@@ -64,28 +76,10 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 				.withAttributes(attributes);
 
 		boolean isAuthorized = checkAuthorization(request);
-		logger.info("Is user {} (zoneId {}) authorized to perform action '{}' on resource '{}' and attributes '{}' ? {}", userId, zoneId, action, resource, attributes, isAuthorized);
+		logger.info("Is user {} (zoneId {}) authorized to perform action '{}' on resource '{}' and attributes '{}' ? {}",
+				this.userId, this.zoneId, action, resource, attributes, isAuthorized);
 
 		return isAuthorized;
-	}
-
-	private String getUserId() {
-		/*Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		OAuth2AuthenticationToken oauthAuth = (OAuth2AuthenticationToken)auth;
-
-		// TODO IAS Support
-		OidcUser user = (OidcUser) oauthAuth.getPrincipal();
-		return user.getName(); // TODO update to unique user id*/
-		return authentication.getName();
-	}
-
-	private String getZoneId() {
-		String zoneId = null;
-		if (authentication.getPrincipal() instanceof OAuth2AuthenticatedPrincipal) {
-			OAuth2AuthenticatedPrincipal userPrincipal = (OAuth2AuthenticatedPrincipal)authentication.getPrincipal();
-			zoneId = (String) userPrincipal.getAttributes().getOrDefault("zone_uuid", userPrincipal.getAttribute("zid")); // TODO
-		}
-		return zoneId; //TODO
 	}
 
 	private boolean checkAuthorization(AdcServiceRequest request) {
@@ -116,4 +110,17 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 		return null;
 	}
 
+	private void extractAttributesFromAuthentication(JwtAuthenticationToken authentication) {
+		zoneId = (String) authentication.getTokenAttributes().get(ZONE_UUID_KEY);
+		userId = (String) authentication.getTokenAttributes().get(USER_UUID_KEY);
+	}
+
+	private void extractAttributesFromPrincipal(Object principal) {
+		if (principal instanceof OAuth2AuthenticatedPrincipal) {
+			OAuth2AuthenticatedPrincipal userPrincipal = (OAuth2AuthenticatedPrincipal) principal;
+			zoneId = (String) userPrincipal.getAttributes()
+					.getOrDefault(ZONE_UUID_KEY, userPrincipal.getAttribute(ZID));
+			userId = (String) userPrincipal.getAttributes().get(USER_UUID_KEY);
+		}
+	}
 }
