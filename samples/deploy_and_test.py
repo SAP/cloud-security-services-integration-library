@@ -90,8 +90,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
 
     def perform_get_request(self, path, username=None, password=None):
         if (username is not None and password is not None):
-            auth_code = input("2-Factor Authenticator Code: ") or ""
-            authorization_value = b64encode(bytes(username + ':' + password + auth_code, 'utf-8')).decode("ascii")
+            authorization_value = b64encode(bytes(username + ':' + password + self.__get_2factor_auth_code(), 'utf-8')).decode("ascii")
             return self.__perform_get_request(path=path, additional_headers={'Authorization': 'Basic ' + authorization_value})
         return self.__perform_get_request(path=path)
 
@@ -113,14 +112,13 @@ class SampleTest(abc.ABC, unittest.TestCase):
 
     def get_token(self):
         deployed_app = self.get_deployed_app()
-        auth_code = input("2-Factor Authenticator Code: ") or ""
         return HttpUtil().get_token(
             xsuaa_service_url=deployed_app.xsuaa_service_url,
             clientid=deployed_app.clientid,
             clientsecret=deployed_app.clientsecret,
             grant_type='password',
             username=self.credentials.username,
-            password=self.credentials.password + auth_code)
+            password=self.credentials.password + self.__get_2factor_auth_code())
 
     def __get_api_access(self):
         if (self.__api_access is None):
@@ -141,6 +139,11 @@ class SampleTest(abc.ABC, unittest.TestCase):
         logging.info('Response: ' + str(resp))
         return resp
 
+    def __get_2factor_auth_code(self):
+        auth_code = ""
+        if (os.getenv('ENABLE_2_FACTOR') is not None):
+            auth_code = input("2-Factor Authenticator Code: ") or ""
+        return auth_code
 
 class TestTokenClient(SampleTest):
 
