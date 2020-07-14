@@ -23,6 +23,7 @@ import java.io.IOException;
 import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.IDENTITY_ZONE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.TRUSTED_CLIENT_ID_SUFFIX;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.XS_USER_ATTRIBUTES;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
