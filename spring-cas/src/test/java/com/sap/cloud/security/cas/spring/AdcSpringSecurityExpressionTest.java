@@ -107,6 +107,7 @@ class AdcSpringSecurityExpressionTest {
 				ZONE_UUID);
 	}
 
+
 	@Test
 	void forResourceWithoutAttributes_createsServiceRequest() {
 		cut.forResource("theResource");
@@ -127,19 +128,15 @@ class AdcSpringSecurityExpressionTest {
 
 	@Test
 	void forResourceAction_withJwtAuthenticationToken_createsServiceRequest() {
-		JwtAuthenticationToken authentication = Mockito.mock(JwtAuthenticationToken.class);
-		Map<String, Object> attributes = new HashMap<>();
-		attributes.put(USER_UUID_KEY, USER_UUID);
-		attributes.put(ZONE_UUID_KEY, ZONE_UUID);
-		when(authentication.getTokenAttributes()).thenReturn(attributes);
+		JwtAuthenticationToken authentication = createJwtAuthenticationToken();
 		cut = new AdcSpringSecurityExpression(authentication).withAdcService(adcService);
 
-		cut.forResourceAction("theResource", "theAction", "theAttribute=theValue");
+		cut.forResourceAction("newResource", "newAction", "newAttribute=newValue");
 
 		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
 		assertThat(request).isNotNull();
 		assertThat(request.asInputJson())
-				.contains("theResource", "theAction", "theAttribute", "theValue", USER_UUID, ZONE_UUID);
+				.contains("newResource", "newAction", "newAttribute", "newValue", USER_UUID, ZONE_UUID);
 	}
 
 	private AdcServiceRequest verifyIsUserAuthorizedCalled() {
@@ -157,5 +154,14 @@ class AdcSpringSecurityExpressionTest {
 		DefaultOAuth2AuthenticatedPrincipal authenticatedPrincipal = new DefaultOAuth2AuthenticatedPrincipal(
 				"", attributes, Collections.emptyList());
 		return new TestingAuthenticationToken(authenticatedPrincipal, null);
+	}
+
+	private JwtAuthenticationToken createJwtAuthenticationToken() {
+		JwtAuthenticationToken authentication = Mockito.mock(JwtAuthenticationToken.class);
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(USER_UUID_KEY, USER_UUID);
+		attributes.put(ZONE_UUID_KEY, ZONE_UUID);
+		when(authentication.getTokenAttributes()).thenReturn(attributes);
+		return authentication;
 	}
 }
