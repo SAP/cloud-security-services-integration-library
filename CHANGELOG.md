@@ -7,6 +7,10 @@ All notable changes to this project will be documented in this file.
 - [java-security] provide debug logs for failing token validation, see [troubleshoot](/java-security/README.md#troubleshoot).
 - [java-security-test] Fixed default value for jku token header to `http://localhost/token_keys`
 - [samples] Upgraded [approuter](https://www.npmjs.com/package/@sap/approuter) version to "^8.2.0"
+- [spring-xsuaa-starter] Upgrade Spring versions:
+  - spring.boot.version: 2.3.0.RELEASE --> 2.3.1.RELEASE
+  - spring.core.version: 5.2.6.RELEASE --> 5.2.7.RELEASE
+  - spring.security.version: 5.3.2.RELEASE --> 5.3.3.RELEASE
 
 ## 2.7.4
 - [java-security] Audience Validation validates to true when the derived `client_id` of broker-clone token matches the trusted client. This is relevant to support tokens of grant type `user_token` that contains no scopes.
