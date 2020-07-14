@@ -4,7 +4,7 @@ import com.sap.cloud.security.json.JsonObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -56,7 +56,7 @@ public interface AccessToken extends Token {
 	 *     "claimName": {
 	 *         "attributeName": "attributeValueAsString"
 	 *     },
-	 *     </code><br>
+	 *     </code><br><br>
 	 * Example: <br>
 	 * <code>
 	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
@@ -64,7 +64,7 @@ public interface AccessToken extends Token {
 	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
 	 *     </code>
 	 * 
-	 * @return the String value of a claim attribute.
+	 * @return the String value of a claim attribute or null if claim or its attribute does not exist.
 	 **/
 	@Nullable
 	default String getAttributeFromClaimAsString(String claimName, String attributeName) {
@@ -73,12 +73,27 @@ public interface AccessToken extends Token {
 				.orElse(null);
 	}
 
+	/**
+	 * Returns the String list of a claim attribute. <br>
+	 * <code>
+	 *     "claimName": {
+	 *         "attributeName": ["attributeValueAsString", "attributeValue2AsString"]
+	 *     },
+	 *     </code><br><br>
+	 * Example: <br>
+	 * <code>
+	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
+	 *
+	 *     token.getAttributeFromClaimAsString(XS_USER_ATTRIBUTES, "custom_role");
+	 *     </code>
+	 *
+	 * @return the String value of a claim attribute or null if claim or its attribute does not exist.
+	 **/
 	@Nullable
-	default String[] getAttributeFromClaimAsStringList(String claimName, String attributeName) {
+	default List<String> getAttributeFromClaimAsStringList(String claimName, String attributeName) {
 		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);
 		return Optional.ofNullable(claimAsJsonObject)
 				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class))
-				.map(values -> values.toArray(new String[] {}))
-				.orElse(new String[]{});
+				.orElse(null);
 	}
 }

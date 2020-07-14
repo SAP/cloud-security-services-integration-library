@@ -40,7 +40,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	static final String EXTERNAL_CONTEXT = "ext_ctx";
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
-	static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
 	static final String XS_SYSTEM_ATTRIBUTES = "xs.system.attributes";
 	static final String HDB_NAMEDUSER_SAML = "hdb.nameduser.saml";
 	static final String SERVICEINSTANCEID = "serviceinstanceid";
@@ -400,11 +399,9 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName) {
-		String[] result = accessToken.getAttributeFromClaimAsStringList(claimName, attributeName);
-		if (result.length == 0) {
-			throw createXSUserInfoException(attributeName).get();
-		}
-		return result;
+		return Optional.ofNullable(accessToken.getAttributeFromClaimAsStringList(claimName, attributeName))
+				.map(values -> values.toArray(new String[] {}))
+				.orElseThrow(createXSUserInfoException(attributeName));
 	}
 
 	private void checkNotGrantTypeClientCredentials(String methodName) {
