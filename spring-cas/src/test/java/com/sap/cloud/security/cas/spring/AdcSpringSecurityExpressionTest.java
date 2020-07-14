@@ -108,7 +108,7 @@ class AdcSpringSecurityExpressionTest {
 	}
 
 	@Test
-	void forActioWithoutAttributes_createsServiceRequest() {
+	void forActionWithoutAttributes_createsServiceRequest() {
 		cut.forAction("theAction");
 
 		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
