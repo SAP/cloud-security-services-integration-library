@@ -80,6 +80,15 @@ class AdcSpringSecurityExpressionTest {
 	}
 
 	@Test
+	void forResourceActionWithoutAttributes_createsServiceRequest() {
+		cut.forResourceAction("anotherResource", "anotherAction");
+
+		AdcServiceRequest request = verifyIsUserAuthorizedCalled();
+		assertThat(request).isNotNull();
+		assertThat(request.asInputJson()).contains("anotherResource", "anotherAction", USER_UUID, ZONE_UUID);
+	}
+
+	@Test
 	void forAction_createsServiceRequest() {
 		cut.forAction("theAction", "theAttribute=theValue");
 
