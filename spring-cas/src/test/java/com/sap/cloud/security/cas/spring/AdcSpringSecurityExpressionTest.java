@@ -117,7 +117,7 @@ class AdcSpringSecurityExpressionTest {
 	}
 
 	@Test
-	void forResourceAction_with_createsServiceRequest() {
+	void forResourceAction_withJwtAuthenticationToken_createsServiceRequest() {
 		JwtAuthenticationToken authentication = Mockito.mock(JwtAuthenticationToken.class);
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(USER_UUID_KEY, USER_UUID);
