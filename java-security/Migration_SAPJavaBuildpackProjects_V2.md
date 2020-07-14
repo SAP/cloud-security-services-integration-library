@@ -71,9 +71,10 @@ This would again require a dependency to the legacy api:
 ```
 
 #### Option 1: UserInfoHolder
-It is also still possible to use the `UserInfoHolder` to obtain the `XSUserInfo` object. 
+It is also still possible to use the `UserInfoHolder` to obtain the `XSUserInfo` object.
+
 #### Option 2: XSUserInfoAdapter
-You can use `XSUserInfoAdapter`:
+You can use `XSUserInfoAdapter` which requires additionally `com.sap.cloud.security:java-security`:
 ```java
 try {
 	XSUserInfo userInfo = new XSUserInfoAdapter(token);
@@ -82,7 +83,6 @@ try {
 	// handle exception
 }
 ```
-
 
 ### New Feature: SecurityContext <a name="security-context"></a>
 In order to obtain token information from the thread local storage (instead of the request) you can use `SecurityContext` from [`java-api`](#maven).
