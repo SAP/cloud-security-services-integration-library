@@ -2,8 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.7.5 (DRAFT)
-- [java-api] `AcessToken` provides `getAttributeFromClaimAsString(String claimName, String attributeName)` to access for example `ext_attr` values such as `subaccountid`...
+## 2.7.5
+- [java-api] `AcessToken` provides  
+  - `getAttributeFromClaimAsString(String claimName, String attributeName)` to access for example `ext_attr` values such as `subaccountid`
+  - `getAttributeFromClaimAsStringList(String claimName, String attributeName)` to access for example `xs.user.attributes` values such as `custom_role`
 - [java-security] provide debug logs for failing token validation, see [troubleshoot](/java-security/README.md#troubleshoot).
 - [java-security-test] Fixed default value for jku token header to `http://localhost/token_keys`
 - [samples] Upgraded [approuter](https://www.npmjs.com/package/@sap/approuter) version to "^8.2.0"
@@ -11,6 +13,7 @@ All notable changes to this project will be documented in this file.
   - spring.boot.version: 2.3.0.RELEASE --> 2.3.1.RELEASE
   - spring.core.version: 5.2.6.RELEASE --> 5.2.7.RELEASE
   - spring.security.version: 5.3.2.RELEASE --> 5.3.3.RELEASE
+  - spring-security-oauth2.version: 2.4.1.RELEASE --> 2.5.0.RELEASE 
 
 ## 2.7.4
 - [java-security] Audience Validation validates to true when the derived `client_id` of broker-clone token matches the trusted client. This is relevant to support tokens of grant type `user_token` that contains no scopes.
