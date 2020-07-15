@@ -28,12 +28,8 @@ public class MethodSecurityConfigurationTest {
 
 	@Test
 	void withXsuaaAutoConfiguration_hasExpressionHandlerXsuaa() {
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		contextRunner.withUserConfiguration(XsuaaAutoConfiguration.class).run((context -> {
 			assertThat(context).hasBean("expressionHandlerXsuaa");
 		}));
 	}
-
-
 }

@@ -128,7 +128,7 @@ class AdcSpringSecurityExpressionTest {
 
 	@Test
 	void forResourceAction_withJwtAuthenticationToken_createsServiceRequest() {
-		Authentication authentication = createJwtAuthenticationToken();
+		JwtAuthenticationToken authentication = createJwtAuthenticationToken();
 		cut = new AdcSpringSecurityExpression(authentication).withAdcService(adcService);
 
 		cut.forResourceAction("newResource", "newAction", "newAttribute=newValue");
