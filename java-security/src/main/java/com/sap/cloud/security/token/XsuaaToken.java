@@ -10,6 +10,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.security.Principal;
 import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.sap.cloud.security.token.TokenClaims.USER_NAME;
@@ -145,4 +147,33 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 		return GrantType.from(getClaimAsString(GRANT_TYPE));
 	}
 
+	/**
+	 * Returns the value of the subdomain (zdn) from the external attribute ext_attr
+	 * (ext_attr) claim. If the external attribute or the subdomain is missing, it
+	 * returns {@code null}.
+	 *
+	 * @return the subdomain or {@code null}
+	 */
+	@Nullable
+	public String getSubdomain() {
+		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN);
+	}
+
+	/**
+	 * Returns subaccount identifier which is in most cases same like the identity
+	 * zone. DO only use this for metering purposes. DO NOT longer use this method
+	 * to get the unique tenant id! For that use {@link #getZoneId()}.
+	 *
+	 * @return subaccount identifier or {@code null}
+	 */
+	@Nullable
+	public String getSubaccountId() {
+		return Optional.ofNullable(getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID))
+				.orElse(getClaimAsString(ZONE_ID));
+	}
+
+	@Override
+	public String getZoneId() {
+		return Objects.nonNull(super.getZoneId()) ? super.getZoneId() : getClaimAsString(ZONE_ID);
+	}
 }

@@ -10,7 +10,7 @@ public enum Service {
 	XSUAA("xsuaa"), IAS(getIasServiceName());
 
 	private static String getIasServiceName() {
-		String iasServiceName = System.getenv("IAS_SERVICE_NAME"); // TODO 2.6.2 as of now its "identity-beta"
+		String iasServiceName = System.getenv("IAS_SERVICE_NAME"); // TODO as of now its "identity-beta"
 		return iasServiceName;
 	}
 
@@ -28,7 +28,7 @@ public enum Service {
 	 */
 	public String getCFName() {
 		if (this == IAS && cloudFoundryName == null) {
-			LoggerFactory.getLogger(Service.class).error("IAS Service is not yet supported!!!"); // TODO 2.6.2 remove
+			LoggerFactory.getLogger(Service.class).info("IAS Service is not yet supported!!!"); // TODO remove
 		}
 		return cloudFoundryName;
 	}

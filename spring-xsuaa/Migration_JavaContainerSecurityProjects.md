@@ -91,9 +91,9 @@ Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (
 Whether the token is issued for your application or not is now validated by the [`XsuaaAudienceValidator`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/authentication/XsuaaAudienceValidator.java).
 
 ### Multiple XSUAA Bindings
-You can skip this section, in case your application is bound to only one Xsuaa service instance. The library does not support multiple XSUAA bindings of plan `application` and `broker`. **The Xsuaa service instance of plan `api` is ignored.**
+You can skip this section, in case your application is bound to only one Xsuaa service instance. The `xsuaa-spring-boot-starter` does not support multiple XSUAA bindings of plan `application` and `broker`. **The Xsuaa service instance of plan `api` is ignored.**
 
-Then you need to adapt your **Spring Security Configuration** as following:
+In case of multiple bindings you need to adapt your **Spring Security Configuration** as following:
 
 1. You need to get rid of  `XsuaaServicePropertySourceFactory`, because `XsuaaServicesParser` raises the error.
  * In case you make use of `xsuaa-spring-boot-starter` Spring Boot starter, you need to disable auto-configuration within your `*.properties` / or `*.yaml` file:
@@ -142,7 +142,10 @@ Then you need to adapt your **Spring Security Configuration** as following:
        return new XsuaaJwtDecoderBuilder(customXsuaaConfig()).withTokenValidators(customAudienceValidator).build();
     }
     ```
- 4. Right now, you have to make sure that the `TokenAuthenticationConverter` is NOT configured to check for local scopes (`setLocalScopeAsAuthorities(false)`). This will be supported in one of the next versions!
+ 4. Note: In case you would like to configure authorization checks for scopes that are specified in context of different XSUAA service instances local scope names (without `xsappname` prefix) are not unique. So, make sure that `TokenAuthenticationConverter` is NOT configured to check for local scopes (`setLocalScopeAsAuthorities(false)`)! In this case configure the HttpSecurity with an `antMatcher` for local scope "Read" as following:  
+```
+ .antMatchers("/v1/sayHello").hasAuthority(customXsuaaConfig().getAppId() + '.' + "Read")
+```
 
 ## Fetch data from token
 
@@ -183,9 +186,9 @@ See the following table for methods that are not available anymore and workaroun
 | `getAttribute`          | Use `getXSUserAttribute`.                                                                        |
 | `getDBToken`            | Not implemented.                                                                                 |
 | `getHdbToken`           | Not implemented.                                                                                 |
-| `getIdentityZone`       | Use `getSubaccountId`.                                                                 |
-| `getJsonValue`          | Use `containsClaim` and `getClaimAsString`. See section [XsuaaToken](#xsuaatoken).                                                                                |
-| `getSystemAttribute`    | This extracts data from `xs.system.attributes` claim. See section [XsuaaToken](#xsuaatoken).    |
+| `getIdentityZone`       | Use `getZoneId` to get the tenant GUID or use `getSubaccountId` to get subaccount id, e.g. to provide it to the metering API.|
+| `getJsonValue`          | Use `containsClaim` and `getClaimAsString`. See section [XsuaaToken](#xsuaatoken).               |
+| `getSystemAttribute`    | This extracts data from `xs.system.attributes` claim. See section [XsuaaToken](#xsuaatoken).     |
 | `getToken`              | Not implemented.                                                                                 |
 | `hasAttributes`         | Use `getXSUserAttribute` and check of the attribute is available.                                |
 | `isInForeignMode`       | Not implemented.                                                                                 |
@@ -241,42 +244,9 @@ Now you can test the service manually in the browser using the `Postman` chrome 
 When your code compiles again you should first check that all your unit tests are running again. If you can test your
 application locally make sure that it is still working and finally test the application in cloud foundry.
 
-## Troubleshoot
-
-### Multiple XSUAA Bindings (broker & application)
-
-If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), you run into the following issue:
-
-```
-Caused by: java.lang.RuntimeException: Found more than one xsuaa binding. There can only be one.
-at com.sap.cloud.security.xsuaa.XsuaaServicesParser.getJSONObjectFromTag(XsuaaServicesParser.java:91)
-at com.sap.cloud.security.xsuaa.XsuaaServicesParser.searchXSuaaBinding(XsuaaServicesParser.java:72)
-at com.sap.cloud.security.xsuaa.XsuaaServicesParser.getAttribute(XsuaaServicesParser.java:59)
-at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.getConfigurationProperties(XsuaaServicePropertySourceFactory.java:65)
-at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.createPropertySource(XsuaaServicePropertySourceFactory.java:55)
-at org.springframework.context.annotation.ConfigurationClassParser.processPropertySource(ConfigurationClassParser.java:452)
-``` 
-
-The library does not support more than one XSUAA binding. Follow [these steps](#multiple-xsuaa-bindings), to adapt your **Spring Security Configuration**.
-
-### Configuration property name `vcap.services.<<xsuaa instance name>>.credentials` is not valid
-We recognized that this error is raised, when your instance name contains upper cases. 
-Alternatively you can then define your `XsuaaCredentials` Bean the following way:
-```
-@Bean
-public XsuaaCredentials xsuaaCredentials() {
-    final XsuaaCredentials result = new XsuaaCredentials();
-    result.setXsAppName(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.xsappname"));
-    result.setClientId(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.clientid"));
-    result.setClientSecret(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.clientsecret"));
-    result.setUaaDomain(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.uaadomain"));
-    result.setUrl(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.url"));
-    return result;
-}
-```
 
 ## Issues
-In case you face issues to apply the migration steps feel free to open a Issue here on [Github.com](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new).
+In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue.
 
 ## Samples
 - [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads/tree/solution-24-Make-App-Secure-Spring5)

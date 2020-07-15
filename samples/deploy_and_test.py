@@ -90,7 +90,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
 
     def perform_get_request(self, path, username=None, password=None):
         if (username is not None and password is not None):
-            authorization_value = b64encode(bytes(username + ':' + password, 'utf-8')).decode("ascii")
+            authorization_value = b64encode(bytes(username + ':' + password + self.__get_2factor_auth_code(), 'utf-8')).decode("ascii")
             return self.__perform_get_request(path=path, additional_headers={'Authorization': 'Basic ' + authorization_value})
         return self.__perform_get_request(path=path)
 
@@ -118,7 +118,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
             clientsecret=deployed_app.clientsecret,
             grant_type='password',
             username=self.credentials.username,
-            password=self.credentials.password)
+            password=self.credentials.password + self.__get_2factor_auth_code())
 
     def __get_api_access(self):
         if (self.__api_access is None):
@@ -139,6 +139,11 @@ class SampleTest(abc.ABC, unittest.TestCase):
         logging.info('Response: ' + str(resp))
         return resp
 
+    def __get_2factor_auth_code(self):
+        auth_code = ""
+        if (os.getenv('ENABLE_2_FACTOR') is not None):
+            auth_code = input("2-Factor Authenticator Code: ") or ""
+        return auth_code
 
 class TestTokenClient(SampleTest):
 

@@ -39,7 +39,9 @@ public class JwtValidatorBuilderTest {
 		OAuth2ServiceConfiguration configuration = xsuaaConfigBuilder.build();
 		JwtValidatorBuilder builder_1 = JwtValidatorBuilder.getInstance(configuration);
 		JwtValidatorBuilder builder_2 = JwtValidatorBuilder.getInstance(configuration);
+		JwtValidatorBuilder builder_3 = JwtValidatorBuilder.getInstance(xsuaaConfigBuilder.build());
 		assertThat(builder_1).isSameAs(builder_2);
+		assertThat(builder_1).isSameAs(builder_3);
 	}
 
 	@Test
@@ -62,7 +64,7 @@ public class JwtValidatorBuilderTest {
 				.hasSize(4)
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
 				.hasAtLeastOneElementOfType(JwtAudienceValidator.class)
-				.hasAtLeastOneElementOfType(XsuaaJwtIssuerValidator.class)
+				.hasAtLeastOneElementOfType(XsuaaJkuValidator.class)
 				.hasAtLeastOneElementOfType(JwtSignatureValidator.class);
 	}
 
@@ -78,7 +80,7 @@ public class JwtValidatorBuilderTest {
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
 				.hasAtLeastOneElementOfType(JwtAudienceValidator.class)
 				.hasAtLeastOneElementOfType(JwtSignatureValidator.class)
-				.doesNotHaveAnyElementsOfTypes(XsuaaJwtIssuerValidator.class);
+				.doesNotHaveAnyElementsOfTypes(XsuaaJkuValidator.class);
 	}
 
 	@Test
@@ -136,7 +138,7 @@ public class JwtValidatorBuilderTest {
 
 		for (Validator validator : combiningValidator.getValidators()) {
 			if (validator instanceof JwtAudienceValidator) {
-				assertThat(((JwtAudienceValidator) validator).getClientIds()).containsAll(clientIds);
+				assertThat(((JwtAudienceValidator) validator).getTrustedClientIds()).containsAll(clientIds);
 				return;
 			}
 		}

@@ -1,15 +1,26 @@
 package com.sap.cloud.security.xsuaa.jwt;
 
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.security.oauth2.jwt.Jwt;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class Base64JwtDecoderTest {
 
 	private String encodedJwt = "eyJhbGciOiJIUzI1NiIsImprdSI6Imh0dHBzOi8vYWNtZS1lbnRlcnByaXNlcy5hdXRoZW50aWNhdGlvbi5leGFtcGxlLmNvbS90b2tlbl9rZXlzIiwia2lkIjoia2V5LWlkLTEiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiJlM2MzMGUyNDc0Y2Q0NjYwOWEyNjJlZGE5ZDlkYzI2ZCIsImV4dF9hdHRyIjp7ImVuaGFuY2VyIjoiWFNVQUEiLCJ6ZG4iOiJhY21lLWVudGVycHJpc2VzIn0sInhzLnN5c3RlbS5hdHRyaWJ1dGVzIjp7InhzLnJvbGVjb2xsZWN0aW9ucyI6W119LCJnaXZlbl9uYW1lIjoiQW5kcmVhIE1hcmlhIiwieHMudXNlci5hdHRyaWJ1dGVzIjp7fSwiZmFtaWx5X25hbWUiOiJNaWxsc2FwIiwic3ViIjoiMTIzNCIsInNjb3BlIjpbIm9wZW5pZCIsInVhYS51c2VyIl0sImNsaWVudF9pZCI6Im15LWFwcDEiLCJjaWQiOiJteS1hcHAxIiwiYXpwIjoibXktYXBwMSIsImdyYW50X3R5cGUiOiJhdXRob3JpemF0aW9uX2NvZGUiLCJ1c2VyX2lkIjoiMTIzNCIsIm9yaWdpbiI6ImxkYXAiLCJ1c2VyX25hbWUiOiJhbS5taWxsc2FwQHNhcC5jb20iLCJlbWFpbCI6ImFtLm1pbGxzYXBAc2FwLmNvbSIsImF1dGhfdGltZSI6MTU2NDc4NTcyMCwicmV2X3NpZyI6Ijg3ZTdjMDE2IiwiaWF0IjoxNTY0Nzg1NzIwLCJleHAiOjE1NjQ3ODU3MjEsImlzcyI6Imh0dHA6Ly9hY21lLWVudGVycHJpc2VzLmV4YW1wbGUuY29tL3VhYS9vYXV0aC90b2tlbiIsInppZCI6IjIzNDUiLCJhdWQiOlsibXktYXBwMSIsInVhYSIsIm9wZW5pZCJdfQ.yqEcFR3EkzVSfVo3tfxsl9kc6KtCSe75-al5cTZbzhk";
+
+	private static final String JKU_HEADER = "http://my.jku/token_keys";
+	private static final String CLIENT_ID = "clientId123";
+	private static final String[] SCOPES = { "scope1", "scope2" };
+
+	private final static Jwt TOKEN = new JwtGenerator(CLIENT_ID)
+			.addScopes(SCOPES)
+			.setJku(JKU_HEADER)
+			.getToken();
 
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
@@ -45,4 +56,40 @@ public class Base64JwtDecoderTest {
 		DecodedJwt decodedJwt = new Base64JwtDecoder().decode("header..signature");
 		assertEquals("", decodedJwt.getPayload());
 	}
+
+	@Test
+	public void toStringReturnsHeadersAndPayload() {
+		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(TOKEN.getTokenValue());
+		assertThat(decodedJwt.toString())
+				.contains("Jwt header")
+				.contains(JKU_HEADER)
+				.contains("Jwt payload")
+				.contains(CLIENT_ID)
+				.contains(SCOPES);
+	}
+
+	@Test
+	public void toStringWithInvalidTokenReturnsEmptyString() {
+		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode("header..signature");
+
+		assertThat(decodedJwt.toString())
+				.contains("Jwt header")
+				.contains("Jwt payload");
+
+		decodedJwt = Base64JwtDecoder.getInstance().decode("..signature");
+
+		assertThat(decodedJwt.toString())
+				.contains("Jwt header")
+				.contains("Jwt payload");
+	}
+
+	@Test
+	public void toStringDoesNotContainSignatureNorEncodedToken() {
+		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(TOKEN.getTokenValue());
+
+		assertThat(decodedJwt.toString())
+				.doesNotContain(decodedJwt.getSignature())
+				.doesNotContain(TOKEN.getTokenValue());
+	}
+
 }

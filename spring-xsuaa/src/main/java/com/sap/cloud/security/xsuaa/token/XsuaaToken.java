@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 
@@ -30,6 +31,9 @@ public class XsuaaToken extends Jwt implements Token {
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	static final String CLAIM_EXTERNAL_ATTR = "ext_attr";
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
+	// new with SECAUTH-806
+	static final String CLAIM_SUBACCOUNT_ID = "subaccountid";
+	//
 	private static final long serialVersionUID = -836947635254353927L;
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaToken.class);
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();
@@ -117,7 +121,7 @@ public class XsuaaToken extends Jwt implements Token {
 
 		if (origin.contains("/")) {
 			logger.warn(
-					"Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returing null.");
+					"Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returning null.");
 			return null;
 		}
 
@@ -170,6 +174,12 @@ public class XsuaaToken extends Jwt implements Token {
 
 	@Override
 	public String getSubaccountId() {
+		String externalAttribute = getStringAttributeFromClaim(CLAIM_SUBACCOUNT_ID, CLAIM_EXTERNAL_ATTR);
+		return isEmpty(externalAttribute) ? getClaimAsString(CLAIM_ZONE_ID) : externalAttribute;
+	}
+
+	@Override
+	public String getZoneId() {
 		return getClaimAsString(CLAIM_ZONE_ID);
 	}
 

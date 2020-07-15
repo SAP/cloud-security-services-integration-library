@@ -2,6 +2,7 @@ package com.sap.cloud.security.xsuaa.token.authentication;
 
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder;
 import org.springframework.util.Assert;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -93,17 +95,17 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			String jku = tokenInfoExtractor.getJku(jwt);
 			String kid = tokenInfoExtractor.getKid(jwt);
 			String uaaDomain = tokenInfoExtractor.getUaaDomain(jwt);
-			return verifyTokenOnline(jwt.getParsedString(), jku, kid, uaaDomain);
+			return verifyToken(jwt.getParsedString(), jku, kid, uaaDomain);
 		} catch (JwtException e) {
-			return tryToVerifyWithOfflineKey(jwt.getParsedString(), e);
+			return tryToVerifyWithVerificationKey(jwt.getParsedString(), e);
 		}
 	}
 
-	private Jwt verifyTokenOnline(String token, String jku, String kid, String uaaDomain) {
+	private Jwt verifyToken(String token, String jku, String kid, String uaaDomain) {
 		try {
-			canVerifyWithOnlineKey(jku, kid, uaaDomain);
-			validateJKU(jku, uaaDomain);
-			Jwt verifiedToken = verifyWithOnlineKey(token, jku, kid);
+			canVerifyWithKey(jku, kid, uaaDomain);
+			validateJku(jku, uaaDomain);
+			Jwt verifiedToken = verifyWithKey(token, jku, kid);
 
 			return verifiedToken;
 		} catch (JwtValidationException ex) {
@@ -113,7 +115,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 	}
 
-	private void canVerifyWithOnlineKey(String jku, String kid, String uaadomain) {
+	private void canVerifyWithKey(String jku, String kid, String uaadomain) {
 		if (jku != null && kid != null && uaadomain != null) {
 			return;
 		}
@@ -129,15 +131,19 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 				String.join(", ", nullParams)));
 	}
 
-	private void validateJKU(String jku, String uaadomain) {
+	private void validateJku(String jku, String uaadomain) {
 		try {
 			URI jkuUri = new URI(jku);
 			if (jkuUri.getHost() == null) {
 				throw new JwtException("JKU of token is not valid");
 			} else if (!jkuUri.getHost().endsWith(uaadomain)) {
-				logger.warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'",
+				logger.warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'.",
 						jku, uaadomain);
-				throw new JwtException("JKU of token header is not trusted");
+				throw new JwtException("Do not trust 'jku' token header.");
+			} else if (!jkuUri.getPath().endsWith("token_keys") || !isEmpty(jkuUri.getQuery())
+					|| !isEmpty(jkuUri.getFragment())) {
+				logger.warn("Error: Do not trust jku '{}' because it contains invalid path, query or fragment.", jku);
+				throw new JwtException("Jwt token does not contain a valid 'jku' header parameter: " + jkuUri);
 			}
 		} catch (URISyntaxException e) {
 			throw new JwtException("JKU of token header is not valid");
@@ -145,14 +151,14 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	}
 
 	@java.lang.SuppressWarnings("squid:S2259")
-	private Jwt verifyWithOnlineKey(String token, String jku, String kid) {
+	private Jwt verifyWithKey(String token, String jku, String kid) {
 		String cacheKey = jku + kid;
 		JwtDecoder decoder = cache.get(cacheKey, k -> this.getDecoder(jku));
 		return decoder.decode(token);
 	}
 
 	private JwtDecoder getDecoder(String jku) {
-		NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder jwkSetUriJwtDecoderBuilder = NimbusJwtDecoder.withJwkSetUri(jku);
+		JwkSetUriJwtDecoderBuilder jwkSetUriJwtDecoderBuilder = NimbusJwtDecoder.withJwkSetUri(jku);
 		if (restOperations != null) {
 			jwkSetUriJwtDecoderBuilder.restOperations(restOperations);
 		}
@@ -161,15 +167,15 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		return jwtDecoder;
 	}
 
-	private Jwt tryToVerifyWithOfflineKey(String token, JwtException onlineVerificationException) {
+	private Jwt tryToVerifyWithVerificationKey(String token, JwtException verificationException) {
 		String verificationKey = xsuaaServiceConfiguration.getVerificationKey();
-		if (verificationKey == null || verificationKey.isEmpty()) {
-			throw onlineVerificationException;
+		if (isEmpty(verificationKey)) {
+			throw verificationException;
 		}
-		return verifyWithOfflineKey(token, verificationKey);
+		return verifyWithVerificationKey(token, verificationKey);
 	}
 
-	private Jwt verifyWithOfflineKey(String token, String verificationKey) {
+	private Jwt verifyWithVerificationKey(String token, String verificationKey) {
 		try {
 			RSAPublicKey verficationKey = createPublicKey(verificationKey);
 			NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(verficationKey).build();

@@ -7,7 +7,6 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.GrantType;
-import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
@@ -41,11 +40,9 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	static final String EXTERNAL_CONTEXT = "ext_ctx";
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
-	static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
 	static final String XS_SYSTEM_ATTRIBUTES = "xs.system.attributes";
 	static final String HDB_NAMEDUSER_SAML = "hdb.nameduser.saml";
 	static final String SERVICEINSTANCEID = "serviceinstanceid";
-	static final String ZDN = "zdn";
 	static final String SYSTEM = "SYSTEM";
 	static final String HDB = "HDB";
 
@@ -122,12 +119,22 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getIdentityZone() {
-		return getClaimValue(TokenClaims.XSUAA.ZONE_ID);
+		return getClaimValue(ZONE_ID);
 	}
 
 	@Override
+	/**
+	 * "ext_attr": { "enhancer": "XSUAA", "subaccountid": "my-subaccount-1234" },
+	 */
 	public String getSubaccountId() {
-		return getIdentityZone();
+		return Optional.ofNullable(getExternalAttribute(EXTERNAL_ATTRIBUTE_SUBACCOUNTID))
+				.orElse(getClaimValue(ZONE_ID));
+	}
+
+	@Override
+	public String getZoneId() {
+		return accessToken.hasClaim(SAP_GLOBAL_ZONE_ID) ? accessToken.getClaimAsString(SAP_GLOBAL_ZONE_ID)
+				: getClaimValue(ZONE_ID);
 	}
 
 	@Override
@@ -135,7 +142,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * "ext_attr": { "enhancer": "XSUAA", "zdn": "paas-subdomain" },
 	 */
 	public String getSubdomain() {
-		return Optional.ofNullable(getExternalAttribute(ZDN)).orElse(null);
+		return Optional.ofNullable(getExternalAttribute(EXTERNAL_ATTRIBUTE_ZDN)).orElse(null);
 	}
 
 	@Override
@@ -184,7 +191,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		if (name.equals(HDB)) {
 			String token;
 			if (accessToken.hasClaim(EXTERNAL_CONTEXT)) {
-				token = getAttributeFromClaimAsString(EXTERNAL_CONTEXT, HDB_NAMEDUSER_SAML);
+				token = accessToken.getAttributeFromClaimAsString(EXTERNAL_CONTEXT, HDB_NAMEDUSER_SAML);
 			} else {
 				token = accessToken.getClaimAsString(HDB_NAMEDUSER_SAML);
 			}
@@ -239,7 +246,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getAdditionalAuthAttribute(String attributeName) {
-		return Optional.ofNullable(getAttributeFromClaimAsString(CLAIM_ADDITIONAL_AZ_ATTR, attributeName))
+		return Optional.ofNullable(accessToken.getAttributeFromClaimAsString(CLAIM_ADDITIONAL_AZ_ATTR, attributeName))
 				.orElseThrow(createXSUserInfoException(attributeName));
 	}
 
@@ -304,6 +311,12 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String requestTokenForClient(String clientId, String clientSecret, String baseUaaUrl) {
+		return performTokenFlow(baseUaaUrl, XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN, clientId, clientSecret,
+				new HashMap<>());
+	}
+
+	@Override
+	public String requestTokenForUser(String clientId, String clientSecret, String baseUaaUrl) {
 		return performTokenFlow(baseUaaUrl, XSTokenRequest.TYPE_USER_TOKEN, clientId, clientSecret, new HashMap<>());
 	}
 
@@ -386,9 +399,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName) {
-		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);
-		return Optional.ofNullable(claimAsJsonObject)
-				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class))
+		return Optional.ofNullable(accessToken.getAttributeFromClaimAsStringList(claimName, attributeName))
 				.map(values -> values.toArray(new String[] {}))
 				.orElseThrow(createXSUserInfoException(attributeName));
 	}
@@ -399,12 +410,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 					GrantType.CLIENT_CREDENTIALS);
 			throw new XSUserInfoException(message + GrantType.CLIENT_CREDENTIALS);
 		}
-	}
-
-	@Nullable
-	private String getAttributeFromClaimAsString(String claimName, String attributeName) {
-		return Optional.ofNullable(getClaimAsJsonObject(claimName))
-				.map(claim -> claim.getAsString(attributeName)).orElse(null);
 	}
 
 	private Supplier<XSUserInfoException> createXSUserInfoException(String attribute) {
@@ -429,15 +434,23 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	String getExternalAttribute(String attributeName) {
-		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
+		return accessToken.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
+	}
+
+	/**
+	 * Getter for XsuaaTokenFlows object that can be overridden for testing
+	 * purposes.
+	 */
+	XsuaaTokenFlows getXsuaaTokenFlows(String baseUaaUrl, ClientCredentials clientCredentials) {
+		return new XsuaaTokenFlows(getOrCreateOAuth2TokenService(),
+				new XsuaaDefaultEndpoints(baseUaaUrl), clientCredentials);
 	}
 
 	private String performTokenFlow(String baseUaaUrl, int tokenRequestType, String clientId, String clientSecret,
 			Map<String, String> additionalAuthAttributes) {
 		try {
 			ClientCredentials clientCredentials = new ClientCredentials(clientId, clientSecret);
-			XsuaaTokenFlows xsuaaTokenFlows = new XsuaaTokenFlows(getOrCreateOAuth2TokenService(),
-					new XsuaaDefaultEndpoints(baseUaaUrl), clientCredentials);
+			XsuaaTokenFlows xsuaaTokenFlows = getXsuaaTokenFlows(baseUaaUrl, clientCredentials);
 			return performRequest(xsuaaTokenFlows, tokenRequestType, additionalAuthAttributes);
 		} catch (RuntimeException e) {
 			throw new XSUserInfoException(e.getMessage());
@@ -482,7 +495,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 					.execute().getAccessToken();
 		} catch (TokenFlowException e) {
 			LOGGER.error("Error performing Client Credentials Flow", e);
-			throw new XSUserInfoException("Error performing Client Credentials Flow..", e);
+			throw new XSUserInfoException("Error performing Client Credentials Flow.", e);
 		}
 		return ccfToken;
 	}

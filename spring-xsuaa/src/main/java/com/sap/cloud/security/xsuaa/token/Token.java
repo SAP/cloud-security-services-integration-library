@@ -13,18 +13,29 @@ public interface Token extends UserDetails {
 
 	/**
 	 * @deprecated use
-	 * {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants#GRANT_TYPE_CLIENT_CREDENTIALS}
-	 * instead
+	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants#GRANT_TYPE_CLIENT_CREDENTIALS}
+	 *             instead
 	 */
 	@Deprecated
 	static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
 
 	/**
-	 * Returns the subaccount identifier, which can be used as tenant GUID.
+	 * Return subaccount identifier which is in most cases same like the identity
+	 * zone. DO only use this for metering purposes. DO NOT longer use this method
+	 * to get the unique tenant id! For that use {@link #getZoneId()}.
 	 *
 	 * @return the subaccount identifier.
 	 */
 	String getSubaccountId();
+
+	/**
+	 * Return zone identifier which should be used as tenant discriminator (tenant
+	 * id). For most of the old subaccounts this matches the id returned by
+	 * {@link #getSubaccountId()}.
+	 *
+	 * @return the zone identifier.
+	 */
+	String getZoneId();
 
 	/**
 	 * Returns the subdomain of the calling tenant's subaccount.
@@ -57,8 +68,7 @@ public interface Token extends UserDetails {
 	 * <li><b>user login name:</b> name of the user in an identity provider,
 	 * provided by this method.
 	 * <li><b>origin:</b> alias to an identity provider, see {@link #getOrigin()}.
-	 * <li><b>subaccount id:</b> identifier for the subaccount, see
-	 * {@link #getSubaccountId()}.
+	 * <li><b>zone id:</b> identifier for the zone, see {@link #getZoneId()}.
 	 * </ul>
 	 *
 	 * @return unique principal name or null if it can not be determined.

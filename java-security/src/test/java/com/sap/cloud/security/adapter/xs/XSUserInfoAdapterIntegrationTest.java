@@ -125,7 +125,7 @@ public class XSUserInfoAdapterIntegrationTest {
 	@Test
 	public void getIdentityZone() {
 		assertEquals("uaa", infoUser.getIdentityZone());
-		assertEquals("uaa", infoUser.getSubaccountId());
+		assertEquals("uaa", infoUser.getZoneId());
 	}
 
 	@Test
@@ -377,7 +377,8 @@ public class XSUserInfoAdapterIntegrationTest {
 				eq(clientCredentials),
 				eq(correctEnduserInfo.getAppToken()),
 				any(),
-				anyMap())).thenReturn(oAuth2TokenResponse);
+				anyMap(),
+				anyBoolean())).thenReturn(oAuth2TokenResponse);
 		when(oAuth2TokenResponse.getAccessToken()).thenReturn(testToken);
 
 		// execute flow
@@ -399,9 +400,12 @@ public class XSUserInfoAdapterIntegrationTest {
 				eq(clientCredentials),
 				eq(correctEnduserInfo.getAppToken()),
 				any(),
-				anyMap())).thenThrow(OAuth2ServiceException
-						.createWithStatusCodeAndResponseBody("Unauthorized", org.apache.http.HttpStatus.SC_UNAUTHORIZED,
-								"Unauthorized"));
+				anyMap()))
+						.thenThrow(OAuth2ServiceException.builder("Unauthorized")
+								.withStatusCode(org.apache.http.HttpStatus.SC_UNAUTHORIZED)
+								.withUri(tokenEndpointUri)
+								.build());
+
 		// execute flow
 		correctEnduserInfo.requestToken(request);
 	}
