@@ -31,8 +31,8 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 
 	public AdcSpringSecurityExpression(JwtAuthenticationToken authentication) {
 		super(authentication);
-		logger.info("Create AdcSpringSecurityExpression with jwtAuthenticationToken");
-		logger.info("Authentication object {}", authentication);
+		logger.debug("Create AdcSpringSecurityExpression with jwtAuthenticationToken");
+
 
 		extractAttributesFromAuthentication(authentication);
 		setTrustResolver(new AuthenticationTrustResolverImpl());
@@ -40,14 +40,11 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 
 	public AdcSpringSecurityExpression(Authentication authentication) {
 		super(authentication);
-		logger.info("Create AdcSpringSecurityExpression with authentication");
-		logger.info("Authentication object {}", authentication);
+		logger.debug("Create AdcSpringSecurityExpression with authentication");
 
 		extractAttributesFromPrincipal(authentication.getPrincipal());
 		setTrustResolver(new AuthenticationTrustResolverImpl());
 	}
-
-
 
 	public AdcSpringSecurityExpression withAdcService(AdcService service) {
 		this.service = service;
@@ -126,7 +123,7 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 		Map<String, Object> attributes = authentication.getTokenAttributes();
 		zoneId = (String) attributes.getOrDefault(ZONE_UUID_KEY, attributes.get(ZID));
 		userId = (String) attributes.getOrDefault(USER_UUID_KEY, attributes.get(XSUAA_USER_ID));
-		logger.info("Extracted attribute zoneId={} and userId={} from authentication", zoneId, userId);
+		logger.debug("Extracted attribute zoneId={} and userId={} from authentication", zoneId, userId);
 	}
 
 	private void extractAttributesFromPrincipal(Object principal) {
@@ -135,7 +132,7 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 			zoneId = (String) userPrincipal.getAttributes()
 					.getOrDefault(ZONE_UUID_KEY, userPrincipal.getAttribute(ZID));
 			userId = userPrincipal.getAttribute(USER_UUID_KEY);
-			logger.info("Extracted attribute zoneId={} and userId={} from principal", zoneId, userId);
+			logger.debug("Extracted attribute zoneId={} and userId={} from principal", zoneId, userId);
 		}
 	}
 }

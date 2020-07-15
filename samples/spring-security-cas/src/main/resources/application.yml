@@ -13,5 +13,5 @@ spring:
               - openid
         provider:
           myoauthserver:
-            issuer-uri: https://xs2security.accounts400.ondemand.com
-            #issuer-uri: https://green-1.authentication.sap.hana.ondemand.com/oauth/token
+            #issuer-uri: https://xs2security.accounts400.ondemand.com
+            issuer-uri: https://green-1.authentication.sap.hana.ondemand.com/oauth/token
