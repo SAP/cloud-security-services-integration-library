@@ -12,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+import java.util.Map;
+
 /**
  */
 public class AdcSpringSecurityExpression extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
@@ -26,17 +28,25 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 	private String userId;
 	private String zoneId;
 
+	public AdcSpringSecurityExpression(JwtAuthenticationToken authentication) {
+		super(authentication);
+		logger.info("Create AdcSpringSecurityExpression with jwtAuthenticationToken");
+		logger.info("Authentication object {}", authentication);
+
+		extractAttributesFromAuthentication(authentication);
+		setTrustResolver(new AuthenticationTrustResolverImpl());
+	}
+
 	public AdcSpringSecurityExpression(Authentication authentication) {
 		super(authentication);
+		logger.info("Create AdcSpringSecurityExpression with authentication");
+		logger.info("Authentication object {}", authentication);
+
 		extractAttributesFromPrincipal(authentication.getPrincipal());
 		setTrustResolver(new AuthenticationTrustResolverImpl());
 	}
 
-	public AdcSpringSecurityExpression(JwtAuthenticationToken authentication) {
-		super(authentication);
-		extractAttributesFromAuthentication(authentication);
-		setTrustResolver(new AuthenticationTrustResolverImpl());
-	}
+
 
 	public AdcSpringSecurityExpression withAdcService(AdcService service) {
 		this.service = service;
@@ -76,6 +86,7 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 				.withAttributes(attributes);
 
 		boolean isAuthorized = checkAuthorization(request);
+
 		logger.info("Is user {} (zoneId {}) authorized to perform action '{}' on resource '{}' and attributes '{}' ? {}",
 				this.userId, this.zoneId, action, resource, attributes, isAuthorized);
 
@@ -111,8 +122,10 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 	}
 
 	private void extractAttributesFromAuthentication(JwtAuthenticationToken authentication) {
-		zoneId = (String) authentication.getTokenAttributes().get(ZONE_UUID_KEY);
-		userId = (String) authentication.getTokenAttributes().get(USER_UUID_KEY);
+		Map<String, Object> attributes = authentication.getTokenAttributes();
+		zoneId = (String) attributes.getOrDefault(ZONE_UUID_KEY, attributes.get(ZID));
+		userId = (String) attributes.get(USER_UUID_KEY);
+		logger.info("Extracted attribute zoneId={} and userId={} from authentication", zoneId, userId);
 	}
 
 	private void extractAttributesFromPrincipal(Object principal) {
@@ -120,7 +133,8 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 			OAuth2AuthenticatedPrincipal userPrincipal = (OAuth2AuthenticatedPrincipal) principal;
 			zoneId = (String) userPrincipal.getAttributes()
 					.getOrDefault(ZONE_UUID_KEY, userPrincipal.getAttribute(ZID));
-			userId = (String) userPrincipal.getAttributes().get(USER_UUID_KEY);
+			userId = userPrincipal.getAttribute(USER_UUID_KEY);
+			logger.info("Extracted attribute zoneId={} and userId={} from principal", zoneId, userId);
 		}
 	}
 }
