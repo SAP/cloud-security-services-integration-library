@@ -21,6 +21,7 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 
 	public static final String ZONE_UUID_KEY = "zone_uuid";
 	public static final String USER_UUID_KEY = "user_uuid";
+	public static final String XSUAA_USER_ID = "user_id";
 	public static final String ZID = "zid";
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
@@ -124,7 +125,7 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 	private void extractAttributesFromAuthentication(JwtAuthenticationToken authentication) {
 		Map<String, Object> attributes = authentication.getTokenAttributes();
 		zoneId = (String) attributes.getOrDefault(ZONE_UUID_KEY, attributes.get(ZID));
-		userId = (String) attributes.get(USER_UUID_KEY);
+		userId = (String) attributes.getOrDefault(USER_UUID_KEY, attributes.get(XSUAA_USER_ID));
 		logger.info("Extracted attribute zoneId={} and userId={} from authentication", zoneId, userId);
 	}
 
