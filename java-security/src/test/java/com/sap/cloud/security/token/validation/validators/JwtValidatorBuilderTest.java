@@ -136,7 +136,7 @@ public class JwtValidatorBuilderTest {
 
 		for (Validator validator : combiningValidator.getValidators()) {
 			if (validator instanceof JwtAudienceValidator) {
-				assertThat(((JwtAudienceValidator) validator).getTrustedClients()).containsAll(clientIds);
+				assertThat(((JwtAudienceValidator) validator).getClientIds()).containsAll(clientIds);
 				return;
 			}
 		}

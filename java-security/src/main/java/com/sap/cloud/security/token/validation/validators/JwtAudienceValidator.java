@@ -26,7 +26,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	private static final Logger logger = LoggerFactory.getLogger(JwtAudienceValidator.class);
 	private static final char DOT = '.';
 
-	private final Set<String> trustedClients = new LinkedHashSet<>();
+	private final Set<String> clientIds = new LinkedHashSet<>();
 
 	JwtAudienceValidator(String clientId) {
 		configureTrustedClientId(clientId);
@@ -34,7 +34,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	JwtAudienceValidator configureTrustedClientId(String clientId) {
 		assertHasText(clientId, "JwtAudienceValidator requires a clientId.");
-		trustedClients.add(clientId);
+		clientIds.add(clientId);
 		logger.info("configured JwtAudienceValidator with clientId {}.", clientId);
 
 		return this;
@@ -42,18 +42,18 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
-		Set<String> allowedAudiences = getAllowedAudiences(token);
+		Set<String> allowedAudiences = extractAudiencesFromToken(token);
 		return Optional.ofNullable(validateDefault(allowedAudiences))
 				.orElse(
 						Optional.ofNullable(validateAudienceOfXsuaaBrokerClone(allowedAudiences))
 								.orElse(ValidationResults.createInvalid(
 										"Jwt token with audience {} is not issued for these clientIds: {}.",
 										allowedAudiences,
-										trustedClients)));
+										clientIds)));
 	}
 
 	private ValidationResult validateDefault(Set<String> allowedAudiences) {
-		for (String configuredClientId : trustedClients) {
+		for (String configuredClientId : clientIds) {
 			if (allowedAudiences.contains(configuredClientId)) {
 				return ValidationResults.createValid();
 			}
@@ -62,7 +62,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	}
 
 	private ValidationResult validateAudienceOfXsuaaBrokerClone(Set<String> allowedAudiences) {
-		for (String configuredClientId : trustedClients) {
+		for (String configuredClientId : clientIds) {
 			if (configuredClientId.contains("!b")) {
 				for (String audience : allowedAudiences) {
 					if (audience.endsWith("|" + configuredClientId)) {
@@ -80,7 +80,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	 * @param token
 	 * @return (empty) list of audiences
 	 */
-	static Set<String> getAllowedAudiences(Token token) {
+	static Set<String> extractAudiencesFromToken(Token token) {
 		Set<String> audiences = new LinkedHashSet<>();
 
 		for (String audience : token.getAudiences()) {
@@ -98,8 +98,8 @@ public class JwtAudienceValidator implements Validator<Token> {
 		return audiences;
 	}
 
-	Set<String> getTrustedClients() {
-		return trustedClients;
+	Set<String> getClientIds() {
+		return clientIds;
 	}
 
 }
