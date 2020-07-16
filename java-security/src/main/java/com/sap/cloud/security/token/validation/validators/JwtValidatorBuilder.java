@@ -28,7 +28,7 @@ public class JwtValidatorBuilder {
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private OAuth2ServiceConfiguration configuration;
-	private OAuth2ServiceConfiguration otherConfiguration;
+	private final Set<OAuth2ServiceConfiguration> otherConfigurations = new HashSet();
 	private OidcConfigurationService oidcConfigurationService = null;
 	private OAuth2TokenKeyService tokenKeyService = null;
 	private Validator<Token> customAudienceValidator;
@@ -149,8 +149,8 @@ public class JwtValidatorBuilder {
 	 */
 	public JwtValidatorBuilder configureAnotherServiceInstance(
 			@Nullable OAuth2ServiceConfiguration otherConfiguration) {
-		if (otherConfiguration != configuration) {
-			this.otherConfiguration = otherConfiguration;
+		if (Objects.nonNull(otherConfiguration)) {
+			this.otherConfigurations.add(otherConfiguration);
 		}
 		return this;
 	}
@@ -213,12 +213,12 @@ public class JwtValidatorBuilder {
 		if (configuration.hasProperty(CFConstants.XSUAA.APP_ID)) {
 			jwtAudienceValidator.configureTrustedClientId(configuration.getProperty(CFConstants.XSUAA.APP_ID));
 		}
-		if (otherConfiguration != null) {
+		otherConfigurations.forEach((otherConfiguration) -> {
 			jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getClientId());
 			if (otherConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
 				jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
 			}
-		}
+		});
 		return jwtAudienceValidator;
 	}
 

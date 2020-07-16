@@ -26,7 +26,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	private static final Logger logger = LoggerFactory.getLogger(JwtAudienceValidator.class);
 	private static final char DOT = '.';
 
-	private final Set<String> clientIds = new LinkedHashSet<>();
+	private final Set<String> trustedClientIds = new LinkedHashSet<>();
 
 	JwtAudienceValidator(String clientId) {
 		configureTrustedClientId(clientId);
@@ -34,7 +34,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	JwtAudienceValidator configureTrustedClientId(String clientId) {
 		assertHasText(clientId, "JwtAudienceValidator requires a clientId.");
-		clientIds.add(clientId);
+		trustedClientIds.add(clientId);
 		logger.info("configured JwtAudienceValidator with clientId {}.", clientId);
 
 		return this;
@@ -50,11 +50,11 @@ public class JwtAudienceValidator implements Validator<Token> {
 		}
 		return ValidationResults.createInvalid(
 				"Jwt token with audience {} is not issued for these clientIds: {}.",
-				token.getAudiences(), clientIds);
+				token.getAudiences(), trustedClientIds);
 	}
 
 	private boolean validateDefault(Set<String> allowedAudiences) {
-		for (String configuredClientId : clientIds) {
+		for (String configuredClientId : trustedClientIds) {
 			if (allowedAudiences.contains(configuredClientId)) {
 				return true;
 			}
@@ -63,7 +63,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	}
 
 	private boolean validateAudienceOfXsuaaBrokerClone(Set<String> allowedAudiences) {
-		for (String configuredClientId : clientIds) {
+		for (String configuredClientId : trustedClientIds) {
 			if (configuredClientId.contains("!b")) {
 				for (String audience : allowedAudiences) {
 					if (audience.endsWith("|" + configuredClientId)) {
@@ -85,7 +85,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 		Set<String> audiences = new LinkedHashSet<>();
 
 		for (String audience : token.getAudiences()) {
-			if (audience.contains(".")) {
+			if (audience.contains("" + DOT)) {
 				// CF UAA derives the audiences from the scopes.
 				// In case the scopes contains namespaces, these needs to be removed.
 				String aud = extractAppId(audience);
@@ -117,7 +117,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	/**
 	 * In case of audiences, the namespaces are trimmed. In case of scopes, the
 	 * namespaces and the scope names are trimmed.
-	 * 
+	 *
 	 * @param scopeOrAudience
 	 * @return
 	 */
@@ -125,4 +125,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 		return scopeOrAudience.substring(0, scopeOrAudience.indexOf(DOT)).trim();
 	}
 
+	public Set<String> getTrustedClientIds() {
+		return trustedClientIds;
+	}
 }
