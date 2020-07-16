@@ -7,10 +7,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * TODO
- *  - check whether it works on CF (can load ADC_URL) timely
- */
 @Configuration
 public class AdcServiceConfiguration {
 
