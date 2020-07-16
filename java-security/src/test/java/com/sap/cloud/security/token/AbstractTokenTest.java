@@ -124,4 +124,19 @@ public class AbstractTokenTest {
 		assertThat(cut.getClaimAsJsonObject("doesNotExist")).isNull();
 	}
 
+	@Test
+	public void toString_doesNotContainEncodedToken() {
+		assertThat(cut.toString()).doesNotContain(cut.getTokenValue());
+	}
+
+	@Test
+	public void toString_containsTokenContent() {
+		assertThat(cut.toString())
+				.contains(cut.getHeaderParameterAsString(TokenHeader.JWKS_URL))
+				.contains(cut.getHeaderParameterAsString(TokenHeader.KEY_ID))
+				.contains(cut.getAudiences())
+				.contains(cut.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
+				.contains(cut.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE))
+				.contains(cut.getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
+	}
 }

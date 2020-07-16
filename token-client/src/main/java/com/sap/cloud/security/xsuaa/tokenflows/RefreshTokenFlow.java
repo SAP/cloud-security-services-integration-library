@@ -19,6 +19,7 @@ public class RefreshTokenFlow {
 	private XsuaaTokenFlowRequest request;
 	private String refreshToken;
 	private OAuth2TokenService tokenService;
+	private boolean disableCache = false;
 
 	/**
 	 * Creates a new instance.
@@ -65,6 +66,18 @@ public class RefreshTokenFlow {
 	public RefreshTokenFlow refreshToken(String refreshToken) {
 		assertNotNull(refreshToken, "RefreshToken must not be null.");
 		this.refreshToken = refreshToken;
+		return this;
+	}
+
+	/**
+	 * Can be used to disable the cache for the flow.
+	 *
+	 * @param disableCache
+	 *            - disables cache when set to {@code true}.
+	 * @return this builder.
+	 */
+	public RefreshTokenFlow disableCache(boolean disableCache) {
+		this.disableCache = disableCache;
 		return this;
 	}
 
@@ -130,7 +143,7 @@ public class RefreshTokenFlow {
 			OAuth2TokenResponse accessToken = tokenService.retrieveAccessTokenViaRefreshToken(
 					request.getTokenEndpoint(),
 					new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken,
-					request.getSubdomain());
+					request.getSubdomain(), disableCache);
 			return accessToken;
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(

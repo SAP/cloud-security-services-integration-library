@@ -1,5 +1,6 @@
 package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
@@ -28,6 +30,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	private Validator<Token> tokenValidator;
 	protected CloseableHttpClient httpClient;
 	protected OAuth2ServiceConfiguration serviceConfiguration;
+	private CacheConfiguration tokenKeyCacheConfiguration;
 
 	@Override
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
@@ -54,11 +57,37 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return TokenAuthenticatorResult.createUnauthenticated("Could not process request " + request);
 	}
 
+	/**
+	 * Use to configure the token key cache.
+	 * 
+	 * @param cacheConfiguration
+	 *            the cache configuration
+	 * @return this authenticator
+	 */
+	public AbstractTokenAuthenticator withCacheConfiguration(CacheConfiguration cacheConfiguration) {
+		this.tokenKeyCacheConfiguration = cacheConfiguration;
+		return this;
+	}
+
+	/**
+	 * Use to configure the HttpClient that is used to retrieve token keys.
+	 * 
+	 * @param httpClient
+	 *            the HttpClient
+	 * @return this authenticator
+	 */
 	public AbstractTokenAuthenticator withHttpClient(CloseableHttpClient httpClient) {
 		this.httpClient = httpClient;
 		return this;
 	}
 
+	/**
+	 * Use to override the service configuration used.
+	 * 
+	 * @param serviceConfiguration
+	 *            the service configuration to use
+	 * @return this authenticator
+	 */
 	public AbstractTokenAuthenticator withServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {
 		this.serviceConfiguration = serviceConfiguration;
 		return this;
@@ -88,8 +117,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	protected abstract OAuth2ServiceConfiguration getServiceConfiguration();
 
 	/**
-	 * Return other configured service configurations or null if not
-	 * configured.
+	 * Return other configured service configurations or null if not configured.
 	 *
 	 * @return the other service configuration or null
 	 */
@@ -110,6 +138,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 			JwtValidatorBuilder jwtValidatorBuilder = JwtValidatorBuilder.getInstance(getServiceConfiguration())
 					.withHttpClient(httpClient);
 			jwtValidatorBuilder.configureAnotherServiceInstance(getOtherServiceConfiguration());
+			Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(jwtValidatorBuilder::withCacheConfiguration);
 			validationListeners.forEach(jwtValidatorBuilder::withValidatorListener);
 			tokenValidator = jwtValidatorBuilder.build();
 		}

@@ -38,7 +38,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
  * - checks whether the jwt is unchanged and signed with a private key that
  * matches the PublicKey.
  */
-public class JwtSignatureValidator implements Validator<Token> {
+class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private final OidcConfigurationServiceWithCache oidcConfigurationService;
 	private OAuth2ServiceConfiguration configuration;
@@ -100,13 +100,13 @@ public class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	@Nonnull
-	private String getOrRequestJwksUri(Token token) throws OAuth2ServiceException, IllegalArgumentException {
+	private String getOrRequestJwksUri(Token token) throws OAuth2ServiceException {
 		if (configuration.isLegacyMode()) {
 			// hard-code with trusted url in case of XSA Auth Code tokens
 			return configuration.getUrl() + "/token_keys";
 		}
 		if (configuration.getService() == Service.XSUAA && token.hasHeaderParameter(KEYS_URL_PARAMETER_NAME)) {
-			// 'jku' was validated by XsuaaJwtIssuerValidator
+			// 'jku' was validated by XsuaaJkuValidator
 			return token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME);
 		}
 		if (configuration.getService() != Service.XSUAA && token.hasClaim(ISSUER)) {

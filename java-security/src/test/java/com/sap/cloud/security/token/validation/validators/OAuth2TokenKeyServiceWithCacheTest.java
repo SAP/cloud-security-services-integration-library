@@ -3,7 +3,8 @@ package com.sap.cloud.security.token.validation.validators;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
@@ -11,19 +12,21 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-
 public class OAuth2TokenKeyServiceWithCacheTest {
-	private static final int CACHE_TIME_IN_SECONDS = 1000;
+
+	public static final int CACHE_TIME_IN_SECONDS = 600;
 
 	OAuth2TokenKeyServiceWithCache cut;
 	OAuth2TokenKeyService tokenKeyServiceMock;
@@ -50,15 +53,22 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 
 	@Test
 	public void changeCacheConfiguration() {
-		cut = cut.withCacheSize(1001).withCacheTime(601);
+		cut = cut.withCacheSize(1234).withCacheTime(678);
 
-		assertThatThrownBy(() -> {
-			cut = cut.withCacheSize(1000).withCacheTime(601);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("size");
+		assertThat(cut.getCacheConfiguration().getCacheSize()).isEqualTo(1234);
+		assertThat(cut.getCacheConfiguration().getCacheDuration()).isEqualTo(Duration.ofSeconds(678));
+	}
 
-		assertThatThrownBy(() -> {
-			cut = cut.withCacheSize(1001).withCacheTime(600);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("validity");
+	@Test
+	public void changeCacheConfiguration_valuesTooLow_leftUnchanged() {
+
+		Duration oldCacheDuration = cut.getCacheConfiguration().getCacheDuration();
+		int oldCacheSize = cut.getCacheConfiguration().getCacheSize();
+
+		cut = cut.withCacheSize(1).withCacheTime(1);
+
+		assertThat(cut.getCacheConfiguration().getCacheSize()).isEqualTo(oldCacheSize);
+		assertThat(cut.getCacheConfiguration().getCacheDuration()).isEqualTo(oldCacheDuration);
 	}
 
 	@Test
@@ -115,16 +125,7 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	}
 
 	@Test
-	public void retrieveTokenKeys_doesNotRequestKeysFromSameUriTwice()
-			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "non-existing-key-id-0", TOKEN_KEYS_URI);
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "non-existing-key-id-1", TOKEN_KEYS_URI);
-
-		Mockito.verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any());
-	}
-
-	@Test
-	public void retrieveTokenKeys_doesRequestKeysFromSameUriAgainAfterCacheExpired()
+	public void retrieveTokenKeys_doesRequestKeysAgainAfterCacheExpired()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI);
 		testCacheTicker.advance(CACHE_TIME_IN_SECONDS, TimeUnit.SECONDS);
@@ -139,22 +140,9 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-1", TOKEN_KEYS_URI);
 		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", URI.create("http://another/url"));
 
-		Mockito.verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any());
+		Mockito.verify(tokenKeyServiceMock, times(2))
+				.retrieveTokenKeys(any());
 	}
-
-	@Test
-	public void retrieveTokenKeys_cachesAllKeysFromService()
-			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		PublicKey firstKey = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI);
-		PublicKey secondKey = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-1", TOKEN_KEYS_URI);
-		PublicKey thirdKey = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "legacy-token-key", TOKEN_KEYS_URI);
-
-		Mockito.verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any());
-		assertThat(firstKey).isNotNull();
-		assertThat(secondKey).isNotNull();
-		assertThat(thirdKey).isNotNull();
-	}
-
 
 	private class TestCacheTicker implements  Ticker {
 		long elapsed = 0;

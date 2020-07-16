@@ -1,11 +1,10 @@
 package com.sap.cloud.security.token.validation;
 
 import com.sap.cloud.security.xsuaa.Assertions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This is a special validator that combines several validators into one. By
@@ -16,6 +15,7 @@ import java.util.Set;
  */
 public class CombiningValidator<T> implements Validator<T> {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(CombiningValidator.class);
 	private final List<Validator<T>> validators;
 	private final Set<ValidationListener> validationListeners = new HashSet<>();
 
@@ -34,23 +34,12 @@ public class CombiningValidator<T> implements Validator<T> {
 		for (Validator<T> validator : validators) {
 			ValidationResult result = validator.validate(t);
 			if (result.isErroneous()) {
+				debugLog(t, validator);
 				validationListeners.forEach(listener -> listener.onValidationError(result));
 				return result;
 			}
 		}
 		return createValidationResult();
-	}
-
-	private ValidationResult createValidationResult() {
-		if (validators.isEmpty()) {
-			ValidationResult result = ValidationResults
-					.createInvalid("CombiningValidator must contain at least one validator!");
-			validationListeners.forEach(listener -> listener.onValidationError(result));
-			return result;
-		} else {
-			validationListeners.forEach(ValidationListener::onValidationSuccess);
-			return ValidationResults.createValid();
-		}
 	}
 
 	public List<Validator<T>> getValidators() {
@@ -87,5 +76,26 @@ public class CombiningValidator<T> implements Validator<T> {
 	 */
 	public void removeValidationListener(ValidationListener validationListener) {
 		validationListeners.remove(validationListener);
+	}
+
+	private void debugLog(T t, Validator<T> validator) {
+		if (LOGGER.isDebugEnabled()) {
+			String objectType = t == null ? "null" : t.getClass().getName();
+			LOGGER.debug("Validator that caused the failed validation: {}", validator.getClass().getName());
+			LOGGER.debug("Object of type {} that caused the failed validation: {}{}", objectType,
+					System.lineSeparator(), t);
+		}
+	}
+
+	private ValidationResult createValidationResult() {
+		if (validators.isEmpty()) {
+			ValidationResult result = ValidationResults
+					.createInvalid("CombiningValidator must contain at least one validator!");
+			validationListeners.forEach(listener -> listener.onValidationError(result));
+			return result;
+		} else {
+			validationListeners.forEach(ValidationListener::onValidationSuccess);
+			return ValidationResults.createValid();
+		}
 	}
 }

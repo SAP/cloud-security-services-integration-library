@@ -64,8 +64,7 @@ Spring Boot provides OAuth resource servers. Application developers requiring au
 See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
 
 ### Additional (test) utilities
-- [spring-xsuaa-mock](./spring-xsuaa-mock) offers a Mock web server to provide token keys for offline token validation in case xsuaa service (OAuth resource-server) is not in place. Its use is only intended for unit tests and when running your Spring boot application on a Webserver locally.
-- [spring-xsuaa-test](./spring-xsuaa-test) offers test utilities to generate custom JWT tokens for the purpose of tests.
+- [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.
 
 Find [here](https://github.com/SAP/cloud-application-security-sample/tree/master/spring-security-basis) a more sophisticated sample.
 

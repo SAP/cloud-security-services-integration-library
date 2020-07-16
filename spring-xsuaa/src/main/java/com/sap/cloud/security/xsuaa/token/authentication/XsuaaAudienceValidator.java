@@ -54,15 +54,15 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 				return OAuth2TokenValidatorResult.success();
 			}
 		}
-		return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
-				"Jwt token audience matches none of these: " + appIdClientIdMap.keySet().toString(), null));
+		String description = String.format("Jwt token with allowed audiences %s matches none of these: %s",
+				allowedAudiences, appIdClientIdMap.keySet().toString());
+		return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, description, null));
 	}
 
 	private boolean checkMatch(String appId, String clientId, String tokenClientId, List<String> allowedAudiences) {
 		// case 1 : token issued by own client (or master)
 		if (clientId.equals(tokenClientId)
 				|| (appId.contains("!b")
-						&& tokenClientId.contains("|")
 						&& tokenClientId.endsWith("|" + appId))) {
 			return true;
 		} else {
@@ -89,7 +89,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 		if (tokenAudiences != null) {
 			for (String audience : tokenAudiences) {
 				if (audience.contains(".")) {
-					String aud = audience.substring(0, audience.indexOf("."));
+					String aud = audience.substring(0, audience.indexOf('.'));
 					allAudiences.add(aud);
 				} else {
 					allAudiences.add(audience);
@@ -101,7 +101,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 		if (allAudiences.size() == 0) {
 			for (String scope : getScopes(token)) {
 				if (scope.contains(".")) {
-					String aud = scope.substring(0, scope.indexOf("."));
+					String aud = scope.substring(0, scope.indexOf('.'));
 					allAudiences.add(aud);
 				}
 			}

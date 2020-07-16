@@ -12,8 +12,9 @@ import java.util.Map;
 /**
  * Represents a token exchange request.
  * 
- * deprecated with version 2.4.0 in favor of the new SAP Java Container library.
+ * deprecated with version 2.4.0 in favor of the new SAP Java Client library.
  */
+@java.lang.SuppressWarnings("squid:S1214")
 public interface XSTokenRequest {
 
 	public static final int TYPE_USER_TOKEN = 0;

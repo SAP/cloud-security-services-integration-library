@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import sample.spring.xsuaa.Application;
 
 @SpringBootTest(classes = Application.class)
+@java.lang.SuppressWarnings("squid:S2699")
 public class ApplicationTest {
 
 	@Test

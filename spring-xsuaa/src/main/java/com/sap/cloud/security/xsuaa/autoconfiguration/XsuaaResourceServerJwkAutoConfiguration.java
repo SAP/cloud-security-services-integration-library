@@ -47,7 +47,7 @@ public class XsuaaResourceServerJwkAutoConfiguration {
 	@ConditionalOnMissingBean
 	public JwtDecoder xsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration,
 			RestOperations xsuaaRestOperations) {
-		logger.info("auto-configures JwtDecoder using restOperations of type: " + xsuaaRestOperations);
+		logger.debug("auto-configures JwtDecoder using restOperations of type: {}", xsuaaRestOperations);
 		return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration)
 				.withRestOperations(xsuaaRestOperations)
 				.build();

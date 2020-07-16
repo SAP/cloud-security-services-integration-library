@@ -31,7 +31,7 @@ public class ReactiveSecurityContext {
 				.map(SecurityContext::getAuthentication)
 				.map(Authentication::getCredentials)
 				.map(credentials -> new XsuaaToken((Jwt) credentials))
-				.doOnSuccess(token -> logger.info("Got Jwt token: {}", token.toString()))
+				.doOnSuccess(token -> logger.info("Got Jwt token: {}", token))
 				.doOnError(throwable -> logger.error("ERROR to getToken", throwable));
 	}
 }

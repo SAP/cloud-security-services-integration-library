@@ -20,6 +20,7 @@ public class DefaultAuthoritiesExtractor extends JwtAuthenticationConverter impl
 	}
 
 	@Override
+	@Deprecated
 	protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
 		List<String> scopes = jwt.getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
 

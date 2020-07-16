@@ -1,10 +1,14 @@
 package com.sap.cloud.security.xsuaa.jwt;
 
 import com.sap.cloud.security.xsuaa.Assertions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.regex.Pattern;
+
+import static java.lang.System.lineSeparator;
 
 public final class Base64JwtDecoder {
 	private static final Base64JwtDecoder instance = new Base64JwtDecoder();
@@ -54,6 +58,8 @@ public final class Base64JwtDecoder {
 		private String payload;
 		private String signature;
 		private String encodedJwt;
+		private static final String TAB = "\t";
+		private static final Logger LOGGER = LoggerFactory.getLogger(DecodedJwtImpl.class);
 
 		DecodedJwtImpl(String encodedJwt, String header, String payload, String signature) {
 			this.header = header;
@@ -82,5 +88,15 @@ public final class Base64JwtDecoder {
 			return encodedJwt;
 		}
 
+		@Override
+		public String toString() {
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("Jwt header" + lineSeparator());
+			stringBuilder.append(TAB + getHeader() + lineSeparator());
+			stringBuilder.append("Jwt payload" + lineSeparator());
+			stringBuilder.append(TAB + getPayload() + lineSeparator());
+
+			return stringBuilder.toString();
+		}
 	}
 }

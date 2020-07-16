@@ -4,7 +4,6 @@ import static com.sap.cloud.security.token.validation.ValidationResults.*;
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ import com.sap.cloud.security.token.validation.Validator;
  * service. In case of XSUAA does the token key url (jku JWT header parameter)
  * must match the identity service domain.
  */
-public class XsuaaJwtIssuerValidator implements Validator<Token> {
+class XsuaaJkuValidator implements Validator<Token> {
 	private final String domain;
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -30,35 +29,45 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 	 *            the domain of the identity service
 	 *            {@link OAuth2ServiceConfiguration#getProperty(String)}
 	 */
-	XsuaaJwtIssuerValidator(String uaaDomain) {
-		assertHasText(uaaDomain, "XsuaaJwtIssuerValidator requires uaaDomain.");
+	XsuaaJkuValidator(String uaaDomain) {
+		assertHasText(uaaDomain, "XsuaaJkuValidator requires uaaDomain.");
 		this.domain = uaaDomain;
 	}
 
 	@Override
 	public ValidationResult validate(Token token) {
 		String tokenKeyUrl = token.getHeaderParameterAsString(TokenHeader.JWKS_URL);
+		URI jkuUri;
+
 		if (tokenKeyUrl == null || tokenKeyUrl.trim().isEmpty()) {
 			return createInvalid(
 					"Issuer validation can not be performed because Jwt token does not contain 'jku' header parameter.");
 		}
-		return matchesTokenKeyUrlDomain(tokenKeyUrl);
+		try {
+			jkuUri = URI.create(tokenKeyUrl);
+		} catch (IllegalArgumentException e) {
+			return createInvalid(
+					"Issuer validation can not be performed because Jwt token does not contain a valid uri as 'jku' header parameter.");
+		}
+		if (!matchesTokenKeyUrlDomain(jkuUri)) {
+			return createInvalid(
+					"Issuer is not trusted because 'jku' '{}' does not match uaa domain '{}' of the identity service.",
+					jkuUri, domain);
+		}
+		if (!matchesTokenKeyEndpoint(jkuUri)) {
+			return createInvalid(
+					"Jwt token does not contain a valid 'jku' header parameter.",
+					jkuUri, domain);
+		}
+		return createValid();
 	}
 
-	private ValidationResult matchesTokenKeyUrlDomain(String tokenKeyUrl) {
-		URI jkuUri;
-		try {
-			jkuUri = new URI(tokenKeyUrl);
-			if (jkuUri.getHost() != null && jkuUri.getHost().endsWith(domain)) {
-				return createValid();
-			}
-		} catch (URISyntaxException e) {
-			logger.error("Error: 'jku' header parameter '{}' does not provide a valid URI: {}.", tokenKeyUrl,
-					e.getMessage(), e);
-		}
-		return createInvalid(
-				"Issuer is not trusted because 'jku' '{}' does not match uaa domain '{}' of the identity service.",
-				tokenKeyUrl, domain);
+	private boolean matchesTokenKeyUrlDomain(URI jkuUri) {
+		return jkuUri.getHost() != null && jkuUri.getHost().endsWith(domain);
+	}
+
+	private boolean matchesTokenKeyEndpoint(URI jkuUri) {
+		return jkuUri.getPath().endsWith("token_keys") && jkuUri.getQuery() == null && jkuUri.getFragment() == null;
 	}
 
 	@Override
@@ -68,7 +77,7 @@ public class XsuaaJwtIssuerValidator implements Validator<Token> {
 		if (o == null || getClass() != o.getClass())
 			return false;
 
-		XsuaaJwtIssuerValidator that = (XsuaaJwtIssuerValidator) o;
+		XsuaaJkuValidator that = (XsuaaJkuValidator) o;
 
 		return domain.equals(that.domain);
 	}

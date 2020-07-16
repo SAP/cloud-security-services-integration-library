@@ -6,17 +6,12 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.rules.ExternalResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
-
 public class SecurityTestRule extends ExternalResource {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityTestRule.class);
 
 	public static final String DEFAULT_APP_ID = SecurityTest.DEFAULT_APP_ID;
 	public static final String DEFAULT_CLIENT_ID = SecurityTest.DEFAULT_CLIENT_ID;
@@ -176,14 +171,15 @@ public class SecurityTestRule extends ExternalResource {
 	}
 
 	/**
-	 * @deprecated use {@link #getWireMockServer()} method instead.
-	 * Note that WireMockServer is the base class of WireMockRule.
+	 * @deprecated use {@link #getWireMockServer()} method instead. Note that
+	 *             WireMockServer is the base class of WireMockRule.
 	 *
 	 */
 	@Nullable
 	@Deprecated
 	public WireMockRule getWireMockRule() {
-		throw new UnsupportedOperationException("Deprecated since version 2.6.0. Please use getWireMockServer instead.");
+		throw new UnsupportedOperationException(
+				"Deprecated since version 2.6.0. Please use getWireMockServer instead. WireMockServer is the base class of WireMockRule.");
 	}
 
 	/**

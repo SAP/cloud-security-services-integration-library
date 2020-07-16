@@ -46,6 +46,7 @@
   },
   "ext_attr": {
     "serviceinstanceid": "abcd1234",
-    "zdn": "testsubdomain"
+    "zdn": "testsubdomain",
+    "subaccountid": "test-subaccount"
   }
 }

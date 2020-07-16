@@ -133,12 +133,13 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	 *
 	 * @param otherServiceConfiguration
 	 *            another service configuration. You can use
-	 *            {@link com.sap.cloud.security.config.cf.CFEnvironment#getXsuaaConfigurationForTokenExchange()} in order to
-	 *            load additional broker service configuration from the binding information in your
-	 *            environment.
+	 *            {@link com.sap.cloud.security.config.cf.CFEnvironment#getXsuaaConfigurationForTokenExchange()}
+	 *            in order to load additional broker service configuration from the
+	 *            binding information in your environment.
 	 * @return the instance itself
 	 */
-	public SAPOfflineTokenServicesCloud withAnotherServiceConfiguration(OAuth2ServiceConfiguration otherServiceConfiguration) {
+	public SAPOfflineTokenServicesCloud withAnotherServiceConfiguration(
+			OAuth2ServiceConfiguration otherServiceConfiguration) {
 		jwtValidatorBuilder.configureAnotherServiceInstance(otherServiceConfiguration);
 		return this;
 	}
