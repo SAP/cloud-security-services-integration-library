@@ -9,9 +9,10 @@ import org.mockito.Mockito;
 import java.net.URI;
 
 import static com.sap.cloud.security.token.TokenClaims.ISSUER;
+import static com.sap.cloud.security.token.TokenHeader.JWKS_URL;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -95,8 +96,26 @@ public class JwtIssuerValidatorTest {
 
 	@Test
 	public void validationFails_whenTokenIssuerIsNotAValidUri() {
-		Token token = Mockito.mock(Token.class);
 		when(token.getClaimAsString(ISSUER)).thenReturn("\0://myauth.com");
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isErroneous(), is(true));
+		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because"));
+	}
+
+	@Test
+	public void validationFails_whenTokenIssuerContainsQueryParameters() {
+		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com?a=b");
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isErroneous(), is(true));
+		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because"));
+	}
+
+	@Test
+	public void validationFails_whenTokenIssuerContainsFragment() {
+		when(token.getHeaderParameterAsString(JWKS_URL))
+				.thenReturn("https://subdomain.myauth.ondemand.com/token_keys#token_keys");
+
+		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com#anyFragment_keys");
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because"));

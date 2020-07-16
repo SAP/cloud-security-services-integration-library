@@ -142,7 +142,10 @@ In case of multiple bindings you need to adapt your **Spring Security Configurat
        return new XsuaaJwtDecoderBuilder(customXsuaaConfig()).withTokenValidators(customAudienceValidator).build();
     }
     ```
- 4. Note: In case you would like to configure authorization checks for scopes that are specified in context of different XSUAA service instances local scope names (without `xsappname` prefix) are not unique. So, make sure that `TokenAuthenticationConverter` is NOT configured to check for local scopes (`setLocalScopeAsAuthorities(false)`)!
+ 4. Note: In case you would like to configure authorization checks for scopes that are specified in context of different XSUAA service instances local scope names (without `xsappname` prefix) are not unique. So, make sure that `TokenAuthenticationConverter` is NOT configured to check for local scopes (`setLocalScopeAsAuthorities(false)`)! In this case configure the HttpSecurity with an `antMatcher` for local scope "Read" as following:  
+```
+ .antMatchers("/v1/sayHello").hasAuthority(customXsuaaConfig().getAppId() + '.' + "Read")
+```
 
 ## Fetch data from token
 
@@ -241,42 +244,9 @@ Now you can test the service manually in the browser using the `Postman` chrome 
 When your code compiles again you should first check that all your unit tests are running again. If you can test your
 application locally make sure that it is still working and finally test the application in cloud foundry.
 
-## Troubleshoot
-
-### Multiple XSUAA Bindings (broker & application)
-
-If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), you run into the following issue:
-
-```
-Caused by: java.lang.RuntimeException: Found more than one xsuaa binding. There can only be one.
-at com.sap.cloud.security.xsuaa.XsuaaServicesParser.getJSONObjectFromTag(XsuaaServicesParser.java:91)
-at com.sap.cloud.security.xsuaa.XsuaaServicesParser.searchXSuaaBinding(XsuaaServicesParser.java:72)
-at com.sap.cloud.security.xsuaa.XsuaaServicesParser.getAttribute(XsuaaServicesParser.java:59)
-at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.getConfigurationProperties(XsuaaServicePropertySourceFactory.java:65)
-at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.createPropertySource(XsuaaServicePropertySourceFactory.java:55)
-at org.springframework.context.annotation.ConfigurationClassParser.processPropertySource(ConfigurationClassParser.java:452)
-``` 
-
-The library does not support more than one XSUAA binding. Follow [these steps](#multiple-xsuaa-bindings), to adapt your **Spring Security Configuration**.
-
-### Configuration property name `vcap.services.<<xsuaa instance name>>.credentials` is not valid
-We recognized that this error is raised, when your instance name contains upper cases. 
-Alternatively you can then define your `XsuaaCredentials` Bean the following way:
-```
-@Bean
-public XsuaaCredentials xsuaaCredentials() {
-    final XsuaaCredentials result = new XsuaaCredentials();
-    result.setXsAppName(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.xsappname"));
-    result.setClientId(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.clientid"));
-    result.setClientSecret(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.clientsecret"));
-    result.setUaaDomain(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.uaadomain"));
-    result.setUrl(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.url"));
-    return result;
-}
-```
 
 ## Issues
-In case you face issues to apply the migration steps feel free to open a Issue here on [Github.com](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new).
+In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue.
 
 ## Samples
 - [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads/tree/solution-24-Make-App-Secure-Spring5)

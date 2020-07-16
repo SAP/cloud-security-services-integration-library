@@ -33,7 +33,7 @@ public class JwtGenerator {
 	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtGenerator.class);
-	private static final String DEFAULT_JWKS_URL = "http://localhost";
+	private static final String DEFAULT_JWKS_URL = "http://localhost/token_keys";
 	private static final String DEFAULT_KEY_ID = "default-kid";
 	private static final char DOT = '.';
 

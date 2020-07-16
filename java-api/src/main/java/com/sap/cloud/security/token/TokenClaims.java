@@ -33,12 +33,12 @@ public final class TokenClaims {
 		public static final String SCOPES = "scope"; // list of scopes including app id, e.g. "my-app!t123.Display"
 		public static final String ISSUED_AT = "iat";
 		public static final String EXTERNAL_ATTRIBUTE = "ext_attr";
-		public static final String EXTERNAL_ATTRIBUTE_ZDN = "zdn";
+		public static final String EXTERNAL_ATTRIBUTE_ZDN = "zdn"; //subdomain
 		// new with SECAUTH-806
 		public static final String EXTERNAL_ATTRIBUTE_SUBACCOUNTID = "subaccountid";
 		@Deprecated
 		public static final String EXTERNAL_ATTRIBUTE_ENHANCER = "enhancer";
-
+		public static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
 		public static final String TRUSTED_CLIENT_ID_SUFFIX = "trustedclientidsuffix";
 	}
 

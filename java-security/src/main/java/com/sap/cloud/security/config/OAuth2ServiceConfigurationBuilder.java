@@ -127,7 +127,7 @@ public class OAuth2ServiceConfigurationBuilder {
 
 		@Override
 		public URI getUrl() {
-			return URI.create(properties.get(URL));
+			return hasProperty(URL) ? URI.create(properties.get(URL)) : null;
 		}
 
 		@Override

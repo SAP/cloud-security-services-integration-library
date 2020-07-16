@@ -123,7 +123,7 @@ Obtain a client credentials token:
 
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.clientCredentialsTokenFlow()
-                                                    .subdomain(jwtToken.getSubdomain()) // this is optional 
+                                                    .subdomain(jwtToken.getSubdomain()) // this is optional
                                                     .disableCache(true)                 // optionally disables token cache for request
                                                     .execute();
 ```
@@ -133,7 +133,7 @@ In case you have a refresh token and want to obtain an access token:
 ```java
 OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
                               .refreshToken(<refresh_token>)
-                              .subdomain(jwtToken.getSubdomain()) // this is optional 
+                              .subdomain(jwtToken.getSubdomain()) // this is optional
                               .disableCache(true)                 // optionally disables token cache for request
                               .execute();
 ```
@@ -144,7 +144,7 @@ XsuaaToken jwtToken = SpringSecurityContext.getToken();
 
 OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
                 .token(jwtToken)
-                .subdomain(jwtToken.getSubdomain()) // this is optional      
+                .subdomain(jwtToken.getSubdomain())     
                 .disableCache(true)                 // optionally disables token cache for request
                 .attributes(additionalAttributes)   // this is optional
                 .execute();
@@ -155,10 +155,10 @@ OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
 In order to obtain an access token for a user:
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.passwordTokenFlow()
-                                                    .subdomain(jwtToken.getSubdomain()) // this is optional
-                                                    .disableCache(true)                 // optionally disables token cache for request
+                                                    .subdomain(jwtToken.getSubdomain()) 
                                                     .username(<your username>)
                                                     .password(<your password>)
+                                                    .disableCache(true)  // optionally disables token cache for request
                                                     .execute();
 ```
 
@@ -178,11 +178,14 @@ For java applications using `HttpClient`, see the
 For spring applications using rest template, you can set
 `org.springframework.web.client.RestTemplate` to log level `DEBUG`. 
 
-## Issues
+### Common issues
 
-This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
+- This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
 If you have classpath related  issues involving JSON you should take a look at the
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
+
+- `{\"error\":\"unauthorized\",\"error_description\":\"Unable to map issuer, [http://subdomain.localhost:8080/uaa/oauth/token] , to a single registered provider\"}`  
+Token exchange is only supported within the same identity zone/tenant. So please make sure, that you are calling the token endpoint of the same tenant, that was used for the original token. In this case please configure the token flows with the subdomain from the original token, e.g. `tokenFlows.clientCredentialsTokenFlow().subdomain(jwtToken.getSubdomain());`
 
 ## Samples
 - [Java sample](/samples/java-tokenclient-usage)

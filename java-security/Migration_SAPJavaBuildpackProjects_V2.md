@@ -43,10 +43,15 @@ With that the SAP Java Buildpack will provide `com.sap.cloud.security.token.Acce
 ```java
 import com.sap.cloud.security.token.*;
 
-AccessToken userInfo = (AccessToken) request.getUserPrincipal();
+@Override
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	
+    AccessToken userInfo = (AccessToken) request.getUserPrincipal();
 
-String logonName = token.getClaimAsString(TokenClaims.USER_NAME);
-boolean hasDisplayScope = token.hasLocalScope("Display");
+    String logonName = token.getClaimAsString(TokenClaims.USER_NAME);
+    boolean hasDisplayScope = token.hasLocalScope("Display");
+    ...
+}
 ```
 > Note, that no `XSUserInfoException` is raised, in case the token does not contain the requested claim.
 
@@ -66,9 +71,10 @@ This would again require a dependency to the legacy api:
 ```
 
 #### Option 1: UserInfoHolder
-It is also still possible to use the `UserInfoHolder` to obtain the `XSUserInfo` object. 
+It is also still possible to use the `UserInfoHolder` to obtain the `XSUserInfo` object.
+
 #### Option 2: XSUserInfoAdapter
-You can use `XSUserInfoAdapter`:
+You can use `XSUserInfoAdapter` which requires additionally `com.sap.cloud.security:java-security`:
 ```java
 try {
 	XSUserInfo userInfo = new XSUserInfoAdapter(token);
@@ -77,7 +83,6 @@ try {
 	// handle exception
 }
 ```
-
 
 ### New Feature: SecurityContext <a name="security-context"></a>
 In order to obtain token information from the thread local storage (instead of the request) you can use `SecurityContext` from [`java-api`](#maven).
@@ -103,6 +108,8 @@ public class HelloJavaServlet extends HttpServlet {
 ### Sample using new API
 - [J2EE java web servlet sample using SAP Java Buildpack](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/sap-java-buildpack-api-usage)
 
+## Issues
+In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue.
 
 ## Further References
 - [help.sap.com](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/ead7ee64f96f4c42bacbf0ae23d4135b.html)

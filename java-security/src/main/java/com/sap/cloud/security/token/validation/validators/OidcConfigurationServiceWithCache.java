@@ -21,7 +21,7 @@ import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 public class OidcConfigurationServiceWithCache {
 	private OidcConfigurationService oidcConfigurationService; // access via getter
 	private Cache<String, OAuth2ServiceEndpointsProvider> cache;
-	private long cacheValidityInSeconds = 600; // Revert after 15 Minutes
+	private long cacheValidityInSeconds = 600; // old keys should expire after 10 minutes
 	private long cacheSize = 1000;
 
 	private OidcConfigurationServiceWithCache() {
@@ -111,7 +111,8 @@ public class OidcConfigurationServiceWithCache {
 
 	private Cache<String, OAuth2ServiceEndpointsProvider> getCache() {
 		if (cache == null) {
-			cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
+			cache = Caffeine.newBuilder()
+					.expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
 					.maximumSize(cacheSize)
 					.build();
 		}

@@ -7,7 +7,7 @@
 package com.sap.xsa.security.container;
 
 /**
- * deprecated with version 2.4.0 in favor of the new SAP Java Container library.
+ * deprecated with version 2.4.0 in favor of the new SAP Java Client library.
  */
 public class XSUserInfoException extends RuntimeException {
 

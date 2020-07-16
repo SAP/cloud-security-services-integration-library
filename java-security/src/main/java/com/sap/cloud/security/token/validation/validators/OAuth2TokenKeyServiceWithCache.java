@@ -17,6 +17,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.xsuaa.Assertions;
+import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
@@ -34,6 +35,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	private OAuth2TokenKeyService tokenKeyService; // access via getter
 	private Cache<String, PublicKey> cache; // access via getter
 	private CacheConfiguration cacheConfiguration = TokenKeyCacheConfiguration.defaultConfiguration();
+	private Ticker cacheTicker;
 
 	private OAuth2TokenKeyServiceWithCache() {
 		// use getInstance factory method
@@ -46,6 +48,21 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 */
 	public static OAuth2TokenKeyServiceWithCache getInstance() {
 		OAuth2TokenKeyServiceWithCache instance = new OAuth2TokenKeyServiceWithCache();
+		instance.cacheTicker = Ticker.systemTicker();
+		return instance;
+	}
+
+	/**
+	 * Creates a new instance and sets the cache ticker. This is used for testing.
+	 *
+	 * @param cacheTicker
+	 * 			ticker the cache uses to determine time
+	 *
+	 * @return the new instance.
+	 */
+	static OAuth2TokenKeyServiceWithCache getInstance(Ticker cacheTicker) {
+		OAuth2TokenKeyServiceWithCache instance = new OAuth2TokenKeyServiceWithCache();
+		instance.cacheTicker = cacheTicker;
 		return instance;
 	}
 
@@ -182,6 +199,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	private Cache<String, PublicKey> getCache() {
 		if (cache == null) {
 			cache = Caffeine.newBuilder()
+					.ticker(cacheTicker)
 					.expireAfterWrite(cacheConfiguration.getCacheDuration())
 					.maximumSize(cacheConfiguration.getCacheSize())
 					.build();

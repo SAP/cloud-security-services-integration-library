@@ -8,7 +8,8 @@ Token Validation for Java applications.
   - Is the JWT used before the `exp` (expiration) time and eventually is it used after the `nbf` (not before) time ([`JwtTimestampValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/JwtTimestampValidator.java))?
   - Is the JWT issued by a trust worthy identity service ([`JwtIssuerValidator`](
- src/main/java/com/sap/cloud/security/token/validation/validators/JwtIssuerValidator.java))? In case of XSUAA does the token key url (`jku` JWT header parameter) match the identity service domain?
+ src/main/java/com/sap/cloud/security/token/validation/validators/JwtIssuerValidator.java))? In case of XSUAA does the JWT provides a valid `jku` token header parameter that points to a JWKS url from a trust worthy identity service ([`XsuaaJkuValidator`](
+ src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJkuValidator.java)) as it matches the uaa domain?
   - Is the JWT intended for the OAuth2 client of this application? The `aud` (audience) claim identifies the recipients the JWT is issued for ([`XsuaaJwtAudienceValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJwtAudienceValidator.java)).
   - Is the JWT signed with the public key of the trust-worthy identity service? With that it also makes sure that the payload and the header of the JWT is unchanged ([`JwtSignatureValidator`](
@@ -168,10 +169,63 @@ Now you can test the service manually in the browser using a REST client such as
 
 A detailed step-by-step description and a sample can be found [here](https://github.com/SAP-samples/cloud-bulletinboard-ads/blob/Documentation/Security/Exercise_24_MakeYourApplicationSecure.md#step-5-run-and-test-the-service-locally).
 
-## Issues
 
-This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
-If you have classpath related  issues involving JSON you should take a look at the
+## Troubleshoot
+
+In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
+and provide these details:
+- security related dependencies, get dependency tree with `mvn dependency:tree`
+- [(SAP) Java buildpack version, e.g. 1.26.1](#get-buildpack-version)
+- [debug logs](#increase-log-level-to-debug)
+- issue you’re facing / steps to reproduce.
+
+### Get buildpack version
+
+The buildpack being used is defined in your deployment descriptor e.g. as part of the `manifest.yml` file via the
+[buildpacks](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack) attribute.
+
+If it is set to `sap_java_buildpack` then the **newest** available version of the SAP Java buildpack is used.
+Use command `cf buildpacks` to get the exact version of `sap_java_buildpack`:
+
+```sh
+buildpack                       position   enabled   locked   filename                                             stack
+java_buildpack                  2          true      false    java_buildpack-cached-cflinuxfs3-v4.31.1.zip         cflinuxfs3
+.
+.
+.
+sap_java_buildpack              12         true      false    sap_java_buildpack-v1.26.1.zip
+sap_java_buildpack_1_26         13         true      false    sap_java_buildpack-v1.26.1.zip
+sap_java_buildpack_1_25         14         true      false    sap_java_buildpack-v1.25.0.zip
+```
+
+### Increase log level to `DEBUG`
+
+This depends on the SLF4J implementation, you make use of (see also [here](#logging)). You have to set the debug log level for this package `com.sap.cloud.security`.
+
+#### ... when using SAP Java Buildpack
+
+You should also increase the logging level in your application. This can be done by setting the `SET_LOGGING_LEVEL`
+environment variable for your application. You can do this as part of your deployment descriptor such as `manifest.yml` with the `env` section like so:
+
+```yaml
+env:
+    SET_LOGGING_LEVEL: '{com.sap.xs.security: DEBUG, com.sap.cloud.security: DEBUG}'
+```
+
+After you have made changes to the deployment descriptor you need do re-deploy your app.
+
+For a running application this can also be done with the `cf` command line tool:
+
+```shell
+cf set-env <your app name> SET_LOGGING_LEVEL "{com.sap.xs.security: DEBUG, com.sap.cloud.security: DEBUG}"
+```
+
+You need to restage your application for the changes to take effect.
+
+### Known Issues
+
+This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.	## Troubleshoot
+If you have classpath related  issues involving JSON you should take a look at the	
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 ## Specs und References
