@@ -23,7 +23,7 @@ public class AdcSpringSecurityExpressionHandlerXsuaa extends DefaultMethodSecuri
 	@Override
 	protected MethodSecurityExpressionOperations createSecurityExpressionRoot(
 			Authentication authentication, MethodInvocation invocation) {
-		if (authentication instanceof  JwtAuthenticationToken) {
+		if (authentication instanceof JwtAuthenticationToken) {
 			return new AdcSpringSecurityExpression((JwtAuthenticationToken) authentication).withAdcService(service);
 		}
 		return new AdcSpringSecurityExpression(authentication).withAdcService(service);

@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  */
 public class AdcSpringSecurityExpression extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
-	private static final String[] NO_ATTRIBUTES = new String[]{};
+	private static final String[] NO_ATTRIBUTES = new String[] {};
 
 	public static final String ZONE_UUID_KEY = "zone_uuid";
 	public static final String USER_UUID_KEY = "user_uuid";
@@ -32,7 +32,6 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 	public AdcSpringSecurityExpression(JwtAuthenticationToken authentication) {
 		super(authentication);
 		logger.debug("Create AdcSpringSecurityExpression with jwtAuthenticationToken");
-
 
 		extractAttributesFromAuthentication(authentication);
 		setTrustResolver(new AuthenticationTrustResolverImpl());
@@ -51,10 +50,11 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 		return this;
 	}
 
-	//    public String getScopeExpression(String localScope) {
-	//        // http://docs.spring.io/spring-security/oauth/apidocs/org/springframework/security/oauth2/provider/expression/OAuth2SecurityExpressionMethods.html
-	//        return "#oauth2.hasScope('" + getGlobalScope(localScope) + "')";
-	//    }
+	// public String getScopeExpression(String localScope) {
+	// //
+	// http://docs.spring.io/spring-security/oauth/apidocs/org/springframework/security/oauth2/provider/expression/OAuth2SecurityExpressionMethods.html
+	// return "#oauth2.hasScope('" + getGlobalScope(localScope) + "')";
+	// }
 
 	public boolean forAction(String action) {
 		return forResourceAction(null, action, NO_ATTRIBUTES);
@@ -85,7 +85,8 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 
 		boolean isAuthorized = checkAuthorization(request);
 
-		logger.info("Is user {} (zoneId {}) authorized to perform action '{}' on resource '{}' and attributes '{}' ? {}",
+		logger.info(
+				"Is user {} (zoneId {}) authorized to perform action '{}' on resource '{}' and attributes '{}' ? {}",
 				this.userId, this.zoneId, action, resource, attributes, isAuthorized);
 
 		return isAuthorized;
@@ -100,22 +101,27 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 		return false;
 	}
 
-	@Override public void setFilterObject(Object o) {
+	@Override
+	public void setFilterObject(Object o) {
 		Object filter = o;
 	}
 
-	@Override public Object getFilterObject() {
+	@Override
+	public Object getFilterObject() {
 		return null;
 	}
 
-	@Override public void setReturnObject(Object o) {
+	@Override
+	public void setReturnObject(Object o) {
 	}
 
-	@Override public Object getReturnObject() {
+	@Override
+	public Object getReturnObject() {
 		return null;
 	}
 
-	@Override public Object getThis() {
+	@Override
+	public Object getThis() {
 		return null;
 	}
 

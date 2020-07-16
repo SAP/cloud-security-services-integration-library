@@ -13,12 +13,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 /**
  * Testing the AdcService auto configuration.
  *
- * This test is based on the recommendations described in the official
- * <a href=https://docs.spring.io/autorepo/docs/spring-boot/current/reference/html/spring-boot-features.html#boot-features-test-autoconfig}>Spring documentation</a>.
+ * This test is based on the recommendations described in the official <a
+ * href=https://docs.spring.io/autorepo/docs/spring-boot/current/reference/html/spring-boot-features.html#boot-features-test-autoconfig}>Spring
+ * documentation</a>.
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -48,11 +48,13 @@ public class AutoConfigurationTest {
 		@Bean
 		AdcService testAdcService() {
 			return new AdcService() {
-				@Override public AdcServiceResponse isUserAuthorized(AdcServiceRequest adcServiceRequest) {
+				@Override
+				public AdcServiceResponse isUserAuthorized(AdcServiceRequest adcServiceRequest) {
 					return null;
 				}
 
-				@Override public boolean ping() {
+				@Override
+				public boolean ping() {
 					return false;
 				}
 			};

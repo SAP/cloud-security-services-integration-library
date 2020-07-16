@@ -16,30 +16,30 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 @AutoConfigureAfter(name = "com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration")
 public class MethodSecurityConfiguration extends GlobalMethodSecurityConfiguration {
 
-    @Autowired
-    AdcService adcService;
+	@Autowired
+	AdcService adcService;
 
-    @Autowired
-    ExpressionHandlerService expressionHandlerService;
+	@Autowired
+	ExpressionHandlerService expressionHandlerService;
 
-    @Override
-    protected MethodSecurityExpressionHandler createExpressionHandler() {
-        return expressionHandlerService.createMethodSecurityExpressionHandler();
-    }
+	@Override
+	protected MethodSecurityExpressionHandler createExpressionHandler() {
+		return expressionHandlerService.createMethodSecurityExpressionHandler();
+	}
 
-    @Bean
-    @ConditionalOnBean(type = "com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration")
-    ExpressionHandlerService expressionHandlerXsuaa() {
-        return () -> AdcSpringSecurityExpressionHandlerXsuaa.getInstance(adcService);
-    }
+	@Bean
+	@ConditionalOnBean(type = "com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration")
+	ExpressionHandlerService expressionHandlerXsuaa() {
+		return () -> AdcSpringSecurityExpressionHandlerXsuaa.getInstance(adcService);
+	}
 
-    @Bean
-    @ConditionalOnMissingBean
-    ExpressionHandlerService expressionHandler() {
-        return () -> AdcSpringSecurityExpressionHandler.getInstance(adcService);
-    }
+	@Bean
+	@ConditionalOnMissingBean
+	ExpressionHandlerService expressionHandler() {
+		return () -> AdcSpringSecurityExpressionHandler.getInstance(adcService);
+	}
 
-    interface ExpressionHandlerService {
-        MethodSecurityExpressionHandler createMethodSecurityExpressionHandler();
-    }
+	interface ExpressionHandlerService {
+		MethodSecurityExpressionHandler createMethodSecurityExpressionHandler();
+	}
 }

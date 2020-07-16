@@ -11,7 +11,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { XsuaaAutoConfiguration.class, AdcServiceConfiguration.class, MethodSecurityConfiguration.class})
+@SpringBootTest(classes = { XsuaaAutoConfiguration.class, AdcServiceConfiguration.class,
+		MethodSecurityConfiguration.class })
 public class MethodSecurityConfigurationTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()

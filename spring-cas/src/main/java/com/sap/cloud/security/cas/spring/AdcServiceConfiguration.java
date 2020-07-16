@@ -10,13 +10,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AdcServiceConfiguration {
 
-    @Value("${ADC_URL:http://localhost:8181}")
-    private String adcUrl;
+	@Value("${ADC_URL:http://localhost:8181}")
+	private String adcUrl;
 
-    @Bean
-    @ConditionalOnMissingBean(AdcService.class)
+	@Bean
+	@ConditionalOnMissingBean(AdcService.class)
 	public AdcService adcService() {
-        return new AdcServiceDefault(adcUrl);
-    }
+		return new AdcServiceDefault(adcUrl);
+	}
 
 }

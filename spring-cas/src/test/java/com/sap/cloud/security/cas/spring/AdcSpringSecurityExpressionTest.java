@@ -107,7 +107,6 @@ class AdcSpringSecurityExpressionTest {
 				ZONE_UUID);
 	}
 
-
 	@Test
 	void forResourceWithoutAttributes_createsServiceRequest() {
 		cut.forResource("theResource");

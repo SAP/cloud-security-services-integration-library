@@ -62,7 +62,7 @@ class AdcServiceDefaultTest {
 
 	@Test
 	void isUserAuthorized_httpNotFound_isFalse() throws IOException {
-		CloseableHttpResponse responseMock = createResponse( HttpStatus.SC_NOT_FOUND);
+		CloseableHttpResponse responseMock = createResponse(HttpStatus.SC_NOT_FOUND);
 		when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(responseMock);
 
 		AdcServiceResponse response = cut.isUserAuthorized(createRequest());
@@ -77,7 +77,6 @@ class AdcServiceDefaultTest {
 
 		assertFalse(response.getResult());
 	}
-
 
 	@Test
 	void ping() throws IOException {
