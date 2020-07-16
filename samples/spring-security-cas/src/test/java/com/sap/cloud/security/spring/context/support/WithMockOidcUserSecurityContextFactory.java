@@ -32,6 +32,8 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.util.*;
 
+import static com.sap.cloud.security.cas.spring.AdcSpringSecurityExpression.USER_UUID_KEY;
+import static com.sap.cloud.security.cas.spring.AdcSpringSecurityExpression.ZONE_UUID_KEY;
 import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.*;
 
 /**
@@ -86,7 +88,8 @@ final class WithMockOidcUserSecurityContextFactory implements
 		claims.put(IAT, issuedAt.getEpochSecond());
 		claims.put(EXP, expiredAt.getEpochSecond());
 		claims.put(SUB, userId);
-		claims.put("zone_uuid", "zone-a"); // TODO enhance with custom claims
+		claims.put(USER_UUID_KEY, userId);
+		claims.put(ZONE_UUID_KEY, "zone-a"); // TODO enhance with custom claims
 
 		return new OidcIdToken("id-token", issuedAt, expiredAt, claims);
 	}
