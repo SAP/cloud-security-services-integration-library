@@ -35,7 +35,7 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	@Before
 	public void setup() throws IOException {
 		tokenKeyServiceMock = mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(any(URI.class)))
+		when(tokenKeyServiceMock.retrieveTokenKeys(TOKEN_KEYS_URI))
 				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
 
 		testCacheTicker = new TestCacheTicker();
