@@ -7,6 +7,10 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+/**
+ * This class is only loaded in case org.springframework.security:spring-security-oauth2-resource-server
+ * is provided by the consuming application.
+ */
 public class AdcSpringSecurityExpressionHandlerXsuaa extends DefaultMethodSecurityExpressionHandler {
 	private AdcService service;
 
