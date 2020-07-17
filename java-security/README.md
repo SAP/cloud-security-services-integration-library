@@ -224,9 +224,18 @@ You need to restage your application for the changes to take effect.
 
 ### Known Issues
 
-This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.	## Troubleshoot
-If you have classpath related  issues involving JSON you should take a look at the	
+#### This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
+If you have classpath related  issues involving JSON you should take a look at the
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
+
+#### ServletContext.getAccessToken() returns null
+`SecurityContext` caches only sucessfully validated tokens thread-locally, i.e. within the same thread. Please increase the log level as described [here](#increase-log-level-to-debug) in order to check whether the token validation fails and for which reason.
+
+In case you use **SAP Java Buildpack** for token validation, make sure that your J2EE Servlet is annotated with a scope check, like:
+```java
+@ServletSecurity(@HttpConstraint(rolesAllowed = { "yourScope" }))
+```
+> In case your application provides no scopes, consider the documentation [here](Migration_SAPJavaBuildpackProjects_V2.md#new-feature-sap-java-buildpack-without-application-roles).
 
 ## Specs und References
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)
