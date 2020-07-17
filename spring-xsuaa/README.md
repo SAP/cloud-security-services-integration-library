@@ -243,9 +243,9 @@ Finally you need do re-deploy your application for the changes to take effect.
    Make use of the Xsuaa Spring Boot Starter dependency as explained [here](README.md#maven-dependencies).     
 
 #### NoUniqueBeanDefinitionException, APPLICATION FAILED TO START
-    ```
+```
     Parameter 1 of method xsuaaJwtDecoder in com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration required a single bean, but 2 were found...
-    ```
+```
   In case you use the `xsuaa-spring-boot-starter`, read the [auto-configuration](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#auto-configuration) section.
 
 #### Multiple XSUAA Bindings (broker & application)  
