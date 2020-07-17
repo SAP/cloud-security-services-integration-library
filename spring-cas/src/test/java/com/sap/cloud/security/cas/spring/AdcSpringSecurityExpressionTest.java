@@ -37,7 +37,7 @@ class AdcSpringSecurityExpressionTest {
 		adcService = Mockito.mock(AdcService.class);
 		adcServiceRequestArgumentCaptor = ArgumentCaptor.forClass(AdcServiceRequest.class);
 		when(adcService.isUserAuthorized(any())).thenReturn(createResponse(true));
-		cut = new AdcSpringSecurityExpression(createAuthentication()).withAdcService(adcService);
+		cut = (AdcSpringSecurityExpression) AdcSpringSecurityExpressionHandler.getInstance(adcService).createSecurityExpressionRoot(createAuthentication(), null);
 	}
 
 	@Test
@@ -128,7 +128,8 @@ class AdcSpringSecurityExpressionTest {
 	@Test
 	void forResourceAction_withJwtAuthenticationToken_createsServiceRequest() {
 		JwtAuthenticationToken authentication = createJwtAuthenticationToken();
-		cut = new AdcSpringSecurityExpression(authentication).withAdcService(adcService);
+		cut = (AdcSpringSecurityExpression) AdcSpringSecurityExpressionHandlerXsuaa.getInstance(adcService)
+				.createSecurityExpressionRoot(authentication, null);
 
 		cut.forResourceAction("newResource", "newAction", "newAttribute=newValue");
 

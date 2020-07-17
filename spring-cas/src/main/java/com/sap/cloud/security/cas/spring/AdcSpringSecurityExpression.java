@@ -9,10 +9,7 @@ import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-import java.util.Map;
 
 /**
  */
@@ -29,19 +26,11 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 	private String userId;
 	private String zoneId;
 
-	public AdcSpringSecurityExpression(JwtAuthenticationToken authentication) {
-		super(authentication);
-		logger.debug("Create AdcSpringSecurityExpression with jwtAuthenticationToken");
-
-		extractAttributesFromAuthentication(authentication);
-		setTrustResolver(new AuthenticationTrustResolverImpl());
-	}
-
-	public AdcSpringSecurityExpression(Authentication authentication) {
+	public AdcSpringSecurityExpression(Authentication authentication, String zoneId, String userId) {
 		super(authentication);
 		logger.debug("Create AdcSpringSecurityExpression with authentication");
-
-		extractAttributesFromPrincipal(authentication.getPrincipal());
+		this.zoneId = zoneId;
+		this.userId = userId;
 		setTrustResolver(new AuthenticationTrustResolverImpl());
 	}
 
@@ -125,20 +114,4 @@ public class AdcSpringSecurityExpression extends SecurityExpressionRoot implemen
 		return null;
 	}
 
-	private void extractAttributesFromAuthentication(JwtAuthenticationToken authentication) {
-		Map<String, Object> attributes = authentication.getTokenAttributes();
-		zoneId = (String) attributes.getOrDefault(ZONE_UUID_KEY, attributes.get(ZID));
-		userId = (String) attributes.getOrDefault(USER_UUID_KEY, attributes.get(XSUAA_USER_ID));
-		logger.debug("Extracted attribute zoneId={} and userId={} from authentication", zoneId, userId);
-	}
-
-	private void extractAttributesFromPrincipal(Object principal) {
-		if (principal instanceof OAuth2AuthenticatedPrincipal) {
-			OAuth2AuthenticatedPrincipal userPrincipal = (OAuth2AuthenticatedPrincipal) principal;
-			zoneId = (String) userPrincipal.getAttributes()
-					.getOrDefault(ZONE_UUID_KEY, userPrincipal.getAttribute(ZID));
-			userId = userPrincipal.getAttribute(USER_UUID_KEY);
-			logger.debug("Extracted attribute zoneId={} and userId={} from principal", zoneId, userId);
-		}
-	}
 }
