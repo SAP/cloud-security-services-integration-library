@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AutoConfigurationTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(AdcServiceConfiguration.class));
+			.withConfiguration(AutoConfigurations.of(AdcServiceAutoConfiguration.class));
 
 	@Test
 	void adcService_isCreated() {

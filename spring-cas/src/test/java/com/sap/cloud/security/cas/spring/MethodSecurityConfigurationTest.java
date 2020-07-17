@@ -11,12 +11,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { XsuaaAutoConfiguration.class, AdcServiceConfiguration.class,
-		MethodSecurityConfiguration.class })
+@SpringBootTest(classes = { XsuaaAutoConfiguration.class, AdcServiceAutoConfiguration.class,
+		AdcSpringMethodSecurityAutoConfiguration.class })
 public class MethodSecurityConfigurationTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(AdcServiceConfiguration.class, MethodSecurityConfiguration.class));
+			.withConfiguration(AutoConfigurations.of(AdcServiceAutoConfiguration.class, AdcSpringMethodSecurityAutoConfiguration.class));
 
 	@Test
 	void hasExpressionHandler() {

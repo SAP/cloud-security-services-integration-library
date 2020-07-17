@@ -14,7 +14,7 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @AutoConfigureAfter(name = "com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration")
-public class MethodSecurityConfiguration extends GlobalMethodSecurityConfiguration {
+public class AdcSpringMethodSecurityAutoConfiguration extends GlobalMethodSecurityConfiguration {
 
 
 	@Autowired
