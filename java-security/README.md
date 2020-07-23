@@ -45,7 +45,7 @@ Token Validation for Java applications.
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.7.5</version>
+    <version>2.7.6</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>

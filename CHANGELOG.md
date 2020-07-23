@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.7.6
+- Fixes `ClientCredentialsTokenFlow.scopes()` and `UserTokenFlow.scopes()` to support multiple scopes. The scope form parameter has to provide a space-delimited list (and not comma-delimited list).
+
 ## 2.7.5
 - [java-api] `AcessToken` provides  
   - `getAttributeFromClaimAsString(String claimName, String attributeName)` to access for example `ext_attr` values such as `subaccountid`
