@@ -1,7 +1,7 @@
-# Migration guide for applications that perform tokenflows using (XS)UserInfo
+# Migration guide for applications that perform token flows using (XS)UserInfo
 
-This guide is for you if you are performing token flows with `requestToken`, `requestTokenForUser` or
-`requestTokenForClient` from `(XS)UserInfo`. Those methods are being deprecated. The new way to perform token flows is
+This guide is for you if your application is requesting tokens using `requestToken`, `requestTokenForUser` or
+`requestTokenForClient` from `(XS)UserInfo`. **Those methods are being deprecated.** The new way to perform token flows is
 by using the [token-client](/token-client) library. This step-by-step guide explains how to migrate to this library.
 
 
