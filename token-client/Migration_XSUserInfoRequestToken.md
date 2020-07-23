@@ -16,6 +16,8 @@ Make sure you have a dependency to `token-client` defined in your `pom.xml` like
 Before you can use the new token-client library you first have to understand what token flows you
 are currently executing in your application.
 
+### 1. Understand your application
+
 With `(XS)UserInfo` you can only execute **client credentials** and **user token** flows.  If you
 are using the `requestTokenForUser` method, a user token flow is executed.  If you are using
 `requestTokenForClient`, a client credentials flow is performed.  With the `requestToken` method
@@ -23,18 +25,22 @@ either an user token or a client credentials token flow can be performed! In thi
 check the `XSTokenRequest` object's `type` attribute to see if you need to replace this call with an
 user token flow or a client credentials flow!
 
-You can proceed to the respective section for more information on how to perform client credentials or user token flows.
 
-### Perform a client credentials flow
+### 2. Create an XsuaaTokenFlows object
 
-See the documentation [here](/token-client#client-credentials-token-flow) to perform a client
-credentials flow using the token-client library.
-Make sure you pass `clientId`, `clientSecret` and the `uaaUrl` to the flow.
+Before you can perform a specific token flow, you first have to create an `XsuaaTokenFlows` object.
+To create this object you have to pass in the following data: `clientId`, `clientSecret` and
+the `uaaUrl`. How you would create the `XsuaaTokenFlows` depends on the type of your application.
+If you are using spring see [here](/token-client#initialization-1) if not see [here](/token-client#initialization).
 
-### Perform a user token flow
 
-See the documentation [here](/token-client#user-token-flow) to perform a user token flow
-using the token-client library.
+### 3. Perform the flow
+
+Now you are ready to perform the specific flow!
+
+If you want to perform a client credentials flow  see the documentation [here](/token-client#client-credentials-token-flow)
+
+If you want to perform a user token flow see the documentation [here](/token-client#user-token-flow).
 
 Note that the user token flow is an exchange flow. This means that you *exchange* your user token
 for an access token.  When using `requestToken` or `requestTokenForUser` from `(XS)UserInfo` you did
@@ -44,9 +50,6 @@ decoupled from the token itself. That is why you have to pass it via the `token`
 obtain the token if you are using the new API with `getTokenValue()` or, if you are using
 `(XS)UserInfo`, you can obtain it via `getAppToken()`.
 
-Make also sure you pass `clientId`, `clientSecret` and the `uaaUrl` to the flow!
-
 ## Samples
 - Token client used in java application: [Java sample](/samples/java-tokenclient-usage)
 - Token-client used in spring boot application: [Spring Boot sample](/samples/spring-security-xsuaa-usage)
-
