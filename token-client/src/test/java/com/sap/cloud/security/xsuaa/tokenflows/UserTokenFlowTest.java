@@ -119,7 +119,7 @@ public class UserTokenFlowTest {
 
 		Map<String, String> optionalParameters = optionalParametersCaptor.getValue();
 		assertThat(optionalParameters).containsKey("scope");
-		assertThat(optionalParameters.get("scope")).isEqualTo("scope1, scope2");
+		assertThat(optionalParameters.get("scope")).isEqualTo("scope1 scope2");
 	}
 
 	@Test

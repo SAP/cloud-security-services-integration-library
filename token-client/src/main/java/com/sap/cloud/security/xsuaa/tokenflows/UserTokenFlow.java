@@ -182,7 +182,7 @@ public class UserTokenFlow {
 			optionalParameter.put(AUTHORITIES, authorities); // places JSON inside the URI !?!
 		}
 
-		String scopesParameter = scopes.stream().collect(Collectors.joining(", "));
+		String scopesParameter = scopes.stream().collect(Collectors.joining(" "));
 		if (!scopesParameter.isEmpty()) {
 			optionalParameter.put(SCOPE, scopesParameter);
 		}

@@ -160,7 +160,7 @@ public class ClientCredentialsTokenFlow {
 		if (authorities != null) {
 			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI
 		}
-		String scopesParameter = scopes.stream().collect(Collectors.joining(", "));
+		String scopesParameter = scopes.stream().collect(Collectors.joining(" "));
 		if (!scopesParameter.isEmpty()) {
 			requestParameter.put(SCOPE, scopesParameter);
 		}

@@ -123,7 +123,7 @@ public class ClientCredentialsTokenFlowTest {
 
 		Map<String, String> optionalParameters = optionalParametersCaptor.getValue();
 		assertThat(optionalParameters).containsKey(SCOPE);
-		assertThat(optionalParameters.get(SCOPE)).isEqualTo("myFirstScope, theOtherScope");
+		assertThat(optionalParameters.get(SCOPE)).isEqualTo("myFirstScope theOtherScope");
 	}
 
 	@Test
