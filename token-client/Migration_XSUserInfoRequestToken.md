@@ -7,7 +7,7 @@ by using the [token-client](/token-client) library. This step-by-step guide expl
 
 ## Prerequisite
 
-Make sure you have a dependency to token-client defined in your `pom.xml` like described
+Make sure you have a dependency to `token-client` defined in your `pom.xml` like described
 [here](/token-client#configuration-for-javaspring-applications) if you are using Spring or
 [here](/token-client#configuration-for-java-applications) if you are not using Spring.
 
@@ -19,7 +19,7 @@ With `(XS)UserInfo` you can perform **Client Credentials** and **User Token** fl
   - **Client Credentials** via `requestTokenForClient` method.  Needs to be replaced with a client credentials token flow [described here](/token-client#client-credentials-token-flow).
   - **User Token** or **Client Credentials** via  `requestToken`. Here you have to check how you have configured the `XSTokenRequest` object and perform a user token flow or a client credentials flow.
 
-General instructions and more information can be found in the token-client [documentation](/token-client).
+General instructions and more information can be found in the [token-client documentation](/token-client).
 
 Note that the user token flow is an exchange flow. This means that you *exchange* your user token for an access token.
 When using `requestToken` or `requestTokenForUser` you did not have to pass a token. The `UserInfo` object already has
