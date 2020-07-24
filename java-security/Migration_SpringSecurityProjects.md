@@ -136,6 +136,8 @@ Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (
 
 Whether the token is issued for your application or not is now validated by the [`JwtAudienceValidator`](/java-security/src/main/java/com/sap/cloud/security/token/validation/validators/JwtAudienceValidator.java).
 
+In case of issues, make sure, that you've granted at least one scope to the calling application.
+
 ## Fetch basic infos from Token
 You may have code parts that requests information from the access token, like the user's name, its tenant, and so on. So, look up your code to find its usage.
 
