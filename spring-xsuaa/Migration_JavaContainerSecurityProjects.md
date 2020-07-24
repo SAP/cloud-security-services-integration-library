@@ -90,6 +90,8 @@ Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (
 
 Whether the token is issued for your application or not is now validated by the [`XsuaaAudienceValidator`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/authentication/XsuaaAudienceValidator.java).
 
+In case of issues, make sure, that you've granted at least one scope to the calling application.
+
 ### Multiple XSUAA Bindings
 You can skip this section, in case your application is bound to only one Xsuaa service instance. The `xsuaa-spring-boot-starter` does not support multiple XSUAA bindings of plan `application` and `broker`. **The Xsuaa service instance of plan `api` is ignored.**
 
