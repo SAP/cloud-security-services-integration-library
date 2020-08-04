@@ -11,6 +11,7 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.SpringOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.SpringOidcConfigurationService;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,6 +26,7 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,7 +48,7 @@ import java.util.stream.Collectors;
  * </dependency>
  * }
  * </pre>
- * 
+ *
  * By default it used Apache Rest Client for communicating with the OAuth2
  * Server.<br>
  *
@@ -112,7 +114,6 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		this(serviceConfiguration, JwtValidatorBuilder.getInstance(serviceConfiguration)
 				.withOAuth2TokenKeyService(new SpringOAuth2TokenKeyService(restOperations))
 				.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations)));
-
 	}
 
 	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
@@ -155,18 +156,27 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			throw new InvalidTokenException(validationResult.getErrorDescription());
 		}
 		SecurityContext.setToken(token);
-
-		return getOAuth2Authentication(serviceConfiguration.getClientId(), getScopes(token));
+		return createOAuth2Authentication(serviceConfiguration.getClientId(), getScopes(token), token);
 	}
 
-	static OAuth2Authentication getOAuth2Authentication(String clientId, Set<String> scopes) {
-		Authentication userAuthentication = null; // TODO no SAPUserDetails support. Using spring alternative?
-
+	static OAuth2Authentication createOAuth2Authentication(String clientId, Set<String> scopes, Token token) {
+		Authentication userAuthentication = getUserAuthentication(token, scopes);
 		final AuthorizationRequest authorizationRequest = new AuthorizationRequest(clientId, scopes);
-		authorizationRequest.setAuthorities(getAuthorities(scopes));
+		authorizationRequest.setAuthorities(createAuthorities(scopes));
 		authorizationRequest.setApproved(true);
-
 		return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), userAuthentication);
+	}
+
+	@Nullable
+	private static UserAuthenticationToken getUserAuthentication(Token token, Set<String> scopes) {
+		GrantType grantType = null;
+		if (token instanceof AccessToken) {
+			grantType = ((AccessToken) token).getGrantType();
+		}
+		if (GrantType.CLIENT_CREDENTIALS == grantType || GrantType.CLIENT_X509 == grantType) {
+			return null;
+		}
+		return new UserAuthenticationToken(token, scopes);
 	}
 
 	private Set<String> getScopes(Token token) {
@@ -204,7 +214,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		return this;
 	}
 
-	private static Set<GrantedAuthority> getAuthorities(Collection<String> scopes) {
+	private static Set<GrantedAuthority> createAuthorities(Collection<String> scopes) {
 		return scopes.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
 	}
 
@@ -222,6 +232,32 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			}
 		} catch (Exception e) {
 			throw new InvalidTokenException(e.getMessage());
+		}
+	}
+
+	private static class UserAuthenticationToken extends AbstractAuthenticationToken {
+		private final String username;
+
+		public UserAuthenticationToken(Token token, Set<String> scopes) {
+			super(SAPOfflineTokenServicesCloud.createAuthorities(scopes));
+			this.username = token.getClaimAsString(TokenClaims.USER_NAME);
+			setAuthenticated(true);
+			setDetails(token);
+		}
+
+		@Override
+		public String getName() {
+			return username;
+		}
+
+		@Override
+		public Object getCredentials() {
+			return "N/A";
+		}
+
+		@Override
+		public Object getPrincipal() {
+			return username;
 		}
 	}
 }
