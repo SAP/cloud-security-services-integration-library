@@ -122,7 +122,7 @@ Or
 ```java
 ...
 .authorizeRequests()
-	.antMatchers(POST, "/api/v1/ads/**").access(#oauth2.hasScopeMatching('Update')) //instead of '${xs.appname}.Update'
+	.antMatchers(POST, "/api/v1/ads/**").access("#oauth2.hasScopeMatching('Update')") //instead of '${xs.appname}.Update'
 ```
 
 
