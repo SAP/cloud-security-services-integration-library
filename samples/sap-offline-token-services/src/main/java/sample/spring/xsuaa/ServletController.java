@@ -11,9 +11,10 @@ public class ServletController extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		resp.getWriter().write("remoteUser: " + req.getRemoteUser() + "\n");
-		resp.getWriter().write("user principal: " + req.getUserPrincipal() + "\n");
+		resp.getWriter().write("has role openid: " + req.isUserInRole("openid") + "\n");
 		resp.getWriter().write("has role Display: " + req.isUserInRole("Display") + "\n");
+		resp.getWriter().write("user principal: " + req.getUserPrincipal() + "\n");
+		resp.getWriter().write("remoteUser: " + req.getRemoteUser() + "\n");
 		if (req.isUserInRole("Display")) {
 			resp.getWriter().write("Success!");
 		}
