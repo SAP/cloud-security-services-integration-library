@@ -173,7 +173,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		if (token instanceof AccessToken) {
 			grantType = ((AccessToken) token).getGrantType();
 		}
-		if (GrantType.CLIENT_CREDENTIALS == grantType || GrantType.CLIENT_X509 == grantType) {
+		if (grantType == GrantType.CLIENT_CREDENTIALS || grantType == GrantType.CLIENT_X509) {
 			return null;
 		}
 		return new UserAuthenticationToken(token, scopes);

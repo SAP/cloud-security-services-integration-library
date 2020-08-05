@@ -1,0 +1,28 @@
+{
+  "xsappname": "sap-offline-token-services-cloud",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Display",
+      "description": "With this scope, information can be read."
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "AccessRole",
+      "description": "Role to call the spring-security-basic-auth service",
+      "scope-references": [
+        "$XSAPPNAME.Display"
+      ]
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "SAP_OFFLINE_TOKEN_SERVICES",
+      "description": "Viewer (read)",
+      "role-template-references": [
+        "$XSAPPNAME.AccessRole"
+      ]
+    }
+  ]
+}  
