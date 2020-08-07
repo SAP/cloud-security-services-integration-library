@@ -10,7 +10,7 @@ mvn clean package
 ## Create the XSUAA service instance
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
 ```shell
-cf create-service xsuaa application xsuaa-offline-token-services-cloud -c xs-security.json
+cf create-service xsuaa application xsuaa-sap-offline-token-services-cloud -c xs-security.json
 ```
 
 ## Configure the manifest
@@ -36,7 +36,7 @@ Further up-to-date information you can get on sap.help.com:
 ## Access the application
 After deployment, the spring service can be called with basic authentication.
 ```shell
-curl -i --user "<SAP ID Service User>:<SAP ID Service Password>" https://sap-offline-token-services-<ID>.<LANDSCAPE_APPS_DOMAIN>/hello-token
+curl -i --user "<SAP ID Service User>:<SAP ID Service Password>" https://sap-offline-token-services-cloud-<ID>.<LANDSCAPE_APPS_DOMAIN>/hello-token
 ```
 
 You will get a response like:
@@ -48,7 +48,7 @@ Hello your.user@sap.com
 
 Finally delete your application and your service instances using the following commands:
 ```
-cf delete -f spring-security-basic-auth
-cf delete-service -f xsuaa-basic
+cf delete -f sap-offline-token-services-cloud
+cf delete-service -f xsuaa-sap-offline-token-services-cloud
 ```
 

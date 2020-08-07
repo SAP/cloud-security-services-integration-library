@@ -5,14 +5,20 @@
     {
       "name": "$XSAPPNAME.Display",
       "description": "With this scope, information can be read."
+    },
+    {
+      "name": "$XSAPPNAME.ROLE_Servlet",
+      "description": "With this scope, HttpServletRequest can be used in spring4"
     }
   ],
+  "authorities":["$XSAPPNAME.Display", "$XSAPPNAME.ROLE_Servlet"],
   "role-templates": [
     {
       "name": "AccessRole",
       "description": "Role to call the spring-security-basic-auth service",
       "scope-references": [
-        "$XSAPPNAME.Display"
+        "$XSAPPNAME.Display",
+        "$XSAPPNAME.ROLE_Servlet"
       ]
     }
   ],

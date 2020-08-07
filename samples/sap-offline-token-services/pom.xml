@@ -3,9 +3,9 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
         xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>sap-offline-token-services</artifactId>
+    <artifactId>sap-offline-token-services-cloud</artifactId>
     <version>2.7.5</version>
-    <name>sap-offline-token-services</name>
+    <name>sap-offline-token-services-cloud</name>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -25,11 +25,6 @@
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
             <version>2.4.1.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sap.cloud.security.xsuaa</groupId>
-            <artifactId>api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.security</groupId>

@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { Application.class, TestController.class, TestSecurityConfiguration.class,
-		ServletController.class })
+		TestServlet.class })
 @AutoConfigureMockMvc
 public class TestControllerTest {
 
@@ -70,8 +70,8 @@ public class TestControllerTest {
 	@Test
 	@Ignore // mockmvc cannot test WebServlets
 	public void helloServlet_matchingScope_ok() throws Exception {
+		//only protected by authentication, scope checks in servlet
 		String token = securityTest.getPreconfiguredJwtGenerator()
-				.withLocalScopes("Display")
 				.createToken()
 				.getTokenValue();
 
