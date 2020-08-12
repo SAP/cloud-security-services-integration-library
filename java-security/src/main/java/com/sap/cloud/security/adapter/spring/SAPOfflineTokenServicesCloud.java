@@ -156,7 +156,9 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			throw new InvalidTokenException(validationResult.getErrorDescription());
 		}
 		SecurityContext.setToken(token);
-		return createOAuth2Authentication(serviceConfiguration.getClientId(), getScopes(token), token);
+		//return createOAuth2Authentication(serviceConfiguration.getClientId(), getScopes(token), token);
+		// NGPBUG-125268
+		return createOAuth2Authentication(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID), getScopes(token), token);
 	}
 
 	static OAuth2Authentication createOAuth2Authentication(String clientId, Set<String> scopes, Token token) {
