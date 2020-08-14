@@ -54,29 +54,15 @@ First make sure you have the following dependencies defined in your pom.xml:
 </dependency>
 ```
 
+Now you are ready to **remove** the **`java-container-security`** client library by deleting the following dependencies from the pom.xml:
 
-Now you are ready to **remove** the **`java-container-security`** client library by deleting the following lines from the pom.xml:
-```xml
-<dependency>
-  <groupId>com.sap.xs2.security</groupId>
-  <artifactId>java-container-security</artifactId>
-</dependency>
-<dependency>
-  <groupId>com.sap.xs2.security</groupId>
-  <artifactId>java-container-security-api</artifactId>
-</dependency>
-```
-Or
-```xml
-<dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>java-container-security</artifactId>
-</dependency>
-<dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>api</artifactId>
-</dependency>
-```
+groupId (deprecated) | artifactId (deprecated) 
+--- | --- 
+com.sap.xs2.security | java-container-security
+com.sap.xs2.security | api
+com.sap.cloud.security.xssec | api 
+com.sap.cloud.security.xsuaa | java-container-security-api
+com.sap.cloud.security.xsuaa | java-container-security
 
 Make sure that you do not refer to any other sap security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
 
