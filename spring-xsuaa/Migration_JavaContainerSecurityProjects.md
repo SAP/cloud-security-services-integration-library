@@ -48,7 +48,7 @@ deleting the following lines from the pom.xml:
 </dependency>
 <dependency>
   <groupId>com.sap.xs2.security</groupId>
-  <artifactId>java-container-security-api</artifactId>
+  <artifactId>api</artifactId>
 </dependency>
 ```
 Or
