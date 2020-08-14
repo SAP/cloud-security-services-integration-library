@@ -59,11 +59,13 @@ Or
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>api</artifactId>
+  <artifactId>java-container-security-api</artifactId>
 </dependency>
 ```
 
-Make sure that you do not refer to any other sap security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
+Make sure that you do not refer to any other sap security library with groupId `com.sap.security` or `com.sap.security.nw.sso.*`.
+
+Please also remove `com.sap.cloud.security.xsuaa:api`, as `spring-xsuaa` provides it already as transitive dependency, to make sure the latest version is taken.
 
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
