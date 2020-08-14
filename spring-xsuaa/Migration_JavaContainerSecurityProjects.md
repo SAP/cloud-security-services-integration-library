@@ -39,33 +39,20 @@ which shows what had to be changed to migrate our open-SAP course application fr
 To use the new [spring-xsuaa](/spring-xsuaa) client library the dependencies declared in maven `pom.xml` need to be changed.
 See the [docs](/spring-xsuaa#configuration) on what to add to your `pom.xml`.
 
-After you have added to new dependencies you are ready to **remove** the **`java-container-security`** client library by
-deleting the following lines from the pom.xml:
-```xml
-<dependency>
-  <groupId>com.sap.xs2.security</groupId>
-  <artifactId>java-container-security</artifactId>
-</dependency>
-<dependency>
-  <groupId>com.sap.xs2.security</groupId>
-  <artifactId>api</artifactId>
-</dependency>
-```
-Or
-```xml
-<dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>java-container-security</artifactId>
-</dependency>
-<dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>java-container-security-api</artifactId>
-</dependency>
-```
+Now you are ready to **remove** the **`java-container-security`** client library by deleting the following dependencies from the pom.xml:
 
-Make sure that you do not refer to any other sap security library with groupId `com.sap.security` or `com.sap.security.nw.sso.*`.
+groupId (deprecated) | artifactId (deprecated) 
+--- | --- 
+com.sap.xs2.security | java-container-security
+com.sap.xs2.security | api
+com.sap.cloud.security.xssec | api 
+com.sap.cloud.security.xsuaa | java-container-security-api
+com.sap.cloud.security.xsuaa | java-container-security
+com.sap.cloud.security.xsuaa | api
 
-Please also remove `com.sap.cloud.security.xsuaa:api`, as `spring-xsuaa` provides it already as transitive dependency, to make sure the latest version is taken.
+> Note: The dependency `com.sap.cloud.security.xsuaa:api` should be removed as well, as `spring-xsuaa` provides it already as transitive dependency.
+
+Furthermore, make sure that you do not refer to any other sap security library with groupId `com.sap.security` or `com.sap.security.nw.sso.*`.
 
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
