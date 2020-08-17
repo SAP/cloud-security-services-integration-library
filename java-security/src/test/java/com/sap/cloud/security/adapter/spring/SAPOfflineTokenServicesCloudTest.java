@@ -106,6 +106,7 @@ public class SAPOfflineTokenServicesCloudTest {
 		OAuth2Authentication authentication = cut.loadAuthentication(iasToken);
 
 		assertThat(authentication.isAuthenticated()).isTrue();
+		assertThat(authentication.getUserAuthentication()).isNull();
 	}
 
 	@Test
