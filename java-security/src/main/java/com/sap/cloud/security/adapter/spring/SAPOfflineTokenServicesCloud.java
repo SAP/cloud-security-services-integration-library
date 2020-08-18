@@ -10,6 +10,8 @@ import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.SpringOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.SpringOidcConfigurationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -81,6 +83,7 @@ import java.util.stream.Collectors;
  */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(SAPOfflineTokenServicesCloud.class);
 	private final OAuth2ServiceConfiguration serviceConfiguration;
 	private Validator<Token> tokenValidator;
 	private JwtValidatorBuilder jwtValidatorBuilder;
@@ -166,8 +169,13 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			throw new InvalidTokenException(validationResult.getErrorDescription());
 		}
 		SecurityContext.setToken(token);
+
+		String tokenClientId = token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID);
+		if(LOGGER.isInfoEnabled() && tokenClientId != serviceConfiguration.getClientId()) {
+			LOGGER.info("Creates OAuth2Authentication with token clientId {} which differs from oauth client id {}.", tokenClientId, serviceConfiguration.getClientId());
+		}
 		// remoteUser support: NGPBUG-125268
-		return createOAuth2Authentication(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID), getScopes(token), token);
+		return createOAuth2Authentication(tokenClientId, getScopes(token), token);
 	}
 
 	static OAuth2Authentication createOAuth2Authentication(String clientId, Set<String> scopes, Token token) {
