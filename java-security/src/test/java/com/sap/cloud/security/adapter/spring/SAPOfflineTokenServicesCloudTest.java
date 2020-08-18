@@ -12,14 +12,17 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,13 +32,16 @@ import static org.mockito.Mockito.*;
 public class SAPOfflineTokenServicesCloudTest {
 
 	private SAPOfflineTokenServicesCloud cut;
-	private String xsuaaToken;
-	private String iasToken;
 	private JwtValidatorBuilder jwtValidatorBuilderSpy;
+
+	private final String xsuaaToken;
+	private final String iasToken;
+	private final String userToken;
 
 	public SAPOfflineTokenServicesCloudTest() throws IOException {
 		xsuaaToken = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
 		iasToken = IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8);
+		userToken = IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", StandardCharsets.UTF_8);
 	}
 
 	@Before
@@ -56,20 +62,32 @@ public class SAPOfflineTokenServicesCloudTest {
 	}
 
 	@Test
-	public void loadAuthentication() {
+	public void loadAuthentication_setsOAuth2Request() {
 		cut.afterPropertiesSet();
 		OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
+		OAuth2Request oAuth2Request = authentication.getOAuth2Request();
 
-		assertThat(authentication.isAuthenticated()).isTrue();
-		assertThat(authentication.getOAuth2Request()).isNotNull();
-		assertThat(authentication.getOAuth2Request().getScope()).containsExactlyInAnyOrder("ROLE_SERVICEBROKER",
-				"uaa.resource");
-		Collection<String> authorities = authentication.getOAuth2Request().getAuthorities().stream()
-				.map(GrantedAuthority::getAuthority).collect(
-						Collectors.toList());
+		assertThat(oAuth2Request).isNotNull();
+		assertThat(oAuth2Request.getScope()).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
+		Collection<String> authorities = oAuth2Request.getAuthorities().stream()
+				.map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 		assertThat(authorities).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
-		assertThat(authentication.getAuthorities()).contains(new SimpleGrantedAuthority("uaa.resource"));
+		assertThat(authentication.getAuthorities()).contains
+				(new SimpleGrantedAuthority("uaa.resource"), new SimpleGrantedAuthority("ROLE_SERVICEBROKER"));
 		assertThat(SecurityContext.getToken().getTokenValue()).isEqualTo(xsuaaToken);
+	}
+
+	@Test
+	public void loadAuthentication_userToken() {
+		cut.afterPropertiesSet();
+		OAuth2Authentication oAuth2Authentication = cut.loadAuthentication(userToken);
+		Authentication userAuthentication = oAuth2Authentication.getUserAuthentication();
+
+		assertThat(oAuth2Authentication.isAuthenticated()).isTrue();
+		assertThat(getAuthorities(oAuth2Authentication))
+				.containsExactlyInAnyOrder("testApp.localScope", "testScope", "openid");
+		assertThat(userAuthentication).isNotNull();
+		assertThat(userAuthentication.getPrincipal()).isEqualTo("TestUser");
 	}
 
 	@Test
@@ -85,23 +103,17 @@ public class SAPOfflineTokenServicesCloudTest {
 		OAuth2Authentication authentication = cut.loadAuthentication(iasToken);
 
 		assertThat(authentication.isAuthenticated()).isTrue();
+		assertThat(authentication.getUserAuthentication()).isNull();
 	}
 
 	@Test
-	public void loadAuthenticationWithLocalScopes() throws IOException {
-		xsuaaToken = IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", StandardCharsets.UTF_8);
-
+	public void loadAuthenticationWithLocalScopes() {
 		cut.afterPropertiesSet();
-
-		OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
-		assertThat(authentication.getOAuth2Request().getScope()).containsExactlyInAnyOrder("testApp.localScope",
-				"openid", "testScope");
-
 		cut.setLocalScopeAsAuthorities(true);
-		authentication = cut.loadAuthentication(xsuaaToken);
-		assertThat(authentication.getOAuth2Request().getScope()).containsExactly("localScope");
-		assertThat(authentication.getAuthorities().size()).isEqualTo(1);
-		assertThat(authentication.getAuthorities()).contains(new SimpleGrantedAuthority("localScope"));
+		OAuth2Authentication oAuth2Authentication = cut.loadAuthentication(userToken);
+
+		assertThat(oAuth2Authentication.isAuthenticated()).isTrue();
+		assertThat(getAuthorities(cut.loadAuthentication(userToken))).containsExactlyInAnyOrder("localScope");
 	}
 
 	@Test
@@ -170,6 +182,13 @@ public class SAPOfflineTokenServicesCloudTest {
 		Mockito.verify(jwtValidatorBuilderSpy, times(0)).build();
 		cut.afterPropertiesSet();
 		Mockito.verify(jwtValidatorBuilderSpy, times(1)).build();
+	}
+
+	private List<String> getAuthorities(OAuth2Authentication oAuth2Authentication) {
+		return oAuth2Authentication.getAuthorities()
+				.stream()
+				.map(GrantedAuthority::getAuthority)
+				.collect(Collectors.toList());
 	}
 
 }

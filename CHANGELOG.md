@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.7.6
+- [java-security] Improve compatibility of `SAPOfflineTokenServicesCloud`
+  - There was incompatibility in the implementation of `SAPOfflineTokenServicesCloud` that caused the `remoteUser` of the `HttpServletRequest` to always return the client id of the XSUAA service binding. This was changed so that it now works like in the old implementation. This means that the `remoteUser` now returns either the `user_name` claim of the token for user tokens or the value of the client id `cid` claim of the token for all other tokens (e.g. client tokens).
+
 ## 2.7.5
 - [java-api] `AcessToken` provides  
   - `getAttributeFromClaimAsString(String claimName, String attributeName)` to access for example `ext_attr` values such as `subaccountid`
