@@ -41,7 +41,7 @@ public class SAPOfflineTokenServicesCloudTest {
 	public SAPOfflineTokenServicesCloudTest() throws IOException {
 		xsuaaToken = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
 		iasToken = IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8);
-		userToken = IOUtils.resourceToString("/xsuaaUserinfoAdapterToken.txt", StandardCharsets.UTF_8);
+		userToken = IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", StandardCharsets.UTF_8);
 	}
 
 	@Before
