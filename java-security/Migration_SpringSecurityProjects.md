@@ -240,7 +240,7 @@ application locally make sure that it is still working and finally test the appl
 
 ## Troubleshoot
 
-### Problems with XML schema declarations
+### Issues with XML schema declarations
 If you get errors in the aplication log similar to this one
 
 ```
