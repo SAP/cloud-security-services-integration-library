@@ -27,7 +27,10 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -51,6 +54,13 @@ import java.util.stream.Collectors;
  *
  * By default it used Apache Rest Client for communicating with the OAuth2
  * Server.<br>
+ *
+ * <p>
+ * When used in conjunction with Java Http Servlets, the
+ * {@link HttpServletRequest#getRemoteUser()} will be filled with either the
+ * <code>user_name</code> claim of the token or the client id (<code>cid</code>)
+ * if it is not an user token.
+ * </p>
  *
  * Spring Security framework initializes the
  * {@link org.springframework.security.core.context.SecurityContext} with the
@@ -156,8 +166,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			throw new InvalidTokenException(validationResult.getErrorDescription());
 		}
 		SecurityContext.setToken(token);
-		//return createOAuth2Authentication(serviceConfiguration.getClientId(), getScopes(token), token);
-		// NGPBUG-125268
+		// remoteUser support: NGPBUG-125268
 		return createOAuth2Authentication(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID), getScopes(token), token);
 	}
 
