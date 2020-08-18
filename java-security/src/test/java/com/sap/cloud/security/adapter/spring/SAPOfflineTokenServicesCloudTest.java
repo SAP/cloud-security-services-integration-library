@@ -88,9 +88,6 @@ public class SAPOfflineTokenServicesCloudTest {
 				.containsExactlyInAnyOrder("testApp.localScope", "testScope", "openid");
 		assertThat(userAuthentication).isNotNull();
 		assertThat(userAuthentication.getPrincipal()).isEqualTo("TestUser");
-
-		cut.setLocalScopeAsAuthorities(true);
-		assertThat(getAuthorities(cut.loadAuthentication(userToken))).containsExactlyInAnyOrder("localScope");
 	}
 
 	@Test
@@ -107,6 +104,16 @@ public class SAPOfflineTokenServicesCloudTest {
 
 		assertThat(authentication.isAuthenticated()).isTrue();
 		assertThat(authentication.getUserAuthentication()).isNull();
+	}
+
+	@Test
+	public void loadAuthenticationWithLocalScopes() {
+		cut.afterPropertiesSet();
+		cut.setLocalScopeAsAuthorities(true);
+		OAuth2Authentication oAuth2Authentication = cut.loadAuthentication(userToken);
+
+		assertThat(oAuth2Authentication.isAuthenticated()).isTrue();
+		assertThat(getAuthorities(cut.loadAuthentication(userToken))).containsExactlyInAnyOrder("localScope");
 	}
 
 	@Test
