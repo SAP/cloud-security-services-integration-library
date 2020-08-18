@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.7.6
+- [java-security] Improve compatibility of `SAPOfflineTokenServicesCloud`
+  - Now using client id (cid) from token for `clientId` attribute of `AuthorizationRequest`
+  - Add support for user authentication in `OAuth2Authentication` in case of user tokens
+
 ## 2.7.5
 - [java-api] `AcessToken` provides  
   - `getAttributeFromClaimAsString(String claimName, String attributeName)` to access for example `ext_attr` values such as `subaccountid`
