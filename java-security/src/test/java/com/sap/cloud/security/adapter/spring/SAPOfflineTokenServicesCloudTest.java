@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -184,9 +185,11 @@ public class SAPOfflineTokenServicesCloudTest {
 		Mockito.verify(jwtValidatorBuilderSpy, times(1)).build();
 	}
 
-	private Stream<String> getAuthorities(OAuth2Authentication oAuth2Authentication) {
-		return oAuth2Authentication.getAuthorities().stream()
-				.map(GrantedAuthority::getAuthority);
+	private List<String> getAuthorities(OAuth2Authentication oAuth2Authentication) {
+		return oAuth2Authentication.getAuthorities()
+				.stream()
+				.map(GrantedAuthority::getAuthority)
+				.collect(Collectors.toList());
 	}
 
 }
