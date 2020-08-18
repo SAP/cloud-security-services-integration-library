@@ -1,8 +1,0 @@
-logging.level:
-  com.sap: DEBUG
-  org.springframework: ERROR
-  org.springframework.security: DEBUG
-  org.springframework.web: INFO
-server:
-  port: 9999
-debug: false
