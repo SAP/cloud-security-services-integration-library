@@ -39,31 +39,20 @@ which shows what had to be changed to migrate our open-SAP course application fr
 To use the new [spring-xsuaa](/spring-xsuaa) client library the dependencies declared in maven `pom.xml` need to be changed.
 See the [docs](/spring-xsuaa#configuration) on what to add to your `pom.xml`.
 
-After you have added to new dependencies you are ready to **remove** the **`java-container-security`** client library by
-deleting the following lines from the pom.xml:
-```xml
-<dependency>
-  <groupId>com.sap.xs2.security</groupId>
-  <artifactId>java-container-security</artifactId>
-</dependency>
-<dependency>
-  <groupId>com.sap.xs2.security</groupId>
-  <artifactId>java-container-security-api</artifactId>
-</dependency>
-```
-Or
-```xml
-<dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>java-container-security</artifactId>
-</dependency>
-<dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>api</artifactId>
-</dependency>
-```
+Now you are ready to **remove** the **`java-container-security`** client library by deleting the following dependencies from the pom.xml:
 
-Make sure that you do not refer to any other sap security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
+groupId (deprecated) | artifactId (deprecated) 
+--- | --- 
+com.sap.xs2.security | java-container-security
+com.sap.xs2.security | api
+com.sap.cloud.security.xssec | api 
+com.sap.cloud.security.xsuaa | java-container-security-api
+com.sap.cloud.security.xsuaa | java-container-security
+com.sap.cloud.security.xsuaa | api
+
+> Note: The dependency `com.sap.cloud.security.xsuaa:api` should be removed as well, as `spring-xsuaa` provides it already as transitive dependency.
+
+Furthermore, make sure that you do not refer to any other sap security library with groupId `com.sap.security` or `com.sap.security.nw.sso.*`.
 
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
@@ -89,6 +78,8 @@ There is no need to configure `SAP_JWT_TRUST_ACL` within your deployment descrip
 Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (JWT) as part of the `aud` claim.
 
 Whether the token is issued for your application or not is now validated by the [`XsuaaAudienceValidator`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/authentication/XsuaaAudienceValidator.java).
+
+In case of issues, make sure, that you've granted at least one scope to the calling application.
 
 ### Multiple XSUAA Bindings
 You can skip this section, in case your application is bound to only one Xsuaa service instance. The `xsuaa-spring-boot-starter` does not support multiple XSUAA bindings of plan `application` and `broker`. **The Xsuaa service instance of plan `api` is ignored.**

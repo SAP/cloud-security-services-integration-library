@@ -54,29 +54,15 @@ First make sure you have the following dependencies defined in your pom.xml:
 </dependency>
 ```
 
+Now you are ready to **remove** the **`java-container-security`** client library by deleting the following dependencies from the pom.xml:
 
-Now you are ready to **remove** the **`java-container-security`** client library by deleting the following lines from the pom.xml:
-```xml
-<dependency>
-  <groupId>com.sap.xs2.security</groupId>
-  <artifactId>java-container-security</artifactId>
-</dependency>
-<dependency>
-  <groupId>com.sap.xs2.security</groupId>
-  <artifactId>java-container-security-api</artifactId>
-</dependency>
-```
-Or
-```xml
-<dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>java-container-security</artifactId>
-</dependency>
-<dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>api</artifactId>
-</dependency>
-```
+groupId (deprecated) | artifactId (deprecated) 
+--- | --- 
+com.sap.xs2.security | java-container-security
+com.sap.xs2.security | api
+com.sap.cloud.security.xssec | api 
+com.sap.cloud.security.xsuaa | java-container-security-api
+com.sap.cloud.security.xsuaa | java-container-security
 
 Make sure that you do not refer to any other sap security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
 
@@ -122,7 +108,7 @@ Or
 ```java
 ...
 .authorizeRequests()
-	.antMatchers(POST, "/api/v1/ads/**").access(#oauth2.hasScopeMatching('Update')) //instead of '${xs.appname}.Update'
+	.antMatchers(POST, "/api/v1/ads/**").access("#oauth2.hasScopeMatching('Update')") //instead of '${xs.appname}.Update'
 ```
 
 
@@ -135,6 +121,8 @@ There is no need to configure `SAP_JWT_TRUST_ACL` within your deployment descrip
 Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (JWT) as part of the `aud` claim.
 
 Whether the token is issued for your application or not is now validated by the [`JwtAudienceValidator`](/java-security/src/main/java/com/sap/cloud/security/token/validation/validators/JwtAudienceValidator.java).
+
+In case of issues, make sure, that you've granted at least one scope to the calling application.
 
 ## Fetch basic infos from Token
 You may have code parts that requests information from the access token, like the user's name, its tenant, and so on. So, look up your code to find its usage.

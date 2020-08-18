@@ -111,8 +111,8 @@ public class SpringSecurityContextTest {
 
 	private static void setToken(Token token, Set<String> scopes) {
 		SecurityContext context = new SecurityContextImpl();
-		OAuth2Authentication authentication = SAPOfflineTokenServicesCloud.getOAuth2Authentication(
-				"clientId", scopes);
+		OAuth2Authentication authentication = SAPOfflineTokenServicesCloud.createOAuth2Authentication(
+				"clientId", scopes, token);
 
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_VALUE)).thenReturn(token.getTokenValue());

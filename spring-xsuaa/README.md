@@ -199,6 +199,12 @@ public Map<String, String> message() {
 }
 ```
 
+### [Optional] Audit Logging
+In case you have implemented a central Exception Handler as described with [Baeldung Tutorial: Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring) you may want to emit logs to the audit log service in case of `AccessDeniedException`s.
+
+Alternativly there are also various options provided with `Spring.io`. For example, you can integrate SAP audit log service with Spring Boot Actuator audit framework as described [here](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-auditing).
+
+
 ## Samples
 - [spring-security-xsuaa-usage](/samples/spring-security-xsuaa-usage) 
 
