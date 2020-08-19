@@ -1,8 +1,6 @@
-package com.sap.cloud.security.test.integration.support;
+package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.test.integration.support.VcapServicesParser.VcapServiceParsingException;
 import com.sap.cloud.security.json.JsonParsingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,14 +39,14 @@ class VcapServicesParserTest {
 	@Test
 	void fromFile_rejectsConfigurationWithClientCredentials() {
 		assertThatThrownBy(() -> vcapServicesParser.fromFile("/vcapServices/vcapWithClientSecret.json"))
-				.isInstanceOf(VcapServiceParsingException.class)
+				.isInstanceOf(VcapServicesParser.VcapServiceParsingException.class)
 				.hasMessageContaining("Client secret must not be provided!");
 	}
 
 	@Test
 	void fromFile_rejectsVcapWithoutBinding() {
 		assertThatThrownBy(() -> vcapServicesParser.fromFile("/vcapServices/vcapWithoutBinding.json"))
-				.isInstanceOf(VcapServiceParsingException.class)
+				.isInstanceOf(VcapServicesParser.VcapServiceParsingException.class)
 				.hasMessageContaining("No supported binding found in VCAP_SERVICES!");
 	}
 }
