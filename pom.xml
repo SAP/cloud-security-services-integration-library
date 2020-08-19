@@ -86,6 +86,7 @@
 		<module>java-api</module>
 		<module>java-security</module>
 		<module>java-security-test</module>
+		<module>java-security-it</module>
 		<module>spring-xsuaa</module>
 		<module>spring-xsuaa-it</module>
 		<module>spring-xsuaa-test</module>
