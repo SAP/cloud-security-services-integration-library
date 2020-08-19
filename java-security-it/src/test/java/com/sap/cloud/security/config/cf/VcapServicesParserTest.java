@@ -19,21 +19,29 @@ class VcapServicesParserTest {
 	}
 
 	@Test
-	void fromFile_resourceDoesNotExits_throwsException() {
-		assertThatThrownBy(() -> vcapServicesParser.fromFile("/doesNotExist.json"))
-				.isInstanceOf(JsonParsingException.class)
-				.hasMessageContaining("Resource not found: /doesNotExist.json");
-	}
-
-	@Test
 	void fromFile_loadsConfiguration() {
 		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = vcapServicesParser
 				.fromFile("/vcapServices/vcapSimple.json");
 
-		assertThat(oAuth2ServiceConfiguration.getClientSecret()).isNull();
-		assertThat(oAuth2ServiceConfiguration.getProperty(VERIFICATION_KEY)).isNull();
 		assertThat(oAuth2ServiceConfiguration.getClientId()).isEqualTo("clientId");
 		assertThat(oAuth2ServiceConfiguration.getProperty(CFConstants.SERVICE_PLAN)).isEqualTo("broker");
+	}
+
+	@Test
+	void fromFile_loadsConfiguration_clientSecretAndVerificationKeyNull() {
+		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = vcapServicesParser
+				.fromFile("/vcapServices/vcapSimple.json");
+
+		assertThat(oAuth2ServiceConfiguration.getProperty(VERIFICATION_KEY)).isNull();
+		assertThat(oAuth2ServiceConfiguration.getClientSecret()).isNull();
+
+	}
+
+	@Test
+	void fromFile_resourceDoesNotExits_throwsException() {
+		assertThatThrownBy(() -> vcapServicesParser.fromFile("/doesNotExist.json"))
+				.isInstanceOf(JsonParsingException.class)
+				.hasMessageContaining("Resource not found: /doesNotExist.json");
 	}
 
 	@Test
