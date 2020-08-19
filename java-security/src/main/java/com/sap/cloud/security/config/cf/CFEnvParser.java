@@ -21,8 +21,8 @@ class CFEnvParser {
 	private CFEnvParser() {
 	}
 
-	public static OAuth2ServiceConfiguration extract(Service service, JsonObject vcapServiceJson) {
-		return extract(service, vcapServiceJson, false);
+	static OAuth2ServiceConfiguration loadForService(Service service, JsonObject serviceJsonObject) {
+		return loadForService(service, serviceJsonObject, false);
 	}
 
 	/**
@@ -36,7 +36,7 @@ class CFEnvParser {
 		List<OAuth2ServiceConfiguration> allServices;
 
 		for (Service service : Service.values()) {
-			allServices = extractAllServices(service,
+			allServices = loadAllForService(service,
 					new DefaultJsonObject(vcapServicesJson),
 					runInLegacyMode(vcapApplicationJson));
 			serviceConfigurations.put(service, allServices);
@@ -44,11 +44,7 @@ class CFEnvParser {
 		return serviceConfigurations;
 	}
 
-	private static boolean runInLegacyMode(String vcapApplicationJson) {
-		return new DefaultJsonObject(vcapApplicationJson).contains("xs_api");
-	}
-
-	static List<OAuth2ServiceConfiguration> extractAllServices(Service service, JsonObject vcapServicesJson,
+	static List<OAuth2ServiceConfiguration> loadAllForService(Service service, JsonObject vcapServicesJson,
 			boolean isLegacyMode) {
 		List<JsonObject> serviceJsonObjects = vcapServicesJson.getJsonObjects(service.getCFName());
 		if (service == XSUAA && serviceJsonObjects.size() > 1) {
@@ -57,11 +53,11 @@ class CFEnvParser {
 					service);
 		}
 		return serviceJsonObjects.stream()
-				.map((JsonObject serviceJsonObject) -> extract(service, serviceJsonObject, isLegacyMode))
+				.map((JsonObject serviceJsonObject) -> loadForService(service, serviceJsonObject, isLegacyMode))
 				.collect(Collectors.toList());
 	}
 
-	static OAuth2ServiceConfiguration extract(Service service, JsonObject serviceJsonObject, boolean isLegacyMode) {
+	static OAuth2ServiceConfiguration loadForService(Service service, JsonObject serviceJsonObject, boolean isLegacyMode) {
 		Map<String, String> serviceBindingProperties = serviceJsonObject.getKeyValueMap();
 		try {
 			Map<String, String> serviceBindingCredentials = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS)
@@ -80,4 +76,7 @@ class CFEnvParser {
 		}
 	}
 
+	private static boolean runInLegacyMode(String vcapApplicationJson) {
+		return new DefaultJsonObject(vcapApplicationJson).contains("xs_api");
+	}
 }
