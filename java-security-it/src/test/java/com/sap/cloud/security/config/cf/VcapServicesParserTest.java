@@ -39,14 +39,14 @@ class VcapServicesParserTest {
 	@Test
 	void fromFile_rejectsConfigurationWithClientCredentials() {
 		assertThatThrownBy(() -> vcapServicesParser.fromFile("/vcapServices/vcapWithClientSecret.json"))
-				.isInstanceOf(VcapServicesParser.VcapServiceParsingException.class)
+				.isInstanceOf(JsonParsingException.class)
 				.hasMessageContaining("Client secret must not be provided!");
 	}
 
 	@Test
 	void fromFile_rejectsVcapWithoutBinding() {
 		assertThatThrownBy(() -> vcapServicesParser.fromFile("/vcapServices/vcapWithoutBinding.json"))
-				.isInstanceOf(VcapServicesParser.VcapServiceParsingException.class)
+				.isInstanceOf(JsonParsingException.class)
 				.hasMessageContaining("No supported binding found in VCAP_SERVICES!");
 	}
 }

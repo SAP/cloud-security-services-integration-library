@@ -33,14 +33,13 @@ public class VcapServicesParser {
 			LOGGER.warn("More than one binding found for service '{}'. Taking first one!", Service.XSUAA);
 		}
 		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = configurations.get(0);
-
 		check(oAuth2ServiceConfiguration);
 		return oAuth2ServiceConfiguration;
 	}
 
 	private void check(OAuth2ServiceConfiguration oAuth2ServiceConfiguration) {
 		if (!nullOrEmpty(oAuth2ServiceConfiguration.getClientSecret())) {
-			throw new VcapServiceParsingException("Client secret must not be provided!");
+			throw new JsonParsingException("Client secret must not be provided!");
 		}
 		if (!nullOrEmpty(oAuth2ServiceConfiguration.getProperty(CFConstants.XSUAA.VERIFICATION_KEY))) {
 			//TODO actually ignore!
@@ -54,7 +53,7 @@ public class VcapServicesParser {
 		List<OAuth2ServiceConfiguration> oAuth2ServiceConfigurations = serviceToConfigurations
 				.getOrDefault(service, Collections.emptyList());
 		if (oAuth2ServiceConfigurations.isEmpty()) {
-			throw new VcapServiceParsingException("No supported binding found in VCAP_SERVICES!");
+			throw new JsonParsingException("No supported binding found in VCAP_SERVICES!");
 		}
 		return oAuth2ServiceConfigurations;
 	}
@@ -71,12 +70,6 @@ public class VcapServicesParser {
 			return IOUtils.resourceToString(resourceName, StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new JsonParsingException(e.getMessage());
-		}
-	}
-
-	public class VcapServiceParsingException extends RuntimeException {
-		public VcapServiceParsingException(String message) {
-			super(message);
 		}
 	}
 
