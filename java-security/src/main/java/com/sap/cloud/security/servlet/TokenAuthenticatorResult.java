@@ -80,14 +80,6 @@ class TokenAuthenticatorResult implements TokenAuthenticationResult {
 	}
 
 	/**
-	 * @return true if authenticated.
-	 */
-	@Override
-	public boolean isAuthenticated() {
-		return reason.isEmpty();
-	}
-
-	/**
 	 * If not authenticated, this returns the reason why as text.
 	 * 
 	 * @return the textual description why the request was not authenticated. Empty
