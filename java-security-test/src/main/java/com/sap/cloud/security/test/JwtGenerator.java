@@ -158,16 +158,43 @@ public class JwtGenerator {
 	 */
 	public JwtGenerator withClaimsFromFile(String claimsJsonResource) throws IOException {
 		String claimsJson = IOUtils.resourceToString(claimsJsonResource, StandardCharsets.UTF_8);
-		JSONObject claimsAsJsonObject;
-		try {
-			claimsAsJsonObject = new JSONObject(claimsJson);
-		} catch (JSONException e) {
-			throw new JsonParsingException(e.getMessage());
-		}
-		for (String key : claimsAsJsonObject.keySet()) {
-			Object value = claimsAsJsonObject.get(key);
-			jsonPayload.put(key, value);
-		}
+		JSONObject jsonObject = createJsonObject(claimsJson);
+		copyJsonProperties(jsonObject, jsonPayload);
+		return this;
+	}
+
+	/**
+	 * This method expects a JSON file that contains data for the
+	 * token payload and header. The file is expected to be in the
+	 * following format:
+	 * <pre>
+	 * 	"header": {
+	 * 		"alg": "RS256",
+	 * 		"kid": "kid-custom"
+	 *        },
+	 * 	"payload": {
+	 * 		"zid" : "zone-id",
+	 * 		"scope": [
+	 * 			"openid",
+	 * 			"app1.scope"
+	 * 		]
+	 *    }
+	 * </pre>
+	 * The file must contain a valid json object.
+	 *
+	 * @throws JsonParsingException
+	 *             if the file does not contain a valid json object
+	 * @throws IOException
+	 *             when the file cannot be read or does not exist.
+	 * @param tokenJsonResource
+	 *            the resource path to the file containing the json file, e.g. "/token.json"
+	 * @return the builder object.
+	 */
+	public JwtGenerator fromFile(String tokenJsonResource) throws IOException {
+		String tokenJson = IOUtils.resourceToString(tokenJsonResource, StandardCharsets.UTF_8);
+		JSONObject jsonObject = createJsonObject(tokenJson);
+		copyJsonProperties(jsonObject.optJSONObject("payload"), jsonPayload);
+		copyJsonProperties(jsonObject.optJSONObject("header"), jsonHeader);
 		return this;
 	}
 
@@ -306,6 +333,23 @@ public class JwtGenerator {
 			return new XsuaaToken(createTokenAsString());
 		default:
 			throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
+		}
+	}
+
+	private void copyJsonProperties(JSONObject source, JSONObject target) {
+		if (source != null) {
+			for (String key : source.keySet()) {
+				Object value = source.get(key);
+				target.put(key, value);
+			}
+		}
+	}
+
+	private JSONObject createJsonObject(String claimsJson) {
+		try {
+			return new JSONObject(claimsJson);
+		} catch (JSONException e) {
+			throw new JsonParsingException(e.getMessage());
 		}
 	}
 

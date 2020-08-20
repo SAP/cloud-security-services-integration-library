@@ -297,6 +297,26 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
+	public void fromFile_loadsJson() throws IOException {
+		Token token = cut.fromFile("/token.json").createToken();
+
+		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo("kid-custom");
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
+		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid", "app1.scope");
+	}
+
+	@Test
+	public void fromFile_fileDoesNotExist_throwsException() {
+		assertThatThrownBy(() -> cut.fromFile("/doesNotExist.json"))
+			.isInstanceOf(IOException.class);
+	}
+	@Test
+	public void fromFile_fileMalformed_throwsException() {
+		assertThatThrownBy(() -> cut.fromFile("/publicKey.txt"))
+			.isInstanceOf(JsonParsingException.class);
+	}
+
+	@Test
 	public void createToken_signatureCalculation_NoSuchAlgorithmExceptionTurnedIntoRuntimeException() {
 		cut = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new NoSuchAlgorithmException();
