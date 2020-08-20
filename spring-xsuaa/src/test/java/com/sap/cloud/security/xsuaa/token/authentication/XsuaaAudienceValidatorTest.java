@@ -163,11 +163,4 @@ public class XsuaaAudienceValidatorTest {
 		Assert.assertFalse(result.hasErrors());
 	}
 
-	@Test
-	public void testBrokerCloneWithoutAudience() {
-		OAuth2TokenValidatorResult result = new XsuaaAudienceValidator(serviceConfigurationBrokerPlan)
-				.validate(cloneTokenWithAudience);
-		Assert.assertFalse(result.hasErrors());
-	}
-
 }

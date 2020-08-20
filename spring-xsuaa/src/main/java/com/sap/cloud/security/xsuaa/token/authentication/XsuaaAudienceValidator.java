@@ -27,6 +27,7 @@ import com.sap.cloud.security.xsuaa.token.TokenClaims;
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	private Map<String, String> appIdClientIdMap = new HashMap<>();
 	private final Logger logger = LoggerFactory.getLogger(XsuaaServicesParser.class);
+	private boolean acceptCloneTokens = true;
 
 	public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		Assert.notNull(xsuaaServiceConfiguration, "'xsuaaServiceConfiguration' is required");
@@ -38,6 +39,10 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 		Assert.notNull(clientId, "'clientId' is required");
 		appIdClientIdMap.putIfAbsent(appId, clientId);
 		logger.info("configured XsuaaAudienceValidator with appId {} and clientId {}", appId, clientId);
+	}
+
+	public void rejectCloneTokens(boolean rejectCloneTokens) {
+		this.acceptCloneTokens = !rejectCloneTokens;
 	}
 
 	@Override
@@ -62,8 +67,8 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	private boolean checkMatch(String appId, String clientId, String tokenClientId, List<String> allowedAudiences) {
 		// case 1 : token issued by own client (or master)
 		if (clientId.equals(tokenClientId)
-				|| (appId.contains("!b")
-						&& tokenClientId.endsWith("|" + appId))) {
+				|| (acceptCloneTokens && (appId.contains("!b")
+						&& tokenClientId.endsWith("|" + appId)))) {
 			return true;
 		} else {
 			// case 2: foreign token

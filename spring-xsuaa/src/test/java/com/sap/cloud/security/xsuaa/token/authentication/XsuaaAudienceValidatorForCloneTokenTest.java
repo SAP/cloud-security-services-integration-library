@@ -52,6 +52,15 @@ public class XsuaaAudienceValidatorForCloneTokenTest {
 	}
 
 	@Test
+	public void cloneTokenClientId_like_brokerClientId_shouldBeRejected_byConfiguration() {
+		claimsBuilder.claim(TokenClaims.CLAIM_CLIENT_ID, "sb-clone1!b22|" + XSUAA_BROKER_XSAPPNAME);
+		cut.rejectCloneTokens(true);
+
+		OAuth2TokenValidatorResult result = cut.validate(JwtGenerator.createFromClaims(claimsBuilder.build()));
+		Assert.assertTrue(result.hasErrors());
+	}
+
+	@Test
 	public void cloneTokenClientId_unlike_brokerClientId_raisesError() {
 		claimsBuilder.claim(TokenClaims.CLAIM_CLIENT_ID, "sb-clone1!b22|ANOTHERAPP!b12");
 
