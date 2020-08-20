@@ -289,7 +289,7 @@ public class SecurityTest {
 				.encodeToString(((RSAPublicKey) keys.getPublic()).getModulus().toByteArray());
 		String encodedPublicKey = Base64.getEncoder().encodeToString(keys.getPublic().getEncoded());
 		return IOUtils.resourceToString("/token_keys_template.json", StandardCharsets.UTF_8)
-				.replace("$kid", "default-kid")
+				.replace("$kid", JwtGenerator.DEFAULT_KEY_ID)
 				.replace("$public_key", encodedPublicKey)
 				.replace("$modulus", encodedPublicKeyModulus);
 	}
