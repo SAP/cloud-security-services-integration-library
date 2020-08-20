@@ -5,6 +5,9 @@ import com.sap.cloud.security.json.JsonParsingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
+
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.VERIFICATION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -28,13 +31,14 @@ class VcapServicesParserTest {
 	}
 
 	@Test
-	void fromFile_loadsConfiguration_clientSecretAndVerificationKeyNull() {
+	void fromFile_loadsConfiguration_PropertiesAreOverridden() {
 		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = vcapServicesParser
 				.fromFile("/vcapServices/vcapSimple.json");
 
 		assertThat(oAuth2ServiceConfiguration.getProperty(VERIFICATION_KEY)).isNull();
 		assertThat(oAuth2ServiceConfiguration.getClientSecret()).isNull();
-
+		assertThat(oAuth2ServiceConfiguration.getUrl()).isEqualTo(URI.create("http://localhost"));
+		assertThat(oAuth2ServiceConfiguration.getProperty(UAA_DOMAIN)).isEqualTo("localhost");
 	}
 
 	@Test

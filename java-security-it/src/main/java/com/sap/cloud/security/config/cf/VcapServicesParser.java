@@ -1,6 +1,7 @@
 package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonParsingException;
 import org.apache.commons.io.IOUtils;
@@ -33,17 +34,24 @@ public class VcapServicesParser {
 			LOGGER.warn("More than one binding found for service '{}'. Taking first one!", Service.XSUAA);
 		}
 		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = configurations.get(0);
-		check(oAuth2ServiceConfiguration);
-		return oAuth2ServiceConfiguration;
+		checkClientSecretNotProvided(oAuth2ServiceConfiguration);
+		return overrideProperties(oAuth2ServiceConfiguration);
 	}
 
-	private void check(OAuth2ServiceConfiguration oAuth2ServiceConfiguration) {
+	private OAuth2ServiceConfiguration overrideProperties(OAuth2ServiceConfiguration oAuth2ServiceConfiguration) {
+		if (!nullOrEmpty(oAuth2ServiceConfiguration.getProperty(CFConstants.XSUAA.VERIFICATION_KEY))) {
+			LOGGER.warn("Ignoring verification key from service binding!");
+		}
+		return OAuth2ServiceConfigurationBuilder.fromConfiguration(oAuth2ServiceConfiguration)
+				.withProperty(CFConstants.XSUAA.VERIFICATION_KEY, null)
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
+				.withUrl("http://localhost")
+				.build();
+	}
+
+	private void checkClientSecretNotProvided(OAuth2ServiceConfiguration oAuth2ServiceConfiguration) {
 		if (!nullOrEmpty(oAuth2ServiceConfiguration.getClientSecret())) {
 			throw new JsonParsingException("Client secret must not be provided!");
-		}
-		if (!nullOrEmpty(oAuth2ServiceConfiguration.getProperty(CFConstants.XSUAA.VERIFICATION_KEY))) {
-			//TODO actually ignore!
-			LOGGER.warn("Ignoring verification key from binding!");
 		}
 	}
 
