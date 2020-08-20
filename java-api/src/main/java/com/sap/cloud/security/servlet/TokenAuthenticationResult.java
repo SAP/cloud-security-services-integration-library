@@ -51,6 +51,6 @@ public interface TokenAuthenticationResult {
 	 *         string if authenticated.
 	 */
 	default String getUnauthenticatedReason() {
-		return null;
+		return "";
 	}
 }
