@@ -25,7 +25,7 @@ public class VcapServicesParser {
 
 	private VcapServicesParser(OAuth2ServiceConfiguration oAuth2ServiceConfiguration) {
 		checkProperties(oAuth2ServiceConfiguration);
-		this.oAuth2ServiceConfigurationBuilder  = OAuth2ServiceConfigurationBuilder
+		this.oAuth2ServiceConfigurationBuilder = OAuth2ServiceConfigurationBuilder
 				.fromConfiguration(oAuth2ServiceConfiguration)
 				.withProperty(VERIFICATION_KEY, null)
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
@@ -33,15 +33,35 @@ public class VcapServicesParser {
 	}
 
 	/**
-	 * Reads the contents of a classpath resource given by {@param resourceName} and turns
-	 * it into a {@link OAuth2ServiceConfiguration}.
+	 * This factory method loads the json content from the classpath resource given
+	 * by {@param configurationResourceName}. Using the loaded data a new instance
+	 * of {@link VcapServicesParser} is created. This instance can be used to create
+	 * an {@link OAuth2ServiceConfiguration} with the
+	 * {@link VcapServicesParser#createConfiguration()} method.
+	 * <p>
+	 * The json content is expected to be a VCAP_SERVICES binding object in the
+	 * following form:
+	 * 
+	 * <pre>
+	 * {
+	 *   "xsuaa": [
+	 *     {
+	 *       "binding_name": null,
+	 *       "credentials": {
+	 *         "clientid": "clientId",
+	 *         "identityzone": "uaa",
+	 *      ...
+	 * </pre>
 	 *
-	 * @param resourceName the name of classpath resource.
+	 * @param configurationResourceName
+	 *            the name of classpath resource that contains the configuration
+	 *            json.
 	 * @return the parsed {@link OAuth2ServiceConfiguration}.
-	 * @throws JsonParsingException if the resource cannot be read or contains invalid data.
+	 * @throws JsonParsingException
+	 *             if the resource cannot be read or contains invalid data.
 	 */
-	public static VcapServicesParser fromFile(String resourceName) {
-		String vcapServicesJson = read(resourceName);
+	public static VcapServicesParser fromFile(String configurationResourceName) {
+		String vcapServicesJson = read(configurationResourceName);
 		List<OAuth2ServiceConfiguration> configurations = findConfigurationsForService(Service.XSUAA, vcapServicesJson);
 		if (configurations.size() > 1) {
 			LOGGER.warn("More than one binding found for service '{}'. Taking first one!", Service.XSUAA);
@@ -50,12 +70,26 @@ public class VcapServicesParser {
 		return new VcapServicesParser(oAuth2ServiceConfiguration);
 	}
 
-	public VcapServicesParser setVerificationKey(String resourceName) {
-		String verificationKey = read(resourceName);
+	/**
+	 * Loads the content classpath resource given by
+	 * {@param verificationKeyResourceName} and sets it as the verification key of
+	 * the {@link OAuth2ServiceConfiguration}.
+	 *
+	 * @param verificationKeyResourceName
+	 *            the name of classpath resource.
+	 * @return
+	 */
+	public VcapServicesParser setVerificationKey(String verificationKeyResourceName) {
+		String verificationKey = read(verificationKeyResourceName);
 		oAuth2ServiceConfigurationBuilder.withProperty(VERIFICATION_KEY, verificationKey);
 		return this;
 	}
 
+	/**
+	 * Creates the {@link OAuth2ServiceConfiguration} object from the loaded data.
+	 * 
+	 * @return the configuration.
+	 */
 	public OAuth2ServiceConfiguration createConfiguration() {
 		return oAuth2ServiceConfigurationBuilder.build();
 	}
@@ -69,7 +103,18 @@ public class VcapServicesParser {
 		}
 	}
 
-	private static List<OAuth2ServiceConfiguration> findConfigurationsForService(Service service, String vcapServicesJson) {
+	/**
+	 * Uses {@link CFEnvParser} to create an {@link OAuth2ServiceConfiguration}
+	 * object from the given json.
+	 * 
+	 * @param service
+	 *            the expected service.
+	 * @param vcapServicesJson
+	 *            the json string of the service bindings.
+	 * @return the extracted configuration(s)
+	 */
+	private static List<OAuth2ServiceConfiguration> findConfigurationsForService(Service service,
+			String vcapServicesJson) {
 		Map<Service, List<OAuth2ServiceConfiguration>> serviceToConfigurations = CFEnvParser
 				.loadAll(vcapServicesJson, "{}");
 		List<OAuth2ServiceConfiguration> oAuth2ServiceConfigurations = serviceToConfigurations
@@ -81,13 +126,13 @@ public class VcapServicesParser {
 	}
 
 	/**
-	 * Wraps {@link IOUtils#resourceToString(String, Charset)} and rethrows {@link IOException}
-	 * as {@link JsonParsingException} for convenience.
+	 * Wraps {@link IOUtils#resourceToString(String, Charset)} and rethrows
+	 * {@link IOException} as {@link JsonParsingException} for convenience.
 	 *
 	 * @param resourceName
 	 * @return the file as string.
 	 */
-	private static String  read(String resourceName) {
+	private static String read(String resourceName) {
 		try {
 			return IOUtils.resourceToString(resourceName, StandardCharsets.UTF_8);
 		} catch (IOException e) {
