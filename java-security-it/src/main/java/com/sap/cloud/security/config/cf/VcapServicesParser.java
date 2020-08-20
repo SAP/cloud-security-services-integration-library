@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.VERIFICATION_KEY;
+
 public class VcapServicesParser {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(VcapServicesParser.class);
@@ -25,7 +27,7 @@ public class VcapServicesParser {
 		checkProperties(oAuth2ServiceConfiguration);
 		this.oAuth2ServiceConfigurationBuilder  = OAuth2ServiceConfigurationBuilder
 				.fromConfiguration(oAuth2ServiceConfiguration)
-				.withProperty(CFConstants.XSUAA.VERIFICATION_KEY, null)
+				.withProperty(VERIFICATION_KEY, null)
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
 				.withUrl("http://localhost");
 	}
@@ -48,12 +50,18 @@ public class VcapServicesParser {
 		return new VcapServicesParser(oAuth2ServiceConfiguration);
 	}
 
+	public VcapServicesParser setVerificationKey(String resourceName) {
+		String verificationKey = read(resourceName);
+		oAuth2ServiceConfigurationBuilder.withProperty(VERIFICATION_KEY, verificationKey);
+		return this;
+	}
+
 	public OAuth2ServiceConfiguration createConfiguration() {
 		return oAuth2ServiceConfigurationBuilder.build();
 	}
 
 	private void checkProperties(OAuth2ServiceConfiguration oAuth2ServiceConfiguration) {
-		if (!nullOrEmpty(oAuth2ServiceConfiguration.getProperty(CFConstants.XSUAA.VERIFICATION_KEY))) {
+		if (!nullOrEmpty(oAuth2ServiceConfiguration.getProperty(VERIFICATION_KEY))) {
 			LOGGER.warn("Ignoring verification key from service binding!");
 		}
 		if (!nullOrEmpty(oAuth2ServiceConfiguration.getClientSecret())) {
