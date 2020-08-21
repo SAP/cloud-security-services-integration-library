@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.VERIFICATION_KEY;
@@ -65,10 +64,29 @@ class VcapServicesParserTest {
 	}
 
 	@Test
-	void setVerificationKey() throws IOException {
+	void setVerificationKey_setsVerificationKeyInConfiguration() throws IOException {
 		String publicKey = IOUtils.resourceToString("/publicKey.txt", UTF_8);
 		OAuth2ServiceConfiguration configuration = cut.setVerificationKey("/publicKey.txt").createConfiguration();
 
 		assertThat(configuration.getProperty(VERIFICATION_KEY)).isEqualTo(publicKey);
+	}
+
+	@Test
+	void runInLegacyMode_setsLegacyModeInConfiguration()  {
+		OAuth2ServiceConfiguration configuration = cut.createConfiguration();
+		assertThat(configuration.isLegacyMode()).isFalse();
+
+		configuration = cut.runInLegacyMode(true).createConfiguration();
+		assertThat(configuration.isLegacyMode()).isEqualTo(true);
+
+		configuration = cut.runInLegacyMode(false).createConfiguration();
+		assertThat(configuration.isLegacyMode()).isEqualTo(false);
+	}
+
+	@Test
+	void withUrl_setsUrlInConfiguration()  {
+		URI testUri = URI.create("http://test.localhost.test");
+		OAuth2ServiceConfiguration configuration = cut.withUrl(testUri.toString()).createConfiguration();
+		assertThat(configuration.getUrl()).isEqualTo(testUri);
 	}
 }

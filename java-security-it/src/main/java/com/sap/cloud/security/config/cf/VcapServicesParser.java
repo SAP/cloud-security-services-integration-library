@@ -41,7 +41,7 @@ public class VcapServicesParser {
 	 * <p>
 	 * The json content is expected to be a VCAP_SERVICES binding object in the
 	 * following form:
-	 * 
+	 *
 	 * <pre>
 	 * {
 	 *   "xsuaa": [
@@ -56,7 +56,7 @@ public class VcapServicesParser {
 	 * @param configurationResourceName
 	 *            the name of classpath resource that contains the configuration
 	 *            json.
-	 * @return the parsed {@link OAuth2ServiceConfiguration}.
+	 * @return a new {@link VcapServicesParser} instance.
 	 * @throws JsonParsingException
 	 *             if the resource cannot be read or contains invalid data.
 	 */
@@ -77,7 +77,7 @@ public class VcapServicesParser {
 	 *
 	 * @param verificationKeyResourceName
 	 *            the name of classpath resource.
-	 * @return
+	 * @return this builder instance
 	 */
 	public VcapServicesParser setVerificationKey(String verificationKeyResourceName) {
 		String verificationKey = read(verificationKeyResourceName);
@@ -86,8 +86,24 @@ public class VcapServicesParser {
 	}
 
 	/**
+	 * See {@link OAuth2ServiceConfigurationBuilder#runInLegacyMode(boolean)}
+	 */
+	public VcapServicesParser runInLegacyMode(boolean legacyMode) {
+		oAuth2ServiceConfigurationBuilder.runInLegacyMode(legacyMode);
+		return this;
+	}
+
+	/**
+	 * See {@link OAuth2ServiceConfigurationBuilder#withUrl(String)}
+	 */
+	public VcapServicesParser withUrl(String url) {
+		oAuth2ServiceConfigurationBuilder.withUrl(url);
+		return this;
+	}
+
+	/**
 	 * Creates the {@link OAuth2ServiceConfiguration} object from the loaded data.
-	 * 
+	 *
 	 * @return the configuration.
 	 */
 	public OAuth2ServiceConfiguration createConfiguration() {
@@ -106,7 +122,7 @@ public class VcapServicesParser {
 	/**
 	 * Uses {@link CFEnvParser} to create an {@link OAuth2ServiceConfiguration}
 	 * object from the given json.
-	 * 
+	 *
 	 * @param service
 	 *            the expected service.
 	 * @param vcapServicesJson
