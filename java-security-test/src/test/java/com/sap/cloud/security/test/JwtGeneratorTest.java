@@ -26,6 +26,7 @@ import java.util.List;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.test.JwtGenerator.DEFAULT_KEY_ID;
 import static com.sap.cloud.security.test.JwtGenerator.SignatureCalculator;
 import static com.sap.cloud.security.test.SecurityTestRule.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -301,7 +302,7 @@ public class JwtGeneratorTest {
 	public void fromFile_loadsJson() throws IOException {
 		Token token = cut.fromFile("/token.json").createToken();
 
-		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo("kid-custom");
+		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(DEFAULT_KEY_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid", "app1.scope");
 	}

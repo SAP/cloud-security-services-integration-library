@@ -157,9 +157,9 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * This method expects a JSON file that contains data for the
-	 * token payload and header. The file is expected to be in the
-	 * following format:
+	 * This method expects a JSON file that contains data for the token payload and
+	 * header. The file is expected to be in the following format:
+	 * 
 	 * <pre>
 	 * 	"header": {
 	 * 		"alg": "RS256",
@@ -173,28 +173,49 @@ public class JwtGenerator {
 	 * 		]
 	 *    }
 	 * </pre>
-	 * The file must contain a valid json object.
 	 *
+	 * The payload and header data from the file will be written into the token
+	 * that is being generated. Note that some properties from the
+	 * file are ignored. This is for convenience so that the token
+	 * can be verified in a test setup rather then its original
+	 * production setup.
+	 * The following header and payload properties are ignored:
+	 * <ul>
+	 *     <li>Header: jku, kid</li>
+	 *     <li>Payload: exp, aud, iss</li>
+	 * </ul>
+	 *
+	 * If you want to override those fields you need to do so manually
+	 * after this method has been called!
+	 *
+	 * @param tokenJsonResource
+	 *            the resource path to the file containing the json file, e.g.
+	 *            "/token.json"
+	 * @return the builder object.
 	 * @throws JsonParsingException
 	 *             if the file does not contain a valid json object
 	 * @throws IOException
 	 *             when the file cannot be read or does not exist.
-	 * @param tokenJsonResource
-	 *            the resource path to the file containing the json file, e.g. "/token.json"
-	 * @return the builder object.
 	 */
 	public JwtGenerator fromFile(String tokenJsonResource) throws IOException {
 		String tokenJson = IOUtils.resourceToString(tokenJsonResource, StandardCharsets.UTF_8);
 		JSONObject jsonObject = createJsonObject(tokenJson);
-		copyJsonProperties(jsonObject.optJSONObject("payload"), jsonPayload);
-		copyJsonProperties(jsonObject.optJSONObject("header"), jsonHeader);
+		copyJsonProperties(filterPayload(jsonObject.optJSONObject("payload")), jsonPayload);
+		copyJsonProperties(filterHeader(jsonObject.optJSONObject("header")), jsonHeader);
 		return this;
 	}
 
-	private void assertClaimIsSupported(String claimName) {
-		if (unsupportedClaims.contains(claimName)) {
-			throw new UnsupportedOperationException("generic method for claim " + claimName + " is not supported");
-		}
+	private JSONObject filterPayload(JSONObject payload) {
+		payload.remove(TokenClaims.EXPIRATION);
+		payload.remove(TokenClaims.AUDIENCE);
+		payload.remove(TokenClaims.ISSUER);
+		return payload;
+	}
+
+	private JSONObject filterHeader(JSONObject header) {
+		header.remove(TokenHeader.JWKS_URL);
+		header.remove(TokenHeader.KEY_ID);
+		return header;
 	}
 
 	/**
