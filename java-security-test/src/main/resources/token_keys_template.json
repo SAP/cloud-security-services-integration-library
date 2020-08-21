@@ -8,6 +8,15 @@
       "alg": "RS256",
       "value": "$public_key",
       "n": "$modulus"
+    },
+    {
+      "kty": "RSA",
+      "e": "AQAB",
+      "use": "sig",
+      "kid": "legacy-token-key",
+      "alg": "RS256",
+      "value": "$public_key",
+      "n": "$modulus"
     }
   ]
 }
