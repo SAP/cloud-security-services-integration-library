@@ -11,9 +11,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.VERIFICATION_KEY;
 
@@ -62,11 +62,7 @@ public class VcapServicesParser {
 	 */
 	public static VcapServicesParser fromFile(String configurationResourceName) {
 		String vcapServicesJson = read(configurationResourceName);
-		List<OAuth2ServiceConfiguration> configurations = findConfigurationsForService(Service.XSUAA, vcapServicesJson);
-		if (configurations.size() > 1) {
-			LOGGER.warn("More than one binding found for service '{}'. Taking first one!", Service.XSUAA);
-		}
-		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = configurations.get(0);
+		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = findConfiguration(vcapServicesJson);
 		return new VcapServicesParser(oAuth2ServiceConfiguration);
 	}
 
@@ -123,22 +119,27 @@ public class VcapServicesParser {
 	 * Uses {@link CFEnvParser} to create an {@link OAuth2ServiceConfiguration}
 	 * object from the given json.
 	 *
-	 * @param service
-	 *            the expected service.
+	 * Multiple bindings are not supported! If VCAP_SERVICES contains more than one
+	 * binding, the first one is used!
+	 *
 	 * @param vcapServicesJson
 	 *            the json string of the service bindings.
-	 * @return the extracted configuration(s)
+	 * @return the extracted configuration
 	 */
-	private static List<OAuth2ServiceConfiguration> findConfigurationsForService(Service service,
-			String vcapServicesJson) {
+	private static OAuth2ServiceConfiguration findConfiguration(String vcapServicesJson) {
 		Map<Service, List<OAuth2ServiceConfiguration>> serviceToConfigurations = CFEnvParser
 				.loadAll(vcapServicesJson, "{}");
 		List<OAuth2ServiceConfiguration> oAuth2ServiceConfigurations = serviceToConfigurations
-				.getOrDefault(service, Collections.emptyList());
+				.values()
+				.stream()
+				.flatMap(configurations -> configurations.stream())
+				.collect(Collectors.toList());
 		if (oAuth2ServiceConfigurations.isEmpty()) {
 			throw new JsonParsingException("No supported binding found in VCAP_SERVICES!");
+		} else if (oAuth2ServiceConfigurations.size() > 1) {
+			LOGGER.warn("More than one binding found. Taking first one!");
 		}
-		return oAuth2ServiceConfigurations;
+		return oAuth2ServiceConfigurations.get(0);
 	}
 
 	/**
