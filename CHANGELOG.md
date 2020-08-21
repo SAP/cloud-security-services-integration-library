@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.7.7-SNAPSHOT
+
 ## 2.7.6
 - Fixes `ClientCredentialsTokenFlow.scopes()` and `UserTokenFlow.scopes()` to support multiple scopes. The scope form parameter has to provide a space-delimited list (and not comma-delimited list).
 - [java-security] Improve compatibility of `SAPOfflineTokenServicesCloud`
