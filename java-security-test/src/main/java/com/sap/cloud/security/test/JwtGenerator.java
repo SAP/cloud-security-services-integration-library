@@ -35,7 +35,6 @@ public class JwtGenerator {
 
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
-	private final Set<String> unsupportedClaims = Arrays.asList(AUDIENCE).stream().collect(Collectors.toSet());
 
 	private SignatureCalculator signatureCalculator;
 	private Service service;
@@ -174,19 +173,18 @@ public class JwtGenerator {
 	 *    }
 	 * </pre>
 	 *
-	 * The payload and header data from the file will be written into the token
-	 * that is being generated. Note that some properties from the
-	 * file are ignored. This is for convenience so that the token
-	 * can be verified in a test setup rather then its original
-	 * production setup.
-	 * The following header and payload properties are ignored:
+	 * The payload and header data from the file will be written into the token that
+	 * is being generated. Note that some properties from the file are ignored. This
+	 * is for convenience so that the token can be verified in a test setup rather
+	 * then its original production setup. The following header and payload
+	 * properties are ignored:
 	 * <ul>
-	 *     <li>Header: jku, kid</li>
-	 *     <li>Payload: exp, aud, iss</li>
+	 * <li>Header: jku, kid</li>
+	 * <li>Payload: exp, aud, iss</li>
 	 * </ul>
 	 *
-	 * If you want to override those fields you need to do so manually
-	 * after this method has been called!
+	 * If you want to override those fields you need to do so manually after this
+	 * method has been called!
 	 *
 	 * @param tokenJsonResource
 	 *            the resource path to the file containing the json file, e.g.

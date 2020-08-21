@@ -304,18 +304,20 @@ public class JwtGeneratorTest {
 
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(DEFAULT_KEY_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
-		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid", "app1.scope");
+		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid",
+				"app1.scope");
 	}
 
 	@Test
 	public void fromFile_fileDoesNotExist_throwsException() {
 		assertThatThrownBy(() -> cut.fromFile("/doesNotExist.json"))
-			.isInstanceOf(IOException.class);
+				.isInstanceOf(IOException.class);
 	}
+
 	@Test
 	public void fromFile_fileMalformed_throwsException() {
 		assertThatThrownBy(() -> cut.fromFile("/publicKey.txt"))
-			.isInstanceOf(JsonParsingException.class);
+				.isInstanceOf(JsonParsingException.class);
 	}
 
 	@Test
