@@ -212,9 +212,10 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void withSignatureAlgorithm_notSupported_throwsUnsupportedOperationException() {
-		assertThatThrownBy(() -> cut.withClaimValues(TokenClaims.AUDIENCE, "app2", "app3"))
-				.isInstanceOf(UnsupportedOperationException.class);
+	public void withClaimValuesAudience_isOverridden() {
+		Token token = cut.withClaimValues(TokenClaims.AUDIENCE, "app2", "app3").createToken();
+
+		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactlyInAnyOrder("app2", "app3");
 	}
 
 	@Test

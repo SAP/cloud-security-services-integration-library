@@ -1,15 +1,9 @@
 package com.sap.cloud.security.test;
 
-import static com.sap.cloud.security.token.TokenClaims.AUDIENCE;
-import static com.sap.cloud.security.token.TokenHeader.*;
-
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
-import com.sap.cloud.security.token.SapIdToken;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
@@ -25,6 +19,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.sap.cloud.security.token.TokenHeader.*;
 
 /**
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
@@ -102,7 +98,6 @@ public class JwtGenerator {
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaimValue(String claimName, String value) {
-		assertClaimIsSupported(claimName);
 		jsonPayload.put(claimName, value);
 		return this;
 	}
@@ -119,7 +114,6 @@ public class JwtGenerator {
 	 *             if the given object does not contain valid json.
 	 */
 	public JwtGenerator withClaimValue(String claimName, JsonObject object) {
-		assertClaimIsSupported(claimName);
 		try {
 			jsonPayload.put(claimName, new JSONObject(object.asJsonString()));
 		} catch (JSONException e) {
@@ -138,7 +132,6 @@ public class JwtGenerator {
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaimValues(String claimName, String... values) {
-		assertClaimIsSupported(claimName);
 		jsonPayload.put(claimName, values);
 		return this;
 	}
@@ -323,9 +316,9 @@ public class JwtGenerator {
 		if (privateKey == null) {
 			throw new IllegalStateException("Private key was not set!");
 		}
-
-		createAudienceClaim();
-
+		if (!jsonPayload.has(TokenClaims.AUDIENCE)) {
+			createAudienceClaim();
+		}
 		switch (service) {
 		case IAS:
 			return new SapIdToken(createTokenAsString());
@@ -361,9 +354,9 @@ public class JwtGenerator {
 
 	private void createAudienceClaim() {
 		if (service == Service.IAS) {
-			jsonPayload.put(AUDIENCE, jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID));
+			jsonPayload.put(TokenClaims.AUDIENCE, jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID));
 		} else {
-			jsonPayload.put(AUDIENCE, Arrays.asList(jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID)));
+			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID)));
 		}
 	}
 
