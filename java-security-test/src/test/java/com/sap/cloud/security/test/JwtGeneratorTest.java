@@ -299,13 +299,22 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void fromFile_loadsJson() throws IOException {
+	public void fromFile_loadsJsonAndSetsDefaults() throws IOException {
 		Token token = cut.fromFile("/token.json").createToken();
 
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(DEFAULT_KEY_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid",
 				"app1.scope");
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID);
+	}
+
+	@Test
+	public void fromFile_clientTokens_setsSubject() throws IOException {
+		Token token = cut.fromFile("/client_token.json").createToken();
+
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID);
+		assertThat(token.getClaimAsString(TokenClaims.SUBJECT)).isEqualTo(DEFAULT_CLIENT_ID);
 	}
 
 	@Test

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -42,6 +43,7 @@ public class JwtGenerator {
 	private JwtSignatureAlgorithm signatureAlgorithm;
 	private PrivateKey privateKey;
 	private String appId; // this is specific to XSUAA service
+	private String clientId;
 	private List<String> scopes = new ArrayList<>();
 	private List<String> localScopes = new ArrayList<>();
 
@@ -59,6 +61,7 @@ public class JwtGenerator {
 		instance.service = service;
 		instance.signatureCalculator = signatureCalculator;
 		instance.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
+		instance.clientId = clientId;
 		setTokenDefaults(clientId, instance);
 		return instance;
 	}
@@ -200,20 +203,10 @@ public class JwtGenerator {
 		JSONObject jsonObject = createJsonObject(tokenJson);
 		copyJsonProperties(filterPayload(jsonObject.optJSONObject("payload")), jsonPayload);
 		copyJsonProperties(filterHeader(jsonObject.optJSONObject("header")), jsonHeader);
+		if (GrantType.CLIENT_CREDENTIALS == getGrantType()) {
+			withClaimValue(TokenClaims.SUBJECT, clientId);
+		}
 		return this;
-	}
-
-	private JSONObject filterPayload(JSONObject payload) {
-		payload.remove(TokenClaims.EXPIRATION);
-		payload.remove(TokenClaims.AUDIENCE);
-		payload.remove(TokenClaims.ISSUER);
-		return payload;
-	}
-
-	private JSONObject filterHeader(JSONObject header) {
-		header.remove(TokenHeader.JWKS_URL);
-		header.remove(TokenHeader.KEY_ID);
-		return header;
 	}
 
 	/**
@@ -346,6 +339,24 @@ public class JwtGenerator {
 		default:
 			throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
 		}
+	}
+
+	@Nullable
+	private GrantType getGrantType() {
+		return GrantType.from(jsonPayload.optString(TokenClaims.XSUAA.GRANT_TYPE));
+	}
+
+	private JSONObject filterPayload(JSONObject payload) {
+		payload.remove(TokenClaims.EXPIRATION);
+		payload.remove(TokenClaims.AUDIENCE);
+		payload.remove(TokenClaims.ISSUER);
+		return payload;
+	}
+
+	private JSONObject filterHeader(JSONObject header) {
+		header.remove(TokenHeader.JWKS_URL);
+		header.remove(TokenHeader.KEY_ID);
+		return header;
 	}
 
 	private void copyJsonProperties(JSONObject source, JSONObject target) {
