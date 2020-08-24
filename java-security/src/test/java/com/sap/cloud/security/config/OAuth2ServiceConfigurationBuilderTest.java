@@ -128,7 +128,8 @@ public class OAuth2ServiceConfigurationBuilderTest {
 				.withProperty("testing-key", "base-value")
 				.build();
 
-		OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.fromConfiguration(baseConfiguration);
+		OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder
+				.fromConfiguration(baseConfiguration);
 		OAuth2ServiceConfiguration configuration = builder.build();
 
 		assertThat(configuration.getClientId()).isEqualTo("base-client-id");

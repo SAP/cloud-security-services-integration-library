@@ -21,7 +21,6 @@ public class IasIntegrationTest {
 	public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.IAS)
 			.setKeys("/publicKey.txt", "/privateKey.txt");
 
-
 	@Test
 	public void iasTokenValidationSucceeds_withIasCombiningValidator() throws IOException {
 		OAuth2ServiceConfiguration configuration = VcapServicesParser
@@ -36,7 +35,5 @@ public class IasIntegrationTest {
 		ValidationResult result = tokenValidator.validate(iasToken);
 		assertThat(result.isValid()).isTrue();
 	}
-
-
 
 }

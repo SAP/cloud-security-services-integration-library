@@ -72,7 +72,7 @@ class VcapServicesParserTest {
 	}
 
 	@Test
-	void runInLegacyMode_setsLegacyModeInConfiguration()  {
+	void runInLegacyMode_setsLegacyModeInConfiguration() {
 		OAuth2ServiceConfiguration configuration = cut.createConfiguration();
 		assertThat(configuration.isLegacyMode()).isFalse();
 
@@ -84,7 +84,7 @@ class VcapServicesParserTest {
 	}
 
 	@Test
-	void withUrl_setsUrlInConfiguration()  {
+	void withUrl_setsUrlInConfiguration() {
 		URI testUri = URI.create("http://test.localhost.test");
 		OAuth2ServiceConfiguration configuration = cut.withUrl(testUri.toString()).createConfiguration();
 		assertThat(configuration.getUrl()).isEqualTo(testUri);

@@ -57,7 +57,8 @@ class CFEnvParser {
 				.collect(Collectors.toList());
 	}
 
-	static OAuth2ServiceConfiguration loadForService(Service service, JsonObject serviceJsonObject, boolean isLegacyMode) {
+	static OAuth2ServiceConfiguration loadForService(Service service, JsonObject serviceJsonObject,
+			boolean isLegacyMode) {
 		Map<String, String> serviceBindingProperties = serviceJsonObject.getKeyValueMap();
 		try {
 			Map<String, String> serviceBindingCredentials = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS)
