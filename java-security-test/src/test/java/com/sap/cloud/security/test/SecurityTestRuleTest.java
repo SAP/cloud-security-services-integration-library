@@ -62,7 +62,7 @@ public class SecurityTestRuleTest {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
 
 			List<JsonObject> tokenKeys = new DefaultJsonObject(readContent(response)).getJsonObjects("keys");
-			assertThat(tokenKeys).hasSize(1);
+			assertThat(tokenKeys).hasSize(2);
 			String publicKeyFromTokenKeys = tokenKeys.get(0).getAsString("value");
 			assertThat(publicKeyFromTokenKeys).isEqualTo(expEncodedKey);
 			assertThat(publicKeyFromTokenKeys)
