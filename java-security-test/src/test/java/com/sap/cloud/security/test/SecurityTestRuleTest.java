@@ -106,6 +106,13 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
+	public void getPreconfiguredJwtGenerator_tokenHasCorrectIssuer() {
+		Token token = cut.getPreconfiguredJwtGenerator().createToken();
+
+		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(cut.base.wireMockServer.baseUrl());
+	}
+
+	@Test
 	public void servletFilterServesTestServlet() throws IOException {
 		HttpGet httpGet = new HttpGet(cut.getApplicationServerUri() + "/hi");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
@@ -114,8 +121,7 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
-	public void setKeys_invalidPath_throwsException()
-			throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
+	public void setKeys_invalidPath_throwsException() {
 		assertThatThrownBy(() -> SecurityTestRule.getInstance(XSUAA)
 				.setKeys("doesNotExist", "doesNotExist"))
 						.isInstanceOf(RuntimeException.class);

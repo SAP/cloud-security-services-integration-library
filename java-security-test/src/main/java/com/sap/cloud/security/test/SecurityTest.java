@@ -34,7 +34,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
@@ -197,11 +196,8 @@ public class SecurityTest {
 					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
 					.withAppId(DEFAULT_APP_ID)
 					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
-			break;
-		default:
-			jwtGenerator.withClaimValue(TokenClaims.ISSUER, wireMockServer.baseUrl());
-			break;
 		}
+		jwtGenerator.withClaimValue(TokenClaims.ISSUER, wireMockServer.baseUrl());
 		return jwtGenerator;
 	}
 
