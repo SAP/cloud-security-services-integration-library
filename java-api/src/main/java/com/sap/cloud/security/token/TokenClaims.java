@@ -20,6 +20,7 @@ public final class TokenClaims {
 	public static final String EMAIL = "email";
 	public static final String SAP_GLOBAL_USER_ID = "user_uuid";
 	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // tenant GUID
+	public static final String GROUPS = "groups"; // scim groups
 
 	public final class XSUAA {
 
