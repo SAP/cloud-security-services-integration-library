@@ -62,6 +62,7 @@ public class SecurityTest {
 
 	protected String clientId = DEFAULT_CLIENT_ID;
 	protected String jwksUrl;
+	private String issuerUrl;
 
 	public SecurityTest(Service service) {
 		this.service = service;
@@ -188,8 +189,10 @@ public class SecurityTest {
 	 * @return the preconfigured Jwt token generator
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
-		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service, clientId)
-				.withPrivateKey(keys.getPrivate());
+		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service, clientId).withPrivateKey(keys.getPrivate());
+		if (jwksUrl == null|| issuerUrl == null) {
+			LOGGER.warn("Method getPreconfiguredJwtGenerator was called too soon. Cannot set mock jwks/issuer url!");
+		}
 		switch (service) {
 		case XSUAA:
 			jwtGenerator
@@ -197,8 +200,7 @@ public class SecurityTest {
 					.withAppId(DEFAULT_APP_ID)
 					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
 		}
-		jwtGenerator.withClaimValue(TokenClaims.ISSUER, wireMockServer.baseUrl());
-		return jwtGenerator;
+		return jwtGenerator.withClaimValue(TokenClaims.ISSUER, issuerUrl);
 	}
 
 	/**
@@ -320,6 +322,7 @@ public class SecurityTest {
 		wireMockServer.stubFor(get(urlEqualTo(DISCOVERY_ENDPOINT_DEFAULT))
 				.willReturn(aResponse().withBody(createDefaultOidcConfigurationResponse())));
 		jwksUrl = endpointsProvider.getJwksUri().toString();
+		issuerUrl = wireMockServer.baseUrl();
 	}
 
 	/**
