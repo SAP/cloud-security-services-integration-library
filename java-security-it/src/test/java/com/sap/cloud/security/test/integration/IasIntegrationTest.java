@@ -38,25 +38,5 @@ public class IasIntegrationTest {
 	}
 
 
-	@Test
-	public void xsuaaTokenValidationFails_withIasCombiningValidator() throws IOException {
-		OAuth2ServiceConfiguration configuration = VcapServicesParser
-				.fromFile("/ias/vcapServices/serviceSingleBinding.json")
-				.withUrl("https://myauth.com")
-				.createConfiguration();
 
-		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
-				.build();
-
-		Token token = SecurityTestRule.getInstance(Service.XSUAA).getPreconfiguredJwtGenerator()
-				.fromFile("/xsuaa/tokens/userAccessTokenRSA256.json")
-				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, "T000310")
-				.withClaimValue(TokenClaims.ISSUER, "http://auth.com")
-				.createToken();
-
-		ValidationResult result = tokenValidator.validate(token);
-		assertThat(result.isValid()).isFalse();
-		assertThat(result.getErrorDescription()).startsWith(
-				"Issuer is not trusted because 'iss' 'http://auth.com' does not match host 'myauth.com' of the identity provider");
-	}
 }
