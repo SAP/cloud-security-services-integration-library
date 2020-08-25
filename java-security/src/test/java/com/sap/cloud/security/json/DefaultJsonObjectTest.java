@@ -80,6 +80,26 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
+	public void getAsStringList_keyDoesExistButNoList_returnsList() {
+		assertThat(cut.getAsString(KEY_1)).isEqualTo(STRING_TEXT);
+
+		assertThat(cut.getAsStringList(KEY_1)).contains(STRING_TEXT);
+		assertThat(cut.getAsStringList(KEY_1)).size().isEqualTo(1);
+
+		assertThat(cut.getAsStringList(KEY_1)).size().isEqualTo(1);
+	}
+
+	@Test
+	public void getAsStringList_keyExists_returnsList() {
+		cut = createJsonParser(KEY_2, STRING_LIST_VALUE);
+
+		List<String> list = cut.getAsStringList(KEY_2);
+
+		assertThat(list).hasSize(3);
+		assertThat(list).first().isEqualTo("a");
+	}
+
+	@Test
 	public void getAsListOfStrings_keyDoesNotExist_returnsEmptyList() {
 		assertThat(cut.getAsList("keyDoesNotExist", String.class)).isEmpty();
 	}
