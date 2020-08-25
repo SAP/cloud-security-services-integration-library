@@ -54,7 +54,7 @@ public class DefaultJsonObject implements JsonObject {
 			if (getJsonObject().get(name) instanceof String) {
 				list.add(getAsString(name));
 			} else {
-				list = getJSONArray(name).map(jsonArray -> castToListOfType(jsonArray, String.class)).orElse(Collections.emptyList());
+				list = getAsList(name, String.class);
 			}
 		}
 		return list;
