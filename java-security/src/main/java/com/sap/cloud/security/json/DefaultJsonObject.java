@@ -48,6 +48,19 @@ public class DefaultJsonObject implements JsonObject {
 	}
 
 	@Override
+	public List<String> getAsStringList(String name) {
+		List<String> list = new ArrayList<>();
+		if(contains(name)) {
+			if (getJsonObject().get(name) instanceof String) {
+				list.add(getAsString(name));
+			} else {
+				list = getJSONArray(name).map(jsonArray -> castToListOfType(jsonArray, String.class)).orElse(Collections.emptyList());
+			}
+		}
+		return list;
+	}
+
+	@Override
 	@Nullable
 	public String getAsString(String name) {
 		if (contains(name)) {
