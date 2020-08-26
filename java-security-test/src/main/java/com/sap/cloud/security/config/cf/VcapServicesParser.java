@@ -106,6 +106,10 @@ public class VcapServicesParser {
 		return oAuth2ServiceConfigurationBuilder.build();
 	}
 
+	/**
+	 * Returns the configuration builder that contains the loaded data.
+	 * @return the {@link OAuth2ServiceConfigurationBuilder} instance
+	 */
 	public OAuth2ServiceConfigurationBuilder getConfigurationBuilder() {
 		return oAuth2ServiceConfigurationBuilder;
 	}

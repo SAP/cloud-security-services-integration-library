@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.VcapServicesParser;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.jetty.JettyTokenAuthenticator;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
@@ -205,6 +206,18 @@ public class SecurityTest {
 		return jwtGenerator.withClaimValue(TokenClaims.ISSUER, issuerUrl);
 	}
 
+	/**
+	 * This method creates an JwtGenerator that uses {@link JwtGenerator#getInstanceFromFile(Service, String)}
+	 * to provide a {@link JwtGenerator} prefilled data contained in the {@code tokenJsonResource}
+	 * file. Some properties are overridden so that the generated tokens can be validated in unit tests
+	 * using {@link SecurityTest}.
+	 *
+	 * @param tokenJsonResource the resource path to the file containing the json file, see {@link JwtGenerator#getInstanceFromFile(Service, String)}
+	 * @return a new {@link JwtGenerator} instance
+	 * @throws JsonParsingException
+	 *             if the file contains invalid data
+	 * @throws IOException if the given {@code tokenJsonResource} file cannot be read
+	 */
 	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) throws IOException {
 		return JwtGenerator.getInstanceFromFile(service, tokenJsonResource)
 				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
@@ -212,8 +225,21 @@ public class SecurityTest {
 				.withPrivateKey(keys.getPrivate());
 	}
 
+	/**
+	 * Creates a {@link OAuth2ServiceConfigurationBuilder} prefilled with the data
+	 * from the classpath resource given by {@code configurationResourceName}.
+	 *
+	 * @param configurationResourceName
+	 *            the name of classpath resource that contains the configuration
+	 *            json
+	 * @return a new {@link OAuth2ServiceConfigurationBuilder} instance
+	 * @throws JsonParsingException
+	 *             if the resource cannot be read or contains invalid data.
+	 */
 	public OAuth2ServiceConfigurationBuilder getConfigurationBuilderFromFile(String configurationResourceName) {
-		return VcapServicesParser.fromFile(configurationResourceName).getConfigurationBuilder();
+		return VcapServicesParser.fromFile(configurationResourceName)
+				.getConfigurationBuilder()
+				.withUrl(issuerUrl);
 	}
 
 	/**
