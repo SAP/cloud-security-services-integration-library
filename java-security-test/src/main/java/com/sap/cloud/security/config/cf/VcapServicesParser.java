@@ -82,22 +82,6 @@ public class VcapServicesParser {
 	}
 
 	/**
-	 * See {@link OAuth2ServiceConfigurationBuilder#runInLegacyMode(boolean)}
-	 */
-	public VcapServicesParser runInLegacyMode(boolean legacyMode) {
-		oAuth2ServiceConfigurationBuilder.runInLegacyMode(legacyMode);
-		return this;
-	}
-
-	/**
-	 * See {@link OAuth2ServiceConfigurationBuilder#withUrl(String)}
-	 */
-	public VcapServicesParser withUrl(String url) {
-		oAuth2ServiceConfigurationBuilder.withUrl(url);
-		return this;
-	}
-
-	/**
 	 * Creates the {@link OAuth2ServiceConfiguration} object from the loaded data.
 	 *
 	 * @return the configuration.
