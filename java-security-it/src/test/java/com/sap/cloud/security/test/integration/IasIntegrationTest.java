@@ -2,7 +2,6 @@ package com.sap.cloud.security.test.integration;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.VcapServicesParser;
 import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.token.validation.CombiningValidator;
@@ -23,12 +22,11 @@ public class IasIntegrationTest {
 
 	@Test
 	public void iasTokenValidationSucceeds_withIasCombiningValidator() throws IOException {
-		OAuth2ServiceConfiguration configuration = VcapServicesParser
-				.fromFile("/ias/vcapServices/serviceSingleBinding.json")
-				.createConfiguration();
+		OAuth2ServiceConfiguration configuration = rule
+				.getConfigurationBuilderFromFile("/ias/vcapServices/serviceSingleBinding.json")
+				.build();
 
-		Token iasToken = rule.getPreconfiguredJwtGenerator()
-				.fromFile("/ias/tokens/oidcTokenRSA256.json")
+		Token iasToken = rule.getJwtGeneratorFromFile("/ias/tokens/oidcTokenRSA256.json")
 				.createToken();
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 
