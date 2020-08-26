@@ -2,6 +2,7 @@ package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -10,6 +11,7 @@ import org.junit.rules.ExternalResource;
 import javax.annotation.Nullable;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
+import java.io.IOException;
 
 public class SecurityTestRule extends ExternalResource {
 
@@ -157,6 +159,14 @@ public class SecurityTestRule extends ExternalResource {
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		return base.getPreconfiguredJwtGenerator();
+	}
+
+	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) throws IOException {
+		return base.getJwtGeneratorFromFile(tokenJsonResource);
+	}
+
+	public OAuth2ServiceConfigurationBuilder getConfigurationBuilderFromFile(String tokenJsonResource) {
+		return base.getConfigurationBuilderFromFile(tokenJsonResource);
 	}
 
 	/**

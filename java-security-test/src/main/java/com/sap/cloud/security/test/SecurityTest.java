@@ -1,7 +1,9 @@
 package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.VcapServicesParser;
 import com.sap.cloud.security.test.jetty.JettyTokenAuthenticator;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
@@ -201,6 +203,17 @@ public class SecurityTest {
 					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
 		}
 		return jwtGenerator.withClaimValue(TokenClaims.ISSUER, issuerUrl);
+	}
+
+	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) throws IOException {
+		return JwtGenerator.getInstanceFromFile(service, tokenJsonResource)
+				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+				.withClaimValue(TokenClaims.ISSUER, issuerUrl)
+				.withPrivateKey(keys.getPrivate());
+	}
+
+	public OAuth2ServiceConfigurationBuilder getConfigurationBuilderFromFile(String configurationResourceName) {
+		return VcapServicesParser.fromFile(configurationResourceName).getConfigurationBuilder();
 	}
 
 	/**
