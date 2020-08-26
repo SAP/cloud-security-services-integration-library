@@ -300,63 +300,62 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void fromFile_loadsJsonAndSetsDefaults() throws IOException {
-		Token token = cut.fromFile("/token.json").createToken();
+		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token.json")
+				.withPrivateKey(keys.getPrivate())
+				.createToken();
 
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(DEFAULT_KEY_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid",
 				"app1.scope");
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID);
-	}
-
-	@Test
-	public void fromFile_clientTokens_setsSubject() throws IOException {
-		Token token = cut.fromFile("/token_client.json").createToken();
-
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID);
-		assertThat(token.getClaimAsString(TokenClaims.SUBJECT)).isEqualTo(DEFAULT_CLIENT_ID);
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("clientId");
 	}
 
 	@Test
 	public void fromFile_noHeader_noErrorAndReadsPayload() throws IOException {
-		Token token = cut.fromFile("/token_no_header.json").createToken();
+		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token_no_header.json")
+				.withPrivateKey(keys.getPrivate())
+				.createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
 	}
 
 	@Test
-	public void fromFile_fileDoesNotExist_throwsException() {
-		assertThatThrownBy(() -> cut.fromFile("/doesNotExist.json"))
+	public void getInstanceFromFile_fileDoesNotExist_throwsException() {
+		assertThatThrownBy(() -> JwtGenerator.getInstanceFromFile(XSUAA,"/doesNotExist.json"))
 				.isInstanceOf(IOException.class);
 	}
 
 	@Test
 	public void fromFile_fileMalformed_throwsException() {
-		assertThatThrownBy(() -> cut.fromFile("/publicKey.txt"))
+		assertThatThrownBy(() -> JwtGenerator.getInstanceFromFile(XSUAA,"/publicKey.txt"))
 				.isInstanceOf(JsonParsingException.class);
 	}
 
 	@Test
 	public void createToken_signatureCalculation_NoSuchAlgorithmExceptionTurnedIntoRuntimeException() {
-		cut = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
+		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new NoSuchAlgorithmException();
-		}, "sb-client!1234").withPrivateKey(keys.getPrivate());
+		}, DEFAULT_CLIENT_ID);
+		cut = instance.withPrivateKey(keys.getPrivate());
 		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
 	public void createToken_signatureCalculation_SignatureExceptionTurnedIntoRuntimeException() {
-		cut = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
+		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new SignatureException();
-		}, "sb-client!1234").withPrivateKey(keys.getPrivate());
+		}, DEFAULT_CLIENT_ID);
+		cut = instance.withPrivateKey(keys.getPrivate());
 		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
 	public void createToken_signatureCalculation_InvalidKeyExceptionTurnedIntoRuntimeException() {
-		cut = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
+		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new InvalidKeyException();
-		}, "sb-client!1234").withPrivateKey(keys.getPrivate());
+		}, DEFAULT_CLIENT_ID);
+		cut = instance.withPrivateKey(keys.getPrivate());
 		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
 	}
 

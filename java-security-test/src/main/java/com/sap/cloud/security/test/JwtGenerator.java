@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -43,36 +42,110 @@ public class JwtGenerator {
 	private JwtSignatureAlgorithm signatureAlgorithm;
 	private PrivateKey privateKey;
 	private String appId; // this is specific to XSUAA service
-	private String clientId;
 	private List<String> scopes = new ArrayList<>();
 	private List<String> localScopes = new ArrayList<>();
 
-	private JwtGenerator() {
-		// see factory method getInstance()
+	private JwtGenerator(Service service, SignatureCalculator signatureCalculator) {
+		this.service = service;
+		this.signatureCalculator = signatureCalculator;
+		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256; //TODO is fixed
 	}
 
+	/**
+	 * This factory method creates an {@link JwtGenerator} instance that can be used
+	 * to create tokens for testing purposes. The tokens is prefilled with data so that
+	 * it can be validated successfully.
+	 *
+	 * @param service the {@link Service} for which the token should be generated
+	 * @param clientId the client id of the token.
+	 * @return a new {@link JwtGenerator} instance.
+	 */
 	public static JwtGenerator getInstance(Service service, String clientId) {
-		return getInstance(service, JwtGenerator::calculateSignature, clientId);
-	}
-
-	// for testing
-	static JwtGenerator getInstance(Service service, SignatureCalculator signatureCalculator, String clientId) {
-		JwtGenerator instance = new JwtGenerator();
-		instance.service = service;
-		instance.signatureCalculator = signatureCalculator;
-		instance.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
-		instance.clientId = clientId;
-		setTokenDefaults(clientId, instance);
+		JwtGenerator instance = new JwtGenerator(service, JwtGenerator::calculateSignature);
+		instance.setTokenDefaults(clientId);
 		return instance;
 	}
 
-	private static void setTokenDefaults(String clientId, JwtGenerator instance) {
-		instance.withHeaderParameter(ALGORITHM, instance.signatureAlgorithm.value());
-		instance.withHeaderParameter(KEY_ID, DEFAULT_KEY_ID);
-		instance.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId);
-		instance.withExpiration(NO_EXPIRE_DATE);
-		if (instance.service == Service.XSUAA) {
-			instance.withHeaderParameter(JWKS_URL, DEFAULT_JWKS_URL);
+	/**
+	 * This factory method creates an {@link JwtGenerator} instance that is prefilled
+	 * with the data provided by the resource {@code tokenJsonResource}.
+	 * This resource file contains data for the token payload and
+	 * header. The file is expected to be in the following JSON format:
+	 *
+	 * <pre>
+	 * 	"header": {
+	 * 		"alg": "RS256",
+	 * 		"kid": "kid-custom"
+	 *        },
+	 * 	"payload": {
+	 * 		"zid" : "zone-id",
+	 * 		"scope": [
+	 * 			"openid",
+	 * 			"app1.scope"
+	 * 		]
+	 *    }
+	 * </pre>
+	 *
+	 * The payload and header data from the file will be written into the token that
+	 * is being generated. Note that some properties from the file are overridden. This
+	 * is for convenience so that the token can be verified in a test setup rather
+	 * then its original production setup. The following header and payload
+	 * properties are overridden:
+	 * <ul>
+	 * <li>Header: jku, kid</li>
+	 * <li>Payload: exp, iss</li>
+	 * </ul>
+	 *
+	 * If you want to override those fields you need to do so manually with the
+	 * respective methods from the {@link JwtGenerator} instance.
+	 *
+	 * @param tokenJsonResource
+	 *            the resource path to the file containing the json file, e.g.
+	 *            "/token.json"
+	 * @return a new {@link JwtGenerator} instance.
+	 * @throws JsonParsingException
+	 *             if the file does not contain a valid json object
+	 * @throws IOException
+	 * 			   if the given file cannot be read
+	 */
+	public static JwtGenerator getInstanceFromFile(Service service, String tokenJsonResource) throws IOException {
+		JwtGenerator instance = new JwtGenerator(service, JwtGenerator::calculateSignature);
+		instance.fromFile(tokenJsonResource);
+		instance.overrideTokenDefaults();
+		return instance;
+	}
+
+	// used for testing
+	static JwtGenerator getInstance(Service service, SignatureCalculator signatureCalculator, String clientId) {
+		JwtGenerator instance = new JwtGenerator(service, signatureCalculator);
+		instance.setTokenDefaults(clientId);
+		return instance;
+	}
+
+	private JwtGenerator fromFile(String tokenJsonResource) throws IOException  {
+		String tokenJson = IOUtils.resourceToString(tokenJsonResource, StandardCharsets.UTF_8);
+		JSONObject jsonObject = createJsonObject(tokenJson);
+		copyJsonProperties(filterPayload(jsonObject.optJSONObject("payload")), jsonPayload);
+		copyJsonProperties(filterHeader(jsonObject.optJSONObject("header")), jsonHeader);
+		return this;
+	}
+
+	private void setTokenDefaults(String clientId) {
+		overrideTokenDefaults();
+		withHeaderParameter(ALGORITHM, signatureAlgorithm.value());
+		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId);
+		if (service == Service.IAS) {
+			jsonPayload.put(TokenClaims.AUDIENCE, jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID));
+		} else {
+			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID)));
+		}
+	}
+
+	private void overrideTokenDefaults() {
+		withHeaderParameter(KEY_ID, DEFAULT_KEY_ID); // TODO IAS has its own key id
+		withExpiration(NO_EXPIRE_DATE);
+		if (service == Service.XSUAA) {
+			withHeaderParameter(JWKS_URL, DEFAULT_JWKS_URL); // TODO can be removed?
 		}
 	}
 
@@ -155,57 +228,6 @@ public class JwtGenerator {
 		String claimsJson = IOUtils.resourceToString(claimsJsonResource, StandardCharsets.UTF_8);
 		JSONObject jsonObject = createJsonObject(claimsJson);
 		copyJsonProperties(jsonObject, jsonPayload);
-		return this;
-	}
-
-	/**
-	 * This method expects a JSON file that contains data for the token payload and
-	 * header. The file is expected to be in the following format:
-	 * 
-	 * <pre>
-	 * 	"header": {
-	 * 		"alg": "RS256",
-	 * 		"kid": "kid-custom"
-	 *        },
-	 * 	"payload": {
-	 * 		"zid" : "zone-id",
-	 * 		"scope": [
-	 * 			"openid",
-	 * 			"app1.scope"
-	 * 		]
-	 *    }
-	 * </pre>
-	 *
-	 * The payload and header data from the file will be written into the token that
-	 * is being generated. Note that some properties from the file are ignored. This
-	 * is for convenience so that the token can be verified in a test setup rather
-	 * then its original production setup. The following header and payload
-	 * properties are ignored:
-	 * <ul>
-	 * <li>Header: jku, kid</li>
-	 * <li>Payload: exp, aud, iss</li>
-	 * </ul>
-	 *
-	 * If you want to override those fields you need to do so manually after this
-	 * method has been called!
-	 *
-	 * @param tokenJsonResource
-	 *            the resource path to the file containing the json file, e.g.
-	 *            "/token.json"
-	 * @return the builder object.
-	 * @throws JsonParsingException
-	 *             if the file does not contain a valid json object
-	 * @throws IOException
-	 *             when the file cannot be read or does not exist.
-	 */
-	public JwtGenerator fromFile(String tokenJsonResource) throws IOException {
-		String tokenJson = IOUtils.resourceToString(tokenJsonResource, StandardCharsets.UTF_8);
-		JSONObject jsonObject = createJsonObject(tokenJson);
-		copyJsonProperties(filterPayload(jsonObject.optJSONObject("payload")), jsonPayload);
-		copyJsonProperties(filterHeader(jsonObject.optJSONObject("header")), jsonHeader);
-		if (GrantType.CLIENT_CREDENTIALS == getGrantType()) {
-			withClaimValue(TokenClaims.SUBJECT, clientId);
-		}
 		return this;
 	}
 
@@ -328,9 +350,6 @@ public class JwtGenerator {
 		if (privateKey == null) {
 			throw new IllegalStateException("Private key was not set!");
 		}
-		if (!jsonPayload.has(TokenClaims.AUDIENCE)) {
-			createAudienceClaim();
-		}
 		switch (service) {
 		case IAS:
 			return new SapIdToken(createTokenAsString());
@@ -341,15 +360,9 @@ public class JwtGenerator {
 		}
 	}
 
-	@Nullable
-	private GrantType getGrantType() {
-		return GrantType.from(jsonPayload.optString(TokenClaims.XSUAA.GRANT_TYPE));
-	}
-
 	private JSONObject filterPayload(JSONObject payload) {
 		if (payload != null) {
 			payload.remove(TokenClaims.EXPIRATION);
-			payload.remove(TokenClaims.AUDIENCE);
 			payload.remove(TokenClaims.ISSUER);
 		}
 		return payload;
@@ -384,14 +397,6 @@ public class JwtGenerator {
 		List<String> resultingScopes = Stream.concat(localScopes.stream(), scopes.stream())
 				.collect(Collectors.toList());
 		jsonPayload.put(TokenClaims.XSUAA.SCOPES, resultingScopes);
-	}
-
-	private void createAudienceClaim() {
-		if (service == Service.IAS) {
-			jsonPayload.put(TokenClaims.AUDIENCE, jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID));
-		} else {
-			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID)));
-		}
 	}
 
 	private String createTokenAsString() {
