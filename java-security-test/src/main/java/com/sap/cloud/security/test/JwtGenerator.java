@@ -347,15 +347,19 @@ public class JwtGenerator {
 	}
 
 	private JSONObject filterPayload(JSONObject payload) {
-		payload.remove(TokenClaims.EXPIRATION);
-		payload.remove(TokenClaims.AUDIENCE);
-		payload.remove(TokenClaims.ISSUER);
+		if (payload != null) {
+			payload.remove(TokenClaims.EXPIRATION);
+			payload.remove(TokenClaims.AUDIENCE);
+			payload.remove(TokenClaims.ISSUER);
+		}
 		return payload;
 	}
 
 	private JSONObject filterHeader(JSONObject header) {
-		header.remove(TokenHeader.JWKS_URL);
-		header.remove(TokenHeader.KEY_ID);
+		if (header != null) {
+			header.remove(TokenHeader.JWKS_URL);
+			header.remove(TokenHeader.KEY_ID);
+		}
 		return header;
 	}
 

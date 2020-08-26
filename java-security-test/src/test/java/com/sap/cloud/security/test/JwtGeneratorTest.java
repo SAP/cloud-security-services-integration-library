@@ -311,10 +311,17 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void fromFile_clientTokens_setsSubject() throws IOException {
-		Token token = cut.fromFile("/client_token.json").createToken();
+		Token token = cut.fromFile("/token_client.json").createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID);
 		assertThat(token.getClaimAsString(TokenClaims.SUBJECT)).isEqualTo(DEFAULT_CLIENT_ID);
+	}
+
+	@Test
+	public void fromFile_noHeader_noErrorAndReadsPayload() throws IOException {
+		Token token = cut.fromFile("/token_no_header.json").createToken();
+
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
 	}
 
 	@Test
