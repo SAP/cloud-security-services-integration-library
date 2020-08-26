@@ -40,7 +40,6 @@ public class XsuaaIntegrationTest {
 		OAuth2ServiceConfiguration configuration = rule.getConfigurationBuilderFromFile(
 				"/xsuaa/vcapServices/xsaSingleBinding.json")
 				.runInLegacyMode(true)
-				.withUrl(rule.getWireMockServer().baseUrl()) // overridden because of legacy mode
 				.build();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
