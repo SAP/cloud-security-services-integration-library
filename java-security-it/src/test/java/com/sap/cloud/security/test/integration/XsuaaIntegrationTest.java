@@ -3,7 +3,6 @@ package com.sap.cloud.security.test.integration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.VcapServicesParser;
 import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
@@ -26,9 +25,8 @@ public class XsuaaIntegrationTest {
 	@Test
 	public void xsuaaTokenValidationSucceeds_withXsuaaCombiningValidator() throws IOException {
 		OAuth2ServiceConfigurationBuilder configuration = rule.getConfigurationBuilderFromFile(
-				"/xsuaa/vcapServices/singleBinding.json");
-		Token token = rule.getJwtGeneratorFromFile("/xsuaa/tokens/userAccessTokenRSA256.json")
-				.createToken();
+				"/xsuaa/vcap_services-single.json");
+		Token token = rule.getJwtGeneratorFromFile("/xsuaa/token.json").createToken();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration.build()).build();
 		ValidationResult result = tokenValidator.validate(token);
@@ -38,13 +36,13 @@ public class XsuaaIntegrationTest {
 	@Test
 	public void xsaTokenValidationSucceeds_withXsuaaCombiningValidator() throws IOException {
 		OAuth2ServiceConfiguration configuration = rule.getConfigurationBuilderFromFile(
-				"/xsuaa/vcapServices/xsaSingleBinding.json")
+				"/xsa-simple/vcap_services-single.json")
 				.runInLegacyMode(true)
 				.build();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 
-		Token token = rule.getJwtGeneratorFromFile("/xsuaa/tokens/xsaAccessToken.json").createToken();
+		Token token = rule.getJwtGeneratorFromFile("/xsa-simple/token.json").createToken();
 
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isTrue();
@@ -52,14 +50,15 @@ public class XsuaaIntegrationTest {
 
 	@Test
 	public void xsuaaTokenValidationFails_withIasCombiningValidator() throws IOException {
-		OAuth2ServiceConfiguration configuration = rule.getConfigurationBuilderFromFile("/ias/vcapServices/serviceSingleBinding.json")
+		OAuth2ServiceConfiguration configuration = rule.getConfigurationBuilderFromFile(
+				"/ias-simple/vcap_services-single.json")
 				.withUrl("https://myauth.com")
 				.build();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
 				.build();
 
-		Token token = rule.getJwtGeneratorFromFile("/xsuaa/tokens/userAccessTokenRSA256.json")
+		Token token = rule.getJwtGeneratorFromFile("/xsuaa/token.json")
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, "T000310")
 				.withClaimValue(TokenClaims.ISSUER, "http://auth.com")
 				.createToken();
