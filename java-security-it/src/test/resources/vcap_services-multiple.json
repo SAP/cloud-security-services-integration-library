@@ -8,8 +8,8 @@
      "identityzone": "uaa",
      "identityzoneid": "uaa",
      "tenantmode": "dedicated",
-     "uaadomain": "auth.com",
-     "url": "https://paastenant.auth.com",
+     "uaadomain": "localhost",
+     "url": "$jwksUrl",
      "xsappname": "clientId!t0815"
     },
     "instance_name": "my-xsuaa",
