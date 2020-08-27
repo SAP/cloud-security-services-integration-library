@@ -2,16 +2,13 @@ package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.json.JsonParsingException;
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.net.URI;
 
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.VERIFICATION_KEY;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -61,14 +58,6 @@ public class VcapServicesParserTest {
 		assertThatThrownBy(() -> VcapServicesParser.fromFile("/vcapServices/vcapWithoutBinding.json"))
 				.isInstanceOf(JsonParsingException.class)
 				.hasMessageContaining("No supported binding found in VCAP_SERVICES!");
-	}
-
-	@Test
-	public void setVerificationKey_setsVerificationKeyInConfiguration() throws IOException {
-		String publicKey = IOUtils.resourceToString("/publicKey.txt", UTF_8);
-		OAuth2ServiceConfiguration configuration = cut.setVerificationKey("/publicKey.txt").createConfiguration();
-
-		assertThat(configuration.getProperty(VERIFICATION_KEY)).isEqualTo(publicKey);
 	}
 
 }

@@ -67,27 +67,12 @@ public class VcapServicesParser {
 	}
 
 	/**
-	 * Loads the content classpath resource given by
-	 * {@code verificationKeyResourceName} and sets it as the verification key of
-	 * the {@link OAuth2ServiceConfiguration}.
-	 *
-	 * @param verificationKeyResourceName
-	 *            the name of classpath resource.
-	 * @return this builder instance
-	 */
-	public VcapServicesParser setVerificationKey(String verificationKeyResourceName) {
-		String verificationKey = read(verificationKeyResourceName);
-		oAuth2ServiceConfigurationBuilder.withProperty(VERIFICATION_KEY, verificationKey);
-		return this;
-	}
-
-	/**
 	 * Creates the {@link OAuth2ServiceConfiguration} object from the loaded data.
 	 *
 	 * @return the configuration.
 	 */
 	public OAuth2ServiceConfiguration createConfiguration() {
-		return oAuth2ServiceConfigurationBuilder.build();
+		return getConfigurationBuilder().build();
 	}
 
 	/**
