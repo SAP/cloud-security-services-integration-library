@@ -34,8 +34,8 @@ public class VcapServicesParser {
 
 	/**
 	 * This factory method loads the json content from the classpath resource given
-	 * by {@code configurationResourceName}. Using the loaded data a new instance
-	 * of {@link VcapServicesParser} is created. This instance can be used to obtain
+	 * by {@code configurationResourceName}. Using the loaded data a new instance of
+	 * {@link VcapServicesParser} is created. This instance can be used to obtain
 	 * the {@link OAuth2ServiceConfigurationBuilder} with the
 	 * {@link VcapServicesParser#getConfigurationBuilder()} ()} method.
 	 * <p>
@@ -92,6 +92,7 @@ public class VcapServicesParser {
 
 	/**
 	 * Returns the configuration builder that contains the loaded data.
+	 * 
 	 * @return the {@link OAuth2ServiceConfigurationBuilder} instance
 	 */
 	public OAuth2ServiceConfigurationBuilder getConfigurationBuilder() {

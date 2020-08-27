@@ -193,7 +193,7 @@ public class SecurityTest {
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service, clientId).withPrivateKey(keys.getPrivate());
-		if (jwksUrl == null|| issuerUrl == null) {
+		if (jwksUrl == null || issuerUrl == null) {
 			LOGGER.warn("Method getPreconfiguredJwtGenerator was called too soon. Cannot set mock jwks/issuer url!");
 		}
 		switch (service) {
@@ -207,16 +207,20 @@ public class SecurityTest {
 	}
 
 	/**
-	 * This method creates an JwtGenerator that uses {@link JwtGenerator#getInstanceFromFile(Service, String)}
-	 * to provide a {@link JwtGenerator} prefilled data contained in the {@code tokenJsonResource}
-	 * file. Some properties are overridden so that the generated tokens can be validated in unit tests
-	 * using {@link SecurityTest}.
+	 * This method creates an JwtGenerator that uses
+	 * {@link JwtGenerator#getInstanceFromFile(Service, String)} to provide a
+	 * {@link JwtGenerator} prefilled data contained in the
+	 * {@code tokenJsonResource} file. Some properties are overridden so that the
+	 * generated tokens can be validated in unit tests using {@link SecurityTest}.
 	 *
-	 * @param tokenJsonResource the resource path to the file containing the json file, see {@link JwtGenerator#getInstanceFromFile(Service, String)}
+	 * @param tokenJsonResource
+	 *            the resource path to the file containing the json file, see
+	 *            {@link JwtGenerator#getInstanceFromFile(Service, String)}
 	 * @return a new {@link JwtGenerator} instance
 	 * @throws JsonParsingException
 	 *             if the file contains invalid data
-	 * @throws IOException if the given {@code tokenJsonResource} file cannot be read
+	 * @throws IOException
+	 *             if the given {@code tokenJsonResource} file cannot be read
 	 */
 	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) throws IOException {
 		return JwtGenerator.getInstanceFromFile(service, tokenJsonResource)

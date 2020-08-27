@@ -333,13 +333,13 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void getInstanceFromFile_fileDoesNotExist_throwsException() {
-		assertThatThrownBy(() -> JwtGenerator.getInstanceFromFile(XSUAA,"/doesNotExist.json"))
+		assertThatThrownBy(() -> JwtGenerator.getInstanceFromFile(XSUAA, "/doesNotExist.json"))
 				.isInstanceOf(IOException.class);
 	}
 
 	@Test
 	public void fromFile_fileMalformed_throwsException() {
-		assertThatThrownBy(() -> JwtGenerator.getInstanceFromFile(XSUAA,"/publicKey.txt"))
+		assertThatThrownBy(() -> JwtGenerator.getInstanceFromFile(XSUAA, "/publicKey.txt"))
 				.isInstanceOf(JsonParsingException.class);
 	}
 

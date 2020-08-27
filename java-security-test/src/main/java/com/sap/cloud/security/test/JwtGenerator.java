@@ -48,17 +48,19 @@ public class JwtGenerator {
 	private JwtGenerator(Service service, SignatureCalculator signatureCalculator) {
 		this.service = service;
 		this.signatureCalculator = signatureCalculator;
-		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256; //TODO is fixed
+		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256; // TODO is fixed
 		overrideTokenPropertiesForTesting();
 	}
 
 	/**
 	 * This factory method creates an {@link JwtGenerator} instance that can be used
-	 * to create tokens for testing purposes. The tokens are prefilled with data so that
-	 * they can be validated successfully.
+	 * to create tokens for testing purposes. The tokens are prefilled with data so
+	 * that they can be validated successfully.
 	 *
-	 * @param service the {@link Service} for which the token should be generated
-	 * @param clientId the client id of the token.
+	 * @param service
+	 *            the {@link Service} for which the token should be generated
+	 * @param clientId
+	 *            the client id of the token.
 	 * @return a new {@link JwtGenerator} instance.
 	 */
 	public static JwtGenerator getInstance(Service service, String clientId) {
@@ -68,10 +70,10 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * This factory method creates an {@link JwtGenerator} instance that is prefilled
-	 * with data provided by the file resource found at {@code tokenJsonResource}.
-	 * This resource file contains data for the token payload and
-	 * header. The file is expected to be in the following JSON format:
+	 * This factory method creates an {@link JwtGenerator} instance that is
+	 * prefilled with data provided by the file resource found at
+	 * {@code tokenJsonResource}. This resource file contains data for the token
+	 * payload and header. The file is expected to be in the following JSON format:
 	 *
 	 * <pre>
 	 * 	"header": {
@@ -88,10 +90,10 @@ public class JwtGenerator {
 	 * </pre>
 	 *
 	 * The payload and header data from the file will be written into the token
-	 * being generated. Note that some properties are overridden. This
-	 * is for convenience so that the token can be verified in a test setup rather
-	 * then its original production setup. The following header and payload
-	 * properties are overridden:
+	 * being generated. Note that some properties are overridden. This is for
+	 * convenience so that the token can be verified in a test setup rather then its
+	 * original production setup. The following header and payload properties are
+	 * overridden:
 	 * <ul>
 	 * <li>Header: jku, kid</li>
 	 * <li>Payload: exp, iss</li>
@@ -107,7 +109,7 @@ public class JwtGenerator {
 	 * @throws JsonParsingException
 	 *             if the file does not contain a valid json object
 	 * @throws IOException
-	 * 			   if the given file cannot be read
+	 *             if the given file cannot be read
 	 */
 	public static JwtGenerator getInstanceFromFile(Service service, String tokenJsonResource) throws IOException {
 		return new JwtGenerator(service, JwtGenerator::calculateSignature).fromFile(tokenJsonResource);
@@ -120,7 +122,7 @@ public class JwtGenerator {
 		return instance;
 	}
 
-	private JwtGenerator fromFile(String tokenJsonResource) throws IOException  {
+	private JwtGenerator fromFile(String tokenJsonResource) throws IOException {
 		String tokenJson = IOUtils.resourceToString(tokenJsonResource, StandardCharsets.UTF_8);
 		JSONObject jsonObject = createJsonObject(tokenJson);
 		copyJsonProperties(filterPayload(jsonObject.optJSONObject("payload")), jsonPayload);
