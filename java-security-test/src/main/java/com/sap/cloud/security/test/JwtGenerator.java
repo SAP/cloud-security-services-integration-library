@@ -48,7 +48,6 @@ public class JwtGenerator {
 	private JwtGenerator(Service service, SignatureCalculator signatureCalculator) {
 		this.service = service;
 		this.signatureCalculator = signatureCalculator;
-		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256; // TODO is fixed
 		overrideTokenPropertiesForTesting();
 	}
 
@@ -125,9 +124,11 @@ public class JwtGenerator {
 	private JwtGenerator fromFile(String tokenJsonResource) throws IOException {
 		String tokenJson = read(tokenJsonResource);
 		JSONObject jsonObject = createJsonObject(tokenJson);
-		copyJsonProperties(filterPayload(jsonObject.optJSONObject("payload")), jsonPayload);
-		copyJsonProperties(filterHeader(jsonObject.optJSONObject("header")), jsonHeader);
-		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256; //from file with fallback RS256
+		JSONObject header = jsonObject.optJSONObject("header");
+		JSONObject payload = jsonObject.optJSONObject("payload");
+		copyJsonProperties(filterPayload(payload), jsonPayload);
+		copyJsonProperties(filterHeader(header), jsonHeader);
+		this.signatureAlgorithm = extractAlgorithm(jsonHeader).orElse(JwtSignatureAlgorithm.RS256);
 		return this;
 	}
 
@@ -448,4 +449,17 @@ public class JwtGenerator {
 			throw new IllegalArgumentException("Error reading resource file: " + e.getMessage());
 		}
 	}
+
+	private Optional<JwtSignatureAlgorithm> extractAlgorithm(JSONObject jsonHeader) {
+		if (jsonHeader == null || !jsonHeader.has(ALGORITHM)) {
+			return Optional.empty();
+		}
+		String alg = jsonHeader.getString(ALGORITHM);
+		JwtSignatureAlgorithm algorithm = JwtSignatureAlgorithm.fromValue(alg);
+		if (algorithm == null) {
+			throw new UnsupportedOperationException(String.format("Algorithm %s of token not supported!", alg));
+		}
+		return Optional.of(algorithm);
+	}
+
 }

@@ -300,7 +300,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void fromFile_overridesTokenPropertiesForTesting() throws IOException {
+	public void getInstanceFromFile_overridesTokenPropertiesForTesting() throws IOException {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token.json")
 				.withPrivateKey(keys.getPrivate())
 				.createToken();
@@ -310,7 +310,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void fromFile_loadsJsonData() throws IOException {
+	public void getInstanceFromFile_loadsJsonData() throws IOException {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token.json")
 				.withPrivateKey(keys.getPrivate())
 				.createToken();
@@ -323,12 +323,18 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void fromFile_noHeader_noErrorAndReadsPayload() throws IOException {
+	public void getInstanceFromFile_noHeader_noErrorAndReadsPayload() throws IOException {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token_no_header.json")
 				.withPrivateKey(keys.getPrivate())
 				.createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
+	}
+
+	@Test
+	public void getInstanceFromFile_invalidAlg_throwsException() throws IOException {
+		assertThatThrownBy(() -> JwtGenerator.getInstanceFromFile(XSUAA, "/token_invalid_alg.json"))
+			.isInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test
