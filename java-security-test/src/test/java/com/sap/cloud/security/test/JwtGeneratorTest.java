@@ -334,7 +334,7 @@ public class JwtGeneratorTest {
 	@Test
 	public void getInstanceFromFile_fileDoesNotExist_throwsException() {
 		assertThatThrownBy(() -> JwtGenerator.getInstanceFromFile(XSUAA, "/doesNotExist.json"))
-				.isInstanceOf(IOException.class);
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test

@@ -217,10 +217,10 @@ public class SecurityTest {
 	 *            the resource path to the file containing the json file, see
 	 *            {@link JwtGenerator#getInstanceFromFile(Service, String)}
 	 * @return a new {@link JwtGenerator} instance
+	 * @throws IllegalArgumentException
+	 * 			   if the resource cannot be read
 	 * @throws JsonParsingException
 	 *             if the file contains invalid data
-	 * @throws IOException
-	 *             if the given {@code tokenJsonResource} file cannot be read
 	 */
 	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) throws IOException {
 		return JwtGenerator.getInstanceFromFile(service, tokenJsonResource)
@@ -239,8 +239,10 @@ public class SecurityTest {
 	 *            the name of classpath resource that contains the configuration
 	 *            json
 	 * @return a new {@link OAuth2ServiceConfigurationBuilder} instance
+	 * @throws IllegalArgumentException
+	 * 			   if the resource cannot be read
 	 * @throws JsonParsingException
-	 *             if the resource cannot be read or contains invalid data.
+	 *             if the resource contains invalid data
 	 */
 	public OAuth2ServiceConfigurationBuilder getConfigurationBuilderFromFile(String configurationResourceName) {
 		return VcapServicesParser.fromFile(configurationResourceName)

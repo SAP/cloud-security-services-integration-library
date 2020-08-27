@@ -123,15 +123,17 @@ public class JwtGenerator {
 	}
 
 	private JwtGenerator fromFile(String tokenJsonResource) throws IOException {
-		String tokenJson = IOUtils.resourceToString(tokenJsonResource, StandardCharsets.UTF_8);
+		String tokenJson = read(tokenJsonResource);
 		JSONObject jsonObject = createJsonObject(tokenJson);
 		copyJsonProperties(filterPayload(jsonObject.optJSONObject("payload")), jsonPayload);
 		copyJsonProperties(filterHeader(jsonObject.optJSONObject("header")), jsonHeader);
+		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256; //from file with fallback RS256
 		return this;
 	}
 
 	private void setDefaultsForNewToken(String clientId) {
-		withHeaderParameter(ALGORITHM, signatureAlgorithm.value());
+		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
+		withHeaderParameter(ALGORITHM, JwtSignatureAlgorithm.RS256.value());
 		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId);
 		if (service == Service.IAS) {
 			jsonPayload.put(TokenClaims.AUDIENCE, jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID));
@@ -224,7 +226,7 @@ public class JwtGenerator {
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaimsFromFile(String claimsJsonResource) throws IOException {
-		String claimsJson = IOUtils.resourceToString(claimsJsonResource, StandardCharsets.UTF_8);
+		String claimsJson = read(claimsJsonResource);
 		JSONObject jsonObject = createJsonObject(claimsJson);
 		copyJsonProperties(jsonObject, jsonPayload);
 		return this;
@@ -439,4 +441,11 @@ public class JwtGenerator {
 				throws InvalidKeyException, SignatureException, NoSuchAlgorithmException;
 	}
 
+	private String read(String tokenJsonResource) {
+		try {
+			return IOUtils.resourceToString(tokenJsonResource, StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Error reading resource file: " + e.getMessage());
+		}
+	}
 }
