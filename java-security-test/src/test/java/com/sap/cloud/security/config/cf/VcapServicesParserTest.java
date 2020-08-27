@@ -45,7 +45,7 @@ public class VcapServicesParserTest {
 	@Test
 	public void fromFile_resourceDoesNotExits_throwsException() {
 		assertThatThrownBy(() -> VcapServicesParser.fromFile("/doesNotExist.json"))
-				.isInstanceOf(JsonParsingException.class)
+				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("Resource not found: /doesNotExist.json");
 	}
 

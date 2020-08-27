@@ -146,7 +146,7 @@ public class VcapServicesParser {
 		try {
 			return IOUtils.resourceToString(resourceName, StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			throw new JsonParsingException(e.getMessage());
+			throw new IllegalArgumentException("Error reading resource file: " + e.getMessage());
 		}
 	}
 
