@@ -26,9 +26,9 @@ import java.util.List;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.test.JwtGenerator.DEFAULT_KEY_ID;
-import static com.sap.cloud.security.test.JwtGenerator.SignatureCalculator;
+import static com.sap.cloud.security.test.JwtGenerator.*;
 import static com.sap.cloud.security.test.SecurityTestRule.*;
+import static com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,11 +55,12 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void createToken_isNotNull() {
+	public void createToken_setsDefaultsForTesting() {
 		Token token = cut.createToken();
 
 		assertThat(token).isNotNull();
-		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).contains(DEFAULT_CLIENT_ID);
+		assertThat(token.getHeaderParameterAsString(TokenHeader.ALGORITHM)).isEqualTo(RS256.value());
+		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly(DEFAULT_CLIENT_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID);
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
 	}
@@ -99,7 +100,7 @@ public class JwtGeneratorTest {
 
 		when(signatureCalculator.calculateSignature(any(), any(), any())).thenReturn("sig".getBytes());
 
-		JwtGenerator.getInstance(IAS, signatureCalculator, "T00001234").withPrivateKey(keys.getPrivate()).createToken();
+		JwtGenerator.getInstance(IAS, signatureCalculator).withPrivateKey(keys.getPrivate()).createToken();
 
 		verify(signatureCalculator, times(1)).calculateSignature(eq(keys.getPrivate()), any(), any());
 	}
@@ -299,16 +300,26 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void fromFile_loadsJsonAndSetsDefaults() throws IOException {
+	public void fromFile_overridesTokenPropertiesForTesting() throws IOException {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token.json")
 				.withPrivateKey(keys.getPrivate())
 				.createToken();
 
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(DEFAULT_KEY_ID);
+		assertThat(token.getExpiration()).isEqualTo(NO_EXPIRE_DATE);
+	}
+
+	@Test
+	public void fromFile_loadsJsonData() throws IOException {
+		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token.json")
+				.withPrivateKey(keys.getPrivate())
+				.createToken();
+
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid",
 				"app1.scope");
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("clientId");
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("testingClientId");
+		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly("app1.scope");
 	}
 
 	@Test
@@ -336,7 +347,7 @@ public class JwtGeneratorTest {
 	public void createToken_signatureCalculation_NoSuchAlgorithmExceptionTurnedIntoRuntimeException() {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new NoSuchAlgorithmException();
-		}, DEFAULT_CLIENT_ID);
+		});
 		cut = instance.withPrivateKey(keys.getPrivate());
 		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
 	}
@@ -345,7 +356,7 @@ public class JwtGeneratorTest {
 	public void createToken_signatureCalculation_SignatureExceptionTurnedIntoRuntimeException() {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new SignatureException();
-		}, DEFAULT_CLIENT_ID);
+		});
 		cut = instance.withPrivateKey(keys.getPrivate());
 		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
 	}
@@ -354,7 +365,7 @@ public class JwtGeneratorTest {
 	public void createToken_signatureCalculation_InvalidKeyExceptionTurnedIntoRuntimeException() {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new InvalidKeyException();
-		}, DEFAULT_CLIENT_ID);
+		});
 		cut = instance.withPrivateKey(keys.getPrivate());
 		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
 	}

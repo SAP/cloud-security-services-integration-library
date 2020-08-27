@@ -49,12 +49,13 @@ public class JwtGenerator {
 		this.service = service;
 		this.signatureCalculator = signatureCalculator;
 		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256; //TODO is fixed
+		overrideTokenPropertiesForTesting();
 	}
 
 	/**
 	 * This factory method creates an {@link JwtGenerator} instance that can be used
-	 * to create tokens for testing purposes. The tokens is prefilled with data so that
-	 * it can be validated successfully.
+	 * to create tokens for testing purposes. The tokens are prefilled with data so that
+	 * they can be validated successfully.
 	 *
 	 * @param service the {@link Service} for which the token should be generated
 	 * @param clientId the client id of the token.
@@ -62,13 +63,13 @@ public class JwtGenerator {
 	 */
 	public static JwtGenerator getInstance(Service service, String clientId) {
 		JwtGenerator instance = new JwtGenerator(service, JwtGenerator::calculateSignature);
-		instance.setTokenDefaults(clientId);
+		instance.setDefaultsForNewToken(clientId);
 		return instance;
 	}
 
 	/**
 	 * This factory method creates an {@link JwtGenerator} instance that is prefilled
-	 * with the data provided by the resource {@code tokenJsonResource}.
+	 * with data provided by the file resource found at {@code tokenJsonResource}.
 	 * This resource file contains data for the token payload and
 	 * header. The file is expected to be in the following JSON format:
 	 *
@@ -86,8 +87,8 @@ public class JwtGenerator {
 	 *    }
 	 * </pre>
 	 *
-	 * The payload and header data from the file will be written into the token that
-	 * is being generated. Note that some properties from the file are overridden. This
+	 * The payload and header data from the file will be written into the token
+	 * being generated. Note that some properties are overridden. This
 	 * is for convenience so that the token can be verified in a test setup rather
 	 * then its original production setup. The following header and payload
 	 * properties are overridden:
@@ -109,16 +110,13 @@ public class JwtGenerator {
 	 * 			   if the given file cannot be read
 	 */
 	public static JwtGenerator getInstanceFromFile(Service service, String tokenJsonResource) throws IOException {
-		JwtGenerator instance = new JwtGenerator(service, JwtGenerator::calculateSignature);
-		instance.fromFile(tokenJsonResource);
-		instance.overrideTokenDefaults();
-		return instance;
+		return new JwtGenerator(service, JwtGenerator::calculateSignature).fromFile(tokenJsonResource);
 	}
 
 	// used for testing
-	static JwtGenerator getInstance(Service service, SignatureCalculator signatureCalculator, String clientId) {
+	static JwtGenerator getInstance(Service service, SignatureCalculator signatureCalculator) {
 		JwtGenerator instance = new JwtGenerator(service, signatureCalculator);
-		instance.setTokenDefaults(clientId);
+		instance.setDefaultsForNewToken("client-id-not-relevant-here");
 		return instance;
 	}
 
@@ -130,8 +128,7 @@ public class JwtGenerator {
 		return this;
 	}
 
-	private void setTokenDefaults(String clientId) {
-		overrideTokenDefaults();
+	private void setDefaultsForNewToken(String clientId) {
 		withHeaderParameter(ALGORITHM, signatureAlgorithm.value());
 		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId);
 		if (service == Service.IAS) {
@@ -141,11 +138,11 @@ public class JwtGenerator {
 		}
 	}
 
-	private void overrideTokenDefaults() {
+	private void overrideTokenPropertiesForTesting() {
 		withHeaderParameter(KEY_ID, DEFAULT_KEY_ID); // TODO IAS has its own key id
 		withExpiration(NO_EXPIRE_DATE);
 		if (service == Service.XSUAA) {
-			withHeaderParameter(JWKS_URL, DEFAULT_JWKS_URL); // TODO can be removed?
+			withHeaderParameter(JWKS_URL, DEFAULT_JWKS_URL); // TODO is overridden by rule most times
 		}
 	}
 
