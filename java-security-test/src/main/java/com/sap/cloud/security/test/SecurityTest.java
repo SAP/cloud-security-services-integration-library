@@ -186,8 +186,8 @@ public class SecurityTest {
 	}
 
 	/**
-	 * Note: the JwtGenerator is fully configured as part of {@link #setup()}
-	 * method.
+	 * This creates a JwtGenerator is fully configured as part of {@link #setup()}
+	 * method so that it can be used for testing.
 	 *
 	 * @return the preconfigured Jwt token generator
 	 */
@@ -211,7 +211,7 @@ public class SecurityTest {
 	 * {@link JwtGenerator#getInstanceFromFile(Service, String)} to provide a
 	 * {@link JwtGenerator} prefilled data contained in the
 	 * {@code tokenJsonResource} file. Some properties are overridden so that the
-	 * generated tokens can be validated in unit tests using {@link SecurityTest}.
+	 * generated tokens can be used in unit tests.
 	 *
 	 * @param tokenJsonResource
 	 *            the resource path to the file containing the json file, see
@@ -231,7 +231,9 @@ public class SecurityTest {
 
 	/**
 	 * Creates a {@link OAuth2ServiceConfigurationBuilder} prefilled with the data
-	 * from the classpath resource given by {@code configurationResourceName}.
+	 * from the classpath resource given by {@code configurationResourceName}. The
+	 * {@code url} of the configuration will be overridden with the url of the mock
+	 * server.
 	 *
 	 * @param configurationResourceName
 	 *            the name of classpath resource that contains the configuration

@@ -152,19 +152,23 @@ public class SecurityTestRule extends ExternalResource {
 	}
 
 	/**
-	 * Note: the JwtGenerator is fully configured as part of {@link #before()}
-	 * method.
-	 *
-	 * @return the preconfigured Jwt token generator
+	 * For documentation see {@link SecurityTest#getPreconfiguredJwtGenerator()}.
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		return base.getPreconfiguredJwtGenerator();
 	}
 
+	/**
+	 * For documentation see {@link SecurityTest#getJwtGeneratorFromFile(String)}.
+	 */
 	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) throws IOException {
 		return base.getJwtGeneratorFromFile(tokenJsonResource);
 	}
 
+	/**
+	 * For documentation see
+	 * {@link SecurityTest#getConfigurationBuilderFromFile(String)})}.
+	 */
 	public OAuth2ServiceConfigurationBuilder getConfigurationBuilderFromFile(String tokenJsonResource) {
 		return base.getConfigurationBuilderFromFile(tokenJsonResource);
 	}

@@ -1,10 +1,12 @@
 package com.sap.cloud.security.test;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -21,6 +23,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -110,6 +113,26 @@ public class SecurityTestRuleTest {
 		Token token = cut.getPreconfiguredJwtGenerator().createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(cut.base.wireMockServer.baseUrl());
+	}
+
+	@Test
+	public void getConfigurationBuilderFromFile_configurationHasCorrectUrl() {
+		OAuth2ServiceConfiguration configuration = cut
+				.getConfigurationBuilderFromFile("/vcapServices/vcapSimple.json")
+				.build();
+
+		assertThat(configuration.getUrl()).isNotNull();
+		assertThat(configuration.getUrl().toString()).isEqualTo(cut.base.wireMockServer.baseUrl());
+	}
+
+	@Test
+	public void getJwtGeneratorFromFile_setsTestingDefaults() throws IOException {
+		Token token = cut.getJwtGeneratorFromFile("/token.json").createToken();
+
+		String baseUrl = cut.base.wireMockServer.baseUrl();
+		URI jwksUrl = new XsuaaDefaultEndpoints(baseUrl).getJwksUri();
+		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(jwksUrl.toString());
+		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(baseUrl);
 	}
 
 	@Test
