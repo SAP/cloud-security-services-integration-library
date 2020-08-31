@@ -21,7 +21,11 @@ import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XsuaaEnvironmentIntegrationTest {
+/**
+ * Tests multiple bindings which is not supported by {@link com.sap.cloud.security.config.cf.VcapServicesParser}
+ * and {@link com.sap.cloud.security.test.SecurityTest}.
+ */
+public class XsuaaMultipleBindingsIntegrationTest {
 
 	@ClassRule
 	public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA)
@@ -32,8 +36,6 @@ public class XsuaaEnvironmentIntegrationTest {
 	@Test
 	public void createToken_integrationTest_tokenValidation() throws IOException {
 		String vcapServices = IOUtils.resourceToString("/vcap_services-multiple.json", StandardCharsets.UTF_8);
-		String jwksUrl = new XsuaaDefaultEndpoints(rule.getWireMockServer().baseUrl()).getJwksUri().toString();
-		vcapServices.replace("$jwksUrl", jwksUrl); // need to replace jwksUrl in VCAP_SERVICES
 		environmentVariables.set("VCAP_SERVICES", vcapServices);
 		Token token = rule.getPreconfiguredJwtGenerator().createToken();
 		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaConfiguration();
