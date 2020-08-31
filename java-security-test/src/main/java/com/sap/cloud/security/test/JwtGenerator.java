@@ -148,11 +148,10 @@ public class JwtGenerator {
 		withExpiration(NO_EXPIRE_DATE);
 		if (service == Service.IAS) {
 			withHeaderParameter(KEY_ID, DEFAULT_KEY_ID_IAS);
-		} else {
-			withHeaderParameter(KEY_ID, DEFAULT_KEY_ID);
 		}
 		if (service == Service.XSUAA) {
-			withHeaderParameter(JWKS_URL, DEFAULT_JWKS_URL); // TODO is overridden by rule most times
+			withHeaderParameter(KEY_ID, DEFAULT_KEY_ID);
+			withHeaderParameter(JWKS_URL, DEFAULT_JWKS_URL);
 		}
 	}
 
