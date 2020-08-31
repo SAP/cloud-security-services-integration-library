@@ -14,6 +14,9 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * IAS integration test with single binding scenario.
+ */
 public class IasIntegrationTest {
 
 	@ClassRule

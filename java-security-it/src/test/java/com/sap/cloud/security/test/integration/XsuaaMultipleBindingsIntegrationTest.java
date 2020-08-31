@@ -8,7 +8,6 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.apache.commons.io.IOUtils;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -17,7 +16,6 @@ import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

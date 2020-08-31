@@ -25,6 +25,9 @@ import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_CLIENT_ID;
 import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_DOMAIN;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Xsuaa integration test with single binding scenario.
+ */
 public class XsuaaIntegrationTest {
 
 	@ClassRule
