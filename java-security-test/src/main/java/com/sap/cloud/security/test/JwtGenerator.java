@@ -28,7 +28,7 @@ import static com.sap.cloud.security.token.TokenHeader.*;
 public class JwtGenerator {
 	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
 	public static final String DEFAULT_KEY_ID = "default-kid";
-	public static final String DEFAULT_KEY_ID_IAS = "ias-kid";
+	public static final String DEFAULT_KEY_ID_IAS = "default-ias-kid";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtGenerator.class);
 	private static final String DEFAULT_JWKS_URL = "http://localhost/token_keys";
