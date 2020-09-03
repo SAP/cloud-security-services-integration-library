@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
   - spring.core.version: 5.2.7.RELEASE --> 5.2.8.RELEASE
   - spring.security.version: 5.3.3.RELEASE --> 5.3.4.RELEASE
 - [java-security-test] `SecurityTest` and `SecurityTestRule` provides a better support for integration tests with a mockserver. It is now possible to upload the configuration and the token from a json file. Take our integration tests as a sample [java-security-it](/java-security-it).
+- [java-security] `DefaultJsonObject.getAsStringList(propertyName)` parses the JSON object for a given property and returns a `String` list. This works also in case the property is not a JSON array but a JSON String.
 
 ## 2.7.6
 - Fixes `ClientCredentialsTokenFlow.scopes()` and `UserTokenFlow.scopes()` to support multiple scopes. The scope form parameter has to provide a space-delimited list (and not comma-delimited list).
