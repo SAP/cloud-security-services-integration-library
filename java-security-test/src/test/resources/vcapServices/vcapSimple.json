@@ -1,0 +1,21 @@
+{
+  "xsuaa": [
+    {
+      "binding_name": null,
+      "credentials": {
+        "clientid": "clientId",
+        "identityzone": "uaa",
+        "identityzoneid": "uaa",
+        "sburl": "http://localhost/uaa",
+        "tenantmode": "dedicated",
+        "verificationkey": "-----BEGIN PUBLIC KEY-----fake, only for test-----END PUBLIC KEY-----",
+        "uaadomain": "auth.com",
+        "url": "https://paastenant.auth.com",
+        "xsappname": "java-hello-world"
+      },
+      "name": "example-xsuaa",
+      "plan": "broker",
+      "volume_mounts": []
+    }
+  ]
+}

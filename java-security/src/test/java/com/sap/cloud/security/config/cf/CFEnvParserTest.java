@@ -24,7 +24,7 @@ public class CFEnvParserTest {
 
 		JsonObject serviceJsonObject = new DefaultJsonObject(vcapXsuaa).getJsonObjects(Service.XSUAA.getCFName())
 				.get(0);
-		cut = CFEnvParser.extract(Service.XSUAA, serviceJsonObject);
+		cut = CFEnvParser.loadForService(Service.XSUAA, serviceJsonObject);
 	}
 
 	@Test

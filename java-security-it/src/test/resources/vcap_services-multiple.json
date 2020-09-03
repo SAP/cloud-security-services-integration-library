@@ -8,8 +8,8 @@
      "identityzone": "uaa",
      "identityzoneid": "uaa",
      "tenantmode": "dedicated",
-     "uaadomain": "auth.com",
-     "url": "https://paastenant.auth.com",
+     "uaadomain": "localhost",
+     "url": "http://localhost",
      "xsappname": "clientId!t0815"
     },
     "instance_name": "my-xsuaa",
@@ -28,7 +28,7 @@
    "credentials": {
     "clientsecret": "secret",
     "clientid": "T000310",
-    "url": "https://app.auth.com"
+    "url": "http://localhost"
    },
    "instance_name": "myservice",
    "label": "identity-beta",

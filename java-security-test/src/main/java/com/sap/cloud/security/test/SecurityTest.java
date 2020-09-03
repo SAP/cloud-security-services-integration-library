@@ -1,7 +1,10 @@
 package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.VcapServicesParser;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.jetty.JettyTokenAuthenticator;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
@@ -34,7 +37,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
@@ -63,6 +65,7 @@ public class SecurityTest {
 
 	protected String clientId = DEFAULT_CLIENT_ID;
 	protected String jwksUrl;
+	private String issuerUrl;
 
 	public SecurityTest(Service service) {
 		this.service = service;
@@ -183,26 +186,68 @@ public class SecurityTest {
 	}
 
 	/**
-	 * Note: the JwtGenerator is fully configured as part of {@link #setup()}
-	 * method.
+	 * This creates a JwtGenerator is fully configured as part of {@link #setup()}
+	 * method so that it can be used for testing.
 	 *
 	 * @return the preconfigured Jwt token generator
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
-		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service, clientId)
-				.withPrivateKey(keys.getPrivate());
+		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service, clientId).withPrivateKey(keys.getPrivate());
+		if (jwksUrl == null || issuerUrl == null) {
+			LOGGER.warn("Method getPreconfiguredJwtGenerator was called too soon. Cannot set mock jwks/issuer url!");
+		}
 		switch (service) {
 		case XSUAA:
 			jwtGenerator
 					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
 					.withAppId(DEFAULT_APP_ID)
 					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
-			break;
-		default:
-			jwtGenerator.withClaimValue(TokenClaims.ISSUER, wireMockServer.baseUrl());
-			break;
 		}
-		return jwtGenerator;
+		return jwtGenerator.withClaimValue(TokenClaims.ISSUER, issuerUrl);
+	}
+
+	/**
+	 * This method creates an JwtGenerator that uses
+	 * {@link JwtGenerator#getInstanceFromFile(Service, String)} to provide a
+	 * {@link JwtGenerator} prefilled data contained in the
+	 * {@code tokenJsonResource} file. Some properties are overridden so that the
+	 * generated tokens can be used in unit tests.
+	 *
+	 * @param tokenJsonResource
+	 *            the resource path to the file containing the json file, see
+	 *            {@link JwtGenerator#getInstanceFromFile(Service, String)}
+	 * @return a new {@link JwtGenerator} instance
+	 * @throws IllegalArgumentException
+	 * 			   if the resource cannot be read
+	 * @throws JsonParsingException
+	 *             if the file contains invalid data
+	 */
+	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) throws IOException {
+		return JwtGenerator.getInstanceFromFile(service, tokenJsonResource)
+				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+				.withClaimValue(TokenClaims.ISSUER, issuerUrl)
+				.withPrivateKey(keys.getPrivate());
+	}
+
+	/**
+	 * Creates a {@link OAuth2ServiceConfigurationBuilder} prefilled with the data
+	 * from the classpath resource given by {@code configurationResourceName}. The
+	 * {@code url} of the configuration will be overridden with the url of the mock
+	 * server.
+	 *
+	 * @param configurationResourceName
+	 *            the name of classpath resource that contains the configuration
+	 *            json
+	 * @return a new {@link OAuth2ServiceConfigurationBuilder} instance
+	 * @throws IllegalArgumentException
+	 * 			   if the resource cannot be read
+	 * @throws JsonParsingException
+	 *             if the resource contains invalid data
+	 */
+	public OAuth2ServiceConfigurationBuilder getConfigurationBuilderFromFile(String configurationResourceName) {
+		return VcapServicesParser.fromFile(configurationResourceName)
+				.getConfigurationBuilder()
+				.withUrl(issuerUrl);
 	}
 
 	/**
@@ -289,7 +334,7 @@ public class SecurityTest {
 				.encodeToString(((RSAPublicKey) keys.getPublic()).getModulus().toByteArray());
 		String encodedPublicKey = Base64.getEncoder().encodeToString(keys.getPublic().getEncoded());
 		return IOUtils.resourceToString("/token_keys_template.json", StandardCharsets.UTF_8)
-				.replace("$kid", "default-kid")
+				.replace("$kid", JwtGenerator.DEFAULT_KEY_ID)
 				.replace("$public_key", encodedPublicKey)
 				.replace("$modulus", encodedPublicKeyModulus);
 	}
@@ -324,6 +369,7 @@ public class SecurityTest {
 		wireMockServer.stubFor(get(urlEqualTo(DISCOVERY_ENDPOINT_DEFAULT))
 				.willReturn(aResponse().withBody(createDefaultOidcConfigurationResponse())));
 		jwksUrl = endpointsProvider.getJwksUri().toString();
+		issuerUrl = wireMockServer.baseUrl();
 	}
 
 	/**

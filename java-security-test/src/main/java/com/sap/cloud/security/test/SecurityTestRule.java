@@ -2,6 +2,7 @@ package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -10,6 +11,7 @@ import org.junit.rules.ExternalResource;
 import javax.annotation.Nullable;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
+import java.io.IOException;
 
 public class SecurityTestRule extends ExternalResource {
 
@@ -150,13 +152,25 @@ public class SecurityTestRule extends ExternalResource {
 	}
 
 	/**
-	 * Note: the JwtGenerator is fully configured as part of {@link #before()}
-	 * method.
-	 *
-	 * @return the preconfigured Jwt token generator
+	 * For documentation see {@link SecurityTest#getPreconfiguredJwtGenerator()}.
 	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		return base.getPreconfiguredJwtGenerator();
+	}
+
+	/**
+	 * For documentation see {@link SecurityTest#getJwtGeneratorFromFile(String)}.
+	 */
+	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) throws IOException {
+		return base.getJwtGeneratorFromFile(tokenJsonResource);
+	}
+
+	/**
+	 * For documentation see
+	 * {@link SecurityTest#getConfigurationBuilderFromFile(String)})}.
+	 */
+	public OAuth2ServiceConfigurationBuilder getConfigurationBuilderFromFile(String tokenJsonResource) {
+		return base.getConfigurationBuilderFromFile(tokenJsonResource);
 	}
 
 	/**

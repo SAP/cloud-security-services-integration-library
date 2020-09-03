@@ -37,6 +37,12 @@ public class OAuth2ServiceConfigurationBuilder {
 		return instance;
 	}
 
+	public static OAuth2ServiceConfigurationBuilder fromConfiguration(OAuth2ServiceConfiguration baseConfiguration) {
+		OAuth2ServiceConfigurationBuilder builder = forService(baseConfiguration.getService());
+		builder.withProperties(baseConfiguration.getProperties());
+		return builder;
+	}
+
 	/**
 	 * Client id of identity service instance.
 	 *
@@ -133,6 +139,11 @@ public class OAuth2ServiceConfigurationBuilder {
 		@Override
 		public String getProperty(String name) {
 			return properties.get(name);
+		}
+
+		@Override
+		public Map<String, String> getProperties() {
+			return new HashMap<>(properties);
 		}
 
 		@Override

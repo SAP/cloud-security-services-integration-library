@@ -120,4 +120,21 @@ public class OAuth2ServiceConfigurationBuilderTest {
 				.isNotEqualTo(config.hashCode());
 	}
 
+	@Test
+	public void fromConfiguration_createsBuilderWithDataFromConfiguration() {
+		OAuth2ServiceConfiguration baseConfiguration = cut.withClientId("base-client-id")
+				.withClientSecret("base-client-secret")
+				.withUrl("http://url.base")
+				.withProperty("testing-key", "base-value")
+				.build();
+
+		OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder
+				.fromConfiguration(baseConfiguration);
+		OAuth2ServiceConfiguration configuration = builder.build();
+
+		assertThat(configuration.getClientId()).isEqualTo("base-client-id");
+		assertThat(configuration.getClientSecret()).isEqualTo("base-client-secret");
+		assertThat(configuration.getUrl()).isEqualTo(URI.create("http://url.base"));
+		assertThat(configuration.getProperty("testing-key")).isEqualTo("base-value");
+	}
 }
