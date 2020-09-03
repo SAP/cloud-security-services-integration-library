@@ -28,7 +28,7 @@ import static com.sap.cloud.security.token.TokenHeader.*;
 public class JwtGenerator {
 	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
 	public static final String DEFAULT_KEY_ID = "default-kid";
-	public static final String DEFAULT_KEY_ID_IAS = "default-ias-kid";
+	public static final String DEFAULT_KEY_ID_IAS = "default-kid-ias";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtGenerator.class);
 	private static final String DEFAULT_JWKS_URL = "http://localhost/token_keys";
@@ -49,7 +49,7 @@ public class JwtGenerator {
 	private JwtGenerator(Service service, SignatureCalculator signatureCalculator) {
 		this.service = service;
 		this.signatureCalculator = signatureCalculator;
-		overrideTokenPropertiesForTesting();
+		predefineTokenClaims();
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class JwtGenerator {
 		return instance;
 	}
 
-	private JwtGenerator fromFile(String tokenJsonResource) throws IOException {
+	private JwtGenerator fromFile(String tokenJsonResource) {
 		String tokenJson = read(tokenJsonResource);
 		JSONObject jsonObject = createJsonObject(tokenJson);
 		JSONObject header = jsonObject.optJSONObject("header");
@@ -144,7 +144,7 @@ public class JwtGenerator {
 		}
 	}
 
-	private void overrideTokenPropertiesForTesting() {
+	private void predefineTokenClaims() {
 		withExpiration(NO_EXPIRE_DATE);
 		if (service == Service.IAS) {
 			withHeaderParameter(KEY_ID, DEFAULT_KEY_ID_IAS);

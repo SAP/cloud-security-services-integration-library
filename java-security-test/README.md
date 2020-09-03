@@ -141,3 +141,4 @@ If you have classpath related  issues involving JSON you should take a look at t
 The `java-security-test` library is used in the following samples:
 - [java-security-usage](/samples/java-security-usage)
 - [spring-security-xsuaa-usage](/samples/spring-security-xsuaa-usage)
+- [IntegrationTest sample](/java-security-it)

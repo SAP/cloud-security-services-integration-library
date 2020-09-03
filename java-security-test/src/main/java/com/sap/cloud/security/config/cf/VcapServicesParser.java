@@ -27,9 +27,7 @@ public class VcapServicesParser {
 		checkProperties(oAuth2ServiceConfiguration);
 		this.oAuth2ServiceConfigurationBuilder = OAuth2ServiceConfigurationBuilder
 				.fromConfiguration(oAuth2ServiceConfiguration)
-				.withProperty(VERIFICATION_KEY, null)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
-				.withUrl("http://localhost");
+				.withProperty(VERIFICATION_KEY, null);
 	}
 
 	/**

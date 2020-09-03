@@ -3,6 +3,7 @@ package com.sap.cloud.security.test;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.VcapServicesParser;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.jetty.JettyTokenAuthenticator;
@@ -30,6 +31,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -38,6 +40,7 @@ import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
 public class SecurityTest {
@@ -247,6 +250,7 @@ public class SecurityTest {
 	public OAuth2ServiceConfigurationBuilder getConfigurationBuilderFromFile(String configurationResourceName) {
 		return VcapServicesParser.fromFile(configurationResourceName)
 				.getConfigurationBuilder()
+				.withProperty(UAA_DOMAIN, URI.create(issuerUrl).getHost())
 				.withUrl(issuerUrl);
 	}
 

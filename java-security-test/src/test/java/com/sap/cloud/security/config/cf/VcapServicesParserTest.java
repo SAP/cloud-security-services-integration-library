@@ -35,8 +35,6 @@ public class VcapServicesParserTest {
 
 		assertThat(oAuth2ServiceConfiguration.getProperty(VERIFICATION_KEY)).isNull();
 		assertThat(oAuth2ServiceConfiguration.getClientSecret()).isNull();
-		assertThat(oAuth2ServiceConfiguration.getUrl()).isEqualTo(URI.create("http://localhost"));
-		assertThat(oAuth2ServiceConfiguration.getProperty(UAA_DOMAIN)).isEqualTo("localhost");
 	}
 
 	@Test
