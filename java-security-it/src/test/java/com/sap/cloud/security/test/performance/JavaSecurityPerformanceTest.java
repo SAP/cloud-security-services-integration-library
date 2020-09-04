@@ -6,6 +6,7 @@ import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.test.SecurityTest;
 import com.sap.cloud.security.test.performance.util.BenchmarkUtil;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
@@ -53,8 +54,9 @@ public class JavaSecurityPerformanceTest {
 		CombiningValidator<Token> tokenValidator = createOnlineTokenValidator();
 		ValidationResult validationResult = tokenValidator.validate(token);
 		assertThat(validationResult.isValid()).isTrue();
+		String tokenValue = token.getTokenValue();
 
-		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> tokenValidator.validate(token));
+		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> tokenValidator.validate(new XsuaaToken(tokenValue)));
 		LOGGER.info("Online validation result: {}", result.toString());
 	}
 
@@ -64,8 +66,9 @@ public class JavaSecurityPerformanceTest {
 		CombiningValidator<Token> tokenValidator = createOfflineTokenValidator();
 		ValidationResult validationResult = tokenValidator.validate(token);
 		assertThat(validationResult.isValid()).isTrue();
+		String tokenValue = token.getTokenValue();
 
-		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> tokenValidator.validate(token));
+		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> tokenValidator.validate(new XsuaaToken(tokenValue)));
 		LOGGER.info("Offline validation result: {}", result.toString());
 	}
 
