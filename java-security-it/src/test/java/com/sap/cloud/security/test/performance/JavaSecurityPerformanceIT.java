@@ -27,13 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Performance test for java-security jwt token validation.
- * Because this test should not run automatically, the {@link EnabledIfEnvironmentVariable} is used.
- * To run in from the command line set the environment variable PERFORMANCE_TESTS to "true".
  */
-@EnabledIfEnvironmentVariable(named = "PERFORMANCE_TESTS", matches = "true")
-public class JavaSecurityPerformanceTest {
+public class JavaSecurityPerformanceIT {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(JavaSecurityPerformanceTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JavaSecurityPerformanceIT.class);
 	private static SecurityTest securityTest;
 
 	@BeforeAll

@@ -23,13 +23,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Performance test for spring-xsuaa jwt token validation.
- * Because this test should not run automatically, the {@link EnabledIfEnvironmentVariable} is used.
- * To run in from the command line set the environment variable PERFORMANCE_TESTS to "true".
  */
-@EnabledIfEnvironmentVariable(named = "PERFORMANCE_TESTS", matches = "true")
-public class SpringXsuaaPerformanceTest {
+public class SpringXsuaaPerformanceIT {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SpringXsuaaPerformanceTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpringXsuaaPerformanceIT.class);
 	private static SecurityTest securityTest;
 
 	@BeforeAll
