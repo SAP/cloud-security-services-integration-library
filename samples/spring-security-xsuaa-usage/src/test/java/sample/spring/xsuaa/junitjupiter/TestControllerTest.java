@@ -32,17 +32,19 @@ public class TestControllerTest {
 
 	private static SecurityTest securityTest = new SecurityTest(Service.XSUAA);
 
-	private String jwt = securityTest.getPreconfiguredJwtGenerator()
-			.withLocalScopes("Read")
-			.createToken().getTokenValue();
+	private String jwt;
 
-	private String jwtAdmin = securityTest.getPreconfiguredJwtGenerator()
-			.withLocalScopes("Read", "Admin")
-			.createToken().getTokenValue();
+	private String jwtAdmin;
 
 	@BeforeEach
 	public void setup() throws Exception {
 		securityTest.setup();
+		jwt = securityTest.getPreconfiguredJwtGenerator()
+				.withLocalScopes("Read")
+				.createToken().getTokenValue();
+		jwtAdmin = securityTest.getPreconfiguredJwtGenerator()
+				.withLocalScopes("Read", "Admin")
+				.createToken().getTokenValue();
 	}
 
 	@AfterAll
