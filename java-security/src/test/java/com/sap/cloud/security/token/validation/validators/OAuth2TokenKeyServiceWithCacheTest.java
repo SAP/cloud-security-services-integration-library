@@ -1,11 +1,12 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import com.github.benmanes.caffeine.cache.Ticker;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,17 +16,15 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 
-import com.github.benmanes.caffeine.cache.Ticker;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class OAuth2TokenKeyServiceWithCacheTest {
 
-	public static final TokenCacheConfiguration CACHE_CONFIGURATION = TokenCacheConfiguration.defaultConfiguration();
+	public static final TokenKeyCacheConfiguration CACHE_CONFIGURATION = TokenKeyCacheConfiguration
+			.defaultConfiguration();
 
 	OAuth2TokenKeyServiceWithCache cut;
 	OAuth2TokenKeyService tokenKeyServiceMock;
@@ -39,10 +38,7 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
 
 		testCacheTicker = new TestCacheTicker();
-		cut = OAuth2TokenKeyServiceWithCache
-				.getInstance(testCacheTicker)
-				.withTokenKeyService(tokenKeyServiceMock)
-				.withCacheConfiguration(CACHE_CONFIGURATION);
+		cut = createCut(CACHE_CONFIGURATION);
 	}
 
 	@Test
@@ -129,6 +125,22 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	}
 
 	@Test
+	public void cacheStatistics_isDisabled_statisticsObjectIsNull() {
+		cut = createCut(TokenKeyCacheConfiguration
+				.getInstance(CACHE_CONFIGURATION.getCacheDuration(), CACHE_CONFIGURATION.getCacheSize(), false));
+
+		assertThat(cut.getCacheStatistics()).isNull();
+	}
+
+	@Test
+	public void cacheStatistics_isEnabled_returnsStatisticsObject() {
+		cut = createCut(TokenKeyCacheConfiguration
+				.getInstance(CACHE_CONFIGURATION.getCacheDuration(), CACHE_CONFIGURATION.getCacheSize(), true));
+
+		assertThat(cut.getCacheStatistics()).isInstanceOf(CacheStats.class);
+	}
+
+	@Test
 	public void retrieveTokenKeysForNewKeyId()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI);
@@ -147,7 +159,14 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any());
 	}
 
-	private class TestCacheTicker implements  Ticker {
+	private OAuth2TokenKeyServiceWithCache createCut(TokenKeyCacheConfiguration cacheConfiguration) {
+		return OAuth2TokenKeyServiceWithCache
+				.getInstance(testCacheTicker)
+				.withTokenKeyService(tokenKeyServiceMock)
+				.withCacheConfiguration(cacheConfiguration);
+	}
+
+	private class TestCacheTicker implements Ticker {
 		long elapsed = 0;
 
 		@Override

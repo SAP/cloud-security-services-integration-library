@@ -280,7 +280,15 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 		if (sameThreadCache) {
 			cacheBuilder.executor(Runnable::run);
 		}
+		if (getCacheConfiguration().isCacheStatisticsEnabled()) {
+			cacheBuilder.recordStats();
+		}
 		return cacheBuilder.build();
+	}
+
+	@Override
+	public Object getCacheStatistics() {
+		return getCacheConfiguration().isCacheStatisticsEnabled() ? responseCache.stats() : null;
 	}
 
 	private class CacheKey {
