@@ -48,8 +48,8 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 	 * properties. See {@link CacheConfiguration#getCacheDuration()},
 	 * {@link CacheConfiguration#getCacheSize()},
 	 * {@link TokenCacheConfiguration#getTokenExpirationDelta()} and
-	 * {@link CacheConfiguration#isCacheStatisticsEnabled()} for an explanation
-	 * of the respective properties.
+	 * {@link CacheConfiguration#isCacheStatisticsEnabled()} for an explanation of
+	 * the respective properties.
 	 *
 	 * @param cacheDuration
 	 *            the cache duration property.
@@ -58,11 +58,12 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 	 * @param tokenExpirationDelta
 	 *            the token expiration delta.
 	 * @param cacheStatisticsEnabled
-	 * 			  {@code true} if cache statistic recording has been enabled
+	 *            {@code true} if cache statistic recording has been enabled
 	 *
 	 * @return a new {@link TokenCacheConfiguration} instance.
 	 */
-	public static TokenCacheConfiguration getInstance(Duration cacheDuration, int cacheSize, Duration tokenExpirationDelta, boolean cacheStatisticsEnabled) {
+	public static TokenCacheConfiguration getInstance(Duration cacheDuration, int cacheSize,
+			Duration tokenExpirationDelta, boolean cacheStatisticsEnabled) {
 		return new TokenCacheConfiguration(cacheDuration, cacheSize, tokenExpirationDelta, cacheStatisticsEnabled);
 	}
 
@@ -114,7 +115,6 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 	public Duration getTokenExpirationDelta() {
 		return tokenExpirationDelta;
 	}
-
 
 	@Override
 	public boolean isCacheStatisticsEnabled() {

@@ -291,7 +291,7 @@ public class AbstractOAuth2TokenServiceTest {
 
 	private TokenCacheConfiguration cacheConfigurationWithCacheStatistics(boolean enableCacheStatistics) {
 		return TokenCacheConfiguration.getInstance(TEST_CACHE_CONFIGURATION.getCacheDuration(),
-				TEST_CACHE_CONFIGURATION.getCacheSize(),  TEST_CACHE_CONFIGURATION.getTokenExpirationDelta(),
+				TEST_CACHE_CONFIGURATION.getCacheSize(), TEST_CACHE_CONFIGURATION.getTokenExpirationDelta(),
 				enableCacheStatistics);
 	}
 

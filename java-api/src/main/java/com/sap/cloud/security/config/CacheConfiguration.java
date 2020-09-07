@@ -32,8 +32,8 @@ public interface CacheConfiguration {
 	}
 
 	/**
-	 * Returns {@code true} if cache statistics recording has been enabled.
-	 * If it is enabled, cache statistics might be obtained from the {@code Cacheable}.
+	 * Returns {@code true} if cache statistics recording has been enabled. If it is
+	 * enabled, cache statistics might be obtained from the {@code Cacheable}.
 	 *
 	 * @return {@code true} if cache statistics is enabled
 	 */

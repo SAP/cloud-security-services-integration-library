@@ -25,12 +25,12 @@ public interface Cacheable {
 	void clearCache();
 
 	/**
-	 * This returns an implementation specific statistics object
-	 * if the underlying cache supports it and cache statistics have been
-	 * enabled in the {@link CacheConfiguration}.
+	 * This returns an implementation specific statistics object if the underlying
+	 * cache supports it and cache statistics have been enabled in the
+	 * {@link CacheConfiguration}.
 	 *
-	 * Use with care. The type of the statistics object might change in
-	 * later versions.
+	 * Use with care. The type of the statistics object might change in later
+	 * versions.
 	 *
 	 * @return the cache statistics object.
 	 */

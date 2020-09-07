@@ -22,15 +22,15 @@ class TokenKeyCacheConfiguration implements CacheConfiguration {
 	 * Creates a new {@link TokenKeyCacheConfiguration} instance with the given
 	 * properties. See {@link CacheConfiguration#getCacheDuration()},
 	 * {@link CacheConfiguration#getCacheSize()} and
-	 * {@link CacheConfiguration#isCacheStatisticsEnabled()}
-	 * for an explanation of the respective properties.
+	 * {@link CacheConfiguration#isCacheStatisticsEnabled()} for an explanation of
+	 * the respective properties.
 	 *
 	 * @param cacheDuration
 	 *            the cache duration property.
 	 * @param cacheSize
 	 *            the cache size property.
 	 * @param cacheStatisticsEnabled
-	 * 			  set to {@code true} if cache statists should be recorded
+	 *            set to {@code true} if cache statists should be recorded
 	 * @return a new {@link TokenKeyCacheConfiguration} instance.
 	 */
 	static TokenKeyCacheConfiguration getInstance(Duration cacheDuration, int cacheSize,

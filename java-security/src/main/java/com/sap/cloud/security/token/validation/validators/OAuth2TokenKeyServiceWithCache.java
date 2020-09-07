@@ -1,19 +1,11 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.Ticker;
-import com.sap.cloud.security.config.CacheConfiguration;
-import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -21,8 +13,17 @@ import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.util.Set;
 
-import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.sap.cloud.security.config.CacheConfiguration;
+import com.sap.cloud.security.xsuaa.Assertions;
+import com.github.benmanes.caffeine.cache.Ticker;
+import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Decorates {@link OAuth2TokenKeyService} with a cache, which gets looked up
@@ -55,7 +56,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 * Creates a new instance and sets the cache ticker. This is used for testing.
 	 *
 	 * @param cacheTicker
-	 *            ticker the cache uses to determine time
+	 * 			ticker the cache uses to determine time
+	 *
 	 * @return the new instance.
 	 */
 	static OAuth2TokenKeyServiceWithCache getInstance(Ticker cacheTicker) {

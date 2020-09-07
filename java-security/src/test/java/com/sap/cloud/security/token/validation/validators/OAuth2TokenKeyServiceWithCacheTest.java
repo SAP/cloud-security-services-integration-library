@@ -1,12 +1,11 @@
 package com.sap.cloud.security.token.validation.validators;
 
-import com.github.benmanes.caffeine.cache.Ticker;
-import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
@@ -16,10 +15,13 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import com.github.benmanes.caffeine.cache.Ticker;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 public class OAuth2TokenKeyServiceWithCacheTest {
 
@@ -148,7 +150,6 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 
 		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any());
 	}
-
 
 	@Test
 	public void retrieveTokenKeysForNewEndpoint()
