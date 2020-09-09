@@ -51,6 +51,8 @@ By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache 
 `CacheConfiguration` object as constructor parameter. The cache can be disabled by using the
 `CacheConfiguration.CACHE_DISABLED` configuration.
 
+:exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService.java` implementation or to the `XsuaaTokenFlows`.
+
 ## Configuration for Java/Spring Applications
 
 #### Maven Dependencies, when using Spring Web `RestTemplate`
@@ -82,6 +84,8 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 By default, the `XsuaaOAuth2TokenService` caches tokens internally. The Cache can be configured by providing an
 `CacheConfiguration` object as constructor parameter. The cache can be disabled by using the
 `CacheConfiguration.CACHE_DISABLED` configuration.
+
+:exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService.java` implementation or to the `XsuaaTokenFlows`.
 
 ## Configuration for Spring Boot Applications
 
