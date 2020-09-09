@@ -13,13 +13,14 @@ import java.util.Objects;
 public class TokenCacheConfiguration implements CacheConfiguration {
 
 	private static final TokenCacheConfiguration DEFAULT = new TokenCacheConfiguration(Duration.ofMinutes(10), 1000,
-			Duration.ofSeconds(30));
+			Duration.ofSeconds(30), false);
 
 	private static final TokenCacheConfiguration CACHE_DISABLED = new DisabledCache();
 
 	private final Duration cacheDuration;
 	private final int cacheSize;
 	private final Duration tokenExpirationDelta;
+	private final boolean cacheStatisticsEnabled;
 
 	/**
 	 * Creates a new {@link TokenCacheConfiguration} instance with the given
@@ -39,7 +40,31 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 	public static TokenCacheConfiguration getInstance(@Nonnull Duration cacheDuration, int cacheSize,
 			@Nonnull Duration tokenExpirationDelta) {
 		Assertions.assertNotNull(cacheDuration, "The cache duration write must not be null!");
-		return new TokenCacheConfiguration(cacheDuration, cacheSize, tokenExpirationDelta);
+		return new TokenCacheConfiguration(cacheDuration, cacheSize, tokenExpirationDelta, false);
+	}
+
+	/**
+	 * Creates a new {@link TokenCacheConfiguration} instance with the given
+	 * properties. See {@link CacheConfiguration#getCacheDuration()},
+	 * {@link CacheConfiguration#getCacheSize()},
+	 * {@link TokenCacheConfiguration#getTokenExpirationDelta()} and
+	 * {@link CacheConfiguration#isCacheStatisticsEnabled()} for an explanation of
+	 * the respective properties.
+	 *
+	 * @param cacheDuration
+	 *            the cache duration property.
+	 * @param cacheSize
+	 *            the cache size property.
+	 * @param tokenExpirationDelta
+	 *            the token expiration delta.
+	 * @param cacheStatisticsEnabled
+	 *            {@code true} if cache statistic recording has been enabled
+	 *
+	 * @return a new {@link TokenCacheConfiguration} instance.
+	 */
+	public static TokenCacheConfiguration getInstance(Duration cacheDuration, int cacheSize,
+			Duration tokenExpirationDelta, boolean cacheStatisticsEnabled) {
+		return new TokenCacheConfiguration(cacheDuration, cacheSize, tokenExpirationDelta, cacheStatisticsEnabled);
 	}
 
 	/**
@@ -56,10 +81,12 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 		return DEFAULT;
 	}
 
-	private TokenCacheConfiguration(Duration cacheDuration, int cacheSize, Duration tokenExpirationDelta) {
+	private TokenCacheConfiguration(Duration cacheDuration, int cacheSize, Duration tokenExpirationDelta,
+			boolean cacheStatisticsEnabled) {
 		this.cacheDuration = cacheDuration;
 		this.cacheSize = cacheSize;
 		this.tokenExpirationDelta = tokenExpirationDelta;
+		this.cacheStatisticsEnabled = cacheStatisticsEnabled;
 	}
 
 	@Nonnull
@@ -90,6 +117,11 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 	}
 
 	@Override
+	public boolean isCacheStatisticsEnabled() {
+		return cacheStatisticsEnabled;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
@@ -117,7 +149,7 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 	private static class DisabledCache extends TokenCacheConfiguration {
 
 		private DisabledCache() {
-			super(Duration.ZERO, 0, Duration.ZERO);
+			super(Duration.ZERO, 0, Duration.ZERO, false);
 		}
 
 		@Override

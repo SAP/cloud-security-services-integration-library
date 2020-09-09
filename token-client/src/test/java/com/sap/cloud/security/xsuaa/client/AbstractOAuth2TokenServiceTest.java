@@ -1,6 +1,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.github.benmanes.caffeine.cache.Ticker;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import org.assertj.core.util.Maps;
@@ -216,6 +217,22 @@ public class AbstractOAuth2TokenServiceTest {
 		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
 	}
 
+	@Test
+	public void cacheStatistics_isDisabled_statisticsObjectIsNull() {
+		TokenCacheConfiguration tokenCacheConfiguration = cacheConfigurationWithCacheStatistics(false);
+		cut = new TestOAuth2TokenService(tokenCacheConfiguration);
+
+		assertThat(cut.getCacheStatistics()).isNull();
+	}
+
+	@Test
+	public void cacheStatistics_isEnabled_returnsStatisticsObject() {
+		TokenCacheConfiguration tokenCacheConfiguration = cacheConfigurationWithCacheStatistics(true);
+		cut = new TestOAuth2TokenService(tokenCacheConfiguration);
+
+		assertThat(cut.getCacheStatistics()).isInstanceOf(CacheStats.class);
+	}
+
 	private OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(String token) throws OAuth2ServiceException {
 		return retrieveAccessTokenViaJwtBearerTokenGrant(token, null);
 	}
@@ -270,6 +287,12 @@ public class AbstractOAuth2TokenServiceTest {
 	private TokenCacheConfiguration cacheConfigurationWithSize(int size) {
 		return TokenCacheConfiguration.getInstance(TEST_CACHE_CONFIGURATION.getCacheDuration(), size,
 				TEST_CACHE_CONFIGURATION.getTokenExpirationDelta());
+	}
+
+	private TokenCacheConfiguration cacheConfigurationWithCacheStatistics(boolean enableCacheStatistics) {
+		return TokenCacheConfiguration.getInstance(TEST_CACHE_CONFIGURATION.getCacheDuration(),
+				TEST_CACHE_CONFIGURATION.getCacheSize(), TEST_CACHE_CONFIGURATION.getTokenExpirationDelta(),
+				enableCacheStatistics);
 	}
 
 	private static class TestOAuth2TokenService extends AbstractOAuth2TokenService {
