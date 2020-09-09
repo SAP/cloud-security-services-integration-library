@@ -79,7 +79,7 @@ Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (
 
 Whether the token is issued for your application or not is now validated by the [`XsuaaAudienceValidator`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/authentication/XsuaaAudienceValidator.java).
 
-In case of issues, make sure, that you've granted at least one scope to the calling application.
+This comes with a change regarding scopes. For a business application A that wants to call an application B, it's now mandatory that the application B grants at least one scope to the calling business application A. You can grant scopes with the `xs-security.json` file. For additional information, refer to the [Application Security Descriptor Configuration Syntax](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/517895a9612241259d6941dbf9ad81cb.html), specifically the sections [referencing the application](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/517895a9612241259d6941dbf9ad81cb.html#loio517895a9612241259d6941dbf9ad81cb__section_fm2_wsk_pdb) and [authorities](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/517895a9612241259d6941dbf9ad81cb.html#loio517895a9612241259d6941dbf9ad81cb__section_d1m_1nq_zy). 
 
 ### Multiple XSUAA Bindings
 You can skip this section, in case your application is bound to only one Xsuaa service instance. The `xsuaa-spring-boot-starter` does not support multiple XSUAA bindings of plan `application` and `broker`. **The Xsuaa service instance of plan `api` is ignored.**
