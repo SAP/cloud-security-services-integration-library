@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.7.7-SNAPSHOT
+## 2.7.7
 - [spring-xsuaa] Update Spring versions
   - spring.core.version: 5.2.7.RELEASE --> 5.2.8.RELEASE
   - spring.security.version: 5.3.3.RELEASE --> 5.3.4.RELEASE
