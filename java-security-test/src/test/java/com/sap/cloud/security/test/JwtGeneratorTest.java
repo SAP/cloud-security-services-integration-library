@@ -335,7 +335,7 @@ public class JwtGeneratorTest {
 	@Test
 	public void getInstanceFromFile_invalidAlg_throwsException() throws IOException {
 		assertThatThrownBy(() -> JwtGenerator.getInstanceFromFile(XSUAA, "/token_invalid_alg.json"))
-			.isInstanceOf(UnsupportedOperationException.class);
+				.isInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test

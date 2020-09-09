@@ -221,7 +221,7 @@ public class SecurityTest {
 	 *            {@link JwtGenerator#getInstanceFromFile(Service, String)}
 	 * @return a new {@link JwtGenerator} instance
 	 * @throws IllegalArgumentException
-	 * 			   if the resource cannot be read
+	 *             if the resource cannot be read
 	 * @throws JsonParsingException
 	 *             if the file contains invalid data
 	 */
@@ -243,7 +243,7 @@ public class SecurityTest {
 	 *            json
 	 * @return a new {@link OAuth2ServiceConfigurationBuilder} instance
 	 * @throws IllegalArgumentException
-	 * 			   if the resource cannot be read
+	 *             if the resource cannot be read
 	 * @throws JsonParsingException
 	 *             if the resource contains invalid data
 	 */

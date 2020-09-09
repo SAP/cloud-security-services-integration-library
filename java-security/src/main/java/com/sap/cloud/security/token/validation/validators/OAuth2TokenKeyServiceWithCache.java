@@ -56,7 +56,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 * Creates a new instance and sets the cache ticker. This is used for testing.
 	 *
 	 * @param cacheTicker
-	 * 			ticker the cache uses to determine time
+	 *            ticker the cache uses to determine time
 	 *
 	 * @return the new instance.
 	 */

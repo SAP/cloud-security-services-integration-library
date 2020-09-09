@@ -56,7 +56,8 @@ public interface AccessToken extends Token {
 	 *     "claimName": {
 	 *         "attributeName": "attributeValueAsString"
 	 *     },
-	 *     </code><br><br>
+	 *     </code><br>
+	 * <br>
 	 * Example: <br>
 	 * <code>
 	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
@@ -64,7 +65,8 @@ public interface AccessToken extends Token {
 	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
 	 *     </code>
 	 * 
-	 * @return the String value of a claim attribute or null if claim or its attribute does not exist.
+	 * @return the String value of a claim attribute or null if claim or its
+	 *         attribute does not exist.
 	 **/
 	@Nullable
 	default String getAttributeFromClaimAsString(String claimName, String attributeName) {
@@ -79,7 +81,8 @@ public interface AccessToken extends Token {
 	 *     "claimName": {
 	 *         "attributeName": ["attributeValueAsString", "attributeValue2AsString"]
 	 *     },
-	 *     </code><br><br>
+	 *     </code><br>
+	 * <br>
 	 * Example: <br>
 	 * <code>
 	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
@@ -87,7 +90,8 @@ public interface AccessToken extends Token {
 	 *     token.getAttributeFromClaimAsString(XS_USER_ATTRIBUTES, "custom_role");
 	 *     </code>
 	 *
-	 * @return the String value of a claim attribute or null if claim or its attribute does not exist.
+	 * @return the String value of a claim attribute or null if claim or its
+	 *         attribute does not exist.
 	 **/
 	@Nullable
 	default List<String> getAttributeFromClaimAsStringList(String claimName, String attributeName) {

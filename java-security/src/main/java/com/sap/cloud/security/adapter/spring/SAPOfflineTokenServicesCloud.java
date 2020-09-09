@@ -171,8 +171,9 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		SecurityContext.setToken(token);
 
 		String tokenClientId = token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID);
-		if(LOGGER.isInfoEnabled() && tokenClientId != serviceConfiguration.getClientId()) {
-			LOGGER.info("Creates OAuth2Authentication with token clientId {} which differs from oauth client id {}.", tokenClientId, serviceConfiguration.getClientId());
+		if (LOGGER.isInfoEnabled() && tokenClientId != serviceConfiguration.getClientId()) {
+			LOGGER.info("Creates OAuth2Authentication with token clientId {} which differs from oauth client id {}.",
+					tokenClientId, serviceConfiguration.getClientId());
 		}
 		// remoteUser support: NGPBUG-125268
 		return createOAuth2Authentication(tokenClientId, getScopes(token), token);

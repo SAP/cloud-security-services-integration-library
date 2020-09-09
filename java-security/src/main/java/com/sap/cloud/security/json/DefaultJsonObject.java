@@ -50,7 +50,7 @@ public class DefaultJsonObject implements JsonObject {
 	@Override
 	public List<String> getAsStringList(String name) {
 		List<String> list = new ArrayList<>();
-		if(contains(name)) {
+		if (contains(name)) {
 			if (getJsonObject().get(name) instanceof String) {
 				list.add(getAsString(name));
 			} else {

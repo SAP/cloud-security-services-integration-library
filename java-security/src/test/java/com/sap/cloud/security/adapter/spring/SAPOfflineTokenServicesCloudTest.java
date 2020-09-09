@@ -72,8 +72,8 @@ public class SAPOfflineTokenServicesCloudTest {
 		Collection<String> authorities = oAuth2Request.getAuthorities().stream()
 				.map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 		assertThat(authorities).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
-		assertThat(authentication.getAuthorities()).contains
-				(new SimpleGrantedAuthority("uaa.resource"), new SimpleGrantedAuthority("ROLE_SERVICEBROKER"));
+		assertThat(authentication.getAuthorities()).contains(new SimpleGrantedAuthority("uaa.resource"),
+				new SimpleGrantedAuthority("ROLE_SERVICEBROKER"));
 		assertThat(SecurityContext.getToken().getTokenValue()).isEqualTo(xsuaaToken);
 	}
 
