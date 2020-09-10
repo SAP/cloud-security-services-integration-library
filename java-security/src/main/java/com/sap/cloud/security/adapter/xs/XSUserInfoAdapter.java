@@ -267,7 +267,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * Check if a token issued for another OAuth client has been forwarded to a
 	 * different client,
 	 *
-	 * This method does not support checking if the token can be accepted by ACL.
+	 * This method does not support checking if the token can be accepted by Audience Validation.
 	 *
 	 * @return true if token was forwarded or if it cannot be determined.
 	 */
@@ -293,7 +293,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 		if (clientIdsMatch && (identityZonesMatch || isApplicationPlan || isBrokerPlan)) {
 			LOGGER.info(
-					"Token not in foreign mode because because client ids  match and identityZonesMatch={}, isApplicationPlan={} ",
+					"Token not in foreign mode because because client ids match and identityZonesMatch={}, isApplicationPlan={} ",
 					identityZonesMatch, isApplicationPlan);
 			return false; // no foreign mode
 		}
