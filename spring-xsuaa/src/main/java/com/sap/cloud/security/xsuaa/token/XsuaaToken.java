@@ -62,6 +62,11 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	@Override
+	public boolean isClone(String appId) {
+		return appId.contains("!b") && getClientId().endsWith("|" + appId);
+	}
+
+	@Override
 	public String getPassword() {
 		return null;
 	}

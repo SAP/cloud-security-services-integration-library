@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -197,4 +198,12 @@ public interface Token extends UserDetails {
 	@Nullable
 	Instant getExpiration();
 
+	/**
+	 * Determines whether the token is clone token for the XS application.
+	 *
+	 * @param appId the XS application identifier, see {@link XsuaaServiceConfiguration#getAppId()}
+	 * @return true, when the token is a clone token
+	 *
+	 */
+	boolean isClone(String appId);
 }
