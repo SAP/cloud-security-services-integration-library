@@ -16,7 +16,11 @@
 package sample.spring.xsuaa;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.token.Token;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaAudienceValidator;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -25,9 +29,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
@@ -65,6 +73,42 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
 		converter.setLocalScopeAsAuthorities(true);
 		return converter;
+	}
+
+	@Bean
+	public JwtDecoder xsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+		return new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration)
+				.withoutXsuaaAudienceValidator()
+				.withTokenValidators(new MyAudienceValidator(xsuaaServiceConfiguration))
+				//.withRestOperations(xsuaaRestOperations)
+				.build();
+	}
+
+	private class MyAudienceValidator extends XsuaaAudienceValidator {
+		XsuaaServiceConfiguration configuration;
+
+		public MyAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+			super(xsuaaServiceConfiguration);
+			this.configuration = xsuaaServiceConfiguration;
+		}
+
+		@Override
+		public OAuth2TokenValidatorResult validate(Jwt token) {
+			if(isClone(token)) {
+				String description = String.format("Clone token with client id %s is rejected.", ((Token) token).getClientId());
+				return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, description, null));
+			}
+			return super.validate(token);
+		}
+
+		private boolean isClone(Jwt token) {
+			if(token instanceof Token) {
+				// workarount till 2.7.8
+				// return ((Token) token).isClone(configuration.getAppId());
+				return configuration.getAppId().contains("!b") && ((Token)token).getClientId().endsWith("|" + configuration.getAppId());
+			}
+			return false;
+		}
 	}
 
 }
