@@ -128,6 +128,7 @@ String email = token.getClaimAsString(TokenClaims.EMAIL);
 List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 java.security.Principal principal = token.getPrincipal();
 Instant expiredAt = token.getExpiration();
+String keyId = token.getHeaderParameterAsString(TokenHeader.KEY_ID);
 ...
 ```
 
