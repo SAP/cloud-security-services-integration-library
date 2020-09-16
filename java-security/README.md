@@ -80,11 +80,12 @@ OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaCon
 Alternatively you can also specify the Service Configuration by your own:
 ```
 OAuth2ServiceConfiguration serviceConfig = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
-    .withProperty(CFConstants.XSUAA.APP_ID, "appid")
-    .withProperty(CFConstants.XSUAA.UAA_DOMAIN, "authentication.sap.hana.ondemand.com")
-    .withUrl("https://paas.authentication.sap.hana.ondemand.com")
-    .withClientId("oauth-client")
-    .withClientSecret("oauth-client-secret");
+      .withProperty(CFConstants.XSUAA.APP_ID, "appid")
+      .withProperty(CFConstants.XSUAA.UAA_DOMAIN, "authentication.sap.hana.ondemand.com")
+      .withUrl("https://paas.authentication.sap.hana.ondemand.com")
+      .withClientId("oauth-client")
+      .withClientSecret("oauth-client-secret")
+      .build();
 ```
 
 ### Setup Step 2: Setup Validators
