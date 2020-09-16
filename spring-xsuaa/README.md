@@ -286,10 +286,12 @@ public XsuaaCredentials xsuaaCredentials() {
 ```
     
 #### JWT verification failed ... no suitable HttpMessageConverter found
-In case `RestTemplate` is not configured with an appropriate `HttpMessageConverter` the token-keys response can not be handled and consequently the JWT signature can not be validated and it may fail with the following error:
+In case `RestTemplate` is not configured with an appropriate `HttpMessageConverter` the Jwt signature validator can not handle the token keys (JWK set) response from xsuaa. Consequently the JWT signature can not be validated and it may fail with the following error:
+
 ```
-JWT verification failed: An error occurred while attempting to decode the Jwt: Couldn't retrieve remote JWK set from xsuaa `token_keys` endpoint: org.springframework.web.client.RestClientException: Could not extract response: no suitable HttpMessageConverter found for response type [class java.lang.String] and content type [application/octet-stream]
+JWT verification failed: An error occurred while attempting to decode the Jwt: Couldn't retrieve remote JWK set: org.springframework.web.client.RestClientException: Could not extract response: no suitable HttpMessageConverter found for response type [class java.lang.String] and content type [application/octet-stream]
 ```
+
 In case you use 
 ```xml
 <dependency>
@@ -298,7 +300,7 @@ In case you use
 </dependency>
 
 ```
-You can configure your xsuaa `RestTemplate` like that:
+You can configure your xsuaa `RestTemplate` like that, e.g. as part of your `SecurityConfiguration` configuration class:
 ```java
 @Bean
 public RestOperations xsuaaRestOperations() {
