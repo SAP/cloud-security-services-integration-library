@@ -284,3 +284,28 @@ public XsuaaCredentials xsuaaCredentials() {
     return result;
 }
 ```
+    
+#### JWT verification failed ... no suitable HttpMessageConverter found
+In case `RestTemplate` is not configured with an appropriate `HttpMessageConverter` the token-keys response can not be handled and consequently the JWT signature can not be validated and it may fail with the following error:
+```
+JWT verification failed: An error occurred while attempting to decode the Jwt: Couldn't retrieve remote JWK set from xsuaa `token_keys` endpoint: org.springframework.web.client.RestClientException: Could not extract response: no suitable HttpMessageConverter found for response type [class java.lang.String] and content type [application/octet-stream]
+```
+In case you use 
+```xml
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+</dependency>
+
+```
+You can configure your xsuaa `RestTemplate` like that:
+```java
+@Bean
+public RestOperations xsuaaRestOperations() {
+    RestTemplate restTemplate = new RestTemplate();
+    MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+    mappingJackson2HttpMessageConverter.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM));
+    restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
+    return restTemplate;
+}
+```
