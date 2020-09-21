@@ -311,3 +311,14 @@ public RestOperations xsuaaRestOperations() {
     return restTemplate;
 }
 ```
+
+## Additional (test) utilities
+- [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.
+
+## Further References
+- [Sample](/samples/spring-security-xsuaa-usage)   
+demonstrating how to leverage xsuaa and spring security library to secure a Spring Boot web application including token exchange (user, client-credentials, refresh, ...). Furthermore it documents how to implement SpringWebMvcTests using `java-security-test` library.
+- [Basic Auth Sample](/samples/spring-security-basic-auth)  
+demonstrating how a user can access Rest API via basic authentication (user/password).
+
+
