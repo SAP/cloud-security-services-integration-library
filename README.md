@@ -70,7 +70,6 @@ Spring Boot provides OAuth resource servers. Application developers requiring au
 ### Additional (test) utilities
 - [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.
 
-Find [here](https://github.com/SAP/cloud-application-security-sample/tree/master/spring-security-basis) a more sophisticated sample.
 
 # Download and Installation
 Build results are published to maven central: https://search.maven.org/search?q=com.sap.cloud.security 
