@@ -64,7 +64,8 @@ Spring Boot provides OAuth resource servers. Application developers requiring au
 - Spring Boot 2.1 and later
 
 ### Sample
-See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
+- See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
+- See [spring-security-basic-auth](/samples/spring-security-basic-auth) for an example demonstrating how a user can access Rest API via basic authentication (user/password).
 
 ### Additional (test) utilities
 - [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.
