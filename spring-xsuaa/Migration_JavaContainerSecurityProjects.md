@@ -64,9 +64,10 @@ Spring Security OAuth 2.x which is being deprecated in Spring 5.
 This means that you have to remove the  `SAPOfflineTokenServicesCloud` bean from your security configuration
 and adapt the `HttpSecurity` configuration. This involves the following steps:
 
-- The `@EnableResourceServer` annotation must be removed because the resource server is now configured using the Spring Security DSL syntax. See the [docs](/spring-xsuaa/#setup-security-context-for-http-requests) for an example configuration.
+- The `@EnableResourceServer` annotation must be removed. Instead, the resource server has to be configured using the Spring Security DSL syntax.   
+See the [docs](/spring-xsuaa/#setup-security-context-for-http-requests) for an example configuration.
 - The `antMatchers` must be configured to check against the authorities. For this the `TokenAuthenticationConverter`
-  needs to be configured like described in the [docs](/spring-xsuaa/#setup-security-context-for-http-requests).
+  needs to be configured like described in the [docs](/spring-xsuaa/#setup-security-context-for-http-requests). Note: with the removal of the deprecated [Spring Security OAuth](https://projects.spring.io/spring-security-oauth) library the web expression `access("#oauth2.hasScope('" + xsAppName + ".Display"’)")` has been removed, and must be replaced with `hasAuthority("Display")`.
 
 We already added `spring-xsuaa` and `java-security-test` to the [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads) application and
 [this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/585c7a1a9763c627009fda03a6424e0328df3c5a)
