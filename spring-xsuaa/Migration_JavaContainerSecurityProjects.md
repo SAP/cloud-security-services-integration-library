@@ -173,7 +173,7 @@ See the following table for methods that are not available anymore and workaroun
 
 | XSUserInfo method       | Workaround in `spring.xsuaa`                                                                                      |
 |-------------------------|--------------------------------------------------------------------------------------------------|
-| `checkLocalScope`       | Adapt the default behaviour of `TokenAuthenticationConverter.setLocalScopeAsAuthorities(true)` to let `getAuthorities` return local scopes. |
+| `checkLocalScope`       | Adapt the default behaviour of `TokenAuthenticationConverter.setLocalScopeAsAuthorities(true)` to let `getAuthorities` return local scopes. E.g. `token.getAuthorities().contains(new SimpleGrantedAuthority("Display"))`|
 | `checkScope`            | Use `getScopes` and check if the scope is contained.|
 | `getAttribute`          | Use `getXSUserAttribute`.                                                                        |
 | `getDBToken`            | Not implemented.                                                                                 |
