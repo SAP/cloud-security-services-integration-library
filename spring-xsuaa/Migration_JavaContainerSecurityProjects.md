@@ -73,6 +73,25 @@ We already added `spring-xsuaa` and `java-security-test` to the [cloud-bulletinb
 [this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/585c7a1a9763c627009fda03a6424e0328df3c5a)
 shows the security relevant parts.
 
+### Access VCAP_SERVICES values
+There are two options to access information of the XSUAA service instance (`VCAP_SERVICES` credentials):
+
+1. Via Spring `@Value`
+```java
+@Value("${xsuaa.xsappname}")
+String xsAppName;
+```
+2. Via XsuaaServiceConfiguration bean
+```java
+@Autowired
+XsuaaServiceConfiguration xsuaaServiceConfiguration;
+
+...
+
+xsuaaServiceConfiguration.getAppId();
+```
+
+
 
 ### SAP_JWT_TRUST_ACL obsolete
 There is no need to configure `SAP_JWT_TRUST_ACL` within your deployment descriptor such as `manifest.yml`. 
@@ -135,9 +154,9 @@ In case of multiple bindings you need to adapt your **Spring Security Configurat
     }
     ```
  4. Note: In case you would like to configure authorization checks for scopes that are specified in context of different XSUAA service instances local scope names (without `xsappname` prefix) are not unique. So, make sure that `TokenAuthenticationConverter` is NOT configured to check for local scopes (`setLocalScopeAsAuthorities(false)`)! In this case configure the HttpSecurity with an `antMatcher` for local scope "Read" as following:  
-```
- .antMatchers("/v1/sayHello").hasAuthority(customXsuaaConfig().getAppId() + '.' + "Read")
-```
+   ```
+ 	.antMatchers("/v1/sayHello").hasAuthority(customXsuaaConfig().getAppId() + '.' + "Read")
+   ```
 
 ## Fetch data from token
 
