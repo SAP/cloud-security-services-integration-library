@@ -3,7 +3,6 @@ package com.sap.cloud.security.test;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.VcapServicesParser;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.jetty.JettyTokenAuthenticator;
@@ -13,6 +12,9 @@ import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.http.HttpHeader;
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import com.sap.cloud.security.xsuaa.http.MediaType;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
@@ -366,12 +368,15 @@ public class SecurityTest {
 		} else {
 			wireMockServer.resetAll();
 		}
+		// TODO return JSON Media type
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
 				String.format(LOCALHOST_PATTERN, wireMockServer.port()));
 		wireMockServer.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
-				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())));
+				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())
+						.withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.value())));
 		wireMockServer.stubFor(get(urlEqualTo(DISCOVERY_ENDPOINT_DEFAULT))
-				.willReturn(aResponse().withBody(createDefaultOidcConfigurationResponse())));
+				.willReturn(aResponse().withBody(createDefaultOidcConfigurationResponse())
+						.withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.value())));
 		jwksUrl = endpointsProvider.getJwksUri().toString();
 		issuerUrl = wireMockServer.baseUrl();
 	}
