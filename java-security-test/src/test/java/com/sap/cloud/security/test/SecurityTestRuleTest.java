@@ -152,6 +152,11 @@ public class SecurityTestRuleTest {
 						.isInstanceOf(RuntimeException.class);
 	}
 
+	@Test
+	public void getSecurityTest() {
+		assertThat(cut.getSecurityTest()).isNotNull();
+	}
+
 	public static class SecurityTestRuleWithMockServlet {
 
 		private HttpServlet mockServlet = Mockito.mock(HttpServlet.class);

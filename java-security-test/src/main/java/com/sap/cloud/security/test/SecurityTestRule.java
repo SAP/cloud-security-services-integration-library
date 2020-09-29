@@ -174,6 +174,16 @@ public class SecurityTestRule extends ExternalResource {
 	}
 
 	/**
+	 * This returns the {@link SecurityTest} which the {@link SecurityTestRule}
+	 * uses internally.
+	 *
+	 * @return the underlying {@link SecurityTest} instance.
+	 */
+	public SecurityTest getSecurityTest() {
+		return base;
+	}
+
+	/**
 	 * Creates a very basic token on base of the preconfigured Jwt token generator.
 	 * In case you like to specify further token claims, you can make use of
 	 * {@link #getPreconfiguredJwtGenerator()}
