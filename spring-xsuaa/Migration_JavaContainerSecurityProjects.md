@@ -160,7 +160,7 @@ In case of multiple bindings you need to adapt your **Spring Security Configurat
 
 ## Fetch data from token
 
-You may have code parts that requests information from the access token using `XSUserInfo userInfo = SecurityContext.getUserInfo()`, like the user's name, its tenant, and so on. So, look up your code to find its usage.
+You may have code parts that requests information from the access token using `XSUserInfo userInfo = SecurityContext.getUserInfo()`, like the user's name, its tenant, and so on. So, look up your code to find its usage, for example:
 
 ```java
 import com.sap.xs2.security.container.SecurityContext;
@@ -174,11 +174,16 @@ try {
 	// handle exception
 }
 ```
+and replace this with
+```java
+import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
+import com.sap.cloud.security.xsuaa.token.Token;
 
-There is no `UserInfo` anymore. To obtain the token from the thread local storage, you
-have to use Spring's `SecurityContext` managed by the `SecurityContextHolder`.
-It will contain a `com.sap.cloud.security.xsuaa.token.Token`.
-This is explained in the [usage section](/spring-xsuaa#usage) of the documentation.
+Token token = SpringSecurityContext.getToken(); // throws AccessDeniedException
+```
+
+> Note: There is no `UserInfo` anymore. To obtain the token from the thread local storage, you
+have to use Spring's Security Context managed by the `SecurityContextHolder`. This is explained in detailed in the [usage section](/spring-xsuaa#usage).
 
 ### Exception Handling
 Unlike `XSUserInfo` interface there is no `XSUserInfoException` raised, in case the token does not contain the requested claim. You can check the interface, whether it can also return a `Nullable`. Then you can either perform a null check or check in advance, whether the claim is provided as part of the token, e.g. `Token.hasClaim(TokenClaims.CLAIM_CLIENT_ID)`.
@@ -262,3 +267,6 @@ In case you face issues to apply the migration steps check this [troubleshoot](R
 ## Samples
 - [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads/tree/solution-24-Make-App-Secure-Spring5)
 - [spring-security-xsuaa usage sample](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-xsuaa-usage)
+
+## Further References
+- [spring-xsuaa documentation](/spring-xsuaa/README.md.md)
