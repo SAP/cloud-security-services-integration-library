@@ -16,10 +16,9 @@ class SecurityTestExtensionTest {
 
 	@RegisterExtension
 	static SecurityTestExtension securityTestExtension = SecurityTestExtension
-			.builderFor(Service.XSUAA)
+			.getInstance(Service.XSUAA)
 			.setPort(PORT)
-			.useApplicationServer(ApplicationServerOptions.forService(Service.XSUAA).usePort(APPLICATION_SERVER_PORT))
-			.build();
+			.useApplicationServer(ApplicationServerOptions.forService(Service.XSUAA).usePort(APPLICATION_SERVER_PORT));
 
 	@Test
 	void isInitializedAndStartedWithCorrectSettings() {
@@ -32,7 +31,7 @@ class SecurityTestExtensionTest {
 	}
 
 	@Test
-	void resolveSecurityTestParameter(SecurityTestConfiguration securityTestConfiguration) {
+	void resolveSecurityTestConfigurationParameter(SecurityTestConfiguration securityTestConfiguration) {
 		assertNotNull(securityTestConfiguration);
 		assertThat(securityTestConfiguration.getWireMockServer().port()).isEqualTo(PORT);
 		assertThat(URI.create(securityTestConfiguration.getApplicationServerUri()).getPort())
