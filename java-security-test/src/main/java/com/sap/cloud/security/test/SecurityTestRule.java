@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
-public class SecurityTestRule extends ExternalResource implements SecurityTestConfiguration, SecurityTestBuilder{
+public class SecurityTestRule extends ExternalResource implements SecurityTestConfiguration, SecurityTestBuilder {
 
 	public static final String DEFAULT_APP_ID = SecurityTest.DEFAULT_APP_ID;
 	public static final String DEFAULT_CLIENT_ID = SecurityTest.DEFAULT_CLIENT_ID;
@@ -101,7 +101,8 @@ public class SecurityTestRule extends ExternalResource implements SecurityTestCo
 	}
 
 	/**
-	 * @deprecated use {@link #getOAuth2ServiceConfigurationBuilderFromFile(String)} instead.
+	 * @deprecated use {@link #getOAuth2ServiceConfigurationBuilderFromFile(String)}
+	 *             instead.
 	 */
 	@Deprecated
 	public OAuth2ServiceConfigurationBuilder getConfigurationBuilderFromFile(String configurationJson) {
@@ -109,7 +110,8 @@ public class SecurityTestRule extends ExternalResource implements SecurityTestCo
 	}
 
 	/**
-	 * @return the {@link SecurityTestConfiguration} of this {@link SecurityTestRule}
+	 * @return the {@link SecurityTestConfiguration} of this
+	 *         {@link SecurityTestRule}
 	 */
 	public SecurityTestConfiguration getConfiguration() {
 		return base;

@@ -77,12 +77,10 @@ public class SecurityTest implements SecurityTestConfiguration, SecurityTestBuil
 		this.applicationServerOptions = ApplicationServerOptions.forService(service);
 	}
 
-
 	@Override
 	public SecurityTest useApplicationServer() {
 		return useApplicationServer(ApplicationServerOptions.forService(service));
 	}
-
 
 	@Override
 	public SecurityTest useApplicationServer(ApplicationServerOptions applicationServerOptions) {
@@ -90,7 +88,6 @@ public class SecurityTest implements SecurityTestConfiguration, SecurityTestBuil
 		useApplicationServer = true;
 		return this;
 	}
-
 
 	@Override
 	public SecurityTest addApplicationServlet(Class<? extends Servlet> servletClass, String path) {
@@ -151,7 +148,8 @@ public class SecurityTest implements SecurityTestConfiguration, SecurityTestBuil
 	}
 
 	@Override
-	public OAuth2ServiceConfigurationBuilder getOAuth2ServiceConfigurationBuilderFromFile(String configurationResourceName) {
+	public OAuth2ServiceConfigurationBuilder getOAuth2ServiceConfigurationBuilderFromFile(
+			String configurationResourceName) {
 		return VcapServicesParser.fromFile(configurationResourceName)
 				.getConfigurationBuilder()
 				.withProperty(UAA_DOMAIN, URI.create(issuerUrl).getHost())

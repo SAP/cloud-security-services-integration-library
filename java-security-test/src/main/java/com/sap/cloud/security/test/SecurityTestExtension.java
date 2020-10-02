@@ -3,18 +3,17 @@ package com.sap.cloud.security.test;
 import com.sap.cloud.security.config.Service;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.jupiter.api.extension.*;
-import org.junit.jupiter.api.extension.support.TypeBasedParameterResolver;
 
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
 /**
- * This class creates a <a href="https://junit.org/junit5/docs/current/user-guide/#extensions">junit extension</a>
- * for {@link SecurityTest}.
+ * This class creates a
+ * <a href="https://junit.org/junit5/docs/current/user-guide/#extensions">junit
+ * extension</a> for {@link SecurityTest}.
  *
  */
-public class SecurityTestExtension
-		implements ParameterResolver, BeforeAllCallback, AfterAllCallback {
+public class SecurityTestExtension implements ParameterResolver, BeforeAllCallback, AfterAllCallback {
 
 	private final SecurityTest securityTest;
 

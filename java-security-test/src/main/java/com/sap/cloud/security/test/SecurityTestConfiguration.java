@@ -11,8 +11,8 @@ import javax.annotation.Nullable;
 public interface SecurityTestConfiguration {
 
 	/**
-	 * This creates a JwtGenerator is fully configured as part of
-	 * the {@code setup} method so that it can be used for testing.
+	 * This creates a JwtGenerator is fully configured as part of the {@code setup}
+	 * method so that it can be used for testing.
 	 *
 	 * @return the preconfigured Jwt token generator
 	 */
@@ -63,8 +63,8 @@ public interface SecurityTestConfiguration {
 	Token createToken();
 
 	/**
-	 * Allows to stub further endpoints of the identity service. You can
-	 * find a detailed explanation on how to configure wire mock here:
+	 * Allows to stub further endpoints of the identity service. You can find a
+	 * detailed explanation on how to configure wire mock here:
 	 * http://wiremock.org/docs/getting-started/
 	 *
 	 * @return an instance of WireMockServer
@@ -72,8 +72,8 @@ public interface SecurityTestConfiguration {
 	WireMockServer getWireMockServer();
 
 	/**
-	 * Returns the URI of the embedded jetty server or null if
-	 * it has not been activated.
+	 * Returns the URI of the embedded jetty server or null if it has not been
+	 * activated.
 	 *
 	 * @return uri of the application server
 	 */
