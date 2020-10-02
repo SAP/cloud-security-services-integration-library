@@ -22,7 +22,7 @@ class SecurityTestExtensionTest {
 			.build();
 
 	@Test
-	void testGetSecurityTest() throws Exception {
+	void testGetSecurityTest() {
 		SecurityTestConfiguration securityTestConfiguration = securityTestExtension.getConfiguration();
 
 		assertNotNull(securityTestConfiguration);
