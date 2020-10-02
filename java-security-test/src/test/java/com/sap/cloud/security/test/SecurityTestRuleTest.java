@@ -153,8 +153,8 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
-	public void getSecurityTest() {
-		assertThat(cut.getSecurityTest()).isNotNull();
+	public void getConfiguration() {
+		assertThat(cut.getConfiguration()).isNotNull();
 	}
 
 	public static class SecurityTestRuleWithMockServlet {
