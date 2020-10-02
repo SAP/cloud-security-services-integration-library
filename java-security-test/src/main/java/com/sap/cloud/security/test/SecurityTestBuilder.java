@@ -10,8 +10,8 @@ public interface SecurityTestBuilder {
 
 	/**
 	 * Overwrites the port on which the identity service mock server runs
-	 * (WireMock). It needs to be configured before the test execution has started. If
-	 * the port is not specified or is set to 0, a free random port is chosen.
+	 * (WireMock). It needs to be configured before the test execution has started.
+	 * If the port is not specified or is set to 0, a free random port is chosen.
 	 *
 	 * @param port
 	 *            the port on which the wire mock service is started.
@@ -54,7 +54,8 @@ public interface SecurityTestBuilder {
 	 * configuration object that can be customized. See
 	 * {@link ApplicationServerOptions} for details.
 	 *
-	 * @param options custom options to configure the application server.
+	 * @param options
+	 *            custom options to configure the application server.
 	 * @return the rule itself.
 	 */
 	SecurityTestBuilder useApplicationServer(ApplicationServerOptions options);

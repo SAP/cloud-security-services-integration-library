@@ -22,18 +22,20 @@ class SecurityTestExtensionTest {
 			.build();
 
 	@Test
-	void testGetSecurityTest() {
+	void isInitializedAndStartedWithCorrectSettings() {
 		SecurityTestConfiguration securityTestConfiguration = securityTestExtension.getConfiguration();
 
 		assertNotNull(securityTestConfiguration);
 		assertThat(securityTestConfiguration.getWireMockServer().port()).isEqualTo(PORT);
-		assertThat(URI.create(securityTestConfiguration.getApplicationServerUri()).getPort()).isEqualTo(APPLICATION_SERVER_PORT);
+		assertThat(URI.create(securityTestConfiguration.getApplicationServerUri()).getPort())
+				.isEqualTo(APPLICATION_SERVER_PORT);
 	}
 
 	@Test
 	void resolveSecurityTestParameter(SecurityTestConfiguration securityTestConfiguration) {
 		assertNotNull(securityTestConfiguration);
 		assertThat(securityTestConfiguration.getWireMockServer().port()).isEqualTo(PORT);
-		assertThat(URI.create(securityTestConfiguration.getApplicationServerUri()).getPort()).isEqualTo(APPLICATION_SERVER_PORT);
+		assertThat(URI.create(securityTestConfiguration.getApplicationServerUri()).getPort())
+				.isEqualTo(APPLICATION_SERVER_PORT);
 	}
 }

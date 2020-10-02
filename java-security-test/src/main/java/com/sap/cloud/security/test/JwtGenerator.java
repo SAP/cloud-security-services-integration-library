@@ -111,7 +111,7 @@ public class JwtGenerator {
 	 * @throws IllegalArgumentException
 	 *             if the given file cannot be read
 	 */
-	public static JwtGenerator getInstanceFromFile(Service service, String tokenJsonResource)  {
+	public static JwtGenerator getInstanceFromFile(Service service, String tokenJsonResource) {
 		return new JwtGenerator(service, JwtGenerator::calculateSignature).fromFile(tokenJsonResource);
 	}
 
