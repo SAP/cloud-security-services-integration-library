@@ -13,8 +13,8 @@ import javax.servlet.Servlet;
  * for {@link SecurityTest}.
  *
  */
-public class SecurityTestExtension extends TypeBasedParameterResolver<SecurityTestConfiguration>
-		implements BeforeAllCallback, AfterAllCallback {
+public class SecurityTestExtension
+		implements ParameterResolver, BeforeAllCallback, AfterAllCallback {
 
 	private final SecurityTest securityTest;
 
@@ -38,6 +38,12 @@ public class SecurityTestExtension extends TypeBasedParameterResolver<SecurityTe
 	@Override
 	public void afterAll(ExtensionContext context) throws Exception {
 		securityTest.tearDown();
+	}
+
+	@Override
+	public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+			throws ParameterResolutionException {
+		return parameterContext.getParameter().getType().equals(SecurityTestConfiguration.class);
 	}
 
 	@Override
