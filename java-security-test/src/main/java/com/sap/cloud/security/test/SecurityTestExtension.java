@@ -13,12 +13,13 @@ import javax.servlet.Servlet;
  * extension</a> for {@link SecurityTest}.
  *
  */
-public class SecurityTestExtension implements ParameterResolver, BeforeAllCallback, AfterAllCallback {
+public class SecurityTestExtension
+		implements ParameterResolver, BeforeAllCallback, AfterAllCallback, SecurityTestBuilder {
 
 	private final SecurityTest securityTest;
 
-	public static SecurityTestExtensionBuilder builderFor(Service service) {
-		return new SecurityTestExtensionBuilder(service);
+	public static SecurityTestExtension getInstance(Service service) {
+		return new SecurityTestExtension(new SecurityTest(service));
 	}
 
 	private SecurityTestExtension(SecurityTest securityTest) {
@@ -52,58 +53,46 @@ public class SecurityTestExtension implements ParameterResolver, BeforeAllCallba
 		return securityTest;
 	}
 
-	public static class SecurityTestExtensionBuilder implements SecurityTestBuilder {
-		private final SecurityTest securityTest;
+	@Override
+	public SecurityTestExtension setPort(int port) {
+		securityTest.setPort(port);
+		return this;
+	}
 
-		public SecurityTestExtensionBuilder(Service service) {
-			securityTest = new SecurityTest(service);
-		}
+	@Override
+	public SecurityTestExtension setKeys(String publicKeyPath, String privateKeyPath) {
+		securityTest.setKeys(publicKeyPath, privateKeyPath);
+		return this;
+	}
 
-		public SecurityTestExtension build() {
-			return new SecurityTestExtension(securityTest);
-		}
+	@Override
+	public SecurityTestExtension useApplicationServer() {
+		securityTest.useApplicationServer();
+		return this;
+	}
 
-		@Override
-		public SecurityTestExtensionBuilder setPort(int port) {
-			securityTest.setPort(port);
-			return this;
-		}
+	@Override
+	public SecurityTestExtension useApplicationServer(ApplicationServerOptions options) {
+		securityTest.useApplicationServer(options);
+		return this;
+	}
 
-		@Override
-		public SecurityTestExtensionBuilder setKeys(String publicKeyPath, String privateKeyPath) {
-			securityTest.setKeys(publicKeyPath, privateKeyPath);
-			return this;
-		}
+	@Override
+	public SecurityTestExtension addApplicationServlet(Class<? extends Servlet> servletClass,
+			String path) {
+		securityTest.addApplicationServlet(servletClass, path);
+		return this;
+	}
 
-		@Override
-		public SecurityTestExtensionBuilder useApplicationServer() {
-			securityTest.useApplicationServer();
-			return this;
-		}
+	@Override
+	public SecurityTestExtension addApplicationServlet(ServletHolder servletHolder, String path) {
+		securityTest.addApplicationServlet(servletHolder, path);
+		return this;
+	}
 
-		@Override
-		public SecurityTestExtensionBuilder useApplicationServer(ApplicationServerOptions options) {
-			securityTest.useApplicationServer(options);
-			return this;
-		}
-
-		@Override
-		public SecurityTestExtensionBuilder addApplicationServlet(Class<? extends Servlet> servletClass,
-				String path) {
-			securityTest.addApplicationServlet(servletClass, path);
-			return this;
-		}
-
-		@Override
-		public SecurityTestExtensionBuilder addApplicationServlet(ServletHolder servletHolder, String path) {
-			securityTest.addApplicationServlet(servletHolder, path);
-			return this;
-		}
-
-		@Override
-		public SecurityTestExtensionBuilder addApplicationServletFilter(Class<? extends Filter> filterClass) {
-			securityTest.addApplicationServletFilter(filterClass);
-			return this;
-		}
+	@Override
+	public SecurityTestExtension addApplicationServletFilter(Class<? extends Filter> filterClass) {
+		securityTest.addApplicationServletFilter(filterClass);
+		return this;
 	}
 }
