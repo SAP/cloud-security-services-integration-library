@@ -11,10 +11,9 @@ import javax.servlet.Servlet;
  * This class creates a
  * <a href="https://junit.org/junit5/docs/current/user-guide/#extensions">junit
  * extension</a> for {@link SecurityTest}.
- *
  */
-public class SecurityTestExtension
-		implements ParameterResolver, BeforeAllCallback, AfterAllCallback, SecurityTestBuilder {
+public class SecurityTestExtension implements ParameterResolver, BeforeAllCallback, AfterAllCallback,
+		SecurityTestBuilder, SecurityTestApplicationServerBuilder {
 
 	private final SecurityTest securityTest;
 
