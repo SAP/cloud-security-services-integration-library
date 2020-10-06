@@ -22,8 +22,8 @@ import com.sap.cloud.security.xsuaa.XsuaaServicesParser;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 
 /**
- * Validate audience using audience field content. in case this field is empty,
- * the audience is derived from the scope field
+ * Validate audience using audience field content. In case this field is empty,
+ * the audience is derived from the scope field.
  */
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	private Map<String, String> appIdClientIdMap = new HashMap<>();
@@ -73,11 +73,11 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	/**
-	 * Retrieve audiences from token. In case the audience list is empty, take
+	 * Retrieve audiences from token. In case the audience list is empty, takes
 	 * audiences based on the scope names.
 	 *
 	 * @param token
-	 * @return (empty) list of audiences
+	 * @return (empty) set of audiences
 	 */
 	static Set<String> getAllowedAudiences(Jwt token) {
 		final Set<String> allAudiences = new HashSet<>();
