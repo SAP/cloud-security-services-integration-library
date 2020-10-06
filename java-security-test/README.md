@@ -102,13 +102,11 @@ public class HelloJavaServletTest {
 	}
 }
 ```
-<<<<<<< HEAD
-#### JUnit 5
-As of version `2.6.0` `java-security-test` supports JUnit 5. Junit 5 does no longer support `Rule`. You can configure a static `SecurityTest` instance. The `setup` method starts `WireMock` and optionally the Jetty servlet container, if not yet running. Furthermore, it resets `WireMock` and reconfigures the stubs. Finally, call the `tearDown` method to stop the running server(s):
-=======
+
+
 ### JUnit 5
 JUnit 5 does no longer support `Rule`. As of `java-security-test` version `2.8.0` you can implement using [JUnit 5 extensions](https://junit.org/junit5/docs/current/user-guide/#extensions) instead. 
->>>>>>> java-security-test adapt documentation for SecurityTestExtension
+
 
 `XsuaaExtension` class as well as the `IasExtension` class implements the `BeforeAllCallback` to configure and start `WireMock` as mock server for the identity service. Furthermore, it implements the `AfterAllCallback` to stop the running server(s).
 
