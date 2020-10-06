@@ -16,10 +16,8 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<apache.httpclient.version>4.5.8</apache.httpclient.version>
-		<jetty.version>9.4.24.v20191120</jetty.version>
-		<javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-		<wiremock.version>2.26.0</wiremock.version>
+		<jetty.version>9.4.31.v20200723</jetty.version>
+		<wiremock.version>2.27.2</wiremock.version>
 	</properties>
 
 	<dependencies>
@@ -61,11 +59,9 @@
 			<artifactId>jetty-io</artifactId>
 			<version>${jetty.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<version>${javax.servlet-api.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -78,19 +74,16 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>${apache.httpclient.version}</version>
 			<scope>test</scope>
 		</dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
 		<dependency> <!-- check if it's still needed when slf4j-api 1.8 is available -->

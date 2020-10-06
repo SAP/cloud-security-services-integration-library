@@ -9,8 +9,8 @@
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<sap.cloud.security.version>2.7.3</sap.cloud.security.version>
-		<javax.servlet.api.version>3.0.1</javax.servlet.api.version>
+		<sap.cloud.security.version>2.7.7</sap.cloud.security.version>
+		<javax.servlet.api.version>3.1.0</javax.servlet.api.version>
 	</properties>
 
 	<dependencies>
