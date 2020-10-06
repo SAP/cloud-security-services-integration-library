@@ -6,8 +6,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
-// TODO api -> ApplicationServerConfiguration
-public interface SecurityTestApplicationServerBuilder {
+public interface ApplicationServerConfiguration {
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
@@ -21,7 +20,7 @@ public interface SecurityTestApplicationServerBuilder {
 	 *
 	 * @return the rule itself.
 	 */
-	SecurityTestApplicationServerBuilder useApplicationServer();
+	ApplicationServerConfiguration useApplicationServer();
 
 	/**
 	 * Specifies an embedded jetty as servlet server. It needs to be configured
@@ -34,7 +33,7 @@ public interface SecurityTestApplicationServerBuilder {
 	 *            custom options to configure the application server.
 	 * @return the rule itself.
 	 */
-	SecurityTestApplicationServerBuilder useApplicationServer(ApplicationServerOptions options);
+	ApplicationServerConfiguration useApplicationServer(ApplicationServerOptions options);
 
 	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in
@@ -46,7 +45,7 @@ public interface SecurityTestApplicationServerBuilder {
 	 *            the path on which the servlet should be served, e.g. "/*".
 	 * @return the rule itself.
 	 */
-	SecurityTestApplicationServerBuilder addApplicationServlet(Class<? extends Servlet> servletClass, String path);
+	ApplicationServerConfiguration addApplicationServlet(Class<? extends Servlet> servletClass, String path);
 
 	/**
 	 * Adds a servlet to the servlet server. Only has an effect when used in
@@ -58,7 +57,7 @@ public interface SecurityTestApplicationServerBuilder {
 	 *            the path on which the servlet should be served, e.g. "/*".
 	 * @return the rule itself.
 	 */
-	SecurityTestApplicationServerBuilder addApplicationServlet(ServletHolder servletHolder, String path);
+	ApplicationServerConfiguration addApplicationServlet(ServletHolder servletHolder, String path);
 
 	/**
 	 * Adds a filter to the servlet server. Only has an effect when used in
@@ -68,5 +67,5 @@ public interface SecurityTestApplicationServerBuilder {
 	 *            the filter class that should intercept with incoming requests.
 	 * @return the rule itself.
 	 */
-	SecurityTestApplicationServerBuilder addApplicationServletFilter(Class<? extends Filter> filterClass);
+	ApplicationServerConfiguration addApplicationServletFilter(Class<? extends Filter> filterClass);
 }
