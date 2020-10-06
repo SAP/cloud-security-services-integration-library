@@ -103,7 +103,7 @@ public class HelloJavaServletTest {
 }
 ```
 #### JUnit 5
-JUnit 5 does no longer support `Rule`. You can configure a static `SecurityTest` instance. The `setup` method starts `WireMock` and optionally the Jetty servlet container, if not yet running. Furthermore, it resets `WireMock` and reconfigures the stubs. Finally, call the `tearDown` method to stop the running server(s):
+As of version `2.6.0` `java-security-test` supports JUnit 5. Junit 5 does no longer support `Rule`. You can configure a static `SecurityTest` instance. The `setup` method starts `WireMock` and optionally the Jetty servlet container, if not yet running. Furthermore, it resets `WireMock` and reconfigures the stubs. Finally, call the `tearDown` method to stop the running server(s):
 
 ```java
 public class HelloJavaTest {
