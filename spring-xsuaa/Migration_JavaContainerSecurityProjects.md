@@ -252,7 +252,8 @@ under `xsuaa/credentials` for jwt validation:
 - `"verificationkey" : "<public key your jwt token is signed with>"`
 
 Before calling the service you need to provide a digitally signed JWT token to simulate that you are an authenticated user. 
-- Therefore simply set a breakpoint in `JwtGenerator.createToken()` and run your `JUnit` tests to fetch the value of `jwt` from there. In that case, you can use as `verificationkey` this [publicKey value](/java-security-test/src/main/resources/publicKey.txt), as its done [here](/samples/localEnvironmentSetup.sh).
+- Therefore simply set a breakpoint in `JwtGenerator.createToken()` and run your `JUnit` tests to fetch the value of `jwt` from there. In that case you can use the publicKey from `java-security-test`, like its done [here](/samples/localEnvironmentSetup.sh).
+
 
 Now you can test the service manually in the browser using the `Postman` chrome plugin and check whether the secured functions can be accessed when providing a valid generated Jwt Token.
 
