@@ -17,6 +17,10 @@ public class SecurityTestExtension implements ParameterResolver, BeforeAllCallba
 
 	private final SecurityTest securityTest;
 
+	public SecurityTestExtension() {
+		securityTest = new SecurityTest(Service.XSUAA);
+	}
+
 	public static SecurityTestExtension getInstance(Service service) {
 		return new SecurityTestExtension(new SecurityTest(service));
 	}
@@ -35,7 +39,7 @@ public class SecurityTestExtension implements ParameterResolver, BeforeAllCallba
 	}
 
 	@Override
-	public void afterAll(ExtensionContext context) throws Exception {
+	public void afterAll(ExtensionContext context) {
 		securityTest.tearDown();
 	}
 

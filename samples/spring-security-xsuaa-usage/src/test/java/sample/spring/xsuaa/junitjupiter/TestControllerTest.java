@@ -5,10 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.sap.cloud.security.test.SecurityTestConfiguration;
+import com.sap.cloud.security.test.SecurityTestExtension;
 import org.junit.Ignore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,31 +28,24 @@ import com.sap.cloud.security.test.SecurityTest;
 @AutoConfigureMockMvc
 @TestPropertySource(properties = { "xsuaa.uaadomain=localhost", "xsuaa.xsappname=xsapp!t0815",
 		"xsuaa.clientid=sb-clientId!t0815" })
+@ExtendWith(SecurityTestExtension.class)
 public class TestControllerTest {
 
 	@Autowired
 	private MockMvc mvc;
-
-	private static SecurityTest securityTest = new SecurityTest(Service.XSUAA);
 
 	private String jwt;
 
 	private String jwtAdmin;
 
 	@BeforeEach
-	public void setup() throws Exception {
-		securityTest.setup();
+	public void setup(SecurityTestConfiguration securityTest) throws Exception {
 		jwt = securityTest.getPreconfiguredJwtGenerator()
 				.withLocalScopes("Read")
 				.createToken().getTokenValue();
 		jwtAdmin = securityTest.getPreconfiguredJwtGenerator()
 				.withLocalScopes("Read", "Admin")
 				.createToken().getTokenValue();
-	}
-
-	@AfterAll
-	public static void tearDown() {
-		securityTest.tearDown();
 	}
 
 	@Test
@@ -94,7 +90,7 @@ public class TestControllerTest {
 	}
 
 	@Test
-	public void v1_accessSensitiveData_Forbidden() throws Exception {
+	public void v1_accessSensitiveData_Forbidden(SecurityTestConfiguration securityTest) throws Exception {
 		String jwtNoScopes = securityTest.getPreconfiguredJwtGenerator()
 				.createToken().getTokenValue();
 
