@@ -56,7 +56,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 				return OAuth2TokenValidatorResult.success();
 			}
 		}
-		
+
 		final String description = String.format("Jwt token with allowed audiences %s matches none of these: %s",
 				allowedAudiences, appIdClientIdMap.keySet().toString());
 		return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, description, null));
@@ -99,9 +99,9 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 				}
 			}
 		}
-		
+
 		allAudiences.remove("");
-		
+
 		return allAudiences;
 	}
 
