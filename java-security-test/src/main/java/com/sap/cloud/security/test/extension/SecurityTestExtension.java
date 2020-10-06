@@ -14,7 +14,7 @@ import javax.servlet.Servlet;
  * extension</a> for {@link SecurityTest}.
  */
 public class SecurityTestExtension implements ParameterResolver, BeforeAllCallback, AfterAllCallback,
-		SecurityTestBuilder, SecurityTestApplicationServerBuilder {
+		ServiceMockConfiguration, ApplicationServerConfiguration {
 
 	private final SecurityTest securityTest;
 

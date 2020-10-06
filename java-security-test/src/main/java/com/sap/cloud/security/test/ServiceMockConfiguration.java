@@ -1,7 +1,6 @@
 package com.sap.cloud.security.test;
 
-// TODO api ServiceMockConfiguration
-public interface SecurityTestBuilder {
+public interface ServiceMockConfiguration {
 
 	/**
 	 * Overwrites the port on which the identity service mock server runs
@@ -12,7 +11,7 @@ public interface SecurityTestBuilder {
 	 *            the port on which the wire mock service is started.
 	 * @return the rule itself.
 	 */
-	SecurityTestBuilder setPort(int port);
+	ServiceMockConfiguration setPort(int port);
 
 	/**
 	 * Overwrites the private/public key pair to be used. The private key is used to
@@ -26,5 +25,5 @@ public interface SecurityTestBuilder {
 	 *            resource path to private key file.
 	 * @return the rule itself.
 	 */
-	SecurityTestBuilder setKeys(String publicKeyPath, String privateKeyPath);
+	ServiceMockConfiguration setKeys(String publicKeyPath, String privateKeyPath);
 }

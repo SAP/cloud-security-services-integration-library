@@ -13,7 +13,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
 public class SecurityTestRule extends ExternalResource
-		implements SecurityTestContext, SecurityTestBuilder, SecurityTestApplicationServerBuilder {
+		implements SecurityTestContext, ServiceMockConfiguration, ApplicationServerConfiguration {
 
 	public static final String DEFAULT_APP_ID = SecurityTest.DEFAULT_APP_ID;
 	public static final String DEFAULT_CLIENT_ID = SecurityTest.DEFAULT_CLIENT_ID;
