@@ -9,6 +9,7 @@ public class XsuaaCredentials {
 	private String url;
 	private String uaaDomain;
 	private String xsAppName;
+	private String verificationKey;
 
 	public String getClientId() {
 		return clientId;
@@ -48,5 +49,13 @@ public class XsuaaCredentials {
 
 	public void setXsAppName(String xsAppName) {
 		this.xsAppName = xsAppName;
+	}
+
+	public String getVerificationKey() {
+		return verificationKey;
+	}
+
+	public void setVerificationKey(String verificationKey) {
+		this.verificationKey = verificationKey;
 	}
 }
