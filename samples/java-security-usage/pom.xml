@@ -11,11 +11,10 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <sap.cloud.security.version>2.7.7</sap.cloud.security.version>
         <slf4j.api.version>1.7.30</slf4j.api.version>
-        <apache.httpclient.version>4.5.8</apache.httpclient.version>
+        <apache.httpclient.version>4.5.9</apache.httpclient.version>
         <javax.servlet.api.version>3.1.0</javax.servlet.api.version>
-        <wiremock.version>2.25.1</wiremock.version>
         <assertj.version>3.13.2</assertj.version>
-        <jetty.version>9.4.24.v20191120</jetty.version>
+        <jetty.version>9.4.31.v20200723</jetty.version>
         <junit.version>4.12</junit.version>
     </properties>
 
