@@ -85,7 +85,7 @@ public class TestControllerTest {
 	}
 
 	@Test
-	public void v1_accessSensitiveData_Forbidden(SecurityTestContext securityTest) {
+	public void v1_accessSensitiveData_Forbidden(SecurityTestContext securityTest) throws Exception {
 		String jwtNoScopes = securityTest.getPreconfiguredJwtGenerator()
 				.createToken().getTokenValue();
 
