@@ -8,6 +8,7 @@ import com.sap.cloud.security.token.Token;
 
 import javax.annotation.Nullable;
 
+// TODO api
 public interface SecurityTestContext {
 
 	/**
