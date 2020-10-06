@@ -1,6 +1,6 @@
 package sample.spring.xsuaa.junitjupiter;
 
-
+import static com.sap.cloud.security.test.SecurityTest.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,8 +21,10 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = { "xsuaa.uaadomain=localhost", "xsuaa.xsappname=xsapp!t0815",
-		"xsuaa.clientid=sb-clientId!t0815" })
+@TestPropertySource(properties = {
+		"xsuaa.uaadomain=" + DEFAULT_DOMAIN,
+		"xsuaa.xsappname=" + DEFAULT_APP_ID,
+		"xsuaa.clientid=" + DEFAULT_CLIENT_ID })
 @ExtendWith(XsuaaExtension.class)
 public class TestControllerTest {
 
@@ -34,7 +36,7 @@ public class TestControllerTest {
 	private String jwtAdmin;
 
 	@BeforeEach
-	public void setup(SecurityTestContext securityTest) throws Exception {
+	public void setup(SecurityTestContext securityTest) {
 		jwt = securityTest.getPreconfiguredJwtGenerator()
 				.withLocalScopes("Read")
 				.createToken().getTokenValue();
