@@ -13,7 +13,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
 public class SecurityTestRule extends ExternalResource
-		implements SecurityTestConfiguration, SecurityTestBuilder, SecurityTestApplicationServerBuilder {
+		implements SecurityTestContext, SecurityTestBuilder, SecurityTestApplicationServerBuilder {
 
 	public static final String DEFAULT_APP_ID = SecurityTest.DEFAULT_APP_ID;
 	public static final String DEFAULT_CLIENT_ID = SecurityTest.DEFAULT_CLIENT_ID;
@@ -111,10 +111,10 @@ public class SecurityTestRule extends ExternalResource
 	}
 
 	/**
-	 * @return the {@link SecurityTestConfiguration} of this
+	 * @return the {@link SecurityTestContext} of this
 	 *         {@link SecurityTestRule}
 	 */
-	public SecurityTestConfiguration getConfiguration() {
+	public SecurityTestContext getConfiguration() {
 		return base;
 	}
 

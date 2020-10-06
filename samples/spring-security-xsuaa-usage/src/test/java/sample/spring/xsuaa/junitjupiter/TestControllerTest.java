@@ -5,10 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.sap.cloud.security.test.SecurityTestConfiguration;
-import com.sap.cloud.security.test.SecurityTestExtension;
-import org.junit.Ignore;
-import org.junit.jupiter.api.AfterAll;
+import com.sap.cloud.security.test.SecurityTestContext;
+import com.sap.cloud.security.test.extension.XsuaaExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,14 +19,11 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.test.SecurityTest;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(properties = { "xsuaa.uaadomain=localhost", "xsuaa.xsappname=xsapp!t0815",
 		"xsuaa.clientid=sb-clientId!t0815" })
-@ExtendWith(SecurityTestExtension.class)
+@ExtendWith(XsuaaExtension.class)
 public class TestControllerTest {
 
 	@Autowired
@@ -39,7 +34,7 @@ public class TestControllerTest {
 	private String jwtAdmin;
 
 	@BeforeEach
-	public void setup(SecurityTestConfiguration securityTest) throws Exception {
+	public void setup(SecurityTestContext securityTest) throws Exception {
 		jwt = securityTest.getPreconfiguredJwtGenerator()
 				.withLocalScopes("Read")
 				.createToken().getTokenValue();
@@ -90,7 +85,7 @@ public class TestControllerTest {
 	}
 
 	@Test
-	public void v1_accessSensitiveData_Forbidden(SecurityTestConfiguration securityTest) throws Exception {
+	public void v1_accessSensitiveData_Forbidden(SecurityTestContext securityTest) {
 		String jwtNoScopes = securityTest.getPreconfiguredJwtGenerator()
 				.createToken().getTokenValue();
 

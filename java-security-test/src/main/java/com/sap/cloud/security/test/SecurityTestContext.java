@@ -8,7 +8,7 @@ import com.sap.cloud.security.token.Token;
 
 import javax.annotation.Nullable;
 
-public interface SecurityTestConfiguration {
+public interface SecurityTestContext {
 
 	/**
 	 * This creates a JwtGenerator is fully configured as part of the {@code setup}

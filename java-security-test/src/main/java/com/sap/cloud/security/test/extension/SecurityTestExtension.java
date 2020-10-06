@@ -1,6 +1,7 @@
-package com.sap.cloud.security.test;
+package com.sap.cloud.security.test.extension;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.test.*;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.jupiter.api.extension.*;
 
@@ -17,19 +18,15 @@ public class SecurityTestExtension implements ParameterResolver, BeforeAllCallba
 
 	private final SecurityTest securityTest;
 
-	public SecurityTestExtension() {
-		securityTest = new SecurityTest(Service.XSUAA);
-	}
-
 	public static SecurityTestExtension getInstance(Service service) {
 		return new SecurityTestExtension(new SecurityTest(service));
 	}
 
-	private SecurityTestExtension(SecurityTest securityTest) {
+	SecurityTestExtension(SecurityTest securityTest) {
 		this.securityTest = securityTest;
 	}
 
-	public SecurityTestConfiguration getConfiguration() {
+	public SecurityTestContext getConfiguration() {
 		return securityTest;
 	}
 
@@ -46,12 +43,12 @@ public class SecurityTestExtension implements ParameterResolver, BeforeAllCallba
 	@Override
 	public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
 			throws ParameterResolutionException {
-		return parameterContext.getParameter().getType().equals(SecurityTestConfiguration.class);
+		return parameterContext.getParameter().getType().equals(SecurityTestContext.class);
 	}
 
 	@Override
-	public SecurityTestConfiguration resolveParameter(ParameterContext parameterContext,
-			ExtensionContext extensionContext)
+	public SecurityTestContext resolveParameter(ParameterContext parameterContext,
+												ExtensionContext extensionContext)
 			throws ParameterResolutionException {
 		return securityTest;
 	}

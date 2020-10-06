@@ -1,6 +1,7 @@
 package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -22,7 +23,7 @@ class SecurityTestExtensionTest {
 
 	@Test
 	void isInitializedAndStartedWithCorrectSettings() {
-		SecurityTestConfiguration securityTestConfiguration = securityTestExtension.getConfiguration();
+		SecurityTestContext securityTestConfiguration = securityTestExtension.getConfiguration();
 
 		assertNotNull(securityTestConfiguration);
 		assertThat(securityTestConfiguration.getWireMockServer().port()).isEqualTo(PORT);
@@ -31,7 +32,7 @@ class SecurityTestExtensionTest {
 	}
 
 	@Test
-	void resolveSecurityTestConfigurationParameter(SecurityTestConfiguration securityTestConfiguration) {
+	void resolveSecurityTestConfigurationParameter(SecurityTestContext securityTestConfiguration) {
 		assertNotNull(securityTestConfiguration);
 		assertThat(securityTestConfiguration.getWireMockServer().port()).isEqualTo(PORT);
 		assertThat(URI.create(securityTestConfiguration.getApplicationServerUri()).getPort())

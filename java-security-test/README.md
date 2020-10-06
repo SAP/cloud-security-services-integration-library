@@ -121,7 +121,24 @@ public class HelloJavaTest {
 	}
 
 	@Test
-	public void v1_sayHello() throws Exception {
+	public void v1_sayHello() {
+		String jwt = securityTest.getPreconfiguredJwtGenerator()
+						.withLocalScopes("Read")
+						.createToken().getTokenValue();
+		// call endpoint with Authorization header "Bearer <jwt>" 			
+		...
+	}
+}
+```
+
+As of version `2.8.0` you can implement using [JUnit 5 extensions](https://junit.org/junit5/docs/current/user-guide/#extensions):
+
+```java
+@ExtendWith(XsuaaExtension.class)
+public class HelloJavaTest {
+
+	@Test
+	public void v1_sayHello(SecurityTestContext securityTest) {
 		String jwt = securityTest.getPreconfiguredJwtGenerator()
 						.withLocalScopes("Read")
 						.createToken().getTokenValue();
