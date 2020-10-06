@@ -44,7 +44,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
 public class SecurityTest
-		implements SecurityTestContext, SecurityTestBuilder, SecurityTestApplicationServerBuilder {
+		implements SecurityTestContext, ServiceMockConfiguration, ApplicationServerConfiguration {
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(SecurityTest.class);
 
