@@ -147,6 +147,7 @@ public class HelloJavaTest {
 	}
 }
 ```
+> For IAS Service there is a `IasExtension` class.
 
 ## Issues
 
