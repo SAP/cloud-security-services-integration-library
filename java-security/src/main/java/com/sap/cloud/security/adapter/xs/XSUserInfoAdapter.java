@@ -267,7 +267,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * Check if a token issued for another OAuth client has been forwarded to a
 	 * different client,
 	 *
-	 * This method does not support checking if the token can be accepted by Audience Validation.
+	 * This method does not support checking if the token can be accepted by
+	 * Audience Validation.
 	 *
 	 * @return true if token was forwarded or if it cannot be determined.
 	 */
