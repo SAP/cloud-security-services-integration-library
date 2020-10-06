@@ -18,15 +18,19 @@ public class SecurityTestExtension implements ParameterResolver, BeforeAllCallba
 
 	private final SecurityTest securityTest;
 
-	public static SecurityTestExtension getInstance(Service service) {
-		return new SecurityTestExtension(new SecurityTest(service));
+	SecurityTestExtension(Service service) {
+		this.securityTest = new SecurityTest(service);
 	}
 
 	SecurityTestExtension(SecurityTest securityTest) {
 		this.securityTest = securityTest;
 	}
 
-	public SecurityTestContext getConfiguration() {
+	public static SecurityTestExtension forService(Service service) {
+		return new SecurityTestExtension(new SecurityTest(service));
+	}
+
+	public SecurityTestContext getContext() {
 		return securityTest;
 	}
 
@@ -48,7 +52,7 @@ public class SecurityTestExtension implements ParameterResolver, BeforeAllCallba
 
 	@Override
 	public SecurityTestContext resolveParameter(ParameterContext parameterContext,
-												ExtensionContext extensionContext)
+			ExtensionContext extensionContext)
 			throws ParameterResolutionException {
 		return securityTest;
 	}

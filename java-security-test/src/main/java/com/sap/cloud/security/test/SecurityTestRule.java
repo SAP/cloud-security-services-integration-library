@@ -111,10 +111,9 @@ public class SecurityTestRule extends ExternalResource
 	}
 
 	/**
-	 * @return the {@link SecurityTestContext} of this
-	 *         {@link SecurityTestRule}
+	 * @return the {@link SecurityTestContext} of this {@link SecurityTestRule}
 	 */
-	public SecurityTestContext getConfiguration() {
+	public SecurityTestContext getContext() {
 		return base;
 	}
 
