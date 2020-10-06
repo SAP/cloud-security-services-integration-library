@@ -1,10 +1,11 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,35 +45,31 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	public OAuth2TokenValidatorResult validate(Jwt token) {
 		String tokenClientId = token.getClaimAsString(TokenClaims.CLAIM_CLIENT_ID);
 		if (StringUtils.isEmpty(tokenClientId)) {
-			return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
-					"Jwt token must contain 'cid' (client_id)", null));
+			return OAuth2TokenValidatorResult.failure(
+					new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, "Jwt token must contain 'cid' (client_id)", null));
 		}
-		List<String> allowedAudiences = getAllowedAudiences(token);
+
+		final Set<String> allowedAudiences = getAllowedAudiences(token);
 
 		for (Map.Entry<String, String> xsuaaConfig : appIdClientIdMap.entrySet()) {
 			if (checkMatch(xsuaaConfig.getKey(), xsuaaConfig.getValue(), tokenClientId, allowedAudiences)) {
 				return OAuth2TokenValidatorResult.success();
 			}
 		}
-		String description = String.format("Jwt token with allowed audiences %s matches none of these: %s",
+		
+		final String description = String.format("Jwt token with allowed audiences %s matches none of these: %s",
 				allowedAudiences, appIdClientIdMap.keySet().toString());
 		return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, description, null));
 	}
 
-	private boolean checkMatch(String appId, String clientId, String tokenClientId, List<String> allowedAudiences) {
+	private boolean checkMatch(String appId, String clientId, String tokenClientId, Set<String> allowedAudiences) {
 		// case 1 : token issued by own client (or master)
-		if (clientId.equals(tokenClientId)
-				|| (appId.contains("!b")
-						&& tokenClientId.endsWith("|" + appId))) {
+		if (clientId.equals(tokenClientId) || (appId.contains("!b") && tokenClientId.endsWith("|" + appId))) {
 			return true;
-		} else {
-			// case 2: foreign token
-			if (allowedAudiences.contains(appId)) {
-				return true;
-			} else {
-				return false;
-			}
 		}
+
+		// case 2: foreign token
+		return allowedAudiences.contains(appId);
 	}
 
 	/**
@@ -82,36 +79,34 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	 * @param token
 	 * @return (empty) list of audiences
 	 */
-	static List<String> getAllowedAudiences(Jwt token) {
-		List<String> allAudiences = new ArrayList<>();
-		List<String> tokenAudiences = token.getAudience();
+	static Set<String> getAllowedAudiences(Jwt token) {
+		final Set<String> allAudiences = new HashSet<>();
 
+		final List<String> tokenAudiences = token.getAudience();
 		if (tokenAudiences != null) {
 			for (String audience : tokenAudiences) {
-				if (audience.contains(".")) {
-					String aud = audience.substring(0, audience.indexOf('.'));
-					allAudiences.add(aud);
-				} else {
-					allAudiences.add(audience);
-				}
+				final String aud = audience.contains(".") ? audience.substring(0, audience.indexOf('.')) : audience;
+				allAudiences.add(aud);
 			}
 		}
 
 		// extract audience (app-id) from scopes
-		if (allAudiences.size() == 0) {
+		if (allAudiences.isEmpty()) {
 			for (String scope : getScopes(token)) {
 				if (scope.contains(".")) {
-					String aud = scope.substring(0, scope.indexOf('.'));
+					final String aud = scope.substring(0, scope.indexOf('.'));
 					allAudiences.add(aud);
 				}
 			}
 		}
-		return allAudiences.stream().distinct().filter(value -> !value.isEmpty()).collect(Collectors.toList());
+		
+		allAudiences.remove("");
+		
+		return allAudiences;
 	}
 
 	static List<String> getScopes(Jwt token) {
-		List<String> scopes = null;
-		scopes = token.getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
-		return scopes != null ? scopes : new ArrayList<>();
+		List<String> scopes = token.getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
+		return scopes != null ? scopes : Collections.emptyList();
 	}
 }
