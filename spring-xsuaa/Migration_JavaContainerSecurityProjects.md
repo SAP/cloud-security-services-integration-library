@@ -252,9 +252,11 @@ under `xsuaa/credentials` for jwt validation:
 - `"verificationkey" : "<public key your jwt token is signed with>"`
 
 Before calling the service you need to provide a digitally signed JWT token to simulate that you are an authenticated user. 
-- Therefore simply set a breakpoint in `JwtGenerator.createToken()` and run your `JUnit` tests to fetch the value of `jwt` from there. In that case, you can use as `verificationkey` this [publicKey value](/java-security-test/src/main/resources/publicKey.txt).
+- Therefore simply set a breakpoint in `JwtGenerator.createToken()` and run your `JUnit` tests to fetch the value of `jwt` from there. In that case, you can use as `verificationkey` this [publicKey value](/java-security-test/src/main/resources/publicKey.txt), as its done [here](/samples/localEnvironmentSetup.sh).
 
 Now you can test the service manually in the browser using the `Postman` chrome plugin and check whether the secured functions can be accessed when providing a valid generated Jwt Token.
+
+https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/samples/localEnvironmentSetup.sh
 
 ## Things to check after migration 
 When your code compiles again you should first check that all your unit tests are running again. If you can test your
