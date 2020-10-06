@@ -42,7 +42,7 @@ public class CFConstants {
 	 * considered in {@code CFEnvironment#loadXsuaa()}
 	 */
 	public enum Plan {
-		DEFAULT, BROKER, APPLICATION, SPACE;
+		DEFAULT, BROKER, APPLICATION, SPACE, APIACCESS, SYSTEM;
 
 		public static Plan from(String planAsString) {
 			return Plan.valueOf(planAsString.toUpperCase());

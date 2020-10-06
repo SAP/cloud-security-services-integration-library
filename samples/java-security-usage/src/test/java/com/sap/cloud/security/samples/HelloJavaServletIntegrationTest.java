@@ -1,6 +1,7 @@
 package com.sap.cloud.security.samples;
 
 import com.sap.cloud.security.test.SecurityTestRule;
+import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -9,7 +10,9 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.junit.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
 
@@ -20,12 +23,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletIntegrationTest {
 
-	@ClassRule
-	public static SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA)
-			.useApplicationServer()
-			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
+	@RegisterExtension
+	static SecurityTestExtension extension = SecurityTestExtension.forService(XSUAA)
+			.useApplicationServer().addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContext.clearToken();
 	}
@@ -48,7 +50,7 @@ public class HelloJavaServletIntegrationTest {
 
 	@Test
 	public void requestWithValidTokenWithoutScopes_unauthorized() throws IOException {
-		String jwt = rule.getPreconfiguredJwtGenerator()
+		String jwt = extension.getContext().getPreconfiguredJwtGenerator()
 				.withClaimValue(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS)
 				.createToken()
 				.getTokenValue();
@@ -60,7 +62,7 @@ public class HelloJavaServletIntegrationTest {
 
 	@Test
 	public void requestWithValidToken_ok() throws IOException {
-		String jwt = rule.getPreconfiguredJwtGenerator()
+		String jwt = extension.getContext().getPreconfiguredJwtGenerator()
 				.withClaimValue(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS)
 				.withScopes(getGlobalScope("Read"))
 				.withClaimValue(TokenClaims.EMAIL, "tester@mail.com")
@@ -75,7 +77,7 @@ public class HelloJavaServletIntegrationTest {
 	}
 
 	private HttpGet createGetRequest(String accessToken) {
-		HttpGet httpGet = new HttpGet(rule.getApplicationServerUri() + HelloJavaServlet.ENDPOINT);
+		HttpGet httpGet = new HttpGet(extension.getContext().getApplicationServerUri() + HelloJavaServlet.ENDPOINT);
 		if(accessToken != null) {
 			httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 		}

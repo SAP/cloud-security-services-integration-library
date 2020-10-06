@@ -50,7 +50,7 @@ The `java-security-test` library uses third-party library [WireMock](http://wire
 Optionally, you can configure `java-security-test` to start an embedded Jetty servlet container that comes equipped with an [authenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java). The authenticator checks whether a request is done by an authenticated AND authorized party. You can also add your own servlets to the container. Only requests that contain a valid authorization header will be passed through to the servlet. See the following test code that triggers HTTP requests against the servlet container. One request does not contain the token inside the authorization header and is expected to result in HTTP `401` (unauthenticated). The other contains a valid token and is expected to succeed.
 
 
-#### JUnit 4
+### JUnit 4
 Use `SecurityTestRule`, which is an `ExternalResource` that set up `WireMock` and optionally the Jetty servlet container before a test, and guarantee to tear it down afterward.
 
 ```java
@@ -64,7 +64,7 @@ public class HelloJavaServletTest {
 	@ClassRule
 	public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA)
 			.useApplicationServer() // optionally customize application server, e.g. port
-			.addApplicationServlet(TestServlet.class, "/hi");  // add servlet to be tested to application server
+			.addApplicationServlet(HelloJavaServlet.class, "/hi");  // add servlet to be tested to application server
     
 	@After
 	public void tearDown() {
@@ -102,27 +102,68 @@ public class HelloJavaServletTest {
 	}
 }
 ```
-#### JUnit 5
-JUnit 5 does no longer support `Rule`. You can configure a static `SecurityTest` instance. The `setup` method starts `WireMock` and optionally the Jetty servlet container, if not yet running. Furthermore, it resets `WireMock` and reconfigures the stubs. Finally, call the `tearDown` method to stop the running server(s):
+
+
+### JUnit 5
+JUnit 5 does no longer support `Rule`. As of `java-security-test` version `2.8.0` you can implement using [JUnit 5 extensions](https://junit.org/junit5/docs/current/user-guide/#extensions) instead. 
+
+
+`XsuaaExtension` class as well as the `IasExtension` class implements the `BeforeAllCallback` to configure and start `WireMock` as mock server for the identity service. Furthermore, it implements the `AfterAllCallback` to stop the running server(s).
+
+#### Java sample
 
 ```java
+@ExtendWith(XsuaaExtension.class) 
 public class HelloJavaTest {
 
-	private static SecurityTest securityTest = new SecurityTest(Service.XSUAA);
-	
-	@BeforeEach
-	public void setup() throws Exception {
-		securityTest.setup();
+	@Test
+	public void sayHello(SecurityTestContext context) {
+		String jwt = context.getPreconfiguredJwtGenerator()
+						.withLocalScopes("Read")
+						.createToken().getTokenValue();
+		// call endpoint with Authorization header "Bearer <jwt>" 			
+		...
 	}
+}
+```
 
-	@AfterAll
-	public static void tearDown() {
-		securityTest.tearDown();
-	}
+Or in case you need to configure the ports or Jetty as servlet container, you can configure `SecurityTestExtension` and register it as extension using `@RegisterExtension` annotation.
+
+```java
+public class HelloJavaServletTest {
+    @RegisterExtension
+	static SecurityTestExtension extension = SecurityTestExtension.forService(Service.XSUAA)
+            .useApplicationServer() // optionally customize application server, e.g. port
+			.addApplicationServlet(HelloJavaServlet.class, "/hi");  // add servlet to be tested to application server
 
 	@Test
-	public void v1_sayHello() throws Exception {
-		String jwt = securityTest.getPreconfiguredJwtGenerator()
+    public void sayHello() {
+    		String jwt = extension.getContext().getPreconfiguredJwtGenerator()
+    						.withLocalScopes("Read")
+    						.createToken().getTokenValue();
+    		// call endpoint with Authorization header "Bearer <jwt>" 			
+    		...
+    }
+}
+```
+
+#### SpringBoot sample
+
+```java
+import static com.sap.cloud.security.test.SecurityTest.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@TestPropertySource(properties = { 
+		"xsuaa.uaadomain=" + DEFAULT_DOMAIN, 
+		"xsuaa.xsappname=" + DEFAULT_APP_ID,
+		"xsuaa.clientid=" + DEFAULT_CLIENT_ID })
+@ExtendWith(XsuaaExtension.class)
+public class HelloSpringTest {
+
+	@Test
+	public void sayHello(SecurityTestContext context) {
+		String jwt = context.getPreconfiguredJwtGenerator()
 						.withLocalScopes("Read")
 						.createToken().getTokenValue();
 		// call endpoint with Authorization header "Bearer <jwt>" 			
