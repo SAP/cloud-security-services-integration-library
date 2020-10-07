@@ -132,11 +132,11 @@ Or in case you need to configure the ports or Jetty as servlet container, you ca
 ```java
 public class HelloJavaServletTest {
     @RegisterExtension
-    static SecurityTestExtension extension = SecurityTestExtension.forService(Service.XSUAA)
+	static SecurityTestExtension extension = SecurityTestExtension.forService(Service.XSUAA)
             .useApplicationServer() // optionally customize application server, e.g. port
 			.addApplicationServlet(HelloJavaServlet.class, "/hi");  // add servlet to be tested to application server
 
-    @Test
+	@Test
     public void sayHello() {
     		String jwt = extension.getContext().getPreconfiguredJwtGenerator()
     						.withLocalScopes("Read")
