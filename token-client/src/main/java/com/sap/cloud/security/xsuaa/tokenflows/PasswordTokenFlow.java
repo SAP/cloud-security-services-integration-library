@@ -48,8 +48,8 @@ public class PasswordTokenFlow {
 							username, password, subdomain, optionalParameters, disableCache);
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
-					String.format("Error requesting user token with grant_type 'client_credentials': %s",
-							e.getMessage()),
+					String.format("Error requesting user token with grant_type '%s': %s",
+							OAuth2TokenServiceConstants.GRANT_TYPE_PASSWORD, e.getMessage()),
 					e);
 		}
 	}

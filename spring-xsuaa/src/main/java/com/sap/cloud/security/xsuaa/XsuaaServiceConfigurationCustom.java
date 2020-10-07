@@ -38,6 +38,6 @@ public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguratio
 	@Nullable
 	@Override
 	public String getVerificationKey() {
-		return null;
+		return credentials.getVerificationKey();
 	}
 }
