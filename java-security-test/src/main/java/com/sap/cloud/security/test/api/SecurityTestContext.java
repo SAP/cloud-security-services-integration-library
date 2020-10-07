@@ -1,10 +1,9 @@
-package com.sap.cloud.security.test.api;
+package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonParsingException;
-import com.sap.cloud.security.test.JwtGenerator;
 import com.sap.cloud.security.token.Token;
 
 import javax.annotation.Nullable;

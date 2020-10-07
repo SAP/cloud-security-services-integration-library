@@ -1,7 +1,7 @@
 package com.sap.cloud.security.test.extension;
 
 import com.sap.cloud.security.test.ApplicationServerOptions;
-import com.sap.cloud.security.test.api.SecurityTestContext;
+import com.sap.cloud.security.test.SecurityTestContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
