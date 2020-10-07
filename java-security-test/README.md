@@ -133,8 +133,9 @@ Or in case you need to configure the ports or Jetty as servlet container, you ca
 public class HelloJavaServletTest {
     @RegisterExtension
     static SecurityTestExtension extension = SecurityTestExtension.forService(Service.XSUAA)
-            .useApplicationServer() // optionally customize application server, e.g. port
-			.addApplicationServlet(HelloJavaServlet.class, "/hi");  // add servlet to be tested to application server
+            .setPort(4711) // sets the port of the identity service mock server
+	    .useApplicationServer() // optionally customize application server, e.g. port
+	    .addApplicationServlet(HelloJavaServlet.class, "/hi");  // add servlet to be tested to application server
 
     @Test
     public void sayHello() {
@@ -171,6 +172,7 @@ public class HelloSpringTest {
 	}
 }
 ```
+> :warning: Please note, that `@RegisterExtension` for `SecurityTestExtension` can NOT be used in combination with `@TestInstance(TestInstance.Lifecycle.PER_CLASS)`! 
 
 ## Issues
 
