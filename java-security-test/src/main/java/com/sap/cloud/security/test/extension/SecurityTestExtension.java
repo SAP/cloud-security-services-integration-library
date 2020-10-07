@@ -2,6 +2,9 @@ package com.sap.cloud.security.test.extension;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.test.*;
+import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
+import com.sap.cloud.security.test.api.SecurityTestContext;
+import com.sap.cloud.security.test.api.ServiceMockConfiguration;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.jupiter.api.extension.*;
 
