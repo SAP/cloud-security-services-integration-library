@@ -16,7 +16,6 @@
         <assertj.version>3.13.2</assertj.version>
         <jetty.version>9.4.31.v20200723</jetty.version>
         <junit.version>5.7.0</junit.version>
-        <junit.version>4.12</junit.version>
     </properties>
 
     <dependencies>
