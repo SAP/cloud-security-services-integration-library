@@ -242,7 +242,7 @@ String jwt = securityTestRule.getPreconfiguredJwtGenerator()
     .getTokenValue();
 ```
 
-See the [java-security-test documentation](/java-security-test) for more details, also on how to leverage JUnit 5 extensions.
+See the [java-security-test documenation](/java-security-test) for more details, also on how to leverage JUnit 5 extensions.
 
 ### Enable local testing
 For local testing you might need to provide custom `VCAP_SERVICES` before you run the application. 
