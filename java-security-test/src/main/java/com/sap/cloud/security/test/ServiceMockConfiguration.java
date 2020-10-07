@@ -1,4 +1,4 @@
-package com.sap.cloud.security.test;
+package com.sap.cloud.security.test.api;
 
 public interface ServiceMockConfiguration {
 
