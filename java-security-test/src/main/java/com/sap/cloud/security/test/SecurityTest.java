@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.VcapServicesParser;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.jetty.JettyTokenAuthenticator;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
@@ -11,6 +12,7 @@ import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.http.HttpHeader;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.MediaType;
 import org.apache.commons.io.IOUtils;
@@ -43,8 +45,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
-public class SecurityTest
-		implements SecurityTestContext, ServiceMockConfiguration, ApplicationServerConfiguration {
+public class SecurityTest {
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(SecurityTest.class);
 
@@ -78,43 +79,108 @@ public class SecurityTest
 		this.applicationServerOptions = ApplicationServerOptions.forService(service);
 	}
 
-	@Override
+	/**
+	 * Specifies an embedded jetty as servlet server. It needs to be configured
+	 * before the {@link #setup()} method. The application server will be started
+	 * with default options for the given {@link Service}, see
+	 * {@link ApplicationServerOptions#forService(Service)} for details. By default
+	 * the servlet server will listen on a free random port. Use
+	 * {@link SecurityTestRule#useApplicationServer(ApplicationServerOptions)} to
+	 * overwrite default settings. Use {@code getApplicationServerUri()} to obtain
+	 * the actual port used at runtime.
+	 *
+	 * @return the rule itself.
+	 */
 	public SecurityTest useApplicationServer() {
 		return useApplicationServer(ApplicationServerOptions.forService(service));
 	}
 
-	@Override
+	/**
+	 * Specifies an embedded jetty as servlet server. It needs to be configured
+	 * before the {@link #setup()} method. Use
+	 * {@link ApplicationServerOptions#forService(Service)} to obtain a
+	 * configuration object that can be customized. See
+	 * {@link ApplicationServerOptions} for details.
+	 *
+	 * @param applicationServerOptions
+	 *            custom options to configure the application server.
+	 * @return the rule itself.
+	 */
 	public SecurityTest useApplicationServer(ApplicationServerOptions applicationServerOptions) {
 		this.applicationServerOptions = applicationServerOptions;
 		useApplicationServer = true;
 		return this;
 	}
 
-	@Override
+	/**
+	 * Adds a servlet to the servlet server. Only has an effect when used in
+	 * conjunction with {@link #useApplicationServer}.
+	 *
+	 * @param servletClass
+	 *            the servlet class that should be served.
+	 * @param path
+	 *            the path on which the servlet should be served, e.g. "/*".
+	 * @return the rule itself.
+	 */
 	public SecurityTest addApplicationServlet(Class<? extends Servlet> servletClass, String path) {
 		applicationServletsByPath.put(path, new ServletHolder(servletClass));
 		return this;
 	}
 
-	@Override
+	/**
+	 * Adds a servlet to the servlet server. Only has an effect when used in
+	 * conjunction with {@link #useApplicationServer}.
+	 *
+	 * @param servletHolder
+	 *            the servlet inside a {@link ServletHolder} that should be served.
+	 * @param path
+	 *            the path on which the servlet should be served, e.g. "/*".
+	 * @return the rule itself.
+	 */
 	public SecurityTest addApplicationServlet(ServletHolder servletHolder, String path) {
 		applicationServletsByPath.put(path, servletHolder);
 		return this;
 	}
 
-	@Override
+	/**
+	 * Adds a filter to the servlet server. Only has an effect when used in
+	 * conjunction with {@link #useApplicationServer}.
+	 *
+	 * @param filterClass
+	 *            the filter class that should intercept with incoming requests.
+	 * @return the rule itself.
+	 */
 	public SecurityTest addApplicationServletFilter(Class<? extends Filter> filterClass) {
 		applicationServletFilters.add(new FilterHolder(filterClass));
 		return this;
 	}
 
-	@Override
+	/**
+	 * Overwrites the port on which the identity service mock server runs
+	 * (WireMock). It needs to be configured before the {@link #setup()} method. If
+	 * the port is not specified or is set to 0, a free random port is chosen.
+	 *
+	 * @param port
+	 *            the port on which the wire mock service is started.
+	 * @return the rule itself.
+	 */
 	public SecurityTest setPort(int port) {
 		wireMockServer = new WireMockServer(options().port(port));
 		return this;
 	}
 
-	@Override
+	/**
+	 * Overwrites the private/public key pair to be used. The private key is used to
+	 * sign the jwt token. The public key is provided by jwks endpoint (on behalf of
+	 * WireMock). Checked exceptions are caught and rethrown as runtime exceptions
+	 * for test convenience.
+	 *
+	 * @param publicKeyPath
+	 *            resource path to public key file.
+	 * @param privateKeyPath
+	 *            resource path to private key file.
+	 * @return the rule itself.
+	 */
 	public SecurityTest setKeys(String publicKeyPath, String privateKeyPath) {
 		try {
 			this.keys = RSAKeys.fromKeyFiles(publicKeyPath, privateKeyPath);
@@ -124,7 +190,12 @@ public class SecurityTest
 		return this;
 	}
 
-	@Override
+	/**
+	 * This creates a JwtGenerator is fully configured as part of {@link #setup()}
+	 * method so that it can be used for testing.
+	 *
+	 * @return the preconfigured Jwt token generator
+	 */
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service, clientId).withPrivateKey(keys.getPrivate());
 		if (jwksUrl == null || issuerUrl == null) {
@@ -140,34 +211,79 @@ public class SecurityTest
 		return jwtGenerator.withClaimValue(TokenClaims.ISSUER, issuerUrl);
 	}
 
-	@Override
-	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) {
+	/**
+	 * This method creates an JwtGenerator that uses
+	 * {@link JwtGenerator#getInstanceFromFile(Service, String)} to provide a
+	 * {@link JwtGenerator} prefilled data contained in the
+	 * {@code tokenJsonResource} file. Some properties are overridden so that the
+	 * generated tokens can be used in unit tests.
+	 *
+	 * @param tokenJsonResource
+	 *            the resource path to the file containing the json file, see
+	 *            {@link JwtGenerator#getInstanceFromFile(Service, String)}
+	 * @return a new {@link JwtGenerator} instance
+	 * @throws IllegalArgumentException
+	 *             if the resource cannot be read
+	 * @throws JsonParsingException
+	 *             if the file contains invalid data
+	 */
+	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) throws IOException {
 		return JwtGenerator.getInstanceFromFile(service, tokenJsonResource)
 				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
 				.withClaimValue(TokenClaims.ISSUER, issuerUrl)
 				.withPrivateKey(keys.getPrivate());
 	}
 
-	@Override
-	public OAuth2ServiceConfigurationBuilder getOAuth2ServiceConfigurationBuilderFromFile(
-			String configurationResourceName) {
+	/**
+	 * Creates a {@link OAuth2ServiceConfigurationBuilder} prefilled with the data
+	 * from the classpath resource given by {@code configurationResourceName}. The
+	 * {@code url} of the configuration will be overridden with the url of the mock
+	 * server.
+	 *
+	 * @param configurationResourceName
+	 *            the name of classpath resource that contains the configuration
+	 *            json
+	 * @return a new {@link OAuth2ServiceConfigurationBuilder} instance
+	 * @throws IllegalArgumentException
+	 *             if the resource cannot be read
+	 * @throws JsonParsingException
+	 *             if the resource contains invalid data
+	 */
+	public OAuth2ServiceConfigurationBuilder getConfigurationBuilderFromFile(String configurationResourceName) {
 		return VcapServicesParser.fromFile(configurationResourceName)
 				.getConfigurationBuilder()
 				.withProperty(UAA_DOMAIN, URI.create(issuerUrl).getHost())
 				.withUrl(issuerUrl);
 	}
 
-	@Override
+	/**
+	 * Creates a very basic token on base of the preconfigured Jwt token generator.
+	 * In case you like to specify further token claims, you can make use of
+	 * {@link #getPreconfiguredJwtGenerator()}
+	 *
+	 * @return the token.
+	 */
 	public Token createToken() {
 		return getPreconfiguredJwtGenerator().createToken();
 	}
 
-	@Override
+	/**
+	 * Allows to stub further endpoints of the identity service. Returns null if the
+	 * server is not yet initialized as part of {@link #setup()} method. You can
+	 * find a detailed explanation on how to configure wire mock here:
+	 * http://wiremock.org/docs/getting-started/
+	 *
+	 * @return an instance of WireMockServer
+	 */
 	public WireMockServer getWireMockServer() {
 		return wireMockServer;
 	}
 
-	@Override
+	/**
+	 * Returns the URI of the embedded jetty server or null if not specified.
+	 *
+	 * @return uri of the application server
+	 */
 	@Nullable
 	public String getApplicationServerUri() {
 		if (useApplicationServer) {

@@ -108,10 +108,10 @@ public class JwtGenerator {
 	 * @return a new {@link JwtGenerator} instance.
 	 * @throws JsonParsingException
 	 *             if the file does not contain a valid json object
-	 * @throws IllegalArgumentException
+	 * @throws IOException
 	 *             if the given file cannot be read
 	 */
-	public static JwtGenerator getInstanceFromFile(Service service, String tokenJsonResource) {
+	public static JwtGenerator getInstanceFromFile(Service service, String tokenJsonResource) throws IOException {
 		return new JwtGenerator(service, JwtGenerator::calculateSignature).fromFile(tokenJsonResource);
 	}
 

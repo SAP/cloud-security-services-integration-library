@@ -37,7 +37,7 @@ which shows what had to be changed to migrate our open-SAP course application fr
 
 ## Maven Dependencies
 To use the new [spring-xsuaa](/spring-xsuaa) client library the dependencies declared in maven `pom.xml` need to be changed.
-See the [documentation](/spring-xsuaa#configuration) on what to add to your `pom.xml`.
+See the [docs](/spring-xsuaa#configuration) on what to add to your `pom.xml`.
 
 Now you are ready to **remove** the **`java-container-security`** client library by deleting the following dependencies from the pom.xml:
 
@@ -223,7 +223,7 @@ for more details.
 ## Testing
 In your unit test you might want to generate jwt tokens and have them validated. The new
 [java-security-test](/java-security-test) library provides it's own `JwtGenerator`. This can be embedded using the
-new `SecurityTestRule` in Junit 4. See the following snippet as example:
+new `SecurityTestRule`. See the following snippet as example:
 
 ```java
 @ClassRule
@@ -242,7 +242,7 @@ String jwt = securityTestRule.getPreconfiguredJwtGenerator()
     .getTokenValue();
 ```
 
-See the [java-security-test documenation](/java-security-test) for more details, also on how to leverage JUnit 5 extensions.
+See the [java-security-test docs](/java-security-test) for more details.
 
 ### Enable local testing
 For local testing you might need to provide custom `VCAP_SERVICES` before you run the application. 
@@ -254,10 +254,7 @@ under `xsuaa/credentials` for jwt validation:
 Before calling the service you need to provide a digitally signed JWT token to simulate that you are an authenticated user. 
 - Therefore simply set a breakpoint in `JwtGenerator.createToken()` and run your `JUnit` tests to fetch the value of `jwt` from there. In that case you can use the publicKey from `java-security-test`, like its done [here](/samples/localEnvironmentSetup.sh).
 
-
 Now you can test the service manually in the browser using the `Postman` chrome plugin and check whether the secured functions can be accessed when providing a valid generated Jwt Token.
-
-https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/samples/localEnvironmentSetup.sh
 
 ## Things to check after migration 
 When your code compiles again you should first check that all your unit tests are running again. If you can test your
