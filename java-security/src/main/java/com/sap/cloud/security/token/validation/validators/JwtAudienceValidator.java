@@ -99,7 +99,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 		if (Service.XSUAA.equals(token.getService())) {
 			if (token.hasClaim(TokenClaims.XSUAA.CLIENT_ID)) {
-				audiences.add(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID));
+				audiences.add(token.getClientId());
 			}
 			// extract audience (app-id) from scopes
 			if (token.getAudiences().isEmpty()) {

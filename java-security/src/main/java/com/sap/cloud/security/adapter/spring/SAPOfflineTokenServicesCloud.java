@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
  * <p>
  * When used in conjunction with Java Http Servlets, the
  * {@link HttpServletRequest#getRemoteUser()} will be filled with either the
- * <code>user_name</code> claim of the token or the client id (<code>cid</code>)
+ * <code>user_name</code> claim of the token or the client id (<code>azp</code>)
  * if it is not an user token.
  * </p>
  *
@@ -170,7 +170,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		}
 		SecurityContext.setToken(token);
 
-		String tokenClientId = token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID);
+		String tokenClientId = token.getClientId();
 		if (LOGGER.isInfoEnabled() && tokenClientId != serviceConfiguration.getClientId()) {
 			LOGGER.info("Creates OAuth2Authentication with token clientId {} which differs from oauth client id {}.",
 					tokenClientId, serviceConfiguration.getClientId());

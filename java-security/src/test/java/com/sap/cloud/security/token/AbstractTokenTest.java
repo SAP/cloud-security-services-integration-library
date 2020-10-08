@@ -19,11 +19,25 @@ import static org.mockito.Mockito.when;
 public class AbstractTokenTest {
 
 	private final String jwtString;
+	private final String jwtString2;
 	private Token cut;
+	private Token cut2;
 
 	public AbstractTokenTest() throws IOException {
 		jwtString = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
 		cut = new AbstractToken(jwtString) {
+			@Override
+			public Principal getPrincipal() {
+				return null;
+			}
+
+			@Override
+			public Service getService() {
+				return null;
+			}
+		};
+		jwtString2 = IOUtils.resourceToString("/xsuaaEmptyToken.txt", StandardCharsets.UTF_8);
+		cut2 = new AbstractToken(jwtString2) {
 			@Override
 			public Principal getPrincipal() {
 				return null;
@@ -135,8 +149,14 @@ public class AbstractTokenTest {
 				.contains(cut.getHeaderParameterAsString(TokenHeader.JWKS_URL))
 				.contains(cut.getHeaderParameterAsString(TokenHeader.KEY_ID))
 				.contains(cut.getAudiences())
-				.contains(cut.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
+				.contains(cut.getClientId())
 				.contains(cut.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE))
 				.contains(cut.getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
+	}
+
+	@Test
+	public void getClientIdTest() {
+		assertThat(cut.getClientId()).isEqualTo("sap_osb");
+		assertThatThrownBy(() -> cut2.getClientId()).isInstanceOf(ClientIdRetrievalException.class);
 	}
 }
