@@ -5,6 +5,8 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,14 +14,12 @@ import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
 import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.ISSUED_AT;
 
 /**
@@ -27,6 +27,9 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.ISSUED_AT;
  * header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractToken.class);
+
 	private final DecodedJwt decodedJwt;
 	protected final DefaultJsonObject tokenHeader;
 	protected final DefaultJsonObject tokenBody;
@@ -163,6 +166,24 @@ public abstract class AbstractToken implements Token {
 	@Override
 	public String getZoneId() {
 		return getClaimAsString(TokenClaims.SAP_GLOBAL_ZONE_ID);
+	}
+
+	@Override
+	public String getClientId() {
+		String clientId = getClaimAsString(CLIENT_ID);
+		if (clientId == null) {
+			Set<String> audiences = getAudiences();
+			Optional<String> audience = audiences.stream().findFirst();
+
+			if (audience.isPresent() && audiences.size() == 1) {
+				return audience.get();
+			} else {
+				LOGGER.error("Audience or authorized party claims are missing.");
+				throw new ClientIdRetrievalException("Audience or Authorized party claims are missing.");
+			}
+		} else {
+			return clientId;
+		}
 	}
 
 	@Override

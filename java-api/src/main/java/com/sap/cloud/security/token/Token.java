@@ -149,4 +149,11 @@ public interface Token {
 	 */
 	String getZoneId();
 
+	/**
+	 * Returns Client identifier,
+	 * 
+	 * @return the Client identifier.
+	 */
+	String getClientId();
+
 }
