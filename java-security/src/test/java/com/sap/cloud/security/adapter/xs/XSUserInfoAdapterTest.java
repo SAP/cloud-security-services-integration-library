@@ -123,7 +123,7 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void testGetJsonValue() throws XSUserInfoException {
-		assertThat(cut.getJsonValue("cid")).isEqualTo("sb-clone1!b5|LR-master!b5");
+		assertThat(cut.getJsonValue("azp")).isEqualTo("sb-clone1!b5|LR-master!b5");
 	}
 
 	@Test
@@ -402,7 +402,7 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void isForeignModeFalse_whenTrustedClientIdSuffixMatches() throws XSUserInfoException {
-		String tokenClientId = "sb-clone1!b22|brokerplanmasterapp!b123"; // cid
+		String tokenClientId = "sb-clone1!b22|brokerplanmasterapp!b123"; // azp
 		String configurationAppId = "brokerplanmasterapp!b123";
 		XsuaaToken token = mock(XsuaaToken.class);
 		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(tokenClientId);
@@ -424,7 +424,7 @@ public class XSUserInfoAdapterTest {
 	@Test
 	public void isForeignModeFalse_WhenIdentityZoneDoesNotMatchButCliendIdIsApplicationPlan()
 			throws XSUserInfoException {
-		String tokenClientId = "sb-application!t0123"; // cid
+		String tokenClientId = "sb-application!t0123"; // azp
 		String identityZone = "brokerplanmasterapp!b123"; // ext_attr -> zdn
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(tokenClientId)
@@ -441,7 +441,7 @@ public class XSUserInfoAdapterTest {
 	@Test
 	public void isForeignModeFalse_WhenIdentityZoneDoesNotMatchButCliendIdIsBrokerPlan()
 			throws XSUserInfoException {
-		String tokenClientId = "sb-application!b0123"; // cid
+		String tokenClientId = "sb-application!b0123"; // azp
 		String identityZone = "brokerplanmasterapp!b123"; // ext_attr -> zdn
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(tokenClientId)
@@ -457,7 +457,7 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void isForeignModeFalse_WhenClientIdAndIdentityZonesMatch() throws XSUserInfoException {
-		String tokenClientId = "sb-application"; // cid
+		String tokenClientId = "sb-application"; // azp
 		String identityZone = "brokerplanmasterapp!b123"; // ext_attr -> zdn
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(tokenClientId)
