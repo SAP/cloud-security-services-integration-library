@@ -1,4 +1,4 @@
-package com.sap.cloud.security.test.integration;
+package com.sap.cloud.security.test.integration.ssrf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
