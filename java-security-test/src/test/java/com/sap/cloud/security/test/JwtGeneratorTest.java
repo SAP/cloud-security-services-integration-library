@@ -118,11 +118,11 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void withClaimClientId_overwritesClaim() {
+	public void withClaimAzp_overwritesClientId() {
 		String clientId = "myClientId";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
+				.withClaimValue(TokenClaims.XSUAA.AUTHORIZATION_PARTY, clientId)
 				.createToken();
 
 		assertThat(token.getClientId()).isEqualTo(clientId);
