@@ -110,8 +110,8 @@ public class AbstractTokenTest {
 
 	@Test
 	public void getJsonObject() {
-		JsonObject externalAttributes = cut.getClaimAsJsonObject("ext_attr");
-		assertThat(externalAttributes.getAsString("enhancer")).isEqualTo("XSUAA");
+		JsonObject externalAttributes = cut.getClaimAsJsonObject(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE);
+		assertThat(externalAttributes.getAsString(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ENHANCER)).isEqualTo("XSUAA");
 	}
 
 	@Test
@@ -138,5 +138,10 @@ public class AbstractTokenTest {
 				.contains(cut.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
 				.contains(cut.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE))
 				.contains(cut.getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
+	}
+
+	@Test
+	public void isXsuaaToken() {
+		assertThat(((AbstractToken) cut).isXsuaaToken()).isTrue();
 	}
 }

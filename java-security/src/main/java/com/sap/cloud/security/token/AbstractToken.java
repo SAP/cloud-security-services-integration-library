@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
 import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.ISSUED_AT;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**
  * Decodes and parses encoded JSON Web Token (JWT) and provides access to token
@@ -113,6 +113,16 @@ public abstract class AbstractToken implements Token {
 		Set<String> audiences = new LinkedHashSet<>();
 		audiences.addAll(getClaimAsStringList(TokenClaims.AUDIENCE));
 		return audiences;
+	}
+
+	public boolean isXsuaaToken() {
+		if (tokenBody.contains(EXTERNAL_ATTRIBUTE)) {
+			JsonObject externalAttributes = tokenBody.getJsonObject(EXTERNAL_ATTRIBUTE);
+			if ("XSUAA".equals(externalAttributes.getAsString(EXTERNAL_ATTRIBUTE_ENHANCER))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	protected Principal createPrincipalByName(String name) {
