@@ -6,18 +6,16 @@
  */
 package sample.sapbuildpack.xsuaa;
 
-import java.io.IOException;
+import com.sap.cloud.security.token.AccessToken;
+import com.sap.cloud.security.token.TokenClaims;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.HttpConstraint;
 import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.sap.xsa.security.container.XSUserInfo;
-import com.sap.xsa.security.container.XSUserInfoException;
+import java.io.IOException;
 
 /**
  * Servlet implementation class HelloTokenServlet
@@ -33,28 +31,24 @@ public class HelloTokenServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		response.setContentType("text/plain");
-		XSUserInfo userInfo = (XSUserInfo) request.getUserPrincipal();
+		AccessToken accessToken = (AccessToken) request.getUserPrincipal();
 
-		try {
-			response.getWriter().append("Client ID: ").append("" + userInfo.getClientId());
-			response.getWriter().append("\n");
-			response.getWriter().append("Email: ").append("" + userInfo.getEmail());
-			response.getWriter().append("\n");
-			response.getWriter().append("Family Name: ").append("" + userInfo.getFamilyName());
-			response.getWriter().append("\n");
-			response.getWriter().append("First Name: ").append("" + userInfo.getGivenName());
-			response.getWriter().append("\n");
-			response.getWriter().append("OAuth Grant Type: ").append("" + userInfo.getGrantType());
-			response.getWriter().append("\n");
-			response.getWriter().append("OAuth Token: ").append("" + userInfo.getAppToken());
-			response.getWriter().append("\n");
-
-		} catch (XSUserInfoException e) {
-			e.printStackTrace(response.getWriter());
-		}
+		response.getWriter().append("Client ID: ")
+				.append("" + accessToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID));
+		response.getWriter().append("\n");
+		response.getWriter().append("Email: ").append("" + accessToken.getClaimAsString(TokenClaims.EMAIL));
+		response.getWriter().append("\n");
+		response.getWriter().append("Family Name: ").append("" + accessToken.getClaimAsString(TokenClaims.FAMILY_NAME));
+		response.getWriter().append("\n");
+		response.getWriter().append("First Name: ").append("" + accessToken.getClaimAsString(TokenClaims.GIVEN_NAME));
+		response.getWriter().append("\n");
+		response.getWriter().append("OAuth Grant Type: ").append("" + accessToken.getGrantType());
+		response.getWriter().append("\n");
+		response.getWriter().append("OAuth Token: ").append("" + accessToken.getTokenValue());
+		response.getWriter().append("\n");
 
 	}
 

@@ -37,33 +37,22 @@ which shows what had to be changed to migrate our open-SAP course application fr
 
 ## Maven Dependencies
 To use the new [spring-xsuaa](/spring-xsuaa) client library the dependencies declared in maven `pom.xml` need to be changed.
-See the [docs](/spring-xsuaa#configuration) on what to add to your `pom.xml`.
+See the [documentation](/spring-xsuaa#configuration) on what to add to your `pom.xml`.
 
-After you have added to new dependencies you are ready to **remove** the **`java-container-security`** client library by
-deleting the following lines from the pom.xml:
-```xml
-<dependency>
-  <groupId>com.sap.xs2.security</groupId>
-  <artifactId>java-container-security</artifactId>
-</dependency>
-<dependency>
-  <groupId>com.sap.xs2.security</groupId>
-  <artifactId>java-container-security-api</artifactId>
-</dependency>
-```
-Or
-```xml
-<dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>java-container-security</artifactId>
-</dependency>
-<dependency>
-  <groupId>com.sap.cloud.security.xsuaa</groupId>
-  <artifactId>api</artifactId>
-</dependency>
-```
+Now you are ready to **remove** the **`java-container-security`** client library by deleting the following dependencies from the pom.xml:
 
-Make sure that you do not refer to any other sap security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
+groupId (deprecated) | artifactId (deprecated) 
+--- | --- 
+com.sap.xs2.security | java-container-security
+com.sap.xs2.security | api
+com.sap.cloud.security.xssec | api 
+com.sap.cloud.security.xsuaa | java-container-security-api
+com.sap.cloud.security.xsuaa | java-container-security
+com.sap.cloud.security.xsuaa | api
+
+> Note: The dependency `com.sap.cloud.security.xsuaa:api` should be removed as well, as `spring-xsuaa` provides it already as transitive dependency.
+
+Furthermore, make sure that you do not refer to any other sap security library with groupId `com.sap.security` or `com.sap.security.nw.sso.*`.
 
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
@@ -75,13 +64,33 @@ Spring Security OAuth 2.x which is being deprecated in Spring 5.
 This means that you have to remove the  `SAPOfflineTokenServicesCloud` bean from your security configuration
 and adapt the `HttpSecurity` configuration. This involves the following steps:
 
-- The `@EnableResourceServer` annotation must be removed because the resource server is now configured using the Spring Security DSL syntax. See the [docs](/spring-xsuaa/#setup-security-context-for-http-requests) for an example configuration.
+- The `@EnableResourceServer` annotation must be removed. Instead, the resource server has to be configured using the Spring Security DSL syntax.   
+See the [docs](/spring-xsuaa/#setup-security-context-for-http-requests) for an example configuration.
 - The `antMatchers` must be configured to check against the authorities. For this the `TokenAuthenticationConverter`
-  needs to be configured like described in the [docs](/spring-xsuaa/#setup-security-context-for-http-requests).
+  needs to be configured like described in the [docs](/spring-xsuaa/#setup-security-context-for-http-requests). Note: with the removal of the deprecated [Spring Security OAuth](https://projects.spring.io/spring-security-oauth) library the web expression `access("#oauth2.hasScope('" + xsAppName + ".Display"’)")` has been removed, and must be replaced with `hasAuthority("Display")`.
 
 We already added `spring-xsuaa` and `java-security-test` to the [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads) application and
 [this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/585c7a1a9763c627009fda03a6424e0328df3c5a)
 shows the security relevant parts.
+
+### Access VCAP_SERVICES values
+There are two options to access information of the XSUAA service instance (`VCAP_SERVICES` credentials):
+
+1. Via Spring `@Value`
+```java
+@Value("${xsuaa.xsappname}")
+String xsAppName;
+```
+2. Via XsuaaServiceConfiguration bean
+```java
+@Autowired
+XsuaaServiceConfiguration xsuaaServiceConfiguration;
+
+...
+
+xsuaaServiceConfiguration.getAppId();
+```
+
 
 
 ### SAP_JWT_TRUST_ACL obsolete
@@ -90,10 +99,12 @@ Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (
 
 Whether the token is issued for your application or not is now validated by the [`XsuaaAudienceValidator`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/token/authentication/XsuaaAudienceValidator.java).
 
-### Multiple XSUAA Bindings
-You can skip this section, in case your application is bound to only one Xsuaa service instance. The library does not support multiple XSUAA bindings of plan `application` and `broker`. **The Xsuaa service instance of plan `api` is ignored.**
+This comes with a change regarding scopes. For a business application A that wants to call an application B, it's now mandatory that the application B grants at least one scope to the calling business application A. You can grant scopes with the `xs-security.json` file. For additional information, refer to the [Application Security Descriptor Configuration Syntax](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/517895a9612241259d6941dbf9ad81cb.html), specifically the sections [referencing the application](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/517895a9612241259d6941dbf9ad81cb.html#loio517895a9612241259d6941dbf9ad81cb__section_fm2_wsk_pdb) and [authorities](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/517895a9612241259d6941dbf9ad81cb.html#loio517895a9612241259d6941dbf9ad81cb__section_d1m_1nq_zy). 
 
-Then you need to adapt your **Spring Security Configuration** as following:
+### Multiple XSUAA Bindings
+You can skip this section, in case your application is bound to only one Xsuaa service instance. The `xsuaa-spring-boot-starter` does not support multiple XSUAA bindings of plan `application` and `broker`. **The Xsuaa service instance of plan `api` is ignored.**
+
+In case of multiple bindings you need to adapt your **Spring Security Configuration** as following:
 
 1. You need to get rid of  `XsuaaServicePropertySourceFactory`, because `XsuaaServicesParser` raises the error.
  * In case you make use of `xsuaa-spring-boot-starter` Spring Boot starter, you need to disable auto-configuration within your `*.properties` / or `*.yaml` file:
@@ -104,7 +115,7 @@ Then you need to adapt your **Spring Security Configuration** as following:
     ```java
     @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = {""})
     ```
-2. Instead, provide your own implementation of `XsuaaSecurityConfiguration` interface to access the primary Xsuaa service configuration of your application (chose the service instance of plan `application` here), which are exposed in the `VCAP_SERVICES` system environment variable (in Cloud Foundry). As of version `2.6.1` you can implement it like that: 
+2. Instead, provide your own implementation of `XsuaaSecurityConfiguration` interface to access the **primary Xsuaa service configuration** of your application (chose the service instance of plan `application` here), which are exposed in the `VCAP_SERVICES` system environment variable (in Cloud Foundry). As of version `2.6.2` you can implement it like that: 
 
     ```java
     import com.sap.cloud.security.xsuaa.XsuaaCredentials;
@@ -120,32 +131,36 @@ Then you need to adapt your **Spring Security Configuration** as following:
 
     @Bean
     public XsuaaServiceConfiguration customXsuaaConfig() {
-        return new XsuaaServiceConfigurationCustom(xsuaaCredentials()); // secondary Xsuaa service binding
+        return new XsuaaServiceConfigurationCustom(xsuaaCredentials());
     }
     ```
 
-3. You need to overwrite `JwtDecoder` bean so that the `AudienceValidator` checks the JWT audience not only against the client id of the primary Xsuaa service instance, but also of the binding of plan `broker`. As of version `2.6.1` you can implement it like that: 
+3. You need to overwrite `JwtDecoder` bean so that the `AudienceValidator` checks the JWT audience not only against the client id of the primary Xsuaa service instance, but also of the binding of plan `broker`. As of version `2.6.2` you can implement it like that: 
     ```java
     @Bean
     @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan broker>>.credentials")
-    public UaaCredentials brokerCredentials() {
-        return new XsuaaCredentials();
+    public XsuaaCredentials brokerCredentials() {
+        return new XsuaaCredentials(); // secondary Xsuaa service binding, e.g. broker
     }
    
     @Bean
-    JwtDecoder getJwtDecoder() {
-       UaaCredentials brokerXsuaaCredentials = brokerCredentials();
+    public JwtDecoder getJwtDecoder() {
+       XsuaaCredentials brokerXsuaaCredentials = brokerCredentials();
    
-       XsuaaAudienceValidator audienceValidator = new XsuaaAudienceValidator(customXsuaaConfig());
-       // audienceValidator.configureAnotherXsuaaInstance("test3!b1", "sb-clone1!b22|test3!b1");
-       audienceValidator.configureAnotherXsuaaInstance(brokerXsuaaCredentials.getXsAppName(), brokerXsuaaCredentials.getClientId())
-       return new XsuaaJwtDecoderBuilder(customXsuaaConfig()).withTokenValidators(audienceValidator).build();
+       XsuaaAudienceValidator customAudienceValidator = new XsuaaAudienceValidator(customXsuaaConfig());
+       // customAudienceValidator.configureAnotherXsuaaInstance("test3!b1", "sb-clone1!b22|test3!b1");
+       customAudienceValidator.configureAnotherXsuaaInstance(brokerXsuaaCredentials.getXsAppName(), brokerXsuaaCredentials.getClientId());
+       return new XsuaaJwtDecoderBuilder(customXsuaaConfig()).withTokenValidators(customAudienceValidator).build();
     }
     ```
+ 4. Note: In case you would like to configure authorization checks for scopes that are specified in context of different XSUAA service instances local scope names (without `xsappname` prefix) are not unique. So, make sure that `TokenAuthenticationConverter` is NOT configured to check for local scopes (`setLocalScopeAsAuthorities(false)`)! In this case configure the HttpSecurity with an `antMatcher` for local scope "Read" as following:  
+   ```
+ 	.antMatchers("/v1/sayHello").hasAuthority(customXsuaaConfig().getAppId() + '.' + "Read")
+   ```
 
 ## Fetch data from token
 
-You may have code parts that requests information from the access token using `XSUserInfo userInfo = SecurityContext.getUserInfo()`, like the user's name, its tenant, and so on. So, look up your code to find its usage.
+You may have code parts that requests information from the access token using `XSUserInfo userInfo = SecurityContext.getUserInfo()`, like the user's name, its tenant, and so on. So, look up your code to find its usage, for example:
 
 ```java
 import com.sap.xs2.security.container.SecurityContext;
@@ -159,11 +174,16 @@ try {
 	// handle exception
 }
 ```
+and replace this with
+```java
+import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
+import com.sap.cloud.security.xsuaa.token.Token;
 
-There is no `UserInfo` anymore. To obtain the token from the thread local storage, you
-have to use Spring's `SecurityContext` managed by the `SecurityContextHolder`.
-It will contain a `com.sap.cloud.security.xsuaa.token.Token`.
-This is explained in the [usage section](/spring-xsuaa#usage) of the documentation.
+Token token = SpringSecurityContext.getToken(); // throws AccessDeniedException
+```
+
+> Note: There is no `UserInfo` anymore. To obtain the token from the thread local storage, you
+have to use Spring's Security Context managed by the `SecurityContextHolder`. This is explained in detailed in the [usage section](/spring-xsuaa#usage).
 
 ### Exception Handling
 Unlike `XSUserInfo` interface there is no `XSUserInfoException` raised, in case the token does not contain the requested claim. You can check the interface, whether it can also return a `Nullable`. Then you can either perform a null check or check in advance, whether the claim is provided as part of the token, e.g. `Token.hasClaim(TokenClaims.CLAIM_CLIENT_ID)`.
@@ -177,19 +197,19 @@ See the following table for methods that are not available anymore and workaroun
 
 | XSUserInfo method       | Workaround in `spring.xsuaa`                                                                                      |
 |-------------------------|--------------------------------------------------------------------------------------------------|
-| `checkLocalScope`       | Adapt the default behaviour of `TokenAuthenticationConverter.setLocalScopeAsAuthorities(true)` to let `getAuthorities` return local scopes. |
+| `checkLocalScope`       | Adapt the default behaviour of `TokenAuthenticationConverter.setLocalScopeAsAuthorities(true)` to let `getAuthorities` return local scopes. E.g. `token.getAuthorities().contains(new SimpleGrantedAuthority("Display"))`|
 | `checkScope`            | Use `getScopes` and check if the scope is contained.|
 | `getAttribute`          | Use `getXSUserAttribute`.                                                                        |
 | `getDBToken`            | Not implemented.                                                                                 |
 | `getHdbToken`           | Not implemented.                                                                                 |
-| `getIdentityZone`       | Use `getSubaccountId`.                                                                 |
-| `getJsonValue`          | Use `containsClaim` and `getClaimAsString`. See section [XsuaaToken](#xsuaatoken).                                                                                |
-| `getSystemAttribute`    | This extracts data from `xs.system.attributes` claim. See section [XsuaaToken](#xsuaatoken).    |
+| `getIdentityZone`       | Use `getZoneId` to get the tenant GUID or use `getSubaccountId` to get subaccount id, e.g. to provide it to the metering API.|
+| `getJsonValue`          | Use `containsClaim` and `getClaimAsString`. See section [XsuaaToken](#xsuaatoken).               |
+| `getSystemAttribute`    | This extracts data from `xs.system.attributes` claim. See section [XsuaaToken](#xsuaatoken).     |
 | `getToken`              | Not implemented.                                                                                 |
 | `hasAttributes`         | Use `getXSUserAttribute` and check of the attribute is available.                                |
 | `isInForeignMode`       | Not implemented.                                                                                 |
-| `requestToken`          | Was removed with version `2.0.0`in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library. 
-| `requestTokenForClient` | Was removed with version `2.0.0`in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library.
+| `requestToken`          | Deprecated in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library. You can find a  migration guide [here](/token-client/Migration_XSUserInfoRequestToken.md).
+| `requestTokenForClient` | Deprecated in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library. You can find a  migration guide [here](/token-client/Migration_XSUserInfoRequestToken.md).
 
 
 ### XsuaaToken
@@ -202,8 +222,7 @@ for more details.
 
 ## Testing
 In your unit test you might want to generate jwt tokens and have them validated. The new
-[java-security-test](/java-security-test) library provides it's own `JwtGenerator`. This can be embedded using the
-new `SecurityTestRule`. See the following snippet as example:
+[java-security-test](/java-security-test) library provides it's own `JwtGenerator`. This can be embedded using the `SecurityTestRule` in Junit 4. See the following snippet as example:
 
 ```java
 @ClassRule
@@ -222,7 +241,7 @@ String jwt = securityTestRule.getPreconfiguredJwtGenerator()
     .getTokenValue();
 ```
 
-See the [java-security-test docs](/java-security-test) for more details.
+See the [java-security-test documentation](/java-security-test) for more details, also on how to leverage JUnit 5 extensions.
 
 ### Enable local testing
 For local testing you might need to provide custom `VCAP_SERVICES` before you run the application. 
@@ -232,7 +251,7 @@ under `xsuaa/credentials` for jwt validation:
 - `"verificationkey" : "<public key your jwt token is signed with>"`
 
 Before calling the service you need to provide a digitally signed JWT token to simulate that you are an authenticated user. 
-- Therefore simply set a breakpoint in `JwtGenerator.createToken()` and run your `JUnit` tests to fetch the value of `jwt` from there. 
+- Therefore simply set a breakpoint in `JwtGenerator.createToken()` and run your `JUnit` tests to fetch the value of `jwt` from there. In that case you can use the publicKey from `java-security-test`, like its done [here](/samples/localEnvironmentSetup.sh).
 
 Now you can test the service manually in the browser using the `Postman` chrome plugin and check whether the secured functions can be accessed when providing a valid generated Jwt Token.
 
@@ -240,28 +259,13 @@ Now you can test the service manually in the browser using the `Postman` chrome 
 When your code compiles again you should first check that all your unit tests are running again. If you can test your
 application locally make sure that it is still working and finally test the application in cloud foundry.
 
-## Troubleshoot
-
-### Multiple XSUAA Bindings (broker & application)
-
-If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), you run into the following issue:
-
-```
-Caused by: java.lang.RuntimeException: Found more than one xsuaa binding. There can only be one.
-at com.sap.cloud.security.xsuaa.XsuaaServicesParser.getJSONObjectFromTag(XsuaaServicesParser.java:91)
-at com.sap.cloud.security.xsuaa.XsuaaServicesParser.searchXSuaaBinding(XsuaaServicesParser.java:72)
-at com.sap.cloud.security.xsuaa.XsuaaServicesParser.getAttribute(XsuaaServicesParser.java:59)
-at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.getConfigurationProperties(XsuaaServicePropertySourceFactory.java:65)
-at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.createPropertySource(XsuaaServicePropertySourceFactory.java:55)
-at org.springframework.context.annotation.ConfigurationClassParser.processPropertySource(ConfigurationClassParser.java:452)
-``` 
-
-The library does not support more than one XSUAA binding. Follow [these steps](#multiple-xsuaa-bindings), to adapt your **Spring Security Configuration**.
-
 
 ## Issues
-In case you face issues to apply the migration steps feel free to open a Issue here on [Github.com](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new).
+In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue.
 
 ## Samples
 - [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads/tree/solution-24-Make-App-Secure-Spring5)
 - [spring-security-xsuaa usage sample](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-xsuaa-usage)
+
+## Further References
+- [spring-xsuaa documentation](/spring-xsuaa/README.md.md)

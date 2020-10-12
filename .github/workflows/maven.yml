@@ -18,7 +18,9 @@ jobs:
         with:
           java-version: 1.8
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn -B install --file pom.xml
+      - name: Run integration tests
+        run: cd java-security-it; mvn -B package --file pom.xml
       - name: Build spring-security-basic-auth
         run: cd samples/spring-security-basic-auth; mvn -B package --file pom.xml
       - name: Build spring-security-xsuaa-usage

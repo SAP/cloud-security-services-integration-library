@@ -24,6 +24,7 @@ public class MockPostProcessor implements EnvironmentPostProcessor {
 	private static class MyDispatcher extends XsuaaRequestDispatcher {
 
 		@Override
+		@java.lang.SuppressWarnings("squid:S2068")
 		public MockResponse dispatch(RecordedRequest request) {
 			if ("/otherdomain/token_keys".equals(request.getPath())) {
 				return getResponseFromFile("/mock/otherdomain_token_keys.json", HttpStatus.OK);

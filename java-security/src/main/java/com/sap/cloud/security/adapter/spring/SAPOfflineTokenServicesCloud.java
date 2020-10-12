@@ -10,7 +10,10 @@ import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.SpringOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.SpringOidcConfigurationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,7 +28,11 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -46,9 +53,16 @@ import java.util.stream.Collectors;
  * </dependency>
  * }
  * </pre>
- * 
+ *
  * By default it used Apache Rest Client for communicating with the OAuth2
  * Server.<br>
+ *
+ * <p>
+ * When used in conjunction with Java Http Servlets, the
+ * {@link HttpServletRequest#getRemoteUser()} will be filled with either the
+ * <code>user_name</code> claim of the token or the client id (<code>cid</code>)
+ * if it is not an user token.
+ * </p>
  *
  * Spring Security framework initializes the
  * {@link org.springframework.security.core.context.SecurityContext} with the
@@ -69,6 +83,7 @@ import java.util.stream.Collectors;
  */
 public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices, InitializingBean {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(SAPOfflineTokenServicesCloud.class);
 	private final OAuth2ServiceConfiguration serviceConfiguration;
 	private Validator<Token> tokenValidator;
 	private JwtValidatorBuilder jwtValidatorBuilder;
@@ -112,7 +127,6 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		this(serviceConfiguration, JwtValidatorBuilder.getInstance(serviceConfiguration)
 				.withOAuth2TokenKeyService(new SpringOAuth2TokenKeyService(restOperations))
 				.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations)));
-
 	}
 
 	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
@@ -133,12 +147,13 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	 *
 	 * @param otherServiceConfiguration
 	 *            another service configuration. You can use
-	 *            {@link com.sap.cloud.security.config.cf.CFEnvironment#getXsuaaConfigurationForTokenExchange()} in order to
-	 *            load additional broker service configuration from the binding information in your
-	 *            environment.
+	 *            {@link com.sap.cloud.security.config.cf.CFEnvironment#getXsuaaConfigurationForTokenExchange()}
+	 *            in order to load additional broker service configuration from the
+	 *            binding information in your environment.
 	 * @return the instance itself
 	 */
-	public SAPOfflineTokenServicesCloud withAnotherServiceConfiguration(OAuth2ServiceConfiguration otherServiceConfiguration) {
+	public SAPOfflineTokenServicesCloud withAnotherServiceConfiguration(
+			OAuth2ServiceConfiguration otherServiceConfiguration) {
 		jwtValidatorBuilder.configureAnotherServiceInstance(otherServiceConfiguration);
 		return this;
 	}
@@ -155,17 +170,37 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		}
 		SecurityContext.setToken(token);
 
-		return getOAuth2Authentication(serviceConfiguration.getClientId(), getScopes(token));
+		String tokenClientId = token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID);
+		if (LOGGER.isInfoEnabled() && tokenClientId != serviceConfiguration.getClientId()) {
+			LOGGER.info("Creates OAuth2Authentication with token clientId {} which differs from oauth client id {}.",
+					tokenClientId, serviceConfiguration.getClientId());
+		}
+		// remoteUser support: NGPBUG-125268
+		return createOAuth2Authentication(tokenClientId, getScopes(token), token);
 	}
 
-	static OAuth2Authentication getOAuth2Authentication(String clientId, Set<String> scopes) {
-		Authentication userAuthentication = null; // TODO no SAPUserDetails support. Using spring alternative?
-
+	static OAuth2Authentication createOAuth2Authentication(String clientId, Set<String> scopes, Token token) {
+		Authentication userAuthentication = getUserAuthentication(token, scopes);
 		final AuthorizationRequest authorizationRequest = new AuthorizationRequest(clientId, scopes);
-		authorizationRequest.setAuthorities(getAuthorities(scopes));
+		authorizationRequest.setAuthorities(createAuthorities(scopes));
 		authorizationRequest.setApproved(true);
-
 		return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), userAuthentication);
+	}
+
+	@Nullable
+	private static UserAuthenticationToken getUserAuthentication(Token token, Set<String> scopes) {
+		GrantType grantType = null;
+		if (token instanceof AccessToken) {
+			grantType = ((AccessToken) token).getGrantType();
+		}
+		if (grantType == GrantType.CLIENT_CREDENTIALS || grantType == GrantType.CLIENT_X509) {
+			return null;
+		}
+		String username = token.getClaimAsString(TokenClaims.USER_NAME);
+		if (username == null) {
+			return null;
+		}
+		return new UserAuthenticationToken(token, scopes);
 	}
 
 	private Set<String> getScopes(Token token) {
@@ -203,7 +238,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		return this;
 	}
 
-	private static Set<GrantedAuthority> getAuthorities(Collection<String> scopes) {
+	private static Set<GrantedAuthority> createAuthorities(Collection<String> scopes) {
 		return scopes.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
 	}
 
@@ -221,6 +256,32 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			}
 		} catch (Exception e) {
 			throw new InvalidTokenException(e.getMessage());
+		}
+	}
+
+	private static class UserAuthenticationToken extends AbstractAuthenticationToken {
+		private final String username;
+
+		public UserAuthenticationToken(Token token, Set<String> scopes) {
+			super(SAPOfflineTokenServicesCloud.createAuthorities(scopes));
+			this.username = token.getClaimAsString(TokenClaims.USER_NAME);
+			setAuthenticated(true);
+			setDetails(token);
+		}
+
+		@Override
+		public String getName() {
+			return username;
+		}
+
+		@Override
+		public Object getCredentials() {
+			return "N/A";
+		}
+
+		@Override
+		public Object getPrincipal() {
+			return username;
 		}
 	}
 }

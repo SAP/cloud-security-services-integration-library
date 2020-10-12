@@ -26,6 +26,7 @@ public class CFConstants {
 		public static final String IDENTITY_ZONE = "identityzone";
 		public static final String UAA_DOMAIN = "uaadomain";
 		public static final String APP_ID = "xsappname";
+		public static final String VERIFICATION_KEY = "verificationkey";
 	}
 
 	/**
@@ -41,7 +42,7 @@ public class CFConstants {
 	 * considered in {@code CFEnvironment#loadXsuaa()}
 	 */
 	public enum Plan {
-		DEFAULT, BROKER, APPLICATION, SPACE;
+		DEFAULT, BROKER, APPLICATION, SPACE, APIACCESS, SYSTEM;
 
 		public static Plan from(String planAsString) {
 			return Plan.valueOf(planAsString.toUpperCase());

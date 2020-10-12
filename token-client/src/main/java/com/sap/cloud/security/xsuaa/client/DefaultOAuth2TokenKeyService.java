@@ -36,8 +36,11 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 			if (statusCode == HttpStatus.SC_OK) {
 				return bodyAsString;
 			} else {
-				throw OAuth2ServiceException
-						.createWithStatusCodeAndResponseBody("Error retrieving token keys", statusCode, bodyAsString);
+				throw OAuth2ServiceException.builder("Error retrieving token keys")
+						.withUri(tokenKeysEndpointUri)
+						.withStatusCode(statusCode)
+						.withResponseBody(bodyAsString)
+						.build();
 			}
 		} catch (IOException e) {
 			throw new OAuth2ServiceException("Error retrieving token keys: " + e.getMessage());

@@ -78,4 +78,63 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		assertThat(configuration.getUrl()).isEqualTo(URI.create(url));
 	}
 
+	@Test
+	public void equals_sameClientId() {
+		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
+				.forService(Service.XSUAA)
+				.withClientId("client-id")
+				.build();
+
+		assertThat(cut.withClientId("client-id").build()).isEqualTo(config);
+	}
+
+	@Test
+	public void notEquals_differentClientId() {
+		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
+				.forService(Service.XSUAA)
+				.withClientId("client-id")
+				.build();
+
+		assertThat(cut.withClientId("client-id2").build()).isNotEqualTo(config);
+	}
+
+	@Test
+	public void sameHashCode() {
+		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
+				.forService(Service.XSUAA)
+				.withClientId("client-id").withClientSecret("secret")
+				.build();
+
+		assertThat(cut.withClientId("client-id").withClientSecret("secret").build().hashCode())
+				.isEqualTo(config.hashCode());
+	}
+
+	@Test
+	public void notSameHashCode() {
+		OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder
+				.forService(Service.XSUAA)
+				.withClientId("client-id").withClientSecret("secret")
+				.build();
+
+		assertThat(cut.withClientId("client-id2").withClientSecret("secret-2").build().hashCode())
+				.isNotEqualTo(config.hashCode());
+	}
+
+	@Test
+	public void fromConfiguration_createsBuilderWithDataFromConfiguration() {
+		OAuth2ServiceConfiguration baseConfiguration = cut.withClientId("base-client-id")
+				.withClientSecret("base-client-secret")
+				.withUrl("http://url.base")
+				.withProperty("testing-key", "base-value")
+				.build();
+
+		OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder
+				.fromConfiguration(baseConfiguration);
+		OAuth2ServiceConfiguration configuration = builder.build();
+
+		assertThat(configuration.getClientId()).isEqualTo("base-client-id");
+		assertThat(configuration.getClientSecret()).isEqualTo("base-client-secret");
+		assertThat(configuration.getUrl()).isEqualTo(URI.create("http://url.base"));
+		assertThat(configuration.getProperty("testing-key")).isEqualTo("base-value");
+	}
 }

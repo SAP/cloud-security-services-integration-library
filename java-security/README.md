@@ -1,4 +1,4 @@
-# SAP CP Java Security Library
+# SAP CP Java Security Client Library
 
 Token Validation for Java applications.
 
@@ -8,7 +8,8 @@ Token Validation for Java applications.
   - Is the JWT used before the `exp` (expiration) time and eventually is it used after the `nbf` (not before) time ([`JwtTimestampValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/JwtTimestampValidator.java))?
   - Is the JWT issued by a trust worthy identity service ([`JwtIssuerValidator`](
- src/main/java/com/sap/cloud/security/token/validation/validators/JwtIssuerValidator.java))? In case of XSUAA does the token key url (`jku` JWT header parameter) match the identity service domain?
+ src/main/java/com/sap/cloud/security/token/validation/validators/JwtIssuerValidator.java))? In case of XSUAA does the JWT provides a valid `jku` token header parameter that points to a JWKS url from a trust worthy identity service ([`XsuaaJkuValidator`](
+ src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJkuValidator.java)) as it matches the uaa domain?
   - Is the JWT intended for the OAuth2 client of this application? The `aud` (audience) claim identifies the recipients the JWT is issued for ([`XsuaaJwtAudienceValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJwtAudienceValidator.java)).
   - Is the JWT signed with the public key of the trust-worthy identity service? With that it also makes sure that the payload and the header of the JWT is unchanged ([`JwtSignatureValidator`](
@@ -44,7 +45,7 @@ Token Validation for Java applications.
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.6.2</version>
+    <version>2.7.7</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -76,6 +77,16 @@ OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaCon
 ```
 > Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes.
 
+Alternatively you can also specify the Service Configuration by your own:
+```
+OAuth2ServiceConfiguration serviceConfig = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+      .withProperty(CFConstants.XSUAA.APP_ID, "appid")
+      .withProperty(CFConstants.XSUAA.UAA_DOMAIN, "authentication.sap.hana.ondemand.com")
+      .withUrl("https://paas.authentication.sap.hana.ondemand.com")
+      .withClientId("oauth-client")
+      .withClientSecret("oauth-client-secret")
+      .build();
+```
 
 ### Setup Step 2: Setup Validators
 Now configure the `JwtValidatorBuilder` once with the service configuration from the previous step.
@@ -127,6 +138,7 @@ String email = token.getClaimAsString(TokenClaims.EMAIL);
 List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 java.security.Principal principal = token.getPrincipal();
 Instant expiredAt = token.getExpiration();
+String keyId = token.getHeaderParameterAsString(TokenHeader.KEY_ID);
 ...
 ```
 
@@ -153,13 +165,103 @@ For the integration of different Identity Services the [`TokenAuthenticator`](/j
 The authenticator is used in the following [sample](/samples/java-security-usage).
 
 ## Test Utilities
-You can find the test utilities documented [here](/java-security-test).
+You can find the JUnit test utilities documented [here](/java-security-test).
 
-## Issues
+## Enable local testing for XSUAA Identity Service
+When you like to test/debug your secured application rest API locally (offline) you need to provide custom `VCAP_SERVICES` before you run the application. The security library requires the following key value pairs in the `VCAP_SERVICES`
+under `xsuaa/credentials` for jwt validation:
+- `"uaadomain" : "localhost"`
+- `"verificationkey" : "<public key your jwt token is signed with>"`
 
-This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
+Before calling the service you need to provide a digitally signed JWT token to simulate that you are an authenticated user. 
+You can use the `JWTGenerator`, which is provided with [java-security-test](/java-security-test) test library. 
+
+Now you can test the service manually in the browser using a REST client such as `Postman` chrome plugin and provide the generated JWT token as `Authorization` header to access the secured functions.
+
+A detailed step-by-step description and a sample can be found [here](https://github.com/SAP-samples/cloud-bulletinboard-ads/blob/Documentation/Security/Exercise_24_MakeYourApplicationSecure.md#step-5-run-and-test-the-service-locally).
+
+
+## Troubleshoot
+
+In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
+and provide these details:
+- security related dependencies, get dependency tree with `mvn dependency:tree`
+- [(SAP) Java buildpack version, e.g. 1.26.1](#get-buildpack-version)
+- [debug logs](#increase-log-level-to-debug)
+- issue you’re facing / steps to reproduce.
+
+### Get buildpack version
+
+The buildpack being used is defined in your deployment descriptor e.g. as part of the `manifest.yml` file via the
+[buildpacks](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack) attribute.
+
+If it is set to `sap_java_buildpack` then the **newest** available version of the SAP Java buildpack is used.
+Use command `cf buildpacks` to get the exact version of `sap_java_buildpack`:
+
+```sh
+buildpack                       position   enabled   locked   filename                                             stack
+java_buildpack                  2          true      false    java_buildpack-cached-cflinuxfs3-v4.31.1.zip         cflinuxfs3
+.
+.
+.
+sap_java_buildpack              12         true      false    sap_java_buildpack-v1.26.1.zip
+sap_java_buildpack_1_26         13         true      false    sap_java_buildpack-v1.26.1.zip
+sap_java_buildpack_1_25         14         true      false    sap_java_buildpack-v1.25.0.zip
+```
+
+### Increase log level to `DEBUG`
+
+This depends on the SLF4J implementation, you make use of (see also [here](#logging)). You have to set the debug log level for this package `com.sap.cloud.security`.
+
+#### ... when using SAP Java Buildpack
+
+You should also increase the logging level in your application. This can be done by setting the `SET_LOGGING_LEVEL`
+environment variable for your application. You can do this as part of your deployment descriptor such as `manifest.yml` with the `env` section like so:
+
+```yaml
+env:
+    SET_LOGGING_LEVEL: '{com.sap.xs.security: DEBUG, com.sap.cloud.security: DEBUG}'
+```
+
+After you have made changes to the deployment descriptor you need do re-deploy your app.
+
+For a running application this can also be done with the `cf` command line tool:
+
+```shell
+cf set-env <your app name> SET_LOGGING_LEVEL "{com.sap.xs.security: DEBUG, com.sap.cloud.security: DEBUG}"
+```
+
+You need to restage your application for the changes to take effect.
+
+### Known Issues
+
+#### This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
 If you have classpath related  issues involving JSON you should take a look at the
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
+
+#### ServletContext.getAccessToken() returns null
+`SecurityContext` caches only sucessfully validated tokens thread-locally, i.e. within the same thread. Please increase the log level as described [here](#increase-log-level-to-debug) in order to check whether the token validation fails and for which reason.
+
+In case you use **SAP Java Buildpack** for token validation, make sure that your J2EE Servlet is annotated with a scope check, like:
+```java
+@ServletSecurity(@HttpConstraint(rolesAllowed = { "yourScope" }))
+```
+Or, alternatively in `src/main/webapp/WEB-INF/web.xml`:
+```xml
+<web-app...
+  <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>All SAP Cloud Platform users</web-resource-name>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>YourScope</role-name>
+        </auth-constraint>
+    </security-constraint>
+</web-app>
+```
+
+> In case your application provides no scopes, consider the documentation [here](Migration_SAPJavaBuildpackProjects_V2.md#new-feature-sap-java-buildpack-without-application-roles).
 
 ## Specs und References
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)

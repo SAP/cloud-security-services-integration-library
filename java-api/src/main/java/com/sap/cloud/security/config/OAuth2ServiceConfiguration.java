@@ -3,6 +3,7 @@ package com.sap.cloud.security.config;
 import javax.annotation.Nullable;
 
 import java.net.URI;
+import java.util.Map;
 
 /**
  * Provides information of the identity {@link Service}.
@@ -42,6 +43,13 @@ public interface OAuth2ServiceConfiguration {
 	 */
 	@Nullable
 	String getProperty(String name);
+
+	/**
+	 * Returns all properties of the configuration as a map.
+	 * 
+	 * @return all properties as map.
+	 */
+	Map<String, String> getProperties();
 
 	/**
 	 * Returns true if the configuration contains the given property.

@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
@@ -27,10 +28,11 @@ public class JwtValidatorBuilder {
 	private final Collection<Validator<Token>> validators = new ArrayList<>();
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private OAuth2ServiceConfiguration configuration;
-	private OAuth2ServiceConfiguration otherConfiguration;
+	private final Set<OAuth2ServiceConfiguration> otherConfigurations = new HashSet();
 	private OidcConfigurationService oidcConfigurationService = null;
 	private OAuth2TokenKeyService tokenKeyService = null;
 	private Validator<Token> customAudienceValidator;
+	private CacheConfiguration tokenKeyCacheConfiguration;
 
 	private JwtValidatorBuilder() {
 		// use getInstance factory method
@@ -63,6 +65,18 @@ public class JwtValidatorBuilder {
 	 */
 	public JwtValidatorBuilder with(Validator<Token> validator) {
 		validators.add(validator);
+		return this;
+	}
+
+	/**
+	 * Use to configure the token key cache.
+	 * 
+	 * @param tokenKeyCacheConfiguration
+	 *            the cache configuration
+	 * @return this builder
+	 */
+	public JwtValidatorBuilder withCacheConfiguration(CacheConfiguration tokenKeyCacheConfiguration) {
+		this.tokenKeyCacheConfiguration = tokenKeyCacheConfiguration;
 		return this;
 	}
 
@@ -135,8 +149,8 @@ public class JwtValidatorBuilder {
 	 */
 	public JwtValidatorBuilder configureAnotherServiceInstance(
 			@Nullable OAuth2ServiceConfiguration otherConfiguration) {
-		if (otherConfiguration != configuration) {
-			this.otherConfiguration = otherConfiguration;
+		if (Objects.nonNull(otherConfiguration)) {
+			this.otherConfigurations.add(otherConfiguration);
 		}
 		return this;
 	}
@@ -173,14 +187,16 @@ public class JwtValidatorBuilder {
 
 		if (configuration.getService() == XSUAA) {
 			if (!configuration.isLegacyMode()) {
-				defaultValidators.add(new XsuaaJwtIssuerValidator(configuration.getProperty(UAA_DOMAIN)));
+				defaultValidators.add(new XsuaaJkuValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
 		} else if (configuration.getService() == IAS) {
 			defaultValidators.add(new JwtIssuerValidator(configuration.getUrl()));
 		}
+		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
+		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);
 		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(
 				configuration,
-				getTokenKeyServiceWithCache(),
+				tokenKeyServiceWithCache,
 				getOidcConfigurationServiceWithCache());
 		defaultValidators.add(signatureValidator);
 
@@ -197,12 +213,12 @@ public class JwtValidatorBuilder {
 		if (configuration.hasProperty(CFConstants.XSUAA.APP_ID)) {
 			jwtAudienceValidator.configureTrustedClientId(configuration.getProperty(CFConstants.XSUAA.APP_ID));
 		}
-		if (otherConfiguration != null) {
+		otherConfigurations.forEach((otherConfiguration) -> {
 			jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getClientId());
 			if (otherConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
 				jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
 			}
-		}
+		});
 		return jwtAudienceValidator;
 	}
 

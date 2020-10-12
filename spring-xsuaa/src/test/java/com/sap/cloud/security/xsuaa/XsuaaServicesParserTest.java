@@ -26,4 +26,12 @@ public class XsuaaServicesParserTest {
 		XsuaaServicesParser cut = new XsuaaServicesParser(vcapMultipleBindings);
 		cut.parseCredentials();
 	}
+
+	@Test
+	public void acceptVcapServicesWithoutPlan() throws IOException {
+		String vcapMinimalWoPlan = "{\"xsuaa\":[{\"credentials\":{\"clientid\":\"client-id\",\"clientsecret\":\"client-secret\"},\"tags\":[\"xsuaa\"]}]}";
+		XsuaaServicesParser cut = new XsuaaServicesParser(vcapMinimalWoPlan);
+		Properties properties = cut.parseCredentials();
+		assertThat(properties.getProperty("clientid")).isEqualTo("client-id");
+	}
 }

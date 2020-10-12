@@ -21,8 +21,11 @@ The SAP Java Buildpack integrates token validation into the tomcat server. Appli
 - The application is deployed using the SAP Java Buildpack with version <= `v1.24.1`
 - You use `sap_java_buildpack` (e.g. in your `manifest.yml`)
 
-### Upcoming (Incompatible) Change
-SAP Java Buildpacks makes use of deprecated (Spring) Security libraries and needs to be updated. The new SAP Java Buildpack version will use the [`java-security`](/java-security) library. Please expect little migration efforts in the api for accessing token information. A Migration Guide will be provided. 
+### Changes with SAP Java Buildpack 1.26.0
+The former SAP Java Buildpack versions have used deprecated (Spring) Security libraries and had to be updated. As of version 1.26.0 SAP Java Buildpack uses the [`java-security`](/java-security) library. Please consider these (migration) guides:
+
+- [MANDATORY: clean-up deprecated dependencies](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/Migration_SAPJavaBuildpackProjects.md)
+- [OPTIONAL: Leverage new APIs and features](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/Migration_SAPJavaBuildpackProjects_V2.md)
 
 ### Sample
 See [sap-java-builpack-api-usage](samples/sap-java-buildpack-api-usage) for an example.
@@ -61,13 +64,12 @@ Spring Boot provides OAuth resource servers. Application developers requiring au
 - Spring Boot 2.1 and later
 
 ### Sample
-See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
+- See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
+- See [spring-security-basic-auth](/samples/spring-security-basic-auth) for an example demonstrating how a user can access Rest API via basic authentication (user/password).
 
 ### Additional (test) utilities
-- [spring-xsuaa-mock](./spring-xsuaa-mock) offers a Mock web server to provide token keys for offline token validation in case xsuaa service (OAuth resource-server) is not in place. Its use is only intended for unit tests and when running your Spring boot application on a Webserver locally.
-- [spring-xsuaa-test](./spring-xsuaa-test) offers test utilities to generate custom JWT tokens for the purpose of tests.
+- [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.
 
-Find [here](https://github.com/SAP/cloud-application-security-sample/tree/master/spring-security-basis) a more sophisticated sample.
 
 # Download and Installation
 Build results are published to maven central: https://search.maven.org/search?q=com.sap.cloud.security 

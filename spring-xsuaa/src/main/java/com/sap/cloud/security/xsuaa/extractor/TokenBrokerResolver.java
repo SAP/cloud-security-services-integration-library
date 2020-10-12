@@ -243,7 +243,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			byte[] hash = messageDigest.digest();
 			return Base64.getEncoder().encodeToString(hash);
 		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException("No such Algorithm", e);
+			throw new SecurityException("No such Algorithm", e);
 		}
 	}
 

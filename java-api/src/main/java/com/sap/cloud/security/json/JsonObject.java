@@ -44,6 +44,24 @@ public interface JsonObject {
 	<T> List<T> getAsList(String name, Class<T> type);
 
 	/**
+	 * Parses the json object for the given property {@code name} and returns a
+	 * String list. If the property with the given name is not found, an empty list
+	 * is returned.
+	 *
+	 * For example {@code "aud" : "single-value"} or
+	 * {@code "aud" : ["value-1", "value-2"]}
+	 *
+	 * @param name
+	 *            the property inside this json object which contains a String list.
+	 * @return the String list.
+	 * @throws JsonParsingException
+	 *             if the json object with the given key is not a String array or of
+	 *             type String.
+	 * @see #getAsString
+	 */
+	List<String> getAsStringList(String name);
+
+	/**
 	 * Returns the string identified by the given property {@code name}. If the
 	 * property with the given name is not found, null is returned.
 	 *
@@ -70,6 +88,19 @@ public interface JsonObject {
 	 */
 	@Nullable
 	Instant getAsInstant(String name);
+
+	/**
+	 * Returns a {@link Long} identified by the given property {@code name}. If the
+	 * property with the given name is not found, null is returned.
+	 *
+	 * @param name
+	 * @return the {@link Long} object.
+	 * @throws JsonParsingException
+	 *             if the json object identified by the given property does not
+	 *             represent a long value
+	 */
+	@Nullable
+	Long getAsLong(String name);
 
 	/**
 	 * Returns a nested JSON object as @{link JsonObject} instance.

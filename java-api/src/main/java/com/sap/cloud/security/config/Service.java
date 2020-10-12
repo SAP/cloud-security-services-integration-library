@@ -11,7 +11,6 @@ public enum Service {
 
 	private static String getIasServiceName() {
 		String iasServiceName = System.getenv("IAS_SERVICE_NAME"); // TODO as of now its "identity-beta"
-		LoggerFactory.getLogger(Service.class).error("IAS Service is not yet supported!!!");
 		return iasServiceName;
 	}
 
@@ -28,8 +27,8 @@ public enum Service {
 	 * @return name of the identity service in context of Cloud Foundry environment.
 	 */
 	public String getCFName() {
-		if(this == IAS && cloudFoundryName == null) {
-			LoggerFactory.getLogger(Service.class).error("IAS Service is not yet supported!!!"); // TODO remove
+		if (this == IAS && cloudFoundryName == null) {
+			LoggerFactory.getLogger(Service.class).info("IAS Service is not yet supported!!!"); // TODO remove
 		}
 		return cloudFoundryName;
 	}

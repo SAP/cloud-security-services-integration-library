@@ -1,13 +1,15 @@
 package sample.spring.xsuaa.junitjupiter;
 
-
+import static com.sap.cloud.security.test.SecurityTest.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.jupiter.api.AfterAll;
+import com.sap.cloud.security.test.api.SecurityTestContext;
+import com.sap.cloud.security.test.extension.XsuaaExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,36 +19,30 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.test.SecurityTest;
-
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = { "xsuaa.uaadomain=localhost", "xsuaa.xsappname=xsapp!t0815",
-		"xsuaa.clientid=sb-clientId!t0815" })
+@TestPropertySource(properties = {
+		"xsuaa.uaadomain=" + DEFAULT_DOMAIN,
+		"xsuaa.xsappname=" + DEFAULT_APP_ID,
+		"xsuaa.clientid=" + DEFAULT_CLIENT_ID })
+@ExtendWith(XsuaaExtension.class)
 public class TestControllerTest {
 
 	@Autowired
 	private MockMvc mvc;
 
-	private static SecurityTest securityTest = new SecurityTest(Service.XSUAA);
+	private String jwt;
 
-	private String jwt = securityTest.getPreconfiguredJwtGenerator()
-			.withLocalScopes("Read")
-			.createToken().getTokenValue();
-
-	private String jwtAdmin = securityTest.getPreconfiguredJwtGenerator()
-			.withLocalScopes("Read", "Admin")
-			.createToken().getTokenValue();
+	private String jwtAdmin;
 
 	@BeforeEach
-	public void setup() throws Exception {
-		securityTest.setup();
-	}
-
-	@AfterAll
-	public static void tearDown() {
-		securityTest.tearDown();
+	public void setup(SecurityTestContext securityTest) {
+		jwt = securityTest.getPreconfiguredJwtGenerator()
+				.withLocalScopes("Read")
+				.createToken().getTokenValue();
+		jwtAdmin = securityTest.getPreconfiguredJwtGenerator()
+				.withLocalScopes("Read", "Admin")
+				.createToken().getTokenValue();
 	}
 
 	@Test
@@ -91,7 +87,7 @@ public class TestControllerTest {
 	}
 
 	@Test
-	public void v1_accessSensitiveData_Forbidden() throws Exception {
+	public void v1_accessSensitiveData_Forbidden(SecurityTestContext securityTest) throws Exception {
 		String jwtNoScopes = securityTest.getPreconfiguredJwtGenerator()
 				.createToken().getTokenValue();
 

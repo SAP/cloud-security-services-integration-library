@@ -48,6 +48,19 @@ public class DefaultJsonObject implements JsonObject {
 	}
 
 	@Override
+	public List<String> getAsStringList(String name) {
+		List<String> list = new ArrayList<>();
+		if (contains(name)) {
+			if (getJsonObject().get(name) instanceof String) {
+				list.add(getAsString(name));
+			} else {
+				list = getAsList(name, String.class);
+			}
+		}
+		return list;
+	}
+
+	@Override
 	@Nullable
 	public String getAsString(String name) {
 		if (contains(name)) {
@@ -67,6 +80,15 @@ public class DefaultJsonObject implements JsonObject {
 			return getLong(name)
 					.map(this::convertToInstant)
 					.orElse(null);
+		}
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public Long getAsLong(String name) {
+		if (contains(name)) {
+			return getLong(name).orElse(null);
 		}
 		return null;
 	}
@@ -171,14 +193,18 @@ public class DefaultJsonObject implements JsonObject {
 		return jsonObject;
 	}
 
+	@java.lang.SuppressWarnings("squid:S2139")
 	private JSONObject createJsonObject(String jsonString) {
 		try {
-			JSONObject createdJsonObject = new JSONObject(jsonString);
-			return createdJsonObject;
+			return new JSONObject(jsonString);
 		} catch (JSONException e) {
 			LOGGER.error("Given json string '{}' is not valid, error message: {}", jsonString, e.getMessage());
 			throw new JsonParsingException(e.getMessage());
 		}
 	}
 
+	@Override
+	public String toString() {
+		return jsonObject.toString(2);
+	}
 }

@@ -2,10 +2,85 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.7.7
+- [spring-xsuaa] Update Spring versions
+  - spring.core.version: 5.2.7.RELEASE --> 5.2.8.RELEASE
+  - spring.security.version: 5.3.3.RELEASE --> 5.3.4.RELEASE
+- [java-security-test] `SecurityTest` and `SecurityTestRule` provides a better support for integration tests with a mockserver. It is now possible to upload the configuration and the token from a json file. Take our integration tests as a sample [java-security-it](/java-security-it).
+- [java-security] `DefaultJsonObject.getAsStringList(propertyName)` parses the JSON object for a given property and returns a `String` list. This works also in case the property is not a JSON array but a JSON String.
+- [java-security-it] New integration test project. Existing integration tests have been restructured and moved here. Additionally, JWT token validation performance tests have been added for java-security and spring-xsuaa.
+
+## 2.7.6
+- Fixes `ClientCredentialsTokenFlow.scopes()` and `UserTokenFlow.scopes()` to support multiple scopes. The scope form parameter has to provide a space-delimited list (and not comma-delimited list).
+- [java-security] Improve compatibility of `SAPOfflineTokenServicesCloud`
+  - There was incompatibility in the implementation of `SAPOfflineTokenServicesCloud` that caused the `remoteUser` of the `HttpServletRequest` to always return the client id of the XSUAA service binding. This was changed so that it now works like in the old implementation. This means that the `remoteUser` now returns either the `user_name` claim of the token for user tokens or the value of the client id `cid` claim of the token for all other tokens (e.g. client tokens).
+
+## 2.7.5
+- [java-api] `AcessToken` provides  
+  - `getAttributeFromClaimAsString(String claimName, String attributeName)` to access for example `ext_attr` values such as `subaccountid`
+  - `getAttributeFromClaimAsStringList(String claimName, String attributeName)` to access for example `xs.user.attributes` values such as `custom_role`
+- [java-security] provide debug logs for failing token validation, see [troubleshoot](/java-security/README.md#troubleshoot).
+- [java-security-test] Fixed default value for jku token header to `http://localhost/token_keys`
+- [samples] Upgraded [approuter](https://www.npmjs.com/package/@sap/approuter) version to "^8.2.0"
+- [spring-xsuaa-starter] Upgrade Spring versions:
+  - spring.boot.version: 2.3.0.RELEASE --> 2.3.1.RELEASE
+  - spring.core.version: 5.2.6.RELEASE --> 5.2.7.RELEASE
+  - spring.security.version: 5.3.2.RELEASE --> 5.3.3.RELEASE
+  - spring-security-oauth2.version: 2.4.1.RELEASE --> 2.5.0.RELEASE 
+
+## 2.7.4
+- [java-security] Audience Validation validates to true when the derived `client_id` of broker-clone token matches the trusted client. This is relevant to support tokens of grant type `user_token` that contains no scopes.
+
+## 2.7.3
+- [java-security] 
+  - Audience Validation is skipped when `client_id` of token exactly matches the trusted client. This is relevant to support tokens of grant type `user_token` that contains no scopes.
+  - provides the subaccount identifier from the `ext_attr` claim.
+- [spring-xsuaa] provides the subaccount identifier from the `ext_attr` claim.
+
+## 2.7.2
+- [java-security] 
+  - Audience Validation accepts tokens of grant type `user_token` that does not provide `aud` claim. In that case `JwtAudienceValidator` derives the audiences from the scopes.
+#### :exclamation: IMPORTANT Update
+  - Use `getSubaccountId()` only to fetch the subaccount id, e.g. for calling the metering API for user-based pricing. 
+  - **In case you are interested in the customers tenant GUID make use of `getZoneId()` instead!** 
+  - In upcoming releases - especially for new subaccounts - subaccount id will no longer match the tenant GUID which is provided via the xsuaa access token as `zid` claim or via the ias oidc token as `zone_uuid` claim.
+
+## 2.7.1
+- [java-security] (SAP Java Buildpack version 1.26.1)
+  - rename Token claim "sap_uid" to „user_uuid“.
+  - Token Key Cache can now be customized via `XsuaaTokenAuthenticator`
+  - `XSUserInfoAdapter` supports `requestTokenForUser()` method
+- [spring-xsuaa] Improve logs of Audience Validators.
+- [token-client]
+  - more detailed debug logs and details to exception; decoded token gets logged.
+  - supports optional `scope` parameter to reduce scopes that are provided via `CientCredentialsTokenFlow` or `UserTokenFlow`.
+
+
+## 2.7.0
+- [token-client] By default requested tokens are now cached. You can disable the cache globally or per request as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/token-client).
+- [java-security]  
+  - `XSUserInfoAdapter` provides now the subdomain that is required for token exchange via `getSubdomain()` method.
+  - Avoid warning messages "IAS Service is not yet supported!".
+- [spring-xsuaa-test]  
+  - renamed file `privateKey.txt` to `spring-xsuaa-privateKey.txt` and `publicKey.txt` to `spring-xsuaa-publicKey.txt` to avoid name clashes in context of CAP, which results in a strange `IllegalArgumentException:failed to construct sequence from byte[]: DEF length 1213 object truncated by 2`. This can happen when you use `java-security-test` and `spring-xsuaa-test` in parallel.
+  - For new applications `spring-xsuaa-test` can be replaced in favor of `java-security-test` for unit testing. For testing your app locally you can setup your local environment with the `VCAP_SERVICES` in order to test with your XSUAA instance on Cloud Foundry.  
+- [spring-xsuaa-starter] Upgrade Spring versions:
+  - spring.boot.version: 2.2.6.RELEASE --> 2.3.0.RELEASE
+  - spring.core.version: 5.2.5.RELEASE --> 5.2.6.RELEASE
+  - spring.security.version: 5.3.1.RELEASE --> 5.3.2.RELEASE
+  - spring.security.oauth2:  2.4.0.RELEASE -> 2.4.1.RELEASE
+
 ## 2.6.2
-- [java-security] `XSUserInfoAdapter` provides full compatible implementation of `com.sap.xsa.security.container.XSUserInfo.java` interface.
+- [java-security] `XSUserInfoAdapter` provides full compatible implementation of `com.sap.xsa.security.container.XSUserInfo.java` interface. Support token exchanges using `XsuaaTokenFlows` api.
+- [spring-xsuaa] Improve support of multiple XSUAA Bindings as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/spring-xsuaa/Migration_JavaContainerSecurityProjects.md#multiple-xsuaa-bindings).
 
 ## 2.6.1
+- [spring-xsuaa-starter] Upgrade Spring versions:
+  - spring.boot.version: 2.2.5.RELEASE --> 2.2.6.RELEASE
+  - spring.core.version: 5.2.4.RELEASE --> 5.2.5.RELEASE
+  - spring.security.version: 5.2.2.RELEASE --> 5.3.1.RELEASE
+
+## 2.6.0
 - [spring-xsuaa] SpringSecurityContext throws `AccessDeniedException` instead of `IllegalStateException` when authentication does not contain principal of type Token.
 - [java-security] `JwtAudienceValidator` Support Audience Validation of Xsuaa Broker clones (multiple xsuaa bindings): NGPBUG-111540.
 - [java-security-test] Basic support fo JUnit 5 (Jupiter).

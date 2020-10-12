@@ -80,6 +80,26 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
+	public void getAsStringList_keyDoesExistButNoList_returnsList() {
+		assertThat(cut.getAsString(KEY_1)).isEqualTo(STRING_TEXT);
+
+		assertThat(cut.getAsStringList(KEY_1)).contains(STRING_TEXT);
+		assertThat(cut.getAsStringList(KEY_1)).size().isEqualTo(1);
+
+		assertThat(cut.getAsStringList(KEY_1)).size().isEqualTo(1);
+	}
+
+	@Test
+	public void getAsStringList_keyExists_returnsList() {
+		cut = createJsonParser(KEY_2, STRING_LIST_VALUE);
+
+		List<String> list = cut.getAsStringList(KEY_2);
+
+		assertThat(list).hasSize(3);
+		assertThat(list).first().isEqualTo("a");
+	}
+
+	@Test
 	public void getAsListOfStrings_keyDoesNotExist_returnsEmptyList() {
 		assertThat(cut.getAsList("keyDoesNotExist", String.class)).isEmpty();
 	}
@@ -121,7 +141,22 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
-	public void getJsonObject_propertExists_returnsJsonObject() {
+	public void getAsLong_propertyExists_returnsValue() {
+		cut = createJsonParser(KEY_1, 42);
+
+		assertThat(cut.getAsLong(KEY_1)).isEqualTo(42);
+	}
+
+	@Test
+	public void getAsLong_propertyExistsButIsNotANumber_throwsException() {
+		cut = createJsonParser(KEY_1, "not a number");
+
+		assertThatThrownBy(() -> cut.getAsLong(KEY_1))
+				.isInstanceOf(JsonParsingException.class);
+	}
+
+	@Test
+	public void getJsonObject_propertyExists_returnsJsonObject() {
 		cut = createJsonParser(KEY_1, createJsonObjectString(KEY_1, STRING_VALUE));
 
 		JsonObject jsonObject = cut.getJsonObject(KEY_1);
@@ -131,7 +166,7 @@ public class DefaultJsonObjectTest {
 	}
 
 	@Test
-	public void getJsonObjects_propertExists_returnsJsonObjects() {
+	public void getJsonObjects_propertyExists_returnsJsonObjects() {
 		cut = createJsonParser(KEY_1, "[" + createJsonObjectString(KEY_1, STRING_VALUE) + "]");
 
 		List<JsonObject> jsonObjects = cut.getJsonObjects(KEY_1);

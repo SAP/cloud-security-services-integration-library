@@ -1,4 +1,4 @@
-package testservice.api;
+package testservice.api.nohttp;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
@@ -16,6 +16,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,9 +37,6 @@ import com.sap.cloud.security.xsuaa.mock.XsuaaRequestDispatcher;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 import com.sap.cloud.security.xsuaa.token.Token;
-
-import testservice.api.nohttp.MyEventHandler;
-import testservice.api.nohttp.SecurityConfiguration;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
@@ -126,16 +124,9 @@ public class InitializeSpringSecurityContextTest {
 				.addScopes("openid", appId + ".Display")
 				.deriveAudiences(true).getToken().getTokenValue();
 
+		eventHandler = Mockito.spy(eventHandler);
 		eventHandler.onEvent(jwt);
-	}
-
-	@Test
-	public void callEventWithSufficientAuthorization_succeeds_2() {
-		String jwt = new JwtGenerator(clientId, "subdomain")
-				.addScopes("openid", appId + ".Display")
-				.deriveAudiences(true).getToken().getTokenValue();
-
-		eventHandler.onEvent(jwt);
+		Mockito.verify(eventHandler, Mockito.times(1)).handleEvent();
 	}
 
 	@Test(expected = AccessDeniedException.class)

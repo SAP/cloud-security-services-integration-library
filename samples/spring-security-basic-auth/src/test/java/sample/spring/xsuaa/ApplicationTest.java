@@ -7,6 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
+@java.lang.SuppressWarnings("squid:S2699")
 public class ApplicationTest {
 
 	@Test

@@ -5,6 +5,7 @@ import com.sap.cloud.security.token.Token;
 import javax.annotation.Nullable;
 import java.security.Principal;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Class that represents the result of the authentication check performed by a
@@ -30,14 +31,18 @@ public interface TokenAuthenticationResult {
 	/**
 	 * The authentication scopes. Can be empty.
 	 *
-	 * @return the scopes as a list of strings.
+	 * @return the scopes as a list of strings. Returns empty collection by default.
 	 */
-	Collection<String> getScopes();
+	default Collection<String> getScopes() {
+		return Collections.emptyList();
+	}
 
 	/**
-	 * @return true if authenticated.
+	 * @return false if a reason for "unauthenticated" is given.
 	 */
-	boolean isAuthenticated();
+	default boolean isAuthenticated() {
+		return getUnauthenticatedReason().isEmpty();
+	}
 
 	/**
 	 * If not authenticated, this returns the reason why as text.
@@ -45,5 +50,7 @@ public interface TokenAuthenticationResult {
 	 * @return the textual description why the request was not authenticated. Empty
 	 *         string if authenticated.
 	 */
-	String getUnauthenticatedReason();
+	default String getUnauthenticatedReason() {
+		return "";
+	}
 }

@@ -1,4 +1,4 @@
-# XSUAA Security 
+# SAP CP Spring XSUAA Security Library 
 
 ## Integrate in a OAuth resource server
 
@@ -25,7 +25,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>2.6.2</version>
+    <version>2.7.7</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
@@ -40,7 +40,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.6.2</version>
+    <version>2.7.7</version>
 </dependency>
 ```
 
@@ -112,7 +112,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     Converter<Jwt, AbstractAuthenticationToken> getJwtAuthoritiesConverter() {
         TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
-        converter.setLocalScopeAsAuthorities(true);
+        converter.setLocalScopeAsAuthorities(true); // not applicable in case of multiple xsuaa bindings!
         return converter;
     }
 
@@ -199,9 +199,48 @@ public Map<String, String> message() {
 }
 ```
 
+### [Optional] Audit Logging
+In case you have implemented a central Exception Handler as described with [Baeldung Tutorial: Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring) you may want to emit logs to the audit log service in case of `AccessDeniedException`s.
+
+Alternativly there are also various options provided with `Spring.io`. For example, you can integrate SAP audit log service with Spring Boot Actuator audit framework as described [here](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-auditing).
+
+
+## Samples
+- [spring-security-xsuaa-usage](/samples/spring-security-xsuaa-usage) 
+
 ## Troubleshoot
 
-- Compile error when upgrading from version `1.5.0` to `1.6.0`:  
+In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
+and provide these details:
+- security related dependencies, get maven dependency tree with `mvn dependency:tree`
+- [debug logs](#increase-log-level-to-debug)
+- issue you’re facing.
+
+### Increase log level to `DEBUG`
+
+First, configure the Debug log level for Spring Framework Web and all Security related libs. This can be done as part of your `application.yml` or `application.properties` file.
+
+```yaml
+logging.level:
+  com.sap: DEBUG                      # set SAP-class loggers to DEBUG. Set to ERROR for production setups.
+  org.springframework: ERROR          # set to DEBUG to see all beans loaded and auto-config conditions met.
+  org.springframework.security: DEBUG # set to ERROR for production setups. 
+  org.springframework.web: DEBUG      # set to ERROR for production setups.
+```
+
+Then, in case you like to see what different filters are applied to particular request then set the debug flag to true in `@EnableWebSecurity` annotation:
+```java
+@Configuration
+@EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+   ...
+}
+```
+
+Finally you need do re-deploy your application for the changes to take effect.
+
+### Known issues
+#### Compile error when upgrading from version `1.5.0` to `1.6.0`:  
   ```
   java.lang.IllegalStateException: Failed to load ApplicationContext
      Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'springSecurityFilterChain' defined in class path resource [org/springframework/security/config/annotation/web/configuration/WebSecurityConfiguration.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [javax.servlet.Filter]: Factory method 'springSecurityFilterChain' threw exception; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.oauth2.jwt.JwtDecoder' available
@@ -209,8 +248,77 @@ public Map<String, String> message() {
    As of version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage auto-configuration.
    Make use of the Xsuaa Spring Boot Starter dependency as explained [here](README.md#maven-dependencies).     
 
-- `NoUniqueBeanDefinitionException`, APPLICATION FAILED TO START
-    ```
+#### NoUniqueBeanDefinitionException, APPLICATION FAILED TO START
+```
     Parameter 1 of method xsuaaJwtDecoder in com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration required a single bean, but 2 were found...
-    ```
-  In case you use the `xsuaa-spring-boot-starter`, read the [Auto-configuration](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#auto-configuration) section.
+```
+  In case you use the `xsuaa-spring-boot-starter`, read the [auto-configuration](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#auto-configuration) section.
+
+#### Multiple XSUAA Bindings (broker & application)  
+If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), you run into the following issue:
+
+```
+Caused by: java.lang.RuntimeException: Found more than one xsuaa binding. There can only be one.
+at com.sap.cloud.security.xsuaa.XsuaaServicesParser.getJSONObjectFromTag(XsuaaServicesParser.java:91)
+at com.sap.cloud.security.xsuaa.XsuaaServicesParser.searchXSuaaBinding(XsuaaServicesParser.java:72)
+at com.sap.cloud.security.xsuaa.XsuaaServicesParser.getAttribute(XsuaaServicesParser.java:59)
+at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.getConfigurationProperties(XsuaaServicePropertySourceFactory.java:65)
+at com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory.createPropertySource(XsuaaServicePropertySourceFactory.java:55)
+at org.springframework.context.annotation.ConfigurationClassParser.processPropertySource(ConfigurationClassParser.java:452)
+``` 
+
+The library does not support more than one XSUAA binding. Follow [these steps](Migration_JavaContainerSecurityProjects.md#multiple-xsuaa-bindings), to adapt your **Spring Security Configuration**.
+
+#### Configuration property name vcap.services.<<xsuaa instance name>>.credentials is not valid
+We recognized that this error is raised, when your instance name contains upper cases. 
+Alternatively you can then define your `XsuaaCredentials` Bean the following way:
+```
+@Bean
+public XsuaaCredentials xsuaaCredentials() {
+    final XsuaaCredentials result = new XsuaaCredentials();
+    result.setXsAppName(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.xsappname"));
+    result.setClientId(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.clientid"));
+    result.setClientSecret(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.clientsecret"));
+    result.setUaaDomain(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.uaadomain"));
+    result.setUrl(environment.getProperty("vcap.services.<<xsuaa instance name>>.credentials.url"));
+    return result;
+}
+```
+    
+#### JWT verification failed ... no suitable HttpMessageConverter found
+In case `RestTemplate` is not configured with an appropriate `HttpMessageConverter` the Jwt signature validator can not handle the token keys (JWK set) response from xsuaa. Consequently the JWT signature can not be validated and it may fail with the following error:
+
+```
+JWT verification failed: An error occurred while attempting to decode the Jwt: Couldn't retrieve remote JWK set: org.springframework.web.client.RestClientException: Could not extract response: no suitable HttpMessageConverter found for response type [class java.lang.String] and content type [application/octet-stream]
+```
+
+In case you use 
+```xml
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+</dependency>
+
+```
+You can configure your xsuaa `RestTemplate` like that, e.g. as part of your `SecurityConfiguration` configuration class:
+```java
+@Bean
+public RestOperations xsuaaRestOperations() {
+    RestTemplate restTemplate = new RestTemplate();
+    MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+    mappingJackson2HttpMessageConverter.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM));
+    restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
+    return restTemplate;
+}
+```
+
+## Additional (test) utilities
+- [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.
+
+## Further References
+- [Sample](/samples/spring-security-xsuaa-usage)   
+demonstrating how to leverage xsuaa and spring security library to secure a Spring Boot web application including token exchange (user, client-credentials, refresh, ...). Furthermore it documents how to implement SpringWebMvcTests using `java-security-test` library.
+- [Basic Auth Sample](/samples/spring-security-basic-auth)  
+demonstrating how a user can access Rest API via basic authentication (user/password).
+
+

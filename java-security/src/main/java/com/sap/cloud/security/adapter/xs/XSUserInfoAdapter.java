@@ -7,8 +7,10 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.GrantType;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import com.sap.xsa.security.container.XSTokenRequest;
 import com.sap.xsa.security.container.XSUserInfo;
 import com.sap.xsa.security.container.XSUserInfoException;
@@ -16,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -23,34 +27,43 @@ import java.util.function.Supplier;
 import static com.sap.cloud.security.token.TokenClaims.*;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
+/**
+ * This class implements the {@link XSUserInfo} interface by wrapping and
+ * delegating calls to an {@link AccessToken}.
+ *
+ * Other implementations of {@link XSUserInfo} support loading the token from
+ * the the spring security context holder. This is not supported by this class!
+ * It also does not support the SAPAuthorizationExtension.
+ *
+ */
 public class XSUserInfoAdapter implements XSUserInfo {
 
 	static final String EXTERNAL_CONTEXT = "ext_ctx";
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
-	static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
 	static final String XS_SYSTEM_ATTRIBUTES = "xs.system.attributes";
 	static final String HDB_NAMEDUSER_SAML = "hdb.nameduser.saml";
 	static final String SERVICEINSTANCEID = "serviceinstanceid";
-	static final String ZDN = "zdn";
 	static final String SYSTEM = "SYSTEM";
 	static final String HDB = "HDB";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(XSUserInfoAdapter.class);
+
 	private final AccessToken accessToken;
-	private OAuth2ServiceConfiguration configuration;
+	private final OAuth2ServiceConfiguration configuration;
+	/**
+	 * Use {@link #getOrCreateOAuth2TokenService()} for access.
+	 */
+	private OAuth2TokenService oAuth2TokenService;
 
-	public XSUserInfoAdapter(Object accessToken) throws XSUserInfoException {
-		this(accessToken, null);
-	}
-
-	public XSUserInfoAdapter(Token accessToken) throws XSUserInfoException {
+	public XSUserInfoAdapter(Object accessToken) {
 		this(accessToken, Environments.getCurrent().getXsuaaConfiguration());
 	}
 
-	public XSUserInfoAdapter(AccessToken accessToken) throws XSUserInfoException {
-		this(accessToken, null);
+	public XSUserInfoAdapter(AccessToken accessToken) {
+		this(accessToken, Environments.getCurrent().getXsuaaConfiguration());
 	}
 
-	XSUserInfoAdapter(Object accessToken, OAuth2ServiceConfiguration configuration) throws XSUserInfoException {
+	XSUserInfoAdapter(Object accessToken, OAuth2ServiceConfiguration configuration) {
 		if (!(accessToken instanceof AccessToken)) {
 			String type = Objects.isNull(accessToken) ? null : accessToken.getClass().getName();
 			throw new XSUserInfoException("token is of instance " + type
@@ -60,14 +73,24 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		this.configuration = configuration;
 	}
 
+	/**
+	 * Loading the token from the security context like this is not supported!
+	 *
+	 * XSUserInfoAdapter() { Authentication auth =
+	 * SecurityContextHolder.getContext().getAuthentication(); if (auth instanceof
+	 * OAuth2Authentication) { SAPAuthorizationExtension extension =
+	 * (SAPAuthorizationExtension) ((OAuth2Authentication)
+	 * auth).getOAuth2Request().getExtensions().get("sap"); if (extension != null) {
+	 * this.foreignMode = extension.isForeignMode(); } } }
+	 */
 	@Override
-	public String getLogonName() throws XSUserInfoException {
+	public String getLogonName() {
 		checkNotGrantTypeClientCredentials("getLogonName");
 		return getClaimValue(USER_NAME);
 	}
 
 	@Override
-	public String getGivenName() throws XSUserInfoException {
+	public String getGivenName() {
 		checkNotGrantTypeClientCredentials("getGivenName");
 		String externalAttributeName = getExternalAttribute(GIVEN_NAME);
 		if (externalAttributeName == null) {
@@ -78,7 +101,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
-	public String getFamilyName() throws XSUserInfoException {
+	public String getFamilyName() {
 		checkNotGrantTypeClientCredentials("getFamilyName");
 		String externalAttributeName = getExternalAttribute(FAMILY_NAME);
 		if (externalAttributeName == null) {
@@ -89,52 +112,62 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
-	public String getOrigin() throws XSUserInfoException {
+	public String getOrigin() {
 		checkNotGrantTypeClientCredentials("getOrigin");
 		return getClaimValue(ORIGIN);
 	}
 
 	@Override
-	public String getIdentityZone() throws XSUserInfoException {
-		return getClaimValue(TokenClaims.XSUAA.ZONE_ID);
+	public String getIdentityZone() {
+		return getClaimValue(ZONE_ID);
 	}
 
 	@Override
-	public String getSubaccountId() throws XSUserInfoException {
-		return getIdentityZone();
+	/**
+	 * "ext_attr": { "enhancer": "XSUAA", "subaccountid": "my-subaccount-1234" },
+	 */
+	public String getSubaccountId() {
+		return Optional.ofNullable(getExternalAttribute(EXTERNAL_ATTRIBUTE_SUBACCOUNTID))
+				.orElse(getClaimValue(ZONE_ID));
+	}
+
+	@Override
+	public String getZoneId() {
+		return accessToken.hasClaim(SAP_GLOBAL_ZONE_ID) ? accessToken.getClaimAsString(SAP_GLOBAL_ZONE_ID)
+				: getClaimValue(ZONE_ID);
 	}
 
 	@Override
 	/**
 	 * "ext_attr": { "enhancer": "XSUAA", "zdn": "paas-subdomain" },
 	 */
-	public String getSubdomain() throws XSUserInfoException {
-		return Optional.ofNullable(getExternalAttribute(ZDN)).orElse(null);
+	public String getSubdomain() {
+		return Optional.ofNullable(getExternalAttribute(EXTERNAL_ATTRIBUTE_ZDN)).orElse(null);
 	}
 
 	@Override
-	public String getClientId() throws XSUserInfoException {
+	public String getClientId() {
 		return getClaimValue(CLIENT_ID);
 	}
 
 	@Override
-	public String getJsonValue(String attribute) throws XSUserInfoException {
+	public String getJsonValue(String attribute) {
 		return getClaimValue(attribute);
 	}
 
 	@Override
-	public String getEmail() throws XSUserInfoException {
+	public String getEmail() {
 		checkNotGrantTypeClientCredentials("getEmail");
 		return getClaimValue(EMAIL);
 	}
 
 	@Override
-	public String getDBToken() throws XSUserInfoException {
+	public String getDBToken() {
 		return getHdbToken();
 	}
 
 	@Override
-	public String getHdbToken() throws XSUserInfoException {
+	public String getHdbToken() {
 		return getToken(SYSTEM, HDB);
 	}
 
@@ -144,7 +177,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
-	public String getToken(String namespace, String name) throws XSUserInfoException {
+	public String getToken(String namespace, String name) {
 		if (!(getGrantType().equals(GrantType.CLIENT_CREDENTIALS.toString())) && hasAttributes() && isInForeignMode()) {
 			throw new XSUserInfoException("The SecurityContext has been initialized with an access token of a\n"
 					+ "foreign OAuth Client Id and/or Identity Zone. Furthermore, the\n"
@@ -158,7 +191,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		if (name.equals(HDB)) {
 			String token;
 			if (accessToken.hasClaim(EXTERNAL_CONTEXT)) {
-				token = getAttributeFromClaimAsString(EXTERNAL_CONTEXT, HDB_NAMEDUSER_SAML);
+				token = accessToken.getAttributeFromClaimAsString(EXTERNAL_CONTEXT, HDB_NAMEDUSER_SAML);
 			} else {
 				token = accessToken.getClaimAsString(HDB_NAMEDUSER_SAML);
 			}
@@ -174,13 +207,13 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
-	public String[] getAttribute(String attributeName) throws XSUserInfoException {
+	public String[] getAttribute(String attributeName) {
 		checkNotGrantTypeClientCredentials("getAttribute");
 		return getMultiValueAttributeFromExtObject(XS_USER_ATTRIBUTES, attributeName);
 	}
 
 	@Override
-	public boolean hasAttributes() throws XSUserInfoException {
+	public boolean hasAttributes() {
 		checkNotGrantTypeClientCredentials("hasAttributes");
 		if (accessToken.hasClaim(EXTERNAL_CONTEXT)) {
 			JsonObject extContext = getClaimAsJsonObject(EXTERNAL_CONTEXT);
@@ -193,17 +226,17 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
-	public String[] getSystemAttribute(String attributeName) throws XSUserInfoException {
+	public String[] getSystemAttribute(String attributeName) {
 		return getMultiValueAttributeFromExtObject(XS_SYSTEM_ATTRIBUTES, attributeName);
 	}
 
 	@Override
-	public boolean checkScope(String scope) throws XSUserInfoException {
+	public boolean checkScope(String scope) {
 		return accessToken.hasScope(scope);
 	}
 
 	@Override
-	public boolean checkLocalScope(String scope) throws XSUserInfoException {
+	public boolean checkLocalScope(String scope) {
 		try {
 			return accessToken.hasLocalScope(scope);
 		} catch (IllegalArgumentException e) {
@@ -212,19 +245,19 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
-	public String getAdditionalAuthAttribute(String attributeName) throws XSUserInfoException {
-		return Optional.ofNullable(getAttributeFromClaimAsString(CLAIM_ADDITIONAL_AZ_ATTR, attributeName))
+	public String getAdditionalAuthAttribute(String attributeName) {
+		return Optional.ofNullable(accessToken.getAttributeFromClaimAsString(CLAIM_ADDITIONAL_AZ_ATTR, attributeName))
 				.orElseThrow(createXSUserInfoException(attributeName));
 	}
 
 	@Override
-	public String getCloneServiceInstanceId() throws XSUserInfoException {
+	public String getCloneServiceInstanceId() {
 		return Optional.ofNullable(getExternalAttribute(SERVICEINSTANCEID))
 				.orElseThrow(createXSUserInfoException(SERVICEINSTANCEID));
 	}
 
 	@Override
-	public String getGrantType() throws XSUserInfoException {
+	public String getGrantType() {
 		return Optional.ofNullable(accessToken.getGrantType())
 				.map(GrantType::toString)
 				.orElseThrow(createXSUserInfoException(GRANT_TYPE));
@@ -233,6 +266,9 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	/**
 	 * Check if a token issued for another OAuth client has been forwarded to a
 	 * different client,
+	 *
+	 * This method does not support checking if the token can be accepted by
+	 * Audience Validation.
 	 *
 	 * @return true if token was forwarded or if it cannot be determined.
 	 */
@@ -254,9 +290,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		boolean identityZonesMatch = tokenIdentityZone
 				.equals(configuration.getProperty(CFConstants.XSUAA.IDENTITY_ZONE));
 		boolean isApplicationPlan = tokenClientId.contains("!t");
-		if (clientIdsMatch && (identityZonesMatch || isApplicationPlan)) {
+		boolean isBrokerPlan = tokenClientId.contains("!b");
+
+		if (clientIdsMatch && (identityZonesMatch || isApplicationPlan || isBrokerPlan)) {
 			LOGGER.info(
-					"Token not in foreign mode because because client ids  match and identityZonesMatch={}, isApplicationPlan={} ",
+					"Token not in foreign mode because because client ids match and identityZonesMatch={}, isApplicationPlan={} ",
 					identityZonesMatch, isApplicationPlan);
 			return false; // no foreign mode
 		}
@@ -273,25 +311,101 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
-	public String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) {
-		throw new UnsupportedOperationException("Not implemented. Use token-client library instead.");
+	public String requestTokenForClient(String clientId, String clientSecret, String baseUaaUrl) {
+		return performTokenFlow(baseUaaUrl, XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN, clientId, clientSecret,
+				new HashMap<>());
 	}
 
 	@Override
-	public String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException {
-		throw new UnsupportedOperationException("Not implemented. Use token-client library instead.");
+	public String requestTokenForUser(String clientId, String clientSecret, String baseUaaUrl) {
+		return performTokenFlow(baseUaaUrl, XSTokenRequest.TYPE_USER_TOKEN, clientId, clientSecret, new HashMap<>());
 	}
 
-	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName)
-			throws XSUserInfoException {
-		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);
-		return Optional.ofNullable(claimAsJsonObject)
-				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class))
+	@Override
+	public String requestToken(XSTokenRequest tokenRequest) {
+		Assertions.assertNotNull(tokenRequest, "TokenRequest argument is required");
+		if (!tokenRequest.isValid()) {
+			throw new XSUserInfoException("Invalid grant type or missing parameters for requested grant type.");
+		}
+		String tokenEndpoint = tokenRequest.getTokenEndpoint().toString();
+		String baseUaaUrl = tokenEndpoint.replace(tokenRequest.getTokenEndpoint().getPath(), "");
+		Map<String, String> additionalAuthAttributes = tokenRequest.getAdditionalAuthorizationAttributes();
+		return performTokenFlow(baseUaaUrl, tokenRequest.getType(), tokenRequest.getClientId(),
+				tokenRequest.getClientSecret(), additionalAuthAttributes);
+	}
+
+	/**
+	 * Tries to create an OAuth2TokenService and throws
+	 * UnsupportedOperationException if it fails.
+	 *
+	 * @throws UnsupportedOperationException
+	 *             if it cannot create the service.
+	 * @return the created OAuth2TokenService
+	 */
+	private OAuth2TokenService getOrCreateOAuth2TokenService() {
+		if (oAuth2TokenService == null) {
+			oAuth2TokenService = tryToCreateDefaultOAuth2TokenService();
+			if (oAuth2TokenService == null) {
+				oAuth2TokenService = tryToCreateXsuaaOAuth2TokenService();
+			}
+		}
+		if (oAuth2TokenService == null) {
+			throw new UnsupportedOperationException("Failed to create OAuth2TokenService. "
+					+ "Make sure your project has a dependency to either spring-web or apache HTTP client.");
+		}
+		return oAuth2TokenService;
+	}
+
+	/**
+	 * This method tries to create a {@link DefaultOAuth2TokenService} instance
+	 * which can fail because the required dependency (apache HTTP client) might be
+	 * missing. In this case a {@link java.lang.NoClassDefFoundError} is thrown
+	 * which is a {@link LinkageError} that needs to be caught in addition to
+	 * exceptions!
+	 *
+	 * @return the {@link DefaultOAuth2TokenService} instance or null if it could
+	 *         not be created.
+	 */
+	private OAuth2TokenService tryToCreateDefaultOAuth2TokenService() {
+		LOGGER.debug("Trying to create DefaultOAuth2TokenService.");
+		try {
+			return new DefaultOAuth2TokenService();
+		} catch (Exception | LinkageError e) {
+			LOGGER.debug("Failed to create DefaultOAuth2TokenService.", e);
+		}
+		return null;
+	}
+
+	/**
+	 *
+	 * Similar to {@link #tryToCreateDefaultOAuth2TokenService()} except it tries to
+	 * create {@link XsuaaOAuth2TokenService} and internally depends on spring-web.
+	 *
+	 * @return the {@link XsuaaOAuth2TokenService} or null if it could not be
+	 *         created.
+	 */
+	private OAuth2TokenService tryToCreateXsuaaOAuth2TokenService() {
+		LOGGER.debug("Trying to create XsuaaOAuth2TokenService.");
+		try {
+			return new XsuaaOAuth2TokenService();
+		} catch (Exception | LinkageError e) {
+			LOGGER.debug("Failed to create XsuaaOAuth2TokenService.", e);
+		}
+		return null;
+	}
+
+	// for tests
+	void setOAuth2TokenService(OAuth2TokenService oAuth2TokenService) {
+		this.oAuth2TokenService = oAuth2TokenService;
+	}
+
+	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName) {
+		return Optional.ofNullable(accessToken.getAttributeFromClaimAsStringList(claimName, attributeName))
 				.map(values -> values.toArray(new String[] {}))
 				.orElseThrow(createXSUserInfoException(attributeName));
 	}
 
-	private void checkNotGrantTypeClientCredentials(String methodName) throws XSUserInfoException {
+	private void checkNotGrantTypeClientCredentials(String methodName) {
 		if (GrantType.CLIENT_CREDENTIALS == accessToken.getGrantType()) {
 			String message = String.format("Method '%s' is not supported for grant type '%s'", methodName,
 					GrantType.CLIENT_CREDENTIALS);
@@ -299,17 +413,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		}
 	}
 
-	@Nullable
-	private String getAttributeFromClaimAsString(String claimName, String attributeName) throws XSUserInfoException {
-		return Optional.ofNullable(getClaimAsJsonObject(claimName))
-				.map(claim -> claim.getAsString(attributeName)).orElse(null);
-	}
-
 	private Supplier<XSUserInfoException> createXSUserInfoException(String attribute) {
 		return () -> new XSUserInfoException("Invalid user attribute " + attribute);
 	}
 
-	private String getClaimValue(String claimname) throws XSUserInfoException {
+	private String getClaimValue(String claimname) {
 		String value = accessToken.getClaimAsString(claimname);
 		if (value == null) {
 			throw new XSUserInfoException("Invalid user attribute " + claimname);
@@ -318,7 +426,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Nullable
-	private JsonObject getClaimAsJsonObject(String claimName) throws XSUserInfoException {
+	private JsonObject getClaimAsJsonObject(String claimName) {
 		try {
 			return accessToken.getClaimAsJsonObject(claimName);
 		} catch (JsonParsingException e) {
@@ -326,8 +434,71 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		}
 	}
 
-	String getExternalAttribute(String attributeName) throws XSUserInfoException {
-		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
+	String getExternalAttribute(String attributeName) {
+		return accessToken.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
+	}
+
+	/**
+	 * Getter for XsuaaTokenFlows object that can be overridden for testing
+	 * purposes.
+	 */
+	XsuaaTokenFlows getXsuaaTokenFlows(String baseUaaUrl, ClientCredentials clientCredentials) {
+		return new XsuaaTokenFlows(getOrCreateOAuth2TokenService(),
+				new XsuaaDefaultEndpoints(baseUaaUrl), clientCredentials);
+	}
+
+	private String performTokenFlow(String baseUaaUrl, int tokenRequestType, String clientId, String clientSecret,
+			Map<String, String> additionalAuthAttributes) {
+		try {
+			ClientCredentials clientCredentials = new ClientCredentials(clientId, clientSecret);
+			XsuaaTokenFlows xsuaaTokenFlows = getXsuaaTokenFlows(baseUaaUrl, clientCredentials);
+			return performRequest(xsuaaTokenFlows, tokenRequestType, additionalAuthAttributes);
+		} catch (RuntimeException e) {
+			throw new XSUserInfoException(e.getMessage());
+		}
+	}
+
+	private String performRequest(XsuaaTokenFlows xsuaaTokenFlows, int tokenRequestType,
+			Map<String, String> additionalAuthAttributes) {
+		switch (tokenRequestType) {
+		case XSTokenRequest.TYPE_USER_TOKEN:
+			return performUserTokenFlow(xsuaaTokenFlows, additionalAuthAttributes);
+		case XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN:
+			return performClientCredentialsFlow(xsuaaTokenFlows, additionalAuthAttributes);
+		default:
+			throw new XSUserInfoException(
+					"Found unsupported XSTokenRequest type. The only supported types are XSTokenRequest.TYPE_USER_TOKEN and XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN.");
+		}
+	}
+
+	private String performUserTokenFlow(XsuaaTokenFlows xsuaaTokenFlows, Map<String, String> additionalAuthAttributes) {
+		String userToken;
+		try {
+			userToken = xsuaaTokenFlows.userTokenFlow()
+					.subdomain(getSubdomain())
+					.token(getAppToken())
+					.attributes(additionalAuthAttributes)
+					.execute().getAccessToken();
+		} catch (TokenFlowException e) {
+			LOGGER.error("Error performing User Token Flow", e);
+			throw new XSUserInfoException("Error performing User Token Flow.", e);
+		}
+		return userToken;
+	}
+
+	private String performClientCredentialsFlow(XsuaaTokenFlows xsuaaTokenFlows,
+			Map<String, String> additionalAuthAttributes) {
+		String ccfToken;
+		try {
+			ccfToken = xsuaaTokenFlows.clientCredentialsTokenFlow()
+					.subdomain(getSubdomain())
+					.attributes(additionalAuthAttributes)
+					.execute().getAccessToken();
+		} catch (TokenFlowException e) {
+			LOGGER.error("Error performing Client Credentials Flow", e);
+			throw new XSUserInfoException("Error performing Client Credentials Flow.", e);
+		}
+		return ccfToken;
 	}
 
 }

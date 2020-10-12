@@ -202,4 +202,28 @@ public class CFEnvironmentTest {
 		OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
 		assertThat(Plan.from(config.getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
 	}
+
+	@Test
+	public void getXsuaaConfiguration_noVcapServices_doesNotThrowExceptions() {
+		cut = CFEnvironment.getInstance((any) -> null, (any) -> null);
+
+		assertThat(cut.getXsuaaConfiguration()).isNull();
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
+	}
+
+	@Test
+	public void getXsuaaConfiguration_vcapServicesEmptyString_doesNotThrowExceptions() {
+		cut = CFEnvironment.getInstance((any) -> "", (any) -> "");
+
+		assertThat(cut.getXsuaaConfiguration()).isNull();
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
+	}
+
+	@Test
+	public void getXsuaaConfiguration_vcapServicesEmptyJson_doesNotThrowExceptions() {
+		cut = CFEnvironment.getInstance((any) -> "{}", (any) -> "{}");
+
+		assertThat(cut.getXsuaaConfiguration()).isNull();
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
+	}
 }

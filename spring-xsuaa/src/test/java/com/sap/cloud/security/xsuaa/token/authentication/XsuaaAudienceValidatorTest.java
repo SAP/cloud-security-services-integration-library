@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -67,8 +68,7 @@ public class XsuaaAudienceValidatorTest {
 	public void testExtractAudiencesFromTokenScopes() {
 		Jwt token = new JwtGenerator()
 				.addScopes("test1!t1.read", "test2!t1.read", "test2!t1.write", ".scopeWithoutAppId").getToken();
-		List<String> audiences = new XsuaaAudienceValidator(serviceConfigurationSameClientId)
-				.getAllowedAudiences(token);
+		Set<String> audiences = XsuaaAudienceValidator.getAllowedAudiences(token);
 		Assert.assertThat(audiences.size(), is(2));
 		Assert.assertThat(audiences, hasItem("test1!t1"));
 		Assert.assertThat(audiences, hasItem("test2!t1"));
@@ -125,7 +125,8 @@ public class XsuaaAudienceValidatorTest {
 				.validate(tokenWithoutAudienceButScopes);
 		Assert.assertTrue(result.hasErrors());
 		List<OAuth2Error> errors = new ArrayList<>(result.getErrors());
-		Assert.assertThat(errors.get(0).getDescription(), is("Jwt token audience matches none of these: [test2!t1]"));
+		String expectedDescription = "Jwt token with allowed audiences [test3!t1] matches none of these: [test2!t1]";
+		Assert.assertThat(errors.get(0).getDescription(), is(expectedDescription));
 		Assert.assertThat(errors.get(0).getErrorCode(), is(OAuth2ErrorCodes.INVALID_CLIENT));
 	}
 

@@ -1,14 +1,18 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.DefaultJsonObject;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 public class XsuaaTokenTest {
 
@@ -105,10 +109,40 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getAudiences() {
-		assertThat(clientCredentialsToken.getAudiences()).isNotEmpty();
-		assertThat(clientCredentialsToken.getAudiences()).hasSize(2);
-		assertThat(clientCredentialsToken.getAudiences()).contains("uaa");
-		assertThat(clientCredentialsToken.getAudiences()).contains("sap_osb");
+		assertThat(clientCredentialsToken.getAudiences()).containsExactlyInAnyOrder("uaa", "sap_osb");
+	}
+
+	@Test
+	public void getSubdomain() {
+		assertThat(clientCredentialsToken.getSubdomain()).isNull();
+		assertThat(userToken.getSubdomain()).isEqualTo("theSubdomain");
+	}
+
+	@Test
+	public void getSubaccountId() {
+		XsuaaToken userTokenWithSubaccountId = Mockito.spy(userToken);
+		when(userTokenWithSubaccountId.getClaimAsJsonObject(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE))
+				.thenReturn(new DefaultJsonObject("{\"subaccountid\": \"abc123\"}"));
+
+		assertThat(userTokenWithSubaccountId.getSubaccountId()).isEqualTo("abc123");
+	}
+
+	@Test
+	public void getSubaccountId_noSubaccountId_fallsBackToZoneId() {
+		assertThat(clientCredentialsToken.getSubaccountId()).isEqualTo("uaa");
+	}
+
+	@Test
+	public void readCloneServiceInstanceId() {
+		String authHeader = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHRfYXR0ciI6eyJ6ZG4iOiJ0ZXN0c3ViZG9tYWluIiwic2VydmljZWluc3RhbmNlaWQiOiJhYmNkMTIzNCJ9LCJ6aWQiOiJlMmY3ZmJkYi0wMzI2LTQwZTYtOTQwZi1kZmRkYWQwNTdmZjMiLCJncmFudF90eXBlIjoidXJuOmlldGY6cGFyYW1zOm9hdXRoOmdyYW50LXR5cGU6c2FtbDItYmVhcmVyIiwidXNlcl9uYW1lIjoidGVzdFVzZXIiLCJvcmlnaW4iOiJ1c2VySWRwIiwiZXhwIjo2OTc0MDMxNjAwLCJpYXQiOjE1OTM3ODQ2MDcsImVtYWlsIjoidGVzdFVzZXJAdGVzdC5vcmciLCJjaWQiOiJzYi1qYXZhLWhlbGxvLXdvcmxkIn0.yB_ALtO_shdJJkXeRSxKFRVghDmrxdnZ1-WssO_hQ9AAuaQX-rA6eMwuikjcWhkzWnjBzQg4LO8aLQhtUUIS60cpXZG_zP7y9iULCxQQt2vTMbVC0unHB2ytBf2GWbIq_WplfNwshZmbt2ETDClz87VBla-yG6rIZdAio4jZuLTQzJAVCMhJCkmhuMedzbrzGovpblT49UIbi3v4cxhBuoHhAZVfPEUX4-22BTcgFFVlOySvDn6xBVLVqBcjOl_JGjFcWPImj0BqdEuaQq2-A3_F_XKhQf_AK7rLF7kvaIZ2k3i-1GWapqLZsCed23Ihce5m-cedv3857YQPZxAHZw";
+		XsuaaToken token = new XsuaaToken(authHeader);
+		assertThat(token.getAttributeFromClaimAsString(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, "serviceinstanceid"))
+				.isEqualTo("abcd1234");
+	}
+
+	@Test
+	public void getSubaccountId_noSubaccountIdAndNoFallback_isNull() {
+		assertThat(userToken.getSubaccountId()).isNull();
 	}
 
 }

@@ -1,10 +1,12 @@
 package com.sap.cloud.security.test;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -21,6 +23,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.test.ApplicationServerOptions.forService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -62,7 +66,7 @@ public class SecurityTestRuleTest {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
 
 			List<JsonObject> tokenKeys = new DefaultJsonObject(readContent(response)).getJsonObjects("keys");
-			assertThat(tokenKeys).hasSize(1);
+			assertThat(tokenKeys).hasSize(4);
 			String publicKeyFromTokenKeys = tokenKeys.get(0).getAsString("value");
 			assertThat(publicKeyFromTokenKeys).isEqualTo(expEncodedKey);
 			assertThat(publicKeyFromTokenKeys)
@@ -92,7 +96,7 @@ public class SecurityTestRuleTest {
 	@Test
 	public void testRuleIsInitializedCorrectly() {
 		assertThat(cut.getApplicationServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
-		//assertThat(cut.getWireMockRule()).isNotNull();
+		// assertThat(cut.getWireMockRule()).isNotNull();
 		assertThat(cut.getWireMockServer()).isNotNull();
 		assertThat(cut.createToken().getTokenValue())
 				.isEqualTo(cut.getPreconfiguredJwtGenerator().createToken().getTokenValue());
@@ -106,6 +110,34 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
+	public void getPreconfiguredJwtGenerator_tokenHasCorrectIssuer() {
+		Token token = cut.getPreconfiguredJwtGenerator().createToken();
+
+		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(cut.base.wireMockServer.baseUrl());
+	}
+
+	@Test
+	public void getConfigurationBuilderFromFile_configurationHasCorrectUrl() {
+		OAuth2ServiceConfiguration configuration = cut
+				.getConfigurationBuilderFromFile("/vcapServices/vcapSimple.json")
+				.build();
+
+		assertThat(configuration.getUrl()).isNotNull();
+		assertThat(configuration.getUrl().toString()).isEqualTo(cut.base.wireMockServer.baseUrl());
+		assertThat(configuration.getProperty(UAA_DOMAIN)).isEqualTo("localhost");
+	}
+
+	@Test
+	public void getJwtGeneratorFromFile_setsTestingDefaults() throws IOException {
+		Token token = cut.getJwtGeneratorFromFile("/token.json").createToken();
+
+		String baseUrl = cut.base.wireMockServer.baseUrl();
+		URI jwksUrl = new XsuaaDefaultEndpoints(baseUrl).getJwksUri();
+		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(jwksUrl.toString());
+		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(baseUrl);
+	}
+
+	@Test
 	public void servletFilterServesTestServlet() throws IOException {
 		HttpGet httpGet = new HttpGet(cut.getApplicationServerUri() + "/hi");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
@@ -114,11 +146,15 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
-	public void setKeys_invalidPath_throwsException()
-			throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
+	public void setKeys_invalidPath_throwsException() {
 		assertThatThrownBy(() -> SecurityTestRule.getInstance(XSUAA)
 				.setKeys("doesNotExist", "doesNotExist"))
 						.isInstanceOf(RuntimeException.class);
+	}
+
+	@Test
+	public void getContext() {
+		assertThat(cut.getContext()).isNotNull();
 	}
 
 	public static class SecurityTestRuleWithMockServlet {
