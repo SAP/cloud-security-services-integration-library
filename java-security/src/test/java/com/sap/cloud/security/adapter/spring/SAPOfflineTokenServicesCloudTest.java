@@ -91,7 +91,7 @@ public class SAPOfflineTokenServicesCloudTest {
 	}
 
 	@Test
-	public void loadAuthentication_ias() {
+	public void loadAuthentication_iasToken_throwsException() {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.IAS)
 				.withProperty(CFConstants.CLIENT_ID, "clientId")
@@ -100,10 +100,12 @@ public class SAPOfflineTokenServicesCloudTest {
 		cut = new SAPOfflineTokenServicesCloud(configuration, jwtValidatorBuilderSpy);
 
 		cut.afterPropertiesSet();
-		OAuth2Authentication authentication = cut.loadAuthentication(iasToken);
+		assertThatThrownBy(() -> cut.loadAuthentication(iasToken))
+				.isInstanceOf(InvalidTokenException.class)
+				.hasMessageContaining("AccessToken of service IAS is not supported");
 
-		assertThat(authentication.isAuthenticated()).isTrue();
-		assertThat(authentication.getUserAuthentication()).isNull();
+		//assertThat(authentication.isAuthenticated()).isTrue();
+		//assertThat(authentication.getUserAuthentication()).isNull();
 	}
 
 	@Test
