@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## 2.7.8
 - [java-security-test] Supports JUnit 5 Tests with `XsuaaExtension`, `IasExtension` and `SecurityTestExtension` as documented [here](/java-security-test#junit-5).
+- [java-security] Does not fail in case of Xsuaa services of type: `apiacess` (#382).
 - [spring-xsuaa-starter] Upgrade Spring versions:
   - spring.boot.version: 2.3.1.RELEASE --> 2.3.4.RELEASE
   - spring.core.version: 5.2.8.RELEASE --> 5.2.9.RELEASE
