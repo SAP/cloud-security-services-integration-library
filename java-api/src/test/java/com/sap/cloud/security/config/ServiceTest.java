@@ -11,8 +11,8 @@ public class ServiceTest {
 	 * should be removed as soon as {@link Service#IAS} is supported.
 	 */
 	@Test
-	public void getCFNameOfIasWhenEnvironmentVariableIsNotSet_shouldReturnNull() {
-		assertThat(Service.IAS.getCFName()).isNull();
+	public void getCFNameOfIas_shouldReturnCorrectName() {
+		assertThat(Service.IAS.getCFName()).isEqualTo("identity");
 	}
 
 	@Test

@@ -19,7 +19,7 @@ mvn clean package
 ## Create the ias service instance
 Use the ias service broker and create a service instance (don't forget to replace the placeholders)
 ```shell
-cf create-service identity-beta default ias-java-security
+cf create-service identity application ias-java-security
 ```
 
 ## Configure the manifest

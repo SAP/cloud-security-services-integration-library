@@ -22,7 +22,7 @@
     "volume_mounts": []
    }
   ],
-  "identity-beta": [
+  "identity": [
   {
    "binding_name": null,
    "credentials": {
@@ -31,9 +31,9 @@
     "url": "http://localhost"
    },
    "instance_name": "myservice",
-   "label": "identity-beta",
+   "label": "identity",
    "name": "myservice",
-   "plan": "default",
+   "plan": "application",
    "provider": null,
    "syslog_drain_url": null,
    "tags": [],
