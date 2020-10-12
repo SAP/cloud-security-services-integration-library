@@ -17,10 +17,8 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
-import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.ISSUED_AT;
+import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**
  * Decodes and parses encoded JSON Web Token (JWT) and provides access to token
@@ -114,7 +112,7 @@ public abstract class AbstractToken implements Token {
 	@Override
 	public Set<String> getAudiences() {
 		Set<String> audiences = new LinkedHashSet<>();
-		audiences.addAll(getClaimAsStringList(TokenClaims.AUDIENCE));
+		audiences.addAll(getClaimAsStringList(AUDIENCE));
 		return audiences;
 	}
 
@@ -165,21 +163,20 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public String getZoneId() {
-		return getClaimAsString(TokenClaims.SAP_GLOBAL_ZONE_ID);
+		return getClaimAsString(SAP_GLOBAL_ZONE_ID);
 	}
 
 	@Override
 	public String getClientId() {
-		String clientId = getClaimAsString(CLIENT_ID);
-		if (clientId == null) {
+		String clientId = getClaimAsString(AUTHORIZATION_PARTY);
+		if (clientId == null || clientId.trim().isEmpty()) {
 			Set<String> audiences = getAudiences();
-			Optional<String> audience = audiences.stream().findFirst();
 
-			if (audience.isPresent() && audiences.size() == 1) {
-				return audience.get();
+			if (audiences.size() == 1) {
+				return audiences.stream().findFirst().get();
 			} else {
-				LOGGER.error("Audience or authorized party claims are missing.");
-				throw new ClientIdRetrievalException("Audience or Authorized party claims are missing.");
+				LOGGER.error("Couldn't get client id. Invalid authorized party or audience claims.");
+				throw new InvalidTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
 			}
 		} else {
 			return clientId;
