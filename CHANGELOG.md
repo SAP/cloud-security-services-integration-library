@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.7.8
+- [java-security] `getClientId` was added to `Token` interface. `getClientId` method should be used instead of `getClaimAsString(TokenClaims.CLIENT_ID)`
+- [spring-xsuaa] `getClientId` implementation method of `Token` interface has been changed. Using "azp" and as fallback "aud" claims to obtain client id.
+
 ## 2.7.7
 - [spring-xsuaa] Update Spring versions
   - spring.core.version: 5.2.7.RELEASE --> 5.2.8.RELEASE
