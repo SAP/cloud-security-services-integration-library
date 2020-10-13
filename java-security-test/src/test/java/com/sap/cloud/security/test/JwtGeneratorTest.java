@@ -127,7 +127,18 @@ public class JwtGeneratorTest {
 
 		assertThat(token.getClientId()).isEqualTo(clientId);
 	}
+		
+	@Test
+	public void withClaimAzp_overwritesClientId() {
+		String clientId = "myClientId";
 
+		Token token = cut
+				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
+				.createToken();
+
+		assertThat(token.getClientId()).isEqualTo(clientId);
+	}
+	
 	@Test
 	public void withHeaderParameter_containsHeaderParameter() {
 		String tokenKeyServiceUrl = "http://localhost/token_keys";
