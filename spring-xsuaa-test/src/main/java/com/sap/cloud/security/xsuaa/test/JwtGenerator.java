@@ -83,20 +83,20 @@ public class JwtGenerator {
 	/**
 	 * Specifies authorization party of the JWT token claim.
 	 *
-	 * @param azp
+	 * @param clientId
 	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
 	 *            value of the JWT token claims "azp" and "cid". A token is
 	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
 	 *            service configuration (VCAP_SERVICES).
 	 */
-	public JwtGenerator(String azp) {
-		this(azp, MOCK_XSUAA_DEFAULT_PORT);
+	public JwtGenerator(String clientId) {
+		this(clientId, MOCK_XSUAA_DEFAULT_PORT);
 	}
 
 	/**
 	 * Specifies authorization party of the JWT token claim.
 	 *
-	 * @param azp
+	 * @param clientId
 	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
 	 *            value of the JWT token claims "azp" and "cid". A token is
 	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
@@ -104,15 +104,15 @@ public class JwtGenerator {
 	 * @param port
 	 *            the port that is used to connect to the XSUAA mock web server.
 	 */
-	public JwtGenerator(String azp, int port) {
-		this(azp, "", DEFAULT_IDENTITY_ZONE_ID);
+	public JwtGenerator(String clientId, int port) {
+		this(clientId, "", DEFAULT_IDENTITY_ZONE_ID);
 		this.port = port;
 	}
 
 	/**
 	 * Overwrites some default values of the JWT token claims.
 	 *
-	 * @param azp
+	 * @param clientId
 	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
 	 *            value of the JWT token claims "azp" and "cid". A token is
 	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
@@ -122,12 +122,12 @@ public class JwtGenerator {
 	 *            the claim "zdn". Furthermore the identity-zone-id claim "zid" is
 	 *            derived from that.
 	 */
-	public JwtGenerator(String azp, String subdomain) {
-		this(azp, subdomain, subdomain + "-id");
+	public JwtGenerator(String clientId, String subdomain) {
+		this(clientId, subdomain, subdomain + "-id");
 	}
 
-	public JwtGenerator(String azp, String subdomain, String identityZoneId) {
-		this.azp = azp;
+	public JwtGenerator(String clientId, String subdomain, String identityZoneId) {
+		this.azp = clientId;
 		this.subdomain = subdomain;
 		this.identityZoneId = identityZoneId;
 		this.port = MOCK_XSUAA_DEFAULT_PORT;
