@@ -56,12 +56,30 @@ public class XsuaaJwtDecoderTest {
 	@Test
 	public void decode_whenJwksContainsInvalidJwksDomain_throwsException() throws IOException {
 		String token = IOUtils.resourceToString("/token_user.txt", StandardCharsets.UTF_8);
-
 		XsuaaJwtDecoder cut = (XsuaaJwtDecoder) new XsuaaJwtDecoderBuilder(configuration).build();
-		cut.setTokenInfoExtractor(new TokenInfoExtractorImpl("https://subdomain.wrongoauth.ondemand.com/token_keys"));
 
+		cut.setTokenInfoExtractor(new TokenInfoExtractorImpl("https://subdomain.wrongoauth.ondemand.com/token_keys"));
 		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
 				.hasMessageContaining("JWT verification failed: Do not trust 'jku' token header");
+
+		cut.setTokenInfoExtractor(new TokenInfoExtractorImpl("http://myauth.ondemand.com@malicious.ondemand.com/token_keys"));
+		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
+				.hasMessageContaining("JWT verification failed: Do not trust 'jku' token header");
+
+		cut.setTokenInfoExtractor(new TokenInfoExtractorImpl("http://malicious.ondemand.com/token_keys///myauth.ondemand.com/token_keys"));
+		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
+				.hasMessageContaining("JWT verification failed: Do not trust 'jku' token header");
+	}
+
+	@Test
+	public void decode_whenJwksUrlIsNotValid_throwsException() throws IOException {
+		String token = IOUtils.resourceToString("/token_cc.txt", StandardCharsets.UTF_8);
+		XsuaaJwtDecoder cut = (XsuaaJwtDecoder) new XsuaaJwtDecoderBuilder(configuration).build();
+
+		cut.setTokenInfoExtractor(
+				new TokenInfoExtractorImpl("http://myauth.ondemand.com\\@malicious.ondemand.com/token_keys"));
+		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
+				.hasMessageContaining("JWT verification failed: JKU of token header is not valid");
 	}
 
 	@Test
