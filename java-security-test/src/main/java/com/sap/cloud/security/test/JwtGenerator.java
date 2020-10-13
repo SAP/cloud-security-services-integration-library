@@ -59,13 +59,13 @@ public class JwtGenerator {
 	 *
 	 * @param service
 	 *            the {@link Service} for which the token should be generated
-	 * @param clientId
-	 *            the client id of the token.
+	 * @param azp
+	 *            the authorization party of the token.
 	 * @return a new {@link JwtGenerator} instance.
 	 */
-	public static JwtGenerator getInstance(Service service, String clientId) {
+	public static JwtGenerator getInstance(Service service, String azp) {
 		JwtGenerator instance = new JwtGenerator(service, JwtGenerator::calculateSignature);
-		instance.setDefaultsForNewToken(clientId);
+		instance.setDefaultsForNewToken(azp);
 		return instance;
 	}
 
@@ -133,14 +133,15 @@ public class JwtGenerator {
 		return this;
 	}
 
-	private void setDefaultsForNewToken(String clientId) {
+	private void setDefaultsForNewToken(String azp) {
 		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
 		withHeaderParameter(ALGORITHM, JwtSignatureAlgorithm.RS256.value());
-		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId);
+		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
+		withClaimValue(TokenClaims.XSUAA.AUTHORIZATION_PARTY, azp);
 		if (service == Service.IAS) {
-			jsonPayload.put(TokenClaims.AUDIENCE, jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID));
+			jsonPayload.put(TokenClaims.AUDIENCE, azp);
 		} else {
-			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID)));
+			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(azp));
 		}
 	}
 

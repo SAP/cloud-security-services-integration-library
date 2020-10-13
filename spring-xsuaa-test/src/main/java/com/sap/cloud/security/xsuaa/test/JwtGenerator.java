@@ -36,7 +36,8 @@ public class JwtGenerator {
 
 		static final String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
 		static final String CLAIM_SCOPES = "scope";
-		static final String CLAIM_CLIENT_ID = "cid";
+		static final String CLAIM_CLIENT_ID = "cid"; // Client Id left for backward compatibility
+		static final String CLAIM_AUTHORIZATION_PARTY = "azp";
 		static final String CLAIM_USER_NAME = "user_name";
 		static final String CLAIM_EMAIL = "email";
 		static final String CLAIM_ORIGIN = "origin";
@@ -66,7 +67,7 @@ public class JwtGenerator {
 	// see XsuaaToken.GRANTTYPE_SAML2BEARER
 	private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:saml2-bearer";
 
-	private final String clientId;
+	private final String azp;
 	private final String identityZoneId;
 	private final String subdomain;
 
@@ -80,40 +81,40 @@ public class JwtGenerator {
 	private boolean deriveAudiences = false;
 
 	/**
-	 * Specifies clientId of the JWT token claim.
+	 * Specifies authorization party of the JWT token claim.
 	 *
-	 * @param clientId
+	 * @param azp
 	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
-	 *            value of the JWT token claims "client_id" and "cid". A token is
+	 *            value of the JWT token claims "azp" and "cid". A token is
 	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
 	 *            service configuration (VCAP_SERVICES).
 	 */
-	public JwtGenerator(String clientId) {
-		this(clientId, MOCK_XSUAA_DEFAULT_PORT);
+	public JwtGenerator(String azp) {
+		this(azp, MOCK_XSUAA_DEFAULT_PORT);
 	}
 
 	/**
-	 * Specifies clientId of the JWT token claim.
+	 * Specifies authorization party of the JWT token claim.
 	 *
-	 * @param clientId
+	 * @param azp
 	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
-	 *            value of the JWT token claims "client_id" and "cid". A token is
+	 *            value of the JWT token claims "azp" and "cid". A token is
 	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
 	 *            service configuration (VCAP_SERVICES).
 	 * @param port
 	 *            the port that is used to connect to the XSUAA mock web server.
 	 */
-	public JwtGenerator(String clientId, int port) {
-		this(clientId, "", DEFAULT_IDENTITY_ZONE_ID);
+	public JwtGenerator(String azp, int port) {
+		this(azp, "", DEFAULT_IDENTITY_ZONE_ID);
 		this.port = port;
 	}
 
 	/**
 	 * Overwrites some default values of the JWT token claims.
 	 *
-	 * @param clientId
+	 * @param azp
 	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
-	 *            value of the JWT token claims "client_id" and "cid". A token is
+	 *            value of the JWT token claims "azp" and "cid". A token is
 	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
 	 *            service configuration (VCAP_SERVICES).
 	 * @param subdomain
@@ -121,12 +122,12 @@ public class JwtGenerator {
 	 *            the claim "zdn". Furthermore the identity-zone-id claim "zid" is
 	 *            derived from that.
 	 */
-	public JwtGenerator(String clientId, String subdomain) {
-		this(clientId, subdomain, subdomain + "-id");
+	public JwtGenerator(String azp, String subdomain) {
+		this(azp, subdomain, subdomain + "-id");
 	}
 
-	public JwtGenerator(String clientId, String subdomain, String identityZoneId) {
-		this.clientId = clientId;
+	public JwtGenerator(String azp, String subdomain, String identityZoneId) {
+		this.azp = azp;
 		this.subdomain = subdomain;
 		this.identityZoneId = identityZoneId;
 		this.port = MOCK_XSUAA_DEFAULT_PORT;
@@ -261,7 +262,7 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Builds a basic Jwt with the given clientId, userName, scopes, user attributes
+	 * Builds a basic Jwt with the given azp, userName, scopes, user attributes
 	 * claims and the keyId header.
 	 *
 	 * @return jwt
@@ -313,8 +314,7 @@ public class JwtGenerator {
 	 * This replaces these placeholders:
 	 * <ul>
 	 * <li>"$exp" with a date, that will not expire</li>
-	 * <li>"$clientid" with the configured client id
-	 * {@link #JwtGenerator(String)}</li>
+	 * <li>"$azp" with the configured client id {@link #JwtGenerator(String)}</li>
 	 * <li>"$zdn" with the configured subdomain
 	 * {@link #JwtGenerator(String, String)}</li>
 	 * <li>"$zid" with "uaa" or with the configured subdomain
@@ -382,7 +382,8 @@ public class JwtGenerator {
 		return new JWTClaimsSet.Builder()
 				.issueTime(new Date())
 				.expirationTime(JwtGenerator.NO_EXPIRE_DATE)
-				.claim(TokenClaims.CLAIM_CLIENT_ID, clientId)
+				.claim(TokenClaims.CLAIM_CLIENT_ID, azp) // Client Id left for backward compatibility
+				.claim(TokenClaims.CLAIM_AUTHORIZATION_PARTY, azp)
 				.claim(TokenClaims.CLAIM_ORIGIN, "userIdp")
 				.claim(TokenClaims.CLAIM_USER_NAME, userName)
 				.claim(TokenClaims.CLAIM_EMAIL, userName + "@test.org")
@@ -419,7 +420,8 @@ public class JwtGenerator {
 
 	private String replacePlaceholders(String claims) {
 		claims = claims.replace("$exp", String.valueOf(NO_EXPIRE));
-		claims = claims.replace("$clientid", clientId);
+		claims = claims.replace("$clientid", azp); // Client Id left for backward compatibility
+		claims = claims.replace("$azp", azp);
 		claims = claims.replace("$zdn", subdomain);
 		claims = claims.replace("$zid", identityZoneId);
 		claims = claims.replace("$username", userName);
