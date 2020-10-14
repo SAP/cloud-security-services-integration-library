@@ -1,0 +1,46 @@
+dependencies:
+  runtime:
+    - java:11.0.8
+    - maven:3.5.4
+  build:
+    - java:11.0.8
+    - maven:3.5.4
+
+build_targets:
+  - name: sap-ch1
+    container:
+      image: yourbase/yb_ubuntu:18.04
+      mounts:
+        - /Users/jamesnaftel/dev/yourbase/yourbase-java/yourbase-maven-plugin/target:/.m2/repository/io/yourbase/yourbase-maven-plugin/1.0-ALPHA
+        - /Users/jamesnaftel/dev/yourbase/yourbase-java-engine/buildgraph-agent/target/buildgraph-agent-1.0-ALPHA.jar:/yourbase-agent.jar
+    environment:
+      - YB_DEBUG=true
+      - YB_BUILD_UUID=ch1
+    commands:
+      - mvn clean package -Dyourbase.agent=/yourbase-agent.jar
+
+  - name: sap-ch2
+    container:
+      image: yourbase/yb_ubuntu:18.04
+      mounts:
+        - /Users/jamesnaftel/dev/yourbase/yourbase-java/yourbase-maven-plugin/target:/.m2/repository/io/yourbase/yourbase-maven-plugin/1.0-ALPHA
+        - /Users/jamesnaftel/dev/yourbase/yourbase-java-engine/buildgraph-agent/target/buildgraph-agent-1.0-ALPHA.jar:/yourbase-agent.jar
+    environment:
+      - YB_DEBUG=true
+      - YB_BUILD_UUID=ch2
+      - CHANGES_FILE=/workspace/changes.txt
+      - YB_OLD_BUILD_GRAPH=ch1-graph.dat
+    commands:
+      - mvn clean package -Dyourbase.agent=/yourbase-agent.jar
+
+  - name: default
+    environment:
+      - YB_DEBUG=true
+    commands:
+      - mvn clean install
+ci:
+  builds:
+    - name: default
+      build_target: default
+      when: branch IS 'main' OR action IS 'pull_request'
+
