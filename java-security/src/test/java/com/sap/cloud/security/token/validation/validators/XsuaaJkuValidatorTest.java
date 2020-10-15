@@ -105,4 +105,16 @@ public class XsuaaJkuValidatorTest {
 				containsString("Jwt token does not contain a valid 'jku' header parameter"));
 	}
 
+	@Test
+	public void validationFails_whenJkuHasNonTrustedHost() {
+		when(token.getHeaderParameterAsString(JWKS_URL))
+				.thenReturn("http://myauth.ondemand.com\\@malicious.ondemand.com/token_keys");
+		assertThat(cut.validate(token).isValid(), is(false));
+		when(token.getHeaderParameterAsString(JWKS_URL))
+				.thenReturn("http://myauth.ondemand.com@malicious.ondemand.com/token_keys");
+		assertThat(cut.validate(token).isValid(), is(false));
+		when(token.getHeaderParameterAsString(JWKS_URL))
+				.thenReturn("http://malicious.ondemand.com/token_keys///myauth.ondemand.com/token_keys");
+		assertThat(cut.validate(token).isValid(), is(false));
+	}
 }
