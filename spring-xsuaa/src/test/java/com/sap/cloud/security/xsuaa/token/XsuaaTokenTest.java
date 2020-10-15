@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,6 +41,7 @@ public class XsuaaTokenTest {
 	private String scopeOther = "other-app-name!t777.Other";
 	private String userName = "testUser";
 	private String zoneId = "e2f7fbdb-0326-40e6-940f-dfddad057ff3";
+	private static final String CLIENT_ID = "sb-java-hello-world";
 
 	@BeforeEach
 	public void setup() throws IOException {
@@ -46,7 +49,7 @@ public class XsuaaTokenTest {
 				.issueTime(new Date())
 				.expirationTime(JwtGenerator.NO_EXPIRE_DATE)
 				.claim(TokenClaims.CLAIM_USER_NAME, userName).claim(TokenClaims.CLAIM_EMAIL, userName + "@test.org")
-				.claim(TokenClaims.CLAIM_ZONE_ID, zoneId).claim(TokenClaims.CLAIM_CLIENT_ID, "sb-java-hello-world")
+				.claim(TokenClaims.CLAIM_ZONE_ID, zoneId).claim(TokenClaims.CLAIM_CLIENT_ID, CLIENT_ID)
 				.claim(TokenClaims.CLAIM_ORIGIN, "userIdp")
 				.claim(TokenClaims.CLAIM_AUTHORIZATION_PARTY, "client")
 				.claim(TokenClaims.CLAIM_GRANT_TYPE, XsuaaToken.GRANTTYPE_SAML2BEARER);
@@ -79,31 +82,34 @@ public class XsuaaTokenTest {
 	}
 
 	@ParameterizedTest
-	@MethodSource("clientIdTestArguments")
-	public void getClientIdTest(String azp, List<String> aud, String expected,
-			Class<InvalidTokenException> expectedException) throws InvalidTokenException {
-		token = createToken(claimsSetBuilder.claim(TokenClaims.CLAIM_AUTHORIZATION_PARTY, azp).audience(aud));
+	@ValueSource(strings = { "", "  " })
+	public void getClientIdNegativeTest(String cid) {
+		token = createToken(
+				claimsSetBuilder.claim(TokenClaims.CLAIM_AUTHORIZATION_PARTY, null).audience(Collections.EMPTY_LIST)
+						.claim(TokenClaims.CLAIM_CLIENT_ID, cid));
+		assertThatThrownBy(() -> token.getClientId()).isExactlyInstanceOf(InvalidTokenException.class);
+	}
 
-		if (expectedException != null) {
-			assertThrows(expectedException, () -> token.getClientId());
-		} else {
-			assertThat(token.getClientId(), is(expected));
-		}
+	@ParameterizedTest
+	@MethodSource("clientIdTestArguments")
+	public void getClientIdTest(String azp, List<String> aud, String expectedClientId) {
+		token = createToken(claimsSetBuilder.claim(TokenClaims.CLAIM_AUTHORIZATION_PARTY, azp).audience(aud));
+		assertThat(token.getClientId(), is(expectedClientId));
 	}
 
 	private static Stream<Arguments> clientIdTestArguments() {
 		return Stream.of(
-				Arguments.of("azp", Arrays.asList("aud1", "aud2"), "azp", null),
-				Arguments.of("azp", Arrays.asList("aud"), "azp", null),
-				Arguments.of("", Arrays.asList("aud1", "aud2"), null, InvalidTokenException.class),
-				Arguments.of("", Arrays.asList("aud"), "aud", null),
-				Arguments.of("", Arrays.asList(), null, InvalidTokenException.class),
-				Arguments.of(null, Arrays.asList("aud"), "aud", null),
-				Arguments.of(null, Arrays.asList("aud1", "aud2"), null, InvalidTokenException.class),
-				Arguments.of(null, Arrays.asList(), null, InvalidTokenException.class),
-				Arguments.of("   ", Arrays.asList("aud"), "aud", null),
-				Arguments.of("   ", Arrays.asList("aud1", "aud2"), null, InvalidTokenException.class),
-				Arguments.of("   ", Arrays.asList(), null, InvalidTokenException.class));
+				Arguments.of("azp", Arrays.asList("aud1", "aud2"), "azp"),
+				Arguments.of("azp", Arrays.asList("aud"), "azp"),
+				Arguments.of("", Arrays.asList("aud1", "aud2"), CLIENT_ID),
+				Arguments.of("", Arrays.asList("aud"), "aud"),
+				Arguments.of("", Arrays.asList(), CLIENT_ID),
+				Arguments.of(null, Arrays.asList("aud"), "aud"),
+				Arguments.of(null, Arrays.asList("aud1", "aud2"), CLIENT_ID),
+				Arguments.of(null, Arrays.asList(), CLIENT_ID),
+				Arguments.of("   ", Arrays.asList("aud"), "aud"),
+				Arguments.of("   ", Arrays.asList("aud1", "aud2"), CLIENT_ID),
+				Arguments.of("   ", Arrays.asList(), CLIENT_ID));
 	}
 
 	@Test
@@ -238,7 +244,7 @@ public class XsuaaTokenTest {
 	@Test
 	public void getPrincipalNameReturnUniqueClientId() {
 		Token token = new XsuaaToken(jwtCC);
-		assertEquals("sb-java-hello-world", token.getClientId());
+		assertEquals(CLIENT_ID, token.getClientId());
 		assertEquals("client/sb-java-hello-world", token.getUsername());
 	}
 

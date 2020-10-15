@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import com.sap.cloud.security.token.Token;
+
 public final class TokenClaims {
 	private TokenClaims() {
 		throw new IllegalStateException("Utility class");
@@ -7,6 +9,10 @@ public final class TokenClaims {
 
 	public static final String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
 	public static final String CLAIM_SCOPES = "scope";
+	/**
+	 * @deprecated avoid using directly, make use of Token#getClientId() instead
+	 */
+	@Deprecated
 	public static final String CLAIM_CLIENT_ID = "cid";
 	public static final String CLAIM_AUTHORIZATION_PARTY = "azp";
 	public static final String CLAIM_USER_NAME = "user_name";

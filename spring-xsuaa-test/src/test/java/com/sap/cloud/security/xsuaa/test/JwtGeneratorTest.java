@@ -19,13 +19,13 @@ import net.minidev.json.JSONArray;
 
 public class JwtGeneratorTest {
 	private JwtGenerator jwtGenerator;
-	private static final String AUTHORIZATION_PARTY = "sb-clientId!20";
+	private static final String MY_CLIENT_ID = "sb-clientId!20";
 	private static final String MY_USER_NAME = "UserName";
 	private static final String MY_SUBDOMAIN = "my-subaccount-subdomain";
 
 	@Before
 	public void setUp() {
-		jwtGenerator = new JwtGenerator(AUTHORIZATION_PARTY, MY_SUBDOMAIN);
+		jwtGenerator = new JwtGenerator(MY_CLIENT_ID, MY_SUBDOMAIN);
 	}
 
 	@Test
@@ -48,9 +48,9 @@ public class JwtGeneratorTest {
 	public void testParameterizedJwtToken() {
 		jwtGenerator.setUserName(MY_USER_NAME);
 		Jwt jwt = jwtGenerator.getToken();
-		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_CLIENT_ID), equalTo(AUTHORIZATION_PARTY));
+		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_CLIENT_ID), equalTo(MY_CLIENT_ID));
 		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_AUTHORIZATION_PARTY), equalTo(
-				AUTHORIZATION_PARTY));
+				MY_CLIENT_ID));
 		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_ZONE_ID), startsWith(MY_SUBDOMAIN));
 		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_USER_NAME), equalTo(MY_USER_NAME));
 		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_EMAIL), startsWith(MY_USER_NAME));
@@ -94,7 +94,7 @@ public class JwtGeneratorTest {
 		jwtGenerator.setUserName(MY_USER_NAME);
 		Jwt jwt = jwtGenerator.createFromTemplate("/claims_template.txt");
 
-		assertThat(jwt.getClaimAsString("client_id"), equalTo(AUTHORIZATION_PARTY));
+		assertThat(jwt.getClaimAsString("client_id"), equalTo(MY_CLIENT_ID));
 		assertThat(jwt.getClaimAsString("zid"), startsWith(MY_SUBDOMAIN));
 		assertThat(jwt.getClaimAsString("user_name"), equalTo(MY_USER_NAME));
 		assertThat(jwt.getClaimAsString("email"), startsWith(MY_USER_NAME));

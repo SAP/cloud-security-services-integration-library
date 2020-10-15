@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -19,7 +20,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.AUTHORIZATION_PARTY;
+import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -27,25 +29,11 @@ import static org.mockito.Mockito.when;
 public class AbstractTokenTest {
 
 	private final String jwtString;
-	private final String jwtString2;
 	private Token cut;
-	private Token cut2;
 
 	public AbstractTokenTest() throws IOException {
 		jwtString = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
 		cut = new AbstractToken(jwtString) {
-			@Override
-			public Principal getPrincipal() {
-				return null;
-			}
-
-			@Override
-			public Service getService() {
-				return null;
-			}
-		};
-		jwtString2 = IOUtils.resourceToString("/xsuaaEmptyToken.txt", StandardCharsets.UTF_8);
-		cut2 = new AbstractToken(jwtString2) {
 			@Override
 			public Principal getPrincipal() {
 				return null;
@@ -163,8 +151,24 @@ public class AbstractTokenTest {
 	}
 
 	@ParameterizedTest
+	@ValueSource(strings = { "cid", "", "    " })
+	public void getClientIdWithCidTest(String cid) throws InvalidTokenException {
+		AbstractToken token = Mockito.mock(AbstractToken.class);
+		when(token.getAudiences()).thenReturn(Collections.emptySet());
+		when(token.getClaimAsString(AUTHORIZATION_PARTY)).thenReturn(null);
+		when(token.getClaimAsString(CLIENT_ID)).thenReturn(cid);
+		when(token.hasClaim(CLIENT_ID)).thenReturn(!cid.trim().isEmpty());
+		when(token.getClientId()).thenCallRealMethod();
+		try {
+			assertThat(token.getClientId()).isEqualTo(cid);
+		} catch (RuntimeException e) {
+			assertThatThrownBy(() -> token.getClientId()).isExactlyInstanceOf(InvalidTokenException.class);
+		}
+	}
+
+	@ParameterizedTest
 	@MethodSource("clientIdTestArguments")
-	public void getClientIdTest(String azp, Set<String> aud, String expected,
+	public void getClientIdTest(String azp, Set<String> aud, String expectedClientId,
 			Class<InvalidTokenException> expectedException) throws InvalidTokenException {
 		AbstractToken token = Mockito.mock(AbstractToken.class);
 		when(token.getAudiences()).thenReturn(aud);
@@ -174,7 +178,7 @@ public class AbstractTokenTest {
 		if (expectedException != null) {
 			assertThatThrownBy(() -> token.getClientId()).isExactlyInstanceOf(expectedException);
 		} else {
-			assertThat(token.getClientId()).isEqualTo(expected);
+			assertThat(token.getClientId()).isEqualTo(expectedClientId);
 		}
 	}
 
