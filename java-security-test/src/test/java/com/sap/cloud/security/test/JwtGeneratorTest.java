@@ -122,23 +122,23 @@ public class JwtGeneratorTest {
 		String clientId = "myClientId";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.XSUAA.AUTHORIZATION_PARTY, clientId)
+				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId)
 				.createToken();
 
 		assertThat(token.getClientId()).isEqualTo(clientId);
 	}
-		
+
 	@Test
 	public void withClaimClientId_overwritesClientId() {
 		String clientId = "myClientId";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
+				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId)
 				.createToken();
 
 		assertThat(token.getClientId()).isEqualTo(clientId);
 	}
-	
+
 	@Test
 	public void withHeaderParameter_containsHeaderParameter() {
 		String tokenKeyServiceUrl = "http://localhost/token_keys";

@@ -26,7 +26,7 @@ public class JwtAudienceValidatorTest {
 		Mockito.when(token.getAudiences()).thenReturn(
 				Sets.newLinkedHashSet("client", "foreignclient", "sb-test4!t1.data"));
 		Mockito.when(token.getService()).thenReturn(Service.XSUAA);
-		Mockito.when(token.hasClaim(TokenClaims.XSUAA.AUTHORIZATION_PARTY)).thenReturn(true);
+		Mockito.when(token.hasClaim(TokenClaims.AUTHORIZATION_PARTY)).thenReturn(true);
 		Mockito.when(token.getClientId()).thenReturn("client");
 	}
 

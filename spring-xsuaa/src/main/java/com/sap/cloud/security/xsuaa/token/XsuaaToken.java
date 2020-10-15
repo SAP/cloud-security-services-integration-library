@@ -13,7 +13,8 @@ import org.springframework.util.Assert;
 import java.time.Instant;
 import java.util.*;
 
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.AUTHORIZATION_PARTY;
+import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -149,10 +150,15 @@ public class XsuaaToken extends Jwt implements Token {
 
 			if (audiences != null && audiences.size() == 1) {
 				return audiences.get(0);
-			} else {
-				logger.error("Couldn't get client id. Invalid authorized party or audience claims.");
-				throw new InvalidTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
+			} else if (hasClaim(CLIENT_ID) && !getClaimAsString(CLIENT_ID).trim() // required for backward compatibility
+																					// for generated tokens in JUnit
+																					// tests
+					.isEmpty()) {
+				logger.warn("usage of 'cid' claim is deprecated and should be replaced by 'azp' or 'aud' claims");
+				return getClaimAsString(CLIENT_ID);
 			}
+			logger.error("Couldn't get client id. Invalid authorized party or audience claims.");
+			throw new InvalidTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
 		} else {
 			return clientId;
 		}
@@ -238,7 +244,7 @@ public class XsuaaToken extends Jwt implements Token {
 
 	/**
 	 * Check if the authentication token contains a claim, e.g. "email".
-	 * 
+	 *
 	 * @param claim
 	 *            name of the claim
 	 * @return true: attribute exists

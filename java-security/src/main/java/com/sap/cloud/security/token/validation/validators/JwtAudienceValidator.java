@@ -98,7 +98,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 		}
 
 		if (Service.XSUAA.equals(token.getService())) {
-			if (token.hasClaim(TokenClaims.XSUAA.AUTHORIZATION_PARTY)) {
+			if (token.hasClaim(TokenClaims.AUTHORIZATION_PARTY)) {
 				audiences.add(token.getClientId());
 			}
 			// extract audience (app-id) from scopes

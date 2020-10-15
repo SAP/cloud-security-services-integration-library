@@ -41,7 +41,7 @@ public abstract class AbstractToken implements Token {
 	/**
 	 * Creates a Token object for simple access to the header parameters and its
 	 * claims.
-	 * 
+	 *
 	 * @param jwtToken
 	 *            the encoded JWT token (access_token or id_token), e.g. from the
 	 *            Authorization Header.
@@ -174,10 +174,13 @@ public abstract class AbstractToken implements Token {
 
 			if (audiences.size() == 1) {
 				return audiences.stream().findFirst().get();
-			} else {
-				LOGGER.error("Couldn't get client id. Invalid authorized party or audience claims.");
-				throw new InvalidTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
+			} else if (hasClaim(CLIENT_ID) && !getClaimAsString(CLIENT_ID).trim()
+					.isEmpty()) { // required for backward compatibility for generated tokens in JUnit tests
+				LOGGER.warn("Usage of 'cid' claim is deprecated and should be replaced by 'azp' or 'aud' claims");
+				return getClaimAsString(CLIENT_ID);
 			}
+			LOGGER.error("Couldn't get client id. Invalid authorized party or audience claims.");
+			throw new InvalidTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
 		} else {
 			return clientId;
 		}
