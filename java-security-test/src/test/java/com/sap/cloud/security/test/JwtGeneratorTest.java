@@ -133,7 +133,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void withClaimClientId_overwritesClientId() {
+	public void withClaimAzp_overwritesClientId() {
 		String clientId = "myClientId";
 
 		Token token = cut
