@@ -161,7 +161,7 @@ public class AbstractTokenTest {
 		when(token.getClientId()).thenCallRealMethod();
 		try {
 			assertThat(token.getClientId()).isEqualTo(cid);
-		} catch (RuntimeException e) {
+		} catch (InvalidTokenException e) {
 			assertThatThrownBy(() -> token.getClientId()).isExactlyInstanceOf(InvalidTokenException.class);
 		}
 	}
