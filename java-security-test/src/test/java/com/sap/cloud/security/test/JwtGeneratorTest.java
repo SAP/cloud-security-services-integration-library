@@ -61,6 +61,8 @@ public class JwtGeneratorTest {
 		assertThat(token).isNotNull();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.ALGORITHM)).isEqualTo(RS256.value());
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly(DEFAULT_CLIENT_ID);
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID); // deprecated
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.AUTHORIZATION_PARTY)).isEqualTo(DEFAULT_CLIENT_ID);
 		assertThat(token.getClientId()).isEqualTo(DEFAULT_CLIENT_ID);
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
 	}
@@ -81,6 +83,8 @@ public class JwtGeneratorTest {
 		assertThat(token).isNotNull();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(DEFAULT_KEY_ID_IAS);
 		assertThat(token.getClaimAsString(TokenClaims.AUDIENCE)).isEqualTo("T000310");
+		assertThat(token.getClaimAsString(TokenClaims.CLIENT_ID)).isEqualTo("T000310"); // deprecated
+		assertThat(token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY)).isEqualTo("T000310");
 		assertThat(token.getClientId()).isEqualTo("T000310");
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
 		assertThat(token.getPrincipal().getName()).isEqualTo("1234567890");
