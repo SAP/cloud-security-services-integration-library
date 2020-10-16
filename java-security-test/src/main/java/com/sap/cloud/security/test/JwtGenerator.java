@@ -137,6 +137,7 @@ public class JwtGenerator {
 		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
 		withHeaderParameter(ALGORITHM, JwtSignatureAlgorithm.RS256.value());
 		withClaimValue(TokenClaims.AUTHORIZATION_PARTY, azp);
+		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
 		if (service == Service.IAS) {
 			jsonPayload.put(TokenClaims.AUDIENCE, azp);
 		} else {
