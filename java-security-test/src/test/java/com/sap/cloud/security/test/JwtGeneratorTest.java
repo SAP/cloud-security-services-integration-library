@@ -121,15 +121,15 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void withClaimClientId_overwritesClientId() {
+	public void withClaimClientId_doesNotOverwriteClientId() {
 		String clientId = "myClientId";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
+				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId) // this has changed incompatible with version 2.8.0!!!
 				.createToken();
 		
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(clientId);
-		assertThat(token.getClientId()).isEqualTo(clientId);
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(clientId); // for compatibility
+		assertThat(token.getClientId()).isEqualTo(DEFAULT_CLIENT_ID); // client id can only be overwritten by setting AUTHORIZATION_PARTY
 	}
 
 	@Test
@@ -137,7 +137,7 @@ public class JwtGeneratorTest {
 		String clientId = "myClientId";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId)
+				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId) //overwrite client id
 				.createToken();
 
 		assertThat(token.getClientId()).isEqualTo(clientId);
@@ -335,7 +335,6 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid",
 				"app1.scope");
 		assertThat(token.getClientId()).isEqualTo("testingClientId");
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("testingClientId"); // for compatibility
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly("app1.scope");
 	}
 
