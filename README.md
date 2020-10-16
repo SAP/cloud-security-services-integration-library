@@ -13,7 +13,7 @@ Typical UI5 applications consist of a server providing the HTML content and one 
 OAuth resource servers (as the one in step 4) require libraries for validating access tokens.
 
 ## Token Validation for Java web applications using SAP Java Buildpack
-The SAP Java Buildpack integrates token validation into the tomcat server. Application developers requiring authentication and authorization information in their application use the interfaces defined in [api](./api) to obtain information like user name and scopes.
+The SAP Java Buildpack integrates token validation into the tomcat server. Application developers requiring authentication and authorization information in their application use the interfaces defined in [java-api](./java-api) to obtain information like user name and scopes.
 
 ### Requirements
 - Java 8

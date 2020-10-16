@@ -268,4 +268,4 @@ In case you face issues to apply the migration steps check this [troubleshoot](R
 - [spring-security-xsuaa usage sample](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-xsuaa-usage)
 
 ## Further References
-- [spring-xsuaa documentation](/spring-xsuaa/README.md.md)
+- [spring-xsuaa documentation](/spring-xsuaa/README.md)
