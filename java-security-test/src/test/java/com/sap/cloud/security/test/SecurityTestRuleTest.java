@@ -84,7 +84,8 @@ public class SecurityTestRuleTest {
 				.withClaimValue(TokenClaims.ISSUER, "issuer")
 				.withLocalScopes("scope1")
 				.withHeaderParameter(TokenHeader.TYPE, "type").createToken();
-
+		assertThat(generatedToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
+				.isEqualTo(SecurityTestRule.DEFAULT_CLIENT_ID); // for compatibility reasons
 		assertThat(generatedToken.getClientId())
 				.isEqualTo(SecurityTestRule.DEFAULT_CLIENT_ID);
 		assertThat(generatedToken.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
