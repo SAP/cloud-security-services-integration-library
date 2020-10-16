@@ -136,11 +136,11 @@ public class JwtGenerator {
 	private void setDefaultsForNewToken(String azp) {
 		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
 		withHeaderParameter(ALGORITHM, JwtSignatureAlgorithm.RS256.value());
-		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
 		withClaimValue(TokenClaims.AUTHORIZATION_PARTY, azp);
 		if (service == Service.IAS) {
 			jsonPayload.put(TokenClaims.AUDIENCE, azp);
 		} else {
+			withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
 			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(azp));
 		}
 	}
