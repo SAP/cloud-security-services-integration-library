@@ -270,7 +270,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void loadClaimsFromFile_doesNotContainValidJson_throwsException() throws IOException {
+	public void loadClaimsFrom#_doesNotContainValidJson_throwsException() throws IOException {
 		File emptyFile = temporaryFolder.newFile("empty");
 		String temporaryFolderName = emptyFile.getParentFile().getName();
 		String resourcePath = "/" + temporaryFolderName + "/empty";
@@ -335,6 +335,7 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid",
 				"app1.scope");
 		assertThat(token.getClientId()).isEqualTo("testingClientId");
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("testingClientId"); // for compatibility
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly("app1.scope");
 	}
 
