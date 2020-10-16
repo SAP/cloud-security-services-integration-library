@@ -270,7 +270,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void loadClaimsFrom#_doesNotContainValidJson_throwsException() throws IOException {
+	public void loadClaimsFromFile_doesNotContainValidJson_throwsException() throws IOException {
 		File emptyFile = temporaryFolder.newFile("empty");
 		String temporaryFolderName = emptyFile.getParentFile().getName();
 		String resourcePath = "/" + temporaryFolderName + "/empty";
