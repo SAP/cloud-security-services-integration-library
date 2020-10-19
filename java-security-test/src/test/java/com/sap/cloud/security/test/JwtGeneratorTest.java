@@ -335,7 +335,7 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid",
 				"app1.scope");
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("testingClientId");
+		assertThat(token.getClientId()).isEqualTo("testingClientId");
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly("app1.scope");
 	}
 
