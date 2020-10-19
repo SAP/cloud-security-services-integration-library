@@ -147,7 +147,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getClientId() {
-		return getClaimValue(CLIENT_ID);
+		return accessToken.getClientId();
 	}
 
 	@Override
