@@ -127,7 +127,7 @@ public class JwtGeneratorTest {
 		Token token = cut
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId) // this has changed incompatible with version 2.8.0!!!
 				.createToken();
-		
+
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(clientId); // for compatibility
 		assertThat(token.getClientId()).isEqualTo(DEFAULT_CLIENT_ID); // client id can only be overwritten by setting AUTHORIZATION_PARTY
 	}
@@ -137,7 +137,7 @@ public class JwtGeneratorTest {
 		String clientId = "myClientId";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId) //overwrite client id
+				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId) // overwrites client id
 				.createToken();
 
 		assertThat(token.getClientId()).isEqualTo(clientId);

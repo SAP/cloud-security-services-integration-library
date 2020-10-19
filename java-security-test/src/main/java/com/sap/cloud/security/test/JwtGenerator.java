@@ -172,7 +172,9 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claim with the given name to the given string value.
+	 * Sets the claim with the given name to the given string value. Note: for
+	 * overwriting client Id claim, "azp" claim value should be overwritten instead
+	 * of deprecated "cid"
 	 *
 	 * @param claimName
 	 *            the name of the claim to be set.
@@ -186,7 +188,9 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claim with the given name to the given string value.
+	 * Sets the claim with the given name to the given string value. Note: for
+	 * overwriting client Id claim, "azp" claim value should be overwritten instead
+	 * of deprecated "cid"
 	 *
 	 * @param claimName
 	 *            the name of the claim to be set.
@@ -206,7 +210,9 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claim with the given name to the given string values.
+	 * Sets the claim with the given name to the given string values. Note: for
+	 * overwriting client Id claim, "azp" claim value should be overwritten instead
+	 * of deprecated "cid"
 	 *
 	 * @param claimName
 	 *            the name of the claim to be set.
@@ -221,7 +227,9 @@ public class JwtGenerator {
 
 	/**
 	 * This method will fill the token with all the claims that are defined inside
-	 * the given file. The file must contain a valid json object.
+	 * the given file. The file must contain a valid json object. Note: for
+	 * overwriting client Id claim, "azp" claim value should be overwritten instead
+	 * of deprecated "cid"
 	 *
 	 * @throws JsonParsingException
 	 *             if the file does not contain a valid json object.
