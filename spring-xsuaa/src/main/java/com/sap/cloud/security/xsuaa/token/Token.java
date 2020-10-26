@@ -45,7 +45,10 @@ public interface Token extends UserDetails {
 	public String getSubdomain();
 
 	/**
-	 * Returns the OAuth client identifier of the authentication token if present.
+	 * Returns the OAuth2 client identifier of the authentication token if present.
+	 * Following OpenID Connect 1.0 standard specifications, client identifier is
+	 * obtained from "azp" claim if present or when "azp" is not present from "aud"
+	 * claim, but only in case there is one audience.
 	 *
 	 * @return the OAuth client ID.
 	 */

@@ -62,11 +62,13 @@ public class XsuaaJwtDecoderTest {
 		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
 				.hasMessageContaining("JWT verification failed: Do not trust 'jku' token header");
 
-		cut.setTokenInfoExtractor(new TokenInfoExtractorImpl("http://myauth.ondemand.com@malicious.ondemand.com/token_keys"));
+		cut.setTokenInfoExtractor(
+				new TokenInfoExtractorImpl("http://myauth.ondemand.com@malicious.ondemand.com/token_keys"));
 		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
 				.hasMessageContaining("JWT verification failed: Do not trust 'jku' token header");
 
-		cut.setTokenInfoExtractor(new TokenInfoExtractorImpl("http://malicious.ondemand.com/token_keys///myauth.ondemand.com/token_keys"));
+		cut.setTokenInfoExtractor(new TokenInfoExtractorImpl(
+				"http://malicious.ondemand.com/token_keys///myauth.ondemand.com/token_keys"));
 		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
 				.hasMessageContaining("JWT verification failed: Do not trust 'jku' token header");
 	}

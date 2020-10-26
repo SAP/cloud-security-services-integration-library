@@ -5,6 +5,8 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,21 +14,20 @@ import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
-import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.ISSUED_AT;
+import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**
  * Decodes and parses encoded JSON Web Token (JWT) and provides access to token
  * header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractToken.class);
+
 	private final DecodedJwt decodedJwt;
 	protected final DefaultJsonObject tokenHeader;
 	protected final DefaultJsonObject tokenBody;
@@ -40,7 +41,7 @@ public abstract class AbstractToken implements Token {
 	/**
 	 * Creates a Token object for simple access to the header parameters and its
 	 * claims.
-	 * 
+	 *
 	 * @param jwtToken
 	 *            the encoded JWT token (access_token or id_token), e.g. from the
 	 *            Authorization Header.
@@ -111,7 +112,7 @@ public abstract class AbstractToken implements Token {
 	@Override
 	public Set<String> getAudiences() {
 		Set<String> audiences = new LinkedHashSet<>();
-		audiences.addAll(getClaimAsStringList(TokenClaims.AUDIENCE));
+		audiences.addAll(getClaimAsStringList(AUDIENCE));
 		return audiences;
 	}
 
@@ -162,7 +163,27 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public String getZoneId() {
-		return getClaimAsString(TokenClaims.SAP_GLOBAL_ZONE_ID);
+		return getClaimAsString(SAP_GLOBAL_ZONE_ID);
+	}
+
+	@Override
+	public String getClientId() {
+		String clientId = getClaimAsString(AUTHORIZATION_PARTY);
+		if (clientId == null || clientId.trim().isEmpty()) {
+			Set<String> audiences = getAudiences();
+
+			if (audiences.size() == 1) {
+				return audiences.stream().findFirst().get();
+			} else if (hasClaim(CLIENT_ID) && !getClaimAsString(CLIENT_ID).trim()
+					.isEmpty()) { // required for backward compatibility for generated tokens in JUnit tests
+				LOGGER.warn("Usage of 'cid' claim is deprecated and should be replaced by 'azp' or 'aud' claims");
+				return getClaimAsString(CLIENT_ID);
+			}
+			LOGGER.error("Couldn't get client id. Invalid authorized party or audience claims.");
+			throw new InvalidTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
+		} else {
+			return clientId;
+		}
 	}
 
 	@Override
