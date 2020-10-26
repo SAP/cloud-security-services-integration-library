@@ -125,11 +125,13 @@ public class JwtGeneratorTest {
 		String clientId = "myClientId";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId) // this has changed incompatible with version 2.8.0!!!
+				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId) // this has changed incompatible with version
+																		// 2.8.0!!!
 				.createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(clientId); // for compatibility
-		assertThat(token.getClientId()).isEqualTo(DEFAULT_CLIENT_ID); // client id can only be overwritten by setting AUTHORIZATION_PARTY
+		assertThat(token.getClientId()).isEqualTo(DEFAULT_CLIENT_ID); // client id can only be overwritten by setting
+																		// AUTHORIZATION_PARTY
 	}
 
 	@Test
@@ -137,7 +139,7 @@ public class JwtGeneratorTest {
 		String clientId = "myClientId";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId) //overwrite client id
+				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId) // overwrite client id
 				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId) // overwrites client id
 				.createToken();
 
@@ -336,6 +338,7 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid",
 				"app1.scope");
 		assertThat(token.getClientId()).isEqualTo("testingClientId");
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("cidTestingClientId");
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly("app1.scope");
 	}
 

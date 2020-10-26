@@ -22,8 +22,7 @@ import java.io.IOException;
 
 import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.IDENTITY_ZONE;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.TRUSTED_CLIENT_ID_SUFFIX;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.XS_USER_ATTRIBUTES;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -379,7 +378,9 @@ public class XSUserInfoAdapterTest {
 		String mockTokenValue = "mock token value";
 
 		when(token.getTokenValue()).thenReturn(mockTokenValue);
-		when(token.getClientId()).thenReturn("sb-margin-assurance-ui!i1");
+		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn("sb-margin-assurance-ui!i1");
+		when(token.hasClaim(CLIENT_ID)).thenReturn(true);
+		when(token.getClientId()).thenCallRealMethod();
 		when(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).thenReturn("uaa");
 		when(token.getGrantType()).thenReturn(GrantType.AUTHORIZATION_CODE);
 
