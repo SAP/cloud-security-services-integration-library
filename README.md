@@ -90,4 +90,4 @@ Open an issue in GitHub
 
 # License
 Copyright (c) 2018-2020 SAP SE or an SAP affiliate company. All rights reserved.
-This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file [LICENSE.md].
+This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file [LICENSE.md]().
