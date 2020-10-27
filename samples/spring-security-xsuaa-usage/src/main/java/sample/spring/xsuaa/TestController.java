@@ -18,6 +18,8 @@ import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_USER_NAME;
+
 @RestController
 public class TestController {
 
@@ -81,7 +83,7 @@ public class TestController {
     public String sayHello(@AuthenticationPrincipal Jwt jwt) {
 
         logger.info("Got the JWT: {}", jwt);
-
+        logger.info(jwt.getClaimAsString(CLAIM_USER_NAME));
         logger.info(jwt.toString());
 
         return "Hello Jwt-Protected World!";

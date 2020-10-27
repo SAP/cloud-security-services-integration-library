@@ -1,7 +1,5 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import com.sap.cloud.security.token.Token;
-
 public final class TokenClaims {
 	private TokenClaims() {
 		throw new IllegalStateException("Utility class");
