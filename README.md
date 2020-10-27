@@ -86,8 +86,8 @@ mvn clean install
 Libraries and information provided here is around the topic of integrating with the xsuaa service. General integration into other OAuth authorization servers is not the primary focus.
 
 # How to obtain support
-Open an issue in GitHub
+Open an issue in GitHub.
 
 # License
 Copyright (c) 2018-2020 SAP SE or an SAP affiliate company. All rights reserved.
-This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file [LICENSE.md]().
+This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the [LICENSE](LICENSE).
