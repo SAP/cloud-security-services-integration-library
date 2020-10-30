@@ -42,6 +42,7 @@
     "external_id": "abcd1234"
   },
   "ext_attr": {
+    "enhancer": "XSUAA",
     "serviceinstanceid": "abcd1234",
     "zdn": "$zdn"
   }

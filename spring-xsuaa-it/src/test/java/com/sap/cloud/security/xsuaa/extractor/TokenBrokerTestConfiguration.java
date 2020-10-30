@@ -26,6 +26,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 public class TokenBrokerTestConfiguration {
 
 	private static final String TOKEN_NAME = "token";
+	private static final String XSUAA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHRfYXR0ciI6eyJlbmhhbmNlciI6IlhTVUFBIn19._cocFCqqATDXx6eBUoF22W9F8VwUVYY59XdLGdEDFso";
 
 	@Bean
 	public Cache tokenCache() {
@@ -92,7 +93,7 @@ public class TokenBrokerTestConfiguration {
 					ClientCredentials clientCredentials, String token, @Nullable String subdomain,
 					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 					throws OAuth2ServiceException {
-				return null;
+				return new OAuth2TokenResponse(XSUAA_TOKEN, 100, null);
 			}
 		};
 	}

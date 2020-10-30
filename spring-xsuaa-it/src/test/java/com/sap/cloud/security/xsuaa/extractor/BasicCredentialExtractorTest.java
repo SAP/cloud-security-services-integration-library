@@ -40,6 +40,8 @@ public class BasicCredentialExtractorTest {
 	@Autowired
 	private AuthenticationInformationExtractor authenticationConfiguration;
 
+	private static final String XSUAA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHRfYXR0ciI6eyJlbmhhbmNlciI6IlhTVUFBIn19._cocFCqqATDXx6eBUoF22W9F8VwUVYY59XdLGdEDFso";
+
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -80,7 +82,7 @@ public class BasicCredentialExtractorTest {
 
 		request.addHeader("Authorization", "basic " + Base64.getEncoder().encodeToString("myuser:mypass".getBytes()));
 		request.addHeader("Authorization", "bearer "
-				+ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+				+ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHRfYXR0ciI6eyJlbmhhbmNlciI6IlhTVUFBIn19._cocFCqqATDXx6eBUoF22W9F8VwUVYY59XdLGdEDFso");
 
 		String token = extractor.resolve(request);
 		assertThat(token).isEqualTo("token_pwd");
@@ -141,10 +143,10 @@ public class BasicCredentialExtractorTest {
 				authenticationMethods(AuthenticationMethod.OAUTH2));
 
 		request.addHeader("Authorization", "Bearer "
-				+ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+				+ XSUAA_TOKEN);
 		String token = extractor.resolve(request);
 		assertThat(token).isEqualTo(
-				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+				XSUAA_TOKEN);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -169,7 +171,7 @@ public class BasicCredentialExtractorTest {
 	@Test
 	public void testCombinedCredentials() {
 		request.addHeader("Authorization", "Bearer "
-				+ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+				+ XSUAA_TOKEN);
 
 		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
 				oAuth2TokenService,
@@ -177,7 +179,7 @@ public class BasicCredentialExtractorTest {
 
 		String token = extractor.resolve(request);
 		assertThat(token).isEqualTo(
-				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+				XSUAA_TOKEN);
 	}
 
 	@Test

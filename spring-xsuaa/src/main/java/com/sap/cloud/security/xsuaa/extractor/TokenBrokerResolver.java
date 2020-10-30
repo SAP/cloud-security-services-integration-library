@@ -1,12 +1,13 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
-import javax.servlet.http.HttpServletRequest;
-
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -17,14 +18,14 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
-import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
-import com.sap.cloud.security.xsuaa.token.TokenClaims;
-import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Analyse authentication header and obtain token from UAA
@@ -32,6 +33,9 @@ import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
  * For using this feature also in multi tenancy mode request-parameter
  * {@code X-Identity-Zone-Subdomain} must be set (or the
  * AuthenticationInformationExtractor needs to be implemented).
+ *
+ * Token exchange between IAS and XSUAA is enabled by default.
+ * To disable IAS to XSUAA token exchange set the environment variable xsuaa.iastoxsuaaxchange to false
  *
  */
 public class TokenBrokerResolver implements BearerTokenResolver {
@@ -49,6 +53,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	private TokenBroker tokenBroker;
 	private AuthenticationInformationExtractor authenticationConfig;
 	private XsuaaTokenFlows xsuaaTokenFlows;
+	private IasXsuaaExchangeBroker iasXsuaaExchangeBroker;
 
 	/**
 	 * @param configuration
@@ -93,6 +98,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				tokenService,
 				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
 				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
+		this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(this.xsuaaTokenFlows);
 	}
 
 	/**
@@ -169,7 +175,17 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			String oauthTokenUrl, ClientCredentials clientCredentials) throws TokenBrokerException {
 		switch (credentialType) {
 		case OAUTH2:
-			return extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
+			String oAuth2token = extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
+
+			if (oAuth2token == null) {
+				break;
+			}
+			if (iasXsuaaExchangeBroker.isXsuaaToken(oAuth2token)) {
+				return oAuth2token;
+			} else if (iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
+				return iasXsuaaExchangeBroker.getXsuaaToken(oAuth2token);
+			}
+			break;
 		case BASIC:
 			String basicAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL, authHeaderValue);
 			ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
