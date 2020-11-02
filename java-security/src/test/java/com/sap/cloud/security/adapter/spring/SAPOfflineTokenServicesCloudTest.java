@@ -103,9 +103,6 @@ public class SAPOfflineTokenServicesCloudTest {
 		assertThatThrownBy(() -> cut.loadAuthentication(iasToken))
 				.isInstanceOf(InvalidTokenException.class)
 				.hasMessageContaining("AccessToken of service IAS is not supported");
-
-		//assertThat(authentication.isAuthenticated()).isTrue();
-		//assertThat(authentication.getUserAuthentication()).isNull();
 	}
 
 	@Test

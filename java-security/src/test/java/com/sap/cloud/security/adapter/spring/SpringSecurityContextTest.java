@@ -21,6 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.token.TokenClaims.SUBJECT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -84,8 +86,8 @@ public class SpringSecurityContextTest {
 	@Test
 	public void getTokenReturnsIasOidcToken() {
 		setToken(sapIdToken, NO_SCOPES);
-		assertThat(SpringSecurityContext.getToken().getService()).isEqualTo(Service.IAS);
-		assertThat(SpringSecurityContext.getToken().getClaimAsString(TokenClaims.SUBJECT)).isEqualTo("P176945");
+		assertThat(SpringSecurityContext.getToken().getService()).isEqualTo(IAS);
+		assertThat(SpringSecurityContext.getToken().getClaimAsString(SUBJECT)).isEqualTo("P176945");
 	}
 
 	@Test

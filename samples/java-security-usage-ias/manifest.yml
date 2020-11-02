@@ -14,6 +14,4 @@ applications:
     - java_buildpack
   services:
     - ias-java-security
-  env:
-    IAS_SERVICE_NAME: identity-beta
 ...
