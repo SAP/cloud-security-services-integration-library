@@ -14,7 +14,10 @@ import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.TokenClaims.*;
@@ -112,8 +115,18 @@ public abstract class AbstractToken implements Token {
 	@Override
 	public Set<String> getAudiences() {
 		Set<String> audiences = new LinkedHashSet<>();
-		audiences.addAll(getClaimAsStringList(AUDIENCE));
+		audiences.addAll(getClaimAsStringList(TokenClaims.AUDIENCE));
 		return audiences;
+	}
+
+	public boolean isXsuaaToken() {
+		if (tokenBody.contains(EXTERNAL_ATTRIBUTE)) {
+			JsonObject externalAttributes = tokenBody.getJsonObject(EXTERNAL_ATTRIBUTE);
+			if ("XSUAA".equals(externalAttributes.getAsString(EXTERNAL_ATTRIBUTE_ENHANCER))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	protected Principal createPrincipalByName(String name) {

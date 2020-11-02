@@ -1,12 +1,9 @@
 package com.sap.cloud.security.adapter.spring;
 
-import com.sap.cloud.security.token.AccessToken;
-import com.sap.cloud.security.token.SapIdToken;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.token.*;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.token.TokenClaims.SUBJECT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -55,6 +54,9 @@ public class SpringSecurityContextTest {
 	public void getToken() {
 		setToken(sapIdToken, NO_SCOPES);
 		assertThat(SpringSecurityContext.getToken()).isEqualTo(sapIdToken);
+
+		setToken(token, NO_SCOPES);
+		assertThat(SpringSecurityContext.getToken()).isEqualTo(token);
 	}
 
 	@Test
@@ -76,10 +78,16 @@ public class SpringSecurityContextTest {
 	}
 
 	@Test
-	@Ignore // TODO IAS Support
-	public void getAccessTokenReturnsNullIfTokenDoesNotImplementInterface() {
+	public void getAccessTokenReturnsNull_inCaseOfIasToken() {
 		setToken(sapIdToken, NO_SCOPES);
 		assertThat(SpringSecurityContext.getAccessToken()).isNull();
+	}
+
+	@Test
+	public void getTokenReturnsIasOidcToken() {
+		setToken(sapIdToken, NO_SCOPES);
+		assertThat(SpringSecurityContext.getToken().getService()).isEqualTo(IAS);
+		assertThat(SpringSecurityContext.getToken().getClaimAsString(SUBJECT)).isEqualTo("P176945");
 	}
 
 	@Test
@@ -116,8 +124,8 @@ public class SpringSecurityContextTest {
 
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_VALUE)).thenReturn(token.getTokenValue());
-
 		authentication.setDetails(new OAuth2AuthenticationDetails(request));
+
 		context.setAuthentication(authentication);
 		SecurityContextHolder.clearContext();
 		SecurityContextHolder.setContext(context);
