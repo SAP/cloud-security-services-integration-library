@@ -7,7 +7,12 @@ public final class TokenClaims {
 
 	public static final String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
 	public static final String CLAIM_SCOPES = "scope";
+	/**
+	 * @deprecated avoid using directly, make use of Token#getClientId() instead
+	 */
+	@Deprecated
 	public static final String CLAIM_CLIENT_ID = "cid";
+	public static final String CLAIM_AUTHORIZATION_PARTY = "azp";
 	public static final String CLAIM_USER_NAME = "user_name";
 	public static final String CLAIM_GIVEN_NAME = "given_name";
 	public static final String CLAIM_FAMILY_NAME = "family_name";

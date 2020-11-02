@@ -22,8 +22,7 @@ import java.io.IOException;
 
 import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.IDENTITY_ZONE;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.TRUSTED_CLIENT_ID_SUFFIX;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.XS_USER_ATTRIBUTES;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -123,7 +122,7 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void testGetJsonValue() throws XSUserInfoException {
-		assertThat(cut.getJsonValue("cid")).isEqualTo("sb-clone1!b5|LR-master!b5");
+		assertThat(cut.getJsonValue("azp")).isEqualTo("sb-clone1!b5|LR-master!b5");
 	}
 
 	@Test
@@ -380,6 +379,8 @@ public class XSUserInfoAdapterTest {
 
 		when(token.getTokenValue()).thenReturn(mockTokenValue);
 		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn("sb-margin-assurance-ui!i1");
+		when(token.hasClaim(CLIENT_ID)).thenReturn(true);
+		when(token.getClientId()).thenCallRealMethod();
 		when(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).thenReturn("uaa");
 		when(token.getGrantType()).thenReturn(GrantType.AUTHORIZATION_CODE);
 
@@ -402,10 +403,10 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void isForeignModeFalse_whenTrustedClientIdSuffixMatches() throws XSUserInfoException {
-		String tokenClientId = "sb-clone1!b22|brokerplanmasterapp!b123"; // cid
+		String tokenClientId = "sb-clone1!b22|brokerplanmasterapp!b123"; // azp
 		String configurationAppId = "brokerplanmasterapp!b123";
 		XsuaaToken token = mock(XsuaaToken.class);
-		when(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).thenReturn(tokenClientId);
+		when(token.getClientId()).thenReturn(tokenClientId);
 		when(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).thenReturn("otherIdentityZone");
 
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
@@ -424,7 +425,7 @@ public class XSUserInfoAdapterTest {
 	@Test
 	public void isForeignModeFalse_WhenIdentityZoneDoesNotMatchButCliendIdIsApplicationPlan()
 			throws XSUserInfoException {
-		String tokenClientId = "sb-application!t0123"; // cid
+		String tokenClientId = "sb-application!t0123"; // azp
 		String identityZone = "brokerplanmasterapp!b123"; // ext_attr -> zdn
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(tokenClientId)
@@ -441,7 +442,7 @@ public class XSUserInfoAdapterTest {
 	@Test
 	public void isForeignModeFalse_WhenIdentityZoneDoesNotMatchButCliendIdIsBrokerPlan()
 			throws XSUserInfoException {
-		String tokenClientId = "sb-application!b0123"; // cid
+		String tokenClientId = "sb-application!b0123"; // azp
 		String identityZone = "brokerplanmasterapp!b123"; // ext_attr -> zdn
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(tokenClientId)
@@ -457,7 +458,7 @@ public class XSUserInfoAdapterTest {
 
 	@Test
 	public void isForeignModeFalse_WhenClientIdAndIdentityZonesMatch() throws XSUserInfoException {
-		String tokenClientId = "sb-application"; // cid
+		String tokenClientId = "sb-application"; // azp
 		String identityZone = "brokerplanmasterapp!b123"; // ext_attr -> zdn
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(tokenClientId)

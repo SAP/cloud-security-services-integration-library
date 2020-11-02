@@ -4,14 +4,24 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.assertj.core.util.Sets;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Stream;
 
+import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -135,8 +145,55 @@ public class AbstractTokenTest {
 				.contains(cut.getHeaderParameterAsString(TokenHeader.JWKS_URL))
 				.contains(cut.getHeaderParameterAsString(TokenHeader.KEY_ID))
 				.contains(cut.getAudiences())
-				.contains(cut.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID))
+				.contains(cut.getClientId())
 				.contains(cut.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE))
 				.contains(cut.getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "cid", "", "    " })
+	public void getClientIdWithCidTest(String cid) throws InvalidTokenException {
+		AbstractToken token = Mockito.mock(AbstractToken.class);
+		when(token.getAudiences()).thenReturn(Collections.emptySet());
+		when(token.getClaimAsString(AUTHORIZATION_PARTY)).thenReturn(null);
+		when(token.getClaimAsString(CLIENT_ID)).thenReturn(cid);
+		when(token.hasClaim(CLIENT_ID)).thenReturn(!cid.trim().isEmpty());
+		when(token.getClientId()).thenCallRealMethod();
+		try {
+			assertThat(token.getClientId()).isEqualTo(cid);
+		} catch (InvalidTokenException e) {
+			assertThatThrownBy(() -> token.getClientId()).isExactlyInstanceOf(InvalidTokenException.class);
+		}
+	}
+
+	@ParameterizedTest
+	@MethodSource("clientIdTestArguments")
+	public void getClientIdTest(String azp, Set<String> aud, String expectedClientId,
+			Class<InvalidTokenException> expectedException) throws InvalidTokenException {
+		AbstractToken token = Mockito.mock(AbstractToken.class);
+		when(token.getAudiences()).thenReturn(aud);
+		when(token.getClaimAsString(AUTHORIZATION_PARTY)).thenReturn(azp);
+		when(token.getClientId()).thenCallRealMethod();
+
+		if (expectedException != null) {
+			assertThatThrownBy(() -> token.getClientId()).isExactlyInstanceOf(expectedException);
+		} else {
+			assertThat(token.getClientId()).isEqualTo(expectedClientId);
+		}
+	}
+
+	private static Stream<Arguments> clientIdTestArguments() {
+		return Stream.of(
+				Arguments.of("azp", Sets.newLinkedHashSet("aud1", "aud2"), "azp", null),
+				Arguments.of("azp", Sets.newLinkedHashSet("aud"), "azp", null),
+				Arguments.of("", Sets.newLinkedHashSet("aud1", "aud2"), null, InvalidTokenException.class),
+				Arguments.of("", Sets.newLinkedHashSet("aud"), "aud", null),
+				Arguments.of("", Sets.newLinkedHashSet(), null, InvalidTokenException.class),
+				Arguments.of(null, Sets.newLinkedHashSet("aud"), "aud", null),
+				Arguments.of(null, Sets.newLinkedHashSet("aud1", "aud2"), null, InvalidTokenException.class),
+				Arguments.of(null, Sets.newLinkedHashSet(), null, InvalidTokenException.class),
+				Arguments.of("   ", Sets.newLinkedHashSet("aud"), "aud", null),
+				Arguments.of("   ", Sets.newLinkedHashSet("aud1", "aud2"), null, InvalidTokenException.class),
+				Arguments.of("   ", Sets.newLinkedHashSet(), null, InvalidTokenException.class));
 	}
 }

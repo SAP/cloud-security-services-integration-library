@@ -61,7 +61,9 @@ public class JwtGeneratorTest {
 		assertThat(token).isNotNull();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.ALGORITHM)).isEqualTo(RS256.value());
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly(DEFAULT_CLIENT_ID);
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID);
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID); // deprecated
+		assertThat(token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY)).isEqualTo(DEFAULT_CLIENT_ID);
+		assertThat(token.getClientId()).isEqualTo(DEFAULT_CLIENT_ID);
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
 	}
 
@@ -81,7 +83,8 @@ public class JwtGeneratorTest {
 		assertThat(token).isNotNull();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(DEFAULT_KEY_ID_IAS);
 		assertThat(token.getClaimAsString(TokenClaims.AUDIENCE)).isEqualTo("T000310");
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("T000310");
+		assertThat(token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY)).isEqualTo("T000310");
+		assertThat(token.getClientId()).isEqualTo("T000310");
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
 		assertThat(token.getPrincipal().getName()).isEqualTo("1234567890");
 		String encodedModulusN = Base64.getUrlEncoder()
@@ -118,14 +121,29 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void withClaimClientId_overwritesClaim() {
+	public void withClaimClientId_doesNotOverwriteClientId() {
 		String clientId = "myClientId";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId)
+				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId) // this has changed incompatible with version
+																		// 2.8.0!!!
 				.createToken();
 
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(clientId);
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(clientId); // for compatibility
+		assertThat(token.getClientId()).isEqualTo(DEFAULT_CLIENT_ID); // client id can only be overwritten by setting
+																		// AUTHORIZATION_PARTY
+	}
+
+	@Test
+	public void withClaimAzp_overwritesClientId() {
+		String clientId = "myClientId";
+
+		Token token = cut
+				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId) // overwrite client id
+				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId) // overwrites client id
+				.createToken();
+
+		assertThat(token.getClientId()).isEqualTo(clientId);
 	}
 
 	@Test
@@ -319,7 +337,8 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)).containsExactlyInAnyOrder("openid",
 				"app1.scope");
-		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("testingClientId");
+		assertThat(token.getClientId()).isEqualTo("testingClientId");
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("cidTestingClientId");
 		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly("app1.scope");
 	}
 

@@ -2,9 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.8.0
+- [java-security] `getClientId()` method was added to `Token` interface. `getClientId()` method should be used instead of `getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)`. `TokenClaims.XSUAA.CLIENT_ID` is deprecated.
+- [java-security-test] In case you like to overwrite the client id using `JwtGenerator` using `withClaimValue()` or `withClaimValues()` method, it's recommended to set the `azp` claim instead using `withClaimValue(TokenClaims.AUTHORIZATION_PARTY, "T000310")`.
+- [spring-xsuaa] `getClientId()` method implementation of `Token` interface has been changed. Using `azp` and as fallback `aud` and `cid` claims to obtain client id.
+
 ## 2.7.8
 - [java-security-test] Supports JUnit 5 Tests with `XsuaaExtension`, `IasExtension` and `SecurityTestExtension` as documented [here](/java-security-test#junit-5).
-- [java-security] Does not fail in case of Xsuaa services of type: `apiacess` (#382).
 - [spring-xsuaa-starter] Upgrade Spring versions:
   - spring.boot.version: 2.3.1.RELEASE --> 2.3.4.RELEASE
   - spring.core.version: 5.2.8.RELEASE --> 5.2.9.RELEASE
@@ -13,7 +17,8 @@ All notable changes to this project will be documented in this file.
   - javax.servlet-api.version 3.0.1 --> 3.1.0
   - Apache HTTP client 4.5.8 --> 4.5.9
   - Wiremock 2.25.1 --> 2.27.2
-  
+- [java-security] Does not fail in case of Xsuaa services of type: `apiacess` (#382).
+
 ## 2.7.7
 - [spring-xsuaa] Update Spring versions
   - spring.core.version: 5.2.7.RELEASE --> 5.2.8.RELEASE

@@ -60,7 +60,7 @@ public class JwtGenerator {
 	 * @param service
 	 *            the {@link Service} for which the token should be generated
 	 * @param clientId
-	 *            the client id of the token.
+	 *            the authorization party of the token.
 	 * @return a new {@link JwtGenerator} instance.
 	 */
 	public static JwtGenerator getInstance(Service service, String clientId) {
@@ -133,14 +133,16 @@ public class JwtGenerator {
 		return this;
 	}
 
-	private void setDefaultsForNewToken(String clientId) {
+	private void setDefaultsForNewToken(String azp) {
 		this.signatureAlgorithm = JwtSignatureAlgorithm.RS256;
 		withHeaderParameter(ALGORITHM, JwtSignatureAlgorithm.RS256.value());
-		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId);
+		withClaimValue(TokenClaims.AUTHORIZATION_PARTY, azp);
+		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
 		if (service == Service.IAS) {
-			jsonPayload.put(TokenClaims.AUDIENCE, jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID));
+			jsonPayload.put(TokenClaims.AUDIENCE, azp);
 		} else {
-			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(jsonPayload.getString(TokenClaims.XSUAA.CLIENT_ID)));
+			withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
+			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(azp));
 		}
 	}
 
@@ -170,7 +172,9 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claim with the given name to the given string value.
+	 * Sets the claim with the given name to the given string value. Note: for
+	 * overwriting client Id claim, "azp" claim value should be overwritten instead
+	 * of deprecated "cid"
 	 *
 	 * @param claimName
 	 *            the name of the claim to be set.
@@ -184,7 +188,9 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claim with the given name to the given string value.
+	 * Sets the claim with the given name to the given string value. Note: for
+	 * overwriting client Id claim, "azp" claim value should be overwritten instead
+	 * of deprecated "cid"
 	 *
 	 * @param claimName
 	 *            the name of the claim to be set.
@@ -204,7 +210,9 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claim with the given name to the given string values.
+	 * Sets the claim with the given name to the given string values. Note: for
+	 * overwriting client Id claim, "azp" claim value should be overwritten instead
+	 * of deprecated "cid"
 	 *
 	 * @param claimName
 	 *            the name of the claim to be set.
@@ -219,7 +227,9 @@ public class JwtGenerator {
 
 	/**
 	 * This method will fill the token with all the claims that are defined inside
-	 * the given file. The file must contain a valid json object.
+	 * the given file. The file must contain a valid json object. Note: for
+	 * overwriting client Id claim, "azp" claim value should be overwritten instead
+	 * of deprecated "cid"
 	 *
 	 * @throws JsonParsingException
 	 *             if the file does not contain a valid json object.

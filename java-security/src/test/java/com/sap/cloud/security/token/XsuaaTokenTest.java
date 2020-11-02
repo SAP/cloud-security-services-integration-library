@@ -70,7 +70,7 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getClientPrincipal() {
-		assertThat(clientCredentialsToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("sap_osb");
+		assertThat(clientCredentialsToken.getClientId()).isEqualTo("sap_osb");
 		assertThat(clientCredentialsToken.getPrincipal()).isNotNull();
 		assertThat(clientCredentialsToken.getPrincipal().getName()).isEqualTo("client/sap_osb");
 	}

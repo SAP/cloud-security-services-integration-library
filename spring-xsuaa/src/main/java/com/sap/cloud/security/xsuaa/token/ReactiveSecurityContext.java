@@ -8,8 +8,6 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
-
 import reactor.core.publisher.Mono;
 
 public class ReactiveSecurityContext {
