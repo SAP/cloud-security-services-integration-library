@@ -41,7 +41,7 @@ public class UriUtil {
 				throw new IllegalArgumentException(e);
 			}
 		}
-		logger.info("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
+		logger.debug("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
 		return uri;
 	}
 
