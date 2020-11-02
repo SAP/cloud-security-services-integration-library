@@ -5,6 +5,8 @@ import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
@@ -14,8 +16,11 @@ import javax.annotation.Nullable;
  */
 public class IasXsuaaExchangeBroker {
 
+	private static final Logger logger = LoggerFactory.getLogger(IasXsuaaExchangeBroker.class);
+
 	private final XsuaaTokenFlows xsuaaTokenFlows;
 	private final boolean isIasXsuaaXchangeEnabled;
+	private static final String XSUAA_IAS_ENABLED = "XSUAA_IAS_XCHANGE_ENABLED";
 
 	public IasXsuaaExchangeBroker(XsuaaTokenFlows xsuaaTokenFlows) {
 		this.xsuaaTokenFlows = xsuaaTokenFlows;
@@ -58,9 +63,9 @@ public class IasXsuaaExchangeBroker {
 	}
 
 	/**
-	 * Checks environment variable 'xsuaa.iastoxsuaaxchange' if token exchange
-	 * between IAS and XSUAA is enabled If xsuaa.iastoxsuaaxchange is set to 'false'
-	 * token exchange is disregarded
+	 * Checks environment variable 'XSUAA_IAS_XCHANGE_ENABLED' if token exchange
+	 * between IAS and XSUAA is enabled. If 'XSUAA_IAS_XCHANGE_ENABLED' is set to 'false'
+	 * token exchange is disregarded. Any other value except null is interpreted as true.
 	 *
 	 * @return returns true if exchange is enabled and false if disabled
 	 */
@@ -69,11 +74,14 @@ public class IasXsuaaExchangeBroker {
 	}
 
 	private boolean resolveIasToXsuaaEnabledFlag() {
-		String isEnabled = System.getenv("xsuaa.iastoxsuaaxchange");
+		String isEnabled = System.getenv(XSUAA_IAS_ENABLED);
+		logger.debug("System environment variable {} is set to {}", XSUAA_IAS_ENABLED, isEnabled);
 		if (isEnabled != null) {
-			return !isEnabled.equalsIgnoreCase("false");
+			if(!isEnabled.equalsIgnoreCase("false")){
+				return true;
+			}
 		}
-		return true;
+		return false;
 	}
 
 }
