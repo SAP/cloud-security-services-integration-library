@@ -5,6 +5,7 @@ package com.sap.cloud.security.token;
  * https://tools.ietf.org/html/rfc7519#section-4
  */
 public final class TokenClaims {
+
 	private TokenClaims() {
 		throw new IllegalStateException("Utility class");
 	}
@@ -21,6 +22,7 @@ public final class TokenClaims {
 	public static final String SAP_GLOBAL_USER_ID = "user_uuid";
 	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // tenant GUID
 	public static final String GROUPS = "groups"; // scim groups
+	public static final String AUTHORIZATION_PARTY = "azp"; // Authorization party contains OAuth client identifier
 
 	public final class XSUAA {
 
@@ -30,7 +32,11 @@ public final class TokenClaims {
 		public static final String ORIGIN = "origin";
 		public static final String GRANT_TYPE = "grant_type"; // OAuth grant type used for token creation
 		public static final String ZONE_ID = "zid"; // tenant GUID -> SAP_GLOBAL_ZONE_ID
-		public static final String CLIENT_ID = "cid"; // OAuth client identifier
+		/**
+		 * @deprecated Use {@link Token#getClientId} instead.
+		 */
+		@Deprecated
+		public static final String CLIENT_ID = "cid"; // avoid using directly, make use of Token#getClientId() instead
 		public static final String SCOPES = "scope"; // list of scopes including app id, e.g. "my-app!t123.Display"
 		public static final String ISSUED_AT = "iat";
 		public static final String EXTERNAL_ATTRIBUTE = "ext_attr";

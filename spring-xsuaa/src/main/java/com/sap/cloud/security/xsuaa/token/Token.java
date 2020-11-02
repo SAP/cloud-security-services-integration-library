@@ -45,7 +45,10 @@ public interface Token extends UserDetails {
 	public String getSubdomain();
 
 	/**
-	 * Returns the OAuth client identifier of the authentication token if present.
+	 * Returns the OAuth2 client identifier of the authentication token if present.
+	 * Following OpenID Connect 1.0 standard specifications, client identifier is
+	 * obtained from "azp" claim if present or when "azp" is not present from "aud"
+	 * claim, but only in case there is one audience.
 	 *
 	 * @return the OAuth client ID.
 	 */
@@ -59,7 +62,7 @@ public interface Token extends UserDetails {
 	String getGrantType();
 
 	/**
-	 * Returns a unique user name of a user, using information from the JWT. For
+	 * Returns a unique user name of a user ({@code user_name} claim), using information from the JWT. For
 	 * tokens that were issued as a result of a client credentials flow, the OAuth
 	 * client ID will be returned in a special format. The following information is
 	 * required to uniquely identify a user: <br>

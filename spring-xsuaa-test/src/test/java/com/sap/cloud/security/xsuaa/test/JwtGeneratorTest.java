@@ -49,6 +49,8 @@ public class JwtGeneratorTest {
 		jwtGenerator.setUserName(MY_USER_NAME);
 		Jwt jwt = jwtGenerator.getToken();
 		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_CLIENT_ID), equalTo(MY_CLIENT_ID));
+		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_AUTHORIZATION_PARTY), equalTo(
+				MY_CLIENT_ID));
 		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_ZONE_ID), startsWith(MY_SUBDOMAIN));
 		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_USER_NAME), equalTo(MY_USER_NAME));
 		assertThat(jwt.getClaimAsString(JwtGenerator.TokenClaims.CLAIM_EMAIL), startsWith(MY_USER_NAME));
@@ -153,12 +155,13 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void testBasicJwtTokenWithIdentityZoneId() {
-		JwtGenerator jwtGenerator = new JwtGenerator("clientId", "subdomain", "tenantId");
+		JwtGenerator jwtGenerator = new JwtGenerator("azp", "subdomain", "tenantId");
 		Jwt jwt = jwtGenerator.getToken();
 
 		assertThat(jwt.getHeaders(), hasEntry(TokenHeaders.JKU, "http://localhost:33195/subdomain/token_keys"));
 		assertThat(jwt.getHeaders(), hasEntry(TokenHeaders.KID, "legacy-token-key"));
-		assertThat(jwt.getClaims(), hasEntry(TokenClaims.CLAIM_CLIENT_ID, "clientId"));
+		assertThat(jwt.getClaims(), hasEntry(TokenClaims.CLAIM_CLIENT_ID, "azp"));
+		assertThat(jwt.getClaims(), hasEntry(TokenClaims.CLAIM_AUTHORIZATION_PARTY, "azp"));
 		assertThat(jwt.getClaims(), hasEntry(TokenClaims.CLAIM_ZDN, "subdomain"));
 		assertThat(jwt.getClaims(), hasEntry(TokenClaims.CLAIM_ZONE_ID, "tenantId"));
 	}

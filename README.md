@@ -13,7 +13,7 @@ Typical UI5 applications consist of a server providing the HTML content and one 
 OAuth resource servers (as the one in step 4) require libraries for validating access tokens.
 
 ## Token Validation for Java web applications using SAP Java Buildpack
-The SAP Java Buildpack integrates token validation into the tomcat server. Application developers requiring authentication and authorization information in their application use the interfaces defined in [api](./api) to obtain information like user name and scopes.
+The SAP Java Buildpack integrates token validation into the tomcat server. Application developers requiring authentication and authorization information in their application use the interfaces defined in [java-api](./java-api) to obtain information like user name and scopes.
 
 ### Requirements
 - Java 8
@@ -61,7 +61,7 @@ Spring Boot provides OAuth resource servers. Application developers requiring au
 ### Requirements
 - Java 8
 - maven 3.3.9 or later
-- Spring Boot 2.1 and later
+- as of version 2.6.1 Spring Boot 2.2 or later is required
 
 ### Sample
 - See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
@@ -86,8 +86,8 @@ mvn clean install
 Libraries and information provided here is around the topic of integrating with the xsuaa service. General integration into other OAuth authorization servers is not the primary focus.
 
 # How to obtain support
-Open an issue in GitHub
+Open an issue in GitHub.
 
 # License
 Copyright (c) 2018-2020 SAP SE or an SAP affiliate company. All rights reserved.
-This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file [LICENSE.md].
+This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the [LICENSE](LICENSE).

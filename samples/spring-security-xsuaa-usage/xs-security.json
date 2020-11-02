@@ -1,29 +1,29 @@
 {
-	"xsappname": "spring-security-xsuaa-usage",
-	"tenant-mode": "dedicated",
-	"scopes"        : [
+  "xsappname": "spring-security-xsuaa-usage",
+  "tenant-mode": "dedicated",
+  "scopes": [
     {
-      "name"        : "$XSAPPNAME.Read",
-      "description" : "Read Permissions."
+      "name": "$XSAPPNAME.Read",
+      "description": "Read Permissions."
     },
     {
-      "name"        : "$XSAPPNAME.Admin",
-      "description" : "Admin permissions."
+      "name": "$XSAPPNAME.Admin",
+      "description": "Admin permissions."
     }
   ],
   "role-templates": [
     {
-      "name"             : "Viewer",
-      "description"      : "View Data",
-      "scope-references" : [
+      "name": "Viewer",
+      "description": "View Data",
+      "scope-references": [
         "$XSAPPNAME.Read",
         "uaa.user"
       ]
     },
     {
-      "name"                 : "Administrator",
-      "description"          : "View Sensitive Data",
-      "scope-references"     : [
+      "name": "Administrator",
+      "description": "View Sensitive Data",
+      "scope-references": [
         "$XSAPPNAME.Read",
         "$XSAPPNAME.Admin"
       ]

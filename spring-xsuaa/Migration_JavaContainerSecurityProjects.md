@@ -182,8 +182,14 @@ import com.sap.cloud.security.xsuaa.token.Token;
 Token token = SpringSecurityContext.getToken(); // throws AccessDeniedException
 ```
 
-> Note: There is no `UserInfo` anymore. To obtain the token from the thread local storage, you
+> Note :one:: There is no `UserInfo` anymore. To obtain the token from the thread local storage, you
 have to use Spring's Security Context managed by the `SecurityContextHolder`. This is explained in detailed in the [usage section](/spring-xsuaa#usage).
+
+> Note :two:: In case you have used formerly `Principal.getName()` be aware that `spring-xsuaa` returns a user name or client id in the following format:
+> - `user/<origin>/<logonName>`
+> - `client/<clientid>`
+> See also Github issue [#399](https://github.com/SAP/cloud-security-xsuaa-integration/issues/399).
+
 
 ### Exception Handling
 Unlike `XSUserInfo` interface there is no `XSUserInfoException` raised, in case the token does not contain the requested claim. You can check the interface, whether it can also return a `Nullable`. Then you can either perform a null check or check in advance, whether the claim is provided as part of the token, e.g. `Token.hasClaim(TokenClaims.CLAIM_CLIENT_ID)`.
@@ -268,4 +274,4 @@ In case you face issues to apply the migration steps check this [troubleshoot](R
 - [spring-security-xsuaa usage sample](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-xsuaa-usage)
 
 ## Further References
-- [spring-xsuaa documentation](/spring-xsuaa/README.md.md)
+- [spring-xsuaa documentation](/spring-xsuaa/README.md)
