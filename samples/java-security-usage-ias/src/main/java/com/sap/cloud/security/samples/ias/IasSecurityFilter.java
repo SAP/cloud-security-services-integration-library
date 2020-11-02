@@ -32,7 +32,7 @@ public class IasSecurityFilter implements Filter {
 			chain.doFilter(request, response) ;
 		} else {
 			LOGGER.debug("UNAUTHENTICATED");
-			sendUnauthenticatedResponse(authenticationResult.getUnauthenticatedReason());
+			sendUnauthenticatedResponse(response, authenticationResult.getUnauthenticatedReason());
 		}
 	}
 
