@@ -1,7 +1,7 @@
 ---
 # Configuration:
-# configured for EU10. For other landscapes, please adopt the destination
-# If the routes are occupied, you might need to change the host in java-tokenclient-usage and the url in the destination
+# configured for EU10. For other landscapes, please adopt the destination in ../vars.yml
+# If the routes are occupied, you might need to change the host
 applications:
 - name: java-security-usage
   instances: 1
@@ -9,10 +9,9 @@ applications:
   routes:
     - route: java-security-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
   host: 
-  path: target/java-security-usage.jar
+  path: target/java-security-usage.war
   buildpacks:
     - java_buildpack
   services:
     - xsuaa-java-security
-
 ...
