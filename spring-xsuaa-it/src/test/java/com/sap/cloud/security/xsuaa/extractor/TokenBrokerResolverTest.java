@@ -1,30 +1,19 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import java.util.Arrays;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = { XsuaaServiceConfigurationDummy.class,
-		TokenBrokerTestConfiguration.class })
+@ContextConfiguration(classes = { TokenBrokerTestConfiguration.class })
 public class TokenBrokerResolverTest {
 
 	@Autowired
@@ -43,18 +32,6 @@ public class TokenBrokerResolverTest {
 		tokenBroker = new TokenBrokerResolver(getXsuaaServiceConfiguration(), null,
 				oAuth2TokenService,
 				authenticationConfiguration);
-	}
-
-	@Test
-	public void testXsuaaTokenCache() throws OAuth2ServiceException {
-		oAuth2TokenService = spy(oAuth2TokenService);
-		oAuth2TokenService.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(), any());
-		request.addHeader("Authorization", "bearer " + XSUAA_TOKEN);
-		tokenBroker.resolve(request);
-		tokenBroker.resolve(request);
-
-		Mockito.verify(oAuth2TokenService, Mockito.times(1)).retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(),
-				any(), any(), any());
 	}
 
 	@Test
@@ -83,14 +60,4 @@ public class TokenBrokerResolverTest {
 		return cfg;
 	}
 
-	public AuthenticationInformationExtractor authenticationMethods(AuthenticationMethod... methods) {
-		return new DefaultAuthenticationInformationExtractor() {
-
-			@Override
-			public List<AuthenticationMethod> getAuthenticationMethods(HttpServletRequest request) {
-				return Arrays.asList(methods);
-			}
-		};
-
-	}
 }
