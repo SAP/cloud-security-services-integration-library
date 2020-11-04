@@ -184,7 +184,8 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 		final AuthorizationRequest authorizationRequest = new AuthorizationRequest(clientId, scopes);
 		authorizationRequest.setAuthorities(createAuthorities(scopes));
 		authorizationRequest.setApproved(true);
-		return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), userAuthentication);
+		OAuth2Authentication authn = new OAuth2Authentication(authorizationRequest.createOAuth2Request(), userAuthentication);
+		return authn;
 	}
 
 	@Nullable
@@ -247,10 +248,9 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 			switch (serviceConfiguration.getService()) {
 			case XSUAA:
 				return new XsuaaToken(accessToken).withScopeConverter(xsuaaScopeConverter);
-			case IAS:
-				return new SapIdToken(accessToken);
+			//case IAS: // TODO Support IAS only in case of multiple feature requests.
+			//	return new SapIdToken(accessToken);
 			default:
-				// TODO support IAS
 				throw new InvalidTokenException(
 						"AccessToken of service " + serviceConfiguration.getService() + " is not supported.");
 			}

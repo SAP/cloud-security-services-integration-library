@@ -1,10 +1,6 @@
 package com.sap.cloud.security.adapter.spring;
 
-import com.sap.cloud.security.token.AccessToken;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.sap.cloud.security.token.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -45,8 +41,11 @@ public class SpringSecurityContext {
 				authentication.getDetails() instanceof OAuth2AuthenticationDetails) {
 			OAuth2AuthenticationDetails authDetails = (OAuth2AuthenticationDetails) authentication.getDetails();
 			String tokenValue = authDetails.getTokenValue();
-			// TODO IAS Support
-			return new XsuaaTokenWithGrantedAuthorities(tokenValue, authentication.getAuthorities());
+			AbstractToken xsuaaToken = new XsuaaTokenWithGrantedAuthorities(tokenValue, authentication.getAuthorities());
+			if (xsuaaToken.isXsuaaToken()) {
+				return xsuaaToken;
+			}
+			return new SapIdToken(tokenValue);
 		}
 		return null;
 	}
