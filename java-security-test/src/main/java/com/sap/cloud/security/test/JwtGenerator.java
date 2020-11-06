@@ -29,6 +29,8 @@ public class JwtGenerator {
 	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
 	public static final String DEFAULT_KEY_ID = "default-kid";
 	public static final String DEFAULT_KEY_ID_IAS = "default-kid-ias";
+	public static final String DEFAULT_ZONE_ID = "the-zone-id";
+	public static final String DEFAULT_USER_ID = "the-user-id";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtGenerator.class);
 	private static final String DEFAULT_JWKS_URL = "http://localhost/token_keys";
@@ -140,9 +142,12 @@ public class JwtGenerator {
 		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
 		if (service == Service.IAS) {
 			jsonPayload.put(TokenClaims.AUDIENCE, azp);
+			jsonPayload.put(TokenClaims.SAP_GLOBAL_ZONE_ID, DEFAULT_ZONE_ID);
+			jsonPayload.put(TokenClaims.SAP_GLOBAL_USER_ID, DEFAULT_USER_ID);
 		} else {
 			withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
 			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(azp));
+			jsonPayload.put(TokenClaims.XSUAA.ZONE_ID, DEFAULT_ZONE_ID);
 		}
 	}
 
