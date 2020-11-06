@@ -23,6 +23,7 @@ public class HelloJavaServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 		response.setContentType("text/plain");
+		// same like SecurityContext.getToken() but more XSUAA specific methods
 		AccessToken token = SecurityContext.getAccessToken();
 		try {
 			StringBuilder message = new StringBuilder();
@@ -31,6 +32,7 @@ public class HelloJavaServlet extends HttpServlet {
 			message.append("') can access the application with the following scopes: '");
 			message.append(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
 			message.append("'.");
+			// for authorization check you need the AccessToken interface (instead of Token)
 			message.append("having scope '$XSAPPNAME.Read'? " + token.hasLocalScope("Read"));
 			response.getWriter().write(message.toString());
 			response.setStatus(HttpServletResponse.SC_OK);

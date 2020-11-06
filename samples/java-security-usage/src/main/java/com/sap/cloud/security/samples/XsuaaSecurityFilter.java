@@ -55,12 +55,12 @@ public class XsuaaSecurityFilter implements Filter {
 		}
 	}
 
-	public static void sendUnauthorizedResponse(ServletResponse response, String scopeExpected)  {
+	public static void sendUnauthorizedResponse(ServletResponse response, String missingScope)  {
 		if (response instanceof HttpServletResponse) {
 			try {
 				String user = Objects.nonNull(SecurityContext.getAccessToken()) ? SecurityContext.getToken().getClaimAsString(USER_NAME) : "<Unknown>";
 				HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-				LOGGER.error("User {} is unauthorized. User does not have scope {}.", user, scopeExpected);
+				LOGGER.error("User {} is unauthorized. User does not have scope {}.", user, missingScope);
 				httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "User " + user + " is unauthorized."); // 403
 			} catch (IOException e) {
 				LOGGER.error("Failed to send error response", e);
