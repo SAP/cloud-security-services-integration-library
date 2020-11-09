@@ -179,11 +179,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	@Override
 	public String getToken(String namespace, String name) {
 		if (!(getGrantType().equals(GrantType.CLIENT_CREDENTIALS.toString())) && hasAttributes() && isInForeignMode()) {
-			throw new XSUserInfoException("The SecurityContext has been initialized with an access token of a\n"
-					+ "foreign OAuth Client Id and/or Identity Zone. Furthermore, the\n"
-					+ "access token contains attributes. Due to the fact that we want to\n"
-					+ "restrict attribute access to the application that provided the \n"
-					+ "attributes, the getToken function does not return a valid token");
+			throw new XSUserInfoException("The SecurityContext has been initialized with an access token of a "
+					+ "foreign OAuth Client Id and/or Identity Zone. Furthermore, the "
+					+ "access token contains attributes. Due to the fact that we want to "
+					+ "restrict attribute access to the application that provides the "
+					+ "attributes, the getToken() function does not return a token.");
 		}
 		if (!namespace.equals(SYSTEM)) {
 			throw new XSUserInfoException("Invalid namespace " + namespace);
