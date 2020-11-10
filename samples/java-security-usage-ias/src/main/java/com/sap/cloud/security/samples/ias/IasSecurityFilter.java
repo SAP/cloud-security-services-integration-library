@@ -26,13 +26,17 @@ public class IasSecurityFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		TokenAuthenticationResult authenticationResult = iasTokenAuthenticator.validateRequest(request, response);
-		if (authenticationResult.isAuthenticated()) {
-			LOGGER.debug("AUTHENTICATED");
-			chain.doFilter(request, response) ;
-		} else {
-			LOGGER.debug("UNAUTHENTICATED");
-			sendUnauthenticatedResponse(response, authenticationResult.getUnauthenticatedReason());
+		try {
+			TokenAuthenticationResult authenticationResult = iasTokenAuthenticator.validateRequest(request, response);
+			if (authenticationResult.isAuthenticated()) {
+				LOGGER.debug("AUTHENTICATED");
+				chain.doFilter(request, response) ;
+			} else {
+				LOGGER.debug("UNAUTHENTICATED");
+				sendUnauthenticatedResponse(response, authenticationResult.getUnauthenticatedReason());
+			}
+		} finally {
+			SecurityContext.clearToken();
 		}
 	}
 

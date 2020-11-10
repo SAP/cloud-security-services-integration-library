@@ -28,7 +28,6 @@
         <slf4j.api.version>1.7.30</slf4j.api.version>
         <apache.httpclient.version>4.5.9</apache.httpclient.version>
         <javax.servlet.api.version>3.1.0</javax.servlet.api.version>
-        <wiremock.version>2.25.1</wiremock.version>
         <assertj.version>3.13.2</assertj.version>
         <junit.version>5.7.0</junit.version>
     </properties>
@@ -43,14 +42,12 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet.api.version}</version>
-            <scope>compile</scope>
         </dependency>
         <!-- logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.api.version}</version>
-            <scope>compile</scope>
         </dependency>
         <!-- security -->
         <dependency>
@@ -78,15 +75,8 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
     <build>
         <finalName>${project.artifactId}</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
     </build>
 </project>
