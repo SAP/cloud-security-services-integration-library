@@ -16,7 +16,7 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<jetty.version>9.4.31.v20200723</jetty.version>
+		<jetty.version>9.4.34.v20201102</jetty.version>
 		<wiremock.version>2.27.2</wiremock.version>
 	</properties>
 
