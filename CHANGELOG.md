@@ -146,7 +146,7 @@ This reduces the round trips to the XSUAA from 2 to 1. Further, it eliminates th
 - Issue: Spring tests fail with version `2.2.0`, when auto-configuration is disabled and no `RestOperations` bean is specified.
 - [token-client] Supports basically JWT Bearer Token Grant as documented [here](https://docs.cloudfoundry.org/api/uaa/version/74.4.0/index.html#jwt-bearer-token-grant).
 - [token-client] **Bug fix** for state issue in HttpHeaderFactor ([#200](/issues/200)) that causes interference between different types of token flows.
-- [spring-xsuaa] Supports (ignores) xsuaa bindings of plan "apiaccess".
+- [spring-xsuaa] xsuaa bindings of plan `apiaccess` does not cause an error, as they get ignored for token validation.
 
 ## 2.2.0
 - [spring-xsuaa] `PropertySourceFactory` supports custom property sources and default can optionally be disabled with  `spring.xsuaa.disable-default-property-source=true`
