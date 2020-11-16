@@ -29,7 +29,7 @@ Token Validation for Java applications.
 
 ## Supported Identity Services
 - XSUAA
-- Planned: IAS
+- as of version `2.8.0` IAS
 
 ## Supported Algorithms
 
