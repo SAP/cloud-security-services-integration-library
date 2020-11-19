@@ -9,8 +9,12 @@ All notable changes to this project will be documented in this file.
 - [java-security-test] In case you like to overwrite the client id using `JwtGenerator` using `withClaimValue()` or `withClaimValues()` method, it's recommended to set the `azp` claim instead using `withClaimValue(TokenClaims.AUTHORIZATION_PARTY, "T000310")`.
 - [spring-xsuaa] 
   - `getClientId()` method implementation of `Token` interface has been changed. Using `azp` and as fallback `aud` and `cid` claims to obtain client id.
-  - Applications can exchange incoming id tokens from `identity` service to an `xsuaa` token, so that authorization checks with `xsuaa` scopes can be performed. In order to activate that feature provide a `XSUAA_IAS_XCHANGE_ENABLED = true` system variable.
-
+- The following dependencies were updated:
+    - spring.boot.version 2.3.4.RELEASE --> 2.3.5.RELEASE
+    - spring.core.version 5.2.9.RELEASE --> 5.2.10.RELEASE
+    - spring.security.version 5.3.4.RELEASE --> 5.3.5.RELEASE
+    - caffeine.version 2.8.2 --> 2.8.6
+    
 ## 2.7.8
 - [java-security-test] Supports JUnit 5 Tests with `XsuaaExtension`, `IasExtension` and `SecurityTestExtension` as documented [here](/java-security-test#junit-5).
 - [spring-xsuaa-starter] Upgrade Spring versions:
