@@ -14,8 +14,9 @@ import javax.annotation.Nullable;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ENHANCER;
 
 /**
- * IAS token and XSUAA token exchange and resolution class.
- * Can be used to distinguish between IAS and XSUAA tokens. Controls token exchange between IAS and XSUAA by using XSUAA_IAS_XCHANGE_ENABLED environment variable flag
+ * IAS token and XSUAA token exchange and resolution class. Can be used to
+ * distinguish between IAS and XSUAA tokens. Controls token exchange between IAS
+ * and XSUAA by using XSUAA_IAS_XCHANGE_ENABLED environment variable flag
  */
 public class IasXsuaaExchangeBroker {
 
@@ -33,7 +34,8 @@ public class IasXsuaaExchangeBroker {
 	/**
 	 * Verifies if the provided token is Xsuaa token
 	 *
-	 * @param encodedJwtToken Encoded token to be checked
+	 * @param encodedJwtToken
+	 *            Encoded token to be checked
 	 * @return true if provided token is a XSUAA token
 	 */
 	public boolean isXsuaaToken(String encodedJwtToken) {
@@ -52,7 +54,8 @@ public class IasXsuaaExchangeBroker {
 	/**
 	 * Request a Xsuaa token using Ias token as a grant.
 	 *
-	 * @param iasToken encoded IAS token
+	 * @param iasToken
+	 *            encoded IAS token
 	 * @return encoded Xsuaa token
 	 */
 	@Nullable
@@ -66,9 +69,11 @@ public class IasXsuaaExchangeBroker {
 	}
 
 	/**
-	 * Checks value of environment variable 'XSUAA_IAS_XCHANGE_ENABLED'. This value determines, whether token exchange
-	 * between IAS and XSUAA is enabled. If XSUAA_IAS_XCHANGE_ENABLED is not provided or with an empty value or with value = false, then token exchange is disabled.
-	 * Any other values are interpreted as true.
+	 * Checks value of environment variable 'XSUAA_IAS_XCHANGE_ENABLED'. This value
+	 * determines, whether token exchange between IAS and XSUAA is enabled. If
+	 * XSUAA_IAS_XCHANGE_ENABLED is not provided or with an empty value or with
+	 * value = false, then token exchange is disabled. Any other values are
+	 * interpreted as true.
 	 *
 	 * @return returns true if exchange is enabled and false if disabled
 	 */

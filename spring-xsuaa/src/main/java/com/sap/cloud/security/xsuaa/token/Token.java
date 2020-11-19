@@ -62,10 +62,10 @@ public interface Token extends UserDetails {
 	String getGrantType();
 
 	/**
-	 * Returns a unique user name of a user ({@code user_name} claim), using information from the JWT. For
-	 * tokens that were issued as a result of a client credentials flow, the OAuth
-	 * client ID will be returned in a special format. The following information is
-	 * required to uniquely identify a user: <br>
+	 * Returns a unique user name of a user ({@code user_name} claim), using
+	 * information from the JWT. For tokens that were issued as a result of a client
+	 * credentials flow, the OAuth client ID will be returned in a special format.
+	 * The following information is required to uniquely identify a user: <br>
 	 *
 	 * <ul>
 	 * <li><b>user login name:</b> name of the user in an identity provider,
