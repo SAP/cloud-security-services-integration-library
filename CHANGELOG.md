@@ -9,6 +9,8 @@ All notable changes to this project will be documented in this file.
 - [java-security-test] In case you like to overwrite the client id using `JwtGenerator` using `withClaimValue()` or `withClaimValues()` method, it's recommended to set the `azp` claim instead using `withClaimValue(TokenClaims.AUTHORIZATION_PARTY, "T000310")`.
 - [spring-xsuaa] 
   - `getClientId()` method implementation of `Token` interface has been changed. Using `azp` and as fallback `aud` and `cid` claims to obtain client id.
+  - backward incompatible change: usage of deprecated spring-security-oauth2 dependency in `OAuth2AuthenticationConverter` was removed. 
+  `OAuth2AuthenticationConverter.convert()` method return type has changed from `org.springframework.security.oauth2.provider.OAuth2Authentication` to `org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication`
 - The following dependencies were updated:
     - spring.boot.version 2.3.4.RELEASE --> 2.3.5.RELEASE
     - spring.core.version 5.2.9.RELEASE --> 5.2.10.RELEASE
