@@ -12,8 +12,9 @@ public enum Service {
 
 	private static String getIasServiceName() {
 		Logger logger = LoggerFactory.getLogger(Service.class);
-		if(System.getenv("IAS_SERVICE_NAME") != null) {
-			logger.warn("As of version 2.8.0 IAS_SERVICE_NAME system environment variable is no longer needed. Service 'identity' is available with plan 'application'.");
+		if (System.getenv("IAS_SERVICE_NAME") != null) {
+			logger.warn(
+					"As of version 2.8.0 IAS_SERVICE_NAME system environment variable is no longer needed. Service 'identity' is available with plan 'application'.");
 		}
 		return "identity";
 	}

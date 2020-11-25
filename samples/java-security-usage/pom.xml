@@ -3,18 +3,32 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.security.xssec.samples</groupId>
     <artifactId>java-security-usage</artifactId>
-    <version>2.7.8</version>
-    <packaging>jar</packaging>
+    <version>2.8.0</version>
+    <packaging>war</packaging>
+
+    <!--profiles>
+        <profile>
+            <id>allow-snapshots</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <repositories>
+                <repository>
+                    <id>snapshots-repo</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                    <releases><enabled>false</enabled></releases>
+                    <snapshots><enabled>true</enabled></snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles-->
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <sap.cloud.security.version>2.7.8</sap.cloud.security.version>
+        <sap.cloud.security.version>2.8.0</sap.cloud.security.version>
         <slf4j.api.version>1.7.30</slf4j.api.version>
         <apache.httpclient.version>4.5.9</apache.httpclient.version>
         <javax.servlet.api.version>3.1.0</javax.servlet.api.version>
         <assertj.version>3.13.2</assertj.version>
-        <jetty.version>9.4.31.v20200723</jetty.version>
         <junit.version>5.7.0</junit.version>
     </properties>
 
@@ -24,40 +38,22 @@
             <artifactId>httpclient</artifactId>
             <version>${apache.httpclient.version}</version>
         </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet.api.version}</version>
+        </dependency>
         <!-- logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.api.version}</version>
-            <scope>compile</scope>
         </dependency>
         <!-- security -->
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-security</artifactId>
             <version>${sap.cloud.security.version}</version>
-        </dependency>
-
-        <!-- can be removed when SAP Java Buildpack leverages java-security lib -->
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-annotations</artifactId>
-            <version>${jetty.version}</version>
         </dependency>
 
         <!-- test utilities -->
@@ -80,47 +76,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <!-- TODO can be deleted with SAP Buildpack -->
     <build>
-        <finalName>java-security-usage</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
-                <configuration>
-                    <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>META-INF/*.SF</exclude>
-                                <exclude>META-INF/*.DSA</exclude>
-                                <exclude>META-INF/*.RSA</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <manifestEntries>
-                                        <Main-Class>com.sap.cloud.security.samples.Application</Main-Class>
-                                    </manifestEntries>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <finalName>${project.artifactId}</finalName>
     </build>
 </project>

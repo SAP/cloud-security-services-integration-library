@@ -29,7 +29,7 @@ Token Validation for Java applications.
 
 ## Supported Identity Services
 - XSUAA
-- Planned: IAS
+- as of version `2.8.0` IAS
 
 ## Supported Algorithms
 
@@ -45,7 +45,7 @@ Token Validation for Java applications.
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.7.8</version>
+    <version>2.8.0</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>

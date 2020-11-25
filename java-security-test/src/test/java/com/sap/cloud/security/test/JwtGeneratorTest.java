@@ -28,6 +28,7 @@ import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.JwtGenerator.*;
 import static com.sap.cloud.security.test.SecurityTestRule.*;
+import static com.sap.cloud.security.token.TokenClaims.*;
 import static com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -60,10 +61,13 @@ public class JwtGeneratorTest {
 
 		assertThat(token).isNotNull();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.ALGORITHM)).isEqualTo(RS256.value());
-		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly(DEFAULT_CLIENT_ID);
+		assertThat(token.getClaimAsStringList(AUDIENCE)).containsExactly(DEFAULT_CLIENT_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(DEFAULT_CLIENT_ID); // deprecated
-		assertThat(token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY)).isEqualTo(DEFAULT_CLIENT_ID);
+		assertThat(token.getClaimAsString(AUTHORIZATION_PARTY)).isEqualTo(DEFAULT_CLIENT_ID);
 		assertThat(token.getClientId()).isEqualTo(DEFAULT_CLIENT_ID);
+		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
+		assertThat(token.getZoneId()).isEqualTo(DEFAULT_ZONE_ID);
+		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo(DEFAULT_ZONE_ID);
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
 	}
 
@@ -76,16 +80,18 @@ public class JwtGeneratorTest {
 				.withClaimValue("first_name", "john")
 				.withClaimValue("last_name", "doe")
 				.withClaimValue("email", "john.doe@email.org")
-				.withClaimValue(TokenClaims.SAP_GLOBAL_USER_ID, "1234567890")
+				.withClaimValue(SAP_GLOBAL_USER_ID, "1234567890")
 				.withPrivateKey(keys.getPrivate());
 		Token token = cut.createToken();
 
 		assertThat(token).isNotNull();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(DEFAULT_KEY_ID_IAS);
-		assertThat(token.getClaimAsString(TokenClaims.AUDIENCE)).isEqualTo("T000310");
-		assertThat(token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY)).isEqualTo("T000310");
+		assertThat(token.getClaimAsString(SAP_GLOBAL_ZONE_ID)).isEqualTo(DEFAULT_ZONE_ID);
+		assertThat(token.getClaimAsString(AUDIENCE)).isEqualTo("T000310");
+		assertThat(token.getClaimAsString(AUTHORIZATION_PARTY)).isEqualTo("T000310");
 		assertThat(token.getClientId()).isEqualTo("T000310");
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
+		assertThat(token.getClaimAsString(SAP_GLOBAL_USER_ID)).isEqualTo("1234567890");
 		assertThat(token.getPrincipal().getName()).isEqualTo("1234567890");
 		String encodedModulusN = Base64.getUrlEncoder()
 				.encodeToString(((RSAPublicKeyImpl) keys.getPublic()).getModulus().toByteArray());
@@ -114,10 +120,10 @@ public class JwtGeneratorTest {
 		String email = "john.doe@mail.de";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.EMAIL, email)
+				.withClaimValue(EMAIL, email)
 				.createToken();
 
-		assertThat(token.getClaimAsString(TokenClaims.EMAIL)).isEqualTo(email);
+		assertThat(token.getClaimAsString(EMAIL)).isEqualTo(email);
 	}
 
 	@Test
@@ -139,8 +145,8 @@ public class JwtGeneratorTest {
 		String clientId = "myClientId";
 
 		Token token = cut
-				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId) // overwrite client id
-				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, clientId) // overwrites client id
+				.withClaimValue(AUTHORIZATION_PARTY, clientId) // overwrite client id
+				.withClaimValue(AUTHORIZATION_PARTY, clientId) // overwrites client id
 				.createToken();
 
 		assertThat(token.getClientId()).isEqualTo(clientId);
@@ -234,9 +240,9 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void withClaimValuesAudience_isOverridden() {
-		Token token = cut.withClaimValues(TokenClaims.AUDIENCE, "app2", "app3").createToken();
+		Token token = cut.withClaimValues(AUDIENCE, "app2", "app3").createToken();
 
-		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactlyInAnyOrder("app2", "app3");
+		assertThat(token.getClaimAsStringList(AUDIENCE)).containsExactlyInAnyOrder("app2", "app3");
 	}
 
 	@Test
@@ -286,7 +292,7 @@ public class JwtGeneratorTest {
 	public void loadClaimsFromFile_containsStringClaims() throws IOException {
 		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
-		assertThat(token.getClaimAsString(TokenClaims.EMAIL)).isEqualTo("test@uaa.org");
+		assertThat(token.getClaimAsString(EMAIL)).isEqualTo("test@uaa.org");
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE))
 				.isEqualTo("urn:ietf:params:oauth:grant-type:saml2-bearer");
 	}
@@ -339,7 +345,7 @@ public class JwtGeneratorTest {
 				"app1.scope");
 		assertThat(token.getClientId()).isEqualTo("testingClientId");
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo("cidTestingClientId");
-		assertThat(token.getClaimAsStringList(TokenClaims.AUDIENCE)).containsExactly("app1.scope");
+		assertThat(token.getClaimAsStringList(AUDIENCE)).containsExactly("app1.scope");
 	}
 
 	@Test
