@@ -39,9 +39,12 @@ public class OAuth2TokenAuthenticationConverterTest {
 	}
 
 	@Test
-	public void extractPrincipalInfo() {
-		assertThat(authenticationToken.getName(), endsWith("testuser"));
-		assertEquals("sb-xsapplication!t895", ((BearerTokenAuthentication) authenticationToken).getTokenAttributes()
-				.get(TokenClaims.CLAIM_AUTHORIZATION_PARTY));
+	public void extractPrincipalInfoTest() {
+		OAuth2Principal principal = (OAuth2Principal) authenticationToken.getPrincipal();
+		assertThat(principal.getName(), endsWith("testuser"));
+		assertThat(principal.getHeaders(), notNullValue());
+		assertThat(principal.getScopes(), notNullValue());
+		assertTrue(principal.getScopes().contains(scopeAdmin));
+		assertEquals("sb-xsapplication!t895", principal.getClaim(TokenClaims.CLAIM_AUTHORIZATION_PARTY));
 	}
 }
