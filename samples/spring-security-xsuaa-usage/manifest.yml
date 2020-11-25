@@ -13,7 +13,7 @@ applications:
   services:
     - xsuaa-authentication
   env:
-    XSUAA_IAS_XCHANGE_ENABLED: true
+    IAS_XSUAA_XCHANGE_ENABLED: true
 
 # Application Router as web server
 - name: approuter-spring-security-xsuaa-usage

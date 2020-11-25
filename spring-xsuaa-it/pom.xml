@@ -103,7 +103,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<environmentVariables>
-						<XSUAA_IAS_XCHANGE_ENABLED>true</XSUAA_IAS_XCHANGE_ENABLED>
+						<IAS_XSUAA_XCHANGE_ENABLED>true</IAS_XSUAA_XCHANGE_ENABLED>
 					</environmentVariables>
 				</configuration>
 			</plugin>

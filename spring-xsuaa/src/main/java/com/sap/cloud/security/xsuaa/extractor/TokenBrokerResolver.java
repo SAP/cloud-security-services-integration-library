@@ -35,7 +35,7 @@ import java.util.Optional;
  * AuthenticationInformationExtractor needs to be implemented).
  *
  * Token exchange between IAS and XSUAA is disabled by default. To enable IAS to
- * XSUAA token exchange set the environment variable XSUAA_IAS_XCHANGE_ENABLED
+ * XSUAA token exchange set the environment variable IAS_XSUAA_XCHANGE_ENABLED
  * to any value except false.
  *
  */
@@ -181,7 +181,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			if (oAuth2token == null) {
 				break;
 			}
-			if (iasXsuaaExchangeBroker.isXsuaaToken(oAuth2token)) {
+			if (iasXsuaaExchangeBroker.isXsuaaToken(oAuth2token) || !iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
 				return oAuth2token;
 			} else if (iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
 				return iasXsuaaExchangeBroker.getXsuaaToken(oAuth2token);
