@@ -34,8 +34,9 @@ import java.util.Optional;
  * {@code X-Identity-Zone-Subdomain} must be set (or the
  * AuthenticationInformationExtractor needs to be implemented).
  *
- * Token exchange between IAS and XSUAA is disabled by default.
- * To enable IAS to XSUAA token exchange set the environment variable XSUAA_IAS_XCHANGE_ENABLED to any value except false.
+ * Token exchange between IAS and XSUAA is disabled by default. To enable IAS to
+ * XSUAA token exchange set the environment variable XSUAA_IAS_XCHANGE_ENABLED
+ * to any value except false.
  *
  */
 public class TokenBrokerResolver implements BearerTokenResolver {

@@ -41,7 +41,8 @@ public class SpringSecurityContext {
 				authentication.getDetails() instanceof OAuth2AuthenticationDetails) {
 			OAuth2AuthenticationDetails authDetails = (OAuth2AuthenticationDetails) authentication.getDetails();
 			String tokenValue = authDetails.getTokenValue();
-			AbstractToken xsuaaToken = new XsuaaTokenWithGrantedAuthorities(tokenValue, authentication.getAuthorities());
+			AbstractToken xsuaaToken = new XsuaaTokenWithGrantedAuthorities(tokenValue,
+					authentication.getAuthorities());
 			if (xsuaaToken.isXsuaaToken()) {
 				return xsuaaToken;
 			}
