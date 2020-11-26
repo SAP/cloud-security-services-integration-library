@@ -16,7 +16,7 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_
 /**
  * IAS token and XSUAA token exchange and resolution class. Can be used to
  * distinguish between IAS and XSUAA tokens. Controls token exchange between IAS
- * and XSUAA by using XSUAA_IAS_XCHANGE_ENABLED environment variable flag
+ * and XSUAA by using IAS_XSUAA_XCHANGE_ENABLED environment variable flag
  */
 public class IasXsuaaExchangeBroker {
 
@@ -24,7 +24,7 @@ public class IasXsuaaExchangeBroker {
 
 	private final XsuaaTokenFlows xsuaaTokenFlows;
 	private final boolean isIasXsuaaXchangeEnabled;
-	private static final String XSUAA_IAS_ENABLED = "XSUAA_IAS_XCHANGE_ENABLED";
+	private static final String IAS_XSUAA_ENABLED = "IAS_XSUAA_XCHANGE_ENABLED";
 
 	public IasXsuaaExchangeBroker(XsuaaTokenFlows xsuaaTokenFlows) {
 		this.xsuaaTokenFlows = xsuaaTokenFlows;
@@ -69,9 +69,9 @@ public class IasXsuaaExchangeBroker {
 	}
 
 	/**
-	 * Checks value of environment variable 'XSUAA_IAS_XCHANGE_ENABLED'. This value
+	 * Checks value of environment variable 'IAS_XSUAA_XCHANGE_ENABLED'. This value
 	 * determines, whether token exchange between IAS and XSUAA is enabled. If
-	 * XSUAA_IAS_XCHANGE_ENABLED is not provided or with an empty value or with
+	 * IAS_XSUAA_XCHANGE_ENABLED is not provided or with an empty value or with
 	 * value = false, then token exchange is disabled. Any other values are
 	 * interpreted as true.
 	 *
@@ -82,8 +82,8 @@ public class IasXsuaaExchangeBroker {
 	}
 
 	private boolean resolveIasToXsuaaEnabledFlag() {
-		String isEnabled = System.getenv(XSUAA_IAS_ENABLED);
-		logger.debug("System environment variable {} is set to {}", XSUAA_IAS_ENABLED, isEnabled);
+		String isEnabled = System.getenv(IAS_XSUAA_ENABLED);
+		logger.debug("System environment variable {} is set to {}", IAS_XSUAA_ENABLED, isEnabled);
 		if (isEnabled != null) {
 			if (!isEnabled.equalsIgnoreCase("false")) {
 				return true;
