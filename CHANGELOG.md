@@ -82,6 +82,7 @@ All notable changes to this project will be documented in this file.
   - rename Token claim "sap_uid" to „user_uuid“.
   - Token Key Cache can now be customized via `XsuaaTokenAuthenticator`
   - `XSUserInfoAdapter` supports `requestTokenForUser()` method
+  - fixes false-positive error log message: "Jwt token with audience {abc!t123} is not issued for these clientIds: {abc!t123}." #290
 - [spring-xsuaa] Improve logs of Audience Validators.
 - [token-client]
   - more detailed debug logs and details to exception; decoded token gets logged.
