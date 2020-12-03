@@ -1,4 +1,4 @@
-# Migration Guide for J2EE Web Applications that use SAP Java Buildpack for securing their applications
+# Migration Guide for J2EE Web Applications that use SAP Buildpack for securing their applications - API Version 2
 
 
 **This document is only applicable for J2EE web applications securing their application with SAP Java Buildpack.** 
