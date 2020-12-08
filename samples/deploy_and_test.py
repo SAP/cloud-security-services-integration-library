@@ -35,7 +35,7 @@ from getpass import getpass
 # This would only the run the test called 'test_hello_java_security'
 # inside the test class 'TestJavaSecurity' inside the deploy_and_test.py file.
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - [%(module)s.%(funcName)s: L%(lineno)d]: %(message)s')
 
 
 class Credentials:
@@ -134,7 +134,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
             self.vars_parser.user_id,
             self.vars_parser.landscape_apps_domain,
             path)
-        logging.info('GET request to {} {}'.format(url, 'using access token' if access_token else ''))
+        logging.info('GET request to {} {}'.format(url, 'with access token: '+ access_token if access_token else 'without access token'))
         resp = HttpUtil().get_request(url, access_token=access_token, additional_headers=additional_headers)
         logging.info('Response: ' + str(resp))
         return resp
@@ -169,12 +169,19 @@ class TestJavaSecurity(SampleTest):
         resp = self.perform_get_request('/hello-java-security')
         self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
 
-        resp = self.perform_get_request_with_token('/hello-java-security')
+        resp = self.perform_get_request('/hello-java-security-authz')
+        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+
+        resp = self.perform_get_request_with_token('/hello-java-security-authz')
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
         self.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
+        resp = self.perform_get_request_with_token('/hello-java-security-authz')
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+
         resp = self.perform_get_request_with_token('/hello-java-security')
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+
         xsappname = self.get_deployed_app().get_credentials_property('xsappname')
         expected_scope = xsappname + '.Read'
         self.assertIsNotNone(resp.body)
@@ -310,7 +317,7 @@ class HttpUtil:
         return self.__execute(req)
 
     def post_request(self, url, data=None, access_token=None, additional_headers={}):
-        logging.debug('Performing POST request to ' + url)
+        logging.debug('Performing POST request to {} {}'.format(url, 'with access token: '+ access_token if access_token else 'without access token'))
         req = urllib.request.Request(url, data=data, method='POST')
         self.__add_headers(req, access_token, additional_headers)
         return self.__execute(req)
