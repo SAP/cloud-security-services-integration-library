@@ -26,6 +26,11 @@
 			<artifactId>commons-io</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
 
 		<!-- for call to tokenKeyService -->
 		<dependency>
