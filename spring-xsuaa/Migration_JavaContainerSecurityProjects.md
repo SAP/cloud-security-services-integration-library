@@ -18,7 +18,7 @@ The following list serves as an overview of this guide and points out sections t
 - `Token` instead of `XSUserInfo`. See section [Fetch data from token](#fetch-data-from-token).
 - If your application has multiple XSUAA bindings, see section [Multiple bindings](#multiple-xsuaa-bindings).
 
-## Prerequisite: Migrate to Spring 5
+## Prerequisite: Migrate to Spring 5 and Spring Security 5.2
 
 If your application does not already use Spring 5 you need to upgrade to Spring
 5 first to use [spring-xsuaa](/spring-xsuaa).
@@ -34,6 +34,8 @@ We already migrated the [cloud-bulletinboard-ads](https://github.com/SAP-samples
 application. You can take a look at 
 [this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/b6cc7b08b9b5b7862b1a04eb3bc72cb3c28626f8)
 which shows what had to be changed to migrate our open-SAP course application from Spring 4 to Spring 5.
+
+:bulb: Please also consider the [spring-xsuaa](/README.md#requirements-3) requirements.
 
 ## Maven Dependencies
 To use the new [spring-xsuaa](/spring-xsuaa) client library the dependencies declared in maven `pom.xml` need to be changed.

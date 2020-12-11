@@ -8,14 +8,15 @@ Token Validation for Java applications.
   - Is the JWT used before the `exp` (expiration) time and eventually is it used after the `nbf` (not before) time ([`JwtTimestampValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/JwtTimestampValidator.java))?
   - Is the JWT issued by a trust worthy identity service ([`JwtIssuerValidator`](
- src/main/java/com/sap/cloud/security/token/validation/validators/JwtIssuerValidator.java))? In case of XSUAA does the JWT provides a valid `jku` token header parameter that points to a JWKS url from a trust worthy identity service ([`XsuaaJkuValidator`](
+ src/main/java/com/sap/cloud/security/token/validation/validators/JwtIssuerValidator.java))?  
+In case of XSUAA does the JWT provide a valid `jku` token header parameter that points to a JWKS url from a trust worthy identity service ([`XsuaaJkuValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJkuValidator.java)) as it matches the uaa domain?
-  - Is the JWT intended for the OAuth2 client of this application? The `aud` (audience) claim identifies the recipients the JWT is issued for ([`XsuaaJwtAudienceValidator`](
- src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJwtAudienceValidator.java)).
+  - Is the JWT intended for the OAuth2 client of this application? The `aud` (audience) claim identifies the recipients the JWT is issued for ([`JwtAudienceValidator`](
+ src/main/java/com/sap/cloud/security/token/validation/validators/JwtAudienceValidator.java)).
   - Is the JWT signed with the public key of the trust-worthy identity service? With that it also makes sure that the payload and the header of the JWT is unchanged ([`JwtSignatureValidator`](
  src/main/java/com/sap/cloud/security/token/validation/validators/JwtSignatureValidator.java))?
 - Provides thread-local cache ([`SecurityContext`](/java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java)) to store the decoded and validated token.
-- Furthermore, it provides an authenticator ([`TokenAuthenticator`](/java-api/src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java)) that validates bearer tokens contained in the authorization header of HTTP requests. The authenticator is used in the following [sample](/samples/java-security-usage).
+- Furthermore, it provides an authenticator ([`TokenAuthenticator`](/java-api/src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java)) that validates bearer tokens contained in the authorization header of HTTP requests. The authenticator is used in SAP Java Buildpack, as well as in the [/samples/java-security-usage*](/samples).
 
 ![](images/xsuaaApplication.png)
 
@@ -156,7 +157,9 @@ Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants
 ## Token based authentication
 The servlet authenticator part of this library makes it easy to integrate token based authentication into your java application.
 For the integration of different Identity Services the [`TokenAuthenticator`](/java-api/src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java) interface was created. Right now there are these implementations:
+
 - [XsuaaTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java)
+- [IasTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/IasTokenAuthenticator.java)
 
 > Depending on the application's needs the `TokenAuthenticator` can be customized.
 
@@ -267,3 +270,12 @@ Or, alternatively in `src/main/webapp/WEB-INF/web.xml`:
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)
 2. [OpenID Connect Core 1.0 incorporating errata set 1](https://openid.net/specs/openid-connect-core-1_0.html)
 3. [OpenID Connect Core 1.0 incorporating errata set 1 - ID Token Validation](https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation)
+
+## Samples
+- [Xsuaa Sample](/samples/java-security-usage)    
+demonstrating how to leverage ``java-security`` library to perform authentication and authorization checks within a Java application when bound to a xsuaa service. Furthermore it documents how to implement JUnit Tests using `java-security-test` library.
+
+- [Ias Sample](/samples/java-security-usage-ias)    
+demonstrating how to leverage ``java-security`` library to perform authentication checks within a Java application when bound to a ias identity service. Furthermore it documents how to implement JUnit Tests using `java-security-test` library.
+
+
