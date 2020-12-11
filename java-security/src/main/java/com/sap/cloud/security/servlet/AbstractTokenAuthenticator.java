@@ -59,7 +59,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	/**
 	 * Use to configure the token key cache.
-	 * 
+	 *
 	 * @param cacheConfiguration
 	 *            the cache configuration
 	 * @return this authenticator
@@ -71,7 +71,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	/**
 	 * Use to configure the HttpClient that is used to retrieve token keys.
-	 * 
+	 *
 	 * @param httpClient
 	 *            the HttpClient
 	 * @return this authenticator
@@ -83,7 +83,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	/**
 	 * Use to override the service configuration used.
-	 * 
+	 *
 	 * @param serviceConfiguration
 	 *            the service configuration to use
 	 * @return this authenticator
@@ -96,7 +96,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	/**
 	 * Adds the validation listener to the jwt validator that is being used by the
 	 * authenticator to validate the tokens.
-	 * 
+	 *
 	 * @param validationListener
 	 *            the listener to be added.
 	 * @return the authenticator instance
@@ -109,7 +109,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	/**
 	 * Return configured service configuration or Environments.getCurrent() if not
 	 * configured.
-	 * 
+	 *
 	 * @return the actual service configuration
 	 * @throws IllegalStateException
 	 *             in case service configuration is null
@@ -133,7 +133,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 */
 	protected abstract Token extractFromHeader(String authorizationHeader);
 
-	private Validator<Token> getOrCreateTokenValidator() {
+	Validator<Token> getOrCreateTokenValidator() {
 		if (tokenValidator == null) {
 			JwtValidatorBuilder jwtValidatorBuilder = JwtValidatorBuilder.getInstance(getServiceConfiguration())
 					.withHttpClient(httpClient);
@@ -145,7 +145,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return tokenValidator;
 	}
 
-	private TokenAuthenticationResult unauthenticated(String message) {
+	TokenAuthenticationResult unauthenticated(String message) {
 		logger.warn("Request could not be authenticated: {}.", message);
 		return TokenAuthenticatorResult.createUnauthenticated(message);
 	}
@@ -154,7 +154,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return TokenAuthenticatorResult.createAuthenticated(Collections.emptyList(), token);
 	}
 
-	private boolean headerIsAvailable(String authorizationHeader) {
+	boolean headerIsAvailable(String authorizationHeader) {
 		return authorizationHeader != null && !authorizationHeader.isEmpty();
 	}
 
