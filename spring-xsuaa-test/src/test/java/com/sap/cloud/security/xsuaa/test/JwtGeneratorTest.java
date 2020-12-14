@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.nimbusds.jose.shaded.json.JSONArray;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenClaims;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders;
@@ -15,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import net.minidev.json.JSONArray;
 
 public class JwtGeneratorTest {
 	private JwtGenerator jwtGenerator;

@@ -6,20 +6,18 @@ import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
+
+import com.nimbusds.jose.shaded.json.JSONObject;
+import com.nimbusds.jose.shaded.json.JSONArray;
+import com.nimbusds.jose.shaded.json.parser.JSONParser;
+import com.nimbusds.jose.shaded.json.parser.ParseException;
+
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 
 public class XsuaaServicesParser {
 
@@ -73,7 +71,7 @@ public class XsuaaServicesParser {
 			credentialsJSON = parseCredentials(vcapServices);
 		}
 		if (credentialsJSON != null) {
-			Optional<String> attributeString = Optional.ofNullable(credentialsJSON.getAsString(name));
+			Optional<String> attributeString = Optional.ofNullable(credentialsJSON.getOrDefault(name, Optional.empty()).toString());
 			if (!attributeString.isPresent()) {
 				logger.info("XSUAA VCAP_SERVICES has no attribute with name '{}'.", name);
 			}
@@ -135,14 +133,14 @@ public class XsuaaServicesParser {
 
 	private static JSONObject getJSONObjectFromTag(final JSONArray jsonArray, String tag) {
 		JSONObject xsuaaBinding = null;
-		for (int i = 0; i < jsonArray.size(); i++) {
-			JSONObject binding = (JSONObject) jsonArray.get(i);
+		for (Object value : jsonArray) {
+			JSONObject binding = (JSONObject) value;
 			JSONArray tags = (JSONArray) binding.get(TAGS);
 
-			Optional<String> planName = Optional.ofNullable(binding.getAsString("plan"));
+			Optional<String> planName = Optional.ofNullable(binding.getOrDefault("plan", Optional.empty()).toString());
 			boolean isApiAccessPlan = (planName.isPresent() && planName.get().equals("apiaccess"));
-			for (int j = 0; j < tags.size(); j++) {
-				if (tags.get(j).equals(tag) && !isApiAccessPlan) {
+			for (Object o : tags) {
+				if (o.equals(tag) && !isApiAccessPlan) {
 					if (xsuaaBinding == null) {
 						xsuaaBinding = binding;
 					} else {

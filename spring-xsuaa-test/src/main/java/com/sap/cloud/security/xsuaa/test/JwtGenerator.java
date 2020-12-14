@@ -462,7 +462,7 @@ public class JwtGenerator {
 		return jwt;
 	}
 
-	class ExternalAttrClaim {
+	protected class ExternalAttrClaim {
 		public String zdn = subdomain;
 	}
 }

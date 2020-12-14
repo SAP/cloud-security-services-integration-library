@@ -1,7 +1,7 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import com.nimbusds.jose.shaded.json.JSONArray;
 import com.sap.cloud.security.token.InvalidTokenException;
-import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;

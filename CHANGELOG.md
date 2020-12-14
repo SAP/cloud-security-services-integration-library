@@ -1,7 +1,11 @@
 # Change Log 
 
 All notable changes to this project will be documented in this file.
-
+## 2.8.1
+- The following dependencies were updated:
+    - spring.boot.version 2.3.5.RELEASE --> 2.4.1
+    - spring.core.version 5.2.10.RELEASE --> 5.3.2
+    - spring.security.version 5.3.5.RELEASE --> 5.4.2
 ## 2.8.0
 - [java-security] 
   - `getClientId()` method was added to `Token` interface. `getClientId()` method should be used instead of `getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)`. `TokenClaims.XSUAA.CLIENT_ID` is deprecated.
