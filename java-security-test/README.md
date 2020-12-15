@@ -22,7 +22,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>2.8.0</version>
+    <version>2.8.1-SNAPSHOT</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -105,7 +105,7 @@ public class HelloJavaServletTest {
 
 
 ### JUnit 5
-JUnit 5 does no longer support `Rule`. As of `java-security-test` version `2.8.0` you can implement using [JUnit 5 extensions](https://junit.org/junit5/docs/current/user-guide/#extensions) instead. 
+JUnit 5 does no longer support `Rule`. As of `java-security-test` version `2.7.8` you can implement using [JUnit 5 extensions](https://junit.org/junit5/docs/current/user-guide/#extensions) instead. 
 
 
 `XsuaaExtension` class as well as the `IasExtension` class implements the `BeforeAllCallback` to configure and start `WireMock` as mock server for the identity service. Furthermore, it implements the `AfterAllCallback` to stop the running server(s).
