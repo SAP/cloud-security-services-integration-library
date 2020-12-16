@@ -158,7 +158,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return authorizationHeader != null && !authorizationHeader.isEmpty();
 	}
 
-	TokenAuthenticationResult tokenValidationResult(Token token){
+	TokenAuthenticationResult tokenValidationResult(Token token) {
 		Validator<Token> validator = getOrCreateTokenValidator();
 		ValidationResult result = validator.validate(token);
 		if (result.isValid()) {

@@ -37,9 +37,9 @@ public class XsuaaTokenAuthenticatorTest {
 
 	private final XsuaaToken xsuaaToken;
 	private final XsuaaToken invalidSignatureToken;
-    private final SapIdToken iasToken;
-    private CloseableHttpClient mockHttpClient;
-    private OAuth2ServiceConfiguration oAuth2ServiceConfiguration;
+	private final SapIdToken iasToken;
+	private CloseableHttpClient mockHttpClient;
+	private OAuth2ServiceConfiguration oAuth2ServiceConfiguration;
 
 	private AbstractTokenAuthenticator cut;
 
@@ -47,8 +47,8 @@ public class XsuaaTokenAuthenticatorTest {
 		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
 		invalidSignatureToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaInvalidSignatureTokenRSA256.txt", UTF_8));
-        iasToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
-    }
+		iasToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
+	}
 
 	@Before
 	public void setUp() throws IOException {
@@ -58,13 +58,13 @@ public class XsuaaTokenAuthenticatorTest {
 				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 		when(mockHttpClient.execute(any(HttpGet.class))).thenReturn(response);
 
-	    oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder
+		oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
 				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "auth.com")
 				.withProperty(CFConstants.XSUAA.APP_ID, "appId")
 				.withClientId("clientId")
-                .withClientSecret("mySecret")
-                .withUrl("https://myauth.com")
+				.withClientSecret("mySecret")
+				.withUrl("https://myauth.com")
 				.build();
 
 		cut = new XsuaaTokenAuthenticator()
@@ -148,36 +148,38 @@ public class XsuaaTokenAuthenticatorTest {
 		Mockito.verifyNoMoreInteractions(validationListener2);
 	}
 
-    @Test
-    public void validateRequest_tokenXchangeEnabled_IasToken() throws Exception {
-        IasXsuaaExchangeBroker mockExchangeBroker = Mockito.mock(IasXsuaaExchangeBroker.class);
-        when(mockExchangeBroker.doIasToXsuaaXchange(any(), any(), any())).thenReturn(xsuaaToken.getTokenValue());
+	@Test
+	public void validateRequest_tokenXchangeEnabled_IasToken() throws Exception {
+		IasXsuaaExchangeBroker mockExchangeBroker = Mockito.mock(IasXsuaaExchangeBroker.class);
+		when(mockExchangeBroker.doIasToXsuaaXchange(any(), any(), any())).thenReturn(xsuaaToken.getTokenValue());
 
-        cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
-                .withHttpClient(mockHttpClient)
-                .withServiceConfiguration(oAuth2ServiceConfiguration);
+		cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
+				.withHttpClient(mockHttpClient)
+				.withServiceConfiguration(oAuth2ServiceConfiguration);
 
-        HttpServletRequest httpRequest = createRequestWithToken(iasToken.getTokenValue());
-        final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
-        withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "true").execute(()-> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
-        assertEquals(response[0].getToken(), xsuaaToken);
-
-    }
-
-    @Test
-    public void validateRequest_tokenXchangeEnabled_IasTokenXchangeBrokerError() throws Exception {
-        IasXsuaaExchangeBroker mockExchangeBroker = Mockito.mock(IasXsuaaExchangeBroker.class);
-        when(mockExchangeBroker.doIasToXsuaaXchange(any(), any(), any())).thenThrow(TokenFlowException.class);
-
-        cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
-                .withHttpClient(mockHttpClient)
-                .withServiceConfiguration(oAuth2ServiceConfiguration);
-
-        HttpServletRequest httpRequest = createRequestWithToken(iasToken.getTokenValue());
+		HttpServletRequest httpRequest = createRequestWithToken(iasToken.getTokenValue());
 		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
-		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "true").execute(()-> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
+		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "true")
+				.execute(() -> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
+		assertEquals(response[0].getToken(), xsuaaToken);
+
+	}
+
+	@Test
+	public void validateRequest_tokenXchangeEnabled_IasTokenXchangeBrokerError() throws Exception {
+		IasXsuaaExchangeBroker mockExchangeBroker = Mockito.mock(IasXsuaaExchangeBroker.class);
+		when(mockExchangeBroker.doIasToXsuaaXchange(any(), any(), any())).thenThrow(TokenFlowException.class);
+
+		cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
+				.withHttpClient(mockHttpClient)
+				.withServiceConfiguration(oAuth2ServiceConfiguration);
+
+		HttpServletRequest httpRequest = createRequestWithToken(iasToken.getTokenValue());
+		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
+		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "true")
+				.execute(() -> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
 		assertFalse(response[0].isAuthenticated());
-    }
+	}
 
 	@Test
 	public void validateRequest_tokenXchangeEnabled_validXsuaa() throws Exception {
@@ -190,7 +192,8 @@ public class XsuaaTokenAuthenticatorTest {
 
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
 		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
-		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "true").execute(()-> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
+		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "true")
+				.execute(() -> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
 		assertEquals(response[0].getToken(), xsuaaToken);
 	}
 
@@ -205,7 +208,8 @@ public class XsuaaTokenAuthenticatorTest {
 
 		HttpServletRequest httpRequest = createRequestWithToken(invalidSignatureToken.getTokenValue());
 		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
-		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "true").execute(()-> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
+		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "true")
+				.execute(() -> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
 		assertFalse(response[0].isAuthenticated());
 	}
 
@@ -221,7 +225,8 @@ public class XsuaaTokenAuthenticatorTest {
 
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
 		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
-		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "false").execute(()-> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
+		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "false")
+				.execute(() -> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
 		assertTrue(response[0].isAuthenticated());
 	}
 
@@ -236,7 +241,8 @@ public class XsuaaTokenAuthenticatorTest {
 
 		HttpServletRequest httpRequest = createRequestWithToken(invalidSignatureToken.getTokenValue());
 		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
-		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "false").execute(()-> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
+		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "false")
+				.execute(() -> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
 		assertFalse(response[0].isAuthenticated());
 	}
 
