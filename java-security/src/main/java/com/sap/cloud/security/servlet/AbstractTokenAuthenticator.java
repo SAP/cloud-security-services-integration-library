@@ -40,13 +40,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = extractFromHeader(authorizationHeader);
-					ValidationResult result = getOrCreateTokenValidator().validate(token);
-					if (result.isValid()) {
-						SecurityContext.setToken(token);
-						return authenticated(token);
-					} else {
-						return unauthenticated("Error during token validation: " + result.getErrorDescription());
-					}
+					return tokenValidationResult(token);
 				} catch (Exception e) {
 					return unauthenticated("Unexpected error occurred: " + e.getMessage());
 				}
