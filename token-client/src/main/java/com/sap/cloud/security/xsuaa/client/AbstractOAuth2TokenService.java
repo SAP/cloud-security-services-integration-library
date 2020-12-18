@@ -188,8 +188,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	}
 
 	public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpoint,
-																		 ClientCredentials clientCredentials, @Nonnull String token,
-																		 @Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest, @Nonnull String xZidHeader)
+			ClientCredentials clientCredentials, @Nonnull String token,
+			@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest,
+			@Nonnull String xZidHeader)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpoint, "tokenEndpoint is required");
 		assertNotNull(clientCredentials, "clientCredentials are required");

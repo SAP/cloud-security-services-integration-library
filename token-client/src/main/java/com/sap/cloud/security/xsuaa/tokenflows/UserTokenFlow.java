@@ -204,13 +204,12 @@ public class UserTokenFlow {
 		}
 
 		try {
-			if(xZid == null) {
+			if (xZid == null) {
 				return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
 						request.getTokenEndpoint(),
 						new ClientCredentials(request.getClientId(), request.getClientSecret()),
 						token, request.getSubdomain(), optionalParameter, disableCache);
-			}
-			else {
+			} else {
 				return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
 						request.getTokenEndpoint(),
 						new ClientCredentials(request.getClientId(), request.getClientSecret()),

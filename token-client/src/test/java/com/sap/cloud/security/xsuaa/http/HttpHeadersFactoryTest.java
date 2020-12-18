@@ -31,7 +31,7 @@ public class HttpHeadersFactoryTest {
 	}
 
 	@Test
-	public void createWithXzidHeader(){
+	public void createWithXzidHeader() {
 		HttpHeaders headers = HttpHeadersFactory.createWithXzidHeader("zone");
 		assertThat(headers.getHeaders()).hasSize(3);
 		assertThat(headers.getHeaders()).containsExactlyInAnyOrder(X_ZID, ACCEPT_JSON_HEADER, CONTENT_TYPE_URL_ENCODED);

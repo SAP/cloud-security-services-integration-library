@@ -181,7 +181,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			if (oAuth2token == null) {
 				break;
 			}
-			if (iasXsuaaExchangeBroker.isXsuaaToken(oAuth2token) || !iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
+			if (iasXsuaaExchangeBroker.isXsuaaToken(oAuth2token)
+					|| !iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
 				return oAuth2token;
 			} else if (iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
 				return iasXsuaaExchangeBroker.getXsuaaToken(oAuth2token);

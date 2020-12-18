@@ -53,7 +53,7 @@ public class HttpHeadersFactory {
 		return headers;
 	}
 
-	private static Map<String, String> createXzidHeader(Map<String,String> headers, String xZidValue) {
+	private static Map<String, String> createXzidHeader(Map<String, String> headers, String xZidValue) {
 		headers.put(HttpHeaders.X_ZID, xZidValue);
 		return headers;
 	}

@@ -169,7 +169,7 @@ public class UserTokenFlowTest {
 				eq(clientCredentials),
 				eq("encoded.Token.Value"),
 				anyMap(), anyBoolean(), eq("zone")))
-				.thenReturn(mockedResponse);
+						.thenReturn(mockedResponse);
 
 		OAuth2TokenResponse actualResponse = cut.token(mockedToken)
 				.execute();
