@@ -16,6 +16,7 @@
 package sample.spring.xsuaa;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -28,6 +29,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
@@ -36,6 +38,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	XsuaaServiceConfiguration xsuaaServiceConfiguration;
+
+	@Autowired
+	JwtDecoder jwtDecoder; // TODO get a HybridJwtDecoder
 
 	// TODO
 	//@Autowired
@@ -56,6 +61,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 				.oauth2ResourceServer()
 				.jwt()
+				.decoder(jwtDecoder)
 				.jwtAuthenticationConverter(getJwtAuthenticationConverter());
 		// @formatter:on
 	}
