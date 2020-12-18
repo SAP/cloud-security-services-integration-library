@@ -1,11 +1,9 @@
-/**
- * 
- */
 package com.sap.cloud.security.xsuaa.extractor;
 
 import java.net.URI;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.springframework.cache.Cache;
@@ -92,6 +90,15 @@ public class TokenBrokerTestConfiguration {
 			public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
 					ClientCredentials clientCredentials, String token, @Nullable String subdomain,
 					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
+					throws OAuth2ServiceException {
+				return new OAuth2TokenResponse(XSUAA_TOKEN, 100, null);
+			}
+
+			@Override
+			public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
+					ClientCredentials clientCredentials, @Nonnull String token,
+					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest,
+					@Nonnull String xZidHeader)
 					throws OAuth2ServiceException {
 				return new OAuth2TokenResponse(XSUAA_TOKEN, 100, null);
 			}

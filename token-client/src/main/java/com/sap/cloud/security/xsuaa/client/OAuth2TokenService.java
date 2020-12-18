@@ -210,4 +210,29 @@ public interface OAuth2TokenService {
 				optionalParameters, false);
 	}
 
+	/**
+	 * @param tokenEndpointUri
+	 *            the token endpoint URI.
+	 * @param clientCredentials
+	 *            the client id and secret of the OAuth client, the recipient of the
+	 *            token.
+	 * @param token
+	 *            the JWT token identifying representing the user to be
+	 *            authenticated
+	 * @param optionalParameters
+	 *            optional request parameters, can be null.
+	 * @param disableCache
+	 *            setting to true disables the token cache for this request.
+	 * @param xZid
+	 * 			  zone id of IAS tenant
+	 * @return the OAuth2AccessToken
+	 * @throws OAuth2ServiceException
+	 *             in case of an error during the http request.
+	 */
+	OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
+																  ClientCredentials clientCredentials,
+																  @Nonnull String token,
+																  @Nullable Map<String, String> optionalParameters,
+																  boolean disableCache,
+																  @Nonnull String xZid) throws OAuth2ServiceException;
 }

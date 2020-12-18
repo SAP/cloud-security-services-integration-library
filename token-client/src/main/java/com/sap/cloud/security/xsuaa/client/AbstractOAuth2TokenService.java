@@ -187,6 +187,30 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 		return getOAuth2TokenResponse(tokenEndpoint, headers, parameters, subdomain, disableCacheForRequest);
 	}
 
+	public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpoint,
+																		 ClientCredentials clientCredentials, @Nonnull String token,
+																		 @Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest, @Nonnull String xZidHeader)
+			throws OAuth2ServiceException {
+		assertNotNull(tokenEndpoint, "tokenEndpoint is required");
+		assertNotNull(clientCredentials, "clientCredentials are required");
+		assertNotNull(token, "token is required");
+		assertNotNull(xZidHeader, "X-zid header is required");
+
+		Map<String, String> parameters = new RequestParameterBuilder()
+				.withGrantType(GRANT_TYPE_JWT_BEARER)
+				.withClientCredentials(clientCredentials)
+				.withToken(token)
+				.withOptionalParameters(optionalParameters)
+				.buildAsMap();
+
+		HttpHeaders headers = HttpHeadersFactory.createWithXzidHeader(xZidHeader);
+
+		if (isCacheDisabled() || disableCacheForRequest) {
+			return requestAccessToken(tokenEndpoint, headers, parameters);
+		}
+		return getOrRequestAccessToken(tokenEndpoint, headers, parameters);
+	}
+
 	/**
 	 * Implements the HTTP client specific logic to perform an HTTP request and
 	 * handle the response.

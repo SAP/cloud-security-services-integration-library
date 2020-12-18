@@ -13,6 +13,7 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.xsa.security.container.XSTokenRequest;
@@ -27,6 +28,7 @@ public class UserTokenFlow {
 
 	private XsuaaTokenFlowRequest request;
 	private String token;
+	private String xZid;
 	private OAuth2TokenService tokenService;
 	private boolean disableCache = false;
 	private List<String> scopes = new ArrayList<>();
@@ -57,13 +59,27 @@ public class UserTokenFlow {
 	/**
 	 * Sets the JWT token that should be exchanged for another JWT token.
 	 *
-	 * @param token
+	 * @param encodedToken
 	 *            - the JWT token.
 	 * @return this builder object.
 	 */
-	public UserTokenFlow token(String token) {
+	public UserTokenFlow token(String encodedToken) {
+		assertNotNull(encodedToken, "Token must not be null.");
+		this.token = encodedToken;
+		return this;
+	}
+
+	/**
+	 * Sets the JWT token that should be exchanged for another JWT token.
+	 *
+	 * @param token
+	 *            - decoded JWT token.
+	 * @return this builder object.
+	 */
+	public UserTokenFlow token(Token token) {
 		assertNotNull(token, "Token must not be null.");
-		this.token = token;
+		this.token = token.getTokenValue();
+		this.xZid = token.getZoneId();
 		return this;
 	}
 
@@ -188,10 +204,18 @@ public class UserTokenFlow {
 		}
 
 		try {
-			return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-					request.getTokenEndpoint(),
-					new ClientCredentials(request.getClientId(), request.getClientSecret()),
-					token, request.getSubdomain(), optionalParameter, disableCache);
+			if(xZid == null) {
+				return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+						request.getTokenEndpoint(),
+						new ClientCredentials(request.getClientId(), request.getClientSecret()),
+						token, request.getSubdomain(), optionalParameter, disableCache);
+			}
+			else {
+				return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+						request.getTokenEndpoint(),
+						new ClientCredentials(request.getClientId(), request.getClientSecret()),
+						token, optionalParameter, disableCache, xZid);
+			}
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format(

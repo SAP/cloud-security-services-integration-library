@@ -34,6 +34,10 @@ public class HttpHeadersFactory {
 		return createFromHeaders(createDefaultHeaders());
 	}
 
+	public static HttpHeaders createWithXzidHeader(String xZidValue) {
+		return createFromHeaders(createXzidHeader(createDefaultHeaders(), xZidValue));
+	}
+
 	private static HttpHeaders createFromHeaders(Map<String, String> headers) {
 		List<HttpHeader> httpHeaders = headers.entrySet()
 				.stream()
@@ -46,6 +50,11 @@ public class HttpHeadersFactory {
 		Map<String, String> headers = new HashMap<>();
 		headers.put(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.value());
 		headers.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED.value());
+		return headers;
+	}
+
+	private static Map<String, String> createXzidHeader(Map<String,String> headers, String xZidValue) {
+		headers.put(HttpHeaders.X_ZID, xZidValue);
 		return headers;
 	}
 
