@@ -1,0 +1,14 @@
+---
+# Setting Log Levels          
+logging.level:
+  com.sap: DEBUG                      # set SAP-class loggers to DEBUG.
+  org.springframework: ERROR          # set to DEBUG to see all beans loaded and auto-config conditions met.
+  org.springframework.security: DEBUG # set to ERROR for production setups. 
+  org.springframework.web: DEBUG      # set to ERROR for production setups.
+          
+# Server Port (from environment or 8080 if not set).          
+server:
+  port: ${PORT:8080}
+
+# Enable to make Spring Boot log debug information.
+# debug: true  
