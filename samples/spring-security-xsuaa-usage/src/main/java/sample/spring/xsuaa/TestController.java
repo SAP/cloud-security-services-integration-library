@@ -154,7 +154,7 @@ public class TestController {
     public String requestUserToken(@AuthenticationPrincipal Jwt jwt) throws TokenFlowException {
         OAuth2TokenResponse userTokenResponse = tokenFlows.userTokenFlow()
                 .token(jwt.getTokenValue())
-                .subdomain(((XsuaaToken) jwtToken).getSubdomain())
+                .subdomain(((XsuaaToken) jwt).getSubdomain())
                 .execute();
 
         logger.info("Got the exchanged token for 3rd party service: {}", userTokenResponse);
