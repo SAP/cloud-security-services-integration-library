@@ -1,5 +1,8 @@
-package com.sap.cloud.security.token;
+package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.token.SapIdToken;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
@@ -8,8 +11,9 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_
 
 /**
  * Creates a {@link Token} instance. Supports Jwt tokens from IAS and XSUAA identity service.
+ * This will be moved to java-api component soon and will load and instantiate the respective Token dynamically.
  */
-public class TokenFactory {
+class TokenFactory {
 
     private TokenFactory() {
         // use the factory method instead
@@ -31,7 +35,7 @@ public class TokenFactory {
     }
 
     /**
-     * Determines if the provided decoded jwt token is issued by the Xsuaa idenity service.
+     * Determines if the provided decoded jwt token is issued by the XSUAA identity service.
      *
      * @param decodedJwt jwt to be checked
      * @return true if provided token is a XSUAA token
@@ -41,6 +45,5 @@ public class TokenFactory {
         return jwtPayload.contains(EXTERNAL_ATTRIBUTE)
                 && jwtPayload.contains(EXTERNAL_ATTRIBUTE_ENHANCER)
                 && jwtPayload.contains("xsuaa");
-
     }
 }
