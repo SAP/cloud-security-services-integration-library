@@ -77,7 +77,7 @@ public class UserTokenFlow {
 	 * @return this builder object.
 	 */
 	public UserTokenFlow token(Token token) {
-		assertNotNull(token, "Token must not be null.");
+		assertNotNull(token, "Encoded token must not be null.");
 		this.token = token.getTokenValue();
 		this.xZid = token.getZoneId();
 		return this;

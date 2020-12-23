@@ -56,7 +56,7 @@ public class IasXsuaaExchangeBroker {
 	 * Request a Xsuaa token using Ias token as a grant.
 	 *
 	 * @param iasToken
-	 *            decoded IAS token
+	 *            IAS token
 	 * @return encoded Xsuaa token
 	 */
 	@Nullable

@@ -24,6 +24,11 @@ public class HttpHeaders {
 		return headers;
 	}
 
+	public HttpHeaders withHeader(String headerName, String value) {
+		this.headers.add(new HttpHeader(headerName, value));
+		return this;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)

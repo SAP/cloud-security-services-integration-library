@@ -224,7 +224,7 @@ public interface OAuth2TokenService {
 	 * @param disableCache
 	 *            setting to true disables the token cache for this request.
 	 * @param xZid
-	 *            zone id of IAS tenant
+	 *            zone id of the tenant
 	 * @return the OAuth2AccessToken
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
