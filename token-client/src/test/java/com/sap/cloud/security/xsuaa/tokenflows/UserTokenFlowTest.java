@@ -1,29 +1,22 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
-import static java.util.Collections.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Map;
-
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.xsuaa.client.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
+import static java.util.Collections.emptyMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserTokenFlowTest {
@@ -161,6 +154,33 @@ public class UserTokenFlowTest {
 				.retrieveAccessTokenViaJwtBearerTokenGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
 						eq(exchangeToken),
 						isNull(), eq(additionalAuthoritiesParam), anyBoolean());
+	}
+
+	@Test
+	public void execute_withXzidHeader() throws TokenFlowException, OAuth2ServiceException {
+		Token mockedToken = mock(Token.class);
+		OAuth2TokenResponse mockedResponse = new OAuth2TokenResponse("4bfad399ca10490da95c2b5eb4451d53",
+				441231, REFRESH_TOKEN);
+
+		when(mockedToken.getTokenValue()).thenReturn("encoded.Token.Value");
+		when(mockedToken.getZoneId()).thenReturn("zone");
+		when(mockTokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+				eq(TOKEN_ENDPOINT_URI),
+				eq(clientCredentials),
+				eq("encoded.Token.Value"),
+				anyMap(), anyBoolean(), eq("zone")))
+						.thenReturn(mockedResponse);
+
+		OAuth2TokenResponse actualResponse = cut.token(mockedToken)
+				.execute();
+
+		assertThat(actualResponse.getAccessToken()).isSameAs(mockedResponse.getAccessToken());
+		verify(mockTokenService, times(1))
+				.retrieveAccessTokenViaJwtBearerTokenGrant(
+						eq(TOKEN_ENDPOINT_URI),
+						eq(clientCredentials),
+						eq("encoded.Token.Value"),
+						anyMap(), anyBoolean(), eq("zone"));
 	}
 
 	private OAuth2TokenResponse mockRetrieveAccessToken() throws OAuth2ServiceException {

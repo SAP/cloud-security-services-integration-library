@@ -40,7 +40,7 @@ public class IasXsuaaExchangeBroker {
 				new DefaultOAuth2TokenService(httpClient),
 				new XsuaaDefaultEndpoints(serviceConfiguration.getUrl()),
 				new ClientCredentials(serviceConfiguration.getClientId(), serviceConfiguration.getClientSecret()));
-		OAuth2TokenResponse tokenResponse = tokenFlows.userTokenFlow().token(token.getTokenValue()).execute();
+		OAuth2TokenResponse tokenResponse = tokenFlows.userTokenFlow().token(token).execute();
 		logger.debug("Response token from Ias to Xsuaa token exchange {}", tokenResponse.getAccessToken());
 		return tokenResponse.getAccessToken();
 	}
