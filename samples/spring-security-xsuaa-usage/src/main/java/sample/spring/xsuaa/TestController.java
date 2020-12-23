@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.token.Token;
+import com.sap.cloud.security.xsuaa.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
@@ -153,6 +154,7 @@ public class TestController {
     public String requestUserToken(@AuthenticationPrincipal Jwt jwt) throws TokenFlowException {
         OAuth2TokenResponse userTokenResponse = tokenFlows.userTokenFlow()
                 .token(jwt.getTokenValue())
+                .subdomain(((XsuaaToken) jwtToken).getSubdomain())
                 .execute();
 
         logger.info("Got the exchanged token for 3rd party service: {}", userTokenResponse);
