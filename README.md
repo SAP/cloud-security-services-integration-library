@@ -61,7 +61,8 @@ Spring Boot provides OAuth resource servers. Application developers requiring au
 ### Requirements
 - Java 8
 - maven 3.3.9 or later
-- as of version 2.6.1 Spring Boot 2.2 or later is required. Consequently, it also requires Spring Security version >= 5.2.
+- as of version 2.6.1 Spring Boot 2.2 or 2.3 is required. Consequently, it also requires Spring Security version >= 5.2
+- Spring boot 2.4 and Spring Security 5.4 are not yet supported. See [#413](https://github.com/SAP/cloud-security-xsuaa-integration/issues/414) for known issues and workarounds related to the usage of Spring Boot 2.4 and Spring Security 5.4
 
 ### Sample
 - See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
