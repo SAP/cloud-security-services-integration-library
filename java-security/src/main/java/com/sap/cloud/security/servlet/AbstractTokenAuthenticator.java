@@ -39,7 +39,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
-					Token token = extractFromHeader(authorizationHeader);
+					Token token = TokenFactory.create(authorizationHeader);
 					return tokenValidationResult(token);
 				} catch (Exception e) {
 					return unauthenticated("Unexpected error occurred: " + e.getMessage());
