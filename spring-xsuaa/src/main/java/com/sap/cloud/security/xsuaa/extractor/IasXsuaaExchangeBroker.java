@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
+import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
@@ -55,11 +56,11 @@ public class IasXsuaaExchangeBroker {
 	 * Request a Xsuaa token using Ias token as a grant.
 	 *
 	 * @param iasToken
-	 *            encoded IAS token
+	 *            decoded IAS token
 	 * @return encoded Xsuaa token
 	 */
 	@Nullable
-	public String getXsuaaToken(String iasToken) {
+	public String getXsuaaToken(Token iasToken) {
 		try {
 			return xsuaaTokenFlows.userTokenFlow().token(iasToken).execute().getAccessToken();
 		} catch (TokenFlowException e) {
