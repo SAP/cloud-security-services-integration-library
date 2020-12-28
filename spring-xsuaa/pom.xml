@@ -49,10 +49,6 @@
 			<artifactId>api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sap.cloud.security</groupId>
-			<artifactId>java-api</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>token-client</artifactId>
 		</dependency>

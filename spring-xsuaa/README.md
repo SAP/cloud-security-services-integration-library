@@ -145,6 +145,38 @@ In detail `com.sap.cloud.security.xsuaa.token.SpringSecurityContext` wraps the S
 
 Note that Spring Security Context is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
 
+### Token Exchange
+In case application is required to do token exchange token-client and java-api dependencies need to be available(shouldn't be excluded) in the project.
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.sap.cloud.security</groupId>
+	<artifactId>java-api</artifactId>		
+</dependency>
+```
+To use the token exchange, in the application's security configuration `bearerTokenResolver` needs to be defined in the following manner:
+```java
+http.authorizeRequests()
+      .antMatchers("/secured/path/**").hasAuthority("application.Read")
+      .anyRequest().denyAll()
+      .and().oauth2ResourceServer()
+      .bearerTokenResolver(new TokenBrokerResolver(xsuaaServiceConfiguration, cache,
+                                 authenticationMethod));
+```
+where:
+- xsuaaServiceConfiguration: configuration properties from environment
+- cache: application's token-cache
+- authenticationMethod: authentication method used
+
+Currently, the following [authentication methods](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/extractor/AuthenticationMethod.java#L3) are supported:
+- `AuthenticationMethod.BASIC`
+- `AuthenticationMethod.CLIENT_CREDENTIALS`
+
+Please check out also our [Spring Xsuaa sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/samples/spring-security-basic-auth/src/main/java/sample/spring/xsuaa/SecurityConfiguration.java) for `TokenBrokerResolver` usage with Basic Authentication method.
+
 ## Usage
 
 ### Access user/token information
