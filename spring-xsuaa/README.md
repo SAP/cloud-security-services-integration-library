@@ -146,15 +146,11 @@ In detail `com.sap.cloud.security.xsuaa.token.SpringSecurityContext` wraps the S
 Note that Spring Security Context is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
 
 ### Token Exchange
-In case application is required to do token exchange token-client and java-api dependencies need to be available(shouldn't be excluded) in the project.
+In case application is required to do token exchange token-client with all its' transitive dependencies need to be available(shouldn't be excluded) in the project.
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-</dependency>
-<dependency>
-    <groupId>com.sap.cloud.security</groupId>
-	<artifactId>java-api</artifactId>		
 </dependency>
 ```
 To use the token exchange, in the application's security configuration `bearerTokenResolver` needs to be defined in the following manner:
@@ -169,13 +165,14 @@ http.authorizeRequests()
 where:
 - xsuaaServiceConfiguration: configuration properties from environment
 - cache: application's token-cache
-- authenticationMethod: authentication method used
-
+- authenticationMethod: supported authentication method that's being used.
 Currently, the following [authentication methods](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/extractor/AuthenticationMethod.java#L3) are supported:
-- `AuthenticationMethod.BASIC`
-- `AuthenticationMethod.CLIENT_CREDENTIALS`
+    - `AuthenticationMethod.BASIC`
+    - `AuthenticationMethod.CLIENT_CREDENTIALS`
 
 Please check out also our [Spring Xsuaa sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/samples/spring-security-basic-auth/src/main/java/sample/spring/xsuaa/SecurityConfiguration.java) for `TokenBrokerResolver` usage with Basic Authentication method.
+
+To enable token exchange between IAS and XSUAA system environment variable 'IAS_XSUAA_XCHANGE_ENABLED' needs to be provided and enabled as described in [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/c5b601521c62ad124cd4d5acaf113d93bf265e8a/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/extractor/IasXsuaaExchangeBroker.java#L73)
 
 ## Usage
 
