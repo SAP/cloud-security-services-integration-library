@@ -1,7 +1,5 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
@@ -17,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.lang.Nullable;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
@@ -191,12 +188,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				return oAuth2token;
 			} else if (iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
 				try {
-					JWT decodedToken = JWTParser.parse(oAuth2token);
-					Jwt jwt = new Jwt(oAuth2token, decodedToken.getJWTClaimsSet().getIssueTime().toInstant(),
-							decodedToken.getJWTClaimsSet().getExpirationTime().toInstant(),
-							decodedToken.getHeader().toJSONObject(), decodedToken.getJWTClaimsSet().getClaims());
-					Token token = new IasToken(jwt);
-					return iasXsuaaExchangeBroker.getXsuaaToken(token);
+					Token token = iasXsuaaExchangeBroker.decodeToken(oAuth2token);
+					return iasXsuaaExchangeBroker.doIasXsuaaXchange(token);
 				} catch (ParseException e) {
 					logger.error("Couldn't decode the token: {}", e.getMessage());
 				}

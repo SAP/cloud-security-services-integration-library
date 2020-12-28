@@ -1,18 +1,18 @@
-package com.sap.cloud.security.xsuaa.token;
+package com.sap.cloud.security.xsuaa.extractor;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
-import com.sap.cloud.security.xsuaa.extractor.IasXsuaaExchangeBroker;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
 import org.junit.Before;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

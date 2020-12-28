@@ -158,7 +158,8 @@ public class XsuaaToken extends Jwt implements Token {
 				return getClaimAsString(CLIENT_ID);
 			}
 			logger.error("Couldn't get client id. Invalid authorized party or audience claims.");
-			throw new InvalidBearerTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
+			throw new InvalidBearerTokenException(
+					"Couldn't get client id. Invalid authorized party or audience claims.");
 		} else {
 			return clientId;
 		}
