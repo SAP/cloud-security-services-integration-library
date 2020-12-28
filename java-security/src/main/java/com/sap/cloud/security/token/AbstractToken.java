@@ -28,7 +28,7 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
  * header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
-
+	private static final long serialVersionUID = 2204172041950251807L;
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractToken.class);
 
 	private final DecodedJwt decodedJwt;
