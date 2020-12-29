@@ -40,7 +40,7 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 	}
 
 	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration) {
-		this(configuration, new DefaultOAuth2TokenService());
+		this(configuration, new XsuaaOAuth2TokenService());
 	}
 
 	@Override
