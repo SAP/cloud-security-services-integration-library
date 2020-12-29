@@ -101,7 +101,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				tokenService,
 				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
 				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
-		this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(this.xsuaaTokenFlows);
+		if(TokenUtil.isIasToXsuaaXchangeEnabled()){
+			this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(this.xsuaaTokenFlows);
+		}
 	}
 
 	/**
@@ -183,10 +185,10 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			if (oAuth2token == null) {
 				break;
 			}
-			if (iasXsuaaExchangeBroker.isXsuaaToken(oAuth2token)
-					|| !iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
+			if (TokenUtil.isXsuaaToken(oAuth2token)
+					|| !TokenUtil.isIasToXsuaaXchangeEnabled()) {
 				return oAuth2token;
-			} else if (iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
+			} else if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
 				try {
 					Token token = iasXsuaaExchangeBroker.decodeToken(oAuth2token);
 					return iasXsuaaExchangeBroker.doIasXsuaaXchange(token);

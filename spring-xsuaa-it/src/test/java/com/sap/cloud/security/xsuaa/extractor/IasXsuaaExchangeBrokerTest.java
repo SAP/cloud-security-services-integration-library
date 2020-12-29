@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -46,6 +47,18 @@ public class IasXsuaaExchangeBrokerTest {
 		String token = tokenXchangeBroker.resolve(request);
 
 		assertThat(token).isEqualTo(XSUAA_TOKEN);
+	}
+
+	@Test(expected = InvalidBearerTokenException.class)
+	public void invalidAuthorizationHeaderTest() {
+		request.addHeader("Authorization", IAS_TOKEN);
+		tokenXchangeBroker.resolve(request);
+	}
+
+	@Test(expected = InvalidBearerTokenException.class)
+	public void invalidAuthorizationHeader2Test() {
+		request.addHeader("Auth", "bearer " + IAS_TOKEN);
+		tokenXchangeBroker.resolve(request);
 	}
 
 	private XsuaaServiceConfiguration getXsuaaServiceConfiguration() {
