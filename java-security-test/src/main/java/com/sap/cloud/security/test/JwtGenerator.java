@@ -43,7 +43,7 @@ public class JwtGenerator {
 	private Service service;
 
 	private JwtSignatureAlgorithm signatureAlgorithm;
-	private PrivateKey privateKey;
+	private PrivateKey privateKey = RSAKeys.generate().getPrivate();
 	private String appId; // this is specific to XSUAA service
 	private List<String> scopes = new ArrayList<>();
 	private List<String> localScopes = new ArrayList<>();
