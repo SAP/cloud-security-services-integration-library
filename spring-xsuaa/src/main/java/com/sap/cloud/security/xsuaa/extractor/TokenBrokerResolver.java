@@ -101,7 +101,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				tokenService,
 				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
 				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
-		if(TokenUtil.isIasToXsuaaXchangeEnabled()){
+		if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
 			this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(this.xsuaaTokenFlows);
 		}
 	}

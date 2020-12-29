@@ -42,7 +42,6 @@ public class IasXsuaaExchangeBrokerTest {
 
 	@Test
 	public void iasTokenResolutionTest() {
-
 		request.addHeader("Authorization", "bearer " + IAS_TOKEN);
 		String token = tokenXchangeBroker.resolve(request);
 

@@ -34,7 +34,7 @@ public class TokenUtilTest {
 	}
 
 	@Test
-	public void isXchangeEnabledTest(){
+	public void isXchangeEnabledTest() {
 		assertFalse(TokenUtil.isIasToXsuaaXchangeEnabled());
 	}
 
