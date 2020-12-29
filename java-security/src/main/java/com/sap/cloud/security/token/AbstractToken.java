@@ -160,12 +160,14 @@ public abstract class AbstractToken implements Token {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o)
+	public boolean equals(Object obj) {
+		if (this == obj)
 			return true;
-		if (!(o instanceof AbstractToken))
+		if (obj == null)
 			return false;
-		AbstractToken that = (AbstractToken) o;
+		if (!(obj instanceof Token))
+			return false;
+		Token that = (Token) obj;
 		return getTokenValue().equals(that.getTokenValue());
 	}
 
