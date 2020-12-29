@@ -1,10 +1,8 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -25,12 +23,12 @@ public class TokenUtilTest {
 
 	@Test
 	public void isXsuaaTokenFalseTest() {
-		assertFalse(TokenUtil.isXsuaaToken(encodedIasToken));
+		assertFalse(TokenUtil.isXsuaaToken(TokenUtil.decodeJwt(encodedIasToken)));
 	}
 
 	@Test
 	public void isXsuaaTokenTrueTest() {
-		assertTrue(TokenUtil.isXsuaaToken(encodedXsuaaToken));
+		assertTrue(TokenUtil.isXsuaaToken(TokenUtil.decodeJwt(encodedXsuaaToken)));
 	}
 
 	@Test

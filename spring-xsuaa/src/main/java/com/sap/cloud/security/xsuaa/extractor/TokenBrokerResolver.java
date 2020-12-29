@@ -7,6 +7,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.json.JSONException;
@@ -23,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -185,18 +185,17 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			if (oAuth2token == null) {
 				break;
 			}
-			if (TokenUtil.isXsuaaToken(oAuth2token)
-					|| !TokenUtil.isIasToXsuaaXchangeEnabled()) {
-				return oAuth2token;
-			} else if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
-				try {
-					Token token = iasXsuaaExchangeBroker.decodeToken(oAuth2token);
-					return iasXsuaaExchangeBroker.doIasXsuaaXchange(token);
-				} catch (ParseException e) {
-					logger.error("Couldn't decode the token: {}", e.getMessage());
+			if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
+				DecodedJwt decodedJwt = TokenUtil.decodeJwt(oAuth2token);
+				if (!TokenUtil.isXsuaaToken(decodedJwt)) {
+					try {
+						return iasXsuaaExchangeBroker.doIasXsuaaXchange(decodedJwt);
+					} catch (JSONException e) {
+						logger.error("Couldn't decode the token: {}", e.getMessage());
+					}
 				}
 			}
-			break;
+			return oAuth2token;
 		case BASIC:
 			String basicAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL, authHeaderValue);
 			ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(

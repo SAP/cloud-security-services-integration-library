@@ -1,25 +1,20 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import java.text.ParseException;
 
 /**
  * IAS token and XSUAA token exchange and resolution class. Can be used to
@@ -37,18 +32,15 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 		this.xsuaaTokenFlows = xsuaaTokenFlows;
 	}
 
-	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration) {
-		this.xsuaaTokenFlows = new XsuaaTokenFlows(
-				new XsuaaOAuth2TokenService(new RestTemplate()),
-				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
-				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
-	}
-
 	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration, OAuth2TokenService tokenService) {
 		this.xsuaaTokenFlows = new XsuaaTokenFlows(
 				tokenService,
 				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
 				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
+	}
+
+	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration) {
+		this(configuration, new DefaultOAuth2TokenService());
 	}
 
 	@Override
@@ -57,14 +49,14 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 		try {
 			String oAuth2Token = extractTokenFromRequest(request);
 
-			if (TokenUtil.isXsuaaToken(oAuth2Token)
-					|| !TokenUtil.isIasToXsuaaXchangeEnabled()) {
-				return oAuth2Token;
-			} else if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
-				Token token = decodeToken(oAuth2Token);
-				return doIasXsuaaXchange(token);
+			if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
+				DecodedJwt decodedJwt = TokenUtil.decodeJwt(oAuth2Token);
+				if (!TokenUtil.isXsuaaToken(decodedJwt)) {
+					return doIasXsuaaXchange(decodedJwt);
+				}
 			}
-		} catch (ParseException e) {
+			return oAuth2Token;
+		} catch (JSONException e) {
 			logger.error("Couldn't decode the token: {}", e.getMessage());
 		}
 		return null;
@@ -73,14 +65,14 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 	/**
 	 * Request a Xsuaa token using Ias token as a grant.
 	 *
-	 * @param iasToken
-	 *            IAS token
+	 * @param decodedJwt
+	 *            decoded Jwt token
 	 * @return encoded Xsuaa token
 	 */
 	@Nullable
-	String doIasXsuaaXchange(Token iasToken) {
+	String doIasXsuaaXchange(DecodedJwt decodedJwt) {
 		try {
-			return xsuaaTokenFlows.userTokenFlow().token(iasToken).execute().getAccessToken();
+			return xsuaaTokenFlows.userTokenFlow().token(createToken(decodedJwt)).execute().getAccessToken();
 		} catch (TokenFlowException e) {
 			logger.error("Xsuaa token request failed {}", e.getMessage());
 		}
@@ -90,17 +82,12 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 	/**
 	 * Resolves the encoded token to Token class
 	 * 
-	 * @param oAuth2Token
-	 *            encoded token
-	 * @return IasToken class
-	 * @throws ParseException
-	 *             if provided Jwt token couldn't be parsed
+	 * @param decodedJwt
+	 *            decoded Jwt
+	 * @return IasToken class if provided Jwt token couldn't be parsed
 	 */
-	Token decodeToken(String oAuth2Token) throws ParseException {
-		JWT decodedToken = JWTParser.parse(oAuth2Token);
-		Jwt jwt = new Jwt(oAuth2Token, decodedToken.getJWTClaimsSet().getIssueTime().toInstant(),
-				decodedToken.getJWTClaimsSet().getExpirationTime().toInstant(),
-				decodedToken.getHeader().toJSONObject(), decodedToken.getJWTClaimsSet().getClaims());
+	private Token createToken(DecodedJwt decodedJwt) {
+		Jwt jwt = TokenUtil.parseJwt(decodedJwt);
 		return new IasToken(jwt);
 	}
 

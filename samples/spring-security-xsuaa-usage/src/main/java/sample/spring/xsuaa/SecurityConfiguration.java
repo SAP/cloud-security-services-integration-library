@@ -16,6 +16,7 @@
 package sample.spring.xsuaa;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.extractor.IasXsuaaExchangeBroker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -54,7 +55,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.anyRequest().denyAll()
 			.and()
 				.oauth2ResourceServer()
-				.bearerTokenResolver(new IasXsuaaExchangeBroker(xsuaaServiceConfiguration))
+				.bearerTokenResolver(new IasXsuaaExchangeBroker(xsuaaServiceConfiguration, new XsuaaOAuth2TokenService()))
 				.jwt()
 				.jwtAuthenticationConverter(getJwtAuthenticationConverter());
 		// @formatter:on
