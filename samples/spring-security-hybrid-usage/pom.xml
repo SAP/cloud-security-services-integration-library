@@ -34,11 +34,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.sap.cloud.security.xsuaa</groupId>
-            <artifactId>xsuaa-spring-boot-starter</artifactId>
-            <version>${sap.cloud.security.version}</version>
-        </dependency>
+
+		<!-- TODO move it spring-security -->
+		<dependency>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>java-security</artifactId>
+			<version>${sap.cloud.security.version}</version>
+		</dependency>
 		
 		<!-- test dependencies-->
         <dependency>

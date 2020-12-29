@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.token.authentication;
+package com.sap.cloud.security.authentication;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.springframework.security.oauth2.jwt.JwtDecoder;

@@ -15,20 +15,16 @@
  */
 package sample.spring.xsuaa;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.CFEnvironment;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import com.sap.cloud.security.xsuaa.token.XsuaaTokenAuthenticationConverter;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 @Configuration
@@ -36,15 +32,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
-	@Autowired
-	JwtDecoder jwtDecoder; // TODO get a HybridJwtDecoder
-
-	// TODO
-	//@Autowired
-	//IasServiceConfiguration iasServiceConfiguration;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -61,20 +49,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 				.oauth2ResourceServer()
 				.jwt()
-				.decoder(jwtDecoder)
-				.jwtAuthenticationConverter(getJwtAuthenticationConverter());
+				.decoder(hybridJwtDecoder())
+				.jwtAuthenticationConverter(new XsuaaTokenAuthenticationConverter(getXsuaaAppId()));
 		// @formatter:on
 	}
 
-	/**
-	 * Customizes how GrantedAuthority are derived from a Jwt
-	 */
-	Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
-		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
-		converter.setLocalScopeAsAuthorities(true);
-		return converter;
+	String getXsuaaAppId() {
+		return CFEnvironment.getInstance().getXsuaaConfiguration().getProperty(CFConstants.XSUAA.APP_ID);
 	}
 
-	// TODO have another converter for IAS
-
+	JwtDecoder hybridJwtDecoder() {
+		return new HybridJwtDecoder();
+	}
 }
