@@ -52,7 +52,8 @@ public class JwtGeneratorTest {
 
 	@Before
 	public void setUp() {
-		cut = JwtGenerator.getInstance(XSUAA, DEFAULT_CLIENT_ID).withPrivateKey(keys.getPrivate());
+		cut = JwtGenerator.getInstance(XSUAA, DEFAULT_CLIENT_ID)
+				.withPrivateKey(keys.getPrivate());
 	}
 
 	@Test
@@ -100,7 +101,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void createToken_withoutPrivateKey_throwsException() {
-		assertThatThrownBy(() -> JwtGenerator.getInstance(IAS, "T00001234").createToken())
+		assertThatThrownBy(() -> JwtGenerator.getInstance(IAS, "T00001234").withPrivateKey(null).createToken())
 				.isInstanceOf(IllegalStateException.class);
 	}
 
@@ -223,7 +224,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void withScopes_serviceIsIAS_throwsUnsupportedOperationException() {
-		cut = JwtGenerator.getInstance(IAS, "T00001234").withPrivateKey(keys.getPrivate());
+		cut = JwtGenerator.getInstance(IAS, "T00001234");
 		assertThatThrownBy(() -> cut.withScopes("firstScope").createToken())
 				.isInstanceOf(UnsupportedOperationException.class)
 				.hasMessage("Scopes are not supported for service IAS");
@@ -327,7 +328,6 @@ public class JwtGeneratorTest {
 	@Test
 	public void getInstanceFromFile_overridesTokenPropertiesForTesting() throws IOException {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token.json")
-				.withPrivateKey(keys.getPrivate())
 				.createToken();
 
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(DEFAULT_KEY_ID);
@@ -337,7 +337,6 @@ public class JwtGeneratorTest {
 	@Test
 	public void getInstanceFromFile_loadsJsonData() throws IOException {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token.json")
-				.withPrivateKey(keys.getPrivate())
 				.createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
@@ -351,7 +350,6 @@ public class JwtGeneratorTest {
 	@Test
 	public void getInstanceFromFile_noHeader_noErrorAndReadsPayload() throws IOException {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token_no_header.json")
-				.withPrivateKey(keys.getPrivate())
 				.createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
@@ -380,8 +378,7 @@ public class JwtGeneratorTest {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new NoSuchAlgorithmException();
 		});
-		cut = instance.withPrivateKey(keys.getPrivate());
-		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
+		assertThatThrownBy(() -> instance.createToken()).isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
@@ -389,8 +386,7 @@ public class JwtGeneratorTest {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new SignatureException();
 		});
-		cut = instance.withPrivateKey(keys.getPrivate());
-		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
+		assertThatThrownBy(() -> instance.createToken()).isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
@@ -398,8 +394,7 @@ public class JwtGeneratorTest {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new InvalidKeyException();
 		});
-		cut = instance.withPrivateKey(keys.getPrivate());
-		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
+		assertThatThrownBy(() -> instance.createToken()).isInstanceOf(RuntimeException.class);
 	}
 
 }

@@ -8,6 +8,7 @@ public class HttpHeaders {
 	public static final String AUTHORIZATION = "Authorization";
 	public static final String ACCEPT = "Accept";
 	public static final String CONTENT_TYPE = "Content-Type";
+	public static final String X_ZID = "X-zid";
 
 	private final Set<HttpHeader> headers;
 
@@ -21,6 +22,11 @@ public class HttpHeaders {
 
 	public Set<HttpHeader> getHeaders() {
 		return headers;
+	}
+
+	public HttpHeaders withHeader(String headerName, String value) {
+		this.headers.add(new HttpHeader(headerName, value));
+		return this;
 	}
 
 	@Override

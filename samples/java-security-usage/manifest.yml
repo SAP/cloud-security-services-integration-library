@@ -14,4 +14,6 @@ applications:
     - java_buildpack
   services:
     - xsuaa-java-security
+  env:
+    IAS_XSUAA_XCHANGE_ENABLED: true
 ...
