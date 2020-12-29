@@ -1,11 +1,13 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
+import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.json.JSONException;
@@ -99,7 +101,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				tokenService,
 				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
 				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
-		this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(this.xsuaaTokenFlows);
+		if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
+			this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(this.xsuaaTokenFlows);
+		}
 	}
 
 	/**
@@ -181,12 +185,17 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			if (oAuth2token == null) {
 				break;
 			}
-			if (iasXsuaaExchangeBroker.isXsuaaToken(oAuth2token) || !iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
-				return oAuth2token;
-			} else if (iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
-				return iasXsuaaExchangeBroker.getXsuaaToken(oAuth2token);
+			if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
+				DecodedJwt decodedJwt = TokenUtil.decodeJwt(oAuth2token);
+				if (!TokenUtil.isXsuaaToken(decodedJwt)) {
+					try {
+						return iasXsuaaExchangeBroker.doIasXsuaaXchange(decodedJwt);
+					} catch (JSONException e) {
+						logger.error("Couldn't decode the token: {}", e.getMessage());
+					}
+				}
 			}
-			break;
+			return oAuth2token;
 		case BASIC:
 			String basicAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL, authHeaderValue);
 			ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(

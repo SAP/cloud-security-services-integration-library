@@ -2,8 +2,8 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.ScopeConverter;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
@@ -19,9 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.Objects;
-
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ENHANCER;
 
 public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
@@ -72,8 +69,8 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
-					Token token = extractFromHeader(authorizationHeader);
-					if (isIasXsuaaXchangeEnabled() && !isXsuaaToken(token)) {
+					Token token = TokenFactory.create(authorizationHeader);
+					if (isIasXsuaaXchangeEnabled() && token.getService() == Service.IAS) {
 						token = new XsuaaToken(Objects.requireNonNull(
 								exchangeBroker.doIasToXsuaaXchange(httpClient, token, serviceConfiguration),
 								"IasXsuaaExchangeBroker is not provided"));
@@ -92,29 +89,6 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 	private ScopeConverter getScopeConverter() {
 		return new XsuaaScopeConverter(
 				getServiceConfiguration().getProperty(CFConstants.XSUAA.APP_ID));
-	}
-
-	/**
-	 * Verifies if the provided token is Xsuaa token
-	 *
-	 * @exception NullPointerException
-	 *                if the external attribute enhancer(enhancer) value is missing
-	 *                but the external attribute(ext_atr) claim is present
-	 * @param token
-	 *            Token to be checked
-	 * @return true if provided token is a XSUAA token
-	 */
-	private boolean isXsuaaToken(Token token) {
-		JsonObject externalAttributeClaim = token.getClaimAsJsonObject(EXTERNAL_ATTRIBUTE);
-
-		if (externalAttributeClaim != null) {
-			String externalAttributeValue = externalAttributeClaim.getAsString(EXTERNAL_ATTRIBUTE_ENHANCER);
-			LOGGER.debug("Token attributes claims: {}: {}", EXTERNAL_ATTRIBUTE, externalAttributeClaim);
-			return Objects.requireNonNull(externalAttributeValue, "enhancer is missing").equalsIgnoreCase("xsuaa");
-		} else {
-			LOGGER.debug("Token is not Xsuaa token: {}", token.getTokenValue());
-			return false;
-		}
 	}
 
 	/**

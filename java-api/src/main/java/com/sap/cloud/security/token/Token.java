@@ -6,6 +6,7 @@ import com.sap.cloud.security.json.JsonParsingException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.Set;
 /**
  * Represents a JSON Web Token (JWT).
  */
-public interface Token {
+public interface Token extends Serializable {
 
 	/**
 	 * Returns the header parameter value as string for the given header parameter
