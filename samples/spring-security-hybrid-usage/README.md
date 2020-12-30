@@ -24,9 +24,15 @@ mvn clean package
 ```
 
 ## Create the XSUAA Service Instance
-Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
+Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a xsuaa service instance
 ```shell
 cf create-service xsuaa application xsuaa-authentication -c xs-security.json
+```
+
+## Create the IAS Service Instance
+Use the ias service broker and create an identity service instance
+```shell
+cf create-service identity application spring-security-cas-authn'
 ```
 
 ## Configure the manifest

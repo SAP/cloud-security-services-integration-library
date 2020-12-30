@@ -3,6 +3,8 @@ package sample.spring.xsuaa;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.sap.cloud.security.xsuaa.token.Token;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_USER_NAME;
 
 @RestController
 public class TestController {
@@ -42,20 +41,19 @@ public class TestController {
     @GetMapping("/v1/sayHello")
     public Map<String, String> sayHello(@AuthenticationPrincipal Token token) {
 
-        logger.info("Got the Xsuaa token: {}", token.getAppToken());
+        logger.info("Got the Xsuaa token: {}", token.getTokenValue());
         logger.info(token.toString());
 
         Map<String, String> result = new HashMap<>();
-        result.put("grant type", token.getGrantType());
+        result.put("grant type", token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE));
         result.put("client id", token.getClientId());
-        result.put("subaccount id", token.getSubaccountId());
+        //result.put("subaccount id", token.getSubaccountId());
         result.put("zone id", token.getZoneId());
-        result.put("logon name", token.getLogonName());
-        result.put("family name", token.getFamilyName());
-        result.put("given name", token.getGivenName());
-        result.put("email", token.getEmail());
-        result.put("authorities", String.valueOf(token.getAuthorities()));
-        result.put("scopes", String.valueOf(token.getScopes()));
+        //result.put("logon name", token.getLogonName());
+        result.put("family name", token.getClaimAsString(TokenClaims.FAMILY_NAME));
+        result.put("given name", token.getClaimAsString(TokenClaims.GIVEN_NAME));
+        result.put("email", token.getClaimAsString(TokenClaims.EMAIL));
+        result.put("scopes", String.valueOf(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)));
 
         return result;
     }
@@ -71,7 +69,7 @@ public class TestController {
     public String sayHello(@AuthenticationPrincipal Jwt jwt) {
 
         logger.info("Got the JWT: {}", jwt);
-        logger.info(jwt.getClaimAsString(CLAIM_USER_NAME));
+        //logger.info(jwt.getClaimAsString(CLAIM_USER_NAME));
         logger.info(jwt.toString());
 
         return "Hello Jwt-Protected World!";

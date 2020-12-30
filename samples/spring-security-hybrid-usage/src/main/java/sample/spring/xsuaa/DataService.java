@@ -1,12 +1,8 @@
 package sample.spring.xsuaa;
 
-import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.access.prepost.PreAuthorize;
+import com.sap.cloud.security.token.Token;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.security.Security;
 
 /**
  * Simple DataLayer interface that shows how Spring global message security
@@ -21,7 +17,7 @@ public class DataService {
      *
      */
     String readSensitiveData() {
-        String zoneId = SpringSecurityContext.getToken().getZoneId();
+        String zoneId = ((Token)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getZoneId();
         return "You got the sensitive data for zone '" + zoneId + "'.";
     }
 }

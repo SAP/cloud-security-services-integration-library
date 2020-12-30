@@ -1,6 +1,6 @@
 package com.sap.cloud.security.authentication;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 
@@ -11,7 +11,7 @@ public class HybridJwtDecoderBuilder {
      *
      * @param configuration of the Xsuaa service
      */
-    public HybridJwtDecoderBuilder(XsuaaServiceConfiguration configuration, String iasClientId) {
+    public HybridJwtDecoderBuilder(OAuth2ServiceConfiguration configuration, String iasClientId) {
 
     }
 

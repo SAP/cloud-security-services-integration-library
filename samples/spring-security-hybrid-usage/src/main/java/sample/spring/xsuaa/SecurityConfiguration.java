@@ -15,6 +15,7 @@
  */
 package sample.spring.xsuaa;
 
+import com.sap.cloud.security.authentication.HybridJwtDecoderBuilder;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFEnvironment;
 import org.springframework.context.annotation.Configuration;
@@ -59,6 +60,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	JwtDecoder hybridJwtDecoder() {
-		return new HybridJwtDecoder();
+		return new HybridJwtDecoderBuilder(CFEnvironment.getInstance().getXsuaaConfiguration(), CFEnvironment.getInstance().getIasConfiguration().getClientId()).build();
 	}
 }
