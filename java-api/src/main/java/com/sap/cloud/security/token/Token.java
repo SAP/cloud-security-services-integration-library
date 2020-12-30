@@ -9,7 +9,9 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.security.Principal;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -160,4 +162,21 @@ public interface Token extends Serializable {
 	 */
 	String getClientId();
 
+	/**
+	 * Returns the header(s).
+	 *
+	 * @return a {@code Map} of the header(s)
+	 */
+	default Map<String, Object> getHeaders() {
+		return Collections.EMPTY_MAP;
+	}
+
+	/**
+	 * Returns the jwt claim set.
+	 *
+	 * @return a {@code Map} of the jwt claim set
+	 */
+	default Map<String, Object> getClaims() {
+		return Collections.EMPTY_MAP;
+	}
 }
