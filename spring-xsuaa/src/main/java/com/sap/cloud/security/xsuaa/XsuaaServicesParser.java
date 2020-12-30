@@ -8,14 +8,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-import com.nimbusds.jose.shaded.json.JSONObject;
-import com.nimbusds.jose.shaded.json.JSONArray;
-import com.nimbusds.jose.shaded.json.parser.JSONParser;
-import com.nimbusds.jose.shaded.json.parser.ParseException;
-
-
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,11 +68,12 @@ public class XsuaaServicesParser {
 			credentialsJSON = parseCredentials(vcapServices);
 		}
 		if (credentialsJSON != null) {
-			Optional<String> attributeString = Optional.ofNullable(credentialsJSON.getOrDefault(name, Optional.empty()).toString());
-			if (!attributeString.isPresent()) {
+			String attributeString = credentialsJSON.optString(name);
+			if (attributeString.isEmpty()) {
 				logger.info("XSUAA VCAP_SERVICES has no attribute with name '{}'.", name);
+			} else {
+				return Optional.of(attributeString);
 			}
-			return attributeString;
 		}
 		return Optional.empty();
 	}
@@ -108,13 +106,13 @@ public class XsuaaServicesParser {
 			return null;
 		}
 		try {
-			JSONObject vcapServicesJSON = (JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(vcapServices);
+			JSONObject vcapServicesJSON = new JSONObject(vcapServices);
 			JSONObject xsuaaBinding = searchXsuaaBinding(vcapServicesJSON);
 
-			if (Objects.nonNull(xsuaaBinding) && xsuaaBinding.containsKey(CREDENTIALS)) {
+			if (Objects.nonNull(xsuaaBinding) && xsuaaBinding.has(CREDENTIALS)) {
 				return (JSONObject) xsuaaBinding.get(CREDENTIALS);
 			}
-		} catch (ParseException ex) {
+		} catch (JSONException ex) {
 			throw new IOException("Error while parsing XSUAA credentials from VCAP_SERVICES: {}.", ex);
 		}
 		return null;
@@ -137,8 +135,8 @@ public class XsuaaServicesParser {
 			JSONObject binding = (JSONObject) value;
 			JSONArray tags = (JSONArray) binding.get(TAGS);
 
-			Optional<String> planName = Optional.ofNullable(binding.getOrDefault("plan", Optional.empty()).toString());
-			boolean isApiAccessPlan = (planName.isPresent() && planName.get().equals("apiaccess"));
+			String planName = binding.optString("plan");
+			boolean isApiAccessPlan = (!planName.isEmpty() && planName.equals("apiaccess"));
 			for (Object o : tags) {
 				if (o.equals(tag) && !isApiAccessPlan) {
 					if (xsuaaBinding == null) {

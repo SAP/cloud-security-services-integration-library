@@ -1,20 +1,20 @@
 package com.sap.cloud.security.xsuaa.test;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.util.*;
-
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.sap.cloud.security.xsuaa.test.jwt.Base64JwtDecoder;
+import com.sap.cloud.security.xsuaa.test.jwt.DecodedJwt;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 import org.springframework.lang.Nullable;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaSigner;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.JWTParser;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.*;
 
 import static com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders.JKU;
 import static com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders.KID;
@@ -449,17 +449,19 @@ public class JwtGenerator {
 
 	@Nullable
 	public static Jwt convertTokenToOAuthJwt(String token) {
-		Jwt jwt;
-		try {
-			JWT parsedJwt = JWTParser.parse(token);
-			JWTClaimsSet jwtClaimsSet = parsedJwt.getJWTClaimsSet();
-			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
-			jwt = new Jwt(parsedJwt.getParsedString(), jwtClaimsSet.getIssueTime().toInstant(),
-					jwtClaimsSet.getExpirationTime().toInstant(), headers, jwtClaimsSet.getClaims());
-		} catch (ParseException e) {
-			throw new IllegalArgumentException("token can not be parsed. ", e);
-		}
-		return jwt;
+		return parseJwt(decodeJwt(token));
+	}
+
+	private static Jwt parseJwt(DecodedJwt decodedJwt) {
+		JSONObject payload = new JSONObject(decodedJwt.getPayload());
+		JSONObject header = new JSONObject(decodedJwt.getHeader());
+		return new Jwt(decodedJwt.getEncodedToken(), Instant.ofEpochSecond(payload.optLong("iat")),
+				Instant.ofEpochSecond(payload.getLong("exp")),
+				header.toMap(), payload.toMap());
+	}
+
+	static DecodedJwt decodeJwt(String encodedJwtToken) {
+		return Base64JwtDecoder.getInstance().decode(encodedJwtToken);
 	}
 
 	protected class ExternalAttrClaim {
