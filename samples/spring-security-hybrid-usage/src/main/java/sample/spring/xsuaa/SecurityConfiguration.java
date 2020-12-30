@@ -68,7 +68,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	JwtDecoder hybridJwtDecoder() {
-		return new JwtDecoderBuilder(xsuaaConfiguration(), iasConfiguration().getClientId()).buildHybrid();
+		return new JwtDecoderBuilder()
+				.withIasServiceConfiguration(iasConfiguration())
+				.withXsuaaServiceConfiguration(xsuaaConfiguration()).buildHybrid();
 	}
 
 	@Bean
