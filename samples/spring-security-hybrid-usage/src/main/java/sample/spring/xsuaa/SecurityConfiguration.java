@@ -20,9 +20,12 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationImpl;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.servlet.AuthenticationToken;
+import com.sap.cloud.security.token.TokenClaims;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,7 +33,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 import com.sap.cloud.security.xsuaa.token.XsuaaTokenAuthenticationConverter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
@@ -45,20 +56,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 				.authorizeRequests()
-				.antMatchers("/v1/sayHello").access("hasAuthority('Read') or hasRole('GROUP_READ')")
-				.antMatchers("/v1/*").authenticated()
-				.antMatchers("/v2/*").access("hasAuthority('Read') or hasRole('GROUP_READ')")
+				.antMatchers("/sayHello").access("hasAuthority('Read') or hasAuthority('GROUP_READ')") //hasRole and overwrite defaultRolePrefix
+				.antMatchers("/*").authenticated()
 				.anyRequest().denyAll()
 			.and()
 				.oauth2ResourceServer()
 				.jwt()
 				.decoder(hybridJwtDecoder())
-				.jwtAuthenticationConverter(new XsuaaTokenAuthenticationConverter(getXsuaaAppId()));
+				.jwtAuthenticationConverter(new MyCustomTokenAuthenticationConverter(getXsuaaAppId()));
 		// @formatter:on
-	}
-
-	String getXsuaaAppId() {
-		return xsuaaConfiguration().getProperty(CFConstants.XSUAA.APP_ID);
 	}
 
 	JwtDecoder hybridJwtDecoder() {
@@ -75,5 +81,43 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@ConfigurationProperties("vcap.services.ias-authentication.credentials")
 	public OAuth2ServiceConfiguration iasConfiguration() {
 		return new OAuth2ServiceConfigurationImpl(Service.IAS);
+	}
+
+	String getXsuaaAppId() {
+		return xsuaaConfiguration().getProperty(CFConstants.XSUAA.APP_ID);
+	}
+
+	private class MyCustomTokenAuthenticationConverter extends XsuaaTokenAuthenticationConverter {
+		/**
+		 * @param appId the xsuaa application identifier
+		 *              e.g. myXsAppname!t123
+		 */
+		public MyCustomTokenAuthenticationConverter(String appId) {
+			super(appId);
+		}
+
+		@Override
+		public AbstractAuthenticationToken convert(Jwt jwt) {
+			Collection<GrantedAuthority> derivedAuthorities;
+
+			if(jwt.containsClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
+				derivedAuthorities = localScopeAuthorities(jwt);
+			} else {
+				derivedAuthorities = deriveAuthoritiesFromGroup(jwt);
+			}
+
+			return new AuthenticationToken(jwt, derivedAuthorities);
+		}
+
+		private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {
+			Collection<GrantedAuthority> groupAuthorities = new ArrayList<>();
+			if (jwt.containsClaim(TokenClaims.GROUPS)) {
+				List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+				for (String group: groups) {
+					groupAuthorities.add(new SimpleGrantedAuthority("GROUP_" + group));
+				}
+			}
+			return groupAuthorities;
+		}
 	}
 }

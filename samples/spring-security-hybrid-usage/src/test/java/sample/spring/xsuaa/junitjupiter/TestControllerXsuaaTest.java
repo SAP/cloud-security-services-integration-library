@@ -21,10 +21,10 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
+/*@TestPropertySource(properties = {
 		"xsuaa.uaadomain=" + DEFAULT_DOMAIN,
 		"xsuaa.xsappname=" + DEFAULT_APP_ID,
-		"xsuaa.clientid=" + DEFAULT_CLIENT_ID })
+		"xsuaa.clientid=" + DEFAULT_CLIENT_ID })*/
 @ExtendWith(XsuaaExtension.class)
 public class TestControllerXsuaaTest {
 
@@ -32,7 +32,6 @@ public class TestControllerXsuaaTest {
 	private MockMvc mvc;
 
 	private String jwt;
-	private String jwtAdmin;
 
 	@BeforeEach
 	public void setup(SecurityTestContext securityTest) {
@@ -42,30 +41,19 @@ public class TestControllerXsuaaTest {
 	}
 
 	@Test
-	public void v1_sayHello() throws Exception {
-		String response = mvc.perform(get("/v1/sayHello").with(bearerToken(jwt)))
+	public void sayHello() throws Exception {
+		String response = mvc.perform(get("/sayHello").with(bearerToken(jwt)))
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
 
 		assertTrue(response.contains("sb-clientId!t0815"));
 		assertTrue(response.contains("xsapp!t0815.Read"));
-		assertTrue(response.contains("[Read]"));
 	}
 
 	@Test
-	public void v2_sayHello() throws Exception {
+	public void readData_OK() throws Exception {
 		String response = mvc
-				.perform(get("/v2/sayHello").with(bearerToken(jwt)))
-				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
-
-		assertTrue(response.contains("Hello Jwt-Protected World!"));
-	}
-
-	@Test
-	public void v1_readData_OK() throws Exception {
-		String response = mvc
-				.perform(get("/v1/method").with(bearerToken(jwt)))
+				.perform(get("/method").with(bearerToken(jwt)))
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
 
@@ -73,11 +61,11 @@ public class TestControllerXsuaaTest {
 	}
 
 	@Test
-	public void v1_readData_FORBIDDEN(SecurityTestContext securityTest) throws Exception {
+	public void readData_FORBIDDEN(SecurityTestContext securityTest) throws Exception {
 		String jwtNoScopes = securityTest.getPreconfiguredJwtGenerator()
 				.createToken().getTokenValue();
 
-		mvc.perform(get("/v1/method").with(bearerToken(jwtNoScopes)))
+		mvc.perform(get("/method").with(bearerToken(jwtNoScopes)))
 				.andExpect(status().isForbidden());
 	}
 
