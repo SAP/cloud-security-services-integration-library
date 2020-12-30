@@ -1,17 +1,18 @@
 package com.sap.cloud.security.authentication;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.servlet.HybridJwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 
-public class HybridJwtDecoderBuilder {
+public class JwtDecoderBuilder {
 
     /**
      * Utility for building a JWT decoder configuration
      *
      * @param configuration of the Xsuaa service
      */
-    public HybridJwtDecoderBuilder(OAuth2ServiceConfiguration configuration, String iasClientId) {
+    public JwtDecoderBuilder(OAuth2ServiceConfiguration configuration, String iasClientId) {
 
     }
 
@@ -20,8 +21,7 @@ public class HybridJwtDecoderBuilder {
      *
      * @return JwtDecoder
      */
-    public JwtDecoder build() {
-        // create XsuaaJwtDecoder via builder and create HybridJwtDecoder that wraps an ias oidc decoder
-        return null;
+    public JwtDecoder buildHybrid() {
+        return new HybridJwtDecoder();
     }
 }

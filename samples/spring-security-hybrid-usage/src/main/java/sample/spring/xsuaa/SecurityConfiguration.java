@@ -15,9 +15,13 @@
  */
 package sample.spring.xsuaa;
 
-import com.sap.cloud.security.authentication.HybridJwtDecoderBuilder;
+import com.sap.cloud.security.authentication.JwtDecoderBuilder;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationImpl;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.config.cf.CFEnvironment;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,8 +36,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -56,10 +58,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	String getXsuaaAppId() {
-		return CFEnvironment.getInstance().getXsuaaConfiguration().getProperty(CFConstants.XSUAA.APP_ID);
+		return xsuaaConfiguration().getProperty(CFConstants.XSUAA.APP_ID);
 	}
 
 	JwtDecoder hybridJwtDecoder() {
-		return new HybridJwtDecoderBuilder(CFEnvironment.getInstance().getXsuaaConfiguration(), CFEnvironment.getInstance().getIasConfiguration().getClientId()).build();
+		return new JwtDecoderBuilder(xsuaaConfiguration(), iasConfiguration().getClientId()).buildHybrid();
+	}
+
+	@Bean
+	@ConfigurationProperties("vcap.services.xsuaa-authentication.credentials")
+	public OAuth2ServiceConfiguration xsuaaConfiguration() {
+		return new OAuth2ServiceConfigurationImpl(Service.XSUAA);
+	}
+
+	@Bean
+	@ConfigurationProperties("vcap.services.ias-authentication.credentials")
+	public OAuth2ServiceConfiguration iasConfiguration() {
+		return new OAuth2ServiceConfigurationImpl(Service.IAS);
 	}
 }

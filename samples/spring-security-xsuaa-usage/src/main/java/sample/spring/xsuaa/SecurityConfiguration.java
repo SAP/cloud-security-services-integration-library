@@ -55,7 +55,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.anyRequest().denyAll()
 			.and()
 				.oauth2ResourceServer()
-				.bearerTokenResolver(new IasXsuaaExchangeBroker(xsuaaServiceConfiguration, new XsuaaOAuth2TokenService()))
+				.bearerTokenResolver(new IasXsuaaExchangeBroker(xsuaaServiceConfiguration))
 				.jwt()
 				.jwtAuthenticationConverter(getJwtAuthenticationConverter());
 		// @formatter:on

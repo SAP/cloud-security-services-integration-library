@@ -27,7 +27,7 @@ public class TestController {
     private DataService dataService;
 
     @Autowired
-    public TestController(XsuaaTokenFlows tokenFlows, DataService dataService) {
+    public TestController(/*XsuaaTokenFlows tokenFlows, */DataService dataService) {
         this.dataService = dataService;
     }
 

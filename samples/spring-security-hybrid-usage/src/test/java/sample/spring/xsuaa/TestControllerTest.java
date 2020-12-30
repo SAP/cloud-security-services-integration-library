@@ -59,7 +59,6 @@ public class TestControllerTest {
 
         assertTrue(response.contains("sb-clientId!t0815"));
         assertTrue(response.contains("xsapp!t0815.Read"));
-        assertTrue(response.contains("[Read]"));
 
         response = mvc
                 .perform(get("/v1/sayHello").with(bearerToken(jwtIas)))
@@ -68,7 +67,6 @@ public class TestControllerTest {
 
         assertTrue(response.contains("sb-clientId!t0815"));
         assertTrue(response.contains("xsapp!t0815.Read"));
-        assertTrue(response.contains("[Read]"));
     }
 
     @Test
