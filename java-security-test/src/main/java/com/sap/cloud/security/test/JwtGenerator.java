@@ -148,6 +148,7 @@ public class JwtGenerator {
 			withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
 			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(azp));
 			jsonPayload.put(TokenClaims.XSUAA.ZONE_ID, DEFAULT_ZONE_ID);
+			jsonPayload.put(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, createJsonObject("{\"enhancer\" : \"xsuaa\"} "));
 		}
 	}
 
