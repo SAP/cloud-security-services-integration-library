@@ -5,6 +5,7 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +15,7 @@ import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.TokenClaims.*;
@@ -122,7 +120,7 @@ public abstract class AbstractToken implements Token {
 	public boolean isXsuaaToken() {
 		if (tokenBody.contains(EXTERNAL_ATTRIBUTE)) {
 			JsonObject externalAttributes = tokenBody.getJsonObject(EXTERNAL_ATTRIBUTE);
-			if ("XSUAA".equals(externalAttributes.getAsString(EXTERNAL_ATTRIBUTE_ENHANCER))) {
+			if ("XSUAA".equalsIgnoreCase(externalAttributes.getAsString(EXTERNAL_ATTRIBUTE_ENHANCER))) {
 				return true;
 			}
 		}
@@ -204,5 +202,15 @@ public abstract class AbstractToken implements Token {
 	@Override
 	public String toString() {
 		return decodedJwt.toString();
+	}
+
+	@Override
+	public Map<String, Object> getHeaders() {
+		return new JSONObject(decodedJwt.getHeader()).toMap();
+	}
+
+	@Override
+	public Map<String, Object> getClaims() {
+		return new JSONObject(decodedJwt.getPayload()).toMap();
 	}
 }

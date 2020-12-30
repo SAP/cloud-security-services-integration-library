@@ -3,6 +3,7 @@ package com.sap.cloud.security.test;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
+import com.sap.cloud.security.token.AbstractToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
@@ -70,6 +71,7 @@ public class JwtGeneratorTest {
 		assertThat(token.getZoneId()).isEqualTo(DEFAULT_ZONE_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo(DEFAULT_ZONE_ID);
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
+		assertThat(((AbstractToken)token).isXsuaaToken()).isTrue();
 	}
 
 	@Test
