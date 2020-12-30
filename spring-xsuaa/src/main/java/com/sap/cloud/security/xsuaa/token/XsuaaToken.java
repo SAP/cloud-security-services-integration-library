@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.token;
 
-import net.minidev.json.JSONArray;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
@@ -274,10 +274,10 @@ public class XsuaaToken extends Jwt implements Token {
 		}
 
 		// convert JSONArray to String[]
-		JSONArray attributeJsonArray = (JSONArray) claimMap.get(attributeName);
+		JSONArray attributeJsonArray = new JSONArray((ArrayList)claimMap.get(attributeName));
 		if (attributeJsonArray != null) {
-			attributeValues = new String[attributeJsonArray.size()];
-			for (int i = 0; i < attributeJsonArray.size(); i++) {
+			attributeValues = new String[attributeJsonArray.length()];
+			for (int i = 0; i < attributeJsonArray.length(); i++) {
 				attributeValues[i] = (String) attributeJsonArray.get(i);
 			}
 		}
