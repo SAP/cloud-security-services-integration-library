@@ -1,8 +1,6 @@
 package com.sap.cloud.security.servlet;
 
-import com.sap.cloud.security.token.SapIdToken;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
@@ -33,10 +31,24 @@ class TokenFactory {
 	 * @return the new token instance
 	 */
 	public static Token create(String jwtToken) {
+		return create(jwtToken, null);
+	}
+
+	/**
+	 * Determines whether the JWT token is issued by XSUAA identity service, and
+	 * creates a Token for it.
+	 *
+	 * @param jwtToken
+	 * 			the encoded JWT token (access_token or id_token), e.g. from the Authorization Header.
+	 * @param localScopeConverter
+	 * 			the scope converter, e.g. {@link XsuaaScopeConverter}
+	 * @return the new token instance
+	 */
+	public static Token create(String jwtToken, ScopeConverter localScopeConverter) {
 		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
 
 		if (isXsuaaToken(decodedJwt)) {
-			return new XsuaaToken(decodedJwt);
+			return new XsuaaToken(decodedJwt).withScopeConverter(localScopeConverter);
 		}
 		return new SapIdToken(decodedJwt);
 	}

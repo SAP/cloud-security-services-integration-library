@@ -69,7 +69,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
-					Token token = TokenFactory.create(authorizationHeader);
+					Token token = TokenFactory.create(authorizationHeader, getScopeConverter());
 					if (isIasXsuaaXchangeEnabled() && token.getService() == Service.IAS) {
 						token = new XsuaaToken(Objects.requireNonNull(
 								exchangeBroker.doIasToXsuaaXchange(httpClient, token, serviceConfiguration),
