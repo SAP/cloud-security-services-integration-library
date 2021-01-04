@@ -53,7 +53,7 @@ class TokenFactory {
 		String jwtPayload = decodedJwt.getPayload().toLowerCase();
 		return jwtPayload.contains(EXTERNAL_ATTRIBUTE)
 				&& jwtPayload.contains(EXTERNAL_ATTRIBUTE_ENHANCER)
-				&& jwtPayload.contains("XSUAA");
+				&& jwtPayload.contains("xsuaa");
 	}
 
 	private static String removeBearer(@Nonnull String jwtToken) {
