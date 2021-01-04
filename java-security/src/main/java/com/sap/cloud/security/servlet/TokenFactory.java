@@ -3,8 +3,12 @@ package com.sap.cloud.security.servlet;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+
+import javax.annotation.Nonnull;
+import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ENHANCER;
@@ -24,12 +28,12 @@ class TokenFactory {
 	 * Determines whether the JWT token is issued by XSUAA identity service, and
 	 * creates a Token for it.
 	 *
-	 * @param encodedToken
-	 *            the encoded token
+	 * @param jwtToken
+	 * 			the encoded JWT token (access_token or id_token), e.g. from the Authorization Header.
 	 * @return the new token instance
 	 */
-	public static Token create(String encodedToken) {
-		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(encodedToken);
+	public static Token create(String jwtToken) {
+		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
 
 		if (isXsuaaToken(decodedJwt)) {
 			return new XsuaaToken(decodedJwt);
@@ -49,6 +53,12 @@ class TokenFactory {
 		String jwtPayload = decodedJwt.getPayload().toLowerCase();
 		return jwtPayload.contains(EXTERNAL_ATTRIBUTE)
 				&& jwtPayload.contains(EXTERNAL_ATTRIBUTE_ENHANCER)
-				&& jwtPayload.contains("xsuaa");
+				&& jwtPayload.contains("XSUAA");
+	}
+
+	private static String removeBearer(@Nonnull String jwtToken) {
+		Assertions.assertHasText(jwtToken, "jwtToken must not be null / empty");
+		Pattern bearerPattern = Pattern.compile("[B|b]earer ");
+		return bearerPattern.matcher(jwtToken).replaceFirst("");
 	}
 }

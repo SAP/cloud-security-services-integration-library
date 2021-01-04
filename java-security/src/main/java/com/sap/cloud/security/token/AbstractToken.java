@@ -120,7 +120,7 @@ public abstract class AbstractToken implements Token {
 	public boolean isXsuaaToken() {
 		if (tokenBody.contains(EXTERNAL_ATTRIBUTE)) {
 			JsonObject externalAttributes = tokenBody.getJsonObject(EXTERNAL_ATTRIBUTE);
-			if ("XSUAA".equalsIgnoreCase(externalAttributes.getAsString(EXTERNAL_ATTRIBUTE_ENHANCER))) {
+			if ("XSUAA".equals(externalAttributes.getAsString(EXTERNAL_ATTRIBUTE_ENHANCER))) {
 				return true;
 			}
 		}
