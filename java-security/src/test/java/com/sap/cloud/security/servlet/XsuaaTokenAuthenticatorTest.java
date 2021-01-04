@@ -114,6 +114,7 @@ public class XsuaaTokenAuthenticatorTest {
 		assertThat(response.getUnauthenticatedReason()).isEmpty();
 		assertThat(response.isAuthenticated()).isTrue();
 		assertThat(response.getToken()).isSameAs(SecurityContext.getToken());
+		assertThat(response.getToken().getService()).isEqualTo(Service.XSUAA);
 	}
 
 	@Test
