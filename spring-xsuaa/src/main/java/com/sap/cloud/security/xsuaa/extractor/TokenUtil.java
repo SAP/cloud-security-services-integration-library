@@ -45,7 +45,7 @@ class TokenUtil {
 	static Jwt parseJwt(DecodedJwt decodedJwt) {
 		JSONObject payload = new JSONObject(decodedJwt.getPayload());
 		JSONObject header = new JSONObject(decodedJwt.getHeader());
-		return new Jwt(decodedJwt.getEncodedToken(), Instant.ofEpochSecond(payload.getLong("iat")),
+		return new Jwt(decodedJwt.getEncodedToken(), Instant.ofEpochSecond(payload.optLong("iat")),
 				Instant.ofEpochSecond(payload.getLong("exp")),
 				header.toMap(), payload.toMap());
 	}

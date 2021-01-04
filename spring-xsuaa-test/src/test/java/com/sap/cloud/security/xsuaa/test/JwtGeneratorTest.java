@@ -5,17 +5,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenClaims;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders;
+import org.json.JSONArray;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import net.minidev.json.JSONArray;
 
 public class JwtGeneratorTest {
 	private JwtGenerator jwtGenerator;
@@ -77,8 +75,8 @@ public class JwtGeneratorTest {
 				.addAttribute(ANOTHER_ATTRIBUTE, new String[] { ANOTHER_ATTRIBUTE_VALUE, ANOTHER_ATTRIBUTE_VALUE_2 })
 				.getToken();
 		Map<String, Object> attributes = jwt.getClaimAsMap("xs.user.attributes");
-		assertThat((JSONArray) attributes.get(DUMMY_ATTRIBUTE), contains(DUMMY_ATTRIBUTE));
-		assertThat((JSONArray) attributes.get(ANOTHER_ATTRIBUTE),
+		assertThat(new JSONArray((ArrayList) attributes.get(DUMMY_ATTRIBUTE)), contains(DUMMY_ATTRIBUTE));
+		assertThat(new JSONArray((ArrayList) attributes.get(ANOTHER_ATTRIBUTE)),
 				contains(ANOTHER_ATTRIBUTE_VALUE, ANOTHER_ATTRIBUTE_VALUE_2));
 	}
 
@@ -103,7 +101,7 @@ public class JwtGeneratorTest {
 		assertThat(jwt.getClaimAsStringList("scope"), hasItems("openid", "testScope", "testApp.localScope"));
 
 		Map<String, Object> attributes = jwt.getClaimAsMap("xs.user.attributes");
-		assertThat((JSONArray) attributes.get("usrAttr"), contains("value_1", "value_2"));
+		assertThat(new JSONArray((ArrayList) attributes.get("usrAttr")), contains("value_1", "value_2"));
 		jwt.getTokenValue();
 	}
 

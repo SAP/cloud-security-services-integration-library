@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -51,12 +52,12 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		this.tokenInfoExtractor = new TokenInfoExtractor() {
 			@Override
 			public String getJku(JWT jwt) {
-				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_JKU, null);
+				return new JSONObject(jwt.getHeader().toString()).optString(CLAIM_JKU, null);
 			}
 
 			@Override
 			public String getKid(JWT jwt) {
-				return (String) jwt.getHeader().toJSONObject().getOrDefault(CLAIM_KID, null);
+				return new JSONObject(jwt.getHeader().toString()).optString(CLAIM_KID, null);
 			}
 
 			@Override
