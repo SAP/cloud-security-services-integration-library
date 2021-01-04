@@ -1,6 +1,10 @@
 # Change Log 
 
 All notable changes to this project will be documented in this file.
+
+## 2.8.2
+- [java-security] HOTFIX for ``2.8.1`` version.
+ 
 ## 2.8.1
 - [spring-xsuaa]   
   - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/spring-xsuaa#token-exchange).
