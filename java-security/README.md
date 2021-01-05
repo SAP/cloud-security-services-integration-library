@@ -177,11 +177,6 @@ Requirement for token exchange is token-client dependency with all its' transiti
 Steps to enable token exchange:
 1. Set environment variable IAS_XSUAA_XCHANGE_ENABLED to any value except false or empty
 2. Make sure token-client is not excluded from the project
-3. Instantiate `XsuaaTokenAuthenticator` with `IasXsuaaExchangeBroker` like so
-    ```java
-   new XsuaaTokenAuthenticator(new IasXsuaaExchangeBroker());
-    ```
-4. Use the `XsuaaTokenAthenticator` as usual
 
 The authenticator is used in the following [sample](/samples/java-security-usage).
 
