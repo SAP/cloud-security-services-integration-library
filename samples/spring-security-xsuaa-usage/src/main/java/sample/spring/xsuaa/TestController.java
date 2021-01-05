@@ -146,13 +146,14 @@ public class TestController {
      * <p>
      *
      *
-     * @param jwt - the Jwt as a result of authentication.
+     * @param token - the Jwt as a result of authentication.
      * @throws TokenFlowException in case of any errors.
      */
     @GetMapping("/v3/requestUserToken")
-    public String requestUserToken(@AuthenticationPrincipal Jwt jwt) throws TokenFlowException {
+    public String requestUserToken(@AuthenticationPrincipal Token token) throws TokenFlowException {
         OAuth2TokenResponse userTokenResponse = tokenFlows.userTokenFlow()
-                .token(jwt.getTokenValue())
+                .token(token.getAppToken())
+                .subdomain(token.getSubdomain())
                 .execute();
 
         logger.info("Got the exchanged token for 3rd party service: {}", userTokenResponse);
