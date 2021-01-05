@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
  * IAS token and XSUAA token exchange class. Facilitates token exchange between
  * IAS and XSUAA
  */
-public class IasXsuaaExchangeBroker {
+class IasXsuaaExchangeBroker {
 
 	private static final Logger logger = LoggerFactory.getLogger(IasXsuaaExchangeBroker.class);
 

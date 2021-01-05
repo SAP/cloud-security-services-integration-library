@@ -3,11 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.8.2
-- [java-security] HOTFIX for ``2.8.1`` version.
- 
+- [java-security]  
+  - HOTFIX for ``2.8.1`` version.
+  - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/java-security#ias-to-xsuaa-token-exchange).
+  
 ## 2.8.1
 - [spring-xsuaa]   
-  - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/spring-xsuaa#token-exchange).
+  - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/spring-xsuaa#ias-to-xsuaa-token-exchange).
   - Replaces dependencies to JSON Parser of ``net.minidev`` with `org.json` (fixes #414).
   - The following dependencies were updated:
     - spring.boot.version 2.3.5.RELEASE --> 2.4.1
