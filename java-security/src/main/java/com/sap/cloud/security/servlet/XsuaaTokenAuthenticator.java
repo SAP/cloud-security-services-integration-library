@@ -27,9 +27,12 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 	private IasXsuaaExchangeBroker exchangeBroker;
 
 	public XsuaaTokenAuthenticator() {
+		if (isIasXsuaaXchangeEnabled()) {
+			this.exchangeBroker = new IasXsuaaExchangeBroker();
+		}
 	}
 
-	public XsuaaTokenAuthenticator(IasXsuaaExchangeBroker exchangeBroker) {
+	XsuaaTokenAuthenticator(IasXsuaaExchangeBroker exchangeBroker) {
 		this.exchangeBroker = exchangeBroker;
 	}
 
