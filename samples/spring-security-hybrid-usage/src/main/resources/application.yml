@@ -11,4 +11,15 @@ server:
   port: ${PORT:8080}
 
 # Enable to make Spring Boot log debug information.
-# debug: true  
+# debug: true
+
+
+xsuaa:
+  xsappname: ${vcap.services.xsuaa-authentication.credentials.xsappname}
+  uaadomain: ${vcap.services.xsuaa-authentication.credentials.uaadomain}
+  clientid: ${vcap.services.xsuaa-authentication.credentials.clientid}
+  url: ${vcap.services.xsuaa-authentication.credentials.url}
+
+identity:
+  clientid: ${vcap.services.ias-authentication.credentials.clientid}
+  url: ${vcap.services.ias-authentication.credentials.url}

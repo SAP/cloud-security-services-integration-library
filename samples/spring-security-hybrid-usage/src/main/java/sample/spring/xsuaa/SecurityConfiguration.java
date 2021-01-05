@@ -74,13 +74,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	@ConfigurationProperties("vcap.services.xsuaa-authentication.credentials")
+	@ConfigurationProperties("xsuaa")
 	public OAuth2ServiceConfiguration xsuaaConfiguration() {
 		return new OAuth2ServiceConfigurationImpl(Service.XSUAA);
 	}
 
 	@Bean
-	@ConfigurationProperties("vcap.services.ias-authentication.credentials")
+	@ConfigurationProperties("identity")
 	public OAuth2ServiceConfiguration iasConfiguration() {
 		return new OAuth2ServiceConfigurationImpl(Service.IAS);
 	}
