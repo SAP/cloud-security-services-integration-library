@@ -1,7 +1,5 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
@@ -9,6 +7,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.json.JSONException;
@@ -17,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.lang.Nullable;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
@@ -26,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -104,7 +101,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				tokenService,
 				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
 				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
-		this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(this.xsuaaTokenFlows);
+		if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
+			this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(this.xsuaaTokenFlows);
+		}
 	}
 
 	/**
@@ -186,22 +185,17 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			if (oAuth2token == null) {
 				break;
 			}
-			if (iasXsuaaExchangeBroker.isXsuaaToken(oAuth2token)
-					|| !iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
-				return oAuth2token;
-			} else if (iasXsuaaExchangeBroker.isIasXsuaaXchangeEnabled()) {
-				try {
-					JWT decodedToken = JWTParser.parse(oAuth2token);
-					Jwt jwt = new Jwt(oAuth2token, decodedToken.getJWTClaimsSet().getIssueTime().toInstant(),
-							decodedToken.getJWTClaimsSet().getExpirationTime().toInstant(),
-							decodedToken.getHeader().toJSONObject(), decodedToken.getJWTClaimsSet().getClaims());
-					Token token = new IasToken(jwt);
-					return iasXsuaaExchangeBroker.getXsuaaToken(token);
-				} catch (ParseException e) {
-					logger.error("Couldn't decode the token: {}", e.getMessage());
+			if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
+				DecodedJwt decodedJwt = TokenUtil.decodeJwt(oAuth2token);
+				if (!TokenUtil.isXsuaaToken(decodedJwt)) {
+					try {
+						return iasXsuaaExchangeBroker.doIasXsuaaXchange(decodedJwt);
+					} catch (JSONException e) {
+						logger.error("Couldn't decode the token: {}", e.getMessage());
+					}
 				}
 			}
-			break;
+			return oAuth2token;
 		case BASIC:
 			String basicAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL, authHeaderValue);
 			ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(

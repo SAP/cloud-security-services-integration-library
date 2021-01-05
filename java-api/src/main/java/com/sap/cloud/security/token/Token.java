@@ -6,15 +6,18 @@ import com.sap.cloud.security.json.JsonParsingException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.security.Principal;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Represents a JSON Web Token (JWT).
  */
-public interface Token {
+public interface Token extends Serializable {
 
 	/**
 	 * Returns the header parameter value as string for the given header parameter
@@ -159,4 +162,21 @@ public interface Token {
 	 */
 	String getClientId();
 
+	/**
+	 * Returns the header(s).
+	 *
+	 * @return a {@code Map} of the header(s)
+	 */
+	default Map<String, Object> getHeaders() {
+		return Collections.EMPTY_MAP;
+	}
+
+	/**
+	 * Returns the jwt claim set.
+	 *
+	 * @return a {@code Map} of the jwt claim set
+	 */
+	default Map<String, Object> getClaims() {
+		return Collections.EMPTY_MAP;
+	}
 }
