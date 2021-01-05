@@ -2,18 +2,15 @@ package sample.spring.xsuaa;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.test.SecurityTestRule;
-import com.sap.cloud.security.test.api.SecurityTestContext;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -38,6 +35,7 @@ public class TestControllerTest {
 
     @ClassRule
     public static SecurityTestRule ruleXsuaa = SecurityTestRule.getInstance(Service.XSUAA);
+    @ClassRule
     public static SecurityTestRule ruleIas = SecurityTestRule.getInstance(Service.IAS);
 
     @Before
@@ -108,7 +106,7 @@ public class TestControllerTest {
     }
 
     private static RequestPostProcessor bearerToken(String token) {
-        return new BearerTokenRequestPostProcessor (token);
+        return new BearerTokenRequestPostProcessor(token);
     }
 
 }
