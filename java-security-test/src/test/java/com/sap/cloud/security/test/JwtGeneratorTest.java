@@ -71,7 +71,7 @@ public class JwtGeneratorTest {
 		assertThat(token.getZoneId()).isEqualTo(DEFAULT_ZONE_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo(DEFAULT_ZONE_ID);
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
-		assertThat(((AbstractToken)token).isXsuaaToken()).isTrue();
+		assertThat(((AbstractToken) token).isXsuaaToken()).isTrue();
 	}
 
 	@Test

@@ -115,7 +115,7 @@ public class XsuaaTokenAuthenticatorTest {
 		assertThat(response.isAuthenticated()).isTrue();
 		assertThat(response.getToken()).isSameAs(SecurityContext.getToken());
 		assertThat(response.getToken().getService()).isEqualTo(Service.XSUAA);
-		assertThat(((XsuaaToken)response.getToken()).hasLocalScope("test")).isFalse();
+		assertThat(((XsuaaToken) response.getToken()).hasLocalScope("test")).isFalse();
 	}
 
 	@Test

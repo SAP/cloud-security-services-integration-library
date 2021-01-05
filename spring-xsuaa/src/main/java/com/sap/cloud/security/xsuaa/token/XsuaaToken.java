@@ -274,7 +274,7 @@ public class XsuaaToken extends Jwt implements Token {
 		}
 
 		// convert JSONArray to String[]
-		JSONArray attributeJsonArray = new JSONArray((ArrayList)claimMap.get(attributeName));
+		JSONArray attributeJsonArray = new JSONArray((ArrayList) claimMap.get(attributeName));
 		if (attributeJsonArray != null) {
 			attributeValues = new String[attributeJsonArray.length()];
 			for (int i = 0; i < attributeJsonArray.length(); i++) {

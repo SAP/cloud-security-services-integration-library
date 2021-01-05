@@ -27,7 +27,8 @@ class TokenFactory {
 	 * creates a Token for it.
 	 *
 	 * @param jwtToken
-	 * 			the encoded JWT token (access_token or id_token), e.g. from the Authorization Header.
+	 *            the encoded JWT token (access_token or id_token), e.g. from the
+	 *            Authorization Header.
 	 * @return the new token instance
 	 */
 	public static Token create(String jwtToken) {
@@ -39,9 +40,10 @@ class TokenFactory {
 	 * creates a Token for it.
 	 *
 	 * @param jwtToken
-	 * 			the encoded JWT token (access_token or id_token), e.g. from the Authorization Header.
+	 *            the encoded JWT token (access_token or id_token), e.g. from the
+	 *            Authorization Header.
 	 * @param localScopeConverter
-	 * 			the scope converter, e.g. {@link XsuaaScopeConverter}
+	 *            the scope converter, e.g. {@link XsuaaScopeConverter}
 	 * @return the new token instance
 	 */
 	public static Token create(String jwtToken, ScopeConverter localScopeConverter) {
