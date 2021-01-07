@@ -6,6 +6,7 @@ import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
@@ -47,6 +48,7 @@ class TokenFactory {
 	 * @return the new token instance
 	 */
 	public static Token create(String jwtToken, ScopeConverter localScopeConverter) {
+		Objects.requireNonNull(jwtToken, "Requires encoded jwtToken to create a Token instance.");
 		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
 
 		if (isXsuaaToken(decodedJwt)) {
