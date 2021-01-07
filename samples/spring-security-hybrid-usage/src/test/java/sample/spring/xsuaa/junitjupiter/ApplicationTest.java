@@ -7,9 +7,10 @@ import sample.spring.xsuaa.Application;
 
 @SpringBootTest(classes = Application.class)
 @java.lang.SuppressWarnings("squid:S2699")
-public class ApplicationTest {
+//@TestPropertySource are provided with /resources/application.yml
+class ApplicationTest {
 
 	@Test
-	public void whenSpringContextIsBootstrapped_thenNoExceptions() {
+	void whenSpringContextIsBootstrapped_thenNoExceptions() {
 	}
 }

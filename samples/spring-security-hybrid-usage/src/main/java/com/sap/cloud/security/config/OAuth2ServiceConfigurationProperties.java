@@ -5,11 +5,11 @@ import com.sap.cloud.security.config.cf.CFConstants;
 import java.net.URI;
 import java.util.Map;
 
-public class OAuth2ServiceConfigurationImpl implements OAuth2ServiceConfiguration {
+public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfiguration {
     OAuth2ServiceConfigurationBuilder builder;
     OAuth2ServiceConfiguration configuration;
 
-    public OAuth2ServiceConfigurationImpl(Service service) {
+    public OAuth2ServiceConfigurationProperties(Service service) {
         builder = OAuth2ServiceConfigurationBuilder.forService(service);
     }
 

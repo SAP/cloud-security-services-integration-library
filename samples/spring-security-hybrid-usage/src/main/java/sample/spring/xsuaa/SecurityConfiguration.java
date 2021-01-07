@@ -15,9 +15,9 @@
  */
 package sample.spring.xsuaa;
 
-import com.sap.cloud.security.authentication.JwtDecoderBuilder;
+import com.sap.cloud.security.token.authentication.JwtDecoderBuilder;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfigurationImpl;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationProperties;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.servlet.AuthenticationToken;
@@ -32,7 +32,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
-import com.sap.cloud.security.xsuaa.token.XsuaaTokenAuthenticationConverter;
+import com.sap.cloud.security.token.xsuaa.XsuaaTokenAuthenticationConverter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -40,7 +40,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -70,26 +69,27 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	JwtDecoder hybridJwtDecoder() {
 		return new JwtDecoderBuilder()
 				.withIasServiceConfiguration(iasConfiguration())
-				.withXsuaaServiceConfiguration(xsuaaConfiguration()).buildHybrid();
+				.withXsuaaServiceConfiguration(xsuaaConfiguration())
+				.buildHybrid();
 	}
 
 	@Bean
 	@ConfigurationProperties("xsuaa")
 	public OAuth2ServiceConfiguration xsuaaConfiguration() {
-		return new OAuth2ServiceConfigurationImpl(Service.XSUAA);
+		return new OAuth2ServiceConfigurationProperties(Service.XSUAA);
 	}
 
 	@Bean
 	@ConfigurationProperties("identity")
 	public OAuth2ServiceConfiguration iasConfiguration() {
-		return new OAuth2ServiceConfigurationImpl(Service.IAS);
+		return new OAuth2ServiceConfigurationProperties(Service.IAS);
 	}
 
 	String getXsuaaAppId() {
 		return xsuaaConfiguration().getProperty(CFConstants.XSUAA.APP_ID);
 	}
 
-	private class MyCustomTokenAuthenticationConverter extends XsuaaTokenAuthenticationConverter {
+	private static class MyCustomTokenAuthenticationConverter extends XsuaaTokenAuthenticationConverter {
 		/**
 		 * @param appId the xsuaa application identifier
 		 *              e.g. myXsAppname!t123
@@ -107,7 +107,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			} else {
 				derivedAuthorities = deriveAuthoritiesFromGroup(jwt);
 			}
-
 			return new AuthenticationToken(jwt, derivedAuthorities);
 		}
 

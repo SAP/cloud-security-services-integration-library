@@ -1,4 +1,4 @@
-package com.sap.cloud.security.authentication;
+package com.sap.cloud.security.token.authentication;
 
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -93,14 +93,16 @@ public class JwtDecoderBuilder {
      * @return JwtDecoder
      */
     public JwtDecoder buildHybrid() {
-        JwtValidatorBuilder validatorBuilder;
-        validatorBuilder = JwtValidatorBuilder.getInstance(xsuaaConfiguration)
+        JwtValidatorBuilder xsuaaValidatorBuilder = JwtValidatorBuilder.getInstance(xsuaaConfiguration)
                 .withCacheConfiguration(tokenKeyCacheConfiguration)
                 .withHttpClient(httpClient);
+        JwtValidatorBuilder iasValidatorBuilder = JwtValidatorBuilder.getInstance(iasConfiguration);
+
         for (ValidationListener listener: validationListeners) {
-            validatorBuilder.withValidatorListener(listener);
+            xsuaaValidatorBuilder.withValidatorListener(listener);
+            iasValidatorBuilder.withValidatorListener(listener);
         }
-        return new HybridJwtDecoder(validatorBuilder.build(),
-                JwtValidatorBuilder.getInstance(iasConfiguration).build());
+        return new HybridJwtDecoder(xsuaaValidatorBuilder.build(),
+                iasValidatorBuilder.build());
     }
 }

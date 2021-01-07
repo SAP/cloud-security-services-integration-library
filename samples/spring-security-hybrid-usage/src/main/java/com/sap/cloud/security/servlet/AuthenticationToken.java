@@ -14,7 +14,7 @@ import java.util.Objects;
  * standard Principal for Spring Security Jwt handling.
  *
  */
-// TODO move to the right package, when Token.create() was implemented
+// TODO move to the right package e.g. token, when Token.create() was implemented
 public class AuthenticationToken extends JwtAuthenticationToken {
     private static final long serialVersionUID = -3779129534612771294L;
     private final Token token;

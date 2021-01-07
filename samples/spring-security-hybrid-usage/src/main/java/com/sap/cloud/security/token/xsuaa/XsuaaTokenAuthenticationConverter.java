@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.token;
+package com.sap.cloud.security.token.xsuaa;
 
 import com.sap.cloud.security.servlet.AuthenticationToken;
 import com.sap.cloud.security.token.TokenClaims;
