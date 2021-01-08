@@ -1,4 +1,4 @@
-package sample.spring.xsuaa;
+package sample.spring.security;
 
 import com.sap.cloud.security.token.Token;
 import org.springframework.security.core.context.SecurityContextHolder;

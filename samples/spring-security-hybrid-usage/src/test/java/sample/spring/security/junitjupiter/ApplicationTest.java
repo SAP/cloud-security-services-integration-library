@@ -1,9 +1,9 @@
-package sample.spring.xsuaa.junitjupiter;
+package sample.spring.security.junitjupiter;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import sample.spring.security.Application;
 
-import sample.spring.xsuaa.Application;
 
 @SpringBootTest(classes = Application.class)
 @java.lang.SuppressWarnings("squid:S2699")

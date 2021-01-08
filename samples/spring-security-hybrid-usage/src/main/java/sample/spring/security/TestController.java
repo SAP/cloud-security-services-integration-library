@@ -1,4 +1,4 @@
-package sample.spring.xsuaa;
+package sample.spring.security;
 
 import java.util.HashMap;
 import java.util.Map;

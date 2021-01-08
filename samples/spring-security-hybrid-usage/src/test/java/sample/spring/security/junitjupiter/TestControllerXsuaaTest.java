@@ -1,4 +1,4 @@
-package sample.spring.xsuaa.junitjupiter;
+package sample.spring.security.junitjupiter;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -14,7 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static sample.spring.xsuaa.util.MockBearerTokenRequestPostProcessor.*;
+import static sample.spring.security.util.MockBearerTokenRequestPostProcessor.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc

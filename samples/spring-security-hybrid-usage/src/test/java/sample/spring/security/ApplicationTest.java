@@ -1,4 +1,4 @@
-package sample.spring.xsuaa;
+package sample.spring.security;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

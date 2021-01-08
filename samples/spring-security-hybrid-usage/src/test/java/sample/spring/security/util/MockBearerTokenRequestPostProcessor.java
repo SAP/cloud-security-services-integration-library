@@ -1,4 +1,4 @@
-package sample.spring.xsuaa.util;
+package sample.spring.security.util;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;

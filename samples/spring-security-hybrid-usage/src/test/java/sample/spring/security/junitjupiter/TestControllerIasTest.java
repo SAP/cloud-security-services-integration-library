@@ -1,4 +1,4 @@
-package sample.spring.xsuaa.junitjupiter;
+package sample.spring.security.junitjupiter;
 
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.extension.IasExtension;
@@ -15,7 +15,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static sample.spring.xsuaa.util.MockBearerTokenRequestPostProcessor.*;
+import static sample.spring.security.util.MockBearerTokenRequestPostProcessor.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc

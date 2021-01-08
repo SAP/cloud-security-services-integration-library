@@ -1,4 +1,4 @@
-package sample.spring.xsuaa;
+package sample.spring.security;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.test.SecurityTestRule;
@@ -17,7 +17,7 @@ import java.io.IOException;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static sample.spring.xsuaa.util.MockBearerTokenRequestPostProcessor.*;
+import static sample.spring.security.util.MockBearerTokenRequestPostProcessor.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
