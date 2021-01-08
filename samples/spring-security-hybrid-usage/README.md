@@ -1,17 +1,15 @@
 # Description
-This sample uses the SAP application router as OAuth client and forwards as reverse proxy the requests to a Java Spring back-end application running on Cloud Foundry.
-In a typical UI5 application, the application router serves HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
+This spring boot application sample integrates with ```java-security``` client library to validate jwt tokens issued by ```xsuaa``` service or by ```identity ``` service. On the one hand ```xsuaa``` service issues an access token and on the other hand ```identity``` service issues an oidc token. The tokens vary with regard to the information provided via token claims. In both cases the validated token is available of type [```Token```](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the ```SecurityContextHolder```.
 
 # Coding
-This sample is using the [`spring-xsuaa`](/spring-xsuaa/) library which bases on [spring-security](https://github.com/spring-projects/spring-security) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure JWT for authentication.
+This sample is using the [`java-security`](/java-security/) (TODO later ```spring-security```) library which bases on [spring-security](https://github.com/spring-projects/spring-security) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure jwt for authentication.
 
-Furthermore it demonstrates how to leverage the token flows provided by the [Token Client](/token-client/) library to request / exchange access tokens.
 
 # Deployment To Cloud Foundry
 To deploy the application, the following steps are required:
-- Configure the Application Router
 - Compile the Java application
-- Create an XSUAA service instance
+- Create a XSUAA service instance
+- Create an Identity service instance
 - Configure manifest.yml
 - Deploy the application
 - Assign Role Collection to your user
@@ -54,8 +52,21 @@ Further up-to-date information you can get on sap.help.com:
 - [Maintain Role Collections](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/d5f1612d8230448bb6c02a7d9c8ac0d1.html)
 - [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
 
-## Access the application
-TODO
+**TODO explain how to maintain ias groups.**
+
+## Access the application - TODO
+- create an IAS token
+- create an XSUAA token
+
+Call the following endpoints with ```Authorization``` header = "Bearer <your IAS/XSUAA token>"
+* `https://spring-security-hybrid-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/sayHello` - GET request that provides token details, but only if token provides expected read permission (scope/groups).
+* `https://spring-security-hybrid-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/method` - GET request executes a method secured with Spring Global Method Security, user requires read permission (scope/groups).
+
+Have a look into the logs with:
+```
+cf logs spring-security-hybrid-usage --recent
+```
+
 
 ## Clean-Up
 
@@ -63,4 +74,5 @@ Finally delete your application and your service instances using the following c
 ```
 cf delete -f spring-security-hybrid-usage
 cf delete-service -f xsuaa-authentication
+cf delete-service -f ias-authentication
 ```
