@@ -30,7 +30,7 @@ cf create-service xsuaa application xsuaa-authentication -c xs-security.json
 ## Create the IAS Service Instance
 Use the ias service broker and create an identity service instance
 ```shell
-cf create-service identity application spring-security-cas-authn'
+cf create-service identity application spring-security-cas-authn
 ```
 
 ## Configure the manifest
@@ -42,6 +42,7 @@ Deploy the application using cf push. It will expect 1 GB of free memory quota.
 ```shell
 cf push --vars-file ../vars.yml
 ```
+> Note: In case of this error message `Service instance ias-authentication not found` wait a moment, as IAS Service Instance gets created asynchronously.
 
 ## Cockpit administration tasks: Assign Role to your User
 Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection(s) such as `Viewer` or `Administrator` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
