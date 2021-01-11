@@ -30,7 +30,7 @@ cf create-service xsuaa application xsuaa-authentication -c xs-security.json
 ## Create the IAS Service Instance
 Use the ias service broker and create an identity service instance
 ```shell
-cf create-service identity application spring-security-cas-authn
+cf create-service identity application ias-authentication
 ```
 
 ## Configure the manifest
