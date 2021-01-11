@@ -57,7 +57,7 @@ public interface AccessToken extends Token {
 	 * For example, commercialized multi-tenant applications with a need for metering and billing use
 	 * {@link #getSubaccountId()} method as identifier for the account to be billed.<br>
 	 *
-	 * Multi-tenant applications need to adapt by using the zone ID instead of the subaccount ID as key
+	 * Multi-tenant applications need to adapt using the zone ID instead of the subaccount ID as key
 	 * for data isolation between tenants. For that purpose, use the {@link #getZoneId()} method instead.<br>
 	 *
 	 * @return subaccount identifier or {@code null}
