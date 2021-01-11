@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
+
 /**
  * Represents an access token in the format of a JSON Web Token (not a short
  * opaque token). In difference to a ID token the access token has no/less
@@ -49,6 +51,21 @@ public interface AccessToken extends Token {
 	 **/
 	@Nullable
 	GrantType getGrantType();
+
+	/**
+	 * Returns subaccount identifier. This reflects claim {@code ext_attr.subaccountid} in xsuaa access tokens.
+	 * For example, commercialized multi-tenant applications with a need for metering and billing use
+	 * {@link #getSubaccountId()} method as identifier for the account to be billed.<br>
+	 *
+	 * Multi-tenant applications need to adapt by using the zone ID instead of the subaccount ID as key
+	 * for data isolation between tenants. For that purpose, use the {@link #getZoneId()} method instead.<br>
+	 *
+	 * @return subaccount identifier or {@code null}
+	 */
+	@Nullable
+	default String getSubaccountId() {
+		return null;
+	}
 
 	/**
 	 * Returns the String value of a claim attribute. <br>
