@@ -15,11 +15,11 @@ server:
 
 
 xsuaa:
-  xsappname: ${vcap.services.xsuaa-authentication.credentials.xsappname}
-  uaadomain: ${vcap.services.xsuaa-authentication.credentials.uaadomain}
-  clientid: ${vcap.services.xsuaa-authentication.credentials.clientid}
-  url: ${vcap.services.xsuaa-authentication.credentials.url}
+  xsappname: ${vcap.services.xsuaa-authn.credentials.xsappname}
+  uaadomain: ${vcap.services.xsuaa-authn.credentials.uaadomain}
+  clientid: ${vcap.services.xsuaa-authn.credentials.clientid}
+  url: ${vcap.services.xsuaa-authn.credentials.url}
 
 identity:
-  clientid: ${vcap.services.ias-authentication.credentials.clientid}
-  url: ${vcap.services.ias-authentication.credentials.url}
+  clientid: ${vcap.services.ias-authn.credentials.clientid}
+  url: ${vcap.services.ias-authn.credentials.url}

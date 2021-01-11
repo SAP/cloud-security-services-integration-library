@@ -11,6 +11,6 @@ applications:
     - route: spring-security-hybrid-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
   path: target/spring-security-hybrid-usage.jar
   services:
-    - xsuaa-authentication
-    - ias-authentication
+    - xsuaa-authn
+    - ias-authn
 

@@ -5,6 +5,14 @@ import com.sap.cloud.security.config.cf.CFConstants;
 import java.net.URI;
 import java.util.Map;
 
+/**
+ * PoJo of configuration properties. It implements the {@link OAuth2ServiceConfiguration} and enhances it with
+ * <ul>
+ *   <li>setters</li>
+ *   <li>Xsuaa specific setters to map Xsuaa specific configuration such as {@code uaadomain}, {@code xsappname}</li>
+ * </ul>
+ * You can define your own prefix when declaring {@code @ConfigurationProperties(prefix = "xsuaa")
+ */
 public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfiguration {
     OAuth2ServiceConfigurationBuilder builder;
     OAuth2ServiceConfiguration configuration;
