@@ -42,7 +42,7 @@ Deploy the application using cf push. It will expect 1 GB of free memory quota.
 ```shell
 cf push --vars-file ../vars.yml
 ```
-> Note: In case of this error message `Service instance ias-authentication not found` wait a moment, as IAS Service Instance gets created asynchronously.
+> Note: In case of this error message `An operation for service instance ias-authentication is in progress.` wait a moment, as identity service instance gets created asynchronously.
 
 ## Cockpit administration tasks: Assign Role to your User
 Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection(s) such as `Viewer` or `Administrator` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
