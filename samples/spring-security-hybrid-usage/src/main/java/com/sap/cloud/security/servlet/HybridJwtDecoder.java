@@ -11,12 +11,23 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.util.Assert;
 
+/**
+ * Internal class that decodes and validates the provided encoded token using {@code java-security} client library.<br>
+ * In case of successful validation, the token gets parsed and returned as {@link Jwt}.
+ */
 // TODO move to the right package e.g. token.authentication, when Token.create() was implemented
 public class HybridJwtDecoder implements JwtDecoder {
     CombiningValidator<Token> xsuaaTokenValidators;
     CombiningValidator<Token> iasTokenValidators;
     Logger logger = LoggerFactory.getLogger(getClass());
 
+    /**
+     * Creates instance with a set of validators for validating the access / oidc token
+     * issued by the dedicated identity service.
+     *
+     * @param xsuaaValidator set of validators that should be used to validate a xsuaa access token.
+     * @param iasValidator set of validators that should be used to validate an ias oidc token.
+     */
     public HybridJwtDecoder(CombiningValidator<Token> xsuaaValidator, CombiningValidator<Token> iasValidator) {
         xsuaaTokenValidators = xsuaaValidator;
         iasTokenValidators = iasValidator;
@@ -28,7 +39,6 @@ public class HybridJwtDecoder implements JwtDecoder {
         Token token = TokenFactory.create(encodedToken);
         ValidationResult validationResult;
 
-        // TODO
         switch (token.getService()) {
             case IAS:
                 validationResult = iasTokenValidators.validate(token);
@@ -53,7 +63,7 @@ public class HybridJwtDecoder implements JwtDecoder {
      *            the token
      * @return Jwt class
      */
-    static Jwt parseJwt(Token token) {
+    public static Jwt parseJwt(Token token) {
         return new Jwt(token.getTokenValue(), token.getNotBefore(), token.getExpiration(),
                 token.getHeaders(), token.getClaims());
     }

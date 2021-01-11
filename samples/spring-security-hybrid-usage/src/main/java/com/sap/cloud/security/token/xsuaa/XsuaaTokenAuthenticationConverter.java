@@ -11,15 +11,18 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import java.util.*;
 
 /**
- * An authentication converter that extracts authorization related information
- * from the Jwt token. For example it removes the ugly application id
- * prefix (e.g.my-application-demo!t1229) from the scopes in the JWT.
+ * An authentication converter that transforms authorization related information
+ * from the {@link Jwt} token. For example it removes the application id
+ * prefix (e.g.my-application-demo!t1229) from the scope claim of the Xsuaa access token.
+ * This allows to perform the {@code hasAuthority} check on the local Xsuaa scope.
  */
 public class XsuaaTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     private String appId;
 
     /**
+     * Creates an instance.
+     *
      * @param appId the xsuaa application identifier
      *            e.g. myXsAppname!t123
      */

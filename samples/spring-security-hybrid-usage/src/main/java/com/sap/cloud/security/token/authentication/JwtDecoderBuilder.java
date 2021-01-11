@@ -11,7 +11,13 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Builder that creates a {@link JwtDecoder} that can handle both kind of tokens:
+ * <ul>
+ *   <li>access tokens from Xsuaa service instance</li>
+ *   <li>oidc tokens from Identity service instance.</li>
+ * </ul>
+ */
 public class JwtDecoderBuilder {
     private OAuth2ServiceConfiguration xsuaaConfiguration;
     private OAuth2ServiceConfiguration iasConfiguration;
@@ -20,8 +26,9 @@ public class JwtDecoderBuilder {
     private CacheConfiguration tokenKeyCacheConfiguration;
 
     /**
-     * Utility for building a JWT decoder configuration
+     * Creates an instance.
      *
+     * Utility for building a JWT decoder configuration
      */
     public JwtDecoderBuilder() {
     }

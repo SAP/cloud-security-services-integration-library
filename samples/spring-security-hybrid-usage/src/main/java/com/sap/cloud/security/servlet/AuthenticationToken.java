@@ -11,7 +11,14 @@ import java.util.Objects;
 
 /**
  * Internal class used to expose the {@link Token} implementation as the
- * standard Principal for Spring Security Jwt handling.
+ * standard Principal for Spring Security Jwt handling. <br><br>
+ *
+ * The {@link Token} instance is accessible via the Security Context:
+ *
+ * {@code (Token)SecurityContextHolder.getContext().getAuthentication().getPrincipal();}
+ *
+ * @see Token
+ * @see com.sap.cloud.security.token.xsuaa.XsuaaTokenAuthenticationConverter
  *
  */
 // TODO move to the right package e.g. token, when Token.create() was implemented
@@ -19,6 +26,14 @@ public class AuthenticationToken extends JwtAuthenticationToken {
     private static final long serialVersionUID = -3779129534612771294L;
     private final Token token;
 
+    /**
+     * Creates
+     * @param jwt Spring Security's representation of the jwt token
+     * @param grantedAuthorities
+     *      the authorities that were extracted by Spring Security frameworks and
+     *      potentially modified by the application.
+     *
+     */
     public AuthenticationToken(Jwt jwt, Collection<GrantedAuthority> grantedAuthorities) {
         super(jwt, grantedAuthorities);
         Assert.notNull(getToken().getTokenValue(), "Jwt needs to provide a token value.");
@@ -54,6 +69,5 @@ public class AuthenticationToken extends JwtAuthenticationToken {
     public int hashCode() {
         return Objects.hash(super.hashCode(), getToken());
     }
-
 
 }
