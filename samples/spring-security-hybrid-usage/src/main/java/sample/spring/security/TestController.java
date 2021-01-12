@@ -40,7 +40,7 @@ public class TestController {
     @GetMapping("/sayHello")
     public Map<String, String> sayHello(@AuthenticationPrincipal Token token) {
 
-        logger.debug("Got the token: {}", token.toString());
+        logger.debug("Got the token: {}", token);
 
         Map<String, String> result = new HashMap<>();
         result.put("client id", token.getClientId());
@@ -51,7 +51,7 @@ public class TestController {
         result.put("email", token.getClaimAsString(TokenClaims.EMAIL));
 
         if(token instanceof AccessToken) {
-            //result.put("(Xsuaa) subaccount id", ((AccessToken)token).getSubaccountId());
+            result.put("(Xsuaa) subaccount id", ((AccessToken)token).getSubaccountId());
             result.put("(Xsuaa) scopes", String.valueOf(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)));
             result.put("grant type", token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE));
         }

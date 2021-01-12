@@ -16,77 +16,77 @@ class OAuth2ServiceConfigurationPropertiesTest {
     @Test
     void setGetClientId() {
         cutIas.setClientId(ANY_VALUE);
-        assertEquals(cutIas.getClientId(), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutIas.getClientId());
         assertTrue(cutIas.hasProperty(CFConstants.CLIENT_ID));
-        assertEquals(cutIas.getProperty(CFConstants.CLIENT_ID), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutIas.getProperty(CFConstants.CLIENT_ID));
 
         cutXsuaa.setClientId(ANY_VALUE);
-        assertEquals(cutXsuaa.getClientId(), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutXsuaa.getClientId());
         assertTrue(cutXsuaa.hasProperty(CFConstants.CLIENT_ID));
-        assertEquals(cutXsuaa.getProperty(CFConstants.CLIENT_ID), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutXsuaa.getProperty(CFConstants.CLIENT_ID));
     }
 
 
     @Test
     void setGetClientSecret() {
         cutIas.setClientSecret(ANY_VALUE);
-        assertEquals(cutIas.getClientSecret(), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutIas.getClientSecret());
         assertTrue(cutIas.hasProperty(CLIENT_SECRET));
-        assertEquals(cutIas.getProperty(CLIENT_SECRET), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutIas.getProperty(CLIENT_SECRET));
 
         cutXsuaa.setClientSecret(ANY_VALUE);
-        assertEquals(cutXsuaa.getClientSecret(), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutXsuaa.getClientSecret());
         assertTrue(cutXsuaa.hasProperty(CLIENT_SECRET));
-        assertEquals(cutXsuaa.getProperty(CLIENT_SECRET), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutXsuaa.getProperty(CLIENT_SECRET));
     }
 
     @Test
     void setGetUrl() {
         cutIas.setUrl(ANY_VALUE);
-        assertEquals(cutIas.getUrl().toString(), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutIas.getUrl().toString());
         assertTrue(cutIas.hasProperty(URL));
-        assertEquals(cutIas.getProperty(URL), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutIas.getProperty(URL));
 
         cutXsuaa.setUrl(ANY_VALUE);
-        assertEquals(cutXsuaa.getUrl().toString(), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutXsuaa.getUrl().toString());
         assertTrue(cutXsuaa.hasProperty(URL));
-        assertEquals(cutXsuaa.getProperty(URL), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutXsuaa.getProperty(URL));
     }
 
     @Test
     void getProperties() {
         cutIas.setClientId(ANY_VALUE);
         cutIas.setClientSecret(ANY_VALUE);
-        assertEquals(cutIas.getProperties().get(CLIENT_ID), ANY_VALUE);
-        assertEquals(cutIas.getProperties().get(CLIENT_SECRET), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutIas.getProperties().get(CLIENT_ID));
+        assertEquals(ANY_VALUE, cutIas.getProperties().get(CLIENT_SECRET));
         assertNull(cutIas.getProperties().get(URL));
     }
 
     @Test
     void setGetService() {
-        assertEquals(cutIas.getService(), Service.IAS);
-        assertEquals(cutXsuaa.getService(), Service.XSUAA);
+        assertEquals(Service.IAS, cutIas.getService());
+        assertEquals(Service.XSUAA, cutXsuaa.getService());
     }
 
     @Test
     void setGetUaaDomain() {
         cutXsuaa.setUaaDomain(ANY_VALUE);
         assertTrue(cutXsuaa.hasProperty(XSUAA.UAA_DOMAIN));
-        assertEquals(cutXsuaa.getProperty(XSUAA.UAA_DOMAIN), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutXsuaa.getProperty(XSUAA.UAA_DOMAIN));
     }
 
     @Test
     void setGetXsAppName() {
         cutXsuaa.setXsAppName(ANY_VALUE);
         assertTrue(cutXsuaa.hasProperty(XSUAA.APP_ID));
-        assertEquals(cutXsuaa.getProperty(XSUAA.APP_ID), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutXsuaa.getProperty(XSUAA.APP_ID));
     }
 
     @Test
     void setGetVerificationKey() {
         cutXsuaa.setVerificationKey(ANY_VALUE);
         assertTrue(cutXsuaa.hasProperty(XSUAA.VERIFICATION_KEY));
-        assertEquals(cutXsuaa.getProperty(XSUAA.VERIFICATION_KEY), ANY_VALUE);
+        assertEquals(ANY_VALUE, cutXsuaa.getProperty(XSUAA.VERIFICATION_KEY));
     }
 
     @Test

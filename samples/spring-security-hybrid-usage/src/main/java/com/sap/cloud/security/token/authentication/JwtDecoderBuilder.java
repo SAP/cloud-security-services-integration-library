@@ -26,14 +26,6 @@ public class JwtDecoderBuilder {
     private CacheConfiguration tokenKeyCacheConfiguration;
 
     /**
-     * Creates an instance.
-     *
-     * Utility for building a JWT decoder configuration
-     */
-    public JwtDecoderBuilder() {
-    }
-
-    /**
      * Use to configure the token key cache.
      *
      * @param cacheConfiguration

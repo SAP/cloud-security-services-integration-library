@@ -15,7 +15,7 @@ import static com.sap.cloud.security.config.Service.IAS;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-public class AuthenticationTokenTest {
+class AuthenticationTokenTest {
 
     JwtGenerator jwtGenerator = JwtGenerator.getInstance(IAS, "theClientId");
 
@@ -31,9 +31,9 @@ public class AuthenticationTokenTest {
 
         AuthenticationToken cut = new AuthenticationToken(jwt1, null);
 
-        assertTrue(cut.equals(new AuthenticationToken(jwt1, null)));
-        assertTrue(cut.equals(new AuthenticationToken(jwt2, null)));
-        assertTrue(new AuthenticationToken(jwt1, singleAuthority).equals(new AuthenticationToken(jwt2, singleAuthority)));
+        assertEquals(cut, new AuthenticationToken(jwt1, null));
+        assertEquals(cut, new AuthenticationToken(jwt2, null));
+        assertEquals(new AuthenticationToken(jwt1, singleAuthority), new AuthenticationToken(jwt2, singleAuthority));
 
         assertEquals(cut.hashCode(), cut.hashCode());
         assertEquals(cut, new AuthenticationToken(jwt1, null));
@@ -49,10 +49,10 @@ public class AuthenticationTokenTest {
         when(jwt2.getTokenValue()).thenReturn(jwtGenerator.createToken().getTokenValue());
 
         AuthenticationToken cut = new AuthenticationToken(jwt1, null);
-        assertFalse(cut.equals(new AuthenticationToken(jwt2, null)));
-        assertFalse(cut.equals(null));
-        assertFalse(cut.equals(Mockito.mock(Jwt.class)));
-        assertFalse(cut.equals(new AuthenticationToken(jwt1, singleAuthority)));
+        assertNotEquals(cut, new AuthenticationToken(jwt2, null));
+        assertNotEquals(null, cut);
+        assertNotEquals(cut, Mockito.mock(Jwt.class));
+        assertNotEquals(cut, new AuthenticationToken(jwt1, singleAuthority));
 
         assertNotEquals(cut, new AuthenticationToken(jwt2, null));
     }

@@ -28,12 +28,14 @@ class HybridJwtDecoderTest {
     void setup() {
         CombiningValidator<Token> combiningValidator = Mockito.mock(CombiningValidator.class);
         when(combiningValidator.validate(any())).thenReturn(ValidationResults.createValid());
+
         cut = new HybridJwtDecoder(combiningValidator, combiningValidator);
     }
 
     @Test
     void parseJwt() {
         Jwt jwt = HybridJwtDecoder.parseJwt(jwtGenerator.createToken());
+
         assertEquals(2, jwt.getHeaders().size());
         assertEquals(6, jwt.getClaims().size());
         assertEquals(1, jwt.getExpiresAt().compareTo(Instant.now()));
@@ -41,31 +43,33 @@ class HybridJwtDecoderTest {
     }
 
     @Test
-    public void decodeIasTokenWithoutValidators() {
+    void decodeIasTokenWithoutValidators() {
         String encodedToken = jwtGenerator.createToken().getTokenValue();
         assertEquals("theClientId", cut.decode(encodedToken).getClaim(TokenClaims.AUTHORIZATION_PARTY));
     }
 
     @Test
-    public void decodeXsuaaTokenWithoutValidators() {
+    void decodeXsuaaTokenWithoutValidators() {
         String encodedToken = JwtGenerator.getInstance(XSUAA, "theClientId").createToken().getTokenValue();
         assertEquals("theClientId", cut.decode(encodedToken).getClaim(TokenClaims.AUTHORIZATION_PARTY));
     }
 
     @Test
-    public void decodeInvalidToken_throwsInvalidTokenException() {
+    void decodeInvalidToken_throwsInvalidTokenException() {
         CombiningValidator<Token> combiningValidator = Mockito.mock(CombiningValidator.class);
         when(combiningValidator.validate(any())).thenReturn(ValidationResults.createInvalid("error"));
         cut = new HybridJwtDecoder(combiningValidator, combiningValidator);
+        String encodedToken = jwtGenerator.createToken().getTokenValue();
 
-        assertThrows(InvalidTokenException.class, () -> cut.decode(jwtGenerator.createToken().getTokenValue()));
+        assertThrows(InvalidTokenException.class, () -> cut.decode(encodedToken));
     }
 
     @Test
-    public void decodeWithMissingExpClaim_throwsJsonParsingException() {
+    void decodeWithMissingExpClaim_throwsJsonParsingException() {
         String encodedToken = jwtGenerator
                 .withClaimValue(TokenClaims.EXPIRATION, "")
                 .createToken().getTokenValue();
+
         assertThrows(JsonParsingException.class, () -> cut.decode(encodedToken));
     }
 }
