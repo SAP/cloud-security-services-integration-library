@@ -57,8 +57,8 @@ You should receive an authorised response, if everything works fine.
 The **IAS ID token** has following claims:
 - `aud` the audiences field that consists of:
     - client id of the IAS application that was configured in the trust setup (this client Id is stored in XSUAA as relying party)
-    - client id of the IAS service instance, which is also visible in your VCAP_SERVICES in the authorized party ("azp") field
-the client id of the IAS service instance, which is also visible in your VCAP_SERVICES
+    - client id of the IAS service instance, which is also visible in your `VCAP_SERVICES` in the authorized party `azp` field
+the client id of the IAS service instance, which is also visible in your `VCAP_SERVICES`
 - `zone_uuid` the zone of your subaccount 
 
 The **Xsuaa access token** after the exchange has the following claims:
