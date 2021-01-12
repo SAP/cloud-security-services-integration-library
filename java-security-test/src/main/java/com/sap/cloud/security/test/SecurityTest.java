@@ -55,6 +55,7 @@ public class SecurityTest
 	public static final String DEFAULT_APP_ID = "xsapp!t0815";
 	public static final String DEFAULT_CLIENT_ID = "sb-clientId!t0815";
 	public static final String DEFAULT_DOMAIN = "localhost";
+	public static final String DEFAULT_URL = "http://localhost";
 
 	protected static final String LOCALHOST_PATTERN = "http://localhost:%d";
 
