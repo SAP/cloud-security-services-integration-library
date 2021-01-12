@@ -44,7 +44,7 @@ public class CFEnvParserTest {
 
 	@Test
 	public void getDomain() {
-		assertThat(cut.getProperty(XSUAA.UAA_DOMAIN)).isEqualTo("auth.com");
+		assertThat(cut.getDomain()).isEqualTo("auth.com");
 	}
 
 	@Test

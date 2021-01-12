@@ -43,7 +43,7 @@ import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA;
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
 public class SecurityTest
@@ -157,7 +157,7 @@ public class SecurityTest
 			String configurationResourceName) {
 		return VcapServicesParser.fromFile(configurationResourceName)
 				.getConfigurationBuilder()
-				.withProperty(UAA_DOMAIN, URI.create(issuerUrl).getHost())
+				.withProperty(XSUAA.UAA_DOMAIN, URI.create(issuerUrl).getHost())
 				.withUrl(issuerUrl);
 	}
 

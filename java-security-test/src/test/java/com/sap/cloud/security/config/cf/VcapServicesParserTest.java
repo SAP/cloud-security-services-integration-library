@@ -5,9 +5,6 @@ import com.sap.cloud.security.json.JsonParsingException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URI;
-
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.VERIFICATION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
