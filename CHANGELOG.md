@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.8.3
+- [java-api] ``AccessToken`` exposes the ```getSubaccountId()``` method. Further information about the usage of ```getSubaccountId()``` and ```getZoneId()``` can be read [here](https://github.com/SAP-samples/teched2020-DEV263#changed-api-for-multi-tenant-applications-to-determine-tenant-identifier-getsubaccountid-replaced-by-getzoneid). 
 ## 2.8.2
 - [java-security]  
   - HOTFIX for ``2.8.1`` version.
