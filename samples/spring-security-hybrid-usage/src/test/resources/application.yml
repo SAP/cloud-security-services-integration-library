@@ -6,4 +6,4 @@ xsuaa:
 
 identity:
   clientid: sb-clientId!t0815
-  url: http://localhost
+  domain: localhost

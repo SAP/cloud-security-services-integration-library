@@ -4,6 +4,7 @@ import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.servlet.HybridJwtDecoder;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -38,7 +39,7 @@ class JwtDecoderBuilderTest {
         OAuth2ServiceConfiguration iasConfiguration = OAuth2ServiceConfigurationBuilder
                 .forService(Service.IAS)
                 .withClientId("clientId")
-                .withUrl("https://myauth.com")
+                .withProperty(CFConstants.IAS.DOMAIN, "myauth.com")
                 .build();
 
         cut.withIasServiceConfiguration(iasConfiguration);

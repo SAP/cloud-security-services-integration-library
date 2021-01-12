@@ -22,4 +22,4 @@ xsuaa:
 
 identity:
   clientid: ${vcap.services.ias-authn.credentials.clientid}
-  url: ${vcap.services.ias-authn.credentials.url}
+  domain: ${vcap.services.ias-authn.credentials.domain}

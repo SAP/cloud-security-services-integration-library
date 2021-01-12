@@ -63,6 +63,19 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
         return getConfiguration().getUrl();
     }
 
+    @Override
+    public String getDomain() {
+        return getConfiguration().getDomain();
+    }
+
+    public void setDomain(String domain) {
+        if(Service.XSUAA.equals(getService())) {
+            builder.withProperty(CFConstants.XSUAA.UAA_DOMAIN, domain);
+        } else {
+            builder.withProperty(CFConstants.IAS.DOMAIN, domain);
+        }
+    }
+
     /**
      * Sets base URL of the OAuth2 identity service instance. In multi tenancy scenarios
      * this is the url where the service instance was created.
