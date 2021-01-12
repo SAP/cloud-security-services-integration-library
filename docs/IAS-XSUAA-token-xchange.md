@@ -11,15 +11,15 @@ In the XSUAA multitenancy concept, the zone is mapped to the single XSUAA tenant
 ### Under the hood
 ![IAS -> XSUAA token xchange flow diagram](token-xchange.png)
 
-Token of incoming request is checked whether it is a Xsuaa token, if it is Xsuaa token then this token proceeds forward to the token validation step. In case it is valid token, successful response is sent back, otherwise an unauthorised response is sent. 
-In case token is not Xsuaa token, application checks if token exchange is enabled, if it is, then Xsuaa access token is requested from Xsuaa instance using the POST request with Header `X-zid`:`zone_uuid`, `grant_type` = `jwt-bearer` and `assertion` = IAS token from the request. Upon successful token exchange between IAS and XSUAA, token gets validated and depending on validation result authorised or unauthorised response is sent back.
-In situation when incoming request doesn't contain Xsuaa token and token exchange is disabled, unauthorised response is sent back. 
+Token of incoming request is checked whether it is a Xsuaa token, if it is Xsuaa token then this token proceeds forward to the token validation step. In case it is valid token, successful response is sent back, otherwise an unauthorized response is sent. 
+In case token is not Xsuaa token, application checks if token exchange is enabled, if it is, then Xsuaa access token is requested from Xsuaa instance using the POST request with Header `X-zid`:`zone_uuid`, `grant_type` = `jwt-bearer` and `assertion` = IAS token from the request. Upon successful token exchange between IAS and XSUAA, token gets validated and depending on validation result authorized or unauthorized response is sent back.
+In situation when incoming request doesn't contain Xsuaa token and token exchange is disabled, unauthorized response is sent back. 
 ### Setup
 #### Setup trust between IAS and Xsuaa 
 Detailed information can be found [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/161f8f0cfac64c4fa2d973bc5f08a894.html)
-1. create an XSUAA service instance with plan apiaccess in your subaccount
-2. fetch access token from this service instance
-3. execute the trust setup:
+1. Create an XSUAA service instance with plan apiaccess in your subaccount
+2. Fetch access token from this service instance
+3. Execute the trust setup:
   ```shell script
     curl --location --request POST 'https://api.authentication.sap.hana.ondemand.com/sap/rest/identity-providers' \
     --header 'Authorization: bearer <FETCHED XSUAA ACCESS TOKEN>' \
@@ -51,9 +51,9 @@ Call a secured endpoint with an IAS token
     curl --location --request GET 'https://myApp.cfapps.sap.hana.ondemand.com/securedEndpoint' \
     --header 'Authorization: Bearer <FETCHED IAS TOKEN>'
    ```
-You should receive an authorised response, if everything works fine.
+You should receive an authorized response, if everything works fine.
    
-##### Details
+##### Further details
 The **IAS ID token** has following claims:
 - `aud` the audiences field that consists of:
     - client id of the IAS application that was configured in the trust setup (this client Id is stored in XSUAA as relying party)
