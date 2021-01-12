@@ -86,7 +86,7 @@ public class JwtValidatorBuilderTest {
 	@Test
 	public void buildIas_containsAllDefaultValidators() {
 		OAuth2ServiceConfigurationBuilder iasConfigBuilder = OAuth2ServiceConfigurationBuilder.forService(IAS)
-				.withProperty(CFConstants.URL, "https://app.auth.com")
+				.withProperty(CFConstants.IAS.DOMAIN, "app.auth.com")
 				.withClientId("T0123456");
 
 		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(iasConfigBuilder.build())
