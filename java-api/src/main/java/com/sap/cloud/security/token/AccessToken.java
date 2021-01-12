@@ -81,7 +81,9 @@ public interface AccessToken extends Token {
 	 *
 	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
 	 *     </code>
-	 * 
+	 * @param claimName name of the claim
+	 * @param attributeName name of the attribute that contains a string list
+	 *
 	 * @return the String value of a claim attribute or null if claim or its
 	 *         attribute does not exist.
 	 **/
@@ -105,9 +107,11 @@ public interface AccessToken extends Token {
 	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 	 *
 	 *     token.getAttributeFromClaimAsString(XS_USER_ATTRIBUTES, "custom_role");
-	 *     </code>
+	 * </code>
 	 *
-	 * @return the String value of a claim attribute or null if claim or its
+	 * @param claimName name of the claim
+	 * @param attributeName name of the attribute that contains a string list
+	 * @return the String list of a claim attribute or null if claim or its
 	 *         attribute does not exist.
 	 **/
 	@Nullable
