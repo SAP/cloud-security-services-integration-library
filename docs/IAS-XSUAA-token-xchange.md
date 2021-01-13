@@ -16,7 +16,9 @@ In case token is not Xsuaa token, application checks if token exchange is enable
 In situation when incoming request doesn't contain Xsuaa token and token exchange is disabled, unauthorized response is sent back. 
 ### Setup
 #### Setup trust between IAS and Xsuaa 
-Detailed information can be found [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/161f8f0cfac64c4fa2d973bc5f08a894.html)
+The trust can be setup via
+[SCP Cockpit](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/161f8f0cfac64c4fa2d973bc5f08a894.html)
+or via REST:
 1. Create an XSUAA service instance with plan apiaccess in your subaccount
 2. Fetch access token from this service instance
 3. Execute the trust setup:
