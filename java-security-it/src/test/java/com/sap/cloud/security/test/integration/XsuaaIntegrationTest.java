@@ -62,9 +62,9 @@ public class XsuaaIntegrationTest {
 
 	@Test
 	public void xsuaaTokenValidationFails_withIasCombiningValidator() throws IOException {
-		OAuth2ServiceConfiguration configuration = rule.getConfigurationBuilderFromFile(
+		OAuth2ServiceConfiguration configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
 				"/ias-simple/vcap_services-single.json")
-				.withUrl("https://myauth.com")
+				.withDomain("myauth.com")
 				.build();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
@@ -78,7 +78,7 @@ public class XsuaaIntegrationTest {
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isFalse();
 		assertThat(result.getErrorDescription()).startsWith(
-				"Issuer is not trusted because 'iss' 'http://auth.com' does not match host 'myauth.com' of the identity provider");
+				"Issuer is not trusted because 'iss' 'http://auth.com' does not match domain 'myauth.com' of the identity provider");
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class XsuaaIntegrationTest {
 		String publicKey = IOUtils.resourceToString("/publicKey.txt", StandardCharsets.UTF_8);
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(XSUAA)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, DEFAULT_DOMAIN)
+				.withDomain(DEFAULT_DOMAIN)
 				.withClientId(DEFAULT_CLIENT_ID)
 				.withProperty(VERIFICATION_KEY, publicKey)
 				.build();

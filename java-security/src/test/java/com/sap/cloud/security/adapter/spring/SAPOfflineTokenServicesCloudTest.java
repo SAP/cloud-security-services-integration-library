@@ -50,7 +50,7 @@ public class SAPOfflineTokenServicesCloudTest {
 				.forService(Service.XSUAA)
 				.withProperty(XSUAA.APP_ID, "testApp")
 				.withProperty(CLIENT_ID, "clientId-offline")
-				.withProperty(XSUAA.UAA_DOMAIN, "localhost")
+				.withDomain("localhost")
 				.build();
 
 		jwtValidatorBuilderSpy = Mockito.spy(JwtValidatorBuilder.getInstance(configuration));
