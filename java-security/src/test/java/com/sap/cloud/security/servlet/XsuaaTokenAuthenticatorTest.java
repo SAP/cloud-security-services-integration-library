@@ -60,7 +60,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 		oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
-				.withProperty(XSUAA.UAA_DOMAIN, "auth.com")
+				.withDomain("auth.com")
 				.withProperty(XSUAA.APP_ID, "appId")
 				.withClientId("clientId")
 				.withClientSecret("mySecret")
