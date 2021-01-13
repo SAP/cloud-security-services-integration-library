@@ -4,10 +4,7 @@ import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.token.ScopeConverter;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaScopeConverter;
-import com.sap.cloud.security.token.XsuaaToken;
+import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +69,8 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
-					Token token = TokenFactory.create(authorizationHeader, getScopeConverter());
+					Token token = Token.create(authorizationHeader,
+							getServiceConfiguration().getProperty(CFConstants.XSUAA.APP_ID));
 					if (isIasXsuaaXchangeEnabled() && token.getService() == Service.IAS) {
 						token = new XsuaaToken(Objects.requireNonNull(
 								exchangeBroker.doIasToXsuaaXchange(httpClient, token, serviceConfiguration),
