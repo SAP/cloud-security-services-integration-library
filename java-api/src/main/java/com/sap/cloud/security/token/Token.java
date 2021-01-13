@@ -20,6 +20,19 @@ import java.util.Set;
 public interface Token extends Serializable {
 
 	/**
+	 * Creates a token instance based on TokenFactory implementation.
+	 * 
+	 * @param jwt
+	 *            encoded JWT token
+	 * @param appId
+	 *            application Id from CF environment
+	 * @return token instance
+	 */
+	static Token create(String jwt, String appId) {
+		return TokenProvider.providers().get(0).create(jwt, appId);
+	}
+
+	/**
 	 * Returns the header parameter value as string for the given header parameter
 	 * name.
 	 *
