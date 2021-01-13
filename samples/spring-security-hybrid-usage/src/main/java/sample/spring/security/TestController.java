@@ -3,6 +3,7 @@ package sample.spring.security;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
@@ -13,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static com.sap.cloud.security.config.Service.XSUAA;
 
 @RestController
 public class TestController {
@@ -50,7 +53,7 @@ public class TestController {
         result.put("given name", token.getClaimAsString(TokenClaims.GIVEN_NAME));
         result.put("email", token.getClaimAsString(TokenClaims.EMAIL));
 
-        if(token instanceof AccessToken) {
+        if(XSUAA.equals(token.getService())) {
             result.put("(Xsuaa) subaccount id", ((AccessToken)token).getSubaccountId());
             result.put("(Xsuaa) scopes", String.valueOf(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)));
             result.put("grant type", token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE));

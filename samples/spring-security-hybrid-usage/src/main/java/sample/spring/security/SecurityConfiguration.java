@@ -89,6 +89,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return xsuaaConfiguration().getProperty(CFConstants.XSUAA.APP_ID);
 	}
 
+	/**
+	 * Workaround until Cloud Authorization Service is globally available.
+	 */
 	private static class MyCustomTokenAuthenticationConverter extends XsuaaTokenAuthenticationConverter {
 		/**
 		 * @param appId the xsuaa application identifier

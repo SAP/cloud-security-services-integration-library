@@ -34,31 +34,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-		<!-- TODO move it spring-security -->
-		<dependency>
-			<groupId>com.sap.cloud.security</groupId>
-			<artifactId>java-security</artifactId>
-			<version>${sap.cloud.security.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.5.13</version>
-		</dependency>
-		
-		<!-- test dependencies-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-		<dependency>
-			<groupId>com.sap.cloud.security</groupId>
-			<artifactId>java-security-test</artifactId>
-			<version>${sap.cloud.security.version}</version>
-			<scope>test</scope>
-		</dependency>
+		<!-- spring security -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-jose</artifactId>
@@ -70,6 +46,24 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-resource-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>spring-security</artifactId>
+			<version>${sap.cloud.security.version}</version>
+		</dependency>
+
+		<!-- test dependencies-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+		<dependency>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>java-security-test</artifactId>
+			<version>${sap.cloud.security.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

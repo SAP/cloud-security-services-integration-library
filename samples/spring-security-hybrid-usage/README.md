@@ -1,8 +1,8 @@
 # Description
-This spring boot application sample integrates with ```java-security``` client library to validate jwt tokens issued by ```xsuaa``` service or by ```identity ``` service. On the one hand ```xsuaa``` service issues an access token and on the other hand ```identity``` service issues an oidc token. The tokens vary with regard to the information provided via token claims. In both cases the validated token is available of type [```Token```](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the ```SecurityContextHolder```.
+This spring boot application sample uses ```spring-security``` client library to validate jwt tokens issued by ```xsuaa``` service or by ```identity ``` service. On the one hand ```xsuaa``` service issues an access token and on the other hand ```identity``` service issues an oidc token. The tokens vary with regard to the information provided via token claims. In both cases the validated token is available of type [```Token```](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the ```SecurityContextHolder```.
 
 # Coding
-This sample is using the [`java-security`](/java-security/) (TODO later ```spring-security```) library which bases on [spring-security](https://github.com/spring-projects/spring-security) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure jwt for authentication.
+This sample is using the [`spring-security`](/spring-security/) library which bases on [Spring's Security](https://github.com/spring-projects/spring-security) project. It integrates with [Spring Security OAuth 2.0 Resource Server](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver). The security configuration needs to configure jwt for authentication.
 
 
 # Deployment To Cloud Foundry
@@ -12,7 +12,8 @@ To deploy the application, the following steps are required:
 - Create an Identity service instance
 - Configure manifest.yml
 - Deploy the application
-- Assign Role Collection to your user
+- Admin: Assign Role Collection to your XSUAA user
+- Admin: Assign Group to your IAS user
 - Access the application
 
 ## Compile the Java Application
@@ -44,7 +45,7 @@ cf push --vars-file ../vars.yml
 ```
 > Note: In case of this error message `An operation for service instance ias-authn is in progress.` wait a moment, as identity service instance gets created asynchronously.
 
-## Cockpit administration task: Assign Xsuaa Role to your User
+## Cockpit administration task: Assign Xsuaa Role Collection to your User
 Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection(s) such as `Viewer` or `Administrator` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
 
 ![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
