@@ -70,25 +70,6 @@ public String getGivenName(@AuthenticationPrincipal Token token) {
 > :bulb: Make sure you've imported the right Token: `com.sap.cloud.security.token.Token`.
 
 
-### Check authorization within a method
-
-```java
-@GetMapping(@AuthenticationPrincipal Token token)
-public ResponseEntity<YourDto> readAll() {
-    if (!token.getAuthorities().contains(new SimpleGrantedAuthority("Display"))) {
-        throw new NotAuthorizedException("This operation requires \"Display\" scope");
-    }
-}
-
-...java
-@ResponseStatus(HttpStatus.FORBIDDEN) //set status code to '403'
-class NotAuthorizedException extends RuntimeException {
-    public NotAuthorizedException(String message) {
-        super(message);
-    }
-}
-```
-
 ### Check authorization on method level
 Spring Security supports authorization semantics at the method level. As prerequisite you need to enable global Method Security as explained in [Baeldung tutorial: Introduction to Spring Method Security](https://www.baeldung.com/spring-security-method-security).
 
