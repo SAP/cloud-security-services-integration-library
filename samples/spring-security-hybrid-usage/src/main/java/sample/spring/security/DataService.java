@@ -1,7 +1,6 @@
 package sample.spring.security;
 
-import com.sap.cloud.security.token.Token;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.sap.cloud.security.token.SpringSecurityContext;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,7 +16,7 @@ public class DataService {
      *
      */
     String readSensitiveData() {
-        String zoneId = ((Token)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getZoneId();
+        String zoneId = SpringSecurityContext.getToken().getZoneId();
         return "You got the sensitive data for zone '" + zoneId + "'.";
     }
 }

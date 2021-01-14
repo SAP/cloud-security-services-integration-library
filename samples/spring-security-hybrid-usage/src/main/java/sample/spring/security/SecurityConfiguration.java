@@ -20,7 +20,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationProperties;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.servlet.AuthenticationToken;
+import com.sap.cloud.security.token.authentication.AuthenticationToken;
 import com.sap.cloud.security.token.TokenClaims;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +32,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
-import com.sap.cloud.security.token.xsuaa.XsuaaTokenAuthenticationConverter;
+import com.sap.cloud.security.token.authentication.XsuaaTokenAuthenticationConverter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;

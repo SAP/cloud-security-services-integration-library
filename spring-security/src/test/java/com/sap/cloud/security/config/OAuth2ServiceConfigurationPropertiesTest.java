@@ -2,7 +2,6 @@ package com.sap.cloud.security.config;
 
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
-import com.sap.cloud.security.token.TokenClaims;
 import org.junit.jupiter.api.Test;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
@@ -25,7 +24,6 @@ class OAuth2ServiceConfigurationPropertiesTest {
         assertTrue(cutXsuaa.hasProperty(CFConstants.CLIENT_ID));
         assertEquals(ANY_VALUE, cutXsuaa.getProperty(CFConstants.CLIENT_ID));
     }
-
 
     @Test
     void setGetClientSecret() {
