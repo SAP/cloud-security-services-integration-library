@@ -30,16 +30,16 @@ public class HybridTokenFactory implements TokenFactory {
 	 *            the encoded JWT token (access_token or id_token), e.g. from the
 	 *            Authorization Header. the scope converter, e.g.
 	 *            {@link XsuaaScopeConverter}
-	 * @param appId
-	 *            application Id from the CF environment
+	 * @param xsuaaAppId
+	 *            Xsuaa application Id from the CF environment
 	 * @return the new token instance
 	 */
-	public Token create(String jwtToken, String appId) {
+	public Token create(String jwtToken, String xsuaaAppId) {
 		Objects.requireNonNull(jwtToken, "Requires encoded jwtToken to create a Token instance.");
 		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
 
 		if (isXsuaaToken(decodedJwt)) {
-			ScopeConverter localScopeConverter = new XsuaaScopeConverter(appId);
+			ScopeConverter localScopeConverter = new XsuaaScopeConverter(xsuaaAppId);
 			return new XsuaaToken(decodedJwt).withScopeConverter(localScopeConverter);
 		}
 		return new SapIdToken(decodedJwt);
