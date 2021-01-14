@@ -1,4 +1,4 @@
-package com.sap.cloud.security.servlet;
+package com.sap.cloud.security.token.authentication;
 
 import com.sap.cloud.security.token.Token;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,10 +18,9 @@ import java.util.Objects;
  * {@code (Token)SecurityContextHolder.getContext().getAuthentication().getPrincipal();}
  *
  * @see Token
- * @see com.sap.cloud.security.token.xsuaa.XsuaaTokenAuthenticationConverter
+ * @see XsuaaTokenAuthenticationConverter
  *
  */
-// TODO move to the right package e.g. token, when Token.create() was implemented
 public class AuthenticationToken extends JwtAuthenticationToken {
     private static final long serialVersionUID = -3779129534612771294L;
     private final Token token;
@@ -37,7 +36,7 @@ public class AuthenticationToken extends JwtAuthenticationToken {
     public AuthenticationToken(Jwt jwt, Collection<GrantedAuthority> grantedAuthorities) {
         super(jwt, grantedAuthorities);
         Assert.notNull(getToken().getTokenValue(), "Jwt needs to provide a token value.");
-        this.token = TokenFactory.create(getToken().getTokenValue()); // TODO replace with Token.create()
+        this.token = Token.create(getToken().getTokenValue(), "xsapp"); // TODO
     }
 
     @Override

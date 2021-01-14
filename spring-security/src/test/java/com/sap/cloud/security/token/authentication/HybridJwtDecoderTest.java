@@ -1,4 +1,4 @@
-package com.sap.cloud.security.servlet;
+package com.sap.cloud.security.token.authentication;
 
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.JwtGenerator;

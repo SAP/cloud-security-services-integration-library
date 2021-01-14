@@ -1,6 +1,5 @@
-package com.sap.cloud.security.token.xsuaa;
+package com.sap.cloud.security.token.authentication;
 
-import com.sap.cloud.security.servlet.HybridJwtDecoder;
 import com.sap.cloud.security.test.JwtGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

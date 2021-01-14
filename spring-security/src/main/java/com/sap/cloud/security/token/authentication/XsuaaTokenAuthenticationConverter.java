@@ -1,6 +1,5 @@
-package com.sap.cloud.security.token.xsuaa;
+package com.sap.cloud.security.token.authentication;
 
-import com.sap.cloud.security.servlet.AuthenticationToken;
 import com.sap.cloud.security.token.TokenClaims;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

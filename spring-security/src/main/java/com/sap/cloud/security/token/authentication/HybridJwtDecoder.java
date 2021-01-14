@@ -1,4 +1,4 @@
-package com.sap.cloud.security.servlet;
+package com.sap.cloud.security.token.authentication;
 
 import com.sap.cloud.security.token.InvalidTokenException;
 import com.sap.cloud.security.token.Token;
@@ -8,14 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.util.Assert;
 
 /**
  * Internal class that decodes and validates the provided encoded token using {@code java-security} client library.<br>
  * In case of successful validation, the token gets parsed and returned as {@link Jwt}.
  */
-// TODO move to the right package e.g. token.authentication, when Token.create() was implemented
 public class HybridJwtDecoder implements JwtDecoder {
     CombiningValidator<Token> xsuaaTokenValidators;
     CombiningValidator<Token> iasTokenValidators;
@@ -36,7 +34,7 @@ public class HybridJwtDecoder implements JwtDecoder {
     @Override
     public Jwt decode(String encodedToken) {
         Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
-        Token token = TokenFactory.create(encodedToken);
+        Token token = Token.create(encodedToken, "xsapp"); // TODO
         ValidationResult validationResult;
 
         switch (token.getService()) {

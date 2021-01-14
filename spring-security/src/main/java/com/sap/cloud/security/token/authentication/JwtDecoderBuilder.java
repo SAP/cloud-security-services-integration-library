@@ -2,7 +2,6 @@ package com.sap.cloud.security.token.authentication;
 
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.servlet.HybridJwtDecoder;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
