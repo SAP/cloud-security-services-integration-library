@@ -1,5 +1,5 @@
 # IAS to XSUAA Token exchange
-Token exchange supports principal propagation from an IAS-based app/service to an XSUAA-based service, logically staying in the same zone.
+Token exchange supports principal propagation from an IAS-based app/service to a XSUAA-based service, logically staying in the same zone.
 This is a hybrid scenario of cross consumption between IAS and XSUAA. This hybrid scenario is required when Xsuaa is used as authorization service in IAS context.  
 
 ### Scenario
