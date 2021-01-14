@@ -1,6 +1,6 @@
 # IAS to XSUAA Token exchange
 Token exchange supports principal propagation from an IAS-based app/service to an XSUAA-based service, logically staying in the same zone.
-This is a hybrid scenario of cross consumption between IAS and XSUAA.
+This is a hybrid scenario of cross consumption between IAS and XSUAA. This hybrid scenario is required when Xsuaa is used as authorization service in IAS context.  
 
 ### Scenario
 The user is logged in to a multitenant application that has adopted IAS and zones.
@@ -48,6 +48,27 @@ Set the environment variable `IAS_XSUAA_XCHANGE_ENABLED` to any value, but false
 #### Test the setup
 Call a secured endpoint with an IAS token
 1. Fetch the IAS token using the service key for the IAS service instance
+   
+   Create service key for IAS instance if it doesn't exist
+   
+   `cf create-service-key <SERVICE KEY NAME>`
+   
+   Fetch the client credentials:
+   
+   `cf service-key <SERVICE KEY NAME>`
+   
+   Request a token:
+   
+   ```shell script
+   curl --location --request POST 'https://iasTenant.accounts400.ondemand.com/oauth2/token' \
+   --header 'Authorization: Basic <IAS_CLIENT_ID> <IAS_CLIENT_SECRET>' \
+   --header 'Content-Type: application/x-www-form-urlencoded' \
+   --data-urlencode 'grant_type=password' \
+   --data-urlencode 'username=<YOUR_USERNAME>' \
+   --data-urlencode 'response_type=id_token' \
+   --data-urlencode 'password=<YOUR_IAS_PSWD>'
+   ```
+   
 2. Call the secured endpoint with the IAS token like in the example below
    ```shell script
     curl --location --request GET 'https://myApp.cfapps.sap.hana.ondemand.com/securedEndpoint' \
