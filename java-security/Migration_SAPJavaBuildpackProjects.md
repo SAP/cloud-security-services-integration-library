@@ -24,15 +24,25 @@ com.sap.cloud.security.xsuaa | java-container-security-api
 The above mentioned dependencies should be removed / replaced with this one:
 
 ```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.sap.cloud.sjb.cf</groupId>
+            <artifactId>sap-java-buildpack-bom</artifactId>
+            <version>1.31.1</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>api</artifactId>
-    <version>2.7.3</version>
-    <scope>provided</scope> <!-- provided with buildpack -->
 </dependency>
 ```
 
-> Manage your SAP Java buildpack dependencies using [Bill of Materials](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html).
+> :bulb: This manages your SAP Java buildpack dependencies using [Bill of Materials](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html). Check [SJB BoM on Maven Repository](https://mvnrepository.com/artifact/com.sap.cloud.sjb.cf/sap-java-buildpack-bom) to see which versions are provided.
 
 Furthermore, make sure that you do not refer to any other SAP-internal security library with group-id `com.sap.security` or `com.sap.security.nw.sso.*`. 
 
