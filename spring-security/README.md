@@ -47,13 +47,37 @@ These (spring) dependencies needs to be provided:
 ```
 
 ### Setup Security Context for HTTP requests
-Configure the OAuth resource server like shown in this [sample configuration](/samples/spring-security-hybrid-usage/src/main/java/sample/spring/security/SecurityConfiguration.java).
+Configure the OAuth resource server 
+like shown in this [sample configuration](/samples/spring-security-hybrid-usage/src/main/java/sample/spring/security/SecurityConfiguration.java).
 
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+   TODO  
+}
+```
 
 ### Setup Security Context for non-HTTP requests
 In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message / event or you've requested from the identity service directly:
 
-> This feature is not yet available.
+```java
+TODO explain how to autowire xsuaaServiceConfiguration and jwtDecoder
+
+public void onEvent(String encodedToken) {
+    if (encodedToken != null) {
+        SpringSecurityContext.init(encodedToken, jwtDecoder, xsuaaServiceConfiguration.getAppId());
+    }
+    try {
+        handleEvent();
+    } finally {
+        SpringSecurityContext.clear();
+    }
+}
+```
+In detail `com.sap.cloud.security.token.SpringSecurityContext` wraps the Spring Security Context (namely `SecurityContextHolder.getContext()`), which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
+
+Note that Spring Security Context is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
 
 ## Usage
 
@@ -121,11 +145,10 @@ Finally, you need do re-deploy your application for the changes to take effect.
 ### Known issues
 
 #### Multiple XSUAA Bindings (broker & application)  
-If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), you run into the following issue:
+If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), 
+you may run into audience validation issue.
 
-```
-TODO
-``` 
+TODO: explain solution.
 
 #### Configuration property name vcap.services.<<xsuaa instance name>>.credentials is not valid
 We recognized that this error is raised, when your instance name contains upper cases.

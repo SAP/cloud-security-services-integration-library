@@ -122,10 +122,10 @@ public class SpringSecurityContextTest {
     }
 
     private static void setToken(Token token) {
-        HybridJwtDecoder mockXsuaaJwtDecoder = Mockito.mock(HybridJwtDecoder.class);
-        when(mockXsuaaJwtDecoder.decode(token.getTokenValue())).thenReturn(HybridJwtDecoder.parseJwt(token));
+        HybridJwtDecoder mockJwtDecoder = Mockito.mock(HybridJwtDecoder.class);
+        when(mockJwtDecoder.decode(token.getTokenValue())).thenReturn(HybridJwtDecoder.parseJwt(token));
 
         // initialize SpringSecurityContext with provided token
-        SpringSecurityContext.init(token.getTokenValue(), mockXsuaaJwtDecoder, "xsapp");
+        SpringSecurityContext.init(token.getTokenValue(), mockJwtDecoder, "xsapp");
     }
 }

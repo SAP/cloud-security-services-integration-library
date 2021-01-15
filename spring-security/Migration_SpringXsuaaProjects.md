@@ -32,14 +32,32 @@ TODO
 
 ## Fetch data from token
 
-### `Token` methods
-The `com.sap.cloud.security.xsuaa.token.Token` interface from `spring-xsuaa` provides some special methods that are not available in
-the `com.sap.cloud.security.token.Token` interface from `spring-security`.
+### ``SpringSecurityContext``
+You may have code parts that uses the `SpringSecurityContext` to get the token. Just update the import from:
+````java
+ import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
+````
+to
+````java
+import com.sap.cloud.security.token.SpringSecurityContext;
+````
 
-See the following table for methods that are not available in ```Token``` interface. The ```Token``` interface is the common interface for tokens issued by both of the identity services. There are two sub-interfaces: 
+### `Token` methods
+You may have code parts that uses the `Token` interface to access details from the token. You need to update the imports from:
+````java
+ import com.sap.cloud.security.xsuaa.token.Token;
+````
+to
+````java
+import com.sap.cloud.security.token.Token;
+````
+
+The ``Token`` interface from ``spring-security`` needs to provide methods that can be served by both kind of tokens. That's why they are not compatible.
+It provides two sub-interfaces: 
 - ```AccessToken``` interface in case of access token issued by the xsuaa service, or 
 - ```SapIdToken``` interface in case of oidc token issued by the identity service.
 
+See the following table for methods that are not available in the target ```Token``` interface. 
 
 | `com.sap.cloud.security.xsuaa.token.Token` methods       | Workaround in `spring.security` (`com.sap.cloud.security.token.Token)                                                                                      |
 |-------------------------|--------------------------------------------------------------------------------------------------|
@@ -95,7 +113,6 @@ identity:
   clientid: sb-clientId!t0815
   domain: localhost
 ````
-
 
 ## Things to check after migration 
 When your code compiles again you should first check that all your unit tests are running again. If you can test your
