@@ -1,8 +1,14 @@
-package com.sap.cloud.security.token;
+package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.config.Environments;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -18,8 +24,18 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_
  */
 public class HybridTokenFactory implements TokenFactory {
 
-	public HybridTokenFactory() {
-		// use the factory method instead
+	private static final Logger LOGGER = LoggerFactory.getLogger(HybridTokenFactory.class);
+	private static String xsAppId;
+
+	/**
+	 * For testing purposes, in case CF Environment is not set.
+	 *
+	 * @param xsAppId
+	 *            the application identifier of your xsuaa service.
+	 */
+	static void withXsuaaAppId(String xsAppId) {
+		LOGGER.debug("XSUAA app id = {}", xsAppId);
+		HybridTokenFactory.xsAppId = xsAppId;
 	}
 
 	/**
@@ -30,19 +46,33 @@ public class HybridTokenFactory implements TokenFactory {
 	 *            the encoded JWT token (access_token or id_token), e.g. from the
 	 *            Authorization Header. the scope converter, e.g.
 	 *            {@link XsuaaScopeConverter}
-	 * @param xsuaaAppId
-	 *            Xsuaa application Id from the CF environment
 	 * @return the new token instance
 	 */
-	public Token create(String jwtToken, String xsuaaAppId) {
+	public Token create(String jwtToken) {
+
 		Objects.requireNonNull(jwtToken, "Requires encoded jwtToken to create a Token instance.");
 		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
 
 		if (isXsuaaToken(decodedJwt)) {
-			ScopeConverter localScopeConverter = new XsuaaScopeConverter(xsuaaAppId);
-			return new XsuaaToken(decodedJwt).withScopeConverter(localScopeConverter);
+			return new XsuaaToken(decodedJwt).withScopeConverter(getOrCreateScopeConverter());
 		}
 		return new SapIdToken(decodedJwt);
+	}
+
+	private ScopeConverter getOrCreateScopeConverter() {
+		return new XsuaaScopeConverter(getXsAppId());
+	}
+
+	private static String getXsAppId() {
+		if (xsAppId == null) {
+			OAuth2ServiceConfiguration serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
+			if (serviceConfiguration != null) {
+				xsAppId = serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
+			} else {
+				throw new IllegalStateException("There must be a service configuration.");
+			}
+		}
+		return xsAppId;
 	}
 
 	/**

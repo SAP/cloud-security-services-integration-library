@@ -21,18 +21,16 @@ public interface Token extends Serializable {
 	 * 
 	 * @param jwt
 	 *            encoded JWT token
-	 * @param xsuaaAppId
-	 *            Xsuaa application Id from CF environment
 	 * @return token instance
 	 */
-	static Token create(String jwt, @Nullable String xsuaaAppId) {
+	static Token create(String jwt) {
 		List<TokenFactory> services = new ArrayList<>();
 		ServiceLoader<TokenFactory> loader = ServiceLoader.load(TokenFactory.class);
 		loader.forEach(services::add);
-		if(services.isEmpty()){
+		if (services.isEmpty()) {
 			throw new ProviderNotFoundException("No TokenFactory implementation found in the classpath");
 		}
-		return services.get(0).create(jwt, xsuaaAppId);
+		return services.get(0).create(jwt);
 	}
 
 	/**
