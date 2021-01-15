@@ -26,17 +26,7 @@ public class HybridTokenFactory implements TokenFactory {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HybridTokenFactory.class);
 	private static String xsAppId;
-
-	/**
-	 * For testing purposes, in case CF Environment is not set.
-	 *
-	 * @param xsAppId
-	 *            the application identifier of your xsuaa service.
-	 */
-	static void withXsuaaAppId(String xsAppId) {
-		LOGGER.debug("XSUAA app id = {}", xsAppId);
-		HybridTokenFactory.xsAppId = xsAppId;
-	}
+	private static ScopeConverter xsScopeConverter;
 
 	/**
 	 * Determines whether the JWT token is issued by XSUAA or IAS identity service,
@@ -44,8 +34,7 @@ public class HybridTokenFactory implements TokenFactory {
 	 *
 	 * @param jwtToken
 	 *            the encoded JWT token (access_token or id_token), e.g. from the
-	 *            Authorization Header. the scope converter, e.g.
-	 *            {@link XsuaaScopeConverter}
+	 *            Authorization Header.
 	 * @return the new token instance
 	 */
 	public Token create(String jwtToken) {
@@ -59,18 +48,32 @@ public class HybridTokenFactory implements TokenFactory {
 		return new SapIdToken(decodedJwt);
 	}
 
-	private ScopeConverter getOrCreateScopeConverter() {
-		return new XsuaaScopeConverter(getXsAppId());
+	/**
+	 * For testing purposes, in case CF Environment is not set.
+	 *
+	 * @param xsAppId
+	 *            the application identifier of your xsuaa service.
+	 */
+	static void withXsuaaAppId(@Nonnull String xsAppId) {
+		LOGGER.debug("XSUAA app id = {}", xsAppId);
+		HybridTokenFactory.xsAppId = xsAppId;
+		getOrCreateScopeConverter();
+	}
+
+	private static ScopeConverter getOrCreateScopeConverter() {
+		if (xsScopeConverter == null) {
+			xsScopeConverter = new XsuaaScopeConverter(getXsAppId());
+		}
+		return xsScopeConverter;
 	}
 
 	private static String getXsAppId() {
 		if (xsAppId == null) {
 			OAuth2ServiceConfiguration serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
-			if (serviceConfiguration != null) {
-				xsAppId = serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
-			} else {
+			if (serviceConfiguration == null) {
 				throw new IllegalStateException("There must be a service configuration.");
 			}
+			xsAppId = serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
 		}
 		return xsAppId;
 	}
