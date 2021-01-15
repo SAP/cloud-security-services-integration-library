@@ -1,9 +1,14 @@
 package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.config.Environments;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -14,47 +19,63 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_
 
 /**
  * Creates a {@link Token} instance. Supports Jwt tokens from IAS and XSUAA
- * identity service. This will be moved to java-api component soon and will load
- * and instantiate the respective Token dynamically.
+ * identity service. TokenFactory loads and instantiates the respective Token
+ * dynamically.
  */
-class TokenFactory {
+public class HybridTokenFactory implements TokenFactory {
 
-	private TokenFactory() {
-		// use the factory method instead
-	}
+	private static final Logger LOGGER = LoggerFactory.getLogger(HybridTokenFactory.class);
+	private static String xsAppId;
+	private static ScopeConverter xsScopeConverter;
 
 	/**
-	 * Determines whether the JWT token is issued by XSUAA identity service, and
-	 * creates a Token for it.
+	 * Determines whether the JWT token is issued by XSUAA or IAS identity service,
+	 * and creates a Token for it.
 	 *
 	 * @param jwtToken
 	 *            the encoded JWT token (access_token or id_token), e.g. from the
 	 *            Authorization Header.
 	 * @return the new token instance
 	 */
-	public static Token create(String jwtToken) {
-		return create(jwtToken, null);
-	}
+	public Token create(String jwtToken) {
 
-	/**
-	 * Determines whether the JWT token is issued by XSUAA identity service, and
-	 * creates a Token for it.
-	 *
-	 * @param jwtToken
-	 *            the encoded JWT token (access_token or id_token), e.g. from the
-	 *            Authorization Header.
-	 * @param localScopeConverter
-	 *            the scope converter, e.g. {@link XsuaaScopeConverter}
-	 * @return the new token instance
-	 */
-	public static Token create(String jwtToken, ScopeConverter localScopeConverter) {
 		Objects.requireNonNull(jwtToken, "Requires encoded jwtToken to create a Token instance.");
 		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
 
 		if (isXsuaaToken(decodedJwt)) {
-			return new XsuaaToken(decodedJwt).withScopeConverter(localScopeConverter);
+			return new XsuaaToken(decodedJwt).withScopeConverter(getOrCreateScopeConverter());
 		}
 		return new SapIdToken(decodedJwt);
+	}
+
+	/**
+	 * For testing purposes, in case CF Environment is not set.
+	 *
+	 * @param xsAppId
+	 *            the application identifier of your xsuaa service.
+	 */
+	static void withXsuaaAppId(@Nonnull String xsAppId) {
+		LOGGER.debug("XSUAA app id = {}", xsAppId);
+		HybridTokenFactory.xsAppId = xsAppId;
+		getOrCreateScopeConverter();
+	}
+
+	private static ScopeConverter getOrCreateScopeConverter() {
+		if (xsScopeConverter == null) {
+			xsScopeConverter = new XsuaaScopeConverter(getXsAppId());
+		}
+		return xsScopeConverter;
+	}
+
+	private static String getXsAppId() {
+		if (xsAppId == null) {
+			OAuth2ServiceConfiguration serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
+			if (serviceConfiguration == null) {
+				throw new IllegalStateException("There must be a service configuration.");
+			}
+			xsAppId = serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
+		}
+		return xsAppId;
 	}
 
 	/**

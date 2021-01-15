@@ -9,15 +9,29 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.security.Principal;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents a JSON Web Token (JWT).
  */
 public interface Token extends Serializable {
+
+	/**
+	 * Creates a token instance based on TokenFactory implementation.
+	 * 
+	 * @param jwt
+	 *            encoded JWT token
+	 * @return token instance
+	 */
+	static Token create(String jwt) {
+		List<TokenFactory> services = new ArrayList<>();
+		ServiceLoader<TokenFactory> loader = ServiceLoader.load(TokenFactory.class);
+		loader.forEach(services::add);
+		if (services.isEmpty()) {
+			throw new ProviderNotFoundException("No TokenFactory implementation found in the classpath");
+		}
+		return services.get(0).create(jwt);
+	}
 
 	/**
 	 * Returns the header parameter value as string for the given header parameter
