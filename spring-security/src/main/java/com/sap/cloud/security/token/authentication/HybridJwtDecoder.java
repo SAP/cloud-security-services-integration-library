@@ -34,7 +34,7 @@ public class HybridJwtDecoder implements JwtDecoder {
     @Override
     public Jwt decode(String encodedToken) {
         Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
-        Token token = Token.create(encodedToken, "xsapp"); // TODO
+        Token token = Token.create(encodedToken);
         ValidationResult validationResult;
 
         switch (token.getService()) {

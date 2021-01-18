@@ -63,7 +63,6 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
         return getConfiguration().getUrl();
     }
 
-    @Override
     public String getDomain() {
         return getConfiguration().getDomain();
     }

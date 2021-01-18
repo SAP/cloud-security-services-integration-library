@@ -36,7 +36,7 @@ public class AuthenticationToken extends JwtAuthenticationToken {
     public AuthenticationToken(Jwt jwt, Collection<GrantedAuthority> grantedAuthorities) {
         super(jwt, grantedAuthorities);
         Assert.notNull(getToken().getTokenValue(), "Jwt needs to provide a token value.");
-        this.token = Token.create(getToken().getTokenValue(), "xsapp"); // TODO
+        this.token = Token.create(getToken().getTokenValue());
     }
 
     @Override

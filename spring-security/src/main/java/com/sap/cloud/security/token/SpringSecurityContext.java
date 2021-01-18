@@ -87,7 +87,7 @@ public class SpringSecurityContext {
      * @param jwtDecoder
      *            the decoder of type {@link JwtDecoder}
      */
-    static public void init(String encodedToken, JwtDecoder jwtDecoder, String xsuaaAppId) {
+    public static void init(String encodedToken, JwtDecoder jwtDecoder, String xsuaaAppId) {
         Assert.isInstanceOf(HybridJwtDecoder.class, jwtDecoder,
                 "Passed JwtDecoder instance must be of type 'HybridJwtDecoder'");
         Jwt jwtToken = jwtDecoder.decode(encodedToken);
