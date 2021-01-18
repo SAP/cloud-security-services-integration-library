@@ -61,7 +61,7 @@ public class HybridTokenFactory implements TokenFactory {
 	}
 
 	private static ScopeConverter getOrCreateScopeConverter() {
-		if (xsScopeConverter == null) {
+		if (xsScopeConverter == null && getXsAppId() != null) {
 			xsScopeConverter = new XsuaaScopeConverter(getXsAppId());
 		}
 		return xsScopeConverter;
@@ -71,9 +71,10 @@ public class HybridTokenFactory implements TokenFactory {
 		if (xsAppId == null) {
 			OAuth2ServiceConfiguration serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
 			if (serviceConfiguration == null) {
-				throw new IllegalStateException("There must be a service configuration.");
+				LOGGER.error("There is no xsuaa service configuration: no local scope check possible.");
+			} else {
+				xsAppId = serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
 			}
-			xsAppId = serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
 		}
 		return xsAppId;
 	}
