@@ -99,7 +99,7 @@ Spring Security supports authorization semantics at the method level. As prerequ
 
 ```java
 @GetMapping("/hello-token")
-@PreAuthorize("hasAuthority('Read') or hasAuthority('GROUP_READ')")
+@PreAuthorize("hasAuthority('Read')")
 public Map<String, String> message() {
     ...
 }
