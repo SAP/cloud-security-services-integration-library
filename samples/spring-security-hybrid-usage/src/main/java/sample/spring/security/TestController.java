@@ -67,7 +67,7 @@ public class TestController {
      * method be called. Otherwise a 403 error will be returned.
      */
     @GetMapping("/method")
-    @PreAuthorize("hasAuthority('Read') or hasAuthority('GROUP_READ')")
+    @PreAuthorize("hasAuthority('Read')")
     public String callMethodRemotely() {
         return dataService.readSensitiveData();
     }

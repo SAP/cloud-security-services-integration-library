@@ -55,7 +55,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 				.authorizeRequests()
-				.antMatchers("/sayHello").access("hasAuthority('Read') or hasAuthority('GROUP_READ')") //hasRole and overwrite defaultRolePrefix
+				.antMatchers("/sayHello").hasAuthority("Read")
 				.antMatchers("/*").authenticated()
 				.anyRequest().denyAll()
 			.and()
@@ -118,7 +118,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			if (jwt.containsClaim(TokenClaims.GROUPS)) {
 				List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
 				for (String group: groups) {
-					groupAuthorities.add(new SimpleGrantedAuthority("GROUP_" + group));
+					groupAuthorities.add(new SimpleGrantedAuthority(group.replace("IASAUTHZ_", "")));
 				}
 			}
 			return groupAuthorities;
