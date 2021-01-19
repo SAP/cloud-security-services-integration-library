@@ -32,7 +32,8 @@ public class JwtGeneratorTest {
 		assertThat(jwt.getClaimAsString("zid"), equalTo(JwtGenerator.DEFAULT_IDENTITY_ZONE_ID));
 		assertThat(jwt.getExpiresAt(), not(equals(nullValue())));
 		assertThat(jwt.getAudience(), is(nullValue()));
-		assertThat(getExternalAttributeFromClaim(jwt, "zdn"), isEmptyString());
+		assertThat(getExternalAttributeFromClaim(jwt, "zdn"), is(emptyString()));
+		assertThat(getExternalAttributeFromClaim(jwt, "enhancer"), equalTo("XSUAA"));
 	}
 
 	@Test
@@ -65,7 +66,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void testTokenWithScopes() {
-		Jwt jwt = jwtGenerator.addScopes(new String[] { DUMMY_SCOPE, ANOTHER_SCOPE }).getToken();
+		Jwt jwt = jwtGenerator.addScopes(DUMMY_SCOPE, ANOTHER_SCOPE).getToken();
 		assertThat(jwt.getClaimAsStringList("scope"), hasItems(DUMMY_SCOPE, ANOTHER_SCOPE));
 	}
 
@@ -102,7 +103,6 @@ public class JwtGeneratorTest {
 
 		Map<String, Object> attributes = jwt.getClaimAsMap("xs.user.attributes");
 		assertThat(new JSONArray((ArrayList) attributes.get("usrAttr")), contains("value_1", "value_2"));
-		jwt.getTokenValue();
 	}
 
 	@Test
