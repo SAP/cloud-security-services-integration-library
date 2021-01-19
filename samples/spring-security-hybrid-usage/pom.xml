@@ -50,7 +50,8 @@
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>spring-security</artifactId>
-			<version>${sap.cloud.security.version}</version>
+			<!--<version>${sap.cloud.security.version}</version>-->
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 
 		<!-- test dependencies-->

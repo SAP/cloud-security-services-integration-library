@@ -38,7 +38,8 @@ class JwtDecoderBuilderTest {
         OAuth2ServiceConfiguration iasConfiguration = OAuth2ServiceConfigurationBuilder
                 .forService(Service.IAS)
                 .withClientId("clientId")
-                .withProperty(CFConstants.IAS.DOMAIN, "myauth.com")
+                .withProperty(CFConstants.URL, "https://domain.myauth.com")
+                //.withProperty(CFConstants.IAS.DOMAIN, "myauth.com")
                 .build();
 
         cut.withIasServiceConfiguration(iasConfiguration);

@@ -63,6 +63,8 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
         return getConfiguration().getUrl();
     }
 
+    // TODO https://github.com/SAP/cloud-security-xsuaa-integration/pull/457
+    /**
     public String getDomain() {
         return getConfiguration().getDomain();
     }
@@ -73,7 +75,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
         } else {
             builder.withProperty(CFConstants.IAS.DOMAIN, domain);
         }
-    }
+    }**/
 
     /**
      * Sets base URL of the OAuth2 identity service instance. In multi tenancy scenarios
