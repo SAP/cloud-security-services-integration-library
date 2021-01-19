@@ -23,7 +23,7 @@ import static sample.spring.security.util.MockBearerTokenRequestPostProcessor.*;
 @SpringBootTest
 @AutoConfigureMockMvc
 // Test properties are provided with /resources/application.yml
-class TestControllerTest {
+public class TestControllerTest {
 
     @Autowired
     private MockMvc mvc;
@@ -32,9 +32,9 @@ class TestControllerTest {
     private String jwtIas;
 
     @ClassRule
-    static SecurityTestRule ruleXsuaa = SecurityTestRule.getInstance(Service.XSUAA);
+    public static SecurityTestRule ruleXsuaa = SecurityTestRule.getInstance(Service.XSUAA);
     @ClassRule
-    static SecurityTestRule ruleIas = SecurityTestRule.getInstance(Service.IAS);
+    public static SecurityTestRule ruleIas = SecurityTestRule.getInstance(Service.IAS);
 
     @Before
     public void setUp() throws IOException {
@@ -47,7 +47,7 @@ class TestControllerTest {
     }
 
     @Test
-    void sayHello() throws Exception {
+    public void sayHello() throws Exception {
         String response = mvc
                 .perform(get("/sayHello").with(bearerToken(jwtXsuaa)))
                 .andExpect(status().isOk())
@@ -66,7 +66,7 @@ class TestControllerTest {
     }
 
     @Test
-    void readData_OK() throws Exception {
+    public void readData_OK() throws Exception {
         String response = mvc
                 .perform(get("/method").with(bearerToken(jwtXsuaa)))
                 .andExpect(status().isOk())
@@ -81,7 +81,7 @@ class TestControllerTest {
     }
 
     @Test
-    void readData_FORBIDDEN() throws Exception {
+    public void readData_FORBIDDEN() throws Exception {
         String jwtNoScopes = ruleXsuaa.getPreconfiguredJwtGenerator()
                 .createToken().getTokenValue();
 

@@ -54,7 +54,7 @@ like shown in this [sample configuration](/samples/spring-security-hybrid-usage/
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-   TODO  
+    
 }
 ```
 
@@ -62,16 +62,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message / event or you've requested from the identity service directly:
 
 ```java
-TODO explain how to autowire xsuaaServiceConfiguration and jwtDecoder
-
-public void onEvent(String encodedToken) {
-    if (encodedToken != null) {
-        SpringSecurityContext.init(encodedToken, jwtDecoder, xsuaaServiceConfiguration.getAppId());
-    }
-    try {
-        handleEvent();
-    } finally {
-        SpringSecurityContext.clear();
+@EnableConfigurationProperties(XsuaaServiceConfiguration.class)
+public class Listener {
+     @Autowired
+     XsuaaServiceConfiguration xsuaaServiceConfiguration; 
+    
+     public void onEvent(String encodedToken) {
+        if (encodedToken != null) {
+            SpringSecurityContext.init(encodedToken, jwtDecoder, xsuaaServiceConfiguration.getAppId());
+        }
+        try {
+            handleEvent();
+        } finally {
+            SpringSecurityContext.clear();
+        }
     }
 }
 ```
