@@ -12,30 +12,25 @@ import static com.sap.cloud.security.token.TokenClaims.ISSUER;
 import static com.sap.cloud.security.token.TokenHeader.JWKS_URL;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 public class JwtIssuerValidatorTest {
 
 	private JwtIssuerValidator cut;
-	private JwtIssuerValidator cutMultiTenant;
 	private Token token;
 
 	@Before
 	public void setup() {
 		cut = new JwtIssuerValidator(URI.create("https://accounts400.ondemand.com"));
-		cutMultiTenant = new JwtIssuerValidator("accounts400.ondemand.com");
 		token = Mockito.mock(Token.class);
 	}
 
 	@Test
 	public void constructor_throwsOnNullValues() {
 		assertThatThrownBy(() -> {
-			new JwtIssuerValidator((URI) null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "url");
-
-		assertThatThrownBy(() -> {
-			new JwtIssuerValidator((String) null);
+			new JwtIssuerValidator(null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "url");
 	}
 
@@ -43,12 +38,6 @@ public class JwtIssuerValidatorTest {
 	public void tokenIssuerMatchesIdentityProviderUrl() {
 		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com");
 		assertThat(cut.validate(token).isValid(), is(true));
-	}
-
-	@Test
-	public void tokenIssuerMatchesIdentityProviderDomain() {
-		when(token.getClaimAsString(ISSUER)).thenReturn("https://otherdomain.accounts400.ondemand.com");
-		assertThat(cutMultiTenant.validate(token).isValid(), is(true));
 	}
 
 	@Test
@@ -63,7 +52,7 @@ public class JwtIssuerValidatorTest {
 
 	@Test
 	public void tokenIssuerMatchesIdentityProviderUrlWithPath() {
-		cut = new JwtIssuerValidator(URI.create("https://subdomain.accounts400.ondemand.com/oauth/token"));
+		cut = new JwtIssuerValidator(URI.create("https://accounts400.ondemand.com/oauth/token"));
 		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com");
 		assertThat(cut.validate(token).isValid(), is(true));
 	}

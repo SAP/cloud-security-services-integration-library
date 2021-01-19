@@ -27,31 +27,17 @@ import com.sap.cloud.security.token.validation.Validator;
  * These checks are a prerequisite for using the `JwtSignatureValidator`.
  */
 class JwtIssuerValidator implements Validator<Token> {
-	private final String domain;
+	private final URI url;
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
-	 * Creates instance of Issuer validation using the url.
-	 *
 	 * @param url
 	 *            the url of the identity provider
 	 *            {@link OAuth2ServiceConfiguration#getProperty(String)}
 	 */
 	JwtIssuerValidator(URI url) {
 		assertNotNull(url, "JwtIssuerValidator requires a url.");
-		this.domain = url.getHost();
-	}
-
-	/**
-	 * Creates instance of Issuer validation using the domain.
-	 *
-	 * @param domain
-	 *            the domain of the identity provider
-	 *            {@link OAuth2ServiceConfiguration#getDomain()}
-	 */
-	JwtIssuerValidator(String domain) {
-		assertNotNull(domain, "JwtIssuerValidator requires a domain or at least an url.");
-		this.domain = domain;
+		this.url = url;
 	}
 
 	@Override
@@ -74,7 +60,7 @@ class JwtIssuerValidator implements Validator<Token> {
 			}
 			issuerUri = new URI(issuer);
 			if (issuerUri.getQuery() == null && issuerUri.getFragment() == null
-					&& issuerUri.getHost() != null && issuerUri.getHost().endsWith(domain)) {
+					&& issuerUri.getHost() != null && issuerUri.getHost().endsWith(url.getHost())) {
 				return createValid();
 			}
 		} catch (URISyntaxException e) {
@@ -82,7 +68,7 @@ class JwtIssuerValidator implements Validator<Token> {
 		}
 		return createInvalid(
 				"Issuer is not trusted because 'iss' '{}' does not match host '{}' of the identity provider.",
-				issuer, domain);
+				issuer, url.getHost());
 	}
 
 }
