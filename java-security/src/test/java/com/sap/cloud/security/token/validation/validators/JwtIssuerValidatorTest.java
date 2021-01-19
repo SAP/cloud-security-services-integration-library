@@ -36,7 +36,7 @@ public class JwtIssuerValidatorTest {
 
 		assertThatThrownBy(() -> {
 			new JwtIssuerValidator((String) null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "domain");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "url");
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class JwtIssuerValidatorTest {
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith(
-				"Issuer is not trusted because 'iss' 'https://accounts300.ondemand.com' does not match domain 'accounts400.ondemand.com' of the identity provider."));
+				"Issuer is not trusted because 'iss' 'https://accounts300.ondemand.com' does not match host 'accounts400.ondemand.com' of the identity provider."));
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class JwtIssuerValidatorTest {
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith(
-				"Issuer is not trusted because 'iss' 'https://otherDomain.org?accounts400.ondemand.com' does not match domain 'accounts400.ondemand.com' of the identity provider."));
+				"Issuer is not trusted because 'iss' 'https://otherDomain.org?accounts400.ondemand.com' does not match host 'accounts400.ondemand.com' of the identity provider."));
 	}
 
 	@Test
