@@ -33,6 +33,7 @@ public class JwtGeneratorTest {
 		assertThat(jwt.getExpiresAt(), not(equals(nullValue())));
 		assertThat(jwt.getAudience(), is(nullValue()));
 		assertThat(getExternalAttributeFromClaim(jwt, "zdn"), isEmptyString());
+		assertThat(getExternalAttributeFromClaim(jwt, "enhancer"), equalTo("XSUAA"));
 	}
 
 	@Test
