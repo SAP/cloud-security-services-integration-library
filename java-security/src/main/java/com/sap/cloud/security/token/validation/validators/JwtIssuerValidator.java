@@ -50,7 +50,7 @@ class JwtIssuerValidator implements Validator<Token> {
 	 *            {@link OAuth2ServiceConfiguration#getDomain()}
 	 */
 	JwtIssuerValidator(String domain) {
-		assertNotNull(domain, "JwtIssuerValidator requires a domain.");
+		assertNotNull(domain, "JwtIssuerValidator requires a domain or at least an url.");
 		this.domain = domain;
 	}
 
@@ -81,7 +81,7 @@ class JwtIssuerValidator implements Validator<Token> {
 			logger.error("Error: 'iss' claim '{}' does not provide a valid URI: {}.", issuer, e.getMessage(), e);
 		}
 		return createInvalid(
-				"Issuer is not trusted because 'iss' '{}' does not match domain '{}' of the identity provider.",
+				"Issuer is not trusted because 'iss' '{}' does not match host '{}' of the identity provider.",
 				issuer, domain);
 	}
 
