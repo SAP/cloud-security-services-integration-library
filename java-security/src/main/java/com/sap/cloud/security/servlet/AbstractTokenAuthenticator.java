@@ -2,6 +2,8 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationListener;
@@ -39,7 +41,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
-					Token token = TokenFactory.create(authorizationHeader);
+					Token token = Token.create(authorizationHeader);
 					return tokenValidationResult(token);
 				} catch (Exception e) {
 					return unauthenticated("Unexpected error occurred: " + e.getMessage());
@@ -84,7 +86,14 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 */
 	public AbstractTokenAuthenticator withServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {
 		this.serviceConfiguration = serviceConfiguration;
+		setupTokenFactory();
 		return this;
+	}
+
+	private void setupTokenFactory() {
+		if (serviceConfiguration.getService() == Service.XSUAA) {
+			HybridTokenFactory.withXsuaaAppId(serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
+		}
 	}
 
 	/**

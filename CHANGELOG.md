@@ -3,7 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.8.3
-- [java-api] ``AccessToken`` exposes the ```getSubaccountId()``` method. Further information about the usage of ```getSubaccountId()``` and ```getZoneId()``` can be read [here](https://github.com/SAP-samples/teched2020-DEV263#changed-api-for-multi-tenant-applications-to-determine-tenant-identifier-getsubaccountid-replaced-by-getzoneid). 
+- [java-api] ``AccessToken`` exposes the ```getSubaccountId()``` method. Further information about the usage of ```getSubaccountId()``` and ```getZoneId()``` can be read [here](https://github.com/SAP-samples/teched2020-DEV263#changed-api-for-multi-tenant-applications-to-determine-tenant-identifier-getsubaccountid-replaced-by-getzoneid).
+- [java-api] [java-security] allows hybrid token creation via `Token.create(String encodedToken)`. The feature is available when using token authenticator. 
+- [samples/sap-java-buildpack-api-usage] uses [SAP Java Buildpack BoM](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html).
+- [token-client] `UserTokenFlow` enhances request with `X-zid` header that corresponds to zone id.
 ## 2.8.2
 - [java-security]  
   - HOTFIX for ``2.8.1`` version.
