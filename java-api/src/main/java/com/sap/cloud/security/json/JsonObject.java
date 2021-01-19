@@ -94,7 +94,6 @@ public interface JsonObject {
 	 * property with the given name is not found, null is returned.
 	 *
 	 * @param name
-	 *            the name of property.
 	 * @return the {@link Long} object.
 	 * @throws JsonParsingException
 	 *             if the json object identified by the given property does not
