@@ -5,7 +5,7 @@
       "credentials": {
         "clientsecret": "",
         "clientid": "T000310",
-        "domain": "domain.gets.overwritten.bylocalhost.com"
+        "url": "https://myauth.com"
       },
       "instance_name": "myservice",
       "label": "identity",

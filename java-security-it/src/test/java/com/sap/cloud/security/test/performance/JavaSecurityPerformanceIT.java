@@ -86,7 +86,7 @@ public class JavaSecurityPerformanceIT {
 
 	private OAuth2ServiceConfigurationBuilder createConfigurationBuilder() {
 		return OAuth2ServiceConfigurationBuilder.forService(XSUAA)
-				.withDomain(SecurityTest.DEFAULT_DOMAIN)
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTest.DEFAULT_DOMAIN)
 				.withProperty(CFConstants.XSUAA.APP_ID, SecurityTest.DEFAULT_APP_ID)
 				.withClientId(SecurityTest.DEFAULT_CLIENT_ID);
 	}

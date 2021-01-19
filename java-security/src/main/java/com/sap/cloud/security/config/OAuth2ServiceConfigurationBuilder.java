@@ -80,23 +80,6 @@ public class OAuth2ServiceConfigurationBuilder {
 		return this;
 	}
 
-	/**
-	 * Domain of the OAuth2 identity service instance. In multi tenancy scenarios
-	 * this is the domain where the service instance was created.
-	 *
-	 * @param domain
-	 *            domain, e.g. "idservice.com"
-	 * @return this builder itself
-	 */
-	public OAuth2ServiceConfigurationBuilder withDomain(String domain) {
-		if (Service.IAS.equals(service)) {
-			properties.put(IAS.DOMAIN, domain);
-		} else {
-			properties.put(XSUAA.UAA_DOMAIN, domain);
-		}
-		return this;
-	}
-
 	public OAuth2ServiceConfigurationBuilder withProperty(String propertyName, String propertyValue) {
 		properties.put(propertyName, propertyValue); // replaces values, that were already set
 		return this;
