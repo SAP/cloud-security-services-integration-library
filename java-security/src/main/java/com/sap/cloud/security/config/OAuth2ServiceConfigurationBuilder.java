@@ -137,11 +137,6 @@ public class OAuth2ServiceConfigurationBuilder {
 		}
 
 		@Override
-		public String getDomain() {
-			return Service.XSUAA.equals(getService()) ? properties.get(XSUAA.UAA_DOMAIN) : properties.get(IAS.DOMAIN);
-		}
-
-		@Override
 		public String getProperty(String name) {
 			return properties.get(name);
 		}

@@ -33,13 +33,6 @@ public interface OAuth2ServiceConfiguration {
 	URI getUrl();
 
 	/**
-	 * Domain of the OAuth2 identity service instance.
-	 *
-	 * @return domain, e.g."idservice.com"
-	 */
-	String getDomain();
-
-	/**
 	 * Returns the value of the given property as string.
 	 *
 	 * @param name

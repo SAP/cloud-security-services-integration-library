@@ -136,6 +136,5 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		assertThat(configuration.getClientSecret()).isEqualTo("base-client-secret");
 		assertThat(configuration.getUrl()).isEqualTo(URI.create("http://url.base"));
 		assertThat(configuration.getProperty("testing-key")).isEqualTo("base-value");
-		assertThat(configuration.getDomain()).isNull();
 	}
 }
