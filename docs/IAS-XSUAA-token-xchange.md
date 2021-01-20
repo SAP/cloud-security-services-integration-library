@@ -27,13 +27,13 @@ The trust can be setup via
 #### 2. Create IAS service broker instance
 Create an instance of the IAS service broker
 
-`cf create-service <IAS_SERVICE_NAME> -c {"xsuaa-cross-consumption": "true"}`
+`cf create-service identity application <IAS_SERVICE_INSTANCE_NAME> -c '{"xsuaa-cross-consumption": "true"}'`
 
 > The flag adds the client Id of the trusted XSUAA service, to the audience field of the ID token for cross consumption.
 
 #### 3. Fetch the IAS token
-- Create service key for IAS instance if it doesn't exist: `cf create-service-key <SERVICE KEY NAME>`
-- Fetch the client credentials: `cf service-key <SERVICE KEY NAME>`
+- Create service key for IAS instance if it doesn't exist: `cf create-service-key <IAS_SERVICE_INSTANCE_NAME> <SERVICE_KEY_NAME>`
+- Fetch the client credentials: `cf service-key <IAS_SERVICE_INSTANCE_NAME> <SERVICE_KEY_NAME>`
 - Request a token:
    ```shell script
    curl POST 'https://iasTenant.accounts400.ondemand.com/oauth2/token' \
@@ -50,9 +50,9 @@ Call the secured endpoint with the IAS token like in the example below
     curl GET 'https://yourApp.cfapps.sap.hana.ondemand.com/yourSecuredEndpoint' \
     --header 'Authorization: Bearer <FETCHED IAS TOKEN>'
    ```
-:grey_exclamation: You should receive an authorized response, if everything works fine.
+You should receive an authorized response, if everything works fine.
 
-:bulb: In case of 403 error, check if the user has required role assigned. 
+:interrobang: In case of 403 error, check if the user has required role assigned. 
    
 ## Further details
 The **IAS ID token** has following claims:
@@ -60,8 +60,9 @@ The **IAS ID token** has following claims:
     - client id of the IAS application that was configured in the trust setup (this client Id is stored in XSUAA as relying party)
     - client id of the IAS service instance, which is also visible in your `VCAP_SERVICES` in the authorized party `azp` field
 the client id of the IAS service instance, which is also visible in your `VCAP_SERVICES`
-- `zone_uuid` the zone of your subaccount 
+- `zone_uuid` the zone of your subaccount
+- `user_uuid` user id in IAS context :exclamation: not the same as `user_id` in XSUAA
 
 The **Xsuaa access token** after the exchange has the following claims:
 - `aud` audience which is the destination service client id 
-- `zid` which is the zone of the subaccount
+- `zid` the zone of the subaccount, extracted from claim `zone_uuid` in IAS ID token
