@@ -2,10 +2,8 @@ package com.sap.cloud.security.autoconfig;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationProperties;
 import com.sap.cloud.security.config.Service;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConditionalOnProperty("xsuaa.url")
 @ConfigurationProperties("xsuaa")
 public class XsuaaServiceConfiguration extends OAuth2ServiceConfigurationProperties {
 

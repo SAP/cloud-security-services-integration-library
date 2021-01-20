@@ -1,6 +1,8 @@
 package sample.spring.security;
 
+import com.sap.cloud.security.autoconfig.XsuaaServiceConfiguration;
 import com.sap.cloud.security.token.SpringSecurityContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -9,6 +11,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DataService {
+    @Autowired
+    XsuaaServiceConfiguration xsuaaConfig;
+
     /**
      * Reads sensitive data from the data layer.
      * User requires scope {@code Admin}

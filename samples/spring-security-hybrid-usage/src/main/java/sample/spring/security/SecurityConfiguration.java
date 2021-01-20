@@ -15,14 +15,11 @@
  */
 package sample.spring.security;
 
-import com.sap.cloud.security.autoconfig.IdentityServiceConfiguration;
 import com.sap.cloud.security.autoconfig.XsuaaServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.authentication.AuthenticationToken;
 import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.token.authentication.JwtDecoderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -35,7 +32,6 @@ import com.sap.cloud.security.token.authentication.XsuaaTokenAuthenticationConve
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,18 +40,14 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
-@EnableConfigurationProperties({IdentityServiceConfiguration.class, XsuaaServiceConfiguration.class})
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	XsuaaServiceConfiguration xsuaaServiceConfiguration;
-
-	@Autowired
-	IdentityServiceConfiguration identityServiceConfiguration;
+	XsuaaServiceConfiguration xsuaaConfig;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		String xsuaaAppId = xsuaaServiceConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
+		String xsuaaAppId = xsuaaConfig.getProperty(CFConstants.XSUAA.APP_ID);
 
 		// @formatter:off
 		http
@@ -69,16 +61,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 				.oauth2ResourceServer()
 				.jwt()
-				.decoder(hybridJwtDecoder())
 				.jwtAuthenticationConverter(new MyCustomTokenAuthenticationConverter(xsuaaAppId) );
 		// @formatter:on
-	}
-
-	JwtDecoder hybridJwtDecoder() {
-		return new JwtDecoderBuilder()
-				.withIasServiceConfiguration(identityServiceConfiguration)
-				.withXsuaaServiceConfiguration(xsuaaServiceConfiguration)
-				.buildHybrid();
 	}
 
 	/**

@@ -26,18 +26,27 @@
 			<artifactId>spring-security-oauth2-resource-server</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-autoconfigure</artifactId>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency><!-- remove this -->
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-api</artifactId>
-			<!--<version>${project.version}</version>-->
-			<version>${project.parent.version}</version>
+			<version>${project.parent.version}</version> <!--TODO-->
 		</dependency>
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security</artifactId>
-			<!--<version>${project.version}</version>-->
-			<version>${project.parent.version}</version>
+			<version>${project.parent.version}</version><!--TODO-->
+			<exclusions>
+				<exclusion>
+					<groupId>com.sap.cloud.security</groupId>
+					<artifactId>java-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -47,11 +56,6 @@
 
 		<!-- test utilities -->
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
@@ -59,13 +63,19 @@
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security-test</artifactId>
-			<!--<version>${project.version}</version>-->
-			<version>${project.parent.version}</version>
+			<version>${project.parent.version}</version> <!--TODO-->
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sap.cloud.security</groupId>
+					<artifactId>java-security</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -112,11 +122,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.0.0-M5</version>
-				<configuration>
-					<systemPropertyVariables>
-						<xsuaa.xsappname>xsapp</xsuaa.xsappname>
-					</systemPropertyVariables>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

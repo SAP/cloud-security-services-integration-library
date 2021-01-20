@@ -13,7 +13,7 @@ It fully integrates with [Spring Security OAuth 2.0 Resource Server](https://doc
 
 ## Supported Identity Services
 - XSUAA
-- IAS
+- IAS (only single tenant)
 
 ## Supported Algorithms
 
@@ -40,36 +40,63 @@ These (spring) dependencies needs to be provided:
     <artifactId>spring-security-oauth2-resource-server</artifactId>
 </dependency>
 <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-autoconfigure</artifactId>
+</dependency>
+<dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>spring-security</artifactId>
-    <version>2.8.2</version>
+    <version>1.0.0-SNAPSHOT</version> <!-- TODO-->
 </dependency>
 ```
 
 ### Setup Security Context for HTTP requests
-Configure the OAuth resource server 
-like shown in this [sample configuration](/samples/spring-security-hybrid-usage/src/main/java/sample/spring/security/SecurityConfiguration.java).
+Configure the OAuth resource server:
 
 ```java
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	XsuaaServiceConfiguration xsuaaConfig;
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		String xsuaaAppId = xsuaaConfig.getProperty(CFConstants.XSUAA.APP_ID);
+
+		// @formatter:off
+		http
+			.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.and()
+				.authorizeRequests()
+				.antMatchers("/sayHello").hasAuthority("Read")
+				.antMatchers("/*").authenticated()
+				.anyRequest().denyAll()
+			.and()
+				.oauth2ResourceServer()
+				.jwt()
+				.jwtAuthenticationConverter(<your custom XsuaaTokenAuthenticationConverter>); // TODO
+		// @formatter:on
+	}
     
 }
 ```
+// TODO custom XsuaaTokenAuthenticationConverter
 
 ### Setup Security Context for non-HTTP requests
-In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message / event or you've requested from the identity service directly:
+In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message, an event or you've requested from the identity service directly:
 
 ```java
-@EnableConfigurationProperties(XsuaaServiceConfiguration.class)
 public class Listener {
+
      @Autowired
-     XsuaaServiceConfiguration xsuaaServiceConfiguration; 
+     XsuaaServiceConfiguration xsuaaConfig; 
     
      public void onEvent(String encodedToken) {
         if (encodedToken != null) {
-            SpringSecurityContext.init(encodedToken, jwtDecoder, xsuaaServiceConfiguration.getAppId());
+            SpringSecurityContext.init(encodedToken, jwtDecoder, xsuaaConfig.getAppId());
         }
         try {
             handleEvent();
