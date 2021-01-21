@@ -19,7 +19,7 @@ com.sap.cloud.security.xsuaa | xsuaa-spring-boot-starter
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
 
-In case you have configured your `TokenAuthenticationConverter` with `setLocalScopeAsAuthorities(true)` then you can use the auto-configured converter instead as  documented [here](/spring-security#setup-spring-security-oauth-20-resource-server). :
+In case you have configured your `TokenAuthenticationConverter` with `setLocalScopeAsAuthorities(true)` then you can use the auto-configured converter instead as  documented [here](/spring-security#setup-spring-security-oauth-20-resource-server):
 ```
 @Autowired
 Converter<Jwt, AbstractAuthenticationToken> authConverter;
@@ -31,7 +31,7 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
 - `XsuaaServiceConfiguration` interface or
 - `@Value("${xsuaa.clientid})` annotation
 
-that you have mapped to your within your `application.yml` as explained [here](#map-properties-to-vcap_services).
+that you have mapped to your within your `application.yml` as explained [here](/spring-security#map-properties-to-vcap_services).
 
 
 ## Fetch data from token
