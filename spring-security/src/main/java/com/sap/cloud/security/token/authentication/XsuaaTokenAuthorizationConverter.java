@@ -15,7 +15,7 @@ import java.util.*;
  * prefix (e.g.my-application-demo!t1229) from the scope claim of the Xsuaa access token.
  * This allows to perform the {@code hasAuthority} check on the local Xsuaa scope.
  */
-public class XsuaaTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+public class XsuaaTokenAuthorizationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     private String appId;
 
@@ -25,7 +25,7 @@ public class XsuaaTokenAuthenticationConverter implements Converter<Jwt, Abstrac
      * @param appId the xsuaa application identifier
      *            e.g. myXsAppname!t123
      */
-    public XsuaaTokenAuthenticationConverter(String appId) {
+    public XsuaaTokenAuthorizationConverter(String appId) {
         this.appId = appId;
     }
 

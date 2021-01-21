@@ -1,5 +1,7 @@
 package com.sap.cloud.security.autoconfig;
 
+import com.sap.cloud.security.config.IdentityServiceConfiguration;
+import com.sap.cloud.security.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.token.authentication.JwtDecoderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

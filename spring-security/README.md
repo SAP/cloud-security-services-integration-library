@@ -51,20 +51,18 @@ These (spring) dependencies needs to be provided:
 ```
 
 ### Setup Security Context for HTTP requests
-Configure the OAuth resource server:
+Configure the OAuth resource server for token validation:
 
 ```java
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-	@Autowired
-	XsuaaServiceConfiguration xsuaaConfig;
+    
+    @Autowired
+	Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		String xsuaaAppId = xsuaaConfig.getProperty(CFConstants.XSUAA.APP_ID);
-
 		// @formatter:off
 		http
 			.sessionManagement()
@@ -77,13 +75,44 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 				.oauth2ResourceServer()
 				.jwt()
-				.jwtAuthenticationConverter(<your custom XsuaaTokenAuthenticationConverter>); // TODO
+				.jwtAuthenticationConverter(authConverter); // (1) you may want to provide your own converter
 		// @formatter:on
 	}
-    
 }
 ```
-// TODO custom XsuaaTokenAuthenticationConverter
+
+> :bulb: Please note that the auto-configured authentication converter supports ```hasAuthority```-checks for scopes provided with the Xsuaa access token. 
+> In case you need to consider authorizations provided via an OIDC token from IAS you need to overwrite the default implementation.
+
+### Custom Authorization Converter
+Create your own Authorization Converter by implementing `Converter<Jwt, AbstractAuthenticationToken>` interface. 
+In this sample it delegates to the autowired `authConverter` in case of an Xsuaa access token.
+```
+/**
+ * Workaround until Cloud Authorization Service is globally available.
+ */
+class MyCustomTokenAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+
+    public AbstractAuthenticationToken convert(Jwt jwt) {
+        if(jwt.containsClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
+            return authConverter.convert(jwt); // @Autowrired Converter<Jwt, AbstractAuthenticationToken> authConverter;
+        }
+        return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
+    }
+
+    private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {
+        Collection<GrantedAuthority> groupAuthorities = new ArrayList<>();
+        if (jwt.containsClaim(TokenClaims.GROUPS)) {
+            List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+            for (String group: groups) {
+                groupAuthorities.add(new SimpleGrantedAuthority(group.replace("IASAUTHZ_", "")));
+            }
+        }
+        return groupAuthorities;
+    }
+}
+```
+... finally configure Spring's resource server with an instance of this custom converter.
 
 ### Setup Security Context for non-HTTP requests
 In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message, an event or you've requested from the identity service directly:

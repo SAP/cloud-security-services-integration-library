@@ -1,7 +1,7 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.token.authentication.HybridJwtDecoder;
-import com.sap.cloud.security.token.authentication.XsuaaTokenAuthenticationConverter;
+import com.sap.cloud.security.token.authentication.XsuaaTokenAuthorizationConverter;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -92,7 +92,7 @@ public class SpringSecurityContext {
                 "Passed JwtDecoder instance must be of type 'HybridJwtDecoder'");
         Jwt jwtToken = jwtDecoder.decode(encodedToken);
 
-        Converter<Jwt, AbstractAuthenticationToken> authenticationConverter = new XsuaaTokenAuthenticationConverter(xsuaaAppId);
+        Converter<Jwt, AbstractAuthenticationToken> authenticationConverter = new XsuaaTokenAuthorizationConverter(xsuaaAppId);
         Authentication authentication = authenticationConverter.convert(jwtToken);
 
         SecurityContextHolder.createEmptyContext();

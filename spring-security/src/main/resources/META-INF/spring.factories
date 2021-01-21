@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.sap.cloud.security.autoconfig.HybridIdentityServicesAutoConfiguration
+com.sap.cloud.security.autoconfig.HybridIdentityServicesAutoConfiguration,\
+com.sap.cloud.security.autoconfig.HybridAuthorizationAutoConfiguration

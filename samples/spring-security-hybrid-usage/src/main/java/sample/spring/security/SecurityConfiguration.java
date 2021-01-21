@@ -15,8 +15,6 @@
  */
 package sample.spring.security;
 
-import com.sap.cloud.security.autoconfig.XsuaaServiceConfiguration;
-import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.authentication.AuthenticationToken;
 import com.sap.cloud.security.token.TokenClaims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +26,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
-import com.sap.cloud.security.token.authentication.XsuaaTokenAuthenticationConverter;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -43,12 +41,10 @@ import java.util.List;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	XsuaaServiceConfiguration xsuaaConfig;
+	Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		String xsuaaAppId = xsuaaConfig.getProperty(CFConstants.XSUAA.APP_ID);
-
 		// @formatter:off
 		http
 			.sessionManagement()
@@ -61,32 +57,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 				.oauth2ResourceServer()
 				.jwt()
-				.jwtAuthenticationConverter(new MyCustomTokenAuthenticationConverter(xsuaaAppId) );
+				.jwtAuthenticationConverter(new MyCustomTokenAuthenticationConverter());
 		// @formatter:on
 	}
 
 	/**
 	 * Workaround until Cloud Authorization Service is globally available.
 	 */
-	private static class MyCustomTokenAuthenticationConverter extends XsuaaTokenAuthenticationConverter {
-		/**
-		 * @param appId the xsuaa application identifier
-		 *              e.g. myXsAppname!t123
-		 */
-		public MyCustomTokenAuthenticationConverter(String appId) {
-			super(appId);
-		}
+	class MyCustomTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-		@Override
 		public AbstractAuthenticationToken convert(Jwt jwt) {
-			Collection<GrantedAuthority> derivedAuthorities;
-
 			if(jwt.containsClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
-				derivedAuthorities = localScopeAuthorities(jwt);
-			} else {
-				derivedAuthorities = deriveAuthoritiesFromGroup(jwt);
+				return authConverter.convert(jwt);
 			}
-			return new AuthenticationToken(jwt, derivedAuthorities);
+			return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
 		}
 
 		private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {

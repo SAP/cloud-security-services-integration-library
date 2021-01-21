@@ -1,5 +1,6 @@
-package com.sap.cloud.security.autoconfig;
+package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.config.IdentityServiceConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;

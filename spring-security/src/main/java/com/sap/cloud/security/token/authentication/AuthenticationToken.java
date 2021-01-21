@@ -18,7 +18,7 @@ import java.util.Objects;
  * {@code (Token)SecurityContextHolder.getContext().getAuthentication().getPrincipal();}
  *
  * @see Token
- * @see XsuaaTokenAuthenticationConverter
+ * @see XsuaaTokenAuthorizationConverter
  *
  */
 public class AuthenticationToken extends JwtAuthenticationToken {

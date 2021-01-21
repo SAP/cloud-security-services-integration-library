@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class XsuaaTokenAuthenticationConverterTest {
     String xsAppName = "my-app-name!400";
     JwtGenerator jwtGenerator = JwtGenerator.getInstance(XSUAA, "theClientId").withAppId(xsAppName);
-    XsuaaTokenAuthenticationConverter cut = new XsuaaTokenAuthenticationConverter(xsAppName);
+    XsuaaTokenAuthorizationConverter cut = new XsuaaTokenAuthorizationConverter(xsAppName);
     String scopeAdmin = xsAppName + "." + "Admin";
     String scopeRead = xsAppName + "." + "Read";
     String scopeOther = "other-app!234" + "." + "Other";
