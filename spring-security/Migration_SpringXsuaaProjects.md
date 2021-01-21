@@ -19,15 +19,19 @@ com.sap.cloud.security.xsuaa | xsuaa-spring-boot-starter
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
 
-This means that you have to adapt the `HttpSecurity` configuration. This involves the following steps:
-
-TODO
-
+In case you have configured your `TokenAuthenticationConverter` with `setLocalScopeAsAuthorities(true)` then you can use the auto-configured converter instead as  documented [here](/spring-security#setup-spring-security-oauth-20-resource-server). :
+```
+@Autowired
+Converter<Jwt, AbstractAuthenticationToken> authConverter;
+```
 
 ### Access VCAP_SERVICES values
-There are two options to access information of the identity service instance (`VCAP_SERVICES` credentials):
+`spring-security` does not automatically map all properties to Spring `xsuaa.*` properties. You can only access those properties via 
 
-TODO
+- `XsuaaServiceConfiguration` interface or
+- `@Value("${xsuaa.clientid})` annotation
+
+that you have mapped to your within your `application.yml` as explained [here](#map-properties-to-vcap_services).
 
 
 ## Fetch data from token
