@@ -38,7 +38,7 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
 @ConditionalOnProperty(prefix = "sap.spring.security.hybrid.", name = "auto", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties({XsuaaServiceConfiguration.class, IdentityServiceConfiguration.class})
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which specifies JwtDecoder
-public class HybridIdentityServicesAutoConfiguration { // TODO rename
+class HybridIdentityServicesAutoConfiguration { // TODO rename
     private static final Logger LOGGER = LoggerFactory.getLogger(HybridIdentityServicesAutoConfiguration.class);
 
     @Configuration
