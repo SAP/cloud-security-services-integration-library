@@ -71,25 +71,25 @@ Configure your application as Spring Security OAuth 2.0 Resource Server for auth
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     
     @Autowired
-	Converter<Jwt, AbstractAuthenticationToken> authConverter;
+    Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		// @formatter:off
-		http
-			.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and()
-				.authorizeRequests()
-				.antMatchers("/sayHello").hasAuthority("Read")
-				.antMatchers("/*").authenticated()
-				.anyRequest().denyAll()
-			.and()
-				.oauth2ResourceServer()
-				.jwt()
-				.jwtAuthenticationConverter(authConverter); // (1) you may want to provide your own converter
-		// @formatter:on
-	}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+	// @formatter:off
+	http
+	.sessionManagement()
+	    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+	.and()
+	    .authorizeRequests()
+	    .antMatchers("/sayHello").hasAuthority("Read")
+	    .antMatchers("/*").authenticated()
+	    .anyRequest().denyAll()
+	.and()
+	    .oauth2ResourceServer()
+	    .jwt()
+	    .jwtAuthenticationConverter(authConverter); // (1) you may want to provide your own converter
+	// @formatter:on
+    }
 }
 ```
 
@@ -125,7 +125,7 @@ class MyCustomTokenAuthConverter implements Converter<Jwt, AbstractAuthenticatio
 
 ### Map properties to VCAP_SERVCIES
 In order to map the `VCAP_SERVICES` credentials to your application got to `application.xml` and provide the following configuration:
-```
+```yaml
 xsuaa:
   xsappname: ${vcap.services.<xsuaa service instance name>.credentials.xsappname}
   uaadomain: ${vcap.services.<xsuaa service instance name>.credentials.uaadomain}
