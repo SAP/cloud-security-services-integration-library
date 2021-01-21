@@ -50,8 +50,20 @@ These (spring) dependencies needs to be provided:
 </dependency>
 ```
 
-### Setup Security Context for HTTP requests
-Configure the OAuth resource server for token validation:
+#### Auto-configuration
+As auto-configuration requires Spring Boot specific dependencies, it is enabled when using `xsuaa-spring-boot-starter` Spring Boot Starter. 
+Then it auto-configures beans, that are required to initialize the Spring Boot application as OAuth resource server.
+
+Auto-configuration class | Description
+---- | --------
+[HybridAuthorizationAutoConfiguration]() | Creates a converter that removes the xsuaa application identifier from the scope names to enable local scope checks using [Spring's common built-in expression](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#el-common-built-in) `hasAuthority`.
+[HybridIdentityServicesAutoConfiguration](HybridAuthorizationAutoConfiguration.java) | Configures a `JwtDecoder` which is able to decode and validate tokens from Xsuaa and Identity service. Furthermore it registers the `XsuaaServiceConfiguration` and `IdentityServiceConfiguration` classes, that gets configured with `xsuaa.*` and `identity.*` properties.
+
+You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
+
+
+### Setup Spring Security OAuth 2.0 Resource Server
+Configure your application as Spring Security OAuth 2.0 Resource Server for authentication of HTTP requests:
 
 ```java
 @Configuration
@@ -84,18 +96,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 > :bulb: Please note that the auto-configured authentication converter supports ```hasAuthority```-checks for scopes provided with the Xsuaa access token. 
 > In case you need to consider authorizations provided via an OIDC token from IAS you need to overwrite the default implementation.
 
-### Custom Authorization Converter
+#### Custom Authorization Converter
 Create your own Authorization Converter by implementing `Converter<Jwt, AbstractAuthenticationToken>` interface. 
 In this sample it delegates to the autowired `authConverter` in case of an Xsuaa access token.
-```
-/**
- * Workaround until Cloud Authorization Service is globally available.
- */
+```java
 class MyCustomTokenAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     public AbstractAuthenticationToken convert(Jwt jwt) {
         if(jwt.containsClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
-            return authConverter.convert(jwt); // @Autowrired Converter<Jwt, AbstractAuthenticationToken> authConverter;
+            return authConverter.convert(jwt); // @Autowired Converter<Jwt, AbstractAuthenticationToken> authConverter;
         }
         return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
     }
@@ -114,30 +123,21 @@ class MyCustomTokenAuthConverter implements Converter<Jwt, AbstractAuthenticatio
 ```
 ... finally configure Spring's resource server with an instance of this custom converter.
 
-### Setup Security Context for non-HTTP requests
-In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message, an event or you've requested from the identity service directly:
-
-```java
-public class Listener {
-
-     @Autowired
-     XsuaaServiceConfiguration xsuaaConfig; 
-    
-     public void onEvent(String encodedToken) {
-        if (encodedToken != null) {
-            SpringSecurityContext.init(encodedToken, jwtDecoder, xsuaaConfig.getAppId());
-        }
-        try {
-            handleEvent();
-        } finally {
-            SpringSecurityContext.clear();
-        }
-    }
-}
+### Map properties to VCAP_SERVCIES
+In order to map the `VCAP_SERVICES` credentials to your application got to `application.xml` and provide the following configuration:
 ```
-In detail `com.sap.cloud.security.token.SpringSecurityContext` wraps the Spring Security Context (namely `SecurityContextHolder.getContext()`), which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
+xsuaa:
+  xsappname: ${vcap.services.<xsuaa service instance name>.credentials.xsappname}
+  uaadomain: ${vcap.services.<xsuaa service instance name>.credentials.uaadomain}
+  clientid:  ${vcap.services.<xsuaa service instance name>.credentials.clientid}
+  url:       ${vcap.services.<xsuaa service instance name>.credentials.url}
 
-Note that Spring Security Context is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
+identity:
+  clientid:  ${vcap.services.<identity service instance name>.credentials.clientid}
+  domain:    ${vcap.services.<identity service instance name>.credentials.domain}
+  url:       ${vcap.services.<identity service instance name>.credentials.url} # can be deleted later
+```  
+> Note that the <xsuaa service instance name> and <identity service instance name> have to be replaced with the service instance name of the respective service instance.
 
 ## Usage
 
@@ -169,6 +169,31 @@ public Map<String, String> message() {
 In case you have implemented a central Exception Handler as described with [Baeldung Tutorial: Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring) you may want to emit logs to the audit log service in case of `AccessDeniedException`s.
 
 Alternatively there are also various options provided with `Spring.io`. For example, you can integrate SAP audit log service with Spring Boot Actuator audit framework as described [here](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-auditing).
+
+### [Optional] Setup Security Context for non-HTTP requests
+In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message, an event or you've requested from the identity service directly:
+
+```java
+public class Listener {
+
+     @Autowired
+     XsuaaServiceConfiguration xsuaaConfig; 
+    
+     public void onEvent(String encodedToken) {
+        if (encodedToken != null) {
+            SpringSecurityContext.init(encodedToken, jwtDecoder, xsuaaConfig.getAppId());
+        }
+        try {
+            handleEvent();
+        } finally {
+            SpringSecurityContext.clear();
+        }
+    }
+}
+```
+In detail `com.sap.cloud.security.token.SpringSecurityContext` wraps the Spring Security Context (namely `SecurityContextHolder.getContext()`), which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
+
+Note that Spring Security Context is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
 
 
 ## Troubleshoot
