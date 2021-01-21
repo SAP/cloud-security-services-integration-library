@@ -189,7 +189,7 @@ If you have classpath related  issues involving JSON you should take a look at t
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 - `{\"error\":\"unauthorized\",\"error_description\":\"Unable to map issuer, [http://subdomain.localhost:8080/uaa/oauth/token] , to a single registered provider\"}`  
-Token exchange is only supported within the same identity zone/tenant. So please make sure, that you are calling the token endpoint of the same tenant, that was used for the original token. In this case please configure the token flows with the subdomain from the original token, e.g. `tokenFlows.clientCredentialsTokenFlow().subdomain(jwtToken.getSubdomain());`
+Token exchange is only supported within the same identity zone/tenant. So please make sure, that you are calling the token endpoint of the same tenant, that was used for the original token. In this case please configure the token flows with the subdomain from the original token, e.g. `tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());`
 
 ## Samples
 - [Java sample](/samples/java-tokenclient-usage)
