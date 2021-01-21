@@ -25,7 +25,7 @@ In case you have configured your `TokenAuthenticationConverter` with `setLocalSc
 Converter<Jwt, AbstractAuthenticationToken> authConverter;
 ```
 
-### Access VCAP_SERVICES values
+## Access VCAP_SERVICES values
 `spring-security` does not automatically map all properties to Spring `xsuaa.*` properties. You can only access those properties via 
 
 - `XsuaaServiceConfiguration` interface or
@@ -36,7 +36,7 @@ that you have mapped to your within your `application.yml` as explained [here](/
 
 ## Fetch data from token
 
-### ``SpringSecurityContext``
+#### ``SpringSecurityContext``
 You may have code parts that uses the `SpringSecurityContext` to get the token. Just update the import from:
 ````java
  import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
@@ -46,7 +46,7 @@ to
 import com.sap.cloud.security.token.SpringSecurityContext;
 ````
 
-### `Token` methods
+#### `Token` methods
 You may have code parts that uses the `Token` interface to access details from the token. You need to update the imports from:
 ````java
  import com.sap.cloud.security.xsuaa.token.Token;
@@ -81,7 +81,7 @@ See the following table for methods that are not available in the target ```Toke
 | `getAuthorities()`  | TODO
 | `getExpiration()`  | use `isExpired()` and `getExpiration()` instead.
 
-### Spring's `Jwt` methods
+#### Spring's `Jwt` methods
 
 The runtime type of `com.sap.cloud.security.xsuaa.token.Token` is `com.sap.cloud.security.xsuaa.token.XsuaaToken`, which provides additional methods that can be used to extract data from the token since it is a subclass of
 `org.springframework.security.oauth2.jwt.Jwt`. 
