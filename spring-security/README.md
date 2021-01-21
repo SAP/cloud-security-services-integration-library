@@ -123,8 +123,8 @@ class MyCustomTokenAuthConverter implements Converter<Jwt, AbstractAuthenticatio
 ```
 ... finally configure Spring's resource server with an instance of this custom converter.
 
-### Map properties to VCAP_SERVCIES
-In order to map the `VCAP_SERVICES` credentials to your application got to `application.xml` and provide the following configuration:
+### Map properties to VCAP_SERVICES
+In order to map the `VCAP_SERVICES` credentials to your application go to `application.xml` and provide the following configuration:
 ```yaml
 xsuaa:
   xsappname: ${vcap.services.<xsuaa service instance name>.credentials.xsappname}
@@ -137,7 +137,10 @@ identity:
   domain:    ${vcap.services.<identity service instance name>.credentials.domain}
   url:       ${vcap.services.<identity service instance name>.credentials.url} # can be deleted later
 ```  
-> Note that the <xsuaa service instance name> and <identity service instance name> have to be replaced with the service instance name of the respective service instance.
+> Note that the `<xsuaa service instance name>` and `<identity service instance name>` have to be replaced with the service instance name of the respective service instance.
+	
+> Enhance it with further properties you may like to access within your application like the "clientsecret". Alternatively you can also access them using `Environments.getCurrent().getXsuaaConfiguration()`.
+	
 
 ## Usage
 
@@ -164,6 +167,12 @@ public Map<String, String> message() {
     ...
 }
 ```
+
+### Get Information from `VCAP_SERVICES`
+In case you need information from `VCAP_SERVICES` system environment variable, which are not exposed by `@Autowired
+    XsuaaServiceConfiguration xsuaaServiceConfiguration` interface, you may need to enhance the mapped properties in your `application.yml` file as described [here](#map-properties-to-vcap_servcies).
+  
+
 
 ### [Optional] Audit Logging
 In case you have implemented a central Exception Handler as described with [Baeldung Tutorial: Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring) you may want to emit logs to the audit log service in case of `AccessDeniedException`s.
