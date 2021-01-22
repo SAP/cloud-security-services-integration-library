@@ -5,6 +5,7 @@ import com.sap.cloud.security.token.authentication.XsuaaTokenAuthorizationConver
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.springframework.core.convert.converter.Converter;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -19,6 +20,7 @@ public class HybridAuthorizationAutoConfigurationTest {
                 //.withPropertyValues("xsuaa.xsappname2:theAppName")
                 .run(context -> {
                     assertNotNull(context.getBean(XsuaaTokenAuthorizationConverter.class));
+                    assertNotNull(context.getBean("xsuaaAuthConverter", Converter.class));
                 });
     }
 
