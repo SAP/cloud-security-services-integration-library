@@ -56,7 +56,7 @@ Then it auto-configures beans, that are required to initialize the Spring Boot a
 
 Auto-configuration class | Description
 ---- | --------
-[HybridAuthorizationAutoConfiguration]() | Creates a converter that removes the xsuaa application identifier from the scope names to enable local scope checks using [Spring's common built-in expression](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#el-common-built-in) `hasAuthority`.
+[HybridAuthorizationAutoConfiguration]() | Creates a converter ([XsuaaTokenAuthorizationConverter](/src/main/java/com/sap/cloud/security/token/authentication/XsuaaTokenAuthorizationConverter.java))that removes the xsuaa application identifier from the scope names to enable local scope checks using [Spring's common built-in expression](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#el-common-built-in) `hasAuthority`.
 [HybridIdentityServicesAutoConfiguration](HybridAuthorizationAutoConfiguration.java) | Configures a `JwtDecoder` which is able to decode and validate tokens from Xsuaa and Identity service. Furthermore it registers the `XsuaaServiceConfiguration` and `IdentityServiceConfiguration` classes, that gets configured with `xsuaa.*` and `identity.*` properties.
 
 You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
@@ -183,14 +183,18 @@ Alternatively there are also various options provided with `Spring.io`. For exam
 In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message, an event or you've requested from the identity service directly:
 
 ```java
-public class Listener {
+import org.springframework.security.oauth2.jwt.JwtDecoder;public class Listener {
 
      @Autowired
-     XsuaaServiceConfiguration xsuaaConfig; 
+     JwtDecoder jwtDecoder;
+    
+     @Autowired
+     Converter<Jwt, AbstractAuthenticationToken> authConverter;
+
     
      public void onEvent(String encodedToken) {
         if (encodedToken != null) {
-            SpringSecurityContext.init(encodedToken, jwtDecoder, xsuaaConfig.getAppId());
+            SpringSecurityContext.init(encodedToken, jwtDecoder, authConverter);
         }
         try {
             handleEvent();

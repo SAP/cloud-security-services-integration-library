@@ -2,6 +2,7 @@ package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.test.JwtGenerator;
 import com.sap.cloud.security.token.authentication.HybridJwtDecoder;
+import com.sap.cloud.security.token.authentication.XsuaaTokenAuthorizationConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -42,13 +43,19 @@ class SpringSecurityContextTest {
     }
 
     @Test
-    void initSecurityContextRaiseExceptionIfNotXsuaaJwtDecoder() {
+    void initSecurityContextRaiseExceptionIfNotHybridJwtDecoder() {
         assertThrows(IllegalArgumentException.class, () -> SpringSecurityContext.init(xsuaaToken.getTokenValue(), new JwtDecoder() {
             @Override
             public Jwt decode(String s) throws JwtException {
                 return HybridJwtDecoder.parseJwt(xsuaaToken);
             }
-        }, "xsapp"));
+        }, Mockito.mock(XsuaaTokenAuthorizationConverter.class)));
+    }
+
+    @Test
+    void initSecurityContextRaiseExceptionIfConverterIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> SpringSecurityContext.init(xsuaaToken.getTokenValue(),
+                Mockito.mock(HybridJwtDecoder.class), null));
     }
     
     @Test
@@ -124,6 +131,6 @@ class SpringSecurityContextTest {
         when(mockJwtDecoder.decode(token.getTokenValue())).thenReturn(HybridJwtDecoder.parseJwt(token));
 
         // initialize SpringSecurityContext with provided token
-        SpringSecurityContext.init(token.getTokenValue(), mockJwtDecoder, "xsapp");
+        SpringSecurityContext.init(token.getTokenValue(), mockJwtDecoder, new XsuaaTokenAuthorizationConverter("xsapp"));
     }
 }

@@ -86,14 +86,17 @@ public class SpringSecurityContext {
      *            the jwt token that is decoded with the given JwtDecoder
      * @param jwtDecoder
      *            the decoder of type {@link JwtDecoder}
+     * @param authConverter
+     *            the authorization converter of type {@code Converter<Jwt, AbstractAuthenticationToken>} e.g. {@link XsuaaTokenAuthorizationConverter}
      */
-    public static void init(String encodedToken, JwtDecoder jwtDecoder, String xsuaaAppId) {
+    public static void init(String encodedToken, JwtDecoder jwtDecoder, Converter<Jwt, AbstractAuthenticationToken> authConverter) {
         Assert.isInstanceOf(HybridJwtDecoder.class, jwtDecoder,
                 "Passed JwtDecoder instance must be of type 'HybridJwtDecoder'");
+        Assert.notNull(authConverter,
+                "Passed converter must not be null");
         Jwt jwtToken = jwtDecoder.decode(encodedToken);
 
-        Converter<Jwt, AbstractAuthenticationToken> authenticationConverter = new XsuaaTokenAuthorizationConverter(xsuaaAppId);
-        Authentication authentication = authenticationConverter.convert(jwtToken);
+        Authentication authentication = authConverter.convert(jwtToken);
 
         SecurityContextHolder.createEmptyContext();
         SecurityContextHolder.getContext().setAuthentication(authentication);
