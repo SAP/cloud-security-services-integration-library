@@ -6,8 +6,10 @@ import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,7 +20,7 @@ import java.util.List;
  * </ul>
  */
 public class JwtDecoderBuilder {
-    private OAuth2ServiceConfiguration xsuaaConfiguration;
+    private List<? extends OAuth2ServiceConfiguration> xsuaaConfigurations;
     private OAuth2ServiceConfiguration iasConfiguration;
     private final List<ValidationListener> validationListeners = new ArrayList<>();
     protected CloseableHttpClient httpClient;
@@ -81,7 +83,22 @@ public class JwtDecoderBuilder {
      * @return this jwt decoder builder
      */
     public JwtDecoderBuilder withXsuaaServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {
-        this.xsuaaConfiguration = serviceConfiguration;
+        this.xsuaaConfigurations = Collections.singletonList(serviceConfiguration);
+        return this;
+    }
+
+    /**
+     * Allows to provide multiple xsuaa service configuration. In case you have
+     * multiple Xsuaa identity service instances and you like to accept tokens
+     * issued for them as well. The configuration of the the first one (index 0) is taken as main configuration.
+     *
+     * @param serviceConfigurations
+     *            all configurations of the xsuaa service instance, e.g. the broker
+     * @return this jwt decoder builder
+     */
+    public JwtDecoderBuilder withXsuaaServiceConfigurations(List<? extends OAuth2ServiceConfiguration> serviceConfigurations) {
+        Assert.notEmpty(serviceConfigurations, "serviceConfigurations must not be empty. Expect at least one xsuaa service configuration.");
+        this.xsuaaConfigurations = serviceConfigurations;
         return this;
     }
 
@@ -91,9 +108,16 @@ public class JwtDecoderBuilder {
      * @return JwtDecoder
      */
     public JwtDecoder buildHybrid() {
-        JwtValidatorBuilder xsuaaValidatorBuilder = JwtValidatorBuilder.getInstance(xsuaaConfiguration)
+        Assert.notNull(xsuaaConfigurations, "serviceConfiguration must not be empty. Expect at least one xsuaa service configuration.");
+        JwtValidatorBuilder xsuaaValidatorBuilder = JwtValidatorBuilder.getInstance(xsuaaConfigurations.get(0))
                 .withCacheConfiguration(tokenKeyCacheConfiguration)
                 .withHttpClient(httpClient);
+        int index = 0;
+        for (OAuth2ServiceConfiguration xsuaaConfig: xsuaaConfigurations) {
+            if (index != 0) {
+                xsuaaValidatorBuilder.configureAnotherServiceInstance(xsuaaConfig);
+            }
+        }
         JwtValidatorBuilder iasValidatorBuilder = JwtValidatorBuilder.getInstance(iasConfiguration);
 
         for (ValidationListener listener: validationListeners) {

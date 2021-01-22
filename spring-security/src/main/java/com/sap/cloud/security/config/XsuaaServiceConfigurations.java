@@ -11,11 +11,12 @@ public class XsuaaServiceConfigurations {
     @NestedConfigurationProperty
     private List<XsuaaServiceConfiguration> xsuaa = new ArrayList<>();
 
-    public List<XsuaaServiceConfiguration> getXsuaaServices() {
+    public List<XsuaaServiceConfiguration> getConfigurations() {
         return this.xsuaa;
     }
 
     public void setXsuaa(List<XsuaaServiceConfiguration> xsuaa) {
         this.xsuaa = xsuaa;
     }
+
 }

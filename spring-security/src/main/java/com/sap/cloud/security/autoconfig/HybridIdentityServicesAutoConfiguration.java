@@ -2,6 +2,7 @@ package com.sap.cloud.security.autoconfig;
 
 import com.sap.cloud.security.config.IdentityServiceConfiguration;
 import com.sap.cloud.security.config.XsuaaServiceConfiguration;
+import com.sap.cloud.security.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.token.authentication.JwtDecoderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,8 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
  */
 @Configuration
 @ConditionalOnClass(Jwt.class)
-@EnableConfigurationProperties({XsuaaServiceConfiguration.class, IdentityServiceConfiguration.class})
+@ConditionalOnProperty(name = "sap.spring.security.hybrid.auto", havingValue = "true", matchIfMissing = true)
+@EnableConfigurationProperties({XsuaaServiceConfiguration.class, IdentityServiceConfiguration.class, XsuaaServiceConfigurations.class})
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which specifies JwtDecoder
 class HybridIdentityServicesAutoConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(HybridIdentityServicesAutoConfiguration.class);
@@ -48,12 +50,22 @@ class HybridIdentityServicesAutoConfiguration {
         }
 
         @Bean
-        @ConditionalOnProperty(prefix = "sap.spring.security.hybrid", name = "auto", havingValue = "true", matchIfMissing = true)
+        @ConditionalOnProperty("sap.security.services.xsuaa.uaadomain")
         public JwtDecoder hybridJwtDecoder(XsuaaServiceConfiguration xsuaaConfig, IdentityServiceConfiguration identityConfig) {
             LOGGER.debug("auto-configures HybridJwtDecoder.");
             return new JwtDecoderBuilder()
                     .withIasServiceConfiguration(identityConfig)
                     .withXsuaaServiceConfiguration(xsuaaConfig)
+                    .buildHybrid();
+        }
+
+        @Bean
+        @ConditionalOnProperty("sap.security.services.xsuaa[0].uaadomain")
+        public JwtDecoder hybridJwtDecoderMultiXsuaaServices(XsuaaServiceConfigurations xsuaaConfigs, IdentityServiceConfiguration identityConfig) {
+            LOGGER.debug("auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances.");
+            return new JwtDecoderBuilder()
+                    .withIasServiceConfiguration(identityConfig)
+                    .withXsuaaServiceConfigurations(xsuaaConfigs.getConfigurations())
                     .buildHybrid();
         }
     }

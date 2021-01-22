@@ -1,6 +1,7 @@
 package com.sap.cloud.security.autoconfig;
 
 import com.sap.cloud.security.config.XsuaaServiceConfiguration;
+import com.sap.cloud.security.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.token.authentication.XsuaaTokenAuthorizationConverter;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -15,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class HybridAuthorizationAutoConfigurationTest {
-
     private final WebApplicationContextRunner runner = new WebApplicationContextRunner()
-            //.withPropertyValues("xsuaa.xsappname2:theAppName")
-            .withUserConfiguration(XsuaaServiceConfiguration.class)
+            .withPropertyValues("sap.security.services.xsuaa.xsappname:theAppName")
+            .withUserConfiguration(XsuaaServiceConfiguration.class, XsuaaServiceConfigurations.class,
+                    XsuaaServiceConfigurations.class)
             .withConfiguration(AutoConfigurations.of(HybridAuthorizationAutoConfiguration.class));
 
     @Test
@@ -31,20 +32,35 @@ public class HybridAuthorizationAutoConfigurationTest {
 
     @Test
     void autoConfigurationActiveInclProperties() {
-        runner.withPropertyValues("sap.spring.security.hybrid.auto:true").run((context) -> {
+        runner.withPropertyValues("sap.security.services.xsuaa.xsappname:theAppName",
+                "sap.spring.security.hybrid.auto:true").run((context) -> {
             assertNotNull(context.getBean(XsuaaTokenAuthorizationConverter.class));
         });
     }
 
     @Test
-    public void autoConfigurationDisabledByProperty() {
-        runner.withPropertyValues("sap.spring.security.hybrid.auto:false").run((context) -> {
+    void autoConfigurationDisabledByProperty() {
+        runner.withPropertyValues("sap.security.services.xsuaa.xsappname:theAppName",
+                "sap.spring.security.hybrid.auto:false").run((context) -> {
             assertFalse(context.containsBean("xsuaaAuthConverter"));
         });
     }
 
     @Test
-    public void userConfigurationCanOverrideDefaultBeans() {
+    void autoConfigurationDisabledForMultipleXsuaaServices() {
+        WebApplicationContextRunner runner = new WebApplicationContextRunner()
+                .withPropertyValues("sap.security.services.xsuaa[0].xsappname:theAppName")
+                .withUserConfiguration(XsuaaServiceConfiguration.class, XsuaaServiceConfigurations.class,
+                        XsuaaServiceConfigurations.class)
+                .withConfiguration(AutoConfigurations.of(HybridAuthorizationAutoConfiguration.class));
+
+        runner.run(context -> {
+            assertFalse(context.containsBean("xsuaaAuthConverter"));
+        });
+    }
+
+    @Test
+    void userConfigurationCanOverrideDefaultBeans() {
         runner.withUserConfiguration(UserConfiguration.class)
                 .run((context) -> {
                     assertFalse(context.containsBean("xsuaaAuthConverter"));
@@ -53,7 +69,7 @@ public class HybridAuthorizationAutoConfigurationTest {
     }
 
     @Configuration
-    public static class UserConfiguration {
+    static class UserConfiguration {
 
         @Bean
         public XsuaaTokenAuthorizationConverter customXsuaaAuthConverter() {

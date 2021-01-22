@@ -27,13 +27,14 @@ import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
  * or with property {@code sap.spring.security.hybrid.auto = false}.
  */
 @Configuration
-@ConditionalOnProperty(prefix = "sap.spring.security.hybrid.", name = "auto", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "sap.spring.security.hybrid.auto", havingValue = "true", matchIfMissing = true)
 @AutoConfigureAfter(HybridIdentityServicesAutoConfiguration.class)
 class HybridAuthorizationAutoConfiguration {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Bean
     @ConditionalOnMissingBean(XsuaaTokenAuthorizationConverter.class)
+    @ConditionalOnProperty("sap.security.services.xsuaa.xsappname")
     public Converter<Jwt, AbstractAuthenticationToken> xsuaaAuthConverter(XsuaaServiceConfiguration xsuaaConfig) {
         logger.debug("auto-configures Converter<Jwt, AbstractAuthenticationToken> with 'xsuaa.xsappname' from XsuaaServiceConfiguration.");
         return new XsuaaTokenAuthorizationConverter(xsuaaConfig.getProperty(APP_ID));
