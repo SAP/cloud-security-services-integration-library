@@ -35,20 +35,20 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
  */
 @Configuration
 @ConditionalOnClass(Jwt.class)
-@ConditionalOnProperty(prefix = "sap.spring.security.hybrid.", name = "auto", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties({XsuaaServiceConfiguration.class, IdentityServiceConfiguration.class})
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which specifies JwtDecoder
-class HybridIdentityServicesAutoConfiguration { // TODO rename
+class HybridIdentityServicesAutoConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(HybridIdentityServicesAutoConfiguration.class);
 
     @Configuration
     @ConditionalOnMissingBean({JwtDecoder.class})
     @ConditionalOnWebApplication(type = SERVLET)
-    static class JwtDecoderConfiguration {
-        JwtDecoderConfiguration() {
+    static class JwtDecoderConfigurations {
+        JwtDecoderConfigurations() {
         }
 
         @Bean
+        @ConditionalOnProperty(prefix = "sap.spring.security.hybrid", name = "auto", havingValue = "true", matchIfMissing = true)
         public JwtDecoder hybridJwtDecoder(XsuaaServiceConfiguration xsuaaConfig, IdentityServiceConfiguration identityConfig) {
             LOGGER.debug("auto-configures HybridJwtDecoder.");
             return new JwtDecoderBuilder()
