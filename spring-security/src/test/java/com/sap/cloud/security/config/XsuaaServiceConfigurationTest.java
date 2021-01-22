@@ -1,6 +1,5 @@
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.config.XsuaaServiceConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -19,7 +18,7 @@ public class XsuaaServiceConfigurationTest {
     @Test
     void configuresXsuaaServiceConfiguration() {
         runner.withUserConfiguration(EnablePropertiesConfiguration.class)
-                .withPropertyValues("xsuaa.url:http://localhost", "xsuaa.uaadomain:localhost", "xsuaa.clientid:cid")
+                .withPropertyValues("sap.security.services.xsuaa.url:http://localhost", "sap.security.services.xsuaa.uaadomain:localhost", "sap.security.services.xsuaa.clientid:cid")
                 .run(context -> {
                     assertEquals("http://localhost", context.getBean(XsuaaServiceConfiguration.class).getUrl().toString());
                 });

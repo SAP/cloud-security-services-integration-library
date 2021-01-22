@@ -1,6 +1,5 @@
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.config.IdentityServiceConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -19,7 +18,7 @@ public class IdentityServiceConfigurationTest {
     @Test
     void configuresIdentityServiceConfiguration() {
         runner.withUserConfiguration(EnablePropertiesConfiguration.class)
-                .withPropertyValues("identity.url:http://localhost", "identity.clientid:cid")
+                .withPropertyValues("sap.security.services.identity.url:http://localhost", "sap.security.services.identity.clientid:cid")
                 .run(context -> {
                     assertEquals("http://localhost", context.getBean(IdentityServiceConfiguration.class).getUrl().toString());
                 });

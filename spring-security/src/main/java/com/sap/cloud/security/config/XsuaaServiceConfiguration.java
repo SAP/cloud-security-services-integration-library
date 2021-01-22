@@ -2,7 +2,7 @@ package com.sap.cloud.security.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("xsuaa")
+@ConfigurationProperties("sap.security.services.xsuaa")
 public class XsuaaServiceConfiguration extends OAuth2ServiceConfigurationProperties {
 
     /**

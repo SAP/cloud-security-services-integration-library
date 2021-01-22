@@ -1,10 +1,13 @@
-xsuaa:
-  xsappname: xsapp!t0815
-  uaadomain: localhost
-  clientid: sb-clientId!t0815
-  url: http://localhost
+sap:
+  security:
+    services:
+      xsuaa:
+        xsappname: xsapp!t0815
+        uaadomain: localhost
+        clientid: sb-clientId!t0815
+        url: http://localhost
 
-identity:
-  clientid: sb-clientId!t0815
-  domain: localhost
-  url: http://localhost # can be deleted later
+      identity:
+        clientid: sb-clientId!t0815
+        domain: localhost
+        url: http://localhost # can be deleted later

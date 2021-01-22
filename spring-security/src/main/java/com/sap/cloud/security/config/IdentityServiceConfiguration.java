@@ -2,7 +2,7 @@ package com.sap.cloud.security.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("identity")
+@ConfigurationProperties("sap.security.services.identity")
 public class IdentityServiceConfiguration extends OAuth2ServiceConfigurationProperties {
 
     /**

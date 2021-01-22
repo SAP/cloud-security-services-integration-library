@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HybridJwtDecoderAutoConfigurationTest {
 
     private final WebApplicationContextRunner runner = new WebApplicationContextRunner()
-            .withPropertyValues("xsuaa.url:http://localhost", "xsuaa.uaadomain:localhost", "xsuaa.clientid:cid",
-                    "identity.url:http://localhost", "identity.clientid:cid")
+            .withPropertyValues("sap.security.services.xsuaa.url:http://localhost", "sap.security.services.xsuaa.uaadomain:localhost", "sap.security.services.xsuaa.clientid:cid",
+                    "sap.security.services.identity.url:http://localhost", "sap.security.services.identity.clientid:cid")
             .withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
 
     @Test
