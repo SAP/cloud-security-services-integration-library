@@ -24,19 +24,19 @@ import org.springframework.context.annotation.Configuration;
  * <p>
  * can be disabled
  * with @EnableAutoConfiguration(exclude={XsuaaTokenFlowAutoConfiguration.class})
- * or with property spring.xsuaa.flows.auto = false
+ * or with property {@code sap.spring.security.xsuaa.flows.auto = false}.
  */
 @Configuration
 @ConditionalOnClass(XsuaaTokenFlows.class)
 @ConditionalOnProperty(name = "sap.spring.security.xsuaa.flows.auto", havingValue = "true", matchIfMissing = true)
-@AutoConfigureAfter(HybridIdentityServicesAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which specifies JwtDecoder
 @ConditionalOnMissingBean(XsuaaTokenFlows.class)
-public class XsuaaTokenFlowAutoConfiguration {
+class XsuaaTokenFlowAutoConfiguration {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	XsuaaServiceConfiguration xsuaaConfig;
 
 	XsuaaTokenFlowAutoConfiguration(XsuaaServiceConfigurations xsuaaConfigs, XsuaaServiceConfiguration xsuaaConfig) {
+		logger.debug("prepares XsuaaTokenFlowAutoConfiguration.");
 		this.xsuaaConfig = xsuaaConfigs.getConfigurations().isEmpty() ? xsuaaConfig : xsuaaConfigs.getConfigurations().get(0);
 	}
 

@@ -129,15 +129,16 @@ In order to map the `VCAP_SERVICES` credentials to your application go to `appli
 ```yaml
 sap.security.services:
     xsuaa:
-      xsappname: ${vcap.services.<xsuaa service instance name>.credentials.xsappname}
-      uaadomain: ${vcap.services.<xsuaa service instance name>.credentials.uaadomain}
-      clientid:  ${vcap.services.<xsuaa service instance name>.credentials.clientid}
-      url:       ${vcap.services.<xsuaa service instance name>.credentials.url}
+      xsappname:    ${vcap.services.<xsuaa service instance name>.credentials.xsappname}
+      uaadomain:    ${vcap.services.<xsuaa service instance name>.credentials.uaadomain}
+      clientid:     ${vcap.services.<xsuaa service instance name>.credentials.clientid}
+      url:          ${vcap.services.<xsuaa service instance name>.credentials.url}
+    # clientsecret: ${vcap.services.<xsuaa service instance name>.credentials.clientsecret} # required for token-flows api
     
     identity:
-      clientid:  ${vcap.services.<identity service instance name>.credentials.clientid}
-      domain:    ${vcap.services.<identity service instance name>.credentials.domain}
-      url:       ${vcap.services.<identity service instance name>.credentials.url} # can be deleted later
+      clientid:     ${vcap.services.<identity service instance name>.credentials.clientid}
+      domain:       ${vcap.services.<identity service instance name>.credentials.domain}
+      url:          ${vcap.services.<identity service instance name>.credentials.url} # can be deleted later
 ```  
 > Note that the `<xsuaa service instance name>` and `<identity service instance name>` have to be replaced with the service instance name of the respective service instance.
 	

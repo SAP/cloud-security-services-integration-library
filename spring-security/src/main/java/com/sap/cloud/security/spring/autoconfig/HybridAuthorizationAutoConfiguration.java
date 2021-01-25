@@ -23,7 +23,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
  *
  * <p>
  * Can be disabled
- * with {@code @EnableAutoConfiguration(exclude={HybridAuthorizationAutoConfiguration.class})}
+ * with {@code @EnableAutoConfiguration(exclude={HybridIdentityServicesAutoConfiguration.class})}
  * or with property {@code sap.spring.security.hybrid.auto = false}.
  */
 @Configuration

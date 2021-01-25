@@ -5,6 +5,7 @@ sap:
         xsappname: xsapp!t0815
         uaadomain: localhost
         clientid: sb-clientId!t0815
+        clientsecret: pwd
         url: http://localhost
 
       identity:
