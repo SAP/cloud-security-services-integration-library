@@ -238,6 +238,7 @@ In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-
 and provide these details:
 - security related dependencies, get maven dependency tree with `mvn dependency:tree`
 - [debug logs](#increase-log-level-to-debug)
+- [(SAP) Java buildpack version, e.g. 1.26.1](/java-security#get-buildpack-version)
 - issue you’re facing.
 
 ### Increase log level to `DEBUG`
