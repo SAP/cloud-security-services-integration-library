@@ -8,14 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
@@ -46,7 +44,10 @@ class HybridIdentityServicesAutoConfiguration {
     @ConditionalOnMissingBean({JwtDecoder.class})
     @ConditionalOnWebApplication(type = SERVLET)
     static class JwtDecoderConfigurations {
-        JwtDecoderConfigurations() {
+        XsuaaServiceConfigurations xsuaaConfigs;
+
+        JwtDecoderConfigurations(XsuaaServiceConfigurations xsuaaConfigs) {
+            this.xsuaaConfigs = xsuaaConfigs;
         }
 
         @Bean
@@ -60,8 +61,9 @@ class HybridIdentityServicesAutoConfiguration {
         }
 
         @Bean
+        @Primary
         @ConditionalOnProperty("sap.security.services.xsuaa[0].uaadomain")
-        public JwtDecoder hybridJwtDecoderMultiXsuaaServices(XsuaaServiceConfigurations xsuaaConfigs, IdentityServiceConfiguration identityConfig) {
+        public JwtDecoder hybridJwtDecoderMultiXsuaaServices(IdentityServiceConfiguration identityConfig) {
             LOGGER.debug("auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances.");
             return new JwtDecoderBuilder()
                     .withIasServiceConfiguration(identityConfig)

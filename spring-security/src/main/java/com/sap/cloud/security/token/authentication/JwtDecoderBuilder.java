@@ -114,7 +114,7 @@ public class JwtDecoderBuilder {
                 .withHttpClient(httpClient);
         int index = 0;
         for (OAuth2ServiceConfiguration xsuaaConfig: xsuaaConfigurations) {
-            if (index != 0) {
+            if (index++ != 0) {
                 xsuaaValidatorBuilder.configureAnotherServiceInstance(xsuaaConfig);
             }
         }

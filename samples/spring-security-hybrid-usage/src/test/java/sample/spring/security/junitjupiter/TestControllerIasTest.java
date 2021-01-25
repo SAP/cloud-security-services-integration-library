@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ import static sample.spring.security.util.MockBearerTokenRequestPostProcessor.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-//@TestPropertySource are provided with /resources/application.yml
+@ActiveProfiles("multixsuaa") // properties are provided with /resources/application-multixsuaa.yml
 @ExtendWith(IasExtension.class)
 class TestControllerIasTest {
 

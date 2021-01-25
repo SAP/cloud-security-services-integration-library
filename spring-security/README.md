@@ -244,10 +244,21 @@ Finally, you need do re-deploy your application for the changes to take effect.
 ### Known issues
 
 #### Multiple XSUAA Bindings (broker & application)  
-If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), 
+If your application binds to two XSUAA service instances (e.g. one of plan `application` and another one of plan `broker`), 
 you may run into audience validation issue.
 
-TODO: explain solution.
+Consequently, you have to map the properties to `VCAP_SERVICES` differently. Go to `application.xml` and apply the following two changes:
+1. provide instead of `sap.security.services.xsuaa` `sap.security.services.xsuaa[0]` and 
+2. provide additional the client-id of the other xsuaa service(s)
+
+Finally, it should look as following:
+````yaml
+ sap.security.services:
+       xsuaa[0]:
+            ...
+       xsuaa[1]:
+         clientid:  ${vcap.services.<other xsuaa service instance name>.credentials.clientid}
+````
 
 #### Configuration property name vcap.services.<<xsuaa instance name>>.credentials is not valid
 We recognized that this error is raised, when your instance name contains upper cases.

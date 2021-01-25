@@ -15,7 +15,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class HybridJwtDecoderAutoConfigurationTest {
+class HybridJwtDecoderAutoConfigurationTest {
     private final List<String> properties = new ArrayList<>();
     private WebApplicationContextRunner runner;
 
