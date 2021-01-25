@@ -29,7 +29,7 @@ class HybridIdentityServicesAutoConfigurationTest {
         properties.add("sap.security.services.identity.clientid:cid");
 
         runner = new WebApplicationContextRunner()
-                .withPropertyValues(properties.toArray(new String[6]))
+                .withPropertyValues(properties.toArray(new String[0]))
                 .withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
     }
 
@@ -67,7 +67,7 @@ class HybridIdentityServicesAutoConfigurationTest {
         mt_properties.add("sap.security.services.identity.clientid:cid");
 
         mt_runner = new WebApplicationContextRunner()
-                .withPropertyValues(mt_properties.toArray(new String[6]))
+                .withPropertyValues(mt_properties.toArray(new String[0]))
                 .withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
 
         mt_runner.run(context -> {
@@ -91,7 +91,7 @@ class HybridIdentityServicesAutoConfigurationTest {
         mt_properties.add("sap.security.services.identity.clientid:cid");
 
         mt_runner = new WebApplicationContextRunner()
-                .withPropertyValues(mt_properties.toArray(new String[6]))
+                .withPropertyValues(mt_properties.toArray(new String[0]))
                 .withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
 
         mt_runner.run(context -> {
