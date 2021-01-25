@@ -15,7 +15,7 @@
  */
 package sample.spring.security;
 
-import com.sap.cloud.security.token.authentication.AuthenticationToken;
+import com.sap.cloud.security.spring.token.authentication.AuthenticationToken;
 import com.sap.cloud.security.token.TokenClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

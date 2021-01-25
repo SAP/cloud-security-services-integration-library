@@ -43,7 +43,7 @@ You may have code parts that uses the `SpringSecurityContext` to get the token. 
 ````
 to
 ````java
-import com.sap.cloud.security.token.SpringSecurityContext;
+
 ````
 
 #### `Token` methods

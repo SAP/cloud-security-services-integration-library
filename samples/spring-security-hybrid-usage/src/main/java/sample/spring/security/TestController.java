@@ -3,7 +3,6 @@ package sample.spring.security;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;

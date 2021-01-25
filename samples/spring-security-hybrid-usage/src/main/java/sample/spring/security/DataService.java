@@ -1,7 +1,7 @@
 package sample.spring.security;
 
-import com.sap.cloud.security.config.XsuaaServiceConfiguration;
-import com.sap.cloud.security.token.SpringSecurityContext;
+import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
+import com.sap.cloud.security.spring.token.SpringSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
