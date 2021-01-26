@@ -30,7 +30,7 @@ from getpass import getpass
 # If the script is made executable, it can be started with cd
 # It can also be started like so: python3 ./deploy_and_test.py
 # By default it will run all unit tests.
-# It is also possible to run specific test classes:
+# It is also possible to run specific test classes (if no token is required):
 # python3 -m unittest deploy_and_test.TestJavaSecurity.test_hello_java_security
 # This would only the run the test called 'test_hello_java_security'
 # inside the test class 'TestJavaSecurity' inside the deploy_and_test.py file.
@@ -101,6 +101,13 @@ class SampleTest(abc.ABC, unittest.TestCase):
             exit()
         return self.__perform_get_request(path=path, access_token=access_token, additional_headers=additional_headers)
 
+    def perform_get_request_with_ias_token(self, path, additional_headers={}):
+        id_token = self.get_id_token().get('id_token')
+        if (id_token is None):
+            logging.error("Cannot continue without id token")
+            exit()
+        return self.__perform_get_request(path=path, access_token=id_token, additional_headers=additional_headers)
+
     def get_deployed_app(self):
         if (self.__deployed_app is None):
             deployed_app = self.cf_apps.app_by_name(self.get_app().name)
@@ -112,6 +119,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
 
     def get_token(self):
         deployed_app = self.get_deployed_app()
+        logging.info('GET xsuaa token to {} for user {} ({}, {})'.format(deployed_app.xsuaa_service_url, self.credentials.username, deployed_app.clientid, deployed_app.clientsecret))
         return HttpUtil().get_token(
             xsuaa_service_url=deployed_app.xsuaa_service_url,
             clientid=deployed_app.clientid,
@@ -119,6 +127,17 @@ class SampleTest(abc.ABC, unittest.TestCase):
             grant_type='password',
             username=self.credentials.username,
             password=self.credentials.password + self.__get_2factor_auth_code())
+
+    def get_id_token(self):
+        deployed_app = self.get_deployed_app()
+        logging.info('GET id token to {} for user {} ({}, {})'.format(deployed_app.ias_service_url, self.credentials.username, deployed_app.ias_clientid, deployed_app.ias_clientsecret))
+        return HttpUtil().get_id_token(
+            ias_service_url=deployed_app.ias_service_url + '/oauth2/token',
+            clientid=deployed_app.ias_clientid,
+            clientsecret=deployed_app.ias_clientsecret,
+            grant_type='password',
+            username=self.credentials.username,
+            password=self.credentials.password)
 
     def __get_api_access(self):
         if (self.__api_access is None):
@@ -188,8 +207,34 @@ class TestJavaSecurity(SampleTest):
         self.assertRegex(resp.body, self.credentials.username, "Did not find username '{}' in response body".format(self.credentials.username))
         self.assertRegex(resp.body, expected_scope, "Expected to find scope '{}' in response body: ".format(expected_scope))
 
+class TestSpringSecurityHybrid(SampleTest):
 
-class TestSpringSecurity(SampleTest):
+    def get_app(self):
+        return CFApp(name='spring-security-hybrid-usage', xsuaa_service_name='xsuaa-authn', identity_service_name='ias-authn')
+
+    def test_sayHello(self):
+        resp = self.perform_get_request('/sayHello')
+        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+
+        resp = self.perform_get_request_with_token('/sayHello')
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+
+        resp = self.perform_get_request_with_ias_token('/sayHello')
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+
+        self.add_user_to_role('XSUAA-Viewer')
+        resp = self.perform_get_request_with_token('/sayHello')
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        clientid = self.get_deployed_app().get_credentials_property('clientid')
+        self.assertRegex(resp.body, clientid, 'Expected to find clientid in response')
+
+        resp = self.perform_get_request_with_token('/method')
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertRegex(resp.body, 'You got the sensitive data for zone', 'Expected another response.')
+
+
+
+class TestSpringSecurityXsuaa(SampleTest):
 
     def get_app(self):
         return CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication',
@@ -335,6 +380,21 @@ class HttpUtil:
             return json.loads(resp.body)
         else:
             logging.error('Could not retrieve access token')
+            return None
+
+    def get_id_token(self, ias_service_url, clientid, clientsecret, grant_type='password', username=None, password=None):
+        authorization_value = b64encode(bytes("{}:{}".format(clientid, clientsecret), 'utf-8')).decode("ascii")
+        additional_headers={'Authorization': 'Basic ' + authorization_value}
+        post_req_body = urlencode({'grant_type': grant_type,
+                                   'response_type': 'id_token',
+                                   'username': username,
+                                   'password': password}).encode()
+        resp = HttpUtil().post_request(ias_service_url, data=post_req_body, additional_headers=additional_headers)
+        if (resp.is_ok):
+            logging.debug(resp.body)
+            return json.loads(resp.body)
+        else:
+            logging.error('Could not retrieve id token')
             return None
 
     def __add_headers(self, req, access_token, additional_headers):
@@ -501,7 +561,19 @@ class VarsParser:
 class DeployedApp:
     """
         This class parses VCAP_SERVICES (as dictionary) and supplies its content, e.g.:
-    >>> vcap_services = {'xsuaa': [{'label': 'xsuaa', 'provider': None, 'plan': 'application', 'name': 'xsuaa-java-security', 'tags': ['xsuaa'], 'instance_name': 'xsuaa-java-security', 'binding_name': None, 'credentials': {'tenantmode': 'dedicated', 'sburl': 'https://internal-xsuaa.authentication.sap.hana.ondemand.com', 'clientid': 'sb-java-security-usage!t1785', 'xsappname': 'java-security-usage!t1785', 'clientsecret': 'b1GhPeHArXQCimhsCiwOMzT8wOU=', 'url': 'https://saschatest01.authentication.sap.hana.ondemand.com', 'uaadomain': 'authentication.sap.hana.ondemand.com', 'verificationkey': '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx/jN5v1mp/TVn9nTQoYVIUfCsUDHa3Upr5tDZC7mzlTrN2PnwruzyS7w1Jd+StqwW4/vn87ua2YlZzU8Ob0jR4lbOPCKaHIi0kyNtJXQvQ7LZPG8epQLbx0IIP/WLVVVtB8bL5OWuHma3pUnibbmATtbOh5LksQ2zLMngEjUF52JQyzTpjoQkahp0BNe/drlAqO253keiY63FL6belKjJGmSqdnotSXxB2ym+HQ0ShaNvTFLEvi2+ObkyjGWgFpQaoCcGq0KX0y0mPzOvdFsNT+rBFdkHiK+Jl638Sbim1z9fItFbH9hiVwY37R9rLtH1YKi3PuATMjf/DJ7mUluDQIDAQAB-----END PUBLIC KEY-----', 'apiurl': 'https://api.authentication.sap.hana.ondemand.com', 'identityzone': 'saschatest01', 'identityzoneid': '54d48a27-0ff4-42b8-b39e-a2b6df64d78a', 'tenantid': '54d48a27-0ff4-42b8-b39e-a2b6df64d78a'}, 'syslog_drain_url': None, 'volume_mounts': []}]}
+    >>> vcap_services = {'xsuaa': [{'label': 'xsuaa', 'provider': None, 'plan': 'application', 'name': 'xsuaa-java-security', 'tags': ['xsuaa'], 'instance_name': 'xsuaa-java-security', 'binding_name': None, 'credentials': {'tenantmode': 'dedicated', 'sburl': 'https://internal-xsuaa.authentication.sap.hana.ondemand.com', 'clientid': 'sb-java-security-usage!t1785', 'xsappname': 'java-security-usage!t1785', 'clientsecret': 'abc', 'url': 'https://test.authentication.sap.hana.ondemand.com', 'uaadomain': 'authentication.sap.hana.ondemand.com', 'identityzone': 'test01', 'identityzoneid': '54d48a27', 'tenantid': '54d48a27'}, 'syslog_drain_url': None, 'volume_mounts': []}],
+                        'identity': [{'label': 'identity', 'plan': 'application', 'name': 'ias-authn', 'credentials': {'clientid': 'clientid', 'clientsecret': 'efg', 'url': 'https://test.authentication.sap.hana.ondemand.com'}}]}
+    >>> app = DeployedApp(vcap_services)
+    >>> app.get_credentials_property('clientsecret')
+    'b1GhPeHArXQCimhsCiwOMzT8wOU='
+    >>> app.clientsecret
+    'b1GhPeHArXQCimhsCiwOMzT8wOU='
+     >>> app.get_ias_credentials_property('url')
+    """
+
+    """
+        This class parses VCAP_SERVICES (as dictionary) and supplies its content, e.g.:
+    >>> vcap_services = {'identity': [{'label': 'identity', 'application', 'name': 'xsuaa-java-security', 'tags': ['xsuaa'], 'instance_name': 'xsuaa-java-security', 'binding_name': None, 'credentials': {'tenantmode': 'dedicated', 'sburl': 'https://internal-xsuaa.authentication.sap.hana.ondemand.com', 'clientid': 'sb-java-security-usage!t1785', 'xsappname': 'java-security-usage!t1785', 'clientsecret': 'b1GhPeHArXQCimhsCiwOMzT8wOU=', 'url': 'https://saschatest01.authentication.sap.hana.ondemand.com', 'uaadomain': 'authentication.sap.hana.ondemand.com', 'identityzone': 'test01', 'identityzoneid': '54d48a27', 'tenantid': '54d48a27'}, 'syslog_drain_url': None, 'volume_mounts': []}]}
     >>> app = DeployedApp(vcap_services)
     >>> app.get_credentials_property('clientsecret')
     'b1GhPeHArXQCimhsCiwOMzT8wOU='
@@ -513,6 +585,7 @@ class DeployedApp:
     def __init__(self, vcap_services):
         self.vcap_services = vcap_services
         self.xsuaa_properties = self.vcap_services.get('xsuaa')[0]
+        self.ias_properties = self.vcap_services.get('identity')[0]
 
     @property
     def xsuaa_api_url(self):
@@ -530,19 +603,35 @@ class DeployedApp:
     def clientsecret(self):
         return self.get_credentials_property('clientsecret')
 
+    @property
+    def ias_service_url(self):
+        return self.get_ias_credentials_property('url')
+
+    @property
+    def ias_clientid(self):
+        return self.get_ias_credentials_property('clientid')
+
+    @property
+    def ias_clientsecret(self):
+        return self.get_ias_credentials_property('clientsecret')
+
     def get_credentials_property(self, property_name):
         return self.xsuaa_properties.get('credentials').get(property_name)
+
+    def get_ias_credentials_property(self, property_name):
+            return self.ias_properties.get('credentials').get(property_name)
 
     def __str__(self):
         return json.dumps(self.vcap_services, indent=2)
 
 
 class CFApp:
-    def __init__(self, name, xsuaa_service_name, app_router_name=None):
+    def __init__(self, name, xsuaa_service_name, app_router_name=None, identity_service_name=None):
         if (name is None or xsuaa_service_name is None):
-            raise(Exception('Name and xsua service name must be provided'))
+            raise(Exception('Name and xsuua service name must be provided'))
         self.name = name
         self.xsuaa_service_name = xsuaa_service_name
+        self.identity_service_name = identity_service_name
         self.app_router_name = app_router_name
 
     @property
@@ -551,6 +640,8 @@ class CFApp:
 
     def deploy(self):
         subprocess.run(['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', 'xs-security.json'], cwd=self.working_dir)
+        if (self.identity_service_name is not None):
+            subprocess.run(['cf', 'create-service', 'identity', 'application', self.identity_service_name], cwd=self.working_dir)
         subprocess.run(['mvn', 'clean', 'verify'], cwd=self.working_dir)
         subprocess.run(['cf', 'push', '--vars-file', '../vars.yml'], cwd=self.working_dir)
 
@@ -558,12 +649,13 @@ class CFApp:
         subprocess.run(['cf', 'delete', '-f', '-r', self.name])
         if (self.app_router_name is not None):
             subprocess.run(['cf', 'delete', '-f', '-r', self.app_router_name])
-        subprocess.run(
-            ['cf', 'delete-service', '-f', self.xsuaa_service_name])
+        subprocess.run(['cf', 'delete-service', '-f', self.xsuaa_service_name])
+        if (self.identity_service_name is not None):
+            subprocess.run(['cf', 'delete-service', '-f', self.identity_service_name])
 
     def __str__(self):
-        return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}'.format(
-            self.name, self.xsuaa_service_name, self.app_router_name)
+        return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}, Identity-Service-Name: {}'.format(
+            self.name, self.xsuaa_service_name, self.app_router_name, self.identity_service_name)
 
 
 def is_logged_off():

@@ -39,13 +39,14 @@ public class HybridTokenFactory2 implements TokenFactory {
 	 * @return the new token instance
 	 */
 	public Token create(String jwtToken) {
-
 		Objects.requireNonNull(jwtToken, "Requires encoded jwtToken to create a Token instance.");
 		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
 
 		if (isXsuaaToken(decodedJwt)) {
+			LOGGER.debug("Creates xsuaa token");
 			return new XsuaaToken(decodedJwt).withScopeConverter(getOrCreateScopeConverter());
 		}
+		LOGGER.debug("Creates xsuaa token");
 		return new SapIdToken(decodedJwt);
 	}
 
