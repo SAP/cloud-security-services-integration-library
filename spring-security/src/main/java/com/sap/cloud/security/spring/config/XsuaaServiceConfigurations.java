@@ -8,15 +8,15 @@ import java.util.List;
 
 @ConfigurationProperties("sap.security.services")
 public class XsuaaServiceConfigurations {
-    @NestedConfigurationProperty
-    private List<XsuaaServiceConfiguration> xsuaa = new ArrayList<>();
+	@NestedConfigurationProperty
+	private List<XsuaaServiceConfiguration> xsuaa = new ArrayList<>();
 
-    public List<XsuaaServiceConfiguration> getConfigurations() {
-        return this.xsuaa;
-    }
+	public List<XsuaaServiceConfiguration> getConfigurations() {
+		return this.xsuaa;
+	}
 
-    public void setXsuaa(List<XsuaaServiceConfiguration> xsuaa) {
-        this.xsuaa = xsuaa;
-    }
+	public void setXsuaa(List<XsuaaServiceConfiguration> xsuaa) {
+		this.xsuaa = xsuaa;
+	}
 
 }

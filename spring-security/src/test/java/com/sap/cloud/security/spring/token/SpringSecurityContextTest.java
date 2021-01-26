@@ -24,121 +24,121 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-
 class SpringSecurityContextTest {
-    Token xsuaaToken;
-    Token sapIdToken;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+	Token xsuaaToken;
+	Token sapIdToken;
+	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    @BeforeEach
-    void setUp() {
-        xsuaaToken = JwtGenerator.getInstance(XSUAA, "theClientId")
-                .withAppId("xsapp")
-                .withLocalScopes("Scope1").createToken();
-        sapIdToken = JwtGenerator.getInstance(IAS, "theClientId").createToken();
-        SpringSecurityContext.clear();
-    }
+	@BeforeEach
+	void setUp() {
+		xsuaaToken = JwtGenerator.getInstance(XSUAA, "theClientId")
+				.withAppId("xsapp")
+				.withLocalScopes("Scope1").createToken();
+		sapIdToken = JwtGenerator.getInstance(IAS, "theClientId").createToken();
+		SpringSecurityContext.clear();
+	}
 
-    @Test
-    void getSecurityContextRaiseAccessDeniedExceptionIfNotInitialized() {
-        assertThrows(AccessDeniedException.class, SpringSecurityContext::getToken);
-    }
+	@Test
+	void getSecurityContextRaiseAccessDeniedExceptionIfNotInitialized() {
+		assertThrows(AccessDeniedException.class, SpringSecurityContext::getToken);
+	}
 
-    @Test
-    void initSecurityContextRaiseExceptionIfNotHybridJwtDecoder() {
-        String tokenValue = xsuaaToken.getTokenValue();
-        JwtDecoder jwtDecoder = new JwtDecoder() {
-            @Override
-            public Jwt decode(String s) throws JwtException {
-                return HybridJwtDecoder.parseJwt(xsuaaToken);
-            }
-        };
-        assertThrows(IllegalArgumentException.class, () -> {
-            SpringSecurityContext.init(tokenValue, jwtDecoder, Mockito.mock(XsuaaTokenAuthorizationConverter.class));
-        });
-    }
+	@Test
+	void initSecurityContextRaiseExceptionIfNotHybridJwtDecoder() {
+		String tokenValue = xsuaaToken.getTokenValue();
+		JwtDecoder jwtDecoder = new JwtDecoder() {
+			@Override
+			public Jwt decode(String s) throws JwtException {
+				return HybridJwtDecoder.parseJwt(xsuaaToken);
+			}
+		};
+		assertThrows(IllegalArgumentException.class, () -> {
+			SpringSecurityContext.init(tokenValue, jwtDecoder, Mockito.mock(XsuaaTokenAuthorizationConverter.class));
+		});
+	}
 
-    @Test
-    void initSecurityContextRaiseExceptionIfConverterIsNull() {
-        String tokenValue = xsuaaToken.getTokenValue();
-        assertThrows(IllegalArgumentException.class, () -> {
-            SpringSecurityContext.init(tokenValue, Mockito.mock(HybridJwtDecoder.class), null);
-        });
-    }
-    
-    @Test
-    void getToken_fromEmptySecurityContext_isNull() {
-        assertThrows(AccessDeniedException.class, SpringSecurityContext::getAccessToken);
-        assertThrows(AccessDeniedException.class, SpringSecurityContext::getToken);
-    }
+	@Test
+	void initSecurityContextRaiseExceptionIfConverterIsNull() {
+		String tokenValue = xsuaaToken.getTokenValue();
+		assertThrows(IllegalArgumentException.class, () -> {
+			SpringSecurityContext.init(tokenValue, Mockito.mock(HybridJwtDecoder.class), null);
+		});
+	}
 
-    @Test
-    void getToken() {
-        setToken(sapIdToken);
-        assertEquals(sapIdToken, SpringSecurityContext.getToken());
+	@Test
+	void getToken_fromEmptySecurityContext_isNull() {
+		assertThrows(AccessDeniedException.class, SpringSecurityContext::getAccessToken);
+		assertThrows(AccessDeniedException.class, SpringSecurityContext::getToken);
+	}
 
-        setToken(xsuaaToken);
-        assertEquals(xsuaaToken, SpringSecurityContext.getToken());
-    }
+	@Test
+	void getToken() {
+		setToken(sapIdToken);
+		assertEquals(sapIdToken, SpringSecurityContext.getToken());
 
-    @Test
-    void getAccessToken() {
-        setToken(xsuaaToken);
-        assertEquals(xsuaaToken, SpringSecurityContext.getAccessToken());
-    }
+		setToken(xsuaaToken);
+		assertEquals(xsuaaToken, SpringSecurityContext.getToken());
+	}
 
-    @Test
-    void getAccessTokenScopes() {
-        setToken(xsuaaToken);
-        assertFalse(SpringSecurityContext.getAccessToken().hasScope("xsapp.Scope3"));
-        assertTrue(SpringSecurityContext.getAccessToken().hasScope("xsapp.Scope1"));
-    }
+	@Test
+	void getAccessToken() {
+		setToken(xsuaaToken);
+		assertEquals(xsuaaToken, SpringSecurityContext.getAccessToken());
+	}
 
-    @Test
-    void getAccessTokenReturnsNull_inCaseOfIasToken() {
-        setToken(sapIdToken);
-        assertNull(SpringSecurityContext.getAccessToken()); // shall throw exception?
-    }
+	@Test
+	void getAccessTokenScopes() {
+		setToken(xsuaaToken);
+		assertFalse(SpringSecurityContext.getAccessToken().hasScope("xsapp.Scope3"));
+		assertTrue(SpringSecurityContext.getAccessToken().hasScope("xsapp.Scope1"));
+	}
 
-    @Test
-    void getTokenReturnsIasOidcToken() {
-        setToken(sapIdToken);
-        assertEquals(IAS, SpringSecurityContext.getToken().getService());
-        assertEquals("theClientId", SpringSecurityContext.getToken().getClientId());
-    }
+	@Test
+	void getAccessTokenReturnsNull_inCaseOfIasToken() {
+		setToken(sapIdToken);
+		assertNull(SpringSecurityContext.getAccessToken()); // shall throw exception?
+	}
 
-    @Test
-    void clear_removesToken() {
-        setToken(xsuaaToken);
-        SpringSecurityContext.clear();
+	@Test
+	void getTokenReturnsIasOidcToken() {
+		setToken(sapIdToken);
+		assertEquals(IAS, SpringSecurityContext.getToken().getService());
+		assertEquals("theClientId", SpringSecurityContext.getToken().getClientId());
+	}
 
-        assertThrows(AccessDeniedException.class, () -> SpringSecurityContext.getToken());
-        assertThrows(AccessDeniedException.class, () -> SpringSecurityContext.getAccessToken());
-    }
+	@Test
+	void clear_removesToken() {
+		setToken(xsuaaToken);
+		SpringSecurityContext.clear();
 
-    //@Test
-    void tokenNotAvailableInDifferentThread() {
-        setToken(xsuaaToken);
+		assertThrows(AccessDeniedException.class, () -> SpringSecurityContext.getToken());
+		assertThrows(AccessDeniedException.class, () -> SpringSecurityContext.getAccessToken());
+	}
 
-        Future<Token> tokenInOtherThread = executorService.submit(() -> SpringSecurityContext.getToken());
+	// @Test
+	void tokenNotAvailableInDifferentThread() {
+		setToken(xsuaaToken);
 
-        assertThrows(AccessDeniedException.class, () -> tokenInOtherThread.get());
-    }
+		Future<Token> tokenInOtherThread = executorService.submit(() -> SpringSecurityContext.getToken());
 
-    @Test
-    void clearingTokenInDifferentThreadDoesNotAffectMainThread()
-            throws ExecutionException, InterruptedException {
-        setToken(xsuaaToken);
+		assertThrows(AccessDeniedException.class, () -> tokenInOtherThread.get());
+	}
 
-        executorService.submit(() -> SpringSecurityContext.clear()).get(); // run and await other thread
-        assertEquals(xsuaaToken, SpringSecurityContext.getToken());
-    }
+	@Test
+	void clearingTokenInDifferentThreadDoesNotAffectMainThread()
+			throws ExecutionException, InterruptedException {
+		setToken(xsuaaToken);
 
-    private static void setToken(Token token) {
-        HybridJwtDecoder mockJwtDecoder = Mockito.mock(HybridJwtDecoder.class);
-        when(mockJwtDecoder.decode(token.getTokenValue())).thenReturn(HybridJwtDecoder.parseJwt(token));
+		executorService.submit(() -> SpringSecurityContext.clear()).get(); // run and await other thread
+		assertEquals(xsuaaToken, SpringSecurityContext.getToken());
+	}
 
-        // initialize SpringSecurityContext with provided token
-        SpringSecurityContext.init(token.getTokenValue(), mockJwtDecoder, new XsuaaTokenAuthorizationConverter("xsapp"));
-    }
+	private static void setToken(Token token) {
+		HybridJwtDecoder mockJwtDecoder = Mockito.mock(HybridJwtDecoder.class);
+		when(mockJwtDecoder.decode(token.getTokenValue())).thenReturn(HybridJwtDecoder.parseJwt(token));
+
+		// initialize SpringSecurityContext with provided token
+		SpringSecurityContext.init(token.getTokenValue(), mockJwtDecoder,
+				new XsuaaTokenAuthorizationConverter("xsapp"));
+	}
 }

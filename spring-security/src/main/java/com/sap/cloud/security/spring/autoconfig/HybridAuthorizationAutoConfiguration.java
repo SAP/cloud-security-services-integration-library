@@ -18,25 +18,26 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
 
 /**
- * {@link EnableAutoConfiguration} exposes a
- * {@link JwtDecoder}, which is able to decode and validate tokens from Xsuaa and Identity service.
+ * {@link EnableAutoConfiguration} exposes a {@link JwtDecoder}, which is able
+ * to decode and validate tokens from Xsuaa and Identity service.
  *
  * <p>
- * Can be disabled
- * with {@code @EnableAutoConfiguration(exclude={HybridIdentityServicesAutoConfiguration.class})}
+ * Can be disabled with
+ * {@code @EnableAutoConfiguration(exclude={HybridIdentityServicesAutoConfiguration.class})}
  * or with property {@code sap.spring.security.hybrid.auto = false}.
  */
 @Configuration
 @ConditionalOnProperty(name = "sap.spring.security.hybrid.auto", havingValue = "true", matchIfMissing = true)
 @AutoConfigureAfter(HybridIdentityServicesAutoConfiguration.class)
 class HybridAuthorizationAutoConfiguration {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Bean
-    @ConditionalOnMissingBean(XsuaaTokenAuthorizationConverter.class)
-    @ConditionalOnProperty("sap.security.services.xsuaa.xsappname")
-    public Converter<Jwt, AbstractAuthenticationToken> xsuaaAuthConverter(XsuaaServiceConfiguration xsuaaConfig) {
-        logger.debug("auto-configures Converter<Jwt, AbstractAuthenticationToken> with 'xsuaa.xsappname' from XsuaaServiceConfiguration.");
-        return new XsuaaTokenAuthorizationConverter(xsuaaConfig.getProperty(APP_ID));
-    }
+	@Bean
+	@ConditionalOnMissingBean(XsuaaTokenAuthorizationConverter.class)
+	@ConditionalOnProperty("sap.security.services.xsuaa.xsappname")
+	public Converter<Jwt, AbstractAuthenticationToken> xsuaaAuthConverter(XsuaaServiceConfiguration xsuaaConfig) {
+		logger.debug(
+				"auto-configures Converter<Jwt, AbstractAuthenticationToken> with 'xsuaa.xsappname' from XsuaaServiceConfiguration.");
+		return new XsuaaTokenAuthorizationConverter(xsuaaConfig.getProperty(APP_ID));
+	}
 }

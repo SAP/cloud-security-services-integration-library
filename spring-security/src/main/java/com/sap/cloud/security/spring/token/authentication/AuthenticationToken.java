@@ -11,7 +11,8 @@ import java.util.Objects;
 
 /**
  * Internal class used to expose the {@link Token} implementation as the
- * standard Principal for Spring Security Jwt handling. <br><br>
+ * standard Principal for Spring Security Jwt handling. <br>
+ * <br>
  *
  * The {@link Token} instance is accessible via the Security Context:
  *
@@ -22,51 +23,53 @@ import java.util.Objects;
  *
  */
 public class AuthenticationToken extends JwtAuthenticationToken {
-    private static final long serialVersionUID = -3779129534612771294L;
-    private final Token token;
+	private static final long serialVersionUID = -3779129534612771294L;
+	private final Token token;
 
-    /**
-     * Creates
-     * @param jwt Spring Security's representation of the jwt token
-     * @param grantedAuthorities
-     *      the authorities that were extracted by Spring Security frameworks and
-     *      potentially modified by the application.
-     *
-     */
-    public AuthenticationToken(Jwt jwt, Collection<GrantedAuthority> grantedAuthorities) {
-        super(jwt, grantedAuthorities);
-        Assert.notNull(getToken().getTokenValue(), "Jwt needs to provide a token value.");
-        this.token = Token.create(getToken().getTokenValue());
-    }
+	/**
+	 * Creates
+	 * 
+	 * @param jwt
+	 *            Spring Security's representation of the jwt token
+	 * @param grantedAuthorities
+	 *            the authorities that were extracted by Spring Security frameworks
+	 *            and potentially modified by the application.
+	 *
+	 */
+	public AuthenticationToken(Jwt jwt, Collection<GrantedAuthority> grantedAuthorities) {
+		super(jwt, grantedAuthorities);
+		Assert.notNull(getToken().getTokenValue(), "Jwt needs to provide a token value.");
+		this.token = Token.create(getToken().getTokenValue());
+	}
 
-    @Override
-    public Object getPrincipal() {
-        return token;
-    }
+	@Override
+	public Object getPrincipal() {
+		return token;
+	}
 
-    @Override
-    public String getName() {
-       return token.getPrincipal().getName(); // TODO is that correct?
-    }
+	@Override
+	public String getName() {
+		return token.getPrincipal().getName(); // TODO is that correct?
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj != null && this.getClass() != obj.getClass()) {
-            return false;
-        }
-        if (obj == null) {
-            return false;
-        }
-        AuthenticationToken that = (AuthenticationToken) obj;
-        return this.token.equals(that.token) && this.getAuthorities().equals(that.getAuthorities());
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj != null && this.getClass() != obj.getClass()) {
+			return false;
+		}
+		if (obj == null) {
+			return false;
+		}
+		AuthenticationToken that = (AuthenticationToken) obj;
+		return this.token.equals(that.token) && this.getAuthorities().equals(that.getAuthorities());
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), getToken());
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), getToken());
+	}
 
 }

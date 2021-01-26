@@ -27,81 +27,85 @@ import javax.annotation.Nullable;
  */
 public class SpringSecurityContext {
 
-    private SpringSecurityContext() {
-    }
+	private SpringSecurityContext() {
+	}
 
-    /**
-     * Obtain the Token object using {@link SecurityContextHolder}.
-     *
-     *
-     * @return Token instance or <code>null</code> if {@link SecurityContext} is empty or
-     *         does not contain a token of this type.
-     * @throws AccessDeniedException
-     *             in case there is no token, user is not authenticated
-     *             <p>
-     *             Note: This method is introduced with xsuaa spring client lib.
-     */
-    @Nullable
-    public static Token getToken() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new AccessDeniedException("Access forbidden: not authenticated");
-        }
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof Token) {
-            return (Token) principal;
-        }
-        throw new AccessDeniedException(
-                "Access forbidden: SecurityContextHolder does not contain a principal of type 'Token' " + principal);
-    }
+	/**
+	 * Obtain the Token object from {@link SecurityContextHolder}.
+	 *
+	 *
+	 * @return Token instance or <code>null</code> if {@link SecurityContext} is
+	 *         empty or does not contain a token of this type.
+	 * @throws AccessDeniedException
+	 *             in case there is no token, user is not authenticated
+	 *             <p>
+	 *             Note: This method is introduced with xsuaa spring client lib.
+	 */
+	@Nullable
+	public static Token getToken() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			throw new AccessDeniedException("Access forbidden: not authenticated");
+		}
+		Object principal = authentication.getPrincipal();
+		if (principal instanceof Token) {
+			return (Token) principal;
+		}
+		throw new AccessDeniedException(
+				"Access forbidden: SecurityContextHolder does not contain a principal of type 'Token' " + principal);
+	}
 
-    /**
-     * Obtain the Access Token from xsuaa service using {@link SecurityContextHolder}.
-     *
-     *
-     * @return AccessToken instance or <code>null</code> if {@link SecurityContext} is empty or
-     *         does not contain a token of this type.
-     * @throws AccessDeniedException
-     *             in case there is no token, user is not authenticated
-     *             <p>
-     *             Note: This method is introduced with xsuaa spring client lib.
-     */
-    @Nullable
-    public static AccessToken getAccessToken() {
-        Token token = getToken();
-        return token instanceof AccessToken ? (AccessToken) token : null;
-    }
+	/**
+	 * Obtain the Access Token from xsuaa service from
+	 * {@link SecurityContextHolder}.
+	 *
+	 *
+	 * @return AccessToken instance or <code>null</code> if {@link SecurityContext}
+	 *         is empty or does not contain a token of this type.
+	 * @throws AccessDeniedException
+	 *             in case there is no token, user is not authenticated
+	 *             <p>
+	 *             Note: This method is introduced with xsuaa spring client lib.
+	 */
+	@Nullable
+	public static AccessToken getAccessToken() {
+		Token token = getToken();
+		return token instanceof AccessToken ? (AccessToken) token : null;
+	}
 
-    /**
-     * Cleans up the Spring Security Context {@link SecurityContextHolder} and
-     * release thread locals for Garbage Collector to avoid memory leaks resources.
-     */
-    public static void clear() {
-        SecurityContextHolder.clearContext();
-    }
+	/**
+	 * Cleans up the Spring Security Context {@link SecurityContextHolder} and
+	 * release thread locals for Garbage Collector to avoid memory leaks resources.
+	 */
+	public static void clear() {
+		SecurityContextHolder.clearContext();
+	}
 
-    /**
-     * Initializes the Spring Security Context {@link SecurityContextHolder} and
-     * extracts the authorities.
-     *
-     * @param encodedToken
-     *            the jwt token that is decoded with the given JwtDecoder
-     * @param jwtDecoder
-     *            the decoder of type {@link JwtDecoder}
-     * @param authConverter
-     *            the authorization converter of type {@code Converter<Jwt, AbstractAuthenticationToken>} e.g. {@link XsuaaTokenAuthorizationConverter}
-     */
-    public static void init(String encodedToken, JwtDecoder jwtDecoder, Converter<Jwt, AbstractAuthenticationToken> authConverter) {
-        Assert.isInstanceOf(HybridJwtDecoder.class, jwtDecoder,
-                "Passed JwtDecoder instance must be of type 'HybridJwtDecoder'");
-        Assert.notNull(authConverter,
-                "Passed converter must not be null");
-        Jwt jwtToken = jwtDecoder.decode(encodedToken);
+	/**
+	 * Initializes the Spring Security Context {@link SecurityContextHolder} and
+	 * extracts the authorities.
+	 *
+	 * @param encodedToken
+	 *            the jwt token that is decoded with the given JwtDecoder
+	 * @param jwtDecoder
+	 *            the decoder of type {@link JwtDecoder}
+	 * @param authConverter
+	 *            the authorization converter of type
+	 *            {@code Converter<Jwt, AbstractAuthenticationToken>} e.g.
+	 *            {@link XsuaaTokenAuthorizationConverter}
+	 */
+	public static void init(String encodedToken, JwtDecoder jwtDecoder,
+			Converter<Jwt, AbstractAuthenticationToken> authConverter) {
+		Assert.isInstanceOf(HybridJwtDecoder.class, jwtDecoder,
+				"Passed JwtDecoder instance must be of type 'HybridJwtDecoder'");
+		Assert.notNull(authConverter,
+				"Passed converter must not be null");
+		Jwt jwtToken = jwtDecoder.decode(encodedToken);
 
-        Authentication authentication = authConverter.convert(jwtToken);
+		Authentication authentication = authConverter.convert(jwtToken);
 
-        SecurityContextHolder.createEmptyContext();
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
+		SecurityContextHolder.createEmptyContext();
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
 
 }
