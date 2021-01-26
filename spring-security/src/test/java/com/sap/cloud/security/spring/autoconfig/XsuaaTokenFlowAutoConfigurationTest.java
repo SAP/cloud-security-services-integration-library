@@ -55,21 +55,15 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	}
 
 	@Test
-	void autoConfigurationDisabledForMultipleXsuaaServices() {
-		List<String> mt_properties = new ArrayList<>();
+	void autoConfigurationDisabledWhenNoClientSecretIsGiven() {
 		WebApplicationContextRunner mt_runner;
 
-		mt_properties.add("sap.security.services.xsuaa[0].url:http://localhost");
-		mt_properties.add("sap.security.services.xsuaa[0].clientid:cid");
-		mt_properties.add("sap.security.services.xsuaa[0].clientsecret:pwd");
-
 		mt_runner = new WebApplicationContextRunner()
-				.withPropertyValues(mt_properties.toArray(new String[0]))
 				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class,
 						XsuaaTokenFlowAutoConfiguration.class));
 
 		mt_runner.run(context -> {
-			assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class));
+			assertFalse(context.containsBean("xsuaaTokenFlows"));
 		});
 	}
 

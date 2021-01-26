@@ -8,10 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -43,6 +42,7 @@ class XsuaaTokenFlowAutoConfiguration {
 	}
 
 	@Bean
+	@Conditional(PropertyConditions.class)
 	public XsuaaTokenFlows xsuaaTokenFlows() {
 		logger.debug("auto-configures XsuaaTokenFlows.");
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig.getUrl());
@@ -50,5 +50,20 @@ class XsuaaTokenFlowAutoConfiguration {
 				xsuaaConfig.getClientSecret());
 		OAuth2TokenService oAuth2TokenService = new DefaultOAuth2TokenService();
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCredentials);
+	}
+
+	private static class PropertyConditions extends AnyNestedCondition {
+
+		public PropertyConditions() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@ConditionalOnProperty(prefix = "sap.security.services", name = "xsuaa[0].clientsecret")
+		static class MultipleBindingsCondition {
+		}
+
+		@ConditionalOnProperty(prefix = "sap.security.services", name = "xsuaa.clientsecret")
+		static class SingleBindingCondition {
+		}
 	}
 }
