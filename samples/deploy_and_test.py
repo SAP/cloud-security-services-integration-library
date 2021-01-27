@@ -584,7 +584,8 @@ class DeployedApp:
     def __init__(self, vcap_services):
         self.vcap_services = vcap_services
         self.xsuaa_properties = self.vcap_services.get('xsuaa')[0]
-        self.ias_properties = self.vcap_services.get('identity')[0]
+        if(self.vcap_services.get('identity') is not None):
+            self.ias_properties = self.vcap_services.get('identity')[0]
 
     @property
     def xsuaa_api_url(self):
