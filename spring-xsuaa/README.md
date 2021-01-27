@@ -30,7 +30,6 @@ These (spring) dependencies needs to be provided:
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-to-slf4j</artifactId>
-    <version>2.11.2</version>
 </dependency>
 ```
 
