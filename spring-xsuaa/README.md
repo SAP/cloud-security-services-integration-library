@@ -25,12 +25,11 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>2.8.3</version>
+    <version>2.8.4</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-to-slf4j</artifactId>
-    <version>2.11.2</version>
 </dependency>
 ```
 
@@ -40,7 +39,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.8.3</version>
+    <version>2.8.4</version>
 </dependency>
 ```
 
@@ -238,6 +237,7 @@ In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-
 and provide these details:
 - security related dependencies, get maven dependency tree with `mvn dependency:tree`
 - [debug logs](#increase-log-level-to-debug)
+- [(SAP) Java buildpack version, e.g. 1.26.1](/java-security#get-buildpack-version)
 - issue you’re facing.
 
 ### Increase log level to `DEBUG`
