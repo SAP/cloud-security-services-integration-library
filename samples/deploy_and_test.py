@@ -212,14 +212,11 @@ class TestSpringSecurityHybrid(SampleTest):
     def get_app(self):
         return CFApp(name='spring-security-hybrid-usage', xsuaa_service_name='xsuaa-authn', identity_service_name='ias-authn')
 
-    def test_sayHello(self):
+    def test_sayHello_xsuaa(self):
         resp = self.perform_get_request('/sayHello')
         self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
 
         resp = self.perform_get_request_with_token('/sayHello')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
-
-        resp = self.perform_get_request_with_ias_token('/sayHello')
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
         self.add_user_to_role('XSUAA-Viewer')
@@ -232,6 +229,9 @@ class TestSpringSecurityHybrid(SampleTest):
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
         self.assertRegex(resp.body, 'You got the sensitive data for zone', 'Expected another response.')
 
+    def test_sayHello_ias(self):
+        resp = self.perform_get_request_with_ias_token('/sayHello')
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
 
 class TestSpringSecurityXsuaa(SampleTest):
@@ -561,14 +561,13 @@ class VarsParser:
 class DeployedApp:
     """
         This class parses VCAP_SERVICES (as dictionary) and supplies its content, e.g.:
-    >>> vcap_services = {'xsuaa': [{'label': 'xsuaa', 'provider': None, 'plan': 'application', 'name': 'xsuaa-java-security', 'tags': ['xsuaa'], 'instance_name': 'xsuaa-java-security', 'binding_name': None, 'credentials': {'tenantmode': 'dedicated', 'sburl': 'https://internal-xsuaa.authentication.sap.hana.ondemand.com', 'clientid': 'sb-java-security-usage!t1785', 'xsappname': 'java-security-usage!t1785', 'clientsecret': 'abc', 'url': 'https://test.authentication.sap.hana.ondemand.com', 'uaadomain': 'authentication.sap.hana.ondemand.com', 'identityzone': 'test01', 'identityzoneid': '54d48a27', 'tenantid': '54d48a27'}, 'syslog_drain_url': None, 'volume_mounts': []}],
-                        'identity': [{'label': 'identity', 'plan': 'application', 'name': 'ias-authn', 'credentials': {'clientid': 'clientid', 'clientsecret': 'efg', 'url': 'https://test.authentication.sap.hana.ondemand.com'}}]}
+    >>> vcap_services = {'xsuaa': [{'label': 'xsuaa', 'provider': None, 'plan': 'application', 'name': 'xsuaa-java-security', 'tags': ['xsuaa'], 'instance_name': 'xsuaa-java-security', 'binding_name': None, 'credentials': {'tenantmode': 'dedicated', 'sburl': 'https://internal-xsuaa.authentication.sap.hana.ondemand.com', 'clientid': 'sb-java-security-usage!t1785', 'xsappname': 'java-security-usage!t1785', 'clientsecret': 'abc', 'url': 'https://test.authentication.sap.hana.ondemand.com', 'uaadomain': 'authentication.sap.hana.ondemand.com', 'identityzone': 'test01', 'identityzoneid': '54d48a27', 'tenantid': '54d48a27'}, 'syslog_drain_url': None, 'volume_mounts': []}],'identity': [{'label': 'identity', 'plan': 'application', 'name': 'ias-authn', 'credentials': {'clientid': 'clientid', 'clientsecret': 'efg', 'url': 'https://test.authentication.sap.hana.ondemand.com'}}]}
     >>> app = DeployedApp(vcap_services)
     >>> app.get_credentials_property('clientsecret')
     'b1GhPeHArXQCimhsCiwOMzT8wOU='
     >>> app.clientsecret
     'b1GhPeHArXQCimhsCiwOMzT8wOU='
-     >>> app.get_ias_credentials_property('url')
+    >>> app.get_ias_credentials_property('url')
     """
 
     """
@@ -650,8 +649,8 @@ class CFApp:
         if (self.app_router_name is not None):
             subprocess.run(['cf', 'delete', '-f', '-r', self.app_router_name])
         subprocess.run(['cf', 'delete-service', '-f', self.xsuaa_service_name])
-        if (self.identity_service_name is not None):
-            subprocess.run(['cf', 'delete-service', '-f', self.identity_service_name])
+        #if (self.identity_service_name is not None):
+            #subprocess.run(['cf', 'delete-service', '-f', self.identity_service_name])
 
     def __str__(self):
         return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}, Identity-Service-Name: {}'.format(
