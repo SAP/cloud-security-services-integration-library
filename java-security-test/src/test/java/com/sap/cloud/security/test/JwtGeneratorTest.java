@@ -10,7 +10,6 @@ import com.sap.cloud.security.token.TokenHeader;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import sun.security.rsa.RSAPublicKeyImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +18,7 @@ import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -97,7 +97,7 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsString(SAP_GLOBAL_USER_ID)).isEqualTo("1234567890");
 		assertThat(token.getPrincipal().getName()).isEqualTo("1234567890");
 		String encodedModulusN = Base64.getUrlEncoder()
-				.encodeToString(((RSAPublicKeyImpl) keys.getPublic()).getModulus().toByteArray());
+				.encodeToString(((RSAPublicKey) keys.getPublic()).getModulus().toByteArray());
 		assertThat(encodedModulusN).startsWith("AJtUGmczI7RHx3");
 	}
 
