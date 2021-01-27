@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.8.4
+- [all]
+  - commons-io 2.6 --> 2.8.0
+  - javax.servlet-api 3.1.0 --> 4.0.1
+  - org.apache.httpcomponents » httpclient 4.5.9 --> 4.5.13
+  - org.springframework » spring-beans 5.3.2 --> 5.3.3
+- [java-security-test]
+  - org.eclipse.jetty 9.4.35.v20201120 --> 11.0.0
+- [token-client]
+  - caffeine 2.8.6 --> 2.8.8
+  - org.json 20200518 --> 20201115
+  - mockito-core 1.9.5 --> 3.7.7
+  
+
 ## 2.8.3
 - [java-api] ``AccessToken`` exposes the ```getSubaccountId()``` method. Further information about the usage of ```getSubaccountId()``` and ```getZoneId()``` can be read [here](https://github.com/SAP-samples/teched2020-DEV263#changed-api-for-multi-tenant-applications-to-determine-tenant-identifier-getsubaccountid-replaced-by-getzoneid).
 - [java-api] [java-security] allows hybrid token creation via `Token.create(String encodedToken)`. The feature is available when using token authenticator. 
