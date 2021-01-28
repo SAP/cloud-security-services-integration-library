@@ -234,7 +234,7 @@ class TestSpringSecurityHybrid(SampleTest):
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
 
-class TestSpringSecurityXsuaa(SampleTest):
+class TestSpringSecurity(SampleTest):
 
     def get_app(self):
         return CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication',
@@ -268,6 +268,16 @@ class TestSpringSecurityXsuaa(SampleTest):
         pathWithRefreshToken = '/v3/requestRefreshToken/' + token.get('refresh_token')
         resp = self.perform_get_request_with_token(pathWithRefreshToken)
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+
+    def test_sayHello_ias(self):
+        resp = self.perform_get_request_with_id_token('/v1/sayHello')
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+
+        self.add_user_to_role('Viewer', 'sap.custom')
+        resp = self.perform_get_request_with_id_token('/v1/sayHello')
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        xsappname = self.get_deployed_app().get_credentials_property('xsappname')
+        self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
 
 
 class TestJavaBuildpackApiUsage(SampleTest):
@@ -450,9 +460,9 @@ class ApiAccessService:
             self.__panic_user_not_found(username)
         return users[0]
 
-    def add_user_to_group(self, user_id, group_name):
+    def add_user_to_group(self, user_id, group_name, origin='sap.default'):
         post_req_body = json.dumps(
-            {'value': user_id, 'origin': 'ldap', 'type': 'USER'}).encode()
+            {'value': user_id, 'origin': origin, 'type': 'USER'}).encode()
         url = '{}/Groups/{}/members'.format(self.xsuaa_api_url, group_name)
         return self.http_util.post_request(url, data=post_req_body,
                                            access_token=self.__get_access_token(),
