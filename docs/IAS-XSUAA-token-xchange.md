@@ -52,7 +52,7 @@ Call the secured endpoint with the IAS token like in the example below
    ```
 You should receive an authorized response, if everything works fine.
 
-:interrobang: In case of 403 error, check if the user has required role assigned. 
+:interrobang: In case of 403 error, check if the user has required role assigned. Make sure the role is assigned to user in the Identity Provider that has established trust with Xsuaa.
    
 ## Further details
 The **IAS ID token** has following claims:
