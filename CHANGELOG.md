@@ -2,11 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.8.4
+- [java-security] Make HybridTokenFactory more failure tolerant 
+- [spring-xsuaa-test] Prefills "ext_atr" "enhancer" with XSUAA
+
+#### Update Versions
+- [all]
+  - commons-io 2.6 --> 2.8.0
+  - org.apache.httpcomponents » httpclient 4.5.9 --> 4.5.13
+  - spring.core.version 5.3.2 --> 5.3.3
+  - spring.boot.version 2.4.1 --> 2.4.2
+- [java-security-test]
+  - org.eclipse.jetty 9.4.35.v20201120 --> 9.4.36.v20210114
+- [token-client]
+  - caffeine 2.8.6 --> 2.8.8
+  - org.json 20200518 --> 20201115
+- [spring-xsuaa]
+  - caffeine 2.8.6 --> 2.8.8
+  - reactor-core 	3.3.7.RELEASE --> 3.4.2
+  - log4j-to-slf4j 2.13.3 --> 2.14.0
+  
+  
 ## 2.8.3
 - [java-api] ``AccessToken`` exposes the ```getSubaccountId()``` method. Further information about the usage of ```getSubaccountId()``` and ```getZoneId()``` can be read [here](https://github.com/SAP-samples/teched2020-DEV263#changed-api-for-multi-tenant-applications-to-determine-tenant-identifier-getsubaccountid-replaced-by-getzoneid).
 - [java-api] [java-security] allows hybrid token creation via `Token.create(String encodedToken)`. The feature is available when using token authenticator. 
 - [samples/sap-java-buildpack-api-usage] uses [SAP Java Buildpack BoM](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html).
 - [token-client] `UserTokenFlow` enhances request with `X-zid` header that corresponds to zone id.
+
 ## 2.8.2
 - [java-security]  
   - HOTFIX for ``2.8.1`` version.

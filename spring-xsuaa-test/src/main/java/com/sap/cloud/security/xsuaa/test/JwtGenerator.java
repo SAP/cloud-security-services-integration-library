@@ -466,5 +466,6 @@ public class JwtGenerator {
 
 	protected class ExternalAttrClaim {
 		public String zdn = subdomain;
+		public String enhancer = "XSUAA";
 	}
 }
