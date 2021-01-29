@@ -269,15 +269,15 @@ class TestSpringSecurity(SampleTest):
         resp = self.perform_get_request_with_token(pathWithRefreshToken)
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
 
-    def test_sayHello_ias(self):
-        resp = self.perform_get_request_with_id_token('/v1/sayHello')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+#    def test_sayHello_ias(self):
+#        resp = self.perform_get_request_with_id_token('/v1/sayHello')
+#        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
-        self.add_user_to_role('Viewer', 'sap.custom')
-        resp = self.perform_get_request_with_id_token('/v1/sayHello')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
-        xsappname = self.get_deployed_app().get_credentials_property('xsappname')
-        self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
+#        self.add_user_to_role('Viewer', 'sap.custom')
+#        resp = self.perform_get_request_with_ias_token('/v1/sayHello')
+#        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+#        xsappname = self.get_deployed_app().get_credentials_property('xsappname')
+#        self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
 
 
 class TestJavaBuildpackApiUsage(SampleTest):
