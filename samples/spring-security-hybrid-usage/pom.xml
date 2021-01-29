@@ -36,24 +36,12 @@
         </dependency>
 		<!-- spring security -->
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-oauth2-jose</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-oauth2-resource-server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-autoconfigure</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
-			<artifactId>spring-security</artifactId>
+			<artifactId>resourceserver-security-spring-boot-starter</artifactId>
 			<!--<version>${sap.cloud.security.version}</version>-->
 			<version>1.0.0-SNAPSHOT</version> <!-- TODO-->
 		</dependency>

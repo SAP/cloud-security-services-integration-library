@@ -28,24 +28,12 @@ It fully integrates with [Spring Security OAuth 2.0 Resource Server](https://doc
 These (spring) dependencies needs to be provided:
 ```xml
 <dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-oauth2-jose</artifactId>
-</dependency>
-<dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-security</artifactId>
 </dependency>
 <dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-oauth2-resource-server</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-autoconfigure</artifactId>
-</dependency>
-<dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>spring-security</artifactId>
+    <artifactId>resourceserver-security-spring-boot-starter</artifactId>
     <version>1.0.0-SNAPSHOT</version> <!-- TODO-->
 </dependency>
 ```
