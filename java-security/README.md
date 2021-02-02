@@ -167,16 +167,19 @@ For the integration of different Identity Services the [`TokenAuthenticator`](/j
 
 ### IAS to Xsuaa token exchange
 `XsuaaTokenAuthenticator` supports seamless token exchange between IAS and Xsuaa. Token exchange between IAS and Xsuaa means that calling a web application endpoint with an IAS Token will work like calling the endpoint with Xsuaa Token. This functionality is disabled by default.
-Requirement for token exchange is token-client dependency with all its' transitive dependencies(shouldn't be excluded) in the project.
+Requirement for token exchange is `token-client` dependency with all its' transitive dependencies in the project.
+
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
 </dependency>
 ```
+
 Steps to enable token exchange:
-1. Set environment variable IAS_XSUAA_XCHANGE_ENABLED to any value except false or empty
-2. Make sure token-client is not excluded from the project
+1. Set environment variable `IAS_XSUAA_XCHANGE_ENABLED` to any value except false or empty
+2. Make sure `token-client` is not excluded from the project
+3. In order to leverage the token cache, consider the `token-client` initialization notes [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/README.md#cache)
 
 The authenticator is used in the following [sample](/samples/java-security-usage).
 

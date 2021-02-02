@@ -31,10 +31,10 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 Find an example on how to use the test utilities [here](/samples/java-security-usage).
 
 ### Jwt Generator
-Using `JwtGenerator` you can create tokens of type [`Token`](/java-security/src/main/java/com/sap/cloud/security/token/Token.java), which offers you a `getTokenValue()` method that returns the encoded and signed Jwt token. By default its signed with a random RSA key pair. In case you like to provide the token via `Authorization` header to your application you need to prefix the access token with `Bearer `. 
+Using `JwtGenerator` you can create tokens of type [`Token`](/java-security/src/main/java/com/sap/cloud/security/token/Token.java), which offers you a `getTokenValue()` method that returns the encoded and signed Jwt token. By default its signed with a random RSA key pair (as of version `2.8.1`). In case you like to provide the token via `Authorization` header to your application you need to prefix the access token with `Bearer `. 
 
 ```java
-Token token = JwtGenerator.getInstance(Service.XSUAA)
+Token token = JwtGenerator.getInstance(Service.XSUAA, "client-id")
                                 .withHeaderParameter(TokenHeader.KEY_ID, "key-id") // optional
                                 .withClaimValue(TokenClaims.XSUAA.AUTHORIZATION_PARTY, azp) // optional
                                 .createToken();
