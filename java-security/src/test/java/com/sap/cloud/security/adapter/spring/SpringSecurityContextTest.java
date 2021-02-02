@@ -1,6 +1,5 @@
 package com.sap.cloud.security.adapter.spring;
 
-import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.*;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;

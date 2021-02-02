@@ -32,7 +32,7 @@ public class SpringSecurityContext {
 		if (authentication == null) {
 			throw new AccessDeniedException("Access forbidden: not authenticated");
 		}
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Object principal = authentication.getPrincipal();
 		if (principal instanceof Token) {
 			return (Token) principal;
 		}
