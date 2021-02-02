@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SecurityContextAutoConfigurationTest {
 
     private final WebApplicationContextRunner runner = new WebApplicationContextRunner()
+            .withPropertyValues("sap.spring.security.hybrid.sync_securitycontext:true")
             .withConfiguration(AutoConfigurations.of(SecurityContextAutoConfiguration.class));
 
     @Test

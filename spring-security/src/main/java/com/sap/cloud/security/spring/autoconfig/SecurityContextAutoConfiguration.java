@@ -1,7 +1,6 @@
 package com.sap.cloud.security.spring.autoconfig;
 
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,11 +20,11 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
  */
 @Configuration
 @ConditionalOnProperty(name = "sap.spring.security.hybrid.auto", havingValue = "true", matchIfMissing = true)
-@AutoConfigureAfter(HybridAuthorizationAutoConfiguration.class)
 public class SecurityContextAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(SecurityContextHolderStrategy.class)
+    @ConditionalOnProperty(name = "sap.spring.security.hybrid.sync_securitycontext", havingValue = "true")
     public MethodInvokingFactoryBean methodInvokingFactoryBean() {
         MethodInvokingFactoryBean methodInvokingFactoryBean = new MethodInvokingFactoryBean();
         methodInvokingFactoryBean.setTargetClass(SecurityContextHolder.class);
