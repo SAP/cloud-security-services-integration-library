@@ -145,14 +145,14 @@ In detail `com.sap.cloud.security.xsuaa.token.SpringSecurityContext` wraps the S
 Note that Spring Security Context is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
 
 ### IAS to Xsuaa token exchange
-In case application is required to do token exchange `token-client` with all its' transitive dependencies need to be available(shouldn't be excluded) in the project.
+In case application is required to do token exchange `token-client` with all its' transitive dependencies need to be available (shouldn't be excluded) in the project.
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
 </dependency>
 ```
-To enable token exchange between IAS and XSUAA system environment variable 'IAS_XSUAA_XCHANGE_ENABLED' needs to be provided and enabled. To enable the exchange set the value to any value except 'false' or empty. The exchange between IAS and Xsuaa is disabled by default.
+To enable token exchange between IAS and XSUAA system environment variable `IAS_XSUAA_XCHANGE_ENABLED` needs to be provided and enabled. To enable the exchange set the value to any value except `false or empty. The exchange between IAS and Xsuaa is disabled by default.
 
 To use the token exchange, by default the `bearerTokenResolver` needs to be defined in the application's security configuration in the following manner:
 ```java
@@ -165,6 +165,8 @@ http.authorizeRequests()
 where `xsuaaServiceConfiguration` represents configuration properties from environment.
 
 > Note: if you've already configured a `bearerTokenResolver` using [TokenBrokerResolver](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/extractor/TokenBrokerResolver.java) that supports token exchange between IAS to Xsuaa enabled in the same way like `IasXsuaaExchangeBroker`.
+
+> Note: In order to leverage the token cache, consider the `token-client` initialization notes [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/README.md#cache)
 
 Please check out also our samples:
 - [Spring-security-basic-auth sample](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-basic-auth) for `TokenBrokerResolver` usage with basic authentication method.
