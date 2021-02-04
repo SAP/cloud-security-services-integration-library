@@ -3,6 +3,7 @@ package com.sap.cloud.security.token;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,6 +16,12 @@ import java.util.*;
  * Represents a JSON Web Token (JWT).
  */
 public interface Token extends Serializable {
+	List<TokenFactory> services = new ArrayList() {
+		{
+			ServiceLoader.load(TokenFactory.class).forEach(this::add);
+			LoggerFactory.getLogger(Token.class).info("loaded TokenFactory service providers: {}", this);
+		}
+	};
 
 	/**
 	 * Creates a token instance based on TokenFactory implementation.
@@ -24,9 +31,6 @@ public interface Token extends Serializable {
 	 * @return token instance
 	 */
 	static Token create(String jwt) {
-		List<TokenFactory> services = new ArrayList<>();
-		ServiceLoader<TokenFactory> loader = ServiceLoader.load(TokenFactory.class);
-		loader.forEach(services::add);
 		if (services.isEmpty()) {
 			throw new ProviderNotFoundException("No TokenFactory implementation found in the classpath");
 		}
