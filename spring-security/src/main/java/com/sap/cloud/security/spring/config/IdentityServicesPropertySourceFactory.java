@@ -17,7 +17,7 @@ import org.springframework.core.io.support.PropertySourceFactory;
 
 
 /**
- * Part of Auto Configuration {@link com.sap.cloud.security.spring.autoconfig.HybridIdentityServicesAutoConfiguration}
+ * Part of Auto Configuration {@code HybridIdentityServicesAutoConfiguration}
  *
  * <h2>Example Usage</h2>
  *
