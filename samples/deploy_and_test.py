@@ -69,6 +69,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
         self.cf_apps = CFApps()
         self.__deployed_app = None
         self.__api_access = None
+        self.__ias_access = None
         self.credentials = credentials
 
         self.get_app().deploy()
@@ -78,6 +79,8 @@ class SampleTest(abc.ABC, unittest.TestCase):
         self.get_app().delete()
         if self.__api_access is not None:
             self.__api_access.delete()
+        if self.__ias_access is not None:
+            self.__ias_access.delete()
 
     def add_user_to_role(self, role):
         logging.info('Assigning role collection {} for user {}'.format(role, self.credentials.username))
@@ -90,8 +93,10 @@ class SampleTest(abc.ABC, unittest.TestCase):
 
     def perform_get_request(self, path, username=None, password=None):
         if (username is not None and password is not None):
-            authorization_value = b64encode(bytes(username + ':' + password + self.__get_2factor_auth_code(), 'utf-8')).decode("ascii")
-            return self.__perform_get_request(path=path, additional_headers={'Authorization': 'Basic ' + authorization_value})
+            authorization_value = b64encode(
+                bytes(username + ':' + password + self.__get_2factor_auth_code(), 'utf-8')).decode("ascii")
+            return self.__perform_get_request(path=path,
+                                              additional_headers={'Authorization': 'Basic ' + authorization_value})
         return self.__perform_get_request(path=path)
 
     def perform_get_request_with_token(self, path, additional_headers={}):
@@ -101,11 +106,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
             exit()
         return self.__perform_get_request(path=path, access_token=access_token, additional_headers=additional_headers)
 
-    def perform_get_request_with_ias_token(self, path, additional_headers={}):
-        id_token = self.get_id_token().get('id_token')
-        if (id_token is None):
-            logging.error("Cannot continue without id token")
-            exit()
+    def perform_get_request_with_ias_token(self, path, id_token, additional_headers={}):
         return self.__perform_get_request(path=path, access_token=id_token, additional_headers=additional_headers)
 
     def get_deployed_app(self):
@@ -119,7 +120,10 @@ class SampleTest(abc.ABC, unittest.TestCase):
 
     def get_token(self):
         deployed_app = self.get_deployed_app()
-        logging.info('GET xsuaa token to {} for user {} ({}, {})'.format(deployed_app.xsuaa_service_url, self.credentials.username, deployed_app.clientid, deployed_app.clientsecret))
+        logging.info('GET xsuaa token to {} for user {} ({}, {})'.format(deployed_app.xsuaa_service_url,
+                                                                         self.credentials.username,
+                                                                         deployed_app.clientid,
+                                                                         deployed_app.clientsecret))
         return HttpUtil().get_token(
             xsuaa_service_url=deployed_app.xsuaa_service_url,
             clientid=deployed_app.clientid,
@@ -130,14 +134,22 @@ class SampleTest(abc.ABC, unittest.TestCase):
 
     def get_id_token(self):
         deployed_app = self.get_deployed_app()
-        logging.info('GET id token to {} for user {} ({}, {})'.format(deployed_app.ias_service_url, self.credentials.username, deployed_app.ias_clientid, deployed_app.ias_clientsecret))
-        return HttpUtil().get_id_token(
+
+        logging.info(
+            'GET id token to {} for user {} ({}, {})'.format(deployed_app.ias_service_url, self.credentials.username,
+                                                             deployed_app.ias_clientid, deployed_app.ias_clientsecret))
+        id_token = HttpUtil().get_id_token(
             ias_service_url=deployed_app.ias_service_url + '/oauth2/token',
             clientid=deployed_app.ias_clientid,
             clientsecret=deployed_app.ias_clientsecret,
             grant_type='password',
             username=self.credentials.username,
-            password=self.credentials.password)
+            password=self.credentials.password).get('id_token')
+
+        if id_token is None:
+            logging.error("Cannot continue without id token")
+            exit()
+        return id_token
 
     def __get_api_access(self):
         if (self.__api_access is None):
@@ -147,13 +159,19 @@ class SampleTest(abc.ABC, unittest.TestCase):
                 xsuaa_api_url=deployed_app.xsuaa_api_url)
         return self.__api_access
 
+    def get_ias_access(self, ias_name):
+        if self.__ias_access is None:
+            self.__ias_access = IasAccess(ias_name=ias_name)
+        return self.__ias_access
+
     def __perform_get_request(self, path, access_token=None, additional_headers={}):
         url = 'https://{}-{}.{}{}'.format(
             self.get_app().name,
             self.vars_parser.user_id,
             self.vars_parser.landscape_apps_domain,
             path)
-        logging.info('GET request to {} {}'.format(url, 'with access token: '+ access_token if access_token else 'without access token'))
+        logging.info('GET request to {} {}'.format(url,
+                                                   'with access token: ' + access_token if access_token else 'without access token'))
         resp = HttpUtil().get_request(url, access_token=access_token, additional_headers=additional_headers)
         logging.info('Response: ' + str(resp))
         return resp
@@ -163,6 +181,14 @@ class SampleTest(abc.ABC, unittest.TestCase):
         if (os.getenv('ENABLE_2_FACTOR') is not None):
             auth_code = input("2-Factor Authenticator Code: ") or ""
         return auth_code
+
+    def prompt_user_role_assignment(self):
+        add_user = input(
+            "Can't add user Role Collection to the custom IAS origin. Do you want to add role manually?(y/n)")
+        if add_user.capitalize() == "Y":
+            input("Please add the role 'Viewer' to user {} in SCP Cockpit. Once done press enter to "
+                  "proceed with the test.".format(self.credentials.username))
+
 
 class TestTokenClient(SampleTest):
 
@@ -230,7 +256,7 @@ class TestSpringSecurityHybrid(SampleTest):
         self.assertRegex(resp.body, 'You got the sensitive data for zone', 'Expected another response.')
 
     def test_sayHello_ias(self):
-        resp = self.perform_get_request_with_ias_token('/sayHello')
+        resp = self.perform_get_request_with_ias_token('/sayHello', self.get_id_token)
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
 
@@ -263,21 +289,26 @@ class TestSpringSecurity(SampleTest):
 
         resp = self.perform_get_request_with_token('/v3/requestUserToken')
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
-       
+
         token = self.get_token()
         pathWithRefreshToken = '/v3/requestRefreshToken/' + token.get('refresh_token')
         resp = self.perform_get_request_with_token(pathWithRefreshToken)
         self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
 
-#    def test_sayHello_ias(self):
-#        resp = self.perform_get_request_with_id_token('/v1/sayHello')
-#        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+    def test_sayHello_ias(self):
+        ias_service = self.get_ias_access("ias-spring-sec")
 
-#        self.add_user_to_role('Viewer', 'sap.custom')
-#        resp = self.perform_get_request_with_ias_token('/v1/sayHello')
-#        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
-#        xsappname = self.get_deployed_app().get_credentials_property('xsappname')
-#        self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
+        resp = self.perform_get_request_with_ias_token('/v1/sayHello', ias_service.fetch_ias_token(self))
+        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        self.prompt_user_role_assignment()
+        logging.warning("In case after adding role collection, user is still not authorized. "
+                        "Check in IAS admin panel that the application's '{}' Subject Name Identifier is set to email. "
+                        "Bug: https://jtrack.wdf.sap.corp/browse/NGPBUG-139441 "
+                        .format(ias_service.ias_service_name))
+        resp = self.perform_get_request_with_ias_token('/v1/sayHello', ias_service.fetch_ias_token(self))
+        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        xsappname = self.get_deployed_app().get_credentials_property('xsappname')
+        self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
 
 
 class TestJavaBuildpackApiUsage(SampleTest):
@@ -392,9 +423,11 @@ class HttpUtil:
             logging.error('Could not retrieve access token')
             return None
 
-    def get_id_token(self, ias_service_url, clientid, clientsecret, grant_type='password', username=None, password=None):
+    def get_id_token(self, ias_service_url, clientid, clientsecret, grant_type='password', username=None,
+                     password=None):
         authorization_value = b64encode(bytes("{}:{}".format(clientid, clientsecret), 'utf-8')).decode("ascii")
-        additional_headers={'Authorization': 'Basic ' + authorization_value}
+        additional_headers = {'Authorization': 'Basic ' + authorization_value,
+                              'Content-Type': 'application/x-www-form-urlencoded'}
         post_req_body = urlencode({'grant_type': grant_type,
                                    'response_type': 'id_token',
                                    'username': username,
@@ -404,7 +437,7 @@ class HttpUtil:
             logging.debug(resp.body)
             return json.loads(resp.body)
         else:
-            logging.error('Could not retrieve id token')
+            logging.error('Could not retrieve id token. Error: {} - {}'.format(resp.status, resp.body))
             return None
 
     def __add_headers(self, req, access_token, additional_headers):
@@ -423,6 +456,84 @@ class HttpUtil:
             return HttpUtil.HttpResponse(response=res)
         except HTTPError as error:
             return HttpUtil.HttpResponse.error(error=error)
+
+
+class IasAccess:
+    def __init__(self, ias_name):
+        self.ias_service_key_name = "ias-access-key"
+        self.ias_service_name = ias_name
+        self.ias_service_url = None
+        self.ias_client_id = None
+        self.ias_client_secret = None
+        self.ias_token = None
+        self.__create_ias_service()
+        self.__create_ias_service_key()
+        self.__get_ias_service_key()
+
+    @staticmethod
+    def __extract_json_values(output, key):
+        return output.get(key)
+
+    def __create_ias_service(self):
+        subprocess.call(['cf', 'create-service', 'identity', 'application', self.ias_service_name,
+                         '-c', '{"xsuaa-cross-consumption": "true"}'])
+        self.__wait_service_created()
+
+    def __wait_service_created(self):
+        progress = self.__check_service_progress()
+        timer = 0
+        while not "succeeded" in progress and timer < 280:
+            logging.info("Waited {} seconds for IAS service '{}' to be created".format(timer, self.ias_service_name))
+            time.sleep(7)
+            timer += 7
+            progress = self.__check_service_progress()
+        if timer >= 280:
+            raise Exception("Couldn't create '{}' IAS service, timeout reached")
+        logging.info("'{}' IAS service was created".format(self.ias_service_name))
+
+    def __check_service_progress(self):
+        output = subprocess.run(['cf', 'service', self.ias_service_name], capture_output=True)
+        return output.stdout.decode()
+
+    def __create_ias_service_key(self):
+        logging.info("Creating service-key for {} IAS service with service-key name: {}".format(self.ias_service_name,
+                                                                                                self.ias_service_key_name))
+        subprocess.run(['cf', 'create-service-key', self.ias_service_name,
+                        self.ias_service_key_name])
+
+    def __get_ias_service_key(self):
+        logging.info("Fetching service-key '{}' for '{}' IAS service".format(self.ias_service_name,
+                                                                         self.ias_service_key_name))
+        service_key_output = subprocess.run(
+            ['cf', 'service-key', self.ias_service_name, self.ias_service_key_name], capture_output=True)
+        lines = service_key_output.stdout.decode().split('\n')
+        json_output = json.loads(''.join(lines[1:]))
+        self.ias_client_id = self.__extract_json_values(json_output, 'clientid')
+        self.ias_client_secret = self.__extract_json_values(json_output, 'clientsecret')
+        self.ias_service_url = self.__extract_json_values(json_output, 'url')
+
+    def fetch_ias_token(self, user):
+        logging.info("Fetching IAS token for '{}' IAS service".format(self.ias_service_name))
+        self.ias_token = HttpUtil().get_id_token(
+            ias_service_url=self.ias_service_url + '/oauth2/token',
+            clientid=self.ias_client_id,
+            clientsecret=self.ias_client_secret,
+            grant_type='password',
+            username=user.credentials.username,
+            password=user.credentials.password).get('id_token')
+        if self.ias_token is None:
+            logging.error("Cannot continue without id token")
+            exit()
+        logging.debug("IAS token: {}".format(self.ias_token))
+        return self.ias_token
+
+    def delete(self):
+        logging.info("Deleting service key '{}' for '{}' IAS service".format(self.ias_service_key_name,
+                                                                         self.ias_service_name))
+        subprocess.run(['cf', 'delete-service-key', '-f',
+                        self.ias_service_name, self.ias_service_key_name])
+        logging.info("Deleting {} IAS service".format(self.ias_service_name))
+        subprocess.run(['cf', 'delete-service', '-f', self.ias_service_name])
 
 
 class ApiAccessService:
@@ -629,7 +740,7 @@ class DeployedApp:
         return self.xsuaa_properties.get('credentials').get(property_name)
 
     def get_ias_credentials_property(self, property_name):
-            return self.ias_properties.get('credentials').get(property_name)
+        return self.ias_properties.get('credentials').get(property_name)
 
     def __str__(self):
         return json.dumps(self.vcap_services, indent=2)
@@ -638,7 +749,7 @@ class DeployedApp:
 class CFApp:
     def __init__(self, name, xsuaa_service_name, app_router_name=None, identity_service_name=None):
         if (name is None or xsuaa_service_name is None):
-            raise(Exception('Name and xsuua service name must be provided'))
+            raise (Exception('Name and xsuua service name must be provided'))
         self.name = name
         self.xsuaa_service_name = xsuaa_service_name
         self.identity_service_name = identity_service_name
@@ -649,9 +760,12 @@ class CFApp:
         return './' + self.name
 
     def deploy(self):
-        subprocess.run(['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', 'xs-security.json'], cwd=self.working_dir)
+        subprocess.run(
+            ['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', 'xs-security.json'],
+            cwd=self.working_dir)
         if (self.identity_service_name is not None):
-            subprocess.run(['cf', 'create-service', 'identity', 'application', self.identity_service_name], cwd=self.working_dir)
+            subprocess.run(['cf', 'create-service', 'identity', 'application', self.identity_service_name, '-c',
+                            '{"xsuaa-cross-consumption": "true"}'], cwd=self.working_dir)
         subprocess.run(['mvn', 'clean', 'verify'], cwd=self.working_dir)
         subprocess.run(['cf', 'push', '--vars-file', '../vars.yml'], cwd=self.working_dir)
 
@@ -660,8 +774,8 @@ class CFApp:
         if (self.app_router_name is not None):
             subprocess.run(['cf', 'delete', '-f', '-r', self.app_router_name])
         subprocess.run(['cf', 'delete-service', '-f', self.xsuaa_service_name])
-        #if (self.identity_service_name is not None):
-            #subprocess.run(['cf', 'delete-service', '-f', self.identity_service_name])
+        if self.identity_service_name is not None:
+            subprocess.run(['cf', 'delete-service', '-f', self.identity_service_name])
 
     def __str__(self):
         return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}, Identity-Service-Name: {}'.format(
