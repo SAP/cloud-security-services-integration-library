@@ -10,8 +10,8 @@ applications:
   routes:
     - route: spring-security-hybrid-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
   path: target/spring-security-hybrid-usage.jar
-  #buildpacks:
-  #  - sap_java_buildpack
+  buildpacks:
+    - java_buildpack
   services:
     - xsuaa-authn
     - ias-authn

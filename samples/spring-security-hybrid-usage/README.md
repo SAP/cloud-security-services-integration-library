@@ -59,7 +59,7 @@ You need administrator permissions to create a Groups "Read" in IAS and assign i
 
 ## Access the application
 - create an IAS oidc token via ``password`` grant token flow. For that call the ``oauth2/token`` endpoint of your identity service. You can get the ``url`` and the ``clientid`` and ``clientsecret`` for the Basic Authorization header from ``VCAP_SERVICES``.`identity`.
-- create an XSUAA access token via ``password`` grant token flow. For that call the ``oauth/token`` endpoint of your xsuaa service. You can get the ``url`` and the ``clientid`` and ``clientsecret`` for the Basic Authorization header from ``VCAP_SERVICES``.`xsuaa`.
+- create an XSUAA access token via ``password`` grant token flow. For that call the ``oauth/token`` endpoint of your xsuaa service. You can get the ``url`` and the ``clientid`` and ``clientsecret`` from ``VCAP_SERVICES``.`xsuaa`.
 
 Call the following endpoints with ```Authorization``` header = "Bearer <your IAS/XSUAA token>"
 * `https://spring-security-hybrid-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/sayHello` - GET request that provides token details, but only if token provides expected read permission (scope/groups).

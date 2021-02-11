@@ -9,15 +9,17 @@ import org.springframework.context.annotation.PropertySource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest(classes = { TestConfigurationFromFile.class })
-public class IdentityServicesPropertySourceFactoryTest {
+@SpringBootTest(classes = { MultiXsuaaTestConfigurationFromFile.class })
+public class IdentityServicesPropertySourceFactoryMultiTest {
 
-   @Autowired
-   TestConfigurationFromFile configuration;
-
+    @Autowired
+    MultiXsuaaTestConfigurationFromFile configuration;
 
     @Test
-    public void testInjectedPropertyValues() {
+    public void testInjectedPropertyValues_multiXsuaaBindings() {
+        assertEquals("client-id-broker", configuration.xsuaaBrokerClientId);
+        assertEquals("client-secret-broker", configuration.xsuaaBrokerClientSecret);
+
         assertEquals("client-id", configuration.xsuaaClientId);
         assertEquals("client-secret", configuration.xsuaaClientSecret);
         assertEquals("http://domain.xsuaadomain", configuration.xsuaaUrl);
@@ -33,26 +35,32 @@ public class IdentityServicesPropertySourceFactoryTest {
 }
 
 @Configuration
-@PropertySource(factory = IdentityServicesPropertySourceFactory.class, value = { "classpath:singleXsuaaAndIasBinding.json" })
-class TestConfigurationFromFile {
+@PropertySource(factory = IdentityServicesPropertySourceFactory.class, value = { "classpath:multipleXsuaaAndIasBindings.json" })
+class MultiXsuaaTestConfigurationFromFile {
 
-    @Value("${sap.security.services.xsuaa.url:}")
+    @Value("${sap.security.services.xsuaa[0].url:}")
     public String xsuaaUrl;
 
-    @Value("${sap.security.services.xsuaa.uaadomain:}")
+    @Value("${sap.security.services.xsuaa[0].uaadomain:}")
     public String xsuaaDomain;
 
-    @Value("${sap.security.services.xsuaa.clientid:}")
+    @Value("${sap.security.services.xsuaa[0].clientid:}")
     public String xsuaaClientId;
 
-    @Value("${sap.security.services.xsuaa.clientsecret:}")
+    @Value("${sap.security.services.xsuaa[0].clientsecret:}")
     public String xsuaaClientSecret;
 
-    @Value("${sap.security.services.xsuaa.xsappname:}")
+    @Value("${sap.security.services.xsuaa[0].xsappname:}")
     public String xsuaaAppName;
 
-    @Value("${sap.security.services.xsuaa.unknown:}")
+    @Value("${sap.security.services.xsuaa[0].unknown:}")
     public String unknown;
+
+    @Value("${sap.security.services.xsuaa[1].clientid:}")
+    public String xsuaaBrokerClientId;
+
+    @Value("${sap.security.services.xsuaa[1].clientsecret:}")
+    public String xsuaaBrokerClientSecret;
 
     @Value("${sap.security.services.identity.clientid:}")
     public String identityClientId;

@@ -36,7 +36,7 @@ import org.springframework.core.io.support.PropertySourceFactory;
 public class IdentityServicesPropertySourceFactory implements PropertySourceFactory {
     private static final Logger logger = LoggerFactory.getLogger(IdentityServicesPropertySourceFactory.class);
 
-    protected static final String PREFIX = "sap.security.services";
+    protected static final String PROPERTIES_KEY = "sap.security.services";
     protected static final String XSUAA_PREFIX = "sap.security.services.xsuaa.";
     protected static final String IAS_PREFIX = "sap.security.services.identity.";
 
@@ -60,7 +60,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
         boolean multipleXsuaaServicesBound = environment.getNumberOfXsuaaConfigurations() > 1;
 
         if (environment.getXsuaaConfiguration() != null) {
-            String xsuaaPrefix = multipleXsuaaServicesBound ? PREFIX + ".xsuaa[0]." : XSUAA_PREFIX;
+            String xsuaaPrefix = multipleXsuaaServicesBound ? PROPERTIES_KEY + ".xsuaa[0]." : XSUAA_PREFIX;
             for (String key : XSUAA_ATTRIBUTES) {
                 if (environment.getXsuaaConfiguration().hasProperty(key)) {
                     properties.put(xsuaaPrefix + key, environment.getXsuaaConfiguration().getProperty(key));
@@ -70,7 +70,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
         if (multipleXsuaaServicesBound) {
             for (String key : XSUAA_ATTRIBUTES) {
                 if (environment.getXsuaaConfigurationForTokenExchange().hasProperty(key)) {
-                    properties.put(PREFIX + ".xsuaa[1]." + key, environment.getXsuaaConfigurationForTokenExchange().getProperty(key));
+                    properties.put(PROPERTIES_KEY + ".xsuaa[1]." + key, environment.getXsuaaConfigurationForTokenExchange().getProperty(key));
                 }
             }
         }
@@ -81,8 +81,8 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
                 }
             }
         }
-        logger.info("Parsed {} properties from identity services.", properties.size());
-        return new PropertiesPropertySource(PREFIX, properties);
+        logger.info("Parsed {} properties from identity services. ", properties.size(), properties);
+        return new PropertiesPropertySource(PROPERTIES_KEY, properties);
     }
 
 
