@@ -90,7 +90,7 @@ The runtime type of `com.sap.cloud.security.xsuaa.token.Token` is `com.sap.cloud
 
 The following table gives an overview about the most prominent used ``Jwt`` methods and how they can be mapped:
 
-|`org.springframework.security.oauth2.jwt.Jwt` methods       | Workaround in `spring.security` (using `com.sap.cloud.security.token.Token)                                                                                      |
+|`org.springframework.security.oauth2.jwt.Jwt` methods       | Workaround in `spring.security` (using `com.sap.cloud.security.token.Token`) |
 |-------------------------|--------------------------------------------------------------------------------------------------|
 | `getClaimAsString`       | `getClaimAsString` |
 | `getClaimAsStringList`  | ` getClaimAsStringList` |
