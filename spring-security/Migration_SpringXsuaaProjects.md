@@ -63,23 +63,25 @@ It provides two sub-interfaces:
 
 See the following table for methods that are not available in the target ```Token``` interface. 
 
-| `com.sap.cloud.security.xsuaa.token.Token` methods       | Workaround in `spring.security` (`com.sap.cloud.security.token.Token)                                                                                      |
+| `com.sap.cloud.security.xsuaa.token.Token` methods       | Workaround in `spring.security` (`com.sap.cloud.security.token.Token) |
 |-------------------------|--------------------------------------------------------------------------------------------------|
-| `getSubaccountId`          | Available via `AccessToken` interface in case ```Service.XSUAA.equals(token.getService())```                                                                         |`
+| `getSubaccountId`       | Available via `AccessToken` interface in case ```Service.XSUAA.equals(token.getService())```     |
 | `getSubdomain`          | Available via `XsuaaToken` implementation in case ```Service.XSUAA.equals(token.getService())``` 
 | `getGrantType`          | Available via `AccessToken.getGrantType().toString()` interface in case ```Service.XSUAA.equals(token.getService())```   
-| `getLogonName`            | `getPrincipal()getName()`. 
-| `getOrigin`            | ```getClaimAsString(TokenClaims.ORIGIN)```.
+| `getLogonName`          | `getPrincipal()getName()`. 
+| `getOrigin`             | ```getClaimAsString(TokenClaims.ORIGIN)```.
 | `getGivenName`          | ```getClaimAsString(TokenClaims.GIVEN_NAME)```. :bulb: no support for SAML 2.0 - XSUAA mapping.
-| `getFamilyName`          | ``getClaimAsString(TokenClaims.FAMILY_NAME)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
-| `getEmail`          | ``getClaimAsString(TokenClaims.EMAIL)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
-| `getXSUserAttribute`          | Not implemented.
-| `getAdditionalAuthAttribute`  | Not implemented.
-| `getCloneServiceInstanceId`  | Not implemented.
-| `getAppToken`  | use `getTokenValue`
-| `getScopes`  | use `getClaimAsStringList(TokenClaims.XSUAA.SCOPES)`
-| `getAuthorities()`  | TODO
-| `getExpiration()`  | use `isExpired()` and `getExpiration()` instead.
+| `getFamilyName`         | ``getClaimAsString(TokenClaims.FAMILY_NAME)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
+| `getEmail`              | ``getClaimAsString(TokenClaims.EMAIL)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
+| `getXSUserAttribute`          | in case ```Service.XSUAA.equals(token.getService())```:```accessToken.getAttributeFromClaimAsStringList(TokenClaims.XS_USER_ATTRIBUTES, attributeName)```
+| `getAdditionalAuthAttribute`  | in case ```Service.XSUAA.equals(token.getService())```:```accessToken.getAttributeFromClaimAsString("az_attr", attributeName)```
+| `getCloneServiceInstanceId`   | in case ```Service.XSUAA.equals(token.getService())```:```accessToken.getAttributeFromClaimAsString(TokenClaims.EXTERNAL_ATTRIBUTE, "serviceinstanceid")```
+| `getAppToken`           | use `getTokenValue`
+| `getScopes`             | use `getClaimAsStringList(TokenClaims.XSUAA.SCOPES)`
+| `getAuthorities()`      | TODO
+| `getExpiration()`       | use `isExpired()` and `getExpiration()` instead.
+
+> :bulb: `getAttributeFromClaimAsStringList` and `getAttributeFromClaimAsString` are available on `Token` interface as of `java-security` version `2.8,5`.
 
 #### Spring's `Jwt` methods
 
