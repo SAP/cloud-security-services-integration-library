@@ -15,7 +15,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
-
 /**
  * Part of Auto Configuration {@code HybridIdentityServicesAutoConfiguration}
  *
@@ -34,56 +33,56 @@ import org.springframework.core.io.support.PropertySourceFactory;
  *
  */
 public class IdentityServicesPropertySourceFactory implements PropertySourceFactory {
-    private static final Logger logger = LoggerFactory.getLogger(IdentityServicesPropertySourceFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(IdentityServicesPropertySourceFactory.class);
 
-    protected static final String PROPERTIES_KEY = "sap.security.services";
-    protected static final String XSUAA_PREFIX = "sap.security.services.xsuaa.";
-    protected static final String IAS_PREFIX = "sap.security.services.identity.";
+	protected static final String PROPERTIES_KEY = "sap.security.services";
+	protected static final String XSUAA_PREFIX = "sap.security.services.xsuaa.";
+	protected static final String IAS_PREFIX = "sap.security.services.identity.";
 
-    private static final List<String> XSUAA_ATTRIBUTES = Arrays
-            .asList(new String[] { "clientid", "clientsecret", "identityzoneid",
-                    "sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
-                    "certificate",
-                    "key" });
+	private static final List<String> XSUAA_ATTRIBUTES = Arrays
+			.asList(new String[] { "clientid", "clientsecret", "identityzoneid",
+					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
+					"certificate",
+					"key" });
 
-    private static final List<String> IAS_ATTRIBUTES = Arrays
-            .asList(new String[] { "clientid", "clientsecret", "domain", "url"});
+	private static final List<String> IAS_ATTRIBUTES = Arrays
+			.asList(new String[] { "clientid", "clientsecret", "domain", "url" });
 
-    @Override
-    public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
-        Environment environment = CFEnvironment.getInstance();
-        if (resource != null && resource.getResource().getFilename() != null
-                && !resource.getResource().getFilename().isEmpty()) {
-            environment = Environments.getCurrent(resource.getResource().getInputStream());
-        }
-        Properties properties = new Properties();
-        boolean multipleXsuaaServicesBound = environment.getNumberOfXsuaaConfigurations() > 1;
+	@Override
+	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
+		Environment environment = CFEnvironment.getInstance();
+		if (resource != null && resource.getResource().getFilename() != null
+				&& !resource.getResource().getFilename().isEmpty()) {
+			environment = Environments.getCurrent(resource.getResource().getInputStream());
+		}
+		Properties properties = new Properties();
+		boolean multipleXsuaaServicesBound = environment.getNumberOfXsuaaConfigurations() > 1;
 
-        if (environment.getXsuaaConfiguration() != null) {
-            String xsuaaPrefix = multipleXsuaaServicesBound ? PROPERTIES_KEY + ".xsuaa[0]." : XSUAA_PREFIX;
-            for (String key : XSUAA_ATTRIBUTES) {
-                if (environment.getXsuaaConfiguration().hasProperty(key)) {
-                    properties.put(xsuaaPrefix + key, environment.getXsuaaConfiguration().getProperty(key));
-                }
-            }
-        }
-        if (multipleXsuaaServicesBound) {
-            for (String key : XSUAA_ATTRIBUTES) {
-                if (environment.getXsuaaConfigurationForTokenExchange().hasProperty(key)) {
-                    properties.put(PROPERTIES_KEY + ".xsuaa[1]." + key, environment.getXsuaaConfigurationForTokenExchange().getProperty(key));
-                }
-            }
-        }
-        if (environment.getIasConfiguration() != null) {
-            for (String key : IAS_ATTRIBUTES) {
-                if (environment.getIasConfiguration().hasProperty(key)) {
-                    properties.put(IAS_PREFIX + key, environment.getIasConfiguration().getProperty(key));
-                }
-            }
-        }
-        logger.info("Parsed {} properties from identity services. ", properties.size(), properties);
-        return new PropertiesPropertySource(PROPERTIES_KEY, properties);
-    }
-
+		if (environment.getXsuaaConfiguration() != null) {
+			String xsuaaPrefix = multipleXsuaaServicesBound ? PROPERTIES_KEY + ".xsuaa[0]." : XSUAA_PREFIX;
+			for (String key : XSUAA_ATTRIBUTES) {
+				if (environment.getXsuaaConfiguration().hasProperty(key)) {
+					properties.put(xsuaaPrefix + key, environment.getXsuaaConfiguration().getProperty(key));
+				}
+			}
+		}
+		if (multipleXsuaaServicesBound) {
+			for (String key : XSUAA_ATTRIBUTES) {
+				if (environment.getXsuaaConfigurationForTokenExchange().hasProperty(key)) {
+					properties.put(PROPERTIES_KEY + ".xsuaa[1]." + key,
+							environment.getXsuaaConfigurationForTokenExchange().getProperty(key));
+				}
+			}
+		}
+		if (environment.getIasConfiguration() != null) {
+			for (String key : IAS_ATTRIBUTES) {
+				if (environment.getIasConfiguration().hasProperty(key)) {
+					properties.put(IAS_PREFIX + key, environment.getIasConfiguration().getProperty(key));
+				}
+			}
+		}
+		logger.info("Parsed {} properties from identity services. ", properties.size(), properties);
+		return new PropertiesPropertySource(PROPERTIES_KEY, properties);
+	}
 
 }

@@ -39,9 +39,9 @@ public class Environments {
 	 */
 	public static Environment getCurrent(InputStream input) throws IOException {
 		Scanner scanner = new Scanner(input);
-		//Reading line by line from scanner to StringBuffer
+		// Reading line by line from scanner to StringBuffer
 		StringBuffer vcapServices = new StringBuffer();
-		while(scanner.hasNext()){
+		while (scanner.hasNext()) {
 			vcapServices.append(scanner.nextLine());
 		}
 		return CFEnvironment.getInstance((str) -> vcapServices.toString(), (str) -> null);
