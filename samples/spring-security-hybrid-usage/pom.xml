@@ -43,7 +43,7 @@
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>resourceserver-security-spring-boot-starter</artifactId>
 			<!--<version>${sap.cloud.security.version}</version>-->
-			<version>1.0.0-SNAPSHOT</version> <!-- TODO-->
+			<version>1.0.1-SNAPSHOT</version> <!-- TODO-->
 		</dependency>
 
 		<!-- test dependencies-->
