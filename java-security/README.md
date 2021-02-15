@@ -46,7 +46,7 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.8.4</version>
+    <version>2.8.5</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
