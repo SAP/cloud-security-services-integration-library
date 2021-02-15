@@ -41,6 +41,13 @@ from distutils.core import setup
 # inside the test class 'TestJavaSecurity' inside the deploy_and_test.py file.
 
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - [%(module)s.%(funcName)s: L%(lineno)d]: %(message)s')
+cf_logs = open('cf-logs.log', 'w')
+java_logs = open('java-logs.log', 'w')
+RUN_TESTS = "Running '{}' tests"
+RUN_TEST = "Running '{}' test"
+EXPECT_200 = "Expected HTTP status 200"
+EXPECT_401 = "Expected HTTP status 401"
+EXPECT_403 = "Expected HTTP status 403"
 
 
 class Credentials:
@@ -50,7 +57,7 @@ class Credentials:
 
     def __get_env_variable(self, env_variable_name, prompt_function):
         value = os.getenv(env_variable_name)
-        if (value is None):
+        if value is None:
             value = prompt_function()
         return value
 
@@ -76,7 +83,6 @@ class SampleTest(abc.ABC, unittest.TestCase):
         self.__api_access = None
         self.__ias_access = None
         self.credentials = credentials
-
         self.get_app().deploy()
         time.sleep(2)  # waiting for deployed apps to be available
 
@@ -92,12 +98,14 @@ class SampleTest(abc.ABC, unittest.TestCase):
         user = self.__get_api_access().get_user_by_username(self.credentials.username)
         user_id = user.get('id')
         resp = self.__get_api_access().add_user_to_group(user_id, role)
-        if (not resp.is_ok):
-            logging.error("Could not set role " + role)
+        if not resp.is_ok:
+            logging.error(
+                "Could not set '{}' role to user '{}'. Error: {} - {}".format(role, user.get('userName'), resp.status,
+                                                                              resp.body))
             exit()
 
     def perform_get_request(self, path, username=None, password=None):
-        if (username is not None and password is not None):
+        if username is not None and password is not None:
             authorization_value = b64encode(
                 bytes(username + ':' + password + self.__get_2factor_auth_code(), 'utf-8')).decode("ascii")
             return self.__perform_get_request(path=path,
@@ -106,7 +114,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
 
     def perform_get_request_with_token(self, path, additional_headers={}):
         access_token = self.get_token().get('access_token')
-        if (access_token is None):
+        if access_token is None:
             logging.error("Cannot continue without access token")
             exit()
         return self.__perform_get_request(path=path, access_token=access_token, additional_headers=additional_headers)
@@ -115,9 +123,9 @@ class SampleTest(abc.ABC, unittest.TestCase):
         return self.__perform_get_request(path=path, access_token=id_token, additional_headers=additional_headers)
 
     def get_deployed_app(self):
-        if (self.__deployed_app is None):
+        if self.__deployed_app is None:
             deployed_app = self.cf_apps.app_by_name(self.get_app().name)
-            if (deployed_app is None):
+            if deployed_app is None:
                 logging.error('Could not find app: ' + self.get_app().name)
                 exit()
             self.__deployed_app = deployed_app
@@ -157,7 +165,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
         return id_token
 
     def __get_api_access(self):
-        if (self.__api_access is None):
+        if self.__api_access is None:
             deployed_app = self.get_deployed_app()
             self.__api_access = ApiAccessService(
                 xsuaa_service_url=deployed_app.xsuaa_service_url,
@@ -175,15 +183,15 @@ class SampleTest(abc.ABC, unittest.TestCase):
             self.vars_parser.user_id,
             self.vars_parser.landscape_apps_domain,
             path)
-        logging.info('GET request to {} {}'.format(url,
-                                                   'with access token: ' + access_token if access_token else 'without access token'))
+        logging.info('GET request to {} {}'
+                     .format(url, 'with access token: ' + access_token if access_token else 'without access token'))
         resp = HttpUtil().get_request(url, access_token=access_token, additional_headers=additional_headers)
         logging.info('Response: ' + str(resp))
         return resp
 
     def __get_2factor_auth_code(self):
         auth_code = ""
-        if (os.getenv('ENABLE_2_FACTOR') is not None):
+        if os.getenv('ENABLE_2_FACTOR') is not None:
             auth_code = input("2-Factor Authenticator Code: ") or ""
         return auth_code
 
@@ -196,14 +204,17 @@ class SampleTest(abc.ABC, unittest.TestCase):
                 input("Please add the role 'Viewer' to user {} in SCP Cockpit. Once done press enter to "
                       "proceed with the test.".format(self.credentials.username))
 
+
 class TestTokenClient(SampleTest):
 
     def get_app(self):
+        logging.info(RUN_TESTS.format("TokenClientUsage"))
         return CFApp(name='java-tokenclient-usage', xsuaa_service_name='xsuaa-token-client')
 
     def test_hello_token_client(self):
+        logging.info(RUN_TEST.format("TestTokenClient.test_hello_token_client"))
         response = self.perform_get_request('/hello-token-client')
-        self.assertEqual(response.status, 200, 'Expected HTTP status 200')
+        self.assertEqual(response.status, 200, EXPECT_200)
         body = response.body
         self.assertIsNotNone(body)
         self.assertRegex(body, "Access-Token: ")
@@ -214,30 +225,35 @@ class TestTokenClient(SampleTest):
 class TestJavaSecurity(SampleTest):
 
     def get_app(self):
+        logging.info(RUN_TESTS.format("JavaSecurityUsage"))
         return CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security')
 
     def test_hello_java_security(self):
+        logging.info(RUN_TEST.format("TestJavaSecurity.test_hello_java_security"))
         resp = self.perform_get_request('/hello-java-security')
-        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+        self.assertEqual(resp.status, 401, EXPECT_401)
 
         resp = self.perform_get_request('/hello-java-security-authz')
-        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+        self.assertEqual(resp.status, 401, EXPECT_401)
 
         resp = self.perform_get_request_with_token('/hello-java-security-authz')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        self.assertEqual(resp.status, 403, EXPECT_403)
 
         self.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
         resp = self.perform_get_request_with_token('/hello-java-security-authz')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertEqual(resp.status, 200, EXPECT_200)
 
         resp = self.perform_get_request_with_token('/hello-java-security')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertEqual(resp.status, 200, EXPECT_200)
 
         xsappname = self.get_deployed_app().get_credentials_property('xsappname')
         expected_scope = xsappname + '.Read'
         self.assertIsNotNone(resp.body)
-        self.assertRegex(resp.body, self.credentials.username, "Did not find username '{}' in response body".format(self.credentials.username))
-        self.assertRegex(resp.body, expected_scope, "Expected to find scope '{}' in response body: ".format(expected_scope))
+        self.assertRegex(resp.body, self.credentials.username,
+                         "Did not find username '{}' in response body".format(self.credentials.username))
+        self.assertRegex(resp.body, expected_scope,
+                         "Expected to find scope '{}' in response body: ".format(expected_scope))
+
 
 class TestSpringSecurityHybrid(SampleTest):
 
@@ -246,14 +262,14 @@ class TestSpringSecurityHybrid(SampleTest):
 
     def test_sayHello_xsuaa(self):
         resp = self.perform_get_request('/sayHello')
-        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+        self.assertEqual(resp.status, 401, EXPECT_401)
 
         resp = self.perform_get_request_with_token('/sayHello')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        self.assertEqual(resp.status, 403, EXPECT_403)
 
         self.add_user_to_role('XSUAA-Viewer')
         resp = self.perform_get_request_with_token('/sayHello')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertEqual(resp.status, 200, EXPECT_200)
         clientid = self.get_deployed_app().get_credentials_property('clientid')
         self.assertRegex(resp.body, clientid, 'Expected to find clientid in response')
 
@@ -269,37 +285,40 @@ class TestSpringSecurityHybrid(SampleTest):
 class TestSpringSecurity(SampleTest):
 
     def get_app(self):
+        logging.info(RUN_TESTS.format("SpringSecurityUsage"))
         return CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication',
                      app_router_name='approuter-spring-security-xsuaa-usage')
 
     def test_sayHello(self):
+        logging.info(RUN_TEST.format("TestSpringSecurity.test_sayHello'"))
         resp = self.perform_get_request('/v1/sayHello')
-        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+        self.assertEqual(resp.status, 401, EXPECT_401)
 
         resp = self.perform_get_request_with_token('/v1/sayHello')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        self.assertEqual(resp.status, 403, EXPECT_403)
 
         self.add_user_to_role('Viewer')
         resp = self.perform_get_request_with_token('/v1/sayHello')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertEqual(resp.status, 200, EXPECT_200)
         xsappname = self.get_deployed_app().get_credentials_property('xsappname')
         self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
 
     def test_tokenFlows(self):
+        logging.info(RUN_TEST.format("TestSpringSecurity.test_tokenFlows"))
         self.add_user_to_role('Viewer')
         resp = self.perform_get_request_with_token('/v2/sayHello')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertEqual(resp.status, 200, EXPECT_200)
 
         resp = self.perform_get_request_with_token('/v3/requestClientCredentialsToken')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertEqual(resp.status, 200, EXPECT_200)
 
         resp = self.perform_get_request_with_token('/v3/requestUserToken')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertEqual(resp.status, 200, EXPECT_200)
 
         token = self.get_token()
-        pathWithRefreshToken = '/v3/requestRefreshToken/' + token.get('refresh_token')
-        resp = self.perform_get_request_with_token(pathWithRefreshToken)
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        path_with_refresh_token = '/v3/requestRefreshToken/' + token.get('refresh_token')
+        resp = self.perform_get_request_with_token(path_with_refresh_token)
+        self.assertEqual(resp.status, 200, EXPECT_200)
 
     def test_sayHello_ias(self):
         ias_service = self.get_ias_access("ias-spring-sec")
@@ -320,68 +339,76 @@ class TestSpringSecurity(SampleTest):
 class TestJavaBuildpackApiUsage(SampleTest):
 
     def get_app(self):
+        logging.info(RUN_TESTS.format("JavaBuildpackApiUsage"))
         return CFApp(name='sap-java-buildpack-api-usage',
                      xsuaa_service_name='xsuaa-buildpack',
                      app_router_name='approuter-sap-java-buildpack-api-usage')
 
     def test_hello_token_servlet(self):
+        logging.info(RUN_TEST.format("TestJavaBuildpackApiUsage.test_hello_token_servlet"))
         resp = self.perform_get_request('/hello-token')
-        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+        self.assertEqual(resp.status, 401, EXPECT_401)
 
         resp = self.perform_get_request_with_token('/hello-token')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        self.assertEqual(resp.status, 403, EXPECT_403)
 
         self.add_user_to_role('Buildpack_API_Viewer')
         resp = self.perform_get_request_with_token('/hello-token')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertEqual(resp.status, 200, EXPECT_200)
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
 class SpringSecurityBasicAuthTest(SampleTest):
 
     def get_app(self):
+        logging.info(RUN_TESTS.format("SpringSecurityBasicAuthTest"))
         return CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic')
 
     def test_hello_token(self):
+        logging.info(RUN_TEST.format("SpringSecurityBasicAuthTest.test_hello_token"))
         resp = self.perform_get_request('/hello-token')
-        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+        self.assertEqual(resp.status, 401, EXPECT_401)
 
-        resp = self.perform_get_request('/hello-token', username=self.credentials.username, password=self.credentials.password)
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        resp = self.perform_get_request('/hello-token', username=self.credentials.username,
+                                        password=self.credentials.password)
+        self.assertEqual(resp.status, 403, EXPECT_403)
 
     def test_hello_token_status_ok(self):
         # second test needed because tokens are cached in application
+        logging.info(RUN_TEST.format("SpringSecurityBasicAuthTest.test_hello_token_status_ok"))
         self.add_user_to_role('BASIC_AUTH_API_Viewer')
-        resp = self.perform_get_request('/hello-token', username=self.credentials.username, password=self.credentials.password)
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        resp = self.perform_get_request('/hello-token', username=self.credentials.username,
+                                        password=self.credentials.password)
+        self.assertEqual(resp.status, 200, EXPECT_200)
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
 class SpringWebfluxSecurityXsuaaUsage(SampleTest):
 
     def get_app(self):
+        logging.info(RUN_TESTS.format("SpringWebfluxSecurityXsuaaUsage"))
         return CFApp(name='spring-webflux-security-xsuaa-usage',
                      xsuaa_service_name='xsuaa-webflux',
                      app_router_name='approuter-spring-webflux-security-xsuaa-usage')
 
     def test_say_hello(self):
+        logging.info(RUN_TEST.format("SpringWebfluxSecurityXsuaaUsage.test_say_hello"))
         resp = self.perform_get_request('/v1/sayHello')
-        self.assertEqual(resp.status, 401, 'Expected HTTP status 401')
+        self.assertEqual(resp.status, 401, EXPECT_401)
 
         resp = self.perform_get_request_with_token('/v1/sayHello')
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        self.assertEqual(resp.status, 403, EXPECT_403)
 
         self.add_user_to_role('Webflux_API_Viewer')
         resp = self.perform_get_request_with_token('/v1/sayHello')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertEqual(resp.status, 200, EXPECT_200)
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
 class HttpUtil:
-
     class HttpResponse:
         def __init__(self, response, error=None):
-            if (error):
+            if error:
                 self.body = error.reason
                 self.status = error.code
                 self.is_ok = False
@@ -396,7 +423,7 @@ class HttpUtil:
             return cls(response=None, error=error)
 
         def __str__(self):
-            if (len(self.body) > 150):
+            if len(self.body) > 150:
                 body = self.body[:150] + '... (truncated)'
             else:
                 body = self.body
@@ -409,7 +436,8 @@ class HttpUtil:
         return self.__execute(req)
 
     def post_request(self, url, data=None, access_token=None, additional_headers={}):
-        logging.debug('Performing POST request to {} {}'.format(url, 'with access token: '+ access_token if access_token else 'without access token'))
+        logging.debug('Performing POST request to {} {}'
+                      .format(url, 'with access token: ' + access_token if access_token else 'without access token'))
         req = urllib.request.Request(url, data=data, method='POST')
         self.__add_headers(req, access_token, additional_headers)
         return self.__execute(req)
@@ -423,7 +451,7 @@ class HttpUtil:
                                    'password': password}).encode()
         url = xsuaa_service_url + '/oauth/token'
         resp = HttpUtil().post_request(url, data=post_req_body)
-        if (resp.is_ok):
+        if resp.is_ok:
             return json.loads(resp.body)
         else:
             logging.error('Could not retrieve access token')
@@ -439,7 +467,7 @@ class HttpUtil:
                                    'username': username,
                                    'password': password}).encode()
         resp = HttpUtil().post_request(ias_service_url, data=post_req_body, additional_headers=additional_headers)
-        if (resp.is_ok):
+        if resp.is_ok:
             logging.debug(resp.body)
             return json.loads(resp.body)
         else:
@@ -447,7 +475,7 @@ class HttpUtil:
             return None
 
     def __add_headers(self, req, access_token, additional_headers):
-        if (access_token):
+        if access_token:
             self.__add_header(req, 'Authorization', 'Bearer ' + access_token)
         for header_key in additional_headers:
             self.__add_header(req, header_key, additional_headers[header_key])
@@ -504,14 +532,14 @@ class IasAccess:
         return output.stdout.decode()
 
     def __create_ias_service_key(self):
-        logging.info("Creating service-key for {} IAS service with service-key name: {}".format(self.ias_service_name,
-                                                                                                self.ias_service_key_name))
+        logging.info("Creating service-key for {} IAS service with service-key name: {}"
+                     .format(self.ias_service_name, self.ias_service_key_name))
         subprocess.run(['cf', 'create-service-key', self.ias_service_name,
                         self.ias_service_key_name])
 
     def __get_ias_service_key(self):
-        logging.info("Fetching service-key '{}' for '{}' IAS service".format(self.ias_service_name,
-                                                                         self.ias_service_key_name))
+        logging.info("Fetching service-key '{}' for '{}' IAS service"
+                     .format(self.ias_service_name, self.ias_service_key_name))
         service_key_output = subprocess.run(
             ['cf', 'service-key', self.ias_service_name, self.ias_service_key_name], capture_output=True)
         lines = service_key_output.stdout.decode().split('\n')
@@ -536,12 +564,12 @@ class IasAccess:
         return self.ias_token
 
     def delete(self):
-        logging.info("Deleting service key '{}' for '{}' IAS service".format(self.ias_service_key_name,
-                                                                         self.ias_service_name))
+        logging.info("Deleting service key '{}' for '{}' IAS service"
+                     .format(self.ias_service_key_name, self.ias_service_name))
         subprocess.run(['cf', 'delete-service-key', '-f',
-                        self.ias_service_name, self.ias_service_key_name])
+                        self.ias_service_name, self.ias_service_key_name], stdout=cf_logs)
         logging.info("Deleting {} IAS service".format(self.ias_service_name))
-        subprocess.run(['cf', 'delete-service', '-f', self.ias_service_name])
+        subprocess.run(['cf', 'delete-service', '-f', self.ias_service_name], stdout=cf_logs)
 
 
 class ApiAccessService:
@@ -552,9 +580,9 @@ class ApiAccessService:
         self.xsuaa_api_url = xsuaa_api_url
         self.xsuaa_service_url = xsuaa_service_url
         self.http_util = HttpUtil()
-        subprocess.run(['cf', 'create-service', 'xsuaa', 'apiaccess', name])
+        subprocess.run(['cf', 'create-service', 'xsuaa', 'apiaccess', name], stdout=cf_logs)
         subprocess.run(['cf', 'create-service-key', name,
-                        self.service_key_name])
+                        self.service_key_name], stdout=cf_logs)
         service_key_output = subprocess.run(
             ['cf', 'service-key', name, self.service_key_name], capture_output=True)
         lines = service_key_output.stdout.decode().split('\n')
@@ -562,9 +590,11 @@ class ApiAccessService:
         logging.debug('Created ' + str(self))
 
     def delete(self):
+        logging.info("Deleting '{}' service key".format(self.service_key_name))
         subprocess.run(['cf', 'delete-service-key', '-f',
-                        self.name, self.service_key_name])
-        subprocess.run(['cf', 'delete-service', '-f', self.name])
+                        self.name, self.service_key_name], stdout=cf_logs)
+        logging.info("Deleting '{}' service".format(self.name))
+        subprocess.run(['cf', 'delete-service', '-f', self.name], stdout=cf_logs)
 
     def get_user_by_username(self, username):
         query_parameters = urlencode(
@@ -572,10 +602,10 @@ class ApiAccessService:
         url = '{}/Users?{}'.format(self.xsuaa_api_url, query_parameters)
         res = self.http_util.get_request(
             url, access_token=self.__get_access_token())
-        if (not res.is_ok):
+        if not res.is_ok:
             self.__panic_user_not_found(username)
         users = json.loads(res.body).get('resources')
-        if (users is None or len(users) < 1):
+        if users is None or len(users) < 1:
             self.__panic_user_not_found(username)
         return users[0]
 
@@ -618,7 +648,7 @@ class CFApps:
         url = '{}/apps?space_guids={}&names={}'.format(self.cf_api_endpoint, self.space_guid, app_name)
         paginated_apps = self.__get_with_token(url)
         app = self.__get_first_paginated_resource(paginated_apps)
-        if (app is None):
+        if app is None:
             logging.error('App {} not found'.format(app_name))
             exit()
         vcap_services = self.__vcap_services_by_guid(app.get('guid'))
@@ -626,9 +656,9 @@ class CFApps:
 
     def __get_first_paginated_resource(self, paginated_resources):
         pagination = paginated_resources.get('pagination')
-        if (pagination and pagination.get('total_results') > 0):
-            if (pagination.get('total_results') > 1):
-                logging.warn(
+        if pagination and pagination.get('total_results') > 0:
+            if pagination.get('total_results') > 1:
+                logging.warning(
                     'More than one resource found, taking the first one!')
             return paginated_resources.get('resources')[0]
 
@@ -682,7 +712,7 @@ class VarsParser:
         result = ''
         for line in content.split('\n'):
             commented_line = re.search(r'\w*#', line)
-            if (commented_line is None):
+            if commented_line is None:
                 result += line + '\n'
         return result
 
@@ -713,7 +743,7 @@ class DeployedApp:
     def __init__(self, vcap_services):
         self.vcap_services = vcap_services
         self.xsuaa_properties = self.vcap_services.get('xsuaa')[0]
-        if(self.vcap_services.get('identity') is not None):
+        if self.vcap_services.get('identity') is not None:
             self.ias_properties = self.vcap_services.get('identity')[0]
 
     @property
@@ -756,7 +786,7 @@ class DeployedApp:
 
 class CFApp:
     def __init__(self, name, xsuaa_service_name, app_router_name=None, identity_service_name=None):
-        if (name is None or xsuaa_service_name is None):
+        if name is None or xsuaa_service_name is None:
             raise (Exception('Name and xsuua service name must be provided'))
         self.name = name
         self.xsuaa_service_name = xsuaa_service_name
@@ -768,22 +798,31 @@ class CFApp:
         return './' + self.name
 
     def deploy(self):
+        logging.info("Creating Xsuaa service '{}'".format(self.xsuaa_service_name))
         subprocess.run(
             ['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', 'xs-security.json'],
-            cwd=self.working_dir)
-        if (self.identity_service_name is not None):
+            cwd=self.working_dir, stdout=cf_logs, check=True)
+        if self.identity_service_name is not None:
+            logging.info("Creating IAS service '{}'".format(self.identity_service_name))
             subprocess.run(['cf', 'create-service', 'identity', 'application', self.identity_service_name, '-c',
                             '{"xsuaa-cross-consumption": "true"}'], cwd=self.working_dir)
-        subprocess.run(['mvn', 'clean', 'verify'], cwd=self.working_dir)
-        subprocess.run(['cf', 'push', '--vars-file', '../vars.yml'], cwd=self.working_dir)
+        logging.info("Verifying '{}' application tests".format(self.name))
+        subprocess.run(['mvn', 'clean', 'verify'], cwd=self.working_dir, stdout=java_logs)
+        logging.info("Deploying '{}' to CF".format(self.name))
+        subprocess.run(['cf', 'push', '--vars-file', '../vars.yml'], cwd=self.working_dir, stdout=cf_logs)
+        logging.info("Test environment setup finished: " + self.__str__())
 
     def delete(self):
-        subprocess.run(['cf', 'delete', '-f', '-r', self.name])
-        if (self.app_router_name is not None):
-            subprocess.run(['cf', 'delete', '-f', '-r', self.app_router_name])
-        subprocess.run(['cf', 'delete-service', '-f', self.xsuaa_service_name])
+        logging.info("Deleting '{}'".format(self.name))
+        subprocess.run(['cf', 'delete', '-f', '-r', self.name], stdout=cf_logs)
+        if self.app_router_name is not None:
+            logging.info("Deleting '{}' app router".format(self.app_router_name))
+            subprocess.run(['cf', 'delete', '-f', '-r', self.app_router_name], stdout=cf_logs)
+        logging.info("Deleting '{}' Xsuaa service".format(self.xsuaa_service_name))
+        subprocess.run(['cf', 'delete-service', '-f', self.xsuaa_service_name], stdout=cf_logs)
         if self.identity_service_name is not None:
-            subprocess.run(['cf', 'delete-service', '-f', self.identity_service_name])
+            logging.info("Deleting '{}' IAS service".format(self.identity_service_name))
+            subprocess.run(['cf', 'delete-service', '-f', self.identity_service_name], stdout=cf_logs)
 
     def __str__(self):
         return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}, Identity-Service-Name: {}'.format(
@@ -796,7 +835,7 @@ def is_logged_off():
 
 
 if __name__ == '__main__':
-    if (is_logged_off()):
+    if is_logged_off():
         print('To run this script you must be logged into CF via "cf login"')
         print('Also make sure to change settings in vars.yml')
     else:
