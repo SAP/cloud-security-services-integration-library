@@ -28,17 +28,20 @@ public class Environments {
 	}
 
 	/**
-	 * Reads {@link Environment} not from system environment but from {@link InputStream}.
-	 * @param input e.g. from file
+	 * Reads {@link Environment} not from system environment but from
+	 * {@link InputStream}.
+	 * 
+	 * @param input
+	 *            e.g. from file
 	 * @return the environment
 	 */
 	public static Environment readFromInput(InputStream input) {
 		Scanner scanner = new Scanner(input);
-		StringBuffer vcapServices = new StringBuffer();
+		StringBuilder vcapServices = new StringBuilder();
 		while (scanner.hasNext()) {
 			vcapServices.append(scanner.nextLine());
 		}
-		return CFEnvironment.getInstance((str) -> vcapServices.toString(), (str) -> null);
+		return CFEnvironment.getInstance(str -> vcapServices.toString(), str -> null);
 	}
 
 }

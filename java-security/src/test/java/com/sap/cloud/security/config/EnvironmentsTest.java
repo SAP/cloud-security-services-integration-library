@@ -44,11 +44,13 @@ public class EnvironmentsTest {
 		OAuth2ServiceConfiguration brokerServConfig = cut.getXsuaaConfigurationForTokenExchange();
 
 		assertThat(appServConfig.getService()).isEqualTo(Service.XSUAA);
-		assertThat(CFConstants.Plan.from(appServConfig.getProperty(SERVICE_PLAN))).isEqualTo(CFConstants.Plan.APPLICATION);
+		assertThat(CFConstants.Plan.from(appServConfig.getProperty(SERVICE_PLAN)))
+				.isEqualTo(CFConstants.Plan.APPLICATION);
 
 		assertThat(brokerServConfig).isNotEqualTo(appServConfig);
 		assertThat(brokerServConfig.getService()).isEqualTo(Service.XSUAA);
-		assertThat(CFConstants.Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(CFConstants.Plan.BROKER);
+		assertThat(CFConstants.Plan.from(brokerServConfig.getProperty(SERVICE_PLAN)))
+				.isEqualTo(CFConstants.Plan.BROKER);
 		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
 	}
 
