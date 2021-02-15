@@ -75,7 +75,7 @@ public class XsuaaAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public RestOperations xsuaaRestOperations() {
-		logger.info("auto-configures RestOperations for xsuaa requests)");
+		logger.info("auto-configures RestOperations for xsuaa requests");
 		return new RestTemplate();
 	}
 
