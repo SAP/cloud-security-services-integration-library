@@ -121,12 +121,14 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getSubdomainFromCCTokenWhithoutZdn() {
-		assertThat(clientCredentialsToken.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN)).isNull();
+		assertThat(clientCredentialsToken.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN))
+				.isNull();
 	}
 
 	@Test
 	public void getAttributeFromNotExistingClaim() {
-		assertThat(clientCredentialsToken.getAttributeFromClaimAsString("not_existing", EXTERNAL_ATTRIBUTE_ZDN)).isNull();
+		assertThat(clientCredentialsToken.getAttributeFromClaimAsString("not_existing", EXTERNAL_ATTRIBUTE_ZDN))
+				.isNull();
 	}
 
 	@Test
