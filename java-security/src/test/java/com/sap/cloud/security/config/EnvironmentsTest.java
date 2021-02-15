@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EnvironmentsTest {
 
-	private InputStream vcapMultipleXsuaa;
+	private final InputStream vcapMultipleXsuaa;
 
 	public EnvironmentsTest() throws IOException {
 		vcapMultipleXsuaa = IOUtils.toInputStream(
