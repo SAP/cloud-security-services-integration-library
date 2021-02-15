@@ -34,7 +34,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version> <!-- TODO-->
+    <version>1.0.1-SNAPSHOT</version> <!-- TODO-->
 </dependency>
 ```
 
@@ -48,6 +48,12 @@ Auto-configuration class | Description
 [HybridIdentityServicesAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridAuthorizationAutoConfiguration.java) | Configures a `JwtDecoder` which is able to decode and validate tokens from Xsuaa and Identity service. Furthermore it registers the `XsuaaServiceConfiguration` and `IdentityServiceConfiguration` classes, that gets configured with `xsuaa.*` and `identity.*` properties.
 [XsuaaTokenFlowAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean to fetch the XSUAA service binding information.
 
+#### Auto-configuration properties
+Auto-configuration property | Default value | Description
+---- | -------- | --------
+sap.spring.security.hybrid.auto | true | This enables all auto-configurations that setup your project for hybrid IAS and XSUAA token validation.
+sap.spring.security.xsuaa.flows.auto | true | This enables all auto-configurations required for xsuaa token exchange using [`token-client`](/token-client) library.
+
 You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 
 
@@ -57,6 +63,7 @@ Configure your application as Spring Security OAuth 2.0 Resource Server for auth
 ```java
 @Configuration
 @EnableWebSecurity
+@PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" })
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     
     @Autowired
@@ -112,31 +119,11 @@ class MyCustomTokenAuthConverter implements Converter<Jwt, AbstractAuthenticatio
 ```
 ... finally configure Spring's resource server with an instance of this custom converter.
 
-### Map properties to VCAP_SERVICES
-In order to map the `VCAP_SERVICES` credentials to your application go to `application.xml` and provide the following configuration:
-```yaml
-sap.security.services:
-    xsuaa:
-      xsappname:    ${vcap.services.<xsuaa service instance name>.credentials.xsappname}
-      uaadomain:    ${vcap.services.<xsuaa service instance name>.credentials.uaadomain}
-      clientid:     ${vcap.services.<xsuaa service instance name>.credentials.clientid}
-      url:          ${vcap.services.<xsuaa service instance name>.credentials.url}
-    # clientsecret: ${vcap.services.<xsuaa service instance name>.credentials.clientsecret} # required for token-flows api
-    
-    identity:
-      clientid:     ${vcap.services.<identity service instance name>.credentials.clientid}
-      domain:       ${vcap.services.<identity service instance name>.credentials.domain}
-      url:          ${vcap.services.<identity service instance name>.credentials.url} # can be deleted later
-```  
-> Note that the `<xsuaa service instance name>` and `<identity service instance name>` have to be replaced with the service instance name of the respective service instance.
-	
-> Enhance it with further properties you may like to access within your application like the "clientsecret". Alternatively you can also access them using `Environments.getCurrent().getXsuaaConfiguration()`.
-	
 
 ## Usage
 
 ### Access user/token information
-In the Java coding, use the `com.sap.cloud.security.token.Token` to extract user information:
+In the Java coding, use the `com.sap.cloud.security.token.Token` to extract user information from the token:
 
 ```java
 @GetMapping("/getGivenName")
@@ -160,10 +147,27 @@ public Map<String, String> message() {
 ```
 
 ### Get Information from `VCAP_SERVICES`
-In case you need information from `VCAP_SERVICES` system environment variable, which are not exposed by `@Autowired
-    XsuaaServiceConfiguration xsuaaServiceConfiguration` interface, you may need to enhance the mapped properties in your `application.yml` file as described [here](#map-properties-to-vcap_servcies).
-  
+In case you need information from `VCAP_SERVICES` system environment variable from one of the identity services, you have these options:
 
+... in case you are bound to a single ```xsuaa``` service instance:
+```java
+@Autowired
+XsuaaServiceConfiguration xsuaaServiceConfiguration; 
+```
+
+... in case you are bound to multiple ```xsuaa``` service instances
+```java
+@Autowired
+XsuaaServiceConfigurations xsuaaServiceConfigurations;
+```
+
+... in case you are bound to a ```identity``` service instance
+```java
+@Autowired
+IdentityServiceConfiguration identityServiceConfiguration;
+```
+
+Alternatively, you can also access the information with `Environments.getCurrent()`, which is provided with `java-security`.
 
 ### [Optional] Audit Logging
 In case you have implemented a central Exception Handler as described with [Baeldung Tutorial: Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring) you may want to emit logs to the audit log service in case of `AccessDeniedException`s.
@@ -174,7 +178,9 @@ Alternatively there are also various options provided with `Spring.io`. For exam
 In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message, an event or you've requested from the identity service directly:
 
 ```java
-import org.springframework.security.oauth2.jwt.JwtDecoder;public class Listener {
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+
+public class Listener {
 
      @Autowired
      JwtDecoder jwtDecoder;
@@ -197,8 +203,50 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;public class Listener 
 ```
 In detail `com.sap.cloud.security.token.SpringSecurityContext` wraps the Spring Security Context (namely `SecurityContextHolder.getContext()`), which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
 
-Note that Spring Security Context is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
+> :bulb: Note that ``SpringSecurityContext`` is **thread-bound** and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
 
+
+
+## Testing
+
+### (Test) utilities
+- [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is intended for JUnit tests only.
+
+### Overwrite identity service properties
+In case of local testing, there might be no ``VCAP_SERVICES`` system environment variable, or in case of JUnit testing the values may have to be overwritten. In these cases, you can set or overwrite the default property sources.
+
+#### Minimal configuration required 
+Go to `application.yml` and provide for example the following configuration:
+```yaml
+sap.security.services:
+    xsuaa:
+      xsappname: xsapp!t0815        # SecurityTest.DEFAULT_APP_ID
+      uaadomain: localhost          # SecurityTest.DEFAULT_DOMAIN
+      clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
+      url:       http://localhost   # SecurityTest.DEFAULT_URL
+    # clientsecret:  required for token-flows api
+    
+    identity:
+      clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
+      domain:    localhost          # SecurityTest.DEFAULT_DOMAIN
+      url:       http://localhost   # SecurityTest.DEFAULT_URL
+```  
+	
+
+
+#### ... In case of multiple XSUAA bindings
+If your application binds to two XSUAA service instances (e.g. one of plan `application` and another one of plan `broker`), you may want to map the properties to `VCAP_SERVICES` for local testing. Go to `application.yml` and apply the following two changes:
+1. provide instead of `sap.security.services.xsuaa` `sap.security.services.xsuaa[0]` and 
+2. provide additional the client-ids of the other xsuaa service(s)
+
+Finally, it should look as following:
+````yaml
+ sap.security.services:
+       xsuaa[0]:
+            ...     # credentials of xsuaa of plan 'application' 
+       xsuaa[1]:
+         clientid:  # clientid of xsuaa of plan 'broker' 
+````
 
 ## Troubleshoot
 
@@ -214,10 +262,10 @@ First, configure the Debug log level for Spring Framework Web and all Security r
 
 ```yaml
 logging.level:
-  com.sap: DEBUG                      # set SAP-class loggers to DEBUG. Set to ERROR for production setups.
-  org.springframework: ERROR          # set to DEBUG to see all beans loaded and auto-config conditions met.
-  org.springframework.security: DEBUG # set to ERROR for production setups. 
-  org.springframework.web: DEBUG      # set to ERROR for production setups.
+  com.sap.cloud.security: DEBUG       # set SAP-class loggers to DEBUG; set to ERROR for production setup
+  org.springframework: ERROR          # set to DEBUG to see all beans loaded and auto-config conditions met
+  org.springframework.security: DEBUG # set to ERROR for production setup
+  org.springframework.web: DEBUG      # set to ERROR for production setup
 ```
 
 Then, in case you like to see what different filters are applied to particular request then set debug flag to true in `@EnableWebSecurity` annotation:
@@ -230,31 +278,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 ```
 
 Finally, you need do re-deploy your application for the changes to take effect.
-
-### Known issues
-
-#### Multiple XSUAA Bindings (broker & application)  
-If your application binds to two XSUAA service instances (e.g. one of plan `application` and another one of plan `broker`), 
-you may run into audience validation issue.
-
-Consequently, you have to map the properties to `VCAP_SERVICES` differently. Go to `application.xml` and apply the following two changes:
-1. provide instead of `sap.security.services.xsuaa` `sap.security.services.xsuaa[0]` and 
-2. provide additional the client-id of the other xsuaa service(s)
-
-Finally, it should look as following:
-````yaml
- sap.security.services:
-       xsuaa[0]:
-            ...
-       xsuaa[1]:
-         clientid:  ${vcap.services.<other xsuaa service instance name>.credentials.clientid}
-````
+### Known pitfalls
 
 #### Configuration property name vcap.services.<<xsuaa instance name>>.credentials is not valid
 We recognized that this error is raised, when your instance name contains upper cases.
-
-## Additional (test) utilities
-- [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.
 
 ## Samples
 - [Sample](/samples/spring-security-hybrid-usage)    

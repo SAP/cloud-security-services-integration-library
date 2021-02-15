@@ -20,18 +20,80 @@ com.sap.cloud.security.xsuaa | xsuaa-spring-boot-starter
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
 
 In case you have configured your `TokenAuthenticationConverter` with `setLocalScopeAsAuthorities(true)` then you can use the auto-configured converter instead as  documented [here](/spring-security#setup-spring-security-oauth-20-resource-server):
-```
+```java
 @Autowired
 Converter<Jwt, AbstractAuthenticationToken> authConverter;
 ```
 
 ## Access VCAP_SERVICES values
-`spring-security` does not automatically map all properties to Spring `xsuaa.*` properties. You can only access those properties via 
+```spring-security``` automatically maps the `VCAP_SERVICES` credentials to Spring properties. Please note that the **prefix has changed** from ```xsuaa.*``` to ```sap.security.services.xsuaa``` or ```sap.security.services.xsuaa[0]``` in case of multiple xsuaa service bindings. Please find some adoption samples here.  
 
-- `XsuaaServiceConfiguration` interface or
-- `@Value("${xsuaa.clientid})` annotation
 
-that you have mapped to your within your `application.yml` as explained [here](/spring-security#map-properties-to-vcap_services).
+  **Before**  
+  ```java
+  @Value("${xsuaa.clientid})
+  ```  
+
+  **After**  
+  ```java
+  @Value("${sap.security.services.xsuaa.clientid})
+  ```  
+
+  **Before**  
+  ```java
+  import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+  ...
+  
+  @Autowired
+  XsuaaServiceConfiguration xsuaaServiceConfiguration;
+  ```  
+
+  **After**  
+  ```java
+  import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
+  ...
+  
+  @Autowired
+  XsuaaServiceConfiguration xsuaaServiceConfiguration;
+  ```  
+
+  **Before**  
+
+
+    ```java
+    import com.sap.cloud.security.xsuaa.XsuaaCredentials;
+    import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationCustom;
+   
+    ...
+   
+    @Bean
+    @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan application>>.credentials")
+    public XsuaaCredentials xsuaaCredentials() {
+        return new XsuaaCredentials(); // primary Xsuaa service binding, e.g. application
+    }
+    
+    @Bean
+    @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan broker>>.credentials")
+    public XsuaaCredentials brokerCredentials() {
+        return new XsuaaCredentials(); // secondary Xsuaa service binding, e.g. broker
+    }
+    @Bean
+    public XsuaaServiceConfiguration customXsuaaConfig() {
+        return new XsuaaServiceConfigurationCustom(xsuaaCredentials());
+    }
+    ```
+    
+  **After**  
+  ```java
+  import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
+  ...
+  
+  @Autowired
+  XsuaaServiceConfigurations xsuaaServiceConfigurations;
+  ```  
+
+  > :bulb: application plan is served as *main* configuration, you can get it using ``xsuaaServiceConfigurations.get(0)``.   
+  > Other configurations, e.g. of plan broker can be accessed with index >= 0.
 
 
 ## Fetch data from token
@@ -39,17 +101,17 @@ that you have mapped to your within your `application.yml` as explained [here](/
 #### ``SpringSecurityContext``
 You may have code parts that uses the `SpringSecurityContext` to get the token. Just update the import from:
 ````java
- import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
+import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 ````
 to
 ````java
-
+import com.sap.cloud.security.spring.token.SpringSecurityContext;
 ````
 
 #### `Token` methods
 You may have code parts that uses the `Token` interface to access details from the token. You need to update the imports from:
 ````java
- import com.sap.cloud.security.xsuaa.token.Token;
+import com.sap.cloud.security.xsuaa.token.Token;
 ````
 to
 ````java
@@ -109,15 +171,20 @@ See the [java-security-test documentation](/java-security-test) for more details
 The new security library requires the following key value pairs to configure the jwt validators. You can use the defaults specified within the ``java-security-test`` testing library.
 
 ````yaml
-xsuaa:
-  xsappname: xsapp!t0815
-  uaadomain: localhost
-  clientid: sb-clientId!t0815
-  url: http://localhost
+sap:
+  security:
+    services:
+      xsuaa:
+        xsappname: xsapp!t0815
+        uaadomain: localhost
+        clientid: sb-clientId!t0815
+        clientsecret: pwd
+        url: http://localhost
 
-identity:
-  clientid: sb-clientId!t0815
-  domain: localhost
+      identity:
+        clientid: sb-clientId!t0815
+        domain: localhost
+        url: http://localhost
 ````
 
 ## Things to check after migration 
@@ -126,7 +193,7 @@ application locally make sure it is still working and finally test the applicati
 
 
 ## Issues
-In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue.
+In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue. With that you can help us to improve this migration guide!
 
 ## Samples
 - [Sample](/samples/spring-security-hybrid-usage)    
