@@ -36,7 +36,7 @@ public class CFEnvironment implements Environment {
 		return getInstance(System::getenv, System::getProperty);
 	}
 
-	static CFEnvironment getInstance(UnaryOperator<String> systemEnvironmentProvider,
+	public static CFEnvironment getInstance(UnaryOperator<String> systemEnvironmentProvider,
 			UnaryOperator<String> systemPropertiesProvider) {
 		CFEnvironment instance = new CFEnvironment();
 		instance.systemEnvironmentProvider = systemEnvironmentProvider;
