@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.0 [BETA] :star:
+- [spring-security] new spring boot security client library that supports Token validation from XSUAA and IAS identity provider in parallel as described [here](/spring-security). An initial migration guide on how to migrate from ``spring-xsuaa`` is available [here](/spring-security/Migration_SpringXsuaaProjects.md).
+
+## 2.8.5
+- [java-security] load environment from `VCAP_SERVICES` formatted json file (#471)
+- [java-security] performance: make sure ServiceLoader loads services only once (#467)
+- [java-api] move `getAttributeFromClaimAsString` and `getAttributeFromClaimAsStringList` methods from `AccessToken` to its `Token` parent interface.
+
 ## 2.8.4
 - [java-security] Make HybridTokenFactory more failure tolerant 
 - [spring-xsuaa-test] Prefills "ext_atr" "enhancer" with XSUAA

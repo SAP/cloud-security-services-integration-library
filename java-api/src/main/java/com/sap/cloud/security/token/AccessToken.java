@@ -1,11 +1,7 @@
 package com.sap.cloud.security.token;
 
-import com.sap.cloud.security.json.JsonObject;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
@@ -53,12 +49,15 @@ public interface AccessToken extends Token {
 	GrantType getGrantType();
 
 	/**
-	 * Returns subaccount identifier. This reflects claim {@code ext_attr.subaccountid} in xsuaa access tokens.
-	 * For example, commercialized multi-tenant applications with a need for metering and billing use
-	 * {@link #getSubaccountId()} method as identifier for the account to be billed.<br>
+	 * Returns subaccount identifier. This reflects claim
+	 * {@code ext_attr.subaccountid} in xsuaa access tokens. For example,
+	 * commercialized multi-tenant applications with a need for metering and billing
+	 * use {@link #getSubaccountId()} method as identifier for the account to be
+	 * billed.<br>
 	 *
-	 * Multi-tenant applications need to adapt using the zone ID instead of the subaccount ID as key
-	 * for data isolation between tenants. For that purpose, use the {@link #getZoneId()} method instead.<br>
+	 * Multi-tenant applications need to adapt using the zone ID instead of the
+	 * subaccount ID as key for data isolation between tenants. For that purpose,
+	 * use the {@link #getZoneId()} method instead.<br>
 	 *
 	 * @return subaccount identifier or {@code null}
 	 */
@@ -67,54 +66,4 @@ public interface AccessToken extends Token {
 		return null;
 	}
 
-	/**
-	 * Returns the String value of a claim attribute. <br>
-	 * <code>
-	 *     "claimName": {
-	 *         "attributeName": "attributeValueAsString"
-	 *     },
-	 *     </code><br>
-	 * <br>
-	 * Example: <br>
-	 * <code>
-	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
-	 *
-	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
-	 *     </code>
-	 * 
-	 * @return the String value of a claim attribute or null if claim or its
-	 *         attribute does not exist.
-	 **/
-	@Nullable
-	default String getAttributeFromClaimAsString(String claimName, String attributeName) {
-		return Optional.ofNullable(getClaimAsJsonObject(claimName))
-				.map(claim -> claim.getAsString(attributeName))
-				.orElse(null);
-	}
-
-	/**
-	 * Returns the String list of a claim attribute. <br>
-	 * <code>
-	 *     "claimName": {
-	 *         "attributeName": ["attributeValueAsString", "attributeValue2AsString"]
-	 *     },
-	 *     </code><br>
-	 * <br>
-	 * Example: <br>
-	 * <code>
-	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
-	 *
-	 *     token.getAttributeFromClaimAsString(XS_USER_ATTRIBUTES, "custom_role");
-	 *     </code>
-	 *
-	 * @return the String value of a claim attribute or null if claim or its
-	 *         attribute does not exist.
-	 **/
-	@Nullable
-	default List<String> getAttributeFromClaimAsStringList(String claimName, String attributeName) {
-		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);
-		return Optional.ofNullable(claimAsJsonObject)
-				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class))
-				.orElse(null);
-	}
 }

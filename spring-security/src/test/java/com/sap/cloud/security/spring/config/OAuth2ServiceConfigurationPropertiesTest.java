@@ -3,7 +3,6 @@ package com.sap.cloud.security.spring.config;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
-import com.sap.cloud.security.spring.config.OAuth2ServiceConfigurationProperties;
 import org.junit.jupiter.api.Test;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;

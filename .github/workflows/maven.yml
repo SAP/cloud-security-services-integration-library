@@ -33,3 +33,5 @@ jobs:
         run: cd samples/sap-java-buildpack-api-usage; mvn -B package --file pom.xml
       - name: Build java-tokenclient-usage
         run: cd samples/java-tokenclient-usage; mvn -B package --file pom.xml
+      - name: Build java-tokenclient-usage
+        run: cd samples/spring-security-hybrid-usage; mvn -B package --file pom.xml

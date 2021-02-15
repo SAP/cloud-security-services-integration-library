@@ -36,7 +36,7 @@ bin
 *.iws
 *.iml
 *.ipr
-
+/venv/
 vim.exe.stackdump
 
 __pycache__/

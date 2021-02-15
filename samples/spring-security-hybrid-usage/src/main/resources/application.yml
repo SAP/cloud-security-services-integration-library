@@ -13,14 +13,3 @@ server:
 # Enable to make Spring Boot log debug information.
 # debug: true
 
-sap.security.services:
-  xsuaa:
-    xsappname:    ${vcap.services.xsuaa-authn.credentials.xsappname}
-    uaadomain:    ${vcap.services.xsuaa-authn.credentials.uaadomain}
-    clientid:     ${vcap.services.xsuaa-authn.credentials.clientid}
-    # clientsecret: ${vcap.services.xsuaa-authn.credentials.clientsecret} # required when you like to leverage token-flows api
-    url:          ${vcap.services.xsuaa-authn.credentials.url}
-  identity:
-    clientid:     ${vcap.services.ias-authn.credentials.clientid}
-    domain:       ${vcap.services.ias-authn.credentials.domain}
-    url:          ${vcap.services.ias-authn.credentials.url} # can be deleted later
