@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import abc
+import distutils
 import subprocess
 import urllib.request
 from urllib.parse import urlencode
@@ -12,16 +13,20 @@ import os
 import time
 import re
 from getpass import getpass
+from distutils.core import setup
 
 # Usage information
 # To run this script you must be logged into CF via 'cf login' Also make sure
 # to change settings in vars.yml to your needs.  This script deploys sample
 # apps and fires post request against their endpoints.  For some samples it
 # needs to create a password token for which you need to provide your password
-# (same as you would use for 'cf login').  You can do this by either supplying
+# (same as you would use for 'cf login'). You can do this by either supplying
 # it via the system environment variable 'CFPASSWORD' or by typing when the
 # script prompts for the password.  The same goes for the username with the
 # variable 'CFUSER'.
+# For IAS tests where manual user interaction is required to add user roles in SCP Cockpit,
+# system environment variable USER_INPUT_ENABLED needs to be set to true
+# by setting the value to 'y', 'yes', 't', 'true', 'on', '1' if it's disabled user input won't be requested.
 
 # Dependencies
 # The script depends on python3 and the cloud foundry command line tool 'cf'.
@@ -183,12 +188,13 @@ class SampleTest(abc.ABC, unittest.TestCase):
         return auth_code
 
     def prompt_user_role_assignment(self):
-        add_user = input(
-            "Can't add user Role Collection to the custom IAS origin. Do you want to add role manually?(y/n)")
-        if add_user.capitalize() == "Y":
-            input("Please add the role 'Viewer' to user {} in SCP Cockpit. Once done press enter to "
-                  "proceed with the test.".format(self.credentials.username))
-
+        usr_input_enabled = bool(distutils.util.strtobool(os.getenv("USER_INPUT_ENABLED")))
+        if usr_input_enabled is True:
+            add_user = input(
+                "Can't add user Role Collection to the custom IAS origin. Do you want to add role manually?(y/n)")
+            if add_user.capitalize() == "Y":
+                input("Please add the role 'Viewer' to user {} in SCP Cockpit. Once done press enter to "
+                      "proceed with the test.".format(self.credentials.username))
 
 class TestTokenClient(SampleTest):
 
@@ -481,14 +487,16 @@ class IasAccess:
 
     def __wait_service_created(self):
         progress = self.__check_service_progress()
+        if "FAILED" in progress:
+            raise Exception("Failed to create '{}' IAS service. {}".format(self.ias_service_name, progress))
         timer = 0
         while not "succeeded" in progress and timer < 280:
             logging.info("Waited {} seconds for IAS service '{}' to be created".format(timer, self.ias_service_name))
             time.sleep(7)
             timer += 7
             progress = self.__check_service_progress()
-        if timer >= 280:
-            raise Exception("Couldn't create '{}' IAS service, timeout reached")
+            if timer >= 280 or "FAILED" in progress:
+                raise Exception("Failed to create '{}' IAS service. Timeout reached.".format(self.ias_service_name))
         logging.info("'{}' IAS service was created".format(self.ias_service_name))
 
     def __check_service_progress(self):
