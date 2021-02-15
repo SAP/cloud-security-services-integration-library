@@ -53,7 +53,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		Environment environment = CFEnvironment.getInstance();
 		if (resource != null && resource.getResource().getFilename() != null
 				&& !resource.getResource().getFilename().isEmpty()) {
-			environment = Environments.getCurrent(resource.getResource().getInputStream());
+			environment = Environments.readFromInput(resource.getResource().getInputStream());
 		}
 		Properties properties = new Properties();
 		boolean multipleXsuaaServicesBound = environment.getNumberOfXsuaaConfigurations() > 1;

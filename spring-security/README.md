@@ -36,6 +36,10 @@ These (spring) dependencies needs to be provided:
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
     <version>0.1.0-SNAPSHOT</version> <!-- TODO-->
 </dependency>
+<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
+</dependency>
 ```
 
 #### Auto-configuration

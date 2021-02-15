@@ -18,7 +18,6 @@
 	</parent>
 
 	<artifactId>xsuaa-spring-boot-starter</artifactId>
-	<name>SAP Spring Boot Xsuaa Starter</name>
 	<description>SAP Starter for integrating application with XSUAA service</description>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<packaging>jar</packaging>
