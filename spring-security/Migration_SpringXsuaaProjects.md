@@ -36,7 +36,7 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
   **After**  
   ```java
-  @Value("${sap.security.services.xsuaa.clientid})
+  @Value("${sap.security.services.xsuaa.clientid}) # new prefix
   ```  
 
   **Before**  
@@ -50,7 +50,7 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
   **After**  
   ```java
-  import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
+  import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration; # new import
   ...
   
   @Autowired
@@ -59,33 +59,32 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
   **Before**  
 
+  ```java
+  import com.sap.cloud.security.xsuaa.XsuaaCredentials;
+  import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationCustom;
+   
+  ...
+   
+  @Bean
+  @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan application>>.credentials")
+  public XsuaaCredentials xsuaaCredentials() {
+     return new XsuaaCredentials(); // primary Xsuaa service binding, e.g. application
+  }
 
-    ```java
-    import com.sap.cloud.security.xsuaa.XsuaaCredentials;
-    import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationCustom;
-   
-    ...
-   
-    @Bean
-    @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan application>>.credentials")
-    public XsuaaCredentials xsuaaCredentials() {
-        return new XsuaaCredentials(); // primary Xsuaa service binding, e.g. application
-    }
-    
-    @Bean
-    @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan broker>>.credentials")
-    public XsuaaCredentials brokerCredentials() {
-        return new XsuaaCredentials(); // secondary Xsuaa service binding, e.g. broker
-    }
-    @Bean
-    public XsuaaServiceConfiguration customXsuaaConfig() {
-        return new XsuaaServiceConfigurationCustom(xsuaaCredentials());
-    }
-    ```
+  @Bean
+  @ConfigurationProperties("vcap.services.<<name of your xsuaa instance of plan broker>>.credentials")
+  public XsuaaCredentials brokerCredentials() {
+     return new XsuaaCredentials(); // secondary Xsuaa service binding, e.g. broker
+  }
+  @Bean
+  public XsuaaServiceConfiguration customXsuaaConfig() {
+     return new XsuaaServiceConfigurationCustom(xsuaaCredentials());
+  }
+  ```
     
   **After**  
   ```java
-  import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
+  import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations; # new import
   ...
   
   @Autowired
@@ -105,7 +104,7 @@ import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 ````
 to
 ````java
-import com.sap.cloud.security.spring.token.SpringSecurityContext;
+import com.sap.cloud.security.spring.token.SpringSecurityContext; # new import
 ````
 
 #### `Token` methods
@@ -115,7 +114,7 @@ import com.sap.cloud.security.xsuaa.token.Token;
 ````
 to
 ````java
-import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.Token; # new import
 ````
 
 The ``Token`` interface from ``spring-security`` needs to provide methods that can be served by both kind of tokens. That's why they are not compatible.
@@ -129,21 +128,21 @@ See the following table for methods that are not available in the target ```Toke
 |-------------------------|--------------------------------------------------------------------------------------------------|
 | `getSubaccountId`       | Available via `AccessToken` interface in case ```Service.XSUAA.equals(token.getService())```     |
 | `getSubdomain`          | Available via `XsuaaToken` implementation in case ```Service.XSUAA.equals(token.getService())``` 
-| `getGrantType`          | Available via `AccessToken.getGrantType().toString()` interface in case ```Service.XSUAA.equals(token.getService())```   
-| `getLogonName`          | `getPrincipal()getName()`. 
-| `getOrigin`             | ```getClaimAsString(TokenClaims.ORIGIN)```.
-| `getGivenName`          | ```getClaimAsString(TokenClaims.GIVEN_NAME)```. :bulb: no support for SAML 2.0 - XSUAA mapping.
+| `getGrantType`          | Available via `getGrantType().toString()` of `AccessToken` interface in case ```Service.XSUAA.equals(token.getService())```   
+| `getLogonName`          | ``getPrincipal().getName()`` 
+| `getOrigin`             | ``getClaimAsString(TokenClaims.ORIGIN)``.
+| `getGivenName`          | ``getClaimAsString(TokenClaims.GIVEN_NAME)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
 | `getFamilyName`         | ``getClaimAsString(TokenClaims.FAMILY_NAME)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
 | `getEmail`              | ``getClaimAsString(TokenClaims.EMAIL)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
-| `getXSUserAttribute`          | Available via ```accessToken.getAttributeFromClaimAsStringList(TokenClaims.XS_USER_ATTRIBUTES, attributeName)``` in case ```Service.XSUAA.equals(token.getService())```
-| `getAdditionalAuthAttribute`  | Available via ```accessToken.getAttributeFromClaimAsString("az_attr", attributeName)``` in case ```Service.XSUAA.equals(token.getService())```
-| `getCloneServiceInstanceId`   | Available via ```accessToken.getAttributeFromClaimAsString(TokenClaims.EXTERNAL_ATTRIBUTE, "serviceinstanceid")``` in case ```Service.XSUAA.equals(token.getService())```
-| `getAppToken`           | use `getTokenValue`
-| `getScopes`             | use `getClaimAsStringList(TokenClaims.XSUAA.SCOPES)`
+| `getXSUserAttribute`    | Available via ```getAttributeFromClaimAsStringList(TokenClaims.XS_USER_ATTRIBUTES, attributeName)``` in case ```Service.XSUAA.equals(token.getService())```
+| `getAdditionalAuthAttribute`  | Available via ```getAttributeFromClaimAsString("az_attr", attributeName)``` in case ```Service.XSUAA.equals(token.getService())```
+| `getCloneServiceInstanceId`   | Available via ```getAttributeFromClaimAsString(TokenClaims.EXTERNAL_ATTRIBUTE, "serviceinstanceid")``` in case ```Service.XSUAA.equals(token.getService())```
+| `getAppToken`           | `getTokenValue`
+| `getScopes`             | `getClaimAsStringList(TokenClaims.XSUAA.SCOPES)`
 | `getAuthorities()`      | TODO
-| `getExpiration()`       | use `isExpired()` and `getExpiration()` instead.
+| `getExpiration()`       | `getExpiration()` and for convenience `isExpired()`
 
-> :bulb: `getAttributeFromClaimAsStringList` and `getAttributeFromClaimAsString` are available on `Token` interface as of `java-security` version `2.8,5`.
+> :bulb: `getAttributeFromClaimAsStringList` and `getAttributeFromClaimAsString` are available on `Token` interface as of `java-security` version `2.8.5`.
 
 #### Spring's `Jwt` methods
 
