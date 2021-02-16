@@ -10,13 +10,13 @@ import org.springframework.context.annotation.PropertySource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = { TestConfigurationFromFile.class })
-public class IdentityServicesPropertySourceFactoryTest {
+class IdentityServicesPropertySourceFactoryTest {
 
 	@Autowired
 	TestConfigurationFromFile configuration;
 
 	@Test
-	public void testInjectedPropertyValues() {
+	void testInjectedPropertyValues() {
 		assertEquals("client-id", configuration.xsuaaClientId);
 		assertEquals("client-secret", configuration.xsuaaClientSecret);
 		assertEquals("http://domain.xsuaadomain", configuration.xsuaaUrl);

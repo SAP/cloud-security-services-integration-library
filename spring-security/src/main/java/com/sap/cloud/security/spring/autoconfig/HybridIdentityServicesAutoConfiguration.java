@@ -41,6 +41,10 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
 class HybridIdentityServicesAutoConfiguration {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HybridIdentityServicesAutoConfiguration.class);
 
+	HybridIdentityServicesAutoConfiguration() {
+		// no need to create an instance
+	}
+
 	@Configuration
 	@ConditionalOnMissingBean({ JwtDecoder.class })
 	@ConditionalOnWebApplication(type = SERVLET)
