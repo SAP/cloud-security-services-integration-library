@@ -338,7 +338,7 @@ class TestSpringSecurity(SampleTest):
             xsappname = self.get_deployed_app().get_credentials_property('xsappname')
             self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
         else:
-            logging.warning('test_sayHello_ias was skipped. Enable it with USER_INPUT_ENABLED=true.')
+            logging.warning('test_sayHello_ias was skipped. To run test enable environment variable USER_INPUT_ENABLED=true and enter "y" for the user prompt: "Do you want to add role manually?."')
 
 class TestJavaBuildpackApiUsage(SampleTest):
 
