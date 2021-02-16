@@ -61,3 +61,4 @@ public class EnvironmentsTest {
 		assertThat(cut).isNotSameAs(Environments.getCurrent());
 	}
 }
+

@@ -10,13 +10,13 @@ import org.springframework.context.annotation.PropertySource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = { MultiXsuaaTestConfigurationFromFile.class })
-public class IdentityServicesPropertySourceFactoryMultiTest {
+class IdentityServicesPropertySourceFactoryMultiTest {
 
 	@Autowired
 	MultiXsuaaTestConfigurationFromFile configuration;
 
 	@Test
-	public void testInjectedPropertyValues_multiXsuaaBindings() {
+	void testInjectedPropertyValues_multiXsuaaBindings() {
 		assertEquals("client-id-broker", configuration.xsuaaBrokerClientId);
 		assertEquals("client-secret-broker", configuration.xsuaaBrokerClientSecret);
 

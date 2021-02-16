@@ -94,7 +94,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 }
 ```
-> :bulb: This ``PropertySource`` might be auto-configured soon. Please watch the release notes.
+> :bulb: This ``PropertySource`` might be auto-configured soon. Please watch the release notes.  
 > :bulb: Please note that the auto-configured authentication converter supports ```hasAuthority```-checks for scopes provided with the Xsuaa access token. 
 > In case you need to consider authorizations provided via an OIDC token from IAS you need to overwrite the default implementation.
 

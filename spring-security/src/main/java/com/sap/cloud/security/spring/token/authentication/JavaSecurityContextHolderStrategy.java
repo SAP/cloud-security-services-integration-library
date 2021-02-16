@@ -31,12 +31,12 @@ import org.springframework.util.Assert;
  * }
  * }
  * </pre>
- * 
+ * or via <br>
  * {@code SecurityContextHolder.setStrategyName("com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy")}
  */
 public class JavaSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
 
-	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal();
+	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<>();
 
 	public void clearContext() {
 		contextHolder.remove();
