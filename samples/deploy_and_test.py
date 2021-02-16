@@ -278,7 +278,7 @@ class TestSpringSecurityHybrid(SampleTest):
         self.assertRegex(resp.body, 'You got the sensitive data for zone', 'Expected another response.')
 
     def test_sayHello_ias(self):
-        resp = self.perform_get_request_with_ias_token('/sayHello', self.get_id_token)
+        resp = self.perform_get_request_with_ias_token('/sayHello', self.get_id_token())
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
 
 
