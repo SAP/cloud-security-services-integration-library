@@ -196,13 +196,15 @@ class SampleTest(abc.ABC, unittest.TestCase):
         return auth_code
 
     def prompt_user_role_assignment(self):
-        usr_input_enabled = bool(distutils.util.strtobool(os.getenv("USER_INPUT_ENABLED")))
-        if usr_input_enabled is True:
+        usr_input_enabled = os.getenv("USER_INPUT_ENABLED")
+        if usr_input_enabled and bool(distutils.util.strtobool(usr_input_enabled)) is True:
             add_user = input(
                 "Can't add user Role Collection to the custom IAS origin. Do you want to add role manually?(y/n)")
             if add_user.capitalize() == "Y":
                 input("Please add the role 'Viewer' to user {} in SCP Cockpit. Once done press enter to "
                       "proceed with the test.".format(self.credentials.username))
+                return True
+        return False
 
 
 class TestTokenClient(SampleTest):
@@ -325,16 +327,18 @@ class TestSpringSecurity(SampleTest):
 
         resp = self.perform_get_request_with_ias_token('/v1/sayHello', ias_service.fetch_ias_token(self))
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
-        self.prompt_user_role_assignment()
-        logging.warning("In case after adding role collection, user is still not authorized. "
-                        "Check in IAS admin panel that the application's '{}' Subject Name Identifier is set to email. "
-                        "Bug: https://jtrack.wdf.sap.corp/browse/NGPBUG-139441 "
-                        .format(ias_service.ias_service_name))
-        resp = self.perform_get_request_with_ias_token('/v1/sayHello', ias_service.fetch_ias_token(self))
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
-        xsappname = self.get_deployed_app().get_credentials_property('xsappname')
-        self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
-
+        if (self.prompt_user_role_assignment()):
+            resp = self.perform_get_request_with_ias_token('/v1/sayHello', ias_service.fetch_ias_token(self))
+            if(resp.status != 200):
+                logging.warning("In case after adding role collection, user is still not authorized. "
+                                "Check in IAS admin panel that the application's '{}' Subject Name Identifier is set to email. "
+                                "Bug: NGPBUG-139441 "
+                                .format(ias_service.ias_service_name))
+            self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+            xsappname = self.get_deployed_app().get_credentials_property('xsappname')
+            self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
+        else:
+            logging.warning('test_sayHello_ias was skipped. Enable it with USER_INPUT_ENABLED=true.')
 
 class TestJavaBuildpackApiUsage(SampleTest):
 
