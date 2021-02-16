@@ -198,12 +198,11 @@ class SampleTest(abc.ABC, unittest.TestCase):
     def prompt_user_role_assignment(self):
         usr_input_enabled = os.getenv("USER_INPUT_ENABLED")
         if usr_input_enabled and bool(distutils.util.strtobool(usr_input_enabled)) is True:
-            add_user = input(
-                "Can't add user Role Collection to the custom IAS origin. Do you want to add role manually?(y/n)")
-            if add_user.capitalize() == "Y":
-                input("Please add the role 'Viewer' to user {} in SCP Cockpit. Once done press enter to "
-                      "proceed with the test.".format(self.credentials.username))
-                return True
+            input("Can't add user Role Collection to the custom IAS origin. \n"
+                  "Please add the role 'Viewer' to user {} in SCP Cockpit manually. \n"
+                  "Once done press enter to proceed with the test."
+                  .format(self.credentials.username))
+            return True
         return False
 
 
@@ -338,7 +337,8 @@ class TestSpringSecurity(SampleTest):
             xsappname = self.get_deployed_app().get_credentials_property('xsappname')
             self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
         else:
-            logging.warning('test_sayHello_ias was skipped. To run test enable environment variable USER_INPUT_ENABLED=true and enter "y" for the user prompt: "Do you want to add role manually?."')
+            logging.warning('test_sayHello_ias was skipped. To run test enable environment variable USER_INPUT_ENABLED=true')
+
 
 class TestJavaBuildpackApiUsage(SampleTest):
 
