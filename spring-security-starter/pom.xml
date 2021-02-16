@@ -17,10 +17,12 @@
 		<version>2.8.5</version>
 	</parent>
 
-	<artifactId>xsuaa-spring-boot-starter</artifactId>
-	<description>SAP Starter for integrating application with XSUAA service</description>
+	<groupId>com.sap.cloud.security</groupId>
+	<artifactId>resourceserver-security-spring-boot-starter</artifactId>
+	<description>SAP Starter for integrating application with IAS and/or XSUAA service</description>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<packaging>jar</packaging>
+	<version>0.1.0-SNAPSHOT</version> <!-- TODO when spring-security provides GA release -->
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -30,16 +32,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.sap.cloud.security.xsuaa</groupId>
-			<artifactId>spring-xsuaa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>spring-security</artifactId>
+			<version>0.1.0-SNAPSHOT</version> <!-- TODO when spring-security provides GA release -->
 		</dependency>
 		<dependency> <!-- includes spring-security-oauth2-->
 			<groupId>org.springframework.security</groupId>
@@ -48,6 +43,32 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-resource-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-autoconfigure</artifactId>
+		</dependency>
+		<dependency><!-- remove this -->
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>java-api</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<!-- TODO remove this block when spring-security provides GA release -->
+		<dependency>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>java-security</artifactId>
+			<version>${project.parent.version}</version> <!-- TODO when spring-security provides GA release -->
+			<exclusions>
+				<exclusion>
+					<groupId>com.sap.cloud.security</groupId>
+					<artifactId>java-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
