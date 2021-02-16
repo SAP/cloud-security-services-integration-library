@@ -2,6 +2,7 @@ package com.sap.cloud.security.samples.ias;
 
 import com.sap.cloud.security.servlet.IasTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticationResult;
+import com.sap.cloud.security.token.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
