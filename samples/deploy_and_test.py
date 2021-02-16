@@ -276,12 +276,26 @@ class TestSpringSecurityHybrid(SampleTest):
         self.assertRegex(resp.body, clientid, 'Expected to find clientid in response')
 
         resp = self.perform_get_request_with_token('/method')
-        self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+        self.assertEqual(resp.status, 200, EXPECT_200)
         self.assertRegex(resp.body, 'You got the sensitive data for zone', 'Expected another response.')
 
     def test_sayHello_ias(self):
         resp = self.perform_get_request_with_ias_token('/sayHello', self.get_id_token())
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        self.assertEqual(resp.status, 403, EXPECT_403)
+
+class TestJavaSecurityIas(SampleTest):
+
+    def get_app(self):
+        return CFApp(name='java-security-usage-ias', identity_service_name='ias-java-security')
+
+    def test_sayHello_ias(self):
+        resp = self.perform_get_request('/hello-java-security-ias')
+        self.assertEqual(resp.status, 401, EXPECT_401)
+
+        resp = self.perform_get_request_with_ias_token('/hello-java-security-ias', self.get_id_token())
+        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertIsNotNone(resp.body)
+        self.assertRegex(resp.body, "are authenticated and can access the application.")
 
 
 class TestSpringSecurity(SampleTest):
@@ -498,7 +512,7 @@ class HttpUtil:
 
 class IasAccess:
     def __init__(self, ias_name):
-        self.ias_service_key_name = "ias-access-key"
+        self.ias_service_key_name = ias_name + '-key'
         self.ias_service_name = ias_name
         self.ias_service_url = None
         self.ias_client_id = None
@@ -513,8 +527,9 @@ class IasAccess:
         return output.get(key)
 
     def __create_ias_service(self):
+        logging.info("Creating IAS service '{}'".format(self.ias_service_name))
         subprocess.call(['cf', 'create-service', 'identity', 'application', self.ias_service_name,
-                         '-c', '{"xsuaa-cross-consumption": "true"}'])
+                         '-c', '{"xsuaa-cross-consumption": "true"}'], stdout=cf_logs)
         self.__wait_service_created()
 
     def __wait_service_created(self):
@@ -539,7 +554,7 @@ class IasAccess:
         logging.info("Creating service-key for {} IAS service with service-key name: {}"
                      .format(self.ias_service_name, self.ias_service_key_name))
         subprocess.run(['cf', 'create-service-key', self.ias_service_name,
-                        self.ias_service_key_name])
+                        self.ias_service_key_name], stdout=cf_logs)
 
     def __get_ias_service_key(self):
         logging.info("Fetching service-key '{}' for '{}' IAS service"
@@ -547,10 +562,11 @@ class IasAccess:
         service_key_output = subprocess.run(
             ['cf', 'service-key', self.ias_service_name, self.ias_service_key_name], capture_output=True)
         lines = service_key_output.stdout.decode().split('\n')
-        json_output = json.loads(''.join(lines[1:]))
-        self.ias_client_id = self.__extract_json_values(json_output, 'clientid')
-        self.ias_client_secret = self.__extract_json_values(json_output, 'clientsecret')
-        self.ias_service_url = self.__extract_json_values(json_output, 'url')
+        if lines is not None:
+            json_output = json.loads(''.join(lines[1:]))
+            self.ias_client_id = self.__extract_json_values(json_output, 'clientid')
+            self.ias_client_secret = self.__extract_json_values(json_output, 'clientsecret')
+            self.ias_service_url = self.__extract_json_values(json_output, 'url')
 
     def fetch_ias_token(self, user):
         logging.info("Fetching IAS token for '{}' IAS service".format(self.ias_service_name))
@@ -568,12 +584,17 @@ class IasAccess:
         return self.ias_token
 
     def delete(self):
+        IasAccess.delete(self.ias_service_name)
+
+    @staticmethod
+    def delete(ias_service_name):
+        ias_service_key_name = ias_service_name + '-key'
         logging.info("Deleting service key '{}' for '{}' IAS service"
-                     .format(self.ias_service_key_name, self.ias_service_name))
+                     .format(ias_service_key_name, ias_service_name))
         subprocess.run(['cf', 'delete-service-key', '-f',
-                        self.ias_service_name, self.ias_service_key_name], stdout=cf_logs)
-        logging.info("Deleting {} IAS service".format(self.ias_service_name))
-        subprocess.run(['cf', 'delete-service', '-f', self.ias_service_name], stdout=cf_logs)
+                        ias_service_name, ias_service_key_name], stdout=cf_logs)
+        logging.info("Deleting {} IAS service".format(ias_service_name))
+        subprocess.run(['cf', 'delete-service', '-f', ias_service_name], stdout=cf_logs)
 
 
 class ApiAccessService:
@@ -727,10 +748,11 @@ class DeployedApp:
     >>> vcap_services = {'xsuaa': [{'label': 'xsuaa', 'provider': None, 'plan': 'application', 'name': 'xsuaa-java-security', 'tags': ['xsuaa'], 'instance_name': 'xsuaa-java-security', 'binding_name': None, 'credentials': {'tenantmode': 'dedicated', 'sburl': 'https://internal-xsuaa.authentication.sap.hana.ondemand.com', 'clientid': 'sb-java-security-usage!t1785', 'xsappname': 'java-security-usage!t1785', 'clientsecret': 'abc', 'url': 'https://test.authentication.sap.hana.ondemand.com', 'uaadomain': 'authentication.sap.hana.ondemand.com', 'identityzone': 'test01', 'identityzoneid': '54d48a27', 'tenantid': '54d48a27'}, 'syslog_drain_url': None, 'volume_mounts': []}],'identity': [{'label': 'identity', 'plan': 'application', 'name': 'ias-authn', 'credentials': {'clientid': 'clientid', 'clientsecret': 'efg', 'url': 'https://test.authentication.sap.hana.ondemand.com'}}]}
     >>> app = DeployedApp(vcap_services)
     >>> app.get_credentials_property('clientsecret')
-    'b1GhPeHArXQCimhsCiwOMzT8wOU='
+    'abc'
     >>> app.clientsecret
-    'b1GhPeHArXQCimhsCiwOMzT8wOU='
+    'abc'
     >>> app.get_ias_credentials_property('url')
+    'https://test.authentication.sap.hana.ondemand.com'
     """
 
     """
@@ -746,7 +768,8 @@ class DeployedApp:
 
     def __init__(self, vcap_services):
         self.vcap_services = vcap_services
-        self.xsuaa_properties = self.vcap_services.get('xsuaa')[0]
+        if self.vcap_services.get('xsuaa') is not None:
+            self.xsuaa_properties = self.vcap_services.get('xsuaa')[0]
         if self.vcap_services.get('identity') is not None:
             self.ias_properties = self.vcap_services.get('identity')[0]
 
@@ -789,27 +812,26 @@ class DeployedApp:
 
 
 class CFApp:
-    def __init__(self, name, xsuaa_service_name, app_router_name=None, identity_service_name=None):
-        if name is None or xsuaa_service_name is None:
-            raise (Exception('Name and xsuua service name must be provided'))
+    def __init__(self, name, xsuaa_service_name=None, app_router_name=None, identity_service_name=None):
+        if name is None:
+            raise (Exception('Name must be provided'))
         self.name = name
         self.xsuaa_service_name = xsuaa_service_name
-        self.identity_service_name = identity_service_name
         self.app_router_name = app_router_name
+        self.identity_service_name = identity_service_name
 
     @property
     def working_dir(self):
         return './' + self.name
 
     def deploy(self):
-        logging.info("Creating Xsuaa service '{}'".format(self.xsuaa_service_name))
-        subprocess.run(
-            ['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', 'xs-security.json'],
-            cwd=self.working_dir, stdout=cf_logs, check=True)
+        if self.xsuaa_service_name is not None:
+            logging.info("Creating Xsuaa service '{}'".format(self.xsuaa_service_name))
+            subprocess.run(
+                ['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', 'xs-security.json'],
+                cwd=self.working_dir, stdout=cf_logs, check=True)
         if self.identity_service_name is not None:
-            logging.info("Creating IAS service '{}'".format(self.identity_service_name))
-            subprocess.run(['cf', 'create-service', 'identity', 'application', self.identity_service_name, '-c',
-                            '{"xsuaa-cross-consumption": "true"}'], cwd=self.working_dir)
+            IasAccess(self.identity_service_name)
         logging.info("Verifying '{}' application tests".format(self.name))
         subprocess.run(['mvn', 'clean', 'verify'], cwd=self.working_dir, stdout=java_logs)
         logging.info("Deploying '{}' to CF".format(self.name))
@@ -818,15 +840,19 @@ class CFApp:
 
     def delete(self):
         logging.info("Deleting '{}'".format(self.name))
+        if self.identity_service_name is not None:
+            subprocess.run(['cf', 'us', self.name, self.identity_service_name], stdout=cf_logs)
         subprocess.run(['cf', 'delete', '-f', '-r', self.name], stdout=cf_logs)
+        subprocess.run(['cf', 'delete', '-f', '-r', self.name], stdout=cf_logs)
+        subprocess.run(['cf', 'delete-orphaned-routes', '-f'], stdout=cf_logs)
         if self.app_router_name is not None:
             logging.info("Deleting '{}' app router".format(self.app_router_name))
             subprocess.run(['cf', 'delete', '-f', '-r', self.app_router_name], stdout=cf_logs)
         logging.info("Deleting '{}' Xsuaa service".format(self.xsuaa_service_name))
-        subprocess.run(['cf', 'delete-service', '-f', self.xsuaa_service_name], stdout=cf_logs)
+        if self.xsuaa_service_name is not None:
+            subprocess.run(['cf', 'delete-service', '-f', self.xsuaa_service_name], stdout=cf_logs)
         if self.identity_service_name is not None:
-            logging.info("Deleting '{}' IAS service".format(self.identity_service_name))
-            subprocess.run(['cf', 'delete-service', '-f', self.identity_service_name], stdout=cf_logs)
+           IasAccess.delete(self.identity_service_name)
 
     def __str__(self):
         return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}, Identity-Service-Name: {}'.format(
