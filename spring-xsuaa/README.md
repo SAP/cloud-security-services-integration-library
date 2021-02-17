@@ -265,7 +265,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 Finally you need do re-deploy your application for the changes to take effect.
 
-### Known issues
+### Common Pitfalls
 #### Compile error when upgrading from version `1.5.0` to `1.6.0`:  
   ```
   java.lang.IllegalStateException: Failed to load ApplicationContext
