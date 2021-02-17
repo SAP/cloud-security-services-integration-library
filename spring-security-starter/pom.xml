@@ -22,7 +22,7 @@
 	<description>SAP Starter for integrating application with IAS and/or XSUAA service</description>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<packaging>jar</packaging>
-	<version>0.1.0-SNAPSHOT</version> <!-- TODO when spring-security provides GA release -->
+	<version>0.1.0</version> <!-- TODO when spring-security provides GA release -->
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>spring-security</artifactId>
-			<version>0.1.0-SNAPSHOT</version> <!-- TODO when spring-security provides GA release -->
+			<version>0.1.0</version> <!-- TODO when spring-security provides GA release -->
 		</dependency>
 		<dependency> <!-- includes spring-security-oauth2-->
 			<groupId>org.springframework.security</groupId>

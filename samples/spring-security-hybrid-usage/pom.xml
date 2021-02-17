@@ -44,7 +44,7 @@
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>resourceserver-security-spring-boot-starter</artifactId>
 			<!--<version>${sap.cloud.security.version}</version>-->
-			<version>0.1.0-SNAPSHOT</version> <!-- TODO when spring-security provides GA release -->
+			<version>0.1.0</version> <!-- TODO when spring-security provides GA release -->
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
