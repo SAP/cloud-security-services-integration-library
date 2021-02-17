@@ -3,13 +3,13 @@ package com.sap.cloud.security.test;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
+import com.sap.cloud.security.token.AbstractToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import sun.security.rsa.RSAPublicKeyImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -52,7 +53,8 @@ public class JwtGeneratorTest {
 
 	@Before
 	public void setUp() {
-		cut = JwtGenerator.getInstance(XSUAA, DEFAULT_CLIENT_ID).withPrivateKey(keys.getPrivate());
+		cut = JwtGenerator.getInstance(XSUAA, DEFAULT_CLIENT_ID)
+				.withPrivateKey(keys.getPrivate());
 	}
 
 	@Test
@@ -69,6 +71,7 @@ public class JwtGeneratorTest {
 		assertThat(token.getZoneId()).isEqualTo(DEFAULT_ZONE_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo(DEFAULT_ZONE_ID);
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
+		assertThat(((AbstractToken) token).isXsuaaToken()).isTrue();
 	}
 
 	@Test
@@ -94,13 +97,13 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsString(SAP_GLOBAL_USER_ID)).isEqualTo("1234567890");
 		assertThat(token.getPrincipal().getName()).isEqualTo("1234567890");
 		String encodedModulusN = Base64.getUrlEncoder()
-				.encodeToString(((RSAPublicKeyImpl) keys.getPublic()).getModulus().toByteArray());
+				.encodeToString(((RSAPublicKey) keys.getPublic()).getModulus().toByteArray());
 		assertThat(encodedModulusN).startsWith("AJtUGmczI7RHx3");
 	}
 
 	@Test
 	public void createToken_withoutPrivateKey_throwsException() {
-		assertThatThrownBy(() -> JwtGenerator.getInstance(IAS, "T00001234").createToken())
+		assertThatThrownBy(() -> JwtGenerator.getInstance(IAS, "T00001234").withPrivateKey(null).createToken())
 				.isInstanceOf(IllegalStateException.class);
 	}
 
@@ -223,7 +226,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void withScopes_serviceIsIAS_throwsUnsupportedOperationException() {
-		cut = JwtGenerator.getInstance(IAS, "T00001234").withPrivateKey(keys.getPrivate());
+		cut = JwtGenerator.getInstance(IAS, "T00001234");
 		assertThatThrownBy(() -> cut.withScopes("firstScope").createToken())
 				.isInstanceOf(UnsupportedOperationException.class)
 				.hasMessage("Scopes are not supported for service IAS");
@@ -327,7 +330,6 @@ public class JwtGeneratorTest {
 	@Test
 	public void getInstanceFromFile_overridesTokenPropertiesForTesting() throws IOException {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token.json")
-				.withPrivateKey(keys.getPrivate())
 				.createToken();
 
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(DEFAULT_KEY_ID);
@@ -337,7 +339,6 @@ public class JwtGeneratorTest {
 	@Test
 	public void getInstanceFromFile_loadsJsonData() throws IOException {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token.json")
-				.withPrivateKey(keys.getPrivate())
 				.createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
@@ -351,7 +352,6 @@ public class JwtGeneratorTest {
 	@Test
 	public void getInstanceFromFile_noHeader_noErrorAndReadsPayload() throws IOException {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token_no_header.json")
-				.withPrivateKey(keys.getPrivate())
 				.createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo("zone-id");
@@ -380,8 +380,7 @@ public class JwtGeneratorTest {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new NoSuchAlgorithmException();
 		});
-		cut = instance.withPrivateKey(keys.getPrivate());
-		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
+		assertThatThrownBy(() -> instance.createToken()).isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
@@ -389,8 +388,7 @@ public class JwtGeneratorTest {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new SignatureException();
 		});
-		cut = instance.withPrivateKey(keys.getPrivate());
-		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
+		assertThatThrownBy(() -> instance.createToken()).isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
@@ -398,8 +396,7 @@ public class JwtGeneratorTest {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new InvalidKeyException();
 		});
-		cut = instance.withPrivateKey(keys.getPrivate());
-		assertThatThrownBy(() -> cut.createToken()).isInstanceOf(RuntimeException.class);
+		assertThatThrownBy(() -> instance.createToken()).isInstanceOf(RuntimeException.class);
 	}
 
 }

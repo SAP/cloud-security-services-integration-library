@@ -22,7 +22,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>2.8.0</version>
+    <version>2.8.5</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -31,10 +31,10 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 Find an example on how to use the test utilities [here](/samples/java-security-usage).
 
 ### Jwt Generator
-Using `JwtGenerator` you can create tokens of type [`Token`](/java-security/src/main/java/com/sap/cloud/security/token/Token.java), which offers you a `getTokenValue()` method that returns the encoded and signed Jwt token. By default its signed with a random RSA key pair. In case you like to provide the token via `Authorization` header to your application you need to prefix the access token with `Bearer `. 
+Using `JwtGenerator` you can create tokens of type [`Token`](/java-security/src/main/java/com/sap/cloud/security/token/Token.java), which offers you a `getTokenValue()` method that returns the encoded and signed Jwt token. By default its signed with a random RSA key pair (as of version `2.8.1`). In case you like to provide the token via `Authorization` header to your application you need to prefix the access token with `Bearer `. 
 
 ```java
-Token token = JwtGenerator.getInstance(Service.XSUAA)
+Token token = JwtGenerator.getInstance(Service.XSUAA, "client-id")
                                 .withHeaderParameter(TokenHeader.KEY_ID, "key-id") // optional
                                 .withClaimValue(TokenClaims.XSUAA.AUTHORIZATION_PARTY, azp) // optional
                                 .createToken();
@@ -105,7 +105,7 @@ public class HelloJavaServletTest {
 
 
 ### JUnit 5
-JUnit 5 does no longer support `Rule`. As of `java-security-test` version `2.8.0` you can implement using [JUnit 5 extensions](https://junit.org/junit5/docs/current/user-guide/#extensions) instead. 
+JUnit 5 does no longer support `Rule`. As of `java-security-test` version `2.7.8` you can implement using [JUnit 5 extensions](https://junit.org/junit5/docs/current/user-guide/#extensions) instead. 
 
 
 `XsuaaExtension` class as well as the `IasExtension` class implements the `BeforeAllCallback` to configure and start `WireMock` as mock server for the identity service. Furthermore, it implements the `AfterAllCallback` to stop the running server(s).

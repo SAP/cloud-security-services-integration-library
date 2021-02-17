@@ -23,7 +23,7 @@ The Resource owner password credentials (i.e., username and password) can be use
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.8.0</version>
+    <version>2.8.5</version>
 </dependency>
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
@@ -64,7 +64,7 @@ By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.8.0</version>
+    <version>2.8.5</version>
 </dependency>
 ```
 
@@ -95,7 +95,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.8.0</version>
+    <version>2.8.5</version>
 </dependency>
 ```
 
@@ -189,7 +189,10 @@ If you have classpath related  issues involving JSON you should take a look at t
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 - `{\"error\":\"unauthorized\",\"error_description\":\"Unable to map issuer, [http://subdomain.localhost:8080/uaa/oauth/token] , to a single registered provider\"}`  
-Token exchange is only supported within the same identity zone/tenant. So please make sure, that you are calling the token endpoint of the same tenant, that was used for the original token. In this case please configure the token flows with the subdomain from the original token, e.g. `tokenFlows.clientCredentialsTokenFlow().subdomain(jwtToken.getSubdomain());`
+Token exchange is only supported within the same identity zone/tenant. That means, that you have to call the `/oauth/token` endpoint of the same subdomain, that was used for the original token. This can be achieved by configuring the user token flow the following way:
+````
+tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());`
+````
 
 ## Samples
 - [Java sample](/samples/java-tokenclient-usage)

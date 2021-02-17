@@ -1,4 +1,4 @@
-# Migration Guide for J2EE Web Applications that use SAP Java Buildpack for securing their applications
+# Migration Guide for J2EE Web Applications that use SAP Buildpack for securing their applications - API Version 2
 
 
 **This document is only applicable for J2EE web applications securing their application with SAP Java Buildpack.** 
@@ -19,8 +19,6 @@ First make sure you have the following dependency defined in your pom.xml:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-api</artifactId>
-    <version>2.7.3</version>
-    <scope>provided</scope> <!-- provided with buildpack -->
 </dependency>
 ```
 
@@ -29,8 +27,6 @@ Now you are ready to **remove** the dependency to the **`api`** by deleting the 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>api</artifactId>
-    <version>2.7.3</version>
-    <scope>provided</scope>
 </dependency>
 ```
 The dependency `com.sap.cloud.security:java-api` is the new api exposed by the SAP Java Buildpack as of version `1.26.1`.

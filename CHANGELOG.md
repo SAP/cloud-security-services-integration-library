@@ -2,6 +2,55 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.0 [BETA] :star:
+- [spring-security] new spring boot security client library that supports Token validation from XSUAA and IAS identity provider in parallel as described [here](/spring-security). An initial migration guide on how to migrate from ``spring-xsuaa`` is available [here](/spring-security/Migration_SpringXsuaaProjects.md).
+
+## 2.8.5
+- [java-security] load environment from `VCAP_SERVICES` formatted json file (#471)
+- [java-security] performance: make sure ServiceLoader loads services only once (#467)
+- [java-api] move `getAttributeFromClaimAsString` and `getAttributeFromClaimAsStringList` methods from `AccessToken` to its `Token` parent interface.
+
+## 2.8.4
+- [java-security] Make HybridTokenFactory more failure tolerant 
+- [spring-xsuaa-test] Prefills "ext_atr" "enhancer" with XSUAA
+
+#### Update Versions
+- [all]
+  - commons-io 2.6 --> 2.8.0
+  - org.apache.httpcomponents » httpclient 4.5.9 --> 4.5.13
+  - spring.core.version 5.3.2 --> 5.3.3
+  - spring.boot.version 2.4.1 --> 2.4.2
+- [java-security-test]
+  - org.eclipse.jetty 9.4.35.v20201120 --> 9.4.36.v20210114
+- [token-client]
+  - caffeine 2.8.6 --> 2.8.8
+  - org.json 20200518 --> 20201115
+- [spring-xsuaa]
+  - caffeine 2.8.6 --> 2.8.8
+  - reactor-core 	3.3.7.RELEASE --> 3.4.2
+  - log4j-to-slf4j 2.13.3 --> 2.14.0
+  
+  
+## 2.8.3
+- [java-api] ``AccessToken`` exposes the ```getSubaccountId()``` method. Further information about the usage of ```getSubaccountId()``` and ```getZoneId()``` can be read [here](https://github.com/SAP-samples/teched2020-DEV263#changed-api-for-multi-tenant-applications-to-determine-tenant-identifier-getsubaccountid-replaced-by-getzoneid).
+- [java-api] [java-security] allows hybrid token creation via `Token.create(String encodedToken)`. The feature is available when using token authenticator. 
+- [samples/sap-java-buildpack-api-usage] uses [SAP Java Buildpack BoM](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html).
+- [token-client] `UserTokenFlow` enhances request with `X-zid` header that corresponds to zone id.
+
+## 2.8.2
+- [java-security]  
+  - HOTFIX for ``2.8.1`` version.
+  - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/java-security#ias-to-xsuaa-token-exchange).
+  
+## 2.8.1
+- [spring-xsuaa]   
+  - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/spring-xsuaa#ias-to-xsuaa-token-exchange).
+  - Replaces dependencies to JSON Parser of ``net.minidev`` with `org.json` (fixes #414).
+  - The following dependencies were updated:
+    - spring.boot.version 2.3.5.RELEASE --> 2.4.1
+    - spring.core.version 5.2.10.RELEASE --> 5.3.2
+    - spring.security.version 5.3.5.RELEASE --> 5.4.2
+
 ## 2.8.0
 - [java-security] 
   - `getClientId()` method was added to `Token` interface. `getClientId()` method should be used instead of `getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)`. `TokenClaims.XSUAA.CLIENT_ID` is deprecated.
@@ -78,14 +127,33 @@ All notable changes to this project will be documented in this file.
   - In upcoming releases - especially for new subaccounts - subaccount id will no longer match the tenant GUID which is provided via the xsuaa access token as `zid` claim or via the ias oidc token as `zone_uuid` claim.
 
 ## 2.7.1
-- [java-security] (SAP Java Buildpack version 1.26.1)
+
+- [java-security] 
+  - `XSUserInfoAdapter` provides now the subdomain that is required for token exchange via `getSubdomain()` method.
+  - Avoid warning messages "IAS Service is not yet supported!". #273
   - rename Token claim "sap_uid" to „user_uuid“.
-  - Token Key Cache can now be customized via `XsuaaTokenAuthenticator`
-  - `XSUserInfoAdapter` supports `requestTokenForUser()` method
+  - Token Key Cache can now be customized via `XsuaaTokenAuthenticator`.
+  - `XSUserInfoAdapter` supports `requestTokenForUser()` method.
+  - set validators to package private, you can customize the JWT validators using the `JwtValidatorBuilder`.
+  - Create validation results lazy. Avoid false warning validation results from `JwtAudienceValidator` (#290), e.g.   
+`Jwt token with audience [<appId>, uaa] is not issued for these clientIds: [<appId>].`
 - [spring-xsuaa] Improve logs of Audience Validators.
+- [spring-xsuaa-starter] Upgrade Spring versions:
+  - spring.boot.version: 2.2.6.RELEASE --> 2.3.0.RELEASE
+  - spring.core.version: 5.2.5.RELEASE --> 5.2.6.RELEASE
+  - spring.security.version: 5.3.1.RELEASE --> 5.3.2.RELEASE
+  - spring.security.oauth2:  2.4.0.RELEASE -> 2.4.1.RELEASE
+- [spring-xsuaa-test]  
+  - renamed file `privateKey.txt` to `spring-xsuaa-privateKey.txt` and `publicKey.txt` to `spring-xsuaa-publicKey.txt` to avoid name clashes in context of CAP, which results in a strange `IllegalArgumentException:failed to construct sequence from byte[]: DEF length 1213 object truncated by 2`. This can happen when you use `java-security-test` and `spring-xsuaa-test` in parallel.
+  - **For new applications `spring-xsuaa-test` can be replaced in favor of `java-security-test` for unit testing. For testing your app locally you can setup your local environment with the `VCAP_SERVICES` in order to test with your XSUAA instance on Cloud Foundry.**
 - [token-client]
   - more detailed debug logs and details to exception; decoded token gets logged.
   - supports optional `scope` parameter to reduce scopes that are provided via `CientCredentialsTokenFlow` or `UserTokenFlow`.
+  - By default requested tokens are now cached. You can disable the cache globally or per request as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/token-client).
+  - never log an encoded token! Instead you can log the `OAuth2TokenResponse` itself: the `toString()` method provides the content of the decoded token (clear text). Be aware that this contains sensitive user data.
+
+
+
 
 
 ## 2.7.0

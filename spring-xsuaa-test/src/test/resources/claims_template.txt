@@ -3,7 +3,7 @@
   "ext_attr": {
     "enhancer": "XSUAA",
     "serviceinstanceid": "brokerCloneServiceInstanceId",
-    "zdn": "uaa",
+    "zdn": "$zdn",
     "acl": ["app1!t23"]
   },
   "xs.system.attributes": {
@@ -33,8 +33,5 @@
   "iss": "http://paas.localhost:8080/uaa/oauth/token",
   "zid": "$zid",
   "aud": [],
-  "az_attr": {"external_id":"abcd1234"},
-  "ext_attr": {
-      "zdn": "$zdn"
-  }
+  "az_attr": {"external_id":"abcd1234"}
 }

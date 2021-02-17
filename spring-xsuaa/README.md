@@ -25,12 +25,11 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>2.8.0</version>
+    <version>2.8.5</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-to-slf4j</artifactId>
-    <version>2.11.2</version>
 </dependency>
 ```
 
@@ -40,7 +39,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.8.0</version>
+    <version>2.8.5</version>
 </dependency>
 ```
 
@@ -145,6 +144,35 @@ In detail `com.sap.cloud.security.xsuaa.token.SpringSecurityContext` wraps the S
 
 Note that Spring Security Context is thread-bound and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
 
+### IAS to Xsuaa token exchange
+In case application is required to do token exchange `token-client` with all its' transitive dependencies need to be available (shouldn't be excluded) in the project.
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client</artifactId>
+</dependency>
+```
+To enable token exchange between IAS and XSUAA system environment variable `IAS_XSUAA_XCHANGE_ENABLED` needs to be provided and enabled. To enable the exchange set the value to any value except `false or empty. The exchange between IAS and Xsuaa is disabled by default.
+
+To use the token exchange, by default the `bearerTokenResolver` needs to be defined in the application's security configuration in the following manner:
+```java
+http.authorizeRequests()
+      .antMatchers("/secured/path/**").hasAuthority("application.Read")
+      .anyRequest().denyAll()
+      .and().oauth2ResourceServer()
+      .bearerTokenResolver(new IasXsuaaExchangeBroker(xsuaaServiceConfiguration));
+```
+where `xsuaaServiceConfiguration` represents configuration properties from environment.
+
+> Note: if you've already configured a `bearerTokenResolver` using [TokenBrokerResolver](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/extractor/TokenBrokerResolver.java) that supports token exchange between IAS to Xsuaa enabled in the same way like `IasXsuaaExchangeBroker`.
+
+> Note: In order to leverage the token cache, consider the `token-client` initialization notes [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/README.md#cache)
+
+Please check out also our samples:
+- [Spring-security-basic-auth sample](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-basic-auth) for `TokenBrokerResolver` usage with basic authentication method.
+- [Spring-security-xsuaa-usage sample](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-xsuaa-usage) for `IasXsuaaExchangeBroker` usage with OAuth2 authentication method 
+
+
 ## Usage
 
 ### Access user/token information
@@ -205,15 +233,13 @@ In case you have implemented a central Exception Handler as described with [Bael
 Alternativly there are also various options provided with `Spring.io`. For example, you can integrate SAP audit log service with Spring Boot Actuator audit framework as described [here](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-auditing).
 
 
-## Samples
-- [spring-security-xsuaa-usage](/samples/spring-security-xsuaa-usage) 
-
 ## Troubleshoot
 
 In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
 and provide these details:
 - security related dependencies, get maven dependency tree with `mvn dependency:tree`
 - [debug logs](#increase-log-level-to-debug)
+- [(SAP) Java buildpack version, e.g. 1.26.1](/java-security#get-buildpack-version)
 - issue you’re facing.
 
 ### Increase log level to `DEBUG`
@@ -315,8 +341,8 @@ public RestOperations xsuaaRestOperations() {
 ## Additional (test) utilities
 - [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.
 
-## Further References
-- [Sample](/samples/spring-security-xsuaa-usage)   
+## Samples
+- [Sample](/samples/spring-security-xsuaa-usage)    
 demonstrating how to leverage xsuaa and spring security library to secure a Spring Boot web application including token exchange (user, client-credentials, refresh, ...). Furthermore it documents how to implement SpringWebMvcTests using `java-security-test` library.
 - [Basic Auth Sample](/samples/spring-security-basic-auth)  
 demonstrating how a user can access Rest API via basic authentication (user/password).

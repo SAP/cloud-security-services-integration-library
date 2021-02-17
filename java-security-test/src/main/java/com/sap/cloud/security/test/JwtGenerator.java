@@ -43,7 +43,7 @@ public class JwtGenerator {
 	private Service service;
 
 	private JwtSignatureAlgorithm signatureAlgorithm;
-	private PrivateKey privateKey;
+	private PrivateKey privateKey = RSAKeys.generate().getPrivate();
 	private String appId; // this is specific to XSUAA service
 	private List<String> scopes = new ArrayList<>();
 	private List<String> localScopes = new ArrayList<>();
@@ -148,6 +148,7 @@ public class JwtGenerator {
 			withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
 			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(azp));
 			jsonPayload.put(TokenClaims.XSUAA.ZONE_ID, DEFAULT_ZONE_ID);
+			jsonPayload.put(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, createJsonObject("{\"enhancer\" : \"XSUAA\"} "));
 		}
 	}
 

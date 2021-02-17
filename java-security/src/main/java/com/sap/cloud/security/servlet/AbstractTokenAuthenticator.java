@@ -2,6 +2,8 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationListener;
@@ -39,14 +41,8 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
-					Token token = extractFromHeader(authorizationHeader);
-					ValidationResult result = getOrCreateTokenValidator().validate(token);
-					if (result.isValid()) {
-						SecurityContext.setToken(token);
-						return authenticated(token);
-					} else {
-						return unauthenticated("Error during token validation: " + result.getErrorDescription());
-					}
+					Token token = Token.create(authorizationHeader);
+					return tokenValidationResult(token);
 				} catch (Exception e) {
 					return unauthenticated("Unexpected error occurred: " + e.getMessage());
 				}
@@ -59,7 +55,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	/**
 	 * Use to configure the token key cache.
-	 * 
+	 *
 	 * @param cacheConfiguration
 	 *            the cache configuration
 	 * @return this authenticator
@@ -71,7 +67,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	/**
 	 * Use to configure the HttpClient that is used to retrieve token keys.
-	 * 
+	 *
 	 * @param httpClient
 	 *            the HttpClient
 	 * @return this authenticator
@@ -83,20 +79,27 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	/**
 	 * Use to override the service configuration used.
-	 * 
+	 *
 	 * @param serviceConfiguration
 	 *            the service configuration to use
 	 * @return this authenticator
 	 */
 	public AbstractTokenAuthenticator withServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {
 		this.serviceConfiguration = serviceConfiguration;
+		setupTokenFactory();
 		return this;
+	}
+
+	private void setupTokenFactory() {
+		if (serviceConfiguration.getService() == Service.XSUAA) {
+			HybridTokenFactory.withXsuaaAppId(serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
+		}
 	}
 
 	/**
 	 * Adds the validation listener to the jwt validator that is being used by the
 	 * authenticator to validate the tokens.
-	 * 
+	 *
 	 * @param validationListener
 	 *            the listener to be added.
 	 * @return the authenticator instance
@@ -109,7 +112,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	/**
 	 * Return configured service configuration or Environments.getCurrent() if not
 	 * configured.
-	 * 
+	 *
 	 * @return the actual service configuration
 	 * @throws IllegalStateException
 	 *             in case service configuration is null
@@ -133,7 +136,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 */
 	protected abstract Token extractFromHeader(String authorizationHeader);
 
-	private Validator<Token> getOrCreateTokenValidator() {
+	Validator<Token> getOrCreateTokenValidator() {
 		if (tokenValidator == null) {
 			JwtValidatorBuilder jwtValidatorBuilder = JwtValidatorBuilder.getInstance(getServiceConfiguration())
 					.withHttpClient(httpClient);
@@ -145,7 +148,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return tokenValidator;
 	}
 
-	private TokenAuthenticationResult unauthenticated(String message) {
+	TokenAuthenticationResult unauthenticated(String message) {
 		logger.warn("Request could not be authenticated: {}.", message);
 		return TokenAuthenticatorResult.createUnauthenticated(message);
 	}
@@ -154,8 +157,19 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return TokenAuthenticatorResult.createAuthenticated(Collections.emptyList(), token);
 	}
 
-	private boolean headerIsAvailable(String authorizationHeader) {
+	boolean headerIsAvailable(String authorizationHeader) {
 		return authorizationHeader != null && !authorizationHeader.isEmpty();
+	}
+
+	TokenAuthenticationResult tokenValidationResult(Token token) {
+		Validator<Token> validator = getOrCreateTokenValidator();
+		ValidationResult result = validator.validate(token);
+		if (result.isValid()) {
+			SecurityContext.setToken(token);
+			return authenticated(token);
+		} else {
+			return unauthenticated("Error during token validation: " + result.getErrorDescription());
+		}
 	}
 
 }

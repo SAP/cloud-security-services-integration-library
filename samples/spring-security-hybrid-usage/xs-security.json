@@ -1,0 +1,28 @@
+{
+  "xsappname": "spring-security-hybrid-usage",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Read",
+      "description": "Read Permissions."
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "Viewer",
+      "description": "View Data",
+      "scope-references": [
+        "$XSAPPNAME.Read"
+      ]
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "XSUAA-Viewer",
+      "description": "Viewer (read)",
+      "role-template-references": [
+        "$XSAPPNAME.Viewer"
+      ]
+    }
+  ]
+}  
