@@ -83,11 +83,12 @@ class SampleTest(abc.ABC, unittest.TestCase):
         self.__api_access = None
         self.__ias_access = None
         self.credentials = credentials
-        self.get_app().deploy()
+        self.cf_app = self.get_app()
+        self.cf_app.deploy()
         time.sleep(2)  # waiting for deployed apps to be available
 
     def tearDown(self):
-        self.get_app().delete()
+        self.cf_app.delete()
         if self.__api_access is not None:
             self.__api_access.delete()
         if self.__ias_access is not None:
@@ -124,9 +125,9 @@ class SampleTest(abc.ABC, unittest.TestCase):
 
     def get_deployed_app(self):
         if self.__deployed_app is None:
-            deployed_app = self.cf_apps.app_by_name(self.get_app().name)
+            deployed_app = self.cf_apps.app_by_name(self.cf_app.name)
             if deployed_app is None:
-                logging.error('Could not find app: ' + self.get_app().name)
+                logging.error('Could not find app: ' + self.cf_app.name)
                 exit()
             self.__deployed_app = deployed_app
         return self.__deployed_app
@@ -179,7 +180,7 @@ class SampleTest(abc.ABC, unittest.TestCase):
 
     def __perform_get_request(self, path, access_token=None, additional_headers={}):
         url = 'https://{}-{}.{}{}'.format(
-            self.get_app().name,
+            self.cf_app.name,
             self.vars_parser.user_id,
             self.vars_parser.landscape_apps_domain,
             path)
@@ -283,6 +284,7 @@ class TestSpringSecurityHybrid(SampleTest):
         resp = self.perform_get_request_with_ias_token('/sayHello', self.get_id_token())
         self.assertEqual(resp.status, 403, EXPECT_403)
 
+
 class TestJavaSecurityIas(SampleTest):
 
     def get_app(self):
@@ -341,9 +343,9 @@ class TestSpringSecurity(SampleTest):
 
         resp = self.perform_get_request_with_ias_token('/v1/sayHello', ias_service.fetch_ias_token(self))
         self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
-        if (self.prompt_user_role_assignment()):
+        if self.prompt_user_role_assignment():
             resp = self.perform_get_request_with_ias_token('/v1/sayHello', ias_service.fetch_ias_token(self))
-            if(resp.status != 200):
+            if resp.status != 200:
                 logging.warning("In case after adding role collection, user is still not authorized. "
                                 "Check in IAS admin panel that the application's '{}' Subject Name Identifier is set to email. "
                                 "Bug: NGPBUG-139441 "
@@ -584,17 +586,12 @@ class IasAccess:
         return self.ias_token
 
     def delete(self):
-        IasAccess.delete(self.ias_service_name)
-
-    @staticmethod
-    def delete(ias_service_name):
-        ias_service_key_name = ias_service_name + '-key'
         logging.info("Deleting service key '{}' for '{}' IAS service"
-                     .format(ias_service_key_name, ias_service_name))
+                     .format(self.ias_service_key_name, self.ias_service_name))
         subprocess.run(['cf', 'delete-service-key', '-f',
-                        ias_service_name, ias_service_key_name], stdout=cf_logs)
-        logging.info("Deleting {} IAS service".format(ias_service_name))
-        subprocess.run(['cf', 'delete-service', '-f', ias_service_name], stdout=cf_logs)
+                        self.ias_service_name, self.ias_service_key_name], stdout=cf_logs)
+        logging.info("Deleting {} IAS service".format(self.ias_service_name))
+        subprocess.run(['cf', 'delete-service', '-f', self.ias_service_name], stdout=cf_logs)
 
 
 class ApiAccessService:
@@ -819,6 +816,7 @@ class CFApp:
         self.xsuaa_service_name = xsuaa_service_name
         self.app_router_name = app_router_name
         self.identity_service_name = identity_service_name
+        self.ias_access = None
 
     @property
     def working_dir(self):
@@ -830,8 +828,8 @@ class CFApp:
             subprocess.run(
                 ['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', 'xs-security.json'],
                 cwd=self.working_dir, stdout=cf_logs, check=True)
-        if self.identity_service_name is not None:
-            IasAccess(self.identity_service_name)
+        if self.identity_service_name is not None and self.ias_access is None:
+            self.ias_access = IasAccess(self.identity_service_name)
         logging.info("Verifying '{}' application tests".format(self.name))
         subprocess.run(['mvn', 'clean', 'verify'], cwd=self.working_dir, stdout=java_logs)
         logging.info("Deploying '{}' to CF".format(self.name))
@@ -843,7 +841,6 @@ class CFApp:
         if self.identity_service_name is not None:
             subprocess.run(['cf', 'us', self.name, self.identity_service_name], stdout=cf_logs)
         subprocess.run(['cf', 'delete', '-f', '-r', self.name], stdout=cf_logs)
-        subprocess.run(['cf', 'delete', '-f', '-r', self.name], stdout=cf_logs)
         subprocess.run(['cf', 'delete-orphaned-routes', '-f'], stdout=cf_logs)
         if self.app_router_name is not None:
             logging.info("Deleting '{}' app router".format(self.app_router_name))
@@ -852,7 +849,7 @@ class CFApp:
         if self.xsuaa_service_name is not None:
             subprocess.run(['cf', 'delete-service', '-f', self.xsuaa_service_name], stdout=cf_logs)
         if self.identity_service_name is not None:
-           IasAccess.delete(self.identity_service_name)
+            self.ias_access.delete()
 
     def __str__(self):
         return 'Name: {}, Xsuaa-Service-Name: {}, App-Router-Name: {}, Identity-Service-Name: {}'.format(
