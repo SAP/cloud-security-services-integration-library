@@ -35,7 +35,7 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
   **After**  
   ```java
-  @Value("${sap.security.services.xsuaa.clientid}) # new prefix
+  @Value("${sap.security.services.xsuaa.clientid}) // new prefix
   ```  
 
   **Before**  
@@ -49,7 +49,7 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
   **After**  
   ```java
-  import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration; # new import
+  import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration; // new import
   ...
   
   @Autowired
@@ -83,7 +83,7 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
     
   **After**  
   ```java
-  import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations; # new import
+  import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations; // new import
   ...
   
   @Autowired
@@ -103,7 +103,7 @@ import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 ````
 to
 ````java
-import com.sap.cloud.security.spring.token.SpringSecurityContext; # new import
+import com.sap.cloud.security.spring.token.SpringSecurityContext; // new import
 ````
 
 #### `Token` methods
@@ -113,7 +113,7 @@ import com.sap.cloud.security.xsuaa.token.Token;
 ````
 to
 ````java
-import com.sap.cloud.security.token.Token; # new import
+import com.sap.cloud.security.token.Token; // new import
 ````
 
 The ``Token`` interface from ``spring-security`` needs to provide methods that can be served by both kind of tokens. That's why they are not compatible.
