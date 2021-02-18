@@ -79,7 +79,7 @@ OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaCon
 > Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes.
 
 Alternatively you can also specify the Service Configuration by your own:
-```
+```java
 OAuth2ServiceConfiguration serviceConfig = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
       .withProperty(CFConstants.XSUAA.APP_ID, "appid")
       .withProperty(CFConstants.XSUAA.UAA_DOMAIN, "authentication.sap.hana.ondemand.com")
@@ -94,10 +94,11 @@ Now configure the `JwtValidatorBuilder` once with the service configuration from
 ```java
 CombiningValidator<Token> validators = JwtValidatorBuilder.getInstance(serviceConfig).build();
 ```
-
-
 > Note: By default `JwtValidatorBuilder` builds a `CombiningValidator`. 
-> For the Signature validation it needs to fetch the Json Web Token Keys (jwks) from the OAuth server. In case the token does not provide a `jku` header parameter it also requests the Open-ID Provider Configuration from the OAuth Server to determine the `jwks_uri`. The used Apache Rest client can be customized via the `JwtValidatorBuilder` builder.
+
+> For the Signature validation it needs to fetch the Json Web Token Keys (jwks) from the OAuth server. In case the token does not provide a `jku` header parameter it also requests the Open-ID Provider Configuration from the OAuth Server to determine the `jwks_uri`. The used Apache Rest client can be customized via the `JwtValidatorBuilder` builder.  
+
+> Furthermore the token keys fetched from the Identity Service are cached for about 10 minutes. You may like to overwrite the cache [default configuration](/java-security/src/main/java/com/sap/cloud/security/token/validation/validators/TokenKeyCacheConfiguration.java#L14) with `JwtValidatorBuilder.withCacheConfiguration()`.  
 
 #### [Optional] Step 2.1: Add Validation Listeners for Audit Log
 Optionally, you can add a validation listener to the validator to be able to get called back whenever a token is validated. Here you may want to emit logs to the audit log service.
