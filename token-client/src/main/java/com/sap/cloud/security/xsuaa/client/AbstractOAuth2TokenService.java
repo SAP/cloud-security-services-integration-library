@@ -85,7 +85,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@Nonnull URI tokenEndpointUri,
 			@Nonnull ClientCredentials clientCredentials,
-			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters,
+			@Nullable String zoneId, @Nullable String subdomain, @Nullable Map<String, String> optionalParameters,
 			boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
@@ -98,6 +98,10 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 				.buildAsMap();
 
 		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
+		if (zoneId != null){
+			headers.withHeader(HttpHeaders.X_ZID,
+					zoneId);
+		}
 
 		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain, disableCacheForRequest);
 	}

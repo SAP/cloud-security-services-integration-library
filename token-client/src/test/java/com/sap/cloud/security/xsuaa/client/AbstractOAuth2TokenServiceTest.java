@@ -21,6 +21,7 @@ public class AbstractOAuth2TokenServiceTest {
 
 	public static final URI TOKEN_ENDPOINT_URI = URI.create("http://test.token.endpoint/oauth/token");
 	public static final String SUBDOMAIN = "subdomain";
+	public static final String ZONE_ID = "zone";
 	private static final Instant NOW = LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0).toInstant(UTC);
 	public static final TokenCacheConfiguration TEST_CACHE_CONFIGURATION = TokenCacheConfiguration
 			.defaultConfiguration();
@@ -250,7 +251,8 @@ public class AbstractOAuth2TokenServiceTest {
 	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials(ClientCredentials clientCredentials,
 			boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
-		return cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials, SUBDOMAIN,
+		return cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials, ZONE_ID,
+				SUBDOMAIN,
 				null, disableCacheForRequest);
 	}
 
