@@ -36,7 +36,7 @@ public class TokenBrokerTestConfiguration {
 		return new OAuth2TokenService() {
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
-					ClientCredentials clientCredentials, @Nullable String subdomain,
+					ClientCredentials clientCredentials, @Nullable String zoneId, @Nullable String subdomain,
 					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 					throws OAuth2ServiceException {
 				try {

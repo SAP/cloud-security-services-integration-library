@@ -41,3 +41,6 @@ vim.exe.stackdump
 
 __pycache__/
 /.metadata/
+
+### Misc ###
+samples/vars.yml

@@ -55,6 +55,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	protected OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
 		HttpPost httpPost = createHttpPost(tokenEndpointUri, headers, parameters);
+		LOGGER.debug("access token request {} - {}", headers, parameters);
 		return executeRequest(httpPost);
 	}
 
