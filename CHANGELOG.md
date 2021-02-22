@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+##  2.8.6
+- [token-client] Next to subdomain `XsuaaTokenFlows.clientCredentialsTokenFlow()` supports Zone id.
+
 ## 0.1.0 [BETA] :star:
 - [spring-security] new spring boot security client library that supports Token validation from XSUAA and IAS identity provider in parallel as described [here](/spring-security). An initial migration guide on how to migrate from ``spring-xsuaa`` is available [here](/spring-security/Migration_SpringXsuaaProjects.md).
 

@@ -127,7 +127,7 @@ Obtain a client credentials token:
 
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.clientCredentialsTokenFlow()
-                                                    .subdomain(jwtToken.getSubdomain()) // this is optional
+                                                    .subdomain(jwtToken.getSubdomain()) // this is optional - use zoneId alternatively
                                                     .disableCache(true)                 // optionally disables token cache for request
                                                     .execute();
 ```
@@ -144,11 +144,11 @@ OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
 ### User Token Flow
 In order to exchange a user token for another user access token:
 ```java
-XsuaaToken jwtToken = SpringSecurityContext.getToken();
+Token jwtToken = SpringSecurityContext.getToken();
 
 OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
                 .token(jwtToken)
-                .subdomain(jwtToken.getSubdomain())     
+                .subdomain(jwtToken.getSubdomain()) // optional, if not set it trys to extract zone Id from token
                 .disableCache(true)                 // optionally disables token cache for request
                 .attributes(additionalAttributes)   // this is optional
                 .execute();
