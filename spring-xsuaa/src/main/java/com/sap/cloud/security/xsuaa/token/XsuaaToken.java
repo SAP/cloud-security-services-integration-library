@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.token;
 
+import com.sap.cloud.security.token.InvalidTokenException;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,7 +159,7 @@ public class XsuaaToken extends Jwt implements Token {
 				return getClaimAsString(CLIENT_ID);
 			}
 			logger.error("Couldn't get client id. Invalid authorized party or audience claims.");
-			throw new InvalidBearerTokenException(
+			throw new InvalidTokenException(
 					"Couldn't get client id. Invalid authorized party or audience claims.");
 		} else {
 			return clientId;
