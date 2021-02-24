@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.8.7 and 0.1.1 [BETA]
+- [xsuaa-spring-boot-starter] and [resourceserver-security-spring-boot-starter (BETA)]
+  - spring.core.version 5.3.3 --> 5.3.4
+  - spring.boot.version 2.4.2 --> 2.4.3
+  - spring.security.version 5.4.2 --> 5.4.5
+- use ``spring-boot-starter-parent`` version 2.4.3 in spring samples.
+  
 ##  2.8.6
 - [token-client] Next to subdomain `XsuaaTokenFlows.clientCredentialsTokenFlow()` supports Zone id.
 
