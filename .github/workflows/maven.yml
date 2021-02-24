@@ -34,6 +34,6 @@ jobs:
       - name: Build java-tokenclient-usage
         run: cd samples/java-tokenclient-usage; mvn -B package --file pom.xml
       - name: Build java-security-usage-ias
-          run: cd samples/java-security-usage-ias; mvn -B package --file pom.xml
+        run: cd samples/java-security-usage-ias; mvn -B package --file pom.xml
       - name: Build spring-security-hybrid-usage
         run: cd samples/spring-security-hybrid-usage; mvn -B package --file pom.xml
