@@ -27,7 +27,7 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
 ## Access VCAP_SERVICES values
 ```spring-security``` automatically maps the `VCAP_SERVICES` credentials to Spring properties. Please note that the **prefix has changed** from ```xsuaa.*``` to ```sap.security.services.xsuaa``` or ```sap.security.services.xsuaa[0]``` in case of multiple xsuaa service bindings. Please find some adoption samples here.  
 
-### @Value
+#### ``@Value``
   **Before**  
   ```java
   @Value("${xsuaa.clientid})
@@ -38,7 +38,7 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
   @Value("${sap.security.services.xsuaa.clientid}) // new prefix
   ```  
 
-### Bean XsuaaServiceConfiguration
+#### Bean ``XsuaaServiceConfiguration``
   **Before**  
   ```java
   import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
@@ -57,7 +57,7 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
   XsuaaServiceConfiguration xsuaaServiceConfiguration;
   ```  
 
-### Bean XsuaaServiceConfiguration (multiple xsuaa bindings)
+#### Bean ``XsuaaServiceConfiguration`` (multiple xsuaa bindings)
   **Before**  
 
   ```java
