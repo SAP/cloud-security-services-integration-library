@@ -144,7 +144,7 @@ public class JwtAudienceValidatorTest {
 		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
 				.isEqualTo(
-						"Jwt token with audience [client, foreignclient, sb-test4!t1.data] is not issued for these clientIds: [any, anyother].");
+						"Jwt token with extracted audience [client, foreignclient, sb-test4!t1] is not issued for these clientIds: [any, anyother].");
 	}
 
 	@Test
@@ -156,7 +156,7 @@ public class JwtAudienceValidatorTest {
 
 		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
-				.isEqualTo("Jwt token with audience [., test.,  .test2] is not issued for these clientIds: [any].");
+				.isEqualTo("Jwt token with extracted audience [test, client] is not issued for these clientIds: [any].");
 	}
 
 	@Test
@@ -168,7 +168,7 @@ public class JwtAudienceValidatorTest {
 
 		assertThat(result.isErroneous()).isTrue();
 		assertThat(result.getErrorDescription())
-				.isEqualTo("Jwt token with audience [] is not issued for these clientIds: [any].");
+				.isEqualTo("Jwt token with extracted audience [client] is not issued for these clientIds: [any].");
 	}
 
 	@Test

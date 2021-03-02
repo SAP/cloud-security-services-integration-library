@@ -49,8 +49,8 @@ public class JwtAudienceValidator implements Validator<Token> {
 			return ValidationResults.createValid();
 		}
 		return ValidationResults.createInvalid(
-				"Jwt token with audience {} is not issued for these clientIds: {}.",
-				token.getAudiences(), trustedClientIds);
+				"Jwt token with extracted audience {} is not issued for these clientIds: {}.",
+				allowedAudiences, trustedClientIds);
 	}
 
 	private boolean validateDefault(Set<String> allowedAudiences) {
