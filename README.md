@@ -83,7 +83,7 @@ mvn clean install
 *Note:* Use this if you want to enhance this xsuaa integration libraries. The build results are also available on maven central.
 
 # Limitations
-Libraries and information provided here is around the topic of integrating with the xsuaa service. General integration into other OAuth authorization servers is not the primary focus.
+Libraries and information provided here is around the topic of integrating with the SAP xsuaa and identity service. General integration into other OAuth authorization servers is not the primary focus.
 
 # How to obtain support
 Open an issue in GitHub.
