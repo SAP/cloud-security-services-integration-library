@@ -43,7 +43,6 @@ public class JwtAudienceValidatorTest {
 		Mockito.when(token.getAudiences()).thenReturn(
 				Sets.newLinkedHashSet("appId!t1"));
 		ValidationResult result = new JwtAudienceValidator("sb-appId!t1")
-				.configureTrustedClientId("appId!t1")
 				.validate(token);
 		assertThat(result.isValid()).isTrue();
 	}
@@ -90,7 +89,6 @@ public class JwtAudienceValidatorTest {
 
 		// configures audience validator with client-id from VCAP_SERVICES
 		ValidationResult result = new JwtAudienceValidator("sb-" + XSUAA_BROKER_XSAPPNAME)
-				.configureTrustedClientId(XSUAA_BROKER_XSAPPNAME)
 				.validate(token);
 
 		assertThat(result.isValid()).isTrue(); // should match
@@ -129,7 +127,6 @@ public class JwtAudienceValidatorTest {
 
 		// configures audience validator with client-id from VCAP_SERVICES
 		ValidationResult result = new JwtAudienceValidator("sb-ANOTHERAPP!b12")
-				.configureTrustedClientId("ANOTHERAPP!b12")
 				.validate(token);
 
 		assertThat(result.isValid()).isTrue(); // should match

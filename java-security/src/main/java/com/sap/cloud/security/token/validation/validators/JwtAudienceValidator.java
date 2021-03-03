@@ -25,6 +25,7 @@ import java.util.*;
 public class JwtAudienceValidator implements Validator<Token> {
 	private static final Logger logger = LoggerFactory.getLogger(JwtAudienceValidator.class);
 	private static final char DOT = '.';
+	private static final String CID_PREFIX = "sb-";
 
 	private final Set<String> trustedClientIds = new LinkedHashSet<>();
 
@@ -35,6 +36,11 @@ public class JwtAudienceValidator implements Validator<Token> {
 	JwtAudienceValidator configureTrustedClientId(String clientId) {
 		assertHasText(clientId, "JwtAudienceValidator requires a clientId.");
 		trustedClientIds.add(clientId);
+
+		if (clientId.startsWith(CID_PREFIX)) {
+			trustedClientIds.add(clientId.replaceFirst(CID_PREFIX, ""));
+		}
+
 		logger.info("configured JwtAudienceValidator with clientId {}.", clientId);
 
 		return this;
