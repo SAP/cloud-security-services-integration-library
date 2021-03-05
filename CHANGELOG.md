@@ -43,8 +43,8 @@ All notable changes to this project will be documented in this file.
   
 ## 2.8.3
 - [java-api] ``AccessToken`` exposes the ```getSubaccountId()``` method. Further information about the usage of ```getSubaccountId()``` and ```getZoneId()``` can be read [here](https://github.com/SAP-samples/teched2020-DEV263#changed-api-for-multi-tenant-applications-to-determine-tenant-identifier-getsubaccountid-replaced-by-getzoneid).
-- [java-api] [java-security] allows hybrid token creation via `Token.create(String encodedToken)`. The feature is available when using token authenticator. 
-- [samples/sap-java-buildpack-api-usage] uses [SAP Java Buildpack BoM](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html).
+- [java-api] [java-security] allows hybrid token creation via `Token.create(String encodedToken)`. The feature is available when using token authenticator. In order to avoid `ServiceLoader` issues, make sure that you don't mix up different versions of these client libraries. E.g., its not possible to use `com.sap.cloud.security:java-api:2.8.3` together with `com.sap.cloud.security:java-security:2.8.2`. See also [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/java-security#common-pitfalls).
+- [samples/sap-java-buildpack-api-usage] uses [SAP Java Buildpack BoM](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html) ([sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/samples/sap-java-buildpack-api-usage/pom.xml)).
 - [token-client] `UserTokenFlow` enhances request with `X-zid` header that corresponds to zone id.
 
 ## 2.8.2
