@@ -98,7 +98,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 				.buildAsMap();
 
 		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
-		if (zoneId != null){
+		if (zoneId != null) {
 			headers.withHeader(HttpHeaders.X_ZID,
 					zoneId);
 		}

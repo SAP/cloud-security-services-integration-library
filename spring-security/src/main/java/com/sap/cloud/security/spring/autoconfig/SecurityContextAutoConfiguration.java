@@ -10,8 +10,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 /**
- * {@link EnableAutoConfiguration} uses a {@link com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy}, which keeps the {@code com.sap.cloud.security.token.SecurityContext} in
- * sync
+ * {@link EnableAutoConfiguration} uses a
+ * {@link com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy},
+ * which keeps the {@code com.sap.cloud.security.token.SecurityContext} in sync
  *
  * <p>
  * Can be disabled with
@@ -22,14 +23,15 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 @ConditionalOnProperty(name = "sap.spring.security.hybrid.auto", havingValue = "true", matchIfMissing = true)
 public class SecurityContextAutoConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(SecurityContextHolderStrategy.class)
-    @ConditionalOnProperty(name = "sap.spring.security.hybrid.sync_securitycontext", havingValue = "true")
-    public MethodInvokingFactoryBean methodInvokingFactoryBean() {
-        MethodInvokingFactoryBean methodInvokingFactoryBean = new MethodInvokingFactoryBean();
-        methodInvokingFactoryBean.setTargetClass(SecurityContextHolder.class);
-        methodInvokingFactoryBean.setTargetMethod("setStrategyName");
-        methodInvokingFactoryBean.setArguments("com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy");
-        return methodInvokingFactoryBean;
-    }
+	@Bean
+	@ConditionalOnMissingBean(SecurityContextHolderStrategy.class)
+	@ConditionalOnProperty(name = "sap.spring.security.hybrid.sync_securitycontext", havingValue = "true")
+	public MethodInvokingFactoryBean methodInvokingFactoryBean() {
+		MethodInvokingFactoryBean methodInvokingFactoryBean = new MethodInvokingFactoryBean();
+		methodInvokingFactoryBean.setTargetClass(SecurityContextHolder.class);
+		methodInvokingFactoryBean.setTargetMethod("setStrategyName");
+		methodInvokingFactoryBean
+				.setArguments("com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy");
+		return methodInvokingFactoryBean;
+	}
 }

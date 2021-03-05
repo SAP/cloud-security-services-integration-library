@@ -13,43 +13,49 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SecurityContextAutoConfigurationTest {
 
-    private final WebApplicationContextRunner runner = new WebApplicationContextRunner()
-            .withPropertyValues("sap.spring.security.hybrid.sync_securitycontext:true")
-            .withConfiguration(AutoConfigurations.of(SecurityContextAutoConfiguration.class));
+	private final WebApplicationContextRunner runner = new WebApplicationContextRunner()
+			.withPropertyValues("sap.spring.security.hybrid.sync_securitycontext:true")
+			.withConfiguration(AutoConfigurations.of(SecurityContextAutoConfiguration.class));
 
-    @Test
-    void autoConfigurationActive() {
-        runner.run(context -> {
-            assertNotNull(context.getBean("methodInvokingFactoryBean"));
-            assertEquals(JavaSecurityContextHolderStrategy.class, SecurityContextHolder.getContextHolderStrategy().getClass());
-        });
-    }
-    @Test
-    void autoConfigurationDisabledByProperty() {
-        runner.withPropertyValues("sap.spring.security.hybrid.auto:false").run((context) -> assertFalse(context.containsBean("methodInvokingFactoryBean")));
-    }
-    @Test
-    void autoConfigurationEnabledByProperty() {
-        runner.withPropertyValues("sap.spring.security.hybrid.auto:true").run((context) -> assertTrue(context.containsBean("methodInvokingFactoryBean")));
-    }
+	@Test
+	void autoConfigurationActive() {
+		runner.run(context -> {
+			assertNotNull(context.getBean("methodInvokingFactoryBean"));
+			assertEquals(JavaSecurityContextHolderStrategy.class,
+					SecurityContextHolder.getContextHolderStrategy().getClass());
+		});
+	}
 
-    @Test
-    void userConfigurationCanOverrideDefaultBeans() {
-        runner.withUserConfiguration(UserConfiguration.class)
-                .run((context) -> {
-                    assertFalse(context.containsBean("methodInvokingFactoryBean"));
-                    assertNotNull(context.getBean("customStrategy", SecurityContextHolderStrategy.class));
-                    assertNotEquals(JavaSecurityContextHolderStrategy.class, SecurityContextHolder.getContextHolderStrategy().getClass());
-                });
-    }
+	@Test
+	void autoConfigurationDisabledByProperty() {
+		runner.withPropertyValues("sap.spring.security.hybrid.auto:false")
+				.run((context) -> assertFalse(context.containsBean("methodInvokingFactoryBean")));
+	}
 
-    @Configuration
-    static class UserConfiguration {
+	@Test
+	void autoConfigurationEnabledByProperty() {
+		runner.withPropertyValues("sap.spring.security.hybrid.auto:true")
+				.run((context) -> assertTrue(context.containsBean("methodInvokingFactoryBean")));
+	}
 
-        @Bean
-        static SecurityContextHolderStrategy customStrategy() {
-            SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_THREADLOCAL);
-            return SecurityContextHolder.getContextHolderStrategy();
-        }
-    }
+	@Test
+	void userConfigurationCanOverrideDefaultBeans() {
+		runner.withUserConfiguration(UserConfiguration.class)
+				.run((context) -> {
+					assertFalse(context.containsBean("methodInvokingFactoryBean"));
+					assertNotNull(context.getBean("customStrategy", SecurityContextHolderStrategy.class));
+					assertNotEquals(JavaSecurityContextHolderStrategy.class,
+							SecurityContextHolder.getContextHolderStrategy().getClass());
+				});
+	}
+
+	@Configuration
+	static class UserConfiguration {
+
+		@Bean
+		static SecurityContextHolderStrategy customStrategy() {
+			SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_THREADLOCAL);
+			return SecurityContextHolder.getContextHolderStrategy();
+		}
+	}
 }

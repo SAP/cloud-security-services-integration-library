@@ -7,14 +7,14 @@ import org.springframework.util.Assert;
 
 /**
  * This is an alternative to {@code ThreadLocalSecurityContextHolderStrategy}
- * which keeps the {@code com.sap.cloud.security.token.SecurityContext} in
- * sync.
+ * which keeps the {@code com.sap.cloud.security.token.SecurityContext} in sync.
  *
- * It's included in Spring Autoconfiguration {@link com.sap.cloud.security.spring.autoconfig.SecurityContextAutoConfiguration}
+ * It's included in Spring Autoconfiguration
+ * {@link com.sap.cloud.security.spring.autoconfig.SecurityContextAutoConfiguration}
  * <br>
  *
- * In cases when Spring Autoconfiguration is not used it can be enabled by setting the system environment variable
- * {@code spring.security.strategy} to
+ * In cases when Spring Autoconfiguration is not used it can be enabled by
+ * setting the system environment variable {@code spring.security.strategy} to
  * {@code com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy}
  * <br>
  * or via <br>
@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * }
  * }
  * </pre>
+ * 
  * or via <br>
  * {@code SecurityContextHolder.setStrategyName("com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy")}
  */
