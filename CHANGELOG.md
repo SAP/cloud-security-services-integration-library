@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.8.7 and 0.1.1 [BETA]
+## 2.8.8 and 0.1.1 [BETA]
 - [xsuaa-spring-boot-starter] and [resourceserver-security-spring-boot-starter (BETA)]
   - spring.core.version 5.3.3 --> 5.3.4
   - spring.boot.version 2.4.2 --> 2.4.3
