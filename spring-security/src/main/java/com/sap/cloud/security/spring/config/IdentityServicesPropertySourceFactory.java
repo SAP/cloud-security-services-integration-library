@@ -43,13 +43,13 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 	protected static final String IAS_PREFIX = "sap.security.services.identity.";
 
 	private static final List<String> XSUAA_ATTRIBUTES = Collections.unmodifiableList(Arrays
-			.asList(new String[]{"clientid", "clientsecret", "identityzoneid",
+			.asList(new String[] { "clientid", "clientsecret", "identityzoneid",
 					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
 					"certificate",
-					"key"}));
+					"key" }));
 
 	private static final List<String> IAS_ATTRIBUTES = Collections.unmodifiableList(Arrays
-			.asList(new String[]{"clientid", "clientsecret", "domain", "url"}));
+			.asList(new String[] { "clientid", "clientsecret", "domain", "url" }));
 
 	@Override
 	@SuppressWarnings("squid:S2259") // false positive
@@ -63,7 +63,8 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 
 		Properties properties = getXsuaaProperties(environment, multipleXsuaaServicesBound);
 		properties.putAll(getIasProperties(environment));
-		logger.debug("Parsed {} properties from identity services. {}", properties.size(), properties.stringPropertyNames());
+		logger.debug("Parsed {} properties from identity services. {}", properties.size(),
+				properties.stringPropertyNames());
 		return new PropertiesPropertySource(PROPERTIES_KEY, properties);
 	}
 
