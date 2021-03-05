@@ -1,15 +1,18 @@
 package com.sap.cloud.security.adapter.spring;
 
 import com.sap.cloud.security.token.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -21,8 +24,17 @@ import java.util.Objects;
  * It uses the {@link SecurityContextHolder} to access Spring's
  * {@link SecurityContext} and can therefore used also in context of
  * asynchronous threads.
+ *
+ * Use this class in case your application sets Spring's security context via
+ * one of these libraries: <br>
+ * <ol>
+ * <li>@code{org.springframework.security.oauth:spring-security-oauth2} or</li>
+ * <li>@code{com.sap.cloud.security.xsuaa:spring-xsuaa} client library.</li>
+ * </ol>
  */
 public class SpringSecurityContext {
+
+	static Logger LOGGER = LoggerFactory.getLogger(SpringSecurityContext.class);
 
 	private SpringSecurityContext() {
 	}
@@ -30,25 +42,66 @@ public class SpringSecurityContext {
 	/**
 	 * Returns the token using {@link SecurityContextHolder}.
 	 *
-	 *
 	 * @return the token or <code>null</code> if {@link SecurityContext} is empty or
 	 *         does not contain a token of this type.
 	 */
 	@Nullable
 	public static Token getToken() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (Objects.nonNull(authentication) && authentication.isAuthenticated() &&
-				authentication.getDetails() instanceof OAuth2AuthenticationDetails) {
-			OAuth2AuthenticationDetails authDetails = (OAuth2AuthenticationDetails) authentication.getDetails();
-			String tokenValue = authDetails.getTokenValue();
-			AbstractToken xsuaaToken = new XsuaaTokenWithGrantedAuthorities(tokenValue,
-					authentication.getAuthorities());
-			if (xsuaaToken.isXsuaaToken()) {
-				return xsuaaToken;
+		if (Objects.nonNull(authentication) && authentication.isAuthenticated()) {
+			try {
+				if (authentication.getDetails() != null && authentication.getDetails().getClass()
+						.getName() == "org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails") {
+					LOGGER.debug("Try to fetch token from deprecated Springs Auth2 client library.");
+					return getTokenFromDeprecatedLib(authentication);
+				} else if (authentication.getPrincipal() == null) {
+					return null; // no token available
+				}
+				if (authentication.getPrincipal().getClass().getName()
+						.startsWith("com.sap.cloud.security.xsuaa.token.")) {
+					LOGGER.debug("Try to fetch token from SecurityContextHolder.getPrincipal() of type {}.",
+							authentication.getPrincipal().getClass().getName());
+					return getSpringXsuaaToken(authentication);
+				} else if (authentication.getPrincipal().getClass().getName()
+						.startsWith("com.sap.cloud.security.token.")) {
+					LOGGER.debug("Try to fetch token from SecurityContextHolder.getPrincipal() of type {}.",
+							authentication.getPrincipal().getClass().getName());
+					return (Token) authentication.getPrincipal();
+				}
+			} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+				LOGGER.error("Does not yet support (Tokens of class: {})", authentication.getPrincipal().getClass());
 			}
-			return new SapIdToken(tokenValue);
+		} else {
+			LOGGER.debug("Spring SecurityContextHolder does not contain a token which was authenticated ({})",
+					authentication);
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the token using {@link SecurityContextHolder}.
+	 *
+	 * @return the token or <code>null</code> if {@link SecurityContext} is empty or
+	 *         does not contain a token of this type.
+	 */
+	@Nullable
+	static Token getTokenFromDeprecatedLib(Authentication authentication)
+			throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		Method getTokenValue = authentication.getDetails().getClass().getMethod("getTokenValue");
+		String encodedToken = (String) getTokenValue.invoke(authentication.getDetails());
+		AbstractToken xsuaaToken = new XsuaaTokenWithGrantedAuthorities(encodedToken,
+				authentication.getAuthorities());
+		if (xsuaaToken.isXsuaaToken()) {
+			return xsuaaToken;
+		}
+		return new SapIdToken(encodedToken);
+	}
+
+	static Token getSpringXsuaaToken(Authentication authentication)
+			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+		Method getAppToken = authentication.getPrincipal().getClass().getMethod("getAppToken");
+		String encodedToken = (String) getAppToken.invoke(authentication.getPrincipal());
+		return Token.create(encodedToken);
 	}
 
 	/**
@@ -91,5 +144,4 @@ public class SpringSecurityContext {
 			return authorities.contains(new SimpleGrantedAuthority(scope));
 		}
 	}
-
 }
