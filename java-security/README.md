@@ -224,9 +224,9 @@ java_buildpack                  2          true      false    java_buildpack-cac
 .
 .
 .
-sap_java_buildpack              12         true      false    sap_java_buildpack-v1.26.1.zip
-sap_java_buildpack_1_26         13         true      false    sap_java_buildpack-v1.26.1.zip
-sap_java_buildpack_1_25         14         true      false    sap_java_buildpack-v1.25.0.zip
+sap_java_buildpack              12         true      false    sap_java_buildpack-v1.32.0.zip
+sap_java_buildpack_1_32         13         true      false    sap_java_buildpack-v1.32.0.zip
+sap_java_buildpack_1_31         14         true      false    sap_java_buildpack-v1.31.2.zip
 ```
 
 ### Increase log level to `DEBUG`
@@ -282,6 +282,10 @@ Or, alternatively in `src/main/webapp/WEB-INF/web.xml`:
 ```
 
 > In case your application provides no scopes, consider the documentation [here](Migration_SAPJavaBuildpackProjects_V2.md#new-feature-sap-java-buildpack-without-application-roles).
+
+
+#### java.util.ServiceConfigurationError: com.sap.cloud.security.token.TokenFactory: Provider com.sap.cloud.security.servlet.HybridTokenFactory not a subtype
+As of version [`2.8.3`](https://github.com/SAP/cloud-security-xsuaa-integration/releases/tag/2.8.3) the version of `java-api` needs to match the version of `java-security` client library. In case you use the **SAP Java Buildpack** `java-security` is provided. To keep them in synch its recommended to use [SAP Java Buildpack BoM](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html) of the respective SAP Java Buildpack version and as done in the [sap-java-buildpack-api-usage sample](/samples/sap-java-buildpack-api-usage/pom.xml).
 
 ## Specs und References
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)
