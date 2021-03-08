@@ -93,7 +93,7 @@ public class SpringXsuaaSecurityContextTest {
 			throws ExecutionException, InterruptedException {
 		setToken(token);
 
-		executorService.submit(() -> SpringSecurityContext.clear()).get(); // run and await other thread
+		executorService.submit(SpringSecurityContext::clear).get(); // run and await other thread
 
 		assertThat(SpringSecurityContext.getToken()).isEqualTo(token);
 	}

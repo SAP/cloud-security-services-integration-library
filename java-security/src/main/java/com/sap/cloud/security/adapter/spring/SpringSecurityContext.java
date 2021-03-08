@@ -34,7 +34,7 @@ import java.util.Objects;
  */
 public class SpringSecurityContext {
 
-	static Logger LOGGER = LoggerFactory.getLogger(SpringSecurityContext.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(SpringSecurityContext.class);
 
 	private SpringSecurityContext() {
 	}
@@ -51,7 +51,7 @@ public class SpringSecurityContext {
 		if (Objects.nonNull(authentication) && authentication.isAuthenticated()) {
 			try {
 				if (authentication.getDetails() != null && authentication.getDetails().getClass()
-						.getName() == "org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails") {
+						.getName().equals("org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails")) {
 					LOGGER.debug("Try to fetch token from deprecated Springs Auth2 client library.");
 					return getTokenFromDeprecatedLib(authentication);
 				} else if (authentication.getPrincipal() == null) {
@@ -59,6 +59,7 @@ public class SpringSecurityContext {
 				}
 				if (authentication.getPrincipal().getClass().getName()
 						.startsWith("com.sap.cloud.security.xsuaa.token.")) {
+					//startsWith("org.springframework.security.oauth2.core.oidc.user.OidcIdToken
 					LOGGER.debug("Try to fetch token from SecurityContextHolder.getPrincipal() of type {}.",
 							authentication.getPrincipal().getClass().getName());
 					return getSpringXsuaaToken(authentication);
