@@ -3,8 +3,8 @@ package com.sap.cloud.security.adapter.spring;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 public class SpringOAuth2ClientSecurityContextTest {
 	SapIdToken sapIdToken;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException {
 		sapIdToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 		SpringSecurityContext.clear();

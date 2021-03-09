@@ -2,8 +2,8 @@ package com.sap.cloud.security.adapter.spring;
 
 import com.sap.cloud.security.token.*;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -31,7 +31,7 @@ public class SpringSecurityContextDeprecatedTest {
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private static final Set<String> NO_SCOPES = Collections.EMPTY_SET;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException {
 		token = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
 		sapIdToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
