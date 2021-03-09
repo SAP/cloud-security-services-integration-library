@@ -1,7 +1,6 @@
 package com.sap.cloud.security.spring.token;
 
 import com.sap.cloud.security.test.JwtGenerator;
-import com.sap.cloud.security.spring.token.SpringSecurityContext;
 import com.sap.cloud.security.spring.token.authentication.HybridJwtDecoder;
 import com.sap.cloud.security.spring.token.authentication.XsuaaTokenAuthorizationConverter;
 import com.sap.cloud.security.token.Token;
@@ -81,6 +80,15 @@ class SpringSecurityContextTest {
 	}
 
 	@Test
+	void getToken_fromJavaSpringSecurityContext() {
+		setToken(sapIdToken);
+		assertEquals(sapIdToken, com.sap.cloud.security.adapter.spring.SpringSecurityContext.getToken());
+
+		setToken(xsuaaToken);
+		assertEquals(xsuaaToken, com.sap.cloud.security.adapter.spring.SpringSecurityContext.getToken());
+	}
+
+	@Test
 	void getAccessToken() {
 		setToken(xsuaaToken);
 		assertEquals(xsuaaToken, SpringSecurityContext.getAccessToken());
@@ -110,9 +118,21 @@ class SpringSecurityContextTest {
 	void clear_removesToken() {
 		setToken(xsuaaToken);
 		SpringSecurityContext.clear();
+		com.sap.cloud.security.adapter.spring.SpringSecurityContext.clear();
 
 		assertThrows(AccessDeniedException.class, () -> SpringSecurityContext.getToken());
 		assertThrows(AccessDeniedException.class, () -> SpringSecurityContext.getAccessToken());
+
+		assertNull(com.sap.cloud.security.adapter.spring.SpringSecurityContext.getToken());
+		assertNull(com.sap.cloud.security.adapter.spring.SpringSecurityContext.getAccessToken());
+	}
+
+	@Test
+	void clear_removesTokenFromJavaSpringSecurityContext() {
+		com.sap.cloud.security.adapter.spring.SpringSecurityContext.clear();
+
+		assertNull(com.sap.cloud.security.adapter.spring.SpringSecurityContext.getToken());
+		assertNull(com.sap.cloud.security.adapter.spring.SpringSecurityContext.getAccessToken());
 	}
 
 	// @Test
