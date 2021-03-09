@@ -7,8 +7,8 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoder;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -32,7 +32,7 @@ public class SpringXsuaaSecurityContextTest {
 	AccessToken token;
 	SapIdToken sapIdToken;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException {
 		token = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
 		sapIdToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));

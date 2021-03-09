@@ -51,23 +51,22 @@ public class SpringSecurityContext {
 		if (Objects.nonNull(authentication) && authentication.isAuthenticated()) {
 			try {
 				if (authentication.getDetails() != null && authentication.getDetails().getClass()
-						.getName().equals("org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails")) {
+						.getName()
+						.equals("org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails")) {
 					LOGGER.debug("Try to fetch token from deprecated Springs Auth2 client library.");
 					return getTokenFromDeprecatedLib(authentication);
 				} else if (authentication.getPrincipal() == null) {
 					return null; // no token available
 				}
-				if (authentication.getPrincipal().getClass().getName()
-						.startsWith("com.sap.cloud.security.xsuaa.token.")) {
-					//startsWith("org.springframework.security.oauth2.core.oidc.user.OidcIdToken
-					LOGGER.debug("Try to fetch token from SecurityContextHolder.getPrincipal() of type {}.",
-							authentication.getPrincipal().getClass().getName());
+				String principalClass = authentication.getPrincipal().getClass().getName();
+				LOGGER.debug("Try to fetch token from SecurityContextHolder.getPrincipal() of type {}.",
+						authentication.getPrincipal().getClass().getName());
+				if (principalClass.startsWith("com.sap.cloud.security.xsuaa.token.")) {
 					return getSpringXsuaaToken(authentication);
-				} else if (authentication.getPrincipal().getClass().getName()
-						.startsWith("com.sap.cloud.security.token.")) {
-					LOGGER.debug("Try to fetch token from SecurityContextHolder.getPrincipal() of type {}.",
-							authentication.getPrincipal().getClass().getName());
+				} else if (principalClass.startsWith("com.sap.cloud.security.token.")) {
 					return (Token) authentication.getPrincipal();
+				} else if (principalClass.startsWith("org.springframework.security.oauth2.core.oidc.user")) {
+					return getSpringOidcIdToken(authentication);
 				}
 			} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
 				LOGGER.error("Does not yet support (Tokens of class: {})", authentication.getPrincipal().getClass());
@@ -102,6 +101,15 @@ public class SpringSecurityContext {
 			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 		Method getAppToken = authentication.getPrincipal().getClass().getMethod("getAppToken");
 		String encodedToken = (String) getAppToken.invoke(authentication.getPrincipal());
+		return Token.create(encodedToken);
+	}
+
+	static Token getSpringOidcIdToken(Authentication authentication)
+			throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		Method getIdToken = authentication.getPrincipal().getClass().getMethod("getIdToken");
+		Object oidcToken = getIdToken.invoke(authentication.getPrincipal());
+		Method getTokenValue = oidcToken.getClass().getMethod("getTokenValue");
+		String encodedToken = (String) getTokenValue.invoke(oidcToken);
 		return Token.create(encodedToken);
 	}
 
