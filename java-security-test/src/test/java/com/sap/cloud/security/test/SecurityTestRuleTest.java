@@ -97,7 +97,6 @@ public class SecurityTestRuleTest {
 	@Test
 	public void testRuleIsInitializedCorrectly() {
 		assertThat(cut.getApplicationServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
-		// assertThat(cut.getWireMockRule()).isNotNull();
 		assertThat(cut.getWireMockServer()).isNotNull();
 		assertThat(cut.createToken().getTokenValue())
 				.isEqualTo(cut.getPreconfiguredJwtGenerator().createToken().getTokenValue());
@@ -138,14 +137,6 @@ public class SecurityTestRuleTest {
 		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(baseUrl);
 	}
 
-	//@Test
-	public void servletFilterServesTestServlet() throws IOException {
-		HttpGet httpGet = new HttpGet(cut.getApplicationServerUri() + "/hi");
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
-		}
-	}
-
 	@Test
 	public void setKeys_invalidPath_throwsException() {
 		assertThatThrownBy(() -> SecurityTestRule.getInstance(XSUAA)
@@ -167,7 +158,7 @@ public class SecurityTestRuleTest {
 				.useApplicationServer()
 				.addApplicationServlet(new ServletHolder(mockServlet), "/");
 
-		//@Test
+		@Test
 		public void testThatServletMethodIsNotCalled() throws ServletException, IOException {
 			HttpGet httpGet = new HttpGet(mockServletRule.getApplicationServerUri());
 			try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
