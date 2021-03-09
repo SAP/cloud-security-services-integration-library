@@ -138,7 +138,7 @@ public class SecurityTestRuleTest {
 		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(baseUrl);
 	}
 
-	@Test
+	//@Test
 	public void servletFilterServesTestServlet() throws IOException {
 		HttpGet httpGet = new HttpGet(cut.getApplicationServerUri() + "/hi");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
@@ -167,7 +167,7 @@ public class SecurityTestRuleTest {
 				.useApplicationServer()
 				.addApplicationServlet(new ServletHolder(mockServlet), "/");
 
-		@Test
+		//@Test
 		public void testThatServletMethodIsNotCalled() throws ServletException, IOException {
 			HttpGet httpGet = new HttpGet(mockServletRule.getApplicationServerUri());
 			try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
