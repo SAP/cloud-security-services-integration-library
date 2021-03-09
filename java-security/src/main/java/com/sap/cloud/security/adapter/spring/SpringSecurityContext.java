@@ -51,7 +51,8 @@ public class SpringSecurityContext {
 		if (Objects.nonNull(authentication) && authentication.isAuthenticated()) {
 			try {
 				if (authentication.getDetails() != null && authentication.getDetails().getClass()
-						.getName().equals("org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails")) {
+						.getName()
+						.equals("org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails")) {
 					LOGGER.debug("Try to fetch token from deprecated Springs Auth2 client library.");
 					return getTokenFromDeprecatedLib(authentication);
 				} else if (authentication.getPrincipal() == null) {
@@ -103,7 +104,8 @@ public class SpringSecurityContext {
 		return Token.create(encodedToken);
 	}
 
-	static Token getSpringOidcIdToken(Authentication authentication) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+	static Token getSpringOidcIdToken(Authentication authentication)
+			throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		Method getIdToken = authentication.getPrincipal().getClass().getMethod("getIdToken");
 		Object oidcToken = getIdToken.invoke(authentication.getPrincipal());
 		Method getTokenValue = oidcToken.getClass().getMethod("getTokenValue");
