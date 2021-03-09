@@ -20,14 +20,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static com.sap.cloud.security.config.Service.IAS;
-import static com.sap.cloud.security.token.TokenClaims.SUBJECT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SpringSecurityContextTest {
+public class SpringSecurityContextDeprecatedTest {
 	AccessToken token;
 	SapIdToken sapIdToken;
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -38,15 +36,6 @@ public class SpringSecurityContextTest {
 		token = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
 		sapIdToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 		SpringSecurityContext.clear();
-	}
-
-	@Test
-	public void getToken_fromEmptySecurityContext_isNull() {
-		Token token = SpringSecurityContext.getToken();
-		assertThat(token).isNull();
-
-		token = SpringSecurityContext.getAccessToken();
-		assertThat(token).isNull();
 	}
 
 	@Test
@@ -74,19 +63,6 @@ public class SpringSecurityContextTest {
 		assertThat(SpringSecurityContext.getAccessToken().getScopes()).isEmpty();
 		assertThat(SpringSecurityContext.getAccessToken().hasLocalScope("Scope1")).isTrue();
 		assertThat(SpringSecurityContext.getAccessToken().hasLocalScope("Scope3")).isFalse();
-	}
-
-	@Test
-	public void getAccessTokenReturnsNull_inCaseOfIasToken() {
-		setToken(sapIdToken, NO_SCOPES);
-		assertThat(SpringSecurityContext.getAccessToken()).isNull();
-	}
-
-	@Test
-	public void getTokenReturnsIasOidcToken() {
-		setToken(sapIdToken, NO_SCOPES);
-		assertThat(SpringSecurityContext.getToken().getService()).isEqualTo(IAS);
-		assertThat(SpringSecurityContext.getToken().getClaimAsString(SUBJECT)).isEqualTo("P176945");
 	}
 
 	@Test

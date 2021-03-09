@@ -8,8 +8,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -41,13 +39,7 @@ public class SpringSecurityContextTest {
 
 	@Test(expected = IllegalArgumentException.class) // Passed JwtDecoder instance must be of type 'XsuaaJwtDecoder'
 	public void initSecurityContextRaiseExceptionIfNotXsuaaJwtDecoder() {
-		String message = "";
-		SpringSecurityContext.init(token_1.getTokenValue(), new JwtDecoder() {
-			@Override
-			public Jwt decode(String s) throws JwtException {
-				return token_1;
-			}
-		}, new DefaultAuthoritiesExtractor());
+		SpringSecurityContext.init(token_1.getTokenValue(), s -> token_1, new DefaultAuthoritiesExtractor());
 	}
 
 	/**
