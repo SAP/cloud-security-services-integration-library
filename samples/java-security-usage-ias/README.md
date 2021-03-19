@@ -1,6 +1,7 @@
 # Description
 This sample is a Java back-end application running on the Cloud Foundry. For all incoming requests it checks whether the user is authorized using the 
-[`IasTokenAuthenticator`](/java-security/src/main/java/com/sap/cloud/security/servlet) which is defined in the [Java Security](../../java-security/) library.
+[`IasTokenAuthenticator`](/java-security/src/main/java/com/sap/cloud/security/servlet) which is defined in the [Java Security](../../java-security/) library.   
+**Disclaimer: as of now the IAS token can only be validated in case the token from the consuming application is issued for the same IAS tenant.**
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
