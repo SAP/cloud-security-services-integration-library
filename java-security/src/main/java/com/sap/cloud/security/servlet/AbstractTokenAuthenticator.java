@@ -149,7 +149,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		if (this.tokenValidator == null) {
 			JwtValidatorBuilder jwtValidatorBuilder = getJwtValidatorBuilder();
 			if (isSysEnvPropertyEnabled("X509_THUMBPRINT_CONFIRMATION_ACTIVE", true)) {
-				this.tokenValidator = jwtValidatorBuilder.with(new JwtCnfValidator(serviceConfiguration.getClientId()))
+				this.tokenValidator = jwtValidatorBuilder.with(new JwtCnfValidator(getServiceConfiguration().getClientId()))
 						.build();
 			} else {
 				this.tokenValidator = jwtValidatorBuilder.build();
