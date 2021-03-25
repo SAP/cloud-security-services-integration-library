@@ -33,8 +33,11 @@ public class JwtCnfValidator implements Validator<Token> {
 	}
 
 	/**
-	 * Validates the cnf thumbprint of X509 certificate against trusted certificate's thumbprint.
-	 * @param token token to be validated
+	 * Validates the cnf thumbprint of X509 certificate against trusted
+	 * certificate's thumbprint.
+	 * 
+	 * @param token
+	 *            token to be validated
 	 * @return validation result. Result is valid when both thumbprints match.
 	 */
 	@Override
@@ -42,11 +45,11 @@ public class JwtCnfValidator implements Validator<Token> {
 
 		String cnf = extractCnfThumbprintFromToken(token);
 		LOGGER.info("Cnf thumbprint: {}", cnf);
-		if (cnf == null && token.getAudiences().size() == 1 && token.getAudiences().contains(trustedClientId)){
+		if (cnf == null && token.getAudiences().size() == 1 && token.getAudiences().contains(trustedClientId)) {
 			return ValidationResults.createValid();
 		} else {
 			String trustedCertificate = SecurityContext.getCertificate();
-			if (trustedCertificate == null){
+			if (trustedCertificate == null) {
 				return ValidationResults.createInvalid("X509 certificate missing.");
 			}
 			try {

@@ -28,8 +28,9 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 		SecurityContext.setCertificate(x509Selector.getCertificate(httpRequest));
 		try {
 			super.createIasJwtValidators();
-		}catch (IllegalStateException e){
-			return TokenAuthenticatorResult.createUnauthenticated("Unexpected error occurred: There must be a service configuration.");
+		} catch (IllegalStateException e) {
+			return TokenAuthenticatorResult
+					.createUnauthenticated("Unexpected error occurred: There must be a service configuration.");
 		}
 		return super.validateRequest(request, response);
 	}

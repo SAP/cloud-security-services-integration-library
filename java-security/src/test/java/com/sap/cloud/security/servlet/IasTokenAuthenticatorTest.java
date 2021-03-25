@@ -118,7 +118,8 @@ public class IasTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason()).contains("Error during token validation: X509 certificate missing.");
+		assertThat(response.getUnauthenticatedReason())
+				.contains("Error during token validation: X509 certificate missing.");
 		assertThat(response.isAuthenticated()).isFalse();
 	}
 
@@ -129,7 +130,8 @@ public class IasTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason()).contains("Error during token validation: Invalid x509 thumbprint.");
+		assertThat(response.getUnauthenticatedReason())
+				.contains("Error during token validation: Invalid x509 thumbprint.");
 		assertThat(response.isAuthenticated()).isFalse();
 	}
 

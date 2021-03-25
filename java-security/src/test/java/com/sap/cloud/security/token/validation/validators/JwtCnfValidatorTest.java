@@ -38,16 +38,15 @@ class JwtCnfValidatorTest {
 	}
 
 	@Test
-	void validateToken_WithValidCnf(){
+	void validateToken_WithValidCnf() {
 		Token token = Token.create(tokenWithCnf);
 		SecurityContext.setCertificate(x509);
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isValid());
 	}
 
-
 	@Test
-	void validateToken_WithInvalidCnf(){
+	void validateToken_WithInvalidCnf() {
 		Token token = Token.create(tokenWithCnf2);
 		SecurityContext.setCertificate(x509);
 		ValidationResult result = CUT.validate(token);
@@ -55,7 +54,7 @@ class JwtCnfValidatorTest {
 	}
 
 	@Test
-	void validateToken_NoCnfValidAud(){
+	void validateToken_NoCnfValidAud() {
 		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("myClientId"));
 		ValidationResult result = CUT.validate(TOKEN);
 		assertTrue(result.isValid());
@@ -63,7 +62,7 @@ class JwtCnfValidatorTest {
 
 	@Test
 	void validateToken_NoCnfMultipleAud() {
-		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("aud1","aud2"));
+		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("aud1", "aud2"));
 		ValidationResult result = CUT.validate(TOKEN);
 		assertFalse(result.isValid());
 	}

@@ -20,7 +20,9 @@ public class X509Parser {
 	}
 
 	/**
-	 * Generates X509 thumbprint from provided certificate as specified in JWT Certificate Thumbprint Confirmation Method
+	 * Generates X509 thumbprint from provided certificate as specified in JWT
+	 * Certificate Thumbprint Confirmation Method
+	 * 
 	 * @see <a href="https://tools.ietf.org/html/rfc8705#section-3.1"/>
 	 * @param certificate
 	 *            Base64 encoded X509 certificate

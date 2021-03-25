@@ -13,7 +13,7 @@ import static com.sap.cloud.security.xsuaa.mtls.X509Parser.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class X509ParserTest {
+class X509ParserTest {
 
 	private static String x509;
 	private static final String cnf = "fU-XoQlhMTpQsz9ArXl6zHIpMGuRO4ExLKdLRTc5VjM";
@@ -24,19 +24,19 @@ public class X509ParserTest {
 	}
 
 	@Test
-	public void normalizeThumbprintTest() throws NoSuchAlgorithmException, CertificateException {
+	void normalizeThumbprintTest() throws NoSuchAlgorithmException, CertificateException {
 		String normalizedX509 = normalizeThumbprint(getX509Thumbprint(x509));
 		assertFalse(normalizedX509.endsWith("="));
 		assertFalse(normalizedX509.contains("\n"));
 	}
 
 	@Test
-	public void getX509ThumbprintTest() throws NoSuchAlgorithmException, CertificateException {
+	void getX509ThumbprintTest() throws NoSuchAlgorithmException, CertificateException {
 		assertEquals(cnf, (getX509Thumbprint(x509)));
 	}
 
 	@Test
-	public void getJwtThumbprintTest() throws NoSuchAlgorithmException {
+	void getJwtThumbprintTest() throws NoSuchAlgorithmException {
 		assertEquals(cnf, X509Parser.getJwtThumbprint(x509));
 	}
 
