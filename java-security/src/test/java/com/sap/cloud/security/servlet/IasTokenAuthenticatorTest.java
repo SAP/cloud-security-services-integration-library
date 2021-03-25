@@ -118,7 +118,7 @@ public class IasTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason()).contains("Error during token validation: No X509 certificate provided.");
+		assertThat(response.getUnauthenticatedReason()).contains("Error during token validation: X509 certificate missing.");
 		assertThat(response.isAuthenticated()).isFalse();
 	}
 
