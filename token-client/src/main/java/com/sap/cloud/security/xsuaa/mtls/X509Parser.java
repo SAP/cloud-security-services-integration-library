@@ -23,13 +23,14 @@ public class X509Parser {
 	 * Generates X509 thumbprint from provided certificate as specified in JWT
 	 * Certificate Thumbprint Confirmation Method
 	 * 
-	 * @see <a href="https://tools.ietf.org/html/rfc8705#section-3.1"/>
+	 * @see <a href="https://tools.ietf.org/html/rfc8705#section-3.1"></a>
 	 * @param certificate
 	 *            Base64 encoded X509 certificate
 	 * @return Thumbprint of X509 certificate
 	 * @throws NoSuchAlgorithmException
 	 *             when a particular cryptographic algorithm is requested but is not
 	 *             available in the environment
+	 * @throws CertificateException is thrown if errors occur while decoding X509 certificate
 	 */
 	public static String getX509Thumbprint(String certificate) throws NoSuchAlgorithmException, CertificateException {
 		X509Certificate x509Certificate;
