@@ -9,6 +9,7 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.token.validation.validators.JwtCnfValidator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -136,16 +137,32 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 */
 	protected abstract Token extractFromHeader(String authorizationHeader);
 
-	Validator<Token> getOrCreateTokenValidator() {
-		if (tokenValidator == null) {
-			JwtValidatorBuilder jwtValidatorBuilder = JwtValidatorBuilder.getInstance(getServiceConfiguration())
-					.withHttpClient(httpClient);
-			jwtValidatorBuilder.configureAnotherServiceInstance(getOtherServiceConfiguration());
-			Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(jwtValidatorBuilder::withCacheConfiguration);
-			validationListeners.forEach(jwtValidatorBuilder::withValidatorListener);
-			tokenValidator = jwtValidatorBuilder.build();
+    Validator<Token> getOrCreateTokenValidator() {
+        if (this.tokenValidator == null) {
+			JwtValidatorBuilder jwtValidatorBuilder = getJwtValidatorBuilder();
+			this.tokenValidator = jwtValidatorBuilder.build();
 		}
-		return tokenValidator;
+        return tokenValidator;
+    }
+
+    void createIasJwtValidators() {
+		if (this.tokenValidator == null) {
+			JwtValidatorBuilder jwtValidatorBuilder = getJwtValidatorBuilder();
+			if (isSysEnvPropertyEnabled("X509_THUMBPRINT_CONFIRMATION_ACTIVE", true)) {
+				this.tokenValidator = jwtValidatorBuilder.with(new JwtCnfValidator(serviceConfiguration.getClientId())).build();
+			} else {
+				this.tokenValidator = jwtValidatorBuilder.build();
+			}
+		}
+    }
+
+	private JwtValidatorBuilder getJwtValidatorBuilder() {
+		JwtValidatorBuilder jwtValidatorBuilder = JwtValidatorBuilder.getInstance(getServiceConfiguration())
+				.withHttpClient(httpClient);
+		jwtValidatorBuilder.configureAnotherServiceInstance(getOtherServiceConfiguration());
+		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(jwtValidatorBuilder::withCacheConfiguration);
+		validationListeners.forEach(jwtValidatorBuilder::withValidatorListener);
+		return jwtValidatorBuilder;
 	}
 
 	TokenAuthenticationResult unauthenticated(String message) {
@@ -171,5 +188,24 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 			return unauthenticated("Error during token validation: " + result.getErrorDescription());
 		}
 	}
+
+    /**
+     * Checks if provided property name is set as System Environment variable. If
+     * value is not set(null) or set to false it returns false. Any other value is
+     * interpreted as true.
+     *
+     * @param propertyName name of System Environment variable
+     * @param defaultEnabled is the default value of this property enabled? true if enabled : false if disabled
+     * @return boolean value
+     */
+    protected static boolean isSysEnvPropertyEnabled(String propertyName, boolean defaultEnabled) {
+        String isEnabled = System.getenv(propertyName);
+        logger.debug("System environment variable {} is set to {}", propertyName, isEnabled);
+        if (defaultEnabled) {
+            return isEnabled == null || !isEnabled.equalsIgnoreCase("false");
+        }else {
+            return isEnabled != null && !isEnabled.equalsIgnoreCase("false");
+        }
+    }
 
 }

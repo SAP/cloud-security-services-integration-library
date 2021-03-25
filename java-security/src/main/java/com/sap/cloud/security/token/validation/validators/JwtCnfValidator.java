@@ -27,35 +27,37 @@ import java.security.cert.CertificateException;
 public class JwtCnfValidator implements Validator<Token> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtCnfValidator.class);
 	private final String trustedClientId;
-	// TODO python script enhancement
 
 	public JwtCnfValidator(String clientId) {
 		trustedClientId = clientId;
 	}
 
 	/**
-	 * Validates the cnf thumbprint of X509 certificate against trusted certificate thumbprint.
+	 * Validates the cnf thumbprint of X509 certificate against trusted certificate's thumbprint.
 	 * @param token token to be validated
-	 * @return validation result. Result is valid when thumbprints match.
+	 * @return validation result. Result is valid when both thumbprints match.
 	 */
 	@Override
 	public ValidationResult validate(Token token) {
 
 		String cnf = extractCnfThumbprintFromToken(token);
+		LOGGER.info("Cnf thumbprint: {}", cnf);
 		if (cnf == null && token.getAudiences().size() == 1 && token.getAudiences().contains(trustedClientId)){
 			return ValidationResults.createValid();
 		} else {
 			String trustedCertificate = SecurityContext.getCertificate();
-			LOGGER.info("Cnf thumbprint: {}", cnf);
+			if (trustedCertificate == null){
+				return ValidationResults.createInvalid("X509 certificate missing.");
+			}
 			try {
 				String trustedX509Thumbprint = X509Parser.getX509Thumbprint(trustedCertificate);
 				if (trustedX509Thumbprint.equals(cnf)) {
 					return ValidationResults.createValid();
 				}
 			} catch (NoSuchAlgorithmException e) {
-				LOGGER.error("Couldn't generate the x509 thumbprint. {}", e.getMessage(), e);
+				LOGGER.error("Couldn't generate x509 thumbprint. {}", e.getMessage(), e);
 			} catch (CertificateException e) {
-				LOGGER.error("Couldn't generate thumbprint of X509 certificate", e);
+				LOGGER.error("Couldn't generate x509 thumbprint {}", e.getMessage(), e);
 			}
 			return ValidationResults.createInvalid("Invalid x509 thumbprint.");
 		}

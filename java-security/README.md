@@ -184,6 +184,11 @@ Steps to enable token exchange:
 
 The authenticator is used in the following [sample](/samples/java-security-usage).
 
+### X509 certificate thumbprint validation
+[IasTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/IasTokenAuthenticator.java) supports JWT Certificate Thumbprint Confirmation Method. See specification [here](https://tools.ietf.org/html/rfc8705#section-3.1). 
+This feature is enabled by default. It can be disabled by setting environment variable `X509_THUMBPRINT_CONFIRMATION_ACTIVE` to false.
+
+
 ## Test Utilities
 You can find the JUnit test utilities documented [here](/java-security-test).
 
