@@ -10,25 +10,18 @@ import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.x509.X509Constants;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.assertj.core.util.Maps;
-import org.junit.After;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import uk.org.webcompere.systemstubs.rules.EnvironmentVariablesRule;
+import org.junit.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static com.sap.cloud.security.test.SecurityTestRule.getInstance;
-import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
+import static com.sap.cloud.security.test.SecurityTestRule.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletIntegrationTest {
@@ -38,10 +31,7 @@ public class HelloJavaServletIntegrationTest {
 			.useApplicationServer()
 			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 
-    @Rule
-    public EnvironmentVariablesRule environmentVariablesRule = new EnvironmentVariablesRule(X509Constants.ACCEPT_CALLERS_BOUND_TO_SAME_ID_SERVICE, "false");
-
-    @After
+	@After
 	public void tearDown() {
 		SecurityContext.clear();
 	}
@@ -63,8 +53,8 @@ public class HelloJavaServletIntegrationTest {
 	}
 
 	@Test
-	public void request_withValidToken_X509Disabled() throws IOException {
-        Token token = rule.getPreconfiguredJwtGenerator()
+	public void request_withValidToken() throws IOException {
+		Token token = rule.getPreconfiguredJwtGenerator()
 				.withClaimValue(TokenClaims.EMAIL, "john.doe@email.com")
 				.createToken();
 		HttpGet request = createGetRequest(token.getTokenValue());
@@ -74,26 +64,6 @@ public class HelloJavaServletIntegrationTest {
 			assertThat(responseBody).isEqualTo("You ('john.doe@email.com') are authenticated and can access the application.");
 		}
 	}
-
-    @Test
-    public void request_withValidToken_X509Enabled() throws Exception {
-        environmentVariablesRule.set(X509Constants.ACCEPT_CALLERS_BOUND_TO_SAME_ID_SERVICE, "true");
-        String x509 = IOUtils.resourceToString("/x509Base64.txt", StandardCharsets.US_ASCII);
-        String cnf = "fU-XoQlhMTpQsz9ArXl6zHIpMGuRO4ExLKdLRTc5VjM";
-
-        Token token = rule.getPreconfiguredJwtGenerator()
-                .withClaimValue(TokenClaims.CNF, Maps.newHashMap(TokenClaims.CNF_X509_THUMBPRINT, cnf))
-                .withClaimValue(TokenClaims.EMAIL, "john.doe@email.com")
-                .createToken();
-
-        HttpGet request = createGetRequest(token.getTokenValue());
-        request.setHeader(FWD_CLIENT_CERT_HEADER, x509);
-        CloseableHttpResponse response = HttpClients.createDefault().execute(request);
-
-        String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-        assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
-        assertThat(responseBody).isEqualTo("You ('john.doe@email.com') are authenticated and can access the application.");
-    }
 
 	@Test
 	public void request_withInvalidToken_unauthenticated() throws IOException {
