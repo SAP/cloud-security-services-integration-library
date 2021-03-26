@@ -42,7 +42,7 @@ public class IasTokenAuthenticatorTest {
 		token = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 		tokenWithCnf = new SapIdToken(IOUtils.resourceToString("/iasTokenWithCnfRSA256.txt", UTF_8));
 		tokenInvalidCnf = new SapIdToken(IOUtils.resourceToString("/iasTokenInvalidCnfRSA256.txt", UTF_8));
-		x509 = IOUtils.resourceToString("/x509Base64.txt", UTF_8);
+		x509 = IOUtils.resourceToString("/cf-forwarded-client-cert.txt", UTF_8);
 	}
 
 	@Before
@@ -119,7 +119,7 @@ public class IasTokenAuthenticatorTest {
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		assertThat(response.getUnauthenticatedReason())
-				.contains("Error during token validation: X509 certificate missing.");
+				.contains("Error during token validation: Certificate validation failed");
 		assertThat(response.isAuthenticated()).isFalse();
 	}
 
@@ -131,7 +131,7 @@ public class IasTokenAuthenticatorTest {
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		assertThat(response.getUnauthenticatedReason())
-				.contains("Error during token validation: Invalid x509 thumbprint.");
+				.contains("Error during token validation: Certificate validation failed");
 		assertThat(response.isAuthenticated()).isFalse();
 	}
 

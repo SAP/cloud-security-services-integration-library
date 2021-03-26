@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
  * Creates a SSLContext (without Bouncy Castle crypto lib).
  *
  */
-// TODO move to somewhere else?
 public class SSLContextFactory {
 	private static final char[] noPassword = "".toCharArray();
 	private static final SSLContextFactory instance = new SSLContextFactory();

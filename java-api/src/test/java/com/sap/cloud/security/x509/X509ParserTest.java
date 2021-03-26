@@ -1,6 +1,7 @@
-package com.sap.cloud.security.xsuaa.mtls;
+package com.sap.cloud.security.x509;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -9,9 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
-import static com.sap.cloud.security.xsuaa.mtls.X509Parser.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static com.sap.cloud.security.x509.X509Parser.getX509Thumbprint;
+import static com.sap.cloud.security.x509.X509Parser.normalizeThumbprint;
 
 class X509ParserTest {
 
@@ -20,24 +20,30 @@ class X509ParserTest {
 
 	@BeforeAll
 	static void beforeAll() throws IOException {
-		x509 = IOUtils.resourceToString("/x509Base64.txt", StandardCharsets.US_ASCII);
+		x509 = IOUtils.resourceToString("/cf-forwarded-client-cert.txt", StandardCharsets.UTF_8);
 	}
 
 	@Test
 	void normalizeThumbprintTest() throws NoSuchAlgorithmException, CertificateException {
 		String normalizedX509 = normalizeThumbprint(getX509Thumbprint(x509));
-		assertFalse(normalizedX509.endsWith("="));
-		assertFalse(normalizedX509.contains("\n"));
+		Assertions.assertFalse(normalizedX509.endsWith("="));
+		Assertions.assertFalse(normalizedX509.contains("\n"));
 	}
 
 	@Test
 	void getX509ThumbprintTest() throws NoSuchAlgorithmException, CertificateException {
-		assertEquals(cnf, (getX509Thumbprint(x509)));
+		Assertions.assertEquals(cnf, getX509Thumbprint(x509));
 	}
 
 	@Test
 	void getJwtThumbprintTest() throws NoSuchAlgorithmException {
-		assertEquals(cnf, X509Parser.getJwtThumbprint(x509));
+		Assertions.assertEquals(cnf, X509Parser.getCertificateThumbprint(x509));
 	}
 
+	@Test
+	void testRegex() {
+		String testCase = "I\nDon't\nWant\r\nTo Be\r On New Line";
+		String result = testCase.replaceAll("\\s", "");
+		Assertions.assertEquals("IDon'tWantToBeOnNewLine", result);
+	}
 }

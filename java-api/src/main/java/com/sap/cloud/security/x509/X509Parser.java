@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.mtls;
+package com.sap.cloud.security.x509;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +16,7 @@ import java.util.Base64;
 public class X509Parser {
 	public static final Logger LOGGER = LoggerFactory.getLogger(X509Parser.class);
 
-	private X509Parser() {
-	}
+	private X509Parser() {}
 
 	/**
 	 * Generates X509 thumbprint from provided certificate as specified in JWT
@@ -33,24 +32,30 @@ public class X509Parser {
 	 * @throws CertificateException is thrown if errors occur while decoding X509 certificate
 	 */
 	public static String getX509Thumbprint(String certificate) throws NoSuchAlgorithmException, CertificateException {
-		X509Certificate x509Certificate;
-
-		x509Certificate = decodeX509(certificate);
-		MessageDigest digest = MessageDigest.getInstance("SHA-256");
-		byte[] hashedX509 = digest.digest(x509Certificate.getEncoded());
-		String base64UrlEncoding = normalizeThumbprint(Base64.getUrlEncoder().encodeToString(hashedX509));
+		X509Certificate x509Certificate = decodeX509(certificate);
+		MessageDigest sha256Digest = MessageDigest.getInstance("SHA-256");
+		byte[] hashedX509 = sha256Digest.digest(x509Certificate.getEncoded());
+		String base64UrlEncoding = Base64.getUrlEncoder().encodeToString(hashedX509);
 		LOGGER.debug("Base64-url encoded thumbprint: {}", base64UrlEncoding);
-		return base64UrlEncoding;
+		return normalizeThumbprint(base64UrlEncoding);
 	}
 
-	public static String getJwtThumbprint(String base64cert) throws NoSuchAlgorithmException {
-		base64cert = base64cert
+	/**
+	 * Thumbprint generation alternative to {@link #getX509Thumbprint(String)} without decoding into {@link X509Certificate}class
+	 *
+	 * @see <a href="https://tools.ietf.org/html/rfc8705#section-3.1"></a>
+	 * @param base64certificate certificate encoded in Base64, supports also PEM encoded certificates
+	 * @return Thumbprint of X509 certificate
+	 * @throws NoSuchAlgorithmException when a particular cryptographic algorithm is requested but is not
+	 *             available in the environment
+	 */
+	public static String getCertificateThumbprint(String base64certificate) throws NoSuchAlgorithmException {
+		base64certificate = base64certificate
 				.replace("-----BEGIN CERTIFICATE-----", "")
 				.replace("-----END CERTIFICATE-----", "")
-				.replace("\n", "")
-				.replace(" ", "");
+				.replaceAll("\\s", "");
 		MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-		byte[] der = Base64.getDecoder().decode(base64cert.getBytes(StandardCharsets.US_ASCII));
+		byte[] der = Base64.getDecoder().decode(base64certificate.getBytes(StandardCharsets.UTF_8));
 		byte[] hashedX509 = sha256.digest(der);
 		return normalizeThumbprint(Base64.getUrlEncoder().encodeToString(hashedX509));
 	}
@@ -68,15 +73,15 @@ public class X509Parser {
 	}
 
 	/**
+	 * Decodes X509 base64 encoded certificate into X509Certificate class
 	 * @param encodedX509
 	 *            base64 encoded X509 certificate
 	 * @return Decoded X509Certificate
 	 * @throws CertificateException
-	 *             if String value od cert cannot be parsed
+	 *             if String value of certificate cannot be parsed
 	 */
 	private static X509Certificate decodeX509(String encodedX509) throws CertificateException {
 		String encodedPemX509 = encodePemLabels(encodedX509);
-
 		CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 		ByteArrayInputStream bytes = new ByteArrayInputStream(encodedPemX509.getBytes(StandardCharsets.UTF_8));
 
@@ -88,10 +93,11 @@ public class X509Parser {
 		if (base64EncodedCert == null) {
 			throw new CertificateException("Base64 encoded certificate is missing");
 		}
-
-		if (!base64EncodedCert.startsWith("-----BEGIN CERTIFICATE-----")
-				&& !base64EncodedCert.endsWith("-----END CERTIFICATE-----")) {
-			base64EncodedCert = "-----BEGIN CERTIFICATE-----\n" + base64EncodedCert + "\n-----END CERTIFICATE-----";
+		if (!base64EncodedCert.startsWith("-----BEGIN CERTIFICATE-----")) {
+			base64EncodedCert = "-----BEGIN CERTIFICATE-----\n" + base64EncodedCert;
+		}
+		if (!base64EncodedCert.endsWith("-----END CERTIFICATE-----")){
+			base64EncodedCert = base64EncodedCert + "\n-----END CERTIFICATE-----";
 		}
 		LOGGER.debug("PEM encoded certificate: {}", base64EncodedCert);
 		return base64EncodedCert;
