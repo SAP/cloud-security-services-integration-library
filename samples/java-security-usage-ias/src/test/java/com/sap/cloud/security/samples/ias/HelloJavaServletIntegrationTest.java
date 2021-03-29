@@ -11,14 +11,15 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.json.JSONObject;
-import org.junit.*;
+import org.assertj.core.util.Maps;
+import org.junit.After;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import uk.org.webcompere.systemstubs.rules.EnvironmentVariablesRule;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.sap.cloud.security.test.SecurityTestRule.getInstance;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,11 +73,9 @@ public class HelloJavaServletIntegrationTest {
         environmentVariablesRule.set("X509_THUMBPRINT_CONFIRMATION_ACTIVE", "true");
         String x509 = IOUtils.resourceToString("/x509Base64.txt", StandardCharsets.US_ASCII);
         String cnf = "fU-XoQlhMTpQsz9ArXl6zHIpMGuRO4ExLKdLRTc5VjM";
-        Map<String, String> thumbprintCnf = new HashMap<>();
-        thumbprintCnf.put(TokenClaims.X509_THUMBPRINT, cnf);
 
         Token token = rule.getPreconfiguredJwtGenerator()
-                .withClaimValue(TokenClaims.CNF, new JSONObject(thumbprintCnf))
+                .withClaimValue(TokenClaims.CNF, Maps.newHashMap(TokenClaims.X509_THUMBPRINT, cnf))
                 .withClaimValue(TokenClaims.EMAIL, "john.doe@email.com")
                 .createToken();
 

@@ -7,7 +7,7 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
-import com.sap.cloud.security.xsuaa.mtls.X509Parser;
+import com.sap.cloud.security.x509.X509Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,44 +26,45 @@ import java.security.cert.CertificateException;
  */
 public class JwtCnfValidator implements Validator<Token> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtCnfValidator.class);
-	private final String trustedClientId;
-
-	public JwtCnfValidator(String clientId) {
-		trustedClientId = clientId;
-	}
 
 	/**
 	 * Validates the cnf thumbprint of X509 certificate against trusted
 	 * certificate's thumbprint.
-	 * 
+	 *
+	 * In case audience contains only a single value, thumbprint comparison is not
+	 * performed and request is validated. To guarantee that this single audience is
+	 * trusted, use this validator in combination with {@link JwtAudienceValidator}
+	 *
 	 * @param token
 	 *            token to be validated
-	 * @return validation result. Result is valid when both thumbprints match.
+	 * @return validation result. Result is valid when both thumbprints match in
+	 *         case of multiple audiences.
 	 */
 	@Override
 	public ValidationResult validate(Token token) {
 
 		String cnf = extractCnfThumbprintFromToken(token);
-		LOGGER.info("Cnf thumbprint: {}", cnf);
-		if (cnf == null && token.getAudiences().size() == 1 && token.getAudiences().contains(trustedClientId)) {
+		LOGGER.debug("Cnf thumbprint: {}", cnf);
+		if (token.getAudiences().size() == 1) {
 			return ValidationResults.createValid();
-		} else {
+		} else if (cnf != null) {
 			String trustedCertificate = SecurityContext.getCertificate();
 			if (trustedCertificate == null) {
-				return ValidationResults.createInvalid("X509 certificate missing.");
+				LOGGER.error("X509 certificate missing from SecurityContext");
+				return ValidationResults.createInvalid("Certificate validation failed");
 			}
 			try {
 				String trustedX509Thumbprint = X509Parser.getX509Thumbprint(trustedCertificate);
 				if (trustedX509Thumbprint.equals(cnf)) {
 					return ValidationResults.createValid();
 				}
-			} catch (NoSuchAlgorithmException e) {
+				LOGGER.error("Thumbprint from cnf claim {} != thumbprint from certificate {}", cnf,
+						trustedX509Thumbprint);
+			} catch (NoSuchAlgorithmException | CertificateException e) {
 				LOGGER.error("Couldn't generate x509 thumbprint. {}", e.getMessage(), e);
-			} catch (CertificateException e) {
-				LOGGER.error("Couldn't generate x509 thumbprint {}", e.getMessage(), e);
 			}
-			return ValidationResults.createInvalid("Invalid x509 thumbprint.");
 		}
+		return ValidationResults.createInvalid("Certificate validation failed");
 	}
 
 	/**

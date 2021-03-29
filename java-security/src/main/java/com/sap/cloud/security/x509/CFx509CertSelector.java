@@ -1,4 +1,4 @@
-package com.sap.cloud.security.token.x509;
+package com.sap.cloud.security.x509;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
