@@ -9,9 +9,7 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
-import com.sap.cloud.security.token.validation.validators.JwtCnfValidator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import com.sap.cloud.security.util.ConfigurationUtil;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
@@ -31,7 +29,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTokenAuthenticator.class);
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
-	private Validator<Token> tokenValidator;
+	Validator<Token> tokenValidator;
 	protected CloseableHttpClient httpClient;
 	protected OAuth2ServiceConfiguration serviceConfiguration;
 	private CacheConfiguration tokenKeyCacheConfiguration;
@@ -145,19 +143,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return this.tokenValidator;
 	}
 
-	void createIasJwtValidators() {
-		if (this.tokenValidator == null) {
-			JwtValidatorBuilder jwtValidatorBuilder = getJwtValidatorBuilder();
-			if (ConfigurationUtil.isSysEnvPropertyEnabled("X509_THUMBPRINT_CONFIRMATION_ACTIVE", true)) {
-				this.tokenValidator = jwtValidatorBuilder.with(new JwtCnfValidator())
-						.build();
-			} else {
-				this.tokenValidator = jwtValidatorBuilder.build();
-			}
-		}
-	}
-
-	private JwtValidatorBuilder getJwtValidatorBuilder() {
+	JwtValidatorBuilder getJwtValidatorBuilder() {
 		JwtValidatorBuilder jwtValidatorBuilder = JwtValidatorBuilder.getInstance(getServiceConfiguration())
 				.withHttpClient(httpClient);
 		jwtValidatorBuilder.configureAnotherServiceInstance(getOtherServiceConfiguration());

@@ -5,6 +5,10 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.token.validation.validators.JwtCnfValidator;
+import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import com.sap.cloud.security.util.ConfigurationUtil;
 import com.sap.cloud.security.x509.X509CertSelector;
 
 import javax.annotation.Nullable;
@@ -25,12 +29,6 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		SecurityContext.setCertificate(x509Selector.getCertificate(httpRequest));
-		try {
-			super.createIasJwtValidators();
-		} catch (IllegalStateException e) {
-			return TokenAuthenticatorResult
-					.createUnauthenticated("Unexpected error occurred: There must be a service configuration.");
-		}
 		return super.validateRequest(request, response);
 	}
 
@@ -48,5 +46,19 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 	@Override
 	protected OAuth2ServiceConfiguration getOtherServiceConfiguration() {
 		return null;
+	}
+
+	@Override
+	final Validator<Token> getOrCreateTokenValidator() {
+		if (this.tokenValidator == null) {
+			JwtValidatorBuilder jwtValidatorBuilder = getJwtValidatorBuilder();
+			if (ConfigurationUtil.isSysEnvPropertyEnabled("X509_THUMBPRINT_CONFIRMATION_ACTIVE", true)) {
+				this.tokenValidator = jwtValidatorBuilder.with(new JwtCnfValidator())
+						.build();
+			} else {
+				this.tokenValidator = jwtValidatorBuilder.build();
+			}
+		}
+		return this.tokenValidator;
 	}
 }
