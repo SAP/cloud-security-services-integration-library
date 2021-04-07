@@ -50,7 +50,7 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 	public String resolve(HttpServletRequest request) {
 		String oAuth2Token = extractTokenFromRequest(request);
 		if (oAuth2Token == null) {
-			logger.error("Request did not have Authorization header containing bearer token.");
+			logger.info("Request did not have Authorization header containing bearer token, skipping token exchange.");
 			return null;
 		}
 		try {
