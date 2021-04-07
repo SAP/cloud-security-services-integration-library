@@ -341,7 +341,7 @@ class TestSpringSecurity(SampleTest):
         ias_service = self.get_ias_access("ias-spring-sec")
 
         resp = self.perform_get_request_with_ias_token('/v1/sayHello', ias_service.fetch_ias_token(self))
-        self.assertEqual(resp.status, 403, 'Expected HTTP status 403')
+        self.assertEqual(resp.status, 403, EXPECT_403)
         if self.prompt_user_role_assignment():
             resp = self.perform_get_request_with_ias_token('/v1/sayHello', ias_service.fetch_ias_token(self))
             if resp.status != 200:
@@ -349,11 +349,16 @@ class TestSpringSecurity(SampleTest):
                                 "Check in IAS admin panel that the application's '{}' Subject Name Identifier is set to email. "
                                 "Bug: NGPBUG-139441 "
                                 .format(ias_service.ias_service_name))
-            self.assertEqual(resp.status, 200, 'Expected HTTP status 200')
+            self.assertEqual(resp.status, 200, EXPECT_200)
             xsappname = self.get_deployed_app().get_credentials_property('xsappname')
             self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
         else:
             logging.warning('test_sayHello_ias was skipped. To run test enable environment variable USER_INPUT_ENABLED=true')
+
+    def test_open_endpoint(self):
+        resp = self.perform_get_request('/health')
+        self.assertEqual(resp.status, 200, EXPECT_200)
+
 
 
 class TestJavaBuildpackApiUsage(SampleTest):
