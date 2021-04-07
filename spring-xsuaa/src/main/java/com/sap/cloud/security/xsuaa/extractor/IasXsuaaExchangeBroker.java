@@ -49,7 +49,7 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 	@Nullable
 	public String resolve(HttpServletRequest request) {
 		String oAuth2Token = extractTokenFromRequest(request);
-		if (oAuth2Token == null){
+		if (oAuth2Token == null) {
 			logger.error("Request did not have Authorization header containing bearer token.");
 			return null;
 		}
