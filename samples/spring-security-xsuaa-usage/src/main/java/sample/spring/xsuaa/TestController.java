@@ -42,6 +42,10 @@ public class TestController {
         this.dataService = dataService;
     }
 
+    @GetMapping("/health")
+    public String sayHello() { return "I'm alright"; }
+
+
     /**
      * Returns the detailed information of the XSUAA JWT token.
      * Uses a Token retrieved from the security context of Spring Security.
