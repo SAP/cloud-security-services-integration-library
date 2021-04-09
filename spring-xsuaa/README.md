@@ -152,7 +152,11 @@ In case application is required to do token exchange `token-client` with all its
     <artifactId>token-client</artifactId>
 </dependency>
 ```
-To enable token exchange between IAS and XSUAA system environment variable `IAS_XSUAA_XCHANGE_ENABLED` needs to be provided and enabled. To enable the exchange set the value to any value except `false or empty. The exchange between IAS and Xsuaa is disabled by default.
+To enable token exchange between IAS and XSUAA, there are 2 options available:
+ 1. System environment variable `IAS_XSUAA_XCHANGE_ENABLED`
+ 2. Spring property `xsuaa.iasxchange-enabled` 
+ 
+To enable the exchange set the value of System environment variable or Spring property to any value except `false or empty. The exchange between IAS and Xsuaa is disabled by default.
 
 To use the token exchange, by default the `bearerTokenResolver` needs to be defined in the application's security configuration in the following manner:
 ```java

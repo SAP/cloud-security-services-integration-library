@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
+import com.sap.cloud.security.xsuaa.extractor.TokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -47,6 +48,11 @@ public class XsuaaAutoConfiguration {
 		public XsuaaServiceConfiguration xsuaaServiceConfiguration() {
 			logger.info("auto-configures XsuaaServiceConfigurationDefault");
 			return new XsuaaServiceConfigurationDefault();
+		}
+
+		@Bean
+		public TokenUtil tokenUtil(){
+			return new TokenUtil();
 		}
 	}
 
