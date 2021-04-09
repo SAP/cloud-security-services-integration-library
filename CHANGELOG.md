@@ -1,8 +1,13 @@
 # Change Log 
 
 All notable changes to this project will be documented in this file.
-
-## 2.8.8
+## 2.8.9 and 0.1.3 [BETA]
+- [java-security-test] and java samples
+  - jetty 9.4.38.v20210224 --> 9.4.39.v20210325
+- [spring-xsuaa] [xsuaa-spring-boot-starter]
+  - exclude transient dependency to net.minidev:json-smart as it causes CVE-2021-27568
+  
+## 2.8.8 and 0.1.2 [BETA]
 - [java-security-test] and java samples
   - jetty 9.4.36.v20210114 --> 9.4.38.v20210224 (seems to be incompatible with javax.servlet-api 3.1.0)
   - javax.servlet:javax.servlet-api 3.1.0 --> 4.0.1 (recommended version)
