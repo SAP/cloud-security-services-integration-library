@@ -114,7 +114,7 @@ This decodes an encoded JSON Web Token (JWT) and parses its json header and payl
 
 ```java
 String authorizationHeader = "Bearer eyJhbGciOiJGUzI1NiJ2.eyJhh...";
-Token token = new XsuaaToken(authorizationHeader);
+Token token = Token.create(authorizationHeader); // supports tokens issued by xsuaa and ias
 ```
 
 ### Validate Token to check Authentication
