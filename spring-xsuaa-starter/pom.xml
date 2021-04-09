@@ -26,7 +26,20 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<!-- Resolves CVE-2021-27568: https://nvd.nist.gov/vuln/detail/CVE-2021-27568 -->
+		<version.json-smart>2.4.2</version.json-smart>
 	</properties>
+
+	<dependencyManagement>
+		<!-- Resolved CVE-2021-27568: https://nvd.nist.gov/vuln/detail/CVE-2021-27568 -->
+		<dependencies>
+			<dependency>
+				<groupId>net.minidev</groupId>
+				<artifactId>json-smart</artifactId>
+				<version>${version.json-smart}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
