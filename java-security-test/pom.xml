@@ -20,11 +20,22 @@
 		<wiremock.version>2.27.2</wiremock.version>
 	</properties>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-bom</artifactId>
+				<version>${jetty.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-security</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -37,32 +48,26 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
-			<version>${jetty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
-			<version>${jetty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
-			<version>${jetty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-annotations</artifactId>
-			<version>${jetty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-io</artifactId>
-			<version>${jetty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-util</artifactId>
-			<version>${jetty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
