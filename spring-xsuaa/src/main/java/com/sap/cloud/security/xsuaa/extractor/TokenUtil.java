@@ -22,7 +22,7 @@ public class TokenUtil {
 	private static final String EXTERNAL_ATTRIBUTE = "ext_attr";
 	private static final String EXTERNAL_ATTRIBUTE_ENHANCER = "enhancer";
 	private static String springIasXchangeEnabled;
-	@Value("${xsuaa.iasxchange-enabled}")
+	@Value("${xsuaa.iasxchange-enabled:#{null}}")
 	private String iasXchangeValue;
 
 	@PostConstruct
