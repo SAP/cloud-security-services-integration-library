@@ -28,6 +28,8 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<sap.cloud.security.version>2.8.10</sap.cloud.security.version>
+		<sap.cloud.security.version>2.8.9</sap.cloud.security.version>
+		<jetty.version>9.4.39.v20210325</jetty.version>
 	</properties>
 
     <dependencies>
