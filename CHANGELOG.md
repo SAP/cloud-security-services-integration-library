@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.8.10 and 0.1.4 [BETA]
+- [spring-xsuaa] introduced spring properties for IAS -> Xsuaa token exchange activation, as described [here](/spring-xsuaa/README.md#ias-to-xsuaa-token-exchange)
 - [java-security-test] uses jetty BoM to fix CVE-2021-28164 and CVE-2021-28165.
   - jetty 9.4.38.v20210224 --> 9.4.39.v20210325
 
