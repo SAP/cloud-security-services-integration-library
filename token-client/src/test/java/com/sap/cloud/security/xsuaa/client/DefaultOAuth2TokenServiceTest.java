@@ -98,7 +98,7 @@ public class DefaultOAuth2TokenServiceTest {
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(unauthorizedResponseText)
 				.hasMessageContaining(TOKEN_ENDPOINT_URI.toString())
-				.extracting("statusCode").isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+				.extracting("httpStatusCode").isEqualTo(HttpStatus.SC_UNAUTHORIZED);
 	}
 
 	private OAuth2TokenResponse requestAccessToken(Map<String, String> optionalParameters)
