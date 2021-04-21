@@ -17,7 +17,7 @@ In situation when incoming request doesn't contain Xsuaa token and token exchang
 ## Enable token exchange in the application
 Set the environment variable `IAS_XSUAA_XCHANGE_ENABLED` to any value, but false or empty. For detailed token exchange setup information please see:
 - [spring-xsuaa readme](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#ias-to-xsuaa-token-exchange) for Spring applications
-- [java-security readme](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/java-security#ias-to-xsuaa-token-exchange) for Java applications
+- [java-security readme](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/java-security#ias-to-xsuaa-token-exchange) for Java applications and J2EE applications leveraging SAP JAVA Buildpack Servlet Security.
 
 ## Test the setup
 #### 1. Setup trust between IAS and Xsuaa
