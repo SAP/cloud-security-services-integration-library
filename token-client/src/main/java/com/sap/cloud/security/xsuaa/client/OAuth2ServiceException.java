@@ -12,13 +12,29 @@ import java.util.stream.Stream;
 public class OAuth2ServiceException extends IOException {
 
 	private static final long serialVersionUID = 1L;
+	private Integer statusCode = 0;
 
 	public OAuth2ServiceException(String message) {
 		super(message);
 	}
 
+	public OAuth2ServiceException(String message, Integer statusCode) {
+		super(message);
+		this.statusCode = statusCode != null ?  statusCode : 0;
+	}
+
 	public static OAuth2ServiceExceptionBuilder builder(String message) {
 		return new OAuth2ServiceExceptionBuilder(message);
+	}
+
+	/**
+	 * Returns the status code of the failed OAuth2 service request or {@code 0}
+	 * e.g. in case the service wasn't called at all.
+	 *
+	 * @return status code or 0
+	 */
+	public Integer getStatusCode() {
+		return statusCode;
 	}
 
 	public static class OAuth2ServiceExceptionBuilder {
@@ -51,7 +67,7 @@ public class OAuth2ServiceException extends IOException {
 					.of(this.message, createUriMessage(), createStatusCodeMessage(), createResponseBodyMessage())
 					.filter(Objects::nonNull)
 					.collect(Collectors.joining(". "));
-			return new OAuth2ServiceException(message);
+			return new OAuth2ServiceException(message, statusCode);
 		}
 
 		private String createResponseBodyMessage() {
