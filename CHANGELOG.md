@@ -1,6 +1,6 @@
 # Change Log
 All notable changes to this project will be documented in this file.
-## 2.8.11 and 0.1.5 [BETA]
+## 2.8.12 and 0.1.5 [BETA]
 - The following dependencies were updated:
     - spring.security.version 5.4.5 --> 5.4.6
     - spring.core.version 5.3.5 --> 5.3.6
