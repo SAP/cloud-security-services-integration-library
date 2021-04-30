@@ -1,14 +1,15 @@
 package com.sap.cloud.security.spring.autoconfig;
 
-import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
-import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
-import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
 import com.sap.cloud.security.spring.config.IdentityServiceConfiguration;
+import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -34,14 +35,13 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
 @Configuration
 @ConditionalOnClass(Jwt.class)
 @ConditionalOnProperty(name = "sap.spring.security.hybrid.auto", havingValue = "true", matchIfMissing = true)
-@EnableConfigurationProperties({ XsuaaServiceConfiguration.class, IdentityServiceConfiguration.class,
-		XsuaaServiceConfigurations.class })
+@EnableConfigurationProperties(IdentityServiceConfiguration.class)
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which
 																	// specifies JwtDecoder
-class HybridIdentityServicesAutoConfiguration {
-	private static final Logger LOGGER = LoggerFactory.getLogger(HybridIdentityServicesAutoConfiguration.class);
+class IasIdentityServicesAutoConfiguration {
+	private static final Logger LOGGER = LoggerFactory.getLogger(IasIdentityServicesAutoConfiguration.class);
 
-	HybridIdentityServicesAutoConfiguration() {
+	IasIdentityServicesAutoConfiguration() {
 		// no need to create an instance
 	}
 
@@ -49,31 +49,12 @@ class HybridIdentityServicesAutoConfiguration {
 	@ConditionalOnMissingBean({ JwtDecoder.class })
 	@ConditionalOnWebApplication(type = SERVLET)
 	static class JwtDecoderConfigurations {
-		XsuaaServiceConfigurations xsuaaConfigs;
-
-		JwtDecoderConfigurations(XsuaaServiceConfigurations xsuaaConfigs) {
-			this.xsuaaConfigs = xsuaaConfigs;
-		}
-
 		@Bean
-		@ConditionalOnProperty("sap.security.services.xsuaa.uaadomain")
-		public JwtDecoder hybridJwtDecoder(XsuaaServiceConfiguration xsuaaConfig,
-				IdentityServiceConfiguration identityConfig) {
-			LOGGER.debug("auto-configures HybridJwtDecoder.");
+		@ConditionalOnProperty("sap.security.services.identity.domain")
+		public JwtDecoder hybridJwtDecoder(IdentityServiceConfiguration identityConfig) {
+			LOGGER.debug("auto-configures IasJwtDecoder.");
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
-					.withXsuaaServiceConfiguration(xsuaaConfig)
-					.build();
-		}
-
-		@Bean
-		@Primary
-		@ConditionalOnProperty("sap.security.services.xsuaa[0].uaadomain")
-		public JwtDecoder hybridJwtDecoderMultiXsuaaServices(IdentityServiceConfiguration identityConfig) {
-			LOGGER.debug("auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances.");
-			return new JwtDecoderBuilder()
-					.withIasServiceConfiguration(identityConfig)
-					.withXsuaaServiceConfigurations(xsuaaConfigs.getConfigurations())
 					.build();
 		}
 	}

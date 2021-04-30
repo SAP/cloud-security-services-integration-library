@@ -16,45 +16,29 @@ import org.springframework.util.Assert;
  * In case of successful validation, the token gets parsed and returned as
  * {@link Jwt}.
  *
- * Supports tokens issued by ias or xsuaa identity service.
+ * Supports only id tokens issued by ias identity service.
  */
-public class HybridJwtDecoder implements JwtDecoder {
-	CombiningValidator<Token> xsuaaTokenValidators;
-	CombiningValidator<Token> iasTokenValidators;
+public class IasJwtDecoder implements JwtDecoder {
+	CombiningValidator<Token> tokenValidators;
 	Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
-	 * Creates instance with a set of validators for validating the access / oidc
-	 * token issued by the dedicated identity service.
+	 * Creates instance with a set of validators for validating the oidc
+	 * token issued by the ias identity service.
 	 *
-	 * @param xsuaaValidator
-	 *            set of validators that should be used to validate a xsuaa access
-	 *            token.
-	 * @param iasValidator
+	 * @param validator
 	 *            set of validators that should be used to validate an ias oidc
 	 *            token.
 	 */
-	public HybridJwtDecoder(CombiningValidator<Token> xsuaaValidator, CombiningValidator<Token> iasValidator) {
-		xsuaaTokenValidators = xsuaaValidator;
-		iasTokenValidators = iasValidator;
+	public IasJwtDecoder(CombiningValidator<Token> validator) {
+		tokenValidators = validator;
 	}
 
 	@Override
 	public Jwt decode(String encodedToken) {
 		Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
 		Token token = Token.create(encodedToken);
-		ValidationResult validationResult;
-
-		switch (token.getService()) {
-		case IAS:
-			validationResult = iasTokenValidators.validate(token);
-			break;
-		case XSUAA:
-			validationResult = xsuaaTokenValidators.validate(token);
-			break;
-		default:
-			throw new InvalidTokenException("The token of service " + token.getService() + " is not supported.");
-		}
+		ValidationResult validationResult = tokenValidators.validate(token);
 		if (validationResult.isErroneous()) {
 			throw new InvalidTokenException("The token is invalid: " + validationResult.getErrorDescription());
 		}
