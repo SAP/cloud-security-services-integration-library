@@ -82,9 +82,9 @@ class HybridIdentityServicesAutoConfiguration {
 		@ConditionalOnMissingBean(JwtDecoder.class)
 		public JwtDecoder iasJwtDecoder(IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures IasJwtDecoder.");
-				return new JwtDecoderBuilder()
-						.withIasServiceConfiguration(identityConfig)
-						.build();
+			return new JwtDecoderBuilder()
+					.withIasServiceConfiguration(identityConfig)
+					.build();
 		}
 	}
 

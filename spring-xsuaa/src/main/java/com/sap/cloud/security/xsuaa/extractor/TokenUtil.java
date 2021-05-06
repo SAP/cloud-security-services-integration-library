@@ -72,20 +72,20 @@ public class TokenUtil {
 	}
 
 	/**
-	 * Checks value of Spring property 'xsuaa.iasxchange-enabled', if it's not defined it checks value of environment variable 'IAS_XSUAA_XCHANGE_ENABLED'.
-	 * This value determines, whether token exchange between IAS and XSUAA is enabled. If
-	 * value is not provided or with an empty value or with
-	 * value = false, then token exchange is disabled. Any other values are
-	 * interpreted as true.
-	 * Precedence is Spring property source, then System Environment variable.
+	 * Checks value of Spring property 'xsuaa.iasxchange-enabled', if it's not
+	 * defined it checks value of environment variable 'IAS_XSUAA_XCHANGE_ENABLED'.
+	 * This value determines, whether token exchange between IAS and XSUAA is
+	 * enabled. If value is not provided or with an empty value or with value =
+	 * false, then token exchange is disabled. Any other values are interpreted as
+	 * true. Precedence is Spring property source, then System Environment variable.
 	 *
 	 * @return returns true if exchange is enabled and false if disabled
 	 */
 	static boolean isIasToXsuaaXchangeEnabled() {
 		String isEnabled;
-		if (springIasXchangeEnabled == null){
+		if (springIasXchangeEnabled == null) {
 			isEnabled = System.getenv(IAS_XSUAA_ENABLED);
-		}else {
+		} else {
 			isEnabled = springIasXchangeEnabled;
 		}
 		LOGGER.debug("System environment variable {} is set to {}", IAS_XSUAA_ENABLED, isEnabled);

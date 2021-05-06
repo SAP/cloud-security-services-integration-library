@@ -41,12 +41,14 @@ class HybridIdentityServicesAutoConfigurationTest {
 
 	@Test
 	void autoConfigurationActiveInclProperties() {
-		runner.withPropertyValues("sap.spring.security.hybrid.auto:true").run((context) -> assertNotNull(context.getBean(HybridJwtDecoder.class)));
+		runner.withPropertyValues("sap.spring.security.hybrid.auto:true")
+				.run((context) -> assertNotNull(context.getBean(HybridJwtDecoder.class)));
 	}
 
 	@Test
 	void autoConfigurationDisabledByProperty() {
-		runner.withPropertyValues("sap.spring.security.hybrid.auto:false").run((context) -> assertFalse(context.containsBean("hybridJwtDecoder")));
+		runner.withPropertyValues("sap.spring.security.hybrid.auto:false")
+				.run((context) -> assertFalse(context.containsBean("hybridJwtDecoder")));
 	}
 
 	@Test
@@ -107,7 +109,7 @@ class HybridIdentityServicesAutoConfigurationTest {
 	}
 
 	@Test
-	void autoConfigurationIdentityServiceOnly(){
+	void autoConfigurationIdentityServiceOnly() {
 		List<String> identityProperties = new ArrayList<>();
 		identityProperties.add("sap.security.services.identity.url:http://localhost");
 		identityProperties.add("sap.security.services.identity.domain:localhost");

@@ -12,17 +12,14 @@ public enum GrantType {
 	 * @deprecated in favor of {@link #JWT_BEARER}.
 	 */
 	@Deprecated
-	USER_TOKEN("user_token"),
-	REFRESH_TOKEN("refresh_token"),
-	PASSWORD("password"),
-	JWT_BEARER("urn:ietf:params:oauth:grant-type:jwt-bearer"),
-	SAML2_BEARER("urn:ietf:params:oauth:grant-type:saml2-bearer"),
+	USER_TOKEN("user_token"), REFRESH_TOKEN("refresh_token"), PASSWORD("password"), JWT_BEARER(
+			"urn:ietf:params:oauth:grant-type:jwt-bearer"), SAML2_BEARER(
+					"urn:ietf:params:oauth:grant-type:saml2-bearer"),
 	/**
 	 * @deprecated SAP proprietary grant type.
 	 */
 	@Deprecated
-	CLIENT_X509("client_x509"),
-	AUTHORIZATION_CODE("authorization_code");
+	CLIENT_X509("client_x509"), AUTHORIZATION_CODE("authorization_code");
 
 	private String claimName;
 
