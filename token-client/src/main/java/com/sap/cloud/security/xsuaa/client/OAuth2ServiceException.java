@@ -21,26 +21,29 @@ public class OAuth2ServiceException extends IOException {
 	/**
 	 * Creates an exception.
 	 *
-	 * @param message the error message
-	 * @param httpStatusCode the status code of the HTTP service request
+	 * @param message
+	 *            the error message
+	 * @param httpStatusCode
+	 *            the status code of the HTTP service request
 	 */
 	public OAuth2ServiceException(String message, Integer httpStatusCode) {
 		super(message);
-		this.httpStatusCode = httpStatusCode != null ?  httpStatusCode : 0;
+		this.httpStatusCode = httpStatusCode != null ? httpStatusCode : 0;
 	}
 
 	/**
 	 * Creates an exception.
 	 *
-	 * @param message the error message
+	 * @param message
+	 *            the error message
 	 */
 	public static OAuth2ServiceExceptionBuilder builder(String message) {
 		return new OAuth2ServiceExceptionBuilder(message);
 	}
 
 	/**
-	 * Returns the HTTP status code of the failed OAuth2 service request or {@code 0}
-	 * e.g. in case the service wasn't called at all.
+	 * Returns the HTTP status code of the failed OAuth2 service request or
+	 * {@code 0} e.g. in case the service wasn't called at all.
 	 *
 	 * @return status code or 0
 	 */
@@ -60,7 +63,9 @@ public class OAuth2ServiceException extends IOException {
 
 		/**
 		 * Parameterizes the Exception with a HTTP status code.
-		 * @param httpStatusCode the http status code
+		 * 
+		 * @param httpStatusCode
+		 *            the http status code
 		 * @return the builder
 		 */
 		public OAuth2ServiceExceptionBuilder withStatusCode(int httpStatusCode) {

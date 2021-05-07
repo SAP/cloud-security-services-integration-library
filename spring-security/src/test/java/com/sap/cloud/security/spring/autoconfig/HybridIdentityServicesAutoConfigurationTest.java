@@ -1,6 +1,7 @@
 package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.spring.token.authentication.HybridJwtDecoder;
+import com.sap.cloud.security.spring.token.authentication.IasJwtDecoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -35,23 +36,19 @@ class HybridIdentityServicesAutoConfigurationTest {
 
 	@Test
 	void autoConfigurationActive() {
-		runner.run(context -> {
-			assertNotNull(context.getBean("hybridJwtDecoder", HybridJwtDecoder.class));
-		});
+		runner.run(context -> assertNotNull(context.getBean("hybridJwtDecoder", HybridJwtDecoder.class)));
 	}
 
 	@Test
 	void autoConfigurationActiveInclProperties() {
-		runner.withPropertyValues("sap.spring.security.hybrid.auto:true").run((context) -> {
-			assertNotNull(context.getBean(HybridJwtDecoder.class));
-		});
+		runner.withPropertyValues("sap.spring.security.hybrid.auto:true")
+				.run((context) -> assertNotNull(context.getBean(HybridJwtDecoder.class)));
 	}
 
 	@Test
 	void autoConfigurationDisabledByProperty() {
-		runner.withPropertyValues("sap.spring.security.hybrid.auto:false").run((context) -> {
-			assertFalse(context.containsBean("hybridJwtDecoder"));
-		});
+		runner.withPropertyValues("sap.spring.security.hybrid.auto:false")
+				.run((context) -> assertFalse(context.containsBean("hybridJwtDecoder")));
 	}
 
 	@Test
@@ -78,10 +75,9 @@ class HybridIdentityServicesAutoConfigurationTest {
 
 	@Test
 	void autoConfigurationUsesDecoderForMultipleXsuaaServicesAsPrimary() {
-		List<String> mt_properties = new ArrayList<>();
 		WebApplicationContextRunner mt_runner;
 
-		mt_properties.addAll(properties);
+		List<String> mt_properties = new ArrayList<>(properties);
 		mt_properties.add("sap.security.services.xsuaa[0].url:http://localhost");
 		mt_properties.add("sap.security.services.xsuaa[0].uaadomain:localhost");
 		mt_properties.add("sap.security.services.xsuaa[0].xsappname:theAppName");
@@ -110,6 +106,19 @@ class HybridIdentityServicesAutoConfigurationTest {
 					assertFalse(context.containsBean("hybridJwtDecoder"));
 					assertNotNull(context.getBean("customJwtDecoder", NimbusJwtDecoder.class));
 				});
+	}
+
+	@Test
+	void autoConfigurationIdentityServiceOnly() {
+		List<String> identityProperties = new ArrayList<>();
+		identityProperties.add("sap.security.services.identity.url:http://localhost");
+		identityProperties.add("sap.security.services.identity.domain:localhost");
+		identityProperties.add("sap.security.services.identity.clientid:cid");
+
+		WebApplicationContextRunner runner = new WebApplicationContextRunner()
+				.withPropertyValues(identityProperties.toArray(new String[0]))
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
+		runner.run(context -> assertNotNull(context.getBean("iasJwtDecoder", IasJwtDecoder.class)));
 	}
 
 	@Configuration

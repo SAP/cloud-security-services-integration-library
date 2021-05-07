@@ -63,7 +63,7 @@ class HybridIdentityServicesAutoConfiguration {
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
 					.withXsuaaServiceConfiguration(xsuaaConfig)
-					.buildHybrid();
+					.build();
 		}
 
 		@Bean
@@ -74,7 +74,17 @@ class HybridIdentityServicesAutoConfiguration {
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
 					.withXsuaaServiceConfigurations(xsuaaConfigs.getConfigurations())
-					.buildHybrid();
+					.build();
+		}
+
+		@Bean
+		@ConditionalOnProperty("sap.security.services.identity.domain")
+		@ConditionalOnMissingBean(JwtDecoder.class)
+		public JwtDecoder iasJwtDecoder(IdentityServiceConfiguration identityConfig) {
+			LOGGER.debug("auto-configures IasJwtDecoder.");
+			return new JwtDecoderBuilder()
+					.withIasServiceConfiguration(identityConfig)
+					.build();
 		}
 	}
 
