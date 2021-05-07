@@ -49,7 +49,7 @@ Then it auto-configures beans, that are required to initialize the Spring Boot a
 Auto-configuration class | Description
 ---- | --------
 [HybridAuthorizationAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridAuthorizationAutoConfiguration.java) | Creates a converter ([XsuaaTokenAuthorizationConverter](/spring-security/src/main/java/com/sap/cloud/security/spring/token/authentication/XsuaaTokenAuthorizationConverter.java)) that removes the xsuaa application identifier from the scope names to enable local scope checks using [Spring's common built-in expression](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#el-common-built-in) `hasAuthority`.
-[HybridIdentityServicesAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridIdentityServicesAutoConfiguration.java) | Configures a `JwtDecoder` which is able to decode and validate tokens from Xsuaa and Identity service or Identity service alone. Furthermore it registers the `XsuaaServiceConfiguration` and `IdentityServiceConfiguration` or only `IdentityServiceConfiguration` class, that gets configured with `xsuaa.*` and `identity.*` or only `identity.*` properties.
+[HybridIdentityServicesAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridIdentityServicesAutoConfiguration.java) | Configures a `JwtDecoder` which is able to decode and validate tokens from Xsuaa and Identity service or Identity service alone. Furthermore it registers the `IdentityServiceConfiguration` and optionally `XsuaaServiceConfiguration`, that gets configured with `identity.*` and `xsuaa.*` properties.
 [XsuaaTokenFlowAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean to fetch the XSUAA service binding information.
 [SecurityContextAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/SecurityContextAutoConfiguration.java) | Configures [`JavaSecurityContextHolderStrategy`](/spring-security/src/main/java/com/sap/cloud/security/spring/token/authentication/JavaSecurityContextHolderStrategy.java) class as `SecurityContextHolderStrategy` keeps the `com.sap.cloud.security.token.SecurityContext` in sync.
 
@@ -73,7 +73,7 @@ Configure your application as Spring Security OAuth 2.0 Resource Server for auth
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     
     @Autowired
-    Converter<Jwt, AbstractAuthenticationToken> authConverter; // optional (in case of xsuaa)
+    Converter<Jwt, AbstractAuthenticationToken> authConverter; // required in case of xsuaa
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -105,7 +105,7 @@ In this sample it delegates to the autowired `authConverter` in case of an Xsuaa
 class MyCustomTokenAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     public AbstractAuthenticationToken convert(Jwt jwt) {
-        if(jwt.containsClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) { // only required in hybrid case
+        if(jwt.containsClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) { // required in case of xsuaa
             return authConverter.convert(jwt); // @Autowired Converter<Jwt, AbstractAuthenticationToken> authConverter;
         }
         return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
@@ -225,7 +225,7 @@ In case of local testing, there might be no ``VCAP_SERVICES`` system environment
 Go to `application.yml` and provide for example the following configuration:
 ```yaml
 sap.security.services:
-    xsuaa: # this is optional
+    xsuaa: # required in case of xsuaa
       xsappname: xsapp!t0815        # SecurityTest.DEFAULT_APP_ID
       uaadomain: localhost          # SecurityTest.DEFAULT_DOMAIN
       clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
