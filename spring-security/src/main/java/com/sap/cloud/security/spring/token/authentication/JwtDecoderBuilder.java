@@ -118,7 +118,7 @@ public class JwtDecoderBuilder {
 		for (ValidationListener listener : validationListeners) {
 			iasValidatorBuilder.withValidatorListener(listener);
 		}
-		if(xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
+		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
 			int index = 0;
 			JwtValidatorBuilder xsuaaValidatorBuilder = JwtValidatorBuilder.getInstance(xsuaaConfigurations.get(index))
 					.withCacheConfiguration(tokenKeyCacheConfiguration)
