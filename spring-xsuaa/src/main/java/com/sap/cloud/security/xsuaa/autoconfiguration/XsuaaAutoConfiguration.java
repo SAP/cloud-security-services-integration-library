@@ -51,7 +51,7 @@ public class XsuaaAutoConfiguration {
 		}
 
 		@Bean
-		public TokenUtil tokenUtil() {
+		public TokenUtil tokenUtil(){
 			return new TokenUtil();
 		}
 	}

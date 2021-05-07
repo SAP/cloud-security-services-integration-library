@@ -23,8 +23,8 @@ public class IasJwtDecoder implements JwtDecoder {
 	Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
-	 * Creates instance with a set of validators for validating the oidc token
-	 * issued by the ias identity service.
+	 * Creates instance with a set of validators for validating the oidc
+	 * token issued by the ias identity service.
 	 *
 	 * @param validator
 	 *            set of validators that should be used to validate an ias oidc

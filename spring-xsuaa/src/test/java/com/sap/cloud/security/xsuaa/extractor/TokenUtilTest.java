@@ -19,8 +19,8 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@TestPropertySource(properties = { "xsuaa.iasxchange-enabled=true" })
-@ContextConfiguration(classes = { TokenUtil.class })
+@TestPropertySource(properties={"xsuaa.iasxchange-enabled=true"})
+@ContextConfiguration(classes = {TokenUtil.class})
 public class TokenUtilTest {
 
 	@Value("${xsuaa.iasxchange-enabled}")
