@@ -1,7 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## 2.8.13 and 0.1.7 [BETA]
+
 ## 0.1.6 [BETA]
-- [spring-security] `HybridIdentityServicesAutoConfiguration` supports Identity service configuration alone, by setting up `IasJwtDecoder`
+- [spring-security] and [spring-security-starter] `HybridIdentityServicesAutoConfiguration` supports Identity service configuration alone, by setting up `IasJwtDecoder`
 
 ## 2.8.12 and 0.1.5 [BETA]
 - The following dependencies were updated:
