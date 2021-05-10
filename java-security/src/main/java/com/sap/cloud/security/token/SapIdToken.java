@@ -30,5 +30,8 @@ public class SapIdToken extends AbstractToken {
 	public Service getService() {
 		return Service.IAS;
 	}
-
+	private static final class TokenClaims {
+		private static final String CNF = "cnf"; //X509 certificate ("cnf" (confirmation)) claim
+		private static final String CNF_X509_THUMBPRINT = "x5t#S256"; //X509 certificate thumbprint confirmation method
+	}
 }
