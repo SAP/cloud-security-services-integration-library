@@ -4,8 +4,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Set;
 
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
-
 /**
  * Represents an access token in the format of a JSON Web Token (not a short
  * opaque token). In difference to a ID token the access token has no/less
@@ -39,14 +37,6 @@ public interface AccessToken extends Token {
 	 * @return true if local scope is available
 	 **/
 	boolean hasLocalScope(@Nonnull String scope);
-
-	/**
-	 * Returns the grant type of the jwt token. <br>
-	 *
-	 * @return the grant type
-	 **/
-	@Nullable
-	GrantType getGrantType();
 
 	/**
 	 * Returns subaccount identifier. This reflects claim

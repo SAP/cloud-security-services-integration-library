@@ -181,6 +181,16 @@ public interface Token extends Serializable {
 	String getClientId();
 
 	/**
+	 * Returns the grant type of the jwt token. <br>
+	 *
+	 * @return the grant type
+	 **/
+	@Nullable
+	default GrantType getGrantType(){
+		return GrantType.from(getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE));
+	}
+
+	/**
 	 * Returns the header(s).
 	 *
 	 * @return a {@code Map} of the header(s)
