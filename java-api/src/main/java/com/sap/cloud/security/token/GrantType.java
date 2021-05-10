@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
  * https://tools.ietf.org/html/rfc6749
  */
 public enum GrantType {
+	// @formatter:off
 	CLIENT_CREDENTIALS("client_credentials"),
 	/**
 	 * @deprecated in favor of {@link #JWT_BEARER}.
@@ -23,7 +24,7 @@ public enum GrantType {
 	@Deprecated
 	CLIENT_X509("client_x509"),
 	AUTHORIZATION_CODE("authorization_code");
-
+	// @formatter:on
 	private String claimName;
 
 	GrantType(String claimName) {

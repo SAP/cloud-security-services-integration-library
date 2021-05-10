@@ -111,25 +111,29 @@ public class JwtDecoderBuilder {
 	 *
 	 * @return JwtDecoder
 	 */
-	public JwtDecoder buildHybrid() {
-		Assert.notNull(xsuaaConfigurations,
-				"serviceConfiguration must not be empty. Expect at least one xsuaa service configuration.");
-		JwtValidatorBuilder xsuaaValidatorBuilder = JwtValidatorBuilder.getInstance(xsuaaConfigurations.get(0))
+	public JwtDecoder build() {
+		JwtValidatorBuilder iasValidatorBuilder = JwtValidatorBuilder.getInstance(iasConfiguration)
 				.withCacheConfiguration(tokenKeyCacheConfiguration)
 				.withHttpClient(httpClient);
-		int index = 0;
-		for (OAuth2ServiceConfiguration xsuaaConfig : xsuaaConfigurations) {
-			if (index++ != 0) {
-				xsuaaValidatorBuilder.configureAnotherServiceInstance(xsuaaConfig);
-			}
-		}
-		JwtValidatorBuilder iasValidatorBuilder = JwtValidatorBuilder.getInstance(iasConfiguration);
-
 		for (ValidationListener listener : validationListeners) {
-			xsuaaValidatorBuilder.withValidatorListener(listener);
 			iasValidatorBuilder.withValidatorListener(listener);
 		}
-		return new HybridJwtDecoder(xsuaaValidatorBuilder.build(),
-				iasValidatorBuilder.build());
+		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
+			int index = 0;
+			JwtValidatorBuilder xsuaaValidatorBuilder = JwtValidatorBuilder.getInstance(xsuaaConfigurations.get(index))
+					.withCacheConfiguration(tokenKeyCacheConfiguration)
+					.withHttpClient(httpClient);
+			for (OAuth2ServiceConfiguration xsuaaConfig : xsuaaConfigurations) {
+				if (index++ != 0) {
+					xsuaaValidatorBuilder.configureAnotherServiceInstance(xsuaaConfig);
+				}
+			}
+			for (ValidationListener listener : validationListeners) {
+				xsuaaValidatorBuilder.withValidatorListener(listener);
+			}
+			return new HybridJwtDecoder(xsuaaValidatorBuilder.build(),
+					iasValidatorBuilder.build());
+		}
+		return new IasJwtDecoder(iasValidatorBuilder.build());
 	}
 }
