@@ -4,6 +4,7 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.security.Principal;
 
@@ -30,8 +31,9 @@ public class SapIdToken extends AbstractToken {
 	public Service getService() {
 		return Service.IAS;
 	}
-	private static final class TokenClaims {
-		private static final String CNF = "cnf"; //X509 certificate ("cnf" (confirmation)) claim
-		private static final String CNF_X509_THUMBPRINT = "x5t#S256"; //X509 certificate thumbprint confirmation method
+
+	@Nullable
+	public String getCnfX509Thumbprint(){
+		return getAttributeFromClaimAsString(TokenClaims.CNF, TokenClaims.CNF_X509_THUMBPRINT);
 	}
 }
