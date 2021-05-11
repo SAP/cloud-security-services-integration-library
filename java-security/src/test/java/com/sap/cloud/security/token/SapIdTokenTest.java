@@ -12,21 +12,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SapIdTokenTest {
 
-	private SapIdToken cut;
+	private final SapIdToken cut;
+	private final SapIdToken cut2;
 
 	public SapIdTokenTest() throws IOException {
 		cut = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
+		cut2 = new SapIdToken(IOUtils.resourceToString("/iasTokenWithCnfRSA256.txt", StandardCharsets.UTF_8));
 	}
 
 	@Test
 	public void constructor_raiseIllegalArgumentExceptions() {
-		assertThatThrownBy(() -> {
-			new SapIdToken("");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("jwtToken must not be null / empty");
+		assertThatThrownBy(() -> new SapIdToken("")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("jwtToken must not be null / empty");
 
-		assertThatThrownBy(() -> {
-			new SapIdToken("abc");
-		}).isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> new SapIdToken("abc")).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");
 	}
 
@@ -45,6 +43,12 @@ public class SapIdTokenTest {
 		assertThat(cut.getAudiences()).isNotEmpty();
 		assertThat(cut.getAudiences()).hasSize(1);
 		assertThat(cut.getAudiences()).contains("T000310");
+	}
+
+	@Test
+	public void getCnfThumbprint(){
+		assertThat(cut.getCnfX509Thumbprint()).isNull();
+		assertThat(cut2.getCnfX509Thumbprint()).isEqualTo("2blWiJDH07q0b2qEwShOIxtt10CkZ5xdDw4Vbs8ddoI");
 	}
 
 }

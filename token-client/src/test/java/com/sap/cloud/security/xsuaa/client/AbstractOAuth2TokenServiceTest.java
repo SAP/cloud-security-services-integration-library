@@ -77,6 +77,19 @@ public class AbstractOAuth2TokenServiceTest {
 	}
 
 	@Test
+	public void retrieveAccessTokenViaClientCredentials_forDifferentZoneIds_TwoRequestCalls()
+			throws OAuth2ServiceException {
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "ZONE-ID", SUBDOMAIN,
+				null, false);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "ZONE-ID", SUBDOMAIN,
+				null, false);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "OTHER_ZONE-ID",
+				SUBDOMAIN, null, false);
+
+		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
+	}
+
+	@Test
 	public void retrieveAccessTokenViaJwtBearerTokenGrant_twoDistinctRequests_onlyTwoRequestCalls()
 			throws OAuth2ServiceException {
 		retrieveAccessTokenViaJwtBearerTokenGrant("token");
