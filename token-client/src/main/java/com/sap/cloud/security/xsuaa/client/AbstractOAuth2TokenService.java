@@ -250,11 +250,11 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 			Map<String, String> parameters) throws OAuth2ServiceException {
 		LOGGER.debug("Token was requested for endpoint uri={} with headers={} and parameters={}", tokenEndpoint,
 				headers, parameters);
-		CacheKey cacheKey = new CacheKey(tokenEndpoint, parameters);
+		CacheKey cacheKey = new CacheKey(tokenEndpoint, headers, parameters);
 		OAuth2TokenResponse oAuth2TokenResponse = responseCache.getIfPresent(cacheKey);
 		if (oAuth2TokenResponse == null) {
 			LOGGER.debug("Token not found in cache, requesting a new one");
-			getAndCacheToken(cacheKey, headers);
+			getAndCacheToken(cacheKey);
 		} else {
 			LOGGER.debug("The token was found in cache");
 			// check if token in cache should be refreshed
@@ -263,7 +263,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 			if (expiration.isBefore(Instant.now(getClock()))) {
 				// refresh (soon) expired token
 				LOGGER.debug("The cached token needs to be refreshed, requesting a new one");
-				getAndCacheToken(cacheKey, headers);
+				getAndCacheToken(cacheKey);
 			}
 		}
 		OAuth2TokenResponse response = responseCache.getIfPresent(cacheKey);
@@ -294,9 +294,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 		return Clock.systemUTC();
 	}
 
-	private void getAndCacheToken(CacheKey cacheKey, HttpHeaders headers) throws OAuth2ServiceException {
+	private void getAndCacheToken(CacheKey cacheKey) throws OAuth2ServiceException {
 		responseCache.put(cacheKey,
-				requestAccessToken(cacheKey.tokenEndpointUri, headers, cacheKey.parameters));
+				requestAccessToken(cacheKey.tokenEndpointUri, cacheKey.headers, cacheKey.parameters));
 	}
 
 	private boolean isCacheDisabled() {
@@ -325,10 +325,12 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	private class CacheKey {
 
 		private final URI tokenEndpointUri;
+		private final HttpHeaders headers;
 		private final Map<String, String> parameters;
 
-		public CacheKey(URI tokenEndpointUri, Map<String, String> parameters) {
+		public CacheKey(URI tokenEndpointUri, HttpHeaders headers, Map<String, String> parameters) {
 			this.tokenEndpointUri = tokenEndpointUri;
+			this.headers = headers;
 			this.parameters = parameters;
 		}
 
@@ -340,18 +342,20 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 				return false;
 			CacheKey cacheKey = (CacheKey) o;
 			return Objects.equals(tokenEndpointUri, cacheKey.tokenEndpointUri) &&
+					Objects.equals(headers, cacheKey.headers) &&
 					Objects.equals(parameters, cacheKey.parameters);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(tokenEndpointUri, parameters);
+			return Objects.hash(tokenEndpointUri, headers, parameters);
 		}
 
 		@Override
 		public String toString() {
 			return "CacheKey{" +
 					"tokenEndpointUri=" + tokenEndpointUri +
+					", headers=" + headers + // only list of references
 					", parameters=" + parameters +
 					'}';
 		}
