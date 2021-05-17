@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-License-Identifier: Apache-2.0
+
 <#
 .Description
     This script changes the log levels of given cloud foundry applications, collect the logs, outputs them to one zip file and resets the log levels again.
@@ -14,7 +17,6 @@
 .Example
     .\cf-logcollector.ps1 -App myapp -Approuter myapprouter -Logs logs.zip
 #>
-
 param(
     [Parameter(Mandatory = $True, HelpMessage = "Enter application name.", Position = 0)]
     [String]$App,
