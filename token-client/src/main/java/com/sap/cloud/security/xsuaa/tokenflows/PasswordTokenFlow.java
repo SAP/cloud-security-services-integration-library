@@ -9,7 +9,7 @@ import java.util.Map;
 public class PasswordTokenFlow {
 	private final OAuth2TokenService tokenService;
 	private final OAuth2ServiceEndpointsProvider endpointsProvider;
-	private final ClientCredentials clientCredentials;
+	private final ClientIdentity clientIdentity;
 	private String username;
 	private String password;
 	private String subdomain;
@@ -18,13 +18,13 @@ public class PasswordTokenFlow {
 
 	public PasswordTokenFlow(@Nonnull OAuth2TokenService tokenService,
 			@Nonnull OAuth2ServiceEndpointsProvider endpointsProvider,
-			@Nonnull ClientCredentials clientCredentials) {
+			@Nonnull ClientIdentity clientIdentity) {
 		Assertions.assertNotNull(tokenService, "OAuth2TokenService must not be null!");
 		Assertions.assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null!");
-		Assertions.assertNotNull(clientCredentials, "ClientCredentials must not be null!");
+		Assertions.assertNotNull(clientIdentity, "ClientIdentity must not be null!");
 		this.tokenService = tokenService;
 		this.endpointsProvider = endpointsProvider;
-		this.clientCredentials = clientCredentials;
+		this.clientIdentity = clientIdentity;
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class PasswordTokenFlow {
 		checkParameter(password, "Password must be set!");
 		try {
 			return tokenService
-					.retrieveAccessTokenViaPasswordGrant(endpointsProvider.getTokenEndpoint(), clientCredentials,
+					.retrieveAccessTokenViaPasswordGrant(endpointsProvider.getTokenEndpoint(), clientIdentity,
 							username, password, subdomain, optionalParameters, disableCache);
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
