@@ -1,41 +1,32 @@
 package com.sap.cloud.security.xsuaa.mtls;
 
-import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.GeneralSecurityException;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.KeySpec;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.util.Base64;
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 /**
  * Creates a SSLContext (without Bouncy Castle crypto lib).
  *
- * @deprecated This class might be removed again in the future
  */
-@Deprecated
 public class SSLContextFactory {
 	private static final char[] noPassword = "".toCharArray();
 	private static final SSLContextFactory instance = new SSLContextFactory();
-	private Logger logger;
+	private final Logger logger;
 
 	private SSLContextFactory() {
 		logger = LoggerFactory.getLogger(getClass());
@@ -55,7 +46,7 @@ public class SSLContextFactory {
 	 *            you can get from your Service Configuration
 	 * @return a new SSLContext instance
 	 * @throws GeneralSecurityException
-	 * @throws IOException
+	 * @throws IOException in case of KeyStore initialization errors
 	 */
 	public SSLContext create(String x509Certificates, String rsaPrivateKey)
 			throws GeneralSecurityException, IOException {
@@ -105,9 +96,7 @@ public class SSLContextFactory {
 		KeySpec keySpec = parseDERPrivateKey(Base64.getDecoder().decode(privateKeyPEM));
 
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
-
-		return privateKey;
+		return keyFactory.generatePrivate(keySpec);
 	}
 
 	private Certificate[] getCertificatesFromString(String certificates) throws CertificateException {
@@ -116,9 +105,7 @@ public class SSLContextFactory {
 
 		Collection<Certificate> certificateList = (Collection<Certificate>) factory
 				.generateCertificates(new ByteArrayInputStream(certificatesBytes));
-		Certificate[] certificateArray = certificateList.toArray(new Certificate[certificateList.size()]);
-
-		return certificateArray;
+		return certificateList.toArray(new Certificate[certificateList.size()]);
 	}
 
 	private KeySpec parseDERPrivateKey(byte[] privateKeyDerEncoded)
