@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import static com.sap.cloud.security.xsuaa.Assertions.*;
 
-public class ClientCredentials {
+public class ClientCredentials implements ClientIdentity {
 	private static final long serialVersionUID = 2405162041950251807L;
 
 	private final String clientSecret;
@@ -26,10 +26,12 @@ public class ClientCredentials {
 		this.clientSecret = clientSecret;
 	}
 
+	@Override
 	public String getSecret() {
 		return clientSecret;
 	}
 
+	@Override
 	public String getId() {
 		return clientId;
 	}
@@ -54,5 +56,4 @@ public class ClientCredentials {
 	public String toString() {
 		return String.format("%s:%s", clientId, clientSecret);
 	}
-
 }
