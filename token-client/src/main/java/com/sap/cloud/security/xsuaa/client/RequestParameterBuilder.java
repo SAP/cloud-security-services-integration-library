@@ -26,15 +26,28 @@ class RequestParameterBuilder {
 		return this;
 	}
 
+	/**
+	 * @deprecated use {{@link #withClientIdentity(ClientIdentity)}} instead
+	 */
+	@Deprecated
 	public RequestParameterBuilder withClientCredentials(ClientCredentials clientCredentials) {
 		parameters.put(CLIENT_ID, clientCredentials.getId());
 		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
 		return this;
 	}
 
+	public RequestParameterBuilder withClientIdentity(ClientIdentity clientIdentity) {
+		parameters.put(CLIENT_ID, clientIdentity.getId());
+		if (clientIdentity.isCertificateBased()) {
+			return this;
+		}
+		parameters.put(CLIENT_SECRET, clientIdentity.getSecret());
+		return this;
+	}
+
 	public RequestParameterBuilder withOptionalParameters(Map<String, String> optionalParameters) {
 		Optional.ofNullable(optionalParameters).orElse(Collections.emptyMap())
-				.forEach((key, value) -> parameters.putIfAbsent(key, value));
+				.forEach(parameters::putIfAbsent);
 		return this;
 	}
 
