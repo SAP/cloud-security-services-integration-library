@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa;
 
+import javax.annotation.Nullable;
+
 public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration {
 
 	private String clientId;
@@ -29,6 +31,17 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 		return "https://subdomain.authentication.eu10.hana.ondemand.com";
 	}
 
+	@Nullable
+	@Override
+	public String getUaaCertUrl() {
+		return null;
+	}
+
+	@Override
+	public String getCredentialType() {
+		return null;
+	}
+
 	@Override
 	public String getAppId() {
 		return appId;
@@ -44,13 +57,16 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 		return null;
 	}
 
-	/*
-	 * @Nullable
-	 * 
-	 * @Override public String getCertificates() { return null; }
-	 * 
-	 * @Nullable
-	 * 
-	 * @Override public String getPrivateKey() { return null; }
-	 */
+	@Nullable
+	@Override
+	public String getCertificates() {
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public String getPrivateKey() {
+		return null;
+	}
+
 }

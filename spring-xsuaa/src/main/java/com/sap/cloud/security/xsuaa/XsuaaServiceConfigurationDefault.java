@@ -1,10 +1,9 @@
 package com.sap.cloud.security.xsuaa;
-/**
- * 
- */
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.Nullable;
 
 @Configuration
 public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfiguration {
@@ -35,6 +34,12 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 
 	@Value("${xsuaa.verificationkey:}")
 	private String verificationKey;
+
+	@Value("${xsuaa.credentialtype:#{null}}")
+	private String credentialType;
+
+	@Value("${xsuaa.certurl:#{null}}")
+	private String certUrl;
 
 	/*
 	 * (non-Javadoc)
@@ -71,9 +76,25 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 		return verificationKey;
 	}
 
-	/*
-	 * @Override public String getCertificates() { return certificates; }
-	 * 
-	 * @Override public String getPrivateKey() { return privateKey; }
-	 */
+	@Nullable
+	@Override
+	public String getCertificates() {
+		return certificates;
+	}
+
+	@Nullable
+	@Override
+	public String getPrivateKey() {
+		return privateKey;
+	}
+
+	@Override
+	public String getCredentialType() {
+		return credentialType;
+	}
+
+	@Override
+	public String getUaaCertUrl() {
+		return certUrl;
+	}
 }

@@ -40,4 +40,27 @@ public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguratio
 	public String getVerificationKey() {
 		return credentials.getVerificationKey();
 	}
+
+	@Nullable
+	@Override
+	public String getCertificates() {
+		return credentials.getCertificate();
+	}
+
+	@Nullable
+	@Override
+	public String getPrivateKey() {
+		return credentials.getPrivateKey();
+	}
+
+	@Nullable
+	@Override
+	public String getUaaCertUrl() {
+		return credentials.getCertUrl();
+	}
+
+	@Override
+	public String getCredentialType() {
+		return credentials.getCredentialType();
+	}
 }

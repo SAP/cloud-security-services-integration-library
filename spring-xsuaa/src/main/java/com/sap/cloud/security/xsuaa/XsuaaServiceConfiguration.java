@@ -26,6 +26,20 @@ public interface XsuaaServiceConfiguration {
 	String getUaaUrl();
 
 	/**
+	 * Base certificate URL of the xsuaa service instance.
+	 *
+	 * @return uaa mTLS url
+	 */
+	@Nullable
+	String getUaaCertUrl();
+
+	/**
+	 * Defined Credential type of the xsuaa service instance.
+	 * @return
+	 */
+	String getCredentialType();
+
+	/**
 	 * XS application identifier
 	 * 
 	 * @return xs application id
@@ -52,14 +66,14 @@ public interface XsuaaServiceConfiguration {
 	 *
 	 * @return certificates
 	 */
-	// @Nullable
-	// String getCertificates();
+	 @Nullable
+	 String getCertificates();
 
 	/**
 	 * Private key the certificate is signed with.
 	 *
 	 * @return private key
 	 */
-	// @Nullable
-	// String getPrivateKey();
+	 @Nullable
+	 String getPrivateKey();
 }
