@@ -58,7 +58,7 @@ public class ClientCredentialsTokenFlowTest {
 
 		assertThatThrownBy(() -> {
 			new ClientCredentialsTokenFlow(mockTokenService, endpointsProvider, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientCredentials");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientIdentity");
 	}
 
 	@Test

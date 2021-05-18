@@ -58,7 +58,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 
 		assertThatThrownBy(() -> {
 			cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, null, null, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientCredentials");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
 	}
 
 	@Test(expected = OAuth2ServiceException.class)

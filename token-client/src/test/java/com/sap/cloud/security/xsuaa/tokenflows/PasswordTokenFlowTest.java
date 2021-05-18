@@ -51,7 +51,7 @@ public class PasswordTokenFlowTest {
 	public void clientCredentialsAreNull_throwsException() {
 		assertThatThrownBy(() -> new PasswordTokenFlow(tokenService, endpointsProvider, null))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("ClientCredentials");
+				.hasMessageContaining("ClientIdentity");
 	}
 
 	@Test

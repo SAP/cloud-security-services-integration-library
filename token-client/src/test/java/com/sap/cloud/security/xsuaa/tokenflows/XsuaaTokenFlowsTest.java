@@ -37,7 +37,7 @@ public class XsuaaTokenFlowsTest {
 
 		assertThatThrownBy(() -> {
 			new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientCredentials");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientIdentity");
 
 	}
 

@@ -61,7 +61,7 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 
 		assertThatThrownBy(() -> {
 			cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, null, refreshToken, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientCredentials");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
 
 		assertThatThrownBy(() -> {
 			cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientCredentials, null, null);
