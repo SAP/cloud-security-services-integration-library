@@ -31,7 +31,7 @@ public interface OAuth2TokenService {
 	 *             in case of an error during the http request.
 	 *
 	 * @deprecated gets removed in favor of
-	 *             {@link #retrieveAccessTokenViaClientCredentialsGrant(URI, ClientCredentials, String, String, Map, boolean)}
+	 *             {@link #retrieveAccessTokenViaClientCredentialsGrant(URI, ClientIdentity, String, String, Map, boolean)}
 	 *             with next major version 3.0.0
 	 */
 	@Deprecated
@@ -49,8 +49,8 @@ public interface OAuth2TokenService {
 	 *
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
-	 * @param clientCredentials
-	 *            the client id and secret of the OAuth client, the recipient of the
+	 * @param clientIdentity
+	 *            the client identity of the OAuth client, the recipient of the
 	 *            token.
 	 * @param zoneId
 	 *            Zone identifier - tenant discriminator
@@ -66,7 +66,7 @@ public interface OAuth2TokenService {
 	 *             in case of an error during the http request.
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@Nonnull URI tokenEndpointUri,
-			@Nonnull ClientCredentials clientCredentials,
+			@Nonnull ClientIdentity clientIdentity,
 			@Nullable String zoneId,
 			@Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters,
@@ -124,8 +124,8 @@ public interface OAuth2TokenService {
 	 *
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
-	 * @param clientCredentials
-	 *            the client id and secret of the OAuth client, the recipient of the
+	 * @param clientIdentity
+	 *            the client identity of the OAuth client, the recipient of the
 	 *            token.
 	 * @param refreshToken
 	 *            the refresh token that was returned along with the access token
@@ -139,17 +139,17 @@ public interface OAuth2TokenService {
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri, ClientCredentials clientCredentials,
+	OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri, ClientIdentity clientIdentity,
 			String refreshToken, @Nullable String subdomain, boolean disableCacheForRequest)
 			throws OAuth2ServiceException;
 
 	/**
 	 * Same as
-	 * {@link #retrieveAccessTokenViaRefreshToken(URI, ClientCredentials, String, String, boolean)}
+	 * {@link #retrieveAccessTokenViaRefreshToken(URI, ClientIdentity, String, String, boolean)}
 	 * except that disableCacheForRequest is set to {@code false}.
 	 * 
 	 * @deprecated gets removed in favor of
-	 *             {@link #retrieveAccessTokenViaRefreshToken(URI, ClientCredentials, String, String, boolean)}
+	 *             {@link #retrieveAccessTokenViaRefreshToken(URI, ClientIdentity, String, String, boolean)}
 	 *             with next major version 3.0.0
 	 */
 	@Deprecated
@@ -164,8 +164,8 @@ public interface OAuth2TokenService {
 	 *
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
-	 * @param clientCredentials
-	 *            the client id and secret of the OAuth client, the recipient of the
+	 * @param clientIdentity
+	 *            the client identity of the OAuth client, the recipient of the
 	 *            token.
 	 * @param username
 	 *            the username for the user trying to get a token
@@ -182,18 +182,18 @@ public interface OAuth2TokenService {
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri, ClientCredentials clientCredentials,
+	OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri, ClientIdentity clientIdentity,
 			String username, String password, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 			throws OAuth2ServiceException;
 
 	/**
 	 * Same as
-	 * {@link #retrieveAccessTokenViaPasswordGrant(URI, ClientCredentials, String, String, String, Map, boolean)}
+	 * {@link #retrieveAccessTokenViaPasswordGrant(URI, ClientIdentity, String, String, String, Map, boolean)}
 	 * except that disableCacheForRequest is set to {@code false}.
 	 * 
 	 * @deprecated gets removed in favor of
-	 *             {@link #retrieveAccessTokenViaPasswordGrant(URI, ClientCredentials, String, String, String, Map, boolean)}
+	 *             {@link #retrieveAccessTokenViaPasswordGrant(URI, ClientIdentity, String, String, String, Map, boolean)}
 	 *             with next major version 3.0.0
 	 */
 	@Deprecated
@@ -208,8 +208,8 @@ public interface OAuth2TokenService {
 	/**
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
-	 * @param clientCredentials
-	 *            the client id and secret of the OAuth client, the recipient of the
+	 * @param clientIdentity
+	 *            the client identity of the OAuth client, the recipient of the
 	 *            token.
 	 * @param token
 	 *            the JWT token identifying representing the user to be
@@ -226,17 +226,17 @@ public interface OAuth2TokenService {
 	 *             in case of an error during the http request.
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
-			ClientCredentials clientCredentials, String token, @Nullable String subdomain,
+			ClientIdentity clientIdentity, String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 			throws OAuth2ServiceException;
 
 	/**
 	 * Same as
-	 * {@link #retrieveAccessTokenViaJwtBearerTokenGrant(URI, ClientCredentials, String, String, Map, boolean)}
+	 * {@link #retrieveAccessTokenViaJwtBearerTokenGrant(URI, ClientIdentity, String, String, Map, boolean)}
 	 * except that disableCacheForRequest is set to {@code false}.
 	 * 
 	 * @deprecated gets removed in favor of
-	 *             {@link #retrieveAccessTokenViaJwtBearerTokenGrant(URI, ClientCredentials, String, String, Map, boolean)}
+	 *             {@link #retrieveAccessTokenViaJwtBearerTokenGrant(URI, ClientIdentity, String, String, Map, boolean)}
 	 *             with next major version 3.0.0
 	 */
 	@Deprecated
@@ -250,8 +250,8 @@ public interface OAuth2TokenService {
 	/**
 	 * @param tokenEndpointUri
 	 *            the token endpoint URI.
-	 * @param clientCredentials
-	 *            the client id and secret of the OAuth client, the recipient of the
+	 * @param clientIdentity
+	 *            the client identity of the OAuth client, the recipient of the
 	 *            token.
 	 * @param token
 	 *            the JWT token identifying representing the user to be
@@ -267,7 +267,7 @@ public interface OAuth2TokenService {
 	 *             in case of an error during the http request.
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
-			ClientCredentials clientCredentials,
+			ClientIdentity clientIdentity,
 			@Nonnull String token,
 			@Nullable Map<String, String> optionalParameters,
 			boolean disableCache,
