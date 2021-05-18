@@ -1,10 +1,6 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -29,19 +25,18 @@ public class RefreshTokenFlow {
 	 *            request.
 	 * @param endpointsProvider
 	 *            - the endpoints provider
-	 * @param clientCredentials
-	 *            - the OAuth client credentials
+	 * @param clientIdentity
+	 *            - the OAuth client identity
 	 */
 	RefreshTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider,
-			ClientCredentials clientCredentials) {
+			ClientIdentity clientIdentity) {
 		assertNotNull(tokenService, "OAuth2TokenService must not be null.");
 		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
-		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
+		assertNotNull(clientIdentity, "ClientIdentity must not be null.");
 
 		this.tokenService = tokenService;
 		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
-		this.request.setClientId(clientCredentials.getId());
-		this.request.setClientSecret(clientCredentials.getSecret());
+		this.request.setClientIdentity(clientIdentity);
 	}
 
 	/**
