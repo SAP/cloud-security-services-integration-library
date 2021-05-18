@@ -1,5 +1,10 @@
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
+import com.sap.cloud.security.xsuaa.mtls.ServiceClientException;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -10,14 +15,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestOperations;
-
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
-import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
@@ -57,9 +54,36 @@ public class XsuaaTokenFlowAutoConfiguration {
 		logger.debug("auto-configures XsuaaTokenFlows using restOperations of type: {}", xsuaaRestOperations);
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
 				xsuaaServiceConfiguration.getUaaUrl());
-		ClientCredentials clientCredentials = new ClientCredentials(xsuaaServiceConfiguration.getClientId(),
-				xsuaaServiceConfiguration.getClientSecret());
+		ClientIdentity clientIdentity = new ClientCredentials(xsuaaServiceConfiguration.getClientId(),
+				xsuaaServiceConfiguration.getClientSecret()); //TODO xsuaaServiceConfiguration should provide factory method that returns ClientIdentity obj
+		//TODO move clientIdentity interface to api module?
 		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(xsuaaRestOperations);
-		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCredentials);
+		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
+
+	/**
+	 * Creates a new {@link XsuaaTokenFlows} bean that supports mTLS that applications can auto-wire
+	 * into their controllers to perform a programmatic token flow exchange.
+	 *
+	 *            - the {@link RestOperations} to use for the token flow exchange.
+	 * @param xsuaaServiceConfiguration
+	 *            - the {@link XsuaaServiceConfiguration} to configure the Xsuaa
+	 *            Base Url.
+	 * @return the {@link XsuaaTokenFlows} API.
+	 */
+	@Bean
+	@ConditionalOnBean({ XsuaaServiceConfiguration.class, RestOperations.class })
+	@ConditionalOnProperty(prefix = "sap.security.services", name = "xsuaa.credential-type", havingValue = "x509")
+	@ConditionalOnMissingBean
+	public XsuaaTokenFlows xsuaaMtlsTokenFlows(
+										   XsuaaServiceConfiguration xsuaaServiceConfiguration) throws ServiceClientException {
+		logger.debug("auto-configures XsuaaTokenFlows using mTLS restOperations");
+		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
+				xsuaaServiceConfiguration.getUaaCertUrl());
+		ClientCertificate clientCertificate = new ClientCertificate(xsuaaServiceConfiguration.getCertificates(), xsuaaServiceConfiguration.getPrivateKey(), xsuaaServiceConfiguration.getClientId());
+		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(SpringHttpClient.create(clientCertificate));
+//		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService().enableMtls(clientCertificate); //TODO impl enableMtls method
+		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCertificate);
+	}
+
 }
