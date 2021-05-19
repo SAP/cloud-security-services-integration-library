@@ -11,6 +11,8 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +34,7 @@ import com.sap.cloud.security.token.validation.Validator;
  * These checks are a prerequisite for using the `JwtSignatureValidator`.
  */
 class JwtIssuerValidator implements Validator<Token> {
-	private final String domain;
+	private final List<String> domains;
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
@@ -44,19 +46,19 @@ class JwtIssuerValidator implements Validator<Token> {
 	 */
 	JwtIssuerValidator(URI url) {
 		assertNotNull(url, "JwtIssuerValidator requires a url.");
-		this.domain = url.getHost();
+		this.domains = Collections.singletonList(url.getHost());
 	}
 
 	/**
 	 * Creates instance of Issuer validation using the domain.
 	 *
-	 * @param domain
-	 *            the domain of the identity provider
-	 *            {@link OAuth2ServiceConfiguration#getDomain()}
+	 * @param domains
+	 *            the list of domains of the identity provider
+	 *            {@link OAuth2ServiceConfiguration#getDomains()}
 	 */
-	JwtIssuerValidator(String domain) {
-		assertNotNull(domain, "JwtIssuerValidator requires a domain.");
-		this.domain = domain;
+	JwtIssuerValidator(List<String> domains) {
+		assertNotNull(domains, "JwtIssuerValidator requires a domain.");
+		this.domains = domains;
 	}
 
 	@Override
@@ -79,15 +81,15 @@ class JwtIssuerValidator implements Validator<Token> {
 			}
 			issuerUri = new URI(issuer);
 			if (issuerUri.getQuery() == null && issuerUri.getFragment() == null
-					&& issuerUri.getHost() != null && issuerUri.getHost().endsWith(domain)) {
+					&& issuerUri.getHost() != null && issuerUri.getHost().endsWith(domains.get(0))) { // TODO update logic
 				return createValid();
 			}
 		} catch (URISyntaxException e) {
 			logger.error("Error: 'iss' claim '{}' does not provide a valid URI: {}.", issuer, e.getMessage(), e);
 		}
 		return createInvalid(
-				"Issuer is not trusted because 'iss' '{}' does not match domain '{}' of the identity provider.",
-				issuer, domain);
+				"Issuer is not trusted because 'iss' '{}' does not match one of these domains '{}' of the identity provider.",
+				issuer, domains);
 	}
 
 }

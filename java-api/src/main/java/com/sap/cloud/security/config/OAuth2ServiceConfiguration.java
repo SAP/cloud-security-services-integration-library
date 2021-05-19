@@ -8,6 +8,7 @@ package com.sap.cloud.security.config;
 import javax.annotation.Nullable;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,11 +39,11 @@ public interface OAuth2ServiceConfiguration {
 	URI getUrl();
 
 	/**
-	 * Domain of the OAuth2 identity service instance.
+	 * Domains of the OAuth2 identity service instance.
 	 *
-	 * @return domain, e.g."idservice.com"
+	 * @return list of domain, e.g."idservice.com".
 	 */
-	String getDomain();
+	List<String> getDomains();
 
 	/**
 	 * Returns the value of the given property as string.

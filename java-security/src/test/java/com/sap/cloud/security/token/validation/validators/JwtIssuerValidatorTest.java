@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 
 import static com.sap.cloud.security.token.TokenClaims.ISSUER;
 import static com.sap.cloud.security.token.TokenHeader.JWKS_URL;
@@ -29,7 +31,7 @@ public class JwtIssuerValidatorTest {
 	@Before
 	public void setup() {
 		cut = new JwtIssuerValidator(URI.create("https://accounts400.ondemand.com"));
-		cutMultiTenant = new JwtIssuerValidator("accounts400.ondemand.com");
+		cutMultiTenant = new JwtIssuerValidator(Collections.singletonList("accounts400.ondemand.com"));
 		token = Mockito.mock(Token.class);
 	}
 
@@ -40,7 +42,7 @@ public class JwtIssuerValidatorTest {
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "url");
 
 		assertThatThrownBy(() -> {
-			new JwtIssuerValidator((String) null);
+			new JwtIssuerValidator((List<String>) null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "domain");
 	}
 
@@ -79,7 +81,7 @@ public class JwtIssuerValidatorTest {
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith(
-				"Issuer is not trusted because 'iss' 'https://accounts300.ondemand.com' does not match domain 'accounts400.ondemand.com' of the identity provider."));
+				"Issuer is not trusted because 'iss' 'https://accounts300.ondemand.com' does not match one of these domains '[accounts400.ondemand.com]' of the identity provider."));
 	}
 
 	@Test
@@ -89,7 +91,7 @@ public class JwtIssuerValidatorTest {
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith(
-				"Issuer is not trusted because 'iss' 'https://otherDomain.org?accounts400.ondemand.com' does not match domain 'accounts400.ondemand.com' of the identity provider."));
+				"Issuer is not trusted because 'iss' 'https://otherDomain.org?accounts400.ondemand.com' does not match one of these domains '[accounts400.ondemand.com]' of the identity provider."));
 	}
 
 	@Test

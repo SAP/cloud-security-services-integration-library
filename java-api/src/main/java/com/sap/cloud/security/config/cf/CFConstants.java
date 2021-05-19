@@ -44,7 +44,7 @@ public class CFConstants {
 		private IAS() {
 		}
 
-		public static final String DOMAIN = "domain";
+		public static final String DOMAINS = "domains";
 	}
 
 	/**

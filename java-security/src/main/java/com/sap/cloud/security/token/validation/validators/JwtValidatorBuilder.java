@@ -21,6 +21,7 @@ import java.util.*;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 
 /**
  * Class used to build a token validator for a oauth service configuration
@@ -191,10 +192,10 @@ public class JwtValidatorBuilder {
 
 		if (configuration.getService() == XSUAA) {
 			if (!configuration.isLegacyMode()) {
-				defaultValidators.add(new XsuaaJkuValidator(configuration.getDomain()));
+				defaultValidators.add(new XsuaaJkuValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
 		} else if (configuration.getService() == IAS) {
-			defaultValidators.add(new JwtIssuerValidator(configuration.getDomain()));
+			defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
 		}
 		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
 		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);

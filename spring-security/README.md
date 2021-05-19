@@ -234,7 +234,8 @@ sap.security.services:
     
     identity:
       clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
-      domain:    localhost          # SecurityTest.DEFAULT_DOMAIN
+      domains:   
+        - localhost          # SecurityTest.DEFAULT_DOMAIN
       url:       http://localhost   # SecurityTest.DEFAULT_URL
 ```  
 	

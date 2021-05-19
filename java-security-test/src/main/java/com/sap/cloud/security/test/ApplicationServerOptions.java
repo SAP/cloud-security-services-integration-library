@@ -69,6 +69,7 @@ public class ApplicationServerOptions {
 					.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
 							.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
 							.withUrl("http://localhost")
+							.withDomains("localhost")
 							.build()));
 			break;
 		default:
@@ -115,7 +116,7 @@ public class ApplicationServerOptions {
 		return OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(clientId)
 				.withProperty(CFConstants.XSUAA.APP_ID, appId)
-				.withDomain(SecurityTestRule.DEFAULT_DOMAIN)
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
 				.build();
 	}
 

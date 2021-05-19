@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JwtValidatorBuilderTest {
 
 	OAuth2ServiceConfigurationBuilder xsuaaConfigBuilder = OAuth2ServiceConfigurationBuilder.forService(XSUAA)
-			.withDomain("auth.com")
+			.withDomains("auth.com")
 			.withProperty(CFConstants.XSUAA.APP_ID, "test-app!t123")
 			.withClientId("sb-test-app!t123");
 
@@ -91,7 +91,7 @@ public class JwtValidatorBuilderTest {
 	@Test
 	public void buildIas_containsAllDefaultValidators() {
 		OAuth2ServiceConfigurationBuilder iasConfigBuilder = OAuth2ServiceConfigurationBuilder.forService(IAS)
-				.withDomain("app.auth.com")
+				.withDomains("app.auth.com")
 				.withClientId("T0123456");
 
 		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(iasConfigBuilder.build())

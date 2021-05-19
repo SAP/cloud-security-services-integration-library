@@ -128,7 +128,6 @@ public class SecurityTestRuleTest {
 
 		assertThat(configuration.getUrl()).isNotNull();
 		assertThat(configuration.getUrl().toString()).isEqualTo(cut.base.wireMockServer.baseUrl());
-		assertThat(configuration.getDomain()).isEqualTo("localhost");
 	}
 
 	@Test

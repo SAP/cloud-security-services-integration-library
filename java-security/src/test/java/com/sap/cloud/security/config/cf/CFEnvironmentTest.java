@@ -100,7 +100,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
 		assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("clientId");
 		assertThat(cut.getXsuaaConfiguration().getClientSecret()).isEqualTo("secret");
-		assertThat(cut.getXsuaaConfiguration().getDomain()).isEqualTo("auth.com");
+		assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.UAA_DOMAIN)).isEqualTo("auth.com");
 		assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.APP_ID)).isEqualTo("java-hello-world");
 		assertThat(cut.getXsuaaConfiguration().getUrl().toString()).isEqualTo("https://paastenant.auth.com");
 		assertThat(cut.getXsuaaConfiguration().isLegacyMode()).isFalse();

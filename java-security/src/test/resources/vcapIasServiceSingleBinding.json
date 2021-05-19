@@ -5,7 +5,8 @@
       "credentials": {
         "clientsecret": "pCghfbrLudwzXM2fPq7YSIhujAmpHj_I0DeMKHKRAqs=",
         "clientid": "T000310",
-        "url": "https://myauth.com"
+        "url": "https://myauth.com",
+        "domains": ["myauth.com", "my.auth.com"]
       },
       "instance_name": "myservice",
       "label": "identity",

@@ -140,11 +140,11 @@ public class SecurityTest
 			LOGGER.warn("Method getPreconfiguredJwtGenerator was called too soon. Cannot set mock jwks/issuer url!");
 		}
 		switch (service) {
-		case XSUAA:
-			jwtGenerator
-					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
-					.withAppId(DEFAULT_APP_ID)
-					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
+			case XSUAA:
+				jwtGenerator
+						.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+						.withAppId(DEFAULT_APP_ID)
+						.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
 		}
 		return jwtGenerator.withClaimValue(TokenClaims.ISSUER, issuerUrl);
 	}
@@ -162,7 +162,7 @@ public class SecurityTest
 			String configurationResourceName) {
 		return VcapServicesParser.fromFile(configurationResourceName)
 				.getConfigurationBuilder()
-				.withDomain(URI.create(issuerUrl).getHost())
+				.withDomains(URI.create(issuerUrl).getHost())
 				.withUrl(issuerUrl);
 	}
 
