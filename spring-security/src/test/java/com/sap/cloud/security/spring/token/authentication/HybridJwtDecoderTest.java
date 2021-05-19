@@ -7,15 +7,14 @@ package com.sap.cloud.security.spring.token.authentication;
 
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.JwtGenerator;
-import com.sap.cloud.security.token.InvalidTokenException;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResults;
-import com.sap.cloud.security.spring.token.authentication.HybridJwtDecoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.time.Instant;
@@ -61,13 +60,13 @@ class HybridJwtDecoderTest {
 	}
 
 	@Test
-	void decodeInvalidToken_throwsInvalidTokenException() {
+	void decodeInvalidToken_throwsAccessDeniedException() {
 		CombiningValidator<Token> combiningValidator = Mockito.mock(CombiningValidator.class);
 		when(combiningValidator.validate(any())).thenReturn(ValidationResults.createInvalid("error"));
 		cut = new HybridJwtDecoder(combiningValidator, combiningValidator);
 		String encodedToken = jwtGenerator.createToken().getTokenValue();
 
-		assertThrows(InvalidTokenException.class, () -> cut.decode(encodedToken));
+		assertThrows(AccessDeniedException.class, () -> cut.decode(encodedToken));
 	}
 
 	@Test

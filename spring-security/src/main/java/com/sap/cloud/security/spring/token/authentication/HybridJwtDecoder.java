@@ -5,12 +5,12 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
-import com.sap.cloud.security.token.InvalidTokenException;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
@@ -58,10 +58,10 @@ public class HybridJwtDecoder implements JwtDecoder {
 			validationResult = xsuaaTokenValidators.validate(token);
 			break;
 		default:
-			throw new InvalidTokenException("The token of service " + token.getService() + " is not supported.");
+			throw new AccessDeniedException("The token of service " + token.getService() + " is not supported.");
 		}
 		if (validationResult.isErroneous()) {
-			throw new InvalidTokenException("The token is invalid: " + validationResult.getErrorDescription());
+			throw new AccessDeniedException("The token is invalid: " + validationResult.getErrorDescription());
 		}
 		logger.debug("The token of service {} was successfully validated.", token.getService());
 		return parseJwt(token);
