@@ -1,9 +1,96 @@
-# Change Log 
-
+# Change Log
 All notable changes to this project will be documented in this file.
+## 2.8.13
+- [token-client] **Bug fix** As of now, client-credential and jwt bearer user tokens are not cached in case tokenflow is configured with zone-id (instead of subdomain).
+- [java-security] provides `SapIdToken.getCnfX509Thumbprint()` method to provide thumbprint of certificate, in case token was requested via X509 based authentication.
+- [java-api] provides `Token.getGrantType()` method, proprietary `GrantType.CLIENT_X509` gets deprecated.
+  
 
+## 0.1.6 [BETA]
+- [spring-security] and [spring-security-starter] `HybridIdentityServicesAutoConfiguration` supports Identity service configuration alone, by setting up `IasJwtDecoder`
+
+## 2.8.12 and 0.1.5 [BETA]
+- The following dependencies were updated:
+    - spring.security.version 5.4.5 --> 5.4.6
+    - spring.core.version 5.3.5 --> 5.3.6
+    - spring.boot.version 2.4.4 --> 2.4.5
+    - org.json.version 20201115 --> 20210307
+    - junit.version 4.13.1 --> 4.13.2
+    - junit-jupiter.version 5.7.0 --> 5.7.1
+    - reactor.version 3.4.2 --> 3.4.5
+    - reactor.test.version 3.4.2 --> 3.4.5
+- [token-client] ```OAuth2ServiceException``` provides ```getHttpStatusCode()```. This allows applications to retry e.g. in case of ```429``` - when the request was rate limited.
+    
+## 2.8.10 and 0.1.4 [BETA]
+- [spring-xsuaa] introduced spring properties for IAS -> Xsuaa token exchange activation, as described [here](/spring-xsuaa/README.md#ias-to-xsuaa-token-exchange)
+- [java-security-test] uses jetty BoM to fix CVE-2021-28164 and CVE-2021-28165.
+  - jetty 9.4.38.v20210224 --> 9.4.39.v20210325
+
+## 2.8.9 and 0.1.3 [BETA]
+- [java-security-test] and java samples to fix CVE-2021-28164 and CVE-2021-28165.
+  - jetty 9.4.38.v20210224 --> 9.4.39.v20210325
+- [spring-xsuaa]
+  - exclude transient dependency to net.minidev:json-smart to resolve CVE-2021-27568
+- [xsuaa-spring-boot-starter] [resourceserver-security-spring-boot-starter]
+  - spring-boot-starter 2.4.3 --> 2.4.4
+  - spring-boot-starter-security 2.4.3 --> 2.4.4
+  - net.minidev:json-smart 2.3 --> 2.4.2 to resolve CVE-2021-27568
+  
+## 2.8.8 and 0.1.2 [BETA]
+- [java-security-test] and java samples
+  - jetty 9.4.36.v20210114 --> 9.4.38.v20210224 (seems to be incompatible with javax.servlet-api 3.1.0)
+  - javax.servlet:javax.servlet-api 3.1.0 --> 4.0.1 (recommended version)
+- [java-security] supports with ``SpringSecurityContext`` a way to read tokens from Spring's `SecurityContextHolder`, in case a token was set by the application using one of these client-libraries:
+  -  `org.springframework.security.oauth:spring-security-oauth2`
+  -  `com.sap.cloud.security.xsuaa:spring-xsuaa`
+  -  `com.sap.cloud.security:spring-security`
+
+
+## 2.8.7 and 0.1.1 [BETA]
+- [xsuaa-spring-boot-starter] and [resourceserver-security-spring-boot-starter (BETA)]
+  - spring.core.version 5.3.3 --> 5.3.4
+  - spring.boot.version 2.4.2 --> 2.4.3
+  - spring.security.version 5.4.2 --> 5.4.5
+- use ``spring-boot-starter-parent`` version 2.4.3 in spring samples.
+  
+##  2.8.6
+- [token-client] Next to subdomain `XsuaaTokenFlows.clientCredentialsTokenFlow()` supports Zone id.
+
+## 0.1.0 [BETA] :star:
+- [spring-security] new spring boot security client library that supports Token validation from XSUAA and IAS identity provider in parallel as described [here](/spring-security). An initial migration guide on how to migrate from ``spring-xsuaa`` is available [here](/spring-security/Migration_SpringXsuaaProjects.md).
+
+## 2.8.5
+- [java-security] load environment from `VCAP_SERVICES` formatted json file (#471)
+- [java-security] performance: make sure ServiceLoader loads services only once (#467)
+- [java-api] move `getAttributeFromClaimAsString` and `getAttributeFromClaimAsStringList` methods from `AccessToken` to its `Token` parent interface.
+
+## 2.8.4
+- [java-security] Make HybridTokenFactory more failure tolerant 
+- [spring-xsuaa-test] Prefills "ext_atr" "enhancer" with XSUAA
+
+#### Update Versions
+- [all]
+  - commons-io 2.6 --> 2.8.0
+  - org.apache.httpcomponents » httpclient 4.5.9 --> 4.5.13
+  - spring.core.version 5.3.2 --> 5.3.3
+  - spring.boot.version 2.4.1 --> 2.4.2
+- [java-security-test]
+  - org.eclipse.jetty 9.4.35.v20201120 --> 9.4.36.v20210114
+- [token-client]
+  - caffeine 2.8.6 --> 2.8.8
+  - org.json 20200518 --> 20201115
+- [spring-xsuaa]
+  - caffeine 2.8.6 --> 2.8.8
+  - reactor-core 	3.3.7.RELEASE --> 3.4.2
+  - log4j-to-slf4j 2.13.3 --> 2.14.0
+  
+  
 ## 2.8.3
-- [java-api] ``AccessToken`` exposes the ```getSubaccountId()``` method. Further information about the usage of ```getSubaccountId()``` and ```getZoneId()``` can be read [here](https://github.com/SAP-samples/teched2020-DEV263#changed-api-for-multi-tenant-applications-to-determine-tenant-identifier-getsubaccountid-replaced-by-getzoneid). 
+- [java-api] ``AccessToken`` exposes the ```getSubaccountId()``` method. Further information about the usage of ```getSubaccountId()``` and ```getZoneId()``` can be read [here](https://github.com/SAP-samples/teched2020-DEV263#changed-api-for-multi-tenant-applications-to-determine-tenant-identifier-getsubaccountid-replaced-by-getzoneid).
+- [java-api] [java-security] allows hybrid token creation via `Token.create(String encodedToken)`. The feature is available when using token authenticator. In order to avoid `ServiceLoader` issues, make sure that you don't mix up different versions of these client libraries. E.g., its not possible to use `com.sap.cloud.security:java-api:2.8.3` together with `com.sap.cloud.security:java-security:2.8.2`. See also [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/java-security#common-pitfalls).
+- [samples/sap-java-buildpack-api-usage] uses [SAP Java Buildpack BoM](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html) ([sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/samples/sap-java-buildpack-api-usage/pom.xml)).
+- [token-client] `UserTokenFlow` enhances request with `X-zid` header that corresponds to zone id.
+
 ## 2.8.2
 - [java-security]  
   - HOTFIX for ``2.8.1`` version.

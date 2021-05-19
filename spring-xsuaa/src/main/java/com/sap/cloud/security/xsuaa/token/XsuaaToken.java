@@ -1,5 +1,11 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token;
 
+import com.sap.cloud.security.token.InvalidTokenException;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +13,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
-import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.util.Assert;
 
 import java.time.Instant;
@@ -158,7 +163,7 @@ public class XsuaaToken extends Jwt implements Token {
 				return getClaimAsString(CLIENT_ID);
 			}
 			logger.error("Couldn't get client id. Invalid authorized party or audience claims.");
-			throw new InvalidBearerTokenException(
+			throw new InvalidTokenException(
 					"Couldn't get client id. Invalid authorized party or audience claims.");
 		} else {
 			return clientId;

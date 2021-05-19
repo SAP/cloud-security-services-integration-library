@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -96,7 +101,6 @@ public class SecurityTestRuleTest {
 	@Test
 	public void testRuleIsInitializedCorrectly() {
 		assertThat(cut.getApplicationServerUri()).isEqualTo("http://localhost:" + APPLICATION_SERVER_PORT);
-		// assertThat(cut.getWireMockRule()).isNotNull();
 		assertThat(cut.getWireMockServer()).isNotNull();
 		assertThat(cut.createToken().getTokenValue())
 				.isEqualTo(cut.getPreconfiguredJwtGenerator().createToken().getTokenValue());
@@ -135,14 +139,6 @@ public class SecurityTestRuleTest {
 		URI jwksUrl = new XsuaaDefaultEndpoints(baseUrl).getJwksUri();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(jwksUrl.toString());
 		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(baseUrl);
-	}
-
-	@Test
-	public void servletFilterServesTestServlet() throws IOException {
-		HttpGet httpGet = new HttpGet(cut.getApplicationServerUri() + "/hi");
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
-		}
 	}
 
 	@Test

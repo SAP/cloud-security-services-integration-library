@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.Assertions;
@@ -55,6 +60,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	protected OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
 		HttpPost httpPost = createHttpPost(tokenEndpointUri, headers, parameters);
+		LOGGER.debug("access token request {} - {}", headers, parameters);
 		return executeRequest(httpPost);
 	}
 

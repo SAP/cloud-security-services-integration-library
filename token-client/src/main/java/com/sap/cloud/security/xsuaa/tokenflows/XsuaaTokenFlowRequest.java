@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.xsa.security.container.XSTokenRequest;
@@ -19,6 +24,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	private String clientId;
 	private URI tokenServiceEndpoint;
 	private String subdomain;
+	private String zoneId;
 	private String clientSecret;
 	private Map<String, String> additionalAuthorizationAttributes;
 	private static final String UNSUPPORTED_INTF_METHOD_INFO = "This XSTokenRequest method is no longer needed in context of new XsuaaTokenFlows API.";
@@ -138,6 +144,21 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 */
 	public XSTokenRequest setSubdomain(String subdomain) {
 		this.subdomain = subdomain;
+		return this;
+	}
+
+	/**
+	 * Get the Identity Zone
+	 *
+	 * @return zoneId or null in case zoneId is not present
+	 */
+	@Nullable
+	public String getZoneId() {
+		return zoneId;
+	}
+
+	public XSTokenRequest setZoneId(String zoneId) {
+		this.zoneId = zoneId;
 		return this;
 	}
 }

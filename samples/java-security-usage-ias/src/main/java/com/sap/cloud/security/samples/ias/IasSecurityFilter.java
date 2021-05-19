@@ -1,7 +1,13 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.samples.ias;
 
 import com.sap.cloud.security.servlet.IasTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticationResult;
+import com.sap.cloud.security.token.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

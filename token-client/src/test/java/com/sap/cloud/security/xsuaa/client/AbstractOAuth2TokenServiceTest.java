@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.client;
 
 import com.github.benmanes.caffeine.cache.Ticker;
@@ -21,6 +26,7 @@ public class AbstractOAuth2TokenServiceTest {
 
 	public static final URI TOKEN_ENDPOINT_URI = URI.create("http://test.token.endpoint/oauth/token");
 	public static final String SUBDOMAIN = "subdomain";
+	public static final String ZONE_ID = "zone";
 	private static final Instant NOW = LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0).toInstant(UTC);
 	public static final TokenCacheConfiguration TEST_CACHE_CONFIGURATION = TokenCacheConfiguration
 			.defaultConfiguration();
@@ -71,6 +77,19 @@ public class AbstractOAuth2TokenServiceTest {
 		retrieveAccessTokenViaClientCredentials();
 		retrieveAccessTokenViaClientCredentials(new ClientCredentials("other client id", "secret"), false);
 		retrieveAccessTokenViaClientCredentials();
+
+		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
+	}
+
+	@Test
+	public void retrieveAccessTokenViaClientCredentials_forDifferentZoneIds_TwoRequestCalls()
+			throws OAuth2ServiceException {
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "ZONE-ID", SUBDOMAIN,
+				null, false);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "ZONE-ID", SUBDOMAIN,
+				null, false);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "OTHER_ZONE-ID",
+				SUBDOMAIN, null, false);
 
 		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
 	}
@@ -250,7 +269,8 @@ public class AbstractOAuth2TokenServiceTest {
 	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials(ClientCredentials clientCredentials,
 			boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
-		return cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials, SUBDOMAIN,
+		return cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials, ZONE_ID,
+				SUBDOMAIN,
 				null, disableCacheForRequest);
 	}
 

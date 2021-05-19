@@ -12,7 +12,7 @@ You're using the SAP Java Buildpack, if you can find the `sap_java_buildpack` in
 
 This [documentation](Migration_SAPJavaBuildpackProjects.md) describes the setup when using SAP Java Buildpack.
 
-## Deprecation Notice
+## :bulb: Deprecation Notice
 
 The Spring Security OAuth project is deprecated. The latest OAuth 2.0 support is provided by Spring Security. See the [OAuth 2.0 Migration Guide](https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide) for further details.
 
@@ -37,19 +37,19 @@ First make sure you have the following dependencies defined in your pom.xml:
 <dependency>
   <groupId>com.sap.cloud.security.xsuaa</groupId>
   <artifactId>api</artifactId>
-  <version>2.8.2</version>
+  <version>2.8.13</version>
 </dependency>
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security</artifactId>
-  <version>2.8.2</version>
+  <version>2.8.13</version>
 </dependency>
 
 <!-- new java-security dependencies for unit tests -->
 <dependency>
   <groupId>com.sap.cloud.security</groupId>
   <artifactId>java-security-test</artifactId>
-  <version>2.8.2</version>
+  <version>2.8.13</version>
   <scope>test</scope>
 </dependency>
 ```

@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
@@ -7,8 +12,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.Optional;
 
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ZDN;
 import static java.nio.charset.StandardCharsets.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -119,9 +125,26 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
+	public void getSubdomainFromCCTokenWhithoutZdn() {
+		assertThat(clientCredentialsToken.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN))
+				.isNull();
+	}
+
+	@Test
+	public void getAttributeFromNotExistingClaim() {
+		assertThat(clientCredentialsToken.getAttributeFromClaimAsString("not_existing", EXTERNAL_ATTRIBUTE_ZDN))
+				.isNull();
+	}
+
+	@Test
+	public void getNotExistingAttributeFromExistingClaim() {
+		assertThat(clientCredentialsToken.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, "notExisting")).isNull();
+	}
+
+	@Test
 	public void getSubaccountId() {
 		XsuaaToken userTokenWithSubaccountId = Mockito.spy(userToken);
-		when(userTokenWithSubaccountId.getClaimAsJsonObject(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE))
+		when(userTokenWithSubaccountId.getClaimAsJsonObject(EXTERNAL_ATTRIBUTE))
 				.thenReturn(new DefaultJsonObject("{\"subaccountid\": \"abc123\"}"));
 
 		assertThat(userTokenWithSubaccountId.getSubaccountId()).isEqualTo("abc123");
@@ -136,7 +159,7 @@ public class XsuaaTokenTest {
 	public void readCloneServiceInstanceId() {
 		String authHeader = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHRfYXR0ciI6eyJ6ZG4iOiJ0ZXN0c3ViZG9tYWluIiwic2VydmljZWluc3RhbmNlaWQiOiJhYmNkMTIzNCJ9LCJ6aWQiOiJlMmY3ZmJkYi0wMzI2LTQwZTYtOTQwZi1kZmRkYWQwNTdmZjMiLCJncmFudF90eXBlIjoidXJuOmlldGY6cGFyYW1zOm9hdXRoOmdyYW50LXR5cGU6c2FtbDItYmVhcmVyIiwidXNlcl9uYW1lIjoidGVzdFVzZXIiLCJvcmlnaW4iOiJ1c2VySWRwIiwiZXhwIjo2OTc0MDMxNjAwLCJpYXQiOjE1OTM3ODQ2MDcsImVtYWlsIjoidGVzdFVzZXJAdGVzdC5vcmciLCJjaWQiOiJzYi1qYXZhLWhlbGxvLXdvcmxkIn0.yB_ALtO_shdJJkXeRSxKFRVghDmrxdnZ1-WssO_hQ9AAuaQX-rA6eMwuikjcWhkzWnjBzQg4LO8aLQhtUUIS60cpXZG_zP7y9iULCxQQt2vTMbVC0unHB2ytBf2GWbIq_WplfNwshZmbt2ETDClz87VBla-yG6rIZdAio4jZuLTQzJAVCMhJCkmhuMedzbrzGovpblT49UIbi3v4cxhBuoHhAZVfPEUX4-22BTcgFFVlOySvDn6xBVLVqBcjOl_JGjFcWPImj0BqdEuaQq2-A3_F_XKhQf_AK7rLF7kvaIZ2k3i-1GWapqLZsCed23Ihce5m-cedv3857YQPZxAHZw";
 		XsuaaToken token = new XsuaaToken(authHeader);
-		assertThat(token.getAttributeFromClaimAsString(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, "serviceinstanceid"))
+		assertThat(token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, "serviceinstanceid"))
 				.isEqualTo("abcd1234");
 	}
 

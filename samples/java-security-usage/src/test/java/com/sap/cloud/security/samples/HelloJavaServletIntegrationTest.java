@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.samples;
 
 import com.sap.cloud.security.test.SecurityTestRule;
@@ -25,7 +30,9 @@ public class HelloJavaServletIntegrationTest {
 
 	@RegisterExtension
 	static SecurityTestExtension extension = SecurityTestExtension.forService(XSUAA)
-			.useApplicationServer().addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
+			.useApplicationServer()
+			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT)
+			.addApplicationServlet(HelloJavaServletScopeProtected.class, HelloJavaServletScopeProtected.ENDPOINT);
 
 	@AfterEach
 	public void tearDown() {
@@ -54,9 +61,9 @@ public class HelloJavaServletIntegrationTest {
 				.withClaimValue(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS)
 				.createToken()
 				.getTokenValue();
-		HttpGet request = createGetRequest(jwt);
+		HttpGet request = createGetRequest(jwt, HelloJavaServletScopeProtected.ENDPOINT);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_FORBIDDEN); // 403
+ 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_FORBIDDEN); // 403
 		}
 	}
 
@@ -71,13 +78,20 @@ public class HelloJavaServletIntegrationTest {
 		HttpGet request = createGetRequest(jwt);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK); // 200
-			assertThat(EntityUtils.toString(response.getEntity(), "UTF-8"))
-					.isEqualTo("You ('tester@mail.com') can access the application with the following scopes: '[xsapp!t0815.Read]'.");
+			String responseBody = EntityUtils.toString(response.getEntity());
+			assertThat(responseBody)
+					.contains("You ('tester@mail.com') can access the application with the following scopes: '[xsapp!t0815.Read]'.");
+			assertThat(responseBody)
+					.contains("Having scope '$XSAPPNAME.Read'? true");
 		}
 	}
 
 	private HttpGet createGetRequest(String accessToken) {
-		HttpGet httpGet = new HttpGet(extension.getContext().getApplicationServerUri() + HelloJavaServlet.ENDPOINT);
+		return createGetRequest(accessToken, HelloJavaServlet.ENDPOINT);
+	}
+
+	private HttpGet createGetRequest(String accessToken, String endpoint) {
+		HttpGet httpGet = new HttpGet(extension.getContext().getApplicationServerUri() + endpoint);
 		if(accessToken != null) {
 			httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 		}

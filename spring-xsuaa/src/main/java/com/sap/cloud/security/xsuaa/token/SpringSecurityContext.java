@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -32,7 +37,7 @@ public class SpringSecurityContext {
 		if (authentication == null) {
 			throw new AccessDeniedException("Access forbidden: not authenticated");
 		}
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Object principal = authentication.getPrincipal();
 		if (principal instanceof Token) {
 			return (Token) principal;
 		}

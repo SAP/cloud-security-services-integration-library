@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.config.cf;
 
 /**
@@ -12,6 +17,8 @@ public class CFConstants {
 	public static final String URL = "url";
 	public static final String CLIENT_ID = "clientid";
 	public static final String CLIENT_SECRET = "clientsecret";
+	public static final String CERTIFICATE = "certificate";
+	public static final String KEY = "key";
 
 	private CFConstants() {
 	}
@@ -27,6 +34,7 @@ public class CFConstants {
 		public static final String UAA_DOMAIN = "uaadomain";
 		public static final String APP_ID = "xsappname";
 		public static final String VERIFICATION_KEY = "verificationkey";
+
 	}
 
 	/**

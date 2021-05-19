@@ -30,7 +30,7 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
 
 ## Supported Identity Services
 - XSUAA
-- as of version `2.8.0` IAS
+- as of version `2.8.0` IAS (:bulb: no multi-tenancy support yet)
 
 ## Supported Algorithms
 
@@ -46,7 +46,7 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.8.2</version>
+    <version>2.8.13</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -79,7 +79,7 @@ OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaCon
 > Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes.
 
 Alternatively you can also specify the Service Configuration by your own:
-```
+```java
 OAuth2ServiceConfiguration serviceConfig = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
       .withProperty(CFConstants.XSUAA.APP_ID, "appid")
       .withProperty(CFConstants.XSUAA.UAA_DOMAIN, "authentication.sap.hana.ondemand.com")
@@ -94,10 +94,11 @@ Now configure the `JwtValidatorBuilder` once with the service configuration from
 ```java
 CombiningValidator<Token> validators = JwtValidatorBuilder.getInstance(serviceConfig).build();
 ```
-
-
 > Note: By default `JwtValidatorBuilder` builds a `CombiningValidator`. 
-> For the Signature validation it needs to fetch the Json Web Token Keys (jwks) from the OAuth server. In case the token does not provide a `jku` header parameter it also requests the Open-ID Provider Configuration from the OAuth Server to determine the `jwks_uri`. The used Apache Rest client can be customized via the `JwtValidatorBuilder` builder.
+
+> For the Signature validation it needs to fetch the Json Web Token Keys (jwks) from the OAuth server. In case the token does not provide a `jku` header parameter it also requests the Open-ID Provider Configuration from the OAuth Server to determine the `jwks_uri`. The used Apache Rest client can be customized via the `JwtValidatorBuilder` builder.  
+
+> Furthermore the token keys fetched from the Identity Service are cached for about 10 minutes. You may like to overwrite the cache [default configuration](/java-security/src/main/java/com/sap/cloud/security/token/validation/validators/TokenKeyCacheConfiguration.java#L14) with `JwtValidatorBuilder.withCacheConfiguration()`.  
 
 #### [Optional] Step 2.1: Add Validation Listeners for Audit Log
 Optionally, you can add a validation listener to the validator to be able to get called back whenever a token is validated. Here you may want to emit logs to the audit log service.
@@ -113,7 +114,7 @@ This decodes an encoded JSON Web Token (JWT) and parses its json header and payl
 
 ```java
 String authorizationHeader = "Bearer eyJhbGciOiJGUzI1NiJ2.eyJhh...";
-Token token = new XsuaaToken(authorizationHeader);
+Token token = Token.create(authorizationHeader); // supports tokens issued by xsuaa and ias
 ```
 
 ### Validate Token to check Authentication
@@ -167,16 +168,19 @@ For the integration of different Identity Services the [`TokenAuthenticator`](/j
 
 ### IAS to Xsuaa token exchange
 `XsuaaTokenAuthenticator` supports seamless token exchange between IAS and Xsuaa. Token exchange between IAS and Xsuaa means that calling a web application endpoint with an IAS Token will work like calling the endpoint with Xsuaa Token. This functionality is disabled by default.
-Requirement for token exchange is token-client dependency with all its' transitive dependencies(shouldn't be excluded) in the project.
+Requirement for token exchange is `token-client` dependency with all its' transitive dependencies in the project.
+
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
 </dependency>
 ```
+
 Steps to enable token exchange:
-1. Set environment variable IAS_XSUAA_XCHANGE_ENABLED to any value except false or empty
-2. Make sure token-client is not excluded from the project
+1. Set environment variable `IAS_XSUAA_XCHANGE_ENABLED` to any value except false or empty
+2. Make sure `token-client` is not excluded from the project
+3. In order to leverage the token cache, consider the `token-client` initialization notes [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/README.md#cache)
 
 The authenticator is used in the following [sample](/samples/java-security-usage).
 
@@ -220,9 +224,9 @@ java_buildpack                  2          true      false    java_buildpack-cac
 .
 .
 .
-sap_java_buildpack              12         true      false    sap_java_buildpack-v1.26.1.zip
-sap_java_buildpack_1_26         13         true      false    sap_java_buildpack-v1.26.1.zip
-sap_java_buildpack_1_25         14         true      false    sap_java_buildpack-v1.25.0.zip
+sap_java_buildpack              12         true      false    sap_java_buildpack-v1.32.0.zip
+sap_java_buildpack_1_32         13         true      false    sap_java_buildpack-v1.32.0.zip
+sap_java_buildpack_1_31         14         true      false    sap_java_buildpack-v1.31.2.zip
 ```
 
 ### Increase log level to `DEBUG`
@@ -249,7 +253,7 @@ cf set-env <your app name> SET_LOGGING_LEVEL "{com.sap.xs.security: DEBUG, com.s
 
 You need to restage your application for the changes to take effect.
 
-### Known Issues
+### Common Pitfalls
 
 #### This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
 If you have classpath related  issues involving JSON you should take a look at the
@@ -278,6 +282,10 @@ Or, alternatively in `src/main/webapp/WEB-INF/web.xml`:
 ```
 
 > In case your application provides no scopes, consider the documentation [here](Migration_SAPJavaBuildpackProjects_V2.md#new-feature-sap-java-buildpack-without-application-roles).
+
+
+#### java.util.ServiceConfigurationError: com.sap.cloud.security.token.TokenFactory: Provider com.sap.cloud.security.servlet.HybridTokenFactory not a subtype
+As of version [`2.8.3`](https://github.com/SAP/cloud-security-xsuaa-integration/releases/tag/2.8.3) the version of `java-api` needs to match the version of `java-security` client library. In case you use the **SAP Java Buildpack** `java-security` is provided. To keep them in synch its recommended to use [SAP Java Buildpack BoM](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html) of the respective SAP Java Buildpack version and as done in the [sap-java-buildpack-api-usage sample](/samples/sap-java-buildpack-api-usage/pom.xml).
 
 ## Specs und References
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)

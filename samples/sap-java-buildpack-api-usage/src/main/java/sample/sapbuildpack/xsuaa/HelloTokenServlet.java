@@ -1,8 +1,7 @@
 /**
- * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
- * This file is licensed under the Apache Software License, 
- * v. 2 except as noted otherwise in the LICENSE file 
- * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
  */
 package sample.sapbuildpack.xsuaa;
 

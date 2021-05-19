@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -77,6 +82,18 @@ public class ClientCredentialsTokenFlow {
 	 */
 	public ClientCredentialsTokenFlow subdomain(String subdomain) {
 		request.setSubdomain(subdomain);
+		return this;
+	}
+
+	/**
+	 * Sets the zone Id of the tenant<br>
+	 *
+	 * @param zoneId
+	 *            - the zoneId.
+	 * @return this builder.
+	 */
+	public ClientCredentialsTokenFlow zoneId(String zoneId) {
+		request.setZoneId(zoneId);
 		return this;
 	}
 
@@ -168,7 +185,7 @@ public class ClientCredentialsTokenFlow {
 			OAuth2TokenResponse accessToken = tokenService
 					.retrieveAccessTokenViaClientCredentialsGrant(request.getTokenEndpoint(),
 							new ClientCredentials(request.getClientId(), request.getClientSecret()),
-							request.getSubdomain(), requestParameter, disableCache);
+							request.getZoneId(), request.getSubdomain(), requestParameter, disableCache);
 			return accessToken;
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(

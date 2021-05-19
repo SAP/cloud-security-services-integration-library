@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.token.TokenClaims.*;
@@ -47,7 +52,7 @@ class JwtSignatureValidator implements Validator<Token> {
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
 		assertNotNull(configuration, "JwtSignatureValidator requires configuration.");
 		assertNotNull(tokenKeyService, "JwtSignatureValidator requires a tokenKeyService.");
-		assertNotNull(tokenKeyService, "JwtSignatureValidator requires a oidcConfigurationService.");
+		assertNotNull(oidcConfigurationService, "JwtSignatureValidator requires a oidcConfigurationService.");
 
 		this.configuration = configuration;
 		this.tokenKeyService = tokenKeyService;

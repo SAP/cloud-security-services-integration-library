@@ -1,23 +1,46 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.security.Principal;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents a JSON Web Token (JWT).
  */
 public interface Token extends Serializable {
+	List<TokenFactory> services = new ArrayList() {
+		{
+			ServiceLoader.load(TokenFactory.class).forEach(this::add);
+			LoggerFactory.getLogger(Token.class).info("loaded TokenFactory service providers: {}", this);
+		}
+	};
+
+	/**
+	 * Creates a token instance based on TokenFactory implementation.
+	 * 
+	 * @param jwt
+	 *            encoded JWT token
+	 * @return token instance
+	 */
+	static Token create(String jwt) {
+		if (services.isEmpty()) {
+			throw new ProviderNotFoundException("No TokenFactory implementation found in the classpath");
+		}
+		return services.get(0).create(jwt);
+	}
 
 	/**
 	 * Returns the header parameter value as string for the given header parameter
@@ -163,6 +186,16 @@ public interface Token extends Serializable {
 	String getClientId();
 
 	/**
+	 * Returns the grant type of the jwt token. <br>
+	 *
+	 * @return the grant type
+	 **/
+	@Nullable
+	default GrantType getGrantType(){
+		return GrantType.from(getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE));
+	}
+
+	/**
 	 * Returns the header(s).
 	 *
 	 * @return a {@code Map} of the header(s)
@@ -178,5 +211,56 @@ public interface Token extends Serializable {
 	 */
 	default Map<String, Object> getClaims() {
 		return Collections.EMPTY_MAP;
+	}
+
+	/**
+	 * Returns the String value of a claim attribute. <br>
+	 * <code>
+	 *     "claimName": {
+	 *         "attributeName": "attributeValueAsString"
+	 *     },
+	 *     </code><br>
+	 * <br>
+	 * Example: <br>
+	 * <code>
+	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
+	 *
+	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
+	 *     </code>
+	 *
+	 * @return the String value of a claim attribute or null if claim or its
+	 *         attribute does not exist.
+	 **/
+	@Nullable
+	default String getAttributeFromClaimAsString(String claimName, String attributeName) {
+		return Optional.ofNullable(getClaimAsJsonObject(claimName))
+				.map(claim -> claim.getAsString(attributeName))
+				.orElse(null);
+	}
+
+	/**
+	 * Returns the String list of a claim attribute. <br>
+	 * <code>
+	 *     "claimName": {
+	 *         "attributeName": ["attributeValueAsString", "attributeValue2AsString"]
+	 *     },
+	 *     </code><br>
+	 * <br>
+	 * Example: <br>
+	 * <code>
+	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
+	 *
+	 *     token.getAttributeFromClaimAsString(XS_USER_ATTRIBUTES, "custom_role");
+	 *     </code>
+	 *
+	 * @return the String value of a claim attribute or null if claim or its
+	 *         attribute does not exist.
+	 **/
+	@Nullable
+	default List<String> getAttributeFromClaimAsStringList(String claimName, String attributeName) {
+		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);
+		return Optional.ofNullable(claimAsJsonObject)
+				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class))
+				.orElse(null);
 	}
 }

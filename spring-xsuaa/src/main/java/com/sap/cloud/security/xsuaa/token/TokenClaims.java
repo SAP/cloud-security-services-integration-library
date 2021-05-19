@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token;
 
 public final class TokenClaims {
@@ -24,4 +29,11 @@ public final class TokenClaims {
 	public static final String CLAIM_ISSUER = "iss";
 	public static final String CLAIM_JKU = "jku";
 	public static final String CLAIM_KID = "kid";
+	/**
+	 * IAS applications provide this attribute if the user was authenticated via an
+	 * OIDC trust to an IAS tenant and if the user actually has a user UUID. This is
+	 * true if the user physically exists in the IAS user store and IAS is not a
+	 * pure proxy which simply forwards all information from the corporate IdP.
+	 */
+	public static final String SAP_GLOBAL_USER_ID = "user_uuid";
 }

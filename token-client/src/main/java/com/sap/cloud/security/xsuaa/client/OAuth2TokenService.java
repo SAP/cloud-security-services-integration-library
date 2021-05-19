@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.client;
 
 import javax.annotation.Nonnull;
@@ -29,10 +34,47 @@ public interface OAuth2TokenService {
 	 * @return the OAuth2AccessToken.
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
+	 *
+	 * @deprecated gets removed in favor of
+	 *             {@link #retrieveAccessTokenViaClientCredentialsGrant(URI, ClientCredentials, String, String, Map, boolean)}
+	 *             with next major version 3.0.0
+	 */
+	@Deprecated
+	default OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@Nonnull URI tokenEndpointUri,
+			@Nonnull ClientCredentials clientCredentials,
+			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters,
+			boolean disableCacheForRequest)
+			throws OAuth2ServiceException {
+		return retrieveAccessTokenViaClientCredentialsGrant(tokenEndpointUri, clientCredentials, null, subdomain,
+				optionalParameters, disableCacheForRequest);
+	}
+
+	/**
+	 * Requests access token from OAuth Server with client credentials.
+	 *
+	 * @param tokenEndpointUri
+	 *            the token endpoint URI.
+	 * @param clientCredentials
+	 *            the client id and secret of the OAuth client, the recipient of the
+	 *            token.
+	 * @param zoneId
+	 *            Zone identifier - tenant discriminator
+	 * @param subdomain
+	 *            optionally indicates what Identity Zone this request goes to by
+	 *            supplying a subdomain (tenant).
+	 * @param optionalParameters
+	 *            optional request parameters, can be null.
+	 * @param disableCacheForRequest
+	 *            set to true disables the token cache for this request.
+	 * @return the OAuth2AccessToken.
+	 * @throws OAuth2ServiceException
+	 *             in case of an error during the http request.
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@Nonnull URI tokenEndpointUri,
 			@Nonnull ClientCredentials clientCredentials,
-			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters,
+			@Nullable String zoneId,
+			@Nullable String subdomain,
+			@Nullable Map<String, String> optionalParameters,
 			boolean disableCacheForRequest)
 			throws OAuth2ServiceException;
 

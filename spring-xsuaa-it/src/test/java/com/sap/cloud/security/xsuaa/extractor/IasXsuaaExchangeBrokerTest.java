@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.extractor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,7 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -48,16 +52,21 @@ public class IasXsuaaExchangeBrokerTest {
 		assertThat(token).isEqualTo(XSUAA_TOKEN);
 	}
 
-	@Test(expected = InvalidBearerTokenException.class)
+	@Test
 	public void invalidAuthorizationHeaderTest() {
 		request.addHeader("Authorization", IAS_TOKEN);
-		cut.resolve(request);
+		assertThat(cut.resolve(request)).isNull();
 	}
 
-	@Test(expected = InvalidBearerTokenException.class)
+	@Test
 	public void invalidAuthorizationHeader2Test() {
 		request.addHeader("Auth", "bearer " + IAS_TOKEN);
-		cut.resolve(request);
+		assertThat(cut.resolve(request)).isNull();
+	}
+
+	@Test
+	public void noAuthorizationHeaderTest() {
+		assertThat(cut.resolve(request)).isNull();
 	}
 
 	private XsuaaServiceConfiguration getXsuaaServiceConfiguration() {

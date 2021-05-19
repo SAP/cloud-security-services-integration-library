@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -14,11 +16,10 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>2.8.2</version>
+		<version>2.8.13</version>
 	</parent>
 
 	<artifactId>xsuaa-spring-boot-starter</artifactId>
-	<name>SAP Spring Boot Xsuaa Starter</name>
 	<description>SAP Starter for integrating application with XSUAA service</description>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<packaging>jar</packaging>
@@ -27,7 +28,20 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<!-- Resolves CVE-2021-27568: https://nvd.nist.gov/vuln/detail/CVE-2021-27568 -->
+		<version.json-smart>2.4.2</version.json-smart>
 	</properties>
+
+	<dependencyManagement>
+		<!-- Resolved CVE-2021-27568: https://nvd.nist.gov/vuln/detail/CVE-2021-27568 -->
+		<dependencies>
+			<dependency>
+				<groupId>net.minidev</groupId>
+				<artifactId>json-smart</artifactId>
+				<version>${version.json-smart}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
