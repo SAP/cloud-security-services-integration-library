@@ -15,6 +15,5 @@ sap:
 
       identity:
         clientid: sb-clientId!t0815
-        domains:
-          - localhost
+        domains: localhost
         url: http://localhost # can be deleted later

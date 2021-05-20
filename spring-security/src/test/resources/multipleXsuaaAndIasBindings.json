@@ -24,7 +24,7 @@
         "clientid": "client-id-ias",
         "clientsecret": "client-secret-ias",
         "url": "http://domain.iasdomain",
-        "domain": "iasdomain"
+        "domains": ["iasdomain"]
       },
       "plan": "broker"
     }

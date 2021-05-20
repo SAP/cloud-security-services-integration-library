@@ -117,7 +117,7 @@ class HybridIdentityServicesAutoConfigurationTest {
 	void autoConfigurationIdentityServiceOnly() {
 		List<String> identityProperties = new ArrayList<>();
 		identityProperties.add("sap.security.services.identity.url:http://localhost");
-		identityProperties.add("sap.security.services.identity.domain:localhost");
+		identityProperties.add("sap.security.services.identity.domains:localhost");
 		identityProperties.add("sap.security.services.identity.clientid:cid");
 
 		WebApplicationContextRunner runner = new WebApplicationContextRunner()

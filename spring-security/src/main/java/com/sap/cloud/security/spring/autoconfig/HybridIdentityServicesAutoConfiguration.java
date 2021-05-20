@@ -83,7 +83,7 @@ class HybridIdentityServicesAutoConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnProperty("sap.security.services.identity.domain")
+		@ConditionalOnProperty("sap.security.services.identity.domains")
 		@ConditionalOnMissingBean(JwtDecoder.class)
 		public JwtDecoder iasJwtDecoder(IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures IasJwtDecoder.");

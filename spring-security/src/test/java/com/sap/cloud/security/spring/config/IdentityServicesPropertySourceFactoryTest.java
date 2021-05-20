@@ -12,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = { TestConfigurationFromFile.class })
@@ -32,7 +34,7 @@ class IdentityServicesPropertySourceFactoryTest {
 
 		assertEquals("client-id-ias", configuration.identityClientId);
 		assertEquals("client-secret-ias", configuration.identityClientSecret);
-		assertEquals("iasdomain", configuration.identityDomain);
+		assertEquals("iasdomain", configuration.identityDomains.get(0));
 	}
 }
 
@@ -65,6 +67,6 @@ class TestConfigurationFromFile {
 	@Value("${sap.security.services.identity.clientsecret:}")
 	public String identityClientSecret;
 
-	@Value("${sap.security.services.identity.domain:}")
-	public String identityDomain;
+	@Value("${sap.security.services.identity.domains:}")
+	public List<String> identityDomains;
 }
