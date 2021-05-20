@@ -80,9 +80,12 @@ class JwtIssuerValidator implements Validator<Token> {
 						issuer);
 			}
 			issuerUri = new URI(issuer);
-			if (issuerUri.getQuery() == null && issuerUri.getFragment() == null
-					&& issuerUri.getHost() != null && issuerUri.getHost().endsWith(domains.get(0))) { // TODO update logic
-				return createValid();
+			if (issuerUri.getQuery() == null && issuerUri.getFragment() == null && issuerUri.getHost() != null) {
+				for(String d: domains) {
+					if (issuerUri.getHost().endsWith(d)) {
+						return createValid();
+					}
+				}
 			}
 		} catch (URISyntaxException e) {
 			logger.error("Error: 'iss' claim '{}' does not provide a valid URI: {}.", issuer, e.getMessage(), e);

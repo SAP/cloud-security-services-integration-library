@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,11 +28,12 @@ public class JwtIssuerValidatorTest {
 	private JwtIssuerValidator cut;
 	private JwtIssuerValidator cutMultiTenant;
 	private Token token;
+	private String[] domains = new String[] {"customer.ondemand.com", "accounts400.ondemand.com"};
 
 	@Before
 	public void setup() {
-		cut = new JwtIssuerValidator(URI.create("https://accounts400.ondemand.com"));
-		cutMultiTenant = new JwtIssuerValidator(Collections.singletonList("accounts400.ondemand.com"));
+		cut = new JwtIssuerValidator(URI.create("https://paas.accounts400.ondemand.com"));
+		cutMultiTenant = new JwtIssuerValidator(Arrays.asList(domains));
 		token = Mockito.mock(Token.class);
 	}
 
@@ -48,14 +50,20 @@ public class JwtIssuerValidatorTest {
 
 	@Test
 	public void tokenIssuerMatchesIdentityProviderUrl() {
-		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com");
-		assertThat(cut.validate(token).isValid(), is(true));
+		when(token.getClaimAsString(ISSUER)).thenReturn("https://paas.accounts400.ondemand.com");
+		assertThat(cutMultiTenant.validate(token).isValid(), is(true));
 	}
 
 	@Test
 	public void tokenIssuerMatchesIdentityProviderDomain() {
 		when(token.getClaimAsString(ISSUER)).thenReturn("https://otherdomain.accounts400.ondemand.com");
 		assertThat(cutMultiTenant.validate(token).isValid(), is(true));
+	}
+
+	@Test
+	public void tokenIssuerDoesNotMatchIdentityProviderDomains() {
+		when(token.getClaimAsString(ISSUER)).thenReturn("https://otherdomain.test.ondemand.com");
+		assertThat(cutMultiTenant.validate(token).isValid(), is(false));
 	}
 
 	@Test
@@ -81,12 +89,12 @@ public class JwtIssuerValidatorTest {
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith(
-				"Issuer is not trusted because 'iss' 'https://accounts300.ondemand.com' does not match one of these domains '[accounts400.ondemand.com]' of the identity provider."));
+				"Issuer is not trusted because 'iss' 'https://accounts300.ondemand.com' does not match one of these domains '[paas.accounts400.ondemand.com]' of the identity provider."));
 	}
 
 	@Test
 	public void validationFails_whenTokenIssuerEndsWithIdentityProviderUrlQueryParameter() {
-		cut = new JwtIssuerValidator(URI.create("https://accounts400.ondemand.com/token/oauth"));
+		cut = new JwtIssuerValidator(Collections.singletonList("accounts400.ondemand.com"));
 		when(token.getClaimAsString(ISSUER)).thenReturn("https://otherDomain.org?accounts400.ondemand.com");
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));

@@ -195,7 +195,11 @@ public class JwtValidatorBuilder {
 				defaultValidators.add(new XsuaaJkuValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
 		} else if (configuration.getService() == IAS) {
-			defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
+			if(configuration.getDomains() != null) {
+				defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
+			} else {
+				defaultValidators.add(new JwtIssuerValidator(configuration.getUrl()));
+			}
 		}
 		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
 		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);
