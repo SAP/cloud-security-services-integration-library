@@ -96,7 +96,7 @@ public class OAuth2ServiceException extends IOException {
 
 		public OAuth2ServiceException build() {
 			String message = Stream
-					.of(this.message, createUriMessage(), createStatusCodeMessage(), createResponseBodyMessage())
+					.of(this.message, createUriMessage(), createStatusCodeMessage(), createResponseBodyMessage(), createHeaderMessage())
 					.filter(Objects::nonNull)
 					.collect(Collectors.joining(". "));
 			return new OAuth2ServiceException(message, httpStatusCode);
