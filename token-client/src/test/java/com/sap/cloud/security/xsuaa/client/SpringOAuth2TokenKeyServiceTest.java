@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestOperations;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.HttpMethod.GET;
 
 public class SpringOAuth2TokenKeyServiceTest {
 
@@ -59,7 +61,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI);
 
 		Mockito.verify(restOperationsMock, times(1))
-				.getForEntity(TOKEN_KEYS_ENDPOINT_URI, String.class);
+			.exchange(any(URI.class), eq(GET), any(HttpEntity.class), eq(String.class));
 	}
 
 	@Test
@@ -79,7 +81,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 	private void mockResponse(String responseAsString, HttpStatus httpStatus) {
 		ResponseEntity<String> stringResponseEntity = new ResponseEntity<>(responseAsString, httpStatus);
-		when(restOperationsMock.getForEntity(any(URI.class), eq(String.class)))
+		when(restOperationsMock.exchange(any(URI.class), eq(GET), any(HttpEntity.class), eq(String.class)))
 				.thenReturn(stringResponseEntity);
 	}
 

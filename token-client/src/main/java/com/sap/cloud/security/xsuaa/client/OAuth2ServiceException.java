@@ -61,6 +61,7 @@ public class OAuth2ServiceException extends IOException {
 		private Integer httpStatusCode;
 		private URI serverUri;
 		private String responseBody;
+		private String[] headers;
 
 		public OAuth2ServiceExceptionBuilder(String message) {
 			this.message = message;
@@ -88,6 +89,11 @@ public class OAuth2ServiceException extends IOException {
 			return this;
 		}
 
+		public OAuth2ServiceExceptionBuilder withHeaders(String... headers) {
+			this.headers = headers;
+			return this;
+		}
+
 		public OAuth2ServiceException build() {
 			String message = Stream
 					.of(this.message, createUriMessage(), createStatusCodeMessage(), createResponseBodyMessage())
@@ -106,6 +112,10 @@ public class OAuth2ServiceException extends IOException {
 
 		private String createUriMessage() {
 			return serverUri == null ? null : "Server URI " + serverUri;
+		}
+
+		private String createHeaderMessage() {
+			return headers == null ? null : "Headers " + headers;
 		}
 
 	}

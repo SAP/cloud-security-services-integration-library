@@ -151,10 +151,13 @@ public class SecurityTest
 
 	@Override
 	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) {
-		return JwtGenerator.getInstanceFromFile(service, tokenJsonResource)
-				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+		JwtGenerator jwtGenerator = JwtGenerator.getInstanceFromFile(service, tokenJsonResource)
 				.withClaimValue(TokenClaims.ISSUER, issuerUrl)
 				.withPrivateKey(keys.getPrivate());
+		if(XSUAA == service) {
+			jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl);
+		}
+		return jwtGenerator;
 	}
 
 	@Override

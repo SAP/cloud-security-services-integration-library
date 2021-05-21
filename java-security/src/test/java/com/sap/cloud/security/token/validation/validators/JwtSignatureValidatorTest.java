@@ -45,7 +45,7 @@ public class JwtSignatureValidatorTest {
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any()))
+				.retrieveTokenKeys(any(), any()))
 						.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
@@ -58,28 +58,28 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validate_throwsWhenTokenIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate(null, "RS256", "keyId", DUMMY_JKU_URI.toString(), null);
+			cut.validate(null, "RS256", "keyId", DUMMY_JKU_URI.toString(), null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
 	}
 
 	@Test
 	public void validate_throwsWhenAlgotithmIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate("eyJhbGciOiJSUzI1NiJ9", null, "keyId", DUMMY_JKU_URI.toString(), null);
+			cut.validate("eyJhbGciOiJSUzI1NiJ9", null, "keyId", DUMMY_JKU_URI.toString(), null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tokenAlgorithm");
 	}
 
 	@Test
 	public void validate_throwsWhenKeyIdIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "", DUMMY_JKU_URI.toString(), null);
+			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "", DUMMY_JKU_URI.toString(), null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tokenKeyId");
 	}
 
 	@Test
 	public void validate_throwsWhenKeysUrlIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "keyId", "", null);
+			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "keyId", "", null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tokenKeysUrl");
 	}
 
@@ -102,7 +102,7 @@ public class JwtSignatureValidatorTest {
 				.append(tokenHeaderPayloadSignature[1]).toString();
 
 		ValidationResult result = cut.validate(tokenWithNoSignature, "RS256", "key-id-1",
-				DUMMY_JKU_URI.toString(), null);
+				DUMMY_JKU_URI.toString(), null, null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString("Jwt token does not consist of 'header'.'payload'.'signature'."));
@@ -111,7 +111,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNotRSA256() {
 		ValidationResult validationResult = cut.validate(xsuaaToken.getTokenValue(), "ES123", "key-id-1",
-				"https://myauth.com/jwks_uri", null);
+				"https://myauth.com/jwks_uri", null, null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Jwt token with signature algorithm 'ES123' is not supported."));
@@ -120,7 +120,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNone() {
 		ValidationResult validationResult = cut.validate(xsuaaToken.getTokenValue(), "NONE", "key-id-1",
-				"https://myauth.com/jwks_uri", null);
+				"https://myauth.com/jwks_uri", null, null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Jwt token with signature algorithm 'NONE' is not supported."));
@@ -129,10 +129,10 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFails_whenOAuthServerIsUnavailable() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any())).thenThrow(OAuth2ServiceException.class);
+				.retrieveTokenKeys(any(), any())).thenThrow(OAuth2ServiceException.class);
 
 		ValidationResult result = cut.validate(xsuaaToken.getTokenValue(), "RS256", "key-id-1",
-				"http://unavailable.com/token_keys", null);
+				"http://unavailable.com/token_keys", null, null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString("Error retrieving Json Web Keys from Identity Service"));
@@ -147,6 +147,6 @@ public class JwtSignatureValidatorTest {
 		 * }
 		 */
 		String ecSignedToken = "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhdXRoMCJ9.4iVk3-Y0v4RT4_9IaQlp-8dZ_4fsTzIylgrPTDLrEvTHBTyVS3tgPbr2_IZfLETtiKRqCg0aQ5sh9eIsTTwB1g";
-		assertThat(cut.validate(ecSignedToken, "ES256", "key-id-1", null, null).isValid(), is(true));
+		assertThat(cut.validate(ecSignedToken, "ES256", "key-id-1", null, null, null).isValid(), is(true));
 	}
 }

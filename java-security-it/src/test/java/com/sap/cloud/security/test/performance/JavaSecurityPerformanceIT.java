@@ -81,7 +81,7 @@ public class JavaSecurityPerformanceIT {
 				.build();
 		return JwtValidatorBuilder.getInstance(configuration)
 				// oAuth2TokenKeyService mocked because verificationkey property is used for offline token validation
-				.withOAuth2TokenKeyService((uri) -> "{\"keys\": []}")
+				.withOAuth2TokenKeyService((uri, zoneId) -> "{\"keys\": []}")
 				.build();
 	}
 
