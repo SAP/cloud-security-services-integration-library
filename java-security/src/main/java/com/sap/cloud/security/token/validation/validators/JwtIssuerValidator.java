@@ -7,6 +7,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotEmpty;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 import java.net.URI;
@@ -46,7 +47,8 @@ class JwtIssuerValidator implements Validator<Token> {
 	 */
 	JwtIssuerValidator(URI url) {
 		assertNotNull(url, "JwtIssuerValidator requires a url.");
-		this.domains = Collections.singletonList(url.getHost());
+
+		this.domains = Collections.singletonList(getSubdomain(url));
 	}
 
 	/**
@@ -57,9 +59,20 @@ class JwtIssuerValidator implements Validator<Token> {
 	 *            {@link OAuth2ServiceConfiguration#getDomains()}
 	 */
 	JwtIssuerValidator(List<String> domains) {
-		assertNotNull(domains, "JwtIssuerValidator requires a domain.");
+		assertNotEmpty(domains, "JwtIssuerValidator requires a domain.");
 		this.domains = domains;
 	}
+
+	/**
+	 * Returns a url without the subdomain. If no subdomain exists, just returns the same url
+	 * @param {string} fullUrl - Example:  https://sub.domain.com
+	 * @returns {string} - Url without subdomain - Example: https://domain.com
+	 */
+	private static String getSubdomain(URI uri) {
+		String host = uri.getHost();
+		return host.replaceFirst(host.split("\\.")[0]+".", "");
+	}
+
 
 	@Override
 	public ValidationResult validate(Token token) {

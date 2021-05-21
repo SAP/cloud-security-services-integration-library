@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -45,6 +46,10 @@ public class JwtIssuerValidatorTest {
 
 		assertThatThrownBy(() -> {
 			new JwtIssuerValidator((List<String>) null);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "domain");
+
+		assertThatThrownBy(() -> {
+			new JwtIssuerValidator(new ArrayList<>());
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "domain");
 	}
 
@@ -89,7 +94,7 @@ public class JwtIssuerValidatorTest {
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith(
-				"Issuer is not trusted because 'iss' 'https://accounts300.ondemand.com' does not match one of these domains '[paas.accounts400.ondemand.com]' of the identity provider."));
+				"Issuer is not trusted because 'iss' 'https://accounts300.ondemand.com' does not match one of these domains '[accounts400.ondemand.com]' of the identity provider."));
 	}
 
 	@Test
