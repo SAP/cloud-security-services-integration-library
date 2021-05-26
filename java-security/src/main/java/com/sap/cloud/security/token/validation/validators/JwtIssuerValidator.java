@@ -64,15 +64,17 @@ class JwtIssuerValidator implements Validator<Token> {
 	}
 
 	/**
-	 * Returns a url without the subdomain. If no subdomain exists, just returns the same url
-	 * @param {string} fullUrl - Example:  https://sub.domain.com
+	 * Returns a url without the subdomain. If no subdomain exists, just returns the
+	 * same url
+	 * 
+	 * @param {string}
+	 *            fullUrl - Example: https://sub.domain.com
 	 * @returns {string} - Url without subdomain - Example: https://domain.com
 	 */
 	private static String getSubdomain(URI uri) {
 		String host = uri.getHost();
-		return host.replaceFirst(host.split("\\.")[0]+".", "");
+		return host.replaceFirst(host.split("\\.")[0] + ".", "");
 	}
-
 
 	@Override
 	public ValidationResult validate(Token token) {
@@ -94,7 +96,7 @@ class JwtIssuerValidator implements Validator<Token> {
 			}
 			issuerUri = new URI(issuer);
 			if (issuerUri.getQuery() == null && issuerUri.getFragment() == null && issuerUri.getHost() != null) {
-				for(String d: domains) {
+				for (String d : domains) {
 					if (issuerUri.getHost().endsWith(d)) {
 						return createValid();
 					}

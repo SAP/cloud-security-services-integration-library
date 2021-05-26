@@ -191,7 +191,7 @@ public interface Token extends Serializable {
 	 * @return the grant type
 	 **/
 	@Nullable
-	default GrantType getGrantType(){
+	default GrantType getGrantType() {
 		return GrantType.from(getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE));
 	}
 

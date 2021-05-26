@@ -64,7 +64,8 @@ public class SpringOAuth2TokenKeyServiceTest {
 		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID);
 
 		Mockito.verify(restOperationsMock, times(1))
-			.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), argThat(httpEntityContainsZoneIdHeader()), eq(String.class));
+				.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), argThat(httpEntityContainsZoneIdHeader()),
+						eq(String.class));
 	}
 
 	@Test

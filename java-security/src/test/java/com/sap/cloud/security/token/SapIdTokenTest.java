@@ -27,7 +27,8 @@ public class SapIdTokenTest {
 
 	@Test
 	public void constructor_raiseIllegalArgumentExceptions() {
-		assertThatThrownBy(() -> new SapIdToken("")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("jwtToken must not be null / empty");
+		assertThatThrownBy(() -> new SapIdToken("")).isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("jwtToken must not be null / empty");
 
 		assertThatThrownBy(() -> new SapIdToken("abc")).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");
@@ -51,7 +52,7 @@ public class SapIdTokenTest {
 	}
 
 	@Test
-	public void getCnfThumbprint(){
+	public void getCnfThumbprint() {
 		assertThat(cut.getCnfX509Thumbprint()).isNull();
 		assertThat(cut2.getCnfX509Thumbprint()).isEqualTo("2blWiJDH07q0b2qEwShOIxtt10CkZ5xdDw4Vbs8ddoI");
 	}

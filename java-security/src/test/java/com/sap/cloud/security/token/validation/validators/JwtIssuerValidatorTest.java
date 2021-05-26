@@ -29,7 +29,7 @@ public class JwtIssuerValidatorTest {
 	private JwtIssuerValidator cut;
 	private JwtIssuerValidator cutMultiTenant;
 	private Token token;
-	private String[] domains = new String[] {"customer.ondemand.com", "accounts400.ondemand.com"};
+	private String[] domains = new String[] { "customer.ondemand.com", "accounts400.ondemand.com" };
 
 	@Before
 	public void setup() {

@@ -156,7 +156,8 @@ class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
-				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, @Nullable String fallbackPublicKey, @Nullable String zoneId) {
+				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, @Nullable String fallbackPublicKey,
+				@Nullable String zoneId) {
 			ValidationResult validationResult;
 
 			validationResult = setSupportedJwtAlgorithm(tokenAlgorithm);

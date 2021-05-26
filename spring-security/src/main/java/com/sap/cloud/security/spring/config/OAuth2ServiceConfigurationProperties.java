@@ -80,7 +80,9 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 		return getConfiguration().getUrl();
 	}
 
-	public List<String> getDomains() { return getConfiguration().getDomains(); }
+	public List<String> getDomains() {
+		return getConfiguration().getDomains();
+	}
 
 	public void setDomains(String... domains) {
 		builder.withDomains(domains);

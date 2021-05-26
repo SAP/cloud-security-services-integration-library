@@ -223,7 +223,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 
 	private void retrieveTokenKeysAndFillCache(URI jwksUri, String zoneId)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(getTokenKeyService().retrieveTokenKeys(jwksUri, zoneId));
+		JsonWebKeySet keySet = JsonWebKeySetFactory
+				.createFromJson(getTokenKeyService().retrieveTokenKeys(jwksUri, zoneId));
 		if (keySet == null) {
 			return;
 		}
@@ -272,7 +273,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		return getCacheConfiguration().isCacheStatisticsEnabled() ? getCache().stats() : null;
 	}
 
-	public static String getUniqueCacheKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI jwksUri, String zoneId) {
+	public static String getUniqueCacheKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI jwksUri,
+			String zoneId) {
 		return jwksUri + String.valueOf(JsonWebKeyImpl.calculateUniqueId(keyAlgorithm, keyId)) + zoneId;
 	}
 

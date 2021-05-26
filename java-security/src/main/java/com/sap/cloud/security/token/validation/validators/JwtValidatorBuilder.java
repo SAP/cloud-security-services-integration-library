@@ -195,7 +195,7 @@ public class JwtValidatorBuilder {
 				defaultValidators.add(new XsuaaJkuValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
 		} else if (configuration.getService() == IAS) {
-			if(configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {
+			if (configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {
 				defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
 			} else {
 				// TOOD delete as soon as domains is given with IAS binding
