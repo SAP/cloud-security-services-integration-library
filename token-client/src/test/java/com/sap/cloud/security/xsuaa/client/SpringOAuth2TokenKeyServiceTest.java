@@ -5,9 +5,11 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,7 @@ import static org.springframework.http.HttpMethod.GET;
 public class SpringOAuth2TokenKeyServiceTest {
 
 	public static final URI TOKEN_KEYS_ENDPOINT_URI = URI.create("https://token.endpoint.io/token_keys");
+	public static final String ZONE_UUID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
 	private RestOperations restOperationsMock;
 	private SpringOAuth2TokenKeyService cut;
 
@@ -37,7 +40,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 	}
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		restOperationsMock = mock(RestOperations.class);
 		cut = new SpringOAuth2TokenKeyService(restOperationsMock);
 	}
@@ -50,7 +53,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 	@Test
 	public void retrieveTokenKeys_endpointUriIsNull_throwsException() throws OAuth2ServiceException {
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(null))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, ZONE_UUID))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -58,17 +61,17 @@ public class SpringOAuth2TokenKeyServiceTest {
 	public void retrieveTokenKeys_usesGivenURI() throws OAuth2ServiceException {
 		mockResponse();
 
-		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI);
+		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID);
 
 		Mockito.verify(restOperationsMock, times(1))
-			.exchange(any(URI.class), eq(GET), any(HttpEntity.class), eq(String.class));
+			.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), argThat(httpEntityContainsZoneIdHeader()), eq(String.class));
 	}
 
 	@Test
 	public void retrieveTokenKeys_badResponse_throwsException() {
 		String errorMessage = "useful error message";
 		mockResponse(errorMessage, HttpStatus.BAD_REQUEST);
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
 				.hasMessageContaining(String.valueOf(HttpStatus.BAD_REQUEST.value()))
@@ -83,6 +86,10 @@ public class SpringOAuth2TokenKeyServiceTest {
 		ResponseEntity<String> stringResponseEntity = new ResponseEntity<>(responseAsString, httpStatus);
 		when(restOperationsMock.exchange(any(URI.class), eq(GET), any(HttpEntity.class), eq(String.class)))
 				.thenReturn(stringResponseEntity);
+	}
+
+	private ArgumentMatcher<HttpEntity> httpEntityContainsZoneIdHeader() {
+		return (httpGet) -> httpGet.getHeaders().getFirst(HttpHeaders.X_ZONE_UUID).equals(ZONE_UUID);
 	}
 
 }

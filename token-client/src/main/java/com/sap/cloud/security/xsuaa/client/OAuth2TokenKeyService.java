@@ -23,7 +23,7 @@ public interface OAuth2TokenKeyService {
 	 */
 	@Deprecated
 	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri) throws OAuth2ServiceException {
-		return retrieveTokenKeys(tokenKeysEndpointUri, null);
+		throw new UnsupportedOperationException("for security reason this internal method was replaced with retrieveTokenKeys(<jwks_url>, <zone_uuid>)");
 	}
 
 	/**

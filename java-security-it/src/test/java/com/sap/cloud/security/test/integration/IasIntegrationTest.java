@@ -35,7 +35,7 @@ public class IasIntegrationTest {
 				.build();
 
 		Token iasToken = rule.getJwtGeneratorFromFile("/ias-simple/token.json")
-				//.withClaimValue("iss", "https://application.myauth.com") // this is to update token in java-security/src/test/resources/iasOidcTokenRSA256.txt
+				//.withClaimValue("iss", "https://application.myauth.com") // required for java-security/src/test/resources/iasOidcTokenRSA256.txt
 				.createToken();
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 

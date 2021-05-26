@@ -91,7 +91,7 @@ public class XsuaaIntegrationTest {
 		String publicKey = IOUtils.resourceToString("/publicKey.txt", StandardCharsets.UTF_8);
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(XSUAA)
-				.withDomains(DEFAULT_DOMAIN)
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, DEFAULT_DOMAIN)
 				.withClientId(DEFAULT_CLIENT_ID)
 				.withProperty(VERIFICATION_KEY, publicKey)
 				.build();

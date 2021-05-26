@@ -33,6 +33,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		try {
 			MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+			headers.add(X_ZONE_UUID, zoneId);
 			ResponseEntity<String> response = restOperations.exchange(
 					tokenKeysEndpointUri, GET, new HttpEntity<>(headers), String.class);
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
