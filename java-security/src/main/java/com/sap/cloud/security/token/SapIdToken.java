@@ -38,7 +38,7 @@ public class SapIdToken extends AbstractToken {
 	}
 
 	@Nullable
-	public String getCnfX509Thumbprint(){
+	public String getCnfX509Thumbprint() {
 		return getAttributeFromClaimAsString(TokenClaims.CNF, TokenClaims.CNF_X509_THUMBPRINT);
 	}
 }
