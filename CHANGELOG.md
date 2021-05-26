@@ -1,5 +1,6 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+
 ## 2.8.13
 - [token-client] **Bug fix** As of now, client-credential and jwt bearer user tokens are not cached in case tokenflow is configured with zone-id (instead of subdomain).
 - [java-security] provides `SapIdToken.getCnfX509Thumbprint()` method to provide thumbprint of certificate, in case token was requested via X509 based authentication.
