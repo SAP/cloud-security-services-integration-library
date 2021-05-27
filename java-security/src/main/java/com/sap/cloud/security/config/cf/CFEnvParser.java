@@ -75,10 +75,8 @@ class CFEnvParser {
 					.withProperty(SERVICE_PLAN, serviceBindingProperties.get(SERVICE_PLAN))
 					.runInLegacyMode(isLegacyMode);
 			if (Service.IAS == service) {
-				if (Service.IAS == service) {
-					builder.withDomains(serviceJsonObject.getJsonObject(CREDENTIALS).getAsStringList(DOMAINS)
-							.toArray(new String[0]));
-				}
+				builder.withDomains(serviceJsonObject.getJsonObject(CREDENTIALS).getAsStringList(DOMAINS)
+						.toArray(new String[0]));
 			}
 			return builder.build();
 		} catch (JsonParsingException e) {

@@ -62,7 +62,10 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID))
 				.isInstanceOf(OAuth2ServiceException.class)
-				.hasMessageContaining(errorDescription);
+				.hasMessageContaining(errorDescription)
+				.hasMessageContaining("'Something went wrong'")
+				.hasMessageContaining("Error retrieving token keys")
+	            .hasMessageContaining("Headers [x-zone_uuid=92768714-4c2e-4b79-bc1b-009a4127ee3c]");
 	}
 
 	@Test

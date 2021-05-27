@@ -7,13 +7,13 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.xsuaa.client.*;
 import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -25,47 +25,57 @@ import static java.nio.charset.StandardCharsets.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class JwtSignatureValidatorTest {
-	private Token xsuaaToken;
-	private static final URI DUMMY_JKU_URI = URI.create("https://myauth.com/jwks_uri");
+	private Token iasToken;
+	private Token iasPaasToken;
+	private static final URI DUMMY_JKU_URI = URI.create("https://application.myauth.com/jwks_uri");
+	private static final String DUMMY_ZONE_ID = "the-zone_id";
 
 	private JwtSignatureValidator cut;
 	private OAuth2TokenKeyService tokenKeyServiceMock;
-	private OAuth2ServiceConfiguration mockConfiguration;
 
 	@Before
 	public void setup() throws IOException {
-		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
-
-		mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
-		when(mockConfiguration.getService()).thenReturn(Service.XSUAA);
+		//no zone-id but iss host == jwks host
+		iasPaasToken = new SapIdToken("eyJraWQiOiJkZWZhdWx0LWtpZCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJQMTc2OTQ1IiwiYXVkIjoiVDAwMDMxMCIsInVzZXJfdXVpZCI6IjEyMzQ1Njc4OTAiLCJpc3MiOiJodHRwczovL2FwcGxpY2F0aW9uLm15YXV0aC5jb20iLCJleHAiOjY5NzQwMzE2MDAsImdpdmVuX25hbWUiOiJqb2huIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5vcmciLCJjaWQiOiJUMDAwMzEwIn0.Svrb5PriAuHOdhTFXiicr_qizHiby6b73SdovJAFnWCPDr0r8mmFoEWXjJmdLdw08daNzt8ww_r2khJ-rusUZVfiZY3kyRV1hfeChpNROGfmGbfN62KSsYBPi4dBMIGRz8SqkF6nw5nTC-HOr7Gd8mtZjG9KZYC5fKYOYRvbAZN_xyvLDzFUE6LgLmiT6fV7fHPQi5NSUfawpWQbIgK2sJjnp-ODTAijohyxQNuF4Lq1Prqzjt2QZRwvbskTcYM3gK5fgt6RYDN6MbARJIVFsb1Y7wZFg00dp2XhdFzwWoQl6BluvUL8bL73A8iJSam0csm1cuG0A7kMF9spy_whQw");
+		iasToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
+		
+		OAuth2ServiceConfiguration mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		when(mockConfiguration.getService()).thenReturn(Service.IAS);
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(any(), any()))
-						.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+
+		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
+		when(endpointsProviderMock.getJwksUri()).thenReturn(DUMMY_JKU_URI);
+
+		OidcConfigurationService oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
+		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,
 				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
 				OidcConfigurationServiceWithCache.getInstance()
-						.withOidcConfigurationService(Mockito.mock(OidcConfigurationService.class)));
+						.withOidcConfigurationService(oidcConfigServiceMock));
 	}
 
 	@Test
 	public void validate_throwsWhenTokenIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate(null, "RS256", "keyId", DUMMY_JKU_URI.toString(), null, null);
+			cut.validate(null, "RS256", "default-kid-ias", DUMMY_JKU_URI.toString(), null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
 	}
 
 	@Test
-	public void validate_throwsWhenAlgotithmIsNull() {
+	public void validate_throwsWhenAlgorithmIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate("eyJhbGciOiJSUzI1NiJ9", null, "keyId", DUMMY_JKU_URI.toString(), null, null);
+			cut.validate("eyJhbGciOiJSUzI1NiJ9", null, "default-kid-ias", DUMMY_JKU_URI.toString(), null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tokenAlgorithm");
 	}
 
@@ -79,29 +89,42 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validate_throwsWhenKeysUrlIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "keyId", "", null, null);
+			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "default-kid-ias", "", null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tokenKeysUrl");
 	}
 
 	@Test
+	public void validationFails_WhenZoneIdIsNull() {
+		ValidationResult validationResult = cut.validate(iasPaasToken);
+		assertTrue(validationResult.isErroneous());
+		assertThat(validationResult.getErrorDescription(),
+				startsWith("Error occurred during signature validation: IAS must provide zone_uuid."));
+	}
+
+	@Test
+	public void validate() {
+		assertTrue(cut.validate(iasToken).isValid());
+	}
+
+	@Test
 	public void validationFails_whenJwtPayloadModified() {
-		String[] tokenHeaderPayloadSignature = xsuaaToken.getTokenValue().split(Pattern.quote("."));
+		String[] tokenHeaderPayloadSignature = iasToken.getTokenValue().split(Pattern.quote("."));
 		String tokenWithOthersSignature = new StringBuilder("eyJhbGciOiJSUzI1NiJ9")
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(new XsuaaToken(tokenWithOthersSignature)).isErroneous(), is(true));
+		assertThat(cut.validate(new SapIdToken(tokenWithOthersSignature)).isErroneous(), is(true));
 	}
 
 	@Test
 	public void validationFails_whenJwtProvidesNoSignature() {
-		String[] tokenHeaderPayloadSignature = xsuaaToken.getTokenValue().split(Pattern.quote("."));
+		String[] tokenHeaderPayloadSignature = iasToken.getTokenValue().split(Pattern.quote("."));
 		String tokenWithNoSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
 
-		ValidationResult result = cut.validate(tokenWithNoSignature, "RS256", "key-id-1",
+		ValidationResult result = cut.validate(tokenWithNoSignature, "RS256", "default-kid-ias",
 				DUMMY_JKU_URI.toString(), null, null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
@@ -110,7 +133,7 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNotRSA256() {
-		ValidationResult validationResult = cut.validate(xsuaaToken.getTokenValue(), "ES123", "key-id-1",
+		ValidationResult validationResult = cut.validate(iasToken.getTokenValue(), "ES123", "default-kid-ias",
 				"https://myauth.com/jwks_uri", null, null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
@@ -119,7 +142,7 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNone() {
-		ValidationResult validationResult = cut.validate(xsuaaToken.getTokenValue(), "NONE", "key-id-1",
+		ValidationResult validationResult = cut.validate(iasToken.getTokenValue(), "NONE", "default-kid-ias",
 				"https://myauth.com/jwks_uri", null, null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
@@ -131,22 +154,11 @@ public class JwtSignatureValidatorTest {
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(any(), any())).thenThrow(OAuth2ServiceException.class);
 
-		ValidationResult result = cut.validate(xsuaaToken.getTokenValue(), "RS256", "key-id-1",
+		ValidationResult result = cut.validate(iasToken.getTokenValue(), "RS256", "default-kid-ias",
 				"http://unavailable.com/token_keys", null, null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString("Error retrieving Json Web Keys from Identity Service"));
 	}
 
-	@Test
-	@Ignore // Not yet supported
-	public void jsonECSignatureMatchesJWKS() {
-		/*
-		 * { "kty": "EC", "kid": "key-id-1", "alg": "ES256", "value":
-		 * "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQgb5npLHd0Bk61bNnjK632uwmBfr\nF7I8hoPgaOZjyhh+BrPDO6CL6D/aW/yPObXXm7SpZogmRwGROcOA3yUleg==\n-----END PUBLIC KEY-----"
-		 * }
-		 */
-		String ecSignedToken = "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhdXRoMCJ9.4iVk3-Y0v4RT4_9IaQlp-8dZ_4fsTzIylgrPTDLrEvTHBTyVS3tgPbr2_IZfLETtiKRqCg0aQ5sh9eIsTTwB1g";
-		assertThat(cut.validate(ecSignedToken, "ES256", "key-id-1", null, null, null).isValid(), is(true));
-	}
 }

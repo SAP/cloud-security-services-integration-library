@@ -85,7 +85,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 	private void mockResponse(String responseAsString, HttpStatus httpStatus) {
 		ResponseEntity<String> stringResponseEntity = new ResponseEntity<>(responseAsString, httpStatus);
-		when(restOperationsMock.exchange(any(URI.class), eq(GET), any(HttpEntity.class), eq(String.class)))
+		when(restOperationsMock.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class)))
 				.thenReturn(stringResponseEntity);
 	}
 

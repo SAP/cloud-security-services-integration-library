@@ -7,6 +7,9 @@ package com.sap.cloud.security.xsuaa;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AssertionsTest {
@@ -43,5 +46,22 @@ public class AssertionsTest {
 	@Test
 	public void assertHasText_doesNotThrow() {
 		Assertions.assertHasText(" s ", "Should not be thrown");
+	}
+
+	@Test
+	public void assertNotEmpty_doesNotThrow() {
+		Assertions.assertNotEmpty(Collections.singletonList("one entry"), "Should not be thrown");
+	}
+
+	@Test
+	public void assertNotEmpty_throwsIllegalArgumentExceptionContainingMessage() {
+		String message = "A message";
+		assertThatThrownBy(() -> {
+			Assertions.assertNotEmpty(null, message);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessage(message);
+
+		assertThatThrownBy(() -> {
+			Assertions.assertNotEmpty(new ArrayList<>(), message);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessage(message);
 	}
 }

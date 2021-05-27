@@ -42,8 +42,8 @@ public class OAuth2ServiceException extends IOException {
 	 * @param message
 	 *            the error message
 	 */
-	public static OAuth2ServiceExceptionBuilder builder(String message) {
-		return new OAuth2ServiceExceptionBuilder(message);
+	public static Builder builder(String message) {
+		return new Builder(message);
 	}
 
 	/**
@@ -56,14 +56,14 @@ public class OAuth2ServiceException extends IOException {
 		return httpStatusCode;
 	}
 
-	public static class OAuth2ServiceExceptionBuilder {
+	public static class Builder {
 		private String message;
 		private Integer httpStatusCode;
 		private URI serverUri;
 		private String responseBody;
-		private String[] headers;
+		private String headers;
 
-		public OAuth2ServiceExceptionBuilder(String message) {
+		public Builder(String message) {
 			this.message = message;
 		}
 
@@ -74,23 +74,27 @@ public class OAuth2ServiceException extends IOException {
 		 *            the http status code
 		 * @return the builder
 		 */
-		public OAuth2ServiceExceptionBuilder withStatusCode(int httpStatusCode) {
+		public Builder withStatusCode(int httpStatusCode) {
 			this.httpStatusCode = httpStatusCode;
 			return this;
 		}
 
-		public OAuth2ServiceExceptionBuilder withUri(URI serverUri) {
+		public Builder withUri(URI serverUri) {
 			this.serverUri = serverUri;
 			return this;
 		}
 
-		public OAuth2ServiceExceptionBuilder withResponseBody(String responseBody) {
+		public Builder withResponseBody(String responseBody) {
 			this.responseBody = responseBody;
 			return this;
 		}
 
-		public OAuth2ServiceExceptionBuilder withHeaders(String... headers) {
-			this.headers = headers;
+		public Builder withHeaders(String... headers) {
+			this.headers = "[";
+			for (String header: headers) {
+				this.headers += header;
+			}
+			this.headers += "]";
 			return this;
 		}
 
@@ -104,7 +108,7 @@ public class OAuth2ServiceException extends IOException {
 		}
 
 		private String createResponseBodyMessage() {
-			return responseBody == null ? null : "Response body " + responseBody;
+			return responseBody == null ? null : "Response body '" + responseBody +"'";
 		}
 
 		private String createStatusCodeMessage() {

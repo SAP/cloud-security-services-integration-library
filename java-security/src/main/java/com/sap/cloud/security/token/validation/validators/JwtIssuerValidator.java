@@ -44,11 +44,13 @@ class JwtIssuerValidator implements Validator<Token> {
 	 * @param url
 	 *            the url of the identity provider
 	 *            {@link OAuth2ServiceConfiguration#getProperty(String)}
+	 * @deprecated will be removed soon after the domains are visible in the binding
 	 */
+	@Deprecated
 	JwtIssuerValidator(URI url) {
 		assertNotNull(url, "JwtIssuerValidator requires a url.");
 
-		this.domains = Collections.singletonList(getSubdomain(url));
+		this.domains = Collections.singletonList(url.getHost());
 	}
 
 	/**
@@ -59,22 +61,22 @@ class JwtIssuerValidator implements Validator<Token> {
 	 *            {@link OAuth2ServiceConfiguration#getDomains()}
 	 */
 	JwtIssuerValidator(List<String> domains) {
-		assertNotEmpty(domains, "JwtIssuerValidator requires a domain.");
+		assertNotEmpty(domains, "JwtIssuerValidator requires a domain(s).");
 		this.domains = domains;
 	}
 
 	/**
-	 * Returns a url without the subdomain. If no subdomain exists, just returns the
-	 * same url
-	 * 
+	 * Extracts the domain from a url without the subdomain.
+	 * If no subdomain exists, just returns the host.
+	 *
 	 * @param {string}
 	 *            fullUrl - Example: https://sub.domain.com
-	 * @returns {string} - Url without subdomain - Example: https://domain.com
+	 * @returns {string} - host without subdomain - Example: domain.com
 	 */
-	private static String getSubdomain(URI uri) {
+	/*private static String getSubdomain(URI uri) {
 		String host = uri.getHost();
 		return host.replaceFirst(host.split("\\.")[0] + ".", "");
-	}
+	}*/
 
 	@Override
 	public ValidationResult validate(Token token) {
