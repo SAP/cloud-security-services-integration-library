@@ -31,10 +31,11 @@ public class IasIntegrationTest {
 	@Test
 	public void iasTokenValidationSucceeds_withIasCombiningValidator() throws IOException {
 		OAuth2ServiceConfiguration configuration = rule
-				.getConfigurationBuilderFromFile("/ias-simple/vcap_services-single.json")
+				.getOAuth2ServiceConfigurationBuilderFromFile("/ias-simple/vcap_services-single.json")
 				.build();
 
 		Token iasToken = rule.getJwtGeneratorFromFile("/ias-simple/token.json")
+				//.withClaimValue("iss", "https://application.myauth.com") // required for java-security/src/test/resources/iasOidcTokenRSA256.txt
 				.createToken();
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 

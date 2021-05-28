@@ -19,6 +19,27 @@ public interface OAuth2TokenKeyService {
 	 *         JSON string.
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
+	 * @deprecated replace with {@link #retrieveTokenKeys(URI, String)}
 	 */
-	String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri) throws OAuth2ServiceException;
+	@Deprecated
+	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri) throws OAuth2ServiceException {
+		throw new UnsupportedOperationException(
+				"for security reason this internal method was replaced with retrieveTokenKeys(<jwks_url>, <zone_uuid>)");
+	}
+
+	/**
+	 * Requests token web key set from OAuth Server.
+	 *
+	 * @param tokenKeysEndpointUri
+	 *            the token endpoint URI (jku).
+	 * @param zoneId
+	 *            the zone uuid of the tenant. Obligatory parameter in context of
+	 *            multi-tenant IAS applications to make sure that the zone uuid
+	 *            belongs to the IAS tenant.
+	 * @return An endpoint which returns the list of JSON Web Token (JWT) keys as
+	 *         JSON string.
+	 * @throws OAuth2ServiceException
+	 *             in case of an error during the http request.
+	 */
+	String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, String zoneId) throws OAuth2ServiceException;
 }

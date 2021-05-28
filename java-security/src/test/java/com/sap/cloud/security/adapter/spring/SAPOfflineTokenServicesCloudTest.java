@@ -8,7 +8,6 @@ package com.sap.cloud.security.adapter.spring;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResults;
@@ -33,6 +32,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
+import static com.sap.cloud.security.config.cf.CFConstants.*;
 
 public class SAPOfflineTokenServicesCloudTest {
 
@@ -53,9 +53,9 @@ public class SAPOfflineTokenServicesCloudTest {
 	public void setUp() {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
-				.withProperty(CFConstants.XSUAA.APP_ID, "testApp")
-				.withProperty(CFConstants.CLIENT_ID, "clientId-offline")
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "localhost")
+				.withProperty(XSUAA.APP_ID, "testApp")
+				.withProperty(CLIENT_ID, "clientId-offline")
+				.withDomains("localhost")
 				.build();
 
 		jwtValidatorBuilderSpy = Mockito.spy(JwtValidatorBuilder.getInstance(configuration));
@@ -99,7 +99,7 @@ public class SAPOfflineTokenServicesCloudTest {
 	public void loadAuthentication_iasToken_throwsException() {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.IAS)
-				.withProperty(CFConstants.CLIENT_ID, "clientId")
+				.withProperty(CLIENT_ID, "clientId")
 				.build();
 
 		cut = new SAPOfflineTokenServicesCloud(configuration, jwtValidatorBuilderSpy);

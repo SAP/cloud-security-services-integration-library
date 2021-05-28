@@ -54,7 +54,7 @@ public class JsonWebKeySetFactoryTest {
 
 	@Test
 	public void getIasKeys() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-		jsonWebTokenKeys = IOUtils.resourceToString("/iasJsonWebTokenKeys.json", StandardCharsets.UTF_8);
+		jsonWebTokenKeys = IOUtils.resourceToString("/iasJsonWebTokenKeys_noKid.json", StandardCharsets.UTF_8);
 		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJson(jsonWebTokenKeys);
 		JsonWebKey jwk = jwks.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, null);
 		assertThat(jwk.getKeyAlgorithm().type(), equalTo("RSA"));

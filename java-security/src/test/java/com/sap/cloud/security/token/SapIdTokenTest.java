@@ -47,7 +47,7 @@ public class SapIdTokenTest {
 	@Test
 	public void getAudiences() {
 		assertThat(cut.getAudiences()).isNotEmpty();
-		assertThat(cut.getAudiences()).hasSize(1);
+		assertThat(cut.getAudiences()).hasSize(2);
 		assertThat(cut.getAudiences()).contains("T000310");
 	}
 

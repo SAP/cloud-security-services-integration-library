@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -29,7 +30,8 @@ import static org.mockito.Mockito.when;
 
 public class DefaultOAuth2TokenKeyServiceTest {
 
-	public static final URI TOKEN_ENDPOINT_URI = URI.create("https://tokenKeys.io/token_keys");
+	public static final URI TOKEN_KEYS_ENDPOINT_URI = URI.create("https://tokenKeys.io/token_keys");
+	public static final String ZONE_UUID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
 	private final String jsonWebKeysAsString;
 
 	private DefaultOAuth2TokenKeyService cut;
@@ -53,19 +55,22 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 	@Test
 	public void retrieveTokenKeys_responseNotOk_throwsException() throws IOException {
-		String errorDescription = "Something wen't wrong";
+		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
 		when(httpClient.execute(any())).thenReturn(response);
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_ENDPOINT_URI))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID))
 				.isInstanceOf(OAuth2ServiceException.class)
-				.hasMessageContaining(errorDescription);
+				.hasMessageContaining(errorDescription)
+				.hasMessageContaining("'Something went wrong'")
+				.hasMessageContaining("Error retrieving token keys")
+	            .hasMessageContaining("Headers [x-zone_uuid=92768714-4c2e-4b79-bc1b-009a4127ee3c]");
 	}
 
 	@Test
 	public void retrieveTokenKeys_tokenEndpointUriIsNull_throwsException() {
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(null))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, ZONE_UUID))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -74,7 +79,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorMessage = "useful error message";
 		when(httpClient.execute(any())).thenThrow(new IOException(errorMessage));
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_ENDPOINT_URI))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorMessage);
 	}
@@ -83,10 +88,9 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	public void retrieveTokenKeys_executesHttpGetRequestWithCorrectURI() throws IOException {
 		mockResponse();
 
-		cut.retrieveTokenKeys(TOKEN_ENDPOINT_URI);
+		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID);
 
 		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()));
-
 	}
 
 	private CloseableHttpResponse mockResponse() throws IOException {
@@ -97,9 +101,10 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 	private ArgumentMatcher<HttpUriRequest> isHttpGetAndContainsCorrectURI() {
 		return (httpGet) -> {
-			boolean hasCorrectURI = httpGet.getURI().equals(TOKEN_ENDPOINT_URI);
+			boolean hasCorrectURI = httpGet.getURI().equals(TOKEN_KEYS_ENDPOINT_URI);
 			boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
-			return hasCorrectURI && correctMethod;
+			boolean correctZoneHeader = httpGet.getFirstHeader(HttpHeaders.X_ZONE_UUID).getValue().equals(ZONE_UUID);
+			return hasCorrectURI && correctMethod && correctZoneHeader;
 		};
 	}
 }

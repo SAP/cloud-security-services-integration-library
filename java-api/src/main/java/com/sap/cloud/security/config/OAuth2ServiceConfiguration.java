@@ -8,6 +8,7 @@ package com.sap.cloud.security.config;
 import javax.annotation.Nullable;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,6 +37,13 @@ public interface OAuth2ServiceConfiguration {
 	 * @return base url, e.g. https://paastenant.idservice.com
 	 */
 	URI getUrl();
+
+	/**
+	 * Domains of the OAuth2 identity service instance.
+	 *
+	 * @return list of domain, e.g."idservice.com".
+	 */
+	List<String> getDomains();
 
 	/**
 	 * Returns the value of the given property as string.

@@ -225,17 +225,16 @@ In case of local testing, there might be no ``VCAP_SERVICES`` system environment
 Go to `application.yml` and provide for example the following configuration:
 ```yaml
 sap.security.services:
+    identity:
+      clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
+      domains:   
+        - localhost          # SecurityTest.DEFAULT_DOMAIN
     xsuaa: # required in case of xsuaa
       xsappname: xsapp!t0815        # SecurityTest.DEFAULT_APP_ID
       uaadomain: localhost          # SecurityTest.DEFAULT_DOMAIN
       clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
       url:       http://localhost   # SecurityTest.DEFAULT_URL
     # clientsecret:  required for token-flows api
-    
-    identity:
-      clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
-      domain:    localhost          # SecurityTest.DEFAULT_DOMAIN
-      url:       http://localhost   # SecurityTest.DEFAULT_URL
 ```  
 	
 

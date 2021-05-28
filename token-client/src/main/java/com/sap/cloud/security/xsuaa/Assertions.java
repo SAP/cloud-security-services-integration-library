@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import java.util.List;
+
 public class Assertions {
 
 	private Assertions() {
@@ -18,6 +20,12 @@ public class Assertions {
 
 	public static void assertHasText(String string, String message) {
 		if (string == null || string.trim().isEmpty()) {
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	public static void assertNotEmpty(List<String> list, String message) {
+		if (list == null || list.isEmpty()) {
 			throw new IllegalArgumentException(message);
 		}
 	}

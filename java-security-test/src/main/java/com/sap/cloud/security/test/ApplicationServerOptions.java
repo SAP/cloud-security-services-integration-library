@@ -69,6 +69,7 @@ public class ApplicationServerOptions {
 					.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
 							.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
 							.withUrl("http://localhost")
+							.withDomains("localhost")
 							.build()));
 			break;
 		default:

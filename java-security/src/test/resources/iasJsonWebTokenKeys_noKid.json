@@ -2,7 +2,6 @@
   "keys": [
     {
       "kty": "RSA",
-      "kid": "default-kid-ias",
       "e": "AQAB",
       "use": "sig",
       "n": "AJtUGmczI7RHx3Ypqxz9_9mK_tc-vOXojlJcMm0VRvYvMLIDlIfj1BrkC_IYLpS2Vl1OTG8AS0xAgBDEG3EUzVU6JZKuIuuxD-iXrBySBQA2ytTYtCrjHD7osji7wyogxDJ2BtVz9191gjX7AlU_WKFPpViK2a_2bCL0K4vI3M6-EZMp20wbD2gDsoD1JYqag66WnTDtZqJjQm3mv6Ohj59_C8RMOtPSLX4AxoS-n_8lYneaRc2UFm_vZepgricMNIZ4TuoLekb_fDlg7cvRtH61gD8hH7iFvQfpkf9rxoclPSG21qbxV4svUVW27DOd_Ewo3eSRdnSb8ctuGnXQuKE="

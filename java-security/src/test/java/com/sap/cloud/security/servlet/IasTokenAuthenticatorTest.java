@@ -48,7 +48,7 @@ public class IasTokenAuthenticatorTest {
 	public void setUp() throws IOException {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.IAS)
-				.withProperty(CFConstants.URL, "https://myauth.com")
+				.withDomains("myauth.com")
 				.withClientId("T000310")
 				.build();
 

@@ -22,8 +22,11 @@ import java.io.IOException;
 import java.net.URI;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class XsuaaJwtSignatureValidatorTest {
@@ -55,8 +58,9 @@ public class XsuaaJwtSignatureValidatorTest {
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")))
-						.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+				.retrieveTokenKeys(eq(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")),
+						any()))
+								.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,

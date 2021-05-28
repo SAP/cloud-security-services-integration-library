@@ -6,13 +6,19 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.Assertions;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
+
+import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_ZONE_UUID;
+import static org.springframework.http.HttpMethod.GET;
 
 public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	private final RestOperations restOperations;
@@ -23,16 +29,19 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public String retrieveTokenKeys(URI tokenKeysEndpointUri) throws OAuth2ServiceException {
+	public String retrieveTokenKeys(URI tokenKeysEndpointUri, String zoneId) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		try {
-			// TODO 30.10.19 c5295400: See if that even works?
-			ResponseEntity<String> response = restOperations.getForEntity(tokenKeysEndpointUri, String.class);
+			MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+			headers.add(X_ZONE_UUID, zoneId);
+			ResponseEntity<String> response = restOperations.exchange(
+					tokenKeysEndpointUri, GET, new HttpEntity<>(headers), String.class);
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
 				return response.getBody();
 			} else {
 				throw OAuth2ServiceException.builder("Error retrieving token keys")
 						.withUri(tokenKeysEndpointUri)
+						.withHeaders(X_ZONE_UUID + "=" + zoneId)
 						.withStatusCode(response.getStatusCodeValue())
 						.withResponseBody(response.getBody())
 						.build();
@@ -40,6 +49,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		} catch (HttpClientErrorException ex) {
 			throw OAuth2ServiceException.builder("Error retrieving token keys")
 					.withUri(tokenKeysEndpointUri)
+					.withHeaders(X_ZONE_UUID + "=" + zoneId)
 					.withStatusCode(ex.getStatusCode().value())
 					.withResponseBody(ex.getResponseBodyAsString())
 					.build();

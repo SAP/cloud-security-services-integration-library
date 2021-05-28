@@ -13,6 +13,7 @@ import java.util.Properties;
 
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.Environments;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,8 @@ import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
 import javax.annotation.Nonnull;
+
+import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
 
 /**
  * Part of Auto Configuration {@code HybridIdentityServicesAutoConfiguration}
@@ -54,7 +57,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 					"key" }));
 
 	private static final List<String> IAS_ATTRIBUTES = Collections.unmodifiableList(Arrays
-			.asList(new String[] { "clientid", "clientsecret", "domain", "url" }));
+			.asList(new String[] { "clientid", "clientsecret", "domains", "url" }));
 
 	@Override
 	@SuppressWarnings("squid:S2259") // false positive
@@ -104,6 +107,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 					properties.put(IAS_PREFIX + key, environment.getIasConfiguration().getProperty(key));
 				}
 			}
+			properties.put(IAS_PREFIX + DOMAINS, environment.getIasConfiguration().getDomains());
 		}
 		return properties;
 	}

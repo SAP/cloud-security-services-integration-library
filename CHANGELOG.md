@@ -1,12 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## 2.9.0 and 0.2.0 [BETA]
+- [java-security] and [spring-security] validates IAS OIDC tokens from multiple IAS tenants and zones.
+- [spring-security] Resource Server raises ``InvalidBearerTokenException`` in case token couldn't be successfully validated (as documented [here](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver-bearertoken-failure)).
+
 ## 2.8.13
 - [token-client] **Bug fix** As of now, client-credential and jwt bearer user tokens are not cached in case tokenflow is configured with zone-id (instead of subdomain).
 - [java-security] provides `SapIdToken.getCnfX509Thumbprint()` method to provide thumbprint of certificate, in case token was requested via X509 based authentication.
 - [java-api] provides `Token.getGrantType()` method, proprietary `GrantType.CLIENT_X509` gets deprecated.
   
-
 ## 0.1.6 [BETA]
 - [spring-security] and [spring-security-starter] `HybridIdentityServicesAutoConfiguration` supports Identity service configuration alone, by setting up `IasJwtDecoder`
 

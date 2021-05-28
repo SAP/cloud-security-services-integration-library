@@ -14,6 +14,7 @@ public class HttpHeaders {
 	public static final String ACCEPT = "Accept";
 	public static final String CONTENT_TYPE = "Content-Type";
 	public static final String X_ZID = "X-zid";
+	public static final String X_ZONE_UUID = "x-zone_uuid";
 
 	private final Set<HttpHeader> headers;
 

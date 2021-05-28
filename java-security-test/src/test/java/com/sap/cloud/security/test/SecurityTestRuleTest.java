@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.test.ApplicationServerOptions.forService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -129,7 +128,6 @@ public class SecurityTestRuleTest {
 
 		assertThat(configuration.getUrl()).isNotNull();
 		assertThat(configuration.getUrl().toString()).isEqualTo(cut.base.wireMockServer.baseUrl());
-		assertThat(configuration.getProperty(UAA_DOMAIN)).isEqualTo("localhost");
 	}
 
 	@Test
