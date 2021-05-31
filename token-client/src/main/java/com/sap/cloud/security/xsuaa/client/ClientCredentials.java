@@ -22,6 +22,8 @@ public class ClientCredentials implements ClientIdentity {
 	public ClientCredentials(@Nonnull String clientId, @Nonnull String clientSecret) {
 		assertNotNull(clientId, "clientId is required");
 		assertNotNull(clientSecret, "clientSecret is required");
+		assertHasText(clientId, "clientId must not be empty");
+		assertHasText(clientSecret, "clientSecret must not be empty");
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 	}
