@@ -71,7 +71,7 @@
         </dependency>
 
         <dependency>
-            <groupId>0.2.0jectreactor</groupId>
+            <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
