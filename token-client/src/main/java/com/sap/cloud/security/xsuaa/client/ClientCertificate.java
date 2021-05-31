@@ -1,12 +1,20 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import javax.annotation.Nonnull;
+
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+
 public class ClientCertificate implements ClientIdentity{
 
     private final String certificate;
     private final String key;
     private final String clientId;
 
-    public ClientCertificate(String certificate, String key, String clientId) {
+    public ClientCertificate(@Nonnull String certificate, @Nonnull String key, @Nonnull String clientId) {
+            assertNotNull(clientId, "clientId is required");
+            assertNotNull(certificate, "certificate is required");
+            assertNotNull(key, "RSA Private key is required");
+
         this.certificate = certificate;
         this.key = key;
         this.clientId = clientId;
@@ -29,7 +37,7 @@ public class ClientCertificate implements ClientIdentity{
 
     @Override
     public boolean isValid() {
-        return clientId != null && certificate != null && key != null;
+        return !clientId.isEmpty() && !certificate.isEmpty() && !key.isEmpty();
     }
 
     @Override
