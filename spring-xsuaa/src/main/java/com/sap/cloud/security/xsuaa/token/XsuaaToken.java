@@ -248,17 +248,6 @@ public class XsuaaToken extends Jwt implements Token {
 		return scopesList != null ? scopesList : Collections.emptyList();
 	}
 
-	/**
-	 * Check if the authentication token contains a claim, e.g. "email".
-	 *
-	 * @param claim
-	 *            name of the claim
-	 * @return true: attribute exists
-	 */
-	public boolean hasClaim(String claim) {
-		return containsClaim(claim);
-	}
-
 	void setAuthorities(Collection<GrantedAuthority> authorities) {
 		Assert.notNull(authorities, "authorities are required");
 		this.authorities = authorities;

@@ -307,12 +307,12 @@ public class XsuaaTokenTest {
 		return new XsuaaToken(jwt);
 	}
 
-	private static class SamlExternalAttrClaim {
+	public static class SamlExternalAttrClaim {
 		public String serviceinstanceid = "abcd1234";
 		public String zdn = "testsubdomain";
 	}
 
-	private static class AdditionalAuthorizationAttrClaim {
+	public static class AdditionalAuthorizationAttrClaim {
 		public String external_group = "domain\\group1";
 		public String external_id = "ext-id-abcd1234";
 	}
