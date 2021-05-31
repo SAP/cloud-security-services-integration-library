@@ -21,7 +21,7 @@ import java.util.*;
 import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasText;
 
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 
@@ -201,7 +201,7 @@ public class XsuaaToken extends Jwt implements Token {
 	@Override
 	public String getSubaccountId() {
 		String externalAttribute = getStringAttributeFromClaim(CLAIM_SUBACCOUNT_ID, CLAIM_EXTERNAL_ATTR);
-		return isEmpty(externalAttribute) ? getClaimAsString(CLAIM_ZONE_ID) : externalAttribute;
+		return !hasText(externalAttribute) ? getClaimAsString(CLAIM_ZONE_ID) : externalAttribute;
 	}
 
 	@Override
