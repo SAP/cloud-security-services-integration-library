@@ -7,7 +7,7 @@ package com.sap.cloud.security.xsuaa.token.authentication;
 
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasText;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -146,8 +146,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 				logger.warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'.",
 						jku, uaadomain);
 				throw new JwtException("Do not trust 'jku' token header.");
-			} else if (!jkuUri.getPath().endsWith("token_keys") || !isEmpty(jkuUri.getQuery())
-					|| !isEmpty(jkuUri.getFragment())) {
+			} else if (!jkuUri.getPath().endsWith("token_keys") || hasText(jkuUri.getQuery())
+					|| hasText(jkuUri.getFragment())) {
 				logger.warn("Error: Do not trust jku '{}' because it contains invalid path, query or fragment.", jku);
 				throw new JwtException("Jwt token does not contain a valid 'jku' header parameter: " + jkuUri);
 			}
@@ -175,7 +175,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 	private Jwt tryToVerifyWithVerificationKey(String token, JwtException verificationException) {
 		String verificationKey = xsuaaServiceConfiguration.getVerificationKey();
-		if (isEmpty(verificationKey)) {
+		if (!hasText(verificationKey)) {
 			throw verificationException;
 		}
 		return verifyWithVerificationKey(token, verificationKey);

@@ -44,6 +44,7 @@ public class XsuaaJwtDecoderTest {
 		final JwtDecoder cut = new XsuaaJwtDecoderBuilder(configurationWithVerificationKey).build();
 
 		final Jwt jwt = cut.decode(token);
+		jwt.getClaimAsString("zid");
 
 		assertThat(jwt.getClaimAsString(TokenClaims.CLAIM_CLIENT_ID)).isEqualTo("sb-clientId!t0815");
 	}
