@@ -183,7 +183,7 @@ Steps to enable token exchange:
 2. Make sure `token-client` is not excluded from the project
 3. In order to leverage the token cache, consider the `token-client` initialization notes [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/README.md#cache)
 
-The authenticator is used in the following [sample](/samples/java-security-usage).
+The `XsuaaTokenAuthenticator` is used in the following [sample](/samples/java-security-usage).
 
 ## Test Utilities
 You can find the JUnit test utilities documented [here](/java-security-test).
