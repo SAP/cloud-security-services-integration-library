@@ -86,7 +86,7 @@ All notable changes to this project will be documented in this file.
 - [java-security] Make HybridTokenFactory more failure tolerant 
 - [spring-xsuaa-test] Prefills "ext_atr" "enhancer" with XSUAA
 
-#### Upgrade dependencies
+#### Dependency upgrades
 - [all]
   - commons-io 2.6 --> 2.8.0
   - org.apache.httpcomponents » httpclient 4.5.9 --> 4.5.13
@@ -119,7 +119,7 @@ All notable changes to this project will be documented in this file.
   - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/spring-xsuaa#ias-to-xsuaa-token-exchange).
   - Replaces dependencies to JSON Parser of ``net.minidev`` with `org.json` (fixes #414).
   
-#### Upgrade dependencies
+#### Dependency upgrades
 - spring.boot.version 2.3.5.RELEASE --> 2.4.1
 - spring.core.version 5.2.10.RELEASE --> 5.3.2
 - spring.security.version 5.3.5.RELEASE --> 5.4.2
