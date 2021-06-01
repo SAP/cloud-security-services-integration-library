@@ -1,5 +1,9 @@
 # XSUAA Security Test Library
 
+## Deprecation Note
+**This is in maintaince mode, don't use it for new projects!**
+Instead, make use of [`java-security-test`](/java-security-test) testing library. Have a look at the [spring-security-xsuaa-usage](/samples/spring-security-xsuaa-usage) as usage reference.
+
 ## Description
 This library enhances the `spring-xsuaa` project.
 This includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) that can be used for JUnit tests, as well as for local testing.
@@ -27,7 +31,7 @@ This includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa-test</artifactId>
-    <version>2.7.2</version>
+    <version>2.9.0</version>
     <scope>test</scope>
 </dependency>
 
@@ -35,13 +39,11 @@ This includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) 
 <dependency>
     <groupId>commons-io</groupId>
     <artifactId>commons-io</artifactId>
-    <version>2.6</version>
     <scope>test</scope>
 </dependency>
 <dependency>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-oauth2-jose</artifactId>
-    <version>5.1.1.RELEASE</version>
     <scope>test</scope>
 </dependency>
 ```

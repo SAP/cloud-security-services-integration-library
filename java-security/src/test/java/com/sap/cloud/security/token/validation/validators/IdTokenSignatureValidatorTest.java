@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -21,6 +26,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class IdTokenSignatureValidatorTest {
@@ -32,6 +38,7 @@ public class IdTokenSignatureValidatorTest {
 	OAuth2ServiceEndpointsProvider endpointsProviderMock;
 	private OidcConfigurationService oidcConfigurationServiceMock;
 	private static final URI JKU_URI = URI.create("https://application.myauth.com/jwks_uri");
+	private static final String ZONE_UUID = "0987654321";
 	private static final URI DISCOVERY_URI = URI
 			.create("https://application.myauth.com" + OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT);
 
@@ -55,7 +62,7 @@ public class IdTokenSignatureValidatorTest {
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(JKU_URI))
+				.retrieveTokenKeys(eq(JKU_URI), eq(ZONE_UUID)))
 						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
@@ -94,7 +101,7 @@ public class IdTokenSignatureValidatorTest {
 	@Test
 	public void validationFails_whenOAuthServerIsUnavailable_JKS() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any())).thenThrow(OAuth2ServiceException.class);
+				.retrieveTokenKeys(any(), any())).thenThrow(OAuth2ServiceException.class);
 
 		ValidationResult result = cut.validate(iasToken);
 		assertThat(result.isErroneous(), is(true));
@@ -105,7 +112,7 @@ public class IdTokenSignatureValidatorTest {
 	@Test
 	public void validationFails_whenNoMatchingKey() throws IOException {
 		ValidationResult result = cut.validate(iasToken.getTokenValue(), "RS256", "default-kid-2",
-				JKU_URI.toString(), null);
+				JKU_URI.toString(), null, null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString(

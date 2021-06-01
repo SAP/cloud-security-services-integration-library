@@ -1,10 +1,16 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +27,8 @@ import com.sap.cloud.security.xsuaa.XsuaaServicesParser;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 
 /**
- * Validate audience using audience field content. in case this field is empty,
- * the audience is derived from the scope field
+ * Validate audience using audience field content. In case this field is empty,
+ * the audience is derived from the scope field.
  */
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	private Map<String, String> appIdClientIdMap = new HashMap<>();
@@ -43,76 +49,69 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
 		String tokenClientId = token.getClaimAsString(TokenClaims.CLAIM_CLIENT_ID);
-		if (StringUtils.isEmpty(tokenClientId)) {
-			return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
-					"Jwt token must contain 'cid' (client_id)", null));
+		if (!StringUtils.hasText(tokenClientId)) {
+			return OAuth2TokenValidatorResult.failure(
+					new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, "Jwt token must contain 'cid' (client_id)", null));
 		}
-		List<String> allowedAudiences = getAllowedAudiences(token);
+
+		final Set<String> allowedAudiences = getAllowedAudiences(token);
 
 		for (Map.Entry<String, String> xsuaaConfig : appIdClientIdMap.entrySet()) {
 			if (checkMatch(xsuaaConfig.getKey(), xsuaaConfig.getValue(), tokenClientId, allowedAudiences)) {
 				return OAuth2TokenValidatorResult.success();
 			}
 		}
-		String description = String.format("Jwt token with allowed audiences %s matches none of these: %s",
+
+		final String description = String.format("Jwt token with allowed audiences %s matches none of these: %s",
 				allowedAudiences, appIdClientIdMap.keySet().toString());
 		return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, description, null));
 	}
 
-	private boolean checkMatch(String appId, String clientId, String tokenClientId, List<String> allowedAudiences) {
+	private boolean checkMatch(String appId, String clientId, String tokenClientId, Set<String> allowedAudiences) {
 		// case 1 : token issued by own client (or master)
-		if (clientId.equals(tokenClientId)
-				|| (appId.contains("!b")
-						&& tokenClientId.contains("|")
-						&& tokenClientId.endsWith("|" + appId))) {
+		if (clientId.equals(tokenClientId) || (appId.contains("!b") && tokenClientId.endsWith("|" + appId))) {
 			return true;
-		} else {
-			// case 2: foreign token
-			if (allowedAudiences.contains(appId)) {
-				return true;
-			} else {
-				return false;
-			}
 		}
+
+		// case 2: foreign token
+		return allowedAudiences.contains(appId);
 	}
 
 	/**
-	 * Retrieve audiences from token. In case the audience list is empty, take
+	 * Retrieve audiences from token. In case the audience list is empty, takes
 	 * audiences based on the scope names.
 	 *
 	 * @param token
-	 * @return (empty) list of audiences
+	 * @return (empty) set of audiences
 	 */
-	static List<String> getAllowedAudiences(Jwt token) {
-		List<String> allAudiences = new ArrayList<>();
-		List<String> tokenAudiences = token.getAudience();
+	static Set<String> getAllowedAudiences(Jwt token) {
+		final Set<String> allAudiences = new HashSet<>();
 
+		final List<String> tokenAudiences = token.getAudience();
 		if (tokenAudiences != null) {
 			for (String audience : tokenAudiences) {
-				if (audience.contains(".")) {
-					String aud = audience.substring(0, audience.indexOf('.'));
-					allAudiences.add(aud);
-				} else {
-					allAudiences.add(audience);
-				}
+				final String aud = audience.contains(".") ? audience.substring(0, audience.indexOf('.')) : audience;
+				allAudiences.add(aud);
 			}
 		}
 
 		// extract audience (app-id) from scopes
-		if (allAudiences.size() == 0) {
+		if (allAudiences.isEmpty()) {
 			for (String scope : getScopes(token)) {
 				if (scope.contains(".")) {
-					String aud = scope.substring(0, scope.indexOf('.'));
+					final String aud = scope.substring(0, scope.indexOf('.'));
 					allAudiences.add(aud);
 				}
 			}
 		}
-		return allAudiences.stream().distinct().filter(value -> !value.isEmpty()).collect(Collectors.toList());
+
+		allAudiences.remove("");
+
+		return allAudiences;
 	}
 
 	static List<String> getScopes(Jwt token) {
-		List<String> scopes = null;
-		scopes = token.getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
-		return scopes != null ? scopes : new ArrayList<>();
+		List<String> scopes = token.getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
+		return scopes != null ? scopes : Collections.emptyList();
 	}
 }

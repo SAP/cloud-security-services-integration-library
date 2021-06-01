@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.xsuaa.Assertions;
@@ -48,8 +53,8 @@ public class PasswordTokenFlow {
 							username, password, subdomain, optionalParameters, disableCache);
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
-					String.format("Error requesting user token with grant_type 'client_credentials': %s",
-							e.getMessage()),
+					String.format("Error requesting user token with grant_type '%s': %s",
+							OAuth2TokenServiceConstants.GRANT_TYPE_PASSWORD, e.getMessage()),
 					e);
 		}
 	}

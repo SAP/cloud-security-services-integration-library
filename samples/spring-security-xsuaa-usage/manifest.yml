@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-License-Identifier: Apache-2.0
 ---
 # Configuration:
 # configured for EU10. For other landscapes, please adopt LANDSCAPE_APPS_DOMAIN in ../vars.yml
@@ -12,6 +14,8 @@ applications:
   path: target/spring-security-xsuaa-usage.jar
   services:
     - xsuaa-authentication
+  env:
+    IAS_XSUAA_XCHANGE_ENABLED: true
 
 # Application Router as web server
 - name: approuter-spring-security-xsuaa-usage

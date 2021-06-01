@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.json;
 
 import org.json.JSONArray;
@@ -45,6 +50,19 @@ public class DefaultJsonObject implements JsonObject {
 	@Override
 	public <T> List<T> getAsList(String name, Class<T> type) {
 		return getJSONArray(name).map(jsonArray -> castToListOfType(jsonArray, type)).orElse(Collections.emptyList());
+	}
+
+	@Override
+	public List<String> getAsStringList(String name) {
+		List<String> list = new ArrayList<>();
+		if (contains(name)) {
+			if (getJsonObject().get(name) instanceof String) {
+				list.add(getAsString(name));
+			} else {
+				list = getAsList(name, String.class);
+			}
+		}
+		return list;
 	}
 
 	@Override
@@ -190,4 +208,8 @@ public class DefaultJsonObject implements JsonObject {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return jsonObject.toString(2);
+	}
 }

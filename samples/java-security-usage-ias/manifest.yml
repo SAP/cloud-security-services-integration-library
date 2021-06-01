@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-License-Identifier: Apache-2.0
+---
+# Configuration:
+# configured for EU10. For other landscapes, please adopt the destination in ../vars.yml
+# If the routes are occupied, you might need to change the host
+applications:
+- name: java-security-usage-ias
+  instances: 1
+  memory: 896M
+  routes:
+    - route: java-security-usage-ias-((ID)).((LANDSCAPE_APPS_DOMAIN))
+  host: 
+  path: target/java-security-usage-ias.war
+  buildpacks:
+    - java_buildpack
+  services:
+    - ias-java-security
+...

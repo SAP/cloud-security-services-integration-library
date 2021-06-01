@@ -1,8 +1,13 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package sample.spring.xsuaa;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.test.SecurityTestRule;
-import com.sap.cloud.security.token.TokenClaims;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,18 +34,24 @@ public class TestControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    private String jwt = rule.getPreconfiguredJwtGenerator()
-            .withLocalScopes("Read")
-            //.withClaimValue(TokenClaims.XSUAA.ORIGIN, "sap-default") // optional
-            //.withClaimValue(TokenClaims.USER_NAME, "John") // optional
-            .createToken().getTokenValue();
+    private String jwt;
 
-    private String jwtAdmin = rule.getPreconfiguredJwtGenerator()
-            .withLocalScopes("Read", "Admin")
-            .createToken().getTokenValue();
+    private String jwtAdmin;
 
     @ClassRule
     public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA);
+
+    @Before
+    public void setUp() {
+        jwt = rule.getPreconfiguredJwtGenerator()
+                .withLocalScopes("Read")
+                //.withClaimValue(TokenClaims.XSUAA.ORIGIN, "sap-default") // optional
+                //.withClaimValue(TokenClaims.USER_NAME, "John") // optional
+                .createToken().getTokenValue();
+        jwtAdmin = rule.getPreconfiguredJwtGenerator()
+                .withLocalScopes("Read", "Admin")
+                .createToken().getTokenValue();
+    }
 
     @Test
     public void v1_sayHello() throws Exception {

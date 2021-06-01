@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.config;
 
 import org.junit.Test;
@@ -6,13 +11,9 @@ import static org.assertj.core.api.Assertions.*;
 
 public class ServiceTest {
 
-	/**
-	 * This test assumes that the system variable "IAS_SERVICE_NAME" is not set. It
-	 * should be removed as soon as {@link Service#IAS} is supported.
-	 */
 	@Test
-	public void getCFNameOfIasWhenEnvironmentVariableIsNotSet_shouldReturnNull() {
-		assertThat(Service.IAS.getCFName()).isNull();
+	public void getCFNameOfIas_shouldReturnCorrectName() {
+		assertThat(Service.IAS.getCFName()).isEqualTo("identity");
 	}
 
 	@Test

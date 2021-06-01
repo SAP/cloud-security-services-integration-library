@@ -1,21 +1,18 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
 public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(IasTokenAuthenticator.class);
-
-	public IasTokenAuthenticator() {
-		LOGGER.warn("IAS Service is not yet supported!");
-	}
 
 	@Override
 	public Token extractFromHeader(String authorizationHeader) {

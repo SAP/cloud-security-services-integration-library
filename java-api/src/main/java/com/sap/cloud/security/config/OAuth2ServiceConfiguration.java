@@ -1,8 +1,15 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.config;
 
 import javax.annotation.Nullable;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides information of the identity {@link Service}.
@@ -32,6 +39,13 @@ public interface OAuth2ServiceConfiguration {
 	URI getUrl();
 
 	/**
+	 * Domains of the OAuth2 identity service instance.
+	 *
+	 * @return list of domain, e.g."idservice.com".
+	 */
+	List<String> getDomains();
+
+	/**
 	 * Returns the value of the given property as string.
 	 *
 	 * @param name
@@ -42,6 +56,13 @@ public interface OAuth2ServiceConfiguration {
 	 */
 	@Nullable
 	String getProperty(String name);
+
+	/**
+	 * Returns all properties of the configuration as a map.
+	 * 
+	 * @return all properties as map.
+	 */
+	Map<String, String> getProperties();
 
 	/**
 	 * Returns true if the configuration contains the given property.

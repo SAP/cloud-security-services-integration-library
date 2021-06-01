@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.config;
 
 import java.time.Duration;
@@ -28,6 +33,16 @@ public interface CacheConfiguration {
 	 * @return {@code true} if cache is disabled
 	 */
 	default boolean isCacheDisabled() {
+		return false;
+	}
+
+	/**
+	 * Returns {@code true} if cache statistics recording has been enabled. If it is
+	 * enabled, cache statistics might be obtained from the {@code Cacheable}.
+	 *
+	 * @return {@code true} if cache statistics is enabled
+	 */
+	default boolean isCacheStatisticsEnabled() {
 		return false;
 	}
 }

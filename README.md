@@ -1,3 +1,6 @@
+[![REUSE status](https://api.reuse.software/badge/github.com/SAP/cloud-security-xsuaa-integration)](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration)
+
+
 # Description
 Authentication services provided by the xsuaa service on [SAP Cloud Platform](https://cloudplatform.sap.com) or [SAP HANA XS Advanced](https://help.sap.com/viewer/4505d0bdaf4948449b7f7379d24d0f0d/2.0.00/en-US) rely on usage of the [OAuth 2.0](https://oauth.net) protocol and OAuth 2.0 access tokens.
 
@@ -13,7 +16,7 @@ Typical UI5 applications consist of a server providing the HTML content and one 
 OAuth resource servers (as the one in step 4) require libraries for validating access tokens.
 
 ## Token Validation for Java web applications using SAP Java Buildpack
-The SAP Java Buildpack integrates token validation into the tomcat server. Application developers requiring authentication and authorization information in their application use the interfaces defined in [api](./api) to obtain information like user name and scopes.
+The SAP Java Buildpack integrates token validation into the tomcat server. Application developers requiring authentication and authorization information in their application use the interfaces defined in [java-api](./java-api) to obtain information like user name and scopes.
 
 ### Requirements
 - Java 8
@@ -21,8 +24,11 @@ The SAP Java Buildpack integrates token validation into the tomcat server. Appli
 - The application is deployed using the SAP Java Buildpack with version <= `v1.24.1`
 - You use `sap_java_buildpack` (e.g. in your `manifest.yml`)
 
-### Upcoming (Incompatible) Change
-SAP Java Buildpacks makes use of deprecated (Spring) Security libraries and needs to be updated. The new SAP Java Buildpack version will use the [`java-security`](/java-security) library. Please expect little migration efforts in the api for accessing token information. A Migration Guide will be provided. 
+### Changes with SAP Java Buildpack 1.26.0
+The former SAP Java Buildpack versions have used deprecated (Spring) Security libraries and had to be updated. As of version 1.26.0 SAP Java Buildpack uses the [`java-security`](/java-security) library. Please consider these (migration) guides:
+
+- [MANDATORY: clean-up deprecated dependencies](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/Migration_SAPJavaBuildpackProjects.md)
+- [OPTIONAL: Leverage new APIs and features](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/Migration_SAPJavaBuildpackProjects_V2.md)
 
 ### Sample
 See [sap-java-builpack-api-usage](samples/sap-java-buildpack-api-usage) for an example.
@@ -58,15 +64,15 @@ Spring Boot provides OAuth resource servers. Application developers requiring au
 ### Requirements
 - Java 8
 - maven 3.3.9 or later
-- Spring Boot 2.1 and later
+- as of version 2.6.1 Spring Boot >= 2.2 is required. Consequently, it also requires Spring Security version >= 5.2
 
 ### Sample
-See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
+- See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
+- See [spring-security-basic-auth](/samples/spring-security-basic-auth) for an example demonstrating how a user can access Rest API via basic authentication (user/password).
 
 ### Additional (test) utilities
 - [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.
 
-Find [here](https://github.com/SAP/cloud-application-security-sample/tree/master/spring-security-basis) a more sophisticated sample.
 
 # Download and Installation
 Build results are published to maven central: https://search.maven.org/search?q=com.sap.cloud.security 
@@ -80,11 +86,10 @@ mvn clean install
 *Note:* Use this if you want to enhance this xsuaa integration libraries. The build results are also available on maven central.
 
 # Limitations
-Libraries and information provided here is around the topic of integrating with the xsuaa service. General integration into other OAuth authorization servers is not the primary focus.
+Libraries and information provided here is around the topic of integrating with the SAP xsuaa and identity service. General integration into other OAuth authorization servers is not the primary focus.
 
 # How to obtain support
-Open an issue in GitHub
+Open an issue in GitHub.
 
-# License
-Copyright (c) 2018-2020 SAP SE or an SAP affiliate company. All rights reserved.
-This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file [LICENSE.md].
+# Licensing
+Please see our [LICENSE](LICENSES/Apache-2.0.txt) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available via the [REUSE tool](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration).

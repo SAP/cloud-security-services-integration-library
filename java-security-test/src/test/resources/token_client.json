@@ -1,0 +1,8 @@
+{
+  "header": {
+  },
+  "payload": {
+    "clientId" : "testClientId",
+    "grant_type": "client_credentials"
+  }
+}

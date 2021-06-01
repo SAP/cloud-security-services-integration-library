@@ -1,0 +1,20 @@
+{
+  "identity": [
+    {
+      "binding_name": null,
+      "credentials": {
+        "clientsecret": "",
+        "clientid": "T000310",
+        "domains": "domain.gets.overwritten.bylocalhost.com"
+      },
+      "instance_name": "myservice",
+      "label": "identity",
+      "name": "myservice",
+      "plan": "application",
+      "provider": null,
+      "syslog_drain_url": null,
+      "tags": [],
+      "volume_mounts": []
+    }
+  ]
+}

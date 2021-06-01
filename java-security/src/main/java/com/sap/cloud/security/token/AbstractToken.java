@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.json.DefaultJsonObject;
@@ -5,6 +10,9 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,45 +20,40 @@ import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
-import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.ISSUED_AT;
+import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**
  * Decodes and parses encoded JSON Web Token (JWT) and provides access to token
  * header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
+	private static final long serialVersionUID = 2204172041950251807L;
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractToken.class);
+
+	private final DecodedJwt decodedJwt;
 	protected final DefaultJsonObject tokenHeader;
 	protected final DefaultJsonObject tokenBody;
-	protected final String jwtToken;
 
 	public AbstractToken(@Nonnull DecodedJwt decodedJwt) {
-		this(decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getEncodedToken());
+		this.tokenHeader = new DefaultJsonObject(decodedJwt.getHeader());
+		this.tokenBody = new DefaultJsonObject(decodedJwt.getPayload());
+		this.decodedJwt = decodedJwt;
 	}
 
 	/**
 	 * Creates a Token object for simple access to the header parameters and its
 	 * claims.
-	 * 
+	 *
 	 * @param jwtToken
 	 *            the encoded JWT token (access_token or id_token), e.g. from the
 	 *            Authorization Header.
 	 */
 	public AbstractToken(@Nonnull String jwtToken) {
 		this(Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken)));
-	}
-
-	AbstractToken(String jsonHeader, String jsonPayload, String jwtToken) {
-		tokenHeader = new DefaultJsonObject(jsonHeader);
-		tokenBody = new DefaultJsonObject(jsonPayload);
-		this.jwtToken = jwtToken;
 	}
 
 	@Nullable
@@ -78,7 +81,7 @@ public abstract class AbstractToken implements Token {
 	@Nullable
 	@Override
 	public List<String> getClaimAsStringList(@Nonnull String claimName) {
-		return tokenBody.getAsList(claimName, String.class);
+		return tokenBody.getAsStringList(claimName);
 	}
 
 	@Nullable
@@ -109,7 +112,7 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public String getTokenValue() {
-		return jwtToken;
+		return decodedJwt.getEncodedToken();
 	}
 
 	@Override
@@ -117,6 +120,16 @@ public abstract class AbstractToken implements Token {
 		Set<String> audiences = new LinkedHashSet<>();
 		audiences.addAll(getClaimAsStringList(TokenClaims.AUDIENCE));
 		return audiences;
+	}
+
+	public boolean isXsuaaToken() {
+		if (tokenBody.contains(EXTERNAL_ATTRIBUTE)) {
+			JsonObject externalAttributes = tokenBody.getJsonObject(EXTERNAL_ATTRIBUTE);
+			if ("XSUAA".equalsIgnoreCase(externalAttributes.getAsString(EXTERNAL_ATTRIBUTE_ENHANCER))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	protected Principal createPrincipalByName(String name) {
@@ -150,17 +163,59 @@ public abstract class AbstractToken implements Token {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o)
+	public boolean equals(Object obj) {
+		if (this == obj)
 			return true;
-		if (!(o instanceof AbstractToken))
+		if (obj == null)
 			return false;
-		AbstractToken that = (AbstractToken) o;
+		if (!(obj instanceof Token))
+			return false;
+		Token that = (Token) obj;
 		return getTokenValue().equals(that.getTokenValue());
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(getTokenValue());
+	}
+
+	@Override
+	public String getZoneId() {
+		return getClaimAsString(SAP_GLOBAL_ZONE_ID);
+	}
+
+	@Override
+	public String getClientId() {
+		String clientId = getClaimAsString(AUTHORIZATION_PARTY);
+		if (clientId == null || clientId.trim().isEmpty()) {
+			Set<String> audiences = getAudiences();
+
+			if (audiences.size() == 1) {
+				return audiences.stream().findFirst().get();
+			} else if (hasClaim(CLIENT_ID) && !getClaimAsString(CLIENT_ID).trim()
+					.isEmpty()) { // required for backward compatibility for generated tokens in JUnit tests
+				LOGGER.warn("Usage of 'cid' claim is deprecated and should be replaced by 'azp' or 'aud' claims");
+				return getClaimAsString(CLIENT_ID);
+			}
+			LOGGER.error("Couldn't get client id. Invalid authorized party or audience claims.");
+			throw new InvalidTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
+		} else {
+			return clientId;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return decodedJwt.toString();
+	}
+
+	@Override
+	public Map<String, Object> getHeaders() {
+		return new JSONObject(decodedJwt.getHeader()).toMap();
+	}
+
+	@Override
+	public Map<String, Object> getClaims() {
+		return new JSONObject(decodedJwt.getPayload()).toMap();
 	}
 }

@@ -42,7 +42,13 @@ cf create-service xsuaa application xsuaa-buildpack -c xs-security.json
 ```
 
 ## Configure the manifest
+
 The [vars](../vars.yml) contains hosts and paths that need to be adopted.
+
+This sample uses the `AccessToken` interface to extract user data from the principal. For this to work the environment
+variable `ENABLE_SECURITY_JAVA_API_V2` is set to `true`. This can be done in the `manifest.yml` file inside the
+configuration block of the `sap-java-buildpack-api-usage` application. With this flag set to `true` the principal from
+`HttpServlet.getUserPrincipal()` will contain an `AccessToken` instead of a `XSUserInfo`.
 
 ## Deploy the application
 Deploy the application using cf push. It will expect 1 GB of free memory quota.

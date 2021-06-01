@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.client;
 
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
@@ -84,7 +89,8 @@ public class DefaultOidcConfigurationServiceTest {
 
 		assertThatThrownBy(() -> retrieveEndpoints())
 				.isInstanceOf(OAuth2ServiceException.class)
-				.hasMessageContaining(errorMessage);
+				.hasMessageContaining(errorMessage)
+				.extracting("httpStatusCode").isEqualTo(0);
 	}
 
 	@Test

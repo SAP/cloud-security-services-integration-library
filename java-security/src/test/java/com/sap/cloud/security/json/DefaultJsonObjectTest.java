@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.json;
 
 import org.junit.Before;
@@ -74,6 +79,26 @@ public class DefaultJsonObjectTest {
 		cut = createJsonParser(KEY_2, STRING_LIST_VALUE);
 
 		List<String> list = cut.getAsList(KEY_2, String.class);
+
+		assertThat(list).hasSize(3);
+		assertThat(list).first().isEqualTo("a");
+	}
+
+	@Test
+	public void getAsStringList_keyDoesExistButNoList_returnsList() {
+		assertThat(cut.getAsString(KEY_1)).isEqualTo(STRING_TEXT);
+
+		assertThat(cut.getAsStringList(KEY_1)).contains(STRING_TEXT);
+		assertThat(cut.getAsStringList(KEY_1)).size().isEqualTo(1);
+
+		assertThat(cut.getAsStringList(KEY_1)).size().isEqualTo(1);
+	}
+
+	@Test
+	public void getAsStringList_keyExists_returnsList() {
+		cut = createJsonParser(KEY_2, STRING_LIST_VALUE);
+
+		List<String> list = cut.getAsStringList(KEY_2);
 
 		assertThat(list).hasSize(3);
 		assertThat(list).first().isEqualTo("a");

@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
@@ -71,14 +76,14 @@ public class ClientCredentialsTokenFlowTest {
 		verifyThatDisableCacheAttributeIs(false);
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaClientCredentialsGrant(endpointsProvider.getTokenEndpoint(),
-						clientCredentials, null, emptyMap(), false);
+						clientCredentials, null, null, emptyMap(), false);
 	}
 
 	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
-						isNull(), anyMap(), anyBoolean()))
+						isNull(), isNull(), anyMap(), anyBoolean()))
 								.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
 		assertThatThrownBy(() -> {
@@ -101,7 +106,7 @@ public class ClientCredentialsTokenFlowTest {
 		assertThat(response.getAccessToken()).isSameAs(accessToken.getAccessToken());
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
-						isNull(), optionalParametersCaptor.capture(), anyBoolean());
+						isNull(), isNull(), optionalParametersCaptor.capture(), anyBoolean());
 		Map<String, String> optionalParameters = optionalParametersCaptor.getValue();
 
 		assertThat(optionalParameters).containsKey(AUTHORITIES);
@@ -119,11 +124,11 @@ public class ClientCredentialsTokenFlowTest {
 
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
-						isNull(), optionalParametersCaptor.capture(), anyBoolean());
+						isNull(), isNull(), optionalParametersCaptor.capture(), anyBoolean());
 
 		Map<String, String> optionalParameters = optionalParametersCaptor.getValue();
 		assertThat(optionalParameters).containsKey(SCOPE);
-		assertThat(optionalParameters.get(SCOPE)).isEqualTo("myFirstScope, theOtherScope");
+		assertThat(optionalParameters.get(SCOPE)).isEqualTo("myFirstScope theOtherScope");
 	}
 
 	@Test
@@ -146,17 +151,31 @@ public class ClientCredentialsTokenFlowTest {
 
 	}
 
+	@Test
+	public void execute_withZoneId() throws TokenFlowException, OAuth2ServiceException {
+		OAuth2TokenResponse accessToken = mockRetrieveAccessToken();
+		OAuth2TokenResponse response = cut.zoneId("zone").execute();
+
+		verify(mockTokenService, times(1))
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
+						eq("zone"), isNull(), anyMap(), anyBoolean());
+
+		assertThat(response.getAccessToken()).isSameAs(accessToken.getAccessToken());
+
+	}
+
 	private void verifyThatDisableCacheAttributeIs(boolean disableCache) throws OAuth2ServiceException {
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
-						isNull(), anyMap(), eq(disableCache));
+						isNull(), isNull(), anyMap(), eq(disableCache));
 	}
 
 	private OAuth2TokenResponse mockRetrieveAccessToken() throws OAuth2ServiceException {
 		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
+
 		when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
-						any(), any(), anyBoolean()))
+						any(), any(), any(), anyBoolean()))
 								.thenReturn(accessToken);
 		return accessToken;
 	}

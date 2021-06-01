@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-License-Identifier: Apache-2.0
+
 <#
 .Description
     This script changes the log levels of given cloud foundry applications, collect the logs, outputs them to one zip file and resets the log levels again.
@@ -14,21 +17,15 @@
 .Example
     .\cf-logcollector.ps1 -App myapp -Approuter myapprouter -Logs logs.zip
 #>
-
 param(
     [Parameter(Mandatory = $True, HelpMessage = "Enter application name.", Position = 0)]
     [String]$App,
-    [Parameter(Mandatory = $True, HelpMessage = "Enter application router name.", Position = 1)]
+    [Parameter(Mandatory = $True, HelpMessage = "Enter application router application name.", Position = 1)]
     [String]$Approuter,
-<<<<<<< HEAD
-    [Parameter(Mandatory = $false, HelpMessage = "Enter path to output zip file.", Position = 2)]
-    [String]$Logs = "$HOME\logcollection.zip"
-=======
     [Parameter(Mandatory=$false, HelpMessage="Enter path to output zip file.", Position=2)]
     [String]$Logs="$HOME\logcollection.zip",
     [Parameter(Mandatory=$false, HelpMessage="Restore log-levels only?", Position=2)]
     [Switch]$RestoreLogLevelsOnly=$false
->>>>>>> ias
 )
 
 
@@ -47,27 +44,29 @@ function cflogin() {
         break
     }
 }
-function restoreloglevelsandrestart(){
+function restoreloglevelsandrestage(){
     Write-Host "`nRestoring log levels...`n"
     cf unset-env "$Approuter" XS_APP_LOG_LEVEL
+    cf unset-env "$Approuter" DEBUG
     cf unset-env "$App" SAP_EXT_TRC
     cf unset-env "$App" SAP_EXT_TRL
     cf unset-env "$App" DEBUG
 
-    Write-Host "`nRestart the app and the approuter...`n"
-    cf restart "$Approuter"
-    cf restart "$App"
+    Write-Host "`nRestage the app and the approuter...`n"
+    cf restage "$Approuter"
+    cf restage "$App"
 }
-function setloglevelsandrestart(){
+function setloglevelsandrestage(){
     Write-Host "`nSetting log levels...`n"
     cf set-env "$Approuter" XS_APP_LOG_LEVEL DEBUG
+    cf set-env "$Approuter" DEBUG xssec*
     cf set-env "$App" SAP_EXT_TRC stdout
     cf set-env "$App" SAP_EXT_TRL 3
     cf set-env "$App" DEBUG xssec*
 
-    Write-Host "`nRestart the app and the approuter...`n"
-    cf restart "$Approuter"
-    cf restart "$App"
+    Write-Host "`nRestage the app and the approuter...`n"
+    cf restage "$Approuter"
+    cf restage "$App"
 }
 # ---------
 
@@ -77,23 +76,6 @@ if (-Not (Get-Command cf)) {
     break
 }
 
-<<<<<<< HEAD
-#login to the correct API endpoint
-Write-Host "`n Did you log on and target the right space already?" -ForegroundColor Cyan -NoNewline;
-$Title = ""
-$Info = "Choose?"
-$options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Yes", "&No")
-[int]$defaultchoice = 0
-$opt = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-switch ($opt) {
-    0 {      
-        # just continue
-    }
-    1 {
-        Write-Host "`nLogging in...`n"
-        cflogin
-        Write-Host "`nSuccessfully logged in, will continue..."          
-=======
 Write-Host "`nAre you already logged in to the CF space you want to work on?`n"
 $Title = ""
 $Info = "Should we log you on?"
@@ -105,7 +87,6 @@ switch($opt){
       cflogin
     }
     1 {        
->>>>>>> ias
     }
 }
 
@@ -117,7 +98,7 @@ if($RestoreLogLevelsOnly){
 }
 
 #Check for restart the apps
-Write-Host "`nThis will restart your application " -NoNewline; Write-Host "$App" -ForegroundColor Cyan -NoNewline; Write-Host " and your application router " -NoNewline; Write-Host "$Approuter" -ForegroundColor Cyan -NoNewline; Write-Host " twice."
+Write-Host "`nThis will restage your application " -NoNewline; Write-Host "$App" -ForegroundColor Cyan -NoNewline; Write-Host " and your application router " -NoNewline; Write-Host "$Approuter" -ForegroundColor Cyan -NoNewline; Write-Host " twice."
 $Title = ""
 $Info = "Are you sure?"
 $options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Yes", "&No")
@@ -128,13 +109,13 @@ switch ($opt) {
         break
     }
     1 {
-        Write-Host "`nAborted. Please make sure that it is safe to restart your application before executing the script again."
+        Write-Host "`nAborted. Please make sure that it is safe to restage your application before executing the script again."
         exit
     }
 }
 
 #Set the enviroment variables and restart the apps
-setloglevelsandrestart
+setloglevelsandrestage
 
 #Creating, collecting and compressing the logs
 Write-Host "`nNow please repeat your scenario (e.g. try to login to your app or similar)...`n" -ForegroundColor Cyan
@@ -151,7 +132,7 @@ Compress-Archive -Update -Path $tempFile -DestinationPath "$Logs"
 Remove-Item -Path $tempFile
 
 #Unset the enviroment variables and restart the apps
-restoreloglevelsandrestart
+restoreloglevelsandrestage
 
 #End
 Write-Host "`nAll done. " -ForegroundColor Green -NoNewline

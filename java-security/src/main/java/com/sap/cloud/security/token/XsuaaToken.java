@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
@@ -10,6 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.security.Principal;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -106,7 +112,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 		switch (getGrantType()) {
 		case CLIENT_CREDENTIALS:
 		case CLIENT_X509:
-			principalName = String.format(UNIQUE_CLIENT_NAME_FORMAT, getClaimAsString(CLIENT_ID));
+			principalName = String.format(UNIQUE_CLIENT_NAME_FORMAT, getClientId());
 			break;
 		default:
 			principalName = getUniquePrincipalName(getClaimAsString(ORIGIN), getClaimAsString(USER_NAME));
@@ -158,11 +164,14 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN);
 	}
 
-	@Nullable
-	private String getAttributeFromClaimAsString(String claimName, String attributeName) {
-		return Optional.ofNullable(getClaimAsJsonObject(claimName))
-				.map(claim -> claim.getAsString(attributeName))
-				.orElse(null);
+	@Override
+	public String getSubaccountId() {
+		return Optional.ofNullable(getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID))
+				.orElse(getClaimAsString(ZONE_ID));
 	}
 
+	@Override
+	public String getZoneId() {
+		return Objects.nonNull(super.getZoneId()) ? super.getZoneId() : getClaimAsString(ZONE_ID);
+	}
 }

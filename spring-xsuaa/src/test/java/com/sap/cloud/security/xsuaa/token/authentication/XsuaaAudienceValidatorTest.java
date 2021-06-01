@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token.authentication;
 
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -7,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -67,8 +73,7 @@ public class XsuaaAudienceValidatorTest {
 	public void testExtractAudiencesFromTokenScopes() {
 		Jwt token = new JwtGenerator()
 				.addScopes("test1!t1.read", "test2!t1.read", "test2!t1.write", ".scopeWithoutAppId").getToken();
-		List<String> audiences = new XsuaaAudienceValidator(serviceConfigurationSameClientId)
-				.getAllowedAudiences(token);
+		Set<String> audiences = XsuaaAudienceValidator.getAllowedAudiences(token);
 		Assert.assertThat(audiences.size(), is(2));
 		Assert.assertThat(audiences, hasItem("test1!t1"));
 		Assert.assertThat(audiences, hasItem("test2!t1"));

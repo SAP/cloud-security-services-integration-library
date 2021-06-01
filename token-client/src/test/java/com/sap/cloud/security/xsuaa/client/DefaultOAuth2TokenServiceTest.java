@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -9,6 +14,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,8 +102,8 @@ public class DefaultOAuth2TokenServiceTest {
 		assertThatThrownBy(() -> requestAccessToken(emptyMap()))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(unauthorizedResponseText)
-				.hasMessageContaining(String.valueOf(HttpStatus.SC_UNAUTHORIZED))
-				.hasMessageContaining(TOKEN_ENDPOINT_URI.toString());
+				.hasMessageContaining(TOKEN_ENDPOINT_URI.toString())
+				.extracting("httpStatusCode").isEqualTo(HttpStatus.SC_UNAUTHORIZED);
 	}
 
 	private OAuth2TokenResponse requestAccessToken(Map<String, String> optionalParameters)

@@ -1,6 +1,12 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token;
 
-import net.minidev.json.JSONArray;
+import com.sap.cloud.security.token.InvalidTokenException;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
@@ -12,7 +18,10 @@ import org.springframework.util.Assert;
 import java.time.Instant;
 import java.util.*;
 
+import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
+import static org.springframework.util.StringUtils.hasText;
 
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 
@@ -30,6 +39,9 @@ public class XsuaaToken extends Jwt implements Token {
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	static final String CLAIM_EXTERNAL_ATTR = "ext_attr";
 	static final String CLAIM_EXTERNAL_CONTEXT = "ext_ctx";
+	// new with SECAUTH-806
+	static final String CLAIM_SUBACCOUNT_ID = "subaccountid";
+	//
 	private static final long serialVersionUID = -836947635254353927L;
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaToken.class);
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();
@@ -117,7 +129,7 @@ public class XsuaaToken extends Jwt implements Token {
 
 		if (origin.contains("/")) {
 			logger.warn(
-					"Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returing null.");
+					"Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returning null.");
 			return null;
 		}
 
@@ -137,7 +149,25 @@ public class XsuaaToken extends Jwt implements Token {
 	@Override
 	@Nullable
 	public String getClientId() {
-		return getClaimAsString(CLAIM_CLIENT_ID);
+		String clientId = getClaimAsString(AUTHORIZATION_PARTY);
+		if (clientId == null || clientId.trim().isEmpty()) {
+			List<String> audiences = getAudience();
+
+			if (audiences != null && audiences.size() == 1) {
+				return audiences.get(0);
+			} else if (hasClaim(CLIENT_ID) && !getClaimAsString(CLIENT_ID).trim() // required for backward compatibility
+																					// for generated tokens in JUnit
+																					// tests
+					.isEmpty()) {
+				logger.warn("usage of 'cid' claim is deprecated and should be replaced by 'azp' or 'aud' claims");
+				return getClaimAsString(CLIENT_ID);
+			}
+			logger.error("Couldn't get client id. Invalid authorized party or audience claims.");
+			throw new InvalidTokenException(
+					"Couldn't get client id. Invalid authorized party or audience claims.");
+		} else {
+			return clientId;
+		}
 	}
 
 	@Override
@@ -170,6 +200,12 @@ public class XsuaaToken extends Jwt implements Token {
 
 	@Override
 	public String getSubaccountId() {
+		String externalAttribute = getStringAttributeFromClaim(CLAIM_SUBACCOUNT_ID, CLAIM_EXTERNAL_ATTR);
+		return !hasText(externalAttribute) ? getClaimAsString(CLAIM_ZONE_ID) : externalAttribute;
+	}
+
+	@Override
+	public String getZoneId() {
 		return getClaimAsString(CLAIM_ZONE_ID);
 	}
 
@@ -212,17 +248,6 @@ public class XsuaaToken extends Jwt implements Token {
 		return scopesList != null ? scopesList : Collections.emptyList();
 	}
 
-	/**
-	 * Check if the authentication token contains a claim, e.g. "email".
-	 * 
-	 * @param claim
-	 *            name of the claim
-	 * @return true: attribute exists
-	 */
-	public boolean hasClaim(String claim) {
-		return containsClaim(claim);
-	}
-
 	void setAuthorities(Collection<GrantedAuthority> authorities) {
 		Assert.notNull(authorities, "authorities are required");
 		this.authorities = authorities;
@@ -243,10 +268,10 @@ public class XsuaaToken extends Jwt implements Token {
 		}
 
 		// convert JSONArray to String[]
-		JSONArray attributeJsonArray = (JSONArray) claimMap.get(attributeName);
+		JSONArray attributeJsonArray = new JSONArray((ArrayList) claimMap.get(attributeName));
 		if (attributeJsonArray != null) {
-			attributeValues = new String[attributeJsonArray.size()];
-			for (int i = 0; i < attributeJsonArray.size(); i++) {
+			attributeValues = new String[attributeJsonArray.length()];
+			for (int i = 0; i < attributeJsonArray.length(); i++) {
 				attributeValues[i] = (String) attributeJsonArray.get(i);
 			}
 		}

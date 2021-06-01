@@ -1,20 +1,26 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_CLIENT_ID;
+import com.sap.cloud.security.xsuaa.extractor.AuthoritiesExtractor;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.provider.AuthorizationRequest;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-
-import com.sap.cloud.security.xsuaa.extractor.AuthoritiesExtractor;
 
 /**
- * An authentication converter that sets a OAuth2Authentication object. Required
- * to keep compatibility with UAA.
+ * @deprecated OAuth2AuthenticationConverter won't be supported in future
+ * @see <a href="https://spring.io/projects/spring-security-oauth">Spring
+ *      Security OAuth2 deprecation notice</a>
+ * @see <a href=
+ *      "https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide">OAuth
+ *      2.0 Migration Guide </a>
  */
+@Deprecated
 public class OAuth2AuthenticationConverter extends TokenAuthenticationConverter {
 
 	public OAuth2AuthenticationConverter(AuthoritiesExtractor authoritiesExtractor) {
@@ -22,14 +28,14 @@ public class OAuth2AuthenticationConverter extends TokenAuthenticationConverter 
 	}
 
 	@Override
-	public OAuth2Authentication convert(Jwt jwt) {
-		AuthenticationToken authenticationToken = (AuthenticationToken) super.convert(jwt);
-		String clientId = jwt.getClaimAsString(CLAIM_CLIENT_ID);
-		AuthorizationRequest authorizationRequest = new AuthorizationRequest(clientId,
-				authenticationToken.getAuthorities().stream().map(Objects::toString).collect(Collectors.toList()));
-		authorizationRequest.setApproved(true);
-		authorizationRequest.setAuthorities(authenticationToken.getAuthorities());
+	public BearerTokenAuthentication convert(Jwt jwt) {
 
-		return new OAuth2Authentication(authorizationRequest.createOAuth2Request(), authenticationToken);
+		AuthenticationToken authenticationToken = (AuthenticationToken) super.convert(jwt);
+		Objects.requireNonNull(authenticationToken, "OAuth2 Authentication token can't be null");
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, jwt.getTokenValue(),
+				jwt.getIssuedAt(), jwt.getExpiresAt());
+
+		return new BearerTokenAuthentication(new OAuth2Principal(authenticationToken), accessToken,
+				authenticationToken.getAuthorities());
 	}
 }

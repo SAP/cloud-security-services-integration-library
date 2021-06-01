@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package testservice.api.v1;
 
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -60,7 +65,7 @@ public class TestController {
 		// email
 		Assert.assertEquals("max@example.com", token.getEmail());
 		// zone
-		Assert.assertTrue(token.getSubaccountId().endsWith("domain-id"));
+		Assert.assertTrue(token.getZoneId().endsWith("domain-id"));
 		// ext attr
 		Assert.assertEquals("domain\\group1", token.getAdditionalAuthAttribute("external_group"));
 		Assert.assertEquals("abcd1234", token.getAdditionalAuthAttribute("external_id"));

@@ -1,11 +1,19 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotEmpty;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,18 +35,48 @@ import com.sap.cloud.security.token.validation.Validator;
  * These checks are a prerequisite for using the `JwtSignatureValidator`.
  */
 class JwtIssuerValidator implements Validator<Token> {
-	private final URI url;
+	private final List<String> domains;
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
+	 * Creates instance of Issuer validation using the url.
+	 *
 	 * @param url
 	 *            the url of the identity provider
 	 *            {@link OAuth2ServiceConfiguration#getProperty(String)}
+	 * @deprecated will be removed soon after the domains are visible in the binding
 	 */
+	@Deprecated
 	JwtIssuerValidator(URI url) {
 		assertNotNull(url, "JwtIssuerValidator requires a url.");
-		this.url = url;
+
+		this.domains = Collections.singletonList(url.getHost());
 	}
+
+	/**
+	 * Creates instance of Issuer validation using the domain.
+	 *
+	 * @param domains
+	 *            the list of domains of the identity provider
+	 *            {@link OAuth2ServiceConfiguration#getDomains()}
+	 */
+	JwtIssuerValidator(List<String> domains) {
+		assertNotEmpty(domains, "JwtIssuerValidator requires a domain(s).");
+		this.domains = domains;
+	}
+
+	/**
+	 * Extracts the domain from a url without the subdomain.
+	 * If no subdomain exists, just returns the host.
+	 *
+	 * @param {string}
+	 *            fullUrl - Example: https://sub.domain.com
+	 * @returns {string} - host without subdomain - Example: domain.com
+	 */
+	/*private static String getSubdomain(URI uri) {
+		String host = uri.getHost();
+		return host.replaceFirst(host.split("\\.")[0] + ".", "");
+	}*/
 
 	@Override
 	public ValidationResult validate(Token token) {
@@ -59,15 +97,19 @@ class JwtIssuerValidator implements Validator<Token> {
 						issuer);
 			}
 			issuerUri = new URI(issuer);
-			if (issuerUri.getHost() != null && issuerUri.getHost().endsWith(url.getHost())) {
-				return createValid();
+			if (issuerUri.getQuery() == null && issuerUri.getFragment() == null && issuerUri.getHost() != null) {
+				for (String d : domains) {
+					if (issuerUri.getHost().endsWith(d)) {
+						return createValid();
+					}
+				}
 			}
 		} catch (URISyntaxException e) {
 			logger.error("Error: 'iss' claim '{}' does not provide a valid URI: {}.", issuer, e.getMessage(), e);
 		}
 		return createInvalid(
-				"Issuer is not trusted because 'iss' '{}' does not match host '{}' of the identity provider.",
-				issuer, url.getHost());
+				"Issuer is not trusted because 'iss' '{}' does not match one of these domains '{}' of the identity provider.",
+				issuer, domains);
 	}
 
 }

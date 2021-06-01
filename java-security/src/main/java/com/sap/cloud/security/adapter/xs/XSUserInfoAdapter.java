@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.adapter.xs;
 
 import com.sap.cloud.security.config.Environments;
@@ -7,7 +12,6 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.GrantType;
-import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
@@ -41,11 +45,9 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	static final String EXTERNAL_CONTEXT = "ext_ctx";
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
-	static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
 	static final String XS_SYSTEM_ATTRIBUTES = "xs.system.attributes";
 	static final String HDB_NAMEDUSER_SAML = "hdb.nameduser.saml";
 	static final String SERVICEINSTANCEID = "serviceinstanceid";
-	static final String ZDN = "zdn";
 	static final String SYSTEM = "SYSTEM";
 	static final String HDB = "HDB";
 
@@ -122,12 +124,22 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getIdentityZone() {
-		return getClaimValue(TokenClaims.XSUAA.ZONE_ID);
+		return getClaimValue(ZONE_ID);
 	}
 
 	@Override
+	/**
+	 * "ext_attr": { "enhancer": "XSUAA", "subaccountid": "my-subaccount-1234" },
+	 */
 	public String getSubaccountId() {
-		return getIdentityZone();
+		return Optional.ofNullable(getExternalAttribute(EXTERNAL_ATTRIBUTE_SUBACCOUNTID))
+				.orElse(getClaimValue(ZONE_ID));
+	}
+
+	@Override
+	public String getZoneId() {
+		return accessToken.hasClaim(SAP_GLOBAL_ZONE_ID) ? accessToken.getClaimAsString(SAP_GLOBAL_ZONE_ID)
+				: getClaimValue(ZONE_ID);
 	}
 
 	@Override
@@ -135,12 +147,12 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * "ext_attr": { "enhancer": "XSUAA", "zdn": "paas-subdomain" },
 	 */
 	public String getSubdomain() {
-		return Optional.ofNullable(getExternalAttribute(ZDN)).orElse(null);
+		return Optional.ofNullable(getExternalAttribute(EXTERNAL_ATTRIBUTE_ZDN)).orElse(null);
 	}
 
 	@Override
 	public String getClientId() {
-		return getClaimValue(CLIENT_ID);
+		return accessToken.getClientId();
 	}
 
 	@Override
@@ -172,11 +184,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	@Override
 	public String getToken(String namespace, String name) {
 		if (!(getGrantType().equals(GrantType.CLIENT_CREDENTIALS.toString())) && hasAttributes() && isInForeignMode()) {
-			throw new XSUserInfoException("The SecurityContext has been initialized with an access token of a\n"
-					+ "foreign OAuth Client Id and/or Identity Zone. Furthermore, the\n"
-					+ "access token contains attributes. Due to the fact that we want to\n"
-					+ "restrict attribute access to the application that provided the \n"
-					+ "attributes, the getToken function does not return a valid token");
+			throw new XSUserInfoException("The SecurityContext has been initialized with an access token of a "
+					+ "foreign OAuth Client Id and/or Identity Zone. Furthermore, the "
+					+ "access token contains attributes. Due to the fact that we want to "
+					+ "restrict attribute access to the application that provides the "
+					+ "attributes, the getToken() function does not return a token.");
 		}
 		if (!namespace.equals(SYSTEM)) {
 			throw new XSUserInfoException("Invalid namespace " + namespace);
@@ -184,7 +196,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		if (name.equals(HDB)) {
 			String token;
 			if (accessToken.hasClaim(EXTERNAL_CONTEXT)) {
-				token = getAttributeFromClaimAsString(EXTERNAL_CONTEXT, HDB_NAMEDUSER_SAML);
+				token = accessToken.getAttributeFromClaimAsString(EXTERNAL_CONTEXT, HDB_NAMEDUSER_SAML);
 			} else {
 				token = accessToken.getClaimAsString(HDB_NAMEDUSER_SAML);
 			}
@@ -239,7 +251,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getAdditionalAuthAttribute(String attributeName) {
-		return Optional.ofNullable(getAttributeFromClaimAsString(CLAIM_ADDITIONAL_AZ_ATTR, attributeName))
+		return Optional.ofNullable(accessToken.getAttributeFromClaimAsString(CLAIM_ADDITIONAL_AZ_ATTR, attributeName))
 				.orElseThrow(createXSUserInfoException(attributeName));
 	}
 
@@ -260,7 +272,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * Check if a token issued for another OAuth client has been forwarded to a
 	 * different client,
 	 *
-	 * This method does not support checking if the token can be accepted by ACL.
+	 * This method does not support checking if the token can be accepted by
+	 * Audience Validation.
 	 *
 	 * @return true if token was forwarded or if it cannot be determined.
 	 */
@@ -286,7 +299,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 		if (clientIdsMatch && (identityZonesMatch || isApplicationPlan || isBrokerPlan)) {
 			LOGGER.info(
-					"Token not in foreign mode because because client ids  match and identityZonesMatch={}, isApplicationPlan={} ",
+					"Token not in foreign mode because because client ids match and identityZonesMatch={}, isApplicationPlan={} ",
 					identityZonesMatch, isApplicationPlan);
 			return false; // no foreign mode
 		}
@@ -392,9 +405,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName) {
-		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);
-		return Optional.ofNullable(claimAsJsonObject)
-				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class))
+		return Optional.ofNullable(accessToken.getAttributeFromClaimAsStringList(claimName, attributeName))
 				.map(values -> values.toArray(new String[] {}))
 				.orElseThrow(createXSUserInfoException(attributeName));
 	}
@@ -405,12 +416,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 					GrantType.CLIENT_CREDENTIALS);
 			throw new XSUserInfoException(message + GrantType.CLIENT_CREDENTIALS);
 		}
-	}
-
-	@Nullable
-	private String getAttributeFromClaimAsString(String claimName, String attributeName) {
-		return Optional.ofNullable(getClaimAsJsonObject(claimName))
-				.map(claim -> claim.getAsString(attributeName)).orElse(null);
 	}
 
 	private Supplier<XSUserInfoException> createXSUserInfoException(String attribute) {
@@ -435,7 +440,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	String getExternalAttribute(String attributeName) {
-		return getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
+		return accessToken.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, attributeName);
 	}
 
 	/**
@@ -496,7 +501,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 					.execute().getAccessToken();
 		} catch (TokenFlowException e) {
 			LOGGER.error("Error performing Client Credentials Flow", e);
-			throw new XSUserInfoException("Error performing Client Credentials Flow..", e);
+			throw new XSUserInfoException("Error performing Client Credentials Flow.", e);
 		}
 		return ccfToken;
 	}

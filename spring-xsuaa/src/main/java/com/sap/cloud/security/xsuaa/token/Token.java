@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token;
 
 import org.springframework.lang.Nullable;
@@ -20,11 +25,22 @@ public interface Token extends UserDetails {
 	static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
 
 	/**
-	 * Returns the subaccount identifier, which can be used as tenant GUID.
+	 * Return subaccount identifier which is in most cases same like the identity
+	 * zone. DO only use this for metering purposes. DO NOT longer use this method
+	 * to get the unique tenant id! For that use {@link #getZoneId()}.
 	 *
 	 * @return the subaccount identifier.
 	 */
 	String getSubaccountId();
+
+	/**
+	 * Return zone identifier which should be used as tenant discriminator (tenant
+	 * id). For most of the old subaccounts this matches the id returned by
+	 * {@link #getSubaccountId()}.
+	 *
+	 * @return the zone identifier.
+	 */
+	String getZoneId();
 
 	/**
 	 * Returns the subdomain of the calling tenant's subaccount.
@@ -34,7 +50,10 @@ public interface Token extends UserDetails {
 	public String getSubdomain();
 
 	/**
-	 * Returns the OAuth client identifier of the authentication token if present.
+	 * Returns the OAuth2 client identifier of the authentication token if present.
+	 * Following OpenID Connect 1.0 standard specifications, client identifier is
+	 * obtained from "azp" claim if present or when "azp" is not present from "aud"
+	 * claim, but only in case there is one audience.
 	 *
 	 * @return the OAuth client ID.
 	 */
@@ -48,17 +67,16 @@ public interface Token extends UserDetails {
 	String getGrantType();
 
 	/**
-	 * Returns a unique user name of a user, using information from the JWT. For
-	 * tokens that were issued as a result of a client credentials flow, the OAuth
-	 * client ID will be returned in a special format. The following information is
-	 * required to uniquely identify a user: <br>
+	 * Returns a unique user name of a user ({@code user_name} claim), using
+	 * information from the JWT. For tokens that were issued as a result of a client
+	 * credentials flow, the OAuth client ID will be returned in a special format.
+	 * The following information is required to uniquely identify a user: <br>
 	 *
 	 * <ul>
 	 * <li><b>user login name:</b> name of the user in an identity provider,
 	 * provided by this method.
 	 * <li><b>origin:</b> alias to an identity provider, see {@link #getOrigin()}.
-	 * <li><b>subaccount id:</b> identifier for the subaccount, see
-	 * {@link #getSubaccountId()}.
+	 * <li><b>zone id:</b> identifier for the zone, see {@link #getZoneId()}.
 	 * </ul>
 	 *
 	 * @return unique principal name or null if it can not be determined.

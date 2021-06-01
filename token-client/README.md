@@ -23,7 +23,7 @@ The Resource owner password credentials (i.e., username and password) can be use
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.7.2</version>
+    <version>2.9.0</version>
 </dependency>
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
@@ -51,6 +51,8 @@ By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache 
 `CacheConfiguration` object as constructor parameter. The cache can be disabled by using the
 `CacheConfiguration.CACHE_DISABLED` configuration.
 
+:exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService.java` implementation or to the `XsuaaTokenFlows`.
+
 ## Configuration for Java/Spring Applications
 
 #### Maven Dependencies, when using Spring Web `RestTemplate`
@@ -62,7 +64,7 @@ By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.7.2</version>
+    <version>2.9.0</version>
 </dependency>
 ```
 
@@ -83,6 +85,8 @@ By default, the `XsuaaOAuth2TokenService` caches tokens internally. The Cache ca
 `CacheConfiguration` object as constructor parameter. The cache can be disabled by using the
 `CacheConfiguration.CACHE_DISABLED` configuration.
 
+:exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService.java` implementation or to the `XsuaaTokenFlows`.
+
 ## Configuration for Spring Boot Applications
 
 #### Maven Dependencies
@@ -91,7 +95,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.7.2</version>
+    <version>2.9.0</version>
 </dependency>
 ```
 
@@ -123,7 +127,7 @@ Obtain a client credentials token:
 
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.clientCredentialsTokenFlow()
-                                                    .subdomain(jwtToken.getSubdomain()) // this is optional 
+                                                    .subdomain(jwtToken.getSubdomain()) // this is optional - use zoneId alternatively
                                                     .disableCache(true)                 // optionally disables token cache for request
                                                     .execute();
 ```
@@ -133,18 +137,18 @@ In case you have a refresh token and want to obtain an access token:
 ```java
 OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
                               .refreshToken(<refresh_token>)
-                              .subdomain(jwtToken.getSubdomain()) // this is optional 
+                              .subdomain(jwtToken.getSubdomain()) // this is optional
                               .disableCache(true)                 // optionally disables token cache for request
                               .execute();
 ```
 ### User Token Flow
 In order to exchange a user token for another user access token:
 ```java
-XsuaaToken jwtToken = SpringSecurityContext.getToken();
+Token jwtToken = SpringSecurityContext.getToken();
 
 OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
                 .token(jwtToken)
-                .subdomain(jwtToken.getSubdomain()) // this is optional      
+                .subdomain(jwtToken.getSubdomain()) // optional, if not set it trys to extract zone Id from token
                 .disableCache(true)                 // optionally disables token cache for request
                 .attributes(additionalAttributes)   // this is optional
                 .execute();
@@ -155,10 +159,10 @@ OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
 In order to obtain an access token for a user:
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.passwordTokenFlow()
-                                                    .subdomain(jwtToken.getSubdomain()) // this is optional
-                                                    .disableCache(true)                 // optionally disables token cache for request
+                                                    .subdomain(jwtToken.getSubdomain()) 
                                                     .username(<your username>)
                                                     .password(<your password>)
+                                                    .disableCache(true)  // optionally disables token cache for request
                                                     .execute();
 ```
 
@@ -178,11 +182,17 @@ For java applications using `HttpClient`, see the
 For spring applications using rest template, you can set
 `org.springframework.web.client.RestTemplate` to log level `DEBUG`. 
 
-## Issues
+### Common issues
 
-This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
+- This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
 If you have classpath related  issues involving JSON you should take a look at the
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
+
+- `{\"error\":\"unauthorized\",\"error_description\":\"Unable to map issuer, [http://subdomain.localhost:8080/uaa/oauth/token] , to a single registered provider\"}`  
+Token exchange is only supported within the same identity zone/tenant. That means, that you have to call the `/oauth/token` endpoint of the same subdomain, that was used for the original token. This can be achieved by configuring the user token flow the following way:
+````
+tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());`
+````
 
 ## Samples
 - [Java sample](/samples/java-tokenclient-usage)

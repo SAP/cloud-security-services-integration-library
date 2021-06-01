@@ -1,7 +1,13 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -25,7 +31,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 	private static final Logger logger = LoggerFactory.getLogger(JwtAudienceValidator.class);
 	private static final char DOT = '.';
 
-	private final Set<String> clientIds = new LinkedHashSet<>();
+	private final Set<String> trustedClientIds = new LinkedHashSet<>();
 
 	JwtAudienceValidator(String clientId) {
 		configureTrustedClientId(clientId);
@@ -33,7 +39,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	JwtAudienceValidator configureTrustedClientId(String clientId) {
 		assertHasText(clientId, "JwtAudienceValidator requires a clientId.");
-		clientIds.add(clientId);
+		trustedClientIds.add(clientId);
 		logger.info("configured JwtAudienceValidator with clientId {}.", clientId);
 
 		return this;
@@ -41,35 +47,37 @@ public class JwtAudienceValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
-		Set<String> allowedAudiences = getAllowedAudiences(token);
-		return Optional.ofNullable(validateDefault(allowedAudiences))
-				.orElseGet(() -> Optional.ofNullable(validateAudienceOfXsuaaBrokerClone(allowedAudiences))
-						.orElseGet(() -> ValidationResults.createInvalid(
-								"Jwt token with audience {} is not issued for these clientIds: {}.",
-								allowedAudiences,
-								clientIds)));
+		Set<String> allowedAudiences = extractAudiencesFromToken(token);
+
+		if (validateDefault(allowedAudiences)
+				|| validateAudienceOfXsuaaBrokerClone(allowedAudiences)) {
+			return ValidationResults.createValid();
+		}
+		return ValidationResults.createInvalid(
+				"Jwt token with audience {} is not issued for these clientIds: {}.",
+				token.getAudiences(), trustedClientIds);
 	}
 
-	private ValidationResult validateDefault(Set<String> allowedAudiences) {
-		for (String configuredClientId : clientIds) {
+	private boolean validateDefault(Set<String> allowedAudiences) {
+		for (String configuredClientId : trustedClientIds) {
 			if (allowedAudiences.contains(configuredClientId)) {
-				return ValidationResults.createValid();
+				return true;
 			}
 		}
-		return null;
+		return false;
 	}
 
-	private ValidationResult validateAudienceOfXsuaaBrokerClone(Set<String> allowedAudiences) {
-		for (String configuredClientId : clientIds) {
+	private boolean validateAudienceOfXsuaaBrokerClone(Set<String> allowedAudiences) {
+		for (String configuredClientId : trustedClientIds) {
 			if (configuredClientId.contains("!b")) {
 				for (String audience : allowedAudiences) {
-					if (audience.contains("|") && audience.endsWith("|" + configuredClientId)) {
-						return ValidationResults.createValid();
+					if (audience.endsWith("|" + configuredClientId)) {
+						return true;
 					}
 				}
 			}
 		}
-		return null;
+		return false;
 	}
 
 	/**
@@ -78,11 +86,11 @@ public class JwtAudienceValidator implements Validator<Token> {
 	 * @param token
 	 * @return (empty) list of audiences
 	 */
-	static Set<String> getAllowedAudiences(Token token) {
+	static Set<String> extractAudiencesFromToken(Token token) {
 		Set<String> audiences = new LinkedHashSet<>();
 
 		for (String audience : token.getAudiences()) {
-			if (audience.contains(".")) {
+			if (audience.contains("" + DOT)) {
 				// CF UAA derives the audiences from the scopes.
 				// In case the scopes contains namespaces, these needs to be removed.
 				String aud = extractAppId(audience);
@@ -93,20 +101,28 @@ public class JwtAudienceValidator implements Validator<Token> {
 				audiences.add(audience);
 			}
 		}
-		// extract audience (app-id) from scopes
-		if (audiences.isEmpty()) {
-			for (String scope : token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)) {
-				if (scope.contains(".")) {
-					audiences.add(extractAppId(scope));
+
+		if (Service.XSUAA.equals(token.getService())) {
+			if (token.hasClaim(TokenClaims.AUTHORIZATION_PARTY)) {
+				audiences.add(token.getClientId());
+			}
+			// extract audience (app-id) from scopes
+			if (token.getAudiences().isEmpty()) {
+				for (String scope : token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)) {
+					if (scope.contains(".")) {
+						audiences.add(extractAppId(scope));
+					}
 				}
 			}
 		}
+		logger.info("The audiences that are derived from the token: {}.", audiences);
 		return audiences;
 	}
 
 	/**
-	 * In case of audiences, the namespaces are trimmed.
-	 * In case of scopes, the namespaces and the scope names are trimmed.
+	 * In case of audiences, the namespaces are trimmed. In case of scopes, the
+	 * namespaces and the scope names are trimmed.
+	 *
 	 * @param scopeOrAudience
 	 * @return
 	 */
@@ -114,4 +130,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 		return scopeOrAudience.substring(0, scopeOrAudience.indexOf(DOT)).trim();
 	}
 
+	public Set<String> getTrustedClientIds() {
+		return trustedClientIds;
+	}
 }

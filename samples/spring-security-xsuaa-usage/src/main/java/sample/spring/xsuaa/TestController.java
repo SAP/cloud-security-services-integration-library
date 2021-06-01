@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package sample.spring.xsuaa;
 
 import java.util.HashMap;
@@ -17,6 +22,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_USER_NAME;
 
 @RestController
 public class TestController {
@@ -40,6 +47,10 @@ public class TestController {
         this.dataService = dataService;
     }
 
+    @GetMapping("/health")
+    public String sayHello() { return "I'm alright"; }
+
+
     /**
      * Returns the detailed information of the XSUAA JWT token.
      * Uses a Token retrieved from the security context of Spring Security.
@@ -58,6 +69,7 @@ public class TestController {
         result.put("grant type", token.getGrantType());
         result.put("client id", token.getClientId());
         result.put("subaccount id", token.getSubaccountId());
+        result.put("zone id", token.getZoneId());
         result.put("logon name", token.getLogonName());
         result.put("family name", token.getFamilyName());
         result.put("given name", token.getGivenName());
@@ -80,7 +92,7 @@ public class TestController {
     public String sayHello(@AuthenticationPrincipal Jwt jwt) {
 
         logger.info("Got the JWT: {}", jwt);
-
+        logger.info(jwt.getClaimAsString(CLAIM_USER_NAME));
         logger.info(jwt.toString());
 
         return "Hello Jwt-Protected World!";
@@ -143,13 +155,14 @@ public class TestController {
      * <p>
      *
      *
-     * @param jwt - the Jwt as a result of authentication.
+     * @param token - the Jwt as a result of authentication.
      * @throws TokenFlowException in case of any errors.
      */
     @GetMapping("/v3/requestUserToken")
-    public String requestUserToken(@AuthenticationPrincipal Jwt jwt) throws TokenFlowException {
+    public String requestUserToken(@AuthenticationPrincipal Token token) throws TokenFlowException {
         OAuth2TokenResponse userTokenResponse = tokenFlows.userTokenFlow()
-                .token(jwt.getTokenValue())
+                .token(token.getAppToken())
+                .subdomain(token.getSubdomain())
                 .execute();
 
         logger.info("Got the exchanged token for 3rd party service: {}", userTokenResponse);

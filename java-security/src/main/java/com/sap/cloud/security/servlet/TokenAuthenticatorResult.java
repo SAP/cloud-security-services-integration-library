@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.token.Token;
@@ -77,14 +82,6 @@ class TokenAuthenticatorResult implements TokenAuthenticationResult {
 	@Override
 	public Collection<String> getScopes() {
 		return scopes;
-	}
-
-	/**
-	 * @return true if authenticated.
-	 */
-	@Override
-	public boolean isAuthenticated() {
-		return reason.isEmpty();
 	}
 
 	/**

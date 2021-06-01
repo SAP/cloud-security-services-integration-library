@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.config.cf;
 
 import static com.sap.cloud.security.config.Service.IAS;
@@ -36,7 +41,7 @@ public class CFEnvironment implements Environment {
 		return getInstance(System::getenv, System::getProperty);
 	}
 
-	static CFEnvironment getInstance(UnaryOperator<String> systemEnvironmentProvider,
+	public static CFEnvironment getInstance(UnaryOperator<String> systemEnvironmentProvider,
 			UnaryOperator<String> systemPropertiesProvider) {
 		CFEnvironment instance = new CFEnvironment();
 		instance.systemEnvironmentProvider = systemEnvironmentProvider;

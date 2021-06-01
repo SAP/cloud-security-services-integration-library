@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-License-Identifier: Apache-2.0
+---
+# Configuration:
+# configured for EU10. For other landscapes, please adopt LANDSCAPE_APPS_DOMAIN in ../vars.yml
+# If the route is occupied, you might need to change ID in ../vars.yml
+applications:
+# The sample application.
+- name: spring-security-hybrid-usage
+  instances: 1
+  memory: 896M
+  routes:
+    - route: spring-security-hybrid-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
+  path: target/spring-security-hybrid-usage.jar
+  buildpacks:
+    - java_buildpack
+  services:
+    - xsuaa-authn
+    - ias-authn
+

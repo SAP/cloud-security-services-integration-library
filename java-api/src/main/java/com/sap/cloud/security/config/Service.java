@@ -1,5 +1,11 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.config;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -10,8 +16,12 @@ public enum Service {
 	XSUAA("xsuaa"), IAS(getIasServiceName());
 
 	private static String getIasServiceName() {
-		String iasServiceName = System.getenv("IAS_SERVICE_NAME"); // TODO as of now its "identity-beta"
-		return iasServiceName;
+		Logger logger = LoggerFactory.getLogger(Service.class);
+		if (System.getenv("IAS_SERVICE_NAME") != null) {
+			logger.warn(
+					"As of version 2.8.0 IAS_SERVICE_NAME system environment variable is no longer needed. Service 'identity' is available with plan 'application'.");
+		}
+		return "identity";
 	}
 
 	private final String cloudFoundryName;
@@ -27,9 +37,6 @@ public enum Service {
 	 * @return name of the identity service in context of Cloud Foundry environment.
 	 */
 	public String getCFName() {
-		if (this == IAS && cloudFoundryName == null) {
-			LoggerFactory.getLogger(Service.class).error("IAS Service is not yet supported!!!"); // TODO remove
-		}
 		return cloudFoundryName;
 	}
 }

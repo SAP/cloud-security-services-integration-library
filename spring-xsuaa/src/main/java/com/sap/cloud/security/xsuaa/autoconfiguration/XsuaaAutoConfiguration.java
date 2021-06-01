@@ -1,5 +1,11 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
+import com.sap.cloud.security.xsuaa.extractor.TokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -48,6 +54,11 @@ public class XsuaaAutoConfiguration {
 			logger.info("auto-configures XsuaaServiceConfigurationDefault");
 			return new XsuaaServiceConfigurationDefault();
 		}
+
+		@Bean
+		public TokenUtil tokenUtil() {
+			return new TokenUtil();
+		}
 	}
 
 	private static class PropertyConditions extends AllNestedConditions {
@@ -75,7 +86,7 @@ public class XsuaaAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public RestOperations xsuaaRestOperations() {
-		logger.info("auto-configures RestOperations for xsuaa requests)");
+		logger.info("auto-configures RestOperations for xsuaa requests");
 		return new RestTemplate();
 	}
 

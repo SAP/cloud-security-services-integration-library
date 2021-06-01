@@ -1,11 +1,14 @@
 /**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  * 
+ * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.extractor;
 
 import java.net.URI;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.springframework.cache.Cache;
@@ -26,6 +29,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 public class TokenBrokerTestConfiguration {
 
 	private static final String TOKEN_NAME = "token";
+	private static final String XSUAA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHRfYXR0ciI6eyJlbmhhbmNlciI6IlhTVUFBIn19._cocFCqqATDXx6eBUoF22W9F8VwUVYY59XdLGdEDFso";
 
 	@Bean
 	public Cache tokenCache() {
@@ -37,7 +41,7 @@ public class TokenBrokerTestConfiguration {
 		return new OAuth2TokenService() {
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
-					ClientCredentials clientCredentials, @Nullable String subdomain,
+					ClientCredentials clientCredentials, @Nullable String zoneId, @Nullable String subdomain,
 					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 					throws OAuth2ServiceException {
 				try {
@@ -92,7 +96,16 @@ public class TokenBrokerTestConfiguration {
 					ClientCredentials clientCredentials, String token, @Nullable String subdomain,
 					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 					throws OAuth2ServiceException {
-				return null;
+				return new OAuth2TokenResponse(XSUAA_TOKEN, 100, null);
+			}
+
+			@Override
+			public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
+					ClientCredentials clientCredentials, @Nonnull String token,
+					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest,
+					@Nonnull String xZidHeader)
+					throws OAuth2ServiceException {
+				return new OAuth2TokenResponse(XSUAA_TOKEN, 100, null);
 			}
 		};
 	}

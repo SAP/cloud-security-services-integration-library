@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -6,20 +11,15 @@ import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 
 public class XsuaaServicesParser {
 
@@ -73,11 +73,12 @@ public class XsuaaServicesParser {
 			credentialsJSON = parseCredentials(vcapServices);
 		}
 		if (credentialsJSON != null) {
-			Optional<String> attributeString = Optional.ofNullable(credentialsJSON.getAsString(name));
-			if (!attributeString.isPresent()) {
+			String attributeString = credentialsJSON.optString(name);
+			if (attributeString.isEmpty()) {
 				logger.info("XSUAA VCAP_SERVICES has no attribute with name '{}'.", name);
+			} else {
+				return Optional.of(attributeString);
 			}
-			return attributeString;
 		}
 		return Optional.empty();
 	}
@@ -110,13 +111,13 @@ public class XsuaaServicesParser {
 			return null;
 		}
 		try {
-			JSONObject vcapServicesJSON = (JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(vcapServices);
+			JSONObject vcapServicesJSON = new JSONObject(vcapServices);
 			JSONObject xsuaaBinding = searchXsuaaBinding(vcapServicesJSON);
 
-			if (Objects.nonNull(xsuaaBinding) && xsuaaBinding.containsKey(CREDENTIALS)) {
+			if (Objects.nonNull(xsuaaBinding) && xsuaaBinding.has(CREDENTIALS)) {
 				return (JSONObject) xsuaaBinding.get(CREDENTIALS);
 			}
-		} catch (ParseException ex) {
+		} catch (JSONException ex) {
 			throw new IOException("Error while parsing XSUAA credentials from VCAP_SERVICES: {}.", ex);
 		}
 		return null;
@@ -135,14 +136,14 @@ public class XsuaaServicesParser {
 
 	private static JSONObject getJSONObjectFromTag(final JSONArray jsonArray, String tag) {
 		JSONObject xsuaaBinding = null;
-		for (int i = 0; i < jsonArray.size(); i++) {
-			JSONObject binding = (JSONObject) jsonArray.get(i);
+		for (Object value : jsonArray) {
+			JSONObject binding = (JSONObject) value;
 			JSONArray tags = (JSONArray) binding.get(TAGS);
 
-			Optional<String> planName = Optional.ofNullable(binding.getAsString("plan"));
-			boolean isApiAccessPlan = (planName.isPresent() && planName.get().equals("apiaccess"));
-			for (int j = 0; j < tags.size(); j++) {
-				if (tags.get(j).equals(tag) && !isApiAccessPlan) {
+			String planName = binding.optString("plan");
+			boolean isApiAccessPlan = (!planName.isEmpty() && planName.equals("apiaccess"));
+			for (Object o : tags) {
+				if (o.equals(tag) && !isApiAccessPlan) {
 					if (xsuaaBinding == null) {
 						xsuaaBinding = binding;
 					} else {

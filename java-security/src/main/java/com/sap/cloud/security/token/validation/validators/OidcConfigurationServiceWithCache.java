@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -21,7 +26,7 @@ import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 public class OidcConfigurationServiceWithCache {
 	private OidcConfigurationService oidcConfigurationService; // access via getter
 	private Cache<String, OAuth2ServiceEndpointsProvider> cache;
-	private long cacheValidityInSeconds = 600; // Revert after 15 Minutes
+	private long cacheValidityInSeconds = 600; // old keys should expire after 10 minutes
 	private long cacheSize = 1000;
 
 	private OidcConfigurationServiceWithCache() {
@@ -111,7 +116,8 @@ public class OidcConfigurationServiceWithCache {
 
 	private Cache<String, OAuth2ServiceEndpointsProvider> getCache() {
 		if (cache == null) {
-			cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
+			cache = Caffeine.newBuilder()
+					.expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
 					.maximumSize(cacheSize)
 					.build();
 		}
