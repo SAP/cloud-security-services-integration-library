@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 ## 2.9.0 and 0.2.0 [BETA]
 - [java-security] and [spring-security] validates IAS OIDC tokens from multiple IAS tenants and zones.
 - [spring-security] Resource Server raises ``InvalidBearerTokenException`` in case token couldn't be successfully validated (as documented [here](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver-bearertoken-failure)).
+- The following dependencies are updated:
+    - commons-io:commons-io 2.8.0 --> 2.9.0
+    - org.springframework.boot:spring-boot 2.4.5 --> 2.5.0
+    - org.springframework:spring-core 5.3.6 --> 5.3.7
+    - org.springframework.security:spring-security-oauth2-jose 5.4.6 --> 5.5.0
+    - org.springframework.security:spring-security-oauth2-resource-server 5.4.6 --> 5.5.0
+    - org.springframework.security:spring-security-oauth2-jose 5.4.6 --> 5.5.0
+    - org.springframework.security:spring-boot-starter-test 5.4.6 --> 5.5.0
+    - org.junit.jupiter 5.7.1 --> 5.7.2
+    - org.mockito:mockito-core 3.9.0 --> 3.10.0
 
 ## 2.8.13
 - [token-client] **Bug fix** As of now, client-credential and jwt bearer user tokens are not cached in case tokenflow is configured with zone-id (instead of subdomain).
@@ -15,7 +25,7 @@ All notable changes to this project will be documented in this file.
 - [spring-security] and [spring-security-starter] `HybridIdentityServicesAutoConfiguration` supports Identity service configuration alone, by setting up `IasJwtDecoder`
 
 ## 2.8.12 and 0.1.5 [BETA]
-- The following dependencies were updated:
+- The following dependencies are updated:
     - spring.security.version 5.4.5 --> 5.4.6
     - spring.core.version 5.3.5 --> 5.3.6
     - spring.boot.version 2.4.4 --> 2.4.5
