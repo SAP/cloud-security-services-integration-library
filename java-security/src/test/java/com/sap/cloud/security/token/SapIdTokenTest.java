@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
@@ -22,7 +27,8 @@ public class SapIdTokenTest {
 
 	@Test
 	public void constructor_raiseIllegalArgumentExceptions() {
-		assertThatThrownBy(() -> new SapIdToken("")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("jwtToken must not be null / empty");
+		assertThatThrownBy(() -> new SapIdToken("")).isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("jwtToken must not be null / empty");
 
 		assertThatThrownBy(() -> new SapIdToken("abc")).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");
@@ -41,12 +47,12 @@ public class SapIdTokenTest {
 	@Test
 	public void getAudiences() {
 		assertThat(cut.getAudiences()).isNotEmpty();
-		assertThat(cut.getAudiences()).hasSize(1);
+		assertThat(cut.getAudiences()).hasSize(2);
 		assertThat(cut.getAudiences()).contains("T000310");
 	}
 
 	@Test
-	public void getCnfThumbprint(){
+	public void getCnfThumbprint() {
 		assertThat(cut.getCnfX509Thumbprint()).isNull();
 		assertThat(cut2.getCnfX509Thumbprint()).isEqualTo("2blWiJDH07q0b2qEwShOIxtt10CkZ5xdDw4Vbs8ddoI");
 	}

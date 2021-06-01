@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.config;
 
 import org.junit.jupiter.api.Test;
@@ -7,6 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = { MultiXsuaaTestConfigurationFromFile.class })
@@ -30,7 +39,9 @@ class IdentityServicesPropertySourceFactoryMultiTest {
 
 		assertEquals("client-id-ias", configuration.identityClientId);
 		assertEquals("client-secret-ias", configuration.identityClientSecret);
-		assertEquals("iasdomain", configuration.identityDomain);
+		assertTrue(configuration.identityDomains.contains("iasdomain"));
+		assertTrue(configuration.identityDomains.contains("iasdomain.com"));
+		assertEquals(2, configuration.identityDomains.size());
 	}
 }
 
@@ -69,6 +80,6 @@ class MultiXsuaaTestConfigurationFromFile {
 	@Value("${sap.security.services.identity.clientsecret:}")
 	public String identityClientSecret;
 
-	@Value("${sap.security.services.identity.domain:}")
-	public String identityDomain;
+	@Value("${sap.security.services.identity.domains:}")
+	public List<String> identityDomains;
 }

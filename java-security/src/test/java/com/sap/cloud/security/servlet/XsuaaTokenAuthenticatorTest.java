@@ -1,9 +1,13 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.XsuaaToken;
@@ -24,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
+import static com.sap.cloud.security.config.cf.CFConstants.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,8 +65,8 @@ public class XsuaaTokenAuthenticatorTest {
 
 		oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, "auth.com")
-				.withProperty(CFConstants.XSUAA.APP_ID, "appId")
+				.withDomains("auth.com")
+				.withProperty(XSUAA.APP_ID, "appId")
 				.withClientId("clientId")
 				.withClientSecret("mySecret")
 				.withUrl("https://myauth.com")

@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
@@ -78,7 +83,7 @@ class HybridIdentityServicesAutoConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnProperty("sap.security.services.identity.domain")
+		@ConditionalOnProperty("sap.security.services.identity.domains")
 		@ConditionalOnMissingBean(JwtDecoder.class)
 		public JwtDecoder iasJwtDecoder(IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures IasJwtDecoder.");

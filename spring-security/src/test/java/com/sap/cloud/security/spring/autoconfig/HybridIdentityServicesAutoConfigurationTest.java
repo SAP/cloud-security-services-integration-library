@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.spring.token.authentication.HybridJwtDecoder;
@@ -112,7 +117,7 @@ class HybridIdentityServicesAutoConfigurationTest {
 	void autoConfigurationIdentityServiceOnly() {
 		List<String> identityProperties = new ArrayList<>();
 		identityProperties.add("sap.security.services.identity.url:http://localhost");
-		identityProperties.add("sap.security.services.identity.domain:localhost");
+		identityProperties.add("sap.security.services.identity.domains:localhost");
 		identityProperties.add("sap.security.services.identity.clientid:cid");
 
 		WebApplicationContextRunner runner = new WebApplicationContextRunner()

@@ -30,7 +30,8 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
 
 ## Supported Identity Services
 - XSUAA
-- as of version `2.8.0` IAS (:bulb: no multi-tenancy support yet)
+- as of version `2.8.0` IAS
+- as of version `2.9.0` IAS tokens from multiple tenants and zones
 
 ## Supported Algorithms
 

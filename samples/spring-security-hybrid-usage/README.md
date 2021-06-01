@@ -7,20 +7,14 @@ This sample is using the [`spring-security`](/spring-security/) library which ba
 
 # Deployment To Cloud Foundry
 To deploy the application, the following steps are required:
-- Compile the Java application
 - Create a XSUAA service instance
 - Create an Identity service instance
 - Configure manifest.yml
-- Deploy the application
+- Compile and deploy the application
 - Admin: Assign Role Collection to your XSUAA user
 - Admin: Assign Group to your IAS user
 - Access the application
 
-## Compile the Java Application
-Run maven to package the application
-```shell
-mvn clean package
-```
 
 ## Create the XSUAA Service Instance
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a xsuaa service instance
@@ -37,10 +31,11 @@ cf create-service identity application ias-authn
 ## Configure the manifest
 The [vars](../vars.yml) contains hosts and paths that you might need to adopt.
 
-## Deploy the application
+## Compile and deploy the application
 Deploy the application using cf push. It will expect 1 GB of free memory quota.
 
 ```shell
+mvn clean package
 cf push --vars-file ../vars.yml
 ```
 > Note: In case of this error message `An operation for service instance ias-authn is in progress.` wait a moment, as identity service instance gets created asynchronously.

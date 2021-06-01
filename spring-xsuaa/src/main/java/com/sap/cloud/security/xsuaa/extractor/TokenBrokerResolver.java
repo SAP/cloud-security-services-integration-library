@@ -1,6 +1,10 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.extractor;
 
-import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -144,7 +148,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		for (AuthenticationMethod credentialType : authenticationMethods) {
 			for (String authHeaderValue : Collections.list(request.getHeaders(AUTH_HEADER))) {
 				String token = getBrokerToken(credentialType, authHeaderValue, oauthTokenUrl, clientCredentials);
-				if (!StringUtils.isEmpty(token)) {
+				if (StringUtils.hasText(token)) {
 					return token;
 				}
 			}

@@ -1,6 +1,10 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.token.authentication;
 
-import com.sap.cloud.security.token.InvalidTokenException;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -8,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.util.Assert;
 
 /**
@@ -40,7 +45,7 @@ public class IasJwtDecoder implements JwtDecoder {
 		Token token = Token.create(encodedToken);
 		ValidationResult validationResult = tokenValidators.validate(token);
 		if (validationResult.isErroneous()) {
-			throw new InvalidTokenException("The token is invalid: " + validationResult.getErrorDescription());
+			throw new InvalidBearerTokenException("The token is invalid.");
 		}
 		logger.debug("The token of service {} was successfully validated.", token.getService());
 		return parseJwt(token);

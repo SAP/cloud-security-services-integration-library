@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token.authentication;
 
 import com.nimbusds.jwt.JWT;
@@ -39,6 +44,7 @@ public class XsuaaJwtDecoderTest {
 		final JwtDecoder cut = new XsuaaJwtDecoderBuilder(configurationWithVerificationKey).build();
 
 		final Jwt jwt = cut.decode(token);
+		jwt.getClaimAsString("zid");
 
 		assertThat(jwt.getClaimAsString(TokenClaims.CLAIM_CLIENT_ID)).isEqualTo("sb-clientId!t0815");
 	}

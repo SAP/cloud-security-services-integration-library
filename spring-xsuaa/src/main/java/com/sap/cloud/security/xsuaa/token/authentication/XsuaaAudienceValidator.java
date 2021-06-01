@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token.authentication;
 
 import java.util.Collections;
@@ -44,7 +49,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
 		String tokenClientId = token.getClaimAsString(TokenClaims.CLAIM_CLIENT_ID);
-		if (StringUtils.isEmpty(tokenClientId)) {
+		if (!StringUtils.hasText(tokenClientId)) {
 			return OAuth2TokenValidatorResult.failure(
 					new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, "Jwt token must contain 'cid' (client_id)", null));
 		}

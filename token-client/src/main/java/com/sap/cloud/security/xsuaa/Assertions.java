@@ -1,4 +1,11 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa;
+
+import java.util.List;
 
 public class Assertions {
 
@@ -13,6 +20,12 @@ public class Assertions {
 
 	public static void assertHasText(String string, String message) {
 		if (string == null || string.trim().isEmpty()) {
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	public static void assertNotEmpty(List<String> list, String message) {
+		if (list == null || list.isEmpty()) {
 			throw new IllegalArgumentException(message);
 		}
 	}

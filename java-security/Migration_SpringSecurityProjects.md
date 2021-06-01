@@ -12,7 +12,7 @@ You're using the SAP Java Buildpack, if you can find the `sap_java_buildpack` in
 
 This [documentation](Migration_SAPJavaBuildpackProjects.md) describes the setup when using SAP Java Buildpack.
 
-## Deprecation Notice
+## :bulb: Deprecation Notice
 
 The Spring Security OAuth project is deprecated. The latest OAuth 2.0 support is provided by Spring Security. See the [OAuth 2.0 Migration Guide](https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide) for further details.
 

@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.config;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -6,6 +11,7 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -74,14 +80,13 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 		return getConfiguration().getUrl();
 	}
 
-	// TODO https://github.com/SAP/cloud-security-xsuaa-integration/pull/457
-	/**
-	 * public String getDomain() { return getConfiguration().getDomain(); }
-	 * 
-	 * public void setDomain(String domain) { if(Service.XSUAA.equals(getService()))
-	 * { builder.withProperty(CFConstants.XSUAA.UAA_DOMAIN, domain); } else {
-	 * builder.withProperty(CFConstants.IAS.DOMAIN, domain); } }
-	 **/
+	public List<String> getDomains() {
+		return getConfiguration().getDomains();
+	}
+
+	public void setDomains(String... domains) {
+		builder.withDomains(domains);
+	}
 
 	/**
 	 * Sets base URL of the OAuth2 identity service instance. In multi tenancy

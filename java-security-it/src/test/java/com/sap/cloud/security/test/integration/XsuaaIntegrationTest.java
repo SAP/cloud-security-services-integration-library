@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.test.integration;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -62,9 +67,9 @@ public class XsuaaIntegrationTest {
 
 	@Test
 	public void xsuaaTokenValidationFails_withIasCombiningValidator() throws IOException {
-		OAuth2ServiceConfiguration configuration = rule.getConfigurationBuilderFromFile(
+		OAuth2ServiceConfiguration configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
 				"/ias-simple/vcap_services-single.json")
-				.withUrl("https://myauth.com")
+				.withDomains("myauth.com")
 				.build();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
@@ -78,7 +83,7 @@ public class XsuaaIntegrationTest {
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isFalse();
 		assertThat(result.getErrorDescription()).startsWith(
-				"Issuer is not trusted because 'iss' 'http://auth.com' does not match host 'myauth.com' of the identity provider");
+				"Issuer is not trusted because 'iss' 'http://auth.com' does not match one of these domains '[myauth.com]' of the identity provider");
 	}
 
 	@Test

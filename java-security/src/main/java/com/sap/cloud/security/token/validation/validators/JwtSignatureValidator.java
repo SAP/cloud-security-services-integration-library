@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.token.TokenClaims.*;
@@ -59,6 +64,9 @@ class JwtSignatureValidator implements Validator<Token> {
 		String jwksUri;
 		String keyId;
 
+		if (Service.IAS == configuration.getService() && token.getZoneId() == null) {
+			return createInvalid("Error occurred during signature validation: IAS must provide zone_uuid.");
+		}
 		try {
 			jwksUri = getOrRequestJwksUri(token);
 			String fallbackPublicKey = null;
@@ -70,7 +78,8 @@ class JwtSignatureValidator implements Validator<Token> {
 					getOrDefaultSignatureAlgorithm(token),
 					keyId,
 					jwksUri,
-					fallbackPublicKey);
+					fallbackPublicKey,
+					token.getZoneId());
 		} catch (OAuth2ServiceException | IllegalArgumentException e) {
 			return createInvalid("Error occurred during jwks uri determination: {}", e.getMessage());
 		}
@@ -127,14 +136,14 @@ class JwtSignatureValidator implements Validator<Token> {
 
 	// for testing
 	ValidationResult validate(String token, String tokenAlgorithm, String tokenKeyId, String tokenKeysUrl,
-			@Nullable String fallbackPublicKey) {
+			@Nullable String fallbackPublicKey, @Nullable String zoneId) {
 		assertHasText(token, "token must not be null or empty.");
 		assertHasText(tokenAlgorithm, "tokenAlgorithm must not be null or empty.");
 		assertHasText(tokenKeyId, "tokenKeyId must not be null or empty.");
 		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
 
 		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId,
-				URI.create(tokenKeysUrl), fallbackPublicKey);
+				URI.create(tokenKeysUrl), fallbackPublicKey, zoneId);
 	}
 
 	private static class Validation {
@@ -150,15 +159,15 @@ class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
-				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, @Nullable String fallbackPublicKey) {
+				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, @Nullable String fallbackPublicKey,
+				@Nullable String zoneId) {
 			ValidationResult validationResult;
 
 			validationResult = setSupportedJwtAlgorithm(tokenAlgorithm);
 			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
-
-			validationResult = setPublicKey(tokenKeyService, tokenKeyId, tokenKeysUrl);
+			validationResult = setPublicKey(tokenKeyService, tokenKeyId, tokenKeysUrl, zoneId);
 			if (validationResult.isErroneous()) {
 				if (fallbackPublicKey != null) {
 					try {
@@ -194,9 +203,9 @@ class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		private ValidationResult setPublicKey(OAuth2TokenKeyServiceWithCache tokenKeyService, String keyId,
-				URI keyUri) {
+				URI keyUri, String zoneId) {
 			try {
-				this.publicKey = tokenKeyService.getPublicKey(jwtSignatureAlgorithm, keyId, keyUri);
+				this.publicKey = tokenKeyService.getPublicKey(jwtSignatureAlgorithm, keyId, keyUri, zoneId);
 			} catch (OAuth2ServiceException e) {
 				return createInvalid("Error retrieving Json Web Keys from Identity Service: {}.", e.getMessage());
 			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {

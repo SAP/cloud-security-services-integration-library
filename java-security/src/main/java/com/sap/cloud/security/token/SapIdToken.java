@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
@@ -33,7 +38,7 @@ public class SapIdToken extends AbstractToken {
 	}
 
 	@Nullable
-	public String getCnfX509Thumbprint(){
+	public String getCnfX509Thumbprint() {
 		return getAttributeFromClaimAsString(TokenClaims.CNF, TokenClaims.CNF_X509_THUMBPRINT);
 	}
 }

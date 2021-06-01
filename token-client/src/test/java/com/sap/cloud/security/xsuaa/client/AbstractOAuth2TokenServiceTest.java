@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.client;
 
 import com.github.benmanes.caffeine.cache.Ticker;
@@ -72,6 +77,19 @@ public class AbstractOAuth2TokenServiceTest {
 		retrieveAccessTokenViaClientCredentials();
 		retrieveAccessTokenViaClientCredentials(new ClientCredentials("other client id", "secret"), false);
 		retrieveAccessTokenViaClientCredentials();
+
+		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
+	}
+
+	@Test
+	public void retrieveAccessTokenViaClientCredentials_forDifferentZoneIds_TwoRequestCalls()
+			throws OAuth2ServiceException {
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "ZONE-ID", SUBDOMAIN,
+				null, false);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "ZONE-ID", SUBDOMAIN,
+				null, false);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "OTHER_ZONE-ID",
+				SUBDOMAIN, null, false);
 
 		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
 	}

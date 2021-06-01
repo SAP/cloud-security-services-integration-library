@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.json;
 
 import javax.annotation.Nullable;
@@ -94,6 +99,7 @@ public interface JsonObject {
 	 * property with the given name is not found, null is returned.
 	 *
 	 * @param name
+	 *            the name of property.
 	 * @return the {@link Long} object.
 	 * @throws JsonParsingException
 	 *             if the json object identified by the given property does not

@@ -1,5 +1,7 @@
+# SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-License-Identifier: Apache-2.0
 ---
-# Setting Log Levels          
+# Setting Log Levels
 logging.level:
   com.sap: DEBUG                      # set SAP-class loggers to DEBUG.
   org.springframework: ERROR          # set to DEBUG to see all beans loaded and auto-config conditions met.

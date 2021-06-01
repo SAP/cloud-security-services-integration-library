@@ -1,12 +1,15 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.config;
 
 import com.sap.cloud.security.xsuaa.Assertions;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 
@@ -18,6 +21,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	private Service service;
 	private boolean runInLegacyMode;
 	private final Map<String, String> properties = new HashMap<>();
+	private List<String> domains = new ArrayList<>();
 
 	private OAuth2ServiceConfigurationBuilder() {
 		// use forService factory method
@@ -80,6 +84,23 @@ public class OAuth2ServiceConfigurationBuilder {
 		return this;
 	}
 
+	/**
+	 * Domains of the OAuth2 identity service instance. In multi tenancy scenarios
+	 * this contains the domain where the service instance was created.
+	 *
+	 * @param domains
+	 *            one or multiple domain, e.g. "idservice.com"
+	 * @return this builder itself
+	 */
+	public OAuth2ServiceConfigurationBuilder withDomains(String... domains) {
+		if (Service.XSUAA.equals(service)) {
+			properties.put(XSUAA.UAA_DOMAIN, domains[0]);
+		} else {
+			this.domains = Arrays.asList(domains);
+		}
+		return this;
+	}
+
 	public OAuth2ServiceConfigurationBuilder withProperty(String propertyName, String propertyValue) {
 		properties.put(propertyName, propertyValue); // replaces values, that were already set
 		return this;
@@ -105,7 +126,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * @return the oauth2 service configuration.
 	 */
 	public OAuth2ServiceConfiguration build() {
-		return new OAuth2ServiceConfigurationImpl(properties, service, runInLegacyMode);
+		return new OAuth2ServiceConfigurationImpl(properties, service, domains, runInLegacyMode);
 	}
 
 	private class OAuth2ServiceConfigurationImpl implements OAuth2ServiceConfiguration {
@@ -113,12 +134,14 @@ public class OAuth2ServiceConfigurationBuilder {
 		private final Map<String, String> properties;
 		private final boolean runInLegacyMode;
 		private final Service service;
+		private List<String> domains;
 
 		private OAuth2ServiceConfigurationImpl(@Nonnull Map<String, String> properties,
-				@Nonnull Service service, boolean runInLegacyMode) {
+				@Nonnull Service service, List<String> domains, boolean runInLegacyMode) {
 			this.properties = properties;
 			this.service = service;
 			this.runInLegacyMode = runInLegacyMode;
+			this.domains = domains;
 		}
 
 		@Override
@@ -134,6 +157,11 @@ public class OAuth2ServiceConfigurationBuilder {
 		@Override
 		public URI getUrl() {
 			return hasProperty(URL) ? URI.create(properties.get(URL)) : null;
+		}
+
+		@Override
+		public List<String> getDomains() {
+			return domains;
 		}
 
 		@Override

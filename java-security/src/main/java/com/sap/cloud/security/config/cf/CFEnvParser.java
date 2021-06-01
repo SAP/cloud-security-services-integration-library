@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -13,6 +18,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.config.cf.CFConstants.CREDENTIALS;
+import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
 import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
 
 class CFEnvParser {
@@ -61,14 +68,17 @@ class CFEnvParser {
 			boolean isLegacyMode) {
 		Map<String, String> serviceBindingProperties = serviceJsonObject.getKeyValueMap();
 		try {
-			Map<String, String> serviceBindingCredentials = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS)
+			Map<String, String> serviceBindingCredentials = serviceJsonObject.getJsonObject(CREDENTIALS)
 					.getKeyValueMap();
-
-			return OAuth2ServiceConfigurationBuilder.forService(service)
+			OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.forService(service)
 					.withProperties(serviceBindingCredentials)
 					.withProperty(SERVICE_PLAN, serviceBindingProperties.get(SERVICE_PLAN))
-					.runInLegacyMode(isLegacyMode)
-					.build();
+					.runInLegacyMode(isLegacyMode);
+			if (Service.IAS == service) {
+				builder.withDomains(serviceJsonObject.getJsonObject(CREDENTIALS).getAsStringList(DOMAINS)
+						.toArray(new String[0]));
+			}
+			return builder.build();
 		} catch (JsonParsingException e) {
 			String errDescription = "The credentials of 'VCAP_SERVICES' can not be parsed for service '"
 					+ service + "' ('" + e.getMessage() + "'). Please check the service binding.";

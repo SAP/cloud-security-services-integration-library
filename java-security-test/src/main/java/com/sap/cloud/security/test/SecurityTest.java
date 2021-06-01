@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -43,7 +48,7 @@ import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
+import static com.sap.cloud.security.config.Service.*;
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
 public class SecurityTest
@@ -146,10 +151,13 @@ public class SecurityTest
 
 	@Override
 	public JwtGenerator getJwtGeneratorFromFile(String tokenJsonResource) {
-		return JwtGenerator.getInstanceFromFile(service, tokenJsonResource)
-				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+		JwtGenerator jwtGenerator = JwtGenerator.getInstanceFromFile(service, tokenJsonResource)
 				.withClaimValue(TokenClaims.ISSUER, issuerUrl)
 				.withPrivateKey(keys.getPrivate());
+		if (XSUAA == service) {
+			jwtGenerator.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl);
+		}
+		return jwtGenerator;
 	}
 
 	@Override
@@ -157,7 +165,7 @@ public class SecurityTest
 			String configurationResourceName) {
 		return VcapServicesParser.fromFile(configurationResourceName)
 				.getConfigurationBuilder()
-				.withProperty(UAA_DOMAIN, URI.create(issuerUrl).getHost())
+				.withDomains(URI.create(issuerUrl).getHost())
 				.withUrl(issuerUrl);
 	}
 
@@ -234,7 +242,7 @@ public class SecurityTest
 	}
 
 	private String getKeyId() {
-		return this.service == Service.IAS ? JwtGenerator.DEFAULT_KEY_ID_IAS : JwtGenerator.DEFAULT_KEY_ID;
+		return this.service == IAS ? JwtGenerator.DEFAULT_KEY_ID_IAS : JwtGenerator.DEFAULT_KEY_ID;
 	}
 
 	String createDefaultOidcConfigurationResponse() throws IOException {

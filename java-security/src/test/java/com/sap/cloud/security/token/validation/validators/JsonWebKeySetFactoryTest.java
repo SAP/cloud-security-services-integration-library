@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token.validation.validators;
 
 import org.apache.commons.io.IOUtils;
@@ -49,7 +54,7 @@ public class JsonWebKeySetFactoryTest {
 
 	@Test
 	public void getIasKeys() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-		jsonWebTokenKeys = IOUtils.resourceToString("/iasJsonWebTokenKeys.json", StandardCharsets.UTF_8);
+		jsonWebTokenKeys = IOUtils.resourceToString("/iasJsonWebTokenKeys_noKid.json", StandardCharsets.UTF_8);
 		JsonWebKeySet jwks = JsonWebKeySetFactory.createFromJson(jsonWebTokenKeys);
 		JsonWebKey jwk = jwks.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, null);
 		assertThat(jwk.getKeyAlgorithm().type(), equalTo("RSA"));
