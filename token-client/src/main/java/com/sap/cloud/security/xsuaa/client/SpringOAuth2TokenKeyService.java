@@ -7,9 +7,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.Assertions;
 import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
 
 import javax.annotation.Nonnull;
@@ -32,15 +30,12 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		try {
 			// create headers
-			//HttpHeaders headers = new HttpHeaders();
-			//headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			//headers.set(HEADER_ZONE_ID, zoneId != null ? zoneId : "");
-			//HttpEntity request = new HttpEntity(headers);
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.set(X_ZONE_UUID, zoneId != null ? zoneId : "");
 
-			MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-			headers.add(X_ZONE_UUID, zoneId != null ? zoneId : "");
 			ResponseEntity<String> response = restOperations.exchange(
-					tokenKeysEndpointUri, GET, new HttpEntity<>(headers), String.class);
+					tokenKeysEndpointUri, GET, new HttpEntity(headers), String.class);
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
 				return response.getBody();
 			} else {
@@ -51,7 +46,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 						.withResponseBody(response.getBody())
 						.build();
 			}
-		} catch (HttpClientErrorException ex) { // TODO HttpStatusCodeException
+		} catch (HttpStatusCodeException ex) { // TODO
 			throw OAuth2ServiceException.builder("Error retrieving token keys")
 					.withUri(tokenKeysEndpointUri)
 					.withHeaders(X_ZONE_UUID + "=" + zoneId)
