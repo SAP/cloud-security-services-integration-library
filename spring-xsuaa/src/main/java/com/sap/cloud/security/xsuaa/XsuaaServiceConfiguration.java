@@ -5,6 +5,11 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.CredentialType;
+import com.sap.cloud.security.xsuaa.client.ClientCertificate;
+import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.client.ClientIdentity;
+
 import javax.annotation.Nullable;
 
 public interface XsuaaServiceConfiguration {
@@ -21,6 +26,18 @@ public interface XsuaaServiceConfiguration {
 	 * @return client secret
 	 */
 	String getClientSecret();
+
+	/**
+	 * Client Identity of xsuaa instance
+	 * @return ClientIdentity object
+	 */
+	default ClientIdentity getClientIdentity(){
+		CredentialType credentialType = getCredentialType();
+		if (credentialType != null && credentialType == CredentialType.X509) {
+			return new ClientCertificate(getCertificates(), getPrivateKey(), getClientId());
+		}
+		return new ClientCredentials(getClientId(), getClientSecret());
+	}
 
 	/**
 	 * Base URL of the xsuaa service instance. In multi tenancy scenarios this is
@@ -40,9 +57,9 @@ public interface XsuaaServiceConfiguration {
 
 	/**
 	 * Defined Credential type of the xsuaa service instance.
-	 * @return
+	 * @return value of credential-type field
 	 */
-	String getCredentialType();
+	CredentialType getCredentialType();
 
 	/**
 	 * XS application identifier

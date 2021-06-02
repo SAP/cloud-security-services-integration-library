@@ -1,5 +1,7 @@
 package com.sap.cloud.security.config;
 
+import javax.annotation.Nullable;
+
 /**
  * Constants denoting the credential types of a xsuaa OAuth2 configuration
  */
@@ -17,6 +19,16 @@ public enum CredentialType {
     @Override
     public String toString() {
         return typeName;
+    }
+
+    @Nullable
+    public static CredentialType from(String claimName) {
+        for (CredentialType credentialType : values()) {
+            if (credentialType.typeName.equals(claimName)) {
+                return credentialType;
+            }
+        }
+        return null;
     }
 
 }

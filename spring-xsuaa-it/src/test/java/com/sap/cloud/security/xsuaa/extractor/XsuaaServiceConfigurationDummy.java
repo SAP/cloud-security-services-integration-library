@@ -7,6 +7,7 @@ package com.sap.cloud.security.xsuaa.extractor;
 
 import javax.annotation.Nullable;
 
+import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration {
@@ -55,7 +56,7 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 	}
 
 	@Override
-	public String getCredentialType() {
+	public CredentialType getCredentialType() {
 		return null;
 	}
 

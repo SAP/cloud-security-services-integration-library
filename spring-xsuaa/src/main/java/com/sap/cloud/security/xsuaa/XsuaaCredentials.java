@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.CredentialType;
+
 /**
  * Represents the XSUAA credentials of VCAP_SERVICES.
  */
@@ -18,7 +20,7 @@ public class XsuaaCredentials {
 	private String verificationKey;
 	private String certificate;
 	private String privateKey;
-	private String credentialType;
+	private CredentialType credentialType;
 
 	public String getClientId() {
 		return clientId;
@@ -82,11 +84,11 @@ public class XsuaaCredentials {
 		this.certificate = certificate;
 	}
 
-	public String getCredentialType() {
+	public CredentialType getCredentialType() {
 		return credentialType;
 	}
 
-	public void setCredentialType(String credentialType) {
+	public void setCredentialType(CredentialType credentialType) {
 		this.credentialType = credentialType;
 	}
 

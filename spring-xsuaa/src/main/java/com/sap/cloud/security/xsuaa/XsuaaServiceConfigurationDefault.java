@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.CredentialType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -94,8 +95,8 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	}
 
 	@Override
-	public String getCredentialType() {
-		return credentialType;
+	public CredentialType getCredentialType() {
+		return CredentialType.from(credentialType);
 	}
 
 	@Override
