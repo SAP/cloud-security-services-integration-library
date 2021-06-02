@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.mtls;
 
-import com.sap.cloud.security.xsuaa.client.ClientIdentity;
+import com.sap.xsa.security.container.ClientIdentity;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;

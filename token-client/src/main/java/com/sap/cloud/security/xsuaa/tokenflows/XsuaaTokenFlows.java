@@ -8,6 +8,7 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 import java.io.Serializable;
 
 import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.xsa.security.container.ClientIdentity;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 

@@ -15,6 +15,7 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
+import com.sap.xsa.security.container.ClientIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.xsa.security.container.ClientIdentity;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

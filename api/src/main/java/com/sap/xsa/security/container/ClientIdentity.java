@@ -1,5 +1,8 @@
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.xsa.security.container;
 
+/**
+ * Represents xsuaa client identity
+ */
 public interface ClientIdentity {
     String getId();
 
@@ -23,5 +26,4 @@ public interface ClientIdentity {
         return null;
     }
 
-    //TODO impl gethash and equals methods only in client cred
 }

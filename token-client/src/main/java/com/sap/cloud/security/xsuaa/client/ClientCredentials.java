@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.xsa.security.container.ClientIdentity;
+
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
