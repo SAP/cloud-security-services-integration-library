@@ -46,7 +46,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 						.withResponseBody(response.getBody())
 						.build();
 			}
-		} catch (HttpStatusCodeException ex) { // TODO
+		} catch (HttpStatusCodeException ex) {
 			throw OAuth2ServiceException.builder("Error retrieving token keys")
 					.withUri(tokenKeysEndpointUri)
 					.withHeaders(X_ZONE_UUID + "=" + zoneId)
