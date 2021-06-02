@@ -6,6 +6,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import com.sap.cloud.security.xsuaa.mtls.ServiceClientException;
 import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
-	private final RestOperations restOperations;
+	private RestOperations restOperations;
 
 	public XsuaaOAuth2TokenService() {
 		this(SpringHttpClient.create(), TokenCacheConfiguration.defaultConfiguration());
@@ -52,6 +53,12 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		super(tokenCacheConfiguration);
 		assertNotNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
+	}
+
+	public OAuth2TokenService enableMtls(ClientIdentity clientCertificate) throws ServiceClientException {
+		assertNotNull(clientCertificate, "clientCertificate is required");
+		this.restOperations = SpringHttpClient.create(clientCertificate);
+		return this;
 	}
 
 	@Override
