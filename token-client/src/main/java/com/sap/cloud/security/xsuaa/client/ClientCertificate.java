@@ -2,6 +2,8 @@ package com.sap.cloud.security.xsuaa.client;
 
 import javax.annotation.Nonnull;
 
+import java.util.Objects;
+
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 public class ClientCertificate implements ClientIdentity{
@@ -43,5 +45,20 @@ public class ClientCertificate implements ClientIdentity{
     @Override
     public boolean isCertificateBased() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ClientCertificate)) return false;
+        ClientCertificate that = (ClientCertificate) o;
+        return certificate.equals(that.certificate) &&
+                key.equals(that.key) &&
+                clientId.equals(that.clientId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(certificate, key, clientId);
     }
 }
