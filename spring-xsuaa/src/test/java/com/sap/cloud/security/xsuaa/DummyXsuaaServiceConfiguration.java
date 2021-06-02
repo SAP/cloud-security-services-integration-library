@@ -41,7 +41,7 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 	@Nullable
 	@Override
 	public String getUaaCertUrl() {
-		return null;
+		return "https://subdomain.authentication.cert.eu10.hana.ondemand.com";
 	}
 
 	@Override
