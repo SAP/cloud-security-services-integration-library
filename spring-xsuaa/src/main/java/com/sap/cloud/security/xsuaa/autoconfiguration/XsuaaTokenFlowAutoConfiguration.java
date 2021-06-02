@@ -5,9 +5,9 @@
  */
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
+import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.*;
-import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import com.sap.cloud.security.xsuaa.mtls.ServiceClientException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import com.sap.xsa.security.container.ClientIdentity;
@@ -18,8 +18,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.client.RestOperations;
 
 /**
@@ -54,15 +54,14 @@ public class XsuaaTokenFlowAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnBean({ XsuaaServiceConfiguration.class, RestOperations.class })
+	@Conditional(OnNotX509CredentialTypeCondition.class)
 	@ConditionalOnMissingBean
 	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations xsuaaRestOperations,
 			XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		logger.debug("auto-configures XsuaaTokenFlows using restOperations of type: {}", xsuaaRestOperations);
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
 				xsuaaServiceConfiguration.getUaaUrl());
-		ClientIdentity clientIdentity = new ClientCredentials(xsuaaServiceConfiguration.getClientId(),
-				xsuaaServiceConfiguration.getClientSecret()); //TODO xsuaaServiceConfiguration should provide factory method that returns ClientIdentity obj
-		//TODO move clientIdentity interface to api module?
+		ClientIdentity clientIdentity = xsuaaServiceConfiguration.getClientIdentity();
 		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(xsuaaRestOperations);
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
@@ -79,7 +78,7 @@ public class XsuaaTokenFlowAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnBean({ XsuaaServiceConfiguration.class, RestOperations.class })
-	@ConditionalOnProperty(prefix = "sap.security.services", name = "xsuaa.credential-type", havingValue = "x509")
+	@ConditionalOnProperty(prefix = "xsuaa", name = "credential-type", havingValue = "x509")
 	@ConditionalOnMissingBean
 	public XsuaaTokenFlows xsuaaMtlsTokenFlows(
 										   XsuaaServiceConfiguration xsuaaServiceConfiguration) throws ServiceClientException {
@@ -91,4 +90,11 @@ public class XsuaaTokenFlowAutoConfiguration {
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCertificate);
 	}
 
+	private static class OnNotX509CredentialTypeCondition implements Condition {
+		@Override
+		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+			CredentialType credentialType =  CredentialType.from(context.getEnvironment().getProperty("xsuaa.credential-type"));
+			return credentialType == CredentialType.BINDING_SECRET || credentialType == CredentialType.INSTANCE_SECRET || credentialType == null;
+		}
+	}
 }
