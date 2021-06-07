@@ -7,6 +7,7 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
@@ -14,9 +15,11 @@ import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -40,9 +43,12 @@ class IasXsuaaExchangeBroker {
 	 */
 	@Nullable
 	public String doIasToXsuaaXchange(CloseableHttpClient httpClient, Token token,
-			OAuth2ServiceConfiguration serviceConfiguration) throws TokenFlowException {
+			@Nonnull OAuth2ServiceConfiguration serviceConfiguration) throws TokenFlowException {
+		Assertions.assertNotNull(serviceConfiguration, "Service configuration must not be null");
+
+		logger.debug("Initiating XsuaaTokenFlow for token xchange with: {}", serviceConfiguration.getUrl());
 		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-				new DefaultOAuth2TokenService(httpClient),
+				new DefaultOAuth2TokenService(httpClient == null ? HttpClients.createDefault() : httpClient),
 				new XsuaaDefaultEndpoints(serviceConfiguration.getUrl()),
 				new ClientCredentials(serviceConfiguration.getClientId(), serviceConfiguration.getClientSecret()));
 		OAuth2TokenResponse tokenResponse = tokenFlows.userTokenFlow().token(token).execute();
