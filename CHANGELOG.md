@@ -3,8 +3,8 @@ All notable changes to this project will be documented in this file.
 
 
 ## 2.9.0 and 0.2.0 [BETA]
-- [java-security] and [spring-security] validates IAS OIDC tokens from multiple IAS tenants and zones.
-- [spring-security] Resource Server raises ``InvalidBearerTokenException`` in case token couldn't be successfully validated (as documented [here](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver-bearertoken-failure)).
+- [java-security] and [spring-security] validates IAS OIDC tokens from multiple IAS tenants and zones. <br>**Prerequisite:** identity service broker needs to provide list of `domains` via `VCAP_SERVICES`-`identity`-`credentials`.
+- [spring-security] Resource Server raises ``InvalidBearerTokenException`` in case token couldn't be successfully validated (as documented [here](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver-bearertoken-failure)). Adapt your configuation locally according to this [documentation](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-security#minimal-configuration-required).
 
 #### Dependency upgrades
 - commons-io:commons-io 2.8.0 --> 2.9.0
