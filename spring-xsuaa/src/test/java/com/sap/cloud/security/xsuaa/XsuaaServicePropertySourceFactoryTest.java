@@ -6,8 +6,9 @@
 package com.sap.cloud.security.xsuaa;
 
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.junit.Assert;
+import static  org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,23 +30,27 @@ public class XsuaaServicePropertySourceFactoryTest {
 
 	@Test
 	public void testXsuaaServiceConfiguration() {
-		Assert.assertEquals("xs2.usertoken", serviceConfiguration.getClientId());
-		Assert.assertEquals("secret", serviceConfiguration.getClientSecret());
-		Assert.assertEquals("https://auth.com", serviceConfiguration.getUaaUrl());
-		Assert.assertEquals("auth.com", serviceConfiguration.getUaaDomain());
-		Assert.assertThat(testConfiguration.certificate, startsWith("-----BEGIN CERTIFICATE-----"));
-		Assert.assertThat(testConfiguration.key, startsWith("-----BEGIN RSA PRIVATE KEY-----"));
+		assertEquals("xs2.usertoken", serviceConfiguration.getClientId());
+		assertEquals("secret", serviceConfiguration.getClientSecret());
+		assertEquals("https://auth.com", serviceConfiguration.getUaaUrl());
+		assertEquals("auth.com", serviceConfiguration.getUaaDomain());
+		assertEquals("https://auth.cert.com", serviceConfiguration.getUaaCertUrl());
+		assertEquals("x509", serviceConfiguration.getCredentialType().toString());
+		assertThat(testConfiguration.certificate, startsWith("-----BEGIN CERTIFICATE-----"));
+		assertThat(testConfiguration.key, startsWith("-----BEGIN RSA PRIVATE KEY-----"));
 	}
 
 	@Test
 	public void testInjectedPropertyValue() {
-		Assert.assertEquals("xs2.usertoken", testConfiguration.xsuaaClientId);
-		Assert.assertEquals("secret", testConfiguration.xsuaaClientSecret);
-		Assert.assertEquals("https://auth.com", testConfiguration.xsuaaUrl);
-		Assert.assertEquals("auth.com", testConfiguration.xsuaaDomain);
-		Assert.assertEquals("", testConfiguration.unknown);
-		Assert.assertThat(testConfiguration.certificate, startsWith("-----BEGIN CERTIFICATE-----"));
-		Assert.assertThat(testConfiguration.key, startsWith("-----BEGIN RSA PRIVATE KEY-----"));
+		assertEquals("xs2.usertoken", testConfiguration.xsuaaClientId);
+		assertEquals("secret", testConfiguration.xsuaaClientSecret);
+		assertEquals("https://auth.com", testConfiguration.xsuaaUrl);
+		assertEquals("auth.com", testConfiguration.xsuaaDomain);
+		assertEquals("", testConfiguration.unknown);
+		assertEquals("https://auth.cert.com", testConfiguration.certUrl);
+		assertEquals("x509", testConfiguration.credentialType);
+		assertThat(testConfiguration.certificate, startsWith("-----BEGIN CERTIFICATE-----"));
+		assertThat(testConfiguration.key, startsWith("-----BEGIN RSA PRIVATE KEY-----"));
 	}
 
 }
@@ -74,4 +79,10 @@ class TestConfiguration {
 
 	@Value("${xsuaa.key:}")
 	public String key;
+
+	@Value("${xsuaa.credentialtype:}")
+	public String credentialType;
+
+	@Value("${xsuaa.certurl:}")
+	public String certUrl;
 }
