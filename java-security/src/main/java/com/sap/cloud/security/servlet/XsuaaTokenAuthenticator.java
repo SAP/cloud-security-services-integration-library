@@ -76,8 +76,9 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 				try {
 					Token token = Token.create(authorizationHeader);
 					if (isIasXsuaaXchangeEnabled() && token.getService() == Service.IAS) {
+						LOGGER.debug("Received {} token", token.getService());
 						token = new XsuaaToken(Objects.requireNonNull(
-								exchangeBroker.doIasToXsuaaXchange(httpClient, token, serviceConfiguration),
+								exchangeBroker.doIasToXsuaaXchange(httpClient, token, getServiceConfiguration()),
 								"IasXsuaaExchangeBroker is not provided"));
 					}
 					return tokenValidationResult(token);
