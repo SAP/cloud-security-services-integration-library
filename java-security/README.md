@@ -47,7 +47,7 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.8.13</version>
+    <version>2.9.0</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -183,7 +183,7 @@ Steps to enable token exchange:
 2. Make sure `token-client` is not excluded from the project
 3. In order to leverage the token cache, consider the `token-client` initialization notes [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/README.md#cache)
 
-The authenticator is used in the following [sample](/samples/java-security-usage).
+The `XsuaaTokenAuthenticator` is used in the following [sample](/samples/java-security-usage).
 
 ## Test Utilities
 You can find the JUnit test utilities documented [here](/java-security-test).
@@ -217,18 +217,19 @@ The buildpack being used is defined in your deployment descriptor e.g. as part o
 [buildpacks](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack) attribute.
 
 If it is set to `sap_java_buildpack` then the **newest** available version of the SAP Java buildpack is used.
-Use command `cf buildpacks` to get the exact version of `sap_java_buildpack`:
+Use command `cf app <app-name>` to get the exact version of `sap_java_buildpack`:
 
 ```sh
-buildpack                       position   enabled   locked   filename                                             stack
-java_buildpack                  2          true      false    java_buildpack-cached-cflinuxfs3-v4.31.1.zip         cflinuxfs3
-.
-.
-.
-sap_java_buildpack              12         true      false    sap_java_buildpack-v1.32.0.zip
-sap_java_buildpack_1_32         13         true      false    sap_java_buildpack-v1.32.0.zip
-sap_java_buildpack_1_31         14         true      false    sap_java_buildpack-v1.31.2.zip
+Showing health and status for app <app-name> in org ... / space ... as ...
+name:              <app-name>
+requested state:   started
+routes:            ...
+last uploaded:     Thu 06 May 14:31:01 CEST 2021
+stack:             cflinuxfs3
+buildpacks:
+    sap_java_buildpack_1_33
 ```
+Reference: https://cli.cloudfoundry.org/en-US/v7/app.html
 
 ### Increase log level to `DEBUG`
 

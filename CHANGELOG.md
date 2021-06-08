@@ -3,8 +3,19 @@ All notable changes to this project will be documented in this file.
 
 
 ## 2.9.0 and 0.2.0 [BETA]
-- [java-security] and [spring-security] validates IAS OIDC tokens from multiple IAS tenants and zones.
-- [spring-security] Resource Server raises ``InvalidBearerTokenException`` in case token couldn't be successfully validated (as documented [here](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver-bearertoken-failure)).
+- [java-security] and [spring-security] validates IAS OIDC tokens from multiple IAS tenants and zones. <br>**Prerequisite:** identity service broker needs to provide list of `domains` via `VCAP_SERVICES`-`identity`-`credentials`.
+- [spring-security] Resource Server raises ``InvalidBearerTokenException`` in case token couldn't be successfully validated (as documented [here](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver-bearertoken-failure)). Adapt your configuation locally according to this [documentation](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-security#minimal-configuration-required).
+
+#### Dependency upgrades
+- commons-io:commons-io 2.8.0 --> 2.9.0
+- org.springframework.boot:spring-boot 2.4.5 --> 2.5.0
+- org.springframework:spring-core 5.3.6 --> 5.3.7
+- org.springframework.security:spring-security-oauth2-jose 5.4.6 --> 5.5.0
+- org.springframework.security:spring-security-oauth2-resource-server 5.4.6 --> 5.5.0
+- org.springframework.security:spring-security-oauth2-jose 5.4.6 --> 5.5.0
+- org.springframework.security:spring-boot-starter-test 5.4.6 --> 5.5.0
+- org.junit.jupiter 5.7.1 --> 5.7.2
+- org.mockito:mockito-core 3.9.0 --> 3.10.0
 
 ## 2.8.13
 - [token-client] **Bug fix** As of now, client-credential and jwt bearer user tokens are not cached in case tokenflow is configured with zone-id (instead of subdomain).
@@ -15,16 +26,18 @@ All notable changes to this project will be documented in this file.
 - [spring-security] and [spring-security-starter] `HybridIdentityServicesAutoConfiguration` supports Identity service configuration alone, by setting up `IasJwtDecoder`
 
 ## 2.8.12 and 0.1.5 [BETA]
-- The following dependencies were updated:
-    - spring.security.version 5.4.5 --> 5.4.6
-    - spring.core.version 5.3.5 --> 5.3.6
-    - spring.boot.version 2.4.4 --> 2.4.5
-    - org.json.version 20201115 --> 20210307
-    - junit.version 4.13.1 --> 4.13.2
-    - junit-jupiter.version 5.7.0 --> 5.7.1
-    - reactor.version 3.4.2 --> 3.4.5
-    - reactor.test.version 3.4.2 --> 3.4.5
 - [token-client] ```OAuth2ServiceException``` provides ```getHttpStatusCode()```. This allows applications to retry e.g. in case of ```429``` - when the request was rate limited.
+
+#### Dependency upgrades
+- spring.security.version 5.4.5 --> 5.4.6
+- spring.core.version 5.3.5 --> 5.3.6
+- spring.boot.version 2.4.4 --> 2.4.5
+- org.json.version 20201115 --> 20210307
+- junit.version 4.13.1 --> 4.13.2
+- junit-jupiter.version 5.7.0 --> 5.7.1
+- reactor.version 3.4.2 --> 3.4.5
+- reactor.test.version 3.4.2 --> 3.4.5
+
     
 ## 2.8.10 and 0.1.4 [BETA]
 - [spring-xsuaa] introduced spring properties for IAS -> Xsuaa token exchange activation, as described [here](/spring-xsuaa/README.md#ias-to-xsuaa-token-exchange)
@@ -73,7 +86,7 @@ All notable changes to this project will be documented in this file.
 - [java-security] Make HybridTokenFactory more failure tolerant 
 - [spring-xsuaa-test] Prefills "ext_atr" "enhancer" with XSUAA
 
-#### Update Versions
+#### Dependency upgrades
 - [all]
   - commons-io 2.6 --> 2.8.0
   - org.apache.httpcomponents » httpclient 4.5.9 --> 4.5.13
@@ -105,10 +118,11 @@ All notable changes to this project will be documented in this file.
 - [spring-xsuaa]   
   - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/spring-xsuaa#ias-to-xsuaa-token-exchange).
   - Replaces dependencies to JSON Parser of ``net.minidev`` with `org.json` (fixes #414).
-  - The following dependencies were updated:
-    - spring.boot.version 2.3.5.RELEASE --> 2.4.1
-    - spring.core.version 5.2.10.RELEASE --> 5.3.2
-    - spring.security.version 5.3.5.RELEASE --> 5.4.2
+  
+#### Dependency upgrades
+- spring.boot.version 2.3.5.RELEASE --> 2.4.1
+- spring.core.version 5.2.10.RELEASE --> 5.3.2
+- spring.security.version 5.3.5.RELEASE --> 5.4.2
 
 ## 2.8.0
 - [java-security] 

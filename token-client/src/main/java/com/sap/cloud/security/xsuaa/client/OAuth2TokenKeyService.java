@@ -1,25 +1,21 @@
 /**
  * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.client;
 
 import java.net.URI;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface OAuth2TokenKeyService {
 
 	/**
-	 * Requests token web key set from OAuth Server.
+	 * Same as {@link #retrieveTokenKeys(URI, String)} except that zoneId is set to {@code null}.
 	 *
-	 * @param tokenKeysEndpointUri
-	 *            the token endpoint URI (jku).
-	 * @return An endpoint which returns the list of JSON Web Token (JWT) keys as
-	 *         JSON string.
-	 * @throws OAuth2ServiceException
-	 *             in case of an error during the http request.
-	 * @deprecated replace with {@link #retrieveTokenKeys(URI, String)}
+	 * @deprecated gets removed in favor of {@link #retrieveTokenKeys(URI, String)}
+	 * with next major version 3.0.0
 	 */
 	@Deprecated
 	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri) throws OAuth2ServiceException {
@@ -41,5 +37,5 @@ public interface OAuth2TokenKeyService {
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, String zoneId) throws OAuth2ServiceException;
+	String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String zoneId) throws OAuth2ServiceException;
 }
