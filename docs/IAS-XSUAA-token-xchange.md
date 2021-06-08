@@ -48,10 +48,17 @@ Call the secured endpoint with the IAS token like in the example below
    ```
 You should receive an authorized response, if everything works fine.
 
-:interrobang: In case of 403 error, check if the user has required role assigned. Make sure the role is assigned to user in the Identity Provider that has established trust with Xsuaa.
-   
-## Further details
+### Troubleshooting
+#### :interrobang: Common pitfalls
+- In case of **403** error, check if the user has required role assigned. Make sure the role is assigned to user in the Identity Provider that has established trust with Xsuaa.
+- In case of **401** error, check if the token used in the request is valid.
 
+In other cases, increase the log level to `DEBUG` to analyze the issue further. 
+Check READMEs below on how to increase log level for:
+- [Spring application](../spring-xsuaa/README.md#increase-log-level-to-debug)  
+- [Java application](../java-security/README.md#increase-log-level-to-debug)
+
+## Further details
 ### Under the hood
 ![IAS -> XSUAA token xchange flow diagram](token-xchange.png)
 
