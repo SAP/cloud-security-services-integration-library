@@ -3,11 +3,13 @@ Token exchange supports principal propagation from an IAS-based app/service to a
 In case your application, e.g. a SCP Identity Kernel service supports IAS for authentication, but still needs to support applications using XSUAA. In order to support both token types(IAS, XSUAA) you can simply leverage IAS -> XSUAA token-exchange. As there is no change in API and the setup only requires feature enablement, it takes a little adaption effort.
 
 ## Scenario
-The user is logged into a multitenant zone-enabled application that performs authentication via IAS identity provider. In the XSUAA multitenancy concept, the zone is mapped to a single XSUAA tenant that belongs to the zone.
-The application calls a service in the context of the current user and zone, by sending the IAS ID token for the user. That means the IAS ID token consists of `user_uuid` and `zone_uuid` claim.
-The SCP Identity Kernel service uses XSUAA internally and thus needs to exchange the ID token from IAS to an access token from XSUAA.
+Multitenant zone-enabled application performs authentication via IAS identity provider. You can achieve that using [Approuter](https://npmjs.com/package/@sap/approuter), which supports IAS based authentication as of version 9.x. The application then calls the application/service in the context of the current user and zone, by sending the IAS ID token for the user. That means the IAS ID token consists of `user_uuid` and `zone_uuid` claim.
+
+ In case the called application uses XSUAA internally and thus needs to exchange the ID token from IAS to an access token from XSUAA. In the XSUAA multitenancy concept, the zone is mapped to a single XSUAA tenant that belongs to the zone.
 
 ![token-xchange-setup](./images/TokenExchangeSetup.png)
+
+
 
 ## Prerequisites
 #### 1. Setup trust between IAS and Xsuaa
