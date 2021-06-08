@@ -185,7 +185,7 @@ Steps to enable token exchange:
 
 The `XsuaaTokenAuthenticator` is used in the following [sample](/samples/java-security-usage).
 
-For further details about IAS to Xsuaa token exchange please see [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/docs/IAS-XSUAA-token-xchange.md).
+:bulb: For seamless IAS to Xsuaa token exchange integration please see [detailed documentation](../docs/IAS-XSUAA-token-xchange.md) and pay attention to the prerequisites.
 
 ## Test Utilities
 You can find the JUnit test utilities documented [here](/java-security-test).

@@ -177,7 +177,7 @@ Please check out also our samples:
 - [Spring-security-basic-auth sample](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-basic-auth) for `TokenBrokerResolver` usage with basic authentication method.
 - [Spring-security-xsuaa-usage sample](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-xsuaa-usage) for `IasXsuaaExchangeBroker` usage with OAuth2 authentication method 
 
-For further details about IAS to Xsuaa token exchange please see [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/docs/IAS-XSUAA-token-xchange.md).
+:bulb: For seamless IAS to Xsuaa token exchange integration please see [detailed documentation](../docs/IAS-XSUAA-token-xchange.md) and pay attention to the prerequisites.
 
 ## Usage
 
