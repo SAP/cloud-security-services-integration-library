@@ -237,6 +237,8 @@ Reference: https://cli.cloudfoundry.org/en-US/v7/app.html
 
 This depends on the SLF4J implementation, you make use of (see also [here](#logging)). You have to set the debug log level for this package `com.sap.cloud.security`.
 
+:bulb: See [java-security-usage](../samples/java-security-usage/src/main/resources/simplelogger.properties) example for [SimpleLogger](http://www.slf4j.org/api/org/slf4j/impl/SimpleLogger.html) implementation's logging level setup.
+
 #### ... when using SAP Java Buildpack
 
 You should also increase the logging level in your application. This can be done by setting the `SET_LOGGING_LEVEL`

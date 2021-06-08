@@ -78,7 +78,7 @@ public class XsuaaTokenAuthenticatorTest {
 	}
 
 	@Test
-	public void validateWhenConfigurationIsNull() {
+	public void validateXsuaaToken_WhenConfigurationIsNull() {
 		cut = new XsuaaTokenAuthenticator();
 
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
@@ -87,6 +87,18 @@ public class XsuaaTokenAuthenticatorTest {
 		assertThat(response.isAuthenticated()).isFalse();
 		assertThat(response.getUnauthenticatedReason())
 				.contains("Unexpected error occurred: There must be a service configuration.");
+	}
+
+	@Test
+	public void validateIasToken_WhenConfigurationIsNull() throws Exception {
+		cut = new XsuaaTokenAuthenticator();
+
+		HttpServletRequest httpRequest = createRequestWithToken(iasToken.getTokenValue());
+
+		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
+		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "true")
+				.execute(() -> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
+		assertEquals("Unexpected error occurred: There must be a service configuration.", response[0].getUnauthenticatedReason());
 	}
 
 	@Test
@@ -169,7 +181,6 @@ public class XsuaaTokenAuthenticatorTest {
 		withEnvironmentVariable("IAS_XSUAA_XCHANGE_ENABLED", "true")
 				.execute(() -> response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE));
 		assertEquals(response[0].getToken(), xsuaaToken);
-
 	}
 
 	@Test
