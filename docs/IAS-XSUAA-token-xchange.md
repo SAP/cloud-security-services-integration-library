@@ -7,7 +7,7 @@ The user is logged into a multitenant zone-enabled application that performs aut
 The application calls a service in the context of the current user and zone, by sending the IAS ID token for the user. That means the IAS ID token consists of `user_uuid` and `zone_uuid` claim.
 The SCP Identity Kernel service uses XSUAA internally and thus needs to exchange the ID token from IAS to an access token from XSUAA.
 
-[](./images/TokenExchangeSetup.png)
+![token-xchange-setup](./images/TokenExchangeSetup.png)
 
 ## Prerequisites
 #### 1. Setup trust between IAS and Xsuaa
