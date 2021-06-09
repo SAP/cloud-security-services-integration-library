@@ -74,7 +74,8 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 				.withPropertyValues("xsuaa.clientid:client")
 				.withPropertyValues("xsuaa.certificate:" + cert)
 				.withPropertyValues("xsuaa.key:" + key)
-				.withPropertyValues("xsuaa.certurl:x509")
+				.withPropertyValues("xsuaa.certurl:https://domain.cert.authentication.sap.com")
+				.withPropertyValues("xsuaa.url:https://domain.authentication.sap.com")
 				.run((context) -> {
 					assertThat(context).hasSingleBean(XsuaaTokenFlows.class);
 					assertThat(context).hasBean("xsuaaMtlsTokenFlows");
