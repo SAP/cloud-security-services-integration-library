@@ -22,6 +22,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.client.RestOperations;
 
+import javax.annotation.Nonnull;
+
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
  * the XSUAA client library.
@@ -61,9 +63,9 @@ public class XsuaaTokenFlowAutoConfiguration {
 		logger.debug("auto-configures XsuaaTokenFlows using restOperations of type: {}", xsuaaRestOperations);
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
 				xsuaaServiceConfiguration.getUaaUrl());
-		ClientIdentity clientIdentity = xsuaaServiceConfiguration.getClientIdentity();
+		ClientIdentity clientCredentials = xsuaaServiceConfiguration.getClientIdentity();
 		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(xsuaaRestOperations);
-		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientIdentity);
+		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCredentials);
 	}
 
 	/**
@@ -82,17 +84,17 @@ public class XsuaaTokenFlowAutoConfiguration {
 	@ConditionalOnMissingBean
 	public XsuaaTokenFlows xsuaaMtlsTokenFlows(
 										   XsuaaServiceConfiguration xsuaaServiceConfiguration) throws ServiceClientException {
-		logger.debug("auto-configures XsuaaTokenFlows using mTLS restOperations");
+		logger.debug("auto-configures XsuaaTokenFlows using mTLS restOperations with uaacert endpoint: {}", xsuaaServiceConfiguration.getUaaCertUrl());
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
 				xsuaaServiceConfiguration.getUaaCertUrl());
-		ClientCertificate clientCertificate = new ClientCertificate(xsuaaServiceConfiguration.getCertificates(), xsuaaServiceConfiguration.getPrivateKey(), xsuaaServiceConfiguration.getClientId());
+		ClientIdentity clientCertificate = xsuaaServiceConfiguration.getClientIdentity();
 		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService().enableMtls(clientCertificate);
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCertificate);
 	}
 
 	private static class OnNotX509CredentialTypeCondition implements Condition {
 		@Override
-		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+		public boolean matches(ConditionContext context, @Nonnull AnnotatedTypeMetadata metadata) {
 			CredentialType credentialType =  CredentialType.from(context.getEnvironment().getProperty("xsuaa.credential-type"));
 			return credentialType == CredentialType.BINDING_SECRET || credentialType == CredentialType.INSTANCE_SECRET || credentialType == null;
 		}
