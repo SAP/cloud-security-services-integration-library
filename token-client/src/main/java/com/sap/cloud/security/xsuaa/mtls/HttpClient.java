@@ -11,6 +11,9 @@ import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
+/**
+ * HttpClient provides factory methods to initiate HTTP or HTTPS client based on ClientIdentity provided.
+ */
 public class HttpClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClient.class);
@@ -19,6 +22,10 @@ public class HttpClient {
 
     private HttpClient() {}
 
+    /**
+     * Default method to initialize HttpClient without any Client Identity details.
+     * @return new HttpClient
+     */
     public static HttpClient create() {
         if (httpClient == null){
             httpClient = new HttpClient();
@@ -26,12 +33,23 @@ public class HttpClient {
         return httpClient;
     }
 
+    /**
+     * Initializes HttpClient with ClientIdentity. Used to setup HTTPS client for X.509 certificate based communication.
+     * @param clientIdentity for X.509 certificate based communication {@link com.sap.cloud.security.xsuaa.client.ClientCertificate} implementation of ClientIdentity interface should be provided
+     * @return httpClient
+     */
     public static HttpClient create(ClientIdentity clientIdentity) {
         create();
         httpClient.clientIdentity = clientIdentity;
         return httpClient;
     }
 
+    /**
+     * Provides CloseableHttpClient based on ClientIdentity details. For ClientIdentity that is certificate based it will resolve https client
+     * using the provided ClientIdentity in the {@link #create(ClientIdentity)} If the ClientIdentity wasn't provided it will return default HttpClient
+     * @return HTTP or HTTPS client
+     * @throws ServiceClientException in case HTTPS Client could not be setup
+     */
     public CloseableHttpClient getCloseableHttpClient() throws ServiceClientException {
         if (clientIdentity != null  && clientIdentity.isCertificateBased()){
             LOGGER.debug("Cert, key, clientId from Xsuaa binding {}\n {}\n {}", clientIdentity.getCertificate(), clientIdentity.getKey(), clientIdentity.getId());
