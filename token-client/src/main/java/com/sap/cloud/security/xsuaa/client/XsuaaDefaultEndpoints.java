@@ -5,6 +5,9 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URI;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -16,6 +19,8 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private static final String AUTHORIZE_ENDPOINT = "/oauth/authorize";
 	private static final String KEYSET_ENDPOINT = "/token_keys";
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaDefaultEndpoints.class);
+
 	/**
 	 * Creates a new XsuaaDefaultEndpoints.
 	 *
@@ -25,6 +30,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 */
 	public XsuaaDefaultEndpoints(URI baseUri) {
 		assertNotNull(baseUri, "XSUAA base URI must not be null.");
+		LOGGER.debug("Xsuaa default service endpoint = {}", baseUri);
 		this.baseUri = baseUri;
 	}
 
