@@ -5,7 +5,7 @@ In a typical UI5 application, the application router serves HTML files and REST 
 # Coding
 This sample is using the [`spring-xsuaa`](/spring-xsuaa/) library which bases on [spring-security](https://github.com/spring-projects/spring-security) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure JWT for authentication.
 
-Furthermore it demonstrates how to leverage the token flows provided by the [Token Client](/token-client/) library to request / exchange access tokens.
+Furthermore, it demonstrates how to leverage the token flows provided by the [Token Client](/token-client/) library to request / exchange access tokens.
 
 # Deployment To Cloud Foundry
 To deploy the application, the following steps are required:
@@ -28,9 +28,12 @@ mvn clean package
 ```
 
 ## Create the XSUAA Service Instance
-Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
+:exclamation: XSUAA supports X.509 authentication method.
+
+- Use the [xs-security-mtls.json](./xs-security-mtls.json) to define the X.509 authentication method with Xsuaa managed certificate and create a service instance
+- Use the [xs-security.json](./xs-security.json) to define the authentication method with binding secret method and settings and create a service instance
 ```shell
-cf create-service xsuaa application xsuaa-authentication -c xs-security.json
+cf create-service xsuaa application xsuaa-authentication -c xs-security-mtls.json
 ```
 
 ## Configure the manifest

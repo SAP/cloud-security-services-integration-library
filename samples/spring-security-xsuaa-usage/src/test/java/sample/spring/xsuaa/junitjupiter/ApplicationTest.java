@@ -8,9 +8,15 @@ package sample.spring.xsuaa.junitjupiter;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import org.springframework.test.context.TestPropertySource;
 import sample.spring.xsuaa.Application;
 
+import static com.sap.cloud.security.test.SecurityTest.*;
+
 @SpringBootTest(classes = Application.class)
+@TestPropertySource(properties = {
+		"xsuaa.clientid=" + DEFAULT_CLIENT_ID
+})
 @java.lang.SuppressWarnings("squid:S2699")
 public class ApplicationTest {
 
