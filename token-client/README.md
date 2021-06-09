@@ -35,6 +35,7 @@ The Resource owner password credentials (i.e., username and password) can be use
 Instantiate `XsuaaTokenFlows` with the `DefaultOAuth2TokenService` which
 makes use of [Apache HttpClient](https://hc.apache.org/):
 
+- Client secret based authentication method:
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                                     new DefaultOAuth2TokenService(), 
@@ -43,7 +44,17 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 ```
 The `DefaultOAuth2TokenService` can also be instantiated with a custom `CloseableHttpClient`.
 
-> The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. 
+- X.509 based authentication method
+```java
+ClientIdentity clientCertificate = new ClientCertificate(<client_id>, <certificate>, <key>);
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+                                    new DefaultOAuth2TokenService(HttpClient.create(clientCertificate)), 
+                                    new XsuaaDefaultEndpoints(<uaa_cert_url>), 
+                                    clientCertificate);
+```
+The `HttpClient.create(ClientIdentity clientIdentity)` is used to setup a HTTPS client for X.509 certificate usage.
+
+> The `<uaa_base_url>`, `<uaa_cert_url>`, `<client_id>`, `<client_secret>`, `<certificate>`, `<key>` are placeholders for the information you get from the XSUAA service binding. 
 
 ##### Cache
 
@@ -66,18 +77,47 @@ By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache 
     <artifactId>token-client</artifactId>
     <version>2.9.0</version>
 </dependency>
+
+```
+#### Maven Dependencies, when using Spring Web `RestTemplate` with X.509 authentication method
+```xml
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client</artifactId>
+    <version>2.9.0</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.httpcomponents</groupId>
+  <artifactId>httpclient</artifactId>
+</dependency>
 ```
 
 #### Initialization
 
 With Spring-Web available `XsuaaTokenFlows` can be instantiated with a `RestTemplate` of your choice like that:
+- Client secret based authentication method:
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                                     new XsuaaOAuth2TokenService(new RestTemplate()),
                                     new XsuaaDefaultEndpoints(<uaa_base_url>),
                                     new ClientCredentials(<client_id>, <client_secret>));
 ```
-> The `<uaa_base_url>`, `<client_id>` and `<client_secret>` are placeholders for the information you get from the XSUAA service binding. In case you leverage the spring-xsuaa library you can also use [`XsuaaServiceConfiguration`](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/XsuaaServiceConfiguration.java) class.
+
+- X.509 based authentication method
+```java
+ClientCerificate clientCertificate = new ClientCertificate(<client_id>, <certificate>, <key>);
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+                                    new XsuaaOAuth2TokenService().enableMtls(clientCertificate), 
+                                    new XsuaaDefaultEndpoints(<uaa_cert_url>), 
+                                    clientCertificate);
+```
+> The `<uaa_base_url>`, `<uaa_cert_url>`, `<client_id>`, `<client_secret>`, `<certificate>`, `<key>` are placeholders for the information you get from the XSUAA service binding. 
+
+:bulb: To use externally (not Xsuaa) managed X.509 certificates, `ClientCertificate` class needs to be instantiated with the external certificate and key.
 
 ##### Cache
 
@@ -182,7 +222,7 @@ For java applications using `HttpClient`, see the
 For spring applications using rest template, you can set
 `org.springframework.web.client.RestTemplate` to log level `DEBUG`. 
 
-### Common issues
+### Common Pitfalls
 
 - This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
 If you have classpath related  issues involving JSON you should take a look at the
@@ -193,6 +233,14 @@ Token exchange is only supported within the same identity zone/tenant. That mean
 ````
 tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());`
 ````
+
+- For Spring applications error like:
+    ```java
+    java.lang.IllegalStateException: Failed to load ApplicationContext 
+    Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'securityConfiguration': Unsatisfied dependency expressed through field 'xsuaaTokenFlows'
+    nested exception is java.lang.NoClassDefFoundError: org/apache/http/client/HttpClient
+    ``` 
+    make sure `org.apache.httpcomponents.httpclient` dependency is provided in the POM
 
 ## Samples
 - [Java sample](/samples/java-tokenclient-usage)
