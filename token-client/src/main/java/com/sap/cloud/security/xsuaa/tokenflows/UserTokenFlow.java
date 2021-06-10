@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import com.sap.cloud.security.client.ClientCredentials;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;

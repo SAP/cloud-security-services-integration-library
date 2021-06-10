@@ -5,6 +5,9 @@
  */
 package com.sap.cloud.security.xssec.samples.tokenflow.usage;
 
+import com.sap.cloud.security.client.ClientCertificate;
+import com.sap.cloud.security.client.ClientCredentials;
+import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.ClientCredentials;

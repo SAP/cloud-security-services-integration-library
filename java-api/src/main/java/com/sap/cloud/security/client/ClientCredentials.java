@@ -3,14 +3,12 @@
  * 
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.cloud.security.client;
 
 import com.sap.xsa.security.container.ClientIdentity;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
-
-import static com.sap.cloud.security.xsuaa.Assertions.*;
 
 public class ClientCredentials implements ClientIdentity {
 	private static final long serialVersionUID = 2405162041950251807L;
@@ -64,5 +62,17 @@ public class ClientCredentials implements ClientIdentity {
 	@Override
 	public String toString() {
 		return String.format("%s:%s", clientId, clientSecret);
+	}
+
+	private static void assertNotNull(Object object, String message) {
+		if (object == null) {
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	private static void assertHasText(String string, String message) {
+		if (string == null || string.trim().isEmpty()) {
+			throw new IllegalArgumentException(message);
+		}
 	}
 }

@@ -10,7 +10,7 @@ import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFEnvironment;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
 import com.sap.cloud.security.token.XsuaaToken;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;

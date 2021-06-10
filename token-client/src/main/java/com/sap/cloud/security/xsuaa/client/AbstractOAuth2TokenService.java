@@ -8,6 +8,7 @@ package com.sap.cloud.security.xsuaa.client;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Ticker;
+import com.sap.cloud.security.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
@@ -114,8 +115,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@Nonnull URI tokenEndpointUri,
-			@Nonnull ClientCredentials clientCredentials, @Nonnull String token, @Nullable String subdomain,
-			@Nullable Map<String, String> optionalParameters)
+																	@Nonnull ClientCredentials clientCredentials, @Nonnull String token, @Nullable String subdomain,
+																	@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
 		assertNotNull(clientCredentials, "clientCredentials is required");

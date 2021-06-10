@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.mtls;
 
+import com.sap.cloud.security.client.ClientCertificate;
 import com.sap.xsa.security.container.ClientIdentity;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -35,7 +36,7 @@ public class HttpClient {
 
     /**
      * Initializes HttpClient with ClientIdentity. Used to setup HTTPS client for X.509 certificate based communication.
-     * @param clientIdentity for X.509 certificate based communication {@link com.sap.cloud.security.xsuaa.client.ClientCertificate} implementation of ClientIdentity interface should be provided
+     * @param clientIdentity for X.509 certificate based communication {@link ClientCertificate} implementation of ClientIdentity interface should be provided
      * @return httpClient
      */
     public static HttpClient create(ClientIdentity clientIdentity) {

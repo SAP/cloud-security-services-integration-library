@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;

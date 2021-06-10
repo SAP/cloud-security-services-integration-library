@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.client.ClientCertificate;
+import com.sap.cloud.security.client.ClientCredentials;
 import com.sap.xsa.security.container.ClientIdentity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

@@ -6,8 +6,8 @@
 package com.sap.cloud.security.xsuaa;
 
 import com.sap.cloud.security.config.CredentialType;
-import com.sap.cloud.security.xsuaa.client.ClientCertificate;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.client.ClientCertificate;
+import com.sap.cloud.security.client.ClientCredentials;
 import com.sap.xsa.security.container.ClientIdentity;
 
 import javax.annotation.Nullable;

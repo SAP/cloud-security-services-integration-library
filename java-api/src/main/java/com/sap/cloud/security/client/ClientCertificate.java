@@ -1,12 +1,10 @@
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.cloud.security.client;
 
 import com.sap.xsa.security.container.ClientIdentity;
 
 import javax.annotation.Nonnull;
 
 import java.util.Objects;
-
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 public class ClientCertificate implements ClientIdentity {
 
@@ -62,5 +60,11 @@ public class ClientCertificate implements ClientIdentity {
     @Override
     public int hashCode() {
         return Objects.hash(certificate, key, clientId);
+    }
+
+    private static void assertNotNull(Object object, String message) {
+        if (object == null) {
+            throw new IllegalArgumentException(message);
+        }
     }
 }

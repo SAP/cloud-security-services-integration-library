@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.client.ClientCredentials;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

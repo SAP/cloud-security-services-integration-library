@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.sap.cloud.security.client.ClientCredentials;
 import org.mockito.ArgumentMatcher;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

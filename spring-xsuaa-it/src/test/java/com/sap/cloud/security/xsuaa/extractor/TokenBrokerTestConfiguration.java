@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.sap.cloud.security.client.ClientCredentials;
 import com.sap.xsa.security.container.ClientIdentity;
 import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
@@ -51,8 +52,8 @@ public class TokenBrokerTestConfiguration {
 
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
-					ClientCredentials clientCredentials, String token, @Nullable String subdomain,
-					@Nullable Map<String, String> optionalParameters) {
+                                                                            ClientCredentials clientCredentials, String token, @Nullable String subdomain,
+                                                                            @Nullable Map<String, String> optionalParameters) {
 				return null;
 			}
 

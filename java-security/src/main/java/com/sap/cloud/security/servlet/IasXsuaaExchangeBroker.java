@@ -7,7 +7,7 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
