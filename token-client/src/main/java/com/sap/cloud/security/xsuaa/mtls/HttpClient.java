@@ -53,13 +53,13 @@ public class HttpClient {
      */
     public CloseableHttpClient getCloseableHttpClient() throws ServiceClientException {
         if (clientIdentity != null  && clientIdentity.isCertificateBased()){
-            LOGGER.debug("Cert, key, clientId from Xsuaa binding {}\n {}\n {}", clientIdentity.getCertificate(), clientIdentity.getKey(), clientIdentity.getId());
+            LOGGER.debug("Setting up HTTPS client with: clientId: {}\ncertificate: {}\nprivate key: {}\n", clientIdentity.getCertificate(), clientIdentity.getKey(), clientIdentity.getId());
 
             SSLContext sslContext;
             try {
                 sslContext = SSLContextFactory.getInstance().create(clientIdentity.getCertificate(), clientIdentity.getKey());
             } catch (IOException | GeneralSecurityException e) {
-                throw new ServiceClientException(String.format("Couldn't set up Https client for service provider. %s.%s", e.getMessage(), e));
+                throw new ServiceClientException(String.format("Couldn't set up HTTPS client for service provider. %s.%s", e.getMessage(), e));
             }
 
             SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
