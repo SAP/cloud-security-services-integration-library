@@ -185,6 +185,8 @@ Steps to enable token exchange:
 
 The `XsuaaTokenAuthenticator` is used in the following [sample](/samples/java-security-usage).
 
+:bulb: For seamless IAS to Xsuaa token exchange integration please see [detailed documentation](../docs/IAS-XSUAA-token-xchange.md) and pay attention to the prerequisites.
+
 ## Test Utilities
 You can find the JUnit test utilities documented [here](/java-security-test).
 
@@ -234,6 +236,8 @@ Reference: https://cli.cloudfoundry.org/en-US/v7/app.html
 ### Increase log level to `DEBUG`
 
 This depends on the SLF4J implementation, you make use of (see also [here](#logging)). You have to set the debug log level for this package `com.sap.cloud.security`.
+
+:bulb: See [java-security-usage](../samples/java-security-usage/src/main/resources/simplelogger.properties) example for [SimpleLogger](http://www.slf4j.org/api/org/slf4j/impl/SimpleLogger.html) implementation's logging level setup.
 
 #### ... when using SAP Java Buildpack
 
