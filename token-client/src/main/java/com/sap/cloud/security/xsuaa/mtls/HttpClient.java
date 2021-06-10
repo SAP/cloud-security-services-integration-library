@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 /**
- * HttpClient provides factory methods to initiate HTTP or HTTPS client based on ClientIdentity provided.
+ * HttpClient provides factory methods to initialize HTTP or HTTPS client based on ClientIdentity provided.
  */
 public class HttpClient {
 
