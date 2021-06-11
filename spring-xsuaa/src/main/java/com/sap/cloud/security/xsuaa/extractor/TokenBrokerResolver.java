@@ -5,15 +5,13 @@
  */
 package com.sap.cloud.security.xsuaa.extractor;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.client.ClientCredentials;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
-import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -54,12 +52,11 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	private static final String OAUTH_TOKEN_PATH = "/oauth/token";
 	private static final String AUTH_BEARER = "bearer";
 
-	private XsuaaServiceConfiguration configuration;
+	private final XsuaaServiceConfiguration configuration;
 
-	private Cache tokenCache;
-	private TokenBroker tokenBroker;
+	private final Cache tokenCache;
+	private final TokenBroker tokenBroker;
 	private AuthenticationInformationExtractor authenticationConfig;
-	private XsuaaTokenFlows xsuaaTokenFlows;
 	private IasXsuaaExchangeBroker iasXsuaaExchangeBroker;
 
 	/**
@@ -101,12 +98,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		this.tokenCache = tokenCache;
 		this.tokenBroker = new UaaTokenBroker(tokenService);
 		this.authenticationConfig = authenticationConfig;
-		this.xsuaaTokenFlows = new XsuaaTokenFlows(
-				tokenService,
-				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
-				configuration.getClientIdentity());
 		if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
-			this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(this.xsuaaTokenFlows);
+			this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(configuration, tokenService);
 		}
 	}
 
