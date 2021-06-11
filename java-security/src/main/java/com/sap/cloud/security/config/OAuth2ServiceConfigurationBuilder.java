@@ -76,6 +76,49 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	/**
+	 * X.509 certificate of identity service instance.
+	 *
+	 * @param certificate
+	 *            PEM encoded certificate
+	 * @return this builder itself
+	 */
+	public OAuth2ServiceConfigurationBuilder withCertificate(String certificate) {
+		properties.put(CERTIFICATE, certificate);
+		return this;
+	}
+
+	/**
+	 * X.509 private key of identity service instance.
+	 *
+	 * @param privateKey
+	 *            PEM encoded RSA private key
+	 * @return this builder itself
+	 */
+	public OAuth2ServiceConfigurationBuilder withPrivateKey(String privateKey) {
+		properties.put(KEY, privateKey);
+		return this;
+	}
+
+	/**
+	 * ClientIdentity of identity service instance.
+	 *
+	 * @param clientIdentity
+	 *            ClientIdentity object
+	 * @return this builder itself
+	 */
+	public OAuth2ServiceConfigurationBuilder withClientIdentity(ClientIdentity clientIdentity) {
+		properties.put(CLIENT_ID, clientIdentity.getId());
+		if (clientIdentity.isCertificateBased()) {
+			properties.put(CERTIFICATE, clientIdentity.getCertificate());
+			properties.put(KEY, clientIdentity.getKey());
+		} else {
+			properties.put(CLIENT_SECRET, clientIdentity.getSecret());
+		}
+		return this;
+	}
+
+
+	/**
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
 	 * this is the url where the service instance was created.
 	 *
@@ -88,11 +131,24 @@ public class OAuth2ServiceConfigurationBuilder {
 		return this;
 	}
 
+	/**
+	 * Cert URL of the OAuth2 identity service instance.
+	 *
+	 * @param url
+	 *            cert url, e.g. https://paastenant.cert.idservice.com
+	 * @return this builder itself
+	 */
 	public OAuth2ServiceConfigurationBuilder withCertUrl(String url) {
 		properties.put(XSUAA.CERT_URL, url);
 		return this;
 	}
 
+	/**
+	 * Credential type of OAuth2 configuration.
+	 * @param credentialType
+	 * 						credential-type i.e. x509, instance_secret or binding_secret
+	 * @return this builder itself
+	 */
 	public OAuth2ServiceConfigurationBuilder withCredentialType(CredentialType credentialType) {
 		properties.put(XSUAA.CREDENTIAL_TYPE, credentialType.toString());
 		return this;

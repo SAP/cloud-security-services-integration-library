@@ -5,6 +5,9 @@
  */
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.client.ClientCertificate;
+import com.sap.cloud.security.client.ClientCredentials;
+import com.sap.xsa.security.container.ClientIdentity;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,6 +57,67 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		OAuth2ServiceConfiguration configuration = cut.withClientSecret(clientSecret).build();
 
 		assertThat(configuration.getClientSecret()).isEqualTo(clientSecret);
+	}
+
+	@Test
+	public void withCertificate() {
+		String certificate = "-----BEGIN CERTIFICATE-----";
+
+		OAuth2ServiceConfiguration configuration = cut.withCertificate(certificate).build();
+
+		assertThat(configuration.getCertificates()).isEqualTo(certificate);
+	}
+
+	@Test
+	public void withPrivateKey() {
+		String key = "-----BEGIN RSA PRIVATE KEY-----";
+
+		OAuth2ServiceConfiguration configuration = cut.withPrivateKey(key).build();
+
+		assertThat(configuration.getPrivateKey()).isEqualTo(key);
+	}
+
+	@Test
+	public void withCredentialType() {
+		OAuth2ServiceConfiguration configuration = cut.withCredentialType(CredentialType.X509).build();
+
+		assertThat(configuration.getCredentialType()).isEqualTo(CredentialType.X509);
+	}
+
+	@Test
+	public void withClientIdentityX509() {
+		String certificate = "-----BEGIN CERTIFICATE-----";
+		String key = "-----BEGIN RSA PRIVATE KEY-----";
+		String clientId = "myClientId";
+		ClientIdentity clientCertificate = new ClientCertificate(certificate, key, clientId);
+
+		OAuth2ServiceConfiguration configuration = cut.withClientIdentity(clientCertificate)
+				.withCredentialType(CredentialType.X509).build();
+		assertThat(configuration.getPrivateKey()).isEqualTo(key);
+		assertThat(configuration.getCertificates()).isEqualTo(certificate);
+		assertThat(configuration.getClientId()).isEqualTo(clientId);
+		assertThat(configuration.getClientIdentity()).isEqualTo(clientCertificate);
+	}
+
+	@Test
+	public void withClientIdentity() {
+		String clientId = "myClientId";
+		String secret = "mySecret";
+		ClientIdentity clientCredentials = new ClientCredentials(clientId, secret);
+
+		OAuth2ServiceConfiguration configuration = cut.withClientIdentity(clientCredentials).build();
+		assertThat(configuration.getClientId()).isEqualTo(clientId);
+		assertThat(configuration.getClientSecret()).isEqualTo(secret);
+		assertThat(configuration.getClientIdentity()).isEqualTo(clientCredentials);
+	}
+
+	@Test
+	public void withCertUrl() {
+		String url = "http://the.cert.Url.org";
+
+		OAuth2ServiceConfiguration configuration = cut.withCertUrl(url).build();
+
+		assertThat(configuration.getCertUrl()).isEqualTo(URI.create(url));
 	}
 
 	@Test
