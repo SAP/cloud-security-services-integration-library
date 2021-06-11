@@ -53,7 +53,7 @@ public class HttpClient {
      */
     public CloseableHttpClient getCloseableHttpClient() throws ServiceClientException {
         if (clientIdentity != null  && clientIdentity.isCertificateBased()){
-            LOGGER.debug("Setting up HTTPS client with: clientId: {}\ncertificate: {}\nprivate key: {}\n", clientIdentity.getCertificate(), clientIdentity.getKey(), clientIdentity.getId());
+            LOGGER.debug("Setting up HTTPS client with: clientId: {}\ncertificate: {}\nprivate key: {}\n", clientIdentity.getId(), clientIdentity.getCertificate(), clientIdentity.getKey());
 
             SSLContext sslContext;
             try {
