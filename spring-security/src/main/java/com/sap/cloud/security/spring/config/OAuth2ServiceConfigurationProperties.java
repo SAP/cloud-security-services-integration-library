@@ -5,11 +5,14 @@
  */
 package com.sap.cloud.security.spring.config;
 
+import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.xsa.security.container.ClientIdentity;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +76,33 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 */
 	public void setClientSecret(String clientSecret) {
 		builder.withClientSecret(clientSecret);
+	}
+
+	@Override
+	public ClientIdentity getClientIdentity() {
+		return getConfiguration().getClientIdentity();
+	}
+
+	@Override
+	public CredentialType getCredentialType() {
+		return getConfiguration().getCredentialType();
+	}
+
+	@Nullable
+	@Override
+	public String getCertificates() {
+		return getConfiguration().getCertificates();
+	}
+
+	@Nullable
+	@Override
+	public String getPrivateKey() {
+		return getConfiguration().getPrivateKey();
+	}
+
+	@Override
+	public URI getCertUrl() {
+		return getConfiguration().getCertUrl();
 	}
 
 	@Override
