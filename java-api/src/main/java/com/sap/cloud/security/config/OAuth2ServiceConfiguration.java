@@ -5,6 +5,10 @@
  */
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.client.ClientCertificate;
+import com.sap.cloud.security.client.ClientCredentials;
+import com.sap.xsa.security.container.ClientIdentity;
+
 import javax.annotation.Nullable;
 
 import java.net.URI;
@@ -31,12 +35,53 @@ public interface OAuth2ServiceConfiguration {
 	String getClientSecret();
 
 	/**
+	 * Client Identity of xsuaa instance
+	 * @return ClientIdentity object
+	 */
+	default ClientIdentity getClientIdentity(){
+		CredentialType credentialType = getCredentialType();
+		if (credentialType == CredentialType.X509) {
+			return new ClientCertificate(getCertificates(), getPrivateKey(), getClientId());
+		}
+		return new ClientCredentials(getClientId(), getClientSecret());
+	}
+
+	/**
+	 * Credential type as defined in "oauth2-configuration" of the xsuaa service instance security descriptor.
+	 * @return value of credential-type field
+	 */
+	CredentialType getCredentialType();
+
+	/**
+	 * PEM encoded certificate chain.
+	 *
+	 * @return certificates
+	 */
+	@Nullable
+	String getCertificates();
+
+	/**
+	 * PEM encoded private key the certificate is signed with.
+	 *
+	 * @return private key
+	 */
+	@Nullable
+	String getPrivateKey();
+
+	/**
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
 	 * this is the url where the service instance was created.
 	 *
 	 * @return base url, e.g. https://paastenant.idservice.com
 	 */
 	URI getUrl();
+
+	/**
+	 * Cert URL of the OAuth2 identity service instance.
+	 *
+	 * @return cert url, e.g. https://paastenant.cert.idservice.com
+	 */
+	URI getCertUrl();
 
 	/**
 	 * Domains of the OAuth2 identity service instance.
