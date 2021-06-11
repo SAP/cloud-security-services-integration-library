@@ -5,32 +5,84 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.config.CredentialType;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.net.URI;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.junit.Test;
-
 public class XsuaaDefaultEndpointsTest {
+
+	private static OAuth2ServiceConfiguration oAuth2ServiceConfiguration;
+	private static final String URL = "https://subdomain.myauth.com";
+	private static final String CERT_URL = "https://subdomain.cert.myauth.com";
+
+	@Before
+	public void setUp() {
+		oAuth2ServiceConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		Mockito.when(oAuth2ServiceConfiguration.getUrl()).thenReturn(URI.create(URL));
+	}
 
 	@Test
 	public void getTokenEndpoint() {
-		OAuth2ServiceEndpointsProvider cut = createXsuaaDefaultEndpointProvider("https://subdomain.myauth.com");
+		OAuth2ServiceEndpointsProvider cut = createXsuaaDefaultEndpointProvider(URL);
 
-		assertThat(cut.getTokenEndpoint().toString(), is("https://subdomain.myauth.com/oauth/token"));
+		assertThat(cut.getTokenEndpoint().toString(), is(URL + "/oauth/token"));
+
+		Mockito.when(oAuth2ServiceConfiguration.getCredentialType()).thenReturn(CredentialType.INSTANCE_SECRET);
+		OAuth2ServiceEndpointsProvider cut2 = new XsuaaDefaultEndpoints(oAuth2ServiceConfiguration);
+
+		assertThat(cut2.getTokenEndpoint().toString(), is(URL + "/oauth/token"));
+	}
+
+	@Test
+	public void getTokenEndpointX509() {
+		Mockito.when(oAuth2ServiceConfiguration.getCertUrl()).thenReturn(URI.create(CERT_URL));
+		Mockito.when(oAuth2ServiceConfiguration.getCredentialType()).thenReturn(CredentialType.X509);
+		OAuth2ServiceEndpointsProvider cut = new XsuaaDefaultEndpoints(oAuth2ServiceConfiguration);
+		assertThat(cut.getTokenEndpoint().toString(), is(CERT_URL + "/oauth/token"));
 	}
 
 	@Test
 	public void getAuthorizeEndpoint() {
-		OAuth2ServiceEndpointsProvider cut = createXsuaaDefaultEndpointProvider("https://subdomain.myauth.com");
+		OAuth2ServiceEndpointsProvider cut = createXsuaaDefaultEndpointProvider(URL);
 
-		assertThat(cut.getAuthorizeEndpoint().toString(), is("https://subdomain.myauth.com/oauth/authorize"));
+		assertThat(cut.getAuthorizeEndpoint().toString(), is(URL + "/oauth/authorize"));
+
+		Mockito.when(oAuth2ServiceConfiguration.getCredentialType()).thenReturn(CredentialType.INSTANCE_SECRET);
+		OAuth2ServiceEndpointsProvider cut2 = new XsuaaDefaultEndpoints(oAuth2ServiceConfiguration);
+
+		assertThat(cut2.getAuthorizeEndpoint().toString(), is(URL + "/oauth/authorize"));
+	}
+
+	@Test
+	public void getAuthorizeEndpointX509() {
+		Mockito.when(oAuth2ServiceConfiguration.getCertUrl()).thenReturn(URI.create(CERT_URL));
+		Mockito.when(oAuth2ServiceConfiguration.getCredentialType()).thenReturn(CredentialType.X509);
+		OAuth2ServiceEndpointsProvider cut2 = new XsuaaDefaultEndpoints(oAuth2ServiceConfiguration);
+
+		assertThat(cut2.getAuthorizeEndpoint().toString(), is(CERT_URL + "/oauth/authorize"));
 	}
 
 	@Test
 	public void getJwksUri() {
-		OAuth2ServiceEndpointsProvider cut = createXsuaaDefaultEndpointProvider("https://subdomain.myauth.com");
+		OAuth2ServiceEndpointsProvider cut = createXsuaaDefaultEndpointProvider(URL);
 
-		assertThat(cut.getJwksUri().toString(), is("https://subdomain.myauth.com/token_keys"));
+		assertThat(cut.getJwksUri().toString(), is(URL + "/token_keys"));
+	}
+
+	@Test
+	public void getJwksUriX509() {
+		Mockito.when(oAuth2ServiceConfiguration.getCertUrl()).thenReturn(URI.create(CERT_URL));
+		Mockito.when(oAuth2ServiceConfiguration.getCredentialType()).thenReturn(CredentialType.X509);
+		OAuth2ServiceEndpointsProvider cut2 = new XsuaaDefaultEndpoints(oAuth2ServiceConfiguration);
+
+		assertThat(cut2.getJwksUri().toString(), is(CERT_URL + "/token_keys"));
 	}
 
 	@Test
