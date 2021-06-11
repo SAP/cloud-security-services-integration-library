@@ -5,7 +5,11 @@
  */
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.client.ClientCertificate;
+import com.sap.cloud.security.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.xsa.security.container.ClientIdentity;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
@@ -84,6 +88,15 @@ public class OAuth2ServiceConfigurationBuilder {
 		return this;
 	}
 
+	public OAuth2ServiceConfigurationBuilder withCertUrl(String url) {
+		properties.put(XSUAA.CERT_URL, url);
+		return this;
+	}
+
+	public OAuth2ServiceConfigurationBuilder withCredentialType(CredentialType credentialType) {
+		properties.put(XSUAA.CREDENTIAL_TYPE, credentialType.toString());
+		return this;
+	}
 	/**
 	 * Domains of the OAuth2 identity service instance. In multi tenancy scenarios
 	 * this contains the domain where the service instance was created.
@@ -107,7 +120,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	public OAuth2ServiceConfigurationBuilder withProperties(Map<String, String> properties) {
-		properties.forEach((key, value) -> withProperty(key, value));
+		properties.forEach(this::withProperty);
 		return this;
 	}
 
@@ -129,12 +142,12 @@ public class OAuth2ServiceConfigurationBuilder {
 		return new OAuth2ServiceConfigurationImpl(properties, service, domains, runInLegacyMode);
 	}
 
-	private class OAuth2ServiceConfigurationImpl implements OAuth2ServiceConfiguration {
+	private static class OAuth2ServiceConfigurationImpl implements OAuth2ServiceConfiguration {
 
 		private final Map<String, String> properties;
 		private final boolean runInLegacyMode;
 		private final Service service;
-		private List<String> domains;
+		private final List<String> domains;
 
 		private OAuth2ServiceConfigurationImpl(@Nonnull Map<String, String> properties,
 				@Nonnull Service service, List<String> domains, boolean runInLegacyMode) {
@@ -154,9 +167,39 @@ public class OAuth2ServiceConfigurationBuilder {
 			return properties.get(CLIENT_SECRET);
 		}
 
+		@Nullable
+		@Override
+		public String getCertificates() {
+			return properties.get(CERTIFICATE);
+		}
+
+		@Nullable
+		@Override
+		public String getPrivateKey() {
+			return properties.get(KEY);
+		}
+
+		@Override
+		public ClientIdentity getClientIdentity() {
+			if (getCredentialType() == CredentialType.X509){
+				return new ClientCertificate(getCertificates(), getPrivateKey(), getClientId());
+			}
+			return new ClientCredentials(getClientId(), getClientSecret());
+		}
+
+		@Override
+		public CredentialType getCredentialType() {
+			return CredentialType.from(properties.get(XSUAA.CREDENTIAL_TYPE));
+		}
+
 		@Override
 		public URI getUrl() {
 			return hasProperty(URL) ? URI.create(properties.get(URL)) : null;
+		}
+
+		@Override
+		public URI getCertUrl() {
+			return hasProperty(XSUAA.CERT_URL) ? URI.create(properties.get(XSUAA.CERT_URL)) : null;
 		}
 
 		@Override
