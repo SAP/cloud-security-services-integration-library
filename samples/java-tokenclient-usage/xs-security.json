@@ -1,4 +1,8 @@
 {
 	"xsappname": "java-tokenclient-usage",
+	"oauth2-configuration": {
+		"grant-types":["client_x509", "client_credentials", "password","urn:ietf:params:oauth:grant-type:jwt-bearer"],
+		"credential-types": ["x509"]
+	},
 	"tenant-mode": "dedicated"
 }
