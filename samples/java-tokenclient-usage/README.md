@@ -1,6 +1,6 @@
 # Description
 This sample is a Java back-end application running on the Cloud Foundry. On incoming requests it reads 
-credentials from the `VCAP_SERVICES` environment variable and requests a new access token via client credentials token
+credentials from the `VCAP_SERVICES` environment variable and requests a new access token over mTLS using X.509 Certificate via client credentials token
 flow provided by the [Token Client](/token-client/) library.
 
 # Deployment on Cloud Foundry
