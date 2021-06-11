@@ -56,6 +56,12 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		this.restOperations = restOperations;
 	}
 
+	/**
+	 * Convenience method to create OAuth2TokenService with certificate based communication
+	 * @param clientCertificate Client Identity of Xsuaa instance
+	 * @return OAuth2TokenService
+	 * @throws ServiceClientException in case HTTPS client could not be created
+	 */
 	public OAuth2TokenService enableMtls(ClientIdentity clientCertificate) throws ServiceClientException {
 		assertNotNull(clientCertificate, "clientCertificate is required");
 		this.restOperations = SpringHttpClient.create(clientCertificate);
