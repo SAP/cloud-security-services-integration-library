@@ -7,12 +7,12 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.mtls.HttpClient;
+import com.sap.cloud.security.xsuaa.mtls.ServiceClientException;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -43,14 +43,15 @@ class IasXsuaaExchangeBroker {
 	 */
 	@Nullable
 	public String doIasToXsuaaXchange(CloseableHttpClient httpClient, Token token,
-			@Nonnull OAuth2ServiceConfiguration serviceConfiguration) throws TokenFlowException {
+			@Nonnull OAuth2ServiceConfiguration serviceConfiguration) throws TokenFlowException, ServiceClientException {
 		Assertions.assertNotNull(serviceConfiguration, "Service configuration must not be null");
 
-		logger.debug("Initiating XsuaaTokenFlow for token xchange with: {}", serviceConfiguration.getUrl());
-		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(httpClient == null ?
-				new DefaultOAuth2TokenService() : new DefaultOAuth2TokenService(httpClient),
-				new XsuaaDefaultEndpoints(serviceConfiguration.getUrl()),
-				new ClientCredentials(serviceConfiguration.getClientId(), serviceConfiguration.getClientSecret()));
+		logger.debug("Initializing XsuaaTokenFlow for token xchange using {} authentication method", serviceConfiguration.getCredentialType());
+		logger.debug("Resolving http client " + httpClient == null ? "based on service configuration": "using custom httpClient provided");
+		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+				new DefaultOAuth2TokenService(httpClient == null ? HttpClient.create(serviceConfiguration.getClientIdentity()).getCloseableHttpClient() : httpClient),
+				new XsuaaDefaultEndpoints(serviceConfiguration),
+				serviceConfiguration.getClientIdentity());
 		OAuth2TokenResponse tokenResponse = tokenFlows.userTokenFlow().token(token).execute();
 		logger.debug("Response token from Ias to Xsuaa token exchange {}", tokenResponse.getAccessToken());
 		return tokenResponse.getAccessToken();
