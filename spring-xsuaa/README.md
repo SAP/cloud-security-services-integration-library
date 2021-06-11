@@ -169,7 +169,19 @@ http.authorizeRequests()
 ```
 where `xsuaaServiceConfiguration` represents configuration properties from environment.
 
-> Note: if you've already configured a `bearerTokenResolver` using [TokenBrokerResolver](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/extractor/TokenBrokerResolver.java) that supports token exchange between IAS to Xsuaa enabled in the same way like `IasXsuaaExchangeBroker`.
+If you're taking advantage of [XsuaaTokenFlowAutoconfiguration](spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaTokenFlowAutoConfiguration.java)
+```java
+@Autowired
+XsuaaTokenFlowAutoconfiguration xsuaaTokenFlows;
+
+http.authorizeRequests()
+      .antMatchers("/secured/path/**").hasAuthority("application.Read")
+      .anyRequest().denyAll()
+      .and().oauth2ResourceServer()
+      .bearerTokenResolver(new IasXsuaaExchangeBroker(xsuaaTokenFlows));
+```
+
+> Note: if you've already configured a `bearerTokenResolver` using [TokenBrokerResolver](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/extractor/TokenBrokerResolver.java) that supports token exchange between IAS to Xsuaa enabled in the same way as `IasXsuaaExchangeBroker`.
 
 > Note: In order to leverage the token cache, consider the `token-client` initialization notes [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/README.md#cache)
 

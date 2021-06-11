@@ -12,6 +12,12 @@ public class ClientCertificate implements ClientIdentity {
     private final String key;
     private final String clientId;
 
+    /**
+     * Represents certificate based client identity.
+     * @param certificate PEM encoded X.509 certificate of the OAuth 2.0 client
+     * @param key PEM encoded X.509 private key of the OAuth 2.0 client
+     * @param clientId ID of the OAuth 2.0 client requesting the token.
+     */
     public ClientCertificate(@Nonnull String certificate, @Nonnull String key, @Nonnull String clientId) {
             assertNotNull(clientId, "clientId is required");
             assertNotNull(certificate, "certificate is required");
