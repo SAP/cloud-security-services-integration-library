@@ -53,7 +53,7 @@ class IasXsuaaExchangeBroker {
 				: "using custom httpClient provided");
 		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 				new DefaultOAuth2TokenService(httpClient == null
-						? HttpClient.create(serviceConfiguration.getClientIdentity()).getCloseableHttpClient()
+						? HttpClient.create(serviceConfiguration.getClientIdentity())
 						: httpClient),
 				new XsuaaDefaultEndpoints(serviceConfiguration),
 				serviceConfiguration.getClientIdentity());

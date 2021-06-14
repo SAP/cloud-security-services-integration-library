@@ -36,7 +36,7 @@ public class SpringHttpClient {
 	public static RestTemplate create(ClientIdentity clientIdentity) throws ServiceClientException {
 		if (clientIdentity.isCertificateBased()) {
 			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-			requestFactory.setHttpClient(HttpClient.create(clientIdentity).getCloseableHttpClient());
+			requestFactory.setHttpClient(HttpClient.create(clientIdentity));
 
 			return new RestTemplate(requestFactory);
 		}
