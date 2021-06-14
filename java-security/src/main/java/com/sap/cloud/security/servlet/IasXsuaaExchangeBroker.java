@@ -43,13 +43,18 @@ class IasXsuaaExchangeBroker {
 	 */
 	@Nullable
 	public String doIasToXsuaaXchange(CloseableHttpClient httpClient, Token token,
-			@Nonnull OAuth2ServiceConfiguration serviceConfiguration) throws TokenFlowException, ServiceClientException {
+			@Nonnull OAuth2ServiceConfiguration serviceConfiguration)
+			throws TokenFlowException, ServiceClientException {
 		Assertions.assertNotNull(serviceConfiguration, "Service configuration must not be null");
 
-		logger.debug("Initializing XsuaaTokenFlow for token xchange using {} authentication method", serviceConfiguration.getCredentialType());
-		logger.debug("Resolving http client " + httpClient == null ? "based on service configuration": "using custom httpClient provided");
+		logger.debug("Initializing XsuaaTokenFlow for token xchange using {} authentication method",
+				serviceConfiguration.getCredentialType());
+		logger.debug("Resolving http client " + httpClient == null ? "based on service configuration"
+				: "using custom httpClient provided");
 		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-				new DefaultOAuth2TokenService(httpClient == null ? HttpClient.create(serviceConfiguration.getClientIdentity()).getCloseableHttpClient() : httpClient),
+				new DefaultOAuth2TokenService(httpClient == null
+						? HttpClient.create(serviceConfiguration.getClientIdentity()).getCloseableHttpClient()
+						: httpClient),
 				new XsuaaDefaultEndpoints(serviceConfiguration),
 				serviceConfiguration.getClientIdentity());
 		OAuth2TokenResponse tokenResponse = tokenFlows.userTokenFlow().token(token).execute();

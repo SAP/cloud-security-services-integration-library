@@ -153,7 +153,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 *             in case the PublicKey generation for the json web key failed.
 	 * @throws NoSuchAlgorithmException
 	 *             in case the algorithm of the json web key is not supported.
-	 * @deprecated in favor of {@link #getPublicKey(JwtSignatureAlgorithm, String, URI, String)}
+	 * @deprecated in favor of
+	 *             {@link #getPublicKey(JwtSignatureAlgorithm, String, URI, String)}
 	 */
 	@Nullable
 	@Deprecated

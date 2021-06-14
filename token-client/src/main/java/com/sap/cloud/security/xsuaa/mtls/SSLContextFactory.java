@@ -51,7 +51,8 @@ public class SSLContextFactory {
 	 *            you can get from your Service Configuration
 	 * @return a new SSLContext instance
 	 * @throws GeneralSecurityException
-	 * @throws IOException in case of KeyStore initialization errors
+	 * @throws IOException
+	 *             in case of KeyStore initialization errors
 	 */
 	public SSLContext create(String x509Certificates, String rsaPrivateKey)
 			throws GeneralSecurityException, IOException {

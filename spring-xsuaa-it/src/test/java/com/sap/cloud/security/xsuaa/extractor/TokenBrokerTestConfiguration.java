@@ -40,8 +40,8 @@ public class TokenBrokerTestConfiguration {
 		return new OAuth2TokenService() {
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
-                                                                                    ClientIdentity clientIdentity, @Nullable String zoneId, @Nullable String subdomain,
-                                                                                    @Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
+					ClientIdentity clientIdentity, @Nullable String zoneId, @Nullable String subdomain,
+					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 					throws OAuth2ServiceException {
 				try {
 					return new OAuth2TokenResponse("token_cc", 100, null);
@@ -52,8 +52,8 @@ public class TokenBrokerTestConfiguration {
 
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
-                                                                            ClientCredentials clientCredentials, String token, @Nullable String subdomain,
-                                                                            @Nullable Map<String, String> optionalParameters) {
+					ClientCredentials clientCredentials, String token, @Nullable String subdomain,
+					@Nullable Map<String, String> optionalParameters) {
 				return null;
 			}
 

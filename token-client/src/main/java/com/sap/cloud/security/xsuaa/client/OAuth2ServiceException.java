@@ -91,7 +91,7 @@ public class OAuth2ServiceException extends IOException {
 
 		public Builder withHeaders(String... headers) {
 			this.headers = "[";
-			for (String header: headers) {
+			for (String header : headers) {
 				this.headers += header;
 			}
 			this.headers += "]";
@@ -108,7 +108,7 @@ public class OAuth2ServiceException extends IOException {
 		}
 
 		private String createResponseBodyMessage() {
-			return responseBody == null ? null : "Response body '" + responseBody +"'";
+			return responseBody == null ? null : "Response body '" + responseBody + "'";
 		}
 
 		private String createStatusCodeMessage() {

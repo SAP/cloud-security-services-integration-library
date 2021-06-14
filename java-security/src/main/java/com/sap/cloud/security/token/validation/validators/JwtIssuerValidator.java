@@ -66,17 +66,17 @@ class JwtIssuerValidator implements Validator<Token> {
 	}
 
 	/**
-	 * Extracts the domain from a url without the subdomain.
-	 * If no subdomain exists, just returns the host.
+	 * Extracts the domain from a url without the subdomain. If no subdomain exists,
+	 * just returns the host.
 	 *
 	 * @param {string}
 	 *            fullUrl - Example: https://sub.domain.com
 	 * @returns {string} - host without subdomain - Example: domain.com
 	 */
-	/*private static String getSubdomain(URI uri) {
-		String host = uri.getHost();
-		return host.replaceFirst(host.split("\\.")[0] + ".", "");
-	}*/
+	/*
+	 * private static String getSubdomain(URI uri) { String host = uri.getHost();
+	 * return host.replaceFirst(host.split("\\.")[0] + ".", ""); }
+	 */
 
 	@Override
 	public ValidationResult validate(Token token) {

@@ -45,7 +45,7 @@ public class ClientCredentialsTest {
 	}
 
 	@Test
-	public void testClientIdentityResolution(){
+	public void testClientIdentityResolution() {
 		assertTrue(cut.isValid());
 		assertFalse(cut.isCertificateBased());
 		assertNull(cut.getCertificate());

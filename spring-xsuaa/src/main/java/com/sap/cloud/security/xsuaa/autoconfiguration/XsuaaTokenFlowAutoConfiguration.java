@@ -69,10 +69,12 @@ public class XsuaaTokenFlowAutoConfiguration {
 	}
 
 	/**
-	 * Creates a new {@link XsuaaTokenFlows} bean that supports mTLS that applications can auto-wire
-	 * into their controllers to perform a programmatic token flow exchange.
+	 * Creates a new {@link XsuaaTokenFlows} bean that supports mTLS that
+	 * applications can auto-wire into their controllers to perform a programmatic
+	 * token flow exchange.
 	 *
-	 *            - the {@link RestOperations} to use for the token flow exchange.
+	 * - the {@link RestOperations} to use for the token flow exchange.
+	 * 
 	 * @param xsuaaServiceConfiguration
 	 *            - the {@link XsuaaServiceConfiguration} to configure the Xsuaa
 	 *            Base Url.
@@ -83,8 +85,9 @@ public class XsuaaTokenFlowAutoConfiguration {
 	@ConditionalOnProperty(prefix = "xsuaa", name = "credential-type", havingValue = "x509")
 	@ConditionalOnMissingBean
 	public XsuaaTokenFlows xsuaaMtlsTokenFlows(
-										   XsuaaServiceConfiguration xsuaaServiceConfiguration) throws ServiceClientException {
-		logger.debug("auto-configures XsuaaTokenFlows using mTLS restOperations with uaacert endpoint: {}", xsuaaServiceConfiguration.getUaaCertUrl());
+			XsuaaServiceConfiguration xsuaaServiceConfiguration) throws ServiceClientException {
+		logger.debug("auto-configures XsuaaTokenFlows using mTLS restOperations with uaacert endpoint: {}",
+				xsuaaServiceConfiguration.getUaaCertUrl());
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
 				xsuaaServiceConfiguration.getUaaCertUrl());
 		ClientIdentity clientCertificate = xsuaaServiceConfiguration.getClientIdentity();
@@ -95,8 +98,10 @@ public class XsuaaTokenFlowAutoConfiguration {
 	private static class OnNotX509CredentialTypeCondition implements Condition {
 		@Override
 		public boolean matches(ConditionContext context, @Nonnull AnnotatedTypeMetadata metadata) {
-			CredentialType credentialType =  CredentialType.from(context.getEnvironment().getProperty("xsuaa.credential-type"));
-			return credentialType == CredentialType.BINDING_SECRET || credentialType == CredentialType.INSTANCE_SECRET || credentialType == null;
+			CredentialType credentialType = CredentialType
+					.from(context.getEnvironment().getProperty("xsuaa.credential-type"));
+			return credentialType == CredentialType.BINDING_SECRET || credentialType == CredentialType.INSTANCE_SECRET
+					|| credentialType == null;
 		}
 	}
 }

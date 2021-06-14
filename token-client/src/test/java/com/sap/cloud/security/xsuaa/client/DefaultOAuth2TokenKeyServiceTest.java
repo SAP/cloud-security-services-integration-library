@@ -65,7 +65,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 				.hasMessageContaining(errorDescription)
 				.hasMessageContaining("'Something went wrong'")
 				.hasMessageContaining("Error retrieving token keys")
-	            .hasMessageContaining("Headers [x-zone_uuid=92768714-4c2e-4b79-bc1b-009a4127ee3c]");
+				.hasMessageContaining("Headers [x-zone_uuid=92768714-4c2e-4b79-bc1b-009a4127ee3c]");
 	}
 
 	@Test

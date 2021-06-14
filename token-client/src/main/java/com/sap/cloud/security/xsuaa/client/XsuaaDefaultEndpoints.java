@@ -30,7 +30,8 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 * @param baseUri
 	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
 	 *            authorize and key set URI (JWKS) will be derived.
-	 * @deprecated gets removed with the major release 3.0.0 Use instead {@link #XsuaaDefaultEndpoints(OAuth2ServiceConfiguration)}
+	 * @deprecated gets removed with the major release 3.0.0 Use instead
+	 *             {@link #XsuaaDefaultEndpoints(OAuth2ServiceConfiguration)}
 	 */
 	@Deprecated
 	public XsuaaDefaultEndpoints(URI baseUri) {
@@ -43,12 +44,13 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 * Creates a new XsuaaDefaultEndpoints.
 	 *
 	 * @param config
-	 *            - OAuth2ServiceConfiguration of XSUAA. Based on the credential-type from the configuration, the tokenEndpoint URI,
+	 *            - OAuth2ServiceConfiguration of XSUAA. Based on the
+	 *            credential-type from the configuration, the tokenEndpoint URI,
 	 *            authorize and key set URI (JWKS) will be derived.
 	 */
 	public XsuaaDefaultEndpoints(@Nonnull OAuth2ServiceConfiguration config) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
-		if(config.getCredentialType() != null && config.getCredentialType() == CredentialType.X509){
+		if (config.getCredentialType() != null && config.getCredentialType() == CredentialType.X509) {
 			this.baseUri = config.getCertUrl();
 		} else {
 			this.baseUri = config.getUrl();
@@ -61,7 +63,8 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 * @param baseUri
 	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
 	 *            authorize and key set URI (JWKS) will be derived.
-	 * @deprecated gets removed with the major release 3.0.0 Use instead {@link #XsuaaDefaultEndpoints(OAuth2ServiceConfiguration)}
+	 * @deprecated gets removed with the major release 3.0.0 Use instead
+	 *             {@link #XsuaaDefaultEndpoints(OAuth2ServiceConfiguration)}
 	 */
 	@Deprecated
 	public XsuaaDefaultEndpoints(String baseUri) {

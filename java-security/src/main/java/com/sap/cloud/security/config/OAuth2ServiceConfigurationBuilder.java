@@ -117,7 +117,6 @@ public class OAuth2ServiceConfigurationBuilder {
 		return this;
 	}
 
-
 	/**
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
 	 * this is the url where the service instance was created.
@@ -145,14 +144,16 @@ public class OAuth2ServiceConfigurationBuilder {
 
 	/**
 	 * Credential type of OAuth2 configuration.
+	 * 
 	 * @param credentialType
-	 * 						credential-type i.e. x509, instance_secret or binding_secret
+	 *            credential-type i.e. x509, instance_secret or binding_secret
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withCredentialType(CredentialType credentialType) {
 		properties.put(XSUAA.CREDENTIAL_TYPE, credentialType.toString());
 		return this;
 	}
+
 	/**
 	 * Domains of the OAuth2 identity service instance. In multi tenancy scenarios
 	 * this contains the domain where the service instance was created.
@@ -237,7 +238,7 @@ public class OAuth2ServiceConfigurationBuilder {
 
 		@Override
 		public ClientIdentity getClientIdentity() {
-			if (getCredentialType() == CredentialType.X509){
+			if (getCredentialType() == CredentialType.X509) {
 				return new ClientCertificate(getCertificates(), getPrivateKey(), getClientId());
 			}
 			return new ClientCredentials(getClientId(), getClientSecret());
