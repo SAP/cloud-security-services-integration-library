@@ -336,9 +336,13 @@ public interface XSUserInfo {
 	 * @return the token
 	 *
 	 * @deprecated can be replaced with token flows from the token-client library.
+	 *             Does not support mtls-based communication to XSUAA identity provider
+	 *             and will be removed with version 3.0.0.
+	 *
 	 * @throws XSUserInfoException
 	 *             if an error occurs during token request
 	 */
+	@Deprecated
 	String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
 
 	/**
@@ -352,9 +356,13 @@ public interface XSUserInfo {
 	 *            the uaa url
 	 * @return the token
 	 * @deprecated can be replaced with token flows from the token-client library.
+	 *             Does not support mtls-based communication to XSUAA identity provider
+	 *             and will be removed with version 3.0.0.
+	 *
 	 * @throws XSUserInfoException
 	 *             if an error occurs during token request
 	 */
+	@Deprecated
 	String requestTokenForUser(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
 
 	/**
@@ -363,9 +371,8 @@ public interface XSUserInfo {
 	 * @param tokenRequest
 	 *            request data
 	 * @deprecated can be replaced with token flows from the token-client library.
-	 *             For client credentials flow you can also use
-	 *             {@link #requestTokenForClient(String, String, String)}. Will be
-	 *             removed with version 3.0.0.
+	 *             Does not support mtls-based communication to XSUAA identity provider
+	 *             and will be removed with version 3.0.0.
 	 * @return requested token
 	 * @throws XSUserInfoException
 	 *             if an error occurs during token exchange
