@@ -30,8 +30,8 @@ mvn clean package
 ## Create the XSUAA Service Instance
 :exclamation: XSUAA supports X.509 authentication method.
 
-- Use the [xs-security-mtls.json](./xs-security-mtls.json) to define the X.509 authentication method with Xsuaa managed certificate and create a service instance
-- Use the [xs-security.json](./xs-security.json) to define the authentication method with binding secret method and settings and create a service instance
+- Use the [xs-security.json](./xs-security.json) to define the X.509 authentication method with Xsuaa managed certificate and create a service instance
+- Use the [xs-security-deprecated.json](xs-security-deprecated.json) to define the authentication method with binding secret method and settings and create a service instance
 ```shell
 cf create-service xsuaa application xsuaa-authentication -c xs-security-mtls.json
 ```

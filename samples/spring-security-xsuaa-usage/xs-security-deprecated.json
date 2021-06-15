@@ -1,8 +1,5 @@
 {
   "xsappname": "spring-xsuaa-usage",
-  "oauth2-configuration": {
-    "credential-types": ["x509"]
-  },
   "tenant-mode": "dedicated",
   "scopes": [
     {
