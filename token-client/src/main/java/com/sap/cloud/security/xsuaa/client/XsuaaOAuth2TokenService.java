@@ -41,7 +41,8 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	public XsuaaOAuth2TokenService(@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
-		this(SpringHttpClient.create(), tokenCacheConfiguration); // TODO check for occurrences of new RestTemplate() and
+		this(SpringHttpClient.create(), tokenCacheConfiguration); // TODO check for occurrences of new RestTemplate()
+																	// and
 																	// httpsclient for appache
 	}
 
@@ -57,10 +58,14 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	/**
-	 * Convenience method to create OAuth2TokenService with certificate based communication
-	 * @param clientCertificate Client Identity of Xsuaa instance
+	 * Convenience method to create OAuth2TokenService with certificate based
+	 * communication
+	 * 
+	 * @param clientCertificate
+	 *            Client Identity of Xsuaa instance
 	 * @return OAuth2TokenService
-	 * @throws ServiceClientException in case HTTPS client could not be created
+	 * @throws ServiceClientException
+	 *             in case HTTPS client could not be created
 	 */
 	public OAuth2TokenService enableMtls(ClientIdentity clientCertificate) throws ServiceClientException {
 		assertNotNull(clientCertificate, "clientCertificate is required");

@@ -32,7 +32,7 @@ public class HelloTokenClientServlet extends HttpServlet {
 
 		try {
 			tokenFlows = new XsuaaTokenFlows(
-					new DefaultOAuth2TokenService(HttpClient.create(configuration.getClientIdentity()).getCloseableHttpClient()),
+					new DefaultOAuth2TokenService(HttpClient.create(configuration.getClientIdentity())),
 					new XsuaaDefaultEndpoints(configuration), configuration.getClientIdentity());
 		} catch (ServiceClientException e) {
 			throw new ServletException("Couldn't setup XsuaaTokenFlows");

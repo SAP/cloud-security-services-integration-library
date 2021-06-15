@@ -41,7 +41,7 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 
 	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration, OAuth2TokenService tokenService) {
 		ClientIdentity clientIdentity = configuration.getClientIdentity();
-		if (clientIdentity.isCertificateBased()){
+		if (clientIdentity.isCertificateBased()) {
 			logger.debug("Initializing XsuaaTokenFlow with Client Certificate based authentication");
 			this.xsuaaTokenFlows = new XsuaaTokenFlows(
 					tokenService,

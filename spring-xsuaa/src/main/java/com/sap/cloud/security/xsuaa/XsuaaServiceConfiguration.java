@@ -29,9 +29,10 @@ public interface XsuaaServiceConfiguration {
 
 	/**
 	 * Client Identity of xsuaa instance
+	 * 
 	 * @return ClientIdentity object
 	 */
-	default ClientIdentity getClientIdentity(){
+	default ClientIdentity getClientIdentity() {
 		CredentialType credentialType = getCredentialType();
 		if (credentialType != null && credentialType == CredentialType.X509) {
 			return new ClientCertificate(getCertificates(), getPrivateKey(), getClientId());
@@ -57,6 +58,7 @@ public interface XsuaaServiceConfiguration {
 
 	/**
 	 * Defined Credential type of the xsuaa service instance.
+	 * 
 	 * @return value of credential-type field
 	 */
 	CredentialType getCredentialType();
@@ -88,14 +90,14 @@ public interface XsuaaServiceConfiguration {
 	 *
 	 * @return certificates
 	 */
-	 @Nullable
-	 String getCertificates();
+	@Nullable
+	String getCertificates();
 
 	/**
 	 * Private key the certificate is signed with.
 	 *
 	 * @return private key
 	 */
-	 @Nullable
-	 String getPrivateKey();
+	@Nullable
+	String getPrivateKey();
 }

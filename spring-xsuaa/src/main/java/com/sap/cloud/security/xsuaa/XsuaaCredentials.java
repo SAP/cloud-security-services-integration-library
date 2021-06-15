@@ -46,7 +46,9 @@ public class XsuaaCredentials {
 		this.url = url;
 	}
 
-	public String getCertUrl() { return certUrl; }
+	public String getCertUrl() {
+		return certUrl;
+	}
 
 	public void setCertUrl(String certUrl) {
 		this.certUrl = certUrl;

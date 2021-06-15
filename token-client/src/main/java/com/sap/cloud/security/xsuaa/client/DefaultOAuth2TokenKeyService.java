@@ -37,7 +37,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	public String retrieveTokenKeys(URI tokenKeysEndpointUri, String zoneId) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
-		request.addHeader(X_ZONE_UUID, zoneId != null ? zoneId :"");
+		request.addHeader(X_ZONE_UUID, zoneId != null ? zoneId : "");
 		try (CloseableHttpResponse response = httpClient.execute(request)) {
 			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
 			int statusCode = response.getStatusLine().getStatusCode();

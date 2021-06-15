@@ -36,9 +36,10 @@ public interface OAuth2ServiceConfiguration {
 
 	/**
 	 * Client Identity of xsuaa instance
+	 * 
 	 * @return ClientIdentity object
 	 */
-	default ClientIdentity getClientIdentity(){
+	default ClientIdentity getClientIdentity() {
 		CredentialType credentialType = getCredentialType();
 		if (credentialType == CredentialType.X509) {
 			return new ClientCertificate(getCertificates(), getPrivateKey(), getClientId());
@@ -47,7 +48,9 @@ public interface OAuth2ServiceConfiguration {
 	}
 
 	/**
-	 * Credential type as defined in "oauth2-configuration" of the xsuaa service instance security descriptor.
+	 * Credential type as defined in "oauth2-configuration" of the xsuaa service
+	 * instance security descriptor.
+	 * 
 	 * @return value of credential-type field
 	 */
 	CredentialType getCredentialType();

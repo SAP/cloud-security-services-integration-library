@@ -80,7 +80,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 						token = new XsuaaToken(Objects.requireNonNull(
 								exchangeBroker.doIasToXsuaaXchange(httpClient, token, getServiceConfiguration()),
 								"IasXsuaaExchangeBroker is not provided"))
-								.withScopeConverter(getScopeConverter());
+										.withScopeConverter(getScopeConverter());
 					}
 					return tokenValidationResult(token);
 				} catch (Exception e) {

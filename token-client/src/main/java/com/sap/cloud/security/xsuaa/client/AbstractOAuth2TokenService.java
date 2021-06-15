@@ -115,8 +115,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@Nonnull URI tokenEndpointUri,
-																	@Nonnull ClientCredentials clientCredentials, @Nonnull String token, @Nullable String subdomain,
-																	@Nullable Map<String, String> optionalParameters)
+			@Nonnull ClientCredentials clientCredentials, @Nonnull String token, @Nullable String subdomain,
+			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
 		assertNotNull(clientCredentials, "clientCredentials is required");

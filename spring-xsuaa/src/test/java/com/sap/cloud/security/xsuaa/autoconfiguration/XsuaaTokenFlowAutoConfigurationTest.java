@@ -33,7 +33,8 @@ import java.nio.charset.StandardCharsets;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { XsuaaAutoConfiguration.class, XsuaaTokenFlowAutoConfiguration.class, DummyXsuaaServiceConfiguration.class})
+@SpringBootTest(classes = { XsuaaAutoConfiguration.class, XsuaaTokenFlowAutoConfiguration.class,
+		DummyXsuaaServiceConfiguration.class })
 public class XsuaaTokenFlowAutoConfigurationTest {
 
 	private static String cert;
