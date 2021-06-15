@@ -1,4 +1,4 @@
-package com.sap.xsa.security.container;
+package com.sap.cloud.security.config;
 
 /**
  * Represents xsuaa client identity

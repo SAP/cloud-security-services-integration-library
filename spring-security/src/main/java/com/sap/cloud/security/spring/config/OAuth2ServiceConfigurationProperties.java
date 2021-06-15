@@ -10,7 +10,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.xsa.security.container.ClientIdentity;
+import com.sap.cloud.security.config.ClientIdentity;
 
 import javax.annotation.Nullable;
 import java.net.URI;

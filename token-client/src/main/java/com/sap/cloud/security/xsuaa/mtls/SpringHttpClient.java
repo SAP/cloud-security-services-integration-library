@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.mtls;
 
-import com.sap.xsa.security.container.ClientIdentity;
+import com.sap.cloud.security.config.ClientIdentity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 

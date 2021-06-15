@@ -8,7 +8,7 @@ package com.sap.cloud.security.xsuaa.client;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Ticker;
-import com.sap.cloud.security.client.ClientCredentials;
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
@@ -16,7 +16,7 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
-import com.sap.xsa.security.container.ClientIdentity;
+import com.sap.cloud.security.config.ClientIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

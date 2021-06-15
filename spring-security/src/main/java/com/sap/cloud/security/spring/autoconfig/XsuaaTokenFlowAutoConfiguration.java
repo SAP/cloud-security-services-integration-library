@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.spring.autoconfig;
 
-import com.sap.cloud.security.client.ClientCredentials;
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.xsuaa.client.*;

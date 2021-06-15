@@ -5,10 +5,6 @@
  */
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.client.ClientCertificate;
-import com.sap.cloud.security.client.ClientCredentials;
-import com.sap.xsa.security.container.ClientIdentity;
-
 import javax.annotation.Nullable;
 
 import java.net.URI;
@@ -61,7 +57,9 @@ public interface OAuth2ServiceConfiguration {
 	 * @return certificates
 	 */
 	@Nullable
-	String getCertificates();
+	default String getCertificates(){
+		return null;
+	}
 
 	/**
 	 * PEM encoded private key the certificate is signed with.
@@ -69,7 +67,9 @@ public interface OAuth2ServiceConfiguration {
 	 * @return private key
 	 */
 	@Nullable
-	String getPrivateKey();
+	default String getPrivateKey(){
+		return null;
+	};
 
 	/**
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
@@ -84,7 +84,9 @@ public interface OAuth2ServiceConfiguration {
 	 *
 	 * @return cert url, e.g. https://paastenant.cert.idservice.com
 	 */
-	URI getCertUrl();
+	default URI getCertUrl(){
+		return null;
+	}
 
 	/**
 	 * Domains of the OAuth2 identity service instance.

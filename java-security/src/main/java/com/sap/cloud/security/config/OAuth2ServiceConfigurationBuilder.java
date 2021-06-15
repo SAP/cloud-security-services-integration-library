@@ -6,7 +6,6 @@
 package com.sap.cloud.security.config;
 
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.xsa.security.container.ClientIdentity;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;

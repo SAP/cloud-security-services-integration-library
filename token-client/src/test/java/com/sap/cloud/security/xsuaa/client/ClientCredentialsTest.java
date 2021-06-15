@@ -5,8 +5,8 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.client.ClientCredentials;
-import com.sap.xsa.security.container.ClientIdentity;
+import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;

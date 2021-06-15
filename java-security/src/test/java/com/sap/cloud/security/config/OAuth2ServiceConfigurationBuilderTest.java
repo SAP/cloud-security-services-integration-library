@@ -5,9 +5,6 @@
  */
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.client.ClientCertificate;
-import com.sap.cloud.security.client.ClientCredentials;
-import com.sap.xsa.security.container.ClientIdentity;
 import org.junit.Before;
 import org.junit.Test;
 

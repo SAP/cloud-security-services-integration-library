@@ -1,6 +1,4 @@
-package com.sap.cloud.security.client;
-
-import com.sap.xsa.security.container.ClientIdentity;
+package com.sap.cloud.security.config;
 
 import javax.annotation.Nonnull;
 

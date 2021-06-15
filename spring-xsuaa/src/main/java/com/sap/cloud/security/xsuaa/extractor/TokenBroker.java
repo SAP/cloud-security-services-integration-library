@@ -8,7 +8,7 @@ package com.sap.cloud.security.xsuaa.extractor;
 import java.net.URI;
 import java.util.Map;
 
-import com.sap.cloud.security.client.ClientCredentials;
+import com.sap.cloud.security.config.ClientCredentials;
 
 /**
  *

@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.xsa.security.container.ClientIdentity;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 import javax.annotation.Nonnull;
