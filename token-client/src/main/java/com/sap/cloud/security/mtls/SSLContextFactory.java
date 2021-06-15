@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.xsuaa.mtls;
+package com.sap.cloud.security.mtls;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
@@ -34,9 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Creates a SSLContext (without Bouncy Castle crypto lib).
  *
- * @deprecated This class might be removed again in the future
  */
-@Deprecated
 public class SSLContextFactory {
 	private static final char[] noPassword = "".toCharArray();
 	private static final SSLContextFactory instance = new SSLContextFactory();
