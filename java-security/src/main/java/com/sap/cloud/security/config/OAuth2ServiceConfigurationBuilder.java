@@ -5,8 +5,6 @@
  */
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.client.ClientCertificate;
-import com.sap.cloud.security.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.xsa.security.container.ClientIdentity;
 import org.jetbrains.annotations.Nullable;
@@ -233,14 +231,6 @@ public class OAuth2ServiceConfigurationBuilder {
 		@Override
 		public String getPrivateKey() {
 			return properties.get(KEY);
-		}
-
-		@Override
-		public ClientIdentity getClientIdentity() {
-			if (getCredentialType() == CredentialType.X509){
-				return new ClientCertificate(getCertificates(), getPrivateKey(), getClientId());
-			}
-			return new ClientCredentials(getClientId(), getClientSecret());
 		}
 
 		@Override
