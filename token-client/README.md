@@ -39,22 +39,34 @@ makes use of [Apache HttpClient](https://hc.apache.org/):
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                                     new DefaultOAuth2TokenService(), 
-                                    new XsuaaDefaultEndpoints(<uaa_base_url>), 
+                                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), 
                                     new ClientCredentials(<client_id>, <client_secret>));
 ```
 The `DefaultOAuth2TokenService` can also be instantiated with a custom `CloseableHttpClient`.
 
 - X.509 based authentication method
 ```java
-ClientIdentity clientCertificate = new ClientCertificate(<client_id>, <certificate>, <key>);
+//Xsuaa managed certificate
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                                    new DefaultOAuth2TokenService(HttpClient.create(clientCertificate)), 
-                                    new XsuaaDefaultEndpoints(<uaa_cert_url>), 
-                                    clientCertificate);
+                                    new DefaultOAuth2TokenService(HttpClient.create(<OAuth2ServiceConfiguration.getClientIdnetity()>)), 
+                                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), 
+                                    <OAuth2ServiceConfiguration.getClientIdentity()>);
+
+
+//Externally managed certificates
+ClientIdentity clientIdentity = new ClientCertificate(<certificate>,
+					"-----BEGIN RSA PRIVATE KEY-----EXTERNALLY PROVIDED KEY-----END RSA PRIVATE KEY-----",
+					<client_id>);
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+					new DefaultOAuth2TokenService(HttpClient.create(clientIdentity)),
+					new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>),
+					clientIdentity);
 ```
 The `HttpClient.create(ClientIdentity clientIdentity)` is used to setup a HTTPS client for X.509 certificate usage.
 
-> The `<uaa_base_url>`, `<uaa_cert_url>`, `<client_id>`, `<client_secret>`, `<certificate>`, `<key>` are placeholders for the information you get from the XSUAA service binding. 
+> The `<client_id>`, `<client_secret>`, `<certificate>` are placeholders for the information you get from the XSUAA service binding. 
+> 
+>`<OAuth2ServiceConfiguration>` is the service configuration of the bound service instance.
 
 ##### Cache
 
@@ -109,15 +121,23 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 
 - X.509 based authentication method
 ```java
-ClientCerificate clientCertificate = new ClientCertificate(<client_id>, <certificate>, <key>);
+ClientIdentity clientCertificate = new ClientCertificate(<client_id>, <certificate>, <key>);
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                                    new XsuaaOAuth2TokenService().enableMtls(clientCertificate), 
+                                    new XsuaaOAuth2TokenService(SpringHttpClient.create(clientCertificate)), 
                                     new XsuaaDefaultEndpoints(<uaa_cert_url>), 
                                     clientCertificate);
 ```
 > The `<uaa_base_url>`, `<uaa_cert_url>`, `<client_id>`, `<client_secret>`, `<certificate>`, `<key>` are placeholders for the information you get from the XSUAA service binding. 
 
-:bulb: To use externally (not Xsuaa) managed X.509 certificates, `ClientCertificate` class needs to be instantiated with the external certificate and key.
+:bulb: To use externally (not Xsuaa) managed X.509 certificates, `ClientCertificate` class needs to be instantiated with the external certificate and key. 
+
+For Spring applications it can be easily done by overriding these values in application.yml properties file.
+```yaml
+# For externally managed X.509 certificate
+xsuaa:
+  key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
+```
+ 
 
 ##### Cache
 
@@ -152,11 +172,12 @@ You can gradually replace auto-configurations as explained [here](https://docs.s
 
 #### Initialization
 To consume the `XsuaaTokenFlows` class, you simply need to `@Autowire` it like this:
-
 ```java
 @Autowired
 private XsuaaTokenFlows xsuaaTokenFlows;
 ```
+:bulb: It automatically adapts TokenFlow for X.509 certificate or client secret based authentication method, based on Oauth2 service configuration.
+
 
 ## Usage
 The `XsuaaTokenFlows` provides a builder-pattern API that allows applications to easily create and execute each flow, guiding developers to only set properties that are relevant for the respective token flow.

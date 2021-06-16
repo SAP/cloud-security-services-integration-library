@@ -6,10 +6,8 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.mtls.ServiceClientException;
 import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
-import com.sap.cloud.security.config.ClientIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -55,22 +53,6 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		super(tokenCacheConfiguration);
 		assertNotNull(restOperations, "restOperations is required");
 		this.restOperations = restOperations;
-	}
-
-	/**
-	 * Convenience method to create OAuth2TokenService with certificate based
-	 * communication
-	 * 
-	 * @param clientCertificate
-	 *            Client Identity of Xsuaa instance
-	 * @return OAuth2TokenService
-	 * @throws ServiceClientException
-	 *             in case HTTPS client could not be created
-	 */
-	public OAuth2TokenService enableMtls(ClientIdentity clientCertificate) throws ServiceClientException {
-		assertNotNull(clientCertificate, "clientCertificate is required");
-		this.restOperations = SpringHttpClient.create(clientCertificate);
-		return this;
 	}
 
 	@Override

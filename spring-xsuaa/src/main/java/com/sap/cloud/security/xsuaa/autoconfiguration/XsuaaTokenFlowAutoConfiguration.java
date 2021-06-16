@@ -9,6 +9,7 @@ import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.cloud.security.xsuaa.mtls.ServiceClientException;
+import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import com.sap.cloud.security.config.ClientIdentity;
 import org.slf4j.Logger;
@@ -91,7 +92,7 @@ public class XsuaaTokenFlowAutoConfiguration {
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
 				xsuaaServiceConfiguration.getUaaCertUrl());
 		ClientIdentity clientCertificate = xsuaaServiceConfiguration.getClientIdentity();
-		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService().enableMtls(clientCertificate);
+		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(SpringHttpClient.create(clientCertificate));
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCertificate);
 	}
 
