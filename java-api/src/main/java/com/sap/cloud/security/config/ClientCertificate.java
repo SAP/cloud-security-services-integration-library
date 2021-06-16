@@ -1,7 +1,6 @@
 package com.sap.cloud.security.config;
 
-import javax.annotation.Nonnull;
-
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 public class ClientCertificate implements ClientIdentity {
@@ -20,11 +19,7 @@ public class ClientCertificate implements ClientIdentity {
 	 * @param clientId
 	 *            ID of the OAuth 2.0 client requesting the token.
 	 */
-	public ClientCertificate(@Nonnull String certificate, @Nonnull String key, @Nonnull String clientId) {
-		assertNotNull(clientId, "clientId is required");
-		assertNotNull(certificate, "certificate is required");
-		assertNotNull(key, "RSA Private key is required");
-
+	public ClientCertificate(@Nullable String certificate, @Nullable String key, @Nullable String clientId) {
 		this.certificate = certificate;
 		this.key = key;
 		this.clientId = clientId;
@@ -47,7 +42,7 @@ public class ClientCertificate implements ClientIdentity {
 
 	@Override
 	public boolean isValid() {
-		return !clientId.isEmpty() && !certificate.isEmpty() && !key.isEmpty();
+		return hasValue(clientId) && hasValue(certificate) && hasValue(key);
 	}
 
 	@Override
@@ -62,9 +57,9 @@ public class ClientCertificate implements ClientIdentity {
 		if (!(o instanceof ClientCertificate))
 			return false;
 		ClientCertificate that = (ClientCertificate) o;
-		return certificate.equals(that.certificate) &&
-				key.equals(that.key) &&
-				clientId.equals(that.clientId);
+		return Objects.requireNonNull(certificate, "certificate must be provided").equals(that.certificate) &&
+				Objects.requireNonNull(key, "key must be provided").equals(that.key) &&
+				Objects.requireNonNull(clientId, "clientId must be provided").equals(that.clientId);
 	}
 
 	@Override
@@ -72,9 +67,7 @@ public class ClientCertificate implements ClientIdentity {
 		return Objects.hash(certificate, key, clientId);
 	}
 
-	private static void assertNotNull(Object object, String message) {
-		if (object == null) {
-			throw new IllegalArgumentException(message);
-		}
+	private static boolean hasValue(String value){
+		return value != null && !value.isEmpty();
 	}
 }

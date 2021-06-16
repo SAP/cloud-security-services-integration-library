@@ -6,9 +6,10 @@
 package com.sap.cloud.security.config;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class ClientCredentials implements ClientIdentity {
+public class ClientCredentials implements ClientIdentity, Serializable {
 	private static final long serialVersionUID = 2405162041950251807L;
 
 	private final String clientSecret;
@@ -23,10 +24,6 @@ public class ClientCredentials implements ClientIdentity {
 	 *            - the secret of the OAuth 2.0 client requesting the token.
 	 */
 	public ClientCredentials(@Nonnull String clientId, @Nonnull String clientSecret) {
-		assertNotNull(clientId, "clientId is required");
-		assertNotNull(clientSecret, "clientSecret is required");
-		assertHasText(clientId, "clientId must not be empty");
-		assertHasText(clientSecret, "clientSecret must not be empty");
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 	}
@@ -39,6 +36,11 @@ public class ClientCredentials implements ClientIdentity {
 	@Override
 	public String getId() {
 		return clientId;
+	}
+
+	@Override
+	public boolean isValid() {
+		return hasValue(clientId) && hasValue(clientSecret);
 	}
 
 	@Override
@@ -62,15 +64,7 @@ public class ClientCredentials implements ClientIdentity {
 		return String.format("%s:%s", clientId, clientSecret);
 	}
 
-	private static void assertNotNull(Object object, String message) {
-		if (object == null) {
-			throw new IllegalArgumentException(message);
-		}
-	}
-
-	private static void assertHasText(String string, String message) {
-		if (string == null || string.trim().isEmpty()) {
-			throw new IllegalArgumentException(message);
-		}
+	private static boolean hasValue(String value){
+		return value != null && !value.isEmpty();
 	}
 }
