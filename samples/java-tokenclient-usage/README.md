@@ -43,7 +43,7 @@ Expired-At: Wed Oct 16 13:37:00 UTC 2019
 ```
 
 ## Clean-Up
-Finally delete your application and your service instances using the following commands:
+Finally, delete your application and your service instances using the following commands:
 ```
 cf delete -f java-tokenclient-usage
 cf delete-service -f xsuaa-token-client
