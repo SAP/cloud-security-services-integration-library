@@ -98,7 +98,7 @@ public class JwtSignatureValidatorTest {
 		ValidationResult validationResult = cut.validate(iasPaasToken);
 		assertTrue(validationResult.isErroneous());
 		assertThat(validationResult.getErrorDescription(),
-				startsWith("Error occurred during signature validation: IAS must provide zone_uuid."));
+				startsWith("Error occurred during signature validation: OIDC token must provide zone_uuid."));
 	}
 
 	@Test
