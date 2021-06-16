@@ -2,6 +2,7 @@ package com.sap.cloud.security.xsuaa.mtls;
 
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.mtls.SSLContextFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -72,6 +73,7 @@ public class HttpClient {
 					.setSSLSocketFactory(socketFactory)
 					.build();
 		} else {
+			LOGGER.debug("Setting up default HTTP client");
 			return HttpClients.createDefault();
 		}
 	}
