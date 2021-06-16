@@ -28,7 +28,7 @@ public class HttpClient {
 	/**
 	 * Provides CloseableHttpClient based on ClientIdentity details. For
 	 * ClientIdentity that is certificate based it will resolve https client using
-	 * the provided ClientIdentity in the {@link #create(ClientIdentity)} If the
+	 * the provided ClientIdentity, if the
 	 * ClientIdentity wasn't provided it will return default HttpClient.
 	 * 
 	 * @param clientIdentity
@@ -51,7 +51,7 @@ public class HttpClient {
 	 * 
 	 * @return HTTP or HTTPS client
 	 * @throws ServiceClientException
-	 *             in case HTTPS Client could not be setup
+	 *             in case HTTPS Client for certificate based authentication could not be setup
 	 */
 	private static CloseableHttpClient getCloseableHttpClient(ClientIdentity clientIdentity) throws ServiceClientException {
 		if (clientIdentity != null && clientIdentity.isCertificateBased()) {

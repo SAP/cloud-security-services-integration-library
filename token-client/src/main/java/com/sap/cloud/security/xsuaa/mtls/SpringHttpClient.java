@@ -4,6 +4,8 @@ import com.sap.cloud.security.config.ClientIdentity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.Nullable;
+
 /**
  * SpringHttpClient provides factory methods to initialize RestTemplate for
  * certificate(HTTPS) based and client secret(HTTP) based communications.
@@ -15,7 +17,7 @@ public class SpringHttpClient {
 
 	/**
 	 * Creates a HTTP RestTemplate
-	 * 
+	 *
 	 * @return RestTemplate instance
 	 */
 	public static RestTemplate create() {
@@ -31,16 +33,15 @@ public class SpringHttpClient {
 	 *            ClientIdentity of Xsuaa Service
 	 * @return RestTemplate instance
 	 * @throws ServiceClientException
-	 *             if ClientIdentity wasn't certificate based
+	 *            in case HTTPS Client for certificate based authentication could not be setup
 	 */
-	public static RestTemplate create(ClientIdentity clientIdentity) throws ServiceClientException {
-		if (clientIdentity.isCertificateBased()) {
+	public static RestTemplate create(@Nullable ClientIdentity clientIdentity) throws ServiceClientException {
+		if (clientIdentity != null && clientIdentity.isCertificateBased()) {
 			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 			requestFactory.setHttpClient(HttpClient.create(clientIdentity));
-
 			return new RestTemplate(requestFactory);
+		} else {
+			return new RestTemplate();
 		}
-
-		throw new ServiceClientException("ClientIdentity is not certificate based, can't initiate mTLS http client");
 	}
 }
