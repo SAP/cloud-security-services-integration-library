@@ -65,7 +65,7 @@ class JwtSignatureValidator implements Validator<Token> {
 		String keyId;
 
 		if (Service.IAS == configuration.getService() && token.getZoneId() == null) {
-			return createInvalid("Error occurred during signature validation: IAS must provide zone_uuid.");
+			return createInvalid("Error occurred during signature validation: OIDC token must provide zone_uuid.");
 		}
 		try {
 			jwksUri = getOrRequestJwksUri(token);
