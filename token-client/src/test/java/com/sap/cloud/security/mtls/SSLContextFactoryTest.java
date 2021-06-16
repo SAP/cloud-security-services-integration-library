@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.xsuaa.mtls;
+package com.sap.cloud.security.mtls;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 
+import com.sap.cloud.security.mtls.SSLContextFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;

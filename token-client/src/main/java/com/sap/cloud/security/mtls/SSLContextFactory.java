@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.xsuaa.mtls;
+package com.sap.cloud.security.mtls;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
