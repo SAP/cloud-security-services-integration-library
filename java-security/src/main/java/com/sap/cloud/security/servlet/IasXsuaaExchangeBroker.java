@@ -44,8 +44,10 @@ class IasXsuaaExchangeBroker {
 	public String doIasToXsuaaXchange(CloseableHttpClient httpClient, Token token,
 			@Nonnull OAuth2ServiceConfiguration serviceConfiguration) throws TokenFlowException {
 		Assertions.assertNotNull(serviceConfiguration, "Service configuration must not be null");
-
-		logger.debug("Initiating XsuaaTokenFlow for token xchange with: {}", serviceConfiguration.getUrl());
+		if(httpClient == null) {
+			logger.warn("Apps needs to provide their own well-configured http client for productive usage.");
+		}
+		logger.debug("Initiating XsuaaTokenFlow for token exchange with: {}", serviceConfiguration.getUrl());
 		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 				httpClient == null ? new DefaultOAuth2TokenService() : new DefaultOAuth2TokenService(httpClient),
 				new XsuaaDefaultEndpoints(serviceConfiguration.getUrl()),

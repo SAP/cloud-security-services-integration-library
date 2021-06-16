@@ -71,7 +71,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	/**
-	 * Use to configure the HttpClient that is used to retrieve token keys.
+	 * Use to configure the HttpClient that is used to retrieve token keys or to perform a token-exchange.
 	 *
 	 * @param httpClient
 	 *            the HttpClient

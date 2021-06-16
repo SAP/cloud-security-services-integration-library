@@ -5,9 +5,11 @@
  */
 package com.sap.cloud.security.samples;
 
+import com.sap.cloud.security.servlet.AbstractTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticationResult;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
 import com.sap.cloud.security.token.SecurityContext;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +24,11 @@ import static com.sap.cloud.security.token.TokenClaims.*;
 @WebFilter("/*") // filter for any endpoint
 public class XsuaaSecurityFilter implements Filter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaSecurityFilter.class);
-	private final XsuaaTokenAuthenticator xsuaaTokenAuthenticator;
+	private final AbstractTokenAuthenticator xsuaaTokenAuthenticator;
 
 	public XsuaaSecurityFilter() {
-		xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator();
+		// in productive usage never use a default rest client!
+		xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator().withHttpClient(HttpClients.createDefault());
 	}
 
 	@Override

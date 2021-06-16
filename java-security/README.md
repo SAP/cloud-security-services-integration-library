@@ -169,23 +169,35 @@ For the integration of different Identity Services the [`TokenAuthenticator`](/j
 
 ### IAS to Xsuaa token exchange
 `XsuaaTokenAuthenticator` supports seamless token exchange between IAS and Xsuaa. Token exchange between IAS and Xsuaa means that calling a web application endpoint with an IAS Token will work like calling the endpoint with Xsuaa Token. This functionality is disabled by default.
-Requirement for token exchange is `token-client` dependency with all its' transitive dependencies in the project.
 
+These two dependencies are required for token exchange:
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
 </dependency>
+<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
+    <scope>provided</scope>
+</dependency>
 ```
+> The detailed documentation of the used ``token-client`` library can be found [here](/token-client).<br>
+
+> :bulb: Instead of using the default Apache Rest Client we highly recommend to configure the HTTP client by your own with timeout and 
 
 Steps to enable token exchange:
 1. Set environment variable `IAS_XSUAA_XCHANGE_ENABLED` to any value except false or empty
-2. Make sure `token-client` is not excluded from the project
-3. In order to leverage the token cache, consider the `token-client` initialization notes [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/README.md#cache)
+2. In order to leverage the token cache, consider the `token-client` initialization notes [here](/token-client/README.md#cache)
+3. Configure the `XsuaaTokenAuthenticator` with a http client: <br> 
+   ```java
+   XsuaaTokenAuthenticator.withHttpClient(<<your ClosableHttpClient>>)
+   ```
+   For productive and high availability applications we recommend you to customize your http client carefully. You may need to configure the timeouts to specify how long to wait until a connection is established and how long a socket should be kept open (i.e. how long to wait for the (next) data package). As the SSL handshake is time-consuming, it might be recommended to configure an HTTP connection pool to reuse connections by keeping the sockets open. See also [Baeldung: HttpClient Connection Management"](https://www.baeldung.com/httpclient-connection-management).
 
 The `XsuaaTokenAuthenticator` is used in the following [sample](/samples/java-security-usage).
 
-:bulb: For seamless IAS to Xsuaa token exchange integration please see [detailed documentation](../docs/IAS-XSUAA-token-xchange.md) and pay attention to the prerequisites.
+:bulb: For a smooth IAS to Xsuaa token exchange integration please see [detailed documentation](../docs/IAS-XSUAA-token-xchange.md) and **pay attention to the prerequisites**.
 
 ## Test Utilities
 You can find the JUnit test utilities documented [here](/java-security-test).
