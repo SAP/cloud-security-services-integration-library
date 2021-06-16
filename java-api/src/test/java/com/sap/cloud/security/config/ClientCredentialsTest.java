@@ -3,10 +3,8 @@
  * 
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.config.ClientCredentials;
-import com.sap.cloud.security.config.ClientIdentity;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
