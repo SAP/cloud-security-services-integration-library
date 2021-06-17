@@ -61,8 +61,8 @@ class ClientIdentityTest {
 	@ParameterizedTest
 	@MethodSource("isValidClientCredentialsTestArguments")
 	void isValidClientCredentials(String clientId, String clientSecret, boolean expected) {
-		ClientIdentity clientCredentials = new ClientCredentials(clientId, clientSecret);
-		assertThat(clientCredentials.isValid()).isEqualTo(expected);
+		ClientIdentity clientIdentity = new ClientCredentials(clientId, clientSecret);
+		assertThat(clientIdentity.isValid()).isEqualTo(expected);
 	}
 
 	private static Stream<Arguments> isValidClientCredentialsTestArguments() {

@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.adapter.xs;
 
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFEnvironment;
@@ -375,11 +376,11 @@ public class XSUserInfoAdapterIntegrationTest {
 		XSTokenRequest request = createXSTokenRequest();
 
 		OAuth2TokenResponse oAuth2TokenResponse = mock(OAuth2TokenResponse.class);
-		ClientCredentials clientCredentials = new ClientCredentials(request.getClientId(), request.getClientSecret());
+		ClientIdentity clientIdentity = new ClientCredentials(request.getClientId(), request.getClientSecret());
 		URI tokenEndpointUri = URI.create(request.getTokenEndpoint() + "/oauth/token");
 		when(oAuth2TokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
 				eq(tokenEndpointUri),
-				eq(clientCredentials),
+				eq(clientIdentity),
 				eq(correctEnduserInfo.getAppToken()),
 				any(),
 				anyMap(),
@@ -397,12 +398,12 @@ public class XSUserInfoAdapterIntegrationTest {
 	public void jwtBearerFlowAuthFail() throws Exception {
 		// prepare mocks
 		XSTokenRequest request = createXSTokenRequest();
-		ClientCredentials clientCredentials = new ClientCredentials(request.getClientId(), request.getClientSecret());
+		ClientIdentity clientIdentity = new ClientCredentials(request.getClientId(), request.getClientSecret());
 		URI tokenEndpointUri = URI.create(request.getTokenEndpoint() + "/oauth/token");
 
 		when(oAuth2TokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
 				eq(tokenEndpointUri),
-				eq(clientCredentials),
+				eq(clientIdentity),
 				eq(correctEnduserInfo.getAppToken()),
 				any(),
 				anyMap()))

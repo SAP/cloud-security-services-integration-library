@@ -175,7 +175,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	}
 
 	private String getBrokerToken(AuthenticationMethod credentialType, String authHeaderValue,
-								  String oauthTokenUrl, ClientIdentity clientCredentials) throws TokenBrokerException {
+								  String oauthTokenUrl, ClientIdentity clientIdentity) throws TokenBrokerException {
 		switch (credentialType) {
 		case OAUTH2:
 			String oAuth2token = extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
@@ -199,7 +199,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
 					basicAuthHeader);
 			if (userCredentialsFromHeader != null) {
-				String cacheKey = createSecureHash(oauthTokenUrl, clientCredentials.toString(),
+				String cacheKey = createSecureHash(oauthTokenUrl, clientIdentity.toString(),
 						userCredentialsFromHeader.toString());
 				String cachedToken = tokenCache.get(cacheKey, String.class);
 				if (cachedToken != null) {
@@ -207,8 +207,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					return cachedToken;
 				} else {
 					String token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl,
-							clientCredentials.getId(),
-							clientCredentials.getSecret(), userCredentialsFromHeader.getId(),
+							clientIdentity.getId(),
+							clientIdentity.getSecret(), userCredentialsFromHeader.getId(),
 							userCredentialsFromHeader.getSecret());
 					tokenCache.put(cacheKey, token);
 					return token;
@@ -218,7 +218,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		case CLIENT_CREDENTIALS:
 			String clientCredentialsAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL,
 					authHeaderValue);
-			ClientCredentials clientCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
+			ClientIdentity clientCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
 					clientCredentialsAuthHeader);
 			if (clientCredentialsFromHeader != null) {
 				String cacheKey = createSecureHash(oauthTokenUrl, clientCredentialsFromHeader.toString());

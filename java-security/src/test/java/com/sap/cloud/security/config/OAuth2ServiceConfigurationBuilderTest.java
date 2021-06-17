@@ -100,12 +100,12 @@ public class OAuth2ServiceConfigurationBuilderTest {
 	public void withClientIdentity() {
 		String clientId = "myClientId";
 		String secret = "mySecret";
-		ClientIdentity clientCredentials = new ClientCredentials(clientId, secret);
+		ClientIdentity clientIdentity = new ClientCredentials(clientId, secret);
 
-		OAuth2ServiceConfiguration configuration = cut.withClientIdentity(clientCredentials).build();
+		OAuth2ServiceConfiguration configuration = cut.withClientIdentity(clientIdentity).build();
 		assertThat(configuration.getClientId()).isEqualTo(clientId);
 		assertThat(configuration.getClientSecret()).isEqualTo(secret);
-		assertThat(configuration.getClientIdentity()).isEqualTo(clientCredentials);
+		assertThat(configuration.getClientIdentity()).isEqualTo(clientIdentity);
 	}
 
 	@Test

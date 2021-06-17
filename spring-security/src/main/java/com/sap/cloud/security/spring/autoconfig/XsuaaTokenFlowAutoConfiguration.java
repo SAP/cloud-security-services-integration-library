@@ -6,6 +6,7 @@
 package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.xsuaa.client.*;
@@ -52,10 +53,10 @@ class XsuaaTokenFlowAutoConfiguration {
 	public XsuaaTokenFlows xsuaaTokenFlows() {
 		logger.debug("auto-configures XsuaaTokenFlows.");
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig.getUrl());
-		ClientCredentials clientCredentials = new ClientCredentials(xsuaaConfig.getClientId(),
+		ClientIdentity clientIdentity = new ClientCredentials(xsuaaConfig.getClientId(),
 				xsuaaConfig.getClientSecret());
 		OAuth2TokenService oAuth2TokenService = new DefaultOAuth2TokenService();
-		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCredentials);
+		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 
 	private static class PropertyConditions extends AnyNestedCondition {

@@ -8,6 +8,7 @@ package com.sap.cloud.security.xsuaa.client;
 import com.github.benmanes.caffeine.cache.Ticker;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import org.assertj.core.util.Maps;
@@ -85,11 +86,11 @@ public class AbstractOAuth2TokenServiceTest {
 	@Test
 	public void retrieveAccessTokenViaClientCredentials_forDifferentZoneIds_TwoRequestCalls()
 			throws OAuth2ServiceException {
-		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "ZONE-ID", SUBDOMAIN,
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientIdentity(), "ZONE-ID", SUBDOMAIN,
 				null, false);
-		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "ZONE-ID", SUBDOMAIN,
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientIdentity(), "ZONE-ID", SUBDOMAIN,
 				null, false);
-		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials(), "OTHER_ZONE-ID",
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientIdentity(), "OTHER_ZONE-ID",
 				SUBDOMAIN, null, false);
 
 		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
@@ -194,9 +195,9 @@ public class AbstractOAuth2TokenServiceTest {
 
 	@Test
 	public void requestAccessToken_cacheDisabledForRequest_requestsFreshTokens() throws OAuth2ServiceException {
-		OAuth2TokenResponse firstResponse = retrieveAccessTokenViaClientCredentials(clientCredentials(), false);
-		OAuth2TokenResponse secondResponse = retrieveAccessTokenViaClientCredentials(clientCredentials(), true);
-		OAuth2TokenResponse lastResponse = retrieveAccessTokenViaClientCredentials(clientCredentials(), false);
+		OAuth2TokenResponse firstResponse = retrieveAccessTokenViaClientCredentials(clientIdentity(), false);
+		OAuth2TokenResponse secondResponse = retrieveAccessTokenViaClientCredentials(clientIdentity(), true);
+		OAuth2TokenResponse lastResponse = retrieveAccessTokenViaClientCredentials(clientIdentity(), false);
 
 		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
 		assertThat(firstResponse).isNotSameAs(secondResponse);
@@ -259,30 +260,30 @@ public class AbstractOAuth2TokenServiceTest {
 
 	private OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(String token,
 			Map<String, String> optionalParameters) throws OAuth2ServiceException {
-		return cut.retrieveAccessTokenViaJwtBearerTokenGrant(TOKEN_ENDPOINT_URI, clientCredentials(), token, null,
+		return cut.retrieveAccessTokenViaJwtBearerTokenGrant(TOKEN_ENDPOINT_URI, clientIdentity(), token, null,
 				optionalParameters);
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials() throws OAuth2ServiceException {
-		return retrieveAccessTokenViaClientCredentials(clientCredentials(), false);
+		return retrieveAccessTokenViaClientCredentials(clientIdentity(), false);
 	}
 
-	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials(ClientCredentials clientCredentials,
-			boolean disableCacheForRequest)
+	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials(ClientIdentity clientIdentity,
+																		boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
-		return cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientCredentials, ZONE_ID,
+		return cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientIdentity, ZONE_ID,
 				SUBDOMAIN,
 				null, disableCacheForRequest);
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(String username) throws OAuth2ServiceException {
-		return cut.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, clientCredentials(), username, "password",
+		return cut.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, clientIdentity(), username, "password",
 				SUBDOMAIN, null, false);
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri)
 			throws OAuth2ServiceException {
-		return cut.retrieveAccessTokenViaPasswordGrant(tokenEndpointUri, clientCredentials(), "username", "password",
+		return cut.retrieveAccessTokenViaPasswordGrant(tokenEndpointUri, clientIdentity(), "username", "password",
 				SUBDOMAIN, null, false);
 	}
 
@@ -292,11 +293,11 @@ public class AbstractOAuth2TokenServiceTest {
 
 	private OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(String refreshToken, String subdomain)
 			throws OAuth2ServiceException {
-		return cut.retrieveAccessTokenViaRefreshToken(TOKEN_ENDPOINT_URI, clientCredentials(), refreshToken, subdomain,
+		return cut.retrieveAccessTokenViaRefreshToken(TOKEN_ENDPOINT_URI, clientIdentity(), refreshToken, subdomain,
 				false);
 	}
 
-	private ClientCredentials clientCredentials() {
+	private ClientIdentity clientIdentity() {
 		return new ClientCredentials("clientId", "clientSecret");
 	}
 
