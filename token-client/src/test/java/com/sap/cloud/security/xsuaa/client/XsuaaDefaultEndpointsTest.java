@@ -82,7 +82,7 @@ public class XsuaaDefaultEndpointsTest {
 		Mockito.when(oAuth2ServiceConfiguration.getCredentialType()).thenReturn(CredentialType.X509);
 		OAuth2ServiceEndpointsProvider cut2 = new XsuaaDefaultEndpoints(oAuth2ServiceConfiguration);
 
-		assertThat(cut2.getJwksUri().toString(), is(CERT_URL + "/token_keys"));
+		assertThat(cut2.getJwksUri().toString(), is(URL + "/token_keys"));
 	}
 
 	@Test

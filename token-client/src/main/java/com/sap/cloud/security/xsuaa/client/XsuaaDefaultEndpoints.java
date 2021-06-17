@@ -18,6 +18,7 @@ import static com.sap.cloud.security.xsuaa.util.UriUtil.expandPath;
 
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final URI baseUri;
+	private final URI certUri;
 	private static final String TOKEN_ENDPOINT = "/oauth/token";
 	private static final String AUTHORIZE_ENDPOINT = "/oauth/authorize";
 	private static final String KEYSET_ENDPOINT = "/token_keys";
@@ -38,6 +39,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 		assertNotNull(baseUri, "XSUAA base URI must not be null.");
 		LOGGER.debug("Xsuaa default service endpoint = {}", baseUri);
 		this.baseUri = baseUri;
+		this.certUri = null;
 	}
 
 	/**
@@ -50,10 +52,11 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 */
 	public XsuaaDefaultEndpoints(@Nonnull OAuth2ServiceConfiguration config) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
+		this.baseUri = config.getUrl();
 		if (config.getCredentialType() != null && config.getCredentialType() == CredentialType.X509) {
-			this.baseUri = config.getCertUrl();
+			this.certUri = config.getCertUrl();
 		} else {
-			this.baseUri = config.getUrl();
+			this.certUri = null;
 		}
 	}
 
@@ -73,12 +76,12 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 
 	@Override
 	public URI getTokenEndpoint() {
-		return expandPath(baseUri, TOKEN_ENDPOINT);
+		return expandPath(certUri != null ? certUri : baseUri, TOKEN_ENDPOINT);
 	}
 
 	@Override
 	public URI getAuthorizeEndpoint() {
-		return expandPath(baseUri, AUTHORIZE_ENDPOINT);
+		return expandPath(certUri != null ? certUri : baseUri, AUTHORIZE_ENDPOINT);
 	}
 
 	@Override
