@@ -5,10 +5,9 @@
  */
 package com.sap.cloud.security.xsuaa;
 
-import com.sap.cloud.security.config.CredentialType;
-import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.CredentialType;
 
 import javax.annotation.Nullable;
 
@@ -33,10 +32,6 @@ public interface XsuaaServiceConfiguration {
 	 * @return ClientIdentity object
 	 */
 	default ClientIdentity getClientIdentity() {
-		CredentialType credentialType = getCredentialType();
-		if (credentialType != null && credentialType == CredentialType.X509) {
-			return new ClientCertificate(getCertificates(), getPrivateKey(), getClientId());
-		}
 		return new ClientCredentials(getClientId(), getClientSecret());
 	}
 
@@ -54,14 +49,15 @@ public interface XsuaaServiceConfiguration {
 	 * @return uaa mTLS url
 	 */
 	@Nullable
-	String getUaaCertUrl();
+	default String getUaaCertUrl(){ return null; }
 
 	/**
-	 * Defined Credential type of the xsuaa service instance.
-	 * 
+	 * Credential type as defined in "oauth2-configuration" of the xsuaa service
+	 * instance security descriptor.
+	 *
 	 * @return value of credential-type field
 	 */
-	CredentialType getCredentialType();
+	default CredentialType getCredentialType(){ return null; }
 
 	/**
 	 * XS application identifier
@@ -84,20 +80,4 @@ public interface XsuaaServiceConfiguration {
 	 */
 	@Nullable
 	String getVerificationKey();
-
-	/**
-	 * PEM encoded certificate chain.
-	 *
-	 * @return certificates
-	 */
-	@Nullable
-	String getCertificates();
-
-	/**
-	 * Private key the certificate is signed with.
-	 *
-	 * @return private key
-	 */
-	@Nullable
-	String getPrivateKey();
 }

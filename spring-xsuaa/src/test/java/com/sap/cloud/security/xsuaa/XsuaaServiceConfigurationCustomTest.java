@@ -39,8 +39,8 @@ class XsuaaServiceConfigurationCustomTest {
 		assertEquals(credentials.getXsAppName(), cut.getAppId());
 		assertEquals(credentials.getCredentialType(), cut.getCredentialType());
 		assertEquals(credentials.getCertUrl(), cut.getUaaCertUrl());
-		assertEquals(credentials.getCertificate(), cut.getCertificates());
-		assertEquals(credentials.getPrivateKey(), cut.getPrivateKey());
+		assertEquals(credentials.getCertificate(), cut.getClientIdentity().getCertificate());
+		assertEquals(credentials.getPrivateKey(), cut.getClientIdentity().getKey());
 	}
 
 	@Test

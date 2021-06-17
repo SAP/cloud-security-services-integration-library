@@ -6,6 +6,7 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
 import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
@@ -136,11 +137,11 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 		String oauthTokenUrl = getOAuthTokenUrl(request);
 
-		ClientCredentials clientCredentials = new ClientCredentials(configuration.getClientId(),
+		ClientIdentity clientIdentity = new ClientCredentials(configuration.getClientId(),
 				configuration.getClientSecret());
 		for (AuthenticationMethod credentialType : authenticationMethods) {
 			for (String authHeaderValue : Collections.list(request.getHeaders(AUTH_HEADER))) {
-				String token = getBrokerToken(credentialType, authHeaderValue, oauthTokenUrl, clientCredentials);
+				String token = getBrokerToken(credentialType, authHeaderValue, oauthTokenUrl, clientIdentity);
 				if (StringUtils.hasText(token)) {
 					return token;
 				}
@@ -174,7 +175,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	}
 
 	private String getBrokerToken(AuthenticationMethod credentialType, String authHeaderValue,
-			String oauthTokenUrl, ClientCredentials clientCredentials) throws TokenBrokerException {
+								  String oauthTokenUrl, ClientIdentity clientCredentials) throws TokenBrokerException {
 		switch (credentialType) {
 		case OAUTH2:
 			String oAuth2token = extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
