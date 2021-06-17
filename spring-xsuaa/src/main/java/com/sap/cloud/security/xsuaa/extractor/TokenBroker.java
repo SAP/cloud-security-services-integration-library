@@ -8,7 +8,7 @@ package com.sap.cloud.security.xsuaa.extractor;
 import java.net.URI;
 import java.util.Map;
 
-import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 
 /**
  *
@@ -32,10 +32,10 @@ public interface TokenBroker {
 	 * @throws TokenBrokerException
 	 *             TokenBrokerException
 	 * @deprecated in favor of
-	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaClientCredentialsGrant(URI, ClientCredentials, String, Map)}
+	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaClientCredentialsGrant(URI, ClientIdentity, String, Map)}
 	 */
 	@Deprecated
-	public String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret)
+	String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret)
 			throws TokenBrokerException;
 
 	/**
@@ -55,9 +55,9 @@ public interface TokenBroker {
 	 * @throws TokenBrokerException
 	 *             TokenBrokerException
 	 * @deprecated in favor of
-	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaPasswordGrant(URI, ClientCredentials, String, String, String, Map)}
+	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaPasswordGrant(URI, ClientIdentity, String, String, String, Map)}
 	 */
-	public String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret,
+	String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret,
 			String username, String password) throws TokenBrokerException;
 
 }

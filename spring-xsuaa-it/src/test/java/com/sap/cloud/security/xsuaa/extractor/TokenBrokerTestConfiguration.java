@@ -16,7 +16,6 @@ import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.client.*;
 
@@ -39,8 +38,8 @@ public class TokenBrokerTestConfiguration {
 	public OAuth2TokenService tokenBroker() {
 		return new OAuth2TokenService() {
 			@Override
-			public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
-					ClientIdentity clientIdentity, @Nullable String zoneId, @Nullable String subdomain,
+			public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@Nonnull URI tokenEndpointUri,
+					@Nonnull ClientIdentity clientIdentity, @Nullable String zoneId, @Nullable String subdomain,
 					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 					throws OAuth2ServiceException {
 				try {
@@ -52,7 +51,7 @@ public class TokenBrokerTestConfiguration {
 
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
-					ClientCredentials clientCredentials, String token, @Nullable String subdomain,
+					ClientIdentity clientIdentity, String token, @Nullable String subdomain,
 					@Nullable Map<String, String> optionalParameters) {
 				return null;
 			}

@@ -8,15 +8,14 @@ package com.sap.cloud.security.xsuaa.client;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Ticker;
-import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
-import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
-import com.sap.cloud.security.config.ClientIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,16 +114,16 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@Nonnull URI tokenEndpointUri,
-			@Nonnull ClientCredentials clientCredentials, @Nonnull String token, @Nullable String subdomain,
+			@Nonnull ClientIdentity clientIdentity, @Nonnull String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		assertNotNull(clientCredentials, "clientCredentials is required");
+		assertNotNull(clientIdentity, "clientIdentity is required");
 		assertNotNull(token, "token is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_USER_TOKEN)
-				.withClientId(clientCredentials.getId())
+				.withClientId(clientIdentity.getId())
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
