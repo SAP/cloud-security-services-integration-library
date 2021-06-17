@@ -39,9 +39,9 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	public XsuaaOAuth2TokenService(@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
-		this(SpringHttpClient.create(), tokenCacheConfiguration); // TODO check for occurrences of new RestTemplate()
-																	// and
-																	// httpsclient for appache
+		this(SpringHttpClient.create(), tokenCacheConfiguration);
+
+
 	}
 
 	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations) {

@@ -21,7 +21,6 @@ import org.springframework.cache.Cache;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
@@ -116,7 +115,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	 */
 	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache,
 			AuthenticationMethod... authenticationMethods) {
-		this(configuration, tokenCache, new XsuaaOAuth2TokenService(new RestTemplate()),
+		this(configuration, tokenCache, new XsuaaOAuth2TokenService(),
 				new DefaultAuthenticationInformationExtractor(authenticationMethods));
 	}
 

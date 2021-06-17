@@ -5,16 +5,19 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertNotNull;
-
-import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.web.client.RestTemplate;
+
+import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.CLIENT_CREDENTIALS;
+import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.XSUAA_BASE_URI;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class XsuaaTokenFlowsTest {
@@ -26,7 +29,7 @@ public class XsuaaTokenFlowsTest {
 	@Before
 	public void setup() {
 		this.endpointsProvider = new XsuaaDefaultEndpoints(XSUAA_BASE_URI);
-		this.oAuth2TokenService = new XsuaaOAuth2TokenService(new RestTemplate());
+		this.oAuth2TokenService = new XsuaaOAuth2TokenService();
 		cut = new XsuaaTokenFlows(oAuth2TokenService, this.endpointsProvider, CLIENT_CREDENTIALS);
 	}
 
