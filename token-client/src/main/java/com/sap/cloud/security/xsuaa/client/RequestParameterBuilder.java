@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 
 import java.util.Collections;
@@ -31,16 +30,6 @@ class RequestParameterBuilder {
 
 	public RequestParameterBuilder withRefreshToken(String refreshToken) {
 		parameters.put(REFRESH_TOKEN, refreshToken);
-		return this;
-	}
-
-	/**
-	 * @deprecated use {{@link #withClientIdentity(ClientIdentity)}} instead
-	 */
-	@Deprecated
-	public RequestParameterBuilder withClientCredentials(ClientCredentials clientCredentials) {
-		parameters.put(CLIENT_ID, clientCredentials.getId());
-		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
 		return this;
 	}
 
