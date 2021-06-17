@@ -61,6 +61,7 @@ public interface OAuth2ServiceConfiguration {
 	 *
 	 * @return cert url, e.g. https://paastenant.cert.idservice.com
 	 */
+	@Nullable
 	default URI getCertUrl(){
 		return null;
 	}
