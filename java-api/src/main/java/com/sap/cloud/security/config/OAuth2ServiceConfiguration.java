@@ -8,6 +8,7 @@ package com.sap.cloud.security.config;
 import javax.annotation.Nullable;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -36,10 +37,6 @@ public interface OAuth2ServiceConfiguration {
 	 * @return ClientIdentity object
 	 */
 	default ClientIdentity getClientIdentity() {
-		CredentialType credentialType = getCredentialType();
-		if (credentialType == CredentialType.X509) {
-			return new ClientCertificate(getCertificates(), getPrivateKey(), getClientId());
-		}
 		return new ClientCredentials(getClientId(), getClientSecret());
 	}
 
@@ -49,27 +46,7 @@ public interface OAuth2ServiceConfiguration {
 	 * 
 	 * @return value of credential-type field
 	 */
-	CredentialType getCredentialType();
-
-	/**
-	 * PEM encoded certificate chain.
-	 *
-	 * @return certificates
-	 */
-	@Nullable
-	default String getCertificates(){
-		return null;
-	}
-
-	/**
-	 * PEM encoded private key the certificate is signed with.
-	 *
-	 * @return private key
-	 */
-	@Nullable
-	default String getPrivateKey(){
-		return null;
-	};
+	default CredentialType getCredentialType(){ return null; }
 
 	/**
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
@@ -93,7 +70,7 @@ public interface OAuth2ServiceConfiguration {
 	 *
 	 * @return list of domain, e.g."idservice.com".
 	 */
-	List<String> getDomains();
+	default List<String> getDomains(){ return Collections.emptyList(); }
 
 	/**
 	 * Returns the value of the given property as string.

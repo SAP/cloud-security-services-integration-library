@@ -60,18 +60,18 @@ public class OAuth2ServiceConfigurationBuilderTest {
 	public void withCertificate() {
 		String certificate = "-----BEGIN CERTIFICATE-----";
 
-		OAuth2ServiceConfiguration configuration = cut.withCertificate(certificate).build();
+		OAuth2ServiceConfiguration configuration = cut.withCertificate(certificate).withCredentialType(CredentialType.X509).build();
 
-		assertThat(configuration.getCertificates()).isEqualTo(certificate);
+		assertThat(configuration.getClientIdentity().getCertificate()).isEqualTo(certificate);
 	}
 
 	@Test
 	public void withPrivateKey() {
 		String key = "-----BEGIN RSA PRIVATE KEY-----";
 
-		OAuth2ServiceConfiguration configuration = cut.withPrivateKey(key).build();
+		OAuth2ServiceConfiguration configuration = cut.withPrivateKey(key).withCredentialType(CredentialType.X509).build();
 
-		assertThat(configuration.getPrivateKey()).isEqualTo(key);
+		assertThat(configuration.getClientIdentity().getKey()).isEqualTo(key);
 	}
 
 	@Test
@@ -90,8 +90,8 @@ public class OAuth2ServiceConfigurationBuilderTest {
 
 		OAuth2ServiceConfiguration configuration = cut.withClientIdentity(clientCertificate)
 				.withCredentialType(CredentialType.X509).build();
-		assertThat(configuration.getPrivateKey()).isEqualTo(key);
-		assertThat(configuration.getCertificates()).isEqualTo(certificate);
+		assertThat(configuration.getClientIdentity().getKey()).isEqualTo(key);
+		assertThat(configuration.getClientIdentity().getCertificate()).isEqualTo(certificate);
 		assertThat(configuration.getClientId()).isEqualTo(clientId);
 		assertThat(configuration.getClientIdentity()).isEqualTo(clientCertificate);
 	}
@@ -172,8 +172,8 @@ public class OAuth2ServiceConfigurationBuilderTest {
 				.withClientId("client-id").withClientSecret("secret")
 				.build();
 
-		assertThat(cut.withClientId("client-id").withClientSecret("secret").build().hashCode())
-				.isEqualTo(config.hashCode());
+		assertThat(cut.withClientId("client-id").withClientSecret("secret").build())
+				.hasSameHashCodeAs(config);
 	}
 
 	@Test
