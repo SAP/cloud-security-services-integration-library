@@ -5,9 +5,11 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.config.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -19,9 +21,9 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
  */
 public class RefreshTokenFlow {
 
-	private XsuaaTokenFlowRequest request;
+	private final XsuaaTokenFlowRequest request;
 	private String refreshToken;
-	private OAuth2TokenService tokenService;
+	private final OAuth2TokenService tokenService;
 	private boolean disableCache = false;
 
 	/**
@@ -142,11 +144,10 @@ public class RefreshTokenFlow {
 	private OAuth2TokenResponse refreshToken(String refreshToken, XsuaaTokenFlowRequest request)
 			throws TokenFlowException {
 		try {
-			OAuth2TokenResponse accessToken = tokenService.retrieveAccessTokenViaRefreshToken(
+			return tokenService.retrieveAccessTokenViaRefreshToken(
 					request.getTokenEndpoint(),
-					new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken,
+					request.getClientIdentity(), refreshToken,
 					request.getSubdomain(), disableCache);
-			return accessToken;
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format("Error refreshing token with grant_type 'refresh_token': %s", e.getMessage()), e);

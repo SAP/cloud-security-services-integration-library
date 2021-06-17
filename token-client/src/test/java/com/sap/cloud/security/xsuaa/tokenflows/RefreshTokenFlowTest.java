@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
+import com.sap.cloud.security.config.ClientIdentity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +33,7 @@ public class RefreshTokenFlowTest {
 	@Mock
 	private OAuth2TokenService mockTokenService;
 
-	private ClientCredentials clientCredentials;
+	private ClientIdentity clientIdentity;
 	private RefreshTokenFlow cut;
 
 	private static final String JWT_ACCESS_TOKEN = "4bfad399ca10490da95c2b5eb4451d53";
@@ -41,32 +42,24 @@ public class RefreshTokenFlowTest {
 
 	@Before
 	public void setup() {
-		this.clientCredentials = new ClientCredentials("clientId", "clientSecret");
+		this.clientIdentity = new ClientCredentials("clientId", "clientSecret");
 		this.endpointsProvider = new XsuaaDefaultEndpoints(XSUAA_BASE_URI);
-		this.cut = new RefreshTokenFlow(mockTokenService, endpointsProvider, clientCredentials);
+		this.cut = new RefreshTokenFlow(mockTokenService, endpointsProvider, clientIdentity);
 
 	}
 
 	@Test
 	public void constructor_throwsOnNullValues() {
-		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(null, endpointsProvider, clientCredentials);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
+		assertThatThrownBy(() -> new RefreshTokenFlow(null, endpointsProvider, clientIdentity)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
-		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(mockTokenService, null, clientCredentials);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
+		assertThatThrownBy(() -> new RefreshTokenFlow(mockTokenService, null, clientIdentity)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
 
-		assertThatThrownBy(() -> {
-			new RefreshTokenFlow(mockTokenService, endpointsProvider, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientIdentity");
+		assertThatThrownBy(() -> new RefreshTokenFlow(mockTokenService, endpointsProvider, null)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientIdentity");
 	}
 
 	@Test
 	public void execute_throwsIfMandatoryFieldsNotSet() {
-		assertThatThrownBy(() -> {
-			cut.execute();
-		}).isInstanceOf(IllegalStateException.class).hasMessageContaining("Refresh token not set");
+		assertThatThrownBy(() -> cut.execute()).isInstanceOf(IllegalStateException.class).hasMessageContaining("Refresh token not set");
 	}
 
 	@Test
@@ -92,14 +85,12 @@ public class RefreshTokenFlowTest {
 	@Test
 	public void execute_throwsIfServiceRaisesException() throws OAuth2ServiceException {
 		when(mockTokenService
-				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
+				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientIdentity),
 						eq(REFRESH_TOKEN), isNull(), anyBoolean()))
 								.thenThrow(new OAuth2ServiceException("exception executed REST call"));
 
-		assertThatThrownBy(() -> {
-			cut.refreshToken(REFRESH_TOKEN)
-					.execute();
-		}).isInstanceOf(TokenFlowException.class)
+		assertThatThrownBy(() -> cut.refreshToken(REFRESH_TOKEN)
+				.execute()).isInstanceOf(TokenFlowException.class)
 				.hasMessageContaining(
 						"Error refreshing token with grant_type 'refresh_token': exception executed REST call");
 	}
@@ -107,14 +98,14 @@ public class RefreshTokenFlowTest {
 	private void verifyRetrieveAccessTokenCalledWith(String refreshToken, boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
 		verify(mockTokenService, times(1))
-				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
+				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientIdentity),
 						eq(refreshToken), isNull(), eq(disableCacheForRequest));
 	}
 
 	private OAuth2TokenResponse mockRetrieveAccessToken() throws OAuth2ServiceException {
 		OAuth2TokenResponse accessToken = new OAuth2TokenResponse(JWT_ACCESS_TOKEN, 441231, null);
 		when(mockTokenService
-				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientCredentials),
+				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientIdentity),
 						eq(REFRESH_TOKEN), isNull(), anyBoolean()))
 								.thenReturn(accessToken);
 		return accessToken;
