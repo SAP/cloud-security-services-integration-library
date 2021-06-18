@@ -49,15 +49,4 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 		return verificationKey;
 	}
 
-	@Nullable
-	@Override
-	public String getUaaCertUrl() {
-		return null;
-	}
-
-	@Override
-	public CredentialType getCredentialType() {
-		return null;
-	}
-
 }
