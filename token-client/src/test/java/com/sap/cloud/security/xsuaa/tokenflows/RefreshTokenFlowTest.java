@@ -14,10 +14,12 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.sap.cloud.security.config.ClientCredentials;
@@ -42,8 +44,11 @@ public class RefreshTokenFlowTest {
 
 	@Before
 	public void setup() {
+		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		Mockito.when(oAuth2ServiceConfiguration.getUrl()).thenReturn(XSUAA_BASE_URI);
+
 		this.clientIdentity = new ClientCredentials("clientId", "clientSecret");
-		this.endpointsProvider = new XsuaaDefaultEndpoints(XSUAA_BASE_URI);
+		this.endpointsProvider = new XsuaaDefaultEndpoints(oAuth2ServiceConfiguration);
 		this.cut = new RefreshTokenFlow(mockTokenService, endpointsProvider, clientIdentity);
 
 	}

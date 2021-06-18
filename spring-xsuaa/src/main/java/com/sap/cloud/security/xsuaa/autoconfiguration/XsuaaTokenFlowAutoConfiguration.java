@@ -63,7 +63,7 @@ public class XsuaaTokenFlowAutoConfiguration {
 			XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		logger.debug("auto-configures XsuaaTokenFlows using restOperations of type: {}", xsuaaRestOperations);
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
-				xsuaaServiceConfiguration.getUaaUrl());
+				xsuaaServiceConfiguration);
 		ClientIdentity clientCredentials = xsuaaServiceConfiguration.getClientIdentity();
 		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(xsuaaRestOperations);
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCredentials);
@@ -88,9 +88,9 @@ public class XsuaaTokenFlowAutoConfiguration {
 	public XsuaaTokenFlows xsuaaMtlsTokenFlows(
 			XsuaaServiceConfiguration xsuaaServiceConfiguration) throws ServiceClientException {
 		logger.debug("auto-configures XsuaaTokenFlows using mTLS restOperations with uaacert endpoint: {}",
-				xsuaaServiceConfiguration.getUaaCertUrl());
+				xsuaaServiceConfiguration.getCertUrl());
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
-				xsuaaServiceConfiguration.getUaaCertUrl());
+				xsuaaServiceConfiguration);
 		ClientIdentity clientCertificate = xsuaaServiceConfiguration.getClientIdentity();
 		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(SpringHttpClient.create(clientCertificate));
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCertificate);

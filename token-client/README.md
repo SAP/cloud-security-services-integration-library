@@ -35,16 +35,17 @@ The Resource owner password credentials (i.e., username and password) can be use
 Instantiate `XsuaaTokenFlows` with the `DefaultOAuth2TokenService` which
 makes use of [Apache HttpClient](https://hc.apache.org/):
 
-- Client secret based authentication method:
+The `DefaultOAuth2TokenService` should be instantiated with a custom `CloseableHttpClient`.
+
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                                    new DefaultOAuth2TokenService(), 
+                                    new DefaultOAuth2TokenService(<CloseableHttpClient>), 
                                     new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), 
-                                    new ClientCredentials(<client_id>, <client_secret>));
+                                    <OAuth2ServiceConfiguration.getClientIdentity()>));
 ```
-The `DefaultOAuth2TokenService` can also be instantiated with a custom `CloseableHttpClient`.
 
-- X.509 based authentication method
+For X.509 based authentication method you can use preconfigured HttpClient (not recommended for productive use)
+
 ```java
 //Xsuaa managed certificate
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
@@ -55,17 +56,18 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 
 //Externally managed certificates
 ClientIdentity clientIdentity = new ClientCertificate(<certificate>,
-					"-----BEGIN RSA PRIVATE KEY-----EXTERNALLY PROVIDED KEY-----END RSA PRIVATE KEY-----",
+					"-----BEGIN RSA PRIVATE KEY-----YOUR EXTERNALLY PROVIDED KEY-----END RSA PRIVATE KEY-----",
 					<client_id>);
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 					new DefaultOAuth2TokenService(HttpClient.create(clientIdentity)),
 					new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>),
 					clientIdentity);
 ```
-The `HttpClient.create(ClientIdentity clientIdentity)` is used to setup a HTTPS client for X.509 certificate usage.
 
-> The `<client_id>`, `<client_secret>`, `<certificate>` are placeholders for the information you get from the XSUAA service binding. 
-> 
+> The `<client_id>`, `<certificate>` are placeholders for the information you get from the XSUAA service binding. 
+>
+> `<CloseableHttpClient>` is your custom configured HttpClient
+>
 >`<OAuth2ServiceConfiguration>` is the service configuration of the bound service instance.
 
 ##### Cache
@@ -111,23 +113,23 @@ By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache 
 #### Initialization
 
 With Spring-Web available `XsuaaTokenFlows` can be instantiated with a `RestTemplate` of your choice like that:
-- Client secret based authentication method:
+
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                                     new XsuaaOAuth2TokenService(new RestTemplate()),
-                                    new XsuaaDefaultEndpoints(<uaa_base_url>),
-                                    new ClientCredentials(<client_id>, <client_secret>));
+                                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>),
+                                    <OAuth2ServiceConfiguration.getClientIdentity()>);
 ```
 
-- X.509 based authentication method
+For X.509 based authentication method you can use preconfigured SpringHttpClient (not recommended for productive use)
 ```java
-ClientIdentity clientCertificate = new ClientCertificate(<client_id>, <certificate>, <key>);
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                                    new XsuaaOAuth2TokenService(SpringHttpClient.create(clientCertificate)), 
-                                    new XsuaaDefaultEndpoints(<uaa_cert_url>), 
-                                    clientCertificate);
+                                    new XsuaaOAuth2TokenService(SpringHttpClient.create(<OAuth2ServiceConfiguration.getClientIdentity()>)), 
+                                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), 
+                                    <OAuth2ServiceConfiguration.getClientIdentity()>);
 ```
-> The `<uaa_base_url>`, `<uaa_cert_url>`, `<client_id>`, `<client_secret>`, `<certificate>`, `<key>` are placeholders for the information you get from the XSUAA service binding. 
+> 
+>`<OAuth2ServiceConfiguration>` is the service configuration of the bound service instance.
 
 :bulb: To use externally (not Xsuaa) managed X.509 certificates, `ClientCertificate` class needs to be instantiated with the external certificate and key. 
 

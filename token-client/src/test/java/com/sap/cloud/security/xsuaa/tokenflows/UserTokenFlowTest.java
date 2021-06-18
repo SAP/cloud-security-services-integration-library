@@ -7,12 +7,14 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.client.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
@@ -32,12 +34,16 @@ public class UserTokenFlowTest {
 
 	private final String exchangeToken = "exchange token";
 	private final ClientIdentity clientIdentity = new ClientCredentials("clientId", "clientSecret");
-	private final OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(XSUAA_BASE_URI);
+	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	private UserTokenFlow cut;
 
 	@Before
 	public void setup() {
+		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		Mockito.when(oAuth2ServiceConfiguration.getUrl()).thenReturn(XSUAA_BASE_URI);
+
+		this.endpointsProvider = new XsuaaDefaultEndpoints(oAuth2ServiceConfiguration);
 		this.mockTokenService = mock(OAuth2TokenService.class);
 		this.cut = new UserTokenFlow(mockTokenService, endpointsProvider, clientIdentity);
 	}

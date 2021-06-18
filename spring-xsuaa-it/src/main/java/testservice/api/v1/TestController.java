@@ -89,7 +89,7 @@ public class TestController {
 		azMape.put("c", "d");
 
 		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(new XsuaaOAuth2TokenService(),
-				new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()), new ClientCredentials("c1", "s1"));
+				new XsuaaDefaultEndpoints(serviceConfiguration), new ClientCredentials("c1", "s1"));
 		ClientCredentialsTokenFlow ccTokenFlow = tokenFlows.clientCredentialsTokenFlow().attributes(azMape)
 				.subdomain(token.getSubdomain());
 

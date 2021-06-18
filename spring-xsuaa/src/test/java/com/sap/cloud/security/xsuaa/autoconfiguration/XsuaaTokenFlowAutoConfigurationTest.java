@@ -129,7 +129,7 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 		public XsuaaTokenFlows userDefinedXsuaaTokenFlows(RestOperations restOperations,
 				XsuaaServiceConfiguration serviceConfiguration) {
 			return new XsuaaTokenFlows(new XsuaaOAuth2TokenService(restOperations),
-					new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()), new ClientCredentials("id", "secret"));
+					new XsuaaDefaultEndpoints(serviceConfiguration), new ClientCredentials("id", "secret"));
 		}
 	}
 
