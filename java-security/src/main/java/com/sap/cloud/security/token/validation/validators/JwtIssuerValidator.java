@@ -100,7 +100,8 @@ class JwtIssuerValidator implements Validator<Token> {
 		try {
 			if (issuer == null || issuer.trim().isEmpty()) {
 				return createInvalid(
-						"Issuer validation can not be performed because Jwt token does not contain '{}' claim.", claimName);
+						"Issuer validation can not be performed because Jwt token does not contain '{}' claim.",
+						claimName);
 			}
 			if (!issuer.startsWith("http")) {
 				return createInvalid(
@@ -112,16 +113,17 @@ class JwtIssuerValidator implements Validator<Token> {
 				return createValid();
 			}
 		} catch (URISyntaxException e) {
-			logger.error("Error: '{}' claim '{}' does not provide a valid URI: {}. Please contact your Identity Provider Administrator.", claimName, issuer, e.getMessage(), e);
+			logger.error(
+					"Error: '{}' claim '{}' does not provide a valid URI: {}. Please contact your Identity Provider Administrator.",
+					claimName, issuer, e.getMessage(), e);
 		}
 		return createInvalid(
 				"Issuer is not trusted because '{}' claim '{}' does not provide a valid URI. Please contact your Identity Provider Administrator.",
 				claimName, issuer);
 	}
 
-	private static boolean hasValue(String issuer){
+	private static boolean hasValue(String issuer) {
 		return issuer != null && !issuer.trim().isEmpty();
 	}
-
 
 }
