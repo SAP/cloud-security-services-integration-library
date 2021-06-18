@@ -48,7 +48,7 @@ The `DefaultOAuth2TokenService` can also be instantiated with a custom `Closeabl
 ```java
 //Xsuaa managed certificate
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                                    new DefaultOAuth2TokenService(HttpClient.create(<OAuth2ServiceConfiguration.getClientIdnetity()>)), 
+                                    new DefaultOAuth2TokenService(HttpClient.create(<OAuth2ServiceConfiguration.getClientIdentity()>)), 
                                     new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), 
                                     <OAuth2ServiceConfiguration.getClientIdentity()>);
 
@@ -166,7 +166,7 @@ Then, xsuaa integration libraries auto-configures beans, that are required to in
 Auto-configuration class | Description
 ---- | --------
 [XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java) | Adds `xsuaa.*` properties to Spring's Environment. The properties are by default parsed from `VCAP_SERVICES` system environment variables and can be overwritten by properties such as `xsuaa.url` e.g. for testing purposes. Furthermore it exposes a `XsuaaServiceConfiguration` bean that can be used to access xsuaa service information.  Alternatively you can access them with `@Value` annotation e.g. `@Value("${xsuaa.url:}") String xsuaaBaseUrl`. As of version `1.7.0` it creates a default [`RestTemplate`](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/client/RestOperations.html) bean that serves as Rest client that is used inside a default `OAuth2TokenService` to perform HTTP requests to the XSUAA server. **It is recommended to overwrite this default and configuring it with the HTTP client of your choice.**
-[XsuaaTokenFlowAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean for a given `RestOperations` and `XsuaaServiceConfiguration` bean to fetch the XSUAA service binding information. Automatically resolves `XsuaaTokenFlows` for defined authentication method.
+[XsuaaTokenFlowAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean for a given `RestOperations` and `XsuaaServiceConfiguration` bean to fetch the XSUAA service binding information. 
 
 You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 
@@ -176,8 +176,6 @@ To consume the `XsuaaTokenFlows` class, you simply need to `@Autowire` it like t
 @Autowired
 private XsuaaTokenFlows xsuaaTokenFlows;
 ```
-:bulb: It automatically adapts TokenFlow for X.509 certificate or client secret based authentication method, based on Oauth2 service configuration.
-
 
 ## Usage
 The `XsuaaTokenFlows` provides a builder-pattern API that allows applications to easily create and execute each flow, guiding developers to only set properties that are relevant for the respective token flow.
