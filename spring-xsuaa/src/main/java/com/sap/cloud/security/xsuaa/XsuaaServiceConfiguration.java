@@ -5,35 +5,14 @@
  */
 package com.sap.cloud.security.xsuaa;
 
-import com.sap.cloud.security.config.ClientCredentials;
-import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.config.CredentialType;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 
 import javax.annotation.Nullable;
+import java.net.URI;
+import java.util.Map;
 
-public interface XsuaaServiceConfiguration {
-	/**
-	 * Client id of xsuaa service instance
-	 * 
-	 * @return clientId
-	 */
-	String getClientId();
-
-	/**
-	 * Client secret of xsuaa instance
-	 * 
-	 * @return client secret
-	 */
-	String getClientSecret();
-
-	/**
-	 * Client Identity of xsuaa instance
-	 * 
-	 * @return ClientIdentity object
-	 */
-	default ClientIdentity getClientIdentity() {
-		return new ClientCredentials(getClientId(), getClientSecret());
-	}
+public interface XsuaaServiceConfiguration extends OAuth2ServiceConfiguration {
 
 	/**
 	 * Base URL of the xsuaa service instance. In multi tenancy scenarios this is
@@ -43,21 +22,10 @@ public interface XsuaaServiceConfiguration {
 	 */
 	String getUaaUrl();
 
-	/**
-	 * Base certificate URL of the xsuaa service instance.
-	 *
-	 * @return uaa mTLS url
-	 */
-	@Nullable
-	default String getUaaCertUrl(){ return null; }
-
-	/**
-	 * Credential type as defined in "oauth2-configuration" of the xsuaa service
-	 * instance security descriptor.
-	 *
-	 * @return value of credential-type field
-	 */
-	default CredentialType getCredentialType(){ return null; }
+	@Override
+	default URI getUrl() {
+		return URI.create(getUaaUrl());
+	}
 
 	/**
 	 * XS application identifier
@@ -80,4 +48,30 @@ public interface XsuaaServiceConfiguration {
 	 */
 	@Nullable
 	String getVerificationKey();
+
+	@Nullable
+	@Override
+	default String getProperty(String name) {
+		throw new UnsupportedOperationException("getProperty method is not supported");
+	}
+
+	@Override
+	default Map<String, String> getProperties() {
+		throw new UnsupportedOperationException("getProperties method is not supported");
+	}
+
+	@Override
+	default boolean hasProperty(String name) {
+		throw new UnsupportedOperationException("hasProperty method is not supported");
+	}
+
+	@Override
+	default Service getService() {
+		throw new UnsupportedOperationException("getService method is not supported");
+	}
+
+	@Override
+	default boolean isLegacyMode() {
+		throw new UnsupportedOperationException("isLegacyMode method is not supported");
+	}
 }

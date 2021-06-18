@@ -12,6 +12,8 @@ import com.sap.cloud.security.config.CredentialType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.URI;
+
 @Configuration
 public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfiguration {
 
@@ -97,7 +99,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	}
 
 	@Override
-	public String getUaaCertUrl() {
-		return certUrl;
+	public URI getCertUrl() {
+		return URI.create(certUrl);
 	}
 }

@@ -18,6 +18,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.net.URI;
+
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = { TestConfiguration.class, XsuaaServiceConfigurationDefault.class })
 public class XsuaaServicePropertySourceFactoryTest {
@@ -34,7 +36,7 @@ public class XsuaaServicePropertySourceFactoryTest {
 		assertEquals("secret", serviceConfiguration.getClientSecret());
 		assertEquals("https://auth.com", serviceConfiguration.getUaaUrl());
 		assertEquals("auth.com", serviceConfiguration.getUaaDomain());
-		assertEquals("https://auth.cert.com", serviceConfiguration.getUaaCertUrl());
+		assertEquals(URI.create("https://auth.cert.com"), serviceConfiguration.getCertUrl());
 		assertEquals("x509", serviceConfiguration.getCredentialType().toString());
 		assertThat(testConfiguration.certificate, startsWith("-----BEGIN CERTIFICATE-----"));
 		assertThat(testConfiguration.key, startsWith("-----BEGIN RSA PRIVATE KEY-----"));

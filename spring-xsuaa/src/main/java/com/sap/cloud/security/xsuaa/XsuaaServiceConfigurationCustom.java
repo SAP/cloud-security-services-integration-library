@@ -11,6 +11,7 @@ import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.CredentialType;
 
 import javax.annotation.Nullable;
+import java.net.URI;
 
 public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguration {
 
@@ -44,6 +45,12 @@ public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguratio
 		return credentials.getUrl();
 	}
 
+	@Nullable
+	@Override
+	public URI getCertUrl() {
+		return URI.create(credentials.getCertUrl());
+	}
+
 	@Override
 	public String getAppId() {
 		return credentials.getXsAppName();
@@ -60,14 +67,10 @@ public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguratio
 		return credentials.getVerificationKey();
 	}
 
-	@Nullable
-	@Override
-	public String getUaaCertUrl() {
-		return credentials.getCertUrl();
-	}
-
 	@Override
 	public CredentialType getCredentialType() {
 		return credentials.getCredentialType();
 	}
+
+
 }
