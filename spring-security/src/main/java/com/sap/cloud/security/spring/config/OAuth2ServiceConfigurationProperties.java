@@ -11,6 +11,7 @@ import com.sap.cloud.security.config.cf.CFConstants;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * PoJo of Spring configuration properties. It implements the
@@ -35,7 +36,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 
 	/**
 	 * Creates a new instance to map configuration of a dedicated identity service.
-	 * 
+	 *
 	 * @param service
 	 *            the kind of service
 	 */
@@ -50,12 +51,30 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 
 	/**
 	 * Sets client id of identity service instance.
-	 * 
+	 *
 	 * @param clientId
 	 *            client identifier
 	 */
 	public void setClientId(String clientId) {
 		builder.withClientId(clientId);
+	}
+
+
+	/**
+	 * Sets certificate of  of identity service instance.
+	 *
+	 * @param certificate PEM encoded certificate
+	 */
+	public void setCertificate(String certificate) {
+		builder.withCertificate(certificate);
+	}
+
+	/**
+	 *  Sets private key of identity service instance.
+	 * @param key PEM encoded private key
+	 */
+	public void setKey(String key) {
+		builder.withPrivateKey(key);
 	}
 
 	@Override
@@ -65,7 +84,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 
 	/**
 	 * Sets client secret of identity service instance.
-	 * 
+	 *
 	 * @param clientSecret
 	 *            client secret
 	 */
@@ -83,9 +102,28 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 		return getConfiguration().getCredentialType();
 	}
 
+	/**
+	 * Sets credential type of identity service instance.
+	 *
+	 * @param credentialType the credential type
+	 */
+	public void setCredentialType(String credentialType) {
+		builder.withCredentialType(Objects.requireNonNull(CredentialType.from(credentialType),"Credential-type must not be null"));
+	}
+
+
 	@Override
 	public URI getCertUrl() {
 		return getConfiguration().getCertUrl();
+	}
+
+	/**
+	 * Sets cert url of identity service instance.
+	 *
+	 * @param certUrl the cert url
+	 */
+	public void setCertUrl(String certUrl) {
+		builder.withCertUrl(certUrl);
 	}
 
 	@Override
@@ -105,7 +143,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	/**
 	 * Sets base URL of the OAuth2 identity service instance. In multi tenancy
 	 * scenarios this is the url where the service instance was created.
-	 * 
+	 *
 	 * @param url
 	 *            base url
 	 */
