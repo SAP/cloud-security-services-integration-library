@@ -59,8 +59,6 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 	public void configures_xsuaaTokenFlows_withProperties() {
 		contextRunner
 				.withPropertyValues("spring.xsuaa.flows.auto:true")
-				.withPropertyValues("xsuaa.clientid:clientid")
-				.withPropertyValues("xsuaa.clientsecret:secret")
 				.run((context) -> {
 					assertThat(context).hasSingleBean(XsuaaTokenFlows.class);
 					assertThat(context).hasBean("xsuaaTokenFlows");
@@ -76,7 +74,6 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 				.withPropertyValues("xsuaa.certificate:" + cert)
 				.withPropertyValues("xsuaa.key:" + key)
 				.withPropertyValues("xsuaa.certurl:https://domain.cert.authentication.sap.com")
-				.withPropertyValues("xsuaa.url:https://domain.authentication.sap.com")
 				.run((context) -> {
 					assertThat(context).hasSingleBean(XsuaaTokenFlows.class);
 					assertThat(context).hasBean("xsuaaMtlsTokenFlows");
