@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import abc
 import distutils
+import http
+import ssl
 import subprocess
 import urllib.request
 from urllib.parse import urlencode
@@ -136,17 +138,28 @@ class SampleTest(abc.ABC, unittest.TestCase):
 
     def get_token(self):
         deployed_app = self.get_deployed_app()
-        logging.info('GET xsuaa token to {} for user {} ({}, {})'.format(deployed_app.xsuaa_service_url,
+        logging.info('GET xsuaa token to {} for user {} (credential-type = {}, clientid = {}, clientsecret = {})'.format(deployed_app.xsuaa_service_url,
                                                                          self.credentials.username,
+                                                                         deployed_app.credential_type,
                                                                          deployed_app.clientid,
                                                                          deployed_app.clientsecret))
-        return HttpUtil().get_token(
-            xsuaa_service_url=deployed_app.xsuaa_service_url,
-            clientid=deployed_app.clientid,
-            clientsecret=deployed_app.clientsecret,
-            grant_type='password',
-            username=self.credentials.username,
-            password=self.credentials.password + self.__get_2factor_auth_code())
+        if deployed_app.credential_type == 'x509':
+            body = HttpUtil.encode_request_body(self, clientid=deployed_app.clientid,
+                                         grant_type='password',
+                                         username=self.credentials.username,
+                                         password=self.credentials.password + self.__get_2factor_auth_code())
+            return HttpUtil.post_request_x509(self, url=deployed_app.xsuaa_cert_url,
+                                       data=body,
+                                       certificate=deployed_app.certificate,
+                                       key=deployed_app.key)
+        else:
+            return HttpUtil().get_token(
+                xsuaa_service_url=deployed_app.xsuaa_service_url,
+                clientid=deployed_app.clientid,
+                clientsecret=deployed_app.clientsecret,
+                grant_type='password',
+                username=self.credentials.username,
+                password=self.credentials.password + self.__get_2factor_auth_code())
 
     def get_id_token(self):
         deployed_app = self.get_deployed_app()
@@ -362,6 +375,31 @@ class TestSpringSecurity(SampleTest):
         self.assertEqual(resp.status, 200, EXPECT_200)
 
 
+class TestSpringSecurityMtls(SampleTest):
+
+    def get_app(self):
+        logging.info(RUN_TESTS.format("SpringSecurityUsage"))
+        return CFApp(name='spring-security-xsuaa-usage', xsuaa_service_name='xsuaa-authentication',
+                     app_router_name='approuter-spring-security-xsuaa-usage')
+
+    def test_tokenFlows(self):
+        logging.info(RUN_TEST.format("TestSpringSecurityMtls.test_tokenFlows"))
+        self.add_user_to_role('Viewer')
+
+        resp = self.perform_get_request_with_token('/v2/sayHello')
+        self.assertEqual(resp.status, 200, EXPECT_200)
+
+        resp = self.perform_get_request_with_token('/v3/requestClientCredentialsToken')
+        self.assertEqual(resp.status, 200, EXPECT_200)
+
+        resp = self.perform_get_request_with_token('/v3/requestUserToken')
+        self.assertEqual(resp.status, 200, EXPECT_200)
+
+        token = self.get_token()
+        path_with_refresh_token = '/v3/requestRefreshToken/' + token.get('refresh_token')
+        resp = self.perform_get_request_with_token(path_with_refresh_token)
+        self.assertEqual(resp.status, 200, EXPECT_200)
+
 
 class TestJavaBuildpackApiUsage(SampleTest):
 
@@ -468,6 +506,41 @@ class HttpUtil:
         req = urllib.request.Request(url, data=data, method='POST')
         self.__add_headers(req, access_token, additional_headers)
         return self.__execute(req)
+
+    def post_request_x509(self, url, data=None, access_token=None, certificate=None, key=None):
+        f = open("cert.pem", "w")
+        f.write(certificate)
+        f.close()
+        f = open("key.pem", "w")
+        f.write(key)
+        f.close()
+        host = url = url.replace("https://", "")
+        url_path = '/oauth/token'
+
+        context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        context.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
+
+        connection = http.client.HTTPSConnection(host, port=443, context=context)
+        connection.request(method="POST", url=url_path, body=data, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+
+        logging.debug('Performing POST request over mTLS to {} {}'
+                      .format(url, 'with access token: ' + access_token if access_token else 'without access token'))
+        response = connection.getresponse()
+        body_decoded = response.read().decode()
+        logging.debug('Response from POST request over mTLS: status {} - data {}'.format(response.status, body_decoded))
+
+        if response.status == 200:
+            return json.loads(body_decoded)
+        else:
+            logging.error('mTLS post request failed - {}'.format(response.status))
+            return None
+
+    def encode_request_body(self, clientid, grant_type, username=None, password=None):
+        return urlencode({'client_id': clientid,
+                                   'grant_type': grant_type,
+                                   'response_type': 'token',
+                                   'username': username,
+                                   'password': password}).encode()
 
     def get_token(self, xsuaa_service_url, clientid, clientsecret, grant_type, username=None, password=None):
         post_req_body = urlencode({'client_id': clientid,
@@ -786,12 +859,28 @@ class DeployedApp:
         return self.get_credentials_property('url')
 
     @property
+    def xsuaa_cert_url(self):
+        return self.get_credentials_property('certurl')
+
+    @property
     def clientid(self):
         return self.get_credentials_property('clientid')
 
     @property
     def clientsecret(self):
         return self.get_credentials_property('clientsecret')
+
+    @property
+    def certificate(self):
+        return self.get_credentials_property('certificate')
+
+    @property
+    def key(self):
+        return self.get_credentials_property('key')
+
+    @property
+    def credential_type(self):
+        return self.get_credentials_property('credential-type')
 
     @property
     def ias_service_url(self):
