@@ -9,8 +9,10 @@ import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
-import com.sap.cloud.security.xsuaa.client.*;
-import com.sap.cloud.security.client.ServiceClientException;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.slf4j.Logger;
@@ -89,7 +91,7 @@ class XsuaaTokenFlowAutoConfiguration {
 	@Bean
 	@ConditionalOnProperty(prefix = "sap.security.services.xsuaa", name = "credential-type", havingValue = "x509")
 	@ConditionalOnMissingBean
-	public RestOperations mtlsRestOperations(XsuaaServiceConfiguration xsuaaConfig) throws ServiceClientException {
+	public RestOperations mtlsRestOperations(XsuaaServiceConfiguration xsuaaConfig) {
 		logger.warn("In productive environment provide a well configured certificate based RestOperations bean");
 		return SpringHttpClient.getInstance().create(xsuaaConfig.getClientIdentity());
 	}

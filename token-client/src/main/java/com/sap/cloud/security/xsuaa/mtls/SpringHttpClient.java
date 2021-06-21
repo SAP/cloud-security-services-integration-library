@@ -1,7 +1,6 @@
 package com.sap.cloud.security.xsuaa.mtls;
 
 import com.sap.cloud.security.client.HttpClientFactory;
-import com.sap.cloud.security.client.ServiceClientException;
 import com.sap.cloud.security.config.ClientIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +36,8 @@ public class SpringHttpClient {
 	 * @param clientIdentity
 	 *            ClientIdentity of Xsuaa Service
 	 * @return RestTemplate instance
-	 * @throws ServiceClientException
-	 *            in case HTTPS Client for certificate based authentication could not be setup
 	 */
-	public RestTemplate create(@Nullable ClientIdentity clientIdentity) throws ServiceClientException {
+	public RestTemplate create(@Nullable ClientIdentity clientIdentity) {
 		LOGGER.warn("In productive environment provide a well configured RestTemplate");
 		if (clientIdentity != null && clientIdentity.isCertificateBased()) {
 			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();

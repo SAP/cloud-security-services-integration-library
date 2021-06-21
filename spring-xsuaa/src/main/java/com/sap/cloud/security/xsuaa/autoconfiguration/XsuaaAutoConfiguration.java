@@ -10,7 +10,6 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import com.sap.cloud.security.xsuaa.extractor.TokenUtil;
-import com.sap.cloud.security.xsuaa.mtls.ServiceClientException;
 import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +101,7 @@ public class XsuaaAutoConfiguration {
 	@Bean
 	@ConditionalOnProperty(prefix = "xsuaa", name = "credential-type", havingValue = "x509")
 	@ConditionalOnMissingBean
-	public RestOperations xsuaaMtlsRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) throws ServiceClientException {
+	public RestOperations xsuaaMtlsRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		logger.warn("In productive environment provide a well configured certificate based RestOperations bean");
 		return SpringHttpClient.getInstance().create(xsuaaServiceConfiguration.getClientIdentity());
 	}
