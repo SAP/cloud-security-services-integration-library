@@ -5,7 +5,8 @@
  */
 package com.sap.cloud.security.client;
 
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.ClientCertificate;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.token.ProviderNotFoundException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.LoggerFactory;
@@ -26,17 +27,26 @@ public interface HttpClientFactory {
 	};
 
 	/**
-	 * Returns a ClosableHttpClient for the given oauth2 service configuration.
+	 * Provides CloseableHttpClient based on ClientIdentity details. For
+	 * ClientIdentity that is certificate based it will resolve https client using
+	 * the provided ClientIdentity, if the
+	 * ClientIdentity wasn't provided it will return default HttpClient.
 	 *
-	 * @param config
-	 *            the service configuration, e.g. from VCAP_SERVICES
-	 * @return the new rest client
+	 * @param clientIdentity
+	 *            for X.509 certificate based communication
+	 *            {@link ClientCertificate} implementation of ClientIdentity
+	 *            interface should be provided
+	 * @return HTTP or HTTPS client
+	 * @throws ServiceClientException
+	 *         in case HTTPS Client could not be setup
 	 */
-	default CloseableHttpClient create(OAuth2ServiceConfiguration config) {
+	CloseableHttpClient createClient(ClientIdentity clientIdentity) throws ServiceClientException;
+
+	static CloseableHttpClient create(ClientIdentity clientIdentity) throws ServiceClientException {
 		if (services.isEmpty()) {
 			throw new ProviderNotFoundException("No HttpClientFactory implementation found in the classpath");
 		}
-		return services.get(0).create(config);
+		return services.get(0).createClient(clientIdentity);
 	}
 
 }

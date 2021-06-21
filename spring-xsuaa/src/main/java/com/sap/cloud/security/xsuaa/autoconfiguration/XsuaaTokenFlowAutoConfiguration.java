@@ -8,7 +8,7 @@ package com.sap.cloud.security.xsuaa.autoconfiguration;
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.*;
-import com.sap.cloud.security.xsuaa.mtls.ServiceClientException;
+import com.sap.cloud.security.client.ServiceClientException;
 import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import com.sap.cloud.security.config.ClientIdentity;

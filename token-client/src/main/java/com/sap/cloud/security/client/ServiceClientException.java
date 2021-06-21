@@ -1,10 +1,10 @@
-package com.sap.cloud.security.xsuaa.mtls;
+package com.sap.cloud.security.client;
 
 
 /**
  * Thrown to signal issues during a http client initialization.
  */
-public class ServiceClientException extends Exception {
+public class ServiceClientException extends RuntimeException {
 	/**
 	 * Instantiates a new Service client exception.
 	 *

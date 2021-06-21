@@ -50,7 +50,7 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 For X.509 based authentication method you can use preconfigured HttpClient (not recommended for productive use)
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                    new DefaultOAuth2TokenService(HttpClient.create(<OAuth2ServiceConfiguration>.getClientIdentity())), 
+                    new DefaultOAuth2TokenService(HttpClientFactory.create(<OAuth2ServiceConfiguration>.getClientIdentity())), 
                     new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), 
                     <OAuth2ServiceConfiguration>.getClientIdentity());
 ```
@@ -63,7 +63,7 @@ ClientIdentity clientIdentity = new ClientCertificate(
                     <OAuth2ServiceConfiguration>.getClientId());
 
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                    new DefaultOAuth2TokenService(HttpClient.create(clientIdentity)),
+                    new DefaultOAuth2TokenService(HttpClientFactory.create(clientIdentity)),
                     new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>),
                     clientIdentity);
 ```
