@@ -82,7 +82,7 @@ class XsuaaTokenFlowAutoConfiguration {
 				xsuaaConfig.getCertUrl());
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig);
 		ClientIdentity clientCertificate = xsuaaConfig.getClientIdentity();
-		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(SpringHttpClient.create(clientCertificate));
+		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(SpringHttpClient.getInstance().create(clientCertificate));
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCertificate);
 	}
 

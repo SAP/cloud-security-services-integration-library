@@ -6,7 +6,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Nonnull;
@@ -35,13 +35,11 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	private RestOperations restOperations;
 
 	public XsuaaOAuth2TokenService() {
-		this(SpringHttpClient.create(), TokenCacheConfiguration.defaultConfiguration());
+		this(new RestTemplate(), TokenCacheConfiguration.defaultConfiguration());
 	}
 
 	public XsuaaOAuth2TokenService(@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
-		this(SpringHttpClient.create(), tokenCacheConfiguration);
-
-
+		this(new RestTemplate(), tokenCacheConfiguration);
 	}
 
 	public XsuaaOAuth2TokenService(@Nonnull RestOperations restOperations) {

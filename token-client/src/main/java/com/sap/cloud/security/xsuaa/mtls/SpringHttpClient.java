@@ -12,7 +12,15 @@ import javax.annotation.Nullable;
  */
 public class SpringHttpClient {
 
-	private SpringHttpClient() {
+	private static SpringHttpClient instance;
+
+	private SpringHttpClient() {}
+
+	public static SpringHttpClient getInstance(){
+		if (instance == null) {
+			instance = new SpringHttpClient();
+		}
+		return instance;
 	}
 
 	/**
@@ -20,7 +28,7 @@ public class SpringHttpClient {
 	 *
 	 * @return RestTemplate instance
 	 */
-	public static RestTemplate create() {
+	public RestTemplate create() {
 		return new RestTemplate();
 	}
 
@@ -35,7 +43,7 @@ public class SpringHttpClient {
 	 * @throws ServiceClientException
 	 *            in case HTTPS Client for certificate based authentication could not be setup
 	 */
-	public static RestTemplate create(@Nullable ClientIdentity clientIdentity) throws ServiceClientException {
+	public RestTemplate create(@Nullable ClientIdentity clientIdentity) throws ServiceClientException {
 		if (clientIdentity != null && clientIdentity.isCertificateBased()) {
 			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 			requestFactory.setHttpClient(HttpClient.create(clientIdentity));
