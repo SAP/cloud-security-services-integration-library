@@ -46,14 +46,18 @@ public class OidcConfigurationServiceWithCacheTest {
 
 	@Test
 	public void changeCacheConfiguration() {
-		cut = cut.withCacheSize(1001).withCacheTime(601);
+		cut = cut.withCacheSize(1001).withCacheTime(600);
 
 		assertThatThrownBy(() -> {
-			cut = cut.withCacheSize(1000).withCacheTime(601);
+			cut = cut.withCacheSize(1000).withCacheTime(600);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("size");
 
 		assertThatThrownBy(() -> {
-			cut = cut.withCacheSize(1001).withCacheTime(600);
+			cut = cut.withCacheSize(1001).withCacheTime(599);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("validity");
+
+		assertThatThrownBy(() -> {
+			cut = cut.withCacheSize(1001).withCacheTime(901);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("validity");
 	}
 
