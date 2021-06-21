@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.extractor;
 
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
@@ -14,7 +15,6 @@ import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
-import com.sap.cloud.security.config.ClientIdentity;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +50,10 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 
 	}
 
+	/**
+	 * @deprecated In favor of {{@link #IasXsuaaExchangeBroker(XsuaaTokenFlows)} gets removed with the version 3.0.0, does not support certificate based authentication
+	 */
+	@Deprecated
 	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration) {
 		this(configuration, new XsuaaOAuth2TokenService());
 	}
