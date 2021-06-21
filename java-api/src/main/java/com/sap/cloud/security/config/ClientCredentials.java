@@ -3,14 +3,13 @@
  * 
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.cloud.security.config;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.Objects;
 
-import static com.sap.cloud.security.xsuaa.Assertions.*;
-
-public class ClientCredentials {
+public class ClientCredentials implements ClientIdentity, Serializable {
 	private static final long serialVersionUID = 2405162041950251807L;
 
 	private final String clientSecret;
@@ -25,18 +24,23 @@ public class ClientCredentials {
 	 *            - the secret of the OAuth 2.0 client requesting the token.
 	 */
 	public ClientCredentials(@Nonnull String clientId, @Nonnull String clientSecret) {
-		assertNotNull(clientId, "clientId is required");
-		assertNotNull(clientSecret, "clientSecret is required");
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 	}
 
+	@Override
 	public String getSecret() {
 		return clientSecret;
 	}
 
+	@Override
 	public String getId() {
 		return clientId;
+	}
+
+	@Override
+	public boolean isValid() {
+		return hasValue(clientId) && hasValue(clientSecret);
 	}
 
 	@Override
@@ -60,4 +64,7 @@ public class ClientCredentials {
 		return String.format("%s:%s", clientId, clientSecret);
 	}
 
+	private static boolean hasValue(String value){
+		return value != null && !value.isEmpty();
+	}
 }

@@ -8,12 +8,13 @@ package com.sap.cloud.security.xsuaa.client;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Ticker;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
-import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,16 +90,16 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@Nonnull URI tokenEndpointUri,
-			@Nonnull ClientCredentials clientCredentials,
+			@Nonnull ClientIdentity clientIdentity,
 			@Nullable String zoneId, @Nullable String subdomain, @Nullable Map<String, String> optionalParameters,
 			boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		assertNotNull(clientCredentials, "clientCredentials is required");
+		assertNotNull(clientIdentity, "clientIdentity is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_CLIENT_CREDENTIALS)
-				.withClientCredentials(clientCredentials)
+				.withClientIdentity(clientIdentity)
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
@@ -113,16 +114,16 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@Nonnull URI tokenEndpointUri,
-			@Nonnull ClientCredentials clientCredentials, @Nonnull String token, @Nullable String subdomain,
+			@Nonnull ClientIdentity clientIdentity, @Nonnull String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		assertNotNull(clientCredentials, "clientCredentials is required");
+		assertNotNull(clientIdentity, "clientIdentity is required");
 		assertNotNull(token, "token is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_USER_TOKEN)
-				.withClientId(clientCredentials.getId())
+				.withClientId(clientIdentity.getId())
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
@@ -133,17 +134,17 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(@Nonnull URI tokenEndpointUri,
-			@Nonnull ClientCredentials clientCredentials,
+			@Nonnull ClientIdentity clientIdentity,
 			@Nonnull String refreshToken, String subdomain, boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		assertNotNull(clientCredentials, "clientCredentials is required");
+		assertNotNull(clientIdentity, "clientIdentity is required");
 		assertNotNull(refreshToken, "refreshToken is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_REFRESH_TOKEN)
 				.withRefreshToken(refreshToken)
-				.withClientCredentials(clientCredentials)
+				.withClientIdentity(clientIdentity)
 				.buildAsMap();
 
 		HttpHeaders headers = HttpHeadersFactory.createWithoutAuthorizationHeader();
@@ -153,12 +154,12 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(@Nonnull URI tokenEndpoint,
-			@Nonnull ClientCredentials clientCredentials, @Nonnull String username, @Nonnull String password,
+			@Nonnull ClientIdentity clientIdentity, @Nonnull String username, @Nonnull String password,
 			@Nullable String subdomain, @Nullable Map<String, String> optionalParameters,
 			boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpoint, "tokenEndpoint is required");
-		assertNotNull(clientCredentials, "clientCredentials are required");
+		assertNotNull(clientIdentity, "clientIdentity is required");
 		assertNotNull(username, "username is required");
 		assertNotNull(password, "password is required");
 
@@ -166,7 +167,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 				.withGrantType(GRANT_TYPE_PASSWORD)
 				.withUsername(username)
 				.withPassword(password)
-				.withClientCredentials(clientCredentials)
+				.withClientIdentity(clientIdentity)
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
 
@@ -177,16 +178,16 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpoint,
-			ClientCredentials clientCredentials, String token, @Nullable String subdomain,
+			ClientIdentity clientIdentity, String token, @Nullable String subdomain,
 			@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpoint, "tokenEndpoint is required");
-		assertNotNull(clientCredentials, "clientCredentials are required");
+		assertNotNull(clientIdentity, "clientIdentity is required");
 		assertNotNull(token, "token is required");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_JWT_BEARER)
-				.withClientCredentials(clientCredentials)
+				.withClientIdentity(clientIdentity)
 				.withToken(token)
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();
@@ -198,18 +199,18 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 
 	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpoint,
-			ClientCredentials clientCredentials, @Nonnull String token,
+			ClientIdentity clientIdentity, @Nonnull String token,
 			@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest,
 			@Nonnull String zoneId)
 			throws OAuth2ServiceException {
 		assertNotNull(tokenEndpoint, "tokenEndpoint is required");
-		assertNotNull(clientCredentials, "clientCredentials are required");
+		assertNotNull(clientIdentity, "clientIdentity is required");
 		assertNotNull(token, "token is required");
 		assertNotNull(zoneId, "ZoneId is required to create X-zid header");
 
 		Map<String, String> parameters = new RequestParameterBuilder()
 				.withGrantType(GRANT_TYPE_JWT_BEARER)
-				.withClientCredentials(clientCredentials)
+				.withClientIdentity(clientIdentity)
 				.withToken(token)
 				.withOptionalParameters(optionalParameters)
 				.buildAsMap();

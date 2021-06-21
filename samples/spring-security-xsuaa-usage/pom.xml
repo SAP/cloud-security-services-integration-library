@@ -30,6 +30,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<sap.cloud.security.version>2.9.0</sap.cloud.security.version>
+		<apache.httpclient.version>4.5.13</apache.httpclient.version>
 		<jetty.version>9.4.39.v20210325</jetty.version>
 	</properties>
 
@@ -43,6 +44,11 @@
             <artifactId>xsuaa-spring-boot-starter</artifactId>
             <version>${sap.cloud.security.version}</version>
         </dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${apache.httpclient.version}</version>
+		</dependency>
 		
 		<!-- test dependencies-->
         <dependency>
@@ -56,6 +62,17 @@
 			<version>${sap.cloud.security.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>5.7.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -64,6 +81,11 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M4</version>
 			</plugin>
 			<plugin>
 				<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->

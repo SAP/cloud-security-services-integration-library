@@ -15,6 +15,7 @@
         <sap.cloud.security.version>2.9.0</sap.cloud.security.version>
         <apache.httpclient.version>4.5.13</apache.httpclient.version>
         <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
+        <slf4j.api.version>1.7.30</slf4j.api.version>
     </properties>
 
     <dependencies>
@@ -39,6 +40,12 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet.api.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.api.version}</version>
         </dependency>
     </dependencies>
 

@@ -5,15 +5,16 @@
  */
 package com.sap.cloud.security.xsuaa.extractor;
 
+import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+import com.sap.cloud.security.config.ClientIdentity;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +41,13 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 	}
 
 	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration, OAuth2TokenService tokenService) {
+		ClientIdentity clientIdentity = configuration.getClientIdentity();
+		logger.debug("Initializing XsuaaTokenFlow ({} based authentication)", configuration.getCredentialType() == CredentialType.X509 ? "certificate" : "client secret");
 		this.xsuaaTokenFlows = new XsuaaTokenFlows(
 				tokenService,
-				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
-				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
+				new XsuaaDefaultEndpoints(configuration),
+				clientIdentity);
+
 	}
 
 	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration) {

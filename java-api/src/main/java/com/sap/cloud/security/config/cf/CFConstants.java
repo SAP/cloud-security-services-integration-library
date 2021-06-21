@@ -34,6 +34,8 @@ public class CFConstants {
 		public static final String UAA_DOMAIN = "uaadomain";
 		public static final String APP_ID = "xsappname";
 		public static final String VERIFICATION_KEY = "verificationkey";
+		public static final String CERT_URL = "certurl";
+		public static final String CREDENTIAL_TYPE = "credential-type";
 
 	}
 

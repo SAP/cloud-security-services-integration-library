@@ -5,24 +5,19 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.*;
+
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
+import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 /**
  * A client credentials flow builder class. Applications retrieve an instance of
@@ -31,8 +26,8 @@ import javax.annotation.Nullable;
  */
 public class ClientCredentialsTokenFlow {
 
-	private XsuaaTokenFlowRequest request;
-	private OAuth2TokenService tokenService;
+	private final XsuaaTokenFlowRequest request;
+	private final OAuth2TokenService tokenService;
 	private boolean disableCache = false;
 	private List<String> scopes = new ArrayList<>();
 
@@ -44,19 +39,21 @@ public class ClientCredentialsTokenFlow {
 	 *            request.
 	 * @param endpointsProvider
 	 *            - the endpoints provider
-	 * @param clientCredentials
-	 *            - the OAuth client credentials
+	 * @param clientIdentity
+	 *            - the OAuth client identity
 	 */
 	ClientCredentialsTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider,
-			ClientCredentials clientCredentials) {
+			ClientIdentity clientIdentity) {
 		assertNotNull(tokenService, "OAuth2TokenService must not be null.");
 		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
-		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
+		assertNotNull(clientIdentity, "ClientIdentity must not be null.");
 
 		this.tokenService = tokenService;
 		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
-		this.request.setClientId(clientCredentials.getId());
-		this.request.setClientSecret(clientCredentials.getSecret());
+		this.request.setClientIdentity(clientIdentity);
+		if (!clientIdentity.isCertificateBased()) {
+			this.request.setClientSecret(clientIdentity.getSecret());
+		}
 	}
 
 	/**
@@ -177,16 +174,15 @@ public class ClientCredentialsTokenFlow {
 		if (authorities != null) {
 			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI
 		}
-		String scopesParameter = scopes.stream().collect(Collectors.joining(" "));
+		String scopesParameter = String.join(" ", scopes);
 		if (!scopesParameter.isEmpty()) {
 			requestParameter.put(SCOPE, scopesParameter);
 		}
 		try {
-			OAuth2TokenResponse accessToken = tokenService
+			return tokenService
 					.retrieveAccessTokenViaClientCredentialsGrant(request.getTokenEndpoint(),
-							new ClientCredentials(request.getClientId(), request.getClientSecret()),
+							request.getClientIdentity(),
 							request.getZoneId(), request.getSubdomain(), requestParameter, disableCache);
-			return accessToken;
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format("Error requesting technical user token with grant_type 'client_credentials': %s",

@@ -3,17 +3,17 @@
  * 
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.xsuaa.client;
+package com.sap.cloud.security.config;
+
+import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.isNotNull;
-
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class ClientCredentialsTest {
-	ClientCredentials cut = new ClientCredentials("clientId", "clientSecret");
+	ClientIdentity cut = new ClientCredentials("clientId", "clientSecret");
 
 	@Test
 	public void equals() {
@@ -40,5 +40,15 @@ public class ClientCredentialsTest {
 	@Test
 	public void stringify() {
 		assertThat(cut.toString(), is("clientId:clientSecret"));
+	}
+
+	@Test
+	public void testClientIdentityResolution() {
+		assertTrue(cut.isValid());
+		assertFalse(cut.isCertificateBased());
+		assertNull(cut.getCertificate());
+		assertNull(cut.getKey());
+		assertEquals("clientId", cut.getId());
+		assertEquals("clientSecret", cut.getSecret());
 	}
 }

@@ -46,14 +46,4 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 		return verificationKey;
 	}
 
-	/*
-	 * @Nullable
-	 * 
-	 * @Override public String getCertificates() { return null; }
-	 * 
-	 * @Nullable
-	 * 
-	 * @Override public String getPrivateKey() { return null; }
-	 */
-
 }

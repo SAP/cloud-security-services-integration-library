@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.config.ClientCredentials;
 
 import java.net.URI;
 

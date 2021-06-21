@@ -5,9 +5,10 @@
  */
 package com.sap.cloud.security.spring.config;
 
+import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
+import com.sap.cloud.security.config.cf.CFConstants.*;
 import org.junit.jupiter.api.Test;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
@@ -45,6 +46,32 @@ class OAuth2ServiceConfigurationPropertiesTest {
 	}
 
 	@Test
+	void setGetCertificate() {
+		cutXsuaa.setCertificate(ANY_VALUE);
+		cutXsuaa.setCredentialType("x509");
+		assertEquals(ANY_VALUE, cutXsuaa.getClientIdentity().getCertificate());
+		assertTrue(cutXsuaa.hasProperty(CERTIFICATE));
+		assertEquals(ANY_VALUE, cutXsuaa.getProperty(CERTIFICATE));
+	}
+
+	@Test
+	void setGetPrivateKey() {
+		cutXsuaa.setKey(ANY_VALUE);
+		cutXsuaa.setCredentialType("x509");
+		assertEquals(ANY_VALUE, cutXsuaa.getClientIdentity().getKey());
+		assertTrue(cutXsuaa.hasProperty(KEY));
+		assertEquals(ANY_VALUE, cutXsuaa.getProperty(KEY));
+	}
+
+	@Test
+	void setGetCredentialType() {
+		cutXsuaa.setCredentialType("x509");
+		assertEquals(CredentialType.X509, cutXsuaa.getCredentialType());
+		assertTrue(cutXsuaa.hasProperty(XSUAA.CREDENTIAL_TYPE));
+		assertEquals("x509", cutXsuaa.getProperty(XSUAA.CREDENTIAL_TYPE));
+	}
+
+	@Test
 	void setGetUrl() {
 		cutIas.setUrl(ANY_VALUE);
 		assertEquals(ANY_VALUE, cutIas.getUrl().toString());
@@ -55,6 +82,14 @@ class OAuth2ServiceConfigurationPropertiesTest {
 		assertEquals(ANY_VALUE, cutXsuaa.getUrl().toString());
 		assertTrue(cutXsuaa.hasProperty(URL));
 		assertEquals(ANY_VALUE, cutXsuaa.getProperty(URL));
+	}
+
+	@Test
+	void setGetCertUrl() {
+		cutXsuaa.setCertUrl(ANY_VALUE);
+		assertEquals(ANY_VALUE, cutXsuaa.getCertUrl().toString());
+		assertTrue(cutXsuaa.hasProperty(XSUAA.CERT_URL));
+		assertEquals(ANY_VALUE, cutXsuaa.getProperty(XSUAA.CERT_URL));
 	}
 
 	@Test

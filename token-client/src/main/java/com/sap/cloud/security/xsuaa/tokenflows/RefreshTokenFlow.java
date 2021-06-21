@@ -5,10 +5,10 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.xsa.security.container.XSTokenRequest;
 
@@ -21,9 +21,9 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
  */
 public class RefreshTokenFlow {
 
-	private XsuaaTokenFlowRequest request;
+	private final XsuaaTokenFlowRequest request;
 	private String refreshToken;
-	private OAuth2TokenService tokenService;
+	private final OAuth2TokenService tokenService;
 	private boolean disableCache = false;
 
 	/**
@@ -34,19 +34,18 @@ public class RefreshTokenFlow {
 	 *            request.
 	 * @param endpointsProvider
 	 *            - the endpoints provider
-	 * @param clientCredentials
-	 *            - the OAuth client credentials
+	 * @param clientIdentity
+	 *            - the OAuth client identity
 	 */
 	RefreshTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider,
-			ClientCredentials clientCredentials) {
+			ClientIdentity clientIdentity) {
 		assertNotNull(tokenService, "OAuth2TokenService must not be null.");
 		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
-		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
+		assertNotNull(clientIdentity, "ClientIdentity must not be null.");
 
 		this.tokenService = tokenService;
 		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
-		this.request.setClientId(clientCredentials.getId());
-		this.request.setClientSecret(clientCredentials.getSecret());
+		this.request.setClientIdentity(clientIdentity);
 	}
 
 	/**
@@ -145,11 +144,10 @@ public class RefreshTokenFlow {
 	private OAuth2TokenResponse refreshToken(String refreshToken, XsuaaTokenFlowRequest request)
 			throws TokenFlowException {
 		try {
-			OAuth2TokenResponse accessToken = tokenService.retrieveAccessTokenViaRefreshToken(
+			return tokenService.retrieveAccessTokenViaRefreshToken(
 					request.getTokenEndpoint(),
-					new ClientCredentials(request.getClientId(), request.getClientSecret()), refreshToken,
+					request.getClientIdentity(), refreshToken,
 					request.getSubdomain(), disableCache);
-			return accessToken;
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format("Error refreshing token with grant_type 'refresh_token': %s", e.getMessage()), e);

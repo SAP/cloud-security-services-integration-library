@@ -1,6 +1,6 @@
 # Description
 This sample is a Java back-end application running on the Cloud Foundry. On incoming requests it reads 
-credentials from the `VCAP_SERVICES` environment variable and requests a new access token via client credentials token
+credentials from the `VCAP_SERVICES` environment variable and requests a new access token over mTLS using X.509 Certificate via client credentials token
 flow provided by the [Token Client](/token-client/) library.
 
 # Deployment on Cloud Foundry
@@ -43,7 +43,7 @@ Expired-At: Wed Oct 16 13:37:00 UTC 2019
 ```
 
 ## Clean-Up
-Finally delete your application and your service instances using the following commands:
+Finally, delete your application and your service instances using the following commands:
 ```
 cf delete -f java-tokenclient-usage
 cf delete-service -f xsuaa-token-client

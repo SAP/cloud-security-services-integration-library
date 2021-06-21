@@ -49,13 +49,4 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 		return null;
 	}
 
-	/*
-	 * @Nullable
-	 * 
-	 * @Override public String getCertificates() { return null; }
-	 * 
-	 * @Nullable
-	 * 
-	 * @Override public String getPrivateKey() { return null; }
-	 */
 }

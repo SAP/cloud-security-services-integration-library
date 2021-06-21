@@ -5,15 +5,14 @@
  */
 package com.sap.cloud.security.xsuaa.extractor;
 
+import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
-import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -22,7 +21,6 @@ import org.springframework.cache.Cache;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
@@ -54,12 +52,11 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	private static final String OAUTH_TOKEN_PATH = "/oauth/token";
 	private static final String AUTH_BEARER = "bearer";
 
-	private XsuaaServiceConfiguration configuration;
+	private final XsuaaServiceConfiguration configuration;
 
-	private Cache tokenCache;
-	private TokenBroker tokenBroker;
+	private final Cache tokenCache;
+	private final TokenBroker tokenBroker;
 	private AuthenticationInformationExtractor authenticationConfig;
-	private XsuaaTokenFlows xsuaaTokenFlows;
 	private IasXsuaaExchangeBroker iasXsuaaExchangeBroker;
 
 	/**
@@ -101,12 +98,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		this.tokenCache = tokenCache;
 		this.tokenBroker = new UaaTokenBroker(tokenService);
 		this.authenticationConfig = authenticationConfig;
-		this.xsuaaTokenFlows = new XsuaaTokenFlows(
-				tokenService,
-				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
-				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
 		if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
-			this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(this.xsuaaTokenFlows);
+			this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(configuration, tokenService);
 		}
 	}
 
@@ -122,7 +115,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	 */
 	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache,
 			AuthenticationMethod... authenticationMethods) {
-		this(configuration, tokenCache, new XsuaaOAuth2TokenService(new RestTemplate()),
+		this(configuration, tokenCache, new XsuaaOAuth2TokenService(),
 				new DefaultAuthenticationInformationExtractor(authenticationMethods));
 	}
 
@@ -143,11 +136,11 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 		String oauthTokenUrl = getOAuthTokenUrl(request);
 
-		ClientCredentials clientCredentials = new ClientCredentials(configuration.getClientId(),
+		ClientIdentity clientIdentity = new ClientCredentials(configuration.getClientId(),
 				configuration.getClientSecret());
 		for (AuthenticationMethod credentialType : authenticationMethods) {
 			for (String authHeaderValue : Collections.list(request.getHeaders(AUTH_HEADER))) {
-				String token = getBrokerToken(credentialType, authHeaderValue, oauthTokenUrl, clientCredentials);
+				String token = getBrokerToken(credentialType, authHeaderValue, oauthTokenUrl, clientIdentity);
 				if (StringUtils.hasText(token)) {
 					return token;
 				}
@@ -181,7 +174,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	}
 
 	private String getBrokerToken(AuthenticationMethod credentialType, String authHeaderValue,
-			String oauthTokenUrl, ClientCredentials clientCredentials) throws TokenBrokerException {
+								  String oauthTokenUrl, ClientIdentity clientIdentity) throws TokenBrokerException {
 		switch (credentialType) {
 		case OAUTH2:
 			String oAuth2token = extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
@@ -205,7 +198,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
 					basicAuthHeader);
 			if (userCredentialsFromHeader != null) {
-				String cacheKey = createSecureHash(oauthTokenUrl, clientCredentials.toString(),
+				String cacheKey = createSecureHash(oauthTokenUrl, clientIdentity.toString(),
 						userCredentialsFromHeader.toString());
 				String cachedToken = tokenCache.get(cacheKey, String.class);
 				if (cachedToken != null) {
@@ -213,8 +206,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					return cachedToken;
 				} else {
 					String token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl,
-							clientCredentials.getId(),
-							clientCredentials.getSecret(), userCredentialsFromHeader.getId(),
+							clientIdentity.getId(),
+							clientIdentity.getSecret(), userCredentialsFromHeader.getId(),
 							userCredentialsFromHeader.getSecret());
 					tokenCache.put(cacheKey, token);
 					return token;
@@ -224,7 +217,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		case CLIENT_CREDENTIALS:
 			String clientCredentialsAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL,
 					authHeaderValue);
-			ClientCredentials clientCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
+			ClientIdentity clientCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
 					clientCredentialsAuthHeader);
 			if (clientCredentialsFromHeader != null) {
 				String cacheKey = createSecureHash(oauthTokenUrl, clientCredentialsFromHeader.toString());
