@@ -56,7 +56,7 @@ class XsuaaTokenFlowAutoConfiguration {
 	}
 
 	@Bean
-	@Conditional({OnNotX509CredentialTypeCondition.class, PropertyConditions.class,})
+	@Conditional({OnNotX509CredentialTypeCondition.class, PropertyConditions.class})
 	public XsuaaTokenFlows xsuaaTokenFlows() {
 		logger.debug("auto-configures XsuaaTokenFlows.");
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig);
