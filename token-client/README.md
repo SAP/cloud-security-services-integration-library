@@ -45,9 +45,9 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 ```
 > The `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`.
 
-> `<CloseableHttpClient>` is your custom configured HttpClient.
+> `<CloseableHttpClient>` is your custom configured Apache http client.
 
-For X.509 based authentication method you can use preconfigured HttpClient (not recommended for productive use)
+For X.509 based authentication method you can use preconfigured http client from `HttpClientFactory`, which is not recommended for productive use:
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new DefaultOAuth2TokenService(HttpClientFactory.create(<OAuth2ServiceConfiguration>.getClientIdentity())), 
@@ -55,7 +55,7 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     <OAuth2ServiceConfiguration>.getClientIdentity());
 ```
 
-For X.509 based authentication method using an externally managed certificate, you need to provide your own ``ClientCertificate``:
+For X.509 based authentication method using an externally managed certificate you need to provide your own ``ClientCertificate`` in addition:
 ```java
 ClientIdentity clientIdentity = new ClientCertificate(
                     <OAuth2ServiceConfiguration>.getCertificate(),
@@ -107,10 +107,10 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 ```
 > The `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`.
 
-> `<RestOperations>` is your custom configured HttpClient.
+> `<RestOperations>` is your custom configured Spring http client.
 
 
-For X.509 based authentication method you can use preconfigured SpringHttpClient (not recommended for productive use)
+For X.509 based authentication method you can use preconfigured SpringHttpClient, which is not recommended for productive use:
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new XsuaaOAuth2TokenService(SpringHttpClient.create(<OAuth2ServiceConfiguration>.getClientIdentity())), 
