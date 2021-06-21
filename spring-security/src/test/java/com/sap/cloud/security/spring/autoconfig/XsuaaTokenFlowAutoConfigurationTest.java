@@ -16,6 +16,8 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -53,7 +55,11 @@ class XsuaaTokenFlowAutoConfigurationTest {
 
 	@Test
 	void autoConfigurationActive() {
-		runner.run(context -> assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class)));
+		runner.run(context -> {
+				assertThat(context).hasSingleBean(RestOperations.class);
+				assertThat(context).hasBean("restOperations");
+				assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class));
+		});
 	}
 
 	@Test
@@ -62,15 +68,15 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	}
 
 	@Test
-	void configures_xsuaaMtlsTokenFlows_withProperties() {
+	void configures_xsuaaMtlsRestTemplate() {
 		runner
 				.withPropertyValues("sap.spring.security.xsuaa.flows.auto:true")
 				.withPropertyValues("sap.security.services.xsuaa.credential-type:x509")
 				.withPropertyValues("sap.security.services.xsuaa.certificate:" + cert)
 				.withPropertyValues("sap.security.services.xsuaa.key:" + key)
 				.run((context) -> {
-					assertThat(context).hasSingleBean(XsuaaTokenFlows.class);
-					assertThat(context).hasBean("xsuaaMtlsTokenFlows");
+					assertThat(context).hasSingleBean(RestOperations.class);
+					assertThat(context).hasBean("mtlsRestOperations");
 				});
 	}
 
@@ -114,11 +120,16 @@ class XsuaaTokenFlowAutoConfigurationTest {
 				.run((context) -> {
 					assertFalse(context.containsBean("xsuaaTokenFlows"));
 					assertNotNull(context.getBean("customTokenFlows", XsuaaTokenFlows.class));
+					assertThat(context).hasBean("customRestOperations");
+					assertThat(context).hasSingleBean(RestOperations.class);
 				});
 	}
 
 	@Configuration
 	static class UserConfiguration {
+
+		@Bean
+		public RestOperations customRestOperations() {return new RestTemplate(); }
 
 		@Bean
 		public XsuaaTokenFlows customTokenFlows() {
