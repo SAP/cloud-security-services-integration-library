@@ -34,10 +34,18 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 	private RestOperations restOperations;
 
+	/**
+	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)} gets removed with the version 3.0.0, does not support certificate based authentication
+	 */
+	@Deprecated
 	public XsuaaOAuth2TokenService() {
 		this(new RestTemplate(), TokenCacheConfiguration.defaultConfiguration());
 	}
 
+	/**
+	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)} gets removed with the version 3.0.0, does not support certificate based authentication
+	 */
+	@Deprecated
 	public XsuaaOAuth2TokenService(@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
 		this(new RestTemplate(), tokenCacheConfiguration);
 	}

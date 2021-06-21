@@ -70,6 +70,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	 *            configured AuthenticationMethodConfiguration
 	 * @deprecated in favor of
 	 *             {@link #TokenBrokerResolver(XsuaaServiceConfiguration, Cache, OAuth2TokenService, AuthenticationInformationExtractor)}
+	 *             	gets removed with the version 3.0.0
+	 *
 	 */
 	@Deprecated
 	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache, TokenBroker tokenBroker,
@@ -112,7 +114,11 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	 *            list of supported authentication methods. Choose either
 	 *            {@link AuthenticationMethod#BASIC} or
 	 *            {@link AuthenticationMethod#CLIENT_CREDENTIALS}.
+	 * @deprecated in favor of
+	 *             {@link #TokenBrokerResolver(XsuaaServiceConfiguration, Cache, OAuth2TokenService, AuthenticationInformationExtractor)}
+	 *             	gets removed with the version 3.0.0, does not support certificate based authentication
 	 */
+	@Deprecated
 	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache,
 			AuthenticationMethod... authenticationMethods) {
 		this(configuration, tokenCache, new XsuaaOAuth2TokenService(),

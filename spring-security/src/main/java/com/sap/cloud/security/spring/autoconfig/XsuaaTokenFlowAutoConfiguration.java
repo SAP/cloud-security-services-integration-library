@@ -9,8 +9,10 @@ import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
-import com.sap.cloud.security.xsuaa.client.*;
-import com.sap.cloud.security.client.ServiceClientException;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
 
@@ -56,34 +59,41 @@ class XsuaaTokenFlowAutoConfiguration {
 	}
 
 	@Bean
-	@Conditional({OnNotX509CredentialTypeCondition.class, PropertyConditions.class})
-	public XsuaaTokenFlows xsuaaTokenFlows() {
+	@Conditional({PropertyConditions.class})
+	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations xsuaaRestOperations) {
 		logger.debug("auto-configures XsuaaTokenFlows.");
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig);
 		ClientIdentity clientIdentity = xsuaaConfig.getClientIdentity();
-		OAuth2TokenService oAuth2TokenService = new DefaultOAuth2TokenService();
+		OAuth2TokenService oAuth2TokenService =  new XsuaaOAuth2TokenService(xsuaaRestOperations);
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 
 	/**
-	 * Creates a new {@link XsuaaTokenFlows} bean that supports mTLS that
-	 * applications can auto-wire into their controllers to perform a programmatic
-	 * token flow exchange.
+	 * Creates a {@link RestOperations} instance if the application has not
+	 * defined any.
 	 *
-	 * - the {@link RestOperations} to use for the token flow exchange.
+	 * @return the {@link RestOperations} instance.
+	 */
+	@Bean
+	@Conditional({OnNotX509CredentialTypeCondition.class})
+	@ConditionalOnMissingBean
+	public RestOperations restOperations() {
+		logger.warn("In productive environment provide a well configured client secret based RestOperations bean");
+		return new RestTemplate();
+	}
+
+	/**
+	 * Creates a certificate based {@link RestOperations} instance if the application has not
+	 * defined any.
 	 *
-	 * @return the {@link XsuaaTokenFlows} API.
+	 * @return the {@link RestOperations} instance.
 	 */
 	@Bean
 	@ConditionalOnProperty(prefix = "sap.security.services.xsuaa", name = "credential-type", havingValue = "x509")
 	@ConditionalOnMissingBean
-	public XsuaaTokenFlows xsuaaMtlsTokenFlows() throws ServiceClientException {
-		logger.debug("auto-configures XsuaaTokenFlows using mTLS restOperations with uaacert endpoint: {}",
-				xsuaaConfig.getCertUrl());
-		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig);
-		ClientIdentity clientCertificate = xsuaaConfig.getClientIdentity();
-		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(SpringHttpClient.getInstance().create(clientCertificate));
-		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCertificate);
+	public RestOperations mtlsRestOperations(XsuaaServiceConfiguration xsuaaConfig) {
+		logger.warn("In productive environment provide a well configured certificate based RestOperations bean");
+		return SpringHttpClient.getInstance().create(xsuaaConfig.getClientIdentity());
 	}
 
 	private static class OnNotX509CredentialTypeCondition implements Condition {

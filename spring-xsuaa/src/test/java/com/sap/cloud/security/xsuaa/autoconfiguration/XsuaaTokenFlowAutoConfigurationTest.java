@@ -5,14 +5,12 @@
  */
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,18 +25,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { XsuaaAutoConfiguration.class, XsuaaTokenFlowAutoConfiguration.class,
 		DummyXsuaaServiceConfiguration.class })
 public class XsuaaTokenFlowAutoConfigurationTest {
-
-	private static String cert;
-	private static String key;
 
 	// create an ApplicationContextRunner that will create a context with the
 	// configuration under test.
@@ -49,12 +41,6 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 	@Autowired
 	private ApplicationContext context;
 
-	@Before
-	public void setup() throws IOException {
-		cert = IOUtils.resourceToString("/certificate.txt", StandardCharsets.UTF_8);
-		key = IOUtils.resourceToString("/key.txt", StandardCharsets.UTF_8);
-	}
-
 	@Test
 	public void configures_xsuaaTokenFlows_withProperties() {
 		contextRunner
@@ -62,21 +48,6 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 				.run((context) -> {
 					assertThat(context).hasSingleBean(XsuaaTokenFlows.class);
 					assertThat(context).hasBean("xsuaaTokenFlows");
-				});
-	}
-
-	@Test
-	public void configures_xsuaaMtlsTokenFlows_withProperties() {
-		contextRunner
-				.withPropertyValues("spring.xsuaa.flows.auto:true")
-				.withPropertyValues("xsuaa.credential-type:x509")
-				.withPropertyValues("xsuaa.clientid:client")
-				.withPropertyValues("xsuaa.certificate:" + cert)
-				.withPropertyValues("xsuaa.key:" + key)
-				.withPropertyValues("xsuaa.certurl:https://domain.cert.authentication.sap.com")
-				.run((context) -> {
-					assertThat(context).hasSingleBean(XsuaaTokenFlows.class);
-					assertThat(context).hasBean("xsuaaMtlsTokenFlows");
 				});
 	}
 

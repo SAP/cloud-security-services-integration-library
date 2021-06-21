@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.web.client.RestTemplate;
 
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.CLIENT_CREDENTIALS;
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.XSUAA_BASE_URI;
@@ -34,7 +35,7 @@ public class XsuaaTokenFlowsTest {
 		oAuth2ServiceConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		Mockito.when(oAuth2ServiceConfiguration.getUrl()).thenReturn(XSUAA_BASE_URI);
 		this.endpointsProvider = new XsuaaDefaultEndpoints(oAuth2ServiceConfiguration);
-		this.oAuth2TokenService = new XsuaaOAuth2TokenService();
+		this.oAuth2TokenService = new XsuaaOAuth2TokenService(new RestTemplate());
 		cut = new XsuaaTokenFlows(oAuth2TokenService, this.endpointsProvider, CLIENT_CREDENTIALS);
 	}
 

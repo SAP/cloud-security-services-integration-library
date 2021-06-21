@@ -74,8 +74,9 @@ public static class RestClientConfiguration {
     }
 
     @Bean
-    public RestTemplate xsuaaRestOperations() {
-        return new RestTemplate();
+    public RestTemplate xsuaaRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+        ClientIdentity clientCertificate = xsuaaServiceConfiguration.getClientIdentity();
+        return SpringHttpClient.getInstance().create(clientCertificate);
     }
 
 }
