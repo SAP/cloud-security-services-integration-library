@@ -14,14 +14,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 /**
- * Creates a {@link Token} instance. Supports Jwt tokens from IAS and XSUAA
- * identity service. TokenFactory loads and instantiates the respective Token
- * dynamically.
+ * Creates a {@link CloseableHttpClient} instance. Supports certificate based communication.
  */
 public class DefaultHttpClientFactory implements HttpClientFactory {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClientFactory.class);
-	private static OAuth2ServiceConfiguration configuration;
 
 	public CloseableHttpClient create(OAuth2ServiceConfiguration configuration) {
 		Objects.requireNonNull(configuration, "Requires oauth2 service configuration to create a default http client.");

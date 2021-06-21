@@ -34,7 +34,7 @@ public interface HttpClientFactory {
 	 */
 	default CloseableHttpClient create(OAuth2ServiceConfiguration config) {
 		if (services.isEmpty()) {
-			throw new ProviderNotFoundException("No TokenFactory implementation found in the classpath");
+			throw new ProviderNotFoundException("No HttpClientFactory implementation found in the classpath");
 		}
 		return services.get(0).create(config);
 	}
