@@ -10,7 +10,7 @@ import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.xsuaa.client.*;
-import com.sap.cloud.security.xsuaa.mtls.ServiceClientException;
+import com.sap.cloud.security.client.ServiceClientException;
 import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.slf4j.Logger;

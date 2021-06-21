@@ -5,13 +5,17 @@
  */
 package com.sap.cloud.security.client;
 
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.mtls.SSLContextFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 /**
  * Creates a {@link CloseableHttpClient} instance. Supports certificate based communication.
@@ -20,8 +24,27 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClientFactory.class);
 
-	public CloseableHttpClient create(OAuth2ServiceConfiguration configuration) {
-		Objects.requireNonNull(configuration, "Requires oauth2 service configuration to create a default http client.");
-		return null; // TODO
+	public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws ServiceClientException {
+		LOGGER.warn("In productive environment, provide well configured HttpClientFactory service");
+		if (clientIdentity != null && clientIdentity.isCertificateBased()) {
+			LOGGER.debug("Setting up HTTPS client with: certificate: {}\nprivate key: {}\n",
+					clientIdentity.getCertificate(), clientIdentity.getKey());
+
+			SSLContext sslContext;
+			try {
+				sslContext = SSLContextFactory.getInstance().create(clientIdentity.getCertificate(),
+						clientIdentity.getKey());
+			} catch (IOException | GeneralSecurityException e) {
+				throw new ServiceClientException(
+						String.format("Couldn't set up HTTPS client for service provider. %s.%s", e.getMessage(), e));
+			}
+			SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
+			return HttpClients.custom()
+					.setSSLContext(sslContext)
+					.setSSLSocketFactory(socketFactory)
+					.build();
+		}
+		LOGGER.debug("Setting up default HTTP client");
+		return HttpClients.createDefault();
 	}
 }

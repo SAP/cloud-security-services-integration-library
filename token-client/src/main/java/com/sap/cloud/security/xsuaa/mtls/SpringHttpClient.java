@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.mtls;
 
+import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.client.ServiceClientException;
 import com.sap.cloud.security.config.ClientIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +44,7 @@ public class SpringHttpClient {
 		LOGGER.warn("In productive environment provide a well configured RestTemplate");
 		if (clientIdentity != null && clientIdentity.isCertificateBased()) {
 			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-			requestFactory.setHttpClient(HttpClient.create(clientIdentity));
+			requestFactory.setHttpClient(HttpClientFactory.create(clientIdentity));
 			return new RestTemplate(requestFactory);
 		} else {
 			return new RestTemplate();
