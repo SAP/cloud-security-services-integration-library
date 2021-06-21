@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.http.HttpStatus;
@@ -12,7 +13,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	private final CloseableHttpClient httpClient;
 
 	public DefaultOAuth2TokenKeyService() {
-		httpClient = HttpClients.createDefault();
+		httpClient = HttpClientFactory.create(null);
 	}
 
 	public DefaultOAuth2TokenKeyService(@Nonnull CloseableHttpClient httpClient) {
