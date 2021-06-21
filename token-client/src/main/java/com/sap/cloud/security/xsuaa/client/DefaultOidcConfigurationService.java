@@ -29,7 +29,6 @@ import com.sap.cloud.security.xsuaa.util.UriUtil;
  */
 public class DefaultOidcConfigurationService implements OidcConfigurationService {
 
-	static final Logger logger = LoggerFactory.getLogger(DefaultOidcConfigurationService.class);
 	private final CloseableHttpClient httpClient;
 
 	public DefaultOidcConfigurationService() {
