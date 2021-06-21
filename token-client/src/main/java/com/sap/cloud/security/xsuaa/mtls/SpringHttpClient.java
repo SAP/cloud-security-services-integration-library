@@ -1,6 +1,8 @@
 package com.sap.cloud.security.xsuaa.mtls;
 
 import com.sap.cloud.security.config.ClientIdentity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -12,6 +14,8 @@ import javax.annotation.Nullable;
  */
 public class SpringHttpClient {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpringHttpClient.class);
+
 	private static SpringHttpClient instance;
 
 	private SpringHttpClient() {}
@@ -21,15 +25,6 @@ public class SpringHttpClient {
 			instance = new SpringHttpClient();
 		}
 		return instance;
-	}
-
-	/**
-	 * Creates a HTTP RestTemplate
-	 *
-	 * @return RestTemplate instance
-	 */
-	public RestTemplate create() {
-		return new RestTemplate();
 	}
 
 	/**
@@ -44,6 +39,7 @@ public class SpringHttpClient {
 	 *            in case HTTPS Client for certificate based authentication could not be setup
 	 */
 	public RestTemplate create(@Nullable ClientIdentity clientIdentity) throws ServiceClientException {
+		LOGGER.warn("In productive environment provide a well configured RestTemplate");
 		if (clientIdentity != null && clientIdentity.isCertificateBased()) {
 			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 			requestFactory.setHttpClient(HttpClient.create(clientIdentity));

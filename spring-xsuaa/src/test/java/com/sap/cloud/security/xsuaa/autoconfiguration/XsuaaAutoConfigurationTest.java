@@ -10,8 +10,10 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { XsuaaAutoConfiguration.class, DummyXsuaaServiceConfiguration.class })
 public class XsuaaAutoConfigurationTest {
@@ -39,9 +44,17 @@ public class XsuaaAutoConfigurationTest {
 	// configuration under test.
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(XsuaaAutoConfiguration.class));
+	private static String cert;
+	private static String key;
 
 	@Autowired
 	private ApplicationContext context;
+
+	@Before
+	public void setup() throws IOException {
+		cert = IOUtils.resourceToString("/certificate.txt", StandardCharsets.UTF_8);
+		key = IOUtils.resourceToString("/key.txt", StandardCharsets.UTF_8);
+	}
 
 	@Test
 	public void configures_xsuaaServiceConfiguration() {
@@ -56,6 +69,21 @@ public class XsuaaAutoConfigurationTest {
 		assertThat(context.getBean("xsuaaRestOperations")).isNotNull();
 		assertThat(context.getBean("xsuaaRestOperations")).isInstanceOf(RestOperations.class);
 		assertThat(context.getBean(RestOperations.class)).isNotNull();
+	}
+
+	@Test
+	public void configures_xsuaaMtlsRestTemplate() {
+		contextRunner
+				.withPropertyValues("spring.xsuaa.flows.auto:true")
+				.withPropertyValues("xsuaa.credential-type:x509")
+				.withPropertyValues("xsuaa.clientid:client")
+				.withPropertyValues("xsuaa.certificate:" + cert)
+				.withPropertyValues("xsuaa.key:" + key)
+				.withPropertyValues("xsuaa.certurl:https://domain.cert.authentication.sap.com")
+				.run((context) -> {
+					assertThat(context).hasSingleBean(RestOperations.class);
+					assertThat(context).hasBean("xsuaaMtlsRestOperations");
+				});
 	}
 
 	@Test
@@ -83,16 +111,12 @@ public class XsuaaAutoConfigurationTest {
 
 	@Test
 	public void serviceConfigurationDisabledByMultipleBindingsProperty() {
-		contextRunner.withPropertyValues("spring.xsuaa.multiple-bindings:true").run((context) -> {
-			assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration");
-		});
+		contextRunner.withPropertyValues("spring.xsuaa.multiple-bindings:true").run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration"));
 	}
 
 	@Test
 	public void serviceConfigurationDisabledByDisableDefaultPropertySourceProperty() {
-		contextRunner.withPropertyValues("spring.xsuaa.disable-default-property-source:true").run((context) -> {
-			assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration");
-		});
+		contextRunner.withPropertyValues("spring.xsuaa.disable-default-property-source:true").run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration"));
 	}
 
 	@Test
@@ -106,7 +130,7 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public void userConfigurationCanOverrideDefaultBeans() {
+	public void userConfiguration_overrides_defaultBeans() {
 		contextRunner.withUserConfiguration(UserConfiguration.class)
 				.run((context) -> {
 					assertThat(context).hasSingleBean(DummyXsuaaServiceConfiguration.class);
@@ -116,6 +140,20 @@ public class XsuaaAutoConfigurationTest {
 					assertThat(context).hasSingleBean(RestTemplate.class);
 					assertThat(context).hasBean("userDefinedXsuaaRestOperations");
 					assertThat(context).doesNotHaveBean("xsuaaRestOperations");
+				});
+	}
+
+	@Test
+	public void userConfiguration_overrides_defaultMtlsRestTemplate() {
+		contextRunner
+				.withUserConfiguration(UserConfiguration.class)
+				.withPropertyValues("xsuaa.credential-type:x509")
+				.run((context) -> {
+					assertThat(context.getEnvironment().getProperty("xsuaa.credential-type")).isEqualTo("x509");
+					assertThat(context).hasSingleBean(RestOperations.class);
+					assertThat(context).doesNotHaveBean("xsuaaMtlsRestOperations");
+					assertThat(context).doesNotHaveBean("xsuaaRestOperations");
+					assertThat(context).hasBean("userDefinedXsuaaRestOperations");
 				});
 	}
 
