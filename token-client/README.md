@@ -143,6 +143,10 @@ In context of a Spring Boot application you may like to leverage auto-configurat
     <artifactId>xsuaa-spring-boot-starter</artifactId>
     <version>2.9.0</version>
 </dependency>
+<dependency> <!-- required when using Spring Web `RestTemplate` with X.509 authentication method-->
+  <groupId>org.apache.httpcomponents</groupId>
+  <artifactId>httpclient</artifactId>
+</dependency>
 ```
 
 #### Auto-configuration
