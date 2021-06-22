@@ -30,8 +30,10 @@ import com.sap.cloud.security.token.validation.Validator;
  * <ul>
  * <li>'iss' claim available</li>
  * <li>'iss' provides scheme</li>
- * <li>'iss' provides no query or fragment components or other problematic url ingredients</li>
- * <li>'iss' or 'ias_iss' claim matches one of the domains of the trusted identity provider</li>
+ * <li>'iss' provides no query or fragment components or other problematic url
+ * ingredients</li>
+ * <li>'iss' or 'ias_iss' claim matches one of the domains of the trusted
+ * identity provider</li>
  * </ul>
  * These checks are a prerequisite for using the `JwtSignatureValidator`.
  */
