@@ -6,19 +6,16 @@
 package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.client.ServiceClientException;
+import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -27,34 +24,36 @@ import javax.annotation.Nullable;
  */
 class IasXsuaaExchangeBroker {
 
-	private static final Logger logger = LoggerFactory.getLogger(IasXsuaaExchangeBroker.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(IasXsuaaExchangeBroker.class);
+	private XsuaaTokenFlows xsuaaTokenFlows;
+
+	private IasXsuaaExchangeBroker() {
+	}
+
+	static IasXsuaaExchangeBroker build(OAuth2ServiceConfiguration configuration, OAuth2TokenService tokenService) {
+		IasXsuaaExchangeBroker broker = new IasXsuaaExchangeBroker();
+		Assertions.assertNotNull(configuration, "Service configuration must not be null");
+		Assertions.assertNotNull(tokenService, "Oauth2 Token Service must not be null");
+		LOGGER.debug("Initializing XsuaaTokenFlow ({} based authentication)",
+				configuration.getCredentialType() == CredentialType.X509 ? "certificate" : "client secret");
+		broker.xsuaaTokenFlows = new XsuaaTokenFlows(
+				tokenService,
+				new XsuaaDefaultEndpoints(configuration),
+				configuration.getClientIdentity());
+		return broker;
+	}
 
 	/**
 	 * Request a Xsuaa token using Ias token as a grant.
 	 *
-	 * @param httpClient
-	 *            http client that will perform the request
 	 * @param token
 	 *            decoded IAS token
-	 * @param serviceConfiguration
-	 *            Xsuaa service configuration
 	 * @return encoded Xsuaa token
 	 */
 	@Nullable
-	public String doIasToXsuaaXchange(CloseableHttpClient httpClient, Token token,
-			@Nonnull OAuth2ServiceConfiguration serviceConfiguration) throws TokenFlowException, ServiceClientException {
-		Assertions.assertNotNull(serviceConfiguration, "Service configuration must not be null");
-		if(httpClient == null) {
-			logger.warn("Apps needs to provide their own well-configured http client for productive usage.");
-		}
-		logger.debug("Initializing XsuaaTokenFlow for token xchange using {} authentication method", serviceConfiguration.getCredentialType());
-		logger.debug("Resolving http client " + httpClient == null ? "based on service configuration": "using custom httpClient provided");
-		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-				new DefaultOAuth2TokenService(httpClient),
-				new XsuaaDefaultEndpoints(serviceConfiguration),
-				serviceConfiguration.getClientIdentity());
-		OAuth2TokenResponse tokenResponse = tokenFlows.userTokenFlow().token(token).execute();
-		logger.debug("Response token from Ias to Xsuaa token exchange {}", tokenResponse.getAccessToken());
+	public String resolve(Token token) throws TokenFlowException, ServiceClientException {
+		OAuth2TokenResponse tokenResponse = xsuaaTokenFlows.userTokenFlow().token(token).execute();
+		LOGGER.debug("Response token from Ias to Xsuaa token exchange {}", tokenResponse.getAccessToken());
 		return tokenResponse.getAccessToken();
 	}
 

@@ -5,12 +5,15 @@
  */
 package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.*;
+import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.Objects;
 
+import static com.sap.cloud.security.servlet.TokenAuthenticatorResult.createUnauthenticated;
+
 public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaTokenAuthenticator.class);
@@ -29,13 +34,39 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 	private IasXsuaaExchangeBroker exchangeBroker;
 
 	public XsuaaTokenAuthenticator() {
-		if (isIasXsuaaXchangeEnabled()) {
-			this.exchangeBroker = new IasXsuaaExchangeBroker();
-		}
+		serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
+		httpClient = HttpClientFactory
+				.create(serviceConfiguration != null ? serviceConfiguration.getClientIdentity() : null);
+		buildDependencies();
 	}
 
 	XsuaaTokenAuthenticator(IasXsuaaExchangeBroker exchangeBroker) {
 		this.exchangeBroker = exchangeBroker;
+	}
+
+	@Override
+	public AbstractTokenAuthenticator withServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {
+		super.withServiceConfiguration(serviceConfiguration);
+		buildDependencies();
+		return this;
+	}
+
+	@Override
+	public AbstractTokenAuthenticator withHttpClient(CloseableHttpClient httpClient) {
+		super.withHttpClient(httpClient);
+		buildDependencies();
+		return this;
+	}
+
+	/**
+	 * There are some setters, which impacts the setup of dependencies, that needs
+	 * to be updated.
+	 */
+	private void buildDependencies() {
+		if (serviceConfiguration != null && httpClient != null && isIasXsuaaXchangeEnabled()) {
+			this.exchangeBroker = IasXsuaaExchangeBroker.build(this.serviceConfiguration,
+					new DefaultOAuth2TokenService(httpClient));
+		}
 	}
 
 	@Override
@@ -75,22 +106,28 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = Token.create(authorizationHeader);
-					if (isIasXsuaaXchangeEnabled() && token.getService() == Service.IAS) {
-						LOGGER.debug("Received {} token", token.getService());
-						token = new XsuaaToken(Objects.requireNonNull(
-								exchangeBroker.doIasToXsuaaXchange(httpClient, token, getServiceConfiguration()),
-								"IasXsuaaExchangeBroker is not provided"))
-										.withScopeConverter(getScopeConverter());
+					if (token.getService() == Service.IAS) {
+						if (exchangeBroker == null) {
+							return unauthenticated("IAS token validation is not supported: "
+									+ (isIasXsuaaXchangeEnabled() ? "setup is malicious."
+											: "no token exchange enabled."));
+						} else if (isIasXsuaaXchangeEnabled()) {
+							LOGGER.debug("Received {} token", token.getService());
+							token = new XsuaaToken(Objects.requireNonNull(
+									exchangeBroker.resolve(token),
+									"IasXsuaaExchangeBroker is not provided"))
+											.withScopeConverter(getScopeConverter());
+						}
 					}
 					return tokenValidationResult(token);
 				} catch (Exception e) {
-					return unauthenticated("Unexpected error occurred: " + e.getMessage());
+					return createUnauthenticated("Unexpected error occurred: " + e.getMessage());
 				}
 			} else {
-				return unauthenticated("Authorization header is missing.");
+				return createUnauthenticated("Authorization header is missing.");
 			}
 		}
-		return TokenAuthenticatorResult.createUnauthenticated("Could not process request " + request);
+		return createUnauthenticated("Could not process request " + request);
 	}
 
 	private ScopeConverter getScopeConverter() {
