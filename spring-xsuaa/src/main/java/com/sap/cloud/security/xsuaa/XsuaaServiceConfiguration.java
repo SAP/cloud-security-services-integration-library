@@ -5,22 +5,14 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
+
 import javax.annotation.Nullable;
+import java.net.URI;
+import java.util.Map;
 
-public interface XsuaaServiceConfiguration {
-	/**
-	 * Client id of xsuaa service instance
-	 * 
-	 * @return clientId
-	 */
-	String getClientId();
-
-	/**
-	 * Client secret of xsuaa instance
-	 * 
-	 * @return client secret
-	 */
-	String getClientSecret();
+public interface XsuaaServiceConfiguration extends OAuth2ServiceConfiguration {
 
 	/**
 	 * Base URL of the xsuaa service instance. In multi tenancy scenarios this is
@@ -29,6 +21,11 @@ public interface XsuaaServiceConfiguration {
 	 * @return uaa url
 	 */
 	String getUaaUrl();
+
+	@Override
+	default URI getUrl() {
+		return URI.create(getUaaUrl());
+	}
 
 	/**
 	 * XS application identifier
@@ -52,19 +49,29 @@ public interface XsuaaServiceConfiguration {
 	@Nullable
 	String getVerificationKey();
 
-	/**
-	 * PEM encoded certificate chain.
-	 *
-	 * @return certificates
-	 */
-	// @Nullable
-	// String getCertificates();
+	@Nullable
+	@Override
+	default String getProperty(String name) {
+		throw new UnsupportedOperationException("getProperty method is not supported");
+	}
 
-	/**
-	 * Private key the certificate is signed with.
-	 *
-	 * @return private key
-	 */
-	// @Nullable
-	// String getPrivateKey();
+	@Override
+	default Map<String, String> getProperties() {
+		throw new UnsupportedOperationException("getProperties method is not supported");
+	}
+
+	@Override
+	default boolean hasProperty(String name) {
+		throw new UnsupportedOperationException("hasProperty method is not supported");
+	}
+
+	@Override
+	default Service getService() {
+		throw new UnsupportedOperationException("getService method is not supported");
+	}
+
+	@Override
+	default boolean isLegacyMode() {
+		throw new UnsupportedOperationException("isLegacyMode method is not supported");
+	}
 }

@@ -31,13 +31,25 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
  */
 public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
-	private final RestOperations restOperations;
+	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
+	private RestOperations restOperations;
 
+	/**
+	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)}
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
+	 */
+	@Deprecated
 	public XsuaaOAuth2TokenService() {
 		this(new RestTemplate(), TokenCacheConfiguration.defaultConfiguration());
 	}
 
+	/**
+	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)}
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
+	 */
+	@Deprecated
 	public XsuaaOAuth2TokenService(@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
 		this(new RestTemplate(), tokenCacheConfiguration);
 	}
@@ -68,7 +80,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(copyIntoForm(parameters),
 				springHeaders);
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> responseEntity = null;
+		ResponseEntity<Map> responseEntity;
 		try {
 			LOGGER.debug("Requesting access token from url='{}' and headers={}", requestUri, springHeaders);
 			responseEntity = restOperations.postForEntity(requestUri, requestEntity, Map.class);

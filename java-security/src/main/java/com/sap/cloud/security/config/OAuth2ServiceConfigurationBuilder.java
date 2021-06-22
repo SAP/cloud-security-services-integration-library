@@ -72,6 +72,48 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	/**
+	 * X.509 certificate of identity service instance.
+	 *
+	 * @param certificate
+	 *            PEM encoded certificate
+	 * @return this builder itself
+	 */
+	public OAuth2ServiceConfigurationBuilder withCertificate(String certificate) {
+		properties.put(CERTIFICATE, certificate);
+		return this;
+	}
+
+	/**
+	 * X.509 private key of identity service instance.
+	 *
+	 * @param privateKey
+	 *            PEM encoded RSA private key
+	 * @return this builder itself
+	 */
+	public OAuth2ServiceConfigurationBuilder withPrivateKey(String privateKey) {
+		properties.put(KEY, privateKey);
+		return this;
+	}
+
+	/**
+	 * ClientIdentity of identity service instance.
+	 *
+	 * @param clientIdentity
+	 *            ClientIdentity object
+	 * @return this builder itself
+	 */
+	public OAuth2ServiceConfigurationBuilder withClientIdentity(ClientIdentity clientIdentity) {
+		properties.put(CLIENT_ID, clientIdentity.getId());
+		if (clientIdentity.isCertificateBased()) {
+			properties.put(CERTIFICATE, clientIdentity.getCertificate());
+			properties.put(KEY, clientIdentity.getKey());
+		} else {
+			properties.put(CLIENT_SECRET, clientIdentity.getSecret());
+		}
+		return this;
+	}
+
+	/**
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
 	 * this is the url where the service instance was created.
 	 *
@@ -81,6 +123,30 @@ public class OAuth2ServiceConfigurationBuilder {
 	 */
 	public OAuth2ServiceConfigurationBuilder withUrl(String url) {
 		properties.put(URL, url);
+		return this;
+	}
+
+	/**
+	 * Cert URL of the OAuth2 identity service instance.
+	 *
+	 * @param url
+	 *            cert url, e.g. https://paastenant.cert.idservice.com
+	 * @return this builder itself
+	 */
+	public OAuth2ServiceConfigurationBuilder withCertUrl(String url) {
+		properties.put(XSUAA.CERT_URL, url);
+		return this;
+	}
+
+	/**
+	 * Credential type of OAuth2 configuration.
+	 *
+	 * @param credentialType
+	 *            credential-type i.e. x509, instance_secret or binding_secret
+	 * @return this builder itself
+	 */
+	public OAuth2ServiceConfigurationBuilder withCredentialType(CredentialType credentialType) {
+		properties.put(XSUAA.CREDENTIAL_TYPE, credentialType.toString());
 		return this;
 	}
 
@@ -107,7 +173,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	public OAuth2ServiceConfigurationBuilder withProperties(Map<String, String> properties) {
-		properties.forEach((key, value) -> withProperty(key, value));
+		properties.forEach(this::withProperty);
 		return this;
 	}
 
@@ -129,12 +195,12 @@ public class OAuth2ServiceConfigurationBuilder {
 		return new OAuth2ServiceConfigurationImpl(properties, service, domains, runInLegacyMode);
 	}
 
-	private class OAuth2ServiceConfigurationImpl implements OAuth2ServiceConfiguration {
+	private static class OAuth2ServiceConfigurationImpl implements OAuth2ServiceConfiguration {
 
 		private final Map<String, String> properties;
 		private final boolean runInLegacyMode;
 		private final Service service;
-		private List<String> domains;
+		private final List<String> domains;
 
 		private OAuth2ServiceConfigurationImpl(@Nonnull Map<String, String> properties,
 				@Nonnull Service service, List<String> domains, boolean runInLegacyMode) {
@@ -155,8 +221,27 @@ public class OAuth2ServiceConfigurationBuilder {
 		}
 
 		@Override
+		public ClientIdentity getClientIdentity() {
+			CredentialType credentialType = getCredentialType();
+			if (credentialType == CredentialType.X509) {
+				return new ClientCertificate(properties.get(CERTIFICATE), properties.get(KEY), getClientId());
+			}
+			return new ClientCredentials(getClientId(), getClientSecret());
+		}
+
+		@Override
+		public CredentialType getCredentialType() {
+			return CredentialType.from(properties.get(XSUAA.CREDENTIAL_TYPE));
+		}
+
+		@Override
 		public URI getUrl() {
 			return hasProperty(URL) ? URI.create(properties.get(URL)) : null;
+		}
+
+		@Override
+		public URI getCertUrl() {
+			return hasProperty(XSUAA.CERT_URL) ? URI.create(properties.get(XSUAA.CERT_URL)) : null;
 		}
 
 		@Override

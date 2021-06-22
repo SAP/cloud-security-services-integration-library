@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
@@ -15,7 +16,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -37,16 +37,30 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private final CloseableHttpClient httpClient;
 
+	/**
+	 * @deprecated in favor of
+	 *             {@link #DefaultOAuth2TokenService(CloseableHttpClient)} as it
+	 *             doesn't support certificate based communication. Will be deleted
+	 *             with version 3.0.0.
+	 */
+	@Deprecated
 	public DefaultOAuth2TokenService() {
-		this(HttpClients.createDefault(), TokenCacheConfiguration.defaultConfiguration());
+		this(HttpClientFactory.create(null), TokenCacheConfiguration.defaultConfiguration());
 	}
 
 	public DefaultOAuth2TokenService(@Nonnull CloseableHttpClient httpClient) {
 		this(httpClient, TokenCacheConfiguration.defaultConfiguration());
 	}
 
+	/**
+	 * @deprecated in favor of
+	 *             {@link #DefaultOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration)}
+	 *             as it doesn't support certificate based communication. Will be
+	 *             deleted with version 3.0.0.
+	 */
+	@Deprecated
 	public DefaultOAuth2TokenService(@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
-		this(HttpClients.createDefault(), tokenCacheConfiguration);
+		this(HttpClientFactory.create(null), tokenCacheConfiguration);
 	}
 
 	public DefaultOAuth2TokenService(@Nonnull CloseableHttpClient httpClient,
@@ -119,7 +133,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	private HttpPost createHttpPost(URI uri, HttpHeaders headers, Map<String, String> parameters)
 			throws OAuth2ServiceException {
 		HttpPost httpPost = new HttpPost(uri);
-		headers.getHeaders().forEach((header) -> httpPost.setHeader(header.getName(), header.getValue()));
+		headers.getHeaders().forEach(header -> httpPost.setHeader(header.getName(), header.getValue()));
 		try {
 			List<BasicNameValuePair> basicNameValuePairs = parameters.entrySet().stream()
 					.map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))

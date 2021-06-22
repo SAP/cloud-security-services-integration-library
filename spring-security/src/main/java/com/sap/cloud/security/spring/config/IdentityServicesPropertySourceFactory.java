@@ -5,15 +5,8 @@
  */
 package com.sap.cloud.security.spring.config;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.Environments;
-import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +16,11 @@ import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
 
@@ -54,7 +52,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 			.asList(new String[] { "clientid", "clientsecret", "identityzoneid",
 					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
 					"certificate",
-					"key" }));
+					"key", "credential-type", "certurl" }));
 
 	private static final List<String> IAS_ATTRIBUTES = Collections.unmodifiableList(Arrays
 			.asList(new String[] { "clientid", "clientsecret", "domains", "url" }));

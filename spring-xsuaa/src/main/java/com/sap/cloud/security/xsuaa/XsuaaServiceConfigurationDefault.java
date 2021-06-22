@@ -4,12 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa;
-/**
- * 
- */
 
+import com.sap.cloud.security.config.ClientCertificate;
+import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.CredentialType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import java.net.URI;
 
 @Configuration
 public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfiguration {
@@ -36,10 +39,16 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	private String privateKey;
 
 	@Value("${xsuaa.certificate:}")
-	private String certificates;
+	private String certificate;
 
 	@Value("${xsuaa.verificationkey:}")
 	private String verificationKey;
+
+	@Value("${xsuaa.credentialtype:#{null}}")
+	private String credentialType;
+
+	@Value("${xsuaa.certurl:#{null}}")
+	private String certUrl;
 
 	/*
 	 * (non-Javadoc)
@@ -54,6 +63,14 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Override
 	public String getClientSecret() {
 		return clientSecret;
+	}
+
+	@Override
+	public ClientIdentity getClientIdentity() {
+		if (getCredentialType() == CredentialType.X509) {
+			return new ClientCertificate(certificate, privateKey, getClientId());
+		}
+		return new ClientCredentials(getClientId(), getClientSecret());
 	}
 
 	@Override
@@ -76,9 +93,13 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 		return verificationKey;
 	}
 
-	/*
-	 * @Override public String getCertificates() { return certificates; }
-	 * 
-	 * @Override public String getPrivateKey() { return privateKey; }
-	 */
+	@Override
+	public CredentialType getCredentialType() {
+		return CredentialType.from(credentialType);
+	}
+
+	@Override
+	public URI getCertUrl() {
+		return URI.create(certUrl);
+	}
 }

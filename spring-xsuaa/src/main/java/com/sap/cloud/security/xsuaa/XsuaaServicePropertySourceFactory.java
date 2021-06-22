@@ -5,11 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -17,7 +13,10 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
-import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Part of Auto Configuration {@link XsuaaAutoConfiguration}
@@ -47,15 +46,15 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	public static final String UAA_DOMAIN = "xsuaa.uaadomain";
 
 	private static final List<String> XSUAA_ATTRIBUTES = Arrays
-			.asList(new String[] { "clientid", "clientsecret", "identityzoneid",
+			.asList("clientid", "clientsecret", "identityzoneid",
 					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
 					"certificate",
-					"key" });
+					"key", "credential-type", "certurl");
 
 	@Override
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
-		Properties properties = null;
-		XsuaaServicesParser vcapServicesParser = null;
+		Properties properties;
+		XsuaaServicesParser vcapServicesParser;
 		if (resource != null && resource.getResource().getFilename() != null
 				&& !resource.getResource().getFilename().isEmpty()) {
 			vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());

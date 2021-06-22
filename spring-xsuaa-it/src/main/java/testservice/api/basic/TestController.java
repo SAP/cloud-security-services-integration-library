@@ -22,10 +22,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
@@ -33,6 +32,7 @@ import com.sap.cloud.security.xsuaa.token.Token;
 import com.sap.cloud.security.xsuaa.tokenflows.ClientCredentialsTokenFlow;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 @Profile({ "test.api.basic" })
@@ -67,7 +67,7 @@ public class TestController {
 		azMape.put("c", "d");
 
 		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(new XsuaaOAuth2TokenService(new RestTemplate()),
-				new XsuaaDefaultEndpoints(serviceConfiguration.getUaaUrl()), new ClientCredentials("c1", "s1"));
+				new XsuaaDefaultEndpoints(serviceConfiguration), new ClientCredentials("c1", "s1"));
 		ClientCredentialsTokenFlow ccTokenFlow = tokenFlows.clientCredentialsTokenFlow().attributes(azMape)
 				.subdomain(token.getSubdomain());
 

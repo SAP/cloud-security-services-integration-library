@@ -12,8 +12,11 @@ import java.util.Map;
  * Represents a token exchange request.
  * 
  * deprecated with version 2.4.0 in favor of the new SAP Java Client library.
+ * Limitation: does not support mtls-based communication to XSUAA identity
+ * provider and will be removed with version 3.0.0.
  */
 @java.lang.SuppressWarnings("squid:S1214")
+@Deprecated
 public interface XSTokenRequest {
 
 	public static final int TYPE_USER_TOKEN = 0;

@@ -12,7 +12,7 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GR
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -21,6 +21,8 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +39,7 @@ import org.springframework.web.client.RestOperations;
 public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 
 	OAuth2TokenService cut;
-	ClientCredentials clientCredentials;
+	ClientIdentity clientIdentity;
 	URI tokenEndpoint;
 	Map<String, String> responseMap;
 
@@ -47,7 +49,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 	@Before
 	public void setup() {
 		cut = new XsuaaOAuth2TokenService(mockRestOperations);
-		clientCredentials = new ClientCredentials("clientid", "mysecretpassword");
+		clientIdentity = new ClientCredentials("clientid", "mysecretpassword");
 		tokenEndpoint = URI.create("https://subdomain.myauth.server.com/oauth/token");
 
 		responseMap = new HashMap<>();
@@ -57,20 +59,18 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 
 	@Test
 	public void retrieveToken_throwsOnNullValues() {
-		assertThatThrownBy(() -> {
-			cut.retrieveAccessTokenViaClientCredentialsGrant(null, clientCredentials, null, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaClientCredentialsGrant(null, clientIdentity, null, null))
+				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
 
-		assertThatThrownBy(() -> {
-			cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, null, null, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientCredentials");
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, null, null, null))
+				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
 	public void retrieveToken_throwsIfHttpStatusUnauthorized() throws OAuth2ServiceException {
 		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
-		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientCredentials,
+		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientIdentity,
 				null, null);
 	}
 
@@ -78,14 +78,14 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 	public void retrieveToken_throwsIfHttpStatusNotOk() throws OAuth2ServiceException {
 		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
-		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientCredentials,
+		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientIdentity,
 				null, null);
 	}
 
 	@Test
 	public void retrieveToken() throws OAuth2ServiceException {
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
-		tokenHttpEntityMatcher.setClientCredentials(clientCredentials);
+		tokenHttpEntityMatcher.setClientCredentials(clientIdentity);
 		tokenHttpEntityMatcher.setGrantType(GRANT_TYPE_CLIENT_CREDENTIALS);
 
 		Mockito.when(mockRestOperations
@@ -96,10 +96,10 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
-				clientCredentials,
+				clientIdentity,
 				null, null);
 		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
-		assertNotNull(accessToken.getExpiredAtDate());
+		assertNotNull(accessToken.getExpiredAt());
 	}
 
 	@Test
@@ -109,7 +109,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 		additionalParameters.put("add-param-2", "value2");
 
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
-		tokenHttpEntityMatcher.setClientCredentials(clientCredentials);
+		tokenHttpEntityMatcher.setClientCredentials(clientIdentity);
 		tokenHttpEntityMatcher.setGrantType(GRANT_TYPE_CLIENT_CREDENTIALS);
 		tokenHttpEntityMatcher.addParameters(additionalParameters);
 
@@ -120,7 +120,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
-				clientCredentials, null,
+				clientIdentity, null,
 				additionalParameters);
 		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
 	}
@@ -128,7 +128,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 	@Test
 	public void retrieveToken_requiredParametersCanNotBeOverwritten() throws OAuth2ServiceException {
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
-		tokenHttpEntityMatcher.setClientCredentials(clientCredentials);
+		tokenHttpEntityMatcher.setClientCredentials(clientIdentity);
 		tokenHttpEntityMatcher.setGrantType(GRANT_TYPE_CLIENT_CREDENTIALS);
 
 		Mockito.when(mockRestOperations.postForEntity(
@@ -141,7 +141,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 		overwrittenGrantType.put(GRANT_TYPE, "overwrite-obligatory-param");
 
 		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
-				clientCredentials, null,
+				clientIdentity, null,
 				overwrittenGrantType);
 		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
 	}

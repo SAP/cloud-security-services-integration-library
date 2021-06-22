@@ -8,6 +8,7 @@ package com.sap.cloud.security.config;
 import javax.annotation.Nullable;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,25 @@ public interface OAuth2ServiceConfiguration {
 	String getClientSecret();
 
 	/**
+	 * Client Identity of xsuaa instance
+	 * 
+	 * @return ClientIdentity object
+	 */
+	default ClientIdentity getClientIdentity() {
+		return new ClientCredentials(getClientId(), getClientSecret());
+	}
+
+	/**
+	 * Credential type as defined in "oauth2-configuration" of the xsuaa service
+	 * instance security descriptor.
+	 * 
+	 * @return value of credential-type field
+	 */
+	default CredentialType getCredentialType() {
+		return null;
+	}
+
+	/**
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
 	 * this is the url where the service instance was created.
 	 *
@@ -39,11 +59,23 @@ public interface OAuth2ServiceConfiguration {
 	URI getUrl();
 
 	/**
+	 * Cert URL of the OAuth2 identity service instance.
+	 *
+	 * @return cert url, e.g. https://paastenant.cert.idservice.com
+	 */
+	@Nullable
+	default URI getCertUrl() {
+		return null;
+	}
+
+	/**
 	 * Domains of the OAuth2 identity service instance.
 	 *
 	 * @return list of domain, e.g."idservice.com".
 	 */
-	List<String> getDomains();
+	default List<String> getDomains() {
+		return Collections.emptyList();
+	}
 
 	/**
 	 * Returns the value of the given property as string.
