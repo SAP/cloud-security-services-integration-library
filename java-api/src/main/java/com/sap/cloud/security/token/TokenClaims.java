@@ -16,6 +16,7 @@ public final class TokenClaims {
 	}
 
 	public static final String ISSUER = "iss";
+	public static final String IAS_ISSUER = "ias_iss";
 	public static final String EXPIRATION = "exp";
 	public static final String AUDIENCE = "aud";
 	public static final String NOT_BEFORE = "nbf";
