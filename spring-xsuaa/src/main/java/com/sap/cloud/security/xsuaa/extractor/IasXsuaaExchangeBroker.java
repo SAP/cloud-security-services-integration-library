@@ -6,8 +6,8 @@
 package com.sap.cloud.security.xsuaa.extractor;
 
 import com.sap.cloud.security.config.CredentialType;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
@@ -40,9 +40,10 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 		this.xsuaaTokenFlows = xsuaaTokenFlows;
 	}
 
-	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration, OAuth2TokenService tokenService) {
+	public IasXsuaaExchangeBroker(OAuth2ServiceConfiguration configuration, OAuth2TokenService tokenService) {
 		ClientIdentity clientIdentity = configuration.getClientIdentity();
-		logger.debug("Initializing XsuaaTokenFlow ({} based authentication)", configuration.getCredentialType() == CredentialType.X509 ? "certificate" : "client secret");
+		logger.debug("Initializing XsuaaTokenFlow ({} based authentication)",
+				configuration.getCredentialType() == CredentialType.X509 ? "certificate" : "client secret");
 		this.xsuaaTokenFlows = new XsuaaTokenFlows(
 				tokenService,
 				new XsuaaDefaultEndpoints(configuration),
@@ -50,7 +51,7 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 
 	}
 
-	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration) {
+	public IasXsuaaExchangeBroker(OAuth2ServiceConfiguration configuration) {
 		this(configuration, new XsuaaOAuth2TokenService());
 	}
 
