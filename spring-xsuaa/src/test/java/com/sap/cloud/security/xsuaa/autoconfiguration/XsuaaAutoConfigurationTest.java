@@ -111,12 +111,14 @@ public class XsuaaAutoConfigurationTest {
 
 	@Test
 	public void serviceConfigurationDisabledByMultipleBindingsProperty() {
-		contextRunner.withPropertyValues("spring.xsuaa.multiple-bindings:true").run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration"));
+		contextRunner.withPropertyValues("spring.xsuaa.multiple-bindings:true")
+				.run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration"));
 	}
 
 	@Test
 	public void serviceConfigurationDisabledByDisableDefaultPropertySourceProperty() {
-		contextRunner.withPropertyValues("spring.xsuaa.disable-default-property-source:true").run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration"));
+		contextRunner.withPropertyValues("spring.xsuaa.disable-default-property-source:true")
+				.run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration"));
 	}
 
 	@Test

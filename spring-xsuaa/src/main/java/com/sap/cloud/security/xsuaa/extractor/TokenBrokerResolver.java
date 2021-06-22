@@ -70,7 +70,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	 *            configured AuthenticationMethodConfiguration
 	 * @deprecated in favor of
 	 *             {@link #TokenBrokerResolver(XsuaaServiceConfiguration, Cache, OAuth2TokenService, AuthenticationInformationExtractor)}
-	 *             	gets removed with the version 3.0.0
+	 *             gets removed with the version 3.0.0
 	 *
 	 */
 	@Deprecated
@@ -116,7 +116,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	 *            {@link AuthenticationMethod#CLIENT_CREDENTIALS}.
 	 * @deprecated in favor of
 	 *             {@link #TokenBrokerResolver(XsuaaServiceConfiguration, Cache, OAuth2TokenService, AuthenticationInformationExtractor)}
-	 *             	gets removed with the version 3.0.0, does not support certificate based authentication
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
 	 */
 	@Deprecated
 	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache,
@@ -180,7 +181,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	}
 
 	private String getBrokerToken(AuthenticationMethod credentialType, String authHeaderValue,
-								  String oauthTokenUrl, ClientIdentity clientIdentity) throws TokenBrokerException {
+			String oauthTokenUrl, ClientIdentity clientIdentity) throws TokenBrokerException {
 		switch (credentialType) {
 		case OAUTH2:
 			String oAuth2token = extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);

@@ -19,9 +19,10 @@ public class SpringHttpClient {
 
 	private static SpringHttpClient instance;
 
-	private SpringHttpClient() {}
+	private SpringHttpClient() {
+	}
 
-	public static SpringHttpClient getInstance(){
+	public static SpringHttpClient getInstance() {
 		if (instance == null) {
 			instance = new SpringHttpClient();
 		}

@@ -61,11 +61,16 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 
 	@Test
 	public void retrieveToken_throwsOnNullValues() {
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaUserTokenGrant(null, clientIdentity, userTokenToBeExchanged, null, null)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaUserTokenGrant(null, clientIdentity, userTokenToBeExchanged,
+				null, null)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
 
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, null, userTokenToBeExchanged, null, null)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
+		assertThatThrownBy(
+				() -> cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, null, userTokenToBeExchanged, null, null))
+						.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
 
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientIdentity, null, null, null)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
+		assertThatThrownBy(
+				() -> cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientIdentity, null, null, null))
+						.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
 	}
 
 	@Test(expected = OAuth2ServiceException.class)

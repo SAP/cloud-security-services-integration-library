@@ -56,15 +56,16 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	@Test
 	void autoConfigurationActive() {
 		runner.run(context -> {
-				assertThat(context).hasSingleBean(RestOperations.class);
-				assertThat(context).hasBean("restOperations");
-				assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class));
+			assertThat(context).hasSingleBean(RestOperations.class);
+			assertThat(context).hasBean("restOperations");
+			assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class));
 		});
 	}
 
 	@Test
 	void autoConfigurationActiveInclProperties() {
-		runner.withPropertyValues("sap.spring.security.xsuaa.flows.auto:true").run((context) -> assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class)));
+		runner.withPropertyValues("sap.spring.security.xsuaa.flows.auto:true")
+				.run((context) -> assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class)));
 	}
 
 	@Test
@@ -82,7 +83,8 @@ class XsuaaTokenFlowAutoConfigurationTest {
 
 	@Test
 	void autoConfigurationDisabledByProperty() {
-		runner.withPropertyValues("sap.spring.security.xsuaa.flows.auto:false").run((context) -> assertFalse(context.containsBean("xsuaaTokenFlows")));
+		runner.withPropertyValues("sap.spring.security.xsuaa.flows.auto:false")
+				.run((context) -> assertFalse(context.containsBean("xsuaaTokenFlows")));
 	}
 
 	@Test
@@ -129,7 +131,9 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	static class UserConfiguration {
 
 		@Bean
-		public RestOperations customRestOperations() {return new RestTemplate(); }
+		public RestOperations customRestOperations() {
+			return new RestTemplate();
+		}
 
 		@Bean
 		public XsuaaTokenFlows customTokenFlows() {

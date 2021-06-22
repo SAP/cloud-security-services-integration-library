@@ -79,13 +79,13 @@ public class XsuaaAutoConfiguration {
 	}
 
 	/**
-	 * Creates a {@link RestOperations} instance if the application has not
-	 * defined any.
+	 * Creates a {@link RestOperations} instance if the application has not defined
+	 * any.
 	 *
 	 * @return the {@link RestOperations} instance.
 	 */
 	@Bean
-	@Conditional({OnNotX509CredentialTypeCondition.class})
+	@Conditional({ OnNotX509CredentialTypeCondition.class })
 	@ConditionalOnMissingBean
 	public RestOperations xsuaaRestOperations() {
 		logger.warn("In productive environment provide a well configured client secret based RestOperations bean");
@@ -93,8 +93,8 @@ public class XsuaaAutoConfiguration {
 	}
 
 	/**
-	 * Creates a certificate based {@link RestOperations} instance if the application has not
-	 * defined any.
+	 * Creates a certificate based {@link RestOperations} instance if the
+	 * application has not defined any.
 	 *
 	 * @return the {@link RestOperations} instance.
 	 */

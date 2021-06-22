@@ -52,7 +52,9 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 	}
 
 	/**
-	 * @deprecated In favor of {{@link #IasXsuaaExchangeBroker(XsuaaTokenFlows)} gets removed with the version 3.0.0, does not support certificate based authentication
+	 * @deprecated In favor of {{@link #IasXsuaaExchangeBroker(XsuaaTokenFlows)}
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
 	 */
 	@Deprecated
 	public IasXsuaaExchangeBroker(OAuth2ServiceConfiguration configuration) {

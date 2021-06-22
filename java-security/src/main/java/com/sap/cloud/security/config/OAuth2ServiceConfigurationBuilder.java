@@ -222,10 +222,10 @@ public class OAuth2ServiceConfigurationBuilder {
 
 		@Override
 		public ClientIdentity getClientIdentity() {
-		CredentialType credentialType = getCredentialType();
-		if (credentialType == CredentialType.X509) {
-			return new ClientCertificate(properties.get(CERTIFICATE),properties.get(KEY), getClientId());
-		}
+			CredentialType credentialType = getCredentialType();
+			if (credentialType == CredentialType.X509) {
+				return new ClientCertificate(properties.get(CERTIFICATE), properties.get(KEY), getClientId());
+			}
 			return new ClientCredentials(getClientId(), getClientSecret());
 		}
 

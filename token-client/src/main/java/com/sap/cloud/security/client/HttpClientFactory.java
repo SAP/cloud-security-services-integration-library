@@ -22,15 +22,16 @@ public interface HttpClientFactory {
 	List<HttpClientFactory> services = new ArrayList() {
 		{
 			ServiceLoader.load(HttpClientFactory.class).forEach(this::add);
-			LoggerFactory.getLogger(HttpClientFactory.class).info("loaded HttpClientFactory service providers: {}", this);
+			LoggerFactory.getLogger(HttpClientFactory.class).info("loaded HttpClientFactory service providers: {}",
+					this);
 		}
 	};
 
 	/**
 	 * Provides CloseableHttpClient based on ClientIdentity details. For
 	 * ClientIdentity that is certificate based it will resolve https client using
-	 * the provided ClientIdentity, if the
-	 * ClientIdentity wasn't provided it will return default HttpClient.
+	 * the provided ClientIdentity, if the ClientIdentity wasn't provided it will
+	 * return default HttpClient.
 	 *
 	 * @param clientIdentity
 	 *            for X.509 certificate based communication
@@ -38,7 +39,7 @@ public interface HttpClientFactory {
 	 *            interface should be provided
 	 * @return HTTP or HTTPS client
 	 * @throws ServiceClientException
-	 *         in case HTTPS Client could not be setup
+	 *             in case HTTPS Client could not be setup
 	 */
 	CloseableHttpClient createClient(ClientIdentity clientIdentity) throws ServiceClientException;
 

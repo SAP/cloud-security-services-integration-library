@@ -59,23 +59,23 @@ class XsuaaTokenFlowAutoConfiguration {
 	}
 
 	@Bean
-	@Conditional({PropertyConditions.class})
+	@Conditional({ PropertyConditions.class })
 	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations xsuaaRestOperations) {
 		logger.debug("auto-configures XsuaaTokenFlows.");
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig);
 		ClientIdentity clientIdentity = xsuaaConfig.getClientIdentity();
-		OAuth2TokenService oAuth2TokenService =  new XsuaaOAuth2TokenService(xsuaaRestOperations);
+		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(xsuaaRestOperations);
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 
 	/**
-	 * Creates a {@link RestOperations} instance if the application has not
-	 * defined any.
+	 * Creates a {@link RestOperations} instance if the application has not defined
+	 * any.
 	 *
 	 * @return the {@link RestOperations} instance.
 	 */
 	@Bean
-	@Conditional({OnNotX509CredentialTypeCondition.class})
+	@Conditional({ OnNotX509CredentialTypeCondition.class })
 	@ConditionalOnMissingBean
 	public RestOperations restOperations() {
 		logger.warn("In productive environment provide a well configured client secret based RestOperations bean");
@@ -83,8 +83,8 @@ class XsuaaTokenFlowAutoConfiguration {
 	}
 
 	/**
-	 * Creates a certificate based {@link RestOperations} instance if the application has not
-	 * defined any.
+	 * Creates a certificate based {@link RestOperations} instance if the
+	 * application has not defined any.
 	 *
 	 * @return the {@link RestOperations} instance.
 	 */

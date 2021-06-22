@@ -35,7 +35,9 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	private RestOperations restOperations;
 
 	/**
-	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)} gets removed with the version 3.0.0, does not support certificate based authentication
+	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)}
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
 	 */
 	@Deprecated
 	public XsuaaOAuth2TokenService() {
@@ -43,7 +45,9 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	/**
-	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)} gets removed with the version 3.0.0, does not support certificate based authentication
+	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)}
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
 	 */
 	@Deprecated
 	public XsuaaOAuth2TokenService(@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
