@@ -29,7 +29,9 @@ import com.sap.cloud.security.token.validation.Validator;
  * It applies the following checks:
  * <ul>
  * <li>'iss' claim available</li>
- * <li>'iss' claim matches url of trusted identity provider</li>
+ * <li>'iss' provides scheme</li>
+ * <li>'iss' provides no query or fragment components or other problematic url ingredients</li>
+ * <li>'iss' or 'ias_iss' claim matches one of the domains of the trusted identity provider</li>
  * </ul>
  * These checks are a prerequisite for using the `JwtSignatureValidator`.
  */
@@ -38,7 +40,8 @@ class JwtIssuerValidator implements Validator<Token> {
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
-	 * Creates instance of Issuer validation using the domain.
+	 * Creates instance of Issuer validation using the given domains provided by the
+	 * identity service.
 	 *
 	 * @param domains
 	 *            the list of domains of the identity provider
@@ -49,36 +52,24 @@ class JwtIssuerValidator implements Validator<Token> {
 		this.domains = domains;
 	}
 
-	/**
-	 * Extracts the domain from a url without the subdomain. If no subdomain exists,
-	 * just returns the host.
-	 *
-	 * @param {string}
-	 *            fullUrl - Example: https://sub.domain.com
-	 * @returns {string} - host without subdomain - Example: domain.com
-	 */
-	/*
-	 * private static String getSubdomain(URI uri) { String host = uri.getHost();
-	 * return host.replaceFirst(host.split("\\.")[0] + ".", ""); }
-	 */
 	@Override
 	public ValidationResult validate(Token token) {
 		ValidationResult validationResult;
-		String ias_issuer_url = token.getClaimAsString(IAS_ISSUER);
-		String issuer_url = token.getClaimAsString(ISSUER);
+		String iasIssuerUrl = token.getClaimAsString(IAS_ISSUER);
+		String issuerUrl = token.getClaimAsString(ISSUER);
 
-		validationResult = validateUrl(issuer_url, ISSUER);
+		validationResult = validateUrl(issuerUrl, ISSUER);
 		if (validationResult.isErroneous()) {
 			return validationResult;
 		}
-		if (hasValue(ias_issuer_url)) {
-			validationResult = validateUrl(ias_issuer_url, IAS_ISSUER);
+		if (hasValue(iasIssuerUrl)) {
+			validationResult = validateUrl(iasIssuerUrl, IAS_ISSUER);
 			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
-			return matchesTokenIssuerUrl(ias_issuer_url, IAS_ISSUER);
+			return matchesTokenIssuerUrl(iasIssuerUrl, IAS_ISSUER);
 		}
-		return matchesTokenIssuerUrl(issuer_url, ISSUER);
+		return matchesTokenIssuerUrl(issuerUrl, ISSUER);
 	}
 
 	private ValidationResult matchesTokenIssuerUrl(String issuer, String claimName) {
