@@ -12,7 +12,8 @@ public interface ClientIdentity {
 	String getId();
 
 	/**
-	 * Returns true, if the mandatory attributes in ClientIdentity class are filled for the specified authentication method i.e X.509 or client secret
+	 * Returns true, if the mandatory attributes in ClientIdentity class are filled
+	 * for the specified authentication method i.e X.509 or client secret
 	 *
 	 * @return the boolean
 	 */
@@ -21,11 +22,13 @@ public interface ClientIdentity {
 	}
 
 	/**
-	 *  Returns true if ClientIdentity is certificate based.
+	 * Returns true if ClientIdentity is certificate based.
 	 *
 	 * @return the boolean
 	 */
-	default boolean isCertificateBased() { return false; }
+	default boolean isCertificateBased() {
+		return false;
+	}
 
 	/**
 	 * Client secret of identity service instance.

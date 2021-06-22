@@ -18,7 +18,8 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 /**
- * Creates a {@link CloseableHttpClient} instance. Supports certificate based communication.
+ * Creates a {@link CloseableHttpClient} instance. Supports certificate based
+ * communication.
  */
 public class DefaultHttpClientFactory implements HttpClientFactory {
 

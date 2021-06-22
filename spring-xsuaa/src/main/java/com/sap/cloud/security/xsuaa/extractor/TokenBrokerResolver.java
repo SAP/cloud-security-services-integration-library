@@ -174,7 +174,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	}
 
 	private String getBrokerToken(AuthenticationMethod credentialType, String authHeaderValue,
-								  String oauthTokenUrl, ClientIdentity clientIdentity) throws TokenBrokerException {
+			String oauthTokenUrl, ClientIdentity clientIdentity) throws TokenBrokerException {
 		switch (credentialType) {
 		case OAUTH2:
 			String oAuth2token = extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);

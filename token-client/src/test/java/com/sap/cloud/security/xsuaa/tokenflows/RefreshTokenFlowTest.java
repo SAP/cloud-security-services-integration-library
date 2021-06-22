@@ -55,16 +55,20 @@ public class RefreshTokenFlowTest {
 
 	@Test
 	public void constructor_throwsOnNullValues() {
-		assertThatThrownBy(() -> new RefreshTokenFlow(null, endpointsProvider, clientIdentity)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
+		assertThatThrownBy(() -> new RefreshTokenFlow(null, endpointsProvider, clientIdentity))
+				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
-		assertThatThrownBy(() -> new RefreshTokenFlow(mockTokenService, null, clientIdentity)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
+		assertThatThrownBy(() -> new RefreshTokenFlow(mockTokenService, null, clientIdentity))
+				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
 
-		assertThatThrownBy(() -> new RefreshTokenFlow(mockTokenService, endpointsProvider, null)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientIdentity");
+		assertThatThrownBy(() -> new RefreshTokenFlow(mockTokenService, endpointsProvider, null))
+				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientIdentity");
 	}
 
 	@Test
 	public void execute_throwsIfMandatoryFieldsNotSet() {
-		assertThatThrownBy(() -> cut.execute()).isInstanceOf(IllegalStateException.class).hasMessageContaining("Refresh token not set");
+		assertThatThrownBy(() -> cut.execute()).isInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("Refresh token not set");
 	}
 
 	@Test
@@ -96,8 +100,8 @@ public class RefreshTokenFlowTest {
 
 		assertThatThrownBy(() -> cut.refreshToken(REFRESH_TOKEN)
 				.execute()).isInstanceOf(TokenFlowException.class)
-				.hasMessageContaining(
-						"Error refreshing token with grant_type 'refresh_token': exception executed REST call");
+						.hasMessageContaining(
+								"Error refreshing token with grant_type 'refresh_token': exception executed REST call");
 	}
 
 	private void verifyRetrieveAccessTokenCalledWith(String refreshToken, boolean disableCacheForRequest)

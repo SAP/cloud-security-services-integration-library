@@ -16,9 +16,10 @@ public class SpringHttpClient {
 
 	private static SpringHttpClient instance;
 
-	private SpringHttpClient() {}
+	private SpringHttpClient() {
+	}
 
-	public static SpringHttpClient getInstance(){
+	public static SpringHttpClient getInstance() {
 		if (instance == null) {
 			instance = new SpringHttpClient();
 		}
@@ -43,7 +44,8 @@ public class SpringHttpClient {
 	 *            ClientIdentity of Xsuaa Service
 	 * @return RestTemplate instance
 	 * @throws ServiceClientException
-	 *            in case HTTPS Client for certificate based authentication could not be setup
+	 *             in case HTTPS Client for certificate based authentication could
+	 *             not be setup
 	 */
 	public RestTemplate create(@Nullable ClientIdentity clientIdentity) throws ServiceClientException {
 		if (clientIdentity != null && clientIdentity.isCertificateBased()) {

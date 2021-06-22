@@ -67,7 +67,7 @@ public class ClientCertificate implements ClientIdentity {
 		return Objects.hash(certificate, key, clientId);
 	}
 
-	private static boolean hasValue(String value){
+	private static boolean hasValue(String value) {
 		return value != null && !value.isEmpty();
 	}
 }

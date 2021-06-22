@@ -64,7 +64,7 @@ public class ClientCredentials implements ClientIdentity, Serializable {
 		return String.format("%s:%s", clientId, clientSecret);
 	}
 
-	private static boolean hasValue(String value){
+	private static boolean hasValue(String value) {
 		return value != null && !value.isEmpty();
 	}
 }

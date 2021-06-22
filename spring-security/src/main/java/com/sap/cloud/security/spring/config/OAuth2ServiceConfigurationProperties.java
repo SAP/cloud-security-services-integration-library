@@ -59,19 +59,21 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 		builder.withClientId(clientId);
 	}
 
-
 	/**
-	 * Sets certificate of  of identity service instance.
+	 * Sets certificate of of identity service instance.
 	 *
-	 * @param certificate PEM encoded certificate
+	 * @param certificate
+	 *            PEM encoded certificate
 	 */
 	public void setCertificate(String certificate) {
 		builder.withCertificate(certificate);
 	}
 
 	/**
-	 *  Sets private key of identity service instance.
-	 * @param key PEM encoded private key
+	 * Sets private key of identity service instance.
+	 * 
+	 * @param key
+	 *            PEM encoded private key
 	 */
 	public void setKey(String key) {
 		builder.withPrivateKey(key);
@@ -105,12 +107,13 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	/**
 	 * Sets credential type of identity service instance.
 	 *
-	 * @param credentialType the credential type
+	 * @param credentialType
+	 *            the credential type
 	 */
 	public void setCredentialType(String credentialType) {
-		builder.withCredentialType(Objects.requireNonNull(CredentialType.from(credentialType),"Credential-type must not be null"));
+		builder.withCredentialType(
+				Objects.requireNonNull(CredentialType.from(credentialType), "Credential-type must not be null"));
 	}
-
 
 	@Override
 	public URI getCertUrl() {
@@ -120,7 +123,8 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	/**
 	 * Sets cert url of identity service instance.
 	 *
-	 * @param certUrl the cert url
+	 * @param certUrl
+	 *            the cert url
 	 */
 	public void setCertUrl(String certUrl) {
 		builder.withCertUrl(certUrl);

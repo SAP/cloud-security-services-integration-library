@@ -58,7 +58,8 @@ class XsuaaTokenFlowAutoConfigurationTest {
 
 	@Test
 	void autoConfigurationActiveInclProperties() {
-		runner.withPropertyValues("sap.spring.security.xsuaa.flows.auto:true").run((context) -> assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class)));
+		runner.withPropertyValues("sap.spring.security.xsuaa.flows.auto:true")
+				.run((context) -> assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class)));
 	}
 
 	@Test
@@ -76,7 +77,8 @@ class XsuaaTokenFlowAutoConfigurationTest {
 
 	@Test
 	void autoConfigurationDisabledByProperty() {
-		runner.withPropertyValues("sap.spring.security.xsuaa.flows.auto:false").run((context) -> assertFalse(context.containsBean("xsuaaTokenFlows")));
+		runner.withPropertyValues("sap.spring.security.xsuaa.flows.auto:false")
+				.run((context) -> assertFalse(context.containsBean("xsuaaTokenFlows")));
 	}
 
 	@Test
