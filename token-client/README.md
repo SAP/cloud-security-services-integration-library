@@ -40,14 +40,14 @@ The `DefaultOAuth2TokenService` should be instantiated with a custom `CloseableH
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new DefaultOAuth2TokenService(<CloseableHttpClient>), 
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), 
+                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.9.1
                     <OAuth2ServiceConfiguration>.getClientIdentity()));
 ```
 > The `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`.
 
 > `<CloseableHttpClient>` is your custom configured Apache http client.
 
-For X.509 based authentication method you can use preconfigured http client from `HttpClientFactory`, which is not recommended for productive use:
+For X.509 based authentication method you can use preconfigured http client from `HttpClientFactory`, which [default implementation](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) is not recommended for productive use:
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new DefaultOAuth2TokenService(HttpClientFactory.create(<OAuth2ServiceConfiguration>.getClientIdentity())), 
@@ -102,7 +102,7 @@ With Spring-Web available `XsuaaTokenFlows` can be instantiated with a `RestTemp
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new XsuaaOAuth2TokenService(<RestOperations>),
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>),
+                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.9.1
                     <OAuth2ServiceConfiguration>.getClientIdentity());
 ```
 > The `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`.
@@ -110,12 +110,13 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 > `<RestOperations>` is your custom configured Spring http client.
 
 
-For X.509 based authentication method you can use preconfigured SpringHttpClient, which is not recommended for productive use:
+For X.509 based authentication method you can configure Spring's rest client using Apache's http client. You can use preconfigured http client from HttpClientFactory, which [default implementation](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) is not recommended for productive use:
+
 ```java
-XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                    new XsuaaOAuth2TokenService(SpringHttpClient.create(<OAuth2ServiceConfiguration>.getClientIdentity())), 
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), 
-                    <OAuth2ServiceConfiguration>.getClientIdentity());
+// if <OAuth2ServiceConfiguration>.getClientIdentity().isCertificateBased() == true
+HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+requestFactory.setHttpClient(HttpClientFactory.create(<OAuth2ServiceConfiguration>.getClientIdentity()));
+RestOperations restOperations = new RestTemplate(requestFactory);            
 ```
 
 For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key. For `spring-xsuaa` based applications it can be easily done by overriding these values in `application.yml properties file.
