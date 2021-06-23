@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa.mtls;
+package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.ClientIdentity;
@@ -10,23 +10,18 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Nullable;
 
 /**
- * SpringHttpClient provides factory methods to initialize RestTemplate for
- * certificate(HTTPS) based and client secret(HTTP) based communications.
+ * SpringHttpClient provides factory method to initialize RestTemplate for
+ * certificate (HTTPS) based communications.
  */
-public class SpringHttpClient {
+class SpringHttpClient {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpringHttpClient.class);
-
-	private static SpringHttpClient instance;
 
 	private SpringHttpClient() {
 	}
 
-	public static SpringHttpClient getInstance() {
-		if (instance == null) {
-			instance = new SpringHttpClient();
-		}
-		return instance;
+	static SpringHttpClient getInstance() {
+		return new SpringHttpClient();
 	}
 
 	/**
@@ -39,13 +34,8 @@ public class SpringHttpClient {
 	 * @return RestTemplate instance
 	 */
 	public RestTemplate create(@Nullable ClientIdentity clientIdentity) {
-		LOGGER.warn("In productive environment provide a well configured RestTemplate");
-		if (clientIdentity != null && clientIdentity.isCertificateBased()) {
-			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-			requestFactory.setHttpClient(HttpClientFactory.create(clientIdentity));
-			return new RestTemplate(requestFactory);
-		} else {
-			return new RestTemplate();
-		}
+		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+		requestFactory.setHttpClient(HttpClientFactory.create(clientIdentity));
+		return new RestTemplate(requestFactory);
 	}
 }

@@ -7,11 +7,13 @@ package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
@@ -55,7 +57,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 
 	@Test
 	void autoConfigurationActive() {
-		runner.run(context -> {
+		runner.withClassLoader(new FilteredClassLoader(CloseableHttpClient.class)).run(context -> {
 			assertThat(context).hasSingleBean(RestOperations.class);
 			assertThat(context).hasBean("restOperations");
 			assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class));

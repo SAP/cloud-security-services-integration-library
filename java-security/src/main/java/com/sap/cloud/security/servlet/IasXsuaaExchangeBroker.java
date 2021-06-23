@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.servlet;
 
-import com.sap.cloud.security.client.ServiceClientException;
+import com.sap.cloud.security.client.HttpClientException;
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
@@ -51,7 +51,7 @@ class IasXsuaaExchangeBroker {
 	 * @return encoded Xsuaa token
 	 */
 	@Nullable
-	public String resolve(Token token) throws TokenFlowException, ServiceClientException {
+	public String resolve(Token token) throws TokenFlowException, HttpClientException {
 		OAuth2TokenResponse tokenResponse = xsuaaTokenFlows.userTokenFlow().token(token).execute();
 		LOGGER.debug("Response token from Ias to Xsuaa token exchange {}", tokenResponse.getAccessToken());
 		return tokenResponse.getAccessToken();

@@ -49,7 +49,7 @@
 			<artifactId>httpclient</artifactId>
 			<version>${apache.httpclient.version}</version>
 		</dependency>
-		
+
 		<!-- test dependencies-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

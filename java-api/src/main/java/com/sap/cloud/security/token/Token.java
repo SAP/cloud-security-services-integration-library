@@ -21,6 +21,7 @@ import java.util.*;
  * Represents a JSON Web Token (JWT).
  */
 public interface Token extends Serializable {
+	@SuppressWarnings("unchecked")
 	List<TokenFactory> services = new ArrayList() {
 		{
 			ServiceLoader.load(TokenFactory.class).forEach(this::add);
@@ -201,7 +202,7 @@ public interface Token extends Serializable {
 	 * @return a {@code Map} of the header(s)
 	 */
 	default Map<String, Object> getHeaders() {
-		return Collections.EMPTY_MAP;
+		return Collections.emptyMap();
 	}
 
 	/**
@@ -210,7 +211,7 @@ public interface Token extends Serializable {
 	 * @return a {@code Map} of the jwt claim set
 	 */
 	default Map<String, Object> getClaims() {
-		return Collections.EMPTY_MAP;
+		return Collections.emptyMap();
 	}
 
 	/**

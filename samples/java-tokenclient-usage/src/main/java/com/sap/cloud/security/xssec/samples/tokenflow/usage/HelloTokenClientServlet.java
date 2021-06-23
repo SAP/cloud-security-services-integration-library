@@ -6,7 +6,7 @@
 package com.sap.cloud.security.xssec.samples.tokenflow.usage;
 
 import com.sap.cloud.security.client.HttpClientFactory;
-import com.sap.cloud.security.client.ServiceClientException;
+import com.sap.cloud.security.client.HttpClientException;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
@@ -34,7 +34,7 @@ public class HelloTokenClientServlet extends HttpServlet {
 			tokenFlows = new XsuaaTokenFlows(
 					new DefaultOAuth2TokenService(HttpClientFactory.create(configuration.getClientIdentity())),
 					new XsuaaDefaultEndpoints(configuration), configuration.getClientIdentity());
-		} catch (ServiceClientException e) {
+		} catch (HttpClientException e) {
 			throw new ServletException("Couldn't setup XsuaaTokenFlows");
 		}
 	}

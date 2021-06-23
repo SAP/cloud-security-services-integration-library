@@ -19,6 +19,7 @@ import java.util.ServiceLoader;
  * Represents a {@link CloseableHttpClient} creation interface.
  */
 public interface HttpClientFactory {
+	@SuppressWarnings("unchecked")
 	List<HttpClientFactory> services = new ArrayList() {
 		{
 			ServiceLoader.load(HttpClientFactory.class).forEach(this::add);
@@ -38,14 +39,14 @@ public interface HttpClientFactory {
 	 *            {@link ClientCertificate} implementation of ClientIdentity
 	 *            interface should be provided
 	 * @return HTTP or HTTPS client
-	 * @throws ServiceClientException
+	 * @throws HttpClientException
 	 *             in case HTTPS Client could not be setup
 	 */
-	CloseableHttpClient createClient(ClientIdentity clientIdentity) throws ServiceClientException;
+	CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException;
 
-	static CloseableHttpClient create(ClientIdentity clientIdentity) throws ServiceClientException {
+	static CloseableHttpClient create(ClientIdentity clientIdentity) throws HttpClientException {
 		if (services.isEmpty()) {
-			throw new ProviderNotFoundException("No HttpClientFactory implementation found in the classpath");
+			throw new ProviderNotFoundException("No HttpClientFactory service could be loaded.  in the classpath");
 		}
 		return services.get(0).createClient(clientIdentity);
 	}

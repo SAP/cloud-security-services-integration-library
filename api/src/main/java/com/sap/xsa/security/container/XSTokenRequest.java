@@ -16,7 +16,6 @@ import java.util.Map;
  * provider and will be removed with version 3.0.0.
  */
 @java.lang.SuppressWarnings("squid:S1214")
-@Deprecated
 public interface XSTokenRequest {
 
 	public static final int TYPE_USER_TOKEN = 0;

@@ -13,7 +13,6 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
-import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +89,7 @@ class XsuaaTokenFlowAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnProperty(prefix = "sap.security.services.xsuaa", name = "credential-type", havingValue = "x509")
+	@ConditionalOnClass(name = "org.apache.http.impl.client.CloseableHttpClient")
 	@ConditionalOnMissingBean
 	public RestOperations mtlsRestOperations(XsuaaServiceConfiguration xsuaaConfig) {
 		logger.warn("In productive environment provide a well configured certificate based RestOperations bean");

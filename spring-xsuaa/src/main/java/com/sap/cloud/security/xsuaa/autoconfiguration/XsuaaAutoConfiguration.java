@@ -10,7 +10,6 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import com.sap.cloud.security.xsuaa.extractor.TokenUtil;
-import com.sap.cloud.security.xsuaa.mtls.SpringHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -42,7 +41,7 @@ import javax.annotation.Nonnull;
 @ConditionalOnProperty(prefix = "spring.xsuaa", name = "auto", havingValue = "true", matchIfMissing = true)
 public class XsuaaAutoConfiguration {
 
-	private static final Logger logger = LoggerFactory.getLogger(XsuaaAutoConfiguration.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaAutoConfiguration.class);
 
 	@Configuration
 	@PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "" })
@@ -52,7 +51,7 @@ public class XsuaaAutoConfiguration {
 		@Bean
 		@ConditionalOnMissingBean(XsuaaServiceConfiguration.class)
 		public XsuaaServiceConfiguration xsuaaServiceConfiguration() {
-			logger.info("auto-configures XsuaaServiceConfigurationDefault");
+			LOGGER.info("auto-configures XsuaaServiceConfigurationDefault");
 			return new XsuaaServiceConfigurationDefault();
 		}
 
@@ -88,7 +87,7 @@ public class XsuaaAutoConfiguration {
 	@Conditional({ OnNotX509CredentialTypeCondition.class })
 	@ConditionalOnMissingBean
 	public RestOperations xsuaaRestOperations() {
-		logger.warn("In productive environment provide a well configured client secret based RestOperations bean");
+		LOGGER.warn("In productive environment provide a well configured client secret based RestOperations bean");
 		return new RestTemplate();
 	}
 
@@ -101,8 +100,9 @@ public class XsuaaAutoConfiguration {
 	@Bean
 	@ConditionalOnProperty(prefix = "xsuaa", name = "credential-type", havingValue = "x509")
 	@ConditionalOnMissingBean
+	@ConditionalOnClass(name = "org.apache.http.impl.client.CloseableHttpClient")
 	public RestOperations xsuaaMtlsRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-		logger.warn("In productive environment provide a well configured certificate based RestOperations bean");
+		LOGGER.warn("In productive environment provide a well configured certificate based RestOperations bean");
 		return SpringHttpClient.getInstance().create(xsuaaServiceConfiguration.getClientIdentity());
 	}
 
