@@ -10,7 +10,6 @@ import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +86,7 @@ public abstract class AbstractToken implements Token {
 
 	@Nullable
 	@Override
-	public JsonObject getClaimAsJsonObject(@NotNull String claimName) {
+	public JsonObject getClaimAsJsonObject(@Nonnull String claimName) {
 		return tokenBody.getJsonObject(claimName);
 	}
 
