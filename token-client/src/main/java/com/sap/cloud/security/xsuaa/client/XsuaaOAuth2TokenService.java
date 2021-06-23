@@ -92,7 +92,8 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 			LOGGER.error(warningMsg, ex);
 			throw new OAuth2ServiceException(warningMsg);
 		} catch (ResourceAccessException ex) {
-			String warningMsg = String.format("RestClient isn't configured properly - Error while obtaining access token from XSUAA: %s",
+			String warningMsg = String.format(
+					"RestClient isn't configured properly - Error while obtaining access token from XSUAA: %s",
 					requestUri, ex.getLocalizedMessage());
 			LOGGER.error(warningMsg);
 			throw ex;
