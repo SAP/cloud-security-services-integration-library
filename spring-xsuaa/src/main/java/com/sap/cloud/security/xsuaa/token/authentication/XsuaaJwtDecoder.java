@@ -76,7 +76,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	@Override
 	/**
 	 * @throws BadJwtException
-	 *             as of version 2.9.1 (instead of JwtException)
+	 *             as of version 2.10.0 (instead of JwtException)
 	 * @see https://github.com/spring-projects/spring-security/issues/9395
 	 * @see https://github.com/spring-projects/spring-security/commit/0c3754c
 	 *

@@ -26,7 +26,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClientFactory.class);
 
 	public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException {
-		LOGGER.warn("In productive environment, provide well configured HttpClientFactory service");
+		LOGGER.warn("In productive environment provide well configured HttpClientFactory service");
 		if (clientIdentity != null && clientIdentity.isCertificateBased()) {
 			LOGGER.debug("Setting up HTTPS client with: certificate: {}\nprivate key: {}\n",
 					clientIdentity.getCertificate(), clientIdentity.getKey());
