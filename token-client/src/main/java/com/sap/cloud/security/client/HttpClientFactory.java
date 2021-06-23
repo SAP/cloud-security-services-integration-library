@@ -19,6 +19,7 @@ import java.util.ServiceLoader;
  * Represents a {@link CloseableHttpClient} creation interface.
  */
 public interface HttpClientFactory {
+	@SuppressWarnings("unchecked")
 	List<HttpClientFactory> services = new ArrayList() {
 		{
 			ServiceLoader.load(HttpClientFactory.class).forEach(this::add);

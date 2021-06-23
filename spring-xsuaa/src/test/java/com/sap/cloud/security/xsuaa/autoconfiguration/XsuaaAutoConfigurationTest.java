@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,10 +59,11 @@ public class XsuaaAutoConfigurationTest {
 
 	@Test
 	public void configures_xsuaaServiceConfiguration() {
-		contextRunner.run((context) -> {
-			assertThat(context).hasSingleBean(XsuaaServiceConfigurationDefault.class);
-			assertThat(context).hasBean("xsuaaServiceConfiguration");
-		});
+		contextRunner.withClassLoader(new FilteredClassLoader(CloseableHttpClient.class))
+				.run((context) -> {
+					assertThat(context).hasSingleBean(XsuaaServiceConfigurationDefault.class);
+					assertThat(context).hasBean("xsuaaServiceConfiguration");
+				});
 	}
 
 	@Test
@@ -88,7 +90,7 @@ public class XsuaaAutoConfigurationTest {
 
 	@Test
 	public void configures_xsuaaServiceConfiguration_withProperties() {
-		contextRunner
+		contextRunner.withClassLoader(new FilteredClassLoader(CloseableHttpClient.class))
 				.withPropertyValues("spring.xsuaa.auto:true")
 				.withPropertyValues("spring.xsuaa.disable-default-property-source:false")
 				.withPropertyValues("spring.xsuaa.multiple-bindings:false").run((context) -> {

@@ -45,11 +45,6 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.sap.cloud.security</groupId>
-			<artifactId>spring-security</artifactId>
-			<version>0.2.0</version> <!-- TODO when spring-security provides GA release -->
-		</dependency>
 		<dependency> <!-- includes spring-security-oauth2-->
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-jose</artifactId>
