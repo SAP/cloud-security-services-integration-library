@@ -23,7 +23,7 @@ The Resource owner password credentials (i.e., username and password) can be use
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.9.0</version>
+    <version>2.10.0</version>
 </dependency>
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
@@ -40,7 +40,7 @@ The `DefaultOAuth2TokenService` should be instantiated with a custom `CloseableH
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new DefaultOAuth2TokenService(<CloseableHttpClient>), 
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.9.1
+                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.10
                     <OAuth2ServiceConfiguration>.getClientIdentity()));
 ```
 > The `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`.
@@ -84,7 +84,7 @@ By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.9.0</version>
+    <version>2.10.0</version>
 </dependency>
 <dependency>
     <groupId>org.springframework</groupId>
@@ -102,7 +102,7 @@ With Spring-Web available `XsuaaTokenFlows` can be instantiated with a `RestTemp
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new XsuaaOAuth2TokenService(<RestOperations>),
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.9.1
+                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.10
                     <OAuth2ServiceConfiguration>.getClientIdentity());
 ```
 > The `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`.
@@ -110,7 +110,7 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 > `<RestOperations>` is your custom configured Spring http client.
 
 
-For X.509 based authentication method you can configure Spring's rest client using Apache's http client. You can use preconfigured http client from HttpClientFactory, which [default implementation](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) is not recommended for productive use:
+For X.509 based authentication method you can configure Spring's rest client using Apache's http client. You can use preconfigured http client from ```HttpClientFactory```, which [default implementation](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) is not recommended for productive use:
 
 ```java
 // if <OAuth2ServiceConfiguration>.getClientIdentity().isCertificateBased() == true
@@ -142,7 +142,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.9.0</version>
+    <version>2.10.0</version>
 </dependency>
 <dependency> <!-- required when using Spring Web `RestTemplate` with X.509 authentication method-->
   <groupId>org.apache.httpcomponents</groupId>

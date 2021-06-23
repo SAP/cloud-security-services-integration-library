@@ -25,7 +25,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>2.9.0</version>
+    <version>2.10.0</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
@@ -39,7 +39,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.9.0</version>
+    <version>2.10.0</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ Auto-configuration class | Description
 ---- | --------
 [XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java) | Adds `xsuaa.*` properties to Spring's Environment. The properties are by default parsed from `VCAP_SERVICES` system environment variables and can be overwritten by properties such as `xsuaa.xsappname` e.g. for testing purposes. Furthermore it exposes a `XsuaaServiceConfiguration` bean that can be used to access xsuaa service information.  Alternatively you can access them with `@Value` annotation e.g. `@Value("${xsuaa.xsappname:}") String appId`.
 [XsuaaResourceServerJwkAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaResourceServerJwkAutoConfiguration.java) | Configures a `JwtDecoder` bean with a JWK (JSON Web Keys) endpoint from where to download the tenant (subdomain) specific public key.
-[XsuaaTokenFlowAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean for a given `RestOperations` and `XsuaaServiceConfiguration` bean to fetch the XSUAA service binding information.
+[XsuaaTokenFlowAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean for a given `RestOperations` and `XsuaaServiceConfiguration` bean to fetch the XSUAA service binding information. Starting with `2.10.0` version it supports X.509 based authentication.
 
 You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 
@@ -75,8 +75,11 @@ public static class RestClientConfiguration {
 
     @Bean
     public RestTemplate xsuaaRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-        ClientIdentity clientCertificate = xsuaaServiceConfiguration.getClientIdentity();
-        return SpringHttpClient.getInstance().create(clientCertificate);
+        // Example that supports both: client secret and client certificate based authentication.
+        // This is especially relevant if you want to leverage token exchange with XsuaaTokenFlows.
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        requestFactory.setHttpClient(HttpClientFactory.create(clientIdentity)); // default implementation logs warning 
+        RestOperations restOperations = new RestTemplate(requestFactory);         
     }
 
 }
