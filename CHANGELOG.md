@@ -2,21 +2,24 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.9.1 and 0.2.1 [BETA]
-- [java-api] provides `ClientIdentity` with 2 implementations: 1.`ClientCredentials`, 2.`ClientCertificate`
+- [java-api] provides `ClientIdentity` with 2 implementations: `ClientCredentials` and `ClientCertificate`
 - [spring-xsuaa] 
   - As of Spring Security version 5.5.0 only `BadJwtException` results in `InvalidBearerTokenException`, which are handled and mapped to ``401`` status code. Consequently, `XsuaaJwtDecoder` raises `BadJwtException`s instead of `JwtException`s.
-  - `IasXsuaaExchangeBroker` supports X.509 based token exchange
-  - `XsuaaTokenFlowAutoconfiguration` supports X.509 based authentication
+  - `XsuaaTokenFlowAutoconfiguration` supports X.509 based authentication. You need to provide ``org.apache.httpcomponents:httpclient`` as dependency.
+  - `IasXsuaaExchangeBroker` can be configured with (autoconfigured) `XsuaaTokenFlow` to enable X.509 based authentication.
 - [token-client] 
   - ``SSLContextFactory`` class, which was marked as deprecated, is moved to `com.sap.cloud.security.mtls` package.
-  - `ClientCredentials` class was moved to java-api module and now implements `ClientIdentity` interface.
+  - `ClientCredentials` class is moved to java-api module and now implements `ClientIdentity` interface.
   - `XsuaaTokenFlows` supports X.509 authentication method
 - [java-security] 
   - httpClient needs to be configured and provided by the application, in case of token exchange. See also [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/java-security#ias-to-xsuaa-token-exchange).
   - `IasXsuaaExchangeBroker` supports X.509 based token exchange
-- [spring-security] `XsuaaTokenFlowAutoconfiguration` supports X.509 based authentication
-- [java-tokenclient-usage] by default enables X.509 based authentication for `XsuaaTokenflows`
-- [spring-security-xsuaa-usage] deprecates the xsuaa security descriptor with a client secret authentication, default now is X.509 based authentication
+- [spring-security] 
+  - `XsuaaTokenFlowAutoconfiguration` supports X.509 based authentication. You need to provide ``org.apache.httpcomponents:httpclient`` as dependency.
+  - `HybridJwtDecoder` raises `BadJwtException`s instead of `AccessDeniedException`s.
+- [samples/java-tokenclient-usage] uses X.509 based authentication for `XsuaaTokenflows`
+- [samples/spring-security-xsuaa-usage] deprecates the xsuaa security descriptor with a client secret authentication, default now is X.509 based authentication.
+- [samples/spring-security-hybrid-usage] switched now to X.509 based authentication.
 
 ## 2.9.0 and 0.2.0 [BETA]
 - [java-security] and [spring-security] validates IAS OIDC tokens from multiple IAS tenants and zones. <br>**Prerequisite:** identity service broker needs to provide list of `domains` via `VCAP_SERVICES`-`identity`-`credentials`.
