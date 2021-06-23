@@ -286,7 +286,18 @@ public XsuaaCredentials xsuaaCredentials() {
     return result;
 }
 ```
-    
+#### ResourceAccessException during Token Exchange
+In case you retrieve `ResourceAccessException` during token exchange similar to the one below, you need to make sure your `RestOperations` bean is configured with a SSL context. This needs to be equipped with the certificate of your uaa identity service provider. 
+```
+org.springframework.web.client.ResourceAccessException: I/O error on POST request for "https://xxx.authentication.cert.sap.hana.ondemand.com/oauth/token": readHandshakeRecord; nested exception is javax.net.ssl.SSLException: readHandshakeRecord
+```
+Find further information [here](/token-client) and [here](#resttemplate--restoperations).
+
+#### Application crashes when no XsuaaTokenFlows could be found
+If you have switched to X.509 credential type and your application crashes during start, then you may need to add a dependency to ``org.apache.httpcomponents:httpclient`` in order to auto-configure a default ``RestOperations`` bean ([XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java) ).
+```
+Field xsuaaTokenFlows in sample.spring.xsuaa.SecurityConfiguration required a bean of type 'com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows' that could not be found.
+```   
 #### JWT verification failed ... no suitable HttpMessageConverter found
 In case `RestTemplate` is not configured with an appropriate `HttpMessageConverter` the Jwt signature validator can not handle the token keys (JWK set) response from xsuaa. Consequently the JWT signature can not be validated and it may fail with the following error:
 

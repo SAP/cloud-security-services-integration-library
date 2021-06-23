@@ -241,15 +241,28 @@ For spring applications using rest template, you can set
 
 ### Common Pitfalls
 
+- As of version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service.` is exposed to the application log in case the default implementation of ``ClosableRestClient`` is used and not overwritten by an own well-defined one. <br> In case you like to overwrite `DefaultHttpClientFactory` you can register your own implementation of `HttpClientFactory` interface as following:
+
+    - Create a SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory.  
+    - Enter the fully qualified name of your `HttpClientFactory` implementation class, e.g. `com.mypackage.CustomHttpClientFactory`.
+    - The implementation could look like:  
+    ````java
+    public class DefaultHttpClientFactory implements HttpClientFactory {
+    
+    	public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException {
+    		// here comes your implementation
+    	}
+    }
+    ````
 - This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
 If you have classpath related  issues involving JSON you should take a look at the
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 - `{\"error\":\"unauthorized\",\"error_description\":\"Unable to map issuer, [http://subdomain.localhost:8080/uaa/oauth/token] , to a single registered provider\"}`  
 Token exchange is only supported within the same identity zone/tenant. That means, that you have to call the `/oauth/token` endpoint of the same subdomain, that was used for the original token. This can be achieved by configuring the user token flow the following way:
-````
-tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());`
-````
+    ````
+    tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());`
+    ````
 
 - For Spring applications error like:
     ```java
@@ -258,6 +271,8 @@ tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());`
     nested exception is java.lang.NoClassDefFoundError: org/apache/http/client/HttpClient
     ``` 
     make sure `org.apache.httpcomponents.httpclient` dependency is provided in the POM
+
+
 
 ## Samples
 - [Java sample](/samples/java-tokenclient-usage)

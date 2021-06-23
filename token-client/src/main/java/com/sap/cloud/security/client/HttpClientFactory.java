@@ -46,7 +46,7 @@ public interface HttpClientFactory {
 
 	static CloseableHttpClient create(ClientIdentity clientIdentity) throws HttpClientException {
 		if (services.isEmpty()) {
-			throw new ProviderNotFoundException("No HttpClientFactory service could be loaded.  in the classpath");
+			throw new ProviderNotFoundException("No HttpClientFactory service could be found in the classpath");
 		}
 		return services.get(0).createClient(clientIdentity);
 	}

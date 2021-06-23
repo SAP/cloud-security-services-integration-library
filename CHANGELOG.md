@@ -1,22 +1,29 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.9.1 and 0.2.1 [BETA]
+## 2.10.0 and 0.3.0 [BETA]
 - [java-api] provides `ClientIdentity` with 2 implementations: `ClientCredentials` and `ClientCertificate`
-- [spring-xsuaa] 
+- [token-client] 
+  - `XsuaaTokenFlows` supports X.509 authentication method. In order to enable X.509 you probably need to provide ``org.apache.httpcomponents:httpclient`` as dependency and need to configure ``XsuaaTokenFlows`` differently:
+    - `XsuaaDefaultEndpoints(url)` must be replaced with `XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>)`.
+    - `DefaultOAuth2TokenService` constructors that are not parameterized with `CloseableHttpClient` are deprecated, as they do not support X.509.
+    - `XsuaaOAuth2TokenService` constructors that are not parameterized with `RestOperations` are deprecated, as they do not support X.509.
+    - Find more detailed information [here](/token-client).
+  - ``SSLContextFactory`` class, which was marked as deprecated, is moved to `com.sap.cloud.security.mtls` package.
+  - logs 'WARN' message, in case application has not overwritten the default http client. Find further information about that [here](/token-client#common-pitfalls).
+- [java-security] 
+  - `IasXsuaaExchangeBroker` supports X.509 based token exchange. In case the token exchange is done via `XsuaaTokenAuthenticator` you need to provide a http client that is prepared with ssl context.
+  - `JwtIssuerValidator.java` supports custom domains of identity service. If `ias_iss` is given and not empty, `JwtIssuerValidator.java` checks whether its a valid url and checks whether this matches one of the valid domains of the identity service. The check whether `ias` matches to any given domains is skipped in that case.
+  - The token keys cache does not accept cache time longer than 15 minutes.
+- [spring-xsuaa] and starter
   - As of Spring Security version 5.5.0 only `BadJwtException` results in `InvalidBearerTokenException`, which are handled and mapped to ``401`` status code. Consequently, `XsuaaJwtDecoder` raises `BadJwtException`s instead of `JwtException`s.
   - `XsuaaTokenFlowAutoconfiguration` supports X.509 based authentication. You need to provide ``org.apache.httpcomponents:httpclient`` as dependency.
   - `IasXsuaaExchangeBroker` can be configured with (autoconfigured) `XsuaaTokenFlow` to enable X.509 based authentication.
-- [token-client] 
-  - ``SSLContextFactory`` class, which was marked as deprecated, is moved to `com.sap.cloud.security.mtls` package.
-  - `ClientCredentials` class is moved to java-api module and now implements `ClientIdentity` interface.
-  - `XsuaaTokenFlows` supports X.509 authentication method
-- [java-security] 
-  - httpClient needs to be configured and provided by the application, in case of token exchange. See also [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/java-security#ias-to-xsuaa-token-exchange).
-  - `IasXsuaaExchangeBroker` supports X.509 based token exchange
-- [spring-security] 
+  - As of version ``2.10`` a warning `In productive environment provide a well configured client secret based RestOperations bean.` is exposed to the application log in case the default implementation of ``RestOperations`` is used and not overwritten by an own well-defined one. See also [here](/spring-xsuaa#resttemplate--restoperations).
+- [spring-security] and starter
   - `XsuaaTokenFlowAutoconfiguration` supports X.509 based authentication. You need to provide ``org.apache.httpcomponents:httpclient`` as dependency.
   - `HybridJwtDecoder` raises `BadJwtException`s instead of `AccessDeniedException`s.
+  - As of version ``2.10`` a warning `In productive environment provide a well configured client secret based RestOperations bean.` is exposed to the application log in case the default implementation of ``RestOperations`` is used and not overwritten by an own well-defined one. 
 - [samples/java-tokenclient-usage] uses X.509 based authentication for `XsuaaTokenflows`
 - [samples/spring-security-xsuaa-usage] deprecates the xsuaa security descriptor with a client secret authentication, default now is X.509 based authentication.
 - [samples/spring-security-hybrid-usage] switched now to X.509 based authentication.
