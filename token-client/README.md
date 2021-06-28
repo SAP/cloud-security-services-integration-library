@@ -261,7 +261,7 @@ If you have classpath related  issues involving JSON you should take a look at t
 - `{\"error\":\"unauthorized\",\"error_description\":\"Unable to map issuer, [http://subdomain.localhost:8080/uaa/oauth/token] , to a single registered provider\"}`  
 Token exchange is only supported within the same identity zone/tenant. That means, that you have to call the `/oauth/token` endpoint of the same subdomain, that was used for the original token. This can be achieved by configuring the user token flow the following way:
     ````
-    tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());`
+    tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());
     ````
 
 - For Spring applications error like:
@@ -270,7 +270,7 @@ Token exchange is only supported within the same identity zone/tenant. That mean
     Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'securityConfiguration': Unsatisfied dependency expressed through field 'xsuaaTokenFlows'
     nested exception is java.lang.NoClassDefFoundError: org/apache/http/client/HttpClient
     ``` 
-    make sure `org.apache.httpcomponents.httpclient` dependency is provided in the POM
+    make sure `org.apache.httpcomponents:httpclient` dependency is provided in the POM.
 
 
 
