@@ -54,7 +54,15 @@ You need administrator permissions to create a Groups "Read" in IAS and assign i
 
 ## Access the application
 - create an IAS oidc token via ``password`` grant token flow. For that call the ``oauth2/token`` endpoint of your identity service. You can get the ``url`` and the ``clientid`` and ``clientsecret`` for the Basic Authorization header from ``VCAP_SERVICES``.`identity`.
-- create an XSUAA access token via client-certificate token flow. For that call the ``<cert_url>/oauth/token`` endpoint of your xsuaa service. <br>You can get the ``cert_url``, the ``client_id``, the ``certificate`` and ``key`` for the request from ``VCAP_SERVICES``.`xsuaa`.
+- create an XSUAA access token via client-certificate token flow. For that, call the ``<cert_url>/oauth/token`` endpoint of your xsuaa service. <br>You can get the ``cert_url``, the ``client_id``, the ``certificate`` and ``key`` for the request from ``VCAP_SERVICES``.`xsuaa`.
+<br> You can use Postman to retrieve the token over mTLS. To setup SSL connection:
+    1. Store the certificate and key into seperate files in `PEM` format.
+    <br>❗ In case you experience invalid PEM file errors, \\n characters might have to be replaced by newlines \n to have the PEM in the correct format.
+        ```shell script
+        awk '{gsub(/\\n/,"\n")}1' <file>.pem
+        ```
+   2. In Postman navigate to Settings -> Certificates, click on "Add Certificate" and provide the certificate and key `PEM` files and host name.
+        ![](../images/postman-ssl.png)
 
 Call the following endpoints with ```Authorization``` header = "Bearer <your IAS/XSUAA token>"
 * `https://spring-security-hybrid-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/sayHello` - GET request that provides token details, but only if token provides expected read permission (scope/groups).
