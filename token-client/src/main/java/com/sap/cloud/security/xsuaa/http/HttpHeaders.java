@@ -52,8 +52,9 @@ public class HttpHeaders {
 
 	@Override
 	public String toString() {
-		return "HttpHeaders{" +
-				"headers=" + headers +
-				'}';
+		return "HttpHeaders: [ " +
+				headers.stream().map(HttpHeader::toString)
+						.collect(Collectors.joining(", ")) +
+				" ]";
 	}
 }

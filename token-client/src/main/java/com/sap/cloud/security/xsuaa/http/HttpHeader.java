@@ -40,4 +40,9 @@ public class HttpHeader {
 	public int hashCode() {
 		return Objects.hash(getName(), getValue());
 	}
+
+	@Override
+	public String toString() {
+		return "\"" + name + ": " + value + "\"";
+	}
 }
