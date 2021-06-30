@@ -12,9 +12,9 @@ import static org.assertj.core.util.Lists.newArrayList;
 
 public class HttpHeadersTest {
 
-	private HttpHeader header = new HttpHeader("a", "a_value");
-	private HttpHeader anotherHeader = new HttpHeader("b", "b_value");
-	private HttpHeader sameKeyDifferentValue = new HttpHeader("a", "different_value");
+	private final HttpHeader header = new HttpHeader("a", "a_value");
+	private final HttpHeader anotherHeader = new HttpHeader("b", "b_value");
+	private final HttpHeader sameKeyDifferentValue = new HttpHeader("a", "different_value");
 
 	@Test
 	public void equals_sameHeaders_isEqual() {
@@ -38,9 +38,13 @@ public class HttpHeadersTest {
 		HttpHeaders headers2 = new HttpHeaders(anotherHeader);
 		HttpHeaders headers3 = new HttpHeaders(sameKeyDifferentValue);
 
-		assertThat(headers1).isNotEqualTo(headers2);
-		assertThat(headers1).isNotEqualTo(headers3);
+		assertThat(headers1).isNotEqualTo(headers2).isNotEqualTo(headers3);
 		assertThat(headers2).isNotEqualTo(headers3);
 	}
 
+	@Test
+	public void toStringTest() {
+		HttpHeaders headers = new HttpHeaders(header, anotherHeader);
+		assertThat(headers).hasToString("HttpHeaders: [ \"a: a_value\", \"b: b_value\" ]");
+	}
 }
