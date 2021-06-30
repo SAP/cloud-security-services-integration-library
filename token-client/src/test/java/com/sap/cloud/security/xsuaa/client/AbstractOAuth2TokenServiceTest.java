@@ -269,7 +269,7 @@ public class AbstractOAuth2TokenServiceTest {
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials(ClientIdentity clientIdentity,
-																		boolean disableCacheForRequest)
+			boolean disableCacheForRequest)
 			throws OAuth2ServiceException {
 		return cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, clientIdentity, ZONE_ID,
 				SUBDOMAIN,

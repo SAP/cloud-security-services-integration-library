@@ -14,7 +14,7 @@ import com.sap.cloud.security.token.validation.ValidationResults;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.time.Instant;
@@ -66,7 +66,7 @@ class HybridJwtDecoderTest {
 		cut = new HybridJwtDecoder(combiningValidator, combiningValidator);
 		String encodedToken = jwtGenerator.createToken().getTokenValue();
 
-		assertThrows(AccessDeniedException.class, () -> cut.decode(encodedToken));
+		assertThrows(BadJwtException.class, () -> cut.decode(encodedToken));
 	}
 
 	@Test

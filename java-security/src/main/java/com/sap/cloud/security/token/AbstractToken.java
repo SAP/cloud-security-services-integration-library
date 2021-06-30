@@ -86,7 +86,7 @@ public abstract class AbstractToken implements Token {
 
 	@Nullable
 	@Override
-	public JsonObject getClaimAsJsonObject(String claimName) {
+	public JsonObject getClaimAsJsonObject(@Nonnull String claimName) {
 		return tokenBody.getJsonObject(claimName);
 	}
 

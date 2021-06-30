@@ -197,9 +197,6 @@ public class JwtValidatorBuilder {
 		} else if (configuration.getService() == IAS) {
 			if (configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {
 				defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
-			} else {
-				// TOOD delete as soon as domains is given with IAS binding
-				defaultValidators.add(new JwtIssuerValidator(configuration.getUrl()));
 			}
 		}
 		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();

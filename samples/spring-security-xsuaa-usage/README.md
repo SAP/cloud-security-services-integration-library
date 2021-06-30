@@ -68,6 +68,7 @@ After deployment, the AppRouter will trigger authentication automatically when y
 Have a look into the logs with:
 ```
 cf logs spring-security-xsuaa-usage --recent
+cf logs approuter-spring-security-xsuaa-usage --recent
 ```
 
 > Note: https://spring-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN> points to the url of the AppRouter. Get all app routes with `cf apps`.

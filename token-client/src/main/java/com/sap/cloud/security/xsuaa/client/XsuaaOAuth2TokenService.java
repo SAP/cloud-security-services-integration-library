@@ -13,10 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Nonnull;
@@ -27,17 +24,29 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
 /**
- *
+ * Implementation for Spring applications, that uses {@link RestOperations}.
  */
 public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
-	private RestOperations restOperations;
+	private final RestOperations restOperations;
 
+	/**
+	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)}
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
+	 */
+	@Deprecated
 	public XsuaaOAuth2TokenService() {
 		this(new RestTemplate(), TokenCacheConfiguration.defaultConfiguration());
 	}
 
+	/**
+	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)}
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
+	 */
+	@Deprecated
 	public XsuaaOAuth2TokenService(@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
 		this(new RestTemplate(), tokenCacheConfiguration);
 	}
@@ -82,6 +91,12 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 					ex.getStatusCode(), ex.getResponseBodyAsString());
 			LOGGER.error(warningMsg, ex);
 			throw new OAuth2ServiceException(warningMsg);
+		} catch (ResourceAccessException ex) {
+			String warningMsg = String.format(
+					"RestClient isn't configured properly - Error while obtaining access token from XSUAA: %s",
+					requestUri, ex.getLocalizedMessage());
+			LOGGER.error(warningMsg);
+			throw ex;
 		}
 		LOGGER.debug("Received statusCode {}", responseEntity.getStatusCode());
 
@@ -101,6 +116,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	 *         map.
 	 */
 	private MultiValueMap<String, String> copyIntoForm(Map<String, String> parameters) {
+		@SuppressWarnings("unchecked")
 		MultiValueMap<String, String> formData = new LinkedMultiValueMap();
 		if (parameters != null) {
 			parameters.forEach(formData::add);

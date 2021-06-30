@@ -72,5 +72,4 @@ public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguratio
 		return credentials.getCredentialType();
 	}
 
-
 }

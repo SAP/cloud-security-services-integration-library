@@ -18,14 +18,15 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 /**
- * Creates a {@link CloseableHttpClient} instance. Supports certificate based communication.
+ * Creates a {@link CloseableHttpClient} instance. Supports certificate based
+ * communication.
  */
 public class DefaultHttpClientFactory implements HttpClientFactory {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClientFactory.class);
 
-	public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws ServiceClientException {
-		LOGGER.warn("In productive environment, provide well configured HttpClientFactory service");
+	public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException {
+		LOGGER.warn("In productive environment provide well configured HttpClientFactory service");
 		if (clientIdentity != null && clientIdentity.isCertificateBased()) {
 			LOGGER.debug("Setting up HTTPS client with: certificate: {}\nprivate key: {}\n",
 					clientIdentity.getCertificate(), clientIdentity.getKey());
@@ -35,8 +36,9 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 				sslContext = SSLContextFactory.getInstance().create(clientIdentity.getCertificate(),
 						clientIdentity.getKey());
 			} catch (IOException | GeneralSecurityException e) {
-				throw new ServiceClientException(
-						String.format("Couldn't set up HTTPS client for service provider. %s.%s", e.getMessage(), e));
+				throw new HttpClientException(
+						String.format("Couldn't set up https client for service provider. %s.%s",
+								e.getLocalizedMessage()));
 			}
 			SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
 			return HttpClients.custom()
@@ -44,7 +46,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 					.setSSLSocketFactory(socketFactory)
 					.build();
 		}
-		LOGGER.debug("Setting up default HTTP client");
+		LOGGER.debug("Setting up default http client");
 		return HttpClients.createDefault();
 	}
 }

@@ -23,7 +23,7 @@ The Resource owner password credentials (i.e., username and password) can be use
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.9.0</version>
+    <version>2.10.0</version>
 </dependency>
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
@@ -40,14 +40,14 @@ The `DefaultOAuth2TokenService` should be instantiated with a custom `CloseableH
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new DefaultOAuth2TokenService(<CloseableHttpClient>), 
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), 
+                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.10
                     <OAuth2ServiceConfiguration>.getClientIdentity()));
 ```
 > The `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`.
 
 > `<CloseableHttpClient>` is your custom configured Apache http client.
 
-For X.509 based authentication method you can use preconfigured http client from `HttpClientFactory`, which is not recommended for productive use:
+For X.509 based authentication method you can use preconfigured http client from `HttpClientFactory`, which [default implementation](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) is not recommended for productive use:
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new DefaultOAuth2TokenService(HttpClientFactory.create(<OAuth2ServiceConfiguration>.getClientIdentity())), 
@@ -84,7 +84,7 @@ By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.9.0</version>
+    <version>2.10.0</version>
 </dependency>
 <dependency>
     <groupId>org.springframework</groupId>
@@ -102,7 +102,7 @@ With Spring-Web available `XsuaaTokenFlows` can be instantiated with a `RestTemp
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new XsuaaOAuth2TokenService(<RestOperations>),
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>),
+                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.10
                     <OAuth2ServiceConfiguration>.getClientIdentity());
 ```
 > The `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`.
@@ -110,12 +110,13 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 > `<RestOperations>` is your custom configured Spring http client.
 
 
-For X.509 based authentication method you can use preconfigured SpringHttpClient, which is not recommended for productive use:
+For X.509 based authentication method you can configure Spring's rest client using Apache's http client. You can use preconfigured http client from ```HttpClientFactory```, which [default implementation](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) is not recommended for productive use:
+
 ```java
-XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                    new XsuaaOAuth2TokenService(SpringHttpClient.create(<OAuth2ServiceConfiguration>.getClientIdentity())), 
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), 
-                    <OAuth2ServiceConfiguration>.getClientIdentity());
+// if <OAuth2ServiceConfiguration>.getClientIdentity().isCertificateBased() == true
+HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+requestFactory.setHttpClient(HttpClientFactory.create(<OAuth2ServiceConfiguration>.getClientIdentity()));
+RestOperations restOperations = new RestTemplate(requestFactory);            
 ```
 
 For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key. For `spring-xsuaa` based applications it can be easily done by overriding these values in `application.yml properties file.
@@ -141,7 +142,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.9.0</version>
+    <version>2.10.0</version>
 </dependency>
 <dependency> <!-- required when using Spring Web `RestTemplate` with X.509 authentication method-->
   <groupId>org.apache.httpcomponents</groupId>
@@ -240,15 +241,28 @@ For spring applications using rest template, you can set
 
 ### Common Pitfalls
 
+- As of version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service.` is exposed to the application log in case the default implementation of ``ClosableRestClient`` is used and not overwritten by an own well-defined one. <br> In case you like to overwrite `DefaultHttpClientFactory` you can register your own implementation of `HttpClientFactory` interface as following:
+
+    - Create a SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory.  
+    - Enter the fully qualified name of your `HttpClientFactory` implementation class, e.g. `com.mypackage.CustomHttpClientFactory`.
+    - The implementation could look like:  
+    ````java
+    public class DefaultHttpClientFactory implements HttpClientFactory {
+    
+    	public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException {
+    		// here comes your implementation
+    	}
+    }
+    ````
 - This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library.
 If you have classpath related  issues involving JSON you should take a look at the
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 - `{\"error\":\"unauthorized\",\"error_description\":\"Unable to map issuer, [http://subdomain.localhost:8080/uaa/oauth/token] , to a single registered provider\"}`  
 Token exchange is only supported within the same identity zone/tenant. That means, that you have to call the `/oauth/token` endpoint of the same subdomain, that was used for the original token. This can be achieved by configuring the user token flow the following way:
-````
-tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());`
-````
+    ````
+    tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());
+    ````
 
 - For Spring applications error like:
     ```java
@@ -256,7 +270,9 @@ tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());`
     Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'securityConfiguration': Unsatisfied dependency expressed through field 'xsuaaTokenFlows'
     nested exception is java.lang.NoClassDefFoundError: org/apache/http/client/HttpClient
     ``` 
-    make sure `org.apache.httpcomponents.httpclient` dependency is provided in the POM
+    make sure `org.apache.httpcomponents:httpclient` dependency is provided in the POM.
+
+
 
 ## Samples
 - [Java sample](/samples/java-tokenclient-usage)

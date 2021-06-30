@@ -111,7 +111,12 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	 *            {@link com.sap.cloud.security.config.Environments} in order to
 	 *            load service configuration from the binding information in your
 	 *            environment.
+	 * @deprecated In favor of
+	 *             {{@link #SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration, RestOperations)}}
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
 	 */
+	@Deprecated
 	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration) {
 		this(serviceConfiguration, new RestTemplate());
 	}

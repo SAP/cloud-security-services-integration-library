@@ -19,32 +19,34 @@ import java.util.ServiceLoader;
  * Represents a {@link CloseableHttpClient} creation interface.
  */
 public interface HttpClientFactory {
+	@SuppressWarnings("unchecked")
 	List<HttpClientFactory> services = new ArrayList() {
 		{
 			ServiceLoader.load(HttpClientFactory.class).forEach(this::add);
-			LoggerFactory.getLogger(HttpClientFactory.class).info("loaded HttpClientFactory service providers: {}", this);
+			LoggerFactory.getLogger(HttpClientFactory.class).info("loaded HttpClientFactory service providers: {}",
+					this);
 		}
 	};
 
 	/**
 	 * Provides CloseableHttpClient based on ClientIdentity details. For
 	 * ClientIdentity that is certificate based it will resolve https client using
-	 * the provided ClientIdentity, if the
-	 * ClientIdentity wasn't provided it will return default HttpClient.
+	 * the provided ClientIdentity, if the ClientIdentity wasn't provided it will
+	 * return default HttpClient.
 	 *
 	 * @param clientIdentity
 	 *            for X.509 certificate based communication
 	 *            {@link ClientCertificate} implementation of ClientIdentity
 	 *            interface should be provided
 	 * @return HTTP or HTTPS client
-	 * @throws ServiceClientException
-	 *         in case HTTPS Client could not be setup
+	 * @throws HttpClientException
+	 *             in case HTTPS Client could not be setup
 	 */
-	CloseableHttpClient createClient(ClientIdentity clientIdentity) throws ServiceClientException;
+	CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException;
 
-	static CloseableHttpClient create(ClientIdentity clientIdentity) throws ServiceClientException {
+	static CloseableHttpClient create(ClientIdentity clientIdentity) throws HttpClientException {
 		if (services.isEmpty()) {
-			throw new ProviderNotFoundException("No HttpClientFactory implementation found in the classpath");
+			throw new ProviderNotFoundException("No HttpClientFactory service could be found in the classpath");
 		}
 		return services.get(0).createClient(clientIdentity);
 	}

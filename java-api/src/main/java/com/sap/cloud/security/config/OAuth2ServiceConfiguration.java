@@ -46,7 +46,9 @@ public interface OAuth2ServiceConfiguration {
 	 * 
 	 * @return value of credential-type field
 	 */
-	default CredentialType getCredentialType(){ return null; }
+	default CredentialType getCredentialType() {
+		return null;
+	}
 
 	/**
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
@@ -62,7 +64,7 @@ public interface OAuth2ServiceConfiguration {
 	 * @return cert url, e.g. https://paastenant.cert.idservice.com
 	 */
 	@Nullable
-	default URI getCertUrl(){
+	default URI getCertUrl() {
 		return null;
 	}
 
@@ -71,7 +73,9 @@ public interface OAuth2ServiceConfiguration {
 	 *
 	 * @return list of domain, e.g."idservice.com".
 	 */
-	default List<String> getDomains(){ return Collections.emptyList(); }
+	default List<String> getDomains() {
+		return Collections.emptyList();
+	}
 
 	/**
 	 * Returns the value of the given property as string.

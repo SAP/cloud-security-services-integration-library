@@ -14,7 +14,8 @@ import com.sap.cloud.security.config.ClientIdentity;
  *
  * @deprecated in favor of
  *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService}
- *             API. Will be removed with version 3.0.0.
+ *             API. as it doesn't support certificate based communication. Will
+ *             be removed with version 3.0.0.
  */
 @Deprecated
 public interface TokenBroker {
@@ -33,6 +34,7 @@ public interface TokenBroker {
 	 *             TokenBrokerException
 	 * @deprecated in favor of
 	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaClientCredentialsGrant(URI, ClientIdentity, String, Map)}
+	 *             as it doesn't support certificate based communication.
 	 */
 	@Deprecated
 	String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret)
@@ -55,7 +57,8 @@ public interface TokenBroker {
 	 * @throws TokenBrokerException
 	 *             TokenBrokerException
 	 * @deprecated in favor of
-	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaPasswordGrant(URI, ClientIdentity, String, String, String, Map)}
+	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaPasswordGrant(URI, ClientIdentity, String, String, String, Map)}.
+	 *             as it doesn't support certificate based communication.
 	 */
 	String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret,
 			String username, String password) throws TokenBrokerException;
