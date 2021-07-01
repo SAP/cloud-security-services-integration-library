@@ -904,7 +904,7 @@ class DeployedApp:
 
 
 class CFApp:
-    def __init__(self, name, xsuaa_service_name=None, app_router_name=None, identity_service_name=None):
+    def __init__(self, name, xsuaa_service_name=None, app_router_name=None, identity_service_name=None, security_descriptor=None):
         if name is None:
             raise (Exception('Name must be provided'))
         self.name = name
@@ -912,6 +912,10 @@ class CFApp:
         self.app_router_name = app_router_name
         self.identity_service_name = identity_service_name
         self.ias_access = None
+        if security_descriptor is None:
+            self.security_descriptor = 'xs-security.json'
+        else:
+            self.security_descriptor = security_descriptor
 
     @property
     def working_dir(self):
@@ -921,7 +925,7 @@ class CFApp:
         if self.xsuaa_service_name is not None:
             logging.info("Creating Xsuaa service '{}'".format(self.xsuaa_service_name))
             subprocess.run(
-                ['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', 'xs-security.json'],
+                ['cf', 'create-service', 'xsuaa', 'application', self.xsuaa_service_name, '-c', self.security_descriptor],
                 cwd=self.working_dir, stdout=cf_logs, check=True)
         if self.identity_service_name is not None and self.ias_access is None:
             self.ias_access = IasAccess(self.identity_service_name)
