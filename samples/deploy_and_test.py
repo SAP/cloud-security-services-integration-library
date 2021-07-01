@@ -508,27 +508,26 @@ class HttpUtil:
         return self.__execute(req)
 
     def post_request_x509(self, url, data=None, access_token=None, certificate=None, key=None):
-        f = open("cert.pem", "w")
-        f.write(certificate)
-        f.close()
-        f = open("key.pem", "w")
-        f.write(key)
-        f.close()
+        with open("cert.pem", "w") as cert_pem:
+            cert_pem.write(certificate)
+        with open("key.pem", "w") as key_pem:
+            key_pem.write(key)
         host = url = url.replace("https://", "")
         url_path = '/oauth/token'
 
-        context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        context = ssl.SSLContext(ssl.PROTOCOL_SSLv23) # PROTOCOL_SSLV3 doesn't work
         context.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
 
-        connection = http.client.HTTPSConnection(host, port=443, context=context)
-        connection.request(method="POST", url=url_path, body=data, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        connection = http.client.HTTPSConnection(host, port=443, context=context, timeout=500)
+        connection.set_debuglevel(1)
+        connection.request(method="POST", url=url_path, body=data, headers={'Content-Type': 'application/x-www-form-urlencoded', 'Connection': 'close'})
 
         logging.debug('Performing POST request over mTLS to {} {}'
                       .format(url, 'with access token: ' + access_token if access_token else 'without access token'))
         response = connection.getresponse()
         body_decoded = response.read().decode()
         logging.debug('Response from POST request over mTLS: status {} - data {}'.format(response.status, body_decoded))
-
+        connection.close()
         if response.status == 200:
             return json.loads(body_decoded)
         else:
