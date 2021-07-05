@@ -26,6 +26,7 @@ Once you have familiarized with the checklist, you can go to the [Github issue t
 
  * Real, current bug
  * Not a duplicate
+ * Not covered in "Common Pitfalls" section of corresponding module's README.md e.g. [java-security#common-pitfalls](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/java-security#common-pitfalls)
  * Reproducible
  * Good summary
  * Well-documented
