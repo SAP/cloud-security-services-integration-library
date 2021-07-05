@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.10.1 and 0.3.1 [BETA]
+#### Dependency upgrades
+- spring.security.version 5.5.0 --> 5.5.1
+
 ## 2.10.0 and 0.3.0 [BETA]
 - [java-api] provides `ClientIdentity` with 2 implementations: `ClientCredentials` and `ClientCertificate`
 - [token-client] 
