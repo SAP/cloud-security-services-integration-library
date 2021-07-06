@@ -3,7 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## 2.10.1 and 0.3.1 [BETA]
 #### Dependency upgrades
-- spring.security.version 5.5.0 --> 5.5.1
+- org.springframework.boot:spring-boot 2.5.0 --> 2.5.2
+- org.springframework:spring-core 5.3.7 --> 5.3.8
+- org.springframework.security:spring-security-oauth2-jose 5.5.0 --> 5.5.1
+- org.springframework.security:spring-security-oauth2-resource-server 5.5.0 --> 5.5.1
+- org.springframework.security:spring-security-oauth2-jose 5.5.0 --> 5.5.1
+- org.springframework.security:spring-boot-starter-test 5.5.0 --> 5.5.1
+- org.springframework.security.oauth:spring-security-oauth2 2.5.0.RELEASE --> 2.5.1.RELEASE
+
 
 ## 2.10.0 and 0.3.0 [BETA]
 - [java-api] provides `ClientIdentity` with 2 implementations: `ClientCredentials` and `ClientCertificate`
