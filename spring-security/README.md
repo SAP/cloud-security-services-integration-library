@@ -1,4 +1,4 @@
-# SAP CP Spring Security Client Library - Version 0.3.0 [BETA]
+# SAP CP Spring Security Client Library - Version 0.3.1 [BETA]
 
 Token Validation for Spring Boot applications. It integrates [```java-security```](/java-security) to Spring Security Framework to support validations for tokens issued by these SAP Cloud Platform identity services: `xsuaa` and `identity`.
 
@@ -34,7 +34,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>0.3.0</version> <!-- TODO-->
+    <version>0.3.1</version> <!-- TODO-->
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
