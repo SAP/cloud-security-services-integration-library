@@ -6,6 +6,7 @@ Source: https://github.com/SAP/cloud-security-xsuaa-integration
 Files:
     README.md
     CHANGELOG.md
+    CONTRIBUTING.md
     **/*.md
     docs/*
     .gitignore
