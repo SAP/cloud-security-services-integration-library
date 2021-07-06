@@ -9,13 +9,13 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>2.10.0</version>
+		<version>2.10.1</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
 	<artifactId>spring-security</artifactId>
 	<packaging>jar</packaging>
-	<version>0.3.0</version>
+	<version>0.3.1</version>
 
 	<dependencies>
 		<dependency>
@@ -34,12 +34,12 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency><!-- remove this -->
+		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-api</artifactId>
 			<version>${project.parent.version}</version> <!-- TODO when spring-security provides GA release -->
 		</dependency>
-		<dependency>
+		<dependency><!-- remove this -->
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security</artifactId>
 			<version>${project.parent.version}</version> <!-- TODO when spring-security provides GA release -->

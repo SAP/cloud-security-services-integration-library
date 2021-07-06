@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
 - org.springframework.security:spring-security-oauth2-jose 5.5.0 --> 5.5.1
 - org.springframework.security:spring-boot-starter-test 5.5.0 --> 5.5.1
 - org.springframework.security.oauth:spring-security-oauth2 2.5.0.RELEASE --> 2.5.1.RELEASE
-
+- [samples] Upgraded [approuter](https://www.npmjs.com/package/@sap/approuter) version to "^10.4.3"
 
 ## 2.10.0 and 0.3.0 [BETA]
 - [java-api] provides `ClientIdentity` with 2 implementations: `ClientCredentials` and `ClientCertificate`
