@@ -213,7 +213,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					return cachedToken;
 				} else {
 					String token;
-					if (tokenBroker == null) {
+					if (oAuth2TokenService != null) {
 						token = oAuth2TokenService.retrieveAccessTokenViaPasswordGrant(URI.create(oauthTokenUrl),
 								clientIdentity, userCredentialsFromHeader.getId(),
 								userCredentialsFromHeader.getSecret(), null, null, false).getAccessToken();
@@ -242,7 +242,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					return cachedToken;
 				} else {
 					String token;
-					if (tokenBroker == null) {
+					if (oAuth2TokenService != null) {
 						token = oAuth2TokenService.retrieveAccessTokenViaClientCredentialsGrant(
 								URI.create(oauthTokenUrl), clientIdentity, null, null,
 								null, false).getAccessToken();
@@ -251,8 +251,8 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 						token = tokenBroker
 								.getAccessTokenFromClientCredentials(oauthTokenUrl, clientCredentialsFromHeader.getId(),
 										clientCredentialsFromHeader.getSecret());
-						tokenCache.put(cacheKey, token);
 					}
+					tokenCache.put(cacheKey, token);
 					return token;
 				}
 			}
