@@ -12,6 +12,7 @@ import com.sap.cloud.security.config.CredentialType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 
 @Configuration
@@ -68,7 +69,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Override
 	public ClientIdentity getClientIdentity() {
 		if (getCredentialType() == CredentialType.X509) {
-			return new ClientCertificate(certificate, privateKey, getClientId());
+			return new ClientCertificate(certificate, getPrivateKey(), getClientId());
 		}
 		return new ClientCredentials(getClientId(), getClientSecret());
 	}
@@ -101,5 +102,13 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Override
 	public URI getCertUrl() {
 		return URI.create(certUrl);
+	}
+
+	@Nullable
+	private String getPrivateKey() {
+		if (privateKey == null){
+			privateKey = System.getenv("XSUAA_KEY");
+		}
+		return privateKey;
 	}
 }

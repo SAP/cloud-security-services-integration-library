@@ -68,7 +68,6 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     clientIdentity);
 ```
 
-
 ##### Cache
 
 By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache can be configured by providing an
@@ -119,12 +118,22 @@ requestFactory.setHttpClient(HttpClientFactory.create(<OAuth2ServiceConfiguratio
 RestOperations restOperations = new RestTemplate(requestFactory);            
 ```
 
-For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key. For `spring-xsuaa` based applications it can be easily done by overriding these values in `application.yml properties file.
-```yaml
-# For externally managed X.509 certificate
-xsuaa:
-  key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
-```
+For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key. For `spring-xsuaa` based applications it can be easily done by providing `xsuaa.key` value as a command-line argument or System environment variable.
+- Executable jar
+    ```shell script
+    java -jar your-app.jar --xsuaa.key=-----BEGIN RSA PRIVATE KEY-----
+    ```
+- System environment variable
+    ```shell script
+        XSUAA_KEY=-----BEGIN RSA PRIVATE KEY-----
+    ```
+
+- For testing purposes `key` can be overwritten in `application.yml properties file.
+    ```yaml
+    # For externally managed X.509 certificate
+    xsuaa:
+      key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
+    ```
 
 ##### Cache
 
@@ -168,12 +177,22 @@ To consume the `XsuaaTokenFlows` class, you simply need to `@Autowire` it like t
 private XsuaaTokenFlows xsuaaTokenFlows;
 ```
 
-For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key. For `spring-xsuaa` based applications it can be easily done by overriding these values in `application.yml properties file.
-```yaml
-# For externally managed X.509 certificate
-xsuaa:
-  key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
-```
+For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key. For `spring-xsuaa` based applications it can be easily done by providing `xsuaa.key` value as a command-line argument or System environment variable.
+- Spring Boot 2.x
+    ```shell script
+    mvn spring-boot:run -Dspring-boot.run.arguments=--xsuaa.key=-----BEGIN RSA PRIVATE KEY-----
+    ```
+- System environment variable
+    ```shell script
+        XSUAA_KEY=-----BEGIN RSA PRIVATE KEY-----
+    ```
+
+- For testing purposes `key` can be overwritten in `application.yml properties file.
+    ```yaml
+    # For externally managed X.509 certificate
+    xsuaa:
+      key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
+    ```
 
 ## Usage
 The `XsuaaTokenFlows` provides a builder-pattern API that allows applications to easily create and execute each flow, guiding developers to only set properties that are relevant for the respective token flow.
