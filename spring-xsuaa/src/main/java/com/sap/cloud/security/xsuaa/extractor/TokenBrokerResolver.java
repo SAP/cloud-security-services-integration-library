@@ -213,11 +213,12 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					return cachedToken;
 				} else {
 					String token;
-					if (tokenBroker == null){
-						token = oAuth2TokenService.retrieveAccessTokenViaPasswordGrant(URI.create(oauthTokenUrl), clientIdentity, userCredentialsFromHeader.getId(),
+					if (tokenBroker == null) {
+						token = oAuth2TokenService.retrieveAccessTokenViaPasswordGrant(URI.create(oauthTokenUrl),
+								clientIdentity, userCredentialsFromHeader.getId(),
 								userCredentialsFromHeader.getSecret(), null, null, false).getAccessToken();
 					} else {
-						//only when deprecated constructors are used, for backward compatibility
+						// only when deprecated constructors are used, for backward compatibility
 						token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl,
 								clientIdentity.getId(),
 								clientIdentity.getSecret(), userCredentialsFromHeader.getId(),
@@ -241,11 +242,12 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					return cachedToken;
 				} else {
 					String token;
-					if (tokenBroker == null){
-						token = oAuth2TokenService.retrieveAccessTokenViaClientCredentialsGrant(URI.create(oauthTokenUrl), clientIdentity, null, null,
+					if (tokenBroker == null) {
+						token = oAuth2TokenService.retrieveAccessTokenViaClientCredentialsGrant(
+								URI.create(oauthTokenUrl), clientIdentity, null, null,
 								null, false).getAccessToken();
 					} else {
-						//only when deprecated constructors are used, for backward compatibility
+						// only when deprecated constructors are used, for backward compatibility
 						token = tokenBroker
 								.getAccessTokenFromClientCredentials(oauthTokenUrl, clientCredentialsFromHeader.getId(),
 										clientCredentialsFromHeader.getSecret());
