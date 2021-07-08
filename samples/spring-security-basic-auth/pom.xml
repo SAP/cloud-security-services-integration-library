@@ -21,6 +21,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<sap.cloud.security.version>2.10.1</sap.cloud.security.version>
+		<apache.httpclient.version>4.5.13</apache.httpclient.version>
 	</properties>
 
 	<dependencies>
@@ -36,6 +37,11 @@
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>xsuaa-spring-boot-starter</artifactId>
 			<version>${sap.cloud.security.version}</version>
+		</dependency>
+		<dependency> <!-- required when using Spring Web `RestTemplate` with X.509 authentication method-->
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${apache.httpclient.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
