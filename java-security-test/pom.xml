@@ -18,21 +18,8 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<jetty.version>9.4.39.v20210325</jetty.version>
 		<wiremock.version>2.27.2</wiremock.version>
 	</properties>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-bom</artifactId>
-				<version>${jetty.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<dependencies>
         <dependency>
