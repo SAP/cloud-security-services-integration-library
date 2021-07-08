@@ -118,32 +118,7 @@ requestFactory.setHttpClient(HttpClientFactory.create(<OAuth2ServiceConfiguratio
 RestOperations restOperations = new RestTemplate(requestFactory);            
 ```
 
-For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key and `xsuaaTokenFlows` bean needs to be overwritten using this `ClientCertificate` instance. For `spring-xsuaa` or `spring-security` based applications it can be also done by providing `key` value as a command-line argument.
-
-- Command-line argument
-    ```shell script
-    #spring-xsuaa
-    java -jar your-app.jar --xsuaa.key=-----BEGIN RSA PRIVATE KEY-----
-  
-    #spring-security
-    java -jar your-app.jar --sap.security.services.xsuaa.key=-----BEGIN RSA PRIVATE KEY-----
-    ```
-
-- For **testing purposes only** `key` can be overwritten in `application.yml properties file.
-    ```yaml
-    # For externally managed X.509 certificate
-    # spring-xsuaa
-    xsuaa:
-      key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
-    
-    # spring-security
-    sap:
-      security:
-        services:
-              xsuaa:
-                  key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
-  ```
-:exclamation: **DO NOT** disclose your key or secret in publicly available places e.g. repository in github.com
+For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key and this needs to be passed as argument to the `XsuaaTokenFlows` constructor as described for Java applications [above](t#xsuaatokenflows-initialization).
 
 ##### Cache
 
