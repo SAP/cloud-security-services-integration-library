@@ -162,7 +162,7 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, ZONE_ID);
 		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "not-seen-yet", TOKEN_KEYS_URI, ZONE_ID);
 
-		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), eq(ZONE_ID));
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(ZONE_ID));
 	}
 
 	@Test
@@ -174,6 +174,23 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), any());
 		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(ZONE_ID));
 		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(ZONE_ID + "-2"));
+	}
+
+	@Test
+	public void retrieveTokenKeysForAnotherInvalidZoneId()
+			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), eq("invalid-zone")))
+				.thenThrow(new OAuth2ServiceException("Invalid zone_uuid provided"));
+		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, ZONE_ID);
+
+		assertThatThrownBy(() -> {
+			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "invalid-zone");
+		}).isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
+		assertThatThrownBy(() -> {
+			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "invalid-zone");
+		}).isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
+
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq("invalid-zone"));
 	}
 
 	@Test
