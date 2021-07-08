@@ -146,20 +146,12 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 *            the Token Key Uri (jwks) of the Access Token (can be tenant
 	 *            specific).
 	 * @return a PublicKey
-	 * @throws OAuth2ServiceException
-	 *             in case the call to the jwks endpoint of the identity service
-	 *             failed.
-	 * @throws InvalidKeySpecException
-	 *             in case the PublicKey generation for the json web key failed.
-	 * @throws NoSuchAlgorithmException
-	 *             in case the algorithm of the json web key is not supported.
 	 * @deprecated in favor of
 	 *             {@link #getPublicKey(JwtSignatureAlgorithm, String, URI, String)}
 	 */
 	@Nullable
 	@Deprecated
-	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri)
-			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri) {
 		throw new UnsupportedOperationException("use getPublicKey(keyAlgorithm, keyId, keyUri, zoneId) instead");
 	}
 
@@ -220,6 +212,14 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 					duration.getSeconds(), currentDuration.getSeconds());
 			duration = currentDuration;
 		}
+		if (duration.getSeconds() > 900) {
+			Duration currentDuration = getCacheConfiguration().getCacheDuration();
+			LOGGER.error(
+					"Tried to set cache duration to {} seconds but the cache duration must be maximum 900 seconds."
+							+ " Cache duration will remain at: {} seconds",
+					duration.getSeconds(), currentDuration.getSeconds());
+			duration = currentDuration;
+		}
 		return TokenKeyCacheConfiguration.getInstance(duration, size, cacheConfiguration.isCacheStatisticsEnabled());
 	}
 
@@ -227,9 +227,6 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		JsonWebKeySet keySet = JsonWebKeySetFactory
 				.createFromJson(getTokenKeyService().retrieveTokenKeys(jwksUri, zoneId));
-		if (keySet == null) {
-			return;
-		}
 		Set<JsonWebKey> jwks = keySet.getAll();
 		for (JsonWebKey jwk : jwks) {
 			getCache().put(getUniqueCacheKey(jwk.getKeyAlgorithm(), jwk.getId(), jwksUri, zoneId), jwk.getPublicKey());

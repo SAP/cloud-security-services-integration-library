@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 class JsonWebKeySet {
 
-	private Set<JsonWebKey> jsonWebKeys;
+	private final Set<JsonWebKey> jsonWebKeys;
 
 	JsonWebKeySet() {
 		jsonWebKeys = new HashSet<>();
