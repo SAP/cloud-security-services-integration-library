@@ -162,11 +162,8 @@ To consume the `XsuaaTokenFlows` class, you simply need to `@Autowire` it like t
 private XsuaaTokenFlows xsuaaTokenFlows;
 ```
 
-For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key and `xsuaaTokenFlows` bean needs to be overwritten using this `ClientCertificate` instance. For `spring-xsuaa` or `spring-security` based applications it can be also done by providing `key` value as a command-line argument or programmatically providing default property.
-- Spring Boot 2.x
-    ```shell script
-    mvn spring-boot:run -Dspring-boot.run.arguments=--xsuaa.key=-----BEGIN RSA PRIVATE KEY-----
-    ```
+For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key and `xsuaaTokenFlows` bean needs to be overwritten using this `ClientCertificate` instance. <br>Alternatively you can provide the certificate key property as command-line argument or programmatically providing default property.
+
 - Default property
     ```java
   @SpringBootApplication
@@ -176,10 +173,8 @@ For X.509 based authentication method using an externally managed certificate, `
           SpringApplication application = new SpringApplication(Application.class);
           Properties properties = new Properties();
           
-          //for spring-xsuaa
-          properties.put("xsuaa.key", "-----BEGIN RSA PRIVATE KEY-----");
-          //for spring-security
-          properties.put("sap.security.services.xsuaa.key", "-----BEGIN RSA PRIVATE KEY-----");
+          properties.put("xsuaa.key", "-----BEGIN RSA PRIVATE KEY-----"); // when using spring-xsuaa
+          properties.put("sap.security.services.xsuaa.key", "-----BEGIN RSA PRIVATE KEY-----"); // when using spring-security
           
           application.setDefaultProperties(properties);
           application.run(args);
@@ -188,12 +183,15 @@ For X.509 based authentication method using an externally managed certificate, `
   }
     ```
   
-- For **testing purposes only** `key` can be overwritten in `application.yml properties file.
+- For **testing purposes only** `key` can be overwritten in `application.yml` properties file.
     ```yaml
-    # For externally managed X.509 certificate
+    # spring-xsuaa
     xsuaa:
       key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
-    ```
+    # spring-security
+    sap.security.services.xsuaa:
+      key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
+  ```
 :exclamation: **DO NOT** disclose your key or secret in publicly available places e.g. repository in github.com
 
 ## Usage
