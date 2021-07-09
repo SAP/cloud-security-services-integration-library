@@ -1,4 +1,4 @@
-# Migration Guide for Applications that use spring-xsuaa Security Client Library - Version 0.2.* [BETA]
+# Migration Guide for Applications that use spring-xsuaa Security Client Library
 
 This migration guide is a step-by-step guide explaining how to replace the [`spring-xsuaa`](/spring-xsuaa) with this ``spring-security``(/spring-security) Security client library.
 

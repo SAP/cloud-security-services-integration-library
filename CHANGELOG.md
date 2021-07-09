@@ -1,9 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.10.2 and 0.3.2 [BETA]
+## 2.10.2
+- [spring-security] and starter are released with project version: ``2.10.2``.
 - [spring-xsuaa] `TokenBrokerResolver` supports X.509 authentication method. 
 - [samples/spring-security-basic-auth] deprecates the xsuaa security descriptor with a client secret authentication, default now is X.509 based authentication.
+- [java-security-test] requires ``javax.servlet:javax.servlet-api`` dependency to be provided.
 
 ## 2.10.1 and 0.3.1 [BETA]
 #### Dependency upgrades
