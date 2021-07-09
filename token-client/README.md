@@ -162,7 +162,7 @@ To consume the `XsuaaTokenFlows` class, you simply need to `@Autowire` it like t
 private XsuaaTokenFlows xsuaaTokenFlows;
 ```
 
-For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key and `xsuaaTokenFlows` bean needs to be overwritten using this `ClientCertificate` instance. <br>Alternatively you can provide the certificate key property as command-line argument or programmatically providing default property.
+For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key and `xsuaaTokenFlows` bean needs to be overwritten using this `ClientCertificate` instance. <br>Alternatively you can provide the certificate key property programmatically by defining default property.
 
 - Default property
     ```java
