@@ -269,15 +269,13 @@ public class XsuaaToken extends Jwt implements Token {
 
 		// convert JSONArray to String[]
 		JSONArray attributeJsonArray = new JSONArray((ArrayList) claimMap.get(attributeName));
-		if (attributeJsonArray != null) {
-			attributeValues = new String[attributeJsonArray.length()];
-			for (int i = 0; i < attributeJsonArray.length(); i++) {
-				attributeValues[i] = (String) attributeJsonArray.get(i);
-			}
+		attributeValues = new String[attributeJsonArray.length()];
+		for (int i = 0; i < attributeJsonArray.length(); i++) {
+			attributeValues[i] = (String) attributeJsonArray.get(i);
 		}
 
-		if (attributeValues == null) {
-			logger.debug("Attribute '{}' in claim '{}' not found. Returning null.", attributeName, claimName);
+		if (attributeValues.length == 0) {
+			logger.debug("Attribute '{}' in claim '{}' not found. Returning empty list.", attributeName, claimName);
 			return attributeValues;
 		}
 
