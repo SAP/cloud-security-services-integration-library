@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.10.3
+#### Dependency upgrades
+- slf4j-api 1.7.30 --> 1.7.31
+- caffeine 2.8.8 --> 2.9.2
+- removed com.squareup.okhttp3:mockwebserver from parent pom.xml
+
 ## 2.10.2
 - [spring-security] and starter are released with project version: ``2.10.2``.
 - [spring-xsuaa] `TokenBrokerResolver` supports X.509 authentication method. 
