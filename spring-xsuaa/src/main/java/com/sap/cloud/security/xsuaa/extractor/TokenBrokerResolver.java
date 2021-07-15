@@ -7,6 +7,7 @@ package com.sap.cloud.security.xsuaa.extractor;
 
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -164,7 +165,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	}
 
 	private String getOAuthTokenUrl(HttpServletRequest request) {
-		String uaaUrl = configuration.getUaaUrl();
+		String uaaUrl = configuration.getCredentialType() == CredentialType.X509 ? String.valueOf(configuration.getCertUrl()) : configuration.getUaaUrl();
 		String uaaDomain = configuration.getUaaDomain();
 
 		Optional<String> subdomainResult = authenticationConfig.getSubdomain(request);

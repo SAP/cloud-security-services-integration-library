@@ -23,7 +23,7 @@ The Resource owner password credentials (i.e., username and password) can be use
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.10.1</version>
+    <version>2.10.2</version>
 </dependency>
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
@@ -68,7 +68,6 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     clientIdentity);
 ```
 
-
 ##### Cache
 
 By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache can be configured by providing an
@@ -84,7 +83,7 @@ By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.10.1</version>
+    <version>2.10.2</version>
 </dependency>
 <dependency>
     <groupId>org.springframework</groupId>
@@ -119,12 +118,7 @@ requestFactory.setHttpClient(HttpClientFactory.create(<OAuth2ServiceConfiguratio
 RestOperations restOperations = new RestTemplate(requestFactory);            
 ```
 
-For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key. For `spring-xsuaa` based applications it can be easily done by overriding these values in `application.yml properties file.
-```yaml
-# For externally managed X.509 certificate
-xsuaa:
-  key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
-```
+For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key and this needs to be passed as argument to the `XsuaaTokenFlows` constructor as described for Java applications [above](t#xsuaatokenflows-initialization).
 
 ##### Cache
 
@@ -142,7 +136,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.10.1</version>
+    <version>2.10.2</version>
 </dependency>
 <dependency> <!-- required when using Spring Web `RestTemplate` with X.509 authentication method-->
   <groupId>org.apache.httpcomponents</groupId>
@@ -168,12 +162,37 @@ To consume the `XsuaaTokenFlows` class, you simply need to `@Autowire` it like t
 private XsuaaTokenFlows xsuaaTokenFlows;
 ```
 
-For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key. For `spring-xsuaa` based applications it can be easily done by overriding these values in `application.yml properties file.
-```yaml
-# For externally managed X.509 certificate
-xsuaa:
-  key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
-```
+For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key and `xsuaaTokenFlows` bean needs to be overwritten using this `ClientCertificate` instance. <br>Alternatively you can provide the certificate key property programmatically by defining default property.
+
+- Default property
+    ```java
+  @SpringBootApplication
+  public class Application {
+      public static void main(String[] args) {
+          
+          SpringApplication application = new SpringApplication(Application.class);
+          Properties properties = new Properties();
+          
+          properties.put("xsuaa.key", "-----BEGIN RSA PRIVATE KEY-----"); // when using spring-xsuaa
+          properties.put("sap.security.services.xsuaa.key", "-----BEGIN RSA PRIVATE KEY-----"); // when using spring-security
+          
+          application.setDefaultProperties(properties);
+          application.run(args);
+          
+      }
+  }
+    ```
+  
+- For **testing purposes only** `key` can be overwritten in `application.yml` properties file.
+    ```yaml
+    # spring-xsuaa
+    xsuaa:
+      key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
+    # spring-security
+    sap.security.services.xsuaa:
+      key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
+  ```
+:exclamation: **DO NOT** disclose your key or secret in publicly available places e.g. repository in github.com
 
 ## Usage
 The `XsuaaTokenFlows` provides a builder-pattern API that allows applications to easily create and execute each flow, guiding developers to only set properties that are relevant for the respective token flow.
