@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 #### Dependency upgrades
 - slf4j-api 1.7.30 --> 1.7.31
 - caffeine 2.8.8 --> 2.9.2
-- removed com.squareup.okhttp3:mockwebserver from parent pom.xml
+- mockito 3.10.0 --> 3.11.2
+- assertj 3.19.0 --> 3.20.2
+- commons.io 2.9.0 --> 2.10.0
+- removes mockwebserver from parent
 
 ## 2.10.2
 - [spring-security] and starter are released with project version: ``2.10.2``.
