@@ -37,7 +37,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 						clientIdentity.getKey());
 			} catch (IOException | GeneralSecurityException e) {
 				throw new HttpClientException(
-						String.format("Couldn't set up https client for service provider. %s.%s",
+						String.format("Couldn't set up https client for service provider. %s.",
 								e.getLocalizedMessage()));
 			}
 			SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
