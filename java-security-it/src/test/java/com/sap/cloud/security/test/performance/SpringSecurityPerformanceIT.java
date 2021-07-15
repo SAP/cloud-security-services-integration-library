@@ -5,7 +5,9 @@
  */
 package com.sap.cloud.security.test.performance;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
 import com.sap.cloud.security.test.SecurityTest;
 import com.sap.cloud.security.test.performance.util.BenchmarkUtil;
@@ -16,18 +18,18 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Performance test for spring-xsuaa jwt token validation.
  */
-public class SpringSecurityPerformanceIT {
+class SpringSecurityPerformanceIT {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpringSecurityPerformanceIT.class);
 	private static SecurityTest securityTest;
@@ -37,6 +39,7 @@ public class SpringSecurityPerformanceIT {
 		LOGGER.debug(BenchmarkUtil.getSystemInfo());
 		securityTest = new SecurityTest(XSUAA).setKeys("/publicKey.txt", "/privateKey.txt");
 		securityTest.setup();
+		LOGGER.debug(BenchmarkUtil.getSystemInfo());
 	}
 
 	@AfterAll
@@ -45,9 +48,8 @@ public class SpringSecurityPerformanceIT {
 	}
 
 	@Test
-	public void onlineValidation() throws Exception {
+	void onlineValidation() {
 		String token = securityTest.createToken().getTokenValue();
-		new JwtDecoderBuilder().withXsuaaServiceConfiguration(OAuth2ServiceConfigurationBuilder.);
 		JwtDecoder jwtDecoder = createOnlineJwtDecoder();
 		assertThat(jwtDecoder.decode(token)).isNotNull();
 
@@ -56,7 +58,7 @@ public class SpringSecurityPerformanceIT {
 	}
 
 	@Test
-	public void offlineValidation() throws Exception {
+	void offlineValidation() throws Exception {
 		String token = securityTest.createToken().getTokenValue();
 		JwtDecoder jwtDecoder = createOfflineJwtDecoder();
 		assertThat(jwtDecoder.decode(token)).isNotNull();
@@ -65,37 +67,32 @@ public class SpringSecurityPerformanceIT {
 		LOGGER.info("Offline validation result: {}", result.toString());
 	}
 
-	private JwtDecoder createOnlineJwtDecoder_old() {
-		//XsuaaServiceConfigurationCustom configuration = new XsuaaServiceConfigurationCustom(createXsuaaCredentials());
-		//JwtDecoder jwtDecoder = new XsuaaJwtDecoderBuilder(configuration).build();
-		//return jwtDecoder;
-	}
-
 	private JwtDecoder createOnlineJwtDecoder() {
-		com.sap.cloud.security.spring.token.authentication.
-	}
-/*
-	private JwtDecoder createOfflineJwtDecoder() throws IOException {
-		final XsuaaCredentials xsuaaCredentials = createXsuaaCredentials();
-		// Workaround because RestOperations cannot easily be switched off
-		xsuaaCredentials.setUaaDomain("__nonExistingUaaDomainForOfflineTesting__");
-		final String publicKey = IOUtils.resourceToString("/publicKey.txt", StandardCharsets.UTF_8);
-		final XsuaaServiceConfiguration xsuaaConfig = new XsuaaServiceConfigurationCustom(xsuaaCredentials) {
-			@Override
-			public String getVerificationKey() {
-				return publicKey.replace("\n", "");
-			}
-		};
-		return new XsuaaJwtDecoderBuilder(xsuaaConfig).build();
+		OAuth2ServiceConfiguration configuration = createXsuaaConfigurationBuilder().build();
+		return new JwtDecoderBuilder().withXsuaaServiceConfiguration(configuration).build();
 	}
 
-	private XsuaaCredentials createXsuaaCredentials() {
-		XsuaaCredentials xsuaaCredentials = new XsuaaCredentials();
-		xsuaaCredentials.setUaaDomain(SecurityTest.DEFAULT_DOMAIN);
-		xsuaaCredentials.setClientId(SecurityTest.DEFAULT_CLIENT_ID);
-		xsuaaCredentials.setXsAppName(SecurityTest.DEFAULT_APP_ID);
-		return xsuaaCredentials;
+	private JwtDecoder createOfflineJwtDecoder() throws IOException {
+		final String publicKey = IOUtils.resourceToString("/publicKey.txt", StandardCharsets.UTF_8)
+				.replace("\n", "");
+		OAuth2ServiceConfiguration configuration = createXsuaaConfigurationBuilder()
+				.withDomains("__nonExistingUaaDomainForOfflineTesting__")
+				.withProperty("verificationkey", publicKey)
+				.build();
+		return new JwtDecoderBuilder().withXsuaaServiceConfiguration(configuration).build();
 	}
-*/
+
+	private OAuth2ServiceConfigurationBuilder createXsuaaConfigurationBuilder() {
+		return OAuth2ServiceConfigurationBuilder.forService(XSUAA)
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTest.DEFAULT_DOMAIN)
+				.withProperty(CFConstants.XSUAA.APP_ID, SecurityTest.DEFAULT_APP_ID)
+				.withClientId(SecurityTest.DEFAULT_CLIENT_ID);
+	}
+
+	private OAuth2ServiceConfigurationBuilder createIasConfigurationBuilder() {
+		return OAuth2ServiceConfigurationBuilder.forService(IAS)
+				.withDomains(SecurityTest.DEFAULT_DOMAIN)
+				.withClientId(SecurityTest.DEFAULT_CLIENT_ID);
+	}
 }
 

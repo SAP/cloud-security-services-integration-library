@@ -71,7 +71,6 @@
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>spring-security</artifactId>
-            <version>0.3.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Performance test for java-security jwt token validation.
  */
-public class JavaSecurityPerformanceIT {
+class JavaSecurityPerformanceIT {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JavaSecurityPerformanceIT.class);
 	private static SecurityTest securityTest;
@@ -50,7 +50,7 @@ public class JavaSecurityPerformanceIT {
 	}
 
 	@Test
-	public void onlineValidation() throws Exception {
+	void onlineValidation() {
 		Token token = securityTest.createToken();
 		CombiningValidator<Token> tokenValidator = createOnlineTokenValidator();
 		ValidationResult validationResult = tokenValidator.validate(token);
@@ -62,7 +62,7 @@ public class JavaSecurityPerformanceIT {
 	}
 
 	@Test
-	public void offlineValidation() throws Exception {
+	void offlineValidation() throws Exception {
 		Token token = securityTest.createToken();
 		CombiningValidator<Token> tokenValidator = createOfflineTokenValidator();
 		ValidationResult validationResult = tokenValidator.validate(token);
