@@ -101,7 +101,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		Properties properties = new Properties();
 		if (environment.getIasConfiguration() != null) {
 			for (String key : IAS_ATTRIBUTES) {
-				if (environment.getIasConfiguration().hasProperty(key)) {
+				if (environment.getIasConfiguration().hasProperty(key)) { // will not find "domains" among properties
 					properties.put(IAS_PREFIX + key, environment.getIasConfiguration().getProperty(key));
 				}
 			}
