@@ -17,7 +17,7 @@
 	<description>DEPRECATED in favor of com.sap.cloud.security:java-security-test</description>
 	<packaging>jar</packaging>
 	<properties>
-		<mockwebserver.version>3.9.1</mockwebserver.version>
+		<mockwebserver.version>4.9.1</mockwebserver.version>
 	</properties>
 
 	<dependencies>
