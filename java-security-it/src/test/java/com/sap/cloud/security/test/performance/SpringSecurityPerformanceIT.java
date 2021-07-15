@@ -33,12 +33,15 @@ class SpringSecurityPerformanceIT {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpringSecurityPerformanceIT.class);
 	private static SecurityTest securityTest;
+	private static SecurityTest securityIasTest;
 
 	@BeforeAll
 	static void setUp() throws Exception {
 		LOGGER.debug(BenchmarkUtil.getSystemInfo());
 		securityTest = new SecurityTest(XSUAA).setKeys("/publicKey.txt", "/privateKey.txt");
 		securityTest.setup();
+		securityIasTest = new SecurityTest(IAS).setKeys("/publicKey.txt", "/privateKey.txt");
+		securityIasTest.setup();
 		LOGGER.debug(BenchmarkUtil.getSystemInfo());
 	}
 
@@ -54,10 +57,20 @@ class SpringSecurityPerformanceIT {
 		assertThat(jwtDecoder.decode(token)).isNotNull();
 
 		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> jwtDecoder.decode(token));
-		LOGGER.info("Online validation result: {}", result.toString());
+		LOGGER.info("Online validation result (xsuaa): {}", result.toString());
 	}
 
 	@Test
+	void onlineIasValidation() {
+		String token = securityIasTest.createToken().getTokenValue();
+		JwtDecoder jwtDecoder = createOnlineJwtDecoder();
+		assertThat(jwtDecoder.decode(token)).isNotNull();
+
+		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> jwtDecoder.decode(token));
+		LOGGER.info("Online validation result (identity): {}", result.toString());
+	}
+
+	// @Test
 	void offlineValidation() throws Exception {
 		String token = securityTest.createToken().getTokenValue();
 		JwtDecoder jwtDecoder = createOfflineJwtDecoder();
@@ -68,18 +81,20 @@ class SpringSecurityPerformanceIT {
 	}
 
 	private JwtDecoder createOnlineJwtDecoder() {
-		OAuth2ServiceConfiguration configuration = createXsuaaConfigurationBuilder().build();
-		return new JwtDecoderBuilder().withXsuaaServiceConfiguration(configuration).build();
+		return new JwtDecoderBuilder()
+				.withIasServiceConfiguration(createIasConfigurationBuilder().build())
+				.withXsuaaServiceConfiguration(createXsuaaConfigurationBuilder().build()).build();
 	}
 
 	private JwtDecoder createOfflineJwtDecoder() throws IOException {
 		final String publicKey = IOUtils.resourceToString("/publicKey.txt", StandardCharsets.UTF_8)
 				.replace("\n", "");
 		OAuth2ServiceConfiguration configuration = createXsuaaConfigurationBuilder()
-				.withDomains("__nonExistingUaaDomainForOfflineTesting__")
 				.withProperty("verificationkey", publicKey)
 				.build();
-		return new JwtDecoderBuilder().withXsuaaServiceConfiguration(configuration).build();
+		return new JwtDecoderBuilder()
+				.withIasServiceConfiguration(createIasConfigurationBuilder().build())
+				.withXsuaaServiceConfiguration(configuration).build();
 	}
 
 	private OAuth2ServiceConfigurationBuilder createXsuaaConfigurationBuilder() {

@@ -69,8 +69,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.security</groupId>
-            <artifactId>spring-security</artifactId>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
