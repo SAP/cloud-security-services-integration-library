@@ -14,7 +14,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -181,7 +180,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getSubaccountIdFromSystemAttributes() throws IOException {
+	public void getSubaccountIdFromSystemAttributes() {
 		Token token = new XsuaaToken(jwtSaml);
 		assertThat(token.getSubaccountId(), is("test-subaccount"));
 	}
@@ -263,6 +262,13 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
+	public void getXsUserAttributeValuesFails() {
+		Token token = new XsuaaToken(jwtSaml);
+		String[] userAttrValues = token.getXSUserAttribute("costcenter");
+		assertThat(userAttrValues.length, is(0));
+	}
+
+	@Test
 	public void getServiceInstanceIdFromExtAttr() {
 		claimsSetBuilder.claim(XsuaaToken.CLAIM_EXTERNAL_ATTR, new SamlExternalAttrClaim());
 
@@ -279,6 +285,14 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
+	public void getSubdomainFails() {
+		assertThat(createToken(claimsSetBuilder).getSubdomain(), nullValue());
+
+		claimsSetBuilder.claim(XsuaaToken.CLAIM_EXTERNAL_ATTR, new AdditionalAuthorizationAttrClaim());
+		assertThat(createToken(claimsSetBuilder).getSubdomain(), nullValue());
+	}
+
+	@Test
 	public void getSomeAdditionalAttributeValueFromAuthorizationAttr() {
 		claimsSetBuilder.claim(XsuaaToken.CLAIM_ADDITIONAL_AZ_ATTR, new AdditionalAuthorizationAttrClaim());
 
@@ -290,16 +304,6 @@ public class XsuaaTokenTest {
 	public void getAppToken() {
 		token = createToken(claimsSetBuilder);
 		assertThat(token.getAppToken(), startsWith("eyJhbGciOiJSUzI1NiIsInR5"));
-	}
-
-	private Jwt buildMockJwt() {
-		Map<String, Object> jwtHeaders = new HashMap<String, Object>();
-		jwtHeaders.put("dummyHeader", "dummyHeaderValue");
-
-		Map<String, Object> jwtClaims = new HashMap<String, Object>();
-		jwtClaims.put("dummyClaim", "dummyClaimValue");
-
-		return new Jwt("mock.jwt.value", Instant.now(), Instant.now().plusMillis(43199), jwtHeaders, jwtClaims);
 	}
 
 	private XsuaaToken createToken(JWTClaimsSet.Builder claimsBuilder) {
