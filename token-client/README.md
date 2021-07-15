@@ -260,7 +260,7 @@ For spring applications using rest template, you can set
 
 ### Common Pitfalls
 
-- As of version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service.` is exposed to the application log in case the default implementation of ``ClosableRestClient`` is used and not overwritten by an own well-defined one. <br> In case you like to overwrite `DefaultHttpClientFactory` you can register your own implementation of `HttpClientFactory` interface as following:
+- As of version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service.` is exposed to the application log in case the default implementation of ``ClosableRestClient`` is used and not overwritten by an own well-defined one. <br> In case you like to overwrite [`DefaultHttpClientFactory`](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) you can register your own implementation of `HttpClientFactory` interface as following:
 
     - Create a SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory.  
     - Enter the fully qualified name of your `HttpClientFactory` implementation class, e.g. `com.mypackage.CustomHttpClientFactory`.
