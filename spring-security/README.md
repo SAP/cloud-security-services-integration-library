@@ -13,7 +13,7 @@ It fully integrates with [Spring Security OAuth 2.0 Resource Server](https://doc
 
 ## Supported Identity Services
 - XSUAA
-- as of version `2.9.0` IAS tokens from multiple tenants and zones
+- IAS tokens from multiple tenants and zones
 
 ## Supported Algorithms
 
