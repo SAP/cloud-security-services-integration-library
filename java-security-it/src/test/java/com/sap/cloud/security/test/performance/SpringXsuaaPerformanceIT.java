@@ -15,7 +15,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -29,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Performance test for spring-xsuaa jwt token validation.
  */
-public class SpringXsuaaPerformanceIT {
+class SpringXsuaaPerformanceIT {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpringXsuaaPerformanceIT.class);
 	private static SecurityTest securityTest;
@@ -47,7 +46,7 @@ public class SpringXsuaaPerformanceIT {
 	}
 
 	@Test
-	public void onlineValidation() throws Exception {
+	void onlineValidation() {
 		String token = securityTest.createToken().getTokenValue();
 		JwtDecoder jwtDecoder = createOnlineJwtDecoder();
 		assertThat(jwtDecoder.decode(token)).isNotNull();
@@ -57,7 +56,7 @@ public class SpringXsuaaPerformanceIT {
 	}
 
 	@Test
-	public void offlineValidation() throws Exception {
+	void offlineValidation() throws Exception {
 		String token = securityTest.createToken().getTokenValue();
 		JwtDecoder jwtDecoder = createOfflineJwtDecoder();
 		assertThat(jwtDecoder.decode(token)).isNotNull();
@@ -68,8 +67,7 @@ public class SpringXsuaaPerformanceIT {
 
 	private JwtDecoder createOnlineJwtDecoder() {
 		XsuaaServiceConfigurationCustom configuration = new XsuaaServiceConfigurationCustom(createXsuaaCredentials());
-		JwtDecoder jwtDecoder = new XsuaaJwtDecoderBuilder(configuration).build();
-		return jwtDecoder;
+		return new XsuaaJwtDecoderBuilder(configuration).build();
 	}
 
 	private JwtDecoder createOfflineJwtDecoder() throws IOException {
