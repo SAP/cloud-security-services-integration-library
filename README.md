@@ -1,8 +1,8 @@
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP/cloud-security-xsuaa-integration)](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration)
 [![Java CI with Maven](https://github.com/SAP/cloud-security-xsuaa-integration/actions/workflows/maven.yml/badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/actions/workflows/maven.yml)
 [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/SAP/cloud-security-xsuaa-integration.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SAP/cloud-security-xsuaa-integration/context:java)
+[![Fosstars security rating](https://raw.githubusercontent.com/SAP/cloud-security-xsuaa-integration/fosstars-report/fosstars_badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/blob/fosstars-report/fosstars_report.md)
 
-[Security (Fosstars)](https://github.com/SAP/fosstars-rating-core/blob/fosstars-oss-rules-of-play-sap-report/SAP/cloud-security-xsuaa-integration.md)
 
 
 # Description
@@ -63,7 +63,7 @@ See [java-security-usage](samples/java-security-usage) for an example.
 
 
 ## Token Validation for Java Spring Boot web applications
-Spring Boot provides OAuth resource servers. Application developers requiring authentication and authorization information in their application use the libraries defined in [spring-xsuaa](./spring-xsuaa) to obtain token information like user name and scopes.
+Spring Boot provides OAuth resource servers. Application developers requiring authentication and authorization information in their application use the libraries defined in [spring-security](./spring-security) to obtain token information like user name and scopes.
 
 ### Requirements
 - Java 8
@@ -71,8 +71,8 @@ Spring Boot provides OAuth resource servers. Application developers requiring au
 - as of version 2.6.1 Spring Boot >= 2.2 is required. Consequently, it also requires Spring Security version >= 5.2
 
 ### Sample
-- See [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) for an example.
-- See [spring-security-basic-auth](/samples/spring-security-basic-auth) for an example demonstrating how a user can access Rest API via basic authentication (user/password).
+- See [spring-security-hybrid-usage](samples/spring-security-hybrid-usage) for an example.
+- See [spring-security-basic-auth](/samples/spring-security-basic-auth) for an example demonstrating how a user can access Rest API via basic authentication (user/password) using [spring-xsuaa](./spring-xsuaa).
 
 ### Additional (test) utilities
 - [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.

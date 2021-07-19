@@ -17,5 +17,6 @@ Files:
     samples/**/index.html
     samples/**/sap-developer-license.txt
     samples/**/*.json
+    .github/*
 Copyright: 2020 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
 License: Apache-2.0

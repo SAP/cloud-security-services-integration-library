@@ -13,7 +13,7 @@ It fully integrates with [Spring Security OAuth 2.0 Resource Server](https://doc
 
 ## Supported Identity Services
 - XSUAA
-- as of version `2.9.0` IAS tokens from multiple tenants and zones
+- IAS tokens from multiple tenants and zones
 
 ## Supported Algorithms
 
@@ -228,8 +228,8 @@ sap.security.services:
     identity:
       clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
       domains:   
-        - localhost          # SecurityTest.DEFAULT_DOMAIN
-    xsuaa: # required in case of xsuaa
+        - localhost                 # SecurityTest.DEFAULT_DOMAIN
+    xsuaa:
       xsappname: xsapp!t0815        # SecurityTest.DEFAULT_APP_ID
       uaadomain: localhost          # SecurityTest.DEFAULT_DOMAIN
       clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
@@ -254,7 +254,6 @@ Finally, it should look as following:
 ````
 
 ## Troubleshoot
-
 In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
 and provide these details:
 - security related dependencies, get maven dependency tree with `mvn dependency:tree`
