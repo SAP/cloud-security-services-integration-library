@@ -70,7 +70,7 @@
 		<google.jsr305.version>3.0.2</google.jsr305.version>
 		<apache.httpclient.version>4.5.13</apache.httpclient.version>
 		<caffeine.version>2.9.2</caffeine.version>
-		<commons.io.version>2.10.0</commons.io.version>
+		<commons.io.version>2.11.0</commons.io.version>
 		<javax.servlet.api.version>4.0.1</javax.servlet.api.version>
 		<junit.version>4.13.2</junit.version>
 		<junit.version>4.13.2</junit.version>
