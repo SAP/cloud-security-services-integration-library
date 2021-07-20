@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    kubernetes:
+      reload:
+        enabled: true
+        strategy: refresh
+        mode: event
+        monitoring-secrets: true
+        monitoring-config-maps: true
+      secrets:
+        paths: /etc/secrets/sapcp/
+        enabled: true

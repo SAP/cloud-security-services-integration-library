@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: spring-security-basic-auth
+    kyma-grafana: enabled
+  name: spring-security-basic-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-security-basic-auth
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: spring-security-basic-auth
+        kyma-grafana: enabled
+    spec:
+      containers:
+        - image: ligaoz/sap-security:spring-basic-authv2.10.2
+          imagePullPolicy: Always
+          name: spring-security-basic-auth
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: xsuaa
+              mountPath: "/etc/secrets/sapcp/xsuaa"
+              readOnly: true
+          env:
+            - name: clientid
+              valueFrom: { secretKeyRef: { name: eloquent-meninsky, key: clientid } }
+
+          envFrom:
+            - secretRef:
+                name: spring-security-basic-auth
+                optional: true
+      volumes:
+        - name: xsuaa
+          secret:
+            secretName: eloquent-meninsky
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: spring-security-basic-auth
+  name: spring-security-basic-auth
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: spring-security-basic-auth
