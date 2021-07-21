@@ -10,7 +10,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.MatcherAssert.*;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -47,6 +48,7 @@ import com.sap.cloud.security.xsuaa.token.Token;
 @SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
 		XsuaaAutoConfiguration.class,
 		XsuaaResourceServerJwkAutoConfiguration.class })
+@EnableConfigurationProperties(SecurityConfiguration.class)
 @ActiveProfiles({ "test.api.nohttp", "uaamock" })
 public class InitializeSpringSecurityContextTest {
 	@Value("${xsuaa.clientid}")
@@ -78,9 +80,9 @@ public class InitializeSpringSecurityContextTest {
 
 		// test authorities
 		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
-		Assert.assertThat(authorities.size(), is(1));
-		Assert.assertThat(authorities, hasItem(new SimpleGrantedAuthority("Display")));
-		Assert.assertThat(authorities, not(hasItem(new SimpleGrantedAuthority("Other"))));
+		assertThat(authorities.size(), is(1));
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Display")));
+		assertThat(authorities, not(hasItem(new SimpleGrantedAuthority("Other"))));
 
 		// test principal (Token)
 		Token token = (Token) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
