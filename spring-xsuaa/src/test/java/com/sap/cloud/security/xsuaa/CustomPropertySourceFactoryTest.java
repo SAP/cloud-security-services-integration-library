@@ -5,14 +5,12 @@
  */
 package com.sap.cloud.security.xsuaa;
 
-import java.io.IOException;
-import java.util.Properties;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
@@ -20,8 +18,12 @@ import org.springframework.core.io.support.PropertySourceFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
+import java.util.Properties;
+
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = { CustomConfiguration.class, XsuaaServiceConfigurationDefault.class })
+@ContextConfiguration(classes = { CustomConfiguration.class })
+@EnableConfigurationProperties(value = XsuaaServiceConfigurationDefault.class)
 public class CustomPropertySourceFactoryTest {
 
 	@Autowired
@@ -79,7 +81,7 @@ class CustomConfiguration {
 }
 
 class CustomPropertySourceFactory implements PropertySourceFactory {
-	private String vcapJsonString = "{\"xsuaa\":[{\"credentials\":{\"xsappname\":\"customAppId!t2344\"},\"plan\": \"application\",\"tags\":[\"xsuaa\"]}]}";
+	private final String vcapJsonString = "{\"xsuaa\":[{\"credentials\":{\"xsappname\":\"customAppId!t2344\"},\"plan\": \"application\",\"tags\":[\"xsuaa\"]}]}";
 
 	@Override
 	public org.springframework.core.env.PropertySource<?> createPropertySource(String s,

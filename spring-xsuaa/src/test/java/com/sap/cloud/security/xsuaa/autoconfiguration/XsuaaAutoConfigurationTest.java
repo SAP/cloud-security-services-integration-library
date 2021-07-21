@@ -5,18 +5,13 @@
  */
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-
+import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.FilteredClassLoader;
@@ -26,20 +21,19 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-@RunWith(SpringRunner.class)
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 @SpringBootTest(classes = { XsuaaAutoConfiguration.class, DummyXsuaaServiceConfiguration.class })
-public class XsuaaAutoConfigurationTest {
+class XsuaaAutoConfigurationTest {
 
 	// create an ApplicationContextRunner that will create a context with the
 	// configuration under test.
@@ -51,14 +45,14 @@ public class XsuaaAutoConfigurationTest {
 	@Autowired
 	private ApplicationContext context;
 
-	@Before
-	public void setup() throws IOException {
+	@BeforeAll
+	static void setup() throws IOException {
 		cert = IOUtils.resourceToString("/certificate.txt", StandardCharsets.UTF_8);
 		key = IOUtils.resourceToString("/key.txt", StandardCharsets.UTF_8);
 	}
 
 	@Test
-	public void configures_xsuaaServiceConfiguration() {
+	void configures_xsuaaServiceConfiguration() {
 		contextRunner.withClassLoader(new FilteredClassLoader(CloseableHttpClient.class))
 				.run((context) -> {
 					assertThat(context).hasSingleBean(XsuaaServiceConfigurationDefault.class);
@@ -67,14 +61,25 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public void configures_xsuaaRestTemplate() {
+	void configures_K8sXsuaaServiceConfiguration() {
+		contextRunner
+				.withPropertyValues("KUBERNETES_SERVICE_HOST", "1.0.0.0")
+				.run((context) -> {
+					assertThat(context).hasSingleBean(XsuaaServiceConfiguration.class);
+					assertThat(context).hasBean("xsuaaServiceConfigurationK8s");
+				});
+
+	}
+
+	@Test
+	void configures_xsuaaRestTemplate() {
 		assertThat(context.getBean("xsuaaRestOperations")).isNotNull();
 		assertThat(context.getBean("xsuaaRestOperations")).isInstanceOf(RestOperations.class);
 		assertThat(context.getBean(RestOperations.class)).isNotNull();
 	}
 
 	@Test
-	public void configures_xsuaaMtlsRestTemplate() {
+	void configures_xsuaaMtlsRestTemplate() {
 		contextRunner
 				.withPropertyValues("spring.xsuaa.flows.auto:true")
 				.withPropertyValues("xsuaa.credential-type:x509")
@@ -89,7 +94,7 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public void configures_xsuaaServiceConfiguration_withProperties() {
+	void configures_xsuaaServiceConfiguration_withProperties() {
 		contextRunner.withClassLoader(new FilteredClassLoader(CloseableHttpClient.class))
 				.withPropertyValues("spring.xsuaa.auto:true")
 				.withPropertyValues("spring.xsuaa.disable-default-property-source:false")
@@ -104,7 +109,7 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public void autoConfigurationDisabledByProperty() {
+	void autoConfigurationDisabledByProperty() {
 		contextRunner.withPropertyValues("spring.xsuaa.auto:false").run((context) -> {
 			assertThat(context).doesNotHaveBean(RestTemplate.class);
 			assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration");
@@ -112,19 +117,19 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public void serviceConfigurationDisabledByMultipleBindingsProperty() {
+	void serviceConfigurationDisabledByMultipleBindingsProperty() {
 		contextRunner.withPropertyValues("spring.xsuaa.multiple-bindings:true")
 				.run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration"));
 	}
 
 	@Test
-	public void serviceConfigurationDisabledByDisableDefaultPropertySourceProperty() {
+	void serviceConfigurationDisabledByDisableDefaultPropertySourceProperty() {
 		contextRunner.withPropertyValues("spring.xsuaa.disable-default-property-source:true")
 				.run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration"));
 	}
 
 	@Test
-	public void autoConfigurationInactive_if_noJwtOnClasspath() {
+	void autoConfigurationInactive_if_noJwtOnClasspath() {
 		contextRunner.withClassLoader(new FilteredClassLoader(Jwt.class)) // removes Jwt.class from classpath
 				.run((context) -> {
 					assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration");
@@ -134,7 +139,7 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public void userConfiguration_overrides_defaultBeans() {
+	void userConfiguration_overrides_defaultBeans() {
 		contextRunner.withUserConfiguration(UserConfiguration.class)
 				.run((context) -> {
 					assertThat(context).hasSingleBean(DummyXsuaaServiceConfiguration.class);
@@ -148,7 +153,7 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public void userConfiguration_overrides_defaultMtlsRestTemplate() {
+	void userConfiguration_overrides_defaultMtlsRestTemplate() {
 		contextRunner
 				.withUserConfiguration(UserConfiguration.class)
 				.withPropertyValues("xsuaa.credential-type:x509")

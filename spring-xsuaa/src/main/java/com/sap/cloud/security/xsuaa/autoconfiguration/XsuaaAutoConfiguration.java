@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -49,9 +50,18 @@ public class XsuaaAutoConfiguration {
 	public static class XsuaaServiceAutoConfiguration {
 
 		@Bean
+		@ConfigurationProperties //overrides the "xsuaa" prefix
+		@Conditional(OnKubernetesEnvCondition.class)
+		@ConditionalOnMissingBean(XsuaaServiceConfiguration.class)
+		public XsuaaServiceConfiguration xsuaaServiceConfigurationK8s() {
+			LOGGER.info("auto-configures K8s XsuaaServiceConfigurationDefault");
+			return new XsuaaServiceConfigurationDefault();
+		}
+
+		@Bean
 		@ConditionalOnMissingBean(XsuaaServiceConfiguration.class)
 		public XsuaaServiceConfiguration xsuaaServiceConfiguration() {
-			LOGGER.info("auto-configures XsuaaServiceConfigurationDefault");
+			LOGGER.info("auto-configures CF XsuaaServiceConfigurationDefault");
 			return new XsuaaServiceConfigurationDefault();
 		}
 
@@ -113,6 +123,15 @@ public class XsuaaAutoConfiguration {
 					.from(context.getEnvironment().getProperty("xsuaa.credential-type"));
 			return credentialType == CredentialType.BINDING_SECRET || credentialType == CredentialType.INSTANCE_SECRET
 					|| credentialType == null;
+		}
+	}
+
+	private static class OnKubernetesEnvCondition implements Condition {
+		@Override
+		public boolean matches(ConditionContext context, @Nonnull AnnotatedTypeMetadata metadata) {
+			String kubernetesHost = context.getEnvironment().getProperty("KUBERNETES_SERVICE_HOST");
+
+			return kubernetesHost != null;
 		}
 	}
 

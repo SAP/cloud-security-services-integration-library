@@ -36,7 +36,8 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 	// configuration under test.
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(
-					AutoConfigurations.of(XsuaaAutoConfiguration.class, XsuaaTokenFlowAutoConfiguration.class));
+					AutoConfigurations.of(XsuaaAutoConfiguration.class, XsuaaTokenFlowAutoConfiguration.class))
+			.withUserConfiguration(DummyXsuaaServiceConfiguration.class);
 
 	@Autowired
 	private ApplicationContext context;

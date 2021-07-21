@@ -13,15 +13,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = { TestConfiguration.class, XsuaaServiceConfigurationDefault.class })
+@ContextConfiguration(classes = { TestConfiguration.class })
+@EnableConfigurationProperties(value = XsuaaServiceConfigurationDefault.class)
+@TestPropertySource("/vcap.json")
 public class XsuaaServicePropertySourceFactoryTest {
 
 	@Autowired

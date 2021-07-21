@@ -9,45 +9,34 @@ import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.CredentialType;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.net.URI;
 
-@Configuration
+
+@ConfigurationProperties("xsuaa")
 public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfiguration {
 
-	@Value("${xsuaa.clientid:}")
 	private String clientId;
 
-	@Value("${xsuaa.clientsecret:}")
 	private String clientSecret;
 
-	@Value("${xsuaa.url:}")
 	private String uaaUrl;
 
-	@Value("${xsuaa.uaadomain:#{null}}")
 	private String uaadomain;
 
-	@Value("${xsuaa.identityzoneid:}")
 	private String identityZoneId;
 
-	@Value("${xsuaa.xsappname:}")
 	private String appid;
 
-	@Value("${xsuaa.key:}")
 	private String privateKey;
 
-	@Value("${xsuaa.certificate:}")
 	private String certificate;
 
-	@Value("${xsuaa.verificationkey:}")
 	private String verificationKey;
 
-	@Value("${xsuaa.credentialtype:#{null}}")
 	private String credentialType;
 
-	@Value("${xsuaa.certurl:#{null}}")
 	private String certUrl;
 
 	/*
@@ -101,5 +90,49 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Override
 	public URI getCertUrl() {
 		return URI.create(certUrl);
+	}
+
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
+
+	public void setClientSecret(String clientSecret) {
+		this.clientSecret = clientSecret;
+	}
+
+	public void setUrl(String url) {
+		this.uaaUrl = url;
+	}
+
+	public void setUaaDomain(String uaadomain) {
+		this.uaadomain = uaadomain;
+	}
+
+	public void setIdentityZoneId(String identityZoneId) {
+		this.identityZoneId = identityZoneId;
+	}
+
+	public void setXsappname(String xsappname) {
+		this.appid = xsappname;
+	}
+
+	public void setPrivateKey(String privateKey) {
+		this.privateKey = privateKey;
+	}
+
+	public void setCertificate(String certificate) {
+		this.certificate = certificate;
+	}
+
+	public void setVerificationKey(String verificationKey) {
+		this.verificationKey = verificationKey;
+	}
+
+	public void setCredentialType(String credentialType) {
+		this.credentialType = credentialType;
+	}
+
+	public void setCertUrl(String certUrl) {
+		this.certUrl = certUrl;
 	}
 }
