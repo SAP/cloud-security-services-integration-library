@@ -17,17 +17,17 @@ import java.net.URI;
 @ConfigurationProperties("xsuaa")
 public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfiguration {
 
-	private String clientId;
+	private String clientId = "";
 
-	private String clientSecret;
+	private String clientSecret = "";
 
-	private String uaaUrl;
+	private String uaaUrl = "";
 
-	private String uaadomain;
+	private String uaadomain = "";
 
 	private String identityZoneId;
 
-	private String appid;
+	private String appid = "";
 
 	private String privateKey;
 
