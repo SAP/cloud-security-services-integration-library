@@ -9,6 +9,8 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,9 @@ public class XsuaaServicePropertySourceFactoryTest {
 		assertEquals("auth.com", serviceConfiguration.getUaaDomain());
 		assertEquals(URI.create("https://auth.cert.com"), serviceConfiguration.getCertUrl());
 		assertEquals("x509", serviceConfiguration.getCredentialType().toString());
+		assertTrue(serviceConfiguration.getClientIdentity().isCertificateBased());
+		assertThat(serviceConfiguration.getClientIdentity().getCertificate(), startsWith("-----BEGIN CERTIFICATE-----"));
+		assertThat(serviceConfiguration.getClientIdentity().getKey(), startsWith("-----BEGIN RSA PRIVATE KEY-----"));
 		assertThat(testConfiguration.certificate, startsWith("-----BEGIN CERTIFICATE-----"));
 		assertThat(testConfiguration.key, startsWith("-----BEGIN RSA PRIVATE KEY-----"));
 	}

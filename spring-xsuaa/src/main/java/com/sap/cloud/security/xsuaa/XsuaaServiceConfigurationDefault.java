@@ -116,7 +116,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 		this.appid = xsappname;
 	}
 
-	public void setPrivateKey(String privateKey) {
+	public void setKey(String privateKey) {
 		this.privateKey = privateKey;
 	}
 
