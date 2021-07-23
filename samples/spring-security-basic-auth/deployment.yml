@@ -21,7 +21,7 @@ spec:
         kyma-grafana: enabled
     spec:
       containers:
-        - image: ligaoz/sap-security:spring-basic-authv2.10.2
+        - image: <placeholder for image repository>
           imagePullPolicy: Always
           name: spring-security-basic-auth
           ports:
@@ -29,11 +29,11 @@ spec:
               containerPort: 8080
           volumeMounts:
             - name: xsuaa
-              mountPath: "/etc/secrets/sapcp/xsuaa"
+              mountPath: "/etc/secrets/sapcp/xsuaa/xsuaa-instance"
               readOnly: true
-          env:
-            - name: clientid
-              valueFrom: { secretKeyRef: { name: eloquent-meninsky, key: clientid } }
+            - name: xsuaa2
+              mountPath: "/etc/secrets/sapcp/xsuaa/xsuaa-instance-2"
+              readOnly: true
 
           envFrom:
             - secretRef:
@@ -42,7 +42,10 @@ spec:
       volumes:
         - name: xsuaa
           secret:
-            secretName: eloquent-meninsky
+              secretName: <placeholder for secret name>
+        - name: xsuaa2
+          secret:
+              secretName: <placeholder for secret name>
 ---
 apiVersion: v1
 kind: Service
