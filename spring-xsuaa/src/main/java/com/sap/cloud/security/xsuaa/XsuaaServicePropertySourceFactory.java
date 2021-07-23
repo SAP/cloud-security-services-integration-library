@@ -54,14 +54,14 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	@Override
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
 		Properties properties;
-		XsuaaServicesParser vcapServicesParser;
+		XsuaaServicesParser xsuaaServicesParser;
 		if (resource != null && resource.getResource().getFilename() != null
 				&& !resource.getResource().getFilename().isEmpty()) {
-			vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
+			xsuaaServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
 		} else {
-			vcapServicesParser = new XsuaaServicesParser();
+			xsuaaServicesParser = new XsuaaServicesParser();
 		}
-		properties = vcapServicesParser.parseCredentials();
+		properties = xsuaaServicesParser.parseCredentials();
 		logger.info("Parsed {} XSUAA properties.", properties.size());
 		return create(XSUAA_PROPERTIES_KEY, properties);
 	}
