@@ -60,14 +60,14 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 		if(isK8sEnv()){
 			properties = K8S_SERVICE_CONFIGURATION_ACCESSOR.getXsuaaServiceProperties();
 		} else {
-			XsuaaServicesParser xsuaaServicesParser;
+			XsuaaServicesParser vcapServicesParser;
 			if (resource != null && resource.getResource().getFilename() != null
 					&& !resource.getResource().getFilename().isEmpty()) {
-				xsuaaServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
+				vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
 			} else {
-				xsuaaServicesParser = new XsuaaServicesParser();
+				vcapServicesParser = new XsuaaServicesParser();
 			}
-			properties = xsuaaServicesParser.parseCredentials();
+			properties = vcapServicesParser.parseCredentials();
 		}
 
 		logger.info("Parsed {} XSUAA properties.", properties.size());
