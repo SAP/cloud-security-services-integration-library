@@ -29,7 +29,7 @@ public class XsuaaServicesParser {
 	private static final String VCAP_SERVICES = "VCAP_SERVICES";
 	private static final String XSUAA_TAG = "xsuaa";
 
-	private String vcapServices;
+	private final String vcapServices;
 	private JSONObject credentialsJSON;
 
 	public XsuaaServicesParser() {
@@ -48,10 +48,10 @@ public class XsuaaServicesParser {
 			}
 	}
 
-	public XsuaaServicesParser(String serviceConfigJson) {
-		vcapServices = serviceConfigJson;
-		if (serviceConfigJson == null || serviceConfigJson.isEmpty()) {
-			logger.warn("Cannot extract XSUAA properties from passed ServiceConfigurationJson.");
+	public XsuaaServicesParser(String vcapServicesJson) {
+		vcapServices = vcapServicesJson;
+		if (vcapServicesJson == null || vcapServicesJson.isEmpty()) {
+			logger.warn("Cannot extract XSUAA properties from passed vcapServicesJson.");
 		}
 	}
 
