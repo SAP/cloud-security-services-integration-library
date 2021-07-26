@@ -82,7 +82,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	 *            of the propertySource. Use only "xsuaa" as name in case you like
 	 *            to overwrite/set all properties.
 	 * @param properties
-	 *            map of xsuaa properties.s
+	 *            map of xsuaa properties
 	 * @return created @Code{PropertySource}
 	 */
 	public static PropertySource create(String name, Properties properties) {
@@ -116,6 +116,6 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 			logger.warn("Failed to read xsuaa service configuration files");
 			return serviceBindingProperties;
 		}
-		return k8sFileSystemAccessor.getK8sXsuaaServiceProperties(bindingFiles);
+		return k8sFileSystemAccessor.getXsuaaServiceProperties(bindingFiles);
 	}
 }
