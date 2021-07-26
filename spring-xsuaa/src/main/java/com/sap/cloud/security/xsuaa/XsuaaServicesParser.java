@@ -5,8 +5,6 @@
  */
 package com.sap.cloud.security.xsuaa;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -16,13 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -34,88 +28,33 @@ public class XsuaaServicesParser {
 	private static final String CREDENTIALS = "credentials";
 	private static final String VCAP_SERVICES = "VCAP_SERVICES";
 	private static final String XSUAA_TAG = "xsuaa";
-	private static final String K8S_XSUAA_PATH = "/etc/secrets/sapcp/xsuaa";
 
 	private String vcapServices;
-	private Map<String, Object> k8sServiceSecrets;
 	private JSONObject credentialsJSON;
 
 	public XsuaaServicesParser() {
-		if (isK8sEnv()){
-			k8sServiceSecrets = getK8sServiceSecrets();
-		} else {
 			logger.debug("CF environment detected");
 			vcapServices = System.getenv().get(VCAP_SERVICES);
 			if (vcapServices == null || vcapServices.isEmpty()) {
 				logger.warn("Cannot extract XSUAA properties from VCAP_SERVICES environment variable.");
 			}
-		}
 	}
 
 	public XsuaaServicesParser(InputStream inputStream) throws IOException {
-		if (isK8sEnv()){
-			k8sServiceSecrets = new ObjectMapper().readValue(inputStream, Map.class);
-		} else {
-			logger.info("CF environment detected");
+			logger.debug("CF environment detected");
 			vcapServices = IOUtils.toString(inputStream, Charsets.toCharset(UTF_8.name()));
 			if (vcapServices == null || vcapServices.isEmpty()) {
 				logger.warn("Cannot parse inputStream to extract XSUAA properties.");
 			}
-		}
 	}
 
 	public XsuaaServicesParser(String serviceConfigJson) {
-		if (isK8sEnv()){
-			ObjectMapper mapper = new ObjectMapper();
-			try {
-				k8sServiceSecrets = mapper.readValue(serviceConfigJson, Map.class);
-			} catch (JsonProcessingException e) {
-				logger.warn("ServiceConfigJson processing failed.");
-			}
-		} else {
-			vcapServices = serviceConfigJson;
-		}
+		vcapServices = serviceConfigJson;
 		if (serviceConfigJson == null || serviceConfigJson.isEmpty()) {
 			logger.warn("Cannot extract XSUAA properties from passed ServiceConfigurationJson.");
 		}
 	}
 
-	private Map<String, Object> getK8sServiceSecrets() {
-		final Map<String, Object> serviceBindingProperties = new HashMap<>();
-
-		final File[] bindings = new File(K8S_XSUAA_PATH).listFiles();
-
-		if (bindings != null && bindings.length == 0) {
-			logger.warn("No bindings found in k8s {}", K8S_XSUAA_PATH);
-			return serviceBindingProperties;
-		}
-
-		final File binding = bindings[0];
-		logger.debug("Found {} k8s secret binding(s). Selecting '{}'", bindings.length, binding.getName());
-
-		final File[] bindingFiles = new File(binding.getPath()).listFiles();
-
-		if (bindingFiles != null && bindingFiles.length == 0) {
-			logger.warn("Failed to read service configuration files from {}", binding.getPath());
-			return serviceBindingProperties;
-		}
-
-		final List<File> secretProperties = Arrays.stream(bindingFiles).filter(File::isFile)
-				.collect(Collectors.toList());
-
-		for (final File property : secretProperties) {
-			try {
-				final List<String> lines = Files.readAllLines(Paths.get(property.getAbsolutePath()));
-				serviceBindingProperties.put(property.getName(), String.join("\\n", lines));
-			}
-			catch (IOException ex) {
-				logger.error("Failed to read secrets files", ex);
-				return serviceBindingProperties;
-			}
-		}
-		logger.debug("K8s secrets: {}", serviceBindingProperties);
-		return serviceBindingProperties;
-	}
 
 	/**
 	 * Parses the VCAP_SERVICES for xsuaa tag and returns a requested
@@ -157,9 +96,6 @@ public class XsuaaServicesParser {
 	 */
 	public Properties parseCredentials() throws IOException {
 		Properties properties;
-		if(isK8sEnv()){
-			properties = parseK8sSecret();
-		} else {
 			properties = new Properties();
 			JSONObject credentialsJsonObject = parseCredentials(vcapServices);
 			if (credentialsJsonObject != null) {
@@ -168,16 +104,6 @@ public class XsuaaServicesParser {
 					properties.put(key, credentialsJsonObject.get(key).toString());
 				}
 			}
-		}
-		return properties;
-	}
-
-	public Properties parseK8sSecret(){
-		Properties properties = new Properties();
-		Set<String> keys = k8sServiceSecrets.keySet();
-		for (String key : keys) {
-			properties.put(key, k8sServiceSecrets.get(key).toString());
-		}
 		return properties;
 	}
 
@@ -231,10 +157,5 @@ public class XsuaaServicesParser {
 			}
 		}
 		return xsuaaBinding;
-	}
-
-	private static boolean isK8sEnv() {
-		logger.debug("K8s environment detected");
-		return System.getenv().get("KUBERNETES_SERVICE_HOST") != null;
 	}
 }

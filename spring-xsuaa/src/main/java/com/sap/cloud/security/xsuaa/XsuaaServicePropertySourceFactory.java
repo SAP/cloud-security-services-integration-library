@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.FileSystemAccessor;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +14,12 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Part of Auto Configuration {@link XsuaaAutoConfiguration}
@@ -38,6 +41,8 @@ import java.util.Properties;
 public class XsuaaServicePropertySourceFactory implements PropertySourceFactory {
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaServicePropertySourceFactory.class);
 
+	private static final FileSystemAccessor k8sFileSystemAccessor= new FileSystemAccessorDefault();
+
 	protected static final String XSUAA_PREFIX = "xsuaa.";
 	private static final String XSUAA_PROPERTIES_KEY = "xsuaa";
 	public static final String CLIENT_ID = "xsuaa.clientid";
@@ -54,14 +59,19 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	@Override
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
 		Properties properties;
-		XsuaaServicesParser xsuaaServicesParser;
-		if (resource != null && resource.getResource().getFilename() != null
-				&& !resource.getResource().getFilename().isEmpty()) {
-			xsuaaServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
+		if(isK8sEnv()){
+			properties = getK8sServiceSecrets();
 		} else {
-			xsuaaServicesParser = new XsuaaServicesParser();
+			XsuaaServicesParser xsuaaServicesParser;
+			if (resource != null && resource.getResource().getFilename() != null
+					&& !resource.getResource().getFilename().isEmpty()) {
+				xsuaaServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
+			} else {
+				xsuaaServicesParser = new XsuaaServicesParser();
+			}
+			properties = xsuaaServicesParser.parseCredentials();
 		}
-		properties = xsuaaServicesParser.parseCredentials();
+
 		logger.info("Parsed {} XSUAA properties.", properties.size());
 		return create(XSUAA_PROPERTIES_KEY, properties);
 	}
@@ -85,5 +95,44 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 			}
 		}
 		return new PropertiesPropertySource(name, properties);
+	}
+
+	private static boolean isK8sEnv() {
+		logger.debug("K8s environment detected");
+		return System.getenv().get("KUBERNETES_SERVICE_HOST") != null;
+	}
+
+	private Properties getK8sServiceSecrets() {
+		final Properties serviceBindingProperties = new Properties();
+
+		final File[] bindings = k8sFileSystemAccessor.getXsuaaBindings();
+
+		if (bindings != null && bindings.length == 0) {
+			logger.warn("No bindings found in k8s");
+			return serviceBindingProperties;
+		}
+
+		final File[] bindingFiles = k8sFileSystemAccessor.extractXsuaaBindingProperties(bindings);
+
+		if (bindingFiles == null) {
+			logger.warn("Failed to read xsuaa service configuration files");
+			return serviceBindingProperties;
+		}
+
+		final List<File> secretProperties = Arrays.stream(bindingFiles).filter(File::isFile)
+				.collect(Collectors.toList());
+
+		for (final File property : secretProperties) {
+			try {
+				final List<String> lines = Files.readAllLines(Paths.get(property.getAbsolutePath()));
+				serviceBindingProperties.put(property.getName(), String.join("\\n", lines));
+			}
+			catch (IOException ex) {
+				logger.error("Failed to read secrets files", ex);
+				return serviceBindingProperties;
+			}
+		}
+		logger.debug("K8s secrets: {}", serviceBindingProperties);
+		return serviceBindingProperties;
 	}
 }
