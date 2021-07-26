@@ -19,85 +19,83 @@ import java.util.stream.Collectors;
  */
 public class K8SServiceConfigurationAccessor implements ServiceConfigurationAccessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(K8SServiceConfigurationAccessor.class);
-    private static final String DEFAULT_XSUAA_PATH = "/etc/secrets/sapcp/xsuaa";
-    private String customXsuaaPath;
+	private static final Logger LOGGER = LoggerFactory.getLogger(K8SServiceConfigurationAccessor.class);
+	private static final String DEFAULT_XSUAA_PATH = "/etc/secrets/sapcp/xsuaa";
+	private String customXsuaaPath;
 
+	/**
+	 * Instantiates a new K8s secrets' files accessor with default paths. IAS -
+	 * /etc/secrets/sapcp/ias XSUAA - /etc/secrets/sapcp/xsuaa
+	 */
+	public K8SServiceConfigurationAccessor() {
+	}
 
-    /**
-     * Instantiates a new K8s secrets' files accessor with default paths.
-     * IAS - /etc/secrets/sapcp/ias
-     * XSUAA - /etc/secrets/sapcp/xsuaa
-     */
-    public K8SServiceConfigurationAccessor() {}
+	/**
+	 * Instantiates a new K8s secrets' files accessor with user defined paths.
+	 *
+	 * @param customXsuaaPath
+	 *            the custom xsuaa path
+	 */
+	public K8SServiceConfigurationAccessor(@Nullable String customXsuaaPath) {
+		this.customXsuaaPath = customXsuaaPath;
+	}
 
+	@Override
+	public Properties getXsuaaServiceProperties() {
+		final Properties serviceBindingProperties = new Properties();
+		File[] bindingsList = getXsuaaBindings();
 
-    /**
-     * Instantiates a new K8s secrets' files accessor with user defined paths.
-     *
-     * @param customXsuaaPath the custom xsuaa path
-     */
-    public K8SServiceConfigurationAccessor(@Nullable String customXsuaaPath) {
-        this.customXsuaaPath = customXsuaaPath;
-    }
+		if (bindingsList == null) {
+			LOGGER.warn("No Xsuaa service bindings found");
+			return serviceBindingProperties;
+		}
 
-    @Override
-    public Properties getXsuaaServiceProperties() {
-        final Properties serviceBindingProperties = new Properties();
-        File[] bindingsList = getXsuaaBindings();
+		File[] servicePropertiesFiles = extractSingleXsuaaBindingFiles(bindingsList);
 
-        if (bindingsList == null) {
-            LOGGER.warn("No Xsuaa service bindings found");
-            return serviceBindingProperties;
-        }
+		if (servicePropertiesFiles == null) {
+			LOGGER.warn("No Xsuaa service binding files were found");
+			return serviceBindingProperties;
+		}
 
-        File[] servicePropertiesFiles = extractSingleXsuaaBindingFiles(bindingsList);
+		final List<File> servicePropertiesList = Arrays.stream(servicePropertiesFiles).filter(File::isFile)
+				.collect(Collectors.toList());
 
-        if (servicePropertiesFiles == null) {
-            LOGGER.warn("No Xsuaa service binding files were found");
-            return serviceBindingProperties;
-        }
+		return extractServiceProperties(servicePropertiesList);
+	}
 
-        final List<File> servicePropertiesList = Arrays.stream(servicePropertiesFiles).filter(File::isFile)
-                .collect(Collectors.toList());
+	@Override
+	public Properties getIasServiceProperties() {
+		throw new UnsupportedOperationException("IAS is not supported");
+	}
 
-        return extractServiceProperties(servicePropertiesList);
-    }
+	@Nullable
+	private File[] getXsuaaBindings() {
+		return new File(customXsuaaPath != null ? customXsuaaPath : DEFAULT_XSUAA_PATH).listFiles();
+	}
 
-    @Override
-    public Properties getIasServiceProperties() {
-        throw new UnsupportedOperationException("IAS is not supported");
-    }
+	@Nullable
+	private File[] extractSingleXsuaaBindingFiles(File[] bindings) {
+		if (bindings != null && bindings.length != 0) {
+			final File binding = bindings[0];
+			LOGGER.debug("Found {} k8s secret binding(s). Selecting '{}'", bindings.length, binding.getName());
+			return new File(binding.getPath()).listFiles();
+		}
+		return null;
+	}
 
-    @Nullable
-    private File[] getXsuaaBindings(){
-        return new File(customXsuaaPath != null ? customXsuaaPath : DEFAULT_XSUAA_PATH).listFiles();
-    }
-
-    @Nullable
-    private File[] extractSingleXsuaaBindingFiles(File[] bindings){
-        if (bindings != null && bindings.length != 0){
-            final File binding = bindings[0];
-            LOGGER.debug("Found {} k8s secret binding(s). Selecting '{}'", bindings.length, binding.getName());
-            return new File(binding.getPath()).listFiles();
-        }
-        return null;
-    }
-
-    private Properties extractServiceProperties(List<File> servicePropertiesList) {
-        Properties serviceBindingProperties = new Properties();
-        for (final File property : servicePropertiesList) {
-            try {
-                final List<String> lines = Files.readAllLines(Paths.get(property.getAbsolutePath()));
-                serviceBindingProperties.put(property.getName(), String.join("\\n", lines));
-            }
-            catch (IOException ex) {
-                LOGGER.error("Failed to read secrets files", ex);
-                return serviceBindingProperties;
-            }
-        }
-        LOGGER.debug("K8s secrets: {}", serviceBindingProperties);
-        return serviceBindingProperties;
-    }
+	private Properties extractServiceProperties(List<File> servicePropertiesList) {
+		Properties serviceBindingProperties = new Properties();
+		for (final File property : servicePropertiesList) {
+			try {
+				final List<String> lines = Files.readAllLines(Paths.get(property.getAbsolutePath()));
+				serviceBindingProperties.put(property.getName(), String.join("\\n", lines));
+			} catch (IOException ex) {
+				LOGGER.error("Failed to read secrets files", ex);
+				return serviceBindingProperties;
+			}
+		}
+		LOGGER.debug("K8s secrets: {}", serviceBindingProperties);
+		return serviceBindingProperties;
+	}
 
 }

@@ -33,19 +33,19 @@ public class XsuaaServicesParser {
 	private JSONObject credentialsJSON;
 
 	public XsuaaServicesParser() {
-			logger.debug("CF environment detected");
-			vcapServices = System.getenv().get(VCAP_SERVICES);
-			if (vcapServices == null || vcapServices.isEmpty()) {
-				logger.warn("Cannot extract XSUAA properties from VCAP_SERVICES environment variable.");
-			}
+		logger.debug("CF environment detected");
+		vcapServices = System.getenv().get(VCAP_SERVICES);
+		if (vcapServices == null || vcapServices.isEmpty()) {
+			logger.warn("Cannot extract XSUAA properties from VCAP_SERVICES environment variable.");
+		}
 	}
 
 	public XsuaaServicesParser(InputStream inputStream) throws IOException {
-			logger.debug("CF environment detected");
-			vcapServices = IOUtils.toString(inputStream, Charsets.toCharset(UTF_8.name()));
-			if (vcapServices == null || vcapServices.isEmpty()) {
-				logger.warn("Cannot parse inputStream to extract XSUAA properties.");
-			}
+		logger.debug("CF environment detected");
+		vcapServices = IOUtils.toString(inputStream, Charsets.toCharset(UTF_8.name()));
+		if (vcapServices == null || vcapServices.isEmpty()) {
+			logger.warn("Cannot parse inputStream to extract XSUAA properties.");
+		}
 	}
 
 	public XsuaaServicesParser(String vcapServicesJson) {
@@ -54,7 +54,6 @@ public class XsuaaServicesParser {
 			logger.warn("Cannot extract XSUAA properties from passed vcapServicesJson.");
 		}
 	}
-
 
 	/**
 	 * Parses the VCAP_SERVICES for xsuaa tag and returns a requested
@@ -96,14 +95,14 @@ public class XsuaaServicesParser {
 	 */
 	public Properties parseCredentials() throws IOException {
 		Properties properties;
-			properties = new Properties();
-			JSONObject credentialsJsonObject = parseCredentials(vcapServices);
-			if (credentialsJsonObject != null) {
-				Set<String> keys = credentialsJsonObject.keySet();
-				for (String key : keys) {
-					properties.put(key, credentialsJsonObject.get(key).toString());
-				}
+		properties = new Properties();
+		JSONObject credentialsJsonObject = parseCredentials(vcapServices);
+		if (credentialsJsonObject != null) {
+			Set<String> keys = credentialsJsonObject.keySet();
+			for (String key : keys) {
+				properties.put(key, credentialsJsonObject.get(key).toString());
 			}
+		}
 		return properties;
 	}
 
