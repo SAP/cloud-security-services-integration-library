@@ -94,8 +94,7 @@ public class XsuaaServicesParser {
 	 *
 	 */
 	public Properties parseCredentials() throws IOException {
-		Properties properties;
-		properties = new Properties();
+		Properties properties =  new Properties();
 		JSONObject credentialsJsonObject = parseCredentials(vcapServices);
 		if (credentialsJsonObject != null) {
 			Set<String> keys = credentialsJsonObject.keySet();
