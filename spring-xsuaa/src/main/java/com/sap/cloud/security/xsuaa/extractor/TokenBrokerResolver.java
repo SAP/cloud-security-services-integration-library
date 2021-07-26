@@ -165,7 +165,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	}
 
 	private String getOAuthTokenUrl(HttpServletRequest request) {
-		String uaaUrl = configuration.getCredentialType() == CredentialType.X509 ? String.valueOf(configuration.getCertUrl()) : configuration.getUaaUrl();
+		String uaaUrl = configuration.getCredentialType() == CredentialType.X509
+				? String.valueOf(configuration.getCertUrl())
+				: configuration.getUaaUrl();
 		String uaaDomain = configuration.getUaaDomain();
 
 		Optional<String> subdomainResult = authenticationConfig.getSubdomain(request);

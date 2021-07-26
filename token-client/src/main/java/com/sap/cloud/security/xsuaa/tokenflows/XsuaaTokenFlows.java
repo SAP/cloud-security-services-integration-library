@@ -40,7 +40,7 @@ public class XsuaaTokenFlows implements Serializable {
 	 *            the OAuth2.0 client identity
 	 *
 	 *            <pre>
-	 * {@code
+	 *            {@code
 	 * String clientId     = "<<get your client id from your service binding>>";
 	 * String clientSecret = "<<get your client secret from your service binding>>";
 	 * String xsuaaBaseUrl = "<<get your xsuaa base url from service binding>>";
