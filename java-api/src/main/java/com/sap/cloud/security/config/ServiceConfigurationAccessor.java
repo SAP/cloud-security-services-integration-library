@@ -3,7 +3,7 @@ package com.sap.cloud.security.config;
 import java.util.Properties;
 
 /**
- * The interface for K8s File system access.
+ * The interface for service configuration access.
  */
 public interface ServiceConfigurationAccessor {
 
