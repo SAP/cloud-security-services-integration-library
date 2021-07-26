@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa;
 
-import com.sap.cloud.security.config.FileSystemAccessor;
+import com.sap.cloud.security.config.ServiceConfigurationAccessor;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +39,7 @@ import java.util.Properties;
 public class XsuaaServicePropertySourceFactory implements PropertySourceFactory {
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaServicePropertySourceFactory.class);
 
-	private static final FileSystemAccessor k8sFileSystemAccessor= new FileSystemAccessorDefault();
+	private static final ServiceConfigurationAccessor K8S_SERVICE_CONFIGURATION_ACCESSOR = new K8SServiceConfigurationAccessor();
 
 	protected static final String XSUAA_PREFIX = "xsuaa.";
 	private static final String XSUAA_PROPERTIES_KEY = "xsuaa";
@@ -59,7 +58,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
 		Properties properties;
 		if(isK8sEnv()){
-			properties = getK8sServiceSecrets();
+			properties = K8S_SERVICE_CONFIGURATION_ACCESSOR.getXsuaaServiceProperties();
 		} else {
 			XsuaaServicesParser xsuaaServicesParser;
 			if (resource != null && resource.getResource().getFilename() != null
@@ -99,23 +98,5 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	private static boolean isK8sEnv() {
 		logger.debug("K8s environment detected");
 		return System.getenv().get("KUBERNETES_SERVICE_HOST") != null;
-	}
-
-	private Properties getK8sServiceSecrets() {
-		final Properties serviceBindingProperties = new Properties();
-
-		final File[] bindings = k8sFileSystemAccessor.getXsuaaBindings();
-
-		if (bindings != null && bindings.length == 0) {
-			logger.warn("No bindings found in k8s");
-			return serviceBindingProperties;
-		}
-
-		final File[] bindingFiles = k8sFileSystemAccessor.extractXsuaaBindingFiles(bindings);
-		if (bindingFiles == null) {
-			logger.warn("Failed to read xsuaa service configuration files");
-			return serviceBindingProperties;
-		}
-		return k8sFileSystemAccessor.getXsuaaServiceProperties(bindingFiles);
 	}
 }
