@@ -16,10 +16,9 @@ import org.springframework.core.io.support.PropertySourceFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Part of Auto Configuration {@link XsuaaAutoConfiguration}
@@ -83,7 +82,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	 *            of the propertySource. Use only "xsuaa" as name in case you like
 	 *            to overwrite/set all properties.
 	 * @param properties
-	 *            map of xsuaa properties.
+	 *            map of xsuaa properties.s
 	 * @return created @Code{PropertySource}
 	 */
 	public static PropertySource create(String name, Properties properties) {
@@ -112,27 +111,11 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 			return serviceBindingProperties;
 		}
 
-		final File[] bindingFiles = k8sFileSystemAccessor.extractXsuaaBindingProperties(bindings);
-
+		final File[] bindingFiles = k8sFileSystemAccessor.extractXsuaaBindingFiles(bindings);
 		if (bindingFiles == null) {
 			logger.warn("Failed to read xsuaa service configuration files");
 			return serviceBindingProperties;
 		}
-
-		final List<File> secretProperties = Arrays.stream(bindingFiles).filter(File::isFile)
-				.collect(Collectors.toList());
-
-		for (final File property : secretProperties) {
-			try {
-				final List<String> lines = Files.readAllLines(Paths.get(property.getAbsolutePath()));
-				serviceBindingProperties.put(property.getName(), String.join("\\n", lines));
-			}
-			catch (IOException ex) {
-				logger.error("Failed to read secrets files", ex);
-				return serviceBindingProperties;
-			}
-		}
-		logger.debug("K8s secrets: {}", serviceBindingProperties);
-		return serviceBindingProperties;
+		return k8sFileSystemAccessor.getK8sXsuaaServiceProperties(bindingFiles);
 	}
 }

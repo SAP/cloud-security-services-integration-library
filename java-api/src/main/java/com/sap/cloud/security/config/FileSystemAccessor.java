@@ -2,6 +2,7 @@ package com.sap.cloud.security.config;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.Properties;
 
 /**
  * The interface for K8s File system access.
@@ -32,5 +33,7 @@ public interface FileSystemAccessor {
      * @return the file array of service configuration properties
      */
     @Nullable
-    File[] extractXsuaaBindingProperties(File[] bindings);
+    File[] extractXsuaaBindingFiles(File[] bindings);
+
+    Properties getK8sXsuaaServiceProperties(File [] bindingFiles);
 }
