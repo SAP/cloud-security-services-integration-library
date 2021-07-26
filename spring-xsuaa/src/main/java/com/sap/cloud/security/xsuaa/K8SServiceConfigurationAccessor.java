@@ -4,6 +4,7 @@ import com.sap.cloud.security.config.ServiceConfigurationAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
@@ -69,12 +70,12 @@ public class K8SServiceConfigurationAccessor implements ServiceConfigurationAcce
 	}
 
 	@Nullable
-	private File[] getXsuaaBindings() {
+	protected File[] getXsuaaBindings() {
 		return new File(customXsuaaPath != null ? customXsuaaPath : DEFAULT_XSUAA_PATH).listFiles();
 	}
 
 	@Nullable
-	private File[] extractSingleXsuaaBindingFiles(File[] bindings) {
+	protected File[] extractSingleXsuaaBindingFiles(File[] bindings) {
 		if (bindings != null && bindings.length != 0) {
 			final File binding = bindings[0];
 			LOGGER.debug("Found {} k8s secret binding(s). Selecting '{}'", bindings.length, binding.getName());
@@ -83,11 +84,11 @@ public class K8SServiceConfigurationAccessor implements ServiceConfigurationAcce
 		return null;
 	}
 
-	private Properties extractServiceProperties(List<File> servicePropertiesList) {
+	protected Properties extractServiceProperties(List<File> servicePropertiesList) {
 		Properties serviceBindingProperties = new Properties();
 		for (final File property : servicePropertiesList) {
 			try {
-				final List<String> lines = Files.readAllLines(Paths.get(property.getAbsolutePath()));
+				final List<String> lines = getLinesFromFile(property);
 				serviceBindingProperties.put(property.getName(), String.join("\\n", lines));
 			} catch (IOException ex) {
 				LOGGER.error("Failed to read secrets files", ex);
@@ -96,6 +97,11 @@ public class K8SServiceConfigurationAccessor implements ServiceConfigurationAcce
 		}
 		LOGGER.debug("K8s secrets: {}", serviceBindingProperties);
 		return serviceBindingProperties;
+	}
+
+	@Nonnull
+	protected List<String> getLinesFromFile(File property) throws IOException {
+		return Files.readAllLines(Paths.get(property.getAbsolutePath()));
 	}
 
 }
