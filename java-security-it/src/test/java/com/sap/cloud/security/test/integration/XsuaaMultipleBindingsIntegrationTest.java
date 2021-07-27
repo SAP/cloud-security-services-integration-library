@@ -13,13 +13,8 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,12 +27,6 @@ public class XsuaaMultipleBindingsIntegrationTest {
 	@ClassRule
 	public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA)
 			.setKeys("/publicKey.txt", "/privateKey.txt");
-
-	@Before
-	public void setUp() throws Exception {
-		String vcapServices = IOUtils.resourceToString("/vcap_services-multiple.json", StandardCharsets.UTF_8);
-		System.setProperty("VCAP_SERVICES",vcapServices);
-	}
 
 	@Test
 	public void createToken_integrationTest_tokenValidation() {
