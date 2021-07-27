@@ -3,11 +3,15 @@ All notable changes to this project will be documented in this file.
 
 ## 2.10.3
 #### Dependency upgrades
-- slf4j-api 1.7.30 --> 1.7.31
+- org.springframework.boot:spring-boot 2.5.0 --> 2.5.2
+- slf4j-api 1.7.30 --> 1.7.32
 - caffeine 2.8.8 --> 2.9.2
 - mockito 3.10.0 --> 3.11.2
 - assertj 3.19.0 --> 3.20.2
-- commons.io 2.9.0 --> 2.10.0
+- commons-io:commons-io 2.9.0 --> 2.11.0
+- io.projectreactor:reactor-test 3.4.5 -> 3.4.8
+- io.projectreactor:reactor-core 3.4.6 --> 3.4.8
+- com.github.tomakehurst:wiremock-jre8-standalone 2.27.2 --> 2.29.1
 - removes mockwebserver from parent
 
 ## 2.10.2

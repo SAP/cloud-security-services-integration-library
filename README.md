@@ -25,17 +25,16 @@ The SAP Java Buildpack integrates token validation into the tomcat server. Appli
 ### Requirements
 - Java 8
 - maven 3.3.9 or later
-- The application is deployed using the SAP Java Buildpack with version <= `v1.24.1`
 - You use `sap_java_buildpack` (e.g. in your `manifest.yml`)
+
+### Sample
+See [sap-java-builpack-api-usage](samples/sap-java-buildpack-api-usage) for an example.
 
 ### Changes with SAP Java Buildpack 1.26.0
 The former SAP Java Buildpack versions have used deprecated (Spring) Security libraries and had to be updated. As of version 1.26.0 SAP Java Buildpack uses the [`java-security`](/java-security) library. Please consider these (migration) guides:
 
 - [MANDATORY: clean-up deprecated dependencies](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/Migration_SAPJavaBuildpackProjects.md)
 - [OPTIONAL: Leverage new APIs and features](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/Migration_SAPJavaBuildpackProjects_V2.md)
-
-### Sample
-See [sap-java-builpack-api-usage](samples/sap-java-buildpack-api-usage) for an example.
 
 ## Token Exchange for Java applications
 Applications requiring access tokens (Jwt) use the Token Flows API defined in [token-client](./token-client) to obtain Jwt tokens for their clients (applications) or for their users.
