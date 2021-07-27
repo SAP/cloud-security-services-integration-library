@@ -75,7 +75,7 @@ public class K8SServiceConfigurationAccessor implements ServiceConfigurationAcce
 	}
 
 	@Nullable
-	protected File[] extractSingleXsuaaBindingFiles(File[] bindings) {
+	private File[] extractSingleXsuaaBindingFiles(File[] bindings) {
 		if (bindings != null && bindings.length != 0) {
 			final File binding = bindings[0];
 			LOGGER.debug("Found {} k8s secret binding(s). Selecting '{}'", bindings.length, binding.getName());
@@ -84,7 +84,7 @@ public class K8SServiceConfigurationAccessor implements ServiceConfigurationAcce
 		return null;
 	}
 
-	protected Properties extractServiceProperties(List<File> servicePropertiesList) {
+	private Properties extractServiceProperties(List<File> servicePropertiesList) {
 		Properties serviceBindingProperties = new Properties();
 		for (final File property : servicePropertiesList) {
 			try {
@@ -100,7 +100,7 @@ public class K8SServiceConfigurationAccessor implements ServiceConfigurationAcce
 	}
 
 	@Nonnull
-	protected List<String> getLinesFromFile(File property) throws IOException {
+	private List<String> getLinesFromFile(File property) throws IOException {
 		return Files.readAllLines(Paths.get(property.getAbsolutePath()));
 	}
 
