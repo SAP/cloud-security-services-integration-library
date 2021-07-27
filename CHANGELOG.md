@@ -3,7 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## 2.10.3
 #### Dependency upgrades
-- slf4j-api 1.7.30 --> 1.7.31
+- org.springframework.boot:spring-boot 2.5.0 --> 2.5.2
+- slf4j-api 1.7.30 --> 1.7.32
 - caffeine 2.8.8 --> 2.9.2
 - mockito 3.10.0 --> 3.11.2
 - assertj 3.19.0 --> 3.20.2
