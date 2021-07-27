@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-<!-- Please read carefully [Report an Issue](#report-an-issue) section before creating an Issue. -->
+<!-- Please read carefully https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/CONTRIBUTING.md#report-an-issue section before creating an Issue. -->
 
 **Describe the bug**
 A clear and concise description of what the bug is.
@@ -26,7 +26,9 @@ If applicable, add screenshots to help explain your problem.
 **Additional context**
 Add any other context about the problem here.
 
-### Issue Report Checklist
+<!-- Please make sure checklist is complete -->
+
+**Issue Report Checklist**
 
 - [ ] Real, current bug
 - [ ] Not a duplicate  
