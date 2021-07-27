@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-Please read carefully [Report an Issue](#report-an-issue) section before creating an Issue.
+<!-- Please read carefully [Report an Issue](#report-an-issue) section before creating an Issue. -->
 
 **Describe the bug**
 A clear and concise description of what the bug is.
