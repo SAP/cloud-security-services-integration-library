@@ -5,14 +5,6 @@
  */
 package com.sap.cloud.security.xsuaa;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import javax.annotation.Nullable;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -20,6 +12,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class XsuaaServicesParser {
 
@@ -34,6 +33,7 @@ public class XsuaaServicesParser {
 	private JSONObject credentialsJSON;
 
 	public XsuaaServicesParser() {
+		logger.debug("CF environment detected");
 		vcapServices = System.getenv().get(VCAP_SERVICES);
 		if (vcapServices == null || vcapServices.isEmpty()) {
 			logger.warn("Cannot extract XSUAA properties from VCAP_SERVICES environment variable.");
@@ -41,6 +41,7 @@ public class XsuaaServicesParser {
 	}
 
 	public XsuaaServicesParser(InputStream inputStream) throws IOException {
+		logger.debug("CF environment detected");
 		vcapServices = IOUtils.toString(inputStream, Charsets.toCharset(UTF_8.name()));
 		if (vcapServices == null || vcapServices.isEmpty()) {
 			logger.warn("Cannot parse inputStream to extract XSUAA properties.");
@@ -93,7 +94,7 @@ public class XsuaaServicesParser {
 	 *
 	 */
 	public Properties parseCredentials() throws IOException {
-		Properties properties = new Properties();
+		Properties properties =  new Properties();
 		JSONObject credentialsJsonObject = parseCredentials(vcapServices);
 		if (credentialsJsonObject != null) {
 			Set<String> keys = credentialsJsonObject.keySet();

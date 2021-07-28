@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.ServiceConfigurationAccessor;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,8 @@ import java.util.Properties;
 public class XsuaaServicePropertySourceFactory implements PropertySourceFactory {
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaServicePropertySourceFactory.class);
 
+	private static final ServiceConfigurationAccessor K8S_SERVICE_CONFIGURATION_ACCESSOR = new K8SServiceConfigurationAccessor();
+
 	protected static final String XSUAA_PREFIX = "xsuaa.";
 	private static final String XSUAA_PROPERTIES_KEY = "xsuaa";
 	public static final String CLIENT_ID = "xsuaa.clientid";
@@ -54,14 +57,19 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	@Override
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
 		Properties properties;
-		XsuaaServicesParser vcapServicesParser;
-		if (resource != null && resource.getResource().getFilename() != null
-				&& !resource.getResource().getFilename().isEmpty()) {
-			vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
+		if (isK8sEnv()) {
+			properties = K8S_SERVICE_CONFIGURATION_ACCESSOR.getXsuaaServiceProperties();
 		} else {
-			vcapServicesParser = new XsuaaServicesParser();
+			XsuaaServicesParser vcapServicesParser;
+			if (resource != null && resource.getResource().getFilename() != null
+					&& !resource.getResource().getFilename().isEmpty()) {
+				vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
+			} else {
+				vcapServicesParser = new XsuaaServicesParser();
+			}
+			properties = vcapServicesParser.parseCredentials();
 		}
-		properties = vcapServicesParser.parseCredentials();
+
 		logger.info("Parsed {} XSUAA properties.", properties.size());
 		return create(XSUAA_PROPERTIES_KEY, properties);
 	}
@@ -73,7 +81,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	 *            of the propertySource. Use only "xsuaa" as name in case you like
 	 *            to overwrite/set all properties.
 	 * @param properties
-	 *            map of xsuaa properties.
+	 *            map of xsuaa properties
 	 * @return created @Code{PropertySource}
 	 */
 	public static PropertySource create(String name, Properties properties) {
@@ -85,5 +93,10 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 			}
 		}
 		return new PropertiesPropertySource(name, properties);
+	}
+
+	private static boolean isK8sEnv() {
+		logger.debug("K8s environment detected");
+		return System.getenv().get("KUBERNETES_SERVICE_HOST") != null;
 	}
 }
