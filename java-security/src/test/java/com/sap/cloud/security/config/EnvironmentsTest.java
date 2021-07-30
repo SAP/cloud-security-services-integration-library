@@ -7,7 +7,10 @@ package com.sap.cloud.security.config;
 
 import com.sap.cloud.security.config.cf.CFConstants;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +19,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(SystemStubsExtension.class)
 public class EnvironmentsTest {
 
 	private final InputStream vcapMultipleXsuaa;
@@ -26,7 +30,7 @@ public class EnvironmentsTest {
 	}
 
 	@Test
-	public void getCurrent_returnsOnlySingleInstance() {
+	public void getCurrent_returnsOnlySingleCFInstance() {
 		Environment firstEnvironment = Environments.getCurrent();
 		Environment secondEnvironment = Environments.getCurrent();
 
@@ -34,10 +38,26 @@ public class EnvironmentsTest {
 	}
 
 	@Test
-	public void getCurrent_returnsCorrectEnvironment() {
-		// TODO 29.11.19 c5295400: extend test when more than one environment is
-		// supported
+	public void getCurrent_returnsOnlySingleK8sInstance(EnvironmentVariables environmentVariables) {
+		environmentVariables.set("KUBERNETES_SERVICE_HOST", "0.0.0.0");
+
+		Environment firstEnvironment = Environments.getCurrent();
+		Environment secondEnvironment = Environments.getCurrent();
+
+		assertThat(firstEnvironment).isSameAs(secondEnvironment);
+		assertThat(firstEnvironment.getType()).isSameAs(Environment.Type.KUBERNETES);
+	}
+
+	@Test
+	public void getCurrent_returnsCf() {
 		assertThat(Environments.getCurrent().getType()).isEqualTo(Environment.Type.CF);
+	}
+
+	@Test
+	void getCurrent_returnsK8s(EnvironmentVariables environmentVariables) {
+		environmentVariables.set("KUBERNETES_SERVICE_HOST", "0.0.0.0");
+		Environment cut = Environments.getCurrent();
+		assertThat(cut.getType()).isEqualTo(Environment.Type.KUBERNETES);
 	}
 
 	@Test
