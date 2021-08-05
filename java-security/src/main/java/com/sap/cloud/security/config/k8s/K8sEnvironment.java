@@ -124,6 +124,7 @@ public class K8sEnvironment implements Environment {
         Map<String, OAuth2ServiceConfiguration> allServices = new HashMap<>();
         File[] serviceBindings = getServiceBindings(service);
         if (serviceBindings != null){
+            LOGGER.debug("Found {} {} service bindings", serviceBindings.length, service);
             for (File binding : serviceBindings){
                 Map<String, String> servicePropertiesMap = getServiceProperties(binding);
                 OAuth2ServiceConfiguration config = OAuth2ServiceConfigurationBuilder.forService(service)

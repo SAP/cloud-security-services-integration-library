@@ -48,6 +48,7 @@ public class DefaultOAuth2SMService implements OAuth2SMService {
         } catch (OAuth2ServiceException e) {
             e.printStackTrace();
         }
+        LOGGER.debug("Service plans: {}", servicePlanMap);
         return servicePlanMap;
     }
 
@@ -64,6 +65,7 @@ public class DefaultOAuth2SMService implements OAuth2SMService {
         } catch (OAuth2ServiceException e) {
             e.printStackTrace();
         }
+        LOGGER.debug("Service instances: {}", serviceInstanceMap);
         return serviceInstanceMap;
     }
 
@@ -72,15 +74,16 @@ public class DefaultOAuth2SMService implements OAuth2SMService {
         Map<String, String> servicePlans = getServicePlans();
         Map<String, String> serviceInstances = getServiceInstances();
         serviceInstances.keySet().forEach(k -> serviceInstances.put(k, servicePlans.get(serviceInstances.get(k))));
+        LOGGER.debug("Service Instances with plan names: {}", serviceInstances);
         return serviceInstances;
     }
 
     private JSONArray executeRequest(HttpUriRequest httpRequest) throws OAuth2ServiceException {
-        LOGGER.debug("Http request from url {} with headers {}", httpRequest.getURI(),
+        LOGGER.debug("Executing Http request to {} with headers {}", httpRequest.getURI(),
                 httpRequest.getAllHeaders());
         try (CloseableHttpResponse response = httpClient.execute(httpRequest)) {
             int statusCode = response.getStatusLine().getStatusCode();
-            LOGGER.debug("Received statusCode {}", statusCode);
+            LOGGER.debug("Received statusCode {} from {}", statusCode, httpRequest.getURI());
             if (statusCode == HttpStatus.SC_OK) {
                 return handleResponse(response);
             } else {
