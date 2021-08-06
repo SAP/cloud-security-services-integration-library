@@ -1,0 +1,69 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: spring-security-hybrid-usage
+    kyma-grafana: enabled
+  name: spring-security-hybrid-usage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-security-hybrid-usage
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: spring-security-hybrid-usage
+        kyma-grafana: enabled
+    spec:
+      containers:
+        - image: <placeholder for image repository>
+          imagePullPolicy: Always
+          name: spring-security-hybrid-usage
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: xsuaa
+              mountPath: "/etc/secrets/sapcp/xsuaa/xsuaa-auth"
+              readOnly: true
+            - name: ias
+              mountPath: "/etc/secrets/sapcp/ias/ias-auth"
+              readOnly: true
+            - name: service-manager
+              mountPath: "/etc/secrets/sapcp/service-manager/sm"
+              readOnly: true
+
+      imagePullSecrets:
+        - name: docker-registry
+
+      volumes:
+        - name: xsuaa
+          secret:
+              secretName: <placeholder for secretName>
+        - name: ias
+          secret:
+              secretName: <placeholder for secretName>
+        - name: service-manager
+          secret:
+              secretName: <placeholder for secretName>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: spring-security-hybrid-usage
+  name: spring-security-hybrid-usage
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: spring-security-hybrid-usage
