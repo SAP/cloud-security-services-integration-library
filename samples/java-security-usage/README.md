@@ -28,7 +28,7 @@ Replace the placeholders for image repository in deployment.yml with the one cre
 ## Deploy the application
 Deploy the application using [kubectl cli](https://kubernetes.io/docs/reference/kubectl/)
 ```shell script
-kubectl apply -f ./deployment.yml -n <YOUR NAMESPACE>
+kubectl apply -f ./k8s/deployment.yml -n <YOUR NAMESPACE>
 ```
 
 ## Cockpit administration tasks: Assign Role Collection to your user
