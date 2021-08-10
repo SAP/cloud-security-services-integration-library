@@ -1,0 +1,205 @@
+{
+  "num_items": 7,
+  "items": [
+    {
+      "id": "89ae3076-9c50-4c86-a917-7953c2e75cf2",
+      "ready": true,
+      "name": "lite",
+      "description": "Read and manage destination configurations (including related certificates) on account and service instance levels with auto-retrieving and caching of auth tokens",
+      "catalog_id": "b3440416-15f9-11e7-bdac-02667c123456",
+      "catalog_name": "lite",
+      "free": true,
+      "metadata": {
+        "displayName": "lite",
+        "bullets": [
+          "Shared service resources for all applications",
+          "Limit of 1000 configurations (destinations + certificates)"
+        ]
+      },
+      "service_offering_id": "7cd0e186-41a7-4593-b725-8a9db333e329",
+      "created_at": "2019-06-26T13:41:56.926476Z",
+      "updated_at": "2021-08-02T09:19:23.663748Z",
+      "labels": {
+        "complementary": [
+          "true"
+        ]
+      }
+    },
+    {
+      "id": "037e7df6-5843-4174-9cb4-69a1f9a4da7e",
+      "ready": true,
+      "name": "application",
+      "description": "Application plan to be used for business applications",
+      "catalog_id": "ThGdx5loQ6XhvcdY6dLlEXcTgQD7641pDKXJfzwYGLg=",
+      "catalog_name": "application",
+      "free": true,
+      "bindable": true,
+      "metadata": {
+        "supportedPlatforms": [
+          "cloudfoundry",
+          "sapcp",
+          "kubernetes"
+        ],
+        "supportedMinOSBVersion": "2.11",
+        "sibling_resolution": {
+          "resolution_property": "siblingIds",
+          "name_paths": [
+            "scopes.#.granted-apps",
+            "scopes.#.grant-as-authority-to-apps",
+            "foreign-scope-references",
+            "authorities",
+            "role-collections.#.role-template-references"
+          ],
+          "value_regexp": "\\$XSSERVICENAME\\((.*)\\)",
+          "enabled": true
+        },
+        "bullets": [
+          "Tenant isolation",
+          "Supports different OAuth flows (Client credentials, authorization code, SAML bearer assertion)",
+          "One OAuth client per service instance"
+        ],
+        "supportedMaxOSBVersion": "2.14"
+      },
+      "service_offering_id": "a3199d59-3fdc-41f5-a258-8ea36ff26762",
+      "created_at": "2019-06-26T13:51:49.854908Z",
+      "updated_at": "2021-08-02T09:32:35.244776Z",
+      "labels": {
+        "complementary": [
+          "true"
+        ]
+      }
+    },
+    {
+      "id": "bb769fcb-c8b9-4612-beac-18be9743a3b7",
+      "ready": true,
+      "name": "broker",
+      "description": "Broker plan to be used by business reuse services / service brokers",
+      "catalog_id": "HWEgt9/jJGFjzT8j+/x9pGivrAuKbUMUK8PgWEx3cLY=",
+      "catalog_name": "broker",
+      "free": true,
+      "bindable": true,
+      "metadata": {
+        "supportedPlatforms": [
+          "cloudfoundry",
+          "sapcp",
+          "kubernetes"
+        ],
+        "supportedMinOSBVersion": "2.11",
+        "sibling_resolution": {
+          "resolution_property": "siblingIds",
+          "name_paths": [
+            "scopes.#.granted-apps",
+            "scopes.#.grant-as-authority-to-apps",
+            "foreign-scope-references",
+            "authorities",
+            "role-collections.#.role-template-references"
+          ],
+          "value_regexp": "\\$XSSERVICENAME\\((.*)\\)",
+          "enabled": true
+        },
+        "bullets": [
+          "Tenant isolation",
+          "Supports different OAuth flows (Client credentials, user token)",
+          "One OAuth client for the reuse service itself + one per instance of the reuse service"
+        ],
+        "supportedMaxOSBVersion": "2.14"
+      },
+      "service_offering_id": "a3199d59-3fdc-41f5-a258-8ea36ff26762",
+      "created_at": "2019-06-26T13:51:49.854908Z",
+      "updated_at": "2021-08-02T09:32:35.190203Z",
+      "labels": {
+        "complementary": [
+          "true"
+        ]
+      }
+    },
+    {
+      "id": "ca8adb0e-d560-41aa-bf63-12ec2af02035",
+      "ready": true,
+      "name": "subaccount-admin",
+      "description": "Allows management of resources in the subaccount in which the service instance of this plan was created. This includes managing service instances, bindings and subaccount-scoped platforms.",
+      "catalog_id": "f7909c1d-deb9-4adc-b285-c5bb192e8fdb",
+      "catalog_name": "subaccount-admin",
+      "free": true,
+      "service_offering_id": "1144b9b1-78d7-4a71-be9c-9ec55e090327",
+      "created_at": "2020-01-22T17:06:11.986105Z",
+      "updated_at": "2021-08-02T09:21:28.862437Z",
+      "labels": {
+        "commercial_name": [
+          "subaccount-admin"
+        ]
+      }
+    },
+    {
+      "id": "68c36c40-66b4-49ac-9cc1-13c2eb90dd1e",
+      "ready": true,
+      "name": "standard",
+      "description": "Standard Plan",
+      "catalog_id": "b06ea7ac-5acd-4640-a494-00651245a08d",
+      "catalog_name": "standard",
+      "free": true,
+      "metadata": {
+        "auto_subscription": {
+          "app_name": "cas-saas-registry-prod"
+        }
+      },
+      "service_offering_id": "2a9bc237-184f-4567-aa60-bb8e197bd036",
+      "created_at": "2020-07-29T13:52:22.141147Z",
+      "updated_at": "2021-08-02T09:24:26.430849Z",
+      "labels": {
+        "complementary": [
+          "true"
+        ]
+      }
+    },
+    {
+      "id": "ffed14e0-82fe-4553-b549-644cf9fb63ff",
+      "ready": true,
+      "name": "application",
+      "description": "Application plan for generic content management APIs",
+      "catalog_id": "a2560e7c-b969-4a72-b4d0-cce36d37e383",
+      "catalog_name": "application",
+      "free": true,
+      "metadata": {
+        "auto_subscription": {
+          "app_name": "cas-saas-registry-prod"
+        }
+      },
+      "service_offering_id": "2a9bc237-184f-4567-aa60-bb8e197bd036",
+      "created_at": "2020-10-12T08:34:57.351949Z",
+      "updated_at": "2021-08-02T09:24:26.482517Z",
+      "labels": {
+        "complementary": [
+          "true"
+        ]
+      }
+    },
+    {
+      "id": "b0fd827c-2391-4619-bfb8-56b8b1dc197b",
+      "ready": true,
+      "name": "application",
+      "description": "Register an application into your Identity Authentication tenant",
+      "catalog_id": "86af6685-7bae-40b8-b564-378284c8fcc9",
+      "catalog_name": "application",
+      "free": true,
+      "bindable": true,
+      "metadata": {
+        "sibling_resolution": {
+          "names_path": "consumed-services.#.service-instance-name",
+          "resolution_property": "siblingIds",
+          "enabled": true
+        },
+        "supportedMinOSBVersion": "2.11",
+        "supportedMaxOSBVersion": "2.15"
+      },
+      "service_offering_id": "b518cc1f-8523-4331-b7a1-d6f196854b05",
+      "created_at": "2020-10-28T11:53:29.219855Z",
+      "updated_at": "2021-08-02T09:25:26.195847Z",
+      "labels": {
+        "commercial_name": [
+          "application"
+        ]
+      }
+    }
+  ]
+}

@@ -58,7 +58,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
 		Properties properties;
 		if (isK8sEnv()) {
-			properties = K8S_SERVICE_CONFIGURATION_ACCESSOR.getXsuaaServiceProperties();
+			properties = K8S_SERVICE_CONFIGURATION_ACCESSOR.getXsuaaServiceConfiguration();
 		} else {
 			XsuaaServicesParser vcapServicesParser;
 			if (resource != null && resource.getResource().getFilename() != null

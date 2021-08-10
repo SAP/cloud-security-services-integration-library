@@ -12,13 +12,13 @@ public interface ServiceConfigurationAccessor {
 	 *
 	 * @return the XSUAA service properties
 	 */
-	Properties getXsuaaServiceProperties();
+	Properties getXsuaaServiceConfiguration();
 
 	/**
 	 * Gets IAS service instance properties.
 	 *
 	 * @return the IAS service properties
 	 */
-	Properties getIasServiceProperties();
+	Properties getIasServiceConfiguration();
 
 }
