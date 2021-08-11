@@ -1,33 +1,13 @@
----
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
-
----
-
 <!-- Please read carefully https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/CONTRIBUTING.md#report-an-issue section before creating an Issue. -->
 
-**Describe the bug**
-A clear and concise description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce the behavior:
-1.  '...'
-2.  '...'
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Additional context**
-Add any other context about the problem here.
+**Issue Summary**
+- A clear and concise description of the issue.
+- Steps to reproduce the problem: 1. 2. 3.
+- What is the expected result?
+- What happened instead?
+- Additional information? (attach screenshots if applicable)
 
 <!-- Please make sure checklist is complete -->
-
 **Issue Report Checklist**
 
 - [ ] Real, current bug
@@ -39,4 +19,4 @@ Add any other context about the problem here.
     - [ ] log level increased to `DEBUG` debug logs provided
     - [ ] POM provided
     - [ ] dependency tree provided
-    - [ ] code snippet provided
+    - [ ] code snippet provided (when applicable)
