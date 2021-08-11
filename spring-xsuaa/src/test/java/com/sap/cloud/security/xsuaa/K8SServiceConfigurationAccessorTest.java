@@ -21,7 +21,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class K8SServiceConfigurationAccessorTest {
-
+    private static final String SERVICE_PLANS = "/v1/service_plans";
+    private static final String SERVICE_INSTANCES = "/v1/service_instances";
     static K8SServiceConfigurationAccessor cut;
 
     @BeforeAll
@@ -30,21 +31,10 @@ class K8SServiceConfigurationAccessorTest {
         String absolutePath = file.getAbsolutePath();
         String serviceInstances = IOUtils.resourceToString("/k8s/serviceInstances.json", StandardCharsets.UTF_8);
         String servicePlans = IOUtils.resourceToString("/k8s/servicePlans.json", StandardCharsets.UTF_8);
+
         XsuaaOAuth2SMService smServiceMock = mock(XsuaaOAuth2SMService.class);
-        HttpHeaders header = new HttpHeaders();
-        header.setContentType(MediaType.APPLICATION_JSON);
-        ResponseEntity<String> serviceInstanceEntity = new ResponseEntity<>(
-                serviceInstances,
-                header,
-                HttpStatus.OK
-        );
-        ResponseEntity<String> servicePlanEntity = new ResponseEntity<>(
-                servicePlans,
-                header,
-                HttpStatus.OK
-        );
-        when(smServiceMock.executeRequest("/v1/service_plans")).thenReturn(servicePlanEntity);
-        when(smServiceMock.executeRequest("/v1/service_instances")).thenReturn(serviceInstanceEntity);
+        when(smServiceMock.executeRequest(SERVICE_PLANS)).thenReturn(createResponseEntity(servicePlans));
+        when(smServiceMock.executeRequest(SERVICE_INSTANCES)).thenReturn(createResponseEntity(serviceInstances));
         when(smServiceMock.getServiceInstances()).thenCallRealMethod();
         when(smServiceMock.getServicePlans()).thenCallRealMethod();
         when(smServiceMock.getServiceInstancePlans()).thenCallRealMethod();
@@ -66,5 +56,15 @@ class K8SServiceConfigurationAccessorTest {
     @Test
     void getIasServiceProperties() {
         assertThrows(UnsupportedOperationException.class, cut::getIasServiceConfiguration, "IAS is not supported");
+    }
+
+    private static ResponseEntity<String> createResponseEntity(String responseBody) {
+        HttpHeaders header = new HttpHeaders();
+        header.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(
+                responseBody,
+                header,
+                HttpStatus.OK
+        );
     }
 }
