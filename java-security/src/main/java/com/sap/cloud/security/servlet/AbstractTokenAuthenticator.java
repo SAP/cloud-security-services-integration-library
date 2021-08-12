@@ -44,6 +44,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
+			logger.debug("Authorization header: {}", authorizationHeader);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = Token.create(authorizationHeader);

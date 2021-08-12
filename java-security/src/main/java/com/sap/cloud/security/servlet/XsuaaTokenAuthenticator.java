@@ -103,6 +103,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 		if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
+			LOGGER.debug("Authorization header: {}", authorizationHeader);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					Token token = Token.create(authorizationHeader);
