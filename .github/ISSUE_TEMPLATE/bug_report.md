@@ -1,4 +1,13 @@
-<!-- Please read carefully https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/CONTRIBUTING.md#report-an-issue section before creating an Issue. -->
+---
+name: Bug report
+about: Report a new bug
+title: ''
+labels: bug
+assignees: ''
+
+---
+
+Please first read carefully [Report an issue](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/CONTRIBUTING.md#report-an-issue) section before creating an Issue.
 
 **Issue Summary**
 - A clear and concise description of the issue.
