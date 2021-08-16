@@ -9,7 +9,9 @@ Client Libraries support Kubernetes/Kyma environment
 - [samples/spring-security-hybrid-usage] enabled for Kyma/Kubernetes environment
 
 #### Dependency upgrades
-- wiremock 2.29.1 --> 2.30.0
+- wiremock 2.29.1 --> 2.30.1
+- io.projectreactor:reactor-core 3.4.8 --> 3.4.9  
+- io.projectreactor:reactor-test 3.4.8 --> 3.4.9
 
 ## 2.10.3
 #### Dependency upgrades
