@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class OAuth2TokenResponse {
 	private String refreshToken;
 	private String accessToken;
+	private String tokenType;
 	private long expiredTimeMillis;
 
 	public OAuth2TokenResponse(@Nullable String accessToken, long expiredInSeconds, @Nullable String refreshToken) {
@@ -24,6 +25,10 @@ public class OAuth2TokenResponse {
 		this.refreshToken = refreshToken;
 	}
 
+	public OAuth2TokenResponse(@Nullable String accessToken, long expiredInSeconds, @Nullable String refreshToken, String tokenType) {
+		this(accessToken, expiredInSeconds, refreshToken);
+		this.tokenType = tokenType;
+	}
 	/**
 	 * An OAuth2 access token. This token will be a JSON Web Token suitable for
 	 * offline validation by OAuth2 Resource Servers.
@@ -80,6 +85,10 @@ public class OAuth2TokenResponse {
 	@Nullable
 	public String getRefreshToken() {
 		return refreshToken;
+	}
+
+	public String getTokenType() {
+		return tokenType;
 	}
 
 	@Override
