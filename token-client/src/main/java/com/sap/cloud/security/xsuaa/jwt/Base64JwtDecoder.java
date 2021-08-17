@@ -101,9 +101,7 @@ public final class Base64JwtDecoder {
 			return  "Jwt header" + lineSeparator() +
 					TAB + getHeader() + lineSeparator() +
 					"Jwt payload" + lineSeparator() +
-					TAB + getPayload() + lineSeparator() +
-					"Jwt signature" + lineSeparator() +
-					TAB + getSignature() + lineSeparator();
+					TAB + getPayload() + lineSeparator();
 		}
 	}
 }
