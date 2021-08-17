@@ -76,7 +76,7 @@ public class HybridTokenFactory implements TokenFactory {
 		if (xsAppId == null) {
 			OAuth2ServiceConfiguration serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
 			if (serviceConfiguration == null) {
-				LOGGER.error("There is no xsuaa service configuration: no local scope check possible.");
+				LOGGER.warn("There is no xsuaa service configuration: no local scope check possible.");
 			} else {
 				xsAppId = serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
 			}
