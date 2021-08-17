@@ -148,17 +148,6 @@ public class XsuaaTokenAuthenticatorTest {
 	}
 
 	@Test
-	public void validateRequest_invalidToken2_isUnauthenticated() {
-		String errorMessage = "Unexpected error occurred:";
-		HttpServletRequest httpRequest = createRequestWithToken("Bearer invalid.invalid.invalid");
-
-		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
-
-		assertThat(response.isAuthenticated()).isFalse();
-		assertThat(response.getUnauthenticatedReason()).startsWith(errorMessage);
-	}
-
-	@Test
 	public void validateRequest_validToken_containedInSecurityContext() {
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
 
