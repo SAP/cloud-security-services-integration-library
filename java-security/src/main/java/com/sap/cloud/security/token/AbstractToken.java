@@ -39,7 +39,6 @@ public abstract class AbstractToken implements Token {
 	protected final DefaultJsonObject tokenBody;
 
 	public AbstractToken(@Nonnull DecodedJwt decodedJwt) {
-		LOGGER.debug("Decoded Jwt: HEADER - {}, PAYLOAD - {}, SIGNATURE - {}", decodedJwt.getHeader(), decodedJwt.getPayload(), decodedJwt.getSignature());
 		this.tokenHeader = new DefaultJsonObject(decodedJwt.getHeader());
 		this.tokenBody = new DefaultJsonObject(decodedJwt.getPayload());
 		this.decodedJwt = decodedJwt;
