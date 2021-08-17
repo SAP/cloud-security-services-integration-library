@@ -23,6 +23,7 @@ public class Environments {
 
 	private static Environment cfEnvironment; // singleton
 	private static Environment k8sEnvironment;  // singleton
+	private static Boolean isK8sEnv;
 
 	private Environments() {
 		// use factoryMethods instead
@@ -59,7 +60,7 @@ public class Environments {
 
 	/**
 	 * Reads {@link Environment} not from system environment but from
-	 * {@link InputStream}.
+	 * {@link InputStream}. Is applicable only to CF environment and expects the input to be in VCAP services format.
 	 * 
 	 * @param input
 	 *            e.g. from file
@@ -75,7 +76,10 @@ public class Environments {
 	}
 
 	private static boolean isK8sEnv() {
-		return System.getenv().get("KUBERNETES_SERVICE_HOST") != null;
+		if (isK8sEnv == null){
+			isK8sEnv = System.getenv().get("KUBERNETES_SERVICE_HOST") != null;
+		}
+		return isK8sEnv;
 	}
 
 }
