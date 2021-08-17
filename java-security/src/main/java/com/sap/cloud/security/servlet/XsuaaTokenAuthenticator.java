@@ -10,6 +10,7 @@ import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -121,6 +122,9 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 						}
 					}
 					return tokenValidationResult(token);
+				} catch (JsonParsingException e){
+					LOGGER.debug("There was a JSON parsing issue for Jwt: {}... - {}", authorizationHeader.substring(0, 20), e.getMessage());
+					return createUnauthenticated("Unexpected error occurred: " + e.getMessage());
 				} catch (Exception e) {
 					return createUnauthenticated("Unexpected error occurred: " + e.getMessage());
 				}

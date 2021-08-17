@@ -9,6 +9,7 @@ import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationListener;
@@ -49,6 +50,9 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 				try {
 					Token token = Token.create(authorizationHeader);
 					return tokenValidationResult(token);
+				} catch (JsonParsingException e){
+					logger.error("There was a JSON parsing issue for Jwt: {}... - {}", authorizationHeader.substring(0, 20), e.getMessage());
+					return unauthenticated("Unexpected error occurred: " + e.getMessage());
 				} catch (Exception e) {
 					return unauthenticated("Unexpected error occurred: " + e.getMessage());
 				}
