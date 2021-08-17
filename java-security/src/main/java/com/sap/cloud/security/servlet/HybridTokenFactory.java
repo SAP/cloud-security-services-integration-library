@@ -8,6 +8,7 @@ package com.sap.cloud.security.servlet;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
@@ -43,14 +44,18 @@ public class HybridTokenFactory implements TokenFactory {
 	 * @return the new token instance
 	 */
 	public Token create(String jwtToken) {
+		try {
+			Objects.requireNonNull(jwtToken, "Requires encoded jwtToken to create a Token instance.");
+			DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
 
-		Objects.requireNonNull(jwtToken, "Requires encoded jwtToken to create a Token instance.");
-		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
-
-		if (isXsuaaToken(decodedJwt)) {
-			return new XsuaaToken(decodedJwt).withScopeConverter(getOrCreateScopeConverter());
+			if (isXsuaaToken(decodedJwt)) {
+				return new XsuaaToken(decodedJwt).withScopeConverter(getOrCreateScopeConverter());
+			}
+			return new SapIdToken(decodedJwt);
+		} catch (JsonParsingException e) {
+			LOGGER.error("Issue with Jwt parsing. Authorization header: {} - {}", jwtToken.substring(0, 20), e.getMessage());
+			throw new JsonParsingException("Issue with Jwt parsing: " + e.getMessage());
 		}
-		return new SapIdToken(decodedJwt);
 	}
 
 	/**
