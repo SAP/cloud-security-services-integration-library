@@ -64,10 +64,10 @@ public class K8sEnvironment implements Environment {
     private static Map<Service, List<OAuth2ServiceConfiguration>> loadAll() {
         Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations = new HashMap<>(); // NOSONAR
         List<OAuth2ServiceConfiguration> allXsuaaServices = loadOauth2ServiceConfig(Service.XSUAA);
-        List<OAuth2ServiceConfiguration> allIasServices = loadOauth2ServiceConfig(Service.IAS);
+        List<OAuth2ServiceConfiguration> iasService = loadOauth2ServiceConfig(Service.IAS);
 
         serviceConfigurations.put(Service.XSUAA, allXsuaaServices);
-        serviceConfigurations.put(Service.IAS, allIasServices);
+        serviceConfigurations.put(Service.IAS, iasService);
         return serviceConfigurations;
     }
 
