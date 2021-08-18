@@ -1,7 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.10.4
+## 2.10.5
+- [token-client] 
+  - `XsuaaTokenFlows` constructor accepts `com.sap.cloud.security.xsuaa.client.ClientCredentials` as argument.
+
+## 2.10.5
 - [java-security] Enrich `JsonParsingException` to detect wrong authorization headers earlier
 - [token-client] 
   - `ClientCredentials`: solves incompatible change between 2.9.0 and 2.10.0
