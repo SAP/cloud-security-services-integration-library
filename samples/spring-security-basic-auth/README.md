@@ -12,8 +12,11 @@ This sample is using the spring-security project. As of version 5 of spring-secu
 
 Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes) or [Cloud Foundry](#Deployment-on-Cloud-Foundry).
 
+ 
 # Deployment on Kyma/Kubernetes
-To deploy the application, the following steps are required:
+<details>
+<summary>Collapse this to follow the deployment steps</summary>
+  
 - Build docker image and push to repository
 - Configure the deployment.yml
 - Deploy the application
@@ -70,6 +73,7 @@ Finally, delete your application and your service instances using the following 
 ```shell script
  kubectl delete -f ./k8s/deployment.yml
 ```
+</details>
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
