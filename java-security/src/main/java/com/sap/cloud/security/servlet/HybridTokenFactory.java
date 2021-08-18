@@ -53,7 +53,7 @@ public class HybridTokenFactory implements TokenFactory {
 			}
 			return new SapIdToken(decodedJwt);
 		} catch (JsonParsingException e) {
-			throw new JsonParsingException(String.format("Issue with Jwt parsing. Authorization header: %s - %s", jwtToken.substring(0, 20), e.getMessage()));
+			throw new JsonParsingException(String.format("Issue with Jwt parsing. Authorization header: %s - %s", jwtToken.substring(0, 20), e.getMessage()), e);
 		}
 	}
 
