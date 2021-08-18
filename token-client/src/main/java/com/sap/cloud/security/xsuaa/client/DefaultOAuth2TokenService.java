@@ -113,8 +113,9 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		String accessToken = getParameter(accessTokenMap, ACCESS_TOKEN);
 		String refreshToken = getParameter(accessTokenMap, REFRESH_TOKEN);
 		String expiresIn = getParameter(accessTokenMap, EXPIRES_IN);
+		String tokenType = getParameter(accessTokenMap, TOKEN_TYPE);
 		return new OAuth2TokenResponse(accessToken, convertExpiresInToLong(expiresIn),
-				refreshToken);
+				refreshToken, tokenType);
 	}
 
 	private Long convertExpiresInToLong(String expiresIn) throws OAuth2ServiceException {
