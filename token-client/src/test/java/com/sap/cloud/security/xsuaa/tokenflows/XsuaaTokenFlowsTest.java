@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -77,5 +78,12 @@ public class XsuaaTokenFlowsTest {
 	public void startPasswordTokenFlow() {
 		PasswordTokenFlow flow = cut.passwordTokenFlow();
 		assertNotNull("PasswordTokenFlow must not be null.", flow);
+	}
+
+	@Test
+	public void versionMismatch() throws TokenFlowException {
+		cut = new XsuaaTokenFlows(oAuth2TokenService, this.endpointsProvider, new com.sap.cloud.security.xsuaa.client.ClientCredentials("sb-spring-netflix-demo!t12291",
+				"2Tc2Xz7DNy4KiACwvunulmxF32w="));
+		cut.clientCredentialsTokenFlow().execute();
 	}
 }
