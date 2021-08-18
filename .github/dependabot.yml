@@ -4,7 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-      time: "16:30"
+      time: "10:00"
       timezone: Etc/UCT
     reviewers:
       - "nenaraab"
