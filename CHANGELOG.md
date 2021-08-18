@@ -1,6 +1,21 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.10.4
+- [java-security] Enrich `JsonParsingException` to detect wrong authorization headers earlier
+- [token-client] 
+  - `ClientCredentials`: solves incompatible change between 2.9.0 and 2.10.0
+  - `OAuth2TokenResponse.getTokenType()` exposes token type as provided by token request 
+- [spring-xsuaa] 
+  - `XsuaaServiceConfigurationDefault.hasProperty("apiurl")` returns true if VCAP_SERVICES-xsuaa-credentials contains attribute "apiurl"
+  -`XsuaaServiceConfigurationDefault.getProperty("apiurl")` returns value from VCAP_SERVICES-xsuaa-credentials-apiurl or null, if attribute does not exist.
+- [spring-security]`HybridJwtDecoder` raises ``BadJwtException`` in case the token is invalid and can not be decoded properly. 
+
+#### Dependency upgrades
+- wiremock 2.29.1 --> 2.30.1
+- io.projectreactor:reactor-core 3.4.8 --> 3.4.9  
+- io.projectreactor:reactor-test 3.4.8 --> 3.4.9
+
 ## 2.10.3
 #### Dependency upgrades
 - org.springframework.boot:spring-boot 2.5.0 --> 2.5.2

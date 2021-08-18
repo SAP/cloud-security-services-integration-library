@@ -40,9 +40,10 @@ public class DefaultOAuth2TokenServiceTest {
 
 	private static final String ACCESS_TOKEN = "abc123";
 	private static final String REFRESH_TOKEN = "def456";
+	private static final String TOKEN_TYPE = "bearer";
 	private static final String VALID_JSON_RESPONSE = String
-			.format("{expires_in: 10000, access_token: %s, refresh_token: %s}",
-					ACCESS_TOKEN, REFRESH_TOKEN);
+			.format("{expires_in: 10000, access_token: %s, refresh_token: %s, token_type: %s}",
+					ACCESS_TOKEN, REFRESH_TOKEN, TOKEN_TYPE);
 	private static final URI TOKEN_ENDPOINT_URI = URI.create("https://subdomain.myauth.server.com/oauth/token");
 
 	private CloseableHttpClient mockHttpClient;
@@ -74,6 +75,7 @@ public class DefaultOAuth2TokenServiceTest {
 		assertThat(re.getAccessToken()).isEqualTo(ACCESS_TOKEN);
 		assertThat(re.getRefreshToken()).isEqualTo(REFRESH_TOKEN);
 		assertThat(re.getExpiredAt()).isAfter(Instant.now());
+		assertThat(re.getTokenType()).isEqualTo(TOKEN_TYPE);
 	}
 
 	@Test

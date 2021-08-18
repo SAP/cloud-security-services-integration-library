@@ -22,6 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SystemStubsExtension.class)
 class EnvironmentsTest {
 
+	private static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
+	private static final String K8S_HOST_VALUE = "0.0.0.0";
 	private final InputStream vcapMultipleXsuaa;
 
 	EnvironmentsTest() throws IOException {
@@ -38,8 +40,8 @@ class EnvironmentsTest {
 	}
 
 	@Test
-	void getCurrent_returnsOnlySingleK8sInstance(EnvironmentVariables environmentVariables) {
-		environmentVariables.set("KUBERNETES_SERVICE_HOST", "0.0.0.0");
+	 void getCurrent_returnsOnlySingleK8sInstance(EnvironmentVariables environmentVariables) {
+		environmentVariables.set(KUBERNETES_SERVICE_HOST, K8S_HOST_VALUE);
 
 		Environment firstEnvironment = Environments.getCurrent();
 		Environment secondEnvironment = Environments.getCurrent();
@@ -49,20 +51,19 @@ class EnvironmentsTest {
 	}
 
 	@Test
-	void getCurrent_returnsCf() {
+	 void getCurrent_returnsCf() {
 		assertThat(Environments.getCurrent().getType()).isEqualTo(Environment.Type.CF);
 	}
 
 	@Test
 	void getCurrent_returnsK8s(EnvironmentVariables environmentVariables) {
-		environmentVariables.set("KUBERNETES_SERVICE_HOST", "0.0.0.0");
-
+		environmentVariables.set(KUBERNETES_SERVICE_HOST, K8S_HOST_VALUE);
 		Environment cut = Environments.getCurrent();
 		assertThat(cut.getType()).isEqualTo(Environment.Type.KUBERNETES);
 	}
 
 	@Test
-	void readFromInputMultipleInstances() {
+	 void readFromInputMultipleInstances() {
 		Environment cut = Environments.readFromInput(vcapMultipleXsuaa);
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
