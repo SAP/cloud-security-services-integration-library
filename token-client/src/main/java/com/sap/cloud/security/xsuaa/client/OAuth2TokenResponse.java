@@ -14,14 +14,14 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class OAuth2TokenResponse {
-	public static final String TOKEN_TYPE = "bearer";
+	static final String TOKEN_TYPE_DEFAULT = "bearer";
 	private final String refreshToken;
 	private final String accessToken;
 	private final String tokenType;
 	private final long expiredTimeMillis;
 
 	public OAuth2TokenResponse(@Nullable String accessToken, long expiredInSeconds, @Nullable String refreshToken) {
-		this(accessToken, expiredInSeconds, refreshToken, TOKEN_TYPE);
+		this(accessToken, expiredInSeconds, refreshToken, TOKEN_TYPE_DEFAULT);
 	}
 
 	public OAuth2TokenResponse(@Nullable String accessToken, long expiredInSeconds, @Nullable String refreshToken,
