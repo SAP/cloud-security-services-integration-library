@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.10.4
+Client Libraries support Kubernetes/Kyma environment
+- [samples/java-security-usage] enabled for Kyma/Kubernetes environment
+- [samples/spring-security-basic-auth] enabled for Kyma/Kubernetes environment
+- [samples/spring-security-xsuaa-usage] enabled for Kyma/Kubernetes environment
+- [samples/spring-security-hybrid-usage] enabled for Kyma/Kubernetes environment
+
+#### Dependency upgrades
+- wiremock 2.29.1 --> 2.30.1
+- io.projectreactor:reactor-core 3.4.8 --> 3.4.9  
+- io.projectreactor:reactor-test 3.4.8 --> 3.4.9
+
 ## 2.10.3
 #### Dependency upgrades
 - org.springframework.boot:spring-boot 2.5.0 --> 2.5.2
