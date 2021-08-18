@@ -2,11 +2,14 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.10.4
-Client Libraries support Kubernetes/Kyma environment
-- [samples/java-security-usage] enabled for Kyma/Kubernetes environment
-- [samples/spring-security-basic-auth] enabled for Kyma/Kubernetes environment
-- [samples/spring-security-xsuaa-usage] enabled for Kyma/Kubernetes environment
-- [samples/spring-security-hybrid-usage] enabled for Kyma/Kubernetes environment
+- [java-security] Enrich `JsonParsingException` to detect wrong authorization headers earlier
+- [token-client] 
+  - `ClientCredentials`: solves incompatible change between 2.9.0 and 2.10.0
+  - `OAuth2TokenResponse.getTokenType()` exposes token type as provided by token request 
+- [spring-xsuaa] 
+  - `XsuaaServiceConfigurationDefault.hasProperty("apiurl")` returns true if VCAP_SERVICES-xsuaa-credentials contains attribute "apiurl"
+  -`XsuaaServiceConfigurationDefault.getProperty("apiurl")` returns value from VCAP_SERVICES-xsuaa-credentials-apiurl or null, if attribute does not exist.
+- [spring-security]`HybridJwtDecoder` raises ``BadJwtException`` in case the token is invalid and can not be decoded properly. 
 
 #### Dependency upgrades
 - wiremock 2.29.1 --> 2.30.1
