@@ -24,12 +24,14 @@ public class OAuth2TokenResponse {
 		this(accessToken, expiredInSeconds, refreshToken, TOKEN_TYPE);
 	}
 
-	public OAuth2TokenResponse(@Nullable String accessToken, long expiredInSeconds, @Nullable String refreshToken, String tokenType) {
+	public OAuth2TokenResponse(@Nullable String accessToken, long expiredInSeconds, @Nullable String refreshToken,
+			String tokenType) {
 		this.accessToken = accessToken;
 		this.expiredTimeMillis = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expiredInSeconds);
 		this.refreshToken = refreshToken;
 		this.tokenType = tokenType;
 	}
+
 	/**
 	 * An OAuth2 access token. This token will be a JSON Web Token suitable for
 	 * offline validation by OAuth2 Resource Servers.
