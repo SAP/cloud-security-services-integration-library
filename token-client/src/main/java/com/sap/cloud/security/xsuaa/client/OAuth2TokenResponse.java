@@ -14,19 +14,20 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class OAuth2TokenResponse {
-	private String refreshToken;
-	private String accessToken;
-	private String tokenType;
-	private long expiredTimeMillis;
+	public static final String TOKEN_TYPE = "bearer";
+	private final String refreshToken;
+	private final String accessToken;
+	private final String tokenType;
+	private final long expiredTimeMillis;
 
 	public OAuth2TokenResponse(@Nullable String accessToken, long expiredInSeconds, @Nullable String refreshToken) {
-		this.accessToken = accessToken;
-		this.expiredTimeMillis = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expiredInSeconds);
-		this.refreshToken = refreshToken;
+		this(accessToken, expiredInSeconds, refreshToken, TOKEN_TYPE);
 	}
 
 	public OAuth2TokenResponse(@Nullable String accessToken, long expiredInSeconds, @Nullable String refreshToken, String tokenType) {
-		this(accessToken, expiredInSeconds, refreshToken);
+		this.accessToken = accessToken;
+		this.expiredTimeMillis = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expiredInSeconds);
+		this.refreshToken = refreshToken;
 		this.tokenType = tokenType;
 	}
 	/**
@@ -93,7 +94,7 @@ public class OAuth2TokenResponse {
 
 	@Override
 	public String toString() {
-		DecodedJwt decodedJwt = null;
+		DecodedJwt decodedJwt;
 		try {
 			decodedJwt = getDecodedAccessToken();
 		} catch (IllegalArgumentException e) {
