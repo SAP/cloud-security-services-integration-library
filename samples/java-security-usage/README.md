@@ -1,9 +1,14 @@
 # Description
-This sample is a Java back-end application running in the [Cloud Foundry](#Deployment-on-Cloud-Foundry) or [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes) environments. On incoming requests it checks whether the user is authorized using the 
+This sample is a Java back-end application running in the SAP Cloud Business Technology Platform. On incoming requests it checks whether the user is authorized using the 
 [`XsuaaTokenAuthenticator`](/java-security/src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java) which is defined in the [Java Security](../../java-security/) library.
 
+Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes) or [Cloud Foundry](#Deployment-on-Cloud-Foundry).
+
+
 # Deployment on Kyma/Kubernetes
-To deploy the application, the following steps are required:
+<details>
+<summary>Collapse this to follow the deployment steps</summary>
+
 - Compile the Java application
 - Build docker image and push to repository
 - Configure the deployment.yml
@@ -71,7 +76,8 @@ Finally, delete your application and your service instances using the following 
 ```shell script
  kubectl delete -f ./k8s/deployment.yml
 ```
-
+</details>
+  
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
 - Compile the Java application
