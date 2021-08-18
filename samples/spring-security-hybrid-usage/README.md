@@ -2,11 +2,16 @@
 This spring boot application sample uses ```spring-security``` client library to validate jwt tokens issued by ```xsuaa``` service or by ```identity ``` service. On the one hand ```xsuaa``` service issues an access token and on the other hand ```identity``` service issues an oidc token. The tokens vary with regard to the information provided via token claims. In both cases the validated token is available of type [```Token```](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the ```SecurityContextHolder```.
 
 # Coding
-This sample is using the [`spring-security`](/spring-security/) library, which is based on [Spring's Security](https://github.com/spring-projects/spring-security) project  and can be deployed in the [Cloud Foundry](#Deployment-on-Cloud-Foundry) or [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes) environments. It integrates with [Spring Security OAuth 2.0 Resource Server](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver). The security configuration needs to configure jwt for authentication.
+This sample is using the [`spring-security`](/spring-security/) library, which is based on [Spring's Security](https://github.com/spring-projects/spring-security) project and runs on SAP Cloud Business Technology Platform. It integrates with [Spring Security OAuth 2.0 Resource Server](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver). The security configuration needs to configure jwt for authentication.
+
+
+Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes) or [Cloud Foundry](#Deployment-on-Cloud-Foundry).
 
 # Deployment on Kyma/Kubernetes
-To deploy the application, the following steps are required:
-- Build docker image and push to repository
+<details>
+<summary>Collapse this to follow the deployment steps</summary>
+
+ - Build docker image and push to repository
 - Configure the deployment.yml
 - Deploy the application
 - Admin: Assign Role Collection to your XSUAA user
@@ -61,6 +66,7 @@ Finally, delete your application and your service instances using the following 
 ```shell script
  kubectl delete -f ./k8s/deployment.yml
 ```
+ </details>
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
