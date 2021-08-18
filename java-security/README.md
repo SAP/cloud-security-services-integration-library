@@ -47,7 +47,7 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.10.3</version>
+    <version>2.10.4</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -89,7 +89,7 @@ OAuth2ServiceConfiguration serviceConfig = OAuth2ServiceConfigurationBuilder.for
       .withClientSecret("oauth-client-secret")
       .build();
 ```
-:bulb: `OAuth2ServiceConfiguration.getClientIdentity()` is a convenience method that with `OAuth2ServiceConfigurationBuilder` implementation will resolve `ClientCredential` or `ClientCertificate` implementations of `ClientIdentity` interface based on the `credential-type` from the Xsuaa service binding. Therefore, providing the correct implementation for the configured authentication type e.g. X.509 or client secret based
+:bulb: `OAuth2ServiceConfiguration.getClientIdentity()` is a convenience method that with `OAuth2ServiceConfigurationBuilder` implementation will resolve `ClientCredentials` or `ClientCertificate` implementations of `ClientIdentity` interface based on the `credential-type` from the Xsuaa service binding. Therefore, providing the correct implementation for the configured authentication type e.g. X.509 or client secret based.
 
 ### Setup Step 2: Setup Validators
 Now configure the `JwtValidatorBuilder` once with the service configuration from the previous step.
