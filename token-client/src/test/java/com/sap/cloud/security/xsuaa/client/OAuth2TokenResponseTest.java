@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class OAuth2TokenResponseTest {
@@ -40,6 +41,13 @@ public class OAuth2TokenResponseTest {
 
 		assertThat(accessToken.getExpiredAt(), allOf(OrderingComparison.greaterThanOrEqualTo(minExpireDate),
 				OrderingComparison.lessThanOrEqualTo(maxExpireDate)));
+	}
+
+	@Test
+	public void getTokenType() {
+		OAuth2TokenResponse tokenResponse = new OAuth2TokenResponse("accessToken", 47299, null, "bearer");
+		assertEquals("bearer", tokenResponse.getTokenType());
+		assertEquals("accessToken", tokenResponse.getAccessToken());
 	}
 
 	private Instant getCurrentInstant() {
