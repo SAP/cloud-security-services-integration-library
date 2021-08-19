@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.config.k8s.K8sConstants.*;
 
 /**
  * Loads the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a
@@ -40,9 +41,6 @@ public class K8sEnvironment implements Environment {
     private static final Logger LOGGER = LoggerFactory.getLogger(K8sEnvironment.class);
 
     private static K8sEnvironment instance;
-    private static final String DEFAULT_XSUAA_PATH = "/etc/secrets/sapcp/xsuaa";
-    private static final String DEFAULT_IAS_PATH = "/etc/secrets/sapcp/ias";
-    private static final String DEFAULT_SM_PATH = "/etc/secrets/sapcp/service-manager";
     private static String customXsuaaPath;
     private static String customIasPath;
     private static String customSMPath;
@@ -110,9 +108,9 @@ public class K8sEnvironment implements Environment {
 
     @Nullable
     private static OAuth2ServiceConfiguration loadServiceManagerConfig(){
-        File[] serviceBindings = new File(customSMPath != null ? customSMPath : DEFAULT_SM_PATH).listFiles();
+        File[] serviceBindings = new File(customSMPath != null ? customSMPath : DEFAULT_SERVICE_MANAGER_PATH).listFiles();
         if (serviceBindings == null){
-            LOGGER.warn("No service-manager binding was found in {}", DEFAULT_SM_PATH);
+            LOGGER.warn("No service-manager binding was found in {}", DEFAULT_SERVICE_MANAGER_PATH);
             return null;
         }
         Map<String, String> smPropertiesMap = getServiceProperties(serviceBindings[0]);
