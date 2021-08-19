@@ -34,7 +34,10 @@ public class XsuaaServicePropertySourceFactoryTest {
 	public void testXsuaaServiceConfiguration() {
 		assertEquals("xs2.usertoken", serviceConfiguration.getClientId());
 		assertEquals("secret", serviceConfiguration.getClientSecret());
+		assertEquals("subaccount-id", serviceConfiguration.getSubaccountId());
+		assertEquals("tenant-id", serviceConfiguration.getTenantId());
 		assertEquals("https://auth.com", serviceConfiguration.getUaaUrl());
+		assertEquals("https://api.com", serviceConfiguration.getApiUrl());
 		assertEquals("auth.com", serviceConfiguration.getUaaDomain());
 		assertEquals(URI.create("https://auth.cert.com"), serviceConfiguration.getCertUrl());
 		assertEquals("x509", serviceConfiguration.getCredentialType().toString());
@@ -46,8 +49,11 @@ public class XsuaaServicePropertySourceFactoryTest {
 	public void testInjectedPropertyValue() {
 		assertEquals("xs2.usertoken", testConfiguration.xsuaaClientId);
 		assertEquals("secret", testConfiguration.xsuaaClientSecret);
+		assertEquals("subaccount-id", serviceConfiguration.getSubaccountId());
+		assertEquals("tenant-id", serviceConfiguration.getTenantId());
 		assertEquals("https://auth.com", testConfiguration.xsuaaUrl);
 		assertEquals("auth.com", testConfiguration.xsuaaDomain);
+		assertEquals("https://api.com", serviceConfiguration.getApiUrl());
 		assertEquals("", testConfiguration.unknown);
 		assertEquals("https://auth.cert.com", testConfiguration.certUrl);
 		assertEquals("x509", testConfiguration.credentialType);
@@ -63,6 +69,15 @@ class TestConfiguration {
 
 	@Value("${xsuaa.url:}")
 	public String xsuaaUrl;
+
+	@Value("${xsuaa.apiurl:}")
+	public String apiUrl;
+
+	@Value("${xsuaa.tenantid:}")
+	public String tenantId;
+
+	@Value("${xsuaa.subaccountid:}")
+	public String subaccountId;
 
 	@Value("${xsuaa.uaadomain:}")
 	public String xsuaaDomain;

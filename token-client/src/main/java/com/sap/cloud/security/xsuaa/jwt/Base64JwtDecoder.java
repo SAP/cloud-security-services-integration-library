@@ -98,7 +98,7 @@ public final class Base64JwtDecoder {
 
 		@Override
 		public String toString() {
-			return  "Jwt header" + lineSeparator() +
+			return "Jwt header" + lineSeparator() +
 					TAB + getHeader() + lineSeparator() +
 					"Jwt payload" + lineSeparator() +
 					TAB + getPayload() + lineSeparator();

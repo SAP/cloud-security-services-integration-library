@@ -28,6 +28,15 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Value("${xsuaa.url:}")
 	private String uaaUrl;
 
+	@Value("${xsuaa.apiurl:#{null}}")
+	private String apiUrl;
+
+	@Value("${xsuaa.tenantid:#{null}}")
+	private String tenantId;
+
+	@Value("${xsuaa.subaccountid:#{null}}")
+	private String subaccountId;
+
 	@Value("${xsuaa.uaadomain:#{null}}")
 	private String uaadomain;
 
@@ -90,6 +99,21 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	}
 
 	@Override
+	public String getApiUrl() {
+		return apiUrl;
+	}
+
+	@Override
+	public String getTenantId() {
+		return tenantId;
+	}
+
+	@Override
+	public String getSubaccountId() {
+		return subaccountId;
+	}
+
+	@Override
 	public String getVerificationKey() {
 		return verificationKey;
 	}
@@ -105,7 +129,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	}
 
 	private Properties getVcapServiceProperties() {
-		if(vcapServiceProperties == null) {
+		if (vcapServiceProperties == null) {
 			try {
 				vcapServiceProperties = new XsuaaServicesParser().parseCredentials();
 			} catch (IOException e) {
