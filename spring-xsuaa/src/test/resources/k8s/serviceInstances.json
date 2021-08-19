@@ -4,12 +4,12 @@
     {
       "id": "1307a163-b5cf-4c2c-8714-13ba5f072012",
       "ready": true,
-      "name": "xsuaa-basic",
+      "name": "xsuaa-application",
       "service_plan_id": "037e7df6-5843-4174-9cb4-69a1f9a4da7e",
       "platform_id": "",
       "context": {
         "clusterid": "",
-        "instance_name": "xsuaa-basic",
+        "instance_name": "xsuaa-application",
         "namespace": "dev",
         "platform": "sapcp",
         "zone_id": "",

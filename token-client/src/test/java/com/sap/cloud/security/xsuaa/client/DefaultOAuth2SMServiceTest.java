@@ -54,8 +54,8 @@ class DefaultOAuth2SMServiceTest {
         when(httpClientMock.execute(any())).thenReturn(response);
         Map<String, String> servicePlanMap = cut.getServiceInstances();
         assertEquals(4, servicePlanMap.size());
-        assertNotNull(servicePlanMap.get("xsuaa-basic"));
-        assertEquals("037e7df6-5843-4174-9cb4-69a1f9a4da7e",servicePlanMap.get("xsuaa-basic"));
+        assertNotNull(servicePlanMap.get("xsuaa-application"));
+        assertEquals("037e7df6-5843-4174-9cb4-69a1f9a4da7e",servicePlanMap.get("xsuaa-application"));
         assertNotNull(servicePlanMap.get("xsuaa-broker"));
         assertEquals("bb769fcb-c8b9-4612-beac-18be9743a3b7",servicePlanMap.get("xsuaa-broker"));
 
@@ -64,7 +64,7 @@ class DefaultOAuth2SMServiceTest {
     @Test
     void getServiceInstancePlans() {
         Map<String, String> serviceInstanceMap = new HashMap<>();
-        serviceInstanceMap.put("xsuaa-basic", "037e7df6-5843-4174-9cb4-69a1f9a4da7e");
+        serviceInstanceMap.put("xsuaa-application", "037e7df6-5843-4174-9cb4-69a1f9a4da7e");
         serviceInstanceMap.put("xsuaa-broker", "bb769fcb-c8b9-4612-beac-18be9743a3b7");
         Map<String, String> servicePlanMap = new HashMap<>();
         servicePlanMap.put("bb769fcb-c8b9-4612-beac-18be9743a3b7", "broker");
@@ -79,7 +79,7 @@ class DefaultOAuth2SMServiceTest {
 
         Map<String, String> instancePlans = cut.getServiceInstancePlans();
         assertEquals(2, instancePlans.size());
-        assertEquals("application", instancePlans.get("xsuaa-basic"));
+        assertEquals("application", instancePlans.get("xsuaa-application"));
         assertEquals("broker", instancePlans.get("xsuaa-broker"));
     }
 }
