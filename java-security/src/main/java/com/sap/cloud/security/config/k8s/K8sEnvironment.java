@@ -9,7 +9,6 @@ import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2SMService;
 import com.sap.cloud.security.xsuaa.client.OAuth2SMService;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -145,10 +144,10 @@ public class K8sEnvironment implements Environment {
     @Override
     public OAuth2ServiceConfiguration getXsuaaConfiguration() {
         Map<String, OAuth2ServiceConfiguration> xsuaaPlans = serviceConfigurations.get(XSUAA);
-        return Optional.ofNullable(xsuaaPlans.get(CFConstants.Plan.APPLICATION.name()))
-                .orElse(Optional.ofNullable(xsuaaPlans.get(CFConstants.Plan.BROKER.name()))
-                        .orElse(Optional.ofNullable(xsuaaPlans.get(CFConstants.Plan.SPACE.name()))
-                                .orElse(Optional.ofNullable(xsuaaPlans.get(CFConstants.Plan.DEFAULT.name()))
+        return Optional.ofNullable(xsuaaPlans.get(Plan.APPLICATION.name()))
+                .orElse(Optional.ofNullable(xsuaaPlans.get(Plan.BROKER.name()))
+                        .orElse(Optional.ofNullable(xsuaaPlans.get(Plan.SPACE.name()))
+                                .orElse(Optional.ofNullable(xsuaaPlans.get(Plan.DEFAULT.name()))
                                         .orElse(null))));
 
     }
@@ -156,7 +155,7 @@ public class K8sEnvironment implements Environment {
     @Nullable
     @Override
     public OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange() {
-        return Optional.ofNullable(serviceConfigurations.get(XSUAA).get(CFConstants.Plan.BROKER.name())).orElse(null);
+        return Optional.ofNullable(serviceConfigurations.get(XSUAA).get(Plan.BROKER.name())).orElse(null);
     }
 
     @Nullable

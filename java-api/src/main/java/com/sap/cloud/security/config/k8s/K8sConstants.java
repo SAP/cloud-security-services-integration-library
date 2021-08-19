@@ -4,6 +4,8 @@
  */
 package com.sap.cloud.security.config.k8s;
 
+import com.sap.cloud.security.config.cf.CFConstants;
+
 /**
  * Constants that simplifies access to service configuration properties in the
  * Kubernetes environment.
@@ -15,5 +17,18 @@ public class K8sConstants {
 	static final String DEFAULT_SERVICE_MANAGER_PATH = "/etc/secrets/sapcp/service-manager";
 
 	private K8sConstants() {
+	}
+
+	/**
+	 * Represents the service plans on CF marketplace. The various plans are
+	 * considered in {@code CFEnvironment#loadXsuaa()}
+	 */
+	public enum Plan {
+		DEFAULT, BROKER, APPLICATION, SPACE, APIACCESS, SYSTEM;
+
+		public static CFConstants.Plan from(String planAsString) {
+			return CFConstants.Plan.valueOf(planAsString.toUpperCase());
+		}
+
 	}
 }
