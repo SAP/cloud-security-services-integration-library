@@ -106,7 +106,8 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		String accessToken = accessTokenMap.get(ACCESS_TOKEN);
 		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
 		String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
-		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken);
+		String tokenType = accessTokenMap.get(TOKEN_TYPE);
+		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken, tokenType);
 	}
 
 	/**

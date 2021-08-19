@@ -70,11 +70,23 @@ class HybridJwtDecoderTest {
 	}
 
 	@Test
-	void decodeWithMissingExpClaim_throwsJsonParsingException() {
+	void decodeWithMissingExpClaim_throwsBadJwtException() {
 		String encodedToken = jwtGenerator
 				.withClaimValue(TokenClaims.EXPIRATION, "")
 				.createToken().getTokenValue();
 
-		assertThrows(JsonParsingException.class, () -> cut.decode(encodedToken));
+		assertThrows(BadJwtException.class, () -> cut.decode(encodedToken));
+	}
+
+	@Test
+	void decodeWithCorruptToken_throwsBadJwtException() {
+		String encodedToken = jwtGenerator
+				.withClaimValue(TokenClaims.EXPIRATION, "")
+				.createToken().getTokenValue();
+
+		assertThrows(BadJwtException.class, () -> cut.decode("Bearer e30="));
+		assertThrows(BadJwtException.class, () -> cut.decode("Bearer"));
+		assertThrows(BadJwtException.class, () -> cut.decode(null));
+		assertThrows(BadJwtException.class, () -> cut.decode("Bearerabc"));
 	}
 }

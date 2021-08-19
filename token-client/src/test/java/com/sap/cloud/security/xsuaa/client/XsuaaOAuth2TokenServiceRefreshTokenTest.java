@@ -5,10 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.ACCESS_TOKEN;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.EXPIRES_IN;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_REFRESH_TOKEN;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.REFRESH_TOKEN;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -58,6 +55,7 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 		responseMap.put(REFRESH_TOKEN, "2170b564228448c6aed8b1ddfdb8bf53-r");
 		responseMap.put(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0");
 		responseMap.put(EXPIRES_IN, "43199");
+		responseMap.put(TOKEN_TYPE, "bearer");
 	}
 
 	@Test
@@ -106,6 +104,7 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 				refreshToken, null);
 		assertThat(accessToken.getRefreshToken(), is(responseMap.get(REFRESH_TOKEN)));
 		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
+		assertThat(accessToken.getTokenType(), is(responseMap.get(TOKEN_TYPE)));
 		assertNotNull(accessToken.getExpiredAt());
 	}
 }

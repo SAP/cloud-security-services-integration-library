@@ -46,10 +46,16 @@ public class HybridJwtDecoder implements JwtDecoder {
 
 	@Override
 	public Jwt decode(String encodedToken) {
-		Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
-		Token token = Token.create(encodedToken);
+		Token token;
+		Jwt jwt;
+		try {
+			Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
+			token = Token.create(encodedToken);
+			jwt = parseJwt(token);
+		} catch (RuntimeException ex) {
+			throw new BadJwtException("Error initializing JWT decoder: " + ex.getMessage(), ex);
+		}
 		ValidationResult validationResult;
-
 		switch (token.getService()) {
 		case IAS:
 			validationResult = iasTokenValidators.validate(token);
@@ -64,7 +70,7 @@ public class HybridJwtDecoder implements JwtDecoder {
 			throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
 		}
 		logger.debug("The token of service {} was successfully validated.", token.getService());
-		return parseJwt(token);
+		return jwt;
 	}
 
 	/**

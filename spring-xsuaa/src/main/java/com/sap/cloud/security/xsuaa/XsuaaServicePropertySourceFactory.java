@@ -49,7 +49,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	public static final String UAA_DOMAIN = "xsuaa.uaadomain";
 
 	private static final List<String> XSUAA_ATTRIBUTES = Arrays
-			.asList("clientid", "clientsecret", "identityzoneid",
+			.asList("clientid", "clientsecret",
 					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
 					"certificate",
 					"key", "credential-type", "certurl");
