@@ -4,7 +4,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.ServiceConfigurationAccessor;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.xsuaa.client.OAuth2SMService;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceManagerService;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2SMService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class K8SServiceConfigurationAccessor implements ServiceConfigurationAcce
 	private static final String DEFAULT_SM_PATH = "/etc/secrets/sapcp/service-manager";
 	private final String customXsuaaPath;
 	private final String customSMPath;
-	private OAuth2SMService smService;
+	private OAuth2ServiceManagerService smService;
 
 
 	/**
@@ -53,7 +53,7 @@ public class K8SServiceConfigurationAccessor implements ServiceConfigurationAcce
 		this.smService = new XsuaaOAuth2SMService(loadServiceManagerConfig(), restTemplate);
 	}
 
-	public void setSmService(OAuth2SMService smService) {
+	public void setSmService(OAuth2ServiceManagerService smService) {
 		this.smService = smService;
 	}
 
@@ -138,6 +138,8 @@ public class K8SServiceConfigurationAccessor implements ServiceConfigurationAcce
 
 	private Map<String, Properties> mapXsuaaServicePlans(Map<String, Properties> allXsuaaServices) {
 		Map<String, Properties> allXsuaaServicesWithPlans = new HashMap<>();//<planName, config>
+
+		//TODO duplicate code in K8SServiceConfigurationAccessor.java lines 143ff
 		if (allXsuaaServices.isEmpty()){
 			return allXsuaaServices;
 		}

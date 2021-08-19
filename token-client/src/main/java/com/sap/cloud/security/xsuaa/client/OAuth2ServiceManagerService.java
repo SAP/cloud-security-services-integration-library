@@ -3,7 +3,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import java.util.Map;
 
-public interface OAuth2SMService {
+public interface OAuth2ServiceManagerService {
 
     Map<String, String> getServicePlans();
 

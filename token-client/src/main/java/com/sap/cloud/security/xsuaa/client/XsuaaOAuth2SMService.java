@@ -19,7 +19,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-public class XsuaaOAuth2SMService implements OAuth2SMService {
+public class XsuaaOAuth2SMService implements OAuth2ServiceManagerService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2SMService.class);
     private static final String SERVICE_PLANS = "/v1/service_plans";

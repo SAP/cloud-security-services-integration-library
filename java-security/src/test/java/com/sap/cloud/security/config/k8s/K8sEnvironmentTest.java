@@ -32,13 +32,18 @@ public class K8sEnvironmentTest {
         wireMockServer.start();
 
         String absolutePath = new File("src/test/resources").getAbsolutePath();
-        cut = K8sEnvironment.getInstance(absolutePath + "/k8s/xsuaa", absolutePath + "/k8s/ias", absolutePath + "/k8s/service-manager", null);
+
+        K8sEnvironment.getInstance().getXsuaaConfiguration();
+        cut = K8sEnvironment.getInstance()
+                .withXsuaaPath(absolutePath + "/k8s/xsuaa")
+                .withIasPath(absolutePath + "/k8s/ias")
+                .withServiceManagerPath(absolutePath + "/k8s/service-manager");
     }
 
     @Test
     public void getXsuaaConfiguration() {
         OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
-        assertEquals("xsuaaClientId",config.getClientId());
+        assertEquals("xsuaaClientId", config.getClientId());
     }
 
     @Test

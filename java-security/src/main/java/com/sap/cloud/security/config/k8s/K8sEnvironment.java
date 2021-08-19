@@ -9,8 +9,8 @@ import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.xsuaa.client.DefaultOAuth2SMService;
-import com.sap.cloud.security.xsuaa.client.OAuth2SMService;
+import com.sap.cloud.security.xsuaa.client.DefaultOAuth2ServiceManagerService;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceManagerService;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.Service.IAS;
@@ -32,63 +31,70 @@ import static com.sap.cloud.security.config.k8s.K8sConstants.*;
 /**
  * Loads the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a
  * supported identity {@link Service} in the Kubernetes Environment by
- * accessing defaults service secrets paths "/etc/secrets/sapcp/xsuaa" for Xsuaa service or "/etc/secrets/sapcp/ias" for .
- * IAS service
+ * accessing defaults service secrets paths "/etc/secrets/sapcp/xsuaa" for Xsuaa service
+ * or "/etc/secrets/sapcp/ias" for IAS service.
  */
 public class K8sEnvironment implements Environment {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(K8sEnvironment.class);
 
     private static K8sEnvironment instance;
-    private static String customXsuaaPath;
-    private static String customIasPath;
-    private static String customSMPath;
+    private String xsuaaPath = DEFAULT_XSUAA_PATH;
+    private String iasPath = DEFAULT_IAS_PATH;
+    private String serviceManagerPath = DEFAULT_SERVICE_MANAGER_PATH;
     private static CloseableHttpClient httpClient;
 
-    private Map<Service, Map<String, OAuth2ServiceConfiguration>> serviceConfigurations;
+    private final Map<Service, Map<String, OAuth2ServiceConfiguration>> serviceConfigurations = new HashMap<>(); // use getServiceConfigurations() instead
     private OAuth2ServiceConfiguration serviceManagerConfigurations;
-    private UnaryOperator<String> systemEnvironmentProvider;
-    private UnaryOperator<String> systemPropertiesProvider;
-    private static OAuth2SMService smService;
+    private static OAuth2ServiceManagerService serviceManagerService;
 
     private K8sEnvironment() {}
 
     public static K8sEnvironment getInstance() {
-        return getInstance(System::getenv, System::getProperty);
-    }
-
-    public static K8sEnvironment getInstance(UnaryOperator<String> systemEnvironmentProvider,
-                                            UnaryOperator<String> systemPropertiesProvider) {
         if (instance == null) {
             instance = new K8sEnvironment();
-            instance.systemEnvironmentProvider = systemEnvironmentProvider;
-            instance.systemPropertiesProvider = systemPropertiesProvider;
-            instance.serviceManagerConfigurations = loadServiceManagerConfig();
-            if (instance.serviceManagerConfigurations != null) {
-                smService = new DefaultOAuth2SMService(instance.serviceManagerConfigurations, httpClient);
-            }
-            instance.serviceConfigurations = loadAll();
+            instance.serviceManagerConfigurations = loadServiceManagerConfig(instance.serviceManagerPath);
         }
         return instance;
     }
 
-    public static K8sEnvironment getInstance(@Nullable String customXsuaaPath, @Nullable String customIasPath, @Nullable String customSMPath, @Nullable CloseableHttpClient httpClient) {
-        K8sEnvironment.customXsuaaPath = customXsuaaPath;
-        K8sEnvironment.customIasPath = customIasPath;
-        K8sEnvironment.customSMPath = customSMPath;
-        K8sEnvironment.httpClient = httpClient;
-
-        return getInstance(System::getenv, System::getProperty);
+    public K8sEnvironment withXsuaaPath(String customXsuaaPath) {
+        xsuaaPath = customXsuaaPath;
+        return this;
     }
 
-    private static Map<Service, Map<String, OAuth2ServiceConfiguration>> loadAll() {
-        Map<Service, Map<String, OAuth2ServiceConfiguration>> serviceConfigurations = new HashMap<>(); // NOSONAR
-        Map<String, OAuth2ServiceConfiguration> allXsuaaServices = loadOauth2ServiceConfig(Service.XSUAA);
-        Map<String, OAuth2ServiceConfiguration>  allIasServices = loadOauth2ServiceConfig(Service.IAS);
+    public K8sEnvironment withIasPath(String customIasPath) {
+        iasPath = customIasPath;
+        return this;
+    }
 
-        serviceConfigurations.put(Service.XSUAA, mapXsuaaServicePlans(allXsuaaServices));
-        serviceConfigurations.put(Service.IAS, allIasServices);
-        return serviceConfigurations;
+    public K8sEnvironment withServiceManagerPath(String customServiceManagerPath) {
+        serviceManagerPath = customServiceManagerPath;
+        instance.serviceManagerConfigurations = loadServiceManagerConfig(instance.serviceManagerPath);
+        return this;
+    }
+
+    public K8sEnvironment withHttpClient(CloseableHttpClient customHttpClient) {
+        httpClient = customHttpClient;
+        return this;
+    }
+
+    private static Map<Service, Map<String, OAuth2ServiceConfiguration>> getServiceConfigurations() {
+        if(instance.serviceConfigurations.isEmpty()) {
+            if (instance.serviceManagerConfigurations != null) {
+                serviceManagerService = new DefaultOAuth2ServiceManagerService(instance.serviceManagerConfigurations, httpClient);
+            }
+            Map<String, OAuth2ServiceConfiguration> allXsuaaServices = loadOauth2ServiceConfig(Service.XSUAA);
+            Map<String, OAuth2ServiceConfiguration> allIasServices = loadOauth2ServiceConfig(Service.IAS);
+
+            if(!allXsuaaServices.isEmpty()) {
+                instance.serviceConfigurations.put(Service.XSUAA, mapXsuaaServicePlans(allXsuaaServices));
+            }
+            if(!allIasServices.isEmpty()) {
+                instance.serviceConfigurations.put(Service.IAS, allIasServices);
+            }
+        }
+        return instance.serviceConfigurations;
     }
 
     private static Map<String, OAuth2ServiceConfiguration> mapXsuaaServicePlans(Map<String, OAuth2ServiceConfiguration> allXsuaaServices) {
@@ -96,7 +102,7 @@ public class K8sEnvironment implements Environment {
         if (allXsuaaServices.isEmpty()){
             return allXsuaaServices;
         }
-        Map<String, String> serviceInstancePlans = smService.getServiceInstancePlans();//<xsuaaName, planName>
+        Map<String, String> serviceInstancePlans = serviceManagerService.getServiceInstancePlans();//<xsuaaName, planName>
         if (serviceInstancePlans.isEmpty()){
             LOGGER.warn("Cannot map Xsuaa services with plans, no plans were fetched from service manager");
             return allXsuaaServicesWithPlans;
@@ -106,8 +112,8 @@ public class K8sEnvironment implements Environment {
     }
 
     @Nullable
-    private static OAuth2ServiceConfiguration loadServiceManagerConfig(){
-        File[] serviceBindings = new File(customSMPath != null ? customSMPath : DEFAULT_SERVICE_MANAGER_PATH).listFiles();
+    private static OAuth2ServiceConfiguration loadServiceManagerConfig(String serviceManagerPath){
+        File[] serviceBindings = new File(serviceManagerPath != null ? serviceManagerPath : DEFAULT_SERVICE_MANAGER_PATH).listFiles();
         if (serviceBindings == null){
             LOGGER.warn("No service-manager binding was found in {}", DEFAULT_SERVICE_MANAGER_PATH);
             return null;
@@ -143,7 +149,10 @@ public class K8sEnvironment implements Environment {
     @Nullable
     @Override
     public OAuth2ServiceConfiguration getXsuaaConfiguration() {
-        Map<String, OAuth2ServiceConfiguration> xsuaaPlans = serviceConfigurations.get(XSUAA);
+        Map<String, OAuth2ServiceConfiguration> xsuaaPlans = getServiceConfigurations().get(XSUAA);
+        if(xsuaaPlans == null) {
+            return null;
+        }
         return Optional.ofNullable(xsuaaPlans.get(Plan.APPLICATION.name()))
                 .orElse(Optional.ofNullable(xsuaaPlans.get(Plan.BROKER.name()))
                         .orElse(Optional.ofNullable(xsuaaPlans.get(Plan.SPACE.name()))
@@ -155,13 +164,13 @@ public class K8sEnvironment implements Environment {
     @Nullable
     @Override
     public OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange() {
-        return Optional.ofNullable(serviceConfigurations.get(XSUAA).get(Plan.BROKER.name())).orElse(null);
+        return Optional.ofNullable(getServiceConfigurations().get(XSUAA).get(Plan.BROKER.name())).orElse(null);
     }
 
     @Nullable
     @Override
     public OAuth2ServiceConfiguration getIasConfiguration() {
-        Optional<Map.Entry<String, OAuth2ServiceConfiguration>> iasConfigEntry = serviceConfigurations.get(IAS).entrySet().stream().findFirst();
+        Optional<Map.Entry<String, OAuth2ServiceConfiguration>> iasConfigEntry = getServiceConfigurations().get(IAS).entrySet().stream().findFirst();
         return iasConfigEntry.map(Map.Entry::getValue).orElse(null);
     }
 
@@ -171,26 +180,16 @@ public class K8sEnvironment implements Environment {
     }
 
     @Nullable
-    private static File[] getServiceBindings(Service service) {
-        if (service == Service.XSUAA){
-            if (customXsuaaPath != null) {
-                LOGGER.debug("Retrieving Xsuaa service bindings from {}", customXsuaaPath);
-                return new File(customXsuaaPath).listFiles();
-            }
-            LOGGER.debug("Retrieving Xsuaa service bindings from {}", DEFAULT_XSUAA_PATH);
-            return new File(DEFAULT_XSUAA_PATH).listFiles();
-        } else {
-            if (customIasPath != null) {
-                LOGGER.debug("Retrieving IAS service bindings from {}", customIasPath);
-                return new File(customIasPath).listFiles();
-            }
-            LOGGER.debug("Retrieving IAS service bindings from {}", DEFAULT_IAS_PATH);
-            return new File(DEFAULT_IAS_PATH).listFiles();
-        }
+    static File[] getServiceBindings(Service service) {
+        String path = service == XSUAA ? instance.xsuaaPath : service == IAS ? instance.iasPath : null;
+        LOGGER.debug("Retrieving {} service bindings from K8s secret file {}", service, path);
+        // TODO check whether path is not null and file exists - return null or better exception?
+        return new File(path).listFiles();
     }
 
 
     private static List<File> getBindingFiles(@Nonnull File binding) {
+        // TODO duplicate code in K8SServiceConfigurationAccessor.java lines 98 ff
         File [] bindingFiles = new File(binding.getPath()).listFiles();
         if (bindingFiles == null || bindingFiles.length == 0) {
             LOGGER.warn("No service binding files were found for {}", binding.getName());
