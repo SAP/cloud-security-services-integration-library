@@ -42,6 +42,27 @@ public interface XsuaaServiceConfiguration extends OAuth2ServiceConfiguration {
 	String getUaaDomain();
 
 	/**
+	 * URL for access to xsuaa API
+	 *
+	 * @return xs api url
+	 */
+	String getApiUrl();
+
+	/**
+	 * Tenant ID of the xsuaa instance
+	 *
+	 * @return xs tenant id
+	 */
+	String getTenantId();
+
+	/**
+	 * Subaccount ID of the xsuaa instance
+	 *
+	 * @return xs subaccount id
+	 */
+	String getSubaccountId();
+
+	/**
 	 * The pem encoded public key for offline token verification.
 	 *
 	 * @return the pem encoded verification key

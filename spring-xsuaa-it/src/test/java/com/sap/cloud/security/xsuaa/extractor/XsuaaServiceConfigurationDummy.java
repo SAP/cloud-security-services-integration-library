@@ -12,6 +12,9 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 	String clientId;
 	String clientSecret;
 	String uaaUrl;
+	String apiUrl;
+	String tenantId;
+	String subaccountId;
 	String uaaDomain;
 	String appId;
 	String verificationKey;
@@ -39,6 +42,21 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 	@Override
 	public String getUaaDomain() {
 		return uaaDomain;
+	}
+
+	@Override
+	public String getApiUrl() {
+		return apiUrl;
+	}
+
+	@Override
+	public String getTenantId() {
+		return tenantId;
+	}
+
+	@Override
+	public String getSubaccountId() {
+		return subaccountId;
 	}
 
 	@Override

@@ -15,6 +15,9 @@ public class XsuaaCredentials {
 	private String clientSecret;
 	private String url;
 	private String certUrl;
+	private String apiUrl;
+	private String subaccountId;
+	private String tenantId;
 	private String uaaDomain;
 	private String xsAppName;
 	private String verificationKey;
@@ -100,5 +103,29 @@ public class XsuaaCredentials {
 
 	public void setPrivateKey(String privateKey) {
 		this.privateKey = privateKey;
+	}
+
+	public String getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(String tenantId) {
+		this.tenantId = tenantId;
+	}
+
+	public String getApiUrl() {
+		return apiUrl;
+	}
+
+	public void setApiUrl(String apiUrl) {
+		this.apiUrl = apiUrl;
+	}
+
+	public String getSubaccountId() {
+		return subaccountId;
+	}
+
+	public void setSubaccountId(String subaccountId) {
+		this.subaccountId = subaccountId;
 	}
 }

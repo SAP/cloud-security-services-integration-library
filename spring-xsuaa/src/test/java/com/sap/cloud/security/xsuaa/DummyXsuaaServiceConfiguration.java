@@ -45,6 +45,21 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 	}
 
 	@Override
+	public String getApiUrl() {
+		return "https://api.eu10.hana.ondemand.com";
+	}
+
+	@Override
+	public String getTenantId() {
+		return "tenantId";
+	}
+
+	@Override
+	public String getSubaccountId() {
+		return "subaccountId";
+	}
+
+	@Override
 	public String getVerificationKey() {
 		return null;
 	}

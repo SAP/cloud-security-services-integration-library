@@ -19,7 +19,10 @@ class XsuaaServiceConfigurationCustomTest {
 	public void setup() {
 		credentials.setClientId("cid");
 		credentials.setClientSecret("secret");
+		credentials.setTenantId("tenant-id");
+		credentials.setSubaccountId("subaccount-id");
 		credentials.setUaaDomain("uaaDomain");
+		credentials.setApiUrl("apiUrl");
 		credentials.setUrl("url");
 		credentials.setXsAppName("xsappname");
 		credentials.setCertificate("-----BEGIN CERTIFICATE-----");
@@ -34,7 +37,10 @@ class XsuaaServiceConfigurationCustomTest {
 	void getterShouldReturnValuesFromCredentials() {
 		assertEquals(credentials.getClientId(), cut.getClientId());
 		assertEquals(credentials.getClientSecret(), cut.getClientSecret());
+		assertEquals(credentials.getTenantId(), cut.getTenantId());
+		assertEquals(credentials.getSubaccountId(), cut.getSubaccountId());
 		assertEquals(credentials.getUaaDomain(), cut.getUaaDomain());
+		assertEquals(credentials.getApiUrl(), cut.getApiUrl());
 		assertEquals(credentials.getUrl(), cut.getUaaUrl());
 		assertEquals(credentials.getXsAppName(), cut.getAppId());
 		assertEquals(credentials.getCredentialType(), cut.getCredentialType());
