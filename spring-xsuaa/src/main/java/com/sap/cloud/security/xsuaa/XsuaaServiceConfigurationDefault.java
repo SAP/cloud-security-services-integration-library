@@ -105,7 +105,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	}
 
 	private Properties getVcapServiceProperties() {
-		if(vcapServiceProperties == null) {
+		if (vcapServiceProperties == null) {
 			try {
 				vcapServiceProperties = new XsuaaServicesParser().parseCredentials();
 			} catch (IOException e) {
