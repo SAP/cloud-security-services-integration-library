@@ -19,9 +19,9 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-public class XsuaaOAuth2SMService implements OAuth2ServiceManagerService {
+public class SpringServiceManagerService implements ServiceManagerService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2SMService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpringServiceManagerService.class);
     private static final String SERVICE_PLANS = "/v1/service_plans";
     private static final String SERVICE_INSTANCES = "/v1/service_instances";
 
@@ -29,7 +29,7 @@ public class XsuaaOAuth2SMService implements OAuth2ServiceManagerService {
     private final OAuth2ServiceConfiguration smConfiguration;
     private final XsuaaOAuth2TokenService tokenService;
 
-    public XsuaaOAuth2SMService(OAuth2ServiceConfiguration smConfiguration, @Nullable RestOperations restOperations) {
+    public SpringServiceManagerService(OAuth2ServiceConfiguration smConfiguration, @Nullable RestOperations restOperations) {
         this.smConfiguration = smConfiguration;
         this.restOperations = restOperations != null ? restOperations : new RestTemplate();
         this.tokenService = new XsuaaOAuth2TokenService(this.restOperations);

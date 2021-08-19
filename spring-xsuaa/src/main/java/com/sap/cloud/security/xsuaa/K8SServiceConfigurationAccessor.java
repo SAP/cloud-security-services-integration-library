@@ -4,8 +4,8 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.ServiceConfigurationAccessor;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceManagerService;
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2SMService;
+import com.sap.cloud.security.xsuaa.client.ServiceManagerService;
+import com.sap.cloud.security.xsuaa.client.SpringServiceManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
@@ -30,7 +30,7 @@ public class K8SServiceConfigurationAccessor implements ServiceConfigurationAcce
 	private static final String DEFAULT_SM_PATH = "/etc/secrets/sapcp/service-manager";
 	private final String customXsuaaPath;
 	private final String customSMPath;
-	private OAuth2ServiceManagerService smService;
+	private ServiceManagerService smService;
 
 
 	/**
@@ -50,10 +50,10 @@ public class K8SServiceConfigurationAccessor implements ServiceConfigurationAcce
 	public K8SServiceConfigurationAccessor(@Nullable String customXsuaaPath, @Nullable String customSMPath, RestTemplate restTemplate) {
 		this.customXsuaaPath = customXsuaaPath;
 		this.customSMPath = customSMPath;
-		this.smService = new XsuaaOAuth2SMService(loadServiceManagerConfig(), restTemplate);
+		this.smService = new SpringServiceManagerService(loadServiceManagerConfig(), restTemplate);
 	}
 
-	public void setSmService(OAuth2ServiceManagerService smService) {
+	public void setSmService(ServiceManagerService smService) {
 		this.smService = smService;
 	}
 

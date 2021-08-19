@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultOAuth2ServiceManagerService implements OAuth2ServiceManagerService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultOAuth2ServiceManagerService.class);
+public class DefaultServiceManagerService implements ServiceManagerService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServiceManagerService.class);
     private static final String SERVICE_PLANS = "/v1/service_plans";
     private static final String SERVICE_INSTANCES = "/v1/service_instances";
 
@@ -29,7 +29,7 @@ public class DefaultOAuth2ServiceManagerService implements OAuth2ServiceManagerS
     private final OAuth2ServiceConfiguration smConfiguration;
     private final DefaultOAuth2TokenService defaultOAuth2TokenService;
 
-    public DefaultOAuth2ServiceManagerService(OAuth2ServiceConfiguration smConfiguration, @Nullable CloseableHttpClient httpClient) {
+    public DefaultServiceManagerService(OAuth2ServiceConfiguration smConfiguration, @Nullable CloseableHttpClient httpClient) {
         this.smConfiguration = smConfiguration;
         this.httpClient = httpClient != null ? httpClient : HttpClientFactory.create(smConfiguration.getClientIdentity());
         this.defaultOAuth2TokenService = new DefaultOAuth2TokenService(this.httpClient);

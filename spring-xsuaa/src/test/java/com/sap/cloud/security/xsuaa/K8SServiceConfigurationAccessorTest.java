@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa;
 
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2SMService;
+import com.sap.cloud.security.xsuaa.client.SpringServiceManagerService;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ class K8SServiceConfigurationAccessorTest {
         String serviceInstances = IOUtils.resourceToString("/k8s/serviceInstances.json", StandardCharsets.UTF_8);
         String servicePlans = IOUtils.resourceToString("/k8s/servicePlans.json", StandardCharsets.UTF_8);
 
-        XsuaaOAuth2SMService smServiceMock = mock(XsuaaOAuth2SMService.class);
+        SpringServiceManagerService smServiceMock = mock(SpringServiceManagerService.class);
         when(smServiceMock.executeRequest(SERVICE_PLANS)).thenReturn(createResponseEntity(servicePlans));
         when(smServiceMock.executeRequest(SERVICE_INSTANCES)).thenReturn(createResponseEntity(serviceInstances));
         when(smServiceMock.getServiceInstances()).thenCallRealMethod();

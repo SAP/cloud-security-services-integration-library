@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
-class DefaultOAuth2SMServiceTest {
-    static DefaultOAuth2ServiceManagerService cut;
+class DefaultServiceManagerServiceTest {
+    static DefaultServiceManagerService cut;
     private static String servicePlans;
     private static String serviceInstances;
     static CloseableHttpClient httpClientMock = mock(CloseableHttpClient.class);
@@ -35,7 +35,7 @@ class DefaultOAuth2SMServiceTest {
         when(oAuth2ServiceConfiguration.getUrl()).thenReturn(URI.create("https://auth.sap.com"));
         when(oAuth2ServiceConfiguration.getProperty("sm_url")).thenReturn("https://service-manager.sap.com");
         when(oAuth2ServiceConfiguration.getClientIdentity()).thenReturn(new ClientCredentials("clientId", "clientSecret"));
-        cut = new DefaultOAuth2ServiceManagerService(oAuth2ServiceConfiguration, httpClientMock);
+        cut = new DefaultServiceManagerService(oAuth2ServiceConfiguration, httpClientMock);
     }
 
     @Test
@@ -71,7 +71,7 @@ class DefaultOAuth2SMServiceTest {
         servicePlanMap.put("037e7df6-5843-4174-9cb4-69a1f9a4da7e", "application");
         servicePlanMap.put("12345678-1234-1234-abcd-123456789123", "another-plan");
 
-        DefaultOAuth2ServiceManagerService cut = mock(DefaultOAuth2ServiceManagerService.class);
+        DefaultServiceManagerService cut = mock(DefaultServiceManagerService.class);
 
         when(cut.getServicePlans()).thenReturn(servicePlanMap);
         when(cut.getServiceInstances()).thenReturn(serviceInstanceMap);

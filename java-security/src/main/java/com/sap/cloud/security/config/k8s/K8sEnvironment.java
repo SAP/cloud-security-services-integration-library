@@ -9,8 +9,8 @@ import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.xsuaa.client.DefaultOAuth2ServiceManagerService;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceManagerService;
+import com.sap.cloud.security.xsuaa.client.DefaultServiceManagerService;
+import com.sap.cloud.security.xsuaa.client.ServiceManagerService;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class K8sEnvironment implements Environment {
 
     private final Map<Service, Map<String, OAuth2ServiceConfiguration>> serviceConfigurations = new HashMap<>(); // use getServiceConfigurations() instead
     private OAuth2ServiceConfiguration serviceManagerConfigurations;
-    private static OAuth2ServiceManagerService serviceManagerService;
+    private static ServiceManagerService serviceManagerService;
 
     private K8sEnvironment() {}
 
@@ -82,7 +82,7 @@ public class K8sEnvironment implements Environment {
     private static Map<Service, Map<String, OAuth2ServiceConfiguration>> getServiceConfigurations() {
         if(instance.serviceConfigurations.isEmpty()) {
             if (instance.serviceManagerConfigurations != null) {
-                serviceManagerService = new DefaultOAuth2ServiceManagerService(instance.serviceManagerConfigurations, httpClient);
+                serviceManagerService = new DefaultServiceManagerService(instance.serviceManagerConfigurations, httpClient);
             }
             Map<String, OAuth2ServiceConfiguration> allXsuaaServices = loadOauth2ServiceConfig(Service.XSUAA);
             Map<String, OAuth2ServiceConfiguration> allIasServices = loadOauth2ServiceConfig(Service.IAS);
