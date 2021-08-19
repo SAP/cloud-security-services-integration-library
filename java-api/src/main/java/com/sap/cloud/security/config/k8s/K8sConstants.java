@@ -8,7 +8,8 @@ package com.sap.cloud.security.config.k8s;
  * Constants that simplifies access to service configuration properties in the
  * Kubernetes environment.
  */
-class K8sConstants {
+public class K8sConstants {
+	public static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
 	static final String DEFAULT_XSUAA_PATH = "/etc/secrets/sapcp/xsuaa";
 	static final String DEFAULT_IAS_PATH = "/etc/secrets/sapcp/ias";
 	static final String DEFAULT_SERVICE_MANAGER_PATH = "/etc/secrets/sapcp/service-manager";

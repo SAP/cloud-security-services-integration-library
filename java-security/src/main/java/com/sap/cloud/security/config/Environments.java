@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.util.Scanner;
 
+import static com.sap.cloud.security.config.k8s.K8sConstants.KUBERNETES_SERVICE_HOST;
+
 /**
  * Central entry point to access the current SAP Cloud Platform
  * {@link Environment}.
@@ -77,7 +79,7 @@ public class Environments {
 
 	private static boolean isK8sEnv() {
 		if (isK8sEnv == null){
-			isK8sEnv = System.getenv().get("KUBERNETES_SERVICE_HOST") != null;
+			isK8sEnv = System.getenv().get(KUBERNETES_SERVICE_HOST) != null;
 		}
 		return isK8sEnv;
 	}

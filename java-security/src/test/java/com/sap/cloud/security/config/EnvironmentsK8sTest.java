@@ -10,12 +10,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
+import static com.sap.cloud.security.config.k8s.K8sConstants.KUBERNETES_SERVICE_HOST;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SystemStubsExtension.class)
 class EnvironmentsK8sTest {
 
-	private static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
 	private static final String K8S_HOST_VALUE = "0.0.0.0";
 
 	@Test
