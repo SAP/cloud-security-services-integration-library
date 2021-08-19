@@ -62,17 +62,16 @@ public class K8sEnvironment implements Environment {
 
     public static K8sEnvironment getInstance(UnaryOperator<String> systemEnvironmentProvider,
                                             UnaryOperator<String> systemPropertiesProvider) {
-        if (instance != null) {
-            return instance;
+        if (instance == null) {
+            instance = new K8sEnvironment();
+            instance.systemEnvironmentProvider = systemEnvironmentProvider;
+            instance.systemPropertiesProvider = systemPropertiesProvider;
+            instance.serviceManagerConfigurations = loadServiceManagerConfig();
+            if (instance.serviceManagerConfigurations != null) {
+                smService = new DefaultOAuth2SMService(instance.serviceManagerConfigurations, httpClient);
+            }
+            instance.serviceConfigurations = loadAll();
         }
-        instance = new K8sEnvironment();
-        instance.systemEnvironmentProvider = systemEnvironmentProvider;
-        instance.systemPropertiesProvider = systemPropertiesProvider;
-        instance.serviceManagerConfigurations = loadServiceManagerConfig();
-        if (instance.serviceManagerConfigurations != null) {
-            smService = new DefaultOAuth2SMService(instance.serviceManagerConfigurations, httpClient);
-        }
-        instance.serviceConfigurations = loadAll();
         return instance;
     }
 

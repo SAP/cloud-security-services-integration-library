@@ -45,12 +45,13 @@ public class SSLContextFactory {
 	 * Creates a SSLContext which can be used to parameterize your Rest client, in
 	 * order to support mutual TLS.
 	 *
-	 * @param x509Certificates,
+	 * @param x509Certificates
 	 *            you can get from your Service Configuration
-	 * @param rsaPrivateKey,
+	 * @param rsaPrivateKey
 	 *            you can get from your Service Configuration
 	 * @return a new SSLContext instance
 	 * @throws GeneralSecurityException
+	 *             in case of key parsing errors
 	 * @throws IOException
 	 *             in case of KeyStore initialization errors
 	 */
@@ -111,7 +112,7 @@ public class SSLContextFactory {
 
 		Collection<Certificate> certificateList = (Collection<Certificate>) factory
 				.generateCertificates(new ByteArrayInputStream(certificatesBytes));
-		return certificateList.toArray(new Certificate[certificateList.size()]);
+		return certificateList.toArray(new Certificate[0]);
 	}
 
 	private KeySpec parseDERPrivateKey(byte[] privateKeyDerEncoded)

@@ -5,22 +5,6 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.ACCESS_TOKEN;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.EXPIRES_IN;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 import org.junit.Before;
@@ -34,6 +18,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
+
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
 
 @RunWith(MockitoJUnitRunner.class)
 public class XsuaaOAuth2TokenServiceClientCredentialsTest {
@@ -55,6 +52,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 		responseMap = new HashMap<>();
 		responseMap.putIfAbsent(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0");
 		responseMap.putIfAbsent(EXPIRES_IN, "43199");
+		responseMap.putIfAbsent(TOKEN_TYPE, "bearer");
 	}
 
 	@Test
@@ -99,6 +97,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 				clientIdentity,
 				null, null);
 		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
+		assertThat(accessToken.getTokenType(), is(responseMap.get(TOKEN_TYPE)));
 		assertNotNull(accessToken.getExpiredAt());
 	}
 
