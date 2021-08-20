@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * 
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa;
@@ -47,10 +47,9 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 
 	private static final List<String> XSUAA_ATTRIBUTES = Arrays
 			.asList("clientid", "clientsecret",
-					"sburl", "subaccountid", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey",
-					"xsappname",
+					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
 					"certificate",
-					"key", "credential-type", "certurl", "apiurl");
+					"key", "credential-type", "certurl");
 
 	@Override
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {

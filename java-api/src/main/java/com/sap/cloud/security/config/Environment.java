@@ -19,7 +19,6 @@ public interface Environment {
 	 */
 	enum Type {
 		CF /* , KUBERNETES */;
-
 		public static Type from(String typeAsString) {
 			return Type.valueOf(typeAsString.toUpperCase());
 		}

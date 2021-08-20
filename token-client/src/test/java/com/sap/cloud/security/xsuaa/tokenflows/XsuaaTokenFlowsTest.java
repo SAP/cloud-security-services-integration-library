@@ -102,9 +102,8 @@ public class XsuaaTokenFlowsTest {
 
 	@Test
 	public void versionMismatch() throws TokenFlowException {
-		cut = new XsuaaTokenFlows(oAuth2TokenService, this.endpointsProvider,
-				new com.sap.cloud.security.xsuaa.client.ClientCredentials("sb-spring-netflix-demo!t12291",
-						"2Tc2Xz7DNy4KiACwvunulmxF32w="));
+		cut = new XsuaaTokenFlows(oAuth2TokenService, this.endpointsProvider, new com.sap.cloud.security.xsuaa.client.ClientCredentials("sb-spring-netflix-demo!t12291",
+				"2Tc2Xz7DNy4KiACwvunulmxF32w="));
 		cut.clientCredentialsTokenFlow().execute();
 	}
 }

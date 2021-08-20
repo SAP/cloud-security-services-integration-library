@@ -54,8 +54,7 @@ public class HttpHeaders {
 	public String toString() {
 		return "HttpHeaders: [ " +
 				headers.stream().map(HttpHeader::toString)
-						.collect(Collectors.joining(", "))
-				+
+						.collect(Collectors.joining(", ")) +
 				" ]";
 	}
 }

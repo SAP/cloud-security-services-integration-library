@@ -61,21 +61,6 @@ public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguratio
 		return credentials.getUaaDomain();
 	}
 
-	@Override
-	public String getApiUrl() {
-		return credentials.getApiUrl();
-	}
-
-	@Override
-	public String getTenantId() {
-		return credentials.getTenantId();
-	}
-
-	@Override
-	public String getSubaccountId() {
-		return credentials.getSubaccountId();
-	}
-
 	@Nullable
 	@Override
 	public String getVerificationKey() {
