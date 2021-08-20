@@ -44,7 +44,7 @@ public class XsuaaServicesParserTest {
 
 	@Test
 	public void acceptOtherVcapServicesProperties() throws IOException {
-		String vcapWithAddProperties = "{\"xsuaa\":[{\"credentials\":{\"apiurl\":\"https://api.mydomain.com\",\"tenantid\":\"tenant-id\",,\"subaccountid\":\"subaccountS-id\",\"clientid\":\"client-id\"},\"tags\":[\"xsuaa\"]}]}";
+		String vcapWithAddProperties = "{\"xsuaa\":[{\"credentials\":{\"apiurl\":\"https://api.mydomain.com\",\"tenantid\":\"tenant-id\",\"subaccountid\":\"subaccount-id\",\"clientid\":\"client-id\"},\"tags\":[\"xsuaa\"]}]}";
 		XsuaaServicesParser cut = new XsuaaServicesParser(vcapWithAddProperties);
 		Properties properties = cut.parseCredentials();
 		assertThat(properties.getProperty(XSUAA.API_URL)).isEqualTo("https://api.mydomain.com");
