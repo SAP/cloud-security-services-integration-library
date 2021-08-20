@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,15 +55,25 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 
 	@Override
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
-		Properties properties;
-		XsuaaServicesParser vcapServicesParser;
+		Properties properties = new Properties();
+		Environment environment;
 		if (resource != null && resource.getResource().getFilename() != null
 				&& !resource.getResource().getFilename().isEmpty()) {
-			vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
+			environment = Environments.readFromInput(resource.getResource().getInputStream());
 		} else {
-			vcapServicesParser = new XsuaaServicesParser();
+			environment = Environments.getCurrent();
 		}
-		properties = vcapServicesParser.parseCredentials();
+		if(environment.getNumberOfXsuaaConfigurations() > 1) {
+			throw new IllegalStateException(
+					"Found more than one xsuaa bindings. Please consider unified broker plan.");
+		}
+		if (environment.getXsuaaConfiguration() != null) {
+			for (String key : XSUAA_ATTRIBUTES) {
+				if (environment.getXsuaaConfiguration().hasProperty(key)) {
+					properties.put(key, environment.getXsuaaConfiguration().getProperty(key));
+				}
+			}
+		}
 		logger.info("Parsed {} XSUAA properties.", properties.size());
 		return create(XSUAA_PROPERTIES_KEY, properties);
 	}
@@ -73,7 +85,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	 *            of the propertySource. Use only "xsuaa" as name in case you like
 	 *            to overwrite/set all properties.
 	 * @param properties
-	 *            map of xsuaa properties.
+	 *            map of xsuaa properties
 	 * @return created @Code{PropertySource}
 	 */
 	public static PropertySource create(String name, Properties properties) {

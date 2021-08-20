@@ -10,6 +10,7 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -34,33 +35,33 @@ public class CFEnvParserTest {
 
 	@Test
 	public void getClientId() {
-		assertThat(cut.getClientId()).isEqualTo("T000310");
+		Assertions.assertThat(cut.getClientId()).isEqualTo("T000310");
 	}
 
 	@Test
 	public void getClientSecret() {
-		assertThat(cut.getClientSecret()).isEqualTo("pCghfbrLudwzXM2fPq7YSIhujAmpHj_I0DeMKHKRAqs=");
+		Assertions.assertThat(cut.getClientSecret()).isEqualTo("pCghfbrLudwzXM2fPq7YSIhujAmpHj_I0DeMKHKRAqs=");
 	}
 
 	@Test
 	public void getUrl() {
-		assertThat(cut.getUrl()).isEqualTo(URI.create("https://myauth.com"));
+		Assertions.assertThat(cut.getUrl()).isEqualTo(URI.create("https://myauth.com"));
 	}
 
 	@Test
 	public void getDomains() {
-		assertThat(cut.getDomains()).contains("myauth.com", "my.auth.com");
+		Assertions.assertThat(cut.getDomains()).contains("myauth.com", "my.auth.com");
 	}
 
 	@Test
 	public void getPlan() {
-		assertThat(cut.getProperty(SERVICE_PLAN)).isEqualTo("application");
-		assertThat(Plan.from(cut.getProperty(SERVICE_PLAN))).isEqualTo(APPLICATION);
+		Assertions.assertThat(cut.getProperty(SERVICE_PLAN)).isEqualTo("application");
+		Assertions.assertThat(Plan.from(cut.getProperty(SERVICE_PLAN))).isEqualTo(APPLICATION);
 	}
 
 	@Test
 	public void getService() {
-		assertThat(cut.getService()).isEqualTo(Service.IAS);
+		Assertions.assertThat(cut.getService()).isEqualTo(Service.IAS);
 	}
 
 }

@@ -10,6 +10,7 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.sap.cloud.security.config.Environment;
@@ -88,6 +89,7 @@ public class CFEnvironment implements Environment {
 	}
 
 	@Override
+	@Nonnull
 	public Type getType() {
 		return Type.CF;
 	}
