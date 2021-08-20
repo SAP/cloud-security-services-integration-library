@@ -24,6 +24,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>env</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<scope>compile</scope>
@@ -133,18 +138,6 @@
 			<version>${spring.security.version}</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>uk.org.webcompere</groupId>
-            <artifactId>system-stubs-jupiter</artifactId>
-            <version>1.2.0</version>
-            <scope>test</scope>
-        </dependency>
-		<dependency>
-			<groupId>com.github.tomakehurst</groupId>
-			<artifactId>wiremock-jre8</artifactId>
-			<version>2.29.1</version>
-			<scope>test</scope>
-		</dependency>
 
 	</dependencies>
 
@@ -190,9 +183,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<reuseForks>false</reuseForks>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

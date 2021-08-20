@@ -97,7 +97,8 @@
 		<module>spring-xsuaa-mock</module>
 		<module>spring-xsuaa-starter</module>
 		<module>spring-xsuaa-it</module>
-	</modules>
+        <module>env</module>
+    </modules>
 
 	<dependencyManagement>
 		<dependencies>
