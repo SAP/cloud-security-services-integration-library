@@ -23,99 +23,105 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultServiceManagerService implements ServiceManagerService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServiceManagerService.class);
-    private static final String SERVICE_PLANS = "/v1/service_plans";
-    private static final String SERVICE_INSTANCES = "/v1/service_instances";
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServiceManagerService.class);
+	private static final String SERVICE_PLANS = "/v1/service_plans";
+	private static final String SERVICE_INSTANCES = "/v1/service_instances";
 
-    private final CloseableHttpClient httpClient;
-    private final OAuth2ServiceConfiguration smConfiguration;
-    private final DefaultOAuth2TokenService defaultOAuth2TokenService;
+	private final CloseableHttpClient httpClient;
+	private final OAuth2ServiceConfiguration smConfiguration;
+	private final DefaultOAuth2TokenService defaultOAuth2TokenService;
 
-    public DefaultServiceManagerService(OAuth2ServiceConfiguration smConfiguration, @Nullable CloseableHttpClient httpClient) {
-        this.smConfiguration = smConfiguration;
-        this.httpClient = httpClient != null ? httpClient : HttpClientFactory.create(smConfiguration.getClientIdentity());
-        this.defaultOAuth2TokenService = new DefaultOAuth2TokenService(this.httpClient);
-    }
+	public DefaultServiceManagerService(OAuth2ServiceConfiguration smConfiguration,
+			@Nullable CloseableHttpClient httpClient) {
+		this.smConfiguration = smConfiguration;
+		this.httpClient = httpClient != null ? httpClient
+				: HttpClientFactory.create(smConfiguration.getClientIdentity());
+		this.defaultOAuth2TokenService = new DefaultOAuth2TokenService(this.httpClient);
+	}
 
-    public Map<String, String> getServicePlans() {
-        HttpUriRequest request = RequestBuilder.create("GET")
-                .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + retrieveAccessToken())
-                .setUri(smConfiguration.getProperty("sm_url") + SERVICE_PLANS)
-                .build();
-        Map<String, String> servicePlanMap = new HashMap<>();
-        try {
-            JSONArray responseArray = executeRequest(request);
-            responseArray.forEach(plan -> servicePlanMap.put((String) ((JSONObject) plan).get("id"), (String) ((JSONObject) plan).get("name")));
-        } catch (OAuth2ServiceException e) {
-            e.printStackTrace();
-        }
-        LOGGER.debug("Service plans: {}", servicePlanMap);
-        return servicePlanMap;
-    }
+	public Map<String, String> getServicePlans() {
+		HttpUriRequest request = RequestBuilder.create("GET")
+				.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + retrieveAccessToken())
+				.setUri(smConfiguration.getProperty("sm_url") + SERVICE_PLANS)
+				.build();
+		Map<String, String> servicePlanMap = new HashMap<>();
+		try {
+			JSONArray responseArray = executeRequest(request);
+			responseArray.forEach(plan -> servicePlanMap.put((String) ((JSONObject) plan).get("id"),
+					(String) ((JSONObject) plan).get("name")));
+		} catch (OAuth2ServiceException e) {
+			e.printStackTrace();
+		}
+		LOGGER.debug("Service plans: {}", servicePlanMap);
+		return servicePlanMap;
+	}
 
-    public Map<String, String> getServiceInstances() {
-        HttpUriRequest request = RequestBuilder.create("GET")
-                .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + retrieveAccessToken())
-                .setUri(smConfiguration.getProperty("sm_url") + SERVICE_INSTANCES)
-                .build();
-        Map<String, String> serviceInstanceMap = new HashMap<>();
-        try {
-            JSONArray responseArray = executeRequest(request);
-            responseArray.forEach(plan -> serviceInstanceMap.put((String) ((JSONObject) plan).get("name"), (String) ((JSONObject) plan).get("service_plan_id")));
-        } catch (OAuth2ServiceException e) {
-            e.printStackTrace();
-        }
-        LOGGER.debug("Service instances: {}", serviceInstanceMap);
-        return serviceInstanceMap;
-    }
+	public Map<String, String> getServiceInstances() {
+		HttpUriRequest request = RequestBuilder.create("GET")
+				.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + retrieveAccessToken())
+				.setUri(smConfiguration.getProperty("sm_url") + SERVICE_INSTANCES)
+				.build();
+		Map<String, String> serviceInstanceMap = new HashMap<>();
+		try {
+			JSONArray responseArray = executeRequest(request);
+			responseArray.forEach(plan -> serviceInstanceMap.put((String) ((JSONObject) plan).get("name"),
+					(String) ((JSONObject) plan).get("service_plan_id")));
+		} catch (OAuth2ServiceException e) {
+			e.printStackTrace();
+		}
+		LOGGER.debug("Service instances: {}", serviceInstanceMap);
+		return serviceInstanceMap;
+	}
 
-    @Override
-    public Map<String, String> getServiceInstancePlans(){
-        Map<String, String> servicePlans = getServicePlans();
-        Map<String, String> serviceInstances = getServiceInstances();
-        serviceInstances.keySet().forEach(k -> serviceInstances.put(k, servicePlans.get(serviceInstances.get(k))));
-        LOGGER.debug("Service Instances with plan names: {}", serviceInstances);
-        return serviceInstances;
-    }
+	@Override
+	public Map<String, String> getServiceInstancePlans() {
+		Map<String, String> servicePlans = getServicePlans();
+		Map<String, String> serviceInstances = getServiceInstances();
+		serviceInstances.keySet().forEach(k -> serviceInstances.put(k, servicePlans.get(serviceInstances.get(k))));
+		LOGGER.debug("Service Instances with plan names: {}", serviceInstances);
+		return serviceInstances;
+	}
 
-    private JSONArray executeRequest(HttpUriRequest httpRequest) throws OAuth2ServiceException {
-        LOGGER.debug("Executing Http request to {} with headers {}", httpRequest.getURI(),
-                httpRequest.getAllHeaders());
-        try (CloseableHttpResponse response = httpClient.execute(httpRequest)) {
-            int statusCode = response.getStatusLine().getStatusCode();
-            LOGGER.debug("Received statusCode {} from {}", statusCode, httpRequest.getURI());
-            if (statusCode == HttpStatus.SC_OK) {
-                return handleResponse(response);
-            } else {
-                String responseBodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
-                LOGGER.debug("Received response body: {}", responseBodyAsString);
-                throw OAuth2ServiceException.builder("Error accessing service-manager endpoint")
-                        .withStatusCode(statusCode)
-                        .withUri(httpRequest.getURI())
-                        .withResponseBody(responseBodyAsString)
-                        .build();
-            }
-        } catch (OAuth2ServiceException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new OAuth2ServiceException(String.format("Unexpected error accessing service-manager endpoint %s: %s", httpRequest.getURI(), e.getMessage()));
-        }
-    }
+	private JSONArray executeRequest(HttpUriRequest httpRequest) throws OAuth2ServiceException {
+		LOGGER.debug("Executing Http request to {} with headers {}", httpRequest.getURI(),
+				httpRequest.getAllHeaders());
+		try (CloseableHttpResponse response = httpClient.execute(httpRequest)) {
+			int statusCode = response.getStatusLine().getStatusCode();
+			LOGGER.debug("Received statusCode {} from {}", statusCode, httpRequest.getURI());
+			if (statusCode == HttpStatus.SC_OK) {
+				return handleResponse(response);
+			} else {
+				String responseBodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
+				LOGGER.debug("Received response body: {}", responseBodyAsString);
+				throw OAuth2ServiceException.builder("Error accessing service-manager endpoint")
+						.withStatusCode(statusCode)
+						.withUri(httpRequest.getURI())
+						.withResponseBody(responseBodyAsString)
+						.build();
+			}
+		} catch (OAuth2ServiceException e) {
+			throw e;
+		} catch (IOException e) {
+			throw new OAuth2ServiceException(String.format("Unexpected error accessing service-manager endpoint %s: %s",
+					httpRequest.getURI(), e.getMessage()));
+		}
+	}
 
-    private JSONArray handleResponse(HttpResponse response) throws IOException {
-        String responseBody = HttpClientUtil.extractResponseBodyAsString(response);
-        return new JSONObject(responseBody).getJSONArray("items");
-    }
+	private JSONArray handleResponse(HttpResponse response) throws IOException {
+		String responseBody = HttpClientUtil.extractResponseBodyAsString(response);
+		return new JSONObject(responseBody).getJSONArray("items");
+	}
 
-    @Nullable
-    private String retrieveAccessToken(){
-        try {
-            OAuth2TokenResponse oAuth2TokenResponse = defaultOAuth2TokenService
-                    .retrieveAccessTokenViaClientCredentialsGrant(smConfiguration.getUrl().resolve("/oauth/token"),smConfiguration.getClientIdentity(), null, null, null,false);
-            return oAuth2TokenResponse.getAccessToken();
-        } catch (OAuth2ServiceException e) {
-            LOGGER.warn("Couldn't retrieve access token for service manager.", e);
-            return null;
-        }
-    }
+	@Nullable
+	private String retrieveAccessToken() {
+		try {
+			OAuth2TokenResponse oAuth2TokenResponse = defaultOAuth2TokenService
+					.retrieveAccessTokenViaClientCredentialsGrant(smConfiguration.getUrl().resolve("/oauth/token"),
+							smConfiguration.getClientIdentity(), null, null, null, false);
+			return oAuth2TokenResponse.getAccessToken();
+		} catch (OAuth2ServiceException e) {
+			LOGGER.warn("Couldn't retrieve access token for service manager.", e);
+			return null;
+		}
+	}
 }

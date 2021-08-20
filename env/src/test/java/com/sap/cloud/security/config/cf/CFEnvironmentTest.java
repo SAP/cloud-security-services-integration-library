@@ -73,9 +73,10 @@ public class CFEnvironmentTest {
 	public void getCorruptConfiguration_raisesException() {
 		String xsuaaBinding = "{\"xsuaa\": [{ \"credentials\": null }]}";
 
-		assertThatThrownBy(() -> cut = CFEnvironment.getInstance((str) -> xsuaaBinding, (str) -> null)).isInstanceOf(JsonParsingException.class).hasMessageContainingAll(
-				"The credentials of 'VCAP_SERVICES' can not be parsed for service 'XSUAA'",
-				"Please check the service binding.");
+		assertThatThrownBy(() -> cut = CFEnvironment.getInstance((str) -> xsuaaBinding, (str) -> null))
+				.isInstanceOf(JsonParsingException.class).hasMessageContainingAll(
+						"The credentials of 'VCAP_SERVICES' can not be parsed for service 'XSUAA'",
+						"Please check the service binding.");
 	}
 
 	@Test

@@ -20,8 +20,8 @@ public class K8sConstants {
 	}
 
 	/**
-	 * Represents the service plans available in Kyma Service Catalog. The various plans are
-	 * considered in {@code K8sEnvironment}
+	 * Represents the service plans available in Kyma Service Catalog. The various
+	 * plans are considered in {@code K8sEnvironment}
 	 */
 	public enum Plan {
 		DEFAULT, BROKER, APPLICATION, SPACE, APIACCESS, SYSTEM;
