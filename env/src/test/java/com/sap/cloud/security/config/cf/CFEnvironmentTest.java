@@ -13,6 +13,7 @@ import com.sap.cloud.security.json.JsonObject;
 
 import com.sap.cloud.security.json.JsonParsingException;
 import org.apache.commons.io.IOUtils;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,20 +65,18 @@ public class CFEnvironmentTest {
 		Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
 		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CREDENTIALS).getKeyValueMap();
 
-		assertThat(xsuaaConfigMap.size()).isEqualTo(4);
-		assertThat(credentialsMap.size()).isEqualTo(10);
-		assertThat(credentialsMap.get(CLIENT_SECRET)).isEqualTo("secret");
+		assertThat(xsuaaConfigMap).hasSize(4);
+		assertThat(credentialsMap).hasSize(10).containsEntry(CLIENT_SECRET, "secret");
 	}
 
 	@Test
 	public void getCorruptConfiguration_raisesException() {
 		String xsuaaBinding = "{\"xsuaa\": [{ \"credentials\": null }]}";
 
-		assertThatThrownBy(() -> {
-			cut = CFEnvironment.getInstance((str) -> xsuaaBinding, (str) -> null);
-		}).isInstanceOf(JsonParsingException.class).hasMessageContainingAll(
-				"The credentials of 'VCAP_SERVICES' can not be parsed for service 'XSUAA'",
-				"Please check the service binding.");
+		assertThatThrownBy(() -> cut = CFEnvironment.getInstance((str) -> xsuaaBinding, (str) -> null))
+				.isInstanceOf(JsonParsingException.class).hasMessageContainingAll(
+						"The credentials of 'VCAP_SERVICES' can not be parsed for service 'XSUAA'",
+						"Please check the service binding.");
 	}
 
 	@Test
@@ -87,7 +86,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getIasConfiguration().getService()).isEqualTo(Service.IAS);
 		assertThat(cut.getIasConfiguration().getClientId()).isEqualTo("T000310");
 		assertThat(cut.getIasConfiguration().getClientSecret()).startsWith("pCghfbrL");
-		assertThat(cut.getIasConfiguration().getUrl().toString()).isEqualTo("https://myauth.com");
+		assertThat(cut.getIasConfiguration().getUrl()).hasToString("https://myauth.com");
 		assertThat(cut.getIasConfiguration().isLegacyMode()).isFalse();
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
@@ -102,7 +101,7 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration().getClientSecret()).isEqualTo("secret");
 		assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.UAA_DOMAIN)).isEqualTo("auth.com");
 		assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.APP_ID)).isEqualTo("java-hello-world");
-		assertThat(cut.getXsuaaConfiguration().getUrl().toString()).isEqualTo("https://paastenant.auth.com");
+		assertThat(cut.getXsuaaConfiguration().getUrl()).hasToString("https://paastenant.auth.com");
 		assertThat(cut.getXsuaaConfiguration().isLegacyMode()).isFalse();
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
@@ -123,8 +122,8 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("sb-java-hello-world!i1");
 		assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.APP_ID)).isEqualTo("java-hello-world!i1");
 		assertThat(cut.getXsuaaConfiguration().getClientSecret()).startsWith("fxnWLHqLh6KC0Wp/bbv8Gwbu50OEbpS");
-		assertThat(cut.getXsuaaConfiguration().getUrl().toString())
-				.isEqualTo("https://xsa-test.c.eu-de-2.cloud.sap:30132/uaa-security");
+		assertThat(cut.getXsuaaConfiguration().getUrl())
+				.hasToString("https://xsa-test.c.eu-de-2.cloud.sap:30132/uaa-security");
 		assertThat(cut.getXsuaaConfiguration().isLegacyMode()).isTrue();
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
@@ -179,7 +178,7 @@ public class CFEnvironmentTest {
 		cut = CFEnvironment.getInstance((str) -> null, (str) -> null);
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
-		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(0);
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isNull();
 		assertThat(cut.loadForServicePlan(Service.IAS, Plan.DEFAULT)).isNull();
 		assertThat(CFEnvironment.getInstance().getXsuaaConfiguration()).isNull();
