@@ -28,7 +28,7 @@ public class VcapServicesParserTest {
 		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = cut.createConfiguration();
 
 		assertThat(oAuth2ServiceConfiguration.getClientId()).isEqualTo("clientId");
-		assertThat(oAuth2ServiceConfiguration.getProperty(CFConstants.SERVICE_PLAN)).isEqualTo("broker");
+		assertThat(oAuth2ServiceConfiguration.getProperty(CFConstants.SERVICE_PLAN)).isEqualToIgnoringCase("broker");
 	}
 
 	@Test
