@@ -65,7 +65,7 @@ public class CFEnvParserXsuaaTest {
 
 	@Test
 	public void getPlan() {
-		assertThat(cut.getProperty(SERVICE_PLAN)).isEqualToIgnoringCase("broker");
+		assertThat(cut.getProperty(SERVICE_PLAN)).isEqualTo("broker");
 		assertThat(Plan.from(cut.getProperty(SERVICE_PLAN))).isEqualTo(BROKER);
 	}
 

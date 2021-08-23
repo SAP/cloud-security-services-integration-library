@@ -73,7 +73,7 @@ class CFEnvParser {
 			OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.forService(service)
 					.withProperties(serviceBindingCredentials)
 					.withProperty(SERVICE_PLAN,
-							CFConstants.Plan.from(serviceBindingProperties.get(SERVICE_PLAN)).name())
+							CFConstants.Plan.from(serviceBindingProperties.get(SERVICE_PLAN)).toString())
 					.runInLegacyMode(isLegacyMode);
 			if (Service.IAS == service) {
 				builder.withDomains(serviceJsonObject.getJsonObject(CREDENTIALS).getAsStringList(DOMAINS)

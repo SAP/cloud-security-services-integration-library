@@ -66,5 +66,9 @@ public class CFConstants {
 			return Plan.valueOf(planAsString.toUpperCase());
 		}
 
+		@Override
+		public String toString() {
+			return super.toString().toLowerCase();
+		}
 	}
 }
