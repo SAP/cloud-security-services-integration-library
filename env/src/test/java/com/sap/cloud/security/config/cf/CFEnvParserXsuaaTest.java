@@ -10,7 +10,6 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
 import org.apache.commons.io.IOUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -20,6 +19,7 @@ import java.util.Collections;
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 import static com.sap.cloud.security.config.cf.CFConstants.Plan.BROKER;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CFEnvParserXsuaaTest {
 
@@ -35,43 +35,43 @@ public class CFEnvParserXsuaaTest {
 
 	@Test
 	public void getClientId() {
-		Assertions.assertThat(cut.getClientId()).isEqualTo("clientId");
+		assertThat(cut.getClientId()).isEqualTo("clientId");
 	}
 
 	@Test
 	public void getClientSecret() {
-		Assertions.assertThat(cut.getClientSecret()).isEqualTo("secret");
+		assertThat(cut.getClientSecret()).isEqualTo("secret");
 	}
 
 	@Test
 	public void getUrl() {
-		Assertions.assertThat(cut.getUrl()).isEqualTo(URI.create("https://paastenant.auth.com"));
+		assertThat(cut.getUrl()).isEqualTo(URI.create("https://paastenant.auth.com"));
 	}
 
 	@Test
 	public void getDomain() {
-		Assertions.assertThat(cut.getProperty(XSUAA.UAA_DOMAIN)).isEqualTo("auth.com");
+		assertThat(cut.getProperty(XSUAA.UAA_DOMAIN)).isEqualTo("auth.com");
 	}
 
 	@Test
 	public void getDomains() {
-		Assertions.assertThat(cut.getDomains()).isEqualTo(Collections.emptyList());
+		assertThat(cut.getDomains()).isEqualTo(Collections.emptyList());
 	}
 
 	@Test
 	public void getProperty() {
-		Assertions.assertThat(cut.getProperty("xsappname")).isEqualTo("java-hello-world");
+		assertThat(cut.getProperty("xsappname")).isEqualTo("java-hello-world");
 	}
 
 	@Test
 	public void getPlan() {
-		Assertions.assertThat(cut.getProperty(SERVICE_PLAN)).isEqualToIgnoringCase("broker");
-		Assertions.assertThat(Plan.from(cut.getProperty(SERVICE_PLAN))).isEqualTo(BROKER);
+		assertThat(cut.getProperty(SERVICE_PLAN)).isEqualToIgnoringCase("broker");
+		assertThat(Plan.from(cut.getProperty(SERVICE_PLAN))).isEqualTo(BROKER);
 	}
 
 	@Test
 	public void getService() {
-		Assertions.assertThat(cut.getService()).isEqualTo(Service.XSUAA);
+		assertThat(cut.getService()).isEqualTo(Service.XSUAA);
 	}
 
 }
