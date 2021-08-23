@@ -33,11 +33,6 @@ By default, library will search the configuration files in the following paths:
 
 :exclamation: service-manager binding is mandatory!
 
-It's possible to provide custom paths for Xsuaa and IAS:
-```java
-K8sEnvironment.getInstance(customXsuaaPath, customIasPath);
-```
-
 ### Maven Dependencies
 These (spring) dependencies needs to be provided:
 ```xml
