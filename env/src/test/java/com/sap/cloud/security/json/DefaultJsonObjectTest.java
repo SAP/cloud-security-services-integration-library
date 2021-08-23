@@ -80,8 +80,7 @@ public class DefaultJsonObjectTest {
 
 		List<String> list = cut.getAsList(KEY_2, String.class);
 
-		assertThat(list).hasSize(3);
-		assertThat(list).first().isEqualTo("a");
+		assertThat(list).hasSize(3).first().isEqualTo("a");
 	}
 
 	@Test
@@ -100,8 +99,7 @@ public class DefaultJsonObjectTest {
 
 		List<String> list = cut.getAsStringList(KEY_2);
 
-		assertThat(list).hasSize(3);
-		assertThat(list).first().isEqualTo("a");
+		assertThat(list).hasSize(3).first().isEqualTo("a");
 	}
 
 	@Test
@@ -176,8 +174,7 @@ public class DefaultJsonObjectTest {
 
 		List<JsonObject> jsonObjects = cut.getJsonObjects(KEY_1);
 
-		assertThat(jsonObjects).isNotNull();
-		assertThat(jsonObjects).hasSize(1);
+		assertThat(jsonObjects).isNotNull().hasSize(1);
 		assertThat(jsonObjects.get(0).getAsString(KEY_1)).isNotNull();
 	}
 
@@ -206,8 +203,7 @@ public class DefaultJsonObjectTest {
 
 		List<JsonObject> jsonObjects = cut.getJsonObjects(KEY_1);
 
-		assertThat(jsonObjects).isNotNull();
-		assertThat(jsonObjects).isEmpty();
+		assertThat(jsonObjects).isNotNull().isEmpty();
 	}
 
 	@Test

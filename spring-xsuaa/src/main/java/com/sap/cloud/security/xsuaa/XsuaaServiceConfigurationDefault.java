@@ -5,15 +5,12 @@
  */
 package com.sap.cloud.security.xsuaa;
 
-import com.sap.cloud.security.config.ClientCertificate;
-import com.sap.cloud.security.config.ClientCredentials;
-import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.config.CredentialType;
+import com.sap.cloud.security.config.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 import java.util.Properties;
 
 @Configuration
@@ -106,10 +103,14 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 
 	private Properties getVcapServiceProperties() {
 		if (vcapServiceProperties == null) {
-			try {
-				vcapServiceProperties = new XsuaaServicesParser().parseCredentials();
-			} catch (IOException e) {
-				vcapServiceProperties = new Properties();
+			vcapServiceProperties = new Properties();
+			if (Environments.getCurrent().getNumberOfXsuaaConfigurations() > 1) {
+				throw new IllegalStateException(
+						"Found more than one xsuaa bindings. Make use of Environments.getCurrent() directly.");
+			}
+			for (Map.Entry<String, String> property : Environments.getCurrent().getXsuaaConfiguration().getProperties()
+					.entrySet()) {
+				vcapServiceProperties.put(property.getKey(), property.getValue());
 			}
 		}
 		return vcapServiceProperties;

@@ -86,8 +86,9 @@
 
 	<modules>
 		<module>api</module>
-		<module>token-client</module>
 		<module>java-api</module>
+		<module>env</module>
+		<module>token-client</module>
 		<module>java-security</module>
 		<module>spring-security</module>
 		<module>spring-security-starter</module>
@@ -97,7 +98,7 @@
 		<module>spring-xsuaa-mock</module>
 		<module>spring-xsuaa-starter</module>
 		<module>spring-xsuaa-it</module>
-	</modules>
+    </modules>
 
 	<dependencyManagement>
 		<dependencies>

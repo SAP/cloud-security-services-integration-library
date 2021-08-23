@@ -7,7 +7,7 @@ package com.sap.cloud.security.config;
 
 import com.sap.cloud.security.config.cf.CFConstants;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,17 +16,17 @@ import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EnvironmentsTest {
+class EnvironmentsCFTest {
 
 	private final InputStream vcapMultipleXsuaa;
 
-	public EnvironmentsTest() throws IOException {
+	EnvironmentsCFTest() throws IOException {
 		vcapMultipleXsuaa = IOUtils.toInputStream(
 				IOUtils.resourceToString("/vcapXsuaaServiceMultipleBindings.json", UTF_8), UTF_8);
 	}
 
 	@Test
-	public void getCurrent_returnsOnlySingleInstance() {
+	void getCurrent_returnsOnlySingleCFInstance() {
 		Environment firstEnvironment = Environments.getCurrent();
 		Environment secondEnvironment = Environments.getCurrent();
 
@@ -34,14 +34,12 @@ public class EnvironmentsTest {
 	}
 
 	@Test
-	public void getCurrent_returnsCorrectEnvironment() {
-		// TODO 29.11.19 c5295400: extend test when more than one environment is
-		// supported
+	void getCurrent_returnsCFEnvironment() {
 		assertThat(Environments.getCurrent().getType()).isEqualTo(Environment.Type.CF);
 	}
 
 	@Test
-	public void readFromInputMultipleInstances() {
+	void readFromInputMultipleInstances() {
 		Environment cut = Environments.readFromInput(vcapMultipleXsuaa);
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
@@ -60,7 +58,7 @@ public class EnvironmentsTest {
 	}
 
 	@Test
-	public void readFromInputDoesNotOverwriteCurrentEnvironment() {
+	void readFromInputDoesNotOverwriteCurrentEnvironment() {
 		Environment cut = Environments.readFromInput(vcapMultipleXsuaa);
 
 		assertThat(cut).isNotSameAs(Environments.getCurrent());
