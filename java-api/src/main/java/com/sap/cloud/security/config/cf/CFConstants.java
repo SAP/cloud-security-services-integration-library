@@ -60,6 +60,9 @@ public class CFConstants {
 		DEFAULT, BROKER, APPLICATION, SPACE, APIACCESS, SYSTEM;
 
 		public static Plan from(String planAsString) {
+			if(planAsString == null) {
+				return APPLICATION;
+			}
 			return Plan.valueOf(planAsString.toUpperCase());
 		}
 

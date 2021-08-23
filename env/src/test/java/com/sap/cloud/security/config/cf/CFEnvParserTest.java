@@ -55,7 +55,7 @@ public class CFEnvParserTest {
 
 	@Test
 	public void getPlan() {
-		Assertions.assertThat(cut.getProperty(SERVICE_PLAN)).isEqualTo("application");
+		Assertions.assertThat(cut.getProperty(SERVICE_PLAN)).isEqualToIgnoringCase("application");
 		Assertions.assertThat(Plan.from(cut.getProperty(SERVICE_PLAN))).isEqualTo(APPLICATION);
 	}
 
