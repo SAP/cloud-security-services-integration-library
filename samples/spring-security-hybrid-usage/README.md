@@ -48,13 +48,14 @@ Further up-to-date information you can get on sap.help.com:
 You need administrator permissions to create a Groups "Read" in IAS and assign it to your user.
 
 ## Access the application
-- get an IAS oidc token via ``password`` grant token flow. For that call the ``/oauth2/token`` endpoint of your identity service. You can get the ``url`` and the ``clientid`` and ``clientsecret`` for the Basic Authorization header from the `ias-service-binding` secret.
-- get a XSUAA access token via ``client`` token flow. For that, call the ``/oauth/token`` endpoint of your xsuaa service. <br>You can get the ``url``, the ``client_id``, the ``client_secret`` for the request from the `xsuaa-service-binding` secret.
-
-```shell script
-kubectl get secret "xsuaa-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
-kubectl get secret "ias-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
-```
+- get an IAS oidc token via `client_credentials` grant type token flow. For that call the ``/oauth2/token`` endpoint of your identity service. You can get the ``url`` and the ``client_id`` and ``client_secret`` for the url encoded request body from the `ias-service-binding` secret.<br>
+  ```shell script
+  kubectl get secret "ias-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
+  ```
+- get a XSUAA access token via `client_credentials` grant type token flow. For that, call the ``/oauth/token`` endpoint of your xsuaa service. <br>You can get the ``url`` and the ``client_id`` and ``client_secret`` for the url encoded request body from the `xsuaa-service-binding` secret.<br>
+  ```shell script
+  kubectl get secret "xsuaa-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
+  ```
 
 Call the following endpoints with ```Authorization``` header = "Bearer <your IAS/XSUAA token>"
 * `https://spring-security-hybrid-api.<K8s DOMAIN>/sayHello` - GET request that provides token details, but only if token provides expected read permission (scope/groups).
@@ -116,7 +117,7 @@ Further up-to-date information you can get on sap.help.com:
 You need administrator permissions to create a Groups "Read" in IAS and assign it to your user.
 
 ## Access the application
-- create an IAS oidc token via ``password`` grant token flow. For that call the ``oauth2/token`` endpoint of your identity service. You can get the ``url`` and the ``clientid`` and ``clientsecret`` for the Basic Authorization header from ``VCAP_SERVICES``.`identity`.
+- create an IAS oidc token via ``password`` grant type token flow. For that call the ``oauth2/token`` endpoint of your identity service. You can get the ``url`` and the ``clientid`` and ``clientsecret`` for the Basic Authorization header from ``VCAP_SERVICES``.`identity`.
 - create an XSUAA access token via client-certificate token flow. For that, call the ``<cert_url>/oauth/token`` endpoint of your xsuaa service. <br>You can get the ``cert_url``, the ``client_id``, the ``certificate`` and ``key`` for the request from ``VCAP_SERVICES``.`xsuaa`.
 <br> You can use Postman to retrieve the token over mTLS. To setup SSL connection:
     1. Store the certificate and key into seperate files in `PEM` format.
