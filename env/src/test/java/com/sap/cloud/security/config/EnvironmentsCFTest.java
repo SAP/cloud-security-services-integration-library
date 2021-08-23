@@ -34,7 +34,7 @@ class EnvironmentsCFTest {
 	}
 
 	@Test
-	void getCurrent_returnsCf() {
+	void getCurrent_returnsCFEnvironment() {
 		assertThat(Environments.getCurrent().getType()).isEqualTo(Environment.Type.CF);
 	}
 

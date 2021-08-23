@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.10.5
+- [token-client] 
+  - `XsuaaTokenFlows` constructor accepts `com.sap.cloud.security.xsuaa.client.ClientCredentials` as argument.
+  
+#### Dependency upgrades
+- org.springframework.security:spring-security-oauth2-jose 5.5.1 --> 5.5.2
+- org.springframework.security:spring-security-oauth2-resource-server 5.5.1 --> 5.5.2
+- org.springframework.security:spring-security-oauth2-jose 5.5.1 --> 5.5.2
+- org.springframework.security:spring-boot-starter-test 5.5.1 --> 5.5.2
+
 ## 2.10.4
 - [java-security] Enrich `JsonParsingException` to detect wrong authorization headers earlier
 - [token-client] 

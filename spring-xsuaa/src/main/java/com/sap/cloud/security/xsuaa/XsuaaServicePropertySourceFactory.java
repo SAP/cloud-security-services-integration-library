@@ -12,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -55,15 +55,21 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 					"key", "credential-type", "certurl");
 
 	@Override
-	@Nonnull
-	public PropertySource<?> createPropertySource(String name, @Nonnull EncodedResource resource) throws IOException {
+	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
 		Properties properties = new Properties();
-		Environment environment = Environments.getCurrent();
-		if (resource != null
-				&& resource.getResource().getFilename() != null && !resource.getResource().getFilename().isEmpty()) {
+		Environment environment;
+		if (resource.getResource() instanceof InputStreamResource
+				|| (resource.getResource().getFilename() != null && !resource.getResource().getFilename().isEmpty())) {
 			environment = Environments.readFromInput(resource.getResource().getInputStream());
+		} else {
+			environment = Environments.getCurrent();
 		}
-
+		if (environment.getNumberOfXsuaaConfigurations() > 1
+				&& environment.getXsuaaConfigurationForTokenExchange() != null) { // TODO check for number of xsuaa and
+																					// ignore api plan
+			throw new IllegalStateException(
+					"Found more than one xsuaa bindings. Please consider unified broker plan or use com.sap.cloud.security:spring-security client library.");
+		}
 		if (environment.getXsuaaConfiguration() != null) {
 			for (String key : XSUAA_ATTRIBUTES) {
 				if (environment.getXsuaaConfiguration().hasProperty(key)) {
@@ -95,5 +101,4 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 		}
 		return new PropertiesPropertySource(name, properties);
 	}
-
 }
