@@ -30,11 +30,13 @@ public class XsuaaTokenFlows implements Serializable {
 	private final OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	/**
-	 * @deprecated in favor of {@link #XsuaaTokenFlows(OAuth2TokenService, OAuth2ServiceEndpointsProvider, ClientIdentity)}
+	 * @deprecated in favor of
+	 *             {@link #XsuaaTokenFlows(OAuth2TokenService, OAuth2ServiceEndpointsProvider, ClientIdentity)}
 	 */
 	@Deprecated
 	public XsuaaTokenFlows(OAuth2TokenService oAuth2TokenService,
-						   OAuth2ServiceEndpointsProvider endpointsProvider, com.sap.cloud.security.xsuaa.client.ClientCredentials clientCredentials) {
+			OAuth2ServiceEndpointsProvider endpointsProvider,
+			com.sap.cloud.security.xsuaa.client.ClientCredentials clientCredentials) {
 		assertNotNull(oAuth2TokenService, "OAuth2TokenService must not be null.");
 		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null");
 		assertNotNull(clientCredentials, "ClientCredentials must not be null.");

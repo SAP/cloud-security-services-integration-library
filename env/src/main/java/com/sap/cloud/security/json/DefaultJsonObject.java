@@ -198,7 +198,7 @@ public class DefaultJsonObject implements JsonObject {
 		return jsonObject;
 	}
 
-	@java.lang.SuppressWarnings("squid:S2139")
+	@SuppressWarnings("squid:S2139")
 	private JSONObject createJsonObject(String jsonString) {
 		try {
 			return new JSONObject(jsonString);
