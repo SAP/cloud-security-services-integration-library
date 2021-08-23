@@ -104,11 +104,12 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	private Properties getVcapServiceProperties() {
 		if (vcapServiceProperties == null) {
 			vcapServiceProperties = new Properties();
-			if(Environments.getCurrent().getNumberOfXsuaaConfigurations() > 1) {
+			if (Environments.getCurrent().getNumberOfXsuaaConfigurations() > 1) {
 				throw new IllegalStateException(
-						"Found more than one xsuaa bindings. Please consider unified broker plan.");
+						"Found more than one xsuaa bindings. Make use of Environments.getCurrent() directly.");
 			}
-			for(Map.Entry<String, String> property : Environments.getCurrent().getXsuaaConfiguration().getProperties().entrySet()) {
+			for (Map.Entry<String, String> property : Environments.getCurrent().getXsuaaConfiguration().getProperties()
+					.entrySet()) {
 				vcapServiceProperties.put(property.getKey(), property.getValue());
 			}
 		}
