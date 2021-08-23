@@ -3,11 +3,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.config.json;
+package com.sap.cloud.security.json;
 
-import com.sap.cloud.security.json.DefaultJsonObject;
-import com.sap.cloud.security.json.JsonObject;
-import com.sap.cloud.security.json.JsonParsingException;
 import org.junit.Before;
 import org.junit.Test;
 
