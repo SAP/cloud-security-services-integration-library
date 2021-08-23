@@ -57,9 +57,11 @@ You need administrator permissions to create a Groups "Read" in IAS and assign i
   kubectl get secret "xsuaa-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
   ```
 
+In the Kyma Console, go to `<YOUR_NAMESPACE>` - `Discovery and Network` - `API Rules`. Choose the host entry for the `spring-security-hybrid-api` api rule to access the application in the browser which will produce **401** error.
+ 
 Call the following endpoints with ```Authorization``` header = "Bearer <your IAS/XSUAA token>"
-* `https://spring-security-hybrid-api.<K8s DOMAIN>/sayHello` - GET request that provides token details, but only if token provides expected read permission (scope/groups).
-* `https://spring-security-hybrid-api.<K8s DOMAIN>/method` - GET request executes a method secured with Spring Global Method Security, user requires read permission (scope/groups).
+* `<HOST of spring-security-hybrid-api>/sayHello` - GET request that provides token details, but only if token provides expected read permission (scope/groups).
+* `<HOST of spring-security-hybrid-api>/method` - GET request executes a method secured with Spring Global Method Security, user requires read permission (scope/groups).
 
 
 ## Cleanup
