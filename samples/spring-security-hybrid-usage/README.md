@@ -23,6 +23,7 @@ Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes
 mvn spring-boot:build-image -Dspring-boot.build-image.imageName=<repositoryName>/<imageName>
 docker push <repositoryName>/<imageName>
 ```
+> This makes use of `Dockerfile`.
 
 ## Configure the deployment.yml
 In deployment.yml replace the placeholders:
