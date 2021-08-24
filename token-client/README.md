@@ -263,35 +263,38 @@ For spring applications using rest template, you can set
 #### New warning `In productive environment provide well configured HttpClientFactory service.` 
 As of version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service.` is exposed to the application log in case the default implementation of ``ClosableRestClient`` is used and not overwritten by an own well-defined one. <br> In case you like to overwrite [`DefaultHttpClientFactory`](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) you can register your own implementation of `HttpClientFactory` interface as following:
 
-    - Create a SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory.  
-    - Enter the fully qualified name of your `HttpClientFactory` implementation class, e.g. `com.mypackage.CustomHttpClientFactory`.
-    - The implementation could look like:  
-    ````java
-    public class DefaultHttpClientFactory implements HttpClientFactory {
-    
-    	public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException {
-    		// here comes your implementation
-    	}
+- Create a SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory.  
+- Enter the fully qualified name of your `HttpClientFactory` implementation class, e.g. `com.mypackage.CustomHttpClientFactory`.
+- The implementation could look like:  
+````java
+public class DefaultHttpClientFactory implements HttpClientFactory {
+
+    public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException {
+        // here comes your implementation
     }
-    ````
+}
+````
 #### This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library
 If you have classpath related  issues involving JSON you should take a look at the
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
 
-#### `{\"error\":\"unauthorized\",\"error_description\":\"Unable to map issuer, [http://subdomain.localhost:8080/uaa/oauth/token] , to a single registered provider\"}`  
+#### Token exchange `Unable to map issuer`
+```bash
+{\"error\":\"unauthorized\",\"error_description\":\"Unable to map issuer, [http://subdomain.localhost:8080/uaa/oauth/token] , to a single registered provider\"}
+```  
 Token exchange is only supported within the same identity zone/tenant. That means, that you have to call the `/oauth/token` endpoint of the same subdomain, that was used for the original token. This can be achieved by configuring the user token flow the following way:
-    ````
-    tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());
-    ````
+````
+tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());
+````
 
-#### In Spring UnsatisfiedDependencyException
-- For Spring applications error like:
-    ```java
-    java.lang.IllegalStateException: Failed to load ApplicationContext 
-    Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'securityConfiguration': Unsatisfied dependency expressed through field 'xsuaaTokenFlows'
-    nested exception is java.lang.NoClassDefFoundError: org/apache/http/client/HttpClient
-    ``` 
-    make sure `org.apache.httpcomponents:httpclient` dependency is provided in the POM.
+#### In Spring: `UnsatisfiedDependencyException`
+For Spring applications error like
+```bash
+java.lang.IllegalStateException: Failed to load ApplicationContext 
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'securityConfiguration': Unsatisfied dependency expressed through field 'xsuaaTokenFlows'
+nested exception is java.lang.NoClassDefFoundError: org/apache/http/client/HttpClient
+``` 
+indicates that mandatory `org.apache.httpcomponents:httpclient` dependency is missing in your POM.
 
 
 
