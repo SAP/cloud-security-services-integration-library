@@ -1,0 +1,88 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.sap.cloud.security.config.k8s;
+
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * The K8sServiceConfigurationProvider provides the information of all bound
+ * service configurations.
+ */
+class K8sServiceConfigurationProvider {
+	private static final Logger LOGGER = LoggerFactory.getLogger(K8sServiceConfigurationProvider.class);
+
+	private DefaultServiceManagerService serviceManagerClient;
+	private final K8sServiceConfigurationResolver serviceConfigurationResolver;
+
+	K8sServiceConfigurationProvider() {
+		this.serviceConfigurationResolver = new K8sServiceConfigurationResolver();
+		if (serviceConfigurationResolver.loadServiceManagerConfig() != null) {
+			this.serviceManagerClient = new DefaultServiceManagerService(
+					serviceConfigurationResolver.loadServiceManagerConfig());
+		}
+	}
+
+	K8sServiceConfigurationProvider(DefaultServiceManagerService serviceManagerClient,
+			K8sServiceConfigurationResolver serviceConfigurationResolver) {
+		this.serviceManagerClient = serviceManagerClient;
+		this.serviceConfigurationResolver = serviceConfigurationResolver;
+	}
+
+	/**
+	 * Gets all service configurations from the mounted file volumes.
+	 *
+	 * @return the service configurations map of IAS and XSUAA services with their
+	 *         corresponding OAuth2ServiceConfigurations. For Xsuaa Map key is the
+	 *         service plan name, for IAS key is the service instance name.
+	 */
+	EnumMap<Service, Map<String, OAuth2ServiceConfiguration>> getServiceConfigurations() {
+		EnumMap<Service, Map<String, OAuth2ServiceConfiguration>> serviceConfigurations = new EnumMap<>(Service.class);
+
+		Map<String, OAuth2ServiceConfiguration> allXsuaaServices = serviceConfigurationResolver
+				.loadOauth2ServiceConfig(Service.XSUAA);
+		Map<String, OAuth2ServiceConfiguration> iasService = serviceConfigurationResolver
+				.loadOauth2ServiceConfig(Service.IAS);
+
+		if (!allXsuaaServices.isEmpty()) {
+			serviceConfigurations.put(Service.XSUAA, mapXsuaaServicePlans(allXsuaaServices));
+		}
+		if (!iasService.isEmpty()) {
+			serviceConfigurations.put(Service.IAS, iasService);
+		}
+		return serviceConfigurations;
+	}
+
+	private Map<String, OAuth2ServiceConfiguration> mapXsuaaServicePlans(
+			Map<String, OAuth2ServiceConfiguration> allXsuaaServices) {
+		Map<String, OAuth2ServiceConfiguration> allXsuaaServicesWithPlans = new HashMap<>();// <planName, config>
+		if (allXsuaaServices.isEmpty()) {
+			return allXsuaaServices;
+		}
+		if (serviceManagerClient == null) {
+			Map.Entry<String, OAuth2ServiceConfiguration> entrySet = allXsuaaServices.entrySet().iterator().next();
+			LOGGER.warn(
+					"Can't fetch Xsuaa service plan data, taking first Xsuaa service ({}) and setting the plan to APPLICATION",
+					entrySet.getKey());
+			return Collections.singletonMap("APPLICATION", entrySet.getValue());
+		}
+		Map<String, String> serviceInstancePlans = serviceManagerClient.getServiceInstancePlans();// <xsuaaName,planName>
+		if (serviceInstancePlans.isEmpty()) {
+			LOGGER.warn("Cannot map Xsuaa services with plans, no plans were fetched from service manager");
+			return allXsuaaServicesWithPlans;
+		}
+		allXsuaaServices.keySet().forEach(
+				k -> allXsuaaServicesWithPlans.put(serviceInstancePlans.get(k).toUpperCase(), allXsuaaServices.get(k)));
+		return allXsuaaServicesWithPlans;
+	}
+}
