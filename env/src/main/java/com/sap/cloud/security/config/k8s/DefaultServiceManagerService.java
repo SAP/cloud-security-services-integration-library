@@ -1,9 +1,16 @@
-package com.sap.cloud.security.client;
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.sap.cloud.security.config.k8s;
 
+import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -22,24 +29,39 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultServiceManagerService implements ServiceManagerService {
+/**
+ * The DefaultServiceManagerService fetches information about service instances
+ * and service instance plans.
+ */
+class DefaultServiceManagerService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServiceManagerService.class);
 	private static final String SERVICE_PLANS = "/v1/service_plans";
 	private static final String SERVICE_INSTANCES = "/v1/service_instances";
 
 	private final CloseableHttpClient httpClient;
 	private final OAuth2ServiceConfiguration smConfiguration;
-	private final DefaultOAuth2TokenService defaultOAuth2TokenService;
+	private final OAuth2TokenService defaultOAuth2TokenService;
 
-	public DefaultServiceManagerService(OAuth2ServiceConfiguration smConfiguration,
-			@Nullable CloseableHttpClient httpClient) {
+	DefaultServiceManagerService(OAuth2ServiceConfiguration smConfiguration) {
+		this(smConfiguration, HttpClientFactory.create(smConfiguration.getClientIdentity()));
+	}
+
+	DefaultServiceManagerService(OAuth2ServiceConfiguration smConfiguration, CloseableHttpClient httpClient) {
 		this.smConfiguration = smConfiguration;
-		this.httpClient = httpClient != null ? httpClient
-				: HttpClientFactory.create(smConfiguration.getClientIdentity());
+		this.httpClient = httpClient;
 		this.defaultOAuth2TokenService = new DefaultOAuth2TokenService(this.httpClient);
 	}
 
-	public Map<String, String> getServicePlans() {
+	Map<String, String> getServiceInstancePlans() {
+		Map<String, String> servicePlans = getServicePlans();
+		Map<String, String> serviceInstances = getServiceInstances();
+		serviceInstances.keySet().forEach(k -> serviceInstances.put(k, servicePlans.get(serviceInstances.get(k))));
+		LOGGER.debug("Service Instances with plan names: {}", serviceInstances);
+		return serviceInstances;
+	}
+
+	// TODO make private, adjust tests
+	Map<String, String> getServicePlans() {
 		HttpUriRequest request = RequestBuilder.create("GET")
 				.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + retrieveAccessToken())
 				.setUri(smConfiguration.getProperty("sm_url") + SERVICE_PLANS)
@@ -56,7 +78,8 @@ public class DefaultServiceManagerService implements ServiceManagerService {
 		return servicePlanMap;
 	}
 
-	public Map<String, String> getServiceInstances() {
+	// TODO make private, adjust tests
+	Map<String, String> getServiceInstances() {
 		HttpUriRequest request = RequestBuilder.create("GET")
 				.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + retrieveAccessToken())
 				.setUri(smConfiguration.getProperty("sm_url") + SERVICE_INSTANCES)
@@ -71,15 +94,6 @@ public class DefaultServiceManagerService implements ServiceManagerService {
 		}
 		LOGGER.debug("Service instances: {}", serviceInstanceMap);
 		return serviceInstanceMap;
-	}
-
-	@Override
-	public Map<String, String> getServiceInstancePlans() {
-		Map<String, String> servicePlans = getServicePlans();
-		Map<String, String> serviceInstances = getServiceInstances();
-		serviceInstances.keySet().forEach(k -> serviceInstances.put(k, servicePlans.get(serviceInstances.get(k))));
-		LOGGER.debug("Service Instances with plan names: {}", serviceInstances);
-		return serviceInstances;
 	}
 
 	private JSONArray executeRequest(HttpUriRequest httpRequest) throws OAuth2ServiceException {
