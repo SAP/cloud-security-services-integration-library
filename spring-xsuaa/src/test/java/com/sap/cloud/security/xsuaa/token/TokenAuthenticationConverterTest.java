@@ -109,9 +109,9 @@ public class TokenAuthenticationConverterTest {
 
 	@Test
 	public void checkFollowingInstanceScope() {
-		String scopeWithClientId =  "7cf2e319-3a7d-4f99-8207-afdc8e8e6d64!b34404|control-controllibsystemtest!b4702.API_OVERVIEW";
+		String scopeWithClientId =  "7cf2e319-3a7d-4f99-8207-afdc8e8e6d64!b123|trustedclientid!b333.API_OVERVIEW";
 
-		Jwt jwt = new JwtGenerator("sb-7cf2e319-3a7d-4f99-8207-afdc8e8e6d64!b34404|control-controllibsystemtest!b4702")
+		Jwt jwt = new JwtGenerator("sb-7cf2e319-3a7d-4f99-8207-afdc8e8e6d64!b123|trustedclientid!b333")
 				.addScopes(xsAppName + "." + scopeAdmin, scopeRead, scopeWithClientId)
 				.getToken();
 		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(new MyFollowingInstanceAuthoritiesExtractor());
