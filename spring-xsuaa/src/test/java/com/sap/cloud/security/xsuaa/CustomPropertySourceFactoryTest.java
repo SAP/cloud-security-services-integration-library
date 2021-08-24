@@ -90,8 +90,9 @@ class CustomPropertySourceFactory implements PropertySourceFactory {
 			EncodedResource encodedResource) {
 
 		Properties properties = new Properties();
-		Environment environment = Environments.readFromInput(new ByteArrayInputStream(vcapJsonString.getBytes(StandardCharsets.UTF_8)));
-		for(Map.Entry<String, String> property : environment.getXsuaaConfiguration().getProperties().entrySet()) {
+		Environment environment = Environments
+				.readFromInput(new ByteArrayInputStream(vcapJsonString.getBytes(StandardCharsets.UTF_8)));
+		for (Map.Entry<String, String> property : environment.getXsuaaConfiguration().getProperties().entrySet()) {
 			properties.put(property.getKey(), property.getValue());
 		}
 

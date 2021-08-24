@@ -33,7 +33,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * @return this builder
 	 */
 	public static OAuth2ServiceConfigurationBuilder forService(@Nonnull Service service) {
-		if(service == null) {
+		if (service == null) {
 			throw new IllegalArgumentException("Service must not be null!");
 		}
 		OAuth2ServiceConfigurationBuilder instance = new OAuth2ServiceConfigurationBuilder();
