@@ -33,10 +33,10 @@ class K8sServiceConfigurationProvider {
 		}
 	}
 
-	K8sServiceConfigurationProvider(DefaultServiceManagerService serviceManagerClient,
-			K8sServiceConfigurationResolver serviceConfigurationResolver) {
-		this.serviceManagerClient = serviceManagerClient;
+	K8sServiceConfigurationProvider(K8sServiceConfigurationResolver serviceConfigurationResolver,
+			DefaultServiceManagerService serviceManagerClient) {
 		this.serviceConfigurationResolver = serviceConfigurationResolver;
+		this.serviceManagerClient = serviceManagerClient;
 	}
 
 	/**

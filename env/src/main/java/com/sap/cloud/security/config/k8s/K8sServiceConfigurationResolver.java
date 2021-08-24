@@ -65,7 +65,7 @@ class K8sServiceConfigurationResolver {
 	Map<String, OAuth2ServiceConfiguration> loadOauth2ServiceConfig(Service service) {
 		Map<String, OAuth2ServiceConfiguration> allServices = new HashMap<>();
 		File[] serviceBindings = getServiceBindings(service);
-		if (serviceBindings == null ||serviceBindings.length == 0) {
+		if (serviceBindings == null || serviceBindings.length == 0) {
 			LOGGER.warn("No service bindings for {} service were found.", service);
 		} else {
 			LOGGER.debug("Found {} {} service bindings", serviceBindings.length, service);
