@@ -17,19 +17,19 @@ import java.io.File;
 import static com.sap.cloud.security.config.k8s.K8sConstants.*;
 import static com.sap.cloud.security.config.k8s.K8sConstants.SM_CONFIG_PATH;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SystemStubsExtension.class)
 class K8sServiceConfigurationResolverTest {
 
 	private static K8sServiceConfigurationResolver cut;
+	public static final String ABSOLUTE_PATH = new File("src/test/resources").getAbsolutePath();
 
 	@BeforeAll
 	static void setUp(EnvironmentVariables environmentVariables) {
-		String absolutePath = new File("src/test/resources").getAbsolutePath();
-
-		environmentVariables.set(XSUAA_CONFIG_PATH, absolutePath + "/k8s/xsuaa");
-		environmentVariables.set(IAS_CONFIG_PATH, absolutePath + "/k8s/ias");
-		environmentVariables.set(SM_CONFIG_PATH, absolutePath + "/k8s/service-manager");
+		environmentVariables.set(XSUAA_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/xsuaa");
+		environmentVariables.set(IAS_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/ias");
+		environmentVariables.set(SM_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/service-manager");
 
 		cut = new K8sServiceConfigurationResolver();
 	}
@@ -51,5 +51,17 @@ class K8sServiceConfigurationResolverTest {
 		assertEquals("iasClientId2", cut.loadOauth2ServiceConfig(Service.IAS).get("ias2").getClientId());
 	}
 
-	// TODO extend tests with negative test case
+	@Test
+	void loadOAuth2ServiceConfig_noValidServiceBinding(EnvironmentVariables environmentVariables) {
+		environmentVariables.set(XSUAA_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/xsuaa-invalid");
+		environmentVariables.set(IAS_CONFIG_PATH,  "/no/path");
+		cut = new K8sServiceConfigurationResolver();
+
+		assertDoesNotThrow(() -> cut.loadOauth2ServiceConfig(Service.XSUAA));
+		assertDoesNotThrow(() -> cut.loadOauth2ServiceConfig(Service.IAS));
+		assertEquals(1, cut.loadOauth2ServiceConfig(Service.XSUAA).size());
+		assertEquals(0, cut.loadOauth2ServiceConfig(Service.IAS).size());
+		assertEquals("clientId", cut.loadOauth2ServiceConfig(Service.XSUAA).get("xsuaa-folder-file").getClientId());
+		assertNull(cut.loadOauth2ServiceConfig(Service.XSUAA).get("xsuaa-folder-file").getClientSecret());
+	}
 }
