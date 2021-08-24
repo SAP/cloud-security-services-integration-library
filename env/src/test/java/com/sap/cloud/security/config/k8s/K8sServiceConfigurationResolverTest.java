@@ -54,7 +54,7 @@ class K8sServiceConfigurationResolverTest {
 	@Test
 	void loadOAuth2ServiceConfig_noValidServiceBinding(EnvironmentVariables environmentVariables) {
 		environmentVariables.set(XSUAA_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/xsuaa-invalid");
-		environmentVariables.set(IAS_CONFIG_PATH,  "/no/path");
+		environmentVariables.set(IAS_CONFIG_PATH, "/no/path");
 		cut = new K8sServiceConfigurationResolver();
 
 		assertDoesNotThrow(() -> cut.loadOauth2ServiceConfig(Service.XSUAA));
@@ -63,5 +63,14 @@ class K8sServiceConfigurationResolverTest {
 		assertEquals(0, cut.loadOauth2ServiceConfig(Service.IAS).size());
 		assertEquals("clientId", cut.loadOauth2ServiceConfig(Service.XSUAA).get("xsuaa-folder-file").getClientId());
 		assertNull(cut.loadOauth2ServiceConfig(Service.XSUAA).get("xsuaa-folder-file").getClientSecret());
+	}
+
+	@Test
+	void loadOAuth2ServiceConfig_noServiceBinding(EnvironmentVariables environmentVariables) {
+		environmentVariables.set(XSUAA_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/xsuaa-no-bindings");
+		cut = new K8sServiceConfigurationResolver();
+
+		assertDoesNotThrow(() -> cut.loadOauth2ServiceConfig(Service.XSUAA));
+		assertEquals(0, cut.loadOauth2ServiceConfig(Service.XSUAA).size());
 	}
 }
