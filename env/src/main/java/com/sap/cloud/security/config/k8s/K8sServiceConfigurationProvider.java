@@ -33,9 +33,7 @@ class K8sServiceConfigurationProvider {
 		}
 	}
 
-	K8sServiceConfigurationProvider(K8sServiceConfigurationResolver serviceConfigurationResolver,
-			DefaultServiceManagerService serviceManagerClient) {
-		this.serviceConfigurationResolver = serviceConfigurationResolver;
+	void setServiceManagerClient(DefaultServiceManagerService serviceManagerClient) {
 		this.serviceManagerClient = serviceManagerClient;
 	}
 
@@ -66,14 +64,17 @@ class K8sServiceConfigurationProvider {
 		if (serviceManagerClient == null) {
 			Map.Entry<String, OAuth2ServiceConfiguration> entrySet = allXsuaaServices.entrySet().iterator().next();
 			LOGGER.warn(
-					"Can't fetch Xsuaa service plan data, taking first Xsuaa service ({}) and setting the plan to APPLICATION",
+					"No service-manager client available, taking first Xsuaa service ({}) and setting the plan to APPLICATION",
 					entrySet.getKey());
 			return Collections.singletonMap("APPLICATION", entrySet.getValue());
 		}
 		Map<String, String> serviceInstancePlans = serviceManagerClient.getServiceInstancePlans();// <xsuaaName,planName>
 		if (serviceInstancePlans.isEmpty()) {
-			LOGGER.warn("Cannot map Xsuaa services with plans, no plans were fetched from service manager");
-			return allXsuaaServicesWithPlans;
+			Map.Entry<String, OAuth2ServiceConfiguration> entrySet = allXsuaaServices.entrySet().iterator().next();
+			LOGGER.warn(
+					"No plans were fetched from service manager, taking first Xsuaa service ({}) and setting the plan to APPLICATION",
+					entrySet.getKey());
+			return Collections.singletonMap("APPLICATION", entrySet.getValue());
 		}
 		allXsuaaServices.keySet().forEach(
 				k -> allXsuaaServicesWithPlans.put(serviceInstancePlans.get(k).toUpperCase(), allXsuaaServices.get(k)));
