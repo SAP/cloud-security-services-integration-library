@@ -52,9 +52,7 @@ public class K8sEnvironment implements Environment {
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfiguration() {
 		Map<String, OAuth2ServiceConfiguration> xsuaaPlans = k8sServiceConfigurations.get(Service.XSUAA);
-		if (xsuaaPlans == null) {
-			return null;
-		}
+
 		return Optional.ofNullable(xsuaaPlans.get(Plan.APPLICATION.name()))
 				.orElse(Optional.ofNullable(xsuaaPlans.get(Plan.BROKER.name()))
 						.orElse(Optional.ofNullable(xsuaaPlans.get(Plan.SPACE.name()))
@@ -77,7 +75,7 @@ public class K8sEnvironment implements Environment {
 	public OAuth2ServiceConfiguration getIasConfiguration() {
 		Set<Map.Entry<String, OAuth2ServiceConfiguration>> iasConfigEntries = k8sServiceConfigurations
 				.get(Service.IAS).entrySet();
-		if (iasConfigEntries.size() > 1){
+		if (iasConfigEntries.size() > 1) {
 			LOGGER.warn("{} IAS bindings found. Using the first one from the list", iasConfigEntries.size());
 		}
 		return iasConfigEntries.stream().findFirst().map(Map.Entry::getValue).orElse(null);

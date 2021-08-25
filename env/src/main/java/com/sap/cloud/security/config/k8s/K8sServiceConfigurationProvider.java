@@ -49,17 +49,11 @@ class K8sServiceConfigurationProvider {
 	EnumMap<Service, Map<String, OAuth2ServiceConfiguration>> getServiceConfigurations() {
 		EnumMap<Service, Map<String, OAuth2ServiceConfiguration>> serviceConfigurations = new EnumMap<>(Service.class);
 
-		Map<String, OAuth2ServiceConfiguration> allXsuaaServices = serviceConfigurationResolver
-				.loadOauth2ServiceConfig(Service.XSUAA);
-		Map<String, OAuth2ServiceConfiguration> iasService = serviceConfigurationResolver
-				.loadOauth2ServiceConfig(Service.IAS);
+		serviceConfigurations.put(Service.XSUAA, mapXsuaaServicePlans(serviceConfigurationResolver
+				.loadOauth2ServiceConfig(Service.XSUAA)));
+		serviceConfigurations.put(Service.IAS, serviceConfigurationResolver
+				.loadOauth2ServiceConfig(Service.IAS));
 
-		if (!allXsuaaServices.isEmpty()) {
-			serviceConfigurations.put(Service.XSUAA, mapXsuaaServicePlans(allXsuaaServices));
-		}
-		if (!iasService.isEmpty()) {
-			serviceConfigurations.put(Service.IAS, iasService);
-		}
 		return serviceConfigurations;
 	}
 
