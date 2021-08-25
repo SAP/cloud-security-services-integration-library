@@ -8,11 +8,14 @@ package com.sap.cloud.security.config.k8s;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.sap.cloud.security.config.k8s.K8sConstants.Plan;
 
@@ -23,6 +26,7 @@ import static com.sap.cloud.security.config.k8s.K8sConstants.Plan;
  * or "/etc/secrets/sapcp/ias" for IAS service.
  */
 public class K8sEnvironment implements Environment {
+	private static final Logger LOGGER = LoggerFactory.getLogger(K8sEnvironment.class);
 
 	private static K8sEnvironment instance;
 	private final Map<Service, Map<String, OAuth2ServiceConfiguration>> k8sServiceConfigurations;
@@ -71,9 +75,12 @@ public class K8sEnvironment implements Environment {
 	@Nullable
 	@Override
 	public OAuth2ServiceConfiguration getIasConfiguration() {
-		Optional<Map.Entry<String, OAuth2ServiceConfiguration>> iasConfigEntry = k8sServiceConfigurations
-				.get(Service.IAS).entrySet().stream().findFirst();
-		return iasConfigEntry.map(Map.Entry::getValue).orElse(null);
+		Set<Map.Entry<String, OAuth2ServiceConfiguration>> iasConfigEntries = k8sServiceConfigurations
+				.get(Service.IAS).entrySet();
+		if (iasConfigEntries.size() > 1){
+			LOGGER.warn("{} IAS bindings found. Using the first one from the list", iasConfigEntries.size());
+		}
+		return iasConfigEntries.stream().findFirst().map(Map.Entry::getValue).orElse(null);
 	}
 
 	@Override
