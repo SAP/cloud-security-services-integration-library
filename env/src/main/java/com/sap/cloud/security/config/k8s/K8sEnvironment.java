@@ -62,7 +62,10 @@ public class K8sEnvironment implements Environment {
 	@Nullable
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange() {
-		return Optional.ofNullable(k8sServiceConfigurations.get(Service.XSUAA).get(Plan.BROKER.name())).orElse(null);
+		if (getNumberOfXsuaaConfigurations() > 1) {
+			return k8sServiceConfigurations.get(Service.XSUAA).get(Plan.BROKER.name());
+		}
+		return getXsuaaConfiguration();
 	}
 
 	@Nullable
