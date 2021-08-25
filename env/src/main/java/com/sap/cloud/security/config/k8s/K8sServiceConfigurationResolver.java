@@ -66,7 +66,7 @@ class K8sServiceConfigurationResolver {
 		Map<String, OAuth2ServiceConfiguration> allServices = new HashMap<>();
 		File[] serviceBindings = getServiceBindings(service);
 		if (serviceBindings == null || serviceBindings.length == 0) {
-			LOGGER.warn("No service bindings for {} service were found.", service);
+			LOGGER.warn("No service bindings for {} service were found", service);
 		} else {
 			LOGGER.debug("Found {} {} service bindings", serviceBindings.length, service);
 			for (File binding : serviceBindings) {
@@ -114,13 +114,15 @@ class K8sServiceConfigurationResolver {
 				final List<String> lines = readLinesFromFile(property);
 				if (!lines.isEmpty()) {
 					serviceProperties.put(property.getName(), String.join("\\n", lines));
+				} else {
+					LOGGER.warn("{} value is empty", property.getName());
 				}
 			} catch (IOException ex) {
 				LOGGER.error("Failed to read content of service configuration property files", ex);
 				return serviceProperties;
 			}
 		}
-		LOGGER.debug("K8s secrets for {} service: {}", servicePropertiesList.get(0).getParent(), serviceProperties);
+		LOGGER.debug("{} attributes: {}", servicePropertiesList.get(0).getParentFile().getName(), serviceProperties);
 		return serviceProperties;
 	}
 
