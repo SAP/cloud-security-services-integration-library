@@ -32,11 +32,6 @@
             <artifactId>httpclient</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <scope>compile</scope>
-        </dependency>
 
         <!-- test utilities -->
         <dependency>
