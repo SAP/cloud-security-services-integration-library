@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.util.Scanner;
 
+import static com.sap.cloud.security.config.k8s.K8sConstants.KUBERNETES_SERVICE_HOST;
+
 /**
  * Central entry point to access the current SAP Cloud Platform
  * {@link Environment}.
@@ -22,7 +24,7 @@ public class Environments {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Environments.class);
 
 	private static Environment cfEnvironment; // singleton
-	private static Environment k8sEnvironment;  // singleton
+	private static Environment k8sEnvironment; // singleton
 	private static Boolean isK8sEnv;
 
 	private Environments() {
@@ -35,7 +37,7 @@ public class Environments {
 	 * @return the current environment
 	 */
 	public static Environment getCurrent() {
-		if (isK8sEnv()){
+		if (isK8sEnv()) {
 			LOGGER.debug("K8s environment detected");
 			return getK8sEnvironment();
 		} else {
@@ -60,7 +62,8 @@ public class Environments {
 
 	/**
 	 * Reads {@link Environment} not from system environment but from
-	 * {@link InputStream}. Is applicable only to CF environment and expects the input to be in VCAP services format.
+	 * {@link InputStream}. Is applicable only to CF environment and expects the
+	 * input to be in VCAP services format.
 	 * 
 	 * @param input
 	 *            e.g. from file
@@ -76,8 +79,8 @@ public class Environments {
 	}
 
 	private static boolean isK8sEnv() {
-		if (isK8sEnv == null){
-			isK8sEnv = System.getenv().get("KUBERNETES_SERVICE_HOST") != null;
+		if (isK8sEnv == null) {
+			isK8sEnv = System.getenv().get(KUBERNETES_SERVICE_HOST) != null;
 		}
 		return isK8sEnv;
 	}

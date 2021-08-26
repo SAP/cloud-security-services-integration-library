@@ -34,6 +34,9 @@ spec:
             - name: xsuaa2
               mountPath: "/etc/secrets/sapcp/xsuaa/xsuaa-instance-1"
               readOnly: true
+            - name: service-manager
+              mountPath: "/etc/secrets/sapcp/service-manager/sm"
+              readOnly: true
 
           envFrom:
             - secretRef:
@@ -44,6 +47,9 @@ spec:
           secret:
             secretName: <placeholder for secret name>
         - name: xsuaa2
+          secret:
+            secretName: <placeholder for secret name>
+        - name: service-manager
           secret:
             secretName: <placeholder for secret name>
 ---
