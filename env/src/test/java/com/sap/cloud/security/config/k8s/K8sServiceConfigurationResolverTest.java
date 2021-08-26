@@ -72,8 +72,7 @@ class K8sServiceConfigurationResolverTest {
 		assertEquals(1, xsuaaConfig.size());
 		assertEquals("clientId", xsuaaConfig.get("xsuaa-folder-file").getClientId());
 		assertNull(xsuaaConfig.get("xsuaa-folder-file").getClientSecret());
-		assertThat(logCaptor.getWarnLogs()).contains("No service binding files were found for xsuaa-no-files")
-				.contains("clientid value is empty");
+		assertThat(logCaptor.getWarnLogs()).contains("clientid value is empty");
 		assertDoesNotThrow(() -> cut.loadOauth2ServiceConfig(Service.XSUAA));
 	}
 
