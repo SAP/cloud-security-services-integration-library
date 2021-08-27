@@ -89,7 +89,6 @@ public class SSLContextFactory {
 		keyManagerFactory.init(keystore, noPassword);
 		SSLContext sslContext = createDefaultSSLContext();
 		sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
-		sslContext.getProvider();
 		return sslContext;
 	}
 
@@ -107,6 +106,9 @@ public class SSLContextFactory {
 	 */
 	public KeyStore createKeyStore(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
 		assertNotNull(clientIdentity, "clientIdentity must not be null");
+		assertHasText(clientIdentity.getCertificate(), "clientIdentity.getCertificate() must not return null");
+		assertHasText(clientIdentity.getKey(), "clientIdentity.getKey() must not return null");
+
 		PrivateKey privateKey = getPrivateKeyFromString(clientIdentity.getKey());
 		Certificate[] certificateChain = getCertificatesFromString(clientIdentity.getCertificate());
 

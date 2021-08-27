@@ -53,6 +53,10 @@ public class SSLContextFactoryTest {
 		assertThatThrownBy(() -> {
 			cut.create(new ClientCredentials("clientId", "clientSecret"));
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
+
+		assertThatThrownBy(() -> {
+			cut.create(new ClientCredentials(null, "clientSecret"));
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
 	}
 
 	@Test
@@ -67,6 +71,17 @@ public class SSLContextFactoryTest {
 	@Test
 	public void createKeyStore() throws GeneralSecurityException, IOException {
 		assertThat(cut.createKeyStore(new ClientCertificate(certificates, rsaPrivateKey, null)), is(notNullValue()));
+	}
+
+	@Test
+	public void createKeyStore_throwsOnNullValues() throws GeneralSecurityException, IOException {
+		assertThatThrownBy(() -> {
+			cut.createKeyStore(new ClientCredentials("clientId", "clientSecret"));
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
+
+		assertThatThrownBy(() -> {
+			cut.createKeyStore(new ClientCredentials(null, "clientSecret"));
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
 	}
 
 	private String readFromFile(String file) throws IOException {
