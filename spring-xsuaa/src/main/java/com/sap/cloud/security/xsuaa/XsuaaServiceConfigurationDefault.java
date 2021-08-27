@@ -5,14 +5,13 @@
  */
 package com.sap.cloud.security.xsuaa;
 
-import com.sap.cloud.security.config.ClientCertificate;
-import com.sap.cloud.security.config.ClientCredentials;
-import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.config.CredentialType;
+import com.sap.cloud.security.config.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import java.net.URI;
+import java.util.Map;
+import java.util.Properties;
 
 @Configuration
 public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfiguration {
@@ -28,9 +27,6 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 
 	@Value("${xsuaa.uaadomain:#{null}}")
 	private String uaadomain;
-
-	@Value("${xsuaa.identityzoneid:}")
-	private String identityZoneId;
 
 	@Value("${xsuaa.xsappname:}")
 	private String appid;
@@ -49,6 +45,8 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 
 	@Value("${xsuaa.certurl:#{null}}")
 	private String certUrl;
+
+	private Properties vcapServiceProperties;
 
 	/*
 	 * (non-Javadoc)
@@ -101,5 +99,30 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Override
 	public URI getCertUrl() {
 		return URI.create(certUrl);
+	}
+
+	private Properties getVcapServiceProperties() {
+		if (vcapServiceProperties == null) {
+			vcapServiceProperties = new Properties();
+			if (Environments.getCurrent().getNumberOfXsuaaConfigurations() > 1) {
+				throw new IllegalStateException(
+						"Found more than one xsuaa bindings. Make use of Environments.getCurrent() directly.");
+			}
+			for (Map.Entry<String, String> property : Environments.getCurrent().getXsuaaConfiguration().getProperties()
+					.entrySet()) {
+				vcapServiceProperties.put(property.getKey(), property.getValue());
+			}
+		}
+		return vcapServiceProperties;
+	}
+
+	@Override
+	public String getProperty(String name) {
+		return getVcapServiceProperties().getProperty(name);
+	}
+
+	@Override
+	public boolean hasProperty(String name) {
+		return getVcapServiceProperties().containsKey(name);
 	}
 }

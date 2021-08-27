@@ -16,7 +16,10 @@
     {
       "credentials": {
         "clientid": "client-id",
-        "clientsecret": "client-secret"
+        "clientsecret": "client-secret",
+        "apiurl": "https://api.mydomain.com",
+        "tenantid": "tenant-id",
+        "subaccountid": "subaccount-id"
       },
       "instance_name": "xsuaa-main",
       "label": "xsuaa",

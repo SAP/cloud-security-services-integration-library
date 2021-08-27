@@ -23,7 +23,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaServicesParser;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 
 /**
@@ -32,7 +31,7 @@ import com.sap.cloud.security.xsuaa.token.TokenClaims;
  */
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	private Map<String, String> appIdClientIdMap = new HashMap<>();
-	private final Logger logger = LoggerFactory.getLogger(XsuaaServicesParser.class);
+	private final Logger logger = LoggerFactory.getLogger(XsuaaAudienceValidator.class);
 
 	public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		Assert.notNull(xsuaaServiceConfiguration, "'xsuaaServiceConfiguration' is required");

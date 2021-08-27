@@ -54,6 +54,7 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 		response = new HashMap();
 		response.putIfAbsent(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0");
 		response.putIfAbsent(EXPIRES_IN, "43199");
+		response.putIfAbsent(TOKEN_TYPE, "bearer");
 		when(mockRestOperations.postForEntity(any(), any(), any()))
 				.thenReturn(ResponseEntity.status(200).body(response));
 		optionalParameters = new HashMap<>();
@@ -175,7 +176,7 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 				username, password, null, null);
 
 		assertThat(actualResponse.getAccessToken()).isEqualTo(response.get(ACCESS_TOKEN));
-
+		assertThat(actualResponse.getTokenType()).isEqualTo(response.get(TOKEN_TYPE));
 		assertThat(actualResponse.getExpiredAtDate()).isNotNull();
 	}
 
