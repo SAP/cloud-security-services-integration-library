@@ -7,6 +7,9 @@ package com.sap.cloud.security.config.k8s;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
+import nl.altindag.log.LogCaptor;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +33,15 @@ class K8sServiceConfigurationProviderTest {
 	private static final String ABSOLUTE_PATH = new File("src/test/resources").getAbsolutePath();
 	private static K8sServiceConfigurationProvider cut;
 	private static DefaultServiceManagerService smMock;
+	private static LogCaptor logCaptor;
+
+	@BeforeAll
+	static void beforeAll() {
+		logCaptor = LogCaptor.forClass(K8sServiceConfigurationProvider.class);
+	}
+
+	@AfterEach
+	void tearDown() { logCaptor.clearLogs(); }
 
 	@BeforeEach
 	void beforeEach(EnvironmentVariables environmentVariables) {
@@ -68,6 +80,7 @@ class K8sServiceConfigurationProviderTest {
 		assertThat(serviceConfig.get(Service.XSUAA)).isNotNull();
 		assertThat(serviceConfig.get(Service.XSUAA)).hasSize(1);
 		assertThat(serviceConfig.get(Service.XSUAA).get(Plan.APPLICATION.toString())).isNotNull();
+		assertThat(logCaptor.getWarnLogs().get(0)).startsWith("No plans or instances were fetched from service manager");
 	}
 
 	@Test
@@ -78,6 +91,7 @@ class K8sServiceConfigurationProviderTest {
 		assertThat(serviceConfig.get(Service.XSUAA)).isNotNull();
 		assertThat(serviceConfig.get(Service.XSUAA)).hasSize(1);
 		assertThat(serviceConfig.get(Service.XSUAA).get(Plan.APPLICATION.toString())).isNotNull();
+		assertThat(logCaptor.getWarnLogs().get(0)).startsWith("No service-manager client available");
 	}
 
 	@Test

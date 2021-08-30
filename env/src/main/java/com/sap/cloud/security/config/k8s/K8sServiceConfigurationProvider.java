@@ -71,7 +71,7 @@ class K8sServiceConfigurationProvider {
 			if (serviceInstancePlans.isEmpty()) {
 				Map.Entry<String, OAuth2ServiceConfiguration> entrySet = allXsuaaServices.entrySet().iterator().next();
 				LOGGER.warn(
-						"No plans were fetched from service manager, taking first Xsuaa service ({}) and setting the plan to APPLICATION",
+						"No plans or instances were fetched from service manager, taking first Xsuaa service ({}) and setting the plan to APPLICATION",
 						entrySet.getKey());
 				return Collections.singletonMap("APPLICATION", entrySet.getValue());
 			}

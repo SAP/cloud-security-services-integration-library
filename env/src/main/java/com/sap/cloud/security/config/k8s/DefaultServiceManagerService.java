@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,6 +56,10 @@ class DefaultServiceManagerService {
 	Map<String, String> getServiceInstancePlans() {
 		Map<String, String> servicePlans = getServicePlans();
 		Map<String, String> serviceInstances = getServiceInstances();
+		if(serviceInstances.isEmpty() || servicePlans.isEmpty()){
+			LOGGER.warn("Couldn't fetch plans or instances from service-manager");
+			return Collections.emptyMap();
+		}
 		serviceInstances.keySet().forEach(k -> serviceInstances.put(k, servicePlans.get(serviceInstances.get(k))));
 		LOGGER.debug("Service Instances with plan names: {}", serviceInstances);
 		return serviceInstances;
@@ -72,7 +77,7 @@ class DefaultServiceManagerService {
 			responseArray.forEach(plan -> servicePlanMap.put((String) ((JSONObject) plan).get("id"),
 					(String) ((JSONObject) plan).get("name")));
 		} catch (OAuth2ServiceException e) {
-			e.printStackTrace();
+			LOGGER.warn("Unexpected error occurred: {}", e.getMessage());
 		}
 		LOGGER.debug("Service plans: {}", servicePlanMap);
 		return servicePlanMap;
@@ -90,7 +95,7 @@ class DefaultServiceManagerService {
 			responseArray.forEach(plan -> serviceInstanceMap.put((String) ((JSONObject) plan).get("name"),
 					(String) ((JSONObject) plan).get("service_plan_id")));
 		} catch (OAuth2ServiceException e) {
-			e.printStackTrace();
+			LOGGER.warn("Unexpected error occurred: {}", e.getMessage());
 		}
 		LOGGER.debug("Service instances: {}", serviceInstanceMap);
 		return serviceInstanceMap;
@@ -113,8 +118,6 @@ class DefaultServiceManagerService {
 						.withResponseBody(responseBodyAsString)
 						.build();
 			}
-		} catch (OAuth2ServiceException e) {
-			throw e;
 		} catch (IOException e) {
 			throw new OAuth2ServiceException(String.format("Unexpected error accessing service-manager endpoint %s: %s",
 					httpRequest.getURI(), e.getMessage()));
