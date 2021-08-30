@@ -7,7 +7,7 @@ Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes
 
 # Deployment on Kyma/Kubernetes
 <details>
-<summary>Collapse this to follow the deployment steps</summary>
+<summary>Expand this to follow the deployment steps</summary>
 
 - Compile the Java application
 - Build docker image and push to repository
@@ -74,7 +74,7 @@ You ('<your user>') can access the application with the following scopes: '<your
 ## Cleanup
 Finally, delete your application and your service instances using the following commands:
 ```shell script
- kubectl delete -f ./k8s/deployment.yml
+ kubectl delete -f ./k8s/deployment.yml -n <YOUR NAMESPACE>
 ```
 </details>
   
