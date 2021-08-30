@@ -9,7 +9,7 @@ Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes
 
 # Deployment on Kyma/Kubernetes
 <details>
-<summary>Collapse this to follow the deployment steps</summary>
+<summary>Expand this to follow the deployment steps</summary>
 
 - Build docker image and push to repository
 - Configure the deployment.yml
