@@ -5,7 +5,6 @@ apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
   name: xsuaa-authn
-  namespace: <YOUR NAMESPACE>
 spec:
   clusterServiceClassExternalName: xsuaa
   clusterServicePlanExternalName: application
@@ -30,7 +29,6 @@ apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceBinding
 metadata:
   name: xsuaa-service-binding
-  namespace: <YOUR NAMESPACE>
 spec:
   instanceRef:
     name: xsuaa-authn
@@ -39,7 +37,6 @@ apiVersion: servicecatalog.kyma-project.io/v1alpha1
 kind: ServiceBindingUsage
 metadata:
   name: xsuaa-service-binding-usage
-  namespace: <YOUR NAMESPACE>
 spec:
   parameters:
     envPrefix:
@@ -55,7 +52,6 @@ apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
   name: ias-authn
-  namespace: <YOUR NAMESPACE>
 spec:
   clusterServiceClassExternalName: identity
   clusterServicePlanExternalName: application
@@ -64,7 +60,6 @@ apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceBinding
 metadata:
   name: ias-service-binding
-  namespace: <YOUR NAMESPACE>
 spec:
   instanceRef:
     name: ias-authn
@@ -73,7 +68,6 @@ apiVersion: servicecatalog.kyma-project.io/v1alpha1
 kind: ServiceBindingUsage
 metadata:
   name: ias-service-binding-usage
-  namespace: <YOUR NAMESPACE>
 spec:
   parameters:
     envPrefix:
@@ -89,7 +83,6 @@ apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
   name: service-manager
-  namespace: <YOUR NAMESPACE>
 spec:
   clusterServiceClassExternalName: service-manager
   clusterServicePlanExternalName: subaccount-admin
@@ -99,7 +92,6 @@ apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceBinding
 metadata:
   name: service-manager-binding
-  namespace: <YOUR NAMESPACE>
 spec:
   instanceRef:
     name: service-manager
@@ -108,7 +100,6 @@ apiVersion: servicecatalog.kyma-project.io/v1alpha1
 kind: ServiceBindingUsage
 metadata:
   name: service-manager-binding-usage
-  namespace: <YOUR NAMESPACE>
 spec:
   parameters:
     envPrefix:
@@ -191,7 +182,6 @@ apiVersion: gateway.kyma-project.io/v1alpha1
 kind: APIRule
 metadata:
   name: spring-security-hybrid-api
-  namespace: <YOUR NAMESPACE>
   labels:
     app: spring-security-hybrid-usage
 spec:

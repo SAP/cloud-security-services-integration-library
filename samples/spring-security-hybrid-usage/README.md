@@ -11,7 +11,7 @@ Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes
 <details>
 <summary>Collapse this to follow the deployment steps</summary>
 
- - Build docker image and push to repository
+- Build docker image and push to repository
 - Configure the deployment.yml
 - Deploy the application
 - Admin: Assign Role Collection to your XSUAA user
@@ -50,12 +50,13 @@ You need administrator permissions to create a Groups "Read" in IAS and assign i
 
 ## Access the application
 - get an IAS oidc token via ``password`` grant token flow. For that call the ``/oauth2/token`` endpoint of your identity service. You can get the ``url`` and the ``clientid`` and ``clientsecret`` for the Basic Authorization header from the `ias-service-binding` secret.
+    ```shell script
+      kubectl get secret "ias-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
+    ```
 - get a XSUAA access token via ``client`` token flow. For that, call the ``/oauth/token`` endpoint of your xsuaa service. <br>You can get the ``url``, the ``client_id``, the ``client_secret`` for the request from the `xsuaa-service-binding` secret.
-
-```shell script
-kubectl get secret "xsuaa-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
-kubectl get secret "ias-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
-```
+    ```shell script
+      kubectl get secret "xsuaa-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
+    ```
 
 In the Kyma Console, go to `<YOUR_NAMESPACE>` - `Discovery and Network` - `API Rules`. Choose the host entry for the `spring-security-hybrid-api` api rule to access the application in the browser which will produce **401** error.
  
