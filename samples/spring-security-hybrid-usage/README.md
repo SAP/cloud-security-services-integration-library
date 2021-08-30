@@ -27,7 +27,6 @@ docker push <repositoryName>/<imageName>
 
 ## Configure the deployment.yml
 In deployment.yml replace the placeholders:
-- `<YOUR NAMESPACE>` with your k8s namespace
 - `<YOUR IMAGE REPOSITORY>` with the one created in the previous step.
 
 ## Deploy the application
@@ -68,7 +67,7 @@ Call the following endpoints with ```Authorization``` header = "Bearer <your IAS
 ## Cleanup
 Finally, delete your application and your service instances using the following command:
 ```shell script
- kubectl delete -f ./k8s/deployment.yml
+ kubectl delete -f ./k8s/deployment.yml -n <YOUR NAMESPACE>
 ```
  </details>
 
