@@ -15,7 +15,7 @@ Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes
  
 # Deployment on Kyma/Kubernetes
 <details>
-<summary>Collapse this to follow the deployment steps</summary>
+<summary>Expand this to follow the deployment steps</summary>
   
 - Build docker image and push to repository
 - Configure the deployment.yml
@@ -71,7 +71,7 @@ You will get a response like:
 ## Cleanup
 Finally, delete your application and your service instances using the following commands:
 ```shell script
- kubectl delete -f ./k8s/deployment.yml
+ kubectl delete -f ./k8s/deployment.yml -n <YOUR NAMESPACE>
 ```
 </details>
 
