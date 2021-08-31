@@ -6,9 +6,17 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 
 ## Configuration
 
-These (spring) dependencies needs to be provided:
+### :mega: Service configuration in Kubernetes/Kyma environment 
+To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container. 
+Library will look up the configuration files in the following paths:
+- XSUAA: `/etc/secrets/sapcp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
+- IAS: `/etc/secrets/sapcp/ias/<YOUR IAS INSTANCE NAME>`
+- Service-manager: `/etc/secrets/sapcp/service-manager/<YOUR SERVICE-MANAGER NAME>`
+
+:exclamation: service-manager binding is mandatory to resolve multiple Xsuaa bindings! If it is not provided the first Xsuaa binding from a list will be used and treated as instance with `application` plan.
 
 ### Maven Dependencies
+These (spring) dependencies needs to be provided:
 ```xml
 <dependency> <!-- includes spring-security-oauth2 -->
     <groupId>org.springframework.security</groupId>

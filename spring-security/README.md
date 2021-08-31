@@ -26,12 +26,12 @@ It fully integrates with [Spring Security OAuth 2.0 Resource Server](https://doc
 
 ### :mega: Service configuration in Kubernetes/Kyma environment 
 To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container. 
-By default, library will search the configuration files in the following paths:
+Library will look up the configuration files in the following paths:
 - XSUAA: `/etc/secrets/sapcp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
 - IAS: `/etc/secrets/sapcp/ias/<YOUR IAS INSTANCE NAME>`
 - Service-manager: `/etc/secrets/sapcp/service-manager/<YOUR SERVICE-MANAGER NAME>`
 
-:exclamation: service-manager binding is mandatory!
+:exclamation: service-manager binding is mandatory to resolve multiple Xsuaa bindings! If it is not provided the first Xsuaa binding from a list will be used and treated as instance with `application` plan.
 
 ### Maven Dependencies
 These (spring) dependencies needs to be provided:

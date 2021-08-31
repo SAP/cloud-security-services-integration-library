@@ -93,17 +93,12 @@ OAuth2ServiceConfiguration serviceConfig = OAuth2ServiceConfigurationBuilder.for
 
 #### :mega: Service configuration in Kubernetes environment 
 To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container. 
-By default, library will search the configuration files in the following paths:
+Library will look up the configuration files in the following paths:
 - XSUAA: `/etc/secrets/sapcp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
 - IAS: `/etc/secrets/sapcp/ias/<YOUR IAS INSTANCE NAME>`
 - Service-manager: `/etc/secrets/sapcp/service-manager/<YOUR SERVICE-MANAGER NAME>`
 
-:exclamation: service-manager binding is mandatory!
-
-It's possible to provide custom paths for Xsuaa and IAS:
-```java
-K8sEnvironment.getInstance(customXsuaaPath, customIasPath);
-```
+:exclamation: service-manager binding is mandatory to resolve multiple Xsuaa bindings! If it is not provided the first Xsuaa binding from a list will be used and treated as instance with `application` plan.
 
 ### Setup Step 2: Setup Validators
 Now configure the `JwtValidatorBuilder` once with the service configuration from the previous step.
