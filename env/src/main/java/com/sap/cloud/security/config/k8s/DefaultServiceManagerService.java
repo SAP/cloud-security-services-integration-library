@@ -56,7 +56,7 @@ class DefaultServiceManagerService {
 	Map<String, String> getServiceInstancePlans() {
 		Map<String, String> servicePlans = getServicePlans();
 		Map<String, String> serviceInstances = getServiceInstances();
-		if(serviceInstances.isEmpty() || servicePlans.isEmpty()){
+		if (serviceInstances.isEmpty() || servicePlans.isEmpty()) {
 			LOGGER.warn("Couldn't fetch plans or instances from service-manager");
 			return Collections.emptyMap();
 		}

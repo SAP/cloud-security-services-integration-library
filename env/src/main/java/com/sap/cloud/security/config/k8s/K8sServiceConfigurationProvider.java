@@ -76,7 +76,8 @@ class K8sServiceConfigurationProvider {
 				return Collections.singletonMap("APPLICATION", entrySet.getValue());
 			}
 			allXsuaaServices.keySet().forEach(
-					k -> allXsuaaServicesWithPlans.put(serviceInstancePlans.get(k).toUpperCase(), allXsuaaServices.get(k)));
+					k -> allXsuaaServicesWithPlans.put(serviceInstancePlans.get(k).toUpperCase(),
+							allXsuaaServices.get(k)));
 		}
 		return allXsuaaServicesWithPlans;
 	}

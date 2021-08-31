@@ -41,7 +41,9 @@ class K8sServiceConfigurationProviderTest {
 	}
 
 	@AfterEach
-	void tearDown() { logCaptor.clearLogs(); }
+	void tearDown() {
+		logCaptor.clearLogs();
+	}
 
 	@BeforeEach
 	void beforeEach(EnvironmentVariables environmentVariables) {
@@ -80,7 +82,8 @@ class K8sServiceConfigurationProviderTest {
 		assertThat(serviceConfig.get(Service.XSUAA)).isNotNull();
 		assertThat(serviceConfig.get(Service.XSUAA)).hasSize(1);
 		assertThat(serviceConfig.get(Service.XSUAA).get(Plan.APPLICATION.toString())).isNotNull();
-		assertThat(logCaptor.getWarnLogs().get(0)).startsWith("No plans or instances were fetched from service manager");
+		assertThat(logCaptor.getWarnLogs().get(0))
+				.startsWith("No plans or instances were fetched from service manager");
 	}
 
 	@Test

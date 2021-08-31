@@ -51,7 +51,9 @@ class K8sEnvironmentTest {
 	}
 
 	@AfterEach
-	void tearDown() { WIREMOCK_SERVER.resetAll(); }
+	void tearDown() {
+		WIREMOCK_SERVER.resetAll();
+	}
 
 	@AfterAll
 	static void afterAll(EnvironmentVariables environmentVariables) throws Exception {
