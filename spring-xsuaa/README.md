@@ -13,7 +13,7 @@ Library will look up the configuration files in the following paths:
 - IAS: `/etc/secrets/sapcp/ias/<YOUR IAS INSTANCE NAME>`
 - Service-manager: `/etc/secrets/sapcp/service-manager/<YOUR SERVICE-MANAGER NAME>`
 
-:exclamation: service-manager binding is mandatory to resolve multiple Xsuaa bindings! If it is not provided the first Xsuaa binding from a list will be used and treated as instance with `application` plan.
+:exclamation: service-manager binding is mandatory to resolve multiple Xsuaa bindings! If it is not provided the first Xsuaa binding from a list is used and treated as instance with `application` plan.
 
 ### Maven Dependencies
 These (spring) dependencies needs to be provided:
