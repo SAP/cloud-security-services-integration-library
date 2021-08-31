@@ -109,12 +109,13 @@ public class TokenAuthenticationConverterTest {
 
 	@Test
 	public void checkFollowingInstanceScope() {
-		String scopeWithClientId =  "7cf2e319-3a7d-4f99-8207-afdc8e8e6d64!b123|trustedclientid!b333.API_OVERVIEW";
+		String scopeWithClientId = "7cf2e319-3a7d-4f99-8207-afdc8e8e6d64!b123|trustedclientid!b333.API_OVERVIEW";
 
 		Jwt jwt = new JwtGenerator("sb-7cf2e319-3a7d-4f99-8207-afdc8e8e6d64!b123|trustedclientid!b333")
 				.addScopes(xsAppName + "." + scopeAdmin, scopeRead, scopeWithClientId)
 				.getToken();
-		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(new MyFollowingInstanceAuthoritiesExtractor());
+		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(
+				new MyFollowingInstanceAuthoritiesExtractor());
 
 		assertThat(converter.convert(jwt).getAuthorities().size(), is(1));
 		assertThat(converter.convert(jwt).getAuthorities(), hasItem(new SimpleGrantedAuthority("API_OVERVIEW")));
@@ -162,7 +163,7 @@ public class TokenAuthenticationConverterTest {
 		@Override
 		public Collection<GrantedAuthority> getAuthorities(XsuaaToken token) {
 			String appId = "";
-			if(token.getClientId().startsWith("sb-")) {
+			if (token.getClientId().startsWith("sb-")) {
 				appId = token.getClientId().replaceFirst("sb-", "");
 			}
 			AuthoritiesExtractor authoritiesExtractor = new LocalAuthoritiesExtractor(appId);
