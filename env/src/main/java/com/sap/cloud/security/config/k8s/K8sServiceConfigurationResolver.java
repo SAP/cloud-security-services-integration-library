@@ -68,7 +68,7 @@ class K8sServiceConfigurationResolver {
 		if (serviceBindings == null || serviceBindings.length == 0) {
 			LOGGER.warn("No service bindings for {} service were found", service);
 		} else {
-			LOGGER.debug("Found {} {} service bindings", serviceBindings.length, service);
+			LOGGER.info("Found {} {} service binding/s", serviceBindings.length, service);
 			for (File binding : serviceBindings) {
 				Map<String, String> servicePropertiesMap = getServiceProperties(binding);
 				if (!servicePropertiesMap.isEmpty()) {
@@ -86,7 +86,11 @@ class K8sServiceConfigurationResolver {
 	private File[] getServiceBindings(Service service) {
 		String path = service == Service.XSUAA ? xsuaaPath : iasPath;
 		LOGGER.debug("Retrieving {} service bindings from K8s secret file {}", service, path);
-		return new File(path).listFiles();
+		File[] bindings = new File(path).listFiles();
+		if (bindings != null) {
+			return Arrays.stream(bindings).filter(File::isDirectory).toArray(File[]::new);
+		}
+		return null;
 	}
 
 	private List<File> getBindingFiles(@Nonnull File binding) {

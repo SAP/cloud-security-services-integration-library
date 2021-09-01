@@ -70,6 +70,7 @@ class K8sServiceConfigurationResolverTest {
 		Map<String, OAuth2ServiceConfiguration> xsuaaConfig = cut.loadOauth2ServiceConfig(Service.XSUAA);
 
 		assertEquals(1, xsuaaConfig.size());
+		assertThat(logCaptor.getInfoLogs()).contains("Found 3 XSUAA service binding/s");
 		assertEquals("clientId", xsuaaConfig.get("xsuaa-folder-file").getClientId());
 		assertNull(xsuaaConfig.get("xsuaa-folder-file").getClientSecret());
 		assertThat(logCaptor.getWarnLogs()).contains("clientid value is empty");
@@ -95,5 +96,15 @@ class K8sServiceConfigurationResolverTest {
 		assertDoesNotThrow(() -> cut.loadOauth2ServiceConfig(Service.XSUAA));
 		assertThat(logCaptor.getWarnLogs()).contains("No service bindings for XSUAA service were found");
 		assertEquals(0, cut.loadOauth2ServiceConfig(Service.XSUAA).size());
+	}
+
+	@Test
+	void loadOAuth2ServiceConfig_singleXsuaaServiceBinding(EnvironmentVariables environmentVariables) {
+		environmentVariables.set(XSUAA_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/xsuaa-single");
+		cut = new K8sServiceConfigurationResolver();
+
+		assertDoesNotThrow(() -> cut.loadOauth2ServiceConfig(Service.XSUAA));
+		assertThat(logCaptor.getInfoLogs()).contains("Found 1 XSUAA service binding/s");
+		assertEquals(1, cut.loadOauth2ServiceConfig(Service.XSUAA).size());
 	}
 }

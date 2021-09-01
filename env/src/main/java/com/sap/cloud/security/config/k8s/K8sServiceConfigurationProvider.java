@@ -10,6 +10,7 @@ import com.sap.cloud.security.config.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -21,13 +22,16 @@ import java.util.Map;
  */
 class K8sServiceConfigurationProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(K8sServiceConfigurationProvider.class);
+	private static final String APPLICATION = "APPLICATION";
 
 	private DefaultServiceManagerService serviceManagerClient;
 	private final K8sServiceConfigurationResolver serviceConfigurationResolver;
 
 	K8sServiceConfigurationProvider() {
 		this.serviceConfigurationResolver = new K8sServiceConfigurationResolver();
-		if (serviceConfigurationResolver.loadServiceManagerConfig() != null) {
+		if (serviceConfigurationResolver
+				.loadOauth2ServiceConfig(Service.XSUAA).size() > 1
+				&& serviceConfigurationResolver.loadServiceManagerConfig() != null) {
 			this.serviceManagerClient = new DefaultServiceManagerService(
 					serviceConfigurationResolver.loadServiceManagerConfig());
 		}
@@ -59,26 +63,34 @@ class K8sServiceConfigurationProvider {
 			Map<String, OAuth2ServiceConfiguration> allXsuaaServices) {
 		Map<String, OAuth2ServiceConfiguration> allXsuaaServicesWithPlans = new HashMap<>();// <planName, config>
 
-		if (!allXsuaaServices.isEmpty()) {
+		if (!allXsuaaServices.isEmpty() && allXsuaaServices.size() > 1) {
 			if (serviceManagerClient == null) {
-				Map.Entry<String, OAuth2ServiceConfiguration> entrySet = allXsuaaServices.entrySet().iterator().next();
-				LOGGER.warn(
-						"No service-manager client available, taking first Xsuaa service ({}) and setting the plan to APPLICATION",
-						entrySet.getKey());
-				return Collections.singletonMap("APPLICATION", entrySet.getValue());
+				return getSingleXsuaaConfigWithApplicationPlan(allXsuaaServices, "No service-manager client available");
 			}
 			Map<String, String> serviceInstancePlans = serviceManagerClient.getServiceInstancePlans();// <xsuaaName,planName>
 			if (serviceInstancePlans.isEmpty()) {
-				Map.Entry<String, OAuth2ServiceConfiguration> entrySet = allXsuaaServices.entrySet().iterator().next();
-				LOGGER.warn(
-						"No plans or instances were fetched from service manager, taking first Xsuaa service ({}) and setting the plan to APPLICATION",
-						entrySet.getKey());
-				return Collections.singletonMap("APPLICATION", entrySet.getValue());
+				return getSingleXsuaaConfigWithApplicationPlan(allXsuaaServices,
+						"No plans or instances were fetched from service manager");
 			}
 			allXsuaaServices.keySet().forEach(
 					k -> allXsuaaServicesWithPlans.put(serviceInstancePlans.get(k).toUpperCase(),
 							allXsuaaServices.get(k)));
+		} else if (allXsuaaServices.size() == 1) {
+			return getSingleXsuaaConfigWithApplicationPlan(allXsuaaServices, null);
 		}
 		return allXsuaaServicesWithPlans;
+	}
+
+	private Map<String, OAuth2ServiceConfiguration> getSingleXsuaaConfigWithApplicationPlan(
+			Map<String, OAuth2ServiceConfiguration> allXsuaaServices, @Nullable String warningMessage) {
+		Map.Entry<String, OAuth2ServiceConfiguration> xsuaaServiceEntrySet = allXsuaaServices.entrySet().iterator()
+				.next();
+		if (warningMessage != null) {
+			LOGGER.warn("{}, taking first Xsuaa service instance '{}' and assigning 'application' plan", warningMessage,
+					xsuaaServiceEntrySet.getKey());
+		} else {
+			LOGGER.info("Assigning 'application' plan to '{}' service", xsuaaServiceEntrySet.getKey());
+		}
+		return Collections.singletonMap(APPLICATION, xsuaaServiceEntrySet.getValue());
 	}
 }

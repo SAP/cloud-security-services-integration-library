@@ -110,4 +110,15 @@ class K8sServiceConfigurationProviderTest {
 		assertThat(serviceConfig.get(Service.XSUAA)).isEmpty();
 		assertThat(serviceConfig.get(Service.IAS)).isEmpty();
 	}
+
+	@Test
+	void getServiceConfiguration_singleXsuaa(EnvironmentVariables environmentVariables) {
+		environmentVariables.set(XSUAA_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/xsuaa-single");
+
+		cut = new K8sServiceConfigurationProvider();
+		EnumMap<Service, Map<String, OAuth2ServiceConfiguration>> serviceConfig = cut.getServiceConfigurations();
+		assertThat(serviceConfig.get(Service.XSUAA)).hasSize(1);
+		assertThat(logCaptor.getInfoLogs().get(0)).startsWith("Assigning 'application' plan");
+		assertThat(logCaptor.getWarnLogs()).isEmpty();
+	}
 }
