@@ -12,6 +12,9 @@ spec:
   parameters:
     xsappname: spring-security-basic-auth
     tenant-mode: dedicated
+    oauth2-configuration:
+      credential-types:
+        - x509
     scopes:
       - name: "$XSAPPNAME.Display"
         description: With this scope, information can be read

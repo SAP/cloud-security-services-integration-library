@@ -11,6 +11,9 @@ spec:
   parameters:
     xsappname: spring-security-hybrid-usage
     tenant-mode: dedicated
+    oauth2-configuration:
+      credential-types:
+        - x509
     scopes:
       - name: "$XSAPPNAME.Read"
         description: "Read Permissions."
@@ -132,8 +135,10 @@ spec:
         app: spring-security-hybrid-usage
         kyma-grafana: enabled
     spec:
+      imagePullSecrets:
+        - name: sap-repo-registry
       containers:
-        - image: <YOUR IMAGE REPOSITORY>
+        - image: cloud-security-integration.common.repositories.cloud.sap/spring-security-hybrid-usage:2.10.6
           imagePullPolicy: Always
           name: spring-security-hybrid-usage
           ports:

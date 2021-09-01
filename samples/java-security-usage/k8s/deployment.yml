@@ -11,6 +11,9 @@ spec:
   parameters:
     xsappname: xsuaa-java-security
     tenant-mode: dedicated
+    oauth2-configuration:
+      credential-types:
+        - x509
     scopes:
       - name: "$XSAPPNAME.Read"
         description: "Read Permissions."
