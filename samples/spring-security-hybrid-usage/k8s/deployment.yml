@@ -147,7 +147,7 @@ spec:
               mountPath: "/etc/secrets/sapcp/xsuaa/xsuaa-authn"
               readOnly: true
             - name: ias-authn
-              mountPath: "/etc/secrets/sapcp/ias/ias-authn"
+              mountPath: "/etc/secrets/sapcp/identity/ias-authn"
               readOnly: true
             - name: service-manager
               mountPath: "/etc/secrets/sapcp/service-manager/sm"

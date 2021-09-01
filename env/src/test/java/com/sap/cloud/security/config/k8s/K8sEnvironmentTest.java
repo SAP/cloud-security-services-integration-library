@@ -40,7 +40,7 @@ class K8sEnvironmentTest {
 		String absolutePath = new File("src/test/resources").getAbsolutePath();
 
 		environmentVariables.set(XSUAA_CONFIG_PATH, absolutePath + "/k8s/xsuaa");
-		environmentVariables.set(IAS_CONFIG_PATH, absolutePath + "/k8s/ias");
+		environmentVariables.set(IAS_CONFIG_PATH, absolutePath + "/k8s/identity");
 		environmentVariables.set(SM_CONFIG_PATH, absolutePath + "/k8s/service-manager");
 
 		token = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);

@@ -50,7 +50,7 @@ class K8sServiceConfigurationResolverTest {
 	@Test
 	void loadOauth2ServiceConfig(EnvironmentVariables environmentVariables) {
 		environmentVariables.set(XSUAA_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/xsuaa");
-		environmentVariables.set(IAS_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/ias");
+		environmentVariables.set(IAS_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/identity");
 		cut = new K8sServiceConfigurationResolver();
 
 		assertEquals(2, cut.loadOauth2ServiceConfig(Service.XSUAA).size());

@@ -48,7 +48,7 @@ class K8sServiceConfigurationProviderTest {
 	@BeforeEach
 	void beforeEach(EnvironmentVariables environmentVariables) {
 		environmentVariables.set(XSUAA_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/xsuaa");
-		environmentVariables.set(IAS_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/ias");
+		environmentVariables.set(IAS_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/identity");
 		environmentVariables.set(SM_CONFIG_PATH, ABSOLUTE_PATH + "/k8s/service-manager");
 		Map<String, String> serviceInstancePlanMap = new HashMap<>();
 		serviceInstancePlanMap.put("xsuaa-application", "application");
