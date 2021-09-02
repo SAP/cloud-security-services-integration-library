@@ -39,7 +39,7 @@ kubectl apply -f ./k8s/deployment.yml -n <YOUR NAMESPACE>
 ```
 
 ## Cockpit administration tasks: Assign Role Collection to your user
-Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection `JAVA_SECURITY_SAMPLE_Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
+Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection `BASIC_AUTH_API_Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
 
 ![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
 
