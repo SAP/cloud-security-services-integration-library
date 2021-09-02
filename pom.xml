@@ -385,7 +385,7 @@
 						<plugin>
 							<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
 							<artifactId>dependency-check-maven</artifactId>
-							<version>6.3.0</version>
+							<version>6.3.1</version>
 							<executions>
 								<execution>
 									<goals>
