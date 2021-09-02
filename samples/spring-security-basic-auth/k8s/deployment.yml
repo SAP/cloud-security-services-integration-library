@@ -148,7 +148,6 @@ apiVersion: gateway.kyma-project.io/v1alpha1
 kind: APIRule
 metadata:
   name: spring-security-basic-auth-api
-  namespace: <YOUR NAMESPACE>
   labels:
     app: spring-security-basic-auth
 spec:
