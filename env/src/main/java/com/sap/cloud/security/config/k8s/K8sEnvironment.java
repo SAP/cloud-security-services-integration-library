@@ -22,8 +22,8 @@ import static com.sap.cloud.security.config.k8s.K8sConstants.Plan;
 /**
  * Loads the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a
  * supported identity {@link Service} in the Kubernetes Environment by accessing
- * defaults service secrets paths "/etc/secrets/sapcp/xsuaa" for Xsuaa service
- * or "/etc/secrets/sapcp/identity" for IAS service.
+ * defaults service secrets paths "/etc/secrets/sapbtp/xsuaa" for Xsuaa service
+ * or "/etc/secrets/sapbtp/identity" for IAS service.
  */
 public class K8sEnvironment implements Environment {
 	private static final Logger LOGGER = LoggerFactory.getLogger(K8sEnvironment.class);

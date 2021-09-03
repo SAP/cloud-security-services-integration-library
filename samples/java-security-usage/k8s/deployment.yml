@@ -146,13 +146,13 @@ spec:
               containerPort: 8080
           volumeMounts:
             - name: xsuaa
-              mountPath: "/etc/secrets/sapcp/xsuaa/xsuaa-java-security"
+              mountPath: "/etc/secrets/sapbtp/xsuaa/xsuaa-java-security"
               readOnly: true
             - name: xsuaa-broker
-              mountPath: "/etc/secrets/sapcp/xsuaa/xsuaa-broker"
+              mountPath: "/etc/secrets/sapbtp/xsuaa/xsuaa-broker"
               readOnly: true
             - name: service-manager
-              mountPath: "/etc/secrets/sapcp/service-manager/sm"
+              mountPath: "/etc/secrets/sapbtp/service-manager/sm"
               readOnly: true
 
       volumes:
