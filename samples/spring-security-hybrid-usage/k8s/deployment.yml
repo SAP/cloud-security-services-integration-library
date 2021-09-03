@@ -117,7 +117,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     app: spring-security-hybrid-usage
     kyma-grafana: enabled
@@ -127,10 +126,8 @@ spec:
   selector:
     matchLabels:
       app: spring-security-hybrid-usage
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: spring-security-hybrid-usage
         kyma-grafana: enabled
@@ -167,7 +164,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     app: spring-security-hybrid-usage
   name: spring-security-hybrid-usage

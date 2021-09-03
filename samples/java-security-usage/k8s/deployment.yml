@@ -120,7 +120,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     app: java-security-usage
     kyma-grafana: enabled
@@ -130,10 +129,8 @@ spec:
   selector:
     matchLabels:
       app: java-security-usage
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: java-security-usage
         kyma-grafana: enabled
@@ -172,7 +169,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     app: java-security-usage
   name: java-security-usage
