@@ -91,7 +91,7 @@ OAuth2ServiceConfiguration serviceConfig = OAuth2ServiceConfigurationBuilder.for
 ```
 :bulb: `OAuth2ServiceConfiguration.getClientIdentity()` is a convenience method that with `OAuth2ServiceConfigurationBuilder` implementation will resolve `ClientCredentials` or `ClientCertificate` implementations of `ClientIdentity` interface based on the `credential-type` from the Xsuaa service binding. Therefore, providing the correct implementation for the configured authentication type e.g. X.509 or client secret based.
 
-#### :mega: Service configuration in Kubernetes environment 
+#### :mega: Service configuration in Kubernetes/Kyma environment 
 To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container. 
 Library will look up the configuration files in the following paths:
 - XSUAA: `/etc/secrets/sapcp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
@@ -99,6 +99,8 @@ Library will look up the configuration files in the following paths:
 - Service-manager: `/etc/secrets/sapcp/service-manager/<YOUR SERVICE-MANAGER NAME>`
 
 :exclamation: service-manager binding is mandatory to resolve multiple Xsuaa bindings! If it is not provided the first Xsuaa binding from a list is used and treated as instance with `application` plan.
+
+Detailed information on how to use ``java-security`` library in Kubernetes/Kyma environment can be found in [java-security-usage](/samples/java-security-usage/README.md#deployment-on-kymakubernetes) sample README.
 
 ### Setup Step 2: Setup Validators
 Now configure the `JwtValidatorBuilder` once with the service configuration from the previous step.

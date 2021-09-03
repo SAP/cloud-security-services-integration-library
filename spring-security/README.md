@@ -33,6 +33,8 @@ Library will look up the configuration files in the following paths:
 
 :exclamation: service-manager binding is mandatory to resolve multiple Xsuaa bindings! If it is not provided the first Xsuaa binding from a list is used and treated as instance with `application` plan.
 
+Detailed information on how to use ``spring-security`` library in Kubernetes/Kyma environment can be found in [spring-security-hybrid-usage](/samples/spring-security-hybrid-usage/README.md#deployment-on-kymakubernetes) sample README.
+
 ### Maven Dependencies
 These (spring) dependencies needs to be provided:
 ```xml
