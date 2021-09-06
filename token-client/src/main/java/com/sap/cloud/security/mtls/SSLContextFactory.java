@@ -50,9 +50,11 @@ public class SSLContextFactory {
 	 * order to support mutual TLS.
 	 *
 	 * @param x509Certificates
-	 *            you can get from your Service Configuration {@link OAuth2ServiceConfiguration#getClientIdentity()}
+	 *            you can get from your Service Configuration
+	 *            {@link OAuth2ServiceConfiguration#getClientIdentity()}
 	 * @param rsaPrivateKey
-	 *            you can get from your Service Configuration{@link OAuth2ServiceConfiguration#getClientIdentity()}
+	 *            you can get from your Service
+	 *            Configuration{@link OAuth2ServiceConfiguration#getClientIdentity()}
 	 * @return a new SSLContext instance
 	 * @throws GeneralSecurityException
 	 *             in case of key parsing errors
@@ -72,7 +74,8 @@ public class SSLContextFactory {
 	 * order to support mutual TLS.
 	 *
 	 * @param clientIdentity
-	 *            you can get from your Service Configuration {@link OAuth2ServiceConfiguration#getClientIdentity()}
+	 *            you can get from your Service Configuration
+	 *            {@link OAuth2ServiceConfiguration#getClientIdentity()}
 	 * @return a new SSLContext instance
 	 * @throws GeneralSecurityException
 	 *             in case of key parsing errors
@@ -97,7 +100,8 @@ public class SSLContextFactory {
 	 * order to support mutual TLS.
 	 *
 	 * @param clientIdentity
-	 *            you can get from your Service Configuration {@link OAuth2ServiceConfiguration#getClientIdentity()}
+	 *            you can get from your Service Configuration
+	 *            {@link OAuth2ServiceConfiguration#getClientIdentity()}
 	 * @return a new KeyStore instance
 	 * @throws GeneralSecurityException
 	 *             in case of key parsing errors

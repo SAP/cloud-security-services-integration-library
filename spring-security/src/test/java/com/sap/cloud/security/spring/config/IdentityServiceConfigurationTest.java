@@ -5,12 +5,12 @@
  */
 package com.sap.cloud.security.spring.config;
 
-import com.sap.cloud.security.spring.config.IdentityServiceConfiguration;
+import com.sap.cloud.security.config.CredentialType;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class IdentityServiceConfigurationTest {
 
@@ -28,6 +28,28 @@ class IdentityServiceConfigurationTest {
 				.run(context -> {
 					assertEquals("http://localhost",
 							context.getBean(IdentityServiceConfiguration.class).getUrl().toString());
+					assertEquals(CredentialType.BINDING_SECRET,
+							context.getBean(IdentityServiceConfiguration.class).getCredentialType());
+					assertFalse(context.getBean(IdentityServiceConfiguration.class).getClientIdentity()
+							.isCertificateBased());
+					assertEquals("cid",
+							context.getBean(IdentityServiceConfiguration.class).getClientIdentity().getId());
+				});
+	}
+
+	@Test
+	void configuresIdentityServiceWithX509() {
+		runner.withUserConfiguration(EnablePropertiesConfiguration.class)
+				.withPropertyValues(
+						"sap.security.services.identity.clientid:cid",
+						"sap.security.services.identity.certificate:cert", "sap.security.services.identity.key:key")
+				.run(context -> {
+					assertEquals(CredentialType.X509,
+							context.getBean(IdentityServiceConfiguration.class).getCredentialType());
+					assertTrue(context.getBean(IdentityServiceConfiguration.class).getClientIdentity()
+							.isCertificateBased());
+					assertEquals("cert",
+							context.getBean(IdentityServiceConfiguration.class).getClientIdentity().getCertificate());
 				});
 	}
 }
