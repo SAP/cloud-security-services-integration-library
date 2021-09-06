@@ -52,10 +52,19 @@ You need administrator permissions to create a Groups "Read" in IAS and assign i
     ```shell script
       kubectl get secret "ias-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
     ```
-- get a XSUAA access token via ``client`` token flow. For that, call the ``/oauth/token`` endpoint of your xsuaa service. <br>You can get the ``url``, the ``client_id``, the ``client_secret`` for the request from the `xsuaa-service-binding` secret.
+- get a XSUAA access token via ``client-certificate`` token flow. For that, call the ``<cert_url>/oauth/token`` endpoint of your xsuaa service. <br>You can get the ``cert_url``, the ``client_id``, the ``certificate`` and ``key`` for the request from the `xsuaa-service-binding` secret.
     ```shell script
       kubectl get secret "xsuaa-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
     ```
+  <br> You can use Postman to retrieve the token over mTLS. To setup SSL connection:
+  
+  1. Store the certificate and key into separate files in `PEM` format.
+      <br>❗ In case you experience invalid PEM file errors, \\n characters might have to be replaced by newlines \n to have the PEM in the correct format.
+      ```shell script
+         awk '{gsub(/\\n/,"\n")}1' <file>.pem
+      ```
+  2. In Postman navigate to Settings -> Certificates, click on "Add Certificate" and provide the certificate and key `PEM` files and host name.
+          ![](../images/postman-ssl.png)
 
 In the Kyma Console, go to `<YOUR_NAMESPACE>` - `Discovery and Network` - `API Rules`. Choose the host entry for the `spring-security-hybrid-api` api rule to access the application in the browser which will produce **401** error.
  
@@ -122,7 +131,7 @@ You need administrator permissions to create a Groups "Read" in IAS and assign i
 - create an IAS oidc token via ``password`` grant token flow. For that call the ``oauth2/token`` endpoint of your identity service. You can get the ``url`` and the ``clientid`` and ``clientsecret`` for the Basic Authorization header from ``VCAP_SERVICES``.`identity`.
 - create an XSUAA access token via client-certificate token flow. For that, call the ``<cert_url>/oauth/token`` endpoint of your xsuaa service. <br>You can get the ``cert_url``, the ``client_id``, the ``certificate`` and ``key`` for the request from ``VCAP_SERVICES``.`xsuaa`.
 <br> You can use Postman to retrieve the token over mTLS. To setup SSL connection:
-    1. Store the certificate and key into seperate files in `PEM` format.
+    1. Store the certificate and key into separate files in `PEM` format.
     <br>❗ In case you experience invalid PEM file errors, \\n characters might have to be replaced by newlines \n to have the PEM in the correct format.
         ```shell script
         awk '{gsub(/\\n/,"\n")}1' <file>.pem
