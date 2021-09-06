@@ -23,12 +23,14 @@
             <artifactId>java-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Required only in case of multiple xsuaa bindings -->
         <dependency>
             <groupId>com.sap.cloud.security.xsuaa</groupId>
             <artifactId>token-client</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Required only in case of multiple xsuaa bindings -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
