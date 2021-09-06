@@ -26,8 +26,7 @@ docker push <repositoryName>/<imageName>
 > This makes use of `Dockerfile`.
 
 ## Configure the deployment.yml
-In deployment.yml replace the placeholders:
-- `<YOUR IMAGE REPOSITORY>` with the one created in the previous step.
+In deployment.yml replace the image repository placeholder `<YOUR IMAGE REPOSITORY>` with the one created in the previous step.
 
 ## Deploy the application
 Deploy the application using [kubectl cli](https://kubernetes.io/docs/reference/kubectl/)

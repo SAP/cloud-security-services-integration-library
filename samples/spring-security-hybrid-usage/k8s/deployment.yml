@@ -81,38 +81,6 @@ spec:
     kind: deployment
     name: spring-security-hybrid-usage
 ---
-# Service manager instance
-apiVersion: servicecatalog.k8s.io/v1beta1
-kind: ServiceInstance
-metadata:
-  name: service-manager
-spec:
-  clusterServiceClassExternalName: service-manager
-  clusterServicePlanExternalName: subaccount-admin
-  parameters:
----
-apiVersion: servicecatalog.k8s.io/v1beta1
-kind: ServiceBinding
-metadata:
-  name: service-manager-binding
-spec:
-  instanceRef:
-    name: service-manager
----
-apiVersion: servicecatalog.kyma-project.io/v1alpha1
-kind: ServiceBindingUsage
-metadata:
-  name: service-manager-binding-usage
-spec:
-  parameters:
-    envPrefix:
-      name: sm_
-  serviceBindingRef:
-    name: service-manager-binding
-  usedBy:
-    kind: deployment
-    name: spring-security-hybrid-usage
----
 ###  APPLICATION CONFIGURATION  ###
 apiVersion: apps/v1
 kind: Deployment

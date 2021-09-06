@@ -135,7 +135,7 @@ spec:
       imagePullSecrets:
         - name: sap-repo-registry
       containers:
-        - image: <placeholder for image repository>
+        - image: <YOUR IMAGE REPOSITORY>
           imagePullPolicy: Always
           name: java-security-usage
           ports:
