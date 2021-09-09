@@ -114,9 +114,6 @@ spec:
             - name: ias-authn
               mountPath: "/etc/secrets/sapbtp/identity/ias-authn"
               readOnly: true
-            - name: service-manager
-              mountPath: "/etc/secrets/sapbtp/service-manager/sm"
-              readOnly: true
 
       volumes:
         - name: xsuaa
@@ -125,9 +122,7 @@ spec:
         - name: ias-authn
           secret:
             secretName: ias-service-binding
-        - name: service-manager
-          secret:
-            secretName: service-manager-binding
+
 ---
 apiVersion: v1
 kind: Service
