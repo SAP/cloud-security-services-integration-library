@@ -27,7 +27,7 @@ public interface ClientIdentity {
 	 * @return the boolean
 	 */
 	default boolean isCertificateBased() {
-		return false;
+		return hasValue(getCertificate()) && hasValue(getKey());
 	}
 
 	/**
@@ -55,6 +55,10 @@ public interface ClientIdentity {
 	 */
 	default String getKey() {
 		return null;
+	}
+
+	static boolean hasValue(String value) {
+		return value != null && !value.isEmpty();
 	}
 
 }

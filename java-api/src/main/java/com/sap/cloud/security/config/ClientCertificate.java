@@ -42,12 +42,7 @@ public class ClientCertificate implements ClientIdentity {
 
 	@Override
 	public boolean isValid() {
-		return hasValue(clientId) && hasValue(certificate) && hasValue(key);
-	}
-
-	@Override
-	public boolean isCertificateBased() {
-		return true;
+		return ClientIdentity.hasValue(clientId) && isCertificateBased();
 	}
 
 	@Override
@@ -67,7 +62,4 @@ public class ClientCertificate implements ClientIdentity {
 		return Objects.hash(certificate, key, clientId);
 	}
 
-	private static boolean hasValue(String value) {
-		return value != null && !value.isEmpty();
-	}
 }
