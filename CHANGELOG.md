@@ -9,7 +9,8 @@ All notable changes to this project will be documented in this file.
 - [spring-xsuaa] `LocalAuthoritiesExtractor` supports also `appId`s that contains pipe (`|`) characters.
 
 ## 2.10.5
-- [token-client] 
+- [token-client]
+  - new method `SSLContextFactory.createKeyStore(ClientIdentity)`
   - `XsuaaTokenFlows` constructor accepts `com.sap.cloud.security.xsuaa.client.ClientCredentials` as argument.
   
 #### Dependency upgrades
