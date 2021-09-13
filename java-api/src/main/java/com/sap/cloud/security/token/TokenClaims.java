@@ -15,7 +15,15 @@ public final class TokenClaims {
 		throw new IllegalStateException("Utility class");
 	}
 
+	/**
+	 * @deprecated Use {@link Token#getIssuer()} instead.
+	 */
+	@Deprecated
 	public static final String ISSUER = "iss";
+	/**
+	 * @deprecated Use {@link Token#getIssuer()} instead.
+	 */
+	@Deprecated
 	public static final String IAS_ISSUER = "ias_iss";
 	public static final String EXPIRATION = "exp";
 	public static final String AUDIENCE = "aud";
