@@ -6,10 +6,10 @@
 package com.sap.cloud.security.config;
 
 public interface EnvironmentLoader {
-    /**
-     * Determines the current type of {@link Environment}.
-     *
-     * @return the current environment
-     */
-    Environment getCurrent();
+	/**
+	 * Determines the current type of {@link Environment}.
+	 *
+	 * @return the current environment
+	 */
+	Environment getCurrent();
 }

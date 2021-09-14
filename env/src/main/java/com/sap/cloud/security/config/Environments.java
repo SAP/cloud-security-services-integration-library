@@ -7,8 +7,6 @@ package com.sap.cloud.security.config;
 
 import com.sap.cloud.security.config.cf.CFEnvironment;
 import com.sap.cloud.security.token.ProviderNotFoundException;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenFactory;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
