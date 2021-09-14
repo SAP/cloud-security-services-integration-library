@@ -101,7 +101,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 						"Found more than one xsuaa bindings. Make use of Environments.getCurrent() directly.");
 			}
 			OAuth2ServiceConfiguration xsuaaConfiguration = Environments.getCurrent().getXsuaaConfiguration();
-			if(xsuaaConfiguration != null) {
+			if (xsuaaConfiguration != null) {
 				for (Map.Entry<String, String> property : xsuaaConfiguration.getProperties()
 						.entrySet()) {
 					vcapServiceProperties.put(property.getKey(), property.getValue());

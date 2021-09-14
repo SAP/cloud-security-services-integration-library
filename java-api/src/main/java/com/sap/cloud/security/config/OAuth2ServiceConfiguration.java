@@ -43,7 +43,7 @@ public interface OAuth2ServiceConfiguration {
 	 */
 	default ClientIdentity getClientIdentity() {
 		ClientIdentity identity = new ClientCredentials(getClientId(), getClientSecret());
-		if(!identity.isValid()) {
+		if (!identity.isValid()) {
 			identity = new ClientCertificate(getProperty(CERTIFICATE), getProperty(KEY), getClientId());
 		}
 		return identity;
@@ -57,23 +57,11 @@ public interface OAuth2ServiceConfiguration {
 	 */
 	@Nullable
 	default CredentialType getCredentialType() {
-		if(getClientIdentity() != null && getClientIdentity().isCertificateBased()) {
+		if (getClientIdentity() != null && getClientIdentity().isCertificateBased()) {
 			return CredentialType.X509;
 		}
 		return CredentialType.from(getProperty(CFConstants.XSUAA.CREDENTIAL_TYPE));
 	}
-
-	/*@Override
-	public CredentialType getCredentialType() {
-		if (getService() == Service.XSUAA) {
-			return CredentialType.from(properties.get(CFConstants.XSUAA.CREDENTIAL_TYPE));
-		}
-		if (properties.get(CERTIFICATE) != null && properties.get(KEY) != null) {
-			return CredentialType.X509;
-		} else {
-			return CredentialType.BINDING_SECRET;
-		}
-	}*/
 
 	/**
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
