@@ -6,20 +6,31 @@
 package com.sap.cloud.security.config;
 
 import com.sap.cloud.security.config.cf.CFEnvironment;
+import com.sap.cloud.security.token.ProviderNotFoundException;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenFactory;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.ServiceLoader;
 
 /**
  * Central entry point to access the current SAP Cloud Platform
  * {@link Environment}.
  */
 public class Environments {
-
-	private static final Environment cfEnvironment = CFEnvironment.getInstance(); // singleton
+	static List<EnvironmentLoader> environments = new ArrayList() {
+		{
+			ServiceLoader.load(EnvironmentLoader.class).forEach(this::add);
+			LoggerFactory.getLogger(Environments.class).info("loaded EnvironmentLoader service providers: {}", this);
+		}
+	};
 
 	private Environments() {
-		// use factoryMethods instead
+		// use factory methods instead
 	}
 
 	/**
@@ -28,8 +39,10 @@ public class Environments {
 	 * @return the current environment
 	 */
 	public static Environment getCurrent() {
-		// TODO Kubernetes: probe in which environment it runs currently: CF or
-		return cfEnvironment;
+		if (environments.isEmpty()) {
+			throw new ProviderNotFoundException("No EnvironmentLoader service implementation found in the classpath");
+		}
+		return environments.get(0).getCurrent();
 	}
 
 	/**
