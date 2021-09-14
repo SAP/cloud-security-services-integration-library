@@ -43,7 +43,7 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
 		XsuaaServiceConfigurations.class })
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which
 																	// specifies JwtDecoder
-class HybridIdentityServicesAutoConfiguration {
+public class HybridIdentityServicesAutoConfiguration {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HybridIdentityServicesAutoConfiguration.class);
 
 	HybridIdentityServicesAutoConfiguration() {
@@ -53,7 +53,7 @@ class HybridIdentityServicesAutoConfiguration {
 	@Configuration
 	@ConditionalOnMissingBean({ JwtDecoder.class })
 	@ConditionalOnWebApplication(type = SERVLET)
-	static class JwtDecoderConfigurations {
+	public static class JwtDecoderConfigurations {
 		XsuaaServiceConfigurations xsuaaConfigs;
 
 		JwtDecoderConfigurations(XsuaaServiceConfigurations xsuaaConfigs) {
