@@ -20,9 +20,9 @@ public enum CredentialType {
 	}
 
 	@Nullable
-	public static CredentialType from(String claimName) {
+	public static CredentialType from(String claimValue) {
 		for (CredentialType credentialType : values()) {
-			if (credentialType.typeName.equals(claimName)) {
+			if (credentialType.typeName.equals(claimValue)) {
 				return credentialType;
 			}
 		}

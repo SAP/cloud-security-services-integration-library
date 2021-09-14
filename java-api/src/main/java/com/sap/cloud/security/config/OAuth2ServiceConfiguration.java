@@ -5,12 +5,17 @@
  */
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.config.cf.CFConstants;
+
 import javax.annotation.Nullable;
 
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static com.sap.cloud.security.config.cf.CFConstants.CERTIFICATE;
+import static com.sap.cloud.security.config.cf.CFConstants.KEY;
 
 /**
  * Provides information of the identity {@link Service}.
@@ -37,7 +42,11 @@ public interface OAuth2ServiceConfiguration {
 	 * @return ClientIdentity object
 	 */
 	default ClientIdentity getClientIdentity() {
-		return new ClientCredentials(getClientId(), getClientSecret());
+		ClientIdentity identity = new ClientCredentials(getClientId(), getClientSecret());
+		if(!identity.isValid()) {
+			identity = new ClientCertificate(getProperty(CERTIFICATE), getProperty(KEY), getClientId());
+		}
+		return identity;
 	}
 
 	/**
@@ -46,9 +55,25 @@ public interface OAuth2ServiceConfiguration {
 	 * 
 	 * @return value of credential-type field
 	 */
+	@Nullable
 	default CredentialType getCredentialType() {
-		return null;
+		if(getClientIdentity() != null && getClientIdentity().isCertificateBased()) {
+			return CredentialType.X509;
+		}
+		return CredentialType.from(getProperty(CFConstants.XSUAA.CREDENTIAL_TYPE));
 	}
+
+	/*@Override
+	public CredentialType getCredentialType() {
+		if (getService() == Service.XSUAA) {
+			return CredentialType.from(properties.get(CFConstants.XSUAA.CREDENTIAL_TYPE));
+		}
+		if (properties.get(CERTIFICATE) != null && properties.get(KEY) != null) {
+			return CredentialType.X509;
+		} else {
+			return CredentialType.BINDING_SECRET;
+		}
+	}*/
 
 	/**
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios

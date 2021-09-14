@@ -64,14 +64,6 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	}
 
 	@Override
-	public ClientIdentity getClientIdentity() {
-		if (getCredentialType() == CredentialType.X509) {
-			return new ClientCertificate(certificate, privateKey, getClientId());
-		}
-		return new ClientCredentials(getClientId(), getClientSecret());
-	}
-
-	@Override
 	public String getUaaUrl() {
 		return uaaUrl;
 	}
@@ -108,9 +100,12 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 				throw new IllegalStateException(
 						"Found more than one xsuaa bindings. Make use of Environments.getCurrent() directly.");
 			}
-			for (Map.Entry<String, String> property : Environments.getCurrent().getXsuaaConfiguration().getProperties()
-					.entrySet()) {
-				vcapServiceProperties.put(property.getKey(), property.getValue());
+			OAuth2ServiceConfiguration xsuaaConfiguration = Environments.getCurrent().getXsuaaConfiguration();
+			if(xsuaaConfiguration != null) {
+				for (Map.Entry<String, String> property : xsuaaConfiguration.getProperties()
+						.entrySet()) {
+					vcapServiceProperties.put(property.getKey(), property.getValue());
+				}
 			}
 		}
 		return vcapServiceProperties;

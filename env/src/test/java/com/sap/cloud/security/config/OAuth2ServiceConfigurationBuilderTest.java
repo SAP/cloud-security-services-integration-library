@@ -57,23 +57,14 @@ public class OAuth2ServiceConfigurationBuilderTest {
 	}
 
 	@Test
-	public void withCertificate() {
+	public void withCertificateAndKey() {
 		String certificate = "-----BEGIN CERTIFICATE-----";
-
-		OAuth2ServiceConfiguration configuration = cut.withCertificate(certificate)
-				.withCredentialType(CredentialType.X509).build();
-
-		assertThat(configuration.getClientIdentity().getCertificate()).isEqualTo(certificate);
-	}
-
-	@Test
-	public void withPrivateKey() {
 		String key = "-----BEGIN RSA PRIVATE KEY-----";
 
-		OAuth2ServiceConfiguration configuration = cut.withPrivateKey(key).withCredentialType(CredentialType.X509)
-				.build();
+		OAuth2ServiceConfiguration configuration = cut.withPrivateKey(key).withCertificate(certificate).build();
 
 		assertThat(configuration.getClientIdentity().getKey()).isEqualTo(key);
+		assertThat(configuration.getClientIdentity().getCertificate()).isEqualTo(certificate);
 	}
 
 	@Test
