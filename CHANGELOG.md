@@ -1,11 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.11.0
+## 2.11.0-M1
 :mega: Client Libraries support Kubernetes/Kyma environment
 - [samples/java-security-usage] enabled for Kyma/Kubernetes environment
 - [samples/spring-security-basic-auth] enabled for Kyma/Kubernetes environment
 - [samples/spring-security-hybrid-usage] enabled for Kyma/Kubernetes environment
+- SECAUTH-1483: Local scope check doesn't work for Service Broker Plan. Workaround is explained [here](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640)
 
 ## 2.10.5
 - [token-client]
