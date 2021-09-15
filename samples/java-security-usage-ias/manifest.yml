@@ -15,5 +15,6 @@ applications:
   buildpacks:
     - java_buildpack
   services:
-    - ias-java-security
+    - name: ias-java-security
+      parameters: { "credential-type": "X509_GENERATED" }
 ...
