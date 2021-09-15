@@ -89,6 +89,9 @@ class K8sEnvironmentTest {
 		cut = K8sEnvironment.getInstance();
 		OAuth2ServiceConfiguration config = cut.getIasConfiguration();
 		assertEquals("iasClientId2", config.getClientId());
+		assertEquals("domain1.sap.com", config.getDomains().get(0));
+		assertEquals("domain2.sap.com", config.getDomains().get(1));
+		assertEquals("sec\\\"re?%$@#t\"='`", config.getClientSecret());
 	}
 
 	@Test
