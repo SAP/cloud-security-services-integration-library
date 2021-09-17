@@ -3,11 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## 2.11.0
 :mega: Client Libraries support Kubernetes/Kyma environment
+- [env]
+  - The extraction of `OAuth2ServiceConfiguration` for xsuaa oder ias identity provider is moved into `com.sap.cloud.security:env` client library.
+  - Extended with Kubernetes/Kyma environment support
 - [samples/java-security-usage] enabled for Kyma/Kubernetes environment
 - [samples/spring-security-basic-auth] enabled for Kyma/Kubernetes environment
 - [samples/spring-security-hybrid-usage] enabled for Kyma/Kubernetes environment
-- SECAUTH-1483: Local scope check doesn't work for Service Broker Plan. Workaround is explained [here](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640)
-- [env] extended with Kubernetes/Kyma environment support
+- [spring-xsuaa] `LocalAuthoritiesExtractor` supports also `appId`s that contains pipe (`|`) characters [#640](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640).
+- [spring-security] `XsuaaTokenAuthorizationConverter` supports also `appId`s that contains pipe (`|`) characters [#640](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640).
 
 #### Dependency upgrades
 - maven-javadoc-plugin 3.3.0 --> 3.3.1
