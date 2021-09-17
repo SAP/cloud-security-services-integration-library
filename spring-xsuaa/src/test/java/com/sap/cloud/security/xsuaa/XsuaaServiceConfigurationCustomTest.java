@@ -18,7 +18,6 @@ class XsuaaServiceConfigurationCustomTest {
 	@BeforeEach
 	public void setup() {
 		credentials.setClientId("cid");
-		credentials.setClientSecret("secret");
 		credentials.setUaaDomain("uaaDomain");
 		credentials.setUrl("url");
 		credentials.setXsAppName("xsappname");

@@ -28,8 +28,7 @@ class IdentityServiceConfigurationTest {
 				.run(context -> {
 					assertEquals("http://localhost",
 							context.getBean(IdentityServiceConfiguration.class).getUrl().toString());
-					assertEquals(CredentialType.BINDING_SECRET,
-							context.getBean(IdentityServiceConfiguration.class).getCredentialType());
+					assertNull(context.getBean(IdentityServiceConfiguration.class).getCredentialType());
 					assertFalse(context.getBean(IdentityServiceConfiguration.class).getClientIdentity()
 							.isCertificateBased());
 					assertEquals("cid",
