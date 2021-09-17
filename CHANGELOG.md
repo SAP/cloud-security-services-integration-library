@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.11.0-M1
+## 2.11.0
 :mega: Client Libraries support Kubernetes/Kyma environment
 - [samples/java-security-usage] enabled for Kyma/Kubernetes environment
 - [samples/spring-security-basic-auth] enabled for Kyma/Kubernetes environment
