@@ -23,9 +23,7 @@ public class Environments {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Environments.class);
 
-	private static Environment cfEnvironment; // singleton
-	private static Environment k8sEnvironment; // singleton
-	private static Boolean isK8sEnv;
+	private static Environment currentEnvironment;
 
 	private Environments() {
 		// use factoryMethods instead
@@ -37,27 +35,16 @@ public class Environments {
 	 * @return the current environment
 	 */
 	public static Environment getCurrent() {
-		if (isK8sEnv()) {
-			LOGGER.debug("K8s environment detected");
-			return getK8sEnvironment();
-		} else {
-			LOGGER.debug("CF environment detected");
-			return getCfEnvironment();
+		if (currentEnvironment == null) {
+			if (isK8sEnv()) {
+				LOGGER.debug("K8s environment detected");
+				currentEnvironment = K8sEnvironment.getInstance();
+			} else {
+				LOGGER.debug("CF environment detected");
+				currentEnvironment = CFEnvironment.getInstance();
+			}
 		}
-	}
-
-	private static Environment getCfEnvironment() {
-		if (cfEnvironment == null) {
-			cfEnvironment = CFEnvironment.getInstance();
-		}
-		return cfEnvironment;
-	}
-
-	private static Environment getK8sEnvironment() {
-		if (k8sEnvironment == null) {
-			k8sEnvironment = K8sEnvironment.getInstance();
-		}
-		return k8sEnvironment;
+		return currentEnvironment;
 	}
 
 	/**
@@ -79,10 +66,7 @@ public class Environments {
 	}
 
 	private static boolean isK8sEnv() {
-		if (isK8sEnv == null) {
-			isK8sEnv = System.getenv().get(KUBERNETES_SERVICE_HOST) != null;
-		}
-		return isK8sEnv;
+		return System.getenv().get(KUBERNETES_SERVICE_HOST) != null;
 	}
 
 }
