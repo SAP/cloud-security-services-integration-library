@@ -32,15 +32,6 @@ public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguratio
 	}
 
 	@Override
-	public ClientIdentity getClientIdentity() {
-		CredentialType credentialType = getCredentialType();
-		if (credentialType == CredentialType.X509) {
-			return new ClientCertificate(credentials.getCertificate(), credentials.getPrivateKey(), getClientId());
-		}
-		return new ClientCredentials(getClientId(), getClientSecret());
-	}
-
-	@Override
 	public String getUaaUrl() {
 		return credentials.getUrl();
 	}
@@ -72,4 +63,17 @@ public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguratio
 		return credentials.getCredentialType();
 	}
 
+	@Override
+	public String getProperty(String name) {
+		return null;
+	}
+
+	@Override
+	public ClientIdentity getClientIdentity() {
+		ClientIdentity identity = new ClientCredentials(getClientId(), getClientSecret());
+		if (!identity.isValid()) {
+			identity = new ClientCertificate(credentials.getCertificate(), credentials.getPrivateKey(), getClientId());
+		}
+		return identity;
+	}
 }

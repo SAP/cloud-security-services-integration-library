@@ -40,7 +40,7 @@ public class ClientCredentials implements ClientIdentity, Serializable {
 
 	@Override
 	public boolean isValid() {
-		return hasValue(clientId) && hasValue(clientSecret);
+		return !isCertificateBased() && ClientIdentity.hasValue(clientId) && ClientIdentity.hasValue(clientSecret);
 	}
 
 	@Override
@@ -64,7 +64,4 @@ public class ClientCredentials implements ClientIdentity, Serializable {
 		return String.format("%s:%s", clientId, clientSecret);
 	}
 
-	private static boolean hasValue(String value) {
-		return value != null && !value.isEmpty();
-	}
 }
