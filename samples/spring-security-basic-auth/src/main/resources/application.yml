@@ -2,5 +2,5 @@
 # SPDX-License-Identifier: Apache-2.0
 ---
 server:
-  port: 8080
+  port: 9999
 debug: true
