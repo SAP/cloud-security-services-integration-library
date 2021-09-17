@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;

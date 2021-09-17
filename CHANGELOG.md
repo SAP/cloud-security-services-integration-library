@@ -7,6 +7,19 @@ All notable changes to this project will be documented in this file.
 - [samples/spring-security-basic-auth] enabled for Kyma/Kubernetes environment
 - [samples/spring-security-hybrid-usage] enabled for Kyma/Kubernetes environment
 - SECAUTH-1483: Local scope check doesn't work for Service Broker Plan. Workaround is explained [here](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640)
+- [env] extended with Kubernetes/Kyma environment support
+
+#### Dependency upgrades
+- maven-javadoc-plugin 3.3.0 --> 3.3.1
+- maven-pmd-plugin 3.14.0 --> 3.15.0
+- dependency-check-maven 6.2.2 --> 6.3.1 
+- com.github.tomakehurst:wiremock-jre8-standalone 2.30.1 --> 2.31.0
+- io.projectreactor:reactor-test 3.4.9 --> 3.4.10
+- io.projectreactor:reactor-core 3.4.9 --> 3.4.10
+- org.springframework:spring.core.version  5.3.9 --> 5.3.10
+- org.springframework.boot:spring-boot 2.5.3 to 2.5.4 
+- org.mockito:mockito-core 3.11.2 --> 3.12.4
+
 
 ## 2.10.5
 - [token-client]
