@@ -46,4 +46,9 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 		return verificationKey;
 	}
 
+	@Override
+	public String getProperty(String name) {
+		return null;
+	}
+
 }

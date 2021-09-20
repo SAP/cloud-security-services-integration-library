@@ -55,4 +55,9 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 	public CredentialType getCredentialType() {
 		return null;
 	}
+
+	@Override
+	public String getProperty(String name) {
+		return null;
+	}
 }

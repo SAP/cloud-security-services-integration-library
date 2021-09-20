@@ -46,9 +46,12 @@ class OAuth2ServiceConfigurationPropertiesTest {
 	}
 
 	@Test
-	void setGetCertificateAndKey() {
+	void setGetCertificateAndKeyIAS() {
 		cutIas.setKey(ANY_VALUE);
 		cutIas.setCertificate(ANY_VALUE);
+		cutIas.setClientId(ANY_VALUE);
+		cutIas.setClientSecret(ANY_VALUE); // to make sure that getClientIdentity uses ClientCertificate impl as default
+											// when possible
 		assertEquals(ANY_VALUE, cutIas.getClientIdentity().getKey());
 		assertEquals(ANY_VALUE, cutIas.getClientIdentity().getCertificate());
 		assertTrue(cutIas.getClientIdentity().isCertificateBased());
@@ -59,7 +62,37 @@ class OAuth2ServiceConfigurationPropertiesTest {
 	}
 
 	@Test
+	void setGetCertificateAndKeyXSUAA() {
+		cutXsuaa.setCertificate(ANY_VALUE);
+		cutXsuaa.setKey(ANY_VALUE);
+		cutXsuaa.setClientId(ANY_VALUE);
+		cutXsuaa.setClientSecret(ANY_VALUE); // to make sure that getClientIdentity uses ClientCertificate impl as
+												// default when possible
+		assertEquals(ANY_VALUE, cutXsuaa.getClientIdentity().getCertificate());
+		assertEquals(ANY_VALUE, cutXsuaa.getClientIdentity().getKey());
+		assertTrue(cutXsuaa.hasProperty(CERTIFICATE));
+		assertEquals(ANY_VALUE, cutXsuaa.getProperty(CERTIFICATE));
+		assertTrue(cutXsuaa.hasProperty(KEY));
+		assertEquals(ANY_VALUE, cutXsuaa.getProperty(KEY));
+		assertTrue(cutXsuaa.getClientIdentity().isCertificateBased());
+	}
+
+	@Test
+	void getClientIdentityResolvesToClientCredentials() {
+		cutIas.setClientId(ANY_VALUE);
+		cutIas.setClientSecret(ANY_VALUE);
+		assertFalse(cutIas.getClientIdentity().isCertificateBased());
+
+		cutXsuaa.setClientId(ANY_VALUE);
+		cutXsuaa.setClientSecret(ANY_VALUE);
+		assertFalse(cutXsuaa.getClientIdentity().isCertificateBased());
+	}
+
+	@Test
 	void setGetCredentialType() {
+		cutXsuaa.setCertificate(ANY_VALUE);
+		cutXsuaa.setKey(ANY_VALUE);
+		cutXsuaa.setClientId(ANY_VALUE);
 		cutXsuaa.setCredentialType("x509");
 		assertEquals(CredentialType.X509, cutXsuaa.getCredentialType());
 		assertTrue(cutXsuaa.hasProperty(XSUAA.CREDENTIAL_TYPE));
@@ -69,6 +102,7 @@ class OAuth2ServiceConfigurationPropertiesTest {
 		assertFalse(cutIas.getClientIdentity().isCertificateBased());
 		cutIas.setCertificate(ANY_VALUE);
 		cutIas.setKey(ANY_VALUE);
+		cutIas.setClientId(ANY_VALUE);
 		assertTrue(cutIas.getClientIdentity().isCertificateBased());
 		assertEquals(CredentialType.X509, cutIas.getCredentialType());
 	}

@@ -60,8 +60,10 @@ public class OAuth2ServiceConfigurationBuilderTest {
 	public void withCertificateAndKey() {
 		String certificate = "-----BEGIN CERTIFICATE-----";
 		String key = "-----BEGIN RSA PRIVATE KEY-----";
+		String clientId = "myClientId";
 
-		OAuth2ServiceConfiguration configuration = cut.withPrivateKey(key).withCertificate(certificate).build();
+		OAuth2ServiceConfiguration configuration = cut.withPrivateKey(key).withCertificate(certificate)
+				.withClientId(clientId).build();
 
 		assertThat(configuration.getClientIdentity().getKey()).isEqualTo(key);
 		assertThat(configuration.getClientIdentity().getCertificate()).isEqualTo(certificate);
