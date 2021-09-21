@@ -56,6 +56,7 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 		return null;
 	}
 
+	// TODO remove once credential-type is available in IAS configuration
 	@Override
 	public String getProperty(String name) {
 		return null;

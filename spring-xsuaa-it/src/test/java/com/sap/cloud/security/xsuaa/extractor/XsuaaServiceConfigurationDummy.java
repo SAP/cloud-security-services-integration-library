@@ -46,6 +46,7 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 		return verificationKey;
 	}
 
+	// TODO remove once credential-type is available in IAS configuration
 	@Override
 	public String getProperty(String name) {
 		return null;
