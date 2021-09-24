@@ -5,13 +5,16 @@
  */
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.DefaultEnvironmentsProvider;
 import com.sap.cloud.security.config.cf.CFEnvironment;
-import com.sap.cloud.security.config.k8s.K8sEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.ServiceLoader;
 
 import static com.sap.cloud.security.config.k8s.K8sConstants.KUBERNETES_SERVICE_HOST;
 
@@ -21,7 +24,12 @@ import static com.sap.cloud.security.config.k8s.K8sConstants.KUBERNETES_SERVICE_
  */
 public class Environments {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Environments.class);
+	static List<EnvironmentProvider> environmentProviders = new ArrayList() {
+		{
+			ServiceLoader.load(EnvironmentProvider.class).forEach(this::add);
+			LoggerFactory.getLogger(Environments.class).info("loaded EnvironmentLoader service providers: {}", this);
+		}
+	};
 
 	private static Environment currentEnvironment;
 
@@ -36,12 +44,10 @@ public class Environments {
 	 */
 	public static Environment getCurrent() {
 		if (currentEnvironment == null) {
-			if (isK8sEnv()) {
-				LOGGER.debug("K8s environment detected");
-				currentEnvironment = K8sEnvironment.getInstance();
+			if (environmentProviders.isEmpty()) {
+				currentEnvironment = new DefaultEnvironmentsProvider().getCurrent();
 			} else {
-				LOGGER.debug("CF environment detected");
-				currentEnvironment = CFEnvironment.getInstance();
+				currentEnvironment = environmentProviders.get(0).getCurrent();
 			}
 		}
 		return currentEnvironment;
@@ -63,10 +69,6 @@ public class Environments {
 			vcapServices.append(scanner.nextLine());
 		}
 		return CFEnvironment.getInstance(str -> vcapServices.toString(), str -> null);
-	}
-
-	private static boolean isK8sEnv() {
-		return System.getenv().get(KUBERNETES_SERVICE_HOST) != null;
 	}
 
 }
