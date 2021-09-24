@@ -46,12 +46,12 @@ import javax.annotation.Nonnull;
 @ConditionalOnProperty(name = "sap.spring.security.xsuaa.flows.auto", havingValue = "true", matchIfMissing = true)
 @AutoConfigureAfter(HybridIdentityServicesAutoConfiguration.class)
 @ConditionalOnMissingBean(XsuaaTokenFlows.class)
-class XsuaaTokenFlowAutoConfiguration {
+public class XsuaaTokenFlowAutoConfiguration {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	XsuaaServiceConfiguration xsuaaConfig;
 
-	XsuaaTokenFlowAutoConfiguration(XsuaaServiceConfigurations xsuaaConfigs, XsuaaServiceConfiguration xsuaaConfig) {
+	public XsuaaTokenFlowAutoConfiguration(XsuaaServiceConfigurations xsuaaConfigs, XsuaaServiceConfiguration xsuaaConfig) {
 		logger.debug("prepares XsuaaTokenFlowAutoConfiguration.");
 		this.xsuaaConfig = xsuaaConfigs.getConfigurations().isEmpty() ? xsuaaConfig
 				: xsuaaConfigs.getConfigurations().get(0);

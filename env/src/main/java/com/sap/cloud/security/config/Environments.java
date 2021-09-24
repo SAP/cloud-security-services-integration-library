@@ -5,8 +5,8 @@
  */
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.DefaultEnvironmentsProvider;
 import com.sap.cloud.security.config.cf.CFEnvironment;
-import com.sap.cloud.security.token.ProviderNotFoundException;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
@@ -15,20 +15,25 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.ServiceLoader;
 
+import static com.sap.cloud.security.config.k8s.K8sConstants.KUBERNETES_SERVICE_HOST;
+
 /**
  * Central entry point to access the current SAP Cloud Platform
  * {@link Environment}.
  */
 public class Environments {
-	static List<EnvironmentLoader> environments = new ArrayList() {
+
+	static List<EnvironmentProvider> environmentProviders = new ArrayList() {
 		{
-			ServiceLoader.load(EnvironmentLoader.class).forEach(this::add);
+			ServiceLoader.load(EnvironmentProvider.class).forEach(this::add);
 			LoggerFactory.getLogger(Environments.class).info("loaded EnvironmentLoader service providers: {}", this);
 		}
 	};
 
+	private static Environment currentEnvironment;
+
 	private Environments() {
-		// use factory methods instead
+		// use factoryMethods instead
 	}
 
 	/**
@@ -37,15 +42,20 @@ public class Environments {
 	 * @return the current environment
 	 */
 	public static Environment getCurrent() {
-		if (environments.isEmpty()) {
-			throw new ProviderNotFoundException("No EnvironmentLoader service implementation found in the classpath");
+		if (currentEnvironment == null) {
+			if (environmentProviders.isEmpty()) {
+				currentEnvironment = new DefaultEnvironmentsProvider().getCurrent();
+			} else {
+				currentEnvironment = environmentProviders.get(0).getCurrent();
+			}
 		}
-		return environments.get(0).getCurrent();
+		return currentEnvironment;
 	}
 
 	/**
 	 * Reads {@link Environment} not from system environment but from
-	 * {@link InputStream}.
+	 * {@link InputStream}. Is applicable only to CF environment and expects the
+	 * input to be in VCAP services format.
 	 * 
 	 * @param input
 	 *            e.g. from file

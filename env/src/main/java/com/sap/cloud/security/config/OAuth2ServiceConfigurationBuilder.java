@@ -221,27 +221,6 @@ public class OAuth2ServiceConfigurationBuilder {
 		}
 
 		@Override
-		public ClientIdentity getClientIdentity() {
-			CredentialType credentialType = getCredentialType();
-			if (credentialType == CredentialType.X509) {
-				return new ClientCertificate(properties.get(CERTIFICATE), properties.get(KEY), getClientId());
-			}
-			return new ClientCredentials(getClientId(), getClientSecret());
-		}
-
-		@Override
-		public CredentialType getCredentialType() {
-			if (getService() == Service.XSUAA) {
-				return CredentialType.from(properties.get(XSUAA.CREDENTIAL_TYPE));
-			}
-			if (properties.get(CERTIFICATE) != null && properties.get(KEY) != null) {
-				return CredentialType.X509;
-			} else {
-				return CredentialType.BINDING_SECRET;
-			}
-		}
-
-		@Override
 		public URI getUrl() {
 			return hasProperty(URL) ? URI.create(properties.get(URL)) : null;
 		}

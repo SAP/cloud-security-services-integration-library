@@ -1,0 +1,166 @@
+---
+###  SERVICE INSTANCE CONFIGURATION  ###
+# Xsuaa instance
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: xsuaa-authn
+spec:
+  clusterServiceClassExternalName: xsuaa
+  clusterServicePlanExternalName: application
+  parameters:
+    xsappname: spring-security-hybrid-usage
+    tenant-mode: dedicated
+    oauth2-configuration:
+      credential-types:
+        - x509
+    scopes:
+      - name: "$XSAPPNAME.Read"
+        description: "Read Permissions."
+    role-templates:
+      - name: Viewer
+        description: View Data
+        scope-references:
+          - "$XSAPPNAME.Read"
+    role-collections:
+      - name: XSUAA-Viewer
+        description: Viewer (read)
+        role-template-references:
+          - "$XSAPPNAME.Viewer"
+---
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: xsuaa-service-binding
+spec:
+  instanceRef:
+    name: xsuaa-authn
+---
+apiVersion: servicecatalog.kyma-project.io/v1alpha1
+kind: ServiceBindingUsage
+metadata:
+  name: xsuaa-service-binding-usage
+spec:
+  parameters:
+    envPrefix:
+      name: xsuaa_
+  serviceBindingRef:
+    name: xsuaa-service-binding
+  usedBy:
+    kind: deployment
+    name: spring-security-hybrid-usage
+---
+# IAS instance
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: ias-authn
+spec:
+  clusterServiceClassExternalName: identity
+  clusterServicePlanExternalName: application
+---
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: ias-service-binding
+spec:
+  instanceRef:
+    name: ias-authn
+---
+apiVersion: servicecatalog.kyma-project.io/v1alpha1
+kind: ServiceBindingUsage
+metadata:
+  name: ias-service-binding-usage
+spec:
+  parameters:
+    envPrefix:
+      name: ias_
+  serviceBindingRef:
+    name: ias-service-binding
+  usedBy:
+    kind: deployment
+    name: spring-security-hybrid-usage
+---
+###  APPLICATION CONFIGURATION  ###
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spring-security-hybrid-usage
+    kyma-grafana: enabled
+  name: spring-security-hybrid-usage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-security-hybrid-usage
+  template:
+    metadata:
+      labels:
+        app: spring-security-hybrid-usage
+        kyma-grafana: enabled
+    spec:
+      containers:
+        - image: <YOUR IMAGE REPOSITORY>
+          imagePullPolicy: Always
+          name: spring-security-hybrid-usage
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: xsuaa
+              mountPath: "/etc/secrets/sapbtp/xsuaa/xsuaa-authn"
+              readOnly: true
+            - name: ias-authn
+              mountPath: "/etc/secrets/sapbtp/identity/ias-authn"
+              readOnly: true
+
+      volumes:
+        - name: xsuaa
+          secret:
+            secretName: xsuaa-service-binding
+        - name: ias-authn
+          secret:
+            secretName: ias-service-binding
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: spring-security-hybrid-usage
+  name: spring-security-hybrid-usage
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: spring-security-hybrid-usage
+
+---
+apiVersion: gateway.kyma-project.io/v1alpha1
+kind: APIRule
+metadata:
+  name: spring-security-hybrid-api
+  labels:
+    app: spring-security-hybrid-usage
+spec:
+  gateway: kyma-gateway.kyma-system.svc.cluster.local
+  rules:
+    - accessStrategies:
+        - config: {}
+          handler: allow
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - HEAD
+      path: /.*
+  service:
+    host: spring-security-hybrid-api
+    name: spring-security-hybrid-usage
+    port: 80
