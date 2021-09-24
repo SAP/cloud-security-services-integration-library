@@ -26,7 +26,7 @@ public class Environments {
 	static List<EnvironmentProvider> environmentProviders = new ArrayList() {
 		{
 			ServiceLoader.load(EnvironmentProvider.class).forEach(this::add);
-			LoggerFactory.getLogger(Environments.class).info("loaded EnvironmentLoader service providers: {}", this);
+			LoggerFactory.getLogger(Environments.class).info("loaded custom EnvironmentProvider service providers: {}", this);
 		}
 	};
 
