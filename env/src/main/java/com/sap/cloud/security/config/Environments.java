@@ -7,7 +7,6 @@ package com.sap.cloud.security.config;
 
 import com.sap.cloud.security.DefaultEnvironmentsProvider;
 import com.sap.cloud.security.config.cf.CFEnvironment;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
