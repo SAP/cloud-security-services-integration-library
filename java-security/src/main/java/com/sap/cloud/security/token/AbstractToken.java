@@ -11,8 +11,6 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,7 +30,6 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
  */
 public abstract class AbstractToken implements Token {
 	private static final long serialVersionUID = 2204172041950251807L;
-	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractToken.class);
 
 	private final DecodedJwt decodedJwt;
 	protected final DefaultJsonObject tokenHeader;
@@ -98,8 +95,7 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public boolean isExpired() {
-		return getExpiration() == null ? true
-				: getExpiration().isBefore(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+		return getExpiration() == null || getExpiration().isBefore(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 	}
 
 	@Nullable
@@ -115,19 +111,10 @@ public abstract class AbstractToken implements Token {
 		return decodedJwt.getEncodedToken();
 	}
 
-	@Override
-	public Set<String> getAudiences() {
-		Set<String> audiences = new LinkedHashSet<>();
-		audiences.addAll(getClaimAsStringList(TokenClaims.AUDIENCE));
-		return audiences;
-	}
-
 	public boolean isXsuaaToken() {
 		if (tokenBody.contains(EXTERNAL_ATTRIBUTE)) {
 			JsonObject externalAttributes = tokenBody.getJsonObject(EXTERNAL_ATTRIBUTE);
-			if ("XSUAA".equalsIgnoreCase(externalAttributes.getAsString(EXTERNAL_ATTRIBUTE_ENHANCER))) {
-				return true;
-			}
+			return "XSUAA".equalsIgnoreCase(externalAttributes.getAsString(EXTERNAL_ATTRIBUTE_ENHANCER));
 		}
 		return false;
 	}
@@ -182,26 +169,6 @@ public abstract class AbstractToken implements Token {
 	@Override
 	public String getZoneId() {
 		return getClaimAsString(SAP_GLOBAL_ZONE_ID);
-	}
-
-	@Override
-	public String getClientId() {
-		String clientId = getClaimAsString(AUTHORIZATION_PARTY);
-		if (clientId == null || clientId.trim().isEmpty()) {
-			Set<String> audiences = getAudiences();
-
-			if (audiences.size() == 1) {
-				return audiences.stream().findFirst().get();
-			} else if (hasClaim(CLIENT_ID) && !getClaimAsString(CLIENT_ID).trim()
-					.isEmpty()) { // required for backward compatibility for generated tokens in JUnit tests
-				LOGGER.warn("Usage of 'cid' claim is deprecated and should be replaced by 'azp' or 'aud' claims");
-				return getClaimAsString(CLIENT_ID);
-			}
-			LOGGER.error("Couldn't get client id. Invalid authorized party or audience claims.");
-			throw new InvalidTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
-		} else {
-			return clientId;
-		}
 	}
 
 	@Override
