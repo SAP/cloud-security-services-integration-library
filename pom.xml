@@ -80,6 +80,7 @@
 		<mockito.version>3.12.4</mockito.version>
 		<assertj.version>3.21.0</assertj.version>
 		<reactor.test.version>3.4.10</reactor.test.version>
+		<wiremock.version>2.31.0</wiremock.version>
 		<skipTests>false</skipTests>
 		<jacoco.skip>${skipTests}</jacoco.skip>
 	</properties>
@@ -301,6 +302,11 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-test</artifactId>
 				<version>${spring.boot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.tomakehurst</groupId>
+				<artifactId>wiremock-jre8</artifactId>
+				<version>${wiremock.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
