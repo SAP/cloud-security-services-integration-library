@@ -17,10 +17,6 @@
 	<name>java-security-test</name>
 	<packaging>jar</packaging>
 
-	<properties>
-		<wiremock.version>2.31.0</wiremock.version>
-	</properties>
-
 	<dependencies>
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
@@ -71,8 +67,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.tomakehurst</groupId>
-			<artifactId>wiremock-jre8-standalone</artifactId>
-			<version>${wiremock.version}</version>
+			<artifactId>wiremock-jre8</artifactId>
 		</dependency>
 
 		<!-- test dependencies -->
