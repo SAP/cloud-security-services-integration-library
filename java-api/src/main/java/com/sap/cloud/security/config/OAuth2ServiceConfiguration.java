@@ -42,9 +42,9 @@ public interface OAuth2ServiceConfiguration {
 	 * @return ClientIdentity object
 	 */
 	default ClientIdentity getClientIdentity() {
-		ClientIdentity identity = new ClientCredentials(getClientId(), getClientSecret());
+		ClientIdentity identity = new ClientCertificate(getProperty(CERTIFICATE), getProperty(KEY), getClientId());
 		if (!identity.isValid()) {
-			identity = new ClientCertificate(getProperty(CERTIFICATE), getProperty(KEY), getClientId());
+			identity = new ClientCredentials(getClientId(), getClientSecret());
 		}
 		return identity;
 	}

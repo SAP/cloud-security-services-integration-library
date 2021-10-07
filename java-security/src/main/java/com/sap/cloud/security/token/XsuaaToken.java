@@ -174,4 +174,19 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	public String getZoneId() {
 		return Objects.nonNull(super.getZoneId()) ? super.getZoneId() : getClaimAsString(ZONE_ID);
 	}
+
+	@Override
+	public String getClientId() {
+		try {
+			return super.getClientId();
+		} catch (InvalidTokenException ex) {
+			if (hasClaim(CLIENT_ID) && !getClaimAsString(CLIENT_ID).trim()
+					.isEmpty()) { // required for backward compatibility for generated tokens in JUnit tests
+				LOGGER.warn("Usage of 'cid' claim is deprecated and should be replaced by 'azp' or 'aud' claims");
+				return getClaimAsString(CLIENT_ID);
+			}
+		}
+		LOGGER.error("Couldn't get client id. Invalid authorized party or audience claims.");
+		throw new InvalidTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
+	}
 }

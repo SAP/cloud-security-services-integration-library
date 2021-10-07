@@ -58,7 +58,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.source.plugin.version>3.2.1</maven.source.plugin.version>
 		<!-- make sure that spring core and spring boot versions are compatible-->
-		<spring.boot.version>2.5.4</spring.boot.version>
+		<spring.boot.version>2.5.5</spring.boot.version>
 		<spring.core.version>5.3.10</spring.core.version>
 		<spring.security.version>5.5.2</spring.security.version>
 		<spring.security.oauth2.version>2.5.1.RELEASE</spring.security.oauth2.version>
@@ -78,8 +78,9 @@
 		<maven-surefire-plugin>3.0.0-M5</maven-surefire-plugin>
 		<hamcrest.version>1.3</hamcrest.version>
 		<mockito.version>3.12.4</mockito.version>
-		<assertj.version>3.20.2</assertj.version>
+		<assertj.version>3.21.0</assertj.version>
 		<reactor.test.version>3.4.10</reactor.test.version>
+		<wiremock.version>2.31.0</wiremock.version>
 		<skipTests>false</skipTests>
 		<jacoco.skip>${skipTests}</jacoco.skip>
 	</properties>
@@ -302,6 +303,11 @@
 				<artifactId>spring-boot-starter-test</artifactId>
 				<version>${spring.boot.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.github.tomakehurst</groupId>
+				<artifactId>wiremock-jre8</artifactId>
+				<version>${wiremock.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -385,7 +391,7 @@
 						<plugin>
 							<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
 							<artifactId>dependency-check-maven</artifactId>
-							<version>6.3.1</version>
+							<version>6.3.2</version>
 							<executions>
 								<execution>
 									<goals>

@@ -55,4 +55,10 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 	public CredentialType getCredentialType() {
 		return null;
 	}
+
+	// TODO remove once credential-type is available in IAS configuration
+	@Override
+	public String getProperty(String name) {
+		return null;
+	}
 }
