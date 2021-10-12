@@ -70,11 +70,26 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
 
 ##### Cache
 
-By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache can be configured by providing an
-`CacheConfiguration` object as constructor parameter. The cache can be disabled by using the
-`CacheConfiguration.CACHE_DISABLED` configuration.
+By default, the `OAuth2TokenService` implementations (DefaultOAuth2TokenService and XsuaaOAuth2TokenService) are caching tokens internally. By default up to 1000 tokens are cached for 10 minutes and the statistics are disabled. The Cache can be individually configured by providing an
+`TokenCacheConfiguration` object as constructor parameter. The cache can be disabled by using the
+`TokenCacheConfiguration.cacheDisabled()` configuration. 
 
-:exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService.java` implementation or to the `XsuaaTokenFlows`.
+**Disable Caching**
+```java
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(<CloseableHttpClient>, TokenCacheConfiguration.cacheDisabled());
+```
+:exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService` implementation or to the `XsuaaTokenFlows`.
+
+**Disable per Request (during runtime)**
+```java
+tokenFlows.clientCredentialsTokenFlow().disableCache(true).execute();
+```
+**Clear cache (during runtime)**
+```java
+AbstractOAuth2TokenService tokenService = new DefaultOAuth2TokenService(<CloseableHttpClient>);
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService, ..., ...);
+tokenService.clearCache(); // in case of reoccurring issues
+```
 
 ## Configuration for Spring Applications
 
