@@ -25,7 +25,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
@@ -33,48 +35,62 @@ import java.util.List;
 @PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" })
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	Converter<Jwt, AbstractAuthenticationToken> authConverter;
+    @Autowired
+    Converter<Jwt, AbstractAuthenticationToken> authConverter; // Required only when Xsuaa is used
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		// @formatter:off
-		http
-			.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and()
-				.authorizeRequests()
-				.antMatchers("/sayHello").hasAuthority("Read")
-				.antMatchers("/*").authenticated()
-				.anyRequest().denyAll()
-			.and()
-				.oauth2ResourceServer()
-				.jwt()
-				.jwtAuthenticationConverter(new MyCustomTokenAuthenticationConverter());
-		// @formatter:on
-	}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        // @formatter:off
+        http.sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                    .authorizeRequests()
+                    .antMatchers("/sayHello").hasAuthority("READ")
+                    .antMatchers("/*").authenticated()
+                    .anyRequest().denyAll()
+                .and()
+                    .oauth2ResourceServer()
+                    .jwt()
+                    .jwtAuthenticationConverter(new MyCustomHybridTokenAuthenticationConverter()); // Adjust the converter to represent your use case
+                                                                                               // Use MyCustomHybridTokenAuthenticationConverter when IAS and XSUAA is used
+                                                                                               // Use MyCustomIasTokenAuthenticationConverter when only IAS is used
+        // @formatter:on
+    }
 
-	/**
-	 * Workaround until Cloud Authorization Service is globally available.
-	 */
-	class MyCustomTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+    /**
+     * Workaround for hybrid use case until Cloud Authorization Service is globally available.
+     */
+    class MyCustomHybridTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-		public AbstractAuthenticationToken convert(Jwt jwt) {
-			if(jwt.hasClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
-				return authConverter.convert(jwt);
-			}
-			return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
-		}
+        public AbstractAuthenticationToken convert(Jwt jwt) {
+            if (jwt.hasClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
+                return authConverter.convert(jwt);
+            }
+            return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
+        }
 
-		private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {
-			Collection<GrantedAuthority> groupAuthorities = new ArrayList<>();
-			if (jwt.hasClaim(TokenClaims.GROUPS)) {
-				List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
-				for (String group: groups) {
-					groupAuthorities.add(new SimpleGrantedAuthority(group.replace("IASAUTHZ_", "")));
-				}
-			}
-			return groupAuthorities;
-		}
-	}
+        private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {
+            Collection<GrantedAuthority> groupAuthorities = new ArrayList<>();
+            if (jwt.hasClaim(TokenClaims.GROUPS)) {
+                List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+                for (String group : groups) {
+                    groupAuthorities.add(new SimpleGrantedAuthority(group.replace("IASAUTHZ_", "")));
+                }
+            }
+            return groupAuthorities;
+        }
+    }
+
+    /**
+     * Workaround for IAS only use case until Cloud Authorization Service is globally available.
+     */
+    class MyCustomIasTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+
+        public AbstractAuthenticationToken convert(Jwt jwt) {
+            final List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+            final List<GrantedAuthority> groupAuthorities = groups == null ? Collections.emptyList()
+                    : groups.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+            return new AuthenticationToken(jwt, groupAuthorities);
+        }
+    }
 }
