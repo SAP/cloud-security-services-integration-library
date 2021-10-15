@@ -110,8 +110,8 @@ public class XsuaaTokenFlowsTest {
 
 	@Test
 	public void disableCaching() throws TokenFlowException {
-		OAuth2TokenService tokenService =
-				new XsuaaOAuth2TokenService(restOperations, TokenCacheConfiguration.cacheDisabled());
+		OAuth2TokenService tokenService = new XsuaaOAuth2TokenService(restOperations,
+				TokenCacheConfiguration.cacheDisabled());
 		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService,
 				this.endpointsProvider, CLIENT_CREDENTIALS);
 		OAuth2TokenResponse response = tokenFlows.clientCredentialsTokenFlow().execute();
@@ -121,8 +121,7 @@ public class XsuaaTokenFlowsTest {
 
 	@Test
 	public void disableCacheOnce() throws TokenFlowException {
-		OAuth2TokenService tokenService =
-				new XsuaaOAuth2TokenService(restOperations);
+		OAuth2TokenService tokenService = new XsuaaOAuth2TokenService(restOperations);
 		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService,
 				this.endpointsProvider, CLIENT_CREDENTIALS);
 		OAuth2TokenResponse response = tokenFlows.clientCredentialsTokenFlow().execute();

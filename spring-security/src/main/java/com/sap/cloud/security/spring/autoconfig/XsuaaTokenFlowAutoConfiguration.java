@@ -51,7 +51,8 @@ public class XsuaaTokenFlowAutoConfiguration {
 
 	XsuaaServiceConfiguration xsuaaConfig;
 
-	public XsuaaTokenFlowAutoConfiguration(XsuaaServiceConfigurations xsuaaConfigs, XsuaaServiceConfiguration xsuaaConfig) {
+	public XsuaaTokenFlowAutoConfiguration(XsuaaServiceConfigurations xsuaaConfigs,
+			XsuaaServiceConfiguration xsuaaConfig) {
 		logger.debug("prepares XsuaaTokenFlowAutoConfiguration.");
 		this.xsuaaConfig = xsuaaConfigs.getConfigurations().isEmpty() ? xsuaaConfig
 				: xsuaaConfigs.getConfigurations().get(0);
