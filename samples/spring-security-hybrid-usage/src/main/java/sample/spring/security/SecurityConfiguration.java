@@ -45,7 +45,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                     .authorizeRequests()
-                    .antMatchers("/sayHello").hasAuthority("READ")
+                    .antMatchers("/sayHello").hasAuthority("Read")
                     .antMatchers("/*").authenticated()
                     .anyRequest().denyAll()
                 .and()
