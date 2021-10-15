@@ -73,12 +73,13 @@ class K8sServiceConfigurationResolver {
 				Map<String, String> servicePropertiesMap = getServiceProperties(binding);
 				if (!servicePropertiesMap.isEmpty()) {
 					OAuth2ServiceConfiguration config;
-					if (servicePropertiesMap.containsKey("domains")){
+					if (servicePropertiesMap.containsKey("domains")) {
 						config = OAuth2ServiceConfigurationBuilder.forService(service)
 								.withProperties(servicePropertiesMap)
-								.withDomains(servicePropertiesMap.get("domains").replaceAll("[\\[\"\\s\\]]+", "").split(","))
+								.withDomains(
+										servicePropertiesMap.get("domains").replaceAll("[\\[\"\\s\\]]+", "").split(","))
 								.build();
-					}else{
+					} else {
 						config = OAuth2ServiceConfigurationBuilder.forService(service)
 								.withProperties(servicePropertiesMap)
 								.build();

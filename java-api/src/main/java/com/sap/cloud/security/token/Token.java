@@ -187,7 +187,8 @@ public interface Token extends Serializable {
 	 * obtained from "azp" claim if present or when "azp" is not present from "aud"
 	 * claim, but only in case there is one audience.
 	 *
-	 * @see <a href="https://openid.net/specs/openid-connect-core-1_0.html">https://openid.net/specs/openid-connect-core-1_0.html</a>
+	 * @see <a href=
+	 *      "https://openid.net/specs/openid-connect-core-1_0.html">https://openid.net/specs/openid-connect-core-1_0.html</a>
 	 *
 	 * @return the OAuth client ID.
 	 */
