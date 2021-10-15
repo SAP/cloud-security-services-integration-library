@@ -10,6 +10,7 @@ import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
@@ -41,14 +42,18 @@ public class IasJwtDecoder implements JwtDecoder {
 
 	@Override
 	public Jwt decode(String encodedToken) {
-		Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
-		Token token = Token.create(encodedToken);
-		ValidationResult validationResult = tokenValidators.validate(token);
-		if (validationResult.isErroneous()) {
-			throw new InvalidBearerTokenException("The token is invalid.");
+		try {
+			Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
+			Token token = Token.create(encodedToken);
+			ValidationResult validationResult = tokenValidators.validate(token);
+			if (validationResult.isErroneous()) {
+				throw new InvalidBearerTokenException("The token is invalid.");
+			}
+			logger.debug("The token of service {} was successfully validated.", token.getService());
+			return parseJwt(token);
+		} catch (RuntimeException ex) {
+			throw new BadJwtException("Error initializing JWT decoder: " + ex.getMessage(), ex);
 		}
-		logger.debug("The token of service {} was successfully validated.", token.getService());
-		return parseJwt(token);
 	}
 
 	/**
