@@ -13,10 +13,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @java.lang.SuppressWarnings("squid:S2699")
-//test properties are provided with /resources/application.yml
+// test properties are provided with /resources/application.yml
 public class ApplicationTest {
 
-	@Test
-	public void whenSpringContextIsBootstrapped_thenNoExceptions() {
-	}
+    @Test
+    public void whenSpringContextIsBootstrapped_thenNoExceptions() {
+    }
 }

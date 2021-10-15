@@ -27,8 +27,8 @@ public class TestController {
     private static final Logger logger = LoggerFactory.getLogger(TestController.class);
 
     /**
-     * A (fake) data layer showing global method security features of Spring Security
-     * in combination with tokens from XSUAA.
+     * A (fake) data layer showing global method security features of Spring Security in combination with tokens from
+     * XSUAA.
      */
     private DataService dataService;
 
@@ -38,10 +38,12 @@ public class TestController {
     }
 
     /**
-     * Returns the detailed information of the XSUAA JWT token.
-     * Uses a Token retrieved from the security context of Spring Security.
+     * Returns the detailed information of the XSUAA JWT token. Uses a Token retrieved from the security context of
+     * Spring Security.
      *
-     * @param token the XSUAA token from the request injected by Spring Security.
+     * @param token
+     *            the XSUAA token from the request injected by Spring Security.
+     * 
      * @return the requested address.
      */
     @GetMapping("/sayHello")
@@ -57,8 +59,8 @@ public class TestController {
         result.put("given name", token.getClaimAsString(TokenClaims.GIVEN_NAME));
         result.put("email", token.getClaimAsString(TokenClaims.EMAIL));
 
-        if(XSUAA.equals(token.getService())) {
-            result.put("(Xsuaa) subaccount id", ((AccessToken)token).getSubaccountId());
+        if (XSUAA.equals(token.getService())) {
+            result.put("(Xsuaa) subaccount id", ((AccessToken) token).getSubaccountId());
             result.put("(Xsuaa) scopes", String.valueOf(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)));
             result.put("grant type", token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE));
         }
@@ -66,8 +68,7 @@ public class TestController {
     }
 
     /**
-     * An endpoint showing how to use Spring method security.
-     * Only if the request principal has the given scope will the
+     * An endpoint showing how to use Spring method security. Only if the request principal has the given scope will the
      * method be called. Otherwise a 403 error will be returned.
      */
     @GetMapping("/method")
