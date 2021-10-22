@@ -1,9 +1,7 @@
 package com.sap.cloud.security.xsuaa;
 
 import com.sap.cloud.security.config.CredentialType;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -19,9 +17,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @TestPropertySource(properties = {"xsuaa.clientid=client", "xsuaa.certificate=cert", "xsuaa.key=key", "xsuaa.certurl=https://my.cert.authentication.sap.com", "xsuaa.credentialtype=x509"})
 @ContextConfiguration(classes = { XsuaaServiceConfigurationDefault.class })
 public class XsuaaServiceConfigurationDefaultTest {
-
-	@Rule
-	public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
 	@Autowired
 	XsuaaServiceConfigurationDefault cut;
