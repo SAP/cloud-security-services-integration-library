@@ -20,6 +20,7 @@ import static com.sap.cloud.security.token.TokenClaims.*;
  */
 public class SapIdToken extends AbstractToken {
 	static final String IAS_ISSUER = "ias_iss";
+
 	public SapIdToken(@Nonnull DecodedJwt decodedJwt) {
 		super(decodedJwt);
 	}
@@ -47,9 +48,10 @@ public class SapIdToken extends AbstractToken {
 	}
 
 	/**
-	 * In case of active custom domains this returns the identifier for the Issuer of the token.
-	 * Its a URL that contains scheme, host with custom domain, and optionally, port number and path components.
-	 * This one is irrelevant for token validation.
+	 * In case of active custom domains this returns the identifier for the Issuer
+	 * of the token. Its a URL that contains scheme, host with custom domain, and
+	 * optionally, port number and path components. This one is irrelevant for token
+	 * validation.
 	 *
 	 * @return the custom domain issuer.
 	 */

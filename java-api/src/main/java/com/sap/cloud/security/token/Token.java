@@ -189,7 +189,8 @@ public interface Token extends Serializable {
 	 * obtained from "azp" claim if present or when "azp" is not present from "aud"
 	 * claim, but only in case there is one audience.
 	 *
-	 * @see <a href="https://openid.net/specs/openid-connect-core-1_0.html">https://openid.net/specs/openid-connect-core-1_0.html</a>
+	 * @see <a href=
+	 *      "https://openid.net/specs/openid-connect-core-1_0.html">https://openid.net/specs/openid-connect-core-1_0.html</a>
 	 *
 	 * @return the OAuth client ID.
 	 */
@@ -207,11 +208,11 @@ public interface Token extends Serializable {
 	}
 
 	/**
-	 * Returns the identifier for the Issuer of the token.
-	 * Its a URL that contains scheme, host, and optionally, port number and path components
-	 * but no query or fragment components.
-	 * This one is validated in the {@code JwtIssuerValidator} and
-	 * used as base url to discover jwks_uri endpoint for downloading the token keys.
+	 * Returns the identifier for the Issuer of the token. Its a URL that contains
+	 * scheme, host, and optionally, port number and path components but no query or
+	 * fragment components. This one is validated in the {@code JwtIssuerValidator}
+	 * and used as base url to discover jwks_uri endpoint for downloading the token
+	 * keys.
 	 *
 	 * @return the issuer.
 	 */
