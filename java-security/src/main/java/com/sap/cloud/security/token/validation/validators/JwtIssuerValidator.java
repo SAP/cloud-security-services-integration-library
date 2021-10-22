@@ -72,7 +72,7 @@ class JwtIssuerValidator implements Validator<Token> {
 			}
 		}
 		return createInvalid(
-				"Issuer is not trusted because issuer claim '{}' doesn't match any of these domains '{}' of the identity provider.",
+				"Issuer is not trusted because issuer '{}' doesn't match any of these domains '{}' of the identity provider.",
 				issuer, domains);
 	}
 
@@ -85,7 +85,7 @@ class JwtIssuerValidator implements Validator<Token> {
 			}
 			if (!issuer.startsWith("http")) {
 				return createInvalid(
-						"Issuer is not trusted because issuer claim '{}' does not provide a valid URI (missing http scheme). Please contact your Identity Provider Administrator.", issuer);
+						"Issuer is not trusted because issuer '{}' does not provide a valid URI (missing http scheme). Please contact your Identity Provider Administrator.", issuer);
 			}
 			issuerUri = new URI(issuer);
 			if (issuerUri.getQuery() == null && issuerUri.getFragment() == null && issuerUri.getHost() != null) {
@@ -97,7 +97,7 @@ class JwtIssuerValidator implements Validator<Token> {
 					issuer, e.getMessage(), e);
 		}
 		return createInvalid(
-				"Issuer is not trusted because issuer claim does not provide a valid URI. Please contact your Identity Provider Administrator.",
+				"Issuer is not trusted because issuer does not provide a valid URI. Please contact your Identity Provider Administrator.",
 				issuer);
 	}
 

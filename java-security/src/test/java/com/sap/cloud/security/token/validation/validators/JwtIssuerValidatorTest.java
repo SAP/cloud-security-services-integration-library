@@ -80,7 +80,7 @@ class JwtIssuerValidatorTest {
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith(
-				"Issuer is not trusted because issuer claim 'https://iasDomain.accounts.ondemand.com' doesn't match any of these domains '[customer.ondemand.com, accounts400.ondemand.com]' of the identity provider."));
+				"Issuer is not trusted because issuer 'https://iasDomain.accounts.ondemand.com' doesn't match any of these domains '[customer.ondemand.com, accounts400.ondemand.com]' of the identity provider."));
 	}
 
 	@Test
@@ -104,7 +104,7 @@ class JwtIssuerValidatorTest {
 
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because issuer claim"));
+		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because issuer "));
 	}
 
 	@ParameterizedTest
