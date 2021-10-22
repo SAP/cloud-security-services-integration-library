@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.CredentialType;
+
 public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration {
 
 	private String clientId;
@@ -49,4 +51,14 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 		return null;
 	}
 
+	@Override
+	public CredentialType getCredentialType() {
+		return null;
+	}
+
+	// TODO remove once credential-type is available in IAS configuration
+	@Override
+	public String getProperty(String name) {
+		return null;
+	}
 }

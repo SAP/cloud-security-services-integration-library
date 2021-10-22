@@ -23,7 +23,7 @@ The Resource owner password credentials (i.e., username and password) can be use
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.10.6</version>
+    <version>2.11.0</version>
 </dependency>
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
@@ -68,13 +68,31 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     clientIdentity);
 ```
 
-##### Cache
+#### Cache
 
-By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache can be configured by providing an
-`CacheConfiguration` object as constructor parameter. The cache can be disabled by using the
-`CacheConfiguration.CACHE_DISABLED` configuration.
+By default, the `OAuth2TokenService` implementations (DefaultOAuth2TokenService and XsuaaOAuth2TokenService) are caching tokens internally. By default up to 1000 tokens are cached for 10 minutes and the statistics are disabled. The Cache can be individually configured by providing an
+`TokenCacheConfiguration` object as constructor parameter. The cache can be disabled by using the
+`TokenCacheConfiguration.cacheDisabled()` configuration. 
 
-:exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService.java` implementation or to the `XsuaaTokenFlows`.
+##### Disable Caching
+```java
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(<CloseableHttpClient>, TokenCacheConfiguration.cacheDisabled());
+```
+:exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService` implementation or to the `XsuaaTokenFlows`.
+
+##### Disable per Request (runtime)
+```java
+tokenFlows.clientCredentialsTokenFlow().disableCache(true).execute();
+```
+
+##### Clear cache (runtime)
+```java
+// design time
+AbstractOAuth2TokenService tokenService = new DefaultOAuth2TokenService(<CloseableHttpClient>);
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService, ..., ...);
+// runtime in case of reoccurring issues
+tokenService.clearCache();
+```
 
 ## Configuration for Spring Applications
 
@@ -83,7 +101,7 @@ By default, the `DefaultOAuth2TokenService` caches tokens internally. The Cache 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>2.10.6</version>
+    <version>2.11.0</version>
 </dependency>
 <dependency>
     <groupId>org.springframework</groupId>
@@ -136,7 +154,7 @@ In context of a Spring Boot application you may like to leverage auto-configurat
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.10.6</version>
+    <version>2.11.0</version>
 </dependency>
 <dependency> <!-- required when using Spring Web `RestTemplate` with X.509 authentication method-->
   <groupId>org.apache.httpcomponents</groupId>
@@ -260,8 +278,12 @@ For spring applications using rest template, you can set
 
 ### Common Pitfalls
 
-#### New warning `In productive environment provide well configured HttpClientFactory service.` 
-As of version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service.` is exposed to the application log in case the default implementation of ``ClosableRestClient`` is used and not overwritten by an own well-defined one. <br> In case you like to overwrite [`DefaultHttpClientFactory`](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) you can register your own implementation of `HttpClientFactory` interface as following:
+#### New warning `In productive environment provide well configured HttpClientFactory service` 
+As of version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service` is exposed to the application log in case there is no own `HttpClientFactory` implementation that serves a well-configured ``ClosableRestClient``.
+
+> Instead of using the default Apache Rest Client config for productive and high available applications we recommend you to customize your http client carefully. You may need to configure the timeouts to specify how long to wait until a connection is established and how long a socket should be kept open (i.e. how long to wait for the (next) data package). As the SSL handshake is time-consuming, it might be recommended to configure an HTTP connection pool to reuse connections by keeping the sockets open. See also [Baeldung: HttpClient Connection Management"](https://www.baeldung.com/httpclient-connection-management).<br>
+
+In case you like to overwrite [`DefaultHttpClientFactory`](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) you can register your own implementation of `HttpClientFactory` interface as following:
 
 - Create a SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory.  
 - Enter the fully qualified name of your `HttpClientFactory` implementation class, e.g. `com.mypackage.CustomHttpClientFactory`.

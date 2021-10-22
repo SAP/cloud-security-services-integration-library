@@ -5,12 +5,28 @@ All notable changes to this project will be documented in this file.
 - [java-security][spring-security] supports custom domains of identity service. If `ias_iss` is given and not empty, `JwtIssuerValidator.java` checks whether its a valid url and checks whether this matches one of the valid domains of the identity service. 
 The check whether `iss` matches to any given domains is skipped in that case.
 
-## 2.10.6
-- [token-client] 
-  - `XsuaaTokenFlows` constructor accepts `com.sap.cloud.security.xsuaa.client.ClientCredentials` as argument.
+## 2.11.0
+:mega: Client Libraries support Kubernetes/Kyma environment
 - [env]
-  The extraction of `OAuth2ServiceConfiguration` for xsuaa oder ias identity provider is moved into `com.sap.cloud.security:env` client library.
-- [spring-xsuaa] `LocalAuthoritiesExtractor` supports also `appId`s that contains pipe (`|`) characters.
+  - The extraction of `OAuth2ServiceConfiguration` for xsuaa oder ias identity provider is moved into `com.sap.cloud.security:env` client library.
+  - Extended with Kubernetes/Kyma environment support
+- [samples/java-security-usage] enabled for Kyma/Kubernetes environment
+- [samples/spring-security-basic-auth] enabled for Kyma/Kubernetes environment
+- [samples/spring-security-hybrid-usage] enabled for Kyma/Kubernetes environment
+- [spring-xsuaa] `LocalAuthoritiesExtractor` supports also `appId`s that contains pipe (`|`) characters [#640](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640).
+- [spring-security] `XsuaaTokenAuthorizationConverter` supports also `appId`s that contains pipe (`|`) characters [#640](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640).
+
+#### Dependency upgrades
+- maven-javadoc-plugin 3.3.0 --> 3.3.1
+- maven-pmd-plugin 3.14.0 --> 3.15.0
+- dependency-check-maven 6.2.2 --> 6.3.1 
+- com.github.tomakehurst:wiremock-jre8-standalone 2.30.1 --> 2.31.0
+- io.projectreactor:reactor-test 3.4.9 --> 3.4.10
+- io.projectreactor:reactor-core 3.4.9 --> 3.4.10
+- org.springframework:spring.core.version  5.3.9 --> 5.3.10
+- org.springframework.boot:spring-boot 2.5.3 to 2.5.4 
+- org.mockito:mockito-core 3.11.2 --> 3.12.4
+
 
 ## 2.10.5
 - [token-client]
@@ -80,6 +96,7 @@ The check whether `iss` matches to any given domains is skipped in that case.
   - logs 'WARN' message, in case application has not overwritten the default http client. Find further information about that [here](/token-client#common-pitfalls).
 - [java-security] 
   - `IasXsuaaExchangeBroker` supports X.509 based token exchange. In case the token exchange is done via `XsuaaTokenAuthenticator` you need to provide a http client that is prepared with ssl context.
+  - `JwtIssuerValidator.java` supports custom domains of identity service. If `ias_iss` is given and not empty, `JwtIssuerValidator.java` checks whether its a valid url and checks whether this matches one of the valid domains of the identity service. The check whether `ias` matches to any given domains is skipped in that case.
   - The token keys cache does not accept cache time longer than 15 minutes.
 - [spring-xsuaa] and starter
   - As of Spring Security version 5.5.0 only `BadJwtException` results in `InvalidBearerTokenException`, which are handled and mapped to ``401`` status code. Consequently, `XsuaaJwtDecoder` raises `BadJwtException`s instead of `JwtException`s.

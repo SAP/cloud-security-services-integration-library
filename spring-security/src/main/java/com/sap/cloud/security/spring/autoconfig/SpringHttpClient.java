@@ -2,8 +2,6 @@ package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.ClientIdentity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,8 +12,6 @@ import javax.annotation.Nullable;
  * certificate (HTTPS) based communications.
  */
 class SpringHttpClient {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(SpringHttpClient.class);
 
 	private SpringHttpClient() {
 	}

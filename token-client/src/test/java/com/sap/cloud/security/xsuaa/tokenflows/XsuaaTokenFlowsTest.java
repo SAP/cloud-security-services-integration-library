@@ -5,11 +5,10 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +30,7 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.TO
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.CLIENT_CREDENTIALS;
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.XSUAA_BASE_URI;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -106,5 +106,39 @@ public class XsuaaTokenFlowsTest {
 				new com.sap.cloud.security.xsuaa.client.ClientCredentials("sb-spring-netflix-demo!t12291",
 						"2Tc2Xz7DNy4KiACwvunulmxF32w="));
 		cut.clientCredentialsTokenFlow().execute();
+	}
+
+	@Test
+	public void disableCaching() throws TokenFlowException {
+		OAuth2TokenService tokenService =
+				new XsuaaOAuth2TokenService(restOperations, TokenCacheConfiguration.cacheDisabled());
+		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService,
+				this.endpointsProvider, CLIENT_CREDENTIALS);
+		OAuth2TokenResponse response = tokenFlows.clientCredentialsTokenFlow().execute();
+		assertNotNull(response);
+		assertNotEquals(response, tokenFlows.clientCredentialsTokenFlow().execute());
+	}
+
+	@Test
+	public void disableCacheOnce() throws TokenFlowException {
+		OAuth2TokenService tokenService =
+				new XsuaaOAuth2TokenService(restOperations);
+		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService,
+				this.endpointsProvider, CLIENT_CREDENTIALS);
+		OAuth2TokenResponse response = tokenFlows.clientCredentialsTokenFlow().execute();
+		assertNotNull(response);
+		assertNotEquals(response, tokenFlows.clientCredentialsTokenFlow()
+				.disableCache(true).execute());
+	}
+
+	@Test
+	public void clearCacheOnDemand() throws TokenFlowException {
+		AbstractOAuth2TokenService tokenService = new XsuaaOAuth2TokenService(restOperations);
+		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService,
+				this.endpointsProvider, CLIENT_CREDENTIALS);
+		OAuth2TokenResponse response = tokenFlows.clientCredentialsTokenFlow().execute();
+		assertNotNull(response);
+		tokenService.clearCache();
+		assertNotEquals(response, tokenFlows.clientCredentialsTokenFlow().execute());
 	}
 }

@@ -17,6 +17,8 @@ import java.security.Principal;
 import java.time.Instant;
 import java.util.*;
 
+import static com.sap.cloud.security.token.TokenClaims.AUDIENCE;
+import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
 import static com.sap.cloud.security.token.TokenClaims.ISSUER;
 
 /**
@@ -169,7 +171,9 @@ public interface Token extends Serializable {
 	 *
 	 * @return the audiences.
 	 **/
-	Set<String> getAudiences();
+	default Set<String> getAudiences() {
+		return new LinkedHashSet<>(getClaimAsStringList(AUDIENCE));
+	}
 
 	/**
 	 * Returns the Zone identifier, which can be used as tenant discriminator
@@ -184,10 +188,23 @@ public interface Token extends Serializable {
 	 * Following OpenID Connect 1.0 standard specifications, client identifier is
 	 * obtained from "azp" claim if present or when "azp" is not present from "aud"
 	 * claim, but only in case there is one audience.
-	 * 
+	 *
+	 * @see <a href="https://openid.net/specs/openid-connect-core-1_0.html">https://openid.net/specs/openid-connect-core-1_0.html</a>
+	 *
 	 * @return the OAuth client ID.
 	 */
-	String getClientId();
+	default String getClientId() {
+		String clientId = getClaimAsString(AUTHORIZATION_PARTY);
+		if (clientId == null || clientId.trim().isEmpty()) {
+			Set<String> audiences = getAudiences();
+			if (audiences.size() == 1) {
+				return audiences.stream().findFirst().get();
+			}
+			throw new InvalidTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
+		} else {
+			return clientId;
+		}
+	}
 
 	/**
 	 * Returns the identifier for the Issuer of the token.
