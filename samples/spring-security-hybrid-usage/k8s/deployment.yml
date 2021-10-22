@@ -16,7 +16,7 @@ spec:
         - x509
     scopes:
       - name: "$XSAPPNAME.Read"
-        description: "Read Permissions."
+        description: Read Permissions.
     role-templates:
       - name: Viewer
         description: View Data
@@ -58,6 +58,8 @@ metadata:
 spec:
   clusterServiceClassExternalName: identity
   clusterServicePlanExternalName: application
+  parameters:
+    credential-type: "X509_GENERATED"
 ---
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceBinding
@@ -66,6 +68,8 @@ metadata:
 spec:
   instanceRef:
     name: ias-authn
+  parameters:
+    credential-type: "X509_GENERATED"
 ---
 apiVersion: servicecatalog.kyma-project.io/v1alpha1
 kind: ServiceBindingUsage
