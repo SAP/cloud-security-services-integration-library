@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## 2.11.1
 - [java-security][spring-security] supports custom domains of identity service. If `ias_iss` is given and not empty, `JwtIssuerValidator.java` checks whether its a valid url and checks whether this matches one of the valid domains of the identity service. The check whether `iss` matches to any given domains is skipped in that case.
-- Resolves regression in `XsuaaServiceConfigurationDefault (fixes https://github.com/SAP/cloud-security-xsuaa-integration/issues/695)
+- Resolves regression in `XsuaaServiceConfigurationDefault` (fixes [#695](https://github.com/SAP/cloud-security-xsuaa-integration/issues/695))
 
 #### Dependency upgrades
   - io.projectreactor:reactor-test 3.4.10 --> 3.4.11
