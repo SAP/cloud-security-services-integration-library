@@ -75,21 +75,32 @@ get_request() {
   host=$1
   path=$2
   token=$3
+  authorization="Authorization: "
 
   if [[ -z "$token" || "$token" == *"null"* ]]; then
     curl -I -s -X GET https://"$host"/"$path" | awk '/HTTP\/2/ {print $2}'
   else
-    curl -I -s -X GET https://"$host"/"$path" -H "Authorization: ${token}" | awk '/HTTP\/2/ {print $2}'
+    curl -I -s -X GET https://"$host"/"$path" -H "$authorization$token" | awk '/HTTP\/2/ {print $2}'
   fi
 }
 
 get_token() {
   eval "declare -A serviceConfig="${1#*=}
 
-  curl -s -X POST \
-    "${serviceConfig[url]}"/oauth/token \
-    -H 'Content-Type: application/x-www-form-urlencoded' \
-    -d "grant_type=password&client_id=${serviceConfig["clientid"]}&client_secret=${serviceConfig["clientsecret"]}&username=$USER&password=$PASSWORD" | jq -r '.access_token'
+  if [[ -z "${serviceConfig["cert"]}" ]]; then
+    curl -s -X POST \
+      "${serviceConfig[url]}"/oauth/token \
+      -H 'Content-Type: application/x-www-form-urlencoded' \
+      -d "grant_type=password&client_id=${serviceConfig["clientid"]}&client_secret=${serviceConfig["clientsecret"]}&username=$USER&password=$PASSWORD" | jq -r '.access_token'
+  else
+    echo "${serviceConfig["cert"]}" > ./cert.pem
+    echo "${serviceConfig["key"]}" > ./key.pem
+
+    curl -s --cert ./cert.pem --key ./key.pem -X POST \
+      "${serviceConfig[certurl]}"/oauth/token \
+      -H 'Content-Type: application/x-www-form-urlencoded' \
+      -d "grant_type=password&client_id=${serviceConfig["clientid"]}&username=$USER&password=$PASSWORD" | jq -r '.access_token'
+  fi
 }
 
 add_user_to_role() {
@@ -109,7 +120,7 @@ add_user_to_role() {
           \"value\": \"$USER_ID\",
           \"origin\": \"sap.default\",
           \"type\": \"USER\"}")
-  if [[ $status -ne 201 ]]; then
+  if [[ $status -ne 201 && $status -ne 409 ]]; then
     echo "Couldn't assign user $USER to role role collection $role_collection, status=$status"
   fi
 }

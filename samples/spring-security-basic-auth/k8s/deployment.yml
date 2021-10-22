@@ -80,17 +80,10 @@ spec:
             - name: xsuaa
               mountPath: "/etc/secrets/sapbtp/xsuaa/xsuaa-basic"
               readOnly: true
-            - name: service-manager
-              mountPath: "/etc/secrets/sapbtp/service-manager/sm"
-              readOnly: true
-
       volumes:
         - name: xsuaa
           secret:
               secretName: xsuaa-basic-binding
-        - name: service-manager
-          secret:
-              secretName: service-manager-binding
 ---
 apiVersion: v1
 kind: Service
