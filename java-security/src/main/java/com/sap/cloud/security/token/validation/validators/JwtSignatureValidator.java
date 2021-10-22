@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.token.TokenClaims.*;
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
 import static com.sap.cloud.security.token.validation.validators.JsonWebKey.DEFAULT_KEY_ID;
@@ -118,11 +117,11 @@ class JwtSignatureValidator implements Validator<Token> {
 			// 'jku' was validated by XsuaaJkuValidator
 			return token.getHeaderParameterAsString(KEYS_URL_PARAMETER_NAME);
 		}
-		if (configuration.getService() != Service.XSUAA && token.hasClaim(ISSUER)) {
+		if (configuration.getService() != Service.XSUAA && token.getIssuer() != null) {
 			// 'iss' claim was validated by JwtIssuerValidator
 			// don't call in case of XSA Auth Code tokens as issuer is not valid there
 			// as XSUAA issuer contains often localhost this was not validated as well
-			URI discoveryUri = DefaultOidcConfigurationService.getDiscoveryEndpointUri(token.getClaimAsString(ISSUER));
+			URI discoveryUri = DefaultOidcConfigurationService.getDiscoveryEndpointUri(token.getIssuer());
 			URI jkuUri = oidcConfigurationService
 					.getOrRetrieveEndpoints(discoveryUri)
 					.getJwksUri();
@@ -131,7 +130,7 @@ class JwtSignatureValidator implements Validator<Token> {
 			}
 		}
 		throw new IllegalArgumentException(
-				"Token signature can not be validated as jwks uri can not be determined: Token does not provide the required 'jku' header or 'issuer' claim.");
+				"Token signature can not be validated as jwks uri can not be determined: Token does not provide the required 'jku' header or issuer claim.");
 	}
 
 	// for testing

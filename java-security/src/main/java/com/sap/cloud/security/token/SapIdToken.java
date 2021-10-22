@@ -13,12 +13,14 @@ import javax.annotation.Nullable;
 
 import java.security.Principal;
 
-import static com.sap.cloud.security.token.TokenClaims.SAP_GLOBAL_USER_ID;
+import static com.sap.cloud.security.token.TokenClaims.*;
 
 /**
  * You can get further token claims from here: {@link TokenClaims}.
  */
 public class SapIdToken extends AbstractToken {
+	static final String IAS_ISSUER = "ias_iss";
+
 	public SapIdToken(@Nonnull DecodedJwt decodedJwt) {
 		super(decodedJwt);
 	}
@@ -35,6 +37,29 @@ public class SapIdToken extends AbstractToken {
 	@Override
 	public Service getService() {
 		return Service.IAS;
+	}
+
+	@Override
+	public String getIssuer() {
+		if (hasClaim(IAS_ISSUER)) {
+			return getClaimAsString(IAS_ISSUER);
+		}
+		return super.getIssuer();
+	}
+
+	/**
+	 * In case of active custom domains this returns the identifier for the Issuer
+	 * of the token. Its a URL that contains scheme, host with custom domain, and
+	 * optionally, port number and path components. This one is irrelevant for token
+	 * validation.
+	 *
+	 * @return the custom domain issuer.
+	 */
+	String getCustomIssuer() {
+		if (hasClaim(IAS_ISSUER)) {
+			return getClaimAsString(ISSUER);
+		}
+		return null;
 	}
 
 	@Nullable

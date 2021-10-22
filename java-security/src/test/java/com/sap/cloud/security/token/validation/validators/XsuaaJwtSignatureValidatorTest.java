@@ -85,7 +85,7 @@ public class XsuaaJwtSignatureValidatorTest {
 		ValidationResult result = cut.validate(tokenWithoutJkuButIssuer);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
-				containsString("Token does not provide the required 'jku' header or 'issuer' claim."));
+				containsString("Token does not provide the required 'jku' header or issuer claim."));
 	}
 
 	@Test

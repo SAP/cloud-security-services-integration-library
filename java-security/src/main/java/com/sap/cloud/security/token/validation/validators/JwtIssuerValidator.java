@@ -5,8 +5,6 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.token.TokenClaims.IAS_ISSUER;
-import static com.sap.cloud.security.token.TokenClaims.ISSUER;
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotEmpty;
@@ -56,25 +54,15 @@ class JwtIssuerValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
-		ValidationResult validationResult;
-		String iasIssuerUrl = token.getClaimAsString(IAS_ISSUER);
-		String issuerUrl = token.getClaimAsString(ISSUER);
-
-		validationResult = validateUrl(issuerUrl, ISSUER);
+		String issuer = token.getIssuer();
+		ValidationResult validationResult = validateUrl(issuer);
 		if (validationResult.isErroneous()) {
 			return validationResult;
 		}
-		if (hasValue(iasIssuerUrl)) {
-			validationResult = validateUrl(iasIssuerUrl, IAS_ISSUER);
-			if (validationResult.isErroneous()) {
-				return validationResult;
-			}
-			return matchesTokenIssuerUrl(iasIssuerUrl, IAS_ISSUER);
-		}
-		return matchesTokenIssuerUrl(issuerUrl, ISSUER);
+		return matchesTokenIssuerUrl(issuer);
 	}
 
-	private ValidationResult matchesTokenIssuerUrl(String issuer, String claimName) {
+	private ValidationResult matchesTokenIssuerUrl(String issuer) {
 		URI issuerUri = URI.create(issuer);
 		if (issuerUri.getQuery() == null && issuerUri.getFragment() == null && issuerUri.getHost() != null) {
 			for (String d : domains) {
@@ -84,22 +72,20 @@ class JwtIssuerValidator implements Validator<Token> {
 			}
 		}
 		return createInvalid(
-				"Issuer is not trusted because '{}' '{}' doesn't match any of these domains '{}' of the identity provider.",
-				claimName, issuer, domains);
+				"Issuer is not trusted because issuer '{}' doesn't match any of these domains '{}' of the identity provider.",
+				issuer, domains);
 	}
 
-	private ValidationResult validateUrl(String issuer, String claimName) {
+	private ValidationResult validateUrl(String issuer) {
 		URI issuerUri;
 		try {
 			if (issuer == null || issuer.trim().isEmpty()) {
 				return createInvalid(
-						"Issuer validation can not be performed because Jwt token does not contain '{}' claim.",
-						claimName);
+						"Issuer validation can not be performed because Jwt token does not contain an issuer claim.");
 			}
 			if (!issuer.startsWith("http")) {
 				return createInvalid(
-						"Issuer is not trusted because '{}' claim '{}' does not provide a valid URI (missing http scheme). Please contact your Identity Provider Administrator.",
-						claimName, issuer);
+						"Issuer is not trusted because issuer '{}' does not provide a valid URI (missing http scheme). Please contact your Identity Provider Administrator.", issuer);
 			}
 			issuerUri = new URI(issuer);
 			if (issuerUri.getQuery() == null && issuerUri.getFragment() == null && issuerUri.getHost() != null) {
@@ -107,16 +93,12 @@ class JwtIssuerValidator implements Validator<Token> {
 			}
 		} catch (URISyntaxException e) {
 			logger.error(
-					"Error: '{}' claim '{}' does not provide a valid URI: {}. Please contact your Identity Provider Administrator.",
-					claimName, issuer, e.getMessage(), e);
+					"Error: issuer claim '{}' does not provide a valid URI: {}. Please contact your Identity Provider Administrator.",
+					issuer, e.getMessage(), e);
 		}
 		return createInvalid(
-				"Issuer is not trusted because '{}' claim '{}' does not provide a valid URI. Please contact your Identity Provider Administrator.",
-				claimName, issuer);
-	}
-
-	private static boolean hasValue(String issuer) {
-		return issuer != null && !issuer.trim().isEmpty();
+				"Issuer is not trusted because issuer does not provide a valid URI. Please contact your Identity Provider Administrator.",
+				issuer);
 	}
 
 }

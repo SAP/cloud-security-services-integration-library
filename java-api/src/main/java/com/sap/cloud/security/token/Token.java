@@ -19,11 +19,13 @@ import java.util.*;
 
 import static com.sap.cloud.security.token.TokenClaims.AUDIENCE;
 import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
+import static com.sap.cloud.security.token.TokenClaims.ISSUER;
 
 /**
  * Represents a JSON Web Token (JWT).
  */
 public interface Token extends Serializable {
+
 	@SuppressWarnings("unchecked")
 	List<TokenFactory> services = new ArrayList() {
 		{
@@ -203,6 +205,19 @@ public interface Token extends Serializable {
 		} else {
 			return clientId;
 		}
+	}
+
+	/**
+	 * Returns the identifier for the Issuer of the token. Its a URL that contains
+	 * scheme, host, and optionally, port number and path components but no query or
+	 * fragment components. This one is validated in the {@code JwtIssuerValidator}
+	 * and used as base url to discover jwks_uri endpoint for downloading the token
+	 * keys.
+	 *
+	 * @return the issuer.
+	 */
+	default String getIssuer() {
+		return getClaimAsString(ISSUER);
 	}
 
 	/**
