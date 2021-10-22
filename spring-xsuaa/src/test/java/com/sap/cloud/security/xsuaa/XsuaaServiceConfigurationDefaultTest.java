@@ -1,41 +1,58 @@
 package com.sap.cloud.security.xsuaa;
 
-import org.junit.Before;
-import org.junit.Rule;
+import com.sap.cloud.security.config.CredentialType;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static com.sap.cloud.security.config.cf.CFConstants.CLIENT_ID;
-import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.*;
+import java.net.URI;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource(properties = {"xsuaa.clientid=client", "xsuaa.certificate=cert", "xsuaa.key=key", "xsuaa.certurl=https://my.cert.authentication.sap.com", "xsuaa.credentialtype=x509"})
+@ContextConfiguration(classes = { XsuaaServiceConfigurationDefault.class })
 public class XsuaaServiceConfigurationDefaultTest {
+
+	@Autowired
 	XsuaaServiceConfigurationDefault cut;
 
-	@Rule
-	public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-
-	@Before
-	public void setup() {
-		environmentVariables.set(VCAP_SERVICES,
-				"{\"xsuaa\":[{\"credentials\":{\"apiurl\":\"https://api.mydomain.com\",\"tenantid\":\"tenant-id\",\"subaccountid\":\"subaccount-id\",\"clientid\":\"client-id\"},\"tags\":[\"xsuaa\"]}]}");
-		cut = new XsuaaServiceConfigurationDefault();
+	@Test
+	public void getClientIdentity() {
+		assertThat(cut.getClientIdentity().getCertificate()).isEqualTo("cert");
+		assertThat(cut.getClientIdentity().getKey()).isEqualTo("key");
+		assertThat(cut.getClientIdentity().getId()).isEqualTo("client");
+		assertThat(cut.getClientIdentity().isCertificateBased()).isTrue();
 	}
 
 	@Test
-	public void getProperty() {
-		assertThat(cut.getProperty(API_URL)).isEqualTo("https://api.mydomain.com");
-		assertThat(cut.getProperty(SUBACCOUNT_ID)).isEqualTo("subaccount-id");
-		assertThat(cut.getProperty(TENANT_ID)).isEqualTo("tenant-id");
-		assertThat(cut.getProperty(CLIENT_ID)).isEqualTo("client-id");
-		assertThat(cut.getProperty("unknownProp")).isNull();
+	public void getClientId() {
+		assertThat(cut.getClientIdentity().getId()).isEqualTo(cut.getClientId()).isEqualTo("client");
 	}
 
 	@Test
-	public void hasProperty() {
-		assertThat(cut.hasProperty(API_URL)).isTrue();
-		assertThat(cut.hasProperty(SUBACCOUNT_ID)).isTrue();
-		assertThat(cut.hasProperty("unknownProp")).isFalse();
+	public void getClientSecret() {
+		assertThat(cut.getClientSecret()).isEmpty();
+	}
+
+	@Test
+	public void getCredentialType() {
+		assertThat(cut.getCredentialType()).isEqualTo(CredentialType.X509);
+	}
+
+	@Test
+	public void getCertUrl() {
+		assertThat(cut.getCertUrl()).isEqualTo(URI.create("https://my.cert.authentication.sap.com"));
+	}
+
+	@Test
+	public void unsupportedMethods() {
+		assertThatThrownBy(() -> cut.hasProperty("")).isInstanceOf(UnsupportedOperationException.class);
+		assertThatThrownBy(() -> cut.getProperty("")).isInstanceOf(UnsupportedOperationException.class);
+		assertThatThrownBy(() -> cut.getProperties()).isInstanceOf(UnsupportedOperationException.class);
 	}
 }
