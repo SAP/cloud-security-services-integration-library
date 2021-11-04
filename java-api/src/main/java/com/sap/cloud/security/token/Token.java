@@ -8,6 +8,7 @@ package com.sap.cloud.security.token;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
@@ -25,6 +26,8 @@ import static com.sap.cloud.security.token.TokenClaims.ISSUER;
  * Represents a JSON Web Token (JWT).
  */
 public interface Token extends Serializable {
+
+	Logger LOGGER = LoggerFactory.getLogger(Token.class);
 
 	@SuppressWarnings("unchecked")
 	List<TokenFactory> services = new ArrayList() {
@@ -44,6 +47,13 @@ public interface Token extends Serializable {
 	static Token create(String jwt) {
 		if (services.isEmpty()) {
 			throw new ProviderNotFoundException("No TokenFactory implementation found in the classpath");
+		}
+		if (services.size() > 1) {
+			LOGGER.error("More than 1 service provider found, will return first one from the list");
+			return services.stream()
+					.filter(tokenFactory -> !tokenFactory.getClass().getName()
+							.equals("com.sap.cloud.security.servlet.HybridTokenFactory"))
+					.findFirst().get().create(jwt);
 		}
 		return services.get(0).create(jwt);
 	}
