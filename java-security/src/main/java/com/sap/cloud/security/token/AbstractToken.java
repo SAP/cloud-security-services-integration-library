@@ -75,7 +75,7 @@ public abstract class AbstractToken implements Token {
 		return tokenBody.getAsString(claimName);
 	}
 
-	@Nullable
+	@Nonnull
 	@Override
 	public List<String> getClaimAsStringList(@Nonnull String claimName) {
 		return tokenBody.getAsStringList(claimName);

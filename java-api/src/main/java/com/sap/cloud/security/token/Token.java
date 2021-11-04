@@ -104,6 +104,7 @@ public interface Token extends Serializable {
 	 *            the name of the claim as defined here {@link TokenClaims}.
 	 * @return the data of the given claim as a list of strings or an empty list.
 	 */
+	@Nonnull
 	List<String> getClaimAsStringList(@Nonnull String claimName);
 
 	/**
