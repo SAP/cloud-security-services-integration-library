@@ -45,7 +45,7 @@ public interface Token extends Serializable {
 			throw new ProviderNotFoundException("No TokenFactory implementation found in the classpath");
 		}
 		if (services.size() > 2) {
-			throw new ProviderException("More than 2 TokenFactory service providers found. There should be only one");
+			throw new ProviderException("More than 1 Custom TokenFactory service provider found. There should be only one");
 		}
 		if (services.size() == 2) {
 			return services.stream()
