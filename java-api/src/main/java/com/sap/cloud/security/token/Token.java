@@ -33,6 +33,8 @@ public interface Token extends Serializable {
 		}
 	};
 
+	String DEFAULT_TOKEN_FACTORY = "com.sap.cloud.security.servlet.HybridTokenFactory";
+
 	/**
 	 * Creates a token instance based on TokenFactory implementation.
 	 * 
@@ -50,7 +52,7 @@ public interface Token extends Serializable {
 		if (services.size() == 2) {
 			return services.stream()
 					.filter(tokenFactory -> !tokenFactory.getClass().getName()
-							.equals("com.sap.cloud.security.servlet.HybridTokenFactory"))
+							.equals(DEFAULT_TOKEN_FACTORY))
 					.findFirst().get().create(jwt);
 		}
 		return services.get(0).create(jwt);

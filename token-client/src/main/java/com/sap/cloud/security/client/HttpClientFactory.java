@@ -30,6 +30,9 @@ public interface HttpClientFactory {
 		}
 	};
 
+	String DEFAULT_HTTP_CLIENT_FACTORY = "com.sap.cloud.security.client.DefaultHttpClientFactory";
+
+
 	/**
 	 * Provides CloseableHttpClient based on ClientIdentity details. For
 	 * ClientIdentity that is certificate based it will resolve https client using
@@ -57,7 +60,7 @@ public interface HttpClientFactory {
 		if (services.size() == 2) {
 			return services.stream()
 					.filter(httpClientFactory -> !httpClientFactory.getClass().getName()
-							.equals("com.sap.cloud.security.client.DefaultHttpClientFactory"))
+							.equals(DEFAULT_HTTP_CLIENT_FACTORY))
 					.findFirst().get().createClient(clientIdentity);
 		}
 		return services.get(0).createClient(clientIdentity);
