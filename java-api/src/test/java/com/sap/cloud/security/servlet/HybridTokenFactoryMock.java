@@ -10,7 +10,7 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenFactory;
 import org.mockito.Mockito;
 
-public class HybridTokenFactory implements TokenFactory {
+public class HybridTokenFactoryMock implements TokenFactory {
 
 	@Override
 	public Token create(String jwtToken) {
