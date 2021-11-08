@@ -52,7 +52,7 @@ public interface HttpClientFactory {
 		}
 		if (services.size() > 2) {
 			throw new ProviderException(
-					"More than 2 HttpClientFactory service providers found. There should be only one");
+					"More than 1 Custom HttpClientFactory service provider found. There should be only one");
 		}
 		if (services.size() == 2) {
 			return services.stream()
