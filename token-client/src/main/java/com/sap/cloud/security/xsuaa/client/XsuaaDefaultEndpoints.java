@@ -26,15 +26,13 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaDefaultEndpoints.class);
 
 	/**
-	 * Creates a new XsuaaDefaultEndpoints.
+	 * Creates a new XsuaaDefaultEndpoints. Can't be used in context of certificate
+	 * based authentication, as certificate url remains undefined.
 	 *
 	 * @param baseUri
 	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
 	 *            authorize and key set URI (JWKS) will be derived.
-	 * @deprecated gets removed with the major release 3.0.0 Use instead
-	 *             {@link #XsuaaDefaultEndpoints(OAuth2ServiceConfiguration)}
 	 */
-	@Deprecated
 	public XsuaaDefaultEndpoints(URI baseUri) {
 		assertNotNull(baseUri, "XSUAA base URI must not be null.");
 		LOGGER.debug("Xsuaa default service endpoint = {}", baseUri);
@@ -61,15 +59,13 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	}
 
 	/**
-	 * Creates a new XsuaaDefaultEndpoints.
+	 * Creates a new XsuaaDefaultEndpoints. Can't be used in context of certificate
+	 * based authentication, as certificate url remains undefined.
 	 *
 	 * @param baseUri
 	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
 	 *            authorize and key set URI (JWKS) will be derived.
-	 * @deprecated gets removed with the major release 3.0.0 Use instead
-	 *             {@link #XsuaaDefaultEndpoints(OAuth2ServiceConfiguration)}
 	 */
-	@Deprecated
 	public XsuaaDefaultEndpoints(String baseUri) {
 		this(URI.create(baseUri));
 	}
