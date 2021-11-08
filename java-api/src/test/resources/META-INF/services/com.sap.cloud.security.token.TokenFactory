@@ -1,2 +1,2 @@
-com.sap.cloud.security.servlet.HybridTokenFactoryMock
+com.sap.cloud.security.servlet.HybridTokenFactory
 com.sap.cloud.security.token.test.CustomTokenFactory
