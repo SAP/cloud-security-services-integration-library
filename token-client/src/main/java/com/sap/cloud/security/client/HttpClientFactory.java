@@ -11,6 +11,7 @@ import com.sap.cloud.security.token.ProviderNotFoundException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.LoggerFactory;
 
+import java.security.ProviderException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -19,6 +20,7 @@ import java.util.ServiceLoader;
  * Represents a {@link CloseableHttpClient} creation interface.
  */
 public interface HttpClientFactory {
+
 	@SuppressWarnings("unchecked")
 	List<HttpClientFactory> services = new ArrayList() {
 		{
@@ -27,6 +29,9 @@ public interface HttpClientFactory {
 					this);
 		}
 	};
+
+	String DEFAULT_HTTP_CLIENT_FACTORY = "com.sap.cloud.security.client.DefaultHttpClientFactory";
+
 
 	/**
 	 * Provides CloseableHttpClient based on ClientIdentity details. For
@@ -47,6 +52,16 @@ public interface HttpClientFactory {
 	static CloseableHttpClient create(ClientIdentity clientIdentity) throws HttpClientException {
 		if (services.isEmpty()) {
 			throw new ProviderNotFoundException("No HttpClientFactory service could be found in the classpath");
+		}
+		if (services.size() > 2) {
+			throw new ProviderException(
+					"More than 1 Custom HttpClientFactory service provider found. There should be only one");
+		}
+		if (services.size() == 2) {
+			return services.stream()
+					.filter(httpClientFactory -> !httpClientFactory.getClass().getName()
+							.equals(DEFAULT_HTTP_CLIENT_FACTORY))
+					.findFirst().get().createClient(clientIdentity);
 		}
 		return services.get(0).createClient(clientIdentity);
 	}
