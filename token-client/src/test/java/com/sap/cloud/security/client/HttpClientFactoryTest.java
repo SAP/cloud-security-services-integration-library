@@ -9,8 +9,7 @@ import com.sap.cloud.security.config.ClientCredentials;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class HttpClientFactoryTest {
 
@@ -22,7 +21,7 @@ public class HttpClientFactoryTest {
 		// Assert that custom HttpClientFactory factory has a priority over default
 		// com.sap.cloud.security.client.DefaultHttpClientFactory
 		assertFalse(cut.getClass().getName().contains("InternalHttpClient"));
-
+		assertTrue(cut.getClass().getName().contains("CloseableHttpClient$MockitoMock"));
 	}
 
 }
