@@ -85,7 +85,8 @@ class JwtIssuerValidator implements Validator<Token> {
 			}
 			if (!issuer.startsWith("http")) {
 				return createInvalid(
-						"Issuer is not trusted because issuer '{}' does not provide a valid URI (missing http scheme). Please contact your Identity Provider Administrator.", issuer);
+						"Issuer is not trusted because issuer '{}' does not provide a valid URI (missing http scheme). Please contact your Identity Provider Administrator.",
+						issuer);
 			}
 			issuerUri = new URI(issuer);
 			if (issuerUri.getQuery() == null && issuerUri.getFragment() == null && issuerUri.getHost() != null) {

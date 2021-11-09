@@ -86,6 +86,13 @@ public class XsuaaDefaultEndpointsTest {
 	}
 
 	@Test
+	public void getEndpointX509() {
+		OAuth2ServiceEndpointsProvider cut = new XsuaaDefaultEndpoints(URL, CERT_URL);
+
+		assertThat(cut.getTokenEndpoint().toString(), is(CERT_URL + "/oauth/token"));
+	}
+
+	@Test
 	public void withEndingPathDelimiter() {
 		OAuth2ServiceEndpointsProvider cut = createXsuaaDefaultEndpointProvider("http://localhost:8080/uaa/");
 
@@ -114,6 +121,6 @@ public class XsuaaDefaultEndpointsTest {
 	}
 
 	private OAuth2ServiceEndpointsProvider createXsuaaDefaultEndpointProvider(String baseUri) {
-		return new XsuaaDefaultEndpoints(baseUri);
+		return new XsuaaDefaultEndpoints(baseUri, null);
 	}
 }

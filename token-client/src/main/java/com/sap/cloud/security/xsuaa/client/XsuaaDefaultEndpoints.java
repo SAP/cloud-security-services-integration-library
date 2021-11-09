@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.URI;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -26,18 +27,36 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaDefaultEndpoints.class);
 
 	/**
-	 * Creates a new XsuaaDefaultEndpoints. Can't be used in context of certificate
-	 * based authentication, as certificate url remains undefined.
+	 * Creates a new XsuaaDefaultEndpoints.
 	 *
 	 * @param baseUri
 	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
 	 *            authorize and key set URI (JWKS) will be derived.
+	 * @deprecated gets removed with the major release 3.0.0 Use instead
+	 *             {@link #XsuaaDefaultEndpoints(String, String)}
 	 */
+	@Deprecated
 	public XsuaaDefaultEndpoints(URI baseUri) {
 		assertNotNull(baseUri, "XSUAA base URI must not be null.");
-		LOGGER.debug("Xsuaa default service endpoint = {}", baseUri);
+		LOGGER.warn("Using deprecated constructor to initialize xsuaa default service endpoint = {}", baseUri);
 		this.baseUri = baseUri;
 		this.certUri = null;
+	}
+
+	/**
+	 * Creates a new XsuaaDefaultEndpoints.
+	 *
+	 * @param baseUri
+	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
+	 *            authorize and key set URI (JWKS) will be derived. - the cert URI
+	 *            of XSUAA. It is required in case of X.509 certificate based
+	 *            authentication.
+	 */
+	public XsuaaDefaultEndpoints(String baseUri, @Nullable String certUri) {
+		assertNotNull(baseUri, "XSUAA base URI must not be null.");
+		LOGGER.debug("Xsuaa default service endpoint = {}, (cert url = {})", baseUri, certUri);
+		this.baseUri = URI.create(baseUri);
+		this.certUri = certUri != null ? URI.create(certUri) : null;
 	}
 
 	/**
@@ -59,13 +78,15 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	}
 
 	/**
-	 * Creates a new XsuaaDefaultEndpoints. Can't be used in context of certificate
-	 * based authentication, as certificate url remains undefined.
+	 * Creates a new XsuaaDefaultEndpoints.
 	 *
 	 * @param baseUri
 	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
 	 *            authorize and key set URI (JWKS) will be derived.
+	 * @deprecated gets removed with the major release 3.0.0 Use instead
+	 *             {@link #XsuaaDefaultEndpoints(String, String)}
 	 */
+	@Deprecated
 	public XsuaaDefaultEndpoints(String baseUri) {
 		this(URI.create(baseUri));
 	}
