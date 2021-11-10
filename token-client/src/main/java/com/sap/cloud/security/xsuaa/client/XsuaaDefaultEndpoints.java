@@ -53,7 +53,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 *            - the cert URI of XSUAA. It is required in case of X.509
 	 *            certificate based authentication.
 	 */
-	public XsuaaDefaultEndpoints(String baseUri, @Nullable String certUri) {
+	public XsuaaDefaultEndpoints(@Nonnull String baseUri, @Nullable String certUri) {
 		assertNotNull(baseUri, "XSUAA base URI must not be null.");
 		LOGGER.debug("Xsuaa default service endpoint: base url = {}, (cert url = {})", baseUri, certUri);
 		this.baseUri = URI.create(baseUri);
