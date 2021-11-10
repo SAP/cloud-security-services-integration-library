@@ -451,7 +451,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 */
 	XsuaaTokenFlows getXsuaaTokenFlows(String baseUaaUrl, ClientIdentity clientIdentity) {
 		return new XsuaaTokenFlows(getOrCreateOAuth2TokenService(),
-				new XsuaaDefaultEndpoints(baseUaaUrl), clientIdentity);
+				new XsuaaDefaultEndpoints(baseUaaUrl, null), clientIdentity);
 	}
 
 	private String performTokenFlow(String baseUaaUrl, int tokenRequestType, String clientId, String clientSecret,

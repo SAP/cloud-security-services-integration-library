@@ -14,7 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = {"xsuaa.clientid=client", "xsuaa.certificate=cert", "xsuaa.key=key", "xsuaa.certurl=https://my.cert.authentication.sap.com", "xsuaa.credentialtype=x509"})
+@TestPropertySource(properties = { "xsuaa.clientid=client", "xsuaa.certificate=cert", "xsuaa.key=key",
+		"xsuaa.certurl=https://my.cert.authentication.sap.com", "xsuaa.credentialtype=x509" })
 @ContextConfiguration(classes = { XsuaaServiceConfigurationDefault.class })
 public class XsuaaServiceConfigurationDefaultTest {
 
