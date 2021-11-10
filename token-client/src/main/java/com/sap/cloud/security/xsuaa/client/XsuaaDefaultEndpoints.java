@@ -50,9 +50,8 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
 	 *            authorize and key set URI (JWKS) will be derived.
 	 * @param certUri
-	 *            - the cert URI
-	 *            of XSUAA. It is required in case of X.509 certificate based
-	 *            authentication.
+	 *            - the cert URI of XSUAA. It is required in case of X.509
+	 *            certificate based authentication.
 	 */
 	public XsuaaDefaultEndpoints(String baseUri, @Nullable String certUri) {
 		assertNotNull(baseUri, "XSUAA base URI must not be null.");
