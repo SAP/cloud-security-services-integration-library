@@ -1,0 +1,2 @@
+com.sap.cloud.security.client.DefaultHttpClientFactory
+com.sap.cloud.security.client.TestHttpClientFactory

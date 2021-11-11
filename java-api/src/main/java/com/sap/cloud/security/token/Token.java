@@ -14,12 +14,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.security.Principal;
+import java.security.ProviderException;
 import java.time.Instant;
 import java.util.*;
 
-import static com.sap.cloud.security.token.TokenClaims.AUDIENCE;
-import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
-import static com.sap.cloud.security.token.TokenClaims.ISSUER;
+import static com.sap.cloud.security.token.TokenClaims.*;
 
 /**
  * Represents a JSON Web Token (JWT).
@@ -34,6 +33,8 @@ public interface Token extends Serializable {
 		}
 	};
 
+	String DEFAULT_TOKEN_FACTORY = "com.sap.cloud.security.servlet.HybridTokenFactory";
+
 	/**
 	 * Creates a token instance based on TokenFactory implementation.
 	 * 
@@ -44,6 +45,15 @@ public interface Token extends Serializable {
 	static Token create(String jwt) {
 		if (services.isEmpty()) {
 			throw new ProviderNotFoundException("No TokenFactory implementation found in the classpath");
+		}
+		if (services.size() > 2) {
+			throw new ProviderException("More than 1 Custom TokenFactory service provider found. There should be only one");
+		}
+		if (services.size() == 2) {
+			return services.stream()
+					.filter(tokenFactory -> !tokenFactory.getClass().getName()
+							.equals(DEFAULT_TOKEN_FACTORY))
+					.findFirst().get().create(jwt);
 		}
 		return services.get(0).create(jwt);
 	}

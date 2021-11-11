@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 
@@ -63,6 +64,14 @@ public interface XsuaaServiceConfiguration extends OAuth2ServiceConfiguration {
 	@Override
 	default boolean hasProperty(String name) {
 		throw new UnsupportedOperationException("hasProperty method is not supported");
+	}
+
+	@Override
+	default ClientIdentity getClientIdentity() {
+		throw new UnsupportedOperationException(
+				"This default method needs to be overridden to be used! Default method from " +
+						"com.sap.cloud.security.config.OAuth2ServiceConfiguration#getClientIdentity() " +
+						"is not compatible with XsuaaServiceConfiguration interface");
 	}
 
 	@Override
