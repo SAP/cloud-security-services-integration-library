@@ -1,8 +1,178 @@
-# Change Log 
-
+# Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.8.8
+## 2.11.2
+- [spring-xsuaa] fixes issue in `TokenBrokerResolver` for `CLIENT_CREDENTIALS` method (issue [705](https://github.com/SAP/cloud-security-xsuaa-integration/issues/705))
+
+## 2.11.1
+- [java-security][spring-security] supports custom domains of identity service. If `ias_iss` is given and not empty, `JwtIssuerValidator.java` checks whether its a valid url and checks whether this matches one of the valid domains of the identity service. The check whether `iss` matches to any given domains is skipped in that case.
+- Resolves regression in `XsuaaServiceConfigurationDefault` (fixes [#695](https://github.com/SAP/cloud-security-xsuaa-integration/issues/695))
+
+#### Dependency upgrades
+  - io.projectreactor:reactor-test 3.4.10 --> 3.4.11
+  - io.projectreactor:reactor-core 3.4.10 --> 3.4.11
+  - org.springframework:spring.core.version  5.3.10 --> 5.3.12
+  - org.springframework.boot:spring-boot 2.5.4 to 2.5.6 
+
+
+## 2.11.0
+:mega: Client Libraries support Kubernetes/Kyma environment
+- [env]
+  - The extraction of `OAuth2ServiceConfiguration` for xsuaa oder ias identity provider is moved into `com.sap.cloud.security:env` client library.
+  - Extended with Kubernetes/Kyma environment support
+- [samples/java-security-usage] enabled for Kyma/Kubernetes environment
+- [samples/spring-security-basic-auth] enabled for Kyma/Kubernetes environment
+- [samples/spring-security-hybrid-usage] enabled for Kyma/Kubernetes environment
+- [spring-xsuaa] `LocalAuthoritiesExtractor` supports also `appId`s that contains pipe (`|`) characters [#640](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640).
+- [spring-security] `XsuaaTokenAuthorizationConverter` supports also `appId`s that contains pipe (`|`) characters [#640](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640).
+
+#### Dependency upgrades
+- maven-javadoc-plugin 3.3.0 --> 3.3.1
+- maven-pmd-plugin 3.14.0 --> 3.15.0
+- dependency-check-maven 6.2.2 --> 6.3.1 
+- com.github.tomakehurst:wiremock-jre8-standalone 2.30.1 --> 2.31.0
+- io.projectreactor:reactor-test 3.4.9 --> 3.4.10
+- io.projectreactor:reactor-core 3.4.9 --> 3.4.10
+- org.springframework:spring.core.version  5.3.9 --> 5.3.10
+- org.springframework.boot:spring-boot 2.5.3 to 2.5.4 
+- org.mockito:mockito-core 3.11.2 --> 3.12.4
+
+
+## 2.10.5
+- [token-client]
+  - new method `SSLContextFactory.createKeyStore(ClientIdentity)`
+  - `XsuaaTokenFlows` constructor accepts `com.sap.cloud.security.xsuaa.client.ClientCredentials` as argument.
+  
+#### Dependency upgrades
+- org.springframework.security:spring-security-oauth2-jose 5.5.1 --> 5.5.2
+- org.springframework.security:spring-security-oauth2-resource-server 5.5.1 --> 5.5.2
+- org.springframework.security:spring-security-oauth2-jose 5.5.1 --> 5.5.2
+- org.springframework.security:spring-boot-starter-test 5.5.1 --> 5.5.2
+
+## 2.10.4
+- [java-security] Enrich `JsonParsingException` to detect wrong authorization headers earlier
+- [token-client] 
+  - `ClientCredentials`: solves incompatible change between 2.9.0 and 2.10.0
+  - `OAuth2TokenResponse.getTokenType()` exposes token type as provided by token request 
+- [spring-xsuaa] 
+  - `XsuaaServiceConfigurationDefault.hasProperty("apiurl")` returns true if VCAP_SERVICES-xsuaa-credentials contains attribute "apiurl"
+  -`XsuaaServiceConfigurationDefault.getProperty("apiurl")` returns value from VCAP_SERVICES-xsuaa-credentials-apiurl or null, if attribute does not exist.
+- [spring-security]`HybridJwtDecoder` raises ``BadJwtException`` in case the token is invalid and can not be decoded properly. 
+
+#### Dependency upgrades
+- wiremock 2.29.1 --> 2.30.1
+- io.projectreactor:reactor-core 3.4.8 --> 3.4.9  
+- io.projectreactor:reactor-test 3.4.8 --> 3.4.9
+
+## 2.10.3
+#### Dependency upgrades
+- org.springframework.boot:spring-boot 2.5.0 --> 2.5.2
+- slf4j-api 1.7.30 --> 1.7.32
+- caffeine 2.8.8 --> 2.9.2
+- mockito 3.10.0 --> 3.11.2
+- assertj 3.19.0 --> 3.20.2
+- commons-io:commons-io 2.9.0 --> 2.11.0
+- io.projectreactor:reactor-test 3.4.5 -> 3.4.8
+- io.projectreactor:reactor-core 3.4.6 --> 3.4.8
+- com.github.tomakehurst:wiremock-jre8-standalone 2.27.2 --> 2.29.1
+- removes mockwebserver from parent
+
+## 2.10.2
+- [spring-security] and starter are released with project version: ``2.10.2``.
+- [spring-xsuaa] `TokenBrokerResolver` supports X.509 authentication method. 
+- [samples/spring-security-basic-auth] deprecates the xsuaa security descriptor with a client secret authentication, default now is X.509 based authentication.
+- [java-security-test] requires ``javax.servlet:javax.servlet-api`` dependency to be provided.
+
+## 2.10.1 and 0.3.1 [BETA]
+#### Dependency upgrades
+- org.springframework.boot:spring-boot 2.5.0 --> 2.5.2
+- org.springframework:spring-core 5.3.7 --> 5.3.8
+- org.springframework.security:spring-security-oauth2-jose 5.5.0 --> 5.5.1
+- org.springframework.security:spring-security-oauth2-resource-server 5.5.0 --> 5.5.1
+- org.springframework.security:spring-security-oauth2-jose 5.5.0 --> 5.5.1
+- org.springframework.security:spring-boot-starter-test 5.5.0 --> 5.5.1
+- org.springframework.security.oauth:spring-security-oauth2 2.5.0.RELEASE --> 2.5.1.RELEASE
+- [samples] Upgraded [approuter](https://www.npmjs.com/package/@sap/approuter) version to "^10.4.3"
+
+## 2.10.0 and 0.3.0 [BETA]
+- [java-api] provides `ClientIdentity` with 2 implementations: `ClientCredentials` and `ClientCertificate`
+- [token-client] 
+  - `XsuaaTokenFlows` supports X.509 authentication method. In order to enable X.509 you probably need to provide ``org.apache.httpcomponents:httpclient`` as dependency and need to configure ``XsuaaTokenFlows`` differently:
+    - `XsuaaDefaultEndpoints(url)` must be replaced with `XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>)`.
+    - `DefaultOAuth2TokenService` constructors that are not parameterized with `CloseableHttpClient` are deprecated, as they do not support X.509.
+    - `XsuaaOAuth2TokenService` constructors that are not parameterized with `RestOperations` are deprecated, as they do not support X.509.
+    - Find more detailed information [here](/token-client).
+  - ``SSLContextFactory`` class, which was marked as deprecated, is moved to `com.sap.cloud.security.mtls` package.
+  - logs 'WARN' message, in case application has not overwritten the default http client. Find further information about that [here](/token-client#common-pitfalls).
+- [java-security] 
+  - `IasXsuaaExchangeBroker` supports X.509 based token exchange. In case the token exchange is done via `XsuaaTokenAuthenticator` you need to provide a http client that is prepared with ssl context.
+  - The token keys cache does not accept cache time longer than 15 minutes.
+- [spring-xsuaa] and starter
+  - As of Spring Security version 5.5.0 only `BadJwtException` results in `InvalidBearerTokenException`, which are handled and mapped to ``401`` status code. Consequently, `XsuaaJwtDecoder` raises `BadJwtException`s instead of `JwtException`s.
+  - `XsuaaTokenFlowAutoconfiguration` supports X.509 based authentication. You need to provide ``org.apache.httpcomponents:httpclient`` as dependency.
+  - `IasXsuaaExchangeBroker` can be configured with (autoconfigured) `XsuaaTokenFlow` to enable X.509 based authentication.
+  - As of version ``2.10`` a warning `In productive environment provide a well configured client secret based RestOperations bean.` is exposed to the application log in case the default implementation of ``RestOperations`` is used and not overwritten by an own well-defined one. See also [here](/spring-xsuaa#resttemplate--restoperations).
+- [spring-security] and starter
+  - `XsuaaTokenFlowAutoconfiguration` supports X.509 based authentication. You need to provide ``org.apache.httpcomponents:httpclient`` as dependency.
+  - `HybridJwtDecoder` raises `BadJwtException`s instead of `AccessDeniedException`s.
+  - As of version ``2.10`` a warning `In productive environment provide a well configured client secret based RestOperations bean.` is exposed to the application log in case the default implementation of ``RestOperations`` is used and not overwritten by an own well-defined one. 
+- [samples/java-tokenclient-usage] uses X.509 based authentication for `XsuaaTokenflows`
+- [samples/spring-security-xsuaa-usage] deprecates the xsuaa security descriptor with a client secret authentication, default now is X.509 based authentication.
+- [samples/spring-security-hybrid-usage] switched now to X.509 based authentication.
+
+## 2.9.0 and 0.2.0 [BETA]
+- [java-security] and [spring-security] validates IAS OIDC tokens from multiple IAS tenants and zones. <br>**Prerequisite:** identity service broker needs to provide list of `domains` via `VCAP_SERVICES`-`identity`-`credentials`.
+- [spring-security] Resource Server raises ``InvalidBearerTokenException`` in case token couldn't be successfully validated (as documented [here](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver-bearertoken-failure)). Adapt your configuation locally according to this [documentation](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-security#minimal-configuration-required).
+
+#### Dependency upgrades
+- commons-io:commons-io 2.8.0 --> 2.9.0
+- org.springframework.boot:spring-boot 2.4.5 --> 2.5.0
+- org.springframework:spring-core 5.3.6 --> 5.3.7
+- org.springframework.security:spring-security-oauth2-jose 5.4.6 --> 5.5.0
+- org.springframework.security:spring-security-oauth2-resource-server 5.4.6 --> 5.5.0
+- org.springframework.security:spring-security-oauth2-jose 5.4.6 --> 5.5.0
+- org.springframework.security:spring-boot-starter-test 5.4.6 --> 5.5.0
+- org.junit.jupiter 5.7.1 --> 5.7.2
+- org.mockito:mockito-core 3.9.0 --> 3.10.0
+
+## 2.8.13
+- [token-client] **Bug fix** As of now, client-credential and jwt bearer user tokens are not cached in case tokenflow is configured with zone-id (instead of subdomain).
+- [java-security] provides `SapIdToken.getCnfX509Thumbprint()` method to provide thumbprint of certificate, in case token was requested via X509 based authentication.
+- [java-api] provides `Token.getGrantType()` method, proprietary `GrantType.CLIENT_X509` gets deprecated.
+  
+## 0.1.6 [BETA]
+- [spring-security] and [spring-security-starter] `HybridIdentityServicesAutoConfiguration` supports Identity service configuration alone, by setting up `IasJwtDecoder`
+
+## 2.8.12 and 0.1.5 [BETA]
+- [token-client] ```OAuth2ServiceException``` provides ```getHttpStatusCode()```. This allows applications to retry e.g. in case of ```429``` - when the request was rate limited.
+
+#### Dependency upgrades
+- spring.security.version 5.4.5 --> 5.4.6
+- spring.core.version 5.3.5 --> 5.3.6
+- spring.boot.version 2.4.4 --> 2.4.5
+- org.json.version 20201115 --> 20210307
+- junit.version 4.13.1 --> 4.13.2
+- junit-jupiter.version 5.7.0 --> 5.7.1
+- reactor.version 3.4.2 --> 3.4.5
+- reactor.test.version 3.4.2 --> 3.4.5
+
+    
+## 2.8.10 and 0.1.4 [BETA]
+- [spring-xsuaa] introduced spring properties for IAS -> Xsuaa token exchange activation, as described [here](/spring-xsuaa/README.md#ias-to-xsuaa-token-exchange)
+- [java-security-test] uses jetty BoM to fix CVE-2021-28164 and CVE-2021-28165.
+  - jetty 9.4.38.v20210224 --> 9.4.39.v20210325
+
+## 2.8.9 and 0.1.3 [BETA]
+- [java-security-test] and java samples to fix CVE-2021-28164 and CVE-2021-28165.
+  - jetty 9.4.38.v20210224 --> 9.4.39.v20210325
+- [spring-xsuaa]
+  - exclude transient dependency to net.minidev:json-smart to resolve CVE-2021-27568
+- [xsuaa-spring-boot-starter] [resourceserver-security-spring-boot-starter]
+  - spring-boot-starter 2.4.3 --> 2.4.4
+  - spring-boot-starter-security 2.4.3 --> 2.4.4
+  - net.minidev:json-smart 2.3 --> 2.4.2 to resolve CVE-2021-27568
+  
+## 2.8.8 and 0.1.2 [BETA]
 - [java-security-test] and java samples
   - jetty 9.4.36.v20210114 --> 9.4.38.v20210224 (seems to be incompatible with javax.servlet-api 3.1.0)
   - javax.servlet:javax.servlet-api 3.1.0 --> 4.0.1 (recommended version)
@@ -34,7 +204,7 @@ All notable changes to this project will be documented in this file.
 - [java-security] Make HybridTokenFactory more failure tolerant 
 - [spring-xsuaa-test] Prefills "ext_atr" "enhancer" with XSUAA
 
-#### Update Versions
+#### Dependency upgrades
 - [all]
   - commons-io 2.6 --> 2.8.0
   - org.apache.httpcomponents » httpclient 4.5.9 --> 4.5.13
@@ -66,10 +236,11 @@ All notable changes to this project will be documented in this file.
 - [spring-xsuaa]   
   - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/spring-xsuaa#ias-to-xsuaa-token-exchange).
   - Replaces dependencies to JSON Parser of ``net.minidev`` with `org.json` (fixes #414).
-  - The following dependencies were updated:
-    - spring.boot.version 2.3.5.RELEASE --> 2.4.1
-    - spring.core.version 5.2.10.RELEASE --> 5.3.2
-    - spring.security.version 5.3.5.RELEASE --> 5.4.2
+  
+#### Dependency upgrades
+- spring.boot.version 2.3.5.RELEASE --> 2.4.1
+- spring.core.version 5.2.10.RELEASE --> 5.3.2
+- spring.security.version 5.3.5.RELEASE --> 5.4.2
 
 ## 2.8.0
 - [java-security] 

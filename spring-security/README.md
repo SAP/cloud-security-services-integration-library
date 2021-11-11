@@ -1,6 +1,6 @@
-# SAP CP Spring Security Client Library - Version 0.1.0 [BETA]
+# SAP BTP Spring Security Client Library
 
-Token Validation for Spring Boot applications. It integrates [```java-security```](/java-security) to Spring Security Framework to support validations for tokens issued by these SAP Cloud Platform identity services: `xsuaa` and `identity`.
+Token Validation for Spring Boot applications. It integrates [```java-security```](/java-security) to Spring Security Framework to support validations for tokens issued by these SAP Business Technology Platform identity services: `xsuaa` and `identity`.
 
 It fully integrates with [Spring Security OAuth 2.0 Resource Server](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver).
 - The credentials from the identity services can be configured as configuration properties.
@@ -9,11 +9,11 @@ It fully integrates with [Spring Security OAuth 2.0 Resource Server](https://doc
 
 ## Supported Environments
 - Cloud Foundry
-- Planned: Kubernetes
+- Kubernetes/Kyma
 
 ## Supported Identity Services
 - XSUAA
-- IAS (only single tenant)
+- IAS tokens from multiple tenants and zones
 
 ## Supported Algorithms
 
@@ -23,6 +23,17 @@ It fully integrates with [Spring Security OAuth 2.0 Resource Server](https://doc
 
 
 ## Configuration
+
+### :mega: Service configuration in Kubernetes/Kyma environment 
+To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container. 
+Library will look up the configuration files in the following paths:
+- XSUAA: `/etc/secrets/sapbtp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
+- IAS: `/etc/secrets/sapbtp/identity/<YOUR IAS INSTANCE NAME>`
+- Service-manager: `/etc/secrets/sapbtp/service-manager/<YOUR SERVICE-MANAGER NAME>`
+
+:exclamation: service-manager binding is mandatory to resolve multiple Xsuaa bindings! If it is not provided the first Xsuaa binding from a list is used and treated as instance with `application` plan.
+
+Detailed information on how to use ``spring-security`` library in Kubernetes/Kyma environment can be found in [spring-security-hybrid-usage](/samples/spring-security-hybrid-usage/README.md#deployment-on-kymakubernetes) sample README.
 
 ### Maven Dependencies
 These (spring) dependencies needs to be provided:
@@ -34,7 +45,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>0.1.0</version> <!-- TODO-->
+    <version>2.11.2</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -49,8 +60,8 @@ Then it auto-configures beans, that are required to initialize the Spring Boot a
 Auto-configuration class | Description
 ---- | --------
 [HybridAuthorizationAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridAuthorizationAutoConfiguration.java) | Creates a converter ([XsuaaTokenAuthorizationConverter](/spring-security/src/main/java/com/sap/cloud/security/spring/token/authentication/XsuaaTokenAuthorizationConverter.java)) that removes the xsuaa application identifier from the scope names to enable local scope checks using [Spring's common built-in expression](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#el-common-built-in) `hasAuthority`.
-[HybridIdentityServicesAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridAuthorizationAutoConfiguration.java) | Configures a `JwtDecoder` which is able to decode and validate tokens from Xsuaa and Identity service. Furthermore it registers the `XsuaaServiceConfiguration` and `IdentityServiceConfiguration` classes, that gets configured with `xsuaa.*` and `identity.*` properties.
-[XsuaaTokenFlowAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean to fetch the XSUAA service binding information.
+[HybridIdentityServicesAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridIdentityServicesAutoConfiguration.java) | Configures a `JwtDecoder` which is able to decode and validate tokens from Xsuaa and Identity service or Identity service alone. Furthermore it registers the `IdentityServiceConfiguration` and optionally `XsuaaServiceConfiguration`, that gets configured with `identity.*` and `xsuaa.*` properties.
+[XsuaaTokenFlowAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean to fetch the XSUAA service binding information. Starting with `2.10.0` version it supports X.509 based authentication.
 [SecurityContextAutoConfiguration](/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/SecurityContextAutoConfiguration.java) | Configures [`JavaSecurityContextHolderStrategy`](/spring-security/src/main/java/com/sap/cloud/security/spring/token/authentication/JavaSecurityContextHolderStrategy.java) class as `SecurityContextHolderStrategy` keeps the `com.sap.cloud.security.token.SecurityContext` in sync.
 
 
@@ -73,7 +84,7 @@ Configure your application as Spring Security OAuth 2.0 Resource Server for auth
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     
     @Autowired
-    Converter<Jwt, AbstractAuthenticationToken> authConverter;
+    Converter<Jwt, AbstractAuthenticationToken> authConverter; // required in case of xsuaa
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -105,7 +116,7 @@ In this sample it delegates to the autowired `authConverter` in case of an Xsuaa
 class MyCustomTokenAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     public AbstractAuthenticationToken convert(Jwt jwt) {
-        if(jwt.containsClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
+        if(jwt.containsClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) { // required in case of xsuaa
             return authConverter.convert(jwt); // @Autowired Converter<Jwt, AbstractAuthenticationToken> authConverter;
         }
         return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
@@ -167,7 +178,7 @@ XsuaaServiceConfiguration xsuaaServiceConfiguration;
 XsuaaServiceConfigurations xsuaaServiceConfigurations;
 ```
 
-... in case you are bound to a ```identity``` service instance
+... in case you are bound to an ```identity``` service instance
 ```java
 @Autowired
 IdentityServiceConfiguration identityServiceConfiguration;
@@ -225,17 +236,16 @@ In case of local testing, there might be no ``VCAP_SERVICES`` system environment
 Go to `application.yml` and provide for example the following configuration:
 ```yaml
 sap.security.services:
+    identity:
+      clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
+      domains:   
+        - localhost                 # SecurityTest.DEFAULT_DOMAIN
     xsuaa:
       xsappname: xsapp!t0815        # SecurityTest.DEFAULT_APP_ID
       uaadomain: localhost          # SecurityTest.DEFAULT_DOMAIN
       clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
       url:       http://localhost   # SecurityTest.DEFAULT_URL
     # clientsecret:  required for token-flows api
-    
-    identity:
-      clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
-      domain:    localhost          # SecurityTest.DEFAULT_DOMAIN
-      url:       http://localhost   # SecurityTest.DEFAULT_URL
 ```  
 	
 
@@ -255,7 +265,6 @@ Finally, it should look as following:
 ````
 
 ## Troubleshoot
-
 In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
 and provide these details:
 - security related dependencies, get maven dependency tree with `mvn dependency:tree`

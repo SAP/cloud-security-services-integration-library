@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.extractor;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
@@ -41,14 +46,10 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 		return verificationKey;
 	}
 
-	/*
-	 * @Nullable
-	 * 
-	 * @Override public String getCertificates() { return null; }
-	 * 
-	 * @Nullable
-	 * 
-	 * @Override public String getPrivateKey() { return null; }
-	 */
+	// TODO remove once credential-type is available in IAS configuration
+	@Override
+	public String getProperty(String name) {
+		return null;
+	}
 
 }

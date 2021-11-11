@@ -2,7 +2,7 @@
 
 Token Validation for Java applications.
 
-- Loads Identity Service Configuration from `VCAP_SERVICES` environment. The [`Environments`](src/main/java/com/sap/cloud/security/config/Environments.java) serves as central entry point to get or parse the  [`OAuth2ServiceConfiguration`](src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java) within SAP Cloud Platform.
+- Loads Identity Service Configuration from `VCAP_SERVICES` in Cloud Foundry or from secrets in Kubernetes environment. The [`Environments`](src/main/java/com/sap/cloud/security/config/Environments.java) serves as central entry point to get or parse the  [`OAuth2ServiceConfiguration`](src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java) within SAP Business Technology Platform.
 - Decodes and parses encoded JSON Web Tokens ([`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java)) and provides convenient access to token header parameters and claims. A Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.org/html/rfc7519). 
 - Validates the decoded token. The [`JwtValidatorBuilder`](src/main/java/com/sap/cloud/security/token/validation/validators/JwtValidatorBuilder.java) comprises the following mandatory checks:
   - Is the JWT used before the `exp` (expiration) time and eventually is it used after the `nbf` (not before) time ([`JwtTimestampValidator`](
@@ -26,11 +26,12 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
 
 ## Supported Environments
 - Cloud Foundry
-- Planned: Kubernetes
+- Kubernetes/Kyma
 
 ## Supported Identity Services
 - XSUAA
-- as of version `2.8.0` IAS (:bulb: no multi-tenancy support yet)
+- as of version `2.8.0` IAS
+- as of version `2.9.0` IAS tokens from multiple tenants and zones
 
 ## Supported Algorithms
 
@@ -46,7 +47,7 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.8.8</version>
+    <version>2.11.2</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -76,7 +77,7 @@ logger options.
 ```java
 OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaConfiguration();
 ```
-> Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes.
+> Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes. 
 
 Alternatively you can also specify the Service Configuration by your own:
 ```java
@@ -88,6 +89,18 @@ OAuth2ServiceConfiguration serviceConfig = OAuth2ServiceConfigurationBuilder.for
       .withClientSecret("oauth-client-secret")
       .build();
 ```
+:bulb: `OAuth2ServiceConfiguration.getClientIdentity()` is a convenience method that with `OAuth2ServiceConfigurationBuilder` implementation will resolve `ClientCredentials` or `ClientCertificate` implementations of `ClientIdentity` interface based on the `credential-type` from the Xsuaa service binding. Therefore, providing the correct implementation for the configured authentication type e.g. X.509 or client secret based.
+
+#### :mega: Service configuration in Kubernetes/Kyma environment 
+To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container. 
+Library will look up the configuration files in the following paths:
+- XSUAA: `/etc/secrets/sapbtp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
+- IAS: `/etc/secrets/sapbtp/identity/<YOUR IAS INSTANCE NAME>`
+- Service-manager: `/etc/secrets/sapbtp/service-manager/<YOUR SERVICE-MANAGER NAME>`
+
+:exclamation: service-manager binding is mandatory to resolve multiple Xsuaa bindings! If it is not provided the first Xsuaa binding from a list is used and treated as instance with `application` plan.
+
+Detailed information on how to use ``java-security`` library in Kubernetes/Kyma environment can be found in [java-security-usage](/samples/java-security-usage/README.md#deployment-on-kymakubernetes) sample README.
 
 ### Setup Step 2: Setup Validators
 Now configure the `JwtValidatorBuilder` once with the service configuration from the previous step.
@@ -114,7 +127,7 @@ This decodes an encoded JSON Web Token (JWT) and parses its json header and payl
 
 ```java
 String authorizationHeader = "Bearer eyJhbGciOiJGUzI1NiJ2.eyJhh...";
-Token token = new XsuaaToken(authorizationHeader);
+Token token = Token.create(authorizationHeader); // supports tokens issued by xsuaa and ias
 ```
 
 ### Validate Token to check Authentication
@@ -230,22 +243,25 @@ The buildpack being used is defined in your deployment descriptor e.g. as part o
 [buildpacks](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack) attribute.
 
 If it is set to `sap_java_buildpack` then the **newest** available version of the SAP Java buildpack is used.
-Use command `cf buildpacks` to get the exact version of `sap_java_buildpack`:
+Use command `cf app <app-name>` to get the exact version of `sap_java_buildpack`:
 
 ```sh
-buildpack                       position   enabled   locked   filename                                             stack
-java_buildpack                  2          true      false    java_buildpack-cached-cflinuxfs3-v4.31.1.zip         cflinuxfs3
-.
-.
-.
-sap_java_buildpack              12         true      false    sap_java_buildpack-v1.32.0.zip
-sap_java_buildpack_1_32         13         true      false    sap_java_buildpack-v1.32.0.zip
-sap_java_buildpack_1_31         14         true      false    sap_java_buildpack-v1.31.2.zip
+Showing health and status for app <app-name> in org ... / space ... as ...
+name:              <app-name>
+requested state:   started
+routes:            ...
+last uploaded:     Thu 06 May 14:31:01 CEST 2021
+stack:             cflinuxfs3
+buildpacks:
+    sap_java_buildpack_1_33
 ```
+Reference: https://cli.cloudfoundry.org/en-US/v7/app.html
 
 ### Increase log level to `DEBUG`
 
 This depends on the SLF4J implementation, you make use of (see also [here](#logging)). You have to set the debug log level for this package `com.sap.cloud.security`.
+
+:bulb: See [java-security-usage](../samples/java-security-usage/src/main/resources/simplelogger.properties) example for [SimpleLogger](http://www.slf4j.org/api/org/slf4j/impl/SimpleLogger.html) implementation's logging level setup.
 
 #### ... when using SAP Java Buildpack
 

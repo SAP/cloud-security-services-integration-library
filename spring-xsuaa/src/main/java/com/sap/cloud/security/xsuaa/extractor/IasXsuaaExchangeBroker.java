@@ -1,8 +1,17 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.extractor;
 
+import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.CredentialType;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
@@ -10,7 +19,6 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 
 import javax.annotation.Nullable;
@@ -32,34 +40,46 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 		this.xsuaaTokenFlows = xsuaaTokenFlows;
 	}
 
-	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration, OAuth2TokenService tokenService) {
+	public IasXsuaaExchangeBroker(OAuth2ServiceConfiguration configuration, OAuth2TokenService tokenService) {
+		ClientIdentity clientIdentity = configuration.getClientIdentity();
+		logger.debug("Initializing XsuaaTokenFlow ({} based authentication)",
+				configuration.getCredentialType() == CredentialType.X509 ? "certificate" : "client secret");
 		this.xsuaaTokenFlows = new XsuaaTokenFlows(
 				tokenService,
-				new XsuaaDefaultEndpoints(configuration.getUaaUrl()),
-				new ClientCredentials(configuration.getClientId(), configuration.getClientSecret()));
+				new XsuaaDefaultEndpoints(configuration),
+				clientIdentity);
+
 	}
 
-	public IasXsuaaExchangeBroker(XsuaaServiceConfiguration configuration) {
+	/**
+	 * @deprecated In favor of {{@link #IasXsuaaExchangeBroker(XsuaaTokenFlows)}
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
+	 */
+	@Deprecated
+	public IasXsuaaExchangeBroker(OAuth2ServiceConfiguration configuration) {
 		this(configuration, new XsuaaOAuth2TokenService());
 	}
 
 	@Override
 	@Nullable
 	public String resolve(HttpServletRequest request) {
+		String oAuth2Token = extractTokenFromRequest(request);
+		if (oAuth2Token == null) {
+			logger.info("Request did not have Authorization header containing bearer token, skipping token exchange.");
+			return null;
+		}
 		try {
-			String oAuth2Token = extractTokenFromRequest(request);
-
 			if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
 				DecodedJwt decodedJwt = TokenUtil.decodeJwt(oAuth2Token);
 				if (!TokenUtil.isXsuaaToken(decodedJwt)) {
 					return doIasXsuaaXchange(decodedJwt);
 				}
 			}
-			return oAuth2Token;
 		} catch (JSONException e) {
 			logger.error("Couldn't decode the token: {}", e.getMessage());
 		}
-		return null;
+		return oAuth2Token;
 	}
 
 	/**
@@ -91,12 +111,13 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 		return new IasToken(jwt);
 	}
 
+	@Nullable
 	private String extractTokenFromRequest(HttpServletRequest request) {
 		String authHeader = request.getHeader(AUTH_HEADER);
 
 		if (authHeader != null && authHeader.toLowerCase().startsWith("bearer")) {
 			return authHeader.substring("bearer".length()).trim();
 		}
-		throw new InvalidBearerTokenException("Invalid authorization header");
+		return null;
 	}
 }

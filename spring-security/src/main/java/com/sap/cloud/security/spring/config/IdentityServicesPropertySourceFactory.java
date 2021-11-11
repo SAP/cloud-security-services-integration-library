@@ -1,14 +1,12 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.config;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
 
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.Environments;
-import com.sap.cloud.security.config.cf.CFEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -17,6 +15,13 @@ import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+
+import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
 
 /**
  * Part of Auto Configuration {@code HybridIdentityServicesAutoConfiguration}
@@ -46,15 +51,15 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 			.asList(new String[] { "clientid", "clientsecret", "identityzoneid",
 					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
 					"certificate",
-					"key" }));
+					"key", "credential-type", "certurl" }));
 
 	private static final List<String> IAS_ATTRIBUTES = Collections.unmodifiableList(Arrays
-			.asList(new String[] { "clientid", "clientsecret", "domain", "url" }));
+			.asList(new String[] { "clientid", "clientsecret", "domains", "url" }));
 
 	@Override
 	@SuppressWarnings("squid:S2259") // false positive
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
-		Environment environment = CFEnvironment.getInstance();
+		Environment environment = Environments.getCurrent();
 		if (resource != null
 				&& resource.getResource().getFilename() != null && !resource.getResource().getFilename().isEmpty()) {
 			environment = Environments.readFromInput(resource.getResource().getInputStream());
@@ -95,10 +100,11 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		Properties properties = new Properties();
 		if (environment.getIasConfiguration() != null) {
 			for (String key : IAS_ATTRIBUTES) {
-				if (environment.getIasConfiguration().hasProperty(key)) {
+				if (environment.getIasConfiguration().hasProperty(key)) { // will not find "domains" among properties
 					properties.put(IAS_PREFIX + key, environment.getIasConfiguration().getProperty(key));
 				}
 			}
+			properties.put(IAS_PREFIX + DOMAINS, environment.getIasConfiguration().getDomains());
 		}
 		return properties;
 	}

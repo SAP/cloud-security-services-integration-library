@@ -1,10 +1,16 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import java.io.Serializable;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.config.ClientIdentity;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
@@ -19,9 +25,26 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 public class XsuaaTokenFlows implements Serializable {
 	private static final long serialVersionUID = 2403173341950251507L;
 
-	private final ClientCredentials clientCredentials;
+	private final ClientIdentity clientIdentity;
 	private final OAuth2TokenService oAuth2TokenService;
 	private final OAuth2ServiceEndpointsProvider endpointsProvider;
+
+	/**
+	 * @deprecated in favor of
+	 *             {@link #XsuaaTokenFlows(OAuth2TokenService, OAuth2ServiceEndpointsProvider, ClientIdentity)}
+	 */
+	@Deprecated
+	public XsuaaTokenFlows(OAuth2TokenService oAuth2TokenService,
+			OAuth2ServiceEndpointsProvider endpointsProvider,
+			com.sap.cloud.security.xsuaa.client.ClientCredentials clientCredentials) {
+		assertNotNull(oAuth2TokenService, "OAuth2TokenService must not be null.");
+		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null");
+		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
+
+		this.oAuth2TokenService = oAuth2TokenService;
+		this.endpointsProvider = endpointsProvider;
+		this.clientIdentity = new ClientCredentials(clientCredentials.getId(), clientCredentials.getSecret());
+	}
 
 	/**
 	 * Create a new instance of this bean with the given RestTemplate. Applications
@@ -32,31 +55,31 @@ public class XsuaaTokenFlows implements Serializable {
 	 *            exchange request.
 	 * @param endpointsProvider
 	 *            the endpoint provider that serves the token endpoint.
-	 * @param clientCredentials
-	 *            the OAuth2.0 client id and secret
+	 * @param clientIdentity
+	 *            the OAuth2.0 client identity
 	 *
 	 *            <pre>
-	 * {@code
+	 *            {@code
 	 * String clientId     = "<<get your client id from your service binding>>";
 	 * String clientSecret = "<<get your client secret from your service binding>>";
 	 * String xsuaaBaseUrl = "<<get your xsuaa base url from service binding>>";
 	 *
 	 * XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-	     *                           new DefaultOAuth2TokenService(), 
-	     *                           new XsuaaDefaultEndpoints(xsuaaBaseUrl), 
+	     *                           new DefaultOAuth2TokenService(),
+	     *                           new XsuaaDefaultEndpoints(xsuaaBaseUrl),
 	     *                           new ClientCredentials(clientId, clientSecret));
 	 * }
 	 *            </pre>
 	 */
 	public XsuaaTokenFlows(OAuth2TokenService oAuth2TokenService,
-			OAuth2ServiceEndpointsProvider endpointsProvider, ClientCredentials clientCredentials) {
+			OAuth2ServiceEndpointsProvider endpointsProvider, ClientIdentity clientIdentity) {
 		assertNotNull(oAuth2TokenService, "OAuth2TokenService must not be null.");
 		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null");
-		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
+		assertNotNull(clientIdentity, "ClientIdentity must not be null.");
 
 		this.oAuth2TokenService = oAuth2TokenService;
 		this.endpointsProvider = endpointsProvider;
-		this.clientCredentials = clientCredentials;
+		this.clientIdentity = clientIdentity;
 	}
 
 	/**
@@ -66,7 +89,7 @@ public class XsuaaTokenFlows implements Serializable {
 	 * @return the {@link UserTokenFlow} builder object.
 	 */
 	public UserTokenFlow userTokenFlow() {
-		return new UserTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
+		return new UserTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 
 	/**
@@ -77,7 +100,7 @@ public class XsuaaTokenFlows implements Serializable {
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
 	public ClientCredentialsTokenFlow clientCredentialsTokenFlow() {
-		return new ClientCredentialsTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
+		return new ClientCredentialsTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 
 	/**
@@ -88,7 +111,7 @@ public class XsuaaTokenFlows implements Serializable {
 	 * @return the {@link RefreshTokenFlow} builder object.
 	 */
 	public RefreshTokenFlow refreshTokenFlow() {
-		return new RefreshTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
+		return new RefreshTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 
 	/**
@@ -99,6 +122,6 @@ public class XsuaaTokenFlows implements Serializable {
 	 * @return the {@link PasswordTokenFlow} builder object.
 	 */
 	public PasswordTokenFlow passwordTokenFlow() {
-		return new PasswordTokenFlow(oAuth2TokenService, endpointsProvider, clientCredentials);
+		return new PasswordTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 }

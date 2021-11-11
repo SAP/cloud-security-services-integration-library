@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.http;
 
 import java.util.*;
@@ -9,6 +14,7 @@ public class HttpHeaders {
 	public static final String ACCEPT = "Accept";
 	public static final String CONTENT_TYPE = "Content-Type";
 	public static final String X_ZID = "X-zid";
+	public static final String X_ZONE_UUID = "x-zone_uuid";
 
 	private final Set<HttpHeader> headers;
 
@@ -46,8 +52,10 @@ public class HttpHeaders {
 
 	@Override
 	public String toString() {
-		return "HttpHeaders{" +
-				"headers=" + headers +
-				'}';
+		return "HttpHeaders: [ " +
+				headers.stream().map(HttpHeader::toString)
+						.collect(Collectors.joining(", "))
+				+
+				" ]";
 	}
 }

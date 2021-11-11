@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.Service;
@@ -9,19 +14,26 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.security.Principal;
+import java.security.ProviderException;
 import java.time.Instant;
 import java.util.*;
+
+import static com.sap.cloud.security.token.TokenClaims.*;
 
 /**
  * Represents a JSON Web Token (JWT).
  */
 public interface Token extends Serializable {
+
+	@SuppressWarnings("unchecked")
 	List<TokenFactory> services = new ArrayList() {
 		{
 			ServiceLoader.load(TokenFactory.class).forEach(this::add);
 			LoggerFactory.getLogger(Token.class).info("loaded TokenFactory service providers: {}", this);
 		}
 	};
+
+	String DEFAULT_TOKEN_FACTORY = "com.sap.cloud.security.servlet.HybridTokenFactory";
 
 	/**
 	 * Creates a token instance based on TokenFactory implementation.
@@ -33,6 +45,15 @@ public interface Token extends Serializable {
 	static Token create(String jwt) {
 		if (services.isEmpty()) {
 			throw new ProviderNotFoundException("No TokenFactory implementation found in the classpath");
+		}
+		if (services.size() > 2) {
+			throw new ProviderException("More than 1 Custom TokenFactory service provider found. There should be only one");
+		}
+		if (services.size() == 2) {
+			return services.stream()
+					.filter(tokenFactory -> !tokenFactory.getClass().getName()
+							.equals(DEFAULT_TOKEN_FACTORY))
+					.findFirst().get().create(jwt);
 		}
 		return services.get(0).create(jwt);
 	}
@@ -93,6 +114,7 @@ public interface Token extends Serializable {
 	 *            the name of the claim as defined here {@link TokenClaims}.
 	 * @return the data of the given claim as a list of strings or an empty list.
 	 */
+	@Nonnull
 	List<String> getClaimAsStringList(@Nonnull String claimName);
 
 	/**
@@ -160,7 +182,9 @@ public interface Token extends Serializable {
 	 *
 	 * @return the audiences.
 	 **/
-	Set<String> getAudiences();
+	default Set<String> getAudiences() {
+		return new LinkedHashSet<>(getClaimAsStringList(AUDIENCE));
+	}
 
 	/**
 	 * Returns the Zone identifier, which can be used as tenant discriminator
@@ -175,10 +199,47 @@ public interface Token extends Serializable {
 	 * Following OpenID Connect 1.0 standard specifications, client identifier is
 	 * obtained from "azp" claim if present or when "azp" is not present from "aud"
 	 * claim, but only in case there is one audience.
-	 * 
+	 *
+	 * @see <a href=
+	 *      "https://openid.net/specs/openid-connect-core-1_0.html">https://openid.net/specs/openid-connect-core-1_0.html</a>
+	 *
 	 * @return the OAuth client ID.
 	 */
-	String getClientId();
+	default String getClientId() {
+		String clientId = getClaimAsString(AUTHORIZATION_PARTY);
+		if (clientId == null || clientId.trim().isEmpty()) {
+			Set<String> audiences = getAudiences();
+			if (audiences.size() == 1) {
+				return audiences.stream().findFirst().get();
+			}
+			throw new InvalidTokenException("Couldn't get client id. Invalid authorized party or audience claims.");
+		} else {
+			return clientId;
+		}
+	}
+
+	/**
+	 * Returns the identifier for the Issuer of the token. Its a URL that contains
+	 * scheme, host, and optionally, port number and path components but no query or
+	 * fragment components. This one is validated in the {@code JwtIssuerValidator}
+	 * and used as base url to discover jwks_uri endpoint for downloading the token
+	 * keys.
+	 *
+	 * @return the issuer.
+	 */
+	default String getIssuer() {
+		return getClaimAsString(ISSUER);
+	}
+
+	/**
+	 * Returns the grant type of the jwt token. <br>
+	 *
+	 * @return the grant type
+	 **/
+	@Nullable
+	default GrantType getGrantType() {
+		return GrantType.from(getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE));
+	}
 
 	/**
 	 * Returns the header(s).
@@ -186,7 +247,7 @@ public interface Token extends Serializable {
 	 * @return a {@code Map} of the header(s)
 	 */
 	default Map<String, Object> getHeaders() {
-		return Collections.EMPTY_MAP;
+		return Collections.emptyMap();
 	}
 
 	/**
@@ -195,7 +256,7 @@ public interface Token extends Serializable {
 	 * @return a {@code Map} of the jwt claim set
 	 */
 	default Map<String, Object> getClaims() {
-		return Collections.EMPTY_MAP;
+		return Collections.emptyMap();
 	}
 
 	/**

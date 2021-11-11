@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.token.authentication;
 
 import com.sap.cloud.security.test.JwtGenerator;
@@ -14,7 +19,7 @@ import java.util.Collection;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static org.junit.jupiter.api.Assertions.*;
 
-class XsuaaTokenAuthenticationConverterTest {
+class XsuaaTokenAuthorizationConverterTest {
 	String xsAppName = "my-app-name!400";
 	JwtGenerator jwtGenerator = JwtGenerator.getInstance(XSUAA, "theClientId").withAppId(xsAppName);
 	XsuaaTokenAuthorizationConverter cut = new XsuaaTokenAuthorizationConverter(xsAppName);

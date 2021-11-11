@@ -1,22 +1,24 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.xsa.security.container.XSTokenRequest;
+
+import javax.annotation.Nonnull;
+import java.util.*;
+
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
+import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 /**
  * A user token flow builder class. <br>
@@ -26,10 +28,10 @@ import com.sap.xsa.security.container.XSTokenRequest;
  */
 public class UserTokenFlow {
 
-	private XsuaaTokenFlowRequest request;
+	private final XsuaaTokenFlowRequest request;
 	private String token;
 	private String xZid;
-	private OAuth2TokenService tokenService;
+	private final OAuth2TokenService tokenService;
 	private boolean disableCache = false;
 	private List<String> scopes = new ArrayList<>();
 
@@ -41,19 +43,18 @@ public class UserTokenFlow {
 	 *            request.
 	 * @param endpointsProvider
 	 *            - the endpoints provider
-	 * @param clientCredentials
-	 *            - the OAuth client credentials
+	 * @param clientIdentity
+	 *            - the OAuth client identity
 	 */
 	UserTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider,
-			ClientCredentials clientCredentials) {
+			ClientIdentity clientIdentity) {
 		assertNotNull(tokenService, "OAuth2TokenService must not be null.");
 		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
-		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
+		assertNotNull(clientIdentity, "ClientIdentity must not be null.");
 
 		this.tokenService = tokenService;
 		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
-		this.request.setClientId(clientCredentials.getId());
-		this.request.setClientSecret(clientCredentials.getSecret());
+		this.request.setClientIdentity(clientIdentity);
 	}
 
 	/**
@@ -198,7 +199,7 @@ public class UserTokenFlow {
 			optionalParameter.put(AUTHORITIES, authorities); // places JSON inside the URI !?!
 		}
 
-		String scopesParameter = scopes.stream().collect(Collectors.joining(" "));
+		String scopesParameter = String.join(" ", scopes);
 		if (!scopesParameter.isEmpty()) {
 			optionalParameter.put(SCOPE, scopesParameter);
 		}
@@ -212,7 +213,7 @@ public class UserTokenFlow {
 			} else {
 				return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
 						request.getTokenEndpoint(),
-						new ClientCredentials(request.getClientId(), request.getClientSecret()),
+						request.getClientIdentity(),
 						token, optionalParameter, disableCache, xZid);
 			}
 		} catch (OAuth2ServiceException e) {
@@ -221,20 +222,6 @@ public class UserTokenFlow {
 							"Error requesting token with grant_type 'urn:ietf:params:oauth:grant-type:jwt-bearer': %s",
 							e.getMessage()),
 					e);
-		}
-	}
-
-	@Nullable
-	private String readFromPropertyFile(String property) {
-		String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-		String appConfigPath = rootPath + "application.properties";
-
-		Properties appProps = new Properties();
-		try {
-			appProps.load(new FileInputStream(appConfigPath));
-			return appProps.getProperty(property);
-		} catch (IOException e) {
-			return null;
 		}
 	}
 

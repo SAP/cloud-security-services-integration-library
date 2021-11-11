@@ -1,5 +1,11 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 import javax.annotation.Nonnull;
@@ -16,11 +22,12 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
  */
 class XsuaaTokenFlowRequest implements XSTokenRequest {
 
+	private ClientIdentity clientIdentity;
 	private String clientId;
-	private URI tokenServiceEndpoint;
+	private String clientSecret;
+	private final URI tokenServiceEndpoint;
 	private String subdomain;
 	private String zoneId;
-	private String clientSecret;
 	private Map<String, String> additionalAuthorizationAttributes;
 	private static final String UNSUPPORTED_INTF_METHOD_INFO = "This XSTokenRequest method is no longer needed in context of new XsuaaTokenFlows API.";
 
@@ -42,9 +49,10 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 
 	@Override
 	public String getClientId() {
-		return this.clientId;
+		return clientIdentity == null ? this.clientId : this.clientIdentity.getId();
 	}
 
+	@Override
 	public XSTokenRequest setClientId(String clientId) {
 		assertNotNull(clientId, "OAuth 2.0 client ID must not be null.");
 		this.clientId = clientId;
@@ -58,13 +66,24 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 */
 	@Override
 	public String getClientSecret() {
-		return this.clientSecret;
+		return clientIdentity == null ? this.clientSecret : this.clientIdentity.getSecret();
 	}
 
+	@Override
 	public XSTokenRequest setClientSecret(String clientSecret) {
 		assertNotNull(clientSecret, "OAuth 2.0 client secret must not be null.");
 		this.clientSecret = clientSecret;
 		return this;
+	}
+
+	public XSTokenRequest setClientIdentity(ClientIdentity clientIdentity) {
+		assertNotNull(clientIdentity, "OAuth 2.0 client identification must not be null.");
+		this.clientIdentity = clientIdentity;
+		return this;
+	}
+
+	public ClientIdentity getClientIdentity() {
+		return clientIdentity;
 	}
 
 	@Override
@@ -113,7 +132,7 @@ class XsuaaTokenFlowRequest implements XSTokenRequest {
 	 */
 	@Override
 	public boolean isValid() {
-		return (getTokenEndpoint() != null) && (clientId != null) && (clientSecret != null);
+		return (getTokenEndpoint() != null) && (clientIdentity.isValid());
 	}
 
 	/**

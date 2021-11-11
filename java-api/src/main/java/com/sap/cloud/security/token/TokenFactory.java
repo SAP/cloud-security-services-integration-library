@@ -1,8 +1,12 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token;
 
 /**
- * Represents a {@link com.sap.cloud.security.token.Token}Token creation
- * interface.
+ * Represents a {@link com.sap.cloud.security.token.Token} creation interface.
  */
 public interface TokenFactory {
 

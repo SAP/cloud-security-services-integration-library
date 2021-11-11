@@ -1,8 +1,14 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.config;
 
+import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
+import com.sap.cloud.security.config.cf.CFConstants.*;
 import org.junit.jupiter.api.Test;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
@@ -40,6 +46,70 @@ class OAuth2ServiceConfigurationPropertiesTest {
 	}
 
 	@Test
+	void setGetCertificateAndKeyIAS() {
+		cutIas.setKey(ANY_VALUE);
+		cutIas.setCertificate(ANY_VALUE);
+		cutIas.setClientId(ANY_VALUE);
+		cutIas.setClientSecret(ANY_VALUE); // to make sure that getClientIdentity uses ClientCertificate impl as default
+											// when possible
+		assertEquals(ANY_VALUE, cutIas.getClientIdentity().getKey());
+		assertEquals(ANY_VALUE, cutIas.getClientIdentity().getCertificate());
+		assertTrue(cutIas.getClientIdentity().isCertificateBased());
+		assertTrue(cutIas.hasProperty(KEY));
+		assertTrue(cutIas.hasProperty(CERTIFICATE));
+		assertEquals(ANY_VALUE, cutIas.getProperty(CLIENT_SECRET));
+		assertEquals(ANY_VALUE, cutIas.getProperty(KEY));
+		assertEquals(ANY_VALUE, cutIas.getProperty(CERTIFICATE));
+	}
+
+	@Test
+	void setGetCertificateAndKeyXSUAA() {
+		cutXsuaa.setCertificate(ANY_VALUE);
+		cutXsuaa.setKey(ANY_VALUE);
+		cutXsuaa.setClientId(ANY_VALUE);
+		cutXsuaa.setClientSecret(ANY_VALUE); // to make sure that getClientIdentity uses ClientCertificate impl as
+												// default when possible
+		assertEquals(ANY_VALUE, cutXsuaa.getProperty(CLIENT_SECRET));
+		assertEquals(ANY_VALUE, cutXsuaa.getClientIdentity().getCertificate());
+		assertEquals(ANY_VALUE, cutXsuaa.getClientIdentity().getKey());
+		assertTrue(cutXsuaa.hasProperty(CERTIFICATE));
+		assertEquals(ANY_VALUE, cutXsuaa.getProperty(CERTIFICATE));
+		assertTrue(cutXsuaa.hasProperty(KEY));
+		assertEquals(ANY_VALUE, cutXsuaa.getProperty(KEY));
+		assertTrue(cutXsuaa.getClientIdentity().isCertificateBased());
+	}
+
+	@Test
+	void getClientIdentityResolvesToClientCredentials() {
+		cutIas.setClientId(ANY_VALUE);
+		cutIas.setClientSecret(ANY_VALUE);
+		assertFalse(cutIas.getClientIdentity().isCertificateBased());
+
+		cutXsuaa.setClientId(ANY_VALUE);
+		cutXsuaa.setClientSecret(ANY_VALUE);
+		assertFalse(cutXsuaa.getClientIdentity().isCertificateBased());
+	}
+
+	@Test
+	void setGetCredentialType() {
+		cutXsuaa.setCertificate(ANY_VALUE);
+		cutXsuaa.setKey(ANY_VALUE);
+		cutXsuaa.setClientId(ANY_VALUE);
+		cutXsuaa.setCredentialType("x509");
+		assertEquals(CredentialType.X509, cutXsuaa.getCredentialType());
+		assertTrue(cutXsuaa.hasProperty(XSUAA.CREDENTIAL_TYPE));
+		assertEquals("x509", cutXsuaa.getProperty(XSUAA.CREDENTIAL_TYPE));
+
+		assertNull(cutIas.getCredentialType());
+		assertFalse(cutIas.getClientIdentity().isCertificateBased());
+		cutIas.setCertificate(ANY_VALUE);
+		cutIas.setKey(ANY_VALUE);
+		cutIas.setClientId(ANY_VALUE);
+		assertTrue(cutIas.getClientIdentity().isCertificateBased());
+		assertEquals(CredentialType.X509, cutIas.getCredentialType());
+	}
+
+	@Test
 	void setGetUrl() {
 		cutIas.setUrl(ANY_VALUE);
 		assertEquals(ANY_VALUE, cutIas.getUrl().toString());
@@ -50,6 +120,14 @@ class OAuth2ServiceConfigurationPropertiesTest {
 		assertEquals(ANY_VALUE, cutXsuaa.getUrl().toString());
 		assertTrue(cutXsuaa.hasProperty(URL));
 		assertEquals(ANY_VALUE, cutXsuaa.getProperty(URL));
+	}
+
+	@Test
+	void setGetCertUrl() {
+		cutXsuaa.setCertUrl(ANY_VALUE);
+		assertEquals(ANY_VALUE, cutXsuaa.getCertUrl().toString());
+		assertTrue(cutXsuaa.hasProperty(XSUAA.CERT_URL));
+		assertEquals(ANY_VALUE, cutXsuaa.getProperty(XSUAA.CERT_URL));
 	}
 
 	@Test

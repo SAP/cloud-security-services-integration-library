@@ -1,8 +1,13 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token.authentication;
 
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasText;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -69,14 +74,21 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	}
 
 	@Override
-	public Jwt decode(String token) throws JwtException {
+	/**
+	 * @throws BadJwtException
+	 *             as of version 2.10.0 (instead of JwtException)
+	 * @see https://github.com/spring-projects/spring-security/issues/9395
+	 * @see https://github.com/spring-projects/spring-security/commit/0c3754c
+	 *
+	 */
+	public Jwt decode(String token) throws BadJwtException {
 		Assert.notNull(token, "token is required");
 		JWT jwt;
 
 		try {
 			jwt = JWTParser.parse(token);
 		} catch (ParseException ex) {
-			throw new JwtException("Error initializing JWT decoder: " + ex.getMessage());
+			throw new BadJwtException("Error initializing JWT decoder: " + ex.getMessage());
 		}
 		final Jwt verifiedToken = verifyToken(jwt);
 		postValidationActions.forEach(action -> action.perform(verifiedToken));
@@ -106,13 +118,11 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		try {
 			canVerifyWithKey(jku, kid, uaaDomain);
 			validateJku(jku, uaaDomain);
-			Jwt verifiedToken = verifyWithKey(token, jku, kid);
-
-			return verifiedToken;
+			return verifyWithKey(token, jku, kid);
 		} catch (JwtValidationException ex) {
 			throw ex;
 		} catch (JwtException ex) {
-			throw new JwtException("JWT verification failed: " + ex.getMessage());
+			throw new BadJwtException("JWT verification failed: " + ex.getMessage());
 		}
 	}
 
@@ -128,7 +138,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		if (uaadomain == null)
 			nullParams.add("uaadomain");
 
-		throw new JwtException(String.format("Cannot verify with online token key, %s is null",
+		throw new BadJwtException(String.format("Cannot verify with online token key, %s is null",
 				String.join(", ", nullParams)));
 	}
 
@@ -136,18 +146,18 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		try {
 			URI jkuUri = new URI(jku);
 			if (jkuUri.getHost() == null) {
-				throw new JwtException("JKU of token is not valid");
+				throw new BadJwtException("JKU of token is not valid");
 			} else if (!jkuUri.getHost().endsWith(uaadomain)) {
 				logger.warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'.",
 						jku, uaadomain);
-				throw new JwtException("Do not trust 'jku' token header.");
-			} else if (!jkuUri.getPath().endsWith("token_keys") || !isEmpty(jkuUri.getQuery())
-					|| !isEmpty(jkuUri.getFragment())) {
+				throw new BadJwtException("Do not trust 'jku' token header.");
+			} else if (!jkuUri.getPath().endsWith("token_keys") || hasText(jkuUri.getQuery())
+					|| hasText(jkuUri.getFragment())) {
 				logger.warn("Error: Do not trust jku '{}' because it contains invalid path, query or fragment.", jku);
-				throw new JwtException("Jwt token does not contain a valid 'jku' header parameter: " + jkuUri);
+				throw new BadJwtException("Jwt token does not contain a valid 'jku' header parameter: " + jkuUri);
 			}
 		} catch (URISyntaxException e) {
-			throw new JwtException("JKU of token header is not valid");
+			throw new BadJwtException("JKU of token header is not valid");
 		}
 	}
 
@@ -170,7 +180,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 	private Jwt tryToVerifyWithVerificationKey(String token, JwtException verificationException) {
 		String verificationKey = xsuaaServiceConfiguration.getVerificationKey();
-		if (isEmpty(verificationKey)) {
+		if (!hasText(verificationKey)) {
 			throw verificationException;
 		}
 		return verifyWithVerificationKey(token, verificationKey);
@@ -183,7 +193,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			decoder.setJwtValidator(tokenValidators);
 			return decoder.decode(token);
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			throw new JwtException(e.getMessage());
+			throw new BadJwtException(e.getMessage());
 		}
 	}
 

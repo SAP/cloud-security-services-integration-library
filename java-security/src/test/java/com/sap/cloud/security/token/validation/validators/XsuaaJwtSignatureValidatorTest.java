@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -17,8 +22,11 @@ import java.io.IOException;
 import java.net.URI;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class XsuaaJwtSignatureValidatorTest {
@@ -50,8 +58,9 @@ public class XsuaaJwtSignatureValidatorTest {
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")))
-						.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+				.retrieveTokenKeys(eq(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")),
+						any()))
+								.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,
@@ -76,7 +85,7 @@ public class XsuaaJwtSignatureValidatorTest {
 		ValidationResult result = cut.validate(tokenWithoutJkuButIssuer);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
-				containsString("Token does not provide the required 'jku' header or 'issuer' claim."));
+				containsString("Token does not provide the required 'jku' header or issuer claim."));
 	}
 
 	@Test

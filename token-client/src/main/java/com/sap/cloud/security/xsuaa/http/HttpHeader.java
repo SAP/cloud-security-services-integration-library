@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.http;
 
 import java.util.Objects;
@@ -34,5 +39,10 @@ public class HttpHeader {
 	@Override
 	public int hashCode() {
 		return Objects.hash(getName(), getValue());
+	}
+
+	@Override
+	public String toString() {
+		return "\"" + name + ": " + value + "\"";
 	}
 }

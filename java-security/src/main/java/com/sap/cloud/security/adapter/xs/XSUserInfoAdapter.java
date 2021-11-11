@@ -1,5 +1,12 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.adapter.xs;
 
+import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
@@ -442,16 +449,16 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	 * Getter for XsuaaTokenFlows object that can be overridden for testing
 	 * purposes.
 	 */
-	XsuaaTokenFlows getXsuaaTokenFlows(String baseUaaUrl, ClientCredentials clientCredentials) {
+	XsuaaTokenFlows getXsuaaTokenFlows(String baseUaaUrl, ClientIdentity clientIdentity) {
 		return new XsuaaTokenFlows(getOrCreateOAuth2TokenService(),
-				new XsuaaDefaultEndpoints(baseUaaUrl), clientCredentials);
+				new XsuaaDefaultEndpoints(baseUaaUrl, null), clientIdentity);
 	}
 
 	private String performTokenFlow(String baseUaaUrl, int tokenRequestType, String clientId, String clientSecret,
 			Map<String, String> additionalAuthAttributes) {
 		try {
-			ClientCredentials clientCredentials = new ClientCredentials(clientId, clientSecret);
-			XsuaaTokenFlows xsuaaTokenFlows = getXsuaaTokenFlows(baseUaaUrl, clientCredentials);
+			ClientIdentity clientIdentity = new ClientCredentials(clientId, clientSecret);
+			XsuaaTokenFlows xsuaaTokenFlows = getXsuaaTokenFlows(baseUaaUrl, clientIdentity);
 			return performRequest(xsuaaTokenFlows, tokenRequestType, additionalAuthAttributes);
 		} catch (RuntimeException e) {
 			throw new XSUserInfoException(e.getMessage());

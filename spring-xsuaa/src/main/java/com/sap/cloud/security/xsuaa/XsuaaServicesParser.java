@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -8,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import com.sap.cloud.security.config.Environments;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -16,6 +22,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Deprecated in favor of {@link Environments#getCurrent()}.
+ */
+@Deprecated
 public class XsuaaServicesParser {
 
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaServicesParser.class);

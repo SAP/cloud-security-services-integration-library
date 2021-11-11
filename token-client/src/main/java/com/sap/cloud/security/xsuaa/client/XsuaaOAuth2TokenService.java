@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -8,10 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Nonnull;
@@ -22,17 +24,29 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
 /**
- *
+ * Implementation for Spring applications, that uses {@link RestOperations}.
  */
 public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
 	private final RestOperations restOperations;
 
+	/**
+	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)}
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
+	 */
+	@Deprecated
 	public XsuaaOAuth2TokenService() {
 		this(new RestTemplate(), TokenCacheConfiguration.defaultConfiguration());
 	}
 
+	/**
+	 * @deprecated In favor of {{@link #XsuaaOAuth2TokenService(RestOperations)}
+	 *             gets removed with the version 3.0.0, does not support certificate
+	 *             based authentication
+	 */
+	@Deprecated
 	public XsuaaOAuth2TokenService(@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
 		this(new RestTemplate(), tokenCacheConfiguration);
 	}
@@ -63,7 +77,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(copyIntoForm(parameters),
 				springHeaders);
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> responseEntity = null;
+		ResponseEntity<Map> responseEntity;
 		try {
 			LOGGER.debug("Requesting access token from url='{}' and headers={}", requestUri, springHeaders);
 			responseEntity = restOperations.postForEntity(requestUri, requestEntity, Map.class);
@@ -77,6 +91,12 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 					ex.getStatusCode(), ex.getResponseBodyAsString());
 			LOGGER.error(warningMsg, ex);
 			throw new OAuth2ServiceException(warningMsg);
+		} catch (ResourceAccessException ex) {
+			String warningMsg = String.format(
+					"RestClient isn't configured properly - Error while obtaining access token from XSUAA (%s): %s",
+					requestUri, ex.getLocalizedMessage());
+			LOGGER.error(warningMsg);
+			throw ex;
 		}
 		LOGGER.debug("Received statusCode {}", responseEntity.getStatusCode());
 
@@ -86,7 +106,8 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		String accessToken = accessTokenMap.get(ACCESS_TOKEN);
 		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
 		String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
-		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken);
+		String tokenType = accessTokenMap.get(TOKEN_TYPE);
+		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken, tokenType);
 	}
 
 	/**
@@ -96,6 +117,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	 *         map.
 	 */
 	private MultiValueMap<String, String> copyIntoForm(Map<String, String> parameters) {
+		@SuppressWarnings("unchecked")
 		MultiValueMap<String, String> formData = new LinkedMultiValueMap();
 		if (parameters != null) {
 			parameters.forEach(formData::add);

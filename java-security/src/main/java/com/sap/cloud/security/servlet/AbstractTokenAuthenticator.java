@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.CacheConfiguration;
@@ -66,7 +71,8 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	/**
-	 * Use to configure the HttpClient that is used to retrieve token keys.
+	 * Use to configure the HttpClient that is used to retrieve token keys or to
+	 * perform a token-exchange.
 	 *
 	 * @param httpClient
 	 *            the HttpClient

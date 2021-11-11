@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.extractor;
 
 import java.util.Collection;
@@ -38,7 +43,7 @@ public class LocalAuthoritiesExtractor implements AuthoritiesExtractor {
 		}
 		return scopes.stream()
 				.filter(scope -> scope.startsWith(appId + "."))
-				.map(scope -> scope.replaceFirst(appId + ".", ""))
+				.map(scope -> scope.substring(appId.length() + 1))
 				.collect(Collectors.toSet());
 	}
 

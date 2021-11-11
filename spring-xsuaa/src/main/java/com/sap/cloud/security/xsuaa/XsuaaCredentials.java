@@ -1,4 +1,11 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa;
+
+import com.sap.cloud.security.config.CredentialType;
 
 /**
  * Represents the XSUAA credentials of VCAP_SERVICES.
@@ -7,9 +14,13 @@ public class XsuaaCredentials {
 	private String clientId;
 	private String clientSecret;
 	private String url;
+	private String certUrl;
 	private String uaaDomain;
 	private String xsAppName;
 	private String verificationKey;
+	private String certificate;
+	private String privateKey;
+	private CredentialType credentialType;
 
 	public String getClientId() {
 		return clientId;
@@ -35,6 +46,14 @@ public class XsuaaCredentials {
 		this.url = url;
 	}
 
+	public String getCertUrl() {
+		return certUrl;
+	}
+
+	public void setCertUrl(String certUrl) {
+		this.certUrl = certUrl;
+	}
+
 	public String getUaaDomain() {
 		return uaaDomain;
 	}
@@ -57,5 +76,29 @@ public class XsuaaCredentials {
 
 	public void setVerificationKey(String verificationKey) {
 		this.verificationKey = verificationKey;
+	}
+
+	public String getCertificate() {
+		return certificate;
+	}
+
+	public void setCertificate(String certificate) {
+		this.certificate = certificate;
+	}
+
+	public CredentialType getCredentialType() {
+		return credentialType;
+	}
+
+	public void setCredentialType(CredentialType credentialType) {
+		this.credentialType = credentialType;
+	}
+
+	public String getPrivateKey() {
+		return privateKey;
+	}
+
+	public void setPrivateKey(String privateKey) {
+		this.privateKey = privateKey;
 	}
 }

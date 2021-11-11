@@ -1,11 +1,17 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.adapter.xs;
 
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFEnvironment;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
 import com.sap.cloud.security.token.XsuaaToken;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -370,11 +376,11 @@ public class XSUserInfoAdapterIntegrationTest {
 		XSTokenRequest request = createXSTokenRequest();
 
 		OAuth2TokenResponse oAuth2TokenResponse = mock(OAuth2TokenResponse.class);
-		ClientCredentials clientCredentials = new ClientCredentials(request.getClientId(), request.getClientSecret());
+		ClientIdentity clientIdentity = new ClientCredentials(request.getClientId(), request.getClientSecret());
 		URI tokenEndpointUri = URI.create(request.getTokenEndpoint() + "/oauth/token");
 		when(oAuth2TokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
 				eq(tokenEndpointUri),
-				eq(clientCredentials),
+				eq(clientIdentity),
 				eq(correctEnduserInfo.getAppToken()),
 				any(),
 				anyMap(),
@@ -392,12 +398,12 @@ public class XSUserInfoAdapterIntegrationTest {
 	public void jwtBearerFlowAuthFail() throws Exception {
 		// prepare mocks
 		XSTokenRequest request = createXSTokenRequest();
-		ClientCredentials clientCredentials = new ClientCredentials(request.getClientId(), request.getClientSecret());
+		ClientIdentity clientIdentity = new ClientCredentials(request.getClientId(), request.getClientSecret());
 		URI tokenEndpointUri = URI.create(request.getTokenEndpoint() + "/oauth/token");
 
 		when(oAuth2TokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
 				eq(tokenEndpointUri),
-				eq(clientCredentials),
+				eq(clientIdentity),
 				eq(correctEnduserInfo.getAppToken()),
 				any(),
 				anyMap()))

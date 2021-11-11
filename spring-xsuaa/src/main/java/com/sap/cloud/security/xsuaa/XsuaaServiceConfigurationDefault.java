@@ -1,10 +1,18 @@
-package com.sap.cloud.security.xsuaa;
 /**
- * 
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
  */
+package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.ClientCertificate;
+import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.CredentialType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import java.net.URI;
 
 @Configuration
 public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfiguration {
@@ -21,9 +29,6 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Value("${xsuaa.uaadomain:#{null}}")
 	private String uaadomain;
 
-	@Value("${xsuaa.identityzoneid:}")
-	private String identityZoneId;
-
 	@Value("${xsuaa.xsappname:}")
 	private String appid;
 
@@ -31,10 +36,16 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	private String privateKey;
 
 	@Value("${xsuaa.certificate:}")
-	private String certificates;
+	private String certificate;
 
 	@Value("${xsuaa.verificationkey:}")
 	private String verificationKey;
+
+	@Value("${xsuaa.credentialtype:#{null}}")
+	private String credentialType;
+
+	@Value("${xsuaa.certurl:#{null}}")
+	private String certUrl;
 
 	/*
 	 * (non-Javadoc)
@@ -71,9 +82,23 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 		return verificationKey;
 	}
 
-	/*
-	 * @Override public String getCertificates() { return certificates; }
-	 * 
-	 * @Override public String getPrivateKey() { return privateKey; }
-	 */
+	@Override
+	public CredentialType getCredentialType() {
+		return CredentialType.from(credentialType);
+	}
+
+	@Override
+	public URI getCertUrl() {
+		return URI.create(certUrl);
+	}
+
+	@Override
+	public ClientIdentity getClientIdentity() {
+		ClientIdentity identity = new ClientCertificate(certificate, privateKey, getClientId());
+		if (!identity.isValid()) {
+			identity = new ClientCredentials(getClientId(), getClientSecret());
+		}
+		return identity;
+	}
+
 }

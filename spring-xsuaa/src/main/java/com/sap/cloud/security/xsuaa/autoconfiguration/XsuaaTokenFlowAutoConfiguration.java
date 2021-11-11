@@ -1,5 +1,17 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
+import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -10,14 +22,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestOperations;
-
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
-import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
@@ -54,12 +58,13 @@ public class XsuaaTokenFlowAutoConfiguration {
 	@ConditionalOnMissingBean
 	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations xsuaaRestOperations,
 			XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-		logger.debug("auto-configures XsuaaTokenFlows using restOperations of type: {}", xsuaaRestOperations);
+		logger.debug("auto-configures XsuaaTokenFlows using {} based restOperations",
+				xsuaaServiceConfiguration.getClientIdentity().isCertificateBased() ? "certificate" : "client secret");
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
-				xsuaaServiceConfiguration.getUaaUrl());
-		ClientCredentials clientCredentials = new ClientCredentials(xsuaaServiceConfiguration.getClientId(),
-				xsuaaServiceConfiguration.getClientSecret());
+				xsuaaServiceConfiguration);
+		ClientIdentity clientCredentials = xsuaaServiceConfiguration.getClientIdentity();
 		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(xsuaaRestOperations);
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCredentials);
 	}
+
 }

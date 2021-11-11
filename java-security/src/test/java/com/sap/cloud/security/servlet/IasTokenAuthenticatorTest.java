@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -49,7 +54,7 @@ public class IasTokenAuthenticatorTest {
 	public void setUp() throws IOException {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.IAS)
-				.withProperty(CFConstants.URL, "https://myauth.com")
+				.withDomains("myauth.com")
 				.withClientId("T000310")
 				.build();
 

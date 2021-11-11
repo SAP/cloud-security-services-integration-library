@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token.validation.validators;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,14 +46,18 @@ public class OidcConfigurationServiceWithCacheTest {
 
 	@Test
 	public void changeCacheConfiguration() {
-		cut = cut.withCacheSize(1001).withCacheTime(601);
+		cut = cut.withCacheSize(1001).withCacheTime(600);
 
 		assertThatThrownBy(() -> {
-			cut = cut.withCacheSize(1000).withCacheTime(601);
+			cut = cut.withCacheSize(1000).withCacheTime(600);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("size");
 
 		assertThatThrownBy(() -> {
-			cut = cut.withCacheSize(1001).withCacheTime(600);
+			cut = cut.withCacheSize(1001).withCacheTime(599);
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("validity");
+
+		assertThatThrownBy(() -> {
+			cut = cut.withCacheSize(1001).withCacheTime(901);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("validity");
 	}
 

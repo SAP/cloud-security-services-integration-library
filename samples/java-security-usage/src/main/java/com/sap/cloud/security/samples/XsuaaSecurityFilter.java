@@ -1,5 +1,12 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.samples;
 
+import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.servlet.AbstractTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticationResult;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
 import com.sap.cloud.security.token.SecurityContext;
@@ -12,15 +19,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.USER_NAME;
 
 @WebFilter("/*") // filter for any endpoint
 public class XsuaaSecurityFilter implements Filter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaSecurityFilter.class);
-	private final XsuaaTokenAuthenticator xsuaaTokenAuthenticator;
+	private final AbstractTokenAuthenticator xsuaaTokenAuthenticator;
 
 	public XsuaaSecurityFilter() {
-		xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator();
+		// in productive usage never use a default rest client!
+		xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator().withHttpClient(HttpClientFactory.create(null));
 	}
 
 	@Override

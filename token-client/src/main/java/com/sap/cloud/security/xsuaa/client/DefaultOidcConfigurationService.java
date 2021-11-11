@@ -1,34 +1,34 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.client;
 
-import javax.annotation.Nonnull;
-
-import java.io.IOException;
-import java.net.URI;
-
+import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import com.sap.cloud.security.xsuaa.util.UriUtil;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
-import com.sap.cloud.security.xsuaa.util.UriUtil;
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.net.URI;
 
 /**
  * https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest
  */
 public class DefaultOidcConfigurationService implements OidcConfigurationService {
 
-	static final Logger logger = LoggerFactory.getLogger(DefaultOidcConfigurationService.class);
 	private final CloseableHttpClient httpClient;
 
 	public DefaultOidcConfigurationService() {
-		this.httpClient = HttpClients.createDefault();
+		this.httpClient = HttpClientFactory.create(null);
 	}
 
 	public DefaultOidcConfigurationService(CloseableHttpClient httpClient) {

@@ -1,8 +1,7 @@
 /**
- * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
- * This file is licensed under the Apache Software License,
- * v. 2 except as noted otherwise in the LICENSE file
- * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.xsa.security.container;
 
@@ -13,6 +12,8 @@ import java.util.Map;
  * Represents a token exchange request.
  * 
  * deprecated with version 2.4.0 in favor of the new SAP Java Client library.
+ * Limitation: does not support mtls-based communication to XSUAA identity
+ * provider and will be removed with version 3.0.0.
  */
 @java.lang.SuppressWarnings("squid:S1214")
 public interface XSTokenRequest {

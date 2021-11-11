@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.extractor;
 
 import java.net.URI;
@@ -11,10 +16,8 @@ import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.xsuaa.client.*;
 
 /**
  *
@@ -35,12 +38,12 @@ public class TokenBrokerTestConfiguration {
 	public OAuth2TokenService tokenBroker() {
 		return new OAuth2TokenService() {
 			@Override
-			public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(URI tokenEndpointUri,
-					ClientCredentials clientCredentials, @Nullable String zoneId, @Nullable String subdomain,
+			public OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@Nonnull URI tokenEndpointUri,
+					@Nonnull ClientIdentity clientIdentity, @Nullable String zoneId, @Nullable String subdomain,
 					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 					throws OAuth2ServiceException {
 				try {
-					return new OAuth2TokenResponse("token_cc", 100, null);
+					return new OAuth2TokenResponse("token_" + clientIdentity.getId(), 100, null);
 				} catch (Exception e) {
 					throw new OAuth2ServiceException("Error retrieving token: " + e.getMessage());
 				}
@@ -48,36 +51,34 @@ public class TokenBrokerTestConfiguration {
 
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
-					ClientCredentials clientCredentials, String token, @Nullable String subdomain,
-					@Nullable Map<String, String> optionalParameters)
-					throws OAuth2ServiceException {
+					ClientIdentity clientIdentity, String token, @Nullable String subdomain,
+					@Nullable Map<String, String> optionalParameters) {
 				return null;
 			}
 
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri,
-					ClientCredentials clientCredentials, String refreshToken, @Nullable String subdomain,
-					boolean disableCacheForRequest)
-					throws OAuth2ServiceException {
+					ClientIdentity clientIdentity, String refreshToken, @Nullable String subdomain,
+					boolean disableCacheForRequest) {
 				return null;
 			}
 
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri,
-					ClientCredentials clientCredentials, String username, String password, @Nullable String subdomain,
+					ClientIdentity clientIdentity, String username, String password, @Nullable String subdomain,
 					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 					throws OAuth2ServiceException {
 				try {
 					if ("https://mydomain.auth.com/oauth/token".equals(tokenEndpointUri.toString())) {
 						if ("myuser".equals(username) && "mypass".equals(password)
-								&& "myclient!t1".equals(clientCredentials.getId())
-								&& "top.secret".equals(clientCredentials.getSecret()))
+								&& "myclient!t1".equals(clientIdentity.getId())
+								&& "top.secret".equals(clientIdentity.getSecret()))
 							return new OAuth2TokenResponse("token_pwd", 100, null);
 					}
 					if ("https://other.auth.com/oauth/token".equals(tokenEndpointUri.toString())) {
 						if ("myuser".equals(username) && "mypass".equals(password)
-								&& "myclient!t1".equals(clientCredentials.getId())
-								&& "top.secret".equals(clientCredentials.getSecret()))
+								&& "myclient!t1".equals(clientIdentity.getId())
+								&& "top.secret".equals(clientIdentity.getSecret()))
 							return new OAuth2TokenResponse("other_token_pwd", 100, null);
 					}
 					throw new Exception("wrong credentials");
@@ -88,18 +89,16 @@ public class TokenBrokerTestConfiguration {
 
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
-					ClientCredentials clientCredentials, String token, @Nullable String subdomain,
-					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
-					throws OAuth2ServiceException {
+					ClientIdentity clientIdentity, String token, @Nullable String subdomain,
+					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest) {
 				return new OAuth2TokenResponse(XSUAA_TOKEN, 100, null);
 			}
 
 			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
-					ClientCredentials clientCredentials, @Nonnull String token,
+					ClientIdentity clientIdentity, @Nonnull String token,
 					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest,
-					@Nonnull String xZidHeader)
-					throws OAuth2ServiceException {
+					@Nonnull String xZidHeader) {
 				return new OAuth2TokenResponse(XSUAA_TOKEN, 100, null);
 			}
 		};

@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.token.authentication;
 
 import com.sap.cloud.security.token.TokenClaims;
@@ -36,14 +41,18 @@ public class XsuaaTokenAuthorizationConverter implements Converter<Jwt, Abstract
 	}
 
 	protected Collection<GrantedAuthority> localScopeAuthorities(Jwt jwt) {
-		Collection<GrantedAuthority> localScopeAuthorities = new ArrayList<>();
 		Collection<String> scopes = jwt.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 		if (scopes == null) {
 			return Collections.emptySet();
 		}
+		return localScopeAuthorities(jwt, scopes);
+	}
+
+	protected Collection<GrantedAuthority> localScopeAuthorities(Jwt jwt, Collection<String> scopes) {
+		Collection<GrantedAuthority> localScopeAuthorities = new ArrayList<>();
 		for (String scope : scopes) {
 			if (scope.startsWith(appId + ".")) {
-				localScopeAuthorities.add(new SimpleGrantedAuthority(scope.replaceFirst(appId + ".", "")));
+				localScopeAuthorities.add(new SimpleGrantedAuthority(scope.substring(appId.length() + 1)));
 			}
 		}
 		return localScopeAuthorities;

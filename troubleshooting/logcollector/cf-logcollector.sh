@@ -1,4 +1,6 @@
 #! /usr/bin/env bash
+# SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-License-Identifier: Apache-2.0
 
 #functions
 usage() { echo -e >&2 "Usage: ./cf-logcollector.sh <app-name> <approuter-name> [output-file]\nIf no output file is specified $HOME/logcollection.zip will be used."; exit 0; }

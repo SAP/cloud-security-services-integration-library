@@ -1,4 +1,13 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa;
+
+import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.CredentialType;
 
 public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration {
 
@@ -44,13 +53,14 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 		return null;
 	}
 
-	/*
-	 * @Nullable
-	 * 
-	 * @Override public String getCertificates() { return null; }
-	 * 
-	 * @Nullable
-	 * 
-	 * @Override public String getPrivateKey() { return null; }
-	 */
+	@Override
+	public CredentialType getCredentialType() {
+		return null;
+	}
+
+	@Override
+	public ClientIdentity getClientIdentity() {
+		return new ClientCredentials(getClientId(), getClientSecret());
+	}
+
 }

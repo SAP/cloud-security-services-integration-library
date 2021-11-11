@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.token.authentication;
 
 import com.sap.cloud.security.config.CacheConfiguration;
@@ -6,8 +11,6 @@ import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.validation.ValidationListener;
-import com.sap.cloud.security.spring.token.authentication.HybridJwtDecoder;
-import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -36,7 +39,7 @@ class JwtDecoderBuilderTest {
 
 	@Test
 	void buildHybridWithoutConfiguration_IllegalArgumentException() {
-		assertThrows(IllegalArgumentException.class, () -> cut.buildHybrid());
+		assertThrows(IllegalArgumentException.class, () -> cut.build());
 	}
 
 	@Test
@@ -51,7 +54,7 @@ class JwtDecoderBuilderTest {
 		cut.withIasServiceConfiguration(iasConfiguration);
 		cut.withXsuaaServiceConfiguration(iasConfiguration);
 		cut.withValidationListener(Mockito.mock(ValidationListener.class));
-		JwtDecoder decoder = cut.buildHybrid();
+		JwtDecoder decoder = cut.build();
 		assertTrue(decoder instanceof HybridJwtDecoder);
 	}
 
@@ -74,7 +77,7 @@ class JwtDecoderBuilderTest {
 		cut.withIasServiceConfiguration(iasConfiguration);
 		cut.withXsuaaServiceConfigurations(xsuaaConfigurations);
 		cut.withValidationListener(Mockito.mock(ValidationListener.class));
-		JwtDecoder decoder = cut.buildHybrid();
+		JwtDecoder decoder = cut.build();
 		assertTrue(decoder instanceof HybridJwtDecoder);
 	}
 }

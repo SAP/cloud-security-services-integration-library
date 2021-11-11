@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.test;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -33,7 +38,6 @@ import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.test.ApplicationServerOptions.forService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -124,7 +128,6 @@ public class SecurityTestRuleTest {
 
 		assertThat(configuration.getUrl()).isNotNull();
 		assertThat(configuration.getUrl().toString()).isEqualTo(cut.base.wireMockServer.baseUrl());
-		assertThat(configuration.getProperty(UAA_DOMAIN)).isEqualTo("localhost");
 	}
 
 	@Test
@@ -132,7 +135,7 @@ public class SecurityTestRuleTest {
 		Token token = cut.getJwtGeneratorFromFile("/token.json").createToken();
 
 		String baseUrl = cut.base.wireMockServer.baseUrl();
-		URI jwksUrl = new XsuaaDefaultEndpoints(baseUrl).getJwksUri();
+		URI jwksUrl = new XsuaaDefaultEndpoints(baseUrl, null).getJwksUri();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(jwksUrl.toString());
 		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(baseUrl);
 	}

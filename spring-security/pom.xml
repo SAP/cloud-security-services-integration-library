@@ -1,4 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -7,13 +9,13 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>2.8.8</version>
+		<version>2.11.2</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
 	<artifactId>spring-security</artifactId>
 	<packaging>jar</packaging>
-	<version>0.1.2</version>
+	<version>2.11.2</version>
 
 	<dependencies>
 		<dependency>
@@ -32,12 +34,12 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency><!-- remove this -->
+		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-api</artifactId>
 			<version>${project.parent.version}</version> <!-- TODO when spring-security provides GA release -->
 		</dependency>
-		<dependency>
+		<dependency><!-- remove this -->
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security</artifactId>
 			<version>${project.parent.version}</version> <!-- TODO when spring-security provides GA release -->

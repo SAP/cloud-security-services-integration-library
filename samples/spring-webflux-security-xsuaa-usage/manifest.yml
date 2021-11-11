@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-License-Identifier: Apache-2.0
 ---
 # Configuration:
 # configured for EU10. For other landscapes, please adopt LANDSCAPE_APPS_DOMAIN in ../vars.yml
@@ -18,7 +20,8 @@ applications:
   # Application Router as web server
   - name: approuter-spring-webflux-security-xsuaa-usage
     path: approuter
-    buildpack: nodejs_buildpack
+    buildpacks:
+      - nodejs_buildpack
     memory: 128M
     routes:
       - route: spring-webflux-security-xsuaa-usage-web-((ID)).((LANDSCAPE_APPS_DOMAIN))

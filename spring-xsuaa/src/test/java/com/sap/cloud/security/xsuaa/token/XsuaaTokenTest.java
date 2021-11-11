@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -9,7 +14,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -176,7 +180,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getSubaccountIdFromSystemAttributes() throws IOException {
+	public void getSubaccountIdFromSystemAttributes() {
 		Token token = new XsuaaToken(jwtSaml);
 		assertThat(token.getSubaccountId(), is("test-subaccount"));
 	}
@@ -258,6 +262,13 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
+	public void getXsUserAttributeValuesFails() {
+		Token token = new XsuaaToken(jwtSaml);
+		String[] userAttrValues = token.getXSUserAttribute("costcenter");
+		assertThat(userAttrValues.length, is(0));
+	}
+
+	@Test
 	public void getServiceInstanceIdFromExtAttr() {
 		claimsSetBuilder.claim(XsuaaToken.CLAIM_EXTERNAL_ATTR, new SamlExternalAttrClaim());
 
@@ -274,6 +285,14 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
+	public void getSubdomainFails() {
+		assertThat(createToken(claimsSetBuilder).getSubdomain(), nullValue());
+
+		claimsSetBuilder.claim(XsuaaToken.CLAIM_EXTERNAL_ATTR, new AdditionalAuthorizationAttrClaim());
+		assertThat(createToken(claimsSetBuilder).getSubdomain(), nullValue());
+	}
+
+	@Test
 	public void getSomeAdditionalAttributeValueFromAuthorizationAttr() {
 		claimsSetBuilder.claim(XsuaaToken.CLAIM_ADDITIONAL_AZ_ATTR, new AdditionalAuthorizationAttrClaim());
 
@@ -287,27 +306,17 @@ public class XsuaaTokenTest {
 		assertThat(token.getAppToken(), startsWith("eyJhbGciOiJSUzI1NiIsInR5"));
 	}
 
-	private Jwt buildMockJwt() {
-		Map<String, Object> jwtHeaders = new HashMap<String, Object>();
-		jwtHeaders.put("dummyHeader", "dummyHeaderValue");
-
-		Map<String, Object> jwtClaims = new HashMap<String, Object>();
-		jwtClaims.put("dummyClaim", "dummyClaimValue");
-
-		return new Jwt("mock.jwt.value", Instant.now(), Instant.now().plusMillis(43199), jwtHeaders, jwtClaims);
-	}
-
 	private XsuaaToken createToken(JWTClaimsSet.Builder claimsBuilder) {
 		Jwt jwt = JwtGenerator.createFromClaims(claimsBuilder.build());
 		return new XsuaaToken(jwt);
 	}
 
-	private static class SamlExternalAttrClaim {
+	public static class SamlExternalAttrClaim {
 		public String serviceinstanceid = "abcd1234";
 		public String zdn = "testsubdomain";
 	}
 
-	private static class AdditionalAuthorizationAttrClaim {
+	public static class AdditionalAuthorizationAttrClaim {
 		public String external_group = "domain\\group1";
 		public String external_id = "ext-id-abcd1234";
 	}

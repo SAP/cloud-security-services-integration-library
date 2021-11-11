@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.client;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.CLIENT_ID;
@@ -9,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.sap.cloud.security.config.ClientIdentity;
 import org.mockito.ArgumentMatcher;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,9 +29,9 @@ public class TokenServiceHttpEntityMatcher implements ArgumentMatcher<HttpEntity
 		expectedParameters.put(GRANT_TYPE, grantType);
 	}
 
-	public void setClientCredentials(ClientCredentials clientCredentials) {
-		expectedParameters.put(CLIENT_ID, clientCredentials.getId());
-		expectedParameters.put(CLIENT_SECRET, clientCredentials.getSecret());
+	public void setClientCredentials(ClientIdentity clientIdentity) {
+		expectedParameters.put(CLIENT_ID, clientIdentity.getId());
+		expectedParameters.put(CLIENT_SECRET, clientIdentity.getSecret());
 	}
 
 	public void addParameters(Map<String, String> additionalParameters) {

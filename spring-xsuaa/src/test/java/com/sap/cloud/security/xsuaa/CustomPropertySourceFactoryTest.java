@@ -1,8 +1,17 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Properties;
 
+import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.Environments;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,13 +83,18 @@ class CustomConfiguration {
 }
 
 class CustomPropertySourceFactory implements PropertySourceFactory {
-	private String vcapJsonString = "{\"xsuaa\":[{\"credentials\":{\"xsappname\":\"customAppId!t2344\"},\"plan\": \"application\",\"tags\":[\"xsuaa\"]}]}";
+	private final String vcapJsonString = "{\"xsuaa\":[{\"credentials\":{\"xsappname\":\"customAppId!t2344\"},\"plan\": \"application\",\"tags\":[\"xsuaa\"]}]}";
 
 	@Override
 	public org.springframework.core.env.PropertySource<?> createPropertySource(String s,
-			EncodedResource encodedResource) throws IOException {
+			EncodedResource encodedResource) {
 
-		Properties properties = new XsuaaServicesParser(vcapJsonString).parseCredentials();
+		Properties properties = new Properties();
+		Environment environment = Environments
+				.readFromInput(new ByteArrayInputStream(vcapJsonString.getBytes(StandardCharsets.UTF_8)));
+		for (Map.Entry<String, String> property : environment.getXsuaaConfiguration().getProperties().entrySet()) {
+			properties.put(property.getKey(), property.getValue());
+		}
 
 		properties.put("clientid", "customClientId");
 		properties.put("clientsecret", "customClientSecret");

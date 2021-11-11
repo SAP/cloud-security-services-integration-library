@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
@@ -38,7 +43,7 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
 		XsuaaServiceConfigurations.class })
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which
 																	// specifies JwtDecoder
-class HybridIdentityServicesAutoConfiguration {
+public class HybridIdentityServicesAutoConfiguration {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HybridIdentityServicesAutoConfiguration.class);
 
 	HybridIdentityServicesAutoConfiguration() {
@@ -48,7 +53,7 @@ class HybridIdentityServicesAutoConfiguration {
 	@Configuration
 	@ConditionalOnMissingBean({ JwtDecoder.class })
 	@ConditionalOnWebApplication(type = SERVLET)
-	static class JwtDecoderConfigurations {
+	public static class JwtDecoderConfigurations {
 		XsuaaServiceConfigurations xsuaaConfigs;
 
 		JwtDecoderConfigurations(XsuaaServiceConfigurations xsuaaConfigs) {
@@ -63,7 +68,7 @@ class HybridIdentityServicesAutoConfiguration {
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
 					.withXsuaaServiceConfiguration(xsuaaConfig)
-					.buildHybrid();
+					.build();
 		}
 
 		@Bean
@@ -74,7 +79,17 @@ class HybridIdentityServicesAutoConfiguration {
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
 					.withXsuaaServiceConfigurations(xsuaaConfigs.getConfigurations())
-					.buildHybrid();
+					.build();
+		}
+
+		@Bean
+		@ConditionalOnProperty("sap.security.services.identity.domains")
+		@ConditionalOnMissingBean(JwtDecoder.class)
+		public JwtDecoder iasJwtDecoder(IdentityServiceConfiguration identityConfig) {
+			LOGGER.debug("auto-configures IasJwtDecoder.");
+			return new JwtDecoderBuilder()
+					.withIasServiceConfiguration(identityConfig)
+					.build();
 		}
 	}
 

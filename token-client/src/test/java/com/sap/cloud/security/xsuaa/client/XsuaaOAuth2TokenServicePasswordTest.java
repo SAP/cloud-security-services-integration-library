@@ -1,5 +1,12 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +41,7 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 	private String password = "test123";
 	private String username = "bob";
 	private String subdomain = "subdomain";
-	private ClientCredentials clientCredentials = new ClientCredentials(clientId, clientSecret);
+	private ClientIdentity clientIdentity = new ClientCredentials(clientId, clientSecret);
 	private URI tokenEndpoint = URI.create("https://subdomain.myauth.server.com/oauth/token");
 	private Map<String, String> optionalParameters;
 	private Map<String, String> response;
@@ -47,6 +54,7 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 		response = new HashMap();
 		response.putIfAbsent(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0");
 		response.putIfAbsent(EXPIRES_IN, "43199");
+		response.putIfAbsent(TOKEN_TYPE, "bearer");
 		when(mockRestOperations.postForEntity(any(), any(), any()))
 				.thenReturn(ResponseEntity.status(200).body(response));
 		optionalParameters = new HashMap<>();
@@ -57,7 +65,7 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 	public void retrieveToken_httpStatusUnauthorized_throwsException() throws OAuth2ServiceException {
 		throwExceptionOnPost(HttpStatus.UNAUTHORIZED);
 
-		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				username, password, null, null);
 	}
 
@@ -65,25 +73,25 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 	public void retrieveToken_httpStatusNotOk_throwsException() throws OAuth2ServiceException {
 		throwExceptionOnPost(HttpStatus.BAD_REQUEST);
 
-		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				username, password, null, null);
 	}
 
 	@Test
 	public void retrieveToken_requiredParametersMissing_throwsException() {
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaPasswordGrant(null, clientCredentials,
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaPasswordGrant(null, clientIdentity,
 				username, password, subdomain, optionalParameters)).isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, null,
 				username, password, subdomain, optionalParameters)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				null, password, subdomain, optionalParameters)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				username, null, subdomain, optionalParameters)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void retrieveToken_callsTokenEndpoint() throws OAuth2ServiceException {
-		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				username, password, null, null);
 
 		Mockito.verify(mockRestOperations, times(1))
@@ -92,7 +100,7 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 
 	@Test
 	public void retrieveToken_setsCorrectGrantType() throws OAuth2ServiceException {
-		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				username, password, null, null);
 
 		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = captureRequestEntity();
@@ -103,7 +111,7 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 
 	@Test
 	public void retrieveToken_setsUsername() throws OAuth2ServiceException {
-		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				username, password, null, null);
 
 		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = captureRequestEntity();
@@ -113,7 +121,7 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 
 	@Test
 	public void retrieveToken_setsPassword() throws OAuth2ServiceException {
-		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				username, password, null, null);
 
 		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = captureRequestEntity();
@@ -123,13 +131,13 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 
 	@Test
 	public void retrieveToken_setsClientCredentials() throws OAuth2ServiceException {
-		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				username, password, null, null);
 
 		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = captureRequestEntity();
 
-		assertThat(valueOfParameter(CLIENT_ID, requestEntityCaptor)).isEqualTo(clientCredentials.getId());
-		assertThat(valueOfParameter(CLIENT_SECRET, requestEntityCaptor)).isEqualTo(clientCredentials.getSecret());
+		assertThat(valueOfParameter(CLIENT_ID, requestEntityCaptor)).isEqualTo(clientIdentity.getId());
+		assertThat(valueOfParameter(CLIENT_SECRET, requestEntityCaptor)).isEqualTo(clientIdentity.getSecret());
 	}
 
 	@Test
@@ -142,7 +150,7 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 		optionalParameters.put(tokenFormatParameterKey, tokenFormat);
 		optionalParameters.put(loginHintParameterKey, loginHint);
 
-		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				username, password, null, optionalParameters);
 
 		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = captureRequestEntity();
@@ -152,7 +160,7 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 
 	@Test
 	public void retrieveToken_setsCorrectHeaders() throws OAuth2ServiceException {
-		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				username, password, null, optionalParameters);
 
 		ArgumentCaptor<HttpEntity<MultiValueMap<String, String>>> requestEntityCaptor = captureRequestEntity();
@@ -164,11 +172,11 @@ public class XsuaaOAuth2TokenServicePasswordTest {
 
 	@Test
 	public void retrieveToken() throws OAuth2ServiceException {
-		OAuth2TokenResponse actualResponse = cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientCredentials,
+		OAuth2TokenResponse actualResponse = cut.retrieveAccessTokenViaPasswordGrant(tokenEndpoint, clientIdentity,
 				username, password, null, null);
 
 		assertThat(actualResponse.getAccessToken()).isEqualTo(response.get(ACCESS_TOKEN));
-
+		assertThat(actualResponse.getTokenType()).isEqualTo(response.get(TOKEN_TYPE));
 		assertThat(actualResponse.getExpiredAtDate()).isNotNull();
 	}
 

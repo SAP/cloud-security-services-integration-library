@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.xsuaa.client.*;
@@ -51,7 +56,7 @@ public class PasswordTokenFlowTest {
 	public void clientCredentialsAreNull_throwsException() {
 		assertThatThrownBy(() -> new PasswordTokenFlow(tokenService, endpointsProvider, null))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("ClientCredentials");
+				.hasMessageContaining("ClientIdentity");
 	}
 
 	@Test

@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.test.performance;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -14,7 +19,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Performance test for java-security jwt token validation.
  */
-public class JavaSecurityPerformanceIT {
+class JavaSecurityPerformanceIT {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JavaSecurityPerformanceIT.class);
 	private static SecurityTest securityTest;
@@ -46,7 +50,7 @@ public class JavaSecurityPerformanceIT {
 	}
 
 	@Test
-	public void onlineValidation() throws Exception {
+	void onlineValidation() {
 		Token token = securityTest.createToken();
 		CombiningValidator<Token> tokenValidator = createOnlineTokenValidator();
 		ValidationResult validationResult = tokenValidator.validate(token);
@@ -58,7 +62,7 @@ public class JavaSecurityPerformanceIT {
 	}
 
 	@Test
-	public void offlineValidation() throws Exception {
+	void offlineValidation() throws Exception {
 		Token token = securityTest.createToken();
 		CombiningValidator<Token> tokenValidator = createOfflineTokenValidator();
 		ValidationResult validationResult = tokenValidator.validate(token);
@@ -76,7 +80,7 @@ public class JavaSecurityPerformanceIT {
 				.build();
 		return JwtValidatorBuilder.getInstance(configuration)
 				// oAuth2TokenKeyService mocked because verificationkey property is used for offline token validation
-				.withOAuth2TokenKeyService((uri) -> "{\"keys\": []}")
+				.withOAuth2TokenKeyService((uri, zoneId) -> "{\"keys\": []}")
 				.build();
 	}
 

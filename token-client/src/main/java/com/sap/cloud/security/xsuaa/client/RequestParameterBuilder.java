@@ -1,4 +1,11 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.client;
+
+import com.sap.cloud.security.config.ClientIdentity;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,15 +33,18 @@ class RequestParameterBuilder {
 		return this;
 	}
 
-	public RequestParameterBuilder withClientCredentials(ClientCredentials clientCredentials) {
-		parameters.put(CLIENT_ID, clientCredentials.getId());
-		parameters.put(CLIENT_SECRET, clientCredentials.getSecret());
+	public RequestParameterBuilder withClientIdentity(ClientIdentity clientIdentity) {
+		parameters.put(CLIENT_ID, clientIdentity.getId());
+		if (clientIdentity.isCertificateBased()) {
+			return this;
+		}
+		parameters.put(CLIENT_SECRET, clientIdentity.getSecret());
 		return this;
 	}
 
 	public RequestParameterBuilder withOptionalParameters(Map<String, String> optionalParameters) {
 		Optional.ofNullable(optionalParameters).orElse(Collections.emptyMap())
-				.forEach((key, value) -> parameters.putIfAbsent(key, value));
+				.forEach(parameters::putIfAbsent);
 		return this;
 	}
 

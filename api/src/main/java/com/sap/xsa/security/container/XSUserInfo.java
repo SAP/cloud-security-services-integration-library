@@ -1,8 +1,7 @@
 /**
- * Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
- * This file is licensed under the Apache Software License, 
- * v. 2 except as noted otherwise in the LICENSE file 
- * https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/LICENSE
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.xsa.security.container;
 
@@ -337,9 +336,13 @@ public interface XSUserInfo {
 	 * @return the token
 	 *
 	 * @deprecated can be replaced with token flows from the token-client library.
+	 *             Does not support mtls-based communication to XSUAA identity
+	 *             provider and will be removed with version 3.0.0.
+	 *
 	 * @throws XSUserInfoException
 	 *             if an error occurs during token request
 	 */
+	@Deprecated
 	String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
 
 	/**
@@ -353,9 +356,13 @@ public interface XSUserInfo {
 	 *            the uaa url
 	 * @return the token
 	 * @deprecated can be replaced with token flows from the token-client library.
+	 *             Does not support mtls-based communication to XSUAA identity
+	 *             provider and will be removed with version 3.0.0.
+	 *
 	 * @throws XSUserInfoException
 	 *             if an error occurs during token request
 	 */
+	@Deprecated
 	String requestTokenForUser(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
 
 	/**
@@ -364,9 +371,8 @@ public interface XSUserInfo {
 	 * @param tokenRequest
 	 *            request data
 	 * @deprecated can be replaced with token flows from the token-client library.
-	 *             For client credentials flow you can also use
-	 *             {@link #requestTokenForClient(String, String, String)}. Will be
-	 *             removed with version 3.0.0.
+	 *             Does not support mtls-based communication to XSUAA identity
+	 *             provider and will be removed with version 3.0.0.
 	 * @return requested token
 	 * @throws XSUserInfoException
 	 *             if an error occurs during token exchange

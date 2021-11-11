@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.extractor;
 
 import com.sap.cloud.security.config.Service;
@@ -9,10 +14,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.security.Principal;
 import java.time.Instant;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import static com.sap.cloud.security.token.TokenClaims.*;
 
@@ -37,7 +40,7 @@ class IasToken implements Token {
 
 	@Override
 	public boolean hasClaim(@Nonnull String claimName) {
-		return decodedToken.containsClaim(claimName);
+		return decodedToken.hasClaim(claimName);
 	}
 
 	@Nullable
@@ -91,17 +94,7 @@ class IasToken implements Token {
 	}
 
 	@Override
-	public Set<String> getAudiences() {
-		return new LinkedHashSet<>(getClaimAsStringList(AUDIENCE));
-	}
-
-	@Override
 	public String getZoneId() {
 		return decodedToken.getClaimAsString(SAP_GLOBAL_ZONE_ID);
-	}
-
-	@Override
-	public String getClientId() {
-		return decodedToken.getClaimAsString(SAP_GLOBAL_USER_ID);
 	}
 }

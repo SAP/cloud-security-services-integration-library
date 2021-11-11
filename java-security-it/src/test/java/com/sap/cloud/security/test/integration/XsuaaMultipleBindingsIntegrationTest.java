@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.test.integration;
 
 import com.sap.cloud.security.config.Environments;
@@ -8,14 +13,8 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import org.apache.commons.io.IOUtils;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,15 +27,11 @@ public class XsuaaMultipleBindingsIntegrationTest {
 	@ClassRule
 	public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA)
 			.setKeys("/publicKey.txt", "/privateKey.txt");
-	@Rule
-	public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
 	@Test
-	public void createToken_integrationTest_tokenValidation() throws IOException {
-		String vcapServices = IOUtils.resourceToString("/vcap_services-multiple.json", StandardCharsets.UTF_8);
-		environmentVariables.set("VCAP_SERVICES", vcapServices);
+	public void createToken_integrationTest_tokenValidation() {
 		Token token = rule.getPreconfiguredJwtGenerator().createToken();
-		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaConfiguration();
+		OAuth2ServiceConfiguration configuration = Environments.readFromInput(ClassLoader.class.getResourceAsStream("/vcap_services-multiple.json")).getXsuaaConfiguration();
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 
 		ValidationResult result = tokenValidator.validate(token);

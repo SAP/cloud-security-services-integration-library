@@ -1,11 +1,16 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.spring.token.authentication;
 
-import com.sap.cloud.security.token.InvalidTokenException;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
@@ -15,6 +20,8 @@ import org.springframework.util.Assert;
  * {@code java-security} client library.<br>
  * In case of successful validation, the token gets parsed and returned as
  * {@link Jwt}.
+ *
+ * Supports tokens issued by ias or xsuaa identity service.
  */
 public class HybridJwtDecoder implements JwtDecoder {
 	CombiningValidator<Token> xsuaaTokenValidators;
@@ -39,10 +46,16 @@ public class HybridJwtDecoder implements JwtDecoder {
 
 	@Override
 	public Jwt decode(String encodedToken) {
-		Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
-		Token token = Token.create(encodedToken);
+		Token token;
+		Jwt jwt;
+		try {
+			Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
+			token = Token.create(encodedToken);
+			jwt = parseJwt(token);
+		} catch (RuntimeException ex) {
+			throw new BadJwtException("Error initializing JWT decoder: " + ex.getMessage(), ex);
+		}
 		ValidationResult validationResult;
-
 		switch (token.getService()) {
 		case IAS:
 			validationResult = iasTokenValidators.validate(token);
@@ -51,13 +64,13 @@ public class HybridJwtDecoder implements JwtDecoder {
 			validationResult = xsuaaTokenValidators.validate(token);
 			break;
 		default:
-			throw new InvalidTokenException("The token of service " + token.getService() + " is not supported.");
+			throw new BadJwtException("The token of service " + token.getService() + " is not supported.");
 		}
 		if (validationResult.isErroneous()) {
-			throw new InvalidTokenException("The token is invalid: " + validationResult.getErrorDescription());
+			throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
 		}
 		logger.debug("The token of service {} was successfully validated.", token.getService());
-		return parseJwt(token);
+		return jwt;
 	}
 
 	/**

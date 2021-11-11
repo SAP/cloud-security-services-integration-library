@@ -1,15 +1,21 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.extractor;
 
 import java.net.URI;
 import java.util.Map;
 
-import com.sap.cloud.security.xsuaa.client.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 
 /**
  *
  * @deprecated in favor of
  *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService}
- *             API. Will be removed with version 3.0.0.
+ *             API. as it doesn't support certificate based communication. Will
+ *             be removed with version 3.0.0.
  */
 @Deprecated
 public interface TokenBroker {
@@ -27,10 +33,11 @@ public interface TokenBroker {
 	 * @throws TokenBrokerException
 	 *             TokenBrokerException
 	 * @deprecated in favor of
-	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaClientCredentialsGrant(URI, ClientCredentials, String, Map)}
+	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaClientCredentialsGrant(URI, ClientIdentity, String, Map)}
+	 *             as it doesn't support certificate based communication.
 	 */
 	@Deprecated
-	public String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret)
+	String getAccessTokenFromClientCredentials(String tokenURL, String clientId, String clientSecret)
 			throws TokenBrokerException;
 
 	/**
@@ -50,9 +57,10 @@ public interface TokenBroker {
 	 * @throws TokenBrokerException
 	 *             TokenBrokerException
 	 * @deprecated in favor of
-	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaPasswordGrant(URI, ClientCredentials, String, String, String, Map)}
+	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenService#retrieveAccessTokenViaPasswordGrant(URI, ClientIdentity, String, String, String, Map)}.
+	 *             as it doesn't support certificate based communication.
 	 */
-	public String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret,
+	String getAccessTokenFromPasswordCredentials(String tokenURL, String clientId, String clientSecret,
 			String username, String password) throws TokenBrokerException;
 
 }

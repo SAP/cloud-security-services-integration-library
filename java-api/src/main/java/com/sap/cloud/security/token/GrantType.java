@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token;
 
 import javax.annotation.Nullable;
@@ -7,11 +12,24 @@ import javax.annotation.Nullable;
  * https://tools.ietf.org/html/rfc6749
  */
 public enum GrantType {
-	CLIENT_CREDENTIALS("client_credentials"), USER_TOKEN("user_token"), REFRESH_TOKEN("refresh_token"), PASSWORD(
-			"password"), JWT_BEARER("urn:ietf:params:oauth:grant-type:jwt-bearer"), SAML2_BEARER(
-					"urn:ietf:params:oauth:grant-type:saml2-bearer"), CLIENT_X509(
-							"client_x509"), AUTHORIZATION_CODE("authorization_code");
-
+	// @formatter:off
+	CLIENT_CREDENTIALS("client_credentials"),
+	/**
+	 * @deprecated in favor of {@link #JWT_BEARER}.
+	 */
+	@Deprecated
+	USER_TOKEN("user_token"),
+	REFRESH_TOKEN("refresh_token"),
+	PASSWORD("password"),
+	JWT_BEARER("urn:ietf:params:oauth:grant-type:jwt-bearer"),
+	SAML2_BEARER("urn:ietf:params:oauth:grant-type:saml2-bearer"),
+	/**
+	 * @deprecated SAP proprietary grant type.
+	 */
+	@Deprecated
+	CLIENT_X509("client_x509"),
+	AUTHORIZATION_CODE("authorization_code");
+	// @formatter:on
 	private String claimName;
 
 	GrantType(String claimName) {

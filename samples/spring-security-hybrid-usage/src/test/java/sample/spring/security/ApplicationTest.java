@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package sample.spring.security;
 
 import org.junit.Test;
@@ -8,10 +13,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @java.lang.SuppressWarnings("squid:S2699")
-//test properties are provided with /resources/application.yml
+// test properties are provided with /resources/application.yml
 public class ApplicationTest {
 
-	@Test
-	public void whenSpringContextIsBootstrapped_thenNoExceptions() {
-	}
+    @Test
+    public void whenSpringContextIsBootstrapped_thenNoExceptions() {
+    }
 }

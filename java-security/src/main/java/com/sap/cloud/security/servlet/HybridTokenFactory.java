@@ -1,8 +1,14 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
@@ -38,14 +44,18 @@ public class HybridTokenFactory implements TokenFactory {
 	 * @return the new token instance
 	 */
 	public Token create(String jwtToken) {
+		try {
+			Objects.requireNonNull(jwtToken, "Requires encoded jwtToken to create a Token instance.");
+			DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
 
-		Objects.requireNonNull(jwtToken, "Requires encoded jwtToken to create a Token instance.");
-		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
-
-		if (isXsuaaToken(decodedJwt)) {
-			return new XsuaaToken(decodedJwt).withScopeConverter(getOrCreateScopeConverter());
+			if (isXsuaaToken(decodedJwt)) {
+				return new XsuaaToken(decodedJwt).withScopeConverter(getOrCreateScopeConverter());
+			}
+			return new SapIdToken(decodedJwt);
+		} catch (JsonParsingException e) {
+			throw new JsonParsingException(String.format("Issue with Jwt parsing. Authorization header: %s - %s",
+					jwtToken.substring(0, 20), e.getMessage()), e);
 		}
-		return new SapIdToken(decodedJwt);
 	}
 
 	/**
@@ -71,7 +81,7 @@ public class HybridTokenFactory implements TokenFactory {
 		if (xsAppId == null) {
 			OAuth2ServiceConfiguration serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
 			if (serviceConfiguration == null) {
-				LOGGER.error("There is no xsuaa service configuration: no local scope check possible.");
+				LOGGER.warn("There is no xsuaa service configuration: no local scope check possible.");
 			} else {
 				xsAppId = serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
 			}

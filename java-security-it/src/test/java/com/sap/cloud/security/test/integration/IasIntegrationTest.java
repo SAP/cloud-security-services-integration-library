@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.test.integration;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -26,10 +31,11 @@ public class IasIntegrationTest {
 	@Test
 	public void iasTokenValidationSucceeds_withIasCombiningValidator() throws IOException {
 		OAuth2ServiceConfiguration configuration = rule
-				.getConfigurationBuilderFromFile("/ias-simple/vcap_services-single.json")
+				.getOAuth2ServiceConfigurationBuilderFromFile("/ias-simple/vcap_services-single.json")
 				.build();
 
 		Token iasToken = rule.getJwtGeneratorFromFile("/ias-simple/token.json")
+				//.withClaimValue("iss", "https://application.myauth.com") // required for java-security/src/test/resources/iasOidcTokenRSA256.txt
 				.createToken();
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 

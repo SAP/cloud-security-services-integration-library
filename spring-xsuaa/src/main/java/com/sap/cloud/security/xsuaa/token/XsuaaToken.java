@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.xsuaa.token;
 
 import com.sap.cloud.security.token.InvalidTokenException;
@@ -16,7 +21,7 @@ import java.util.*;
 import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasText;
 
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 
@@ -196,7 +201,7 @@ public class XsuaaToken extends Jwt implements Token {
 	@Override
 	public String getSubaccountId() {
 		String externalAttribute = getStringAttributeFromClaim(CLAIM_SUBACCOUNT_ID, CLAIM_EXTERNAL_ATTR);
-		return isEmpty(externalAttribute) ? getClaimAsString(CLAIM_ZONE_ID) : externalAttribute;
+		return !hasText(externalAttribute) ? getClaimAsString(CLAIM_ZONE_ID) : externalAttribute;
 	}
 
 	@Override
@@ -243,17 +248,6 @@ public class XsuaaToken extends Jwt implements Token {
 		return scopesList != null ? scopesList : Collections.emptyList();
 	}
 
-	/**
-	 * Check if the authentication token contains a claim, e.g. "email".
-	 *
-	 * @param claim
-	 *            name of the claim
-	 * @return true: attribute exists
-	 */
-	public boolean hasClaim(String claim) {
-		return containsClaim(claim);
-	}
-
 	void setAuthorities(Collection<GrantedAuthority> authorities) {
 		Assert.notNull(authorities, "authorities are required");
 		this.authorities = authorities;
@@ -275,15 +269,13 @@ public class XsuaaToken extends Jwt implements Token {
 
 		// convert JSONArray to String[]
 		JSONArray attributeJsonArray = new JSONArray((ArrayList) claimMap.get(attributeName));
-		if (attributeJsonArray != null) {
-			attributeValues = new String[attributeJsonArray.length()];
-			for (int i = 0; i < attributeJsonArray.length(); i++) {
-				attributeValues[i] = (String) attributeJsonArray.get(i);
-			}
+		attributeValues = new String[attributeJsonArray.length()];
+		for (int i = 0; i < attributeJsonArray.length(); i++) {
+			attributeValues[i] = (String) attributeJsonArray.get(i);
 		}
 
-		if (attributeValues == null) {
-			logger.debug("Attribute '{}' in claim '{}' not found. Returning null.", attributeName, claimName);
+		if (attributeValues.length == 0) {
+			logger.debug("Attribute '{}' in claim '{}' not found. Returning empty list.", attributeName, claimName);
 			return attributeValues;
 		}
 

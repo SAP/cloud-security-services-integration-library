@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token.validation.validators;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -22,6 +27,7 @@ public class OidcConfigurationServiceWithCache {
 	private OidcConfigurationService oidcConfigurationService; // access via getter
 	private Cache<String, OAuth2ServiceEndpointsProvider> cache;
 	private long cacheValidityInSeconds = 600; // old keys should expire after 10 minutes
+	private static final long MAX_CACHE_VALIDITY_IN_SECONDS = 900; // time-to-live shouldn't exceed 15 minutes
 	private long cacheSize = 1000;
 
 	private OidcConfigurationServiceWithCache() {
@@ -59,8 +65,8 @@ public class OidcConfigurationServiceWithCache {
 	 * @return this
 	 */
 	public OidcConfigurationServiceWithCache withCacheTime(int timeInSeconds) {
-		if (timeInSeconds <= 600) {
-			throw new IllegalArgumentException("The cache validity must be minimum 600 seconds");
+		if (timeInSeconds < 600 || timeInSeconds > MAX_CACHE_VALIDITY_IN_SECONDS) {
+			throw new IllegalArgumentException("The cache validity must be between 600 and 900 seconds.");
 		}
 		this.cacheValidityInSeconds = timeInSeconds;
 		return this;

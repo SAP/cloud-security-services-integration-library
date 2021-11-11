@@ -1,124 +1,128 @@
+/**
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
-import static com.sap.cloud.security.token.TokenClaims.ISSUER;
-import static com.sap.cloud.security.token.TokenHeader.JWKS_URL;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-public class JwtIssuerValidatorTest {
+class JwtIssuerValidatorTest {
 
 	private JwtIssuerValidator cut;
 	private Token token;
+	private final String[] domains = new String[] { "customer.ondemand.com", "accounts400.ondemand.com" };
 
-	@Before
-	public void setup() {
-		cut = new JwtIssuerValidator(URI.create("https://accounts400.ondemand.com"));
-		token = Mockito.mock(Token.class);
+	@BeforeEach
+	void setup() {
+		cut = new JwtIssuerValidator(Arrays.asList(domains));
+		token = Mockito.mock(SapIdToken.class);
 	}
 
 	@Test
-	public void constructor_throwsOnNullValues() {
-		assertThatThrownBy(() -> {
-			new JwtIssuerValidator(null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContainingAll("JwtIssuerValidator", "url");
+	void constructor_throwsOnNullValues() {
+		assertThatThrownBy(() -> new JwtIssuerValidator(null)).isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContainingAll("JwtIssuerValidator", "domain(s)");
+
+		assertThatThrownBy(() -> new JwtIssuerValidator(new ArrayList<>())).isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContainingAll("JwtIssuerValidator", "domain(s)");
 	}
 
 	@Test
-	public void tokenIssuerMatchesIdentityProviderUrl() {
-		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com");
-		assertThat(cut.validate(token).isValid(), is(true));
+	void validationFails_whenIssuerDomainDoesNotMatchIdentityProviderDomains() {
+		configureMock("https://otherdomain.test.ondemand.com", null);
+		assertThat(cut.validate(token).isValid(), is(false));
+	}
+
+	@ParameterizedTest
+	@NullAndEmptySource
+	@ValueSource(strings = { "  " })
+	void validationIgnoresEmptyIssuer_whenIasIssuerIsGiven(String issuer) {
+		cut = new JwtIssuerValidator(Collections.singletonList("accounts400.ondemand.com"));
+		configureMock(issuer, "https://test.accounts400.ondemand.com");
+
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isValid(), is(true));
 	}
 
 	@Test
-	public void tokenIssuerWithoutHttpSchemeMatchesIdentityProviderUrl() {
-		when(token.getClaimAsString(ISSUER)).thenReturn("subdomain.accounts400.ondemand.com");
+	void validationSucceeds_whenIasIssuerIsEmptyOrNull() {
+		cut = new JwtIssuerValidator(Collections.singletonList("accounts400.ondemand.com"));
+		configureMock("https://test.accounts400.ondemand.com", null);
+
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isErroneous(), is(false));
+	}
+
+	@Test
+	void validationFails_withoutMatchingIasIssuer() {
+		configureMock("https://otherDomain.accounts400.ondemand.com", "https://iasDomain.accounts.ondemand.com");
 
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(), startsWith(
-				"Issuer is not trusted because 'iss' claim 'subdomain.accounts400.ondemand.com' does not provide a valid URI (missing http scheme)."));
+				"Issuer is not trusted because issuer 'https://iasDomain.accounts.ondemand.com' doesn't match any of these domains '[customer.ondemand.com, accounts400.ondemand.com]' of the identity provider."));
 	}
 
 	@Test
-	public void tokenIssuerMatchesIdentityProviderUrlWithPath() {
-		cut = new JwtIssuerValidator(URI.create("https://accounts400.ondemand.com/oauth/token"));
-		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com");
-		assertThat(cut.validate(token).isValid(), is(true));
+	void validationIgnoresInvalidIssuer_whenIasIssuerIsGiven() {
+		cut = new JwtIssuerValidator(Arrays.asList(domains));
+		configureMock("invalid_url", "https://otherDomain.accounts400.ondemand.com");
+
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isErroneous(), is(false));
 	}
 
-	@Test
-	public void validationFails_whenTokenIssuerDoesNotMatchIdentityProviderUrl() {
-		when(token.getClaimAsString(ISSUER)).thenReturn("https://accounts300.ondemand.com");
+	@ParameterizedTest
+	@CsvSource({ "https://subdomain.accounts400.ondemand.com#anyFragment_keys",
+			"https://subdomain.accounts400.ondemand.com?a=b",
+			"\0://myauth.com",
+			"https://otherDomain.org?accounts400.ondemand.com",
+			"subdomain.accounts400.ondemand.com" })
+	void validationFails_iasIssuerUrl(String iasIssuer) {
+		cut = new JwtIssuerValidator(Arrays.asList(domains));
+		configureMock("https://otherDomain.accounts400.ondemand.com", iasIssuer);
+
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith(
-				"Issuer is not trusted because 'iss' 'https://accounts300.ondemand.com' does not match host 'accounts400.ondemand.com' of the identity provider."));
+		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because issuer "));
 	}
 
-	@Test
-	public void validationFails_whenTokenIssuerEndsWithIdentityProviderUrlQueryParameter() {
-		cut = new JwtIssuerValidator(URI.create("https://accounts400.ondemand.com/token/oauth"));
-		when(token.getClaimAsString(ISSUER)).thenReturn("https://otherDomain.org?accounts400.ondemand.com");
+	@ParameterizedTest
+	@CsvSource({ "https://otherDomain.accounts400.ondemand.com,",
+			"https://paas.accounts400.ondemand.com,",
+			"https://nestle.com,https://paas.accounts400.ondemand.com," })
+	void validationSucceeds(String issuer, String iasIssuer) {
+		cut = new JwtIssuerValidator(Arrays.asList(domains));
+		configureMock(issuer, iasIssuer);
+
 		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith(
-				"Issuer is not trusted because 'iss' 'https://otherDomain.org?accounts400.ondemand.com' does not match host 'accounts400.ondemand.com' of the identity provider."));
+		assertThat(validationResult.isValid(), is(true));
 	}
 
-	@Test
-	public void validationFails_whenTokenIssuerIsEmpty() {
-		when(token.getClaimAsString(ISSUER)).thenReturn(" ");
-		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(),
-				startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
+	private void configureMock(String issuer, String iasIssuer) {
+		when(token.getIssuer()).thenCallRealMethod();
+		when(token.getClaimAsString(TokenClaims.ISSUER)).thenReturn(issuer);
+		when(token.getClaimAsString(TokenClaims.IAS_ISSUER)).thenReturn(iasIssuer);
+		when(token.hasClaim("ias_iss")).thenReturn(iasIssuer != null);
 	}
-
-	@Test
-	public void validationFails_whenTokenIssuerIsNull() {
-		when(token.getClaimAsString(ISSUER)).thenReturn(null);
-		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(),
-				startsWith("Issuer validation can not be performed because Jwt token does not contain 'iss' claim."));
-	}
-
-	@Test
-	public void validationFails_whenTokenIssuerIsNotAValidUri() {
-		when(token.getClaimAsString(ISSUER)).thenReturn("\0://myauth.com");
-		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because"));
-	}
-
-	@Test
-	public void validationFails_whenTokenIssuerContainsQueryParameters() {
-		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com?a=b");
-		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because"));
-	}
-
-	@Test
-	public void validationFails_whenTokenIssuerContainsFragment() {
-		when(token.getHeaderParameterAsString(JWKS_URL))
-				.thenReturn("https://subdomain.myauth.ondemand.com/token_keys#token_keys");
-
-		when(token.getClaimAsString(ISSUER)).thenReturn("https://subdomain.accounts400.ondemand.com#anyFragment_keys");
-		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because"));
-	}
-
 }
