@@ -7,6 +7,7 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.util.ConfigurationUtil;
 import com.sap.cloud.security.x509.X509Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+
+import static com.sap.cloud.security.x509.X509Constants.X5T_VALIDATOR_ENABLED;
 
 /**
  * Validates if the jwt access token is intended for the OAuth2 client of this
@@ -23,9 +26,13 @@ import java.security.cert.CertificateException;
  * <p>
  * Validates whether there 'cnf' thumbprint value matches with the X509
  * certificate from the request.
+ *
+ * Validator is by default disabled. It can be activated by setting environment
+ * variable 'X5T_VALIDATOR_ENABLED' to true.
  */
-public class JwtCnfValidator implements Validator<Token> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(JwtCnfValidator.class);
+public class JwtX5tValidator implements Validator<Token> {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(JwtX5tValidator.class);
 
 	/**
 	 * Validates the cnf thumbprint of X509 certificate against trusted
@@ -42,12 +49,14 @@ public class JwtCnfValidator implements Validator<Token> {
 	 */
 	@Override
 	public ValidationResult validate(Token token) {
-
+		// This check is required in case this validator is used inside the
+		// ProofOfPossessionValidator controller
+		if (!ConfigurationUtil.isSysEnvPropertyEnabled(X5T_VALIDATOR_ENABLED, false)) {
+			return ValidationResults.createInvalid("X5tValidator is not enabled");
+		}
 		String cnf = extractCnfThumbprintFromToken(token);
 		LOGGER.debug("Cnf thumbprint: {}", cnf);
-		if (token.getAudiences().size() == 1) {
-			return ValidationResults.createValid();
-		} else if (cnf != null) {
+		if (cnf != null) {
 			String trustedCertificate = SecurityContext.getCertificate();
 			if (trustedCertificate == null) {
 				LOGGER.error("X509 certificate missing from SecurityContext");
@@ -56,6 +65,8 @@ public class JwtCnfValidator implements Validator<Token> {
 			try {
 				String trustedX509Thumbprint = X509Parser.getX509Thumbprint(trustedCertificate);
 				if (trustedX509Thumbprint.equals(cnf)) {
+					// TODO add when clarified audience check (azp client id of the caller and
+					// client id of the bound identity)
 					return ValidationResults.createValid();
 				}
 				LOGGER.error("Thumbprint from cnf claim {} != thumbprint from certificate {}", cnf,
@@ -78,7 +89,7 @@ public class JwtCnfValidator implements Validator<Token> {
 	@Nullable
 	private static String extractCnfThumbprintFromToken(Token token) {
 		JsonObject cnf = token.getClaimAsJsonObject(TokenClaims.CNF);
-		return cnf == null ? null : cnf.getAsString(TokenClaims.X509_THUMBPRINT);
+		return cnf == null ? null : cnf.getAsString(TokenClaims.CNF_X509_THUMBPRINT);
 	}
 
 }
