@@ -10,6 +10,7 @@ import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.x509.X509Constants;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -37,7 +38,7 @@ public class HelloJavaServletIntegrationTest {
 			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT);
 
     @Rule
-    public EnvironmentVariablesRule environmentVariablesRule = new EnvironmentVariablesRule("X509_THUMBPRINT_CONFIRMATION_ACTIVE", "false");
+    public EnvironmentVariablesRule environmentVariablesRule = new EnvironmentVariablesRule(X509Constants.ACCEPT_CALLERS_BOUND_TO_SAME_ID_SERVICE, "false");
 
     @After
 	public void tearDown() {
@@ -75,12 +76,12 @@ public class HelloJavaServletIntegrationTest {
 
     @Test
     public void request_withValidToken_X509Enabled() throws Exception {
-        environmentVariablesRule.set("X509_THUMBPRINT_CONFIRMATION_ACTIVE", "true");
+        environmentVariablesRule.set(X509Constants.ACCEPT_CALLERS_BOUND_TO_SAME_ID_SERVICE, "true");
         String x509 = IOUtils.resourceToString("/x509Base64.txt", StandardCharsets.US_ASCII);
         String cnf = "fU-XoQlhMTpQsz9ArXl6zHIpMGuRO4ExLKdLRTc5VjM";
 
         Token token = rule.getPreconfiguredJwtGenerator()
-                .withClaimValue(TokenClaims.CNF, Maps.newHashMap(TokenClaims.X509_THUMBPRINT, cnf))
+                .withClaimValue(TokenClaims.CNF, Maps.newHashMap(TokenClaims.CNF_X509_THUMBPRINT, cnf))
                 .withClaimValue(TokenClaims.EMAIL, "john.doe@email.com")
                 .createToken();
 
