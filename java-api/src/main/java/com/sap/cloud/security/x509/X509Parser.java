@@ -16,6 +16,8 @@ import java.util.Objects;
 
 public class X509Parser {
 	public static final Logger LOGGER = LoggerFactory.getLogger(X509Parser.class);
+	public static final String BEGIN_CERTIFICATE = "-----BEGIN CERTIFICATE-----";
+	public static final String END_CERTIFICATE = "-----END CERTIFICATE-----";
 
 	private X509Parser() {
 	}
@@ -59,8 +61,8 @@ public class X509Parser {
 	 */
 	public static String getCertificateThumbprint(String base64certificate) throws NoSuchAlgorithmException {
 		base64certificate = base64certificate
-				.replace("-----BEGIN CERTIFICATE-----", "")
-				.replace("-----END CERTIFICATE-----", "")
+				.replace(BEGIN_CERTIFICATE, "")
+				.replace(END_CERTIFICATE, "")
 				.replaceAll("\\s", "");
 		MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
 		byte[] der = Base64.getDecoder().decode(base64certificate.getBytes(StandardCharsets.UTF_8));
@@ -97,13 +99,31 @@ public class X509Parser {
 		return (X509Certificate) certFactory.generateCertificate(bytes);
 	}
 
+	/**
+	 * Formats the base64 encoded certificate to <a href=
+	 * "https://docs.oracle.com/javase/8/docs/api/java/security/cert/CertificateFactory.html">JDK
+	 * 1.8</a> required format.
+	 *
+	 * @param base64EncodedCert
+	 *            the base64 encoded certificate
+	 * @return formatted Base64 string surrounded by PEM labels
+	 */
+	static String formatBase64Cert(String base64EncodedCert) {
+		String cert = base64EncodedCert
+				.replace("\\n", "")
+				.replace(BEGIN_CERTIFICATE, BEGIN_CERTIFICATE + "\n")
+				.replace(END_CERTIFICATE, "\n" + END_CERTIFICATE + "\n")
+				.replaceAll("\\n$", "");
+		return encodePemLabels(cert);
+	}
+
 	@Nonnull
 	private static String encodePemLabels(String base64EncodedCert) {
-		if (!base64EncodedCert.startsWith("-----BEGIN CERTIFICATE-----")) {
-			base64EncodedCert = "-----BEGIN CERTIFICATE-----\n" + base64EncodedCert;
+		if (!base64EncodedCert.startsWith(BEGIN_CERTIFICATE)) {
+			base64EncodedCert = BEGIN_CERTIFICATE + "\n" + base64EncodedCert;
 		}
-		if (!base64EncodedCert.endsWith("-----END CERTIFICATE-----")) {
-			base64EncodedCert = base64EncodedCert + "\n-----END CERTIFICATE-----";
+		if (!base64EncodedCert.endsWith(END_CERTIFICATE)) {
+			base64EncodedCert = base64EncodedCert + "\n" + END_CERTIFICATE;
 		}
 		LOGGER.debug("PEM encoded certificate: {}", base64EncodedCert);
 		return base64EncodedCert;
