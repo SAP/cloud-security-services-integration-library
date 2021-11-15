@@ -76,6 +76,7 @@ class JwtX5tValidatorTest {
 		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
 	}
 
+	@Disabled("until proofOfPossesion validator subchain is implemented")
 	@Test
 	void validateToken_validatorDisabled(EnvironmentVariables environmentVariables) {
 		environmentVariables.set(X509Constants.X5T_VALIDATOR_ENABLED, "false");

@@ -54,7 +54,7 @@ public class SapIdTokenTest {
 	@Test
 	public void getCnfThumbprint() {
 		assertThat(cut.getCnfX509Thumbprint()).isNull();
-		assertThat(cut2.getCnfX509Thumbprint()).isEqualTo("2blWiJDH07q0b2qEwShOIxtt10CkZ5xdDw4Vbs8ddoI");
+		assertThat(cut2.getCnfX509Thumbprint()).isEqualTo("fU-XoQlhMTpQsz9ArXl6zHIpMGuRO4ExLKdLRTc5VjM");
 	}
 
 }
