@@ -12,4 +12,5 @@ public final class X509Constants {
 
 	public static final String X5T_VALIDATOR_ENABLED = "X5T_VALIDATOR_ENABLED";
 	public static final String ACCEPT_CALLERS_BOUND_TO_SAME_ID_SERVICE = "ACCEPT_CALLERS_BOUND_TO_SAME_ID_SERVICE";
+	public static final String FWD_CLIENT_CERT_HEADER = "x-forwarded-client-cert";
 }
