@@ -8,14 +8,14 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Interface for accessing X509 certificates.
  */
-public interface X509CertSelector {
+public interface X509CertExtractor {
 
 	String getClientCertificate(HttpServletRequest request);
 
-	static X509CertSelector create() {
+	static X509CertExtractor create() {
 		if (Environments.getCurrent().getType() == Environment.Type.CF) {
-			return new CFx509CertSelector();
+			return new CFx509CertExtractor();
 		} else
-			return new K8sX509CertSelector();
+			return new K8sX509CertExtractor();
 	}
 }
