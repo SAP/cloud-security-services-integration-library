@@ -46,15 +46,10 @@ public class JwtX5tValidator implements Validator<Token> {
 	 */
 	@Override
 	public ValidationResult validate(Token token) {
-		// This check is required in case this validator is used inside the
-		// ProofOfPossessionValidator controller
-		if (!ConfigurationUtil.isSysEnvPropertyEnabled(X5T_VALIDATOR_ENABLED, false)) {
-			return ValidationResults.createInvalid("X5tValidator is not enabled");
-		}
 		String cnf = extractCnfThumbprintFromToken(token);
 		LOGGER.debug("Cnf thumbprint: {}", cnf);
 		if (cnf != null) {
-			String trustedCertificate = SecurityContext.getCertificate();
+			String trustedCertificate = SecurityContext.getClientCertificate();
 			if (trustedCertificate == null) {
 				LOGGER.error("X509 certificate missing from SecurityContext");
 				return ValidationResults.createInvalid("Certificate validation failed");
@@ -62,8 +57,8 @@ public class JwtX5tValidator implements Validator<Token> {
 			try {
 				String trustedX509Thumbprint = X509Parser.getX509Thumbprint(trustedCertificate);
 				if (trustedX509Thumbprint.equals(cnf)) {
-					// TODO add when clarified audience check (azp client id of the caller and
-					// client id of the bound identity)
+					// TODO add audience check (azp client id of the caller and
+					// client id of the bound identity) when clarified
 					return ValidationResults.createValid();
 				}
 				LOGGER.error("Thumbprint from cnf claim {} != thumbprint from certificate {}", cnf,
