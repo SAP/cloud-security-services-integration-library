@@ -36,7 +36,7 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 	@Override
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		SecurityContext.setCertificate(x509Selector.getCertificate(httpRequest));
+		SecurityContext.setClientCertificate(x509Selector.getClientCertificate(httpRequest));
 		return super.validateRequest(request, response);
 	}
 

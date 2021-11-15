@@ -51,7 +51,7 @@ class JwtX5tValidatorTest {
 	void validateToken_WithValidCnf_validX509(EnvironmentVariables environmentVariables) {
 		environmentVariables.set(X509Constants.X5T_VALIDATOR_ENABLED, "true");
 		Token token = Token.create(tokenWithX5t);
-		SecurityContext.setCertificate(x509);
+		SecurityContext.setClientCertificate(x509);
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isValid());
 	}
@@ -60,7 +60,7 @@ class JwtX5tValidatorTest {
 	void validateToken_WithInvalidCnf_validX509(EnvironmentVariables environmentVariables) {
 		environmentVariables.set(X509Constants.X5T_VALIDATOR_ENABLED, "true");
 		Token token = Token.create(tokenWithInvalidX5t);
-		SecurityContext.setCertificate(x509);
+		SecurityContext.setClientCertificate(x509);
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isErroneous());
 		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
@@ -70,7 +70,7 @@ class JwtX5tValidatorTest {
 	void validateToken_WithInvalidCnf_invalidX509(EnvironmentVariables environmentVariables) {
 		environmentVariables.set(X509Constants.X5T_VALIDATOR_ENABLED, "true");
 		Token token = Token.create(tokenWithInvalidX5t);
-		SecurityContext.setCertificate("x509");
+		SecurityContext.setClientCertificate("x509");
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isErroneous());
 		assertEquals(INVALID_MESSAGE, result.getErrorDescription());

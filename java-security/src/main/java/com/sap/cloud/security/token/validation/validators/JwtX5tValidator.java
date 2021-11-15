@@ -7,7 +7,6 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
-import com.sap.cloud.security.util.ConfigurationUtil;
 import com.sap.cloud.security.x509.X509Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +14,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-
-import static com.sap.cloud.security.x509.X509Constants.X5T_VALIDATOR_ENABLED;
 
 /**
  * Validates if the jwt access token is intended for the OAuth2 client of this

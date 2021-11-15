@@ -29,7 +29,7 @@ public class SecurityContext {
 	 * @return the certificate or null if the storage is empty.
 	 */
 	@Nullable
-	public static String getCertificate() {
+	public static String getClientCertificate() {
 		return certificateStorage.get();
 	}
 
@@ -39,7 +39,7 @@ public class SecurityContext {
 	 * @param certificate
 	 *            certificate to be saved.
 	 */
-	public static void setCertificate(String certificate) {
+	public static void setClientCertificate(String certificate) {
 		LOGGER.info("Sets certificate to SecurityContext (thread-locally). {}",
 				certificate);
 		certificateStorage.set(certificate);
