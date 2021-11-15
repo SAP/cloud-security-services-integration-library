@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static com.sap.cloud.security.test.SecurityTestRule.getInstance;
+import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletIntegrationTest {
@@ -86,7 +87,7 @@ public class HelloJavaServletIntegrationTest {
                 .createToken();
 
         HttpGet request = createGetRequest(token.getTokenValue());
-        request.setHeader("x-forwarded-client-cert", x509);
+        request.setHeader(FWD_CLIENT_CERT_HEADER, x509);
         CloseableHttpResponse response = HttpClients.createDefault().execute(request);
 
         String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
