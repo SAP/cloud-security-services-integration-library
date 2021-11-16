@@ -81,7 +81,7 @@ public class JwtX5tValidator implements Validator<Token> {
 	@Nullable
 	private static String extractCnfThumbprintFromToken(Token token) {
 		JsonObject cnf = token.getClaimAsJsonObject(TokenClaims.CNF);
-		return cnf == null ? null : cnf.getAsString(TokenClaims.CNF_X509_THUMBPRINT);
+		return cnf == null ? null : cnf.getAsString(TokenClaims.CNF_X5T);
 	}
 
 }

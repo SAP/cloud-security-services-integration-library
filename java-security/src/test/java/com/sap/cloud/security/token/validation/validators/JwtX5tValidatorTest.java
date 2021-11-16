@@ -3,13 +3,10 @@ package com.sap.cloud.security.token.validation.validators;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.x509.X509Constants;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Sets;
 
@@ -17,13 +14,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SystemStubsExtension.class)
 class JwtX5tValidatorTest {
 
 	private static final JwtX5tValidator CUT = new JwtX5tValidator();
@@ -41,15 +34,8 @@ class JwtX5tValidatorTest {
 		x509 = IOUtils.resourceToString("/cf-forwarded-client-cert.txt", StandardCharsets.UTF_8);
 	}
 
-	@AfterEach
-	void afterEach(EnvironmentVariables environmentVariables) throws Exception {
-		environmentVariables.teardown();
-		SecurityContext.clear();
-	}
-
 	@Test
-	void validateToken_WithValidCnf_validX509(EnvironmentVariables environmentVariables) {
-		environmentVariables.set(X509Constants.X5T_VALIDATOR_ENABLED, "true");
+	void validateToken_WithValidCnf_validX509( ) {
 		Token token = Token.create(tokenWithX5t);
 		SecurityContext.setClientCertificate(x509);
 		ValidationResult result = CUT.validate(token);
@@ -57,8 +43,7 @@ class JwtX5tValidatorTest {
 	}
 
 	@Test
-	void validateToken_WithInvalidCnf_validX509(EnvironmentVariables environmentVariables) {
-		environmentVariables.set(X509Constants.X5T_VALIDATOR_ENABLED, "true");
+	void validateToken_WithInvalidCnf_validX509( ) {
 		Token token = Token.create(tokenWithInvalidX5t);
 		SecurityContext.setClientCertificate(x509);
 		ValidationResult result = CUT.validate(token);
@@ -67,8 +52,7 @@ class JwtX5tValidatorTest {
 	}
 
 	@Test
-	void validateToken_WithInvalidCnf_invalidX509(EnvironmentVariables environmentVariables) {
-		environmentVariables.set(X509Constants.X5T_VALIDATOR_ENABLED, "true");
+	void validateToken_WithInvalidCnf_invalidX509( ) {
 		Token token = Token.create(tokenWithInvalidX5t);
 		SecurityContext.setClientCertificate("x509");
 		ValidationResult result = CUT.validate(token);
@@ -78,8 +62,7 @@ class JwtX5tValidatorTest {
 
 	@Disabled("until proofOfPossesion validator subchain is implemented")
 	@Test
-	void validateToken_validatorDisabled(EnvironmentVariables environmentVariables) {
-		environmentVariables.set(X509Constants.X5T_VALIDATOR_ENABLED, "false");
+	void validateToken_validatorDisabled( ) {
 		Token token = Token.create(tokenWithX5t);
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isErroneous());
