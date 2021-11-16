@@ -10,8 +10,6 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.validation.Validator;
-import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.x509.X509CertExtractor;
 
 import javax.annotation.Nullable;
@@ -51,12 +49,4 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 		return null;
 	}
 
-	@Override
-	final Validator<Token> getOrCreateTokenValidator() {
-		if (this.tokenValidator == null) {
-			JwtValidatorBuilder jwtValidatorBuilder = getJwtValidatorBuilder();
-			this.tokenValidator = jwtValidatorBuilder.build();
-		}
-		return this.tokenValidator;
-	}
 }

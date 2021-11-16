@@ -48,7 +48,7 @@ public class SecurityContext {
 	/**
 	 * Clears the current Certificate from thread wide storage.
 	 */
-	public static void clearCertificate() {
+	private static void clearCertificate() {
 		final String certificate = certificateStorage.get();
 		if (certificate != null) {
 			LOGGER.debug("Certificate removed from SecurityContext (thread-locally).");
@@ -94,7 +94,8 @@ public class SecurityContext {
 	/**
 	 * Clears the current Token from thread wide storage.
 	 *
-	 * @deprecated in favor of {@link #clear()}
+	 * @deprecated in favor of {@link #clear()} with next major release becomes
+	 * private
 	 */
 	@Deprecated
 	public static void clearToken() {

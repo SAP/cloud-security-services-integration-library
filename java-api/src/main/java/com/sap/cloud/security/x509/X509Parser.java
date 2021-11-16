@@ -37,7 +37,7 @@ public class X509Parser {
 	 *             is thrown if errors occur while decoding X509 certificate
 	 */
 	public static String getX509Thumbprint(String certificate) throws NoSuchAlgorithmException, CertificateException {
-		X509Certificate x509Certificate = decodeX509(
+		X509Certificate x509Certificate = parseCertificate(
 				Objects.requireNonNull(certificate, "X509 certificate can't be null"));
 		MessageDigest sha256Digest = MessageDigest.getInstance("SHA-256");
 		byte[] hashedX509 = sha256Digest.digest(x509Certificate.getEncoded());
@@ -91,7 +91,7 @@ public class X509Parser {
 	 * @throws CertificateException
 	 *             if String value of certificate cannot be parsed
 	 */
-	private static X509Certificate decodeX509(@Nonnull String encodedX509) throws CertificateException {
+	private static X509Certificate parseCertificate(@Nonnull String encodedX509) throws CertificateException {
 		String encodedPemX509 = encodePemLabels(encodedX509);
 		CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 		ByteArrayInputStream bytes = new ByteArrayInputStream(encodedPemX509.getBytes(StandardCharsets.UTF_8));
