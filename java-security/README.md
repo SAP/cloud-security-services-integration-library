@@ -79,7 +79,7 @@ OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaCon
 ```
 > Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes. 
 
-Alternatively you can also specify the Service Configuration by your own:
+Alternatively, you can also specify your own Service Configuration:
 ```java
 OAuth2ServiceConfiguration serviceConfig = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
       .withProperty(CFConstants.XSUAA.APP_ID, "appid")
