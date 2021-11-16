@@ -6,6 +6,8 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.servlet.MDCConstants;
+import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
@@ -73,6 +75,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	@Override
 	protected OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
+		headers.withHeader(MDCConstants.CORRELATION_HEADER, MDCHelper.getOrCreateCorrelationId());
 		HttpPost httpPost = createHttpPost(tokenEndpointUri, headers, parameters);
 		LOGGER.debug("access token request {} - {}", headers, parameters);
 		return executeRequest(httpPost);
