@@ -198,7 +198,6 @@ Common reasons for failed validation:
 - invalid X509 certificate -> `CertificateException` is thrown when parsing of X509 certificate failed
 - X509 certificate is missing from the `SecurityContext`
 - `cnf` claim is missing from incoming request 
-- audience validation failed in case of single audience `aud`
 
 ## Test Utilities
 You can find the JUnit test utilities documented [here](/java-security-test).
