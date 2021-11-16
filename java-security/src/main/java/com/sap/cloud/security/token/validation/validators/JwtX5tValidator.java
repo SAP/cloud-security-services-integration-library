@@ -46,25 +46,25 @@ public class JwtX5tValidator implements Validator<Token> {
 	 */
 	@Override
 	public ValidationResult validate(Token token) {
-		String cnf = extractCnfThumbprintFromToken(token);
-		LOGGER.debug("Cnf thumbprint: {}", cnf);
-		if (cnf != null) {
-			String trustedCertificate = SecurityContext.getClientCertificate();
-			if (trustedCertificate == null) {
-				LOGGER.error("X509 certificate missing from SecurityContext");
+		String tokenX5t = extractCnfThumbprintFromToken(token);
+		LOGGER.debug("Token 'cnf' thumbprint: {}", tokenX5t);
+		if (tokenX5t != null) {
+			String clientCertificate = SecurityContext.getClientCertificate();
+			if (clientCertificate == null) {
+				LOGGER.error("Client certificate missing from SecurityContext");
 				return ValidationResults.createInvalid("Certificate validation failed");
 			}
 			try {
-				String trustedX509Thumbprint = X509Parser.getX509Thumbprint(trustedCertificate);
-				if (trustedX509Thumbprint.equals(cnf)) {
+				String clientCertificateX5t = X509Parser.getX509Thumbprint(clientCertificate);
+				if (clientCertificateX5t.equals(tokenX5t)) {
 					// TODO add audience check (azp client id of the caller and
 					// client id of the bound identity) when clarified
 					return ValidationResults.createValid();
 				}
-				LOGGER.error("Thumbprint from cnf claim {} != thumbprint from certificate {}", cnf,
-						trustedX509Thumbprint);
+				LOGGER.error("Thumbprint from token {} != thumbprint from client certificate {}", tokenX5t,
+						clientCertificateX5t);
 			} catch (NoSuchAlgorithmException | CertificateException e) {
-				LOGGER.error("Couldn't generate x509 thumbprint. {}", e.getMessage(), e);
+				LOGGER.error("Couldn't generate x509 thumbprint from client certificate. {}", e.getMessage(), e);
 			}
 		}
 		return ValidationResults.createInvalid("Certificate validation failed");
