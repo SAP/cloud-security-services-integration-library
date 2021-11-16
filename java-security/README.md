@@ -111,7 +111,7 @@ CombiningValidator<Token> validators = JwtValidatorBuilder.getInstance(serviceCo
 
 > For the Signature validation it needs to fetch the Json Web Token Keys (jwks) from the OAuth server. In case the token does not provide a `jku` header parameter it also requests the Open-ID Provider Configuration from the OAuth Server to determine the `jwks_uri`. The used Apache Rest client can be customized via the `JwtValidatorBuilder` builder.  
 
-> Furthermore the token keys fetched from the Identity Service are cached for about 10 minutes. You may like to overwrite the cache [default configuration](/java-security/src/main/java/com/sap/cloud/security/token/validation/validators/TokenKeyCacheConfiguration.java#L14) with `JwtValidatorBuilder.withCacheConfiguration()`.  
+> Furthermore, the token keys fetched from the Identity Service are cached for about 10 minutes. You may like to overwrite the cache [default configuration](/java-security/src/main/java/com/sap/cloud/security/token/validation/validators/TokenKeyCacheConfiguration.java#L14) with `JwtValidatorBuilder.withCacheConfiguration()`.  
 
 #### [Optional] Step 2.1: Add Validation Listeners for Audit Log
 Optionally, you can add a validation listener to the validator to be able to get called back whenever a token is validated. Here you may want to emit logs to the audit log service.
@@ -179,28 +179,17 @@ For the integration of different Identity Services the [`TokenAuthenticator`](/j
 
 ![](images/xsuaaFilter.png)
 
-### IAS to Xsuaa token exchange
-`XsuaaTokenAuthenticator` supports seamless token exchange between IAS and Xsuaa. Token exchange between IAS and Xsuaa means that calling a web application endpoint with an IAS Token will work like calling the endpoint with Xsuaa Token. This functionality is disabled by default.
-Requirement for token exchange is `token-client` dependency with all its' transitive dependencies in the project.
-
-```xml
-<dependency>
-    <groupId>com.sap.cloud.security.xsuaa</groupId>
-    <artifactId>token-client</artifactId>
-</dependency>
-```
-
-Steps to enable token exchange:
-1. Set environment variable `IAS_XSUAA_XCHANGE_ENABLED` to any value except false or empty
-2. Make sure `token-client` is not excluded from the project
-3. In order to leverage the token cache, consider the `token-client` initialization notes [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/README.md#cache)
-
-The authenticator is used in the following [sample](/samples/java-security-usage).
 
 ### ProofOfPossession validation 
 #### X509 certificate thumbprint `X5t` validation
-[IasTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/IasTokenAuthenticator.java) supports JWT Certificate Thumbprint Confirmation Method. See specification [here](https://tools.ietf.org/html/rfc8705#section-3.1). 
-This feature is disabled by default. It can be enabled by setting environment variable `ACCEPT_CALLERS_BOUND_TO_SAME_ID_SERVICE` and the `X5T_VALIDATOR_ENABLED` to true.
+[JwtX5tValidator](src/main/java/com/sap/cloud/security/token/validation/validators/JwtX5tValidator.java) offers JWT Certificate Thumbprint `X5t` confirmation method's validation. See specification [here](https://tools.ietf.org/html/rfc8705#section-3.1). 
+This validator is not part of the default `CombiningValidator`, it needs to be added manually to `JwtValidatorBuilder` to use it. 
+It can be done in the following manner:
+```java
+JwtValidatorBuilder.getInstance(OAuth2ServiceConfiguration)
+    .with(new JwtX5tValidator())
+    .build();
+```
 
 #### Troubleshooting 
 In case of invalid response i.e 401 or 403 error codes, check application error logs for detailed messages. 

@@ -67,7 +67,8 @@ class IasTokenAuthenticatorX509Test {
 		cut = new IasTokenAuthenticator()
 				.withServiceConfiguration(configuration)
 				.withHttpClient(httpClientMock);
-		cut.getJwtValidatorBuilder().with(new JwtX5tValidator()).build();
+		cut.getJwtValidatorBuilder()
+				.with(new JwtX5tValidator());
 	}
 
 	@Test
