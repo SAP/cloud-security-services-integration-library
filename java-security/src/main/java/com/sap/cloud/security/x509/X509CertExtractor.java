@@ -14,7 +14,7 @@ public interface X509CertExtractor {
 
 	static X509CertExtractor create() {
 		if (Environments.getCurrent().getType() == Environment.Type.CF) {
-			return new CFx509CertExtractor();
+			return new CfX509CertExtractor();
 		} else
 			return new K8sX509CertExtractor();
 	}

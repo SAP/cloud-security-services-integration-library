@@ -11,9 +11,9 @@ import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 /**
  * X509 certificate accessor implementation for Cloud Foundry environment.
  */
-public class CFx509CertExtractor implements X509CertExtractor {
+public class CfX509CertExtractor implements X509CertExtractor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(CFx509CertExtractor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CfX509CertExtractor.class);
 
 	@Override
 	@Nullable
