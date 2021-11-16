@@ -11,6 +11,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.*;
+import com.sap.cloud.security.x509.X509CertExtractor;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -32,6 +33,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaTokenAuthenticator.class);
 	private static final String IAS_XSUAA_ENABLED = "IAS_XSUAA_XCHANGE_ENABLED";
 	private IasXsuaaExchangeBroker exchangeBroker;
+	private final X509CertExtractor x509CertExtractor = X509CertExtractor.create();
 
 	public XsuaaTokenAuthenticator() {
 		serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
@@ -105,6 +107,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
+					SecurityContext.setClientCertificate(x509CertExtractor.getClientCertificate(httpRequest));
 					Token token = Token.create(authorizationHeader);
 					if (token.getService() == Service.IAS) {
 						if (exchangeBroker == null) {
