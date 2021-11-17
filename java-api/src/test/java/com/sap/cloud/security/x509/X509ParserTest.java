@@ -21,8 +21,8 @@ class X509ParserTest {
 
 	@BeforeAll
 	static void beforeAll() throws IOException {
-		x509_base64 = IOUtils.resourceToString("/cf-forwarded-client-cert.txt", StandardCharsets.UTF_8);
-		x509_pem_format = IOUtils.resourceToString("/cf-forwarded-client-cert-pem.txt", StandardCharsets.UTF_8);
+		x509_base64 = IOUtils.resourceToString("/cf-forwarded-client-cert-base64.txt", StandardCharsets.UTF_8);
+		x509_pem_format = IOUtils.resourceToString("/k8s-forwarded-client-cert-pem.txt", StandardCharsets.UTF_8);
 	}
 
 	@Test
