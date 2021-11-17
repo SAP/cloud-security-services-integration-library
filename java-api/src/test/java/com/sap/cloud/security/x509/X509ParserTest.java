@@ -9,12 +9,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
-import static com.sap.cloud.security.x509.X509Parser.getX509Thumbprint;
-import static com.sap.cloud.security.x509.X509Parser.normalizeThumbprint;
+import static com.sap.cloud.security.x509.X509Parser.getCertificateThumbprint;
+import static com.sap.cloud.security.x509.X509Parser.parseCertificate;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class X509ParserTest {
 
+	public static final String DN_ISSUER_VALUE = "CN=SAP Cloud Platform Client CA, OU=SAP Cloud Platform Clients, O=SAP SE, L=EU10-Canary, C=DE";
 	private static String x509_base64;
 	private static String x509_pem_format;
 	private static final String x5t = "fU-XoQlhMTpQsz9ArXl6zHIpMGuRO4ExLKdLRTc5VjM";
@@ -23,6 +25,27 @@ class X509ParserTest {
 	static void beforeAll() throws IOException {
 		x509_base64 = IOUtils.resourceToString("/cf-forwarded-client-cert-base64.txt", StandardCharsets.UTF_8);
 		x509_pem_format = IOUtils.resourceToString("/k8s-forwarded-client-cert-pem.txt", StandardCharsets.UTF_8);
+	}
+
+	@Test
+	void parseCertificate_validBase64() throws CertificateException {
+		assertThat( parseCertificate(x509_base64).getIssuerDN().getName()).isEqualTo(DN_ISSUER_VALUE);
+	}
+
+	@Test
+	void parseCertificate_validPEM() throws CertificateException {
+		assertThat(parseCertificate(x509_pem_format).getIssuerDN().getName()).isEqualTo(DN_ISSUER_VALUE);
+	}
+
+	@Test
+	void parseCertificate_invalidCertificate() {
+		assertThatThrownBy(() -> parseCertificate("R93AEV2m52aX6yXCfzwkL92cW1zBsCuNi82K9PiNmzb/WVB5i7VdXUwAd7bI9ACb"))
+				.isInstanceOf(CertificateException.class);
+		assertThatThrownBy(() -> parseCertificate(""))
+				.isInstanceOf(CertificateException.class);
+		assertThatThrownBy(() -> parseCertificate(null))
+				.isInstanceOf(NullPointerException.class)
+				.hasMessageStartingWith("The provided Certificate can not be null");
 	}
 
 	@Test
@@ -42,21 +65,8 @@ class X509ParserTest {
 	}
 
 	@Test
-	void normalizeThumbprintTest() throws NoSuchAlgorithmException, CertificateException {
-		String normalizedX509 = normalizeThumbprint(getX509Thumbprint(x509_base64));
-		assertThat(normalizedX509)
-				.doesNotEndWith("=")
-				.doesNotContain("\n");
-	}
-
-	@Test
 	void getX509ThumbprintTest() throws NoSuchAlgorithmException, CertificateException {
-		assertThat(getX509Thumbprint(x509_base64)).isEqualTo(x5t);
-	}
-
-	@Test
-	void getJwtThumbprintTest() throws NoSuchAlgorithmException {
-		assertThat(X509Parser.getCertificateThumbprint(x509_base64)).isEqualTo(x5t);
+		assertThat(getCertificateThumbprint(parseCertificate(x509_base64))).isEqualTo(x5t);
 	}
 
 	@Test

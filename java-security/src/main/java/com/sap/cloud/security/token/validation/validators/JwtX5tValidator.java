@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 /**
  * Validates if the jwt access token is intended for the OAuth2 client of this
@@ -49,13 +50,13 @@ public class JwtX5tValidator implements Validator<Token> {
 		String tokenX5t = extractCnfThumbprintFromToken(token);
 		LOGGER.debug("Token 'cnf' thumbprint: {}", tokenX5t);
 		if (tokenX5t != null) {
-			String clientCertificate = SecurityContext.getClientCertificate();
+			X509Certificate clientCertificate = SecurityContext.getClientCertificate();
 			if (clientCertificate == null) {
 				LOGGER.error("Client certificate missing from SecurityContext");
 				return ValidationResults.createInvalid("Certificate validation failed");
 			}
 			try {
-				String clientCertificateX5t = X509Parser.getX509Thumbprint(clientCertificate);
+				String clientCertificateX5t = X509Parser.getCertificateThumbprint(clientCertificate);
 				if (clientCertificateX5t.equals(tokenX5t)) {
 					// TODO add audience check (azp client id of the caller and
 					// client id of the bound identity) when clarified

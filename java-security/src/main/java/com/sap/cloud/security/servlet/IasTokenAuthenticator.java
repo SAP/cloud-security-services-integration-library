@@ -10,7 +10,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.x509.X509CertExtractor;
+import com.sap.cloud.security.x509.X509CertificateExtractor;
 
 import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 
-	private final X509CertExtractor x509CertExtractor = X509CertExtractor.create();
+	private final X509CertificateExtractor x509CertificateExtractor = X509CertificateExtractor.getInstance();
 
 	@Override
 	public Token extractFromHeader(String authorizationHeader) {
@@ -29,7 +29,7 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 	@Override
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		SecurityContext.setClientCertificate(x509CertExtractor.getClientCertificate(httpRequest));
+		SecurityContext.setClientCertificate(x509CertificateExtractor.getClientCertificate(httpRequest));
 		return super.validateRequest(request, response);
 	}
 

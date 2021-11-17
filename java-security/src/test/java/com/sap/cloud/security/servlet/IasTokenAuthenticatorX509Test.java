@@ -80,6 +80,26 @@ class IasTokenAuthenticatorX509Test {
 		assertThat(response.getUnauthenticatedReason())
 				.contains("Error during token validation: Certificate validation failed");
 		assertThat(response.isAuthenticated()).isFalse();
+
+		when(httpRequest.getHeader(FWD_CLIENT_CERT_HEADER)).thenReturn("");
+		TokenAuthenticationResult response2 = cut.validateRequest(httpRequest, HTTP_RESPONSE);
+
+		assertThat(response2.getUnauthenticatedReason())
+				.contains("Error during token validation: Certificate validation failed");
+		assertThat(response2.isAuthenticated()).isFalse();
+
+	}
+
+	@Test
+	void validateRequest_validTokenValidX5t_invalidCertificate() {
+		HttpServletRequest httpRequest = createRequestWithToken(tokenValidX5t.getTokenValue());
+		when(httpRequest.getHeader(FWD_CLIENT_CERT_HEADER)).thenReturn("INVALIDx509");
+
+		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
+
+		assertThat(response.getUnauthenticatedReason())
+				.contains("Error during token validation: Certificate validation failed");
+		assertThat(response.isAuthenticated()).isFalse();
 	}
 
 	@Test
