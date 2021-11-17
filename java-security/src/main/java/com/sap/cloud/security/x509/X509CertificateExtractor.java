@@ -18,7 +18,7 @@ public class X509CertificateExtractor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(X509CertificateExtractor.class);
 
 	private X509CertificateExtractor() {
-		//use factory method instead
+		// use factory method instead
 	}
 
 	public static X509CertificateExtractor getInstance() {
@@ -26,16 +26,18 @@ public class X509CertificateExtractor {
 	}
 
 	/**
-	 * Extracts the forwarded client certificate from 'x-forwarded-client-cert' header.
+	 * Extracts the forwarded client certificate from 'x-forwarded-client-cert'
+	 * header.
 	 *
-	 * @param request the HttpServletRequest
+	 * @param request
+	 *            the HttpServletRequest
 	 * @return the client certificate object
 	 */
 	@Nullable
 	public X509Certificate getClientCertificate(HttpServletRequest request) {
 		String clientCert = request.getHeader(FWD_CLIENT_CERT_HEADER);
 		LOGGER.debug("{} = {}", FWD_CLIENT_CERT_HEADER, clientCert);
-		if (clientCert != null && !clientCert.isEmpty()){
+		if (clientCert != null && !clientCert.isEmpty()) {
 			try {
 				return X509Parser.parseCertificate(clientCert);
 			} catch (CertificateException e) {

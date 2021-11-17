@@ -34,11 +34,12 @@ class JwtX5tValidatorTest {
 	static void beforeAll() throws IOException, CertificateException {
 		tokenWithX5t = IOUtils.resourceToString("/iasTokenWithCnfRSA256.txt", StandardCharsets.UTF_8);
 		tokenWithInvalidX5t = IOUtils.resourceToString("/iasTokenInvalidCnfRSA256.txt", StandardCharsets.UTF_8);
-		x509 = X509Parser.parseCertificate(IOUtils.resourceToString("/cf-forwarded-client-cert.txt", StandardCharsets.UTF_8));
+		x509 = X509Parser
+				.parseCertificate(IOUtils.resourceToString("/cf-forwarded-client-cert.txt", StandardCharsets.UTF_8));
 	}
 
 	@Test
-	void validateToken_WithValidCnf_validX509( ) {
+	void validateToken_WithValidCnf_validX509() {
 		Token token = Token.create(tokenWithX5t);
 		SecurityContext.setClientCertificate(x509);
 		ValidationResult result = CUT.validate(token);
@@ -46,7 +47,7 @@ class JwtX5tValidatorTest {
 	}
 
 	@Test
-	void validateToken_WithInvalidCnf_validX509( ) {
+	void validateToken_WithInvalidCnf_validX509() {
 		Token token = Token.create(tokenWithInvalidX5t);
 		SecurityContext.setClientCertificate(x509);
 		ValidationResult result = CUT.validate(token);
@@ -55,7 +56,7 @@ class JwtX5tValidatorTest {
 	}
 
 	@Test
-	void validateToken_WithInvalidCnf_invalidX509( ) {
+	void validateToken_WithInvalidCnf_invalidX509() {
 		Token token = Token.create(tokenWithInvalidX5t);
 		SecurityContext.setClientCertificate(null);
 		ValidationResult result = CUT.validate(token);
@@ -65,7 +66,7 @@ class JwtX5tValidatorTest {
 
 	@Disabled("until proofOfPossesion validator subchain is implemented")
 	@Test
-	void validateToken_validatorDisabled( ) {
+	void validateToken_validatorDisabled() {
 		Token token = Token.create(tokenWithX5t);
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isErroneous());

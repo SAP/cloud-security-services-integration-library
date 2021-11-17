@@ -29,7 +29,7 @@ class X509ParserTest {
 
 	@Test
 	void parseCertificate_validBase64() throws CertificateException {
-		assertThat( parseCertificate(x509_base64).getIssuerDN().getName()).isEqualTo(DN_ISSUER_VALUE);
+		assertThat(parseCertificate(x509_base64).getIssuerDN().getName()).isEqualTo(DN_ISSUER_VALUE);
 	}
 
 	@Test

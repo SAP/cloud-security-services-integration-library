@@ -52,7 +52,8 @@ public class X509Parser {
 	 * @throws CertificateEncodingException
 	 *             is thrown if error occurs while encoding X509 certificatejava
 	 */
-	public static String getCertificateThumbprint(X509Certificate x509Certificate) throws NoSuchAlgorithmException, CertificateEncodingException {
+	public static String getCertificateThumbprint(X509Certificate x509Certificate)
+			throws NoSuchAlgorithmException, CertificateEncodingException {
 		MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
 		byte[] hashedX509 = sha256.digest(x509Certificate.getEncoded());
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(hashedX509);

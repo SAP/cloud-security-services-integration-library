@@ -9,6 +9,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SapIdToken;
+import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.token.validation.validators.JwtX5tValidator;
 import com.sap.cloud.security.util.HttpClientTestFactory;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -64,11 +65,12 @@ class IasTokenAuthenticatorX509Test {
 				.thenReturn(oidcResponse)
 				.thenReturn(tokenKeysResponse);
 
+		JwtValidatorBuilder
+				.getInstance(configuration)
+				.with(new JwtX5tValidator());
 		cut = new IasTokenAuthenticator()
 				.withServiceConfiguration(configuration)
 				.withHttpClient(httpClientMock);
-		cut.getJwtValidatorBuilder()
-				.with(new JwtX5tValidator());
 	}
 
 	@Test
