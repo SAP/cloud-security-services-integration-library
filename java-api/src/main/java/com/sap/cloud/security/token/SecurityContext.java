@@ -93,11 +93,7 @@ public class SecurityContext {
 
 	/**
 	 * Clears the current Token from thread wide storage.
-	 *
-	 * @deprecated in favor of {@link #clear()} with next major release becomes
-	 * private
 	 */
-	@Deprecated
 	public static void clearToken() {
 		final Token token = tokenStorage.get();
 		if (token != null) {
