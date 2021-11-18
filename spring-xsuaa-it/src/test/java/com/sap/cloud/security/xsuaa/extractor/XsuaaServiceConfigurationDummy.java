@@ -57,11 +57,7 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 
 	@Override
 	public ClientIdentity getClientIdentity() {
-		ClientIdentity identity = new ClientCertificate(null, null, getClientId());
-		if (!identity.isValid()) {
-			identity = new ClientCredentials(getClientId(), getClientSecret());
-		}
-		return identity;
+		return new ClientCredentials(getClientId(), getClientSecret());
 	}
 
 }
