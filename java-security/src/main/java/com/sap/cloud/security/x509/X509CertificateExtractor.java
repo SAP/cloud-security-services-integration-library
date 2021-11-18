@@ -46,7 +46,7 @@ public class X509CertificateExtractor {
 			try {
 				return X509Parser.parseCertificate(clientCert);
 			} catch (CertificateException e) {
-				LOGGER.debug("Could not parse the certificate", e);
+				LOGGER.warn("Could not parse the certificate", e);
 			}
 		}
 		return null;
