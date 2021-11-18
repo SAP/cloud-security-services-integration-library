@@ -3,14 +3,13 @@ All notable changes to this project will be documented in this file.
 
 ## 2.11.3
 - [java-api] 
-    - `SecurityContext` have been extended to provide thread-wide X.509 certificate storage
-    - Introduces `X509Constants` class and X.509 certificate parser `X509Parser`
+    - `SecurityContext` has been extended to provide thread-wide X.509 certificate storage
 - [java-security] 
-    - Introduces X.509 certificate thumbprint validator `JwtX5tValidator`
+    - Introduces X.509 certificate thumbprint validator `JwtX5tValidator` as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/README.md#x509-certificate-thumbprint-x5t-validation)
     - `IasTokenAuthenticator` and `XsuaaTokenAuthenticator` store the forwarded X.509 certificate for incoming requests in `SecurityContext`
-    - `XsuaaDefaultEndpoints` provides a new [constructor](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/XsuaaDefaultEndpoints.java#L56) (issue [707](https://github.com/SAP/cloud-security-xsuaa-integration/issues/707))
-- [spring-xsuaa] `XsuaaServiceConfiguration` interface default method `getClientIdentity()` needs to be Overridden to be used
-- [token-client] Adds correlation id to outgoing requests (issue [691](https://github.com/SAP/cloud-security-xsuaa-integration/issues/691))
+    - `XsuaaDefaultEndpoints` provides a new [constructor(url, certUrl)](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/XsuaaDefaultEndpoints.java#L56) (issue [707](https://github.com/SAP/cloud-security-xsuaa-integration/issues/707))
+- [spring-xsuaa] `XsuaaServiceConfiguration` interface default method `getClientIdentity()` needs to be overridden to be used
+- [token-client] Adds ``X-CorrelationID`` header to outgoing requests. In case MDC provides "correlation_id" this one is taken (issue [691](https://github.com/SAP/cloud-security-xsuaa-integration/issues/691))
 
 #### Dependency upgrades
   - io.projectreactor:reactor-test 3.4.11 --> 3.4.12
