@@ -5,6 +5,9 @@
  */
 package com.sap.cloud.security.xsuaa.extractor;
 
+import com.sap.cloud.security.config.ClientCertificate;
+import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 
 public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration {
@@ -50,6 +53,11 @@ public class XsuaaServiceConfigurationDummy implements XsuaaServiceConfiguration
 	@Override
 	public String getProperty(String name) {
 		return null;
+	}
+
+	@Override
+	public ClientIdentity getClientIdentity() {
+		return new ClientCredentials(getClientId(), getClientSecret());
 	}
 
 }
