@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.3
+- [java-api] 
+    - `SecurityContext` have been extended to provide thread-wide X.509 certificate storage
+    - Introduces `X509Constants` class and X.509 certificate parser `X509Parser`
+- [java-security] 
+    - Introduces X.509 certificate thumbprint validator `JwtX5tValidator`
+    - `IasTokenAuthenticator` and `XsuaaTokenAuthenticator` store the forwarded X.509 certificate for incoming requests in `SecurityContext`
+    - `XsuaaDefaultEndpoints` provides a new [constructor](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/XsuaaDefaultEndpoints.java#L56) (issue [707](https://github.com/SAP/cloud-security-xsuaa-integration/issues/707))
+- [spring-xsuaa] `XsuaaServiceConfiguration` interface default method `getClientIdentity()` needs to be Overridden to be used
+- [token-client] Adds correlation id to outgoing requests (issue [691](https://github.com/SAP/cloud-security-xsuaa-integration/issues/691))
+
+#### Dependency upgrades
+  - io.projectreactor:reactor-test 3.4.11 --> 3.4.12
+  - io.projectreactor:reactor-core 3.4.11 --> 3.4.12
+  - dependency-check-maven-plugin 6.4.1 --> 6.5.0
+  - org.springframework:spring.core.version  5.3.12 --> 5.3.13
+  - org.springframework:spring.security.version 5.5.3 --> 5.6.0
+
+
 ## 2.11.2
 - [spring-xsuaa] fixes issue in `TokenBrokerResolver` for `CLIENT_CREDENTIALS` method (issue [705](https://github.com/SAP/cloud-security-xsuaa-integration/issues/705))
 
