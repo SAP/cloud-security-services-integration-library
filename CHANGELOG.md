@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
   - dependency-check-maven-plugin 6.4.1 --> 6.5.0
   - org.springframework:spring.core.version  5.3.12 --> 5.3.13
   - org.springframework:spring.security.version 5.5.3 --> 5.6.0
+  - logcaptor 2.7.0 --> 2.7.2 
 
 
 ## 2.11.2
