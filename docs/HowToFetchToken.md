@@ -6,7 +6,7 @@ Get your service configuration:
 <details>
   <summary>Using <b>X.509</b> Client Certificate</summary>
   
-1. Store the certificate and key from your service configuration in separate files in [PEM](https://datatracker.ietf.org/doc/html/rfc7468) format.
+1. Store the certificate and key from your service configuration in separate files in [PEM](https://www.ssl.com/guide/pem-der-crt-and-cer-x-509-encodings-and-conversions/#ftoc-heading-1) format.
    >❗ In case you experience invalid PEM file errors, \\n characters might have to be replaced by newlines \n to have the PEM in the correct format.
    > ```shell script    
    > awk '{gsub(/\\n/,"\n")}1' <file>.pem
@@ -61,7 +61,7 @@ Get your service configuration:
 <details>
   <summary>Using <b>X.509</b> Client Certificate</summary>
 
-1. Store the certificate and key from your service configuration in separate files in [PEM](https://datatracker.ietf.org/doc/html/rfc7468) format.
+1. Store the certificate and key from your service configuration in separate files in [PEM](https://www.ssl.com/guide/pem-der-crt-and-cer-x-509-encodings-and-conversions/#ftoc-heading-1) format.
    > ❗ In case you experience invalid PEM file errors, \\n characters might have to be replaced by newlines \n to have the PEM in the correct format.
    > ```shell script
    > awk '{gsub(/\\n/,"\n")}1' <file>.pem
