@@ -43,8 +43,8 @@ public final class TokenClaims {
 	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // tenant GUID
 	public static final String GROUPS = "groups"; // scim groups
 	public static final String AUTHORIZATION_PARTY = "azp"; // Authorization party contains OAuth client identifier
-	static final String CNF = "cnf"; // X509 certificate ("cnf" (confirmation)) claim
-	static final String CNF_X509_THUMBPRINT = "x5t#S256"; // X509 certificate thumbprint confirmation method
+	public static final String CNF = "cnf"; // X509 certificate ("cnf" (confirmation)) claim
+	public static final String CNF_X5T = "x5t#S256"; // X509 certificate thumbprint confirmation method
 
 	public final class XSUAA {
 

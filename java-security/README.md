@@ -79,7 +79,7 @@ OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getXsuaaCon
 ```
 > Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes. 
 
-Alternatively you can also specify the Service Configuration by your own:
+Alternatively, you can also specify your own Service Configuration:
 ```java
 OAuth2ServiceConfiguration serviceConfig = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
       .withProperty(CFConstants.XSUAA.APP_ID, "appid")
@@ -111,7 +111,7 @@ CombiningValidator<Token> validators = JwtValidatorBuilder.getInstance(serviceCo
 
 > For the Signature validation it needs to fetch the Json Web Token Keys (jwks) from the OAuth server. In case the token does not provide a `jku` header parameter it also requests the Open-ID Provider Configuration from the OAuth Server to determine the `jwks_uri`. The used Apache Rest client can be customized via the `JwtValidatorBuilder` builder.  
 
-> Furthermore the token keys fetched from the Identity Service are cached for about 10 minutes. You may like to overwrite the cache [default configuration](/java-security/src/main/java/com/sap/cloud/security/token/validation/validators/TokenKeyCacheConfiguration.java#L14) with `JwtValidatorBuilder.withCacheConfiguration()`.  
+> Furthermore, the token keys fetched from the Identity Service are cached for about 10 minutes. You may like to overwrite the cache [default configuration](/java-security/src/main/java/com/sap/cloud/security/token/validation/validators/TokenKeyCacheConfiguration.java#L14) with `JwtValidatorBuilder.withCacheConfiguration()`.  
 
 #### [Optional] Step 2.1: Add Validation Listeners for Audit Log
 Optionally, you can add a validation listener to the validator to be able to get called back whenever a token is validated. Here you may want to emit logs to the audit log service.
@@ -178,6 +178,26 @@ For the integration of different Identity Services the [`TokenAuthenticator`](/j
 > Depending on the application's needs the `TokenAuthenticator` can be customized.
 
 ![](images/xsuaaFilter.png)
+
+
+### ProofOfPossession validation 
+#### X509 certificate thumbprint `X5t` validation
+[JwtX5tValidator](src/main/java/com/sap/cloud/security/token/validation/validators/JwtX5tValidator.java) offers JWT Certificate Thumbprint `X5t` confirmation method's validation. See specification [here](https://tools.ietf.org/html/rfc8705#section-3.1). 
+This validator is not part of the default `CombiningValidator`, it needs to be added manually to `JwtValidatorBuilder` to use it. 
+It can be done in the following manner:
+```java
+JwtValidatorBuilder.getInstance(OAuth2ServiceConfiguration)
+    .with(new JwtX5tValidator())
+    .build();
+```
+
+#### Troubleshooting 
+In case of invalid response i.e 401 or 403 error codes, check application error logs for detailed messages. 
+
+Common reasons for failed validation:
+- invalid X509 certificate -> `CertificateException` is thrown when parsing of X509 certificate failed
+- X509 certificate is missing from the `SecurityContext`
+- `cnf` claim is missing from incoming request 
 
 ## Test Utilities
 You can find the JUnit test utilities documented [here](/java-security-test).

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.security.cert.X509Certificate;
 
 /**
  * Thread wide {@link Token} storage.
@@ -20,6 +21,41 @@ public class SecurityContext {
 	}
 
 	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
+	private static final ThreadLocal<X509Certificate> certificateStorage = new ThreadLocal<>();
+
+	/**
+	 * Returns the certificate that is saved in thread wide storage.
+	 *
+	 *
+	 * @return the certificate or null if the storage is empty.
+	 */
+	@Nullable
+	public static X509Certificate getClientCertificate() {
+		return certificateStorage.get();
+	}
+
+	/**
+	 * Saves the certificate thread wide.
+	 *
+	 * @param certificate
+	 *            certificate to be saved.
+	 */
+	public static void setClientCertificate(X509Certificate certificate) {
+		LOGGER.info("Sets certificate to SecurityContext (thread-locally). {}",
+				certificate);
+		certificateStorage.set(certificate);
+	}
+
+	/**
+	 * Clears the current Certificate from thread wide storage.
+	 */
+	private static void clearCertificate() {
+		final java.security.cert.X509Certificate certificate = certificateStorage.get();
+		if (certificate != null) {
+			LOGGER.debug("Certificate removed from SecurityContext (thread-locally).");
+			certificateStorage.remove();
+		}
+	}
 
 	/**
 	 * Saves the validated (!) token thread wide.
@@ -65,6 +101,14 @@ public class SecurityContext {
 			LOGGER.debug("Token of service {} removed from SecurityContext (thread-locally).", token.getService());
 			tokenStorage.remove();
 		}
+	}
+
+	/**
+	 * Clears the current token and certificate from thread wide storage.
+	 */
+	public static void clear() {
+		clearCertificate();
+		clearToken();
 	}
 
 }
