@@ -19,7 +19,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Map;
 
-import static com.sap.cloud.security.servlet.MDCConstants.CORRELATION_ID;
+import static com.sap.cloud.security.servlet.MDCHelper.CORRELATION_ID;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

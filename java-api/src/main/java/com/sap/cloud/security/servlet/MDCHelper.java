@@ -11,13 +11,13 @@ import org.slf4j.MDC;
 
 import java.util.UUID;
 
-import static com.sap.cloud.security.servlet.MDCConstants.CORRELATION_ID;
-
 /**
  * The Mapped Diagnostic Context helper class.
  */
 public final class MDCHelper {
 
+    public static final String CORRELATION_ID = "correlation_id";
+    public static final String CORRELATION_HEADER = "X-CorrelationID";
     private static final Logger LOGGER = LoggerFactory.getLogger(MDCHelper.class);
 
     private MDCHelper() {}

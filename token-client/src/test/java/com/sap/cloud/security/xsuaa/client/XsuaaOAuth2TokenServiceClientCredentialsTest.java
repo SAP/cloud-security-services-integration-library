@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.sap.cloud.security.servlet.MDCConstants.CORRELATION_ID;
+import static com.sap.cloud.security.servlet.MDCHelper.CORRELATION_ID;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
