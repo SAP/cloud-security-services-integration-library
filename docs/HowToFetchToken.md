@@ -102,7 +102,7 @@ Get your service configuration:
    ```
    </details>
    <details>
-       <summary>Using Postman command</summary>
+       <summary>Postman</summary>
        
    1. Import [Postman Collection](./IAS_XSUAA_token_fetch.postman_collection.json). For more info how to import it in Postman see [learning.postman.com](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data)
    2. Fill in the corresponding xsuaa_* Postman variables
