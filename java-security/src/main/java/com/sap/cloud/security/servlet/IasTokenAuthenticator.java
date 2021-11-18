@@ -19,8 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 
 public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 
-	private final X509CertificateExtractor x509CertificateExtractor = X509CertificateExtractor.getInstance();
-
 	@Override
 	public Token extractFromHeader(String authorizationHeader) {
 		return new SapIdToken(authorizationHeader);
@@ -29,7 +27,7 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 	@Override
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		SecurityContext.setClientCertificate(x509CertificateExtractor.getClientCertificate(httpRequest));
+		SecurityContext.setClientCertificate(X509CertificateExtractor.getInstance().getClientCertificate(httpRequest));
 		return super.validateRequest(request, response);
 	}
 

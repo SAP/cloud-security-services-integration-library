@@ -33,7 +33,6 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaTokenAuthenticator.class);
 	private static final String IAS_XSUAA_ENABLED = "IAS_XSUAA_XCHANGE_ENABLED";
 	private IasXsuaaExchangeBroker exchangeBroker;
-	private final X509CertificateExtractor x509CertificateExtractor = X509CertificateExtractor.getInstance();
 
 	public XsuaaTokenAuthenticator() {
 		serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
@@ -107,7 +106,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
-					SecurityContext.setClientCertificate(x509CertificateExtractor.getClientCertificate(httpRequest));
+					SecurityContext.setClientCertificate(X509CertificateExtractor.getInstance().getClientCertificate(httpRequest));
 					Token token = Token.create(authorizationHeader);
 					if (token.getService() == Service.IAS) {
 						if (exchangeBroker == null) {
