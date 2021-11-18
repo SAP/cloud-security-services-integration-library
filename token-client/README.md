@@ -43,7 +43,7 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.10
                     <OAuth2ServiceConfiguration>.getClientIdentity()));
 ```
-- `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding.
+- `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. Find further information on how to set it up [here](#OAuth2ServiceConfiguration).
 
 - `<CloseableHttpClient>` is your custom configured Apache http client. <br>You can use our preconfigured http client provided with `HttpClientFactory`: `HttpClientFactory.create(<OAuth2ServiceConfiguration>.getClientIdentity())`. <br>For productive usage you may want to overwrite the [default implementation](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) as documented [here](#new-warning-in-productive-environment-provide-well-configured-httpclientfactory-service).
 
@@ -102,7 +102,7 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.10
                     <OAuth2ServiceConfiguration>.getClientIdentity());
 ```
-- `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`.
+- `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`. Find further information on how to set it up [here](#OAuth2ServiceConfiguration).
 
 - `<RestOperations>` is your custom configured Spring http client.<br>
 For X.509 based authentication method you can configure Spring's rest client using Apache's http client. 
@@ -188,7 +188,7 @@ For X.509 based authentication method using an externally managed certificate, `
   ```
 :exclamation: **DO NOT** disclose your key or secret in publicly available places e.g. repository in github.com
 
-## OAuth2ServiceConfiguration
+## <a id="OAuth2ServiceConfiguration"></a>Setup OAuth2ServiceConfiguration
 `OAuth2ServiceConfiguration` holds the information from the respective XSUAA service binding. When using `spring-xsuaa` client library this is also given with `XsuaaServiceConfiguration`.
 
 #### Load from Environment
@@ -198,7 +198,7 @@ OAuth2ServiceConfiguration config = Environments.getCurrent().getXsuaaConfigurat
 > Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes. 
 
 #### Instantiate a custom one
-If you need to fetch a token using the uaa service configuration of your job scheduler, you can't use the config load from service binding. In that case you may leverage ``OAuth2ServiceConfigurationBuilder`` provided with ``env`` client library. 
+If you need to fetch a token using the uaa service configuration of your job scheduler, you can't use the config loaded from service binding. In that case you may leverage ``OAuth2ServiceConfigurationBuilder`` provided with ``env`` client library. 
 
 ```java
 OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA);
