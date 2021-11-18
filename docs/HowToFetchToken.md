@@ -2,11 +2,14 @@
 Get your service configuration:
 - In CF from [VCAP_SERVICES](https://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES) environment variable
 - In K8s/Kyma from configuration [secrets](https://kubernetes.io/docs/concepts/configuration/secret/)
+
+The documentation assumes the utility `curl` and `awk` to be installed (Mac OS: brew install curl, Ubuntu: sudo apt-get install curl). Alternatively, use [Postman Rest Client](https://www.postman.com/downloads/).
+
 ## IAS Tokens
 <details>
   <summary>Using <b>X.509</b> Client Certificate</summary>
   
-1. Store the certificate and key from your service configuration in separate files in [PEM](https://www.ssl.com/guide/pem-der-crt-and-cer-x-509-encodings-and-conversions/#ftoc-heading-1) format.
+1. Store the `certificate` and `key` from your service configuration in separate files in [PEM](https://www.ssl.com/guide/pem-der-crt-and-cer-x-509-encodings-and-conversions/#ftoc-heading-1) format.
    >❗ In case you experience invalid PEM file errors, \\n characters might have to be replaced by newlines \n to have the PEM in the correct format.
    > ```shell script    
    > awk '{gsub(/\\n/,"\n")}1' <file>.pem
@@ -61,7 +64,7 @@ Get your service configuration:
 <details>
   <summary>Using <b>X.509</b> Client Certificate</summary>
 
-1. Store the certificate and key from your service configuration in separate files in [PEM](https://www.ssl.com/guide/pem-der-crt-and-cer-x-509-encodings-and-conversions/#ftoc-heading-1) format.
+1.  Store the `certificate` and `key` from your service configuration in separate files in [PEM](https://www.ssl.com/guide/pem-der-crt-and-cer-x-509-encodings-and-conversions/#ftoc-heading-1) format.
    > ❗ In case you experience invalid PEM file errors, \\n characters might have to be replaced by newlines \n to have the PEM in the correct format.
    > ```shell script
    > awk '{gsub(/\\n/,"\n")}1' <file>.pem
