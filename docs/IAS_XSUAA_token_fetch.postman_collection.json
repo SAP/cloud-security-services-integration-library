@@ -31,12 +31,12 @@
 					"basic": [
 						{
 							"key": "password",
-							"value": "{{ias_clientid}}",
+							"value": "{{ias_clientsecret}}",
 							"type": "string"
 						},
 						{
 							"key": "username",
-							"value": "{{ias_clientsecret}}",
+							"value": "{{ias_clientid}}",
 							"type": "string"
 						}
 					]
