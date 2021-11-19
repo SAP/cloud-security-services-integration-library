@@ -6,10 +6,12 @@
 package com.sap.cloud.security.xsuaa;
 
 import com.sap.cloud.security.config.CredentialType;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Represents the XSUAA credentials of VCAP_SERVICES.
  */
+@ConfigurationProperties
 public class XsuaaCredentials {
 	private String clientId;
 	private String clientSecret;
@@ -94,11 +96,11 @@ public class XsuaaCredentials {
 		this.credentialType = credentialType;
 	}
 
-	public String getPrivateKey() {
+	public String getKey() {
 		return privateKey;
 	}
 
-	public void setPrivateKey(String privateKey) {
+	public void setKey(String privateKey) {
 		this.privateKey = privateKey;
 	}
 }
