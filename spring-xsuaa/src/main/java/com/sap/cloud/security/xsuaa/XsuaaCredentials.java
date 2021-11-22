@@ -11,7 +11,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Represents the XSUAA credentials of VCAP_SERVICES.
  */
-@ConfigurationProperties
 public class XsuaaCredentials {
 	private String clientId;
 	private String clientSecret;
