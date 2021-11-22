@@ -8,7 +8,9 @@ All notable changes to this project will be documented in this file.
     - Introduces X.509 certificate thumbprint validator `JwtX5tValidator` as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/README.md#x509-certificate-thumbprint-x5t-validation)
     - `IasTokenAuthenticator` and `XsuaaTokenAuthenticator` store the forwarded X.509 certificate for incoming requests in `SecurityContext`
     - `XsuaaDefaultEndpoints` provides a new [constructor(url, certUrl)](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/XsuaaDefaultEndpoints.java#L56) (issue [707](https://github.com/SAP/cloud-security-xsuaa-integration/issues/707))
-- [spring-xsuaa] `XsuaaServiceConfiguration` interface default method `getClientIdentity()` needs to be overridden to be used
+- [spring-xsuaa] 
+    - `XsuaaServiceConfiguration` interface default method `getClientIdentity()` needs to be overridden to be used
+    - :exclamation: Incompatible change `XsuaaCredentials`  `getPrivateKey()` `setPrivateKey()` has changed to `getKey()` `setKey()` to reflect the attribute name from configuration
 - [token-client] Adds ``X-CorrelationID`` header to outgoing requests. In case MDC provides "correlation_id" this one is taken (issue [691](https://github.com/SAP/cloud-security-xsuaa-integration/issues/691))
 
 #### Dependency upgrades

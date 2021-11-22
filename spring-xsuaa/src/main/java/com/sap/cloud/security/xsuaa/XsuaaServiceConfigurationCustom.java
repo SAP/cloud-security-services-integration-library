@@ -70,7 +70,7 @@ public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguratio
 
 	@Override
 	public ClientIdentity getClientIdentity() {
-		ClientIdentity identity = new ClientCertificate(credentials.getCertificate(), credentials.getPrivateKey(),
+		ClientIdentity identity = new ClientCertificate(credentials.getCertificate(), credentials.getKey(),
 				getClientId());
 		if (!identity.isValid()) {
 			identity = new ClientCredentials(getClientId(), getClientSecret());
