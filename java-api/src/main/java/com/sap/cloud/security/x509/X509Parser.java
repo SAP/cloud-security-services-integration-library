@@ -55,7 +55,7 @@ public class X509Parser {
 	 *             when a particular cryptographic algorithm is requested but is not
 	 *             available in the environment
 	 * @throws CertificateEncodingException
-	 *             is thrown if error occurs while encoding X509 certificatejava
+	 *             is thrown if error occurs while encoding X509 certificate
 	 */
 	public static String getCertificateThumbprint(X509Certificate x509Certificate)
 			throws NoSuchAlgorithmException, CertificateEncodingException {
