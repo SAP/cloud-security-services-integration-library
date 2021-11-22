@@ -13,10 +13,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class X509CertificateTest {
 
@@ -25,19 +23,14 @@ class X509CertificateTest {
 	private static X509Certificate cut;
 
 	@BeforeAll
-	static void beforeAll() throws IOException, CertificateException {
+	static void beforeAll() throws IOException {
 		x509_base64 = IOUtils.resourceToString("/cf-forwarded-client-cert-base64.txt", StandardCharsets.UTF_8);
 		cut = X509Certificate.newCertificate(x509_base64);
 	}
 
 	@Test
 	void newCertificate_invalid() {
-		assertThatThrownBy(() -> X509Certificate.newCertificate("invalid")).isInstanceOf(CertificateException.class);
-	}
-
-	@Test
-	void getCertificate() {
-		assertThat(cut.getCertificateValue()).isEqualTo(x509_base64);
+		assertThat(X509Certificate.newCertificate("invalid")).isNull();
 	}
 
 	@Test

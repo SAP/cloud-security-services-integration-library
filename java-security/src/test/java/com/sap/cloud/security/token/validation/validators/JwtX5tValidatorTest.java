@@ -8,7 +8,7 @@ package com.sap.cloud.security.token.validation.validators;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.x509.X509Parser;
+import com.sap.cloud.security.x509.X509Certificate;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -18,8 +18,6 @@ import org.mockito.internal.util.collections.Sets;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,11 +34,11 @@ class JwtX5tValidatorTest {
 	private static final String INVALID_MESSAGE = "Certificate validation failed";
 
 	@BeforeAll
-	static void beforeAll() throws IOException, CertificateException {
+	static void beforeAll() throws IOException {
 		tokenWithX5t = IOUtils.resourceToString("/iasTokenWithCnfRSA256.txt", StandardCharsets.UTF_8);
 		tokenWithInvalidX5t = IOUtils.resourceToString("/iasTokenInvalidCnfRSA256.txt", StandardCharsets.UTF_8);
-		x509 = X509Parser
-				.parseCertificate(IOUtils.resourceToString("/cf-forwarded-client-cert.txt", StandardCharsets.UTF_8));
+		x509 = X509Certificate
+				.newCertificate(IOUtils.resourceToString("/cf-forwarded-client-cert.txt", StandardCharsets.UTF_8));
 	}
 
 	@Test

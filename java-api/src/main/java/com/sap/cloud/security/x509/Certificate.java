@@ -14,17 +14,11 @@ import java.security.cert.CertificateEncodingException;
 public interface Certificate {
 
 	/**
-	 * Gets base64 encoded certificate value.
-	 *
-	 * @return the certificate value
-	 */
-	String getCertificateValue();
-
-	/**
 	 * Gets certificate 'x5t' thumbprint which is a base64url-encoded SHA-1
 	 * thumbprint (a.k.a. digest) of the DER encoding of an X.509 certificate.
 	 *
-	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc7517#section-4.8"/a>
+	 * @see <a href=
+	 *      "https://datatracker.ietf.org/doc/html/rfc7517#section-4.8">x5t</a>
 	 *
 	 * @return the thumbprint
 	 * @throws CertificateEncodingException

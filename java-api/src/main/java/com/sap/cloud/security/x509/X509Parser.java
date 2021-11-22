@@ -20,7 +20,7 @@ import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Objects;
 
-public class X509Parser {
+class X509Parser {
 	public static final Logger LOGGER = LoggerFactory.getLogger(X509Parser.class);
 	public static final String BEGIN_CERTIFICATE = "-----BEGIN CERTIFICATE-----";
 	public static final String END_CERTIFICATE = "-----END CERTIFICATE-----";
@@ -37,7 +37,7 @@ public class X509Parser {
 	 * @throws CertificateException
 	 *             if String value of certificate cannot be parsed
 	 */
-	public static X509Certificate parseCertificate(@Nonnull String encodedX509) throws CertificateException {
+	static X509Certificate parseCertificate(@Nonnull String encodedX509) throws CertificateException {
 		String encodedPemX509 = formatBase64Cert(encodedX509);
 		CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 		ByteArrayInputStream bytes = new ByteArrayInputStream(encodedPemX509.getBytes(StandardCharsets.UTF_8));
@@ -57,7 +57,7 @@ public class X509Parser {
 	 * @throws CertificateEncodingException
 	 *             is thrown if error occurs while encoding X509 certificate
 	 */
-	public static String getCertificateThumbprint(X509Certificate x509Certificate)
+	static String getCertificateThumbprint(X509Certificate x509Certificate)
 			throws NoSuchAlgorithmException, CertificateEncodingException {
 		MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
 		byte[] hashedX509 = sha256.digest(x509Certificate.getEncoded());

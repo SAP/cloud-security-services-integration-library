@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 
@@ -39,17 +37,10 @@ public class X509CertificateExtractor {
 	 * @return the client certificate object
 	 */
 	@Nullable
-	public X509Certificate getClientCertificate(HttpServletRequest request) {
+	public String getClientCertificate(HttpServletRequest request) {
 		String clientCert = request.getHeader(FWD_CLIENT_CERT_HEADER);
 		LOGGER.debug("{} = {}", FWD_CLIENT_CERT_HEADER, clientCert);
-		if (clientCert != null && !clientCert.isEmpty()) {
-			try {
-				return X509Parser.parseCertificate(clientCert);
-			} catch (CertificateException e) {
-				LOGGER.warn("Could not parse the certificate", e);
-			}
-		}
-		return null;
+		return clientCert;
 	}
 
 }

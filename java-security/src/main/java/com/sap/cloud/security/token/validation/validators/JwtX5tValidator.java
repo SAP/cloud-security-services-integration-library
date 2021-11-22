@@ -7,14 +7,13 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
-import com.sap.cloud.security.x509.X509Parser;
+import com.sap.cloud.security.x509.Certificate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 /**
  * Validates if the jwt access token is intended for the OAuth2 client of this
@@ -50,13 +49,13 @@ public class JwtX5tValidator implements Validator<Token> {
 		String tokenX5t = extractCnfThumbprintFromToken(token);
 		LOGGER.debug("Token 'cnf' thumbprint: {}", tokenX5t);
 		if (tokenX5t != null) {
-			X509Certificate clientCertificate = SecurityContext.getClientCertificate();
+			Certificate clientCertificate = SecurityContext.getClientCertificate();
 			if (clientCertificate == null) {
 				LOGGER.error("Client certificate missing from SecurityContext");
 				return ValidationResults.createInvalid("Certificate validation failed");
 			}
 			try {
-				String clientCertificateX5t = X509Parser.getCertificateThumbprint(clientCertificate);
+				String clientCertificateX5t = clientCertificate.getThumbprint();
 				if (clientCertificateX5t.equals(tokenX5t)) {
 					// TODO add audience check (azp client id of the caller and
 					// client id of the bound identity) when clarified
