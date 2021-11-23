@@ -46,31 +46,26 @@ Further up-to-date information you can get on sap.help.com:
 - [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
 
 ## Access the application
-- Get an access token via `curl`. You can get the information to fill the placeholders from the service binding secret:
-```shell script
-kubectl get secret "xsuaa-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
-```
+1. Follow [HowToFetchToken](../../docs/HowToFetchToken.md#xsuaa-tokens) guide to fetch Xsuaa access token.
+ 
+     You can get the information to fill the placeholders from the service binding secret:
+    ```shell script
+    kubectl get secret "xsuaa-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
+    ```
 
-```
-curl -X POST \
-  <<url>>/oauth/token \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'client_id=<<clientid>>&client_secret=<<clientsecret>>&grant_type=password&username=<<your username>>&password=<<your password>>'
-```
+    Copy the `access_token` to your clipboard.
 
-Copy the `access_token` to your clipboard.
+2. Access the app via `curl`. Don't forget to fill the placeholders.
+    ```
+    curl -X GET \
+      https://java-security-api.<<K8S DOMAIN>>/java-security-usage/hello-java-security \
+      -H 'Authorization: Bearer <<your access_token>>'
+    ```
 
-- Access the app via `curl`. Don't forget to fill the placeholders.
-```
-curl -X GET \
-  https://java-security-api.<<K8S DOMAIN>>/java-security-usage/hello-java-security \
-  -H 'Authorization: Bearer <<your access_token>>'
-```
-
-You should see something like this:
-```
-You ('<your user>') can access the application with the following scopes: '<your scopes>'.
-```
+3. You should see something like this:
+    ```
+    You ('<your user>') can access the application with the following scopes: '<your scopes>'.
+    ```
 ## Cleanup
 Finally, delete your application and your service instances using the following commands:
 ```shell script
@@ -120,28 +115,23 @@ Further up-to-date information you can get on sap.help.com:
 
 
 ## Access the application
-- Get an access token via `curl`. You can get the information to fill the placeholders from your system environment `cf env java-security-usage`:
+1. Follow [HowToFetchToken](../../docs/HowToFetchToken.md#xsuaa-tokens) guide to fetch Xsuaa access token.
 
-```
-curl -X POST \
-  <<VCAP_SERVICES.xsuaa.credentials.url>>/oauth/token \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'client_id=<<VCAP_SERVICES.xsuaa.credentials.clientid>>&client_secret=<<VCAP_SERVICES.xsuaa.credentials.clientsecret>>&grant_type=password&username=<<your username>>&password=<<your password>>'
-```
+   You can get the information to fill the placeholders from your system environment `cf env java-security-usage`:
 
-Copy the `access_token` to your clipboard.
+   Copy the `access_token` to your clipboard.
 
-- Access the app via `curl`. Don't forget to fill the placeholders.
-```
-curl -X GET \
-  https://java-security-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/hello-java-security \
-  -H 'Authorization: Bearer <<your access_token>>'
-```
+2. Access the app via `curl`. Don't forget to fill the placeholders.
+    ```
+    curl -X GET \
+      https://java-security-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/hello-java-security \
+      -H 'Authorization: Bearer <<your access_token>>'
+    ```
 
-You should see something like this:
-```
-You ('<your user>') can access the application with the following scopes: '<your scopes>'.
-```
+3. You should see something like this:
+    ```
+    You ('<your user>') can access the application with the following scopes: '<your scopes>'.
+    ```
 
 ## Clean-Up
 Finally, delete your application and your service instances using the following commands:
