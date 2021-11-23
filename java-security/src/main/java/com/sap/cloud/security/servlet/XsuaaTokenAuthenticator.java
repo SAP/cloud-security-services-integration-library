@@ -12,7 +12,6 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.x509.X509Certificate;
-import com.sap.cloud.security.x509.X509CertificateExtractor;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -108,7 +107,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 			if (headerIsAvailable(authorizationHeader)) {
 				try {
 					SecurityContext.setClientCertificate(X509Certificate
-							.newCertificate(X509CertificateExtractor.getInstance().getClientCertificate(httpRequest)));
+							.newCertificate(getClientCertificate(httpRequest)));
 					Token token = Token.create(authorizationHeader);
 					if (token.getService() == Service.IAS) {
 						if (exchangeBroker == null) {

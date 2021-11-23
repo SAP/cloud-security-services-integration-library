@@ -11,7 +11,6 @@ import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.x509.X509Certificate;
-import com.sap.cloud.security.x509.X509CertificateExtractor;
 
 import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
@@ -29,7 +28,7 @@ public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		SecurityContext.setClientCertificate(X509Certificate
-				.newCertificate(X509CertificateExtractor.getInstance().getClientCertificate(httpRequest)));
+				.newCertificate(getClientCertificate(httpRequest)));
 		return super.validateRequest(request, response);
 	}
 

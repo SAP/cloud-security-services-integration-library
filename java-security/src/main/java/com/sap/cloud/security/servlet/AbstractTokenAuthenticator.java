@@ -30,6 +30,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
+
 public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTokenAuthenticator.class);
@@ -176,6 +178,21 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		} else {
 			return unauthenticated("Error during token validation: " + result.getErrorDescription());
 		}
+	}
+
+	/**
+	 * Extracts the forwarded client certificate from 'x-forwarded-client-cert'
+	 * header.
+	 *
+	 * @param request
+	 *            the HttpServletRequest
+	 * @return the client certificate object
+	 */
+	@Nullable
+	String getClientCertificate(HttpServletRequest request) {
+		String clientCert = request.getHeader(FWD_CLIENT_CERT_HEADER);
+		logger.debug("{} = {}", FWD_CLIENT_CERT_HEADER, clientCert);
+		return clientCert;
 	}
 
 }
