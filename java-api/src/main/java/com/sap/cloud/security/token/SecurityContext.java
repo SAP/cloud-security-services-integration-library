@@ -5,11 +5,11 @@
  */
 package com.sap.cloud.security.token;
 
+import com.sap.cloud.security.x509.Certificate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.security.cert.X509Certificate;
 
 /**
  * Thread wide {@link Token} storage.
@@ -21,7 +21,7 @@ public class SecurityContext {
 	}
 
 	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
-	private static final ThreadLocal<X509Certificate> certificateStorage = new ThreadLocal<>();
+	private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
 
 	/**
 	 * Returns the certificate that is saved in thread wide storage.
@@ -30,7 +30,7 @@ public class SecurityContext {
 	 * @return the certificate or null if the storage is empty.
 	 */
 	@Nullable
-	public static X509Certificate getClientCertificate() {
+	public static Certificate getClientCertificate() {
 		return certificateStorage.get();
 	}
 
@@ -40,7 +40,7 @@ public class SecurityContext {
 	 * @param certificate
 	 *            certificate to be saved.
 	 */
-	public static void setClientCertificate(X509Certificate certificate) {
+	public static void setClientCertificate(Certificate certificate) {
 		LOGGER.info("Sets certificate to SecurityContext (thread-locally). {}",
 				certificate);
 		certificateStorage.set(certificate);
@@ -50,7 +50,7 @@ public class SecurityContext {
 	 * Clears the current Certificate from thread wide storage.
 	 */
 	private static void clearCertificate() {
-		final java.security.cert.X509Certificate certificate = certificateStorage.get();
+		final Certificate certificate = certificateStorage.get();
 		if (certificate != null) {
 			LOGGER.debug("Certificate removed from SecurityContext (thread-locally).");
 			certificateStorage.remove();
