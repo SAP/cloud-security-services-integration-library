@@ -157,7 +157,8 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 
 	@Test
 	public void correlationIdProvisioning() throws IOException {
-		when(mockRestOperations.postForEntity(any(), any(), any())).thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
+		when(mockRestOperations.postForEntity(any(), any(), any()))
+				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
 		Logger logger = (Logger) LoggerFactory.getLogger(MDCHelper.class);

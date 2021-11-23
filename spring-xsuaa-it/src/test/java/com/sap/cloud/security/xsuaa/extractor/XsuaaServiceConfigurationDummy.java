@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.xsuaa.extractor;
 
-import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
