@@ -47,9 +47,13 @@ public class X509Certificate implements Certificate {
 	}
 
 	@Override
-	public String getThumbprint() throws CertificateEncodingException, NoSuchAlgorithmException {
+	public String getThumbprint() throws InvalidCertificateException {
 		if (thumbprint == null) {
-			this.thumbprint = X509Parser.getCertificateThumbprint(x509);
+			try {
+				this.thumbprint = X509Parser.getCertificateThumbprint(x509);
+			} catch (NoSuchAlgorithmException | CertificateEncodingException e) {
+				throw new InvalidCertificateException("Could not parse thumbprint", e);
+			}
 		}
 		return this.thumbprint;
 	}

@@ -5,8 +5,6 @@
  */
 package com.sap.cloud.security.x509;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
 
 /**
  * Represents mTLS certificate.
@@ -21,12 +19,10 @@ public interface Certificate {
 	 *      "https://datatracker.ietf.org/doc/html/rfc7517#section-4.8">x5t</a>
 	 *
 	 * @return the thumbprint
-	 * @throws CertificateEncodingException
+	 * @throws InvalidCertificateException
 	 *             if error occurs while encoding X509 certificate
-	 * @throws NoSuchAlgorithmException
-	 *             when a particular cryptographic algorithm is requested but is not
-	 *             * available in the environment
+	 *             or when a particular cryptographic algorithm is not supported
 	 */
-	String getThumbprint() throws CertificateEncodingException, NoSuchAlgorithmException;
+	String getThumbprint() throws InvalidCertificateException;
 
 }
