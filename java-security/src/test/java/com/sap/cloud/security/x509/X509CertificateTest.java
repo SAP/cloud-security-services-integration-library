@@ -11,8 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +32,7 @@ class X509CertificateTest {
 	}
 
 	@Test
-	void getThumbprint() throws NoSuchAlgorithmException, CertificateEncodingException {
+	void getThumbprint() {
 		assertThat(cut.getThumbprint()).isEqualTo(x5t);
 	}
 
