@@ -5,8 +5,13 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.x509.X509Certificate;
 import org.apache.commons.io.IOUtils;
@@ -25,13 +30,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JwtX5tValidatorTest {
 
-	private static final JwtX5tValidator CUT = new JwtX5tValidator();
-	public static final String X5T_VALIDATOR_DISABLED = "X5tValidator is not enabled";
+	private static JwtX5tValidator CUT;
 	private static String tokenWithX5t;
 	private static String tokenWithInvalidX5t;
-	private static final Token TOKEN = Mockito.mock(Token.class);
 	private static X509Certificate x509;
+	private static final Token TOKEN = Mockito.mock(Token.class);
+	private static final JsonObject JSON_MOCK = Mockito.mock(JsonObject.class);
 	private static final String INVALID_MESSAGE = "Certificate validation failed";
+	private static final String X5T_VALIDATOR_DISABLED = "X5tValidator is not enabled";
 
 	@BeforeAll
 	static void beforeAll() throws IOException {
@@ -39,10 +45,16 @@ class JwtX5tValidatorTest {
 		tokenWithInvalidX5t = IOUtils.resourceToString("/iasTokenInvalidCnfRSA256.txt", StandardCharsets.UTF_8);
 		x509 = X509Certificate
 				.newCertificate(IOUtils.resourceToString("/cf-forwarded-client-cert.txt", StandardCharsets.UTF_8));
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
+				.forService(Service.IAS)
+				.withClientId("myClientId")
+				.build();
+		CUT = new JwtX5tValidator(configuration);
+		Mockito.when(JSON_MOCK.getAsString(TokenClaims.CNF_X5T)).thenReturn("fU-XoQlhMTpQsz9ArXl6zHIpMGuRO4ExLKdLRTc5VjM");
 	}
 
 	@Test
-	void validateToken_WithValidCnf_validX509() {
+	void validateToken_ValidToken_validX509() {
 		Token token = Token.create(tokenWithX5t);
 		SecurityContext.setClientCertificate(x509);
 		ValidationResult result = CUT.validate(token);
@@ -50,7 +62,36 @@ class JwtX5tValidatorTest {
 	}
 
 	@Test
-	void validateToken_WithInvalidCnf_validX509() {
+	void validateToken_ValidToken_invalidX509() {
+		Token token = Token.create(tokenWithX5t);
+		SecurityContext.setClientCertificate(null);
+		ValidationResult result = CUT.validate(token);
+		assertTrue(result.isErroneous());
+		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
+	}
+
+	@Test
+	void validateToken_validCnf_validX509_MultipleAud() {
+		SecurityContext.setClientCertificate(x509);
+		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("aud1", "aud2"));
+		Mockito.when(TOKEN.getClaimAsJsonObject(TokenClaims.CNF)).thenReturn(JSON_MOCK);
+		ValidationResult result = CUT.validate(TOKEN);
+		assertTrue(result.isErroneous());
+		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
+	}
+
+	@Test
+	void validateToken_validCnf_validX509_EmptyAud() {
+		SecurityContext.setClientCertificate(x509);
+		Mockito.when(TOKEN.getAudiences()).thenReturn(Collections.emptySet());
+		Mockito.when(TOKEN.getClaimAsJsonObject(TokenClaims.CNF)).thenReturn(JSON_MOCK);
+		ValidationResult result = CUT.validate(TOKEN);
+		assertTrue(result.isErroneous());
+		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
+	}
+
+	@Test
+	void validateToken_InvalidCnf_validX509() {
 		Token token = Token.create(tokenWithInvalidX5t);
 		SecurityContext.setClientCertificate(x509);
 		ValidationResult result = CUT.validate(token);
@@ -59,10 +100,37 @@ class JwtX5tValidatorTest {
 	}
 
 	@Test
-	void validateToken_WithInvalidCnf_invalidX509() {
+	void validateToken_InvalidCnf_invalidX509() {
 		Token token = Token.create(tokenWithInvalidX5t);
 		SecurityContext.setClientCertificate(null);
 		ValidationResult result = CUT.validate(token);
+		assertTrue(result.isErroneous());
+		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
+	}
+
+	@Test
+	void validateToken_NoCnf_validAud() {
+		Mockito.when(JSON_MOCK.getAsString(TokenClaims.CNF_X5T)).thenReturn(null);
+		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("myClientId"));
+		ValidationResult result = CUT.validate(TOKEN);
+		assertTrue(result.isErroneous());
+		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
+	}
+
+	@Test
+	void validateToken_NoCnf_MultipleAud() {
+		Mockito.when(JSON_MOCK.getAsString(TokenClaims.CNF_X5T)).thenReturn(null);
+		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("aud1", "aud2"));
+		ValidationResult result = CUT.validate(TOKEN);
+		assertTrue(result.isErroneous());
+		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
+	}
+
+	@Test
+	void validateToken_NoCnf_EmptyAud() {
+		Mockito.when(JSON_MOCK.getAsString(TokenClaims.CNF_X5T)).thenReturn(null);
+		Mockito.when(TOKEN.getAudiences()).thenReturn(Collections.emptySet());
+		ValidationResult result = CUT.validate(TOKEN);
 		assertTrue(result.isErroneous());
 		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
 	}
@@ -74,32 +142,6 @@ class JwtX5tValidatorTest {
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isErroneous());
 		assertEquals(X5T_VALIDATOR_DISABLED, result.getErrorDescription());
-	}
-
-	@Disabled("until aud claim validation is clarified")
-	@Test
-	void validateToken_NoCnfSingleAud() {
-		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("myClientId"));
-		ValidationResult result = CUT.validate(TOKEN);
-		assertTrue(result.isValid());
-	}
-
-	@Disabled("until aud claim validation is clarified")
-	@Test
-	void validateToken_NoCnfMultipleAud() {
-		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("aud1", "aud2"));
-		ValidationResult result = CUT.validate(TOKEN);
-		assertTrue(result.isErroneous());
-		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
-	}
-
-	@Disabled("until aud claim validation is clarified")
-	@Test
-	void validateToken_NoCnfEmptyAud() {
-		Mockito.when(TOKEN.getAudiences()).thenReturn(Collections.emptySet());
-		ValidationResult result = CUT.validate(TOKEN);
-		assertTrue(result.isErroneous());
-		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
 	}
 
 }
