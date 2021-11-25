@@ -52,7 +52,7 @@ class IasTokenAuthenticatorX509Test {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.IAS)
 				.withDomains("myauth.com")
-				.withClientId("T000310")
+				.withClientId("myClientId")
 				.build();
 
 		CloseableHttpClient httpClientMock = Mockito.mock(CloseableHttpClient.class);
@@ -67,7 +67,7 @@ class IasTokenAuthenticatorX509Test {
 
 		JwtValidatorBuilder
 				.getInstance(configuration)
-				.with(new JwtX5tValidator());
+				.with(new JwtX5tValidator(configuration));
 		cut = new IasTokenAuthenticator()
 				.withServiceConfiguration(configuration)
 				.withHttpClient(httpClientMock);

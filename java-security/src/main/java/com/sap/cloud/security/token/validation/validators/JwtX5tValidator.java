@@ -1,5 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
@@ -28,6 +29,12 @@ import javax.annotation.Nullable;
 public class JwtX5tValidator implements Validator<Token> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtX5tValidator.class);
+	private final OAuth2ServiceConfiguration config;
+
+
+	public JwtX5tValidator(OAuth2ServiceConfiguration config) {
+		this.config = config;
+	}
 
 	/**
 	 * Validates the cnf thumbprint of X509 certificate against trusted
@@ -54,12 +61,14 @@ public class JwtX5tValidator implements Validator<Token> {
 			}
 			String clientCertificateX5t = clientCertificate.getThumbprint();
 			if (clientCertificateX5t.equals(tokenX5t)) {
-				// TODO add audience check (azp client id of the caller and
-				// client id of the bound identity) when clarified
-				return ValidationResults.createValid();
+				if (token.getAudiences().size() == 1 && token.getAudiences().contains(config.getClientId())) {
+					return ValidationResults.createValid();
+				}
+				LOGGER.error("Audience validation failed -> \"aud\": {} != \"clientid\": \"{}\"", token.getAudiences(), config.getClientId());
+			} else {
+				LOGGER.error("Thumbprint validation failed -> x5t from token: \"{}\" != thumbprint from client certificate: \"{}\"", tokenX5t,
+						clientCertificateX5t);
 			}
-			LOGGER.error("Thumbprint from token {} != thumbprint from client certificate {}", tokenX5t,
-					clientCertificateX5t);
 		}
 		return ValidationResults.createInvalid("Certificate validation failed");
 	}
