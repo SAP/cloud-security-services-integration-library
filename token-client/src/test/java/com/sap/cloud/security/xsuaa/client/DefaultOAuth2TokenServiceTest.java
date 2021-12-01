@@ -36,7 +36,7 @@ import java.time.Instant;
 import java.util.Map;
 
 import static com.sap.cloud.security.servlet.MDCHelper.CORRELATION_ID;
-import static java.util.Collections.*;
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
