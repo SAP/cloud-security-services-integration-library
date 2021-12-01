@@ -170,6 +170,7 @@ public class AbstractOAuth2TokenServiceTest {
 		OAuth2TokenResponse secondResponse = retrieveAccessTokenViaClientCredentials();
 
 		assertThat(firstResponse).isSameAs(secondResponse);
+		assertThat(cut.tokenRequestCallCount).isEqualTo(1);
 	}
 
 	@Test
@@ -200,8 +201,7 @@ public class AbstractOAuth2TokenServiceTest {
 		OAuth2TokenResponse lastResponse = retrieveAccessTokenViaClientCredentials(clientIdentity(), false);
 
 		assertThat(cut.tokenRequestCallCount).isEqualTo(2);
-		assertThat(firstResponse).isNotSameAs(secondResponse);
-		assertThat(firstResponse).isSameAs(lastResponse);
+		assertThat(firstResponse).isNotSameAs(secondResponse).isSameAs(lastResponse);
 	}
 
 	@Test
@@ -261,7 +261,7 @@ public class AbstractOAuth2TokenServiceTest {
 	private OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(String token,
 			Map<String, String> optionalParameters) throws OAuth2ServiceException {
 		return cut.retrieveAccessTokenViaJwtBearerTokenGrant(TOKEN_ENDPOINT_URI, clientIdentity(), token, null,
-				optionalParameters);
+				optionalParameters, false);
 	}
 
 	private OAuth2TokenResponse retrieveAccessTokenViaClientCredentials() throws OAuth2ServiceException {

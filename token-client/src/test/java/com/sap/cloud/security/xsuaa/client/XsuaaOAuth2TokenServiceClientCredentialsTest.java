@@ -35,6 +35,7 @@ import java.util.Map;
 
 import static com.sap.cloud.security.servlet.MDCHelper.CORRELATION_ID;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -67,19 +68,21 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 
 	@Test
 	public void retrieveToken_throwsOnNullValues() {
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaClientCredentialsGrant(null, clientIdentity, null, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
+		assertThatThrownBy(
+				() -> cut.retrieveAccessTokenViaClientCredentialsGrant(null, clientIdentity, null, null, null, false))
+						.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
 
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, null, null, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
+		assertThatThrownBy(
+				() -> cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, null, null, null, null, false))
+						.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
 	public void retrieveToken_throwsIfHttpStatusUnauthorized() throws OAuth2ServiceException {
 		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
-		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientIdentity,
-				null, null);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientIdentity, null,
+				null, null, false);
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
@@ -87,7 +90,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientIdentity,
-				null, null);
+				null, null, null, false);
 	}
 
 	@Test
@@ -105,7 +108,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 
 		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
 				clientIdentity,
-				null, null);
+				null, null, null, false);
 		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
 		assertThat(accessToken.getTokenType(), is(responseMap.get(TOKEN_TYPE)));
 		assertNotNull(accessToken.getExpiredAt());
@@ -129,8 +132,8 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
-				clientIdentity, null,
-				additionalParameters);
+				clientIdentity, null, null,
+				additionalParameters, false);
 		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
 	}
 
@@ -150,9 +153,20 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 		overwrittenGrantType.put(GRANT_TYPE, "overwrite-obligatory-param");
 
 		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
-				clientIdentity, null,
-				overwrittenGrantType);
+				clientIdentity, null, null,
+				overwrittenGrantType, false);
 		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
+	}
+
+	@Test
+	public void retrieveToken_testCache() throws IOException {
+		when(mockRestOperations.postForEntity(any(), any(), any()))
+				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
+
+		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientIdentity, null, null, emptyMap(), false);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, clientIdentity, null, null, emptyMap(), false);
+
+		verify(mockRestOperations, times(1)).postForEntity(any(), any(), any());
 	}
 
 	@Test
