@@ -172,7 +172,7 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 
 		MDC.put(CORRELATION_ID, "my-correlation-id");
 		cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
-				clientIdentity, null, null, Collections.emptyMap(), false);
+				clientIdentity, "zone", null, Collections.emptyMap(), false);
 		Assertions.assertThat(listAppender.list.get(1).getLevel()).isEqualTo(Level.DEBUG);
 		Assertions.assertThat(listAppender.list.get(1).getArgumentArray()[1]).isEqualTo(("my-correlation-id"));
 		MDC.clear();
