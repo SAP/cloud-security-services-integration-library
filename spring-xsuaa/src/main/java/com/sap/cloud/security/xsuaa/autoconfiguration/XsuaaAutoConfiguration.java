@@ -84,7 +84,7 @@ public class XsuaaAutoConfiguration {
 	 * @return the {@link RestOperations} instance.
 	 */
 	@Bean
-	@Conditional({ OnNotX509CredentialTypeCondition.class })
+	@Conditional({ OnNotX509CredentialTypeCondition.class, PropertyConditions.class })
 	@ConditionalOnMissingBean
 	public RestOperations xsuaaRestOperations() {
 		LOGGER.warn("In productive environment provide a well configured client secret based RestOperations bean");
@@ -101,6 +101,7 @@ public class XsuaaAutoConfiguration {
 	@ConditionalOnProperty(prefix = "xsuaa", name = "credential-type", havingValue = "x509")
 	@ConditionalOnMissingBean
 	@ConditionalOnClass(name = "org.apache.http.impl.client.CloseableHttpClient")
+	@Conditional(PropertyConditions.class)
 	public RestOperations xsuaaMtlsRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		LOGGER.warn("In productive environment provide a well configured certificate based RestOperations bean");
 		return SpringHttpClient.getInstance().create(xsuaaServiceConfiguration.getClientIdentity());
