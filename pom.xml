@@ -99,50 +99,18 @@
 		<module>spring-xsuaa-mock</module>
 		<module>spring-xsuaa-starter</module>
 		<module>spring-xsuaa-it</module>
+		<module>bom</module>
     </modules>
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- modules -->
+			<!-- Project BOM -->
 			<dependency>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>api</artifactId>
+				<groupId>com.sap.cloud.security</groupId>
+				<artifactId>BOM</artifactId>
 				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>token-client</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>${parent-groupId}</groupId>
-				<artifactId>java-api</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>spring-xsuaa</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>spring-xsuaa-test</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>${parent-groupId}</groupId>
-				<artifactId>spring-security</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>${parent-groupId}</groupId>
-				<artifactId>java-security-test</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>${parent-groupId}</groupId>
-				<artifactId>java-security</artifactId>
-				<version>${project.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<!-- spring -->
 			<!-- BOMs -->
