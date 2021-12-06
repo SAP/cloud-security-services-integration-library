@@ -301,8 +301,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	}
 
 	private void getAndCacheToken(CacheKey cacheKey) throws OAuth2ServiceException {
-		responseCache.put(cacheKey,
-				requestAccessToken(cacheKey.tokenEndpointUri, cacheKey.headers, cacheKey.parameters));
+		HttpHeaders headers = new HttpHeaders();
+		cacheKey.headers.getHeaders().forEach(h -> headers.withHeader(h.getName(), h.getValue()));
+		responseCache.put(cacheKey, requestAccessToken(cacheKey.tokenEndpointUri, headers, cacheKey.parameters));
 	}
 
 	private boolean isCacheDisabled() {
