@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.4
+- [token-client] hotfix for token cache miss issue
+
+#### Dependency upgrades
+- spring.boot.version 2.6.0 --> 2.6.1
+- caffeine 2.9.2 --> 2.9.3
+- com.github.tomakehurst:wiremock-jre8-standalone 2.31.0 --> 2.32.0
+
 ## 2.11.3
 - [java-api] 
     - `SecurityContext` has been extended to provide thread-wide X.509 certificate storage
