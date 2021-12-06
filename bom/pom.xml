@@ -8,7 +8,6 @@
     <artifactId>BOM</artifactId>
     <version>2.11.4</version>
     <packaging>pom</packaging>
-    <name>sap-cloud-security-BOM</name>
 
     <url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
     <description>BOM of XSUAA authentication and authorization service integration libraries and samples
