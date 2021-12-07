@@ -9,6 +9,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
@@ -134,6 +135,20 @@ public class DefaultOAuth2TokenServiceTest {
 				.hasMessageContaining(unauthorizedResponseText)
 				.hasMessageContaining(TOKEN_ENDPOINT_URI.toString())
 				.extracting("httpStatusCode").isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+	}
+
+	@Test
+	public void retrieveToken_testCache() throws IOException {
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(VALID_JSON_RESPONSE);
+		when(mockHttpClient.execute(any(HttpPost.class)))
+				.thenReturn(response);
+
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI,
+				new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI,
+				new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
+
+		verify(mockHttpClient, times(1)).execute(any(HttpPost.class));
 	}
 
 	private OAuth2TokenResponse requestAccessToken(Map<String, String> optionalParameters)
