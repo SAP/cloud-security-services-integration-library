@@ -143,8 +143,10 @@ public class DefaultOAuth2TokenServiceTest {
 		when(mockHttpClient.execute(any(HttpPost.class)))
 				.thenReturn(response);
 
-		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
-		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI, new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI,
+				new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI,
+				new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
 
 		verify(mockHttpClient, times(1)).execute(any(HttpPost.class));
 	}
