@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 - [token-client] hotfix for token cache miss issue
 
 #### Dependency upgrades
+- org.json.version 20210307 --> 20211205
+
+## 2.11.4
+#### Dependency upgrades
 - spring.boot.version 2.6.0 --> 2.6.1
 - caffeine 2.9.2 --> 2.9.3
 - com.github.tomakehurst:wiremock-jre8-standalone 2.31.0 --> 2.32.0
