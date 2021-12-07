@@ -1,9 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.11.4
+## 2.11.5
 - [token-client] hotfix for token cache miss issue
 
+#### Dependency upgrades
+- org.json.version 20210307 --> 20211205
+
+## 2.11.4
 #### Dependency upgrades
 - spring.boot.version 2.6.0 --> 2.6.1
 - caffeine 2.9.2 --> 2.9.3
