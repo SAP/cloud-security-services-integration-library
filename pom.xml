@@ -107,7 +107,7 @@
 			<!-- Project BOM -->
 			<dependency>
 				<groupId>com.sap.cloud.security</groupId>
-				<artifactId>BOM</artifactId>
+				<artifactId>java-bom</artifactId>
 				<version>${project.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
