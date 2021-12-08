@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>BOM</artifactId>
-    <version>2.11.4</version>
+    <artifactId>java-bom</artifactId>
+    <version>2.11.5</version>
     <packaging>pom</packaging>
 
     <url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
-    <description>BOM of XSUAA authentication and authorization service integration libraries and samples
+    <description>BoM of authentication and authorization service integration libraries and samples
     </description>
     <licenses>
         <license>
