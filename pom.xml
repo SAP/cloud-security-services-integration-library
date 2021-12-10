@@ -64,7 +64,7 @@
 		<spring.security.oauth2.version>2.5.1.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
 		<reactor.version>3.4.12</reactor.version>
-		<log4j.version>2.14.1</log4j.version>
+		<log4j.version>2.15.0</log4j.version>
 		<slf4j.api.version>1.7.32</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20211205</org.json.version>
 		<google.jsr305.version>3.0.2</google.jsr305.version>
