@@ -191,7 +191,7 @@ JwtValidatorBuilder.getInstance(OAuth2ServiceConfiguration)
     .build();
 ```
 
-#### Troubleshooting 
+#### Common Issues 
 In case of invalid response i.e 401 or 403 error codes, check application error logs for detailed messages. 
 
 Common reasons for failed validation:
