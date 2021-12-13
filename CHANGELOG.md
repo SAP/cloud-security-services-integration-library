@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## 2.11.6
+- provides Bill of Material that helps you to keep all of your SAP security related depedencies on sync: 
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.sap.cloud.security</groupId>
+            <artifactId>java-bom</artifactId>
+            <version>2.11.6</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+</dependencyManagement>
+```
+
+#### Dependency upgrades
+- Overwrites used spring `log4j2.version` with version `2.15.0`. This patch is not urgent, see also [Blog: Log4J2 Vulnerability and Spring Boot](https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot). 
+
 ## 2.11.5
 - [token-client] hotfix for token cache miss issue
 
