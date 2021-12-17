@@ -1,9 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.7
+
+#### Dependency upgrades
+- Sets Spring property `log4j2.version` to `2.16.0` and overwrites `org.apache.logging.log4j:log4j-to-slf4j` and ``org.apache.logging.log4j:log4j-api`` version used in the Spring projects. This patch is not urgent, see also [Blog: Log4J2 Vulnerability and Spring Boot](https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot).  
 
 ## 2.11.6
-- provides Bill of Material that helps you to keep all of your SAP security related depedencies on sync: 
+- provides Bill of Material that helps you to keep all of your SAP security related dependencies on sync: 
 ```xml
 <dependencyManagement>
     <dependencies>
@@ -14,11 +18,12 @@ All notable changes to this project will be documented in this file.
             <type>pom</type>
             <scope>import</scope>
         </dependency>
+    </dependencies>
 </dependencyManagement>
 ```
 
 #### Dependency upgrades
-- Overwrites used spring `log4j2.version` with version `2.15.0`. This patch is not urgent, see also [Blog: Log4J2 Vulnerability and Spring Boot](https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot). 
+- Sets Spring property `log4j2.version` to `2.15.0` and overwrites ``org.apache.logging.log4j:log4j-to-slf4j`` version used in the Spring projects. This patch is not urgent, see also [Blog: Log4J2 Vulnerability and Spring Boot](https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot). 
 
 ## 2.11.5
 - [token-client] hotfix for token cache miss issue
