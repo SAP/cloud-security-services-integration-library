@@ -187,7 +187,7 @@ This validator is not part of the default `CombiningValidator`, it needs to be a
 It can be done in the following manner:
 ```java
 JwtValidatorBuilder.getInstance(OAuth2ServiceConfiguration)
-    .with(new JwtX5tValidator())
+    .with(new JwtX5tValidator(OAuth2ServiceConfiguration))
     .build();
 ```
 
