@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file.
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-bom</artifactId>
-            <version>2.11.6</version>
+            <version>2.11.7</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
