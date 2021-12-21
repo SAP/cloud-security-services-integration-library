@@ -10,6 +10,7 @@
     <artifactId>java-bom</artifactId>
     <version>2.11.9</version>
     <packaging>pom</packaging>
+    <name>java-bom</name>
 
     <url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
     <description>BoM of authentication and authorization service integration libraries and samples
