@@ -18,6 +18,9 @@ All notable changes to this project will be documented in this file.
 ```
 See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/samples/java-security-usage/pom.xml).
 
+#### Dependency upgrades
+- Bump spring.security.version from 5.6.0 to 5.6.1
+
 ## 2.11.8
 
 #### Dependency upgrades
