@@ -46,7 +46,7 @@ The documentation assumes the utility `curl` and `awk` to be installed (Mac OS: 
         
     ❗Replace the `<<>>` placeholders with the values from the service configuration.  
     ```shell script   
-    curl -XPOST https://<<credentials.clientid>>:<<credentials.clientsecret>>@<<credentials.url>>/oauth2/token \
+    curl -XPOST -u '<<credentials.clientid>>:<<credentials.clientsecret>>' https://<<credentials.url>>/oauth2/token \
          -d 'grant_type=password&username=<<your ias user>>&password=<<your ias password>>'
     ```
     </details>
