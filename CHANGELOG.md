@@ -1,12 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.11.8
-
-#### Dependency upgrades
-- Bump log4j-api from 2.16.0 to 2.17.0 (CVE-2021-45105)
-
-## 2.11.7
+## 2.11.9
 - provides Bill of Material that helps you to keep all of your SAP security related dependencies on sync: 
 ```xml
 <dependencyManagement>
@@ -14,7 +9,7 @@ All notable changes to this project will be documented in this file.
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-bom</artifactId>
-            <version>2.11.8</version>
+            <version>2.11.9</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -22,6 +17,13 @@ All notable changes to this project will be documented in this file.
 </dependencyManagement>
 ```
 See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/samples/java-security-usage/pom.xml).
+
+## 2.11.8
+
+#### Dependency upgrades
+- Bump log4j-api from 2.16.0 to 2.17.0 (CVE-2021-45105)
+
+## 2.11.7
 
 #### Dependency upgrades
 - Sets Spring property `log4j2.version` to `2.16.0` and overwrites `org.apache.logging.log4j:log4j-to-slf4j` and ``org.apache.logging.log4j:log4j-api`` version used in the Spring projects. This patch is not urgent, see also [Blog: Log4J2 Vulnerability and Spring Boot](https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot).
