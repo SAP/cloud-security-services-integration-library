@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.10
+Patches CVE-2021-42550
+
+#### Dependency upgrades
+- Bump spring.boot.version from 2.6.1 to 2.6.2
+- Bump dependency-check-maven from 6.5.0 to 6.5.1
+- Bump logback-core 1.2.7 to 1.2.9 CVE-2021-42550
+
 ## 2.11.9
 - provides Bill of Material that helps you to keep all of your SAP security related dependencies on sync: 
 ```xml
