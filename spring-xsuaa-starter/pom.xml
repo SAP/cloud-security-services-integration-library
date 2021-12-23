@@ -27,7 +27,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 		<!-- Resolves CVE-2021-27568: https://nvd.nist.gov/vuln/detail/CVE-2021-27568 -->
 		<version.json-smart>2.4.7</version.json-smart>
 	</properties>
