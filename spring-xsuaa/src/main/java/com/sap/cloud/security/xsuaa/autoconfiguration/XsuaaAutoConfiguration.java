@@ -81,7 +81,7 @@ public class XsuaaAutoConfiguration {
 	 * @return the {@link RestOperations} instance.
 	 */
 	@Bean
-	@Conditional({ OnNotX509CredentialTypeCondition.class})
+	@Conditional({ OnNotX509CredentialTypeCondition.class })
 	@ConditionalOnMissingBean
 	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	public RestOperations xsuaaRestOperations() {
