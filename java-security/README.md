@@ -47,7 +47,7 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.11.3</version>
+    <version>2.11.10</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -187,11 +187,11 @@ This validator is not part of the default `CombiningValidator`, it needs to be a
 It can be done in the following manner:
 ```java
 JwtValidatorBuilder.getInstance(OAuth2ServiceConfiguration)
-    .with(new JwtX5tValidator())
+    .with(new JwtX5tValidator(OAuth2ServiceConfiguration))
     .build();
 ```
 
-#### Troubleshooting 
+#### Common Issues 
 In case of invalid response i.e 401 or 403 error codes, check application error logs for detailed messages. 
 
 Common reasons for failed validation:
