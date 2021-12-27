@@ -114,12 +114,18 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public void serviceConfigurationDisabledByDisableDefaultPropertySourceProperty() {
+	public void serviceConfigurationDisabled_DisableDefaultPropertySourceProperty_mtls() {
 		contextRunner.withPropertyValues("spring.xsuaa.disable-default-property-source:true")
+				.withPropertyValues("xsuaa.credential-type:x509")
 				.run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration")
 						.doesNotHaveBean("mtlsRestOperations"));
-		//TODO double check that this test covers the case when PropertyConditions.class is not defined on RestOperation,
-		// so far seems not to capture that
+	}
+
+	@Test
+	public void serviceConfigurationDisabled_DisableDefaultPropertySourceProperty_nonMtls() {
+		contextRunner.withPropertyValues("spring.xsuaa.disable-default-property-source:true")
+				.run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration")
+						.doesNotHaveBean("xsuaaRestOperations"));
 	}
 
 	@Test
