@@ -190,6 +190,11 @@ JwtValidatorBuilder.getInstance(OAuth2ServiceConfiguration)
     .with(new JwtX5tValidator(OAuth2ServiceConfiguration))
     .build();
 ```
+Or it can be used as a standalone `Validator`, by creating a new instance of it and calling `JwtX5tValidator.validate(Token token)` method with the token to be validated as a method's parameter.
+```java
+JwtX5tValidator validator = new JwtX5tValidator(OAuth2ServiceConfiguration);
+ValidationResult result = validator.validate(Token);
+```
 
 #### Common Issues 
 In case of invalid response i.e 401 or 403 error codes, check application error logs for detailed messages. 
