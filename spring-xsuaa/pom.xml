@@ -34,6 +34,10 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-to-slf4j</artifactId>
 		</dependency>
@@ -85,7 +89,6 @@
 			<artifactId>reactor-core</artifactId>
 			<optional>true</optional>
 		</dependency>
-
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -200,8 +203,8 @@
 				<artifactId>maven-pmd-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
