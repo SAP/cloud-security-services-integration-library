@@ -186,14 +186,14 @@ For the integration of different Identity Services the [`TokenAuthenticator`](/j
 This validator is not part of the default `CombiningValidator`, it needs to be added manually to `JwtValidatorBuilder` to use it. 
 It can be done in the following manner:
 ```java
-JwtValidatorBuilder.getInstance(OAuth2ServiceConfiguration)
-    .with(new JwtX5tValidator(OAuth2ServiceConfiguration))
+JwtValidatorBuilder.getInstance(oAuth2ServiceConfiguration)
+    .with(new JwtX5tValidator(oAuth2ServiceConfiguration))
     .build();
 ```
-Or it can be used as a standalone `Validator`, by creating a new instance of it and calling `JwtX5tValidator.validate(Token token)` method with the token to be validated as a method's parameter.
+Or it can be used as a standalone `Validator`, by creating a new instance of it and calling `JwtX5tValidator.validate(Token token)` method with the token to be validated as a method's parameter. See [here](#get-information-from-token) how to get a token from `SecurityContext`
 ```java
-JwtX5tValidator validator = new JwtX5tValidator(OAuth2ServiceConfiguration);
-ValidationResult result = validator.validate(Token);
+JwtX5tValidator validator = new JwtX5tValidator(oAuth2ServiceConfiguration);
+ValidationResult result = validator.validate(token);
 ```
 
 #### Common Issues 
