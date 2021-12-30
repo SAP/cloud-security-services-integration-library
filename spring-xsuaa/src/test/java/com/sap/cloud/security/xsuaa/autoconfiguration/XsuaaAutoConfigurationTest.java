@@ -5,13 +5,9 @@
  */
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-
+import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Before;
@@ -30,12 +26,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { XsuaaAutoConfiguration.class, DummyXsuaaServiceConfiguration.class })
@@ -118,9 +114,18 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
-	public void serviceConfigurationDisabledByDisableDefaultPropertySourceProperty() {
+	public void serviceConfigurationDisabled_DisableDefaultPropertySourceProperty_mtls() {
 		contextRunner.withPropertyValues("spring.xsuaa.disable-default-property-source:true")
-				.run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration"));
+				.withPropertyValues("xsuaa.credential-type:x509")
+				.run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration")
+						.doesNotHaveBean("mtlsRestOperations"));
+	}
+
+	@Test
+	public void serviceConfigurationDisabled_DisableDefaultPropertySourceProperty_nonMtls() {
+		contextRunner.withPropertyValues("spring.xsuaa.disable-default-property-source:true")
+				.run((context) -> assertThat(context).doesNotHaveBean("xsuaaServiceConfiguration")
+						.doesNotHaveBean("xsuaaRestOperations"));
 	}
 
 	@Test

@@ -13,10 +13,7 @@ import com.sap.cloud.security.xsuaa.extractor.TokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.context.annotation.*;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -86,6 +83,7 @@ public class XsuaaAutoConfiguration {
 	@Bean
 	@Conditional({ OnNotX509CredentialTypeCondition.class })
 	@ConditionalOnMissingBean
+	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	public RestOperations xsuaaRestOperations() {
 		LOGGER.warn("In productive environment provide a well configured client secret based RestOperations bean");
 		return new RestTemplate();
@@ -101,6 +99,7 @@ public class XsuaaAutoConfiguration {
 	@ConditionalOnProperty(prefix = "xsuaa", name = "credential-type", havingValue = "x509")
 	@ConditionalOnMissingBean
 	@ConditionalOnClass(name = "org.apache.http.impl.client.CloseableHttpClient")
+	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	public RestOperations xsuaaMtlsRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		LOGGER.warn("In productive environment provide a well configured certificate based RestOperations bean");
 		return SpringHttpClient.getInstance().create(xsuaaServiceConfiguration.getClientIdentity());
