@@ -32,10 +32,10 @@ public class JwtSignatureValidatorTest {
 	private Token iasToken;
 	private Token iasPaasToken;
 	private static final URI DUMMY_JKU_URI = URI.create("https://application.myauth.com/jwks_uri");
-	private static final String DUMMY_ZONE_ID = "the-zone_id";
 
 	private JwtSignatureValidator cut;
 	private OAuth2TokenKeyService tokenKeyServiceMock;
+	private OAuth2ServiceConfiguration mockConfiguration;
 
 	@Before
 	public void setup() throws IOException {
@@ -44,7 +44,7 @@ public class JwtSignatureValidatorTest {
 				"eyJraWQiOiJkZWZhdWx0LWtpZCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJQMTc2OTQ1IiwiYXVkIjoiVDAwMDMxMCIsInVzZXJfdXVpZCI6IjEyMzQ1Njc4OTAiLCJpc3MiOiJodHRwczovL2FwcGxpY2F0aW9uLm15YXV0aC5jb20iLCJleHAiOjY5NzQwMzE2MDAsImdpdmVuX25hbWUiOiJqb2huIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5vcmciLCJjaWQiOiJUMDAwMzEwIn0.Svrb5PriAuHOdhTFXiicr_qizHiby6b73SdovJAFnWCPDr0r8mmFoEWXjJmdLdw08daNzt8ww_r2khJ-rusUZVfiZY3kyRV1hfeChpNROGfmGbfN62KSsYBPi4dBMIGRz8SqkF6nw5nTC-HOr7Gd8mtZjG9KZYC5fKYOYRvbAZN_xyvLDzFUE6LgLmiT6fV7fHPQi5NSUfawpWQbIgK2sJjnp-ODTAijohyxQNuF4Lq1Prqzjt2QZRwvbskTcYM3gK5fgt6RYDN6MbARJIVFsb1Y7wZFg00dp2XhdFzwWoQl6BluvUL8bL73A8iJSam0csm1cuG0A7kMF9spy_whQw");
 		iasToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 
-		OAuth2ServiceConfiguration mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(mockConfiguration.getService()).thenReturn(Service.IAS);
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
@@ -99,6 +99,13 @@ public class JwtSignatureValidatorTest {
 		assertTrue(validationResult.isErroneous());
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Error occurred during signature validation: OIDC token must provide zone_uuid."));
+	}
+
+	@Test
+	public void validationFails_WhenZoneIdIsNull_ButIssuerMatchesOAuth2Url() {
+		when(mockConfiguration.getUrl()).thenReturn(URI.create("https://application.myauth.com"));
+		ValidationResult validationResult = cut.validate(iasPaasToken);
+		assertTrue(validationResult.isValid());
 	}
 
 	@Test
