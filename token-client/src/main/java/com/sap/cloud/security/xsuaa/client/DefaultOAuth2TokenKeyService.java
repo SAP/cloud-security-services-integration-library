@@ -15,7 +15,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URI;
 
@@ -35,12 +34,10 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public String retrieveTokenKeys(URI tokenKeysEndpointUri, @Nullable String zoneId) throws OAuth2ServiceException {
+	public String retrieveTokenKeys(URI tokenKeysEndpointUri, String zoneId) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
-		if (zoneId != null) {
-			request.addHeader(X_ZONE_UUID, zoneId);
-		}
+		request.addHeader(X_ZONE_UUID, zoneId != null ? zoneId : "");
 		try (CloseableHttpResponse response = httpClient.execute(request)) {
 			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
 			int statusCode = response.getStatusLine().getStatusCode();
