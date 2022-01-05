@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## 2.11.11
 - Ensure compatibility with Java 11 (see PR #775)
 - [spring-xsuaa-starter] ``xsuaaMtlsRestOperations`` and ``xsuaaRestOperations`` are only auto-configured if ``XsuaaServiceConfiguration`` bean is given
+- [java-security] Support oidc tokens from single tenant apps w/o zone_uuid claim (NGPBUG-170120)
 
 #### Dependency upgrades
 - remove net.minidev:json-smart
