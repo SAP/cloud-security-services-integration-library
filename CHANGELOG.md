@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.11
+- Ensure compatibility with Java 11 (see PR #775)
+- [spring-xsuaa-starter] ``xsuaaMtlsRestOperations`` and ``xsuaaRestOperations`` are only auto-configured if ``XsuaaServiceConfiguration`` bean is given
+
+#### Dependency upgrades
+- remove net.minidev:json-smart
+- Bump log4j2.version from 2.17.0 to 2.17.1 
+
 ## 2.11.10
 [spring-xsuaa-starter] Patches CVE-2021-42550
 
