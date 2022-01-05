@@ -11,6 +11,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Collections;
 
@@ -26,13 +27,15 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public String retrieveTokenKeys(URI tokenKeysEndpointUri, String zoneId) throws OAuth2ServiceException {
+	public String retrieveTokenKeys(URI tokenKeysEndpointUri, @Nullable String zoneId) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		try {
 			// create headers
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.set(X_ZONE_UUID, zoneId != null ? zoneId : "");
+			if (zoneId != null) {
+				headers.set(X_ZONE_UUID, zoneId);
+			}
 
 			ResponseEntity<String> response = restOperations.exchange(
 					tokenKeysEndpointUri, GET, new HttpEntity(headers), String.class);
