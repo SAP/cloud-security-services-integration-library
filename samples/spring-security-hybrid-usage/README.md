@@ -45,7 +45,7 @@ Further up-to-date information you can get on sap.help.com:
 - [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
 
 ## IAS User administration task: Assign Group to your User
-You need administrator permissions to create Groups "Read" in IAS and assign it to your user.
+You need administrator permissions to create Groups "Read" in IAS and assign it to your user. <br>See also [SAP Help: "Creating a User Group"](https://help.sap.com/viewer/a339f23ec736441abb2e187b7a7b6afb/LATEST/en-US/64544f432cd24b8589707a5d8a2b3e2e.html).
 
 ## Access the application
 1. Follow [HowToFetchToken](../../docs/HowToFetchToken.md) guide to fetch IAS and XSUAA tokens. 
