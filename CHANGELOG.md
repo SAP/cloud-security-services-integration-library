@@ -37,22 +37,12 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 
 #### Dependency upgrades
 - Bump spring.security.version from 5.6.0 to 5.6.1
-
-## 2.11.8
-
-#### Dependency upgrades
-- Bump log4j-api from 2.16.0 to 2.17.0 (CVE-2021-45105)
-
-## 2.11.7
-
-#### Dependency upgrades
-- Sets Spring property `log4j2.version` to `2.16.0` and overwrites `org.apache.logging.log4j:log4j-to-slf4j` and ``org.apache.logging.log4j:log4j-api`` version used in the Spring projects. This patch is not urgent, see also [Blog: Log4J2 Vulnerability and Spring Boot](https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot).
-- Bump reactor-core from 3.4.12 to 3.4.13
-- Bump log4j-to-slf4j from 2.14.1 to 2.15.0
-- Bump logcaptor from 2.7.2 to 2.7.4
-- Bump reactor-test from 3.4.12 to 3.4.13
-- Bump log4j-to-slf4j from 2.15.0 to 2.16.0
 - Bump spring.core.version from 5.3.13 to 5.3.14
+- Bump log4j-api to 2.17.0 (CVE-2021-45105)
+- Sets Spring property `log4j2.version` to `2.17.0` and overwrites `org.apache.logging.log4j:log4j-to-slf4j` and ``org.apache.logging.log4j:log4j-api`` version used in the Spring projects. This patch is not urgent, see also [Blog: Log4J2 Vulnerability and Spring Boot](https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot).
+- Bump reactor-core from 3.4.12 to 3.4.13
+- Bump log4j-to-slf4j from 2.14.1 to 2.17.0
+
 
 ## 2.11.5
 - [token-client] hotfix for token cache miss issue
