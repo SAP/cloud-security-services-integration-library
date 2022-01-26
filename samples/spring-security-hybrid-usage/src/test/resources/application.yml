@@ -10,7 +10,3 @@ sap:
         clientid: sb-clientId!t0815
         clientsecret: pwd
         url: http://localhost
-
-      identity:
-        clientid: sb-clientId!t0815
-        domains: localhost

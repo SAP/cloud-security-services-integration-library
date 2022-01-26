@@ -12,7 +12,3 @@ sap:
         url: http://localhost
       xsuaa[1]:
         clientid: sb-clientId!t04711
-
-      identity:
-        clientid: sb-clientId!t0815
-        domains: localhost

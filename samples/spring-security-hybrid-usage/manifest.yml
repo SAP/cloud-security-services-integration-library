@@ -16,6 +16,6 @@ applications:
     - java_buildpack
   services:
     - name: xsuaa-authn
-    - name: ias-authn
-      parameters: { "credential-type": "X509_GENERATED" }
+#    - name: ias-authn
+#      parameters: { "credential-type": "X509_GENERATED" }
 
