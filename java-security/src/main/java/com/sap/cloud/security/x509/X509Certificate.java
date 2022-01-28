@@ -12,6 +12,10 @@ import javax.annotation.Nullable;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The X.509 certificate
@@ -56,6 +60,23 @@ public class X509Certificate implements Certificate {
 			}
 		}
 		return this.thumbprint;
+	}
+
+	@Override
+	public String getSubjectDN() {
+		return x509.getSubjectDN().getName().trim();
+	}
+
+	@Override
+	public Map<String, String> getSubjectDNMap() {
+		Map<String, String> map = Stream.of(getSubjectDN().split(",")).collect(Collectors.toMap(
+				dn -> dn.split("=")[0].trim(),
+				dn -> dn.split("=")[1],
+				(dn1, dn2) -> {
+					LOGGER.info("found multiple entries for key");
+					return dn1 + "," + dn2;
+				}));
+		return map;
 	}
 
 }
