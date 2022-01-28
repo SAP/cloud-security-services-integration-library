@@ -99,9 +99,10 @@ public class HybridTokenFactory implements TokenFactory {
 	 */
 	private static boolean isXsuaaToken(DecodedJwt decodedJwt) {
 		String jwtPayload = decodedJwt.getPayload().toLowerCase();
-		return jwtPayload.contains(EXTERNAL_ATTRIBUTE)
+		return (jwtPayload.contains(EXTERNAL_ATTRIBUTE)
 				&& jwtPayload.contains(EXTERNAL_ATTRIBUTE_ENHANCER)
-				&& jwtPayload.contains("xsuaa");
+				&& jwtPayload.contains("xsuaa"))
+				|| jwtPayload.contains("\"zid\":\"uaa\",");
 	}
 
 	private static String removeBearer(@Nonnull String jwtToken) {
