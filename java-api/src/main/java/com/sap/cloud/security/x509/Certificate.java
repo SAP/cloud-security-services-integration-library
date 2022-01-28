@@ -6,6 +6,8 @@
 package com.sap.cloud.security.x509;
 
 
+import java.util.Map;
+
 /**
  * Represents mTLS certificate.
  */
@@ -24,5 +26,19 @@ public interface Certificate {
 	 *             or when a particular cryptographic algorithm is not supported
 	 */
 	String getThumbprint() throws InvalidCertificateException;
+
+	/**
+	 * Gets certificate subject DN.
+	 *
+	 * @return the subject DN string without blanks
+	 */
+	String getSubjectDN();
+
+	/**
+	 * Gets certificate subject DN map.
+	 *
+	 * @return the subject DN map with entries such as ["CN"]["common name"], or ["OU"]["1234-5678"]
+	 */
+	Map<String,String> getSubjectDNMap();
 
 }
