@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## 2.11.12
+- [java-security] `XsuaaTokenAuthenticator` should support validation of tokens issued by Cloud Foundry UAA (NGPBUG-175120)
+
+#### Dependency upgrades
+* Bump reactor-core from 3.4.13 to 3.4.14
+* Bump spring.core.version from 5.3.14 to 5.3.15
+* Bump slf4j.api.version from 1.7.32 to 1.7.35
+* Bump spring.boot.version from 2.6.2 to 2.6.3
+
 ## 2.11.11
 - Ensure compatibility with Java 11 (see PR #775)
 - [spring-xsuaa-starter] ``xsuaaMtlsRestOperations`` and ``xsuaaRestOperations`` are only auto-configured if ``XsuaaServiceConfiguration`` bean is given
