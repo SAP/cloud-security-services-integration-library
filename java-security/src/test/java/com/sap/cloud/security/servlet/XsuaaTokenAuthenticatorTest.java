@@ -5,8 +5,6 @@
  */
 package com.sap.cloud.security.servlet;
 
-import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SapIdToken;
@@ -44,9 +42,10 @@ public class XsuaaTokenAuthenticatorTest {
 
 	private final XsuaaToken xsuaaToken;
 	private final XsuaaToken invalidToken;
+	private final XsuaaToken uaaToken;
 	private final SapIdToken iasToken;
 	private CloseableHttpClient mockHttpClient;
-	private OAuth2ServiceConfiguration oAuth2ServiceConfiguration;
+	private OAuth2ServiceConfigurationBuilder oAuth2ServiceConfigBuilder;
 
 	private AbstractTokenAuthenticator cut;
 
@@ -55,6 +54,7 @@ public class XsuaaTokenAuthenticatorTest {
 		invalidToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
 		iasToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
+		uaaToken = new XsuaaToken(IOUtils.resourceToString("/uaaAccessTokenRSA256.txt", UTF_8));
 	}
 
 	@Before
@@ -71,18 +71,17 @@ public class XsuaaTokenAuthenticatorTest {
 								+ "\", \"expires_in\" : 43199}");
 		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(xsuaaTokenResponse);
 
-		oAuth2ServiceConfiguration = OAuth2ServiceConfigurationBuilder
+		oAuth2ServiceConfigBuilder = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
 				.withDomains("auth.com")
 				.withProperty(XSUAA.APP_ID, "appId")
 				.withClientId("clientId")
 				.withClientSecret("mySecret")
-				.withUrl("https://myauth.com")
-				.build();
+				.withUrl("https://myauth.com");
 
 		cut = new XsuaaTokenAuthenticator()
 				.withHttpClient(mockHttpClient)
-				.withServiceConfiguration(oAuth2ServiceConfiguration);
+				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
 	}
 
 	@Test
@@ -105,11 +104,27 @@ public class XsuaaTokenAuthenticatorTest {
 				.execute(() -> {
 					cut = new XsuaaTokenAuthenticator()
 							.withHttpClient(null)
-							.withServiceConfiguration(oAuth2ServiceConfiguration);
+							.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
 					response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 				});
 		assertEquals("IAS token validation is not supported: setup is malicious.",
 				response[0].getUnauthenticatedReason());
+	}
+
+	@Test
+	public void validateUaaToken() {
+		HttpServletRequest httpRequest = createRequestWithToken(uaaToken.getTokenValue());
+
+		cut = new XsuaaTokenAuthenticator()
+				.withHttpClient(mockHttpClient)
+				.withServiceConfiguration(oAuth2ServiceConfigBuilder.withClientId("dashboard_client-Id").build());
+
+		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
+
+		assertThat(response.getUnauthenticatedReason()).isEmpty();
+		assertThat(response.isAuthenticated()).isTrue();
+		assertThat(response.getToken()).isSameAs(SecurityContext.getToken());
+		assertThat(response.getToken().getService()).isEqualTo(Service.XSUAA);
 	}
 
 	@Test
@@ -121,10 +136,10 @@ public class XsuaaTokenAuthenticatorTest {
 				.execute(() -> {
 					cut = new XsuaaTokenAuthenticator()
 							.withHttpClient(mockHttpClient)
-							.withServiceConfiguration(oAuth2ServiceConfiguration);
+							.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
 					response[0] = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 				});
-		assertThat(((XsuaaToken) response[0].getToken()).isExpired()).isFalse();
+		assertThat(response[0].getToken().isExpired()).isFalse();
 	}
 
 	@Test
@@ -200,7 +215,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 		cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
 				.withHttpClient(mockHttpClient)
-				.withServiceConfiguration(oAuth2ServiceConfiguration);
+				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
 
 		HttpServletRequest httpRequest = createRequestWithToken(iasToken.getTokenValue());
 		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
@@ -216,7 +231,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 		cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
 				.withHttpClient(mockHttpClient)
-				.withServiceConfiguration(oAuth2ServiceConfiguration);
+				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
 
 		HttpServletRequest httpRequest = createRequestWithToken(iasToken.getTokenValue());
 		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
@@ -232,7 +247,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 		cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
 				.withHttpClient(mockHttpClient)
-				.withServiceConfiguration(oAuth2ServiceConfiguration);
+				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
 
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
 		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
@@ -248,7 +263,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 		cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
 				.withHttpClient(mockHttpClient)
-				.withServiceConfiguration(oAuth2ServiceConfiguration);
+				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
 
 		HttpServletRequest httpRequest = createRequestWithToken(invalidToken.getTokenValue());
 		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
@@ -265,7 +280,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 		cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
 				.withHttpClient(mockHttpClient)
-				.withServiceConfiguration(oAuth2ServiceConfiguration);
+				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
 
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
 		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];
@@ -281,7 +296,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 		cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
 				.withHttpClient(mockHttpClient)
-				.withServiceConfiguration(oAuth2ServiceConfiguration);
+				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
 
 		HttpServletRequest httpRequest = createRequestWithToken(invalidToken.getTokenValue());
 		final TokenAuthenticationResult[] response = new TokenAuthenticationResult[1];

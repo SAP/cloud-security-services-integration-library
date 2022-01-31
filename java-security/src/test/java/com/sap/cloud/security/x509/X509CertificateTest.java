@@ -11,7 +11,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
+import static com.sap.cloud.security.x509.X509Parser.parseCertificate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class X509CertificateTest {
@@ -36,4 +39,15 @@ class X509CertificateTest {
 		assertThat(cut.getThumbprint()).isEqualTo(x5t);
 	}
 
+	@Test
+	void getSubjectDN() {
+		assertThat(cut.getSubjectDN()).isEqualTo("CN=bdcd300c-b202-4a7a-bb95-2a7e6d15fe47/2b585405-d391-4986-b76d-b4f24685f3c8, L=aoxk2addh.accounts400.ondemand.com, OU=8e1affb2-62a1-43cc-a687-2ba75e4b3d84, OU=Canary, OU=SAP Cloud Platform Clients, O=SAP SE, C=DE");
+	}
+
+	@Test
+	void getSubjectDNMap() {
+		assertThat(cut.getSubjectDNMap().size()).isEqualTo(5);
+		assertThat(cut.getSubjectDNMap().get("CN")).isEqualTo("bdcd300c-b202-4a7a-bb95-2a7e6d15fe47/2b585405-d391-4986-b76d-b4f24685f3c8");
+		assertThat(cut.getSubjectDNMap().get("OU")).isEqualTo("8e1affb2-62a1-43cc-a687-2ba75e4b3d84,Canary,SAP Cloud Platform Clients");
+	}
 }

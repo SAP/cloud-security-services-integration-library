@@ -29,7 +29,7 @@ The above mentioned dependencies should be removed / replaced with this one:
         <dependency>
             <groupId>com.sap.cloud.sjb.cf</groupId>
             <artifactId>sap-java-buildpack-bom</artifactId>
-            <version>1.31.1</version>
+            <version>1.31.1</version><!-- set to actual buildpack version -->
             <type>pom</type>
             <scope>import</scope>
         </dependency>
