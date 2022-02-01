@@ -82,7 +82,7 @@ class TestConfiguration {
 	@Value("${xsuaa.key:}")
 	public String key;
 
-	@Value("${xsuaa.credentialtype:}")
+	@Value("${xsuaa.credential-type:}")
 	public String credentialType;
 
 	@Value("${xsuaa.certurl:}")

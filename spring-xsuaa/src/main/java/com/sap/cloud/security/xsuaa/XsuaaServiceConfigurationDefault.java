@@ -41,7 +41,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Value("${xsuaa.verificationkey:}")
 	private String verificationKey;
 
-	@Value("${xsuaa.credentialtype:#{null}}")
+	@Value("${xsuaa.credential-type:#{null}}")
 	private String credentialType;
 
 	@Value("${xsuaa.certurl:#{null}}")
