@@ -57,10 +57,10 @@ class HybridIdentityServicesAutoConfigurationTest {
 	}
 
 	@Test
-	void autoConfigurationDisabledForMultipleXsuaaServices() {
-		List<String> mt_properties = new ArrayList<>();
+	void autoConfigurationForIdentityAndSingleXsuaaService() {
 		WebApplicationContextRunner mt_runner;
 
+		List<String> mt_properties = new ArrayList<>();
 		mt_properties.add("sap.security.services.xsuaa[0].url:http://localhost");
 		mt_properties.add("sap.security.services.xsuaa[0].uaadomain:localhost");
 		mt_properties.add("sap.security.services.xsuaa[0].xsappname:theAppName");
@@ -74,7 +74,7 @@ class HybridIdentityServicesAutoConfigurationTest {
 
 		mt_runner.run(context -> {
 			assertFalse(context.containsBean("hybridJwtDecoder"));
-			assertNotNull(context.getBean("hybridJwtDecoderMultiXsuaaServices", HybridJwtDecoder.class));
+			assertTrue(context.containsBean("hybridJwtDecoderMultiXsuaaServices"));
 		});
 	}
 
@@ -99,6 +99,51 @@ class HybridIdentityServicesAutoConfigurationTest {
 			assertTrue(context.containsBean("hybridJwtDecoder"));
 			assertTrue(context.containsBean("hybridJwtDecoderMultiXsuaaServices"));
 			assertNotEquals(context.getBean(HybridJwtDecoder.class), context.getBean("hybridJwtDecoder"));
+			assertEquals(context.getBean(HybridJwtDecoder.class),
+					context.getBean("hybridJwtDecoderMultiXsuaaServices"));
+		});
+	}
+
+	@Test
+	void autoConfigurationUsesDecoderForSingleXsuaaService() {
+		WebApplicationContextRunner mt_runner;
+
+		List<String> mt_properties = new ArrayList<>();
+		mt_properties.add("sap.security.services.xsuaa.url:http://localhost");
+		mt_properties.add("sap.security.services.xsuaa.uaadomain:localhost");
+		mt_properties.add("sap.security.services.xsuaa.xsappname:theAppName");
+		mt_properties.add("sap.security.services.xsuaa.clientid:xsuaacid");
+
+		mt_runner = new WebApplicationContextRunner()
+				.withPropertyValues(mt_properties.toArray(new String[0]))
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
+
+		mt_runner.run(context -> {
+			assertTrue(context.containsBean("hybridJwtDecoder"));
+			assertFalse(context.containsBean("hybridJwtDecoderMultiXsuaaServices"));
+			assertEquals(context.getBean(HybridJwtDecoder.class),
+					context.getBean("hybridJwtDecoder"));
+		});
+	}
+
+	@Test
+	void autoConfigurationUsesDecoderForMultipleXsuaaServices() {
+		WebApplicationContextRunner mt_runner;
+
+		List<String> mt_properties = new ArrayList<>();
+		mt_properties.add("sap.security.services.xsuaa[0].url:http://localhost");
+		mt_properties.add("sap.security.services.xsuaa[0].uaadomain:localhost");
+		mt_properties.add("sap.security.services.xsuaa[0].xsappname:theAppName");
+		mt_properties.add("sap.security.services.xsuaa[0].clientid:xsuaacid");
+		mt_properties.add("sap.security.services.xsuaa[1].clientid:cid2");
+
+		mt_runner = new WebApplicationContextRunner()
+				.withPropertyValues(mt_properties.toArray(new String[0]))
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
+
+		mt_runner.run(context -> {
+			assertFalse(context.containsBean("hybridJwtDecoder"));
+			assertTrue(context.containsBean("hybridJwtDecoderMultiXsuaaServices"));
 			assertEquals(context.getBean(HybridJwtDecoder.class),
 					context.getBean("hybridJwtDecoderMultiXsuaaServices"));
 		});

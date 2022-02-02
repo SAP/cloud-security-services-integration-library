@@ -15,6 +15,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
 
+import javax.annotation.Nullable;
+
 /**
  * Internal class that decodes and validates the provided encoded token using
  * {@code java-security} client library.<br>
@@ -39,7 +41,8 @@ public class HybridJwtDecoder implements JwtDecoder {
 	 *            set of validators that should be used to validate an ias oidc
 	 *            token.
 	 */
-	public HybridJwtDecoder(CombiningValidator<Token> xsuaaValidator, CombiningValidator<Token> iasValidator) {
+	public HybridJwtDecoder(CombiningValidator<Token> xsuaaValidator,
+			@Nullable CombiningValidator<Token> iasValidator) {
 		xsuaaTokenValidators = xsuaaValidator;
 		iasTokenValidators = iasValidator;
 	}
@@ -58,6 +61,9 @@ public class HybridJwtDecoder implements JwtDecoder {
 		ValidationResult validationResult;
 		switch (token.getService()) {
 		case IAS:
+			if (iasTokenValidators == null) {
+				throw new BadJwtException("Token of IAS service isn't accepted");
+			}
 			validationResult = iasTokenValidators.validate(token);
 			break;
 		case XSUAA:

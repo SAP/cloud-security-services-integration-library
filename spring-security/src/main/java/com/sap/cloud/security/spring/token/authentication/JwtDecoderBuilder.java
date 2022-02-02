@@ -117,11 +117,14 @@ public class JwtDecoderBuilder {
 	 * @return JwtDecoder
 	 */
 	public JwtDecoder build() {
-		JwtValidatorBuilder iasValidatorBuilder = JwtValidatorBuilder.getInstance(iasConfiguration)
-				.withCacheConfiguration(tokenKeyCacheConfiguration)
-				.withHttpClient(httpClient);
-		for (ValidationListener listener : validationListeners) {
-			iasValidatorBuilder.withValidatorListener(listener);
+		JwtValidatorBuilder iasValidatorBuilder = null;
+		if (iasConfiguration != null && !iasConfiguration.getProperties().isEmpty()) {
+			iasValidatorBuilder = JwtValidatorBuilder.getInstance(iasConfiguration)
+					.withCacheConfiguration(tokenKeyCacheConfiguration)
+					.withHttpClient(httpClient);
+			for (ValidationListener listener : validationListeners) {
+				iasValidatorBuilder.withValidatorListener(listener);
+			}
 		}
 		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
 			int index = 0;
@@ -137,7 +140,7 @@ public class JwtDecoderBuilder {
 				xsuaaValidatorBuilder.withValidatorListener(listener);
 			}
 			return new HybridJwtDecoder(xsuaaValidatorBuilder.build(),
-					iasValidatorBuilder.build());
+					iasValidatorBuilder != null ? iasValidatorBuilder.build() : null);
 		}
 		return new IasJwtDecoder(iasValidatorBuilder.build());
 	}
