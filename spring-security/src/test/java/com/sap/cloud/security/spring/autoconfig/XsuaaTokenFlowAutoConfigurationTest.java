@@ -72,9 +72,11 @@ class XsuaaTokenFlowAutoConfigurationTest {
 
 	@Test
 	void configures_xsuaaMtlsRestTemplate() {
-		runner
-				.withPropertyValues("sap.spring.security.xsuaa.flows.auto:true")
-				.withPropertyValues("sap.security.services.xsuaa.credential-type:x509")
+		runner = new ApplicationContextRunner()
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class,
+						XsuaaTokenFlowAutoConfiguration.class))
+				.withPropertyValues("sap.security.services.xsuaa.url:http://localhost")
+				.withPropertyValues("sap.security.services.xsuaa.clientid:cid")
 				.withPropertyValues("sap.security.services.xsuaa.certificate:" + cert)
 				.withPropertyValues("sap.security.services.xsuaa.key:" + key)
 				.run((context) -> {
@@ -116,6 +118,26 @@ class XsuaaTokenFlowAutoConfigurationTest {
 						XsuaaTokenFlowAutoConfiguration.class));
 
 		mt_runner.run(context -> assertTrue(context.containsBean("xsuaaTokenFlows")));
+	}
+
+	@Test
+	void configures_xsuaaMtlsRestTemplateForMultipleXsuaaServicesAsPrimary() {
+		WebApplicationContextRunner mt_runner;
+
+		List<String> mt_properties = new ArrayList<>(properties);
+		mt_properties.add("sap.security.services.xsuaa[0].url:http://localhost");
+		mt_properties.add("sap.security.services.xsuaa[0].clientid:cid");
+		mt_properties.add("sap.security.services.xsuaa[0].certificate:cert");
+		mt_properties.add("sap.security.services.xsuaa[0].key:key");
+		mt_properties.add("sap.security.services.xsuaa[1].clientid:cid");
+
+		mt_runner = new WebApplicationContextRunner()
+				.withPropertyValues(mt_properties.toArray(new String[0]))
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class,
+						XsuaaTokenFlowAutoConfiguration.class));
+
+		mt_runner.run(context -> assertTrue(context.containsBean("xsuaaTokenFlows")));
+		mt_runner.run(context -> assertTrue(context.containsBean("mtlsRestOperations")));
 	}
 
 	@Test
