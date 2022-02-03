@@ -110,9 +110,8 @@ public class XsuaaTokenFlowAutoConfiguration {
 	private static class NoClientCertificateCondition implements Condition {
 		@Override
 		public boolean matches(ConditionContext context, @Nonnull AnnotatedTypeMetadata metadata) {
-			boolean b = context.getEnvironment().getProperty("sap.security.services.xsuaa.certificate") == null &&
+			return context.getEnvironment().getProperty("sap.security.services.xsuaa.certificate") == null &&
 					context.getEnvironment().getProperty("sap.security.services.xsuaa[0].certificate") == null;
-			return b;
 		}
 	}
 
