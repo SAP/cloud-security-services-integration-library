@@ -104,6 +104,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 
 	@Override
 	public URI getJwksUri() {
+		assertNotNull(baseUri, "XsuaaDefaultEndpoints.getJwksUri() requires baseUri not to be null.");
 		return expandPath(baseUri, KEYSET_ENDPOINT);
 	}
 

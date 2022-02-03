@@ -69,7 +69,8 @@ public class UriUtil {
 	 */
 	// TODO rename to getUriWithPathAppended
 	@Nonnull
-	public static URI expandPath(URI baseUri, String pathToAppend) {
+	public static URI expandPath(@Nonnull URI baseUri, String pathToAppend) {
+		Assertions.assertNotNull(baseUri, "the baseUri parameter must not be null");
 		try {
 			String newPath = baseUri.getPath() + pathToAppend;
 			return new URI(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(),

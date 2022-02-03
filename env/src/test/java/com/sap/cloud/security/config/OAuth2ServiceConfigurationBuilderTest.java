@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -197,7 +198,31 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		assertThat(configuration.getClientId()).isEqualTo("base-client-id");
 		assertThat(configuration.getClientSecret()).isEqualTo("base-client-secret");
 		assertThat(configuration.getUrl()).isEqualTo(URI.create("http://url.base"));
+		assertThat(configuration.getCertUrl()).isNull();
 		assertThat(configuration.getProperty("testing-key")).isEqualTo("base-value");
 		assertThat(configuration.getDomains()).isEqualTo(Collections.EMPTY_LIST);
+	}
+
+	@Test
+	public void x509IntegrationTest() {
+		String url = "http://the.cert.Url.org";
+
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+				.withClientId("client-id")
+				.withCertUrl(url)
+				.withCertificate("cert")
+				.withPrivateKey("key")
+				.withCredentialType(CredentialType.X509)
+				.build();
+
+		assertThat(configuration.getClientId()).isEqualTo("client-id");
+		assertThat(configuration.getClientIdentity().getCertificate()).isEqualTo("cert");
+		assertThat(configuration.getClientIdentity().getKey()).isEqualTo("key");
+		assertThat(configuration.getUrl()).isNull();
+		assertThat(configuration.getCertUrl()).isEqualTo(URI.create(url));
+		assertThat(configuration.getCredentialType()).isEqualTo(CredentialType.X509);
+
+		XsuaaDefaultEndpoints endpoints = new XsuaaDefaultEndpoints(configuration);
+		assertThat(endpoints.getAuthorizeEndpoint().toString()).isEqualTo("http://the.cert.Url.org/oauth/authorize");
 	}
 }
