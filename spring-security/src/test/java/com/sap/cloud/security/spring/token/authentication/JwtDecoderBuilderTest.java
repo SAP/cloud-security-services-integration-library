@@ -39,7 +39,7 @@ class JwtDecoderBuilderTest {
 
 	@Test
 	void buildHybridWithoutConfiguration_IllegalArgumentException() {
-		assertThrows(IllegalArgumentException.class, () -> cut.build());
+		assertThrows(IllegalStateException.class, () -> cut.build());
 	}
 
 	@Test
@@ -48,7 +48,6 @@ class JwtDecoderBuilderTest {
 				.forService(Service.IAS)
 				.withClientId("clientId")
 				.withProperty(CFConstants.URL, "https://domain.myauth.com")
-				// .withProperty(CFConstants.IAS.DOMAIN, "myauth.com")
 				.build();
 
 		cut.withIasServiceConfiguration(iasConfiguration);

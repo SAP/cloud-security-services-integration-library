@@ -119,29 +119,33 @@ public class JwtDecoderBuilder {
 	public JwtDecoder build() {
 		JwtValidatorBuilder iasValidatorBuilder = null;
 		if (iasConfiguration != null && !iasConfiguration.getProperties().isEmpty()) {
-			iasValidatorBuilder = JwtValidatorBuilder.getInstance(iasConfiguration)
-					.withCacheConfiguration(tokenKeyCacheConfiguration)
-					.withHttpClient(httpClient);
-			for (ValidationListener listener : validationListeners) {
-				iasValidatorBuilder.withValidatorListener(listener);
-			}
+			iasValidatorBuilder = initializeBuilder(iasConfiguration);
 		}
 		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
 			int index = 0;
-			JwtValidatorBuilder xsuaaValidatorBuilder = JwtValidatorBuilder.getInstance(xsuaaConfigurations.get(index))
-					.withCacheConfiguration(tokenKeyCacheConfiguration)
-					.withHttpClient(httpClient);
+			JwtValidatorBuilder xsuaaValidatorBuilder = initializeBuilder(xsuaaConfigurations.get(index));
 			for (OAuth2ServiceConfiguration xsuaaConfig : xsuaaConfigurations) {
 				if (index++ != 0) {
 					xsuaaValidatorBuilder.configureAnotherServiceInstance(xsuaaConfig);
 				}
 			}
-			for (ValidationListener listener : validationListeners) {
-				xsuaaValidatorBuilder.withValidatorListener(listener);
-			}
 			return new HybridJwtDecoder(xsuaaValidatorBuilder.build(),
 					iasValidatorBuilder != null ? iasValidatorBuilder.build() : null);
 		}
+		if (iasValidatorBuilder == null) {
+			throw new IllegalStateException("There is no xsuaa and no identity service config.");
+		}
 		return new IasJwtDecoder(iasValidatorBuilder.build());
+	}
+
+
+	private JwtValidatorBuilder initializeBuilder(OAuth2ServiceConfiguration config) {
+		JwtValidatorBuilder builder = JwtValidatorBuilder.getInstance(config)
+				.withCacheConfiguration(tokenKeyCacheConfiguration)
+				.withHttpClient(httpClient);
+		for (ValidationListener listener : validationListeners) {
+			builder.withValidatorListener(listener);
+		}
+		return builder;
 	}
 }
