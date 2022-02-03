@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
-import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.JwtGenerator;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
@@ -27,11 +26,12 @@ import static org.mockito.Mockito.when;
 
 class HybridJwtDecoderTest {
 	JwtGenerator jwtGenerator = JwtGenerator.getInstance(IAS, "theClientId");
+	CombiningValidator<Token> combiningValidator;
 	HybridJwtDecoder cut;
 
 	@BeforeEach
 	void setup() {
-		CombiningValidator<Token> combiningValidator = Mockito.mock(CombiningValidator.class);
+		combiningValidator = Mockito.mock(CombiningValidator.class);
 		when(combiningValidator.validate(any())).thenReturn(ValidationResults.createValid());
 
 		cut = new HybridJwtDecoder(combiningValidator, combiningValidator);
@@ -61,7 +61,6 @@ class HybridJwtDecoderTest {
 
 	@Test
 	void decodeInvalidToken_throwsAccessDeniedException() {
-		CombiningValidator<Token> combiningValidator = Mockito.mock(CombiningValidator.class);
 		when(combiningValidator.validate(any())).thenReturn(ValidationResults.createInvalid("error"));
 		cut = new HybridJwtDecoder(combiningValidator, combiningValidator);
 		String encodedToken = jwtGenerator.createToken().getTokenValue();
@@ -80,13 +79,23 @@ class HybridJwtDecoderTest {
 
 	@Test
 	void decodeWithCorruptToken_throwsBadJwtException() {
-		String encodedToken = jwtGenerator
-				.withClaimValue(TokenClaims.EXPIRATION, "")
-				.createToken().getTokenValue();
-
 		assertThrows(BadJwtException.class, () -> cut.decode("Bearer e30="));
 		assertThrows(BadJwtException.class, () -> cut.decode("Bearer"));
 		assertThrows(BadJwtException.class, () -> cut.decode(null));
 		assertThrows(BadJwtException.class, () -> cut.decode("Bearerabc"));
+	}
+
+	@Test
+	void instantiateForXsuaaOnly() {
+		cut = new HybridJwtDecoder(combiningValidator, null);
+
+		// IAS token can't be validated
+		String encodedIasToken = jwtGenerator.createToken().getTokenValue();
+		assertThrows(BadJwtException.class, () -> cut.decode(encodedIasToken));
+
+		// XSUAA token can be validated
+		String encodedXsuaaToken = JwtGenerator.getInstance(XSUAA, "theClientId").createToken().getTokenValue();
+		assertEquals("theClientId", cut.decode(encodedXsuaaToken).getClaim(TokenClaims.AUTHORIZATION_PARTY));
+
 	}
 }
