@@ -80,14 +80,14 @@ class IasTokenAuthenticatorX509Test {
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		assertThat(response.getUnauthenticatedReason())
-				.contains("Error during token validation: Certificate validation failed");
+				.contains("Error during token validation: Client certificate missing");
 		assertThat(response.isAuthenticated()).isFalse();
 
 		when(httpRequest.getHeader(FWD_CLIENT_CERT_HEADER)).thenReturn("");
 		TokenAuthenticationResult response2 = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		assertThat(response2.getUnauthenticatedReason())
-				.contains("Error during token validation: Certificate validation failed");
+				.contains("Error during token validation: Client certificate missing");
 		assertThat(response2.isAuthenticated()).isFalse();
 
 	}
@@ -100,7 +100,7 @@ class IasTokenAuthenticatorX509Test {
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		assertThat(response.getUnauthenticatedReason())
-				.contains("Error during token validation: Certificate validation failed");
+				.contains("Error during token validation: Client certificate missing");
 		assertThat(response.isAuthenticated()).isFalse();
 	}
 
@@ -112,7 +112,7 @@ class IasTokenAuthenticatorX509Test {
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		assertThat(response.getUnauthenticatedReason())
-				.contains("Error during token validation: Certificate validation failed");
+				.contains("Error during token validation: Certificate cnf token validation failed");
 		assertThat(response.isAuthenticated()).isFalse();
 	}
 
