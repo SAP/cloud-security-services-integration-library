@@ -31,7 +31,6 @@ public class JwtX5tValidator implements Validator<Token> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtX5tValidator.class);
 	private final OAuth2ServiceConfiguration config;
 
-
 	public JwtX5tValidator(OAuth2ServiceConfiguration config) {
 		this.config = config;
 	}
@@ -64,9 +63,12 @@ public class JwtX5tValidator implements Validator<Token> {
 				if (token.getAudiences().size() == 1 && token.getAudiences().contains(config.getClientId())) {
 					return ValidationResults.createValid();
 				}
-				LOGGER.error("Audience validation failed -> \"aud\": {} != \"clientid\": \"{}\"", token.getAudiences(), config.getClientId());
+				LOGGER.error("Audience validation failed -> \"aud\": {} != \"clientid\": \"{}\"", token.getAudiences(),
+						config.getClientId());
 			} else {
-				LOGGER.error("Thumbprint validation failed -> x5t from token: \"{}\" != thumbprint from client certificate: \"{}\"", tokenX5t,
+				LOGGER.error(
+						"Thumbprint validation failed -> x5t from token: \"{}\" != thumbprint from client certificate: \"{}\"",
+						tokenX5t,
 						clientCertificateX5t);
 			}
 		}

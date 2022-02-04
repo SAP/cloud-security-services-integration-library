@@ -50,7 +50,8 @@ class JwtX5tValidatorTest {
 				.withClientId("myClientId")
 				.build();
 		CUT = new JwtX5tValidator(configuration);
-		Mockito.when(JSON_MOCK.getAsString(TokenClaims.CNF_X5T)).thenReturn("fU-XoQlhMTpQsz9ArXl6zHIpMGuRO4ExLKdLRTc5VjM");
+		Mockito.when(JSON_MOCK.getAsString(TokenClaims.CNF_X5T))
+				.thenReturn("fU-XoQlhMTpQsz9ArXl6zHIpMGuRO4ExLKdLRTc5VjM");
 	}
 
 	@Test
