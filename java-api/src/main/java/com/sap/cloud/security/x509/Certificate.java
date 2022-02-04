@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.x509;
 
-
 import java.util.Map;
 
 /**
@@ -22,8 +21,8 @@ public interface Certificate {
 	 *
 	 * @return the thumbprint
 	 * @throws InvalidCertificateException
-	 *             if error occurs while encoding X509 certificate
-	 *             or when a particular cryptographic algorithm is not supported
+	 *             if error occurs while encoding X509 certificate or when a
+	 *             particular cryptographic algorithm is not supported
 	 */
 	String getThumbprint() throws InvalidCertificateException;
 
@@ -37,8 +36,9 @@ public interface Certificate {
 	/**
 	 * Gets certificate subject DN map.
 	 *
-	 * @return the subject DN map with entries such as ["CN"]["common name"], or ["OU"]["1234-5678"]
+	 * @return the subject DN map with entries such as ["CN"]["common name"], or
+	 *         ["OU"]["1234-5678"]
 	 */
-	Map<String,String> getSubjectDNMap();
+	Map<String, String> getSubjectDNMap();
 
 }
