@@ -75,7 +75,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 		runner = new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class,
 						XsuaaTokenFlowAutoConfiguration.class))
-				.withPropertyValues("sap.security.services.xsuaa.url:http://localhost")
+				.withPropertyValues("sap.security.services.xsuaa.certurl:https://domain.cert.auth.com")
 				.withPropertyValues("sap.security.services.xsuaa.clientid:cid")
 				.withPropertyValues("sap.security.services.xsuaa.certificate:" + cert)
 				.withPropertyValues("sap.security.services.xsuaa.key:" + key)
@@ -92,7 +92,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	}
 
 	@Test
-	void autoConfigurationDisabledWhenNoClientSecretIsGiven() {
+	void autoConfigurationDisabledWhenNoClientIdIsGiven() {
 		WebApplicationContextRunner mt_runner;
 
 		mt_runner = new WebApplicationContextRunner()
@@ -107,7 +107,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 		WebApplicationContextRunner mt_runner;
 
 		List<String> mt_properties = new ArrayList<>(properties);
-		mt_properties.add("sap.security.services.xsuaa[0].url:http://localhost");
+		mt_properties.add("sap.security.services.xsuaa[0].certurl:https://domain.cert.auth.com");
 		mt_properties.add("sap.security.services.xsuaa[0].clientid:cid");
 		mt_properties.add("sap.security.services.xsuaa[0].clientsecret:pwd");
 		mt_properties.add("sap.security.services.xsuaa[1].clientid:cid");
