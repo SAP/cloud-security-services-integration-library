@@ -49,4 +49,9 @@ public class XsuaaServiceConfigurationDefaultTest {
 	public void getCertUrl() {
 		assertThat(cut.getCertUrl()).isEqualTo(URI.create("https://my.cert.authentication.sap.com"));
 	}
+
+	@Test
+	public void unsupportedMethods() {
+		assertThatThrownBy(() -> cut.getProperties()).isInstanceOf(UnsupportedOperationException.class);
+	}
 }
