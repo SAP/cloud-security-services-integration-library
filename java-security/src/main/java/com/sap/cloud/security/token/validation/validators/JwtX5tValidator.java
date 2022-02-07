@@ -9,6 +9,7 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.x509.Certificate;
+import com.sap.cloud.security.xsuaa.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,10 +30,10 @@ import javax.annotation.Nullable;
 public class JwtX5tValidator implements Validator<Token> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtX5tValidator.class);
-	private final OAuth2ServiceConfiguration config;
+	static final String VALIDATION_FAILED = "Certificate thumbprint validation failed";
 
 	public JwtX5tValidator(OAuth2ServiceConfiguration config) {
-		this.config = config;
+		Assertions.assertNotNull(config, "Service configuration must not be null");
 	}
 
 	/**
@@ -50,29 +51,23 @@ public class JwtX5tValidator implements Validator<Token> {
 	 */
 	@Override
 	public ValidationResult validate(Token token) {
+		if (token == null) {
+			return ValidationResults.createInvalid("No token passed to validate certificate thumbprint");
+		}
 		String tokenX5t = extractCnfThumbprintFromToken(token);
 		LOGGER.debug("Token 'cnf' thumbprint: {}", tokenX5t);
-		if (tokenX5t != null) {
-			Certificate clientCertificate = SecurityContext.getClientCertificate();
-			if (clientCertificate == null) {
-				LOGGER.error("Client certificate missing from SecurityContext");
-				return ValidationResults.createInvalid("Certificate validation failed");
-			}
-			String clientCertificateX5t = clientCertificate.getThumbprint();
-			if (clientCertificateX5t.equals(tokenX5t)) {
-				if (token.getAudiences().size() == 1 && token.getAudiences().contains(config.getClientId())) {
-					return ValidationResults.createValid();
-				}
-				LOGGER.error("Audience validation failed -> \"aud\": {} != \"clientid\": \"{}\"", token.getAudiences(),
-						config.getClientId());
-			} else {
-				LOGGER.error(
-						"Thumbprint validation failed -> x5t from token: \"{}\" != thumbprint from client certificate: \"{}\"",
-						tokenX5t,
-						clientCertificateX5t);
-			}
+		if (tokenX5t == null) {
+			return ValidationResults.createInvalid("Token doesn't contain certificate thumbprint confirmation method");
 		}
-		return ValidationResults.createInvalid("Certificate validation failed");
+		Certificate clientCertificate = SecurityContext.getClientCertificate();
+		if (clientCertificate == null) {
+			return ValidationResults.createInvalid("Client certificate missing from SecurityContext");
+		}
+		String clientCertificateX5t = clientCertificate.getThumbprint();
+		if (clientCertificateX5t.equals(tokenX5t)) {
+			return ValidationResults.createValid();
+		}
+		return ValidationResults.createInvalid(VALIDATION_FAILED);
 	}
 
 	/**

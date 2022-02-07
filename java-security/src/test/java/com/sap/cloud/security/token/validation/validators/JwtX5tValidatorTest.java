@@ -23,10 +23,9 @@ import org.mockito.internal.util.collections.Sets;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.sap.cloud.security.token.validation.validators.JwtX5tValidator.VALIDATION_FAILED;
+import static org.junit.jupiter.api.Assertions.*;
 
 class JwtX5tValidatorTest {
 
@@ -36,7 +35,6 @@ class JwtX5tValidatorTest {
 	private static X509Certificate x509;
 	private static final Token TOKEN = Mockito.mock(Token.class);
 	private static final JsonObject JSON_MOCK = Mockito.mock(JsonObject.class);
-	private static final String INVALID_MESSAGE = "Certificate validation failed";
 	private static final String X5T_VALIDATOR_DISABLED = "X5tValidator is not enabled";
 
 	@BeforeAll
@@ -55,7 +53,22 @@ class JwtX5tValidatorTest {
 	}
 
 	@Test
-	void validateToken_ValidToken_validX509() {
+	void given_NoConfig() {
+		assertThrows(
+				IllegalArgumentException.class,
+				() -> new JwtX5tValidator(null),
+				"Service configuration must not be null");
+	}
+
+	@Test
+	void given_NoToken() {
+		ValidationResult result = CUT.validate(null);
+		assertTrue(result.isErroneous());
+		assertEquals("No token passed to validate certificate thumbprint", result.getErrorDescription());
+	}
+
+	@Test
+	void given_ValidToken_validX509() {
 		Token token = Token.create(tokenWithX5t);
 		SecurityContext.setClientCertificate(x509);
 		ValidationResult result = CUT.validate(token);
@@ -63,82 +76,44 @@ class JwtX5tValidatorTest {
 	}
 
 	@Test
-	void validateToken_ValidToken_invalidX509() {
+	void given_ValidToken_invalidX509() {
 		Token token = Token.create(tokenWithX5t);
 		SecurityContext.setClientCertificate(null);
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isErroneous());
-		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
+		assertEquals("Client certificate missing from SecurityContext", result.getErrorDescription());
 	}
 
 	@Test
-	void validateToken_validCnf_validX509_MultipleAud() {
-		SecurityContext.setClientCertificate(x509);
-		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("aud1", "aud2"));
-		Mockito.when(TOKEN.getClaimAsJsonObject(TokenClaims.CNF)).thenReturn(JSON_MOCK);
-		ValidationResult result = CUT.validate(TOKEN);
-		assertTrue(result.isErroneous());
-		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
-	}
-
-	@Test
-	void validateToken_validCnf_validX509_EmptyAud() {
-		SecurityContext.setClientCertificate(x509);
-		Mockito.when(TOKEN.getAudiences()).thenReturn(Collections.emptySet());
-		Mockito.when(TOKEN.getClaimAsJsonObject(TokenClaims.CNF)).thenReturn(JSON_MOCK);
-		ValidationResult result = CUT.validate(TOKEN);
-		assertTrue(result.isErroneous());
-		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
-	}
-
-	@Test
-	void validateToken_InvalidCnf_validX509() {
+	void given_InvalidCnf_validX509() {
 		Token token = Token.create(tokenWithInvalidX5t);
 		SecurityContext.setClientCertificate(x509);
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isErroneous());
-		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
+		assertEquals(VALIDATION_FAILED, result.getErrorDescription());
 	}
 
 	@Test
-	void validateToken_InvalidCnf_invalidX509() {
+	void given_InvalidCnf_invalidX509() {
 		Token token = Token.create(tokenWithInvalidX5t);
 		SecurityContext.setClientCertificate(null);
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isErroneous());
-		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
+		assertEquals("Client certificate missing from SecurityContext", result.getErrorDescription());
 	}
 
 	@Test
-	void validateToken_NoCnf_validAud() {
+	void given_NoCnf_validAud() {
 		Mockito.when(JSON_MOCK.getAsString(TokenClaims.CNF_X5T)).thenReturn(null);
 		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("myClientId"));
 		ValidationResult result = CUT.validate(TOKEN);
 		assertTrue(result.isErroneous());
-		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
+		assertEquals("Token doesn't contain certificate thumbprint confirmation method", result.getErrorDescription());
 	}
 
+	@Disabled("until proofOfPossession validator subchain is implemented")
 	@Test
-	void validateToken_NoCnf_MultipleAud() {
-		Mockito.when(JSON_MOCK.getAsString(TokenClaims.CNF_X5T)).thenReturn(null);
-		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("aud1", "aud2"));
-		ValidationResult result = CUT.validate(TOKEN);
-		assertTrue(result.isErroneous());
-		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
-	}
-
-	@Test
-	void validateToken_NoCnf_EmptyAud() {
-		Mockito.when(JSON_MOCK.getAsString(TokenClaims.CNF_X5T)).thenReturn(null);
-		Mockito.when(TOKEN.getAudiences()).thenReturn(Collections.emptySet());
-		ValidationResult result = CUT.validate(TOKEN);
-		assertTrue(result.isErroneous());
-		assertEquals(INVALID_MESSAGE, result.getErrorDescription());
-	}
-
-	@Disabled("until proofOfPossesion validator subchain is implemented")
-	@Test
-	void validateToken_validatorDisabled() {
+	void given_validatorDisabled() {
 		Token token = Token.create(tokenWithX5t);
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isErroneous());
