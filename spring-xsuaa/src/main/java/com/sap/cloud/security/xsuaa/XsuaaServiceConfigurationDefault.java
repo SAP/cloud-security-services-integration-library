@@ -15,6 +15,8 @@ import java.util.Objects;
 @Configuration
 public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfiguration {
 
+	static final String VCAP_SERVICES_CREDENTIALS = "xsuaa credentials from VCAP_SERVICES environment";
+
 	@Value("${xsuaa.clientid:}")
 	private String clientId;
 
@@ -109,7 +111,8 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	 */
 	@Override
 	public String getProperty(String name) {
-		return Objects.requireNonNull(Environments.getCurrent().getXsuaaConfiguration()).getProperty(name);
+		return Objects.requireNonNull(Environments.getCurrent().getXsuaaConfiguration(), VCAP_SERVICES_CREDENTIALS)
+				.getProperty(name);
 	}
 
 	/**
@@ -122,6 +125,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	 */
 	@Override
 	public boolean hasProperty(String name) {
-		return Objects.requireNonNull(Environments.getCurrent().getXsuaaConfiguration()).hasProperty(name);
+		return Objects.requireNonNull(Environments.getCurrent().getXsuaaConfiguration(), VCAP_SERVICES_CREDENTIALS)
+				.hasProperty(name);
 	}
 }
