@@ -65,6 +65,17 @@ public class XsuaaDefaultEndpointsTest {
 		new XsuaaDefaultEndpoints(null, CERT_URL);
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void getJwksUri_throwsException_whenBaseUriIsNull() {
+		Mockito.when(oAuth2ServiceConfiguration.getCertUrl()).thenReturn(URI.create(CERT_URL));
+		Mockito.when(oAuth2ServiceConfiguration.getCredentialType()).thenReturn(X509);
+
+		cut = new XsuaaDefaultEndpoints(oAuth2ServiceConfiguration);
+
+		assertThat(cut.getTokenEndpoint().toString(), is(CERT_URL + "/oauth/token")); // ok
+		cut.getJwksUri(); // raise exception
+	}
+
 	@Test
 	@Deprecated
 	public void getEndpoint_forBaseUrl() {
