@@ -15,7 +15,7 @@ import java.util.Objects;
 @Configuration
 public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfiguration {
 
-	static final String VCAP_SERVICES_CREDENTIALS = "xsuaa credentials from VCAP_SERVICES environment";
+	static final String VCAP_SERVICES_CREDENTIALS = "xsuaa credentials from VCAP_SERVICES/secret must not be null";
 
 	@Value("${xsuaa.clientid:}")
 	private String clientId;
