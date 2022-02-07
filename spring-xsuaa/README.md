@@ -270,6 +270,10 @@ Finally you need do re-deploy your application for the changes to take effect.
 If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), you run into the following issue:
 
 ```
+IllegalStateException: Found more than one xsuaa bindings. Please consider unified broker plan or use com.sap.cloud.security:spring-security client library.
+```
+Or,
+```
 Caused by: java.lang.RuntimeException: Found more than one xsuaa binding. There can only be one.
 at com.sap.cloud.security.xsuaa.XsuaaServicesParser.getJSONObjectFromTag(XsuaaServicesParser.java:91)
 at com.sap.cloud.security.xsuaa.XsuaaServicesParser.searchXSuaaBinding(XsuaaServicesParser.java:72)
