@@ -1,26 +1,25 @@
 package com.sap.cloud.security.xsuaa;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 import static com.sap.cloud.security.config.cf.CFConstants.CLIENT_ID;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XsuaaServiceConfigurationFromEnvTest {
+@ExtendWith(SystemStubsExtension.class)
+class XsuaaServiceConfigurationFromEnvTest {
 	XsuaaServiceConfigurationDefault cut;
+	String vcapServiceCredentials = "{\"xsuaa\":[{\"credentials\":{\"apiurl\":\"https://api.mydomain.com\",\"tenantid\":\"tenant-id\",\"subaccountid\":\"subaccount-id\",\"clientid\":\"client-id\"},\"tags\":[\"xsuaa\"]}]}";
 
-	@Rule
-	public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-
-	@Before
-	public void setup() {
-		environmentVariables.set(VCAP_SERVICES,
-				"{\"xsuaa\":[{\"credentials\":{\"apiurl\":\"https://api.mydomain.com\",\"tenantid\":\"tenant-id\",\"subaccountid\":\"subaccount-id\",\"clientid\":\"client-id\"},\"tags\":[\"xsuaa\"]}]}");
+	@BeforeEach
+	void setup(EnvironmentVariables environmentVariables) {
 		cut = new XsuaaServiceConfigurationDefault();
+		environmentVariables.set(VCAP_SERVICES, vcapServiceCredentials);
 	}
 
 	@Test
