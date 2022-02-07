@@ -38,20 +38,20 @@ class JwtDecoderBuilderTest {
 	}
 
 	@Test
-	void buildHybridWithoutConfiguration_IllegalArgumentException() {
+	void buildWithoutConfiguration_IllegalStateException() {
 		assertThrows(IllegalStateException.class, () -> cut.build());
 	}
 
 	@Test
 	void buildHybridWithoutConfiguration() {
-		OAuth2ServiceConfiguration iasConfiguration = OAuth2ServiceConfigurationBuilder
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.IAS)
 				.withClientId("clientId")
 				.withProperty(CFConstants.URL, "https://domain.myauth.com")
 				.build();
 
-		cut.withIasServiceConfiguration(iasConfiguration);
-		cut.withXsuaaServiceConfiguration(iasConfiguration);
+		cut.withIasServiceConfiguration(configuration);
+		cut.withXsuaaServiceConfiguration(configuration);
 		cut.withValidationListener(Mockito.mock(ValidationListener.class));
 		JwtDecoder decoder = cut.build();
 		assertTrue(decoder instanceof HybridJwtDecoder);

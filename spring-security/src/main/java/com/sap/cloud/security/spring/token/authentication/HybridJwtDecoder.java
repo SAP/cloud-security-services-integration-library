@@ -62,7 +62,7 @@ public class HybridJwtDecoder implements JwtDecoder {
 		switch (token.getService()) {
 		case IAS:
 			if (iasTokenValidators == null) {
-				throw new BadJwtException("Token of IAS service isn't accepted");
+				throw new BadJwtException("Tokens issued by IAS service aren't accepted");
 			}
 			validationResult = iasTokenValidators.validate(token);
 			break;
@@ -70,12 +70,12 @@ public class HybridJwtDecoder implements JwtDecoder {
 			validationResult = xsuaaTokenValidators.validate(token);
 			break;
 		default:
-			throw new BadJwtException("The token of service " + token.getService() + " is not supported.");
+			throw new BadJwtException("Tokens issued by " + token.getService() + " service aren't supported.");
 		}
 		if (validationResult.isErroneous()) {
 			throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
 		}
-		logger.debug("The token of service {} was successfully validated.", token.getService());
+		logger.debug("Token issued by {} service was successfully validated.", token.getService());
 		return jwt;
 	}
 
