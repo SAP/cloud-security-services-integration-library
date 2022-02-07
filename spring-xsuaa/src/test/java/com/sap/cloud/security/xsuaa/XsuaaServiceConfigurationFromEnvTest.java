@@ -1,37 +1,30 @@
 package com.sap.cloud.security.xsuaa;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 import static com.sap.cloud.security.config.cf.CFConstants.CLIENT_ID;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XsuaaServiceConfigurationFromEnvTest {
+@ExtendWith(SystemStubsExtension.class)
+class XsuaaServiceConfigurationFromEnvTest {
 	XsuaaServiceConfigurationDefault cut;
+	String vcapServiceCredentials = "{\"xsuaa\":[{\"credentials\":{\"apiurl\":\"https://api.mydomain.com\",\"tenantid\":\"tenant-id\",\"subaccountid\":\"subaccount-id\",\"clientid\":\"client-id\"},\"tags\":[\"xsuaa\"]}]}";
 
-	@Rule
-	public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
-	@BeforeAll
-	public void setup() {
-		environmentVariables.set(VCAP_SERVICES,
-				"{\"xsuaa\":[{\"credentials\":{\"apiurl\":\"https://api.mydomain.com\",\"tenantid\":\"tenant-id\",\"subaccountid\":\"subaccount-id\",\"clientid\":\"client-id\"},\"tags\":[\"xsuaa\"]}]}");
+	@BeforeEach
+	void setup(EnvironmentVariables environmentVariables) {
 		cut = new XsuaaServiceConfigurationDefault();
-	}
-
-	@AfterAll
-	public void teardown() {
-		environmentVariables.set(VCAP_SERVICES, "");
+		environmentVariables.set(VCAP_SERVICES, vcapServiceCredentials);
 	}
 
 	@Test
-	public void getProperty() {
+	void getProperty() {
 		assertThat(cut.getProperty(API_URL)).isEqualTo("https://api.mydomain.com");
 		assertThat(cut.getProperty(SUBACCOUNT_ID)).isEqualTo("subaccount-id");
 		assertThat(cut.getProperty(TENANT_ID)).isEqualTo("tenant-id");
@@ -40,7 +33,7 @@ public class XsuaaServiceConfigurationFromEnvTest {
 	}
 
 	@Test
-	public void hasProperty() {
+	void hasProperty() {
 		assertThat(cut.hasProperty(API_URL)).isTrue();
 		assertThat(cut.hasProperty(SUBACCOUNT_ID)).isTrue();
 		assertThat(cut.hasProperty("unknownProp")).isFalse();

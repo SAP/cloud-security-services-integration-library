@@ -138,7 +138,6 @@ public class JwtDecoderBuilder {
 		return new IasJwtDecoder(iasValidatorBuilder.build()); // lgtm [java/dereferenced-value-may-be-null] - line 136
 	}
 
-
 	private JwtValidatorBuilder initializeBuilder(OAuth2ServiceConfiguration config) {
 		JwtValidatorBuilder builder = JwtValidatorBuilder.getInstance(config)
 				.withCacheConfiguration(tokenKeyCacheConfiguration)
