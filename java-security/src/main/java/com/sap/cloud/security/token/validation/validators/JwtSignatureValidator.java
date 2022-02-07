@@ -63,7 +63,8 @@ class JwtSignatureValidator implements Validator<Token> {
 		String jwksUri;
 		String keyId;
 
-		if (Service.IAS == configuration.getService() && !token.getIssuer().equals("" + configuration.getUrl()) && token.getZoneId() == null) { // lgtm[java/dereferenced-value-may-be-null]
+		if (Service.IAS == configuration.getService() && !token.getIssuer().equals("" + configuration.getUrl())
+				&& token.getZoneId() == null) { // lgtm[java/dereferenced-value-may-be-null]
 			return createInvalid("Error occurred during signature validation: OIDC token must provide zone_uuid.");
 		}
 		try {

@@ -10,7 +10,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Service that targets Identity service (xsuaa and identity) to request Json Web Keys.
+ * Service that targets Identity service (xsuaa and identity) to request Json
+ * Web Keys.
  */
 public interface OAuth2TokenKeyService {
 
