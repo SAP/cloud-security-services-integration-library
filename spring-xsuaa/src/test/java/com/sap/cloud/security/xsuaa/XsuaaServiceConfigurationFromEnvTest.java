@@ -23,11 +23,6 @@ class XsuaaServiceConfigurationFromEnvTest {
 		environmentVariables.set(VCAP_SERVICES, vcapServiceCredentials);
 	}
 
-	@AfterAll
-	public void teardown() {
-		environmentVariables.set(VCAP_SERVICES, "");
-	}
-
 	@Test
 	void getProperty() {
 		assertThat(cut.getProperty(API_URL)).isEqualTo("https://api.mydomain.com");
