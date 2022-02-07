@@ -30,10 +30,10 @@ import javax.annotation.Nullable;
 public class JwtX5tValidator implements Validator<Token> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtX5tValidator.class);
-	static final String VALIDATION_FAILED = "Certificate cnf token validation failed";
+	static final String VALIDATION_FAILED = "Certificate thumbprint validation failed";
 
 	public JwtX5tValidator(OAuth2ServiceConfiguration config) {
-		Assertions.assertNotNull(config, "config must not be null");
+		Assertions.assertNotNull(config, "Service configuration must not be null");
 	}
 
 	/**
@@ -52,12 +52,12 @@ public class JwtX5tValidator implements Validator<Token> {
 	@Override
 	public ValidationResult validate(Token token) {
 		if (token == null) {
-			return ValidationResults.createInvalid("No token passed to extract cnf thumbprint");
+			return ValidationResults.createInvalid("No token passed to validate certificate thumbprint");
 		}
 		String tokenX5t = extractCnfThumbprintFromToken(token);
 		LOGGER.debug("Token 'cnf' thumbprint: {}", tokenX5t);
 		if (tokenX5t == null) {
-			return ValidationResults.createInvalid("Token doesn't provide cnf thumbprint");
+			return ValidationResults.createInvalid("Token doesn't contain certificate thumbprint confirmation method");
 		}
 		Certificate clientCertificate = SecurityContext.getClientCertificate();
 		if (clientCertificate == null) {

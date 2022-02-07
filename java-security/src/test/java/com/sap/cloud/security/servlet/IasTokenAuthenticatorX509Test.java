@@ -112,7 +112,7 @@ class IasTokenAuthenticatorX509Test {
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		assertThat(response.getUnauthenticatedReason())
-				.contains("Error during token validation: Certificate cnf token validation failed");
+				.contains("Error during token validation: Certificate thumbprint validation failed");
 		assertThat(response.isAuthenticated()).isFalse();
 	}
 

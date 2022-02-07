@@ -25,8 +25,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static com.sap.cloud.security.token.validation.validators.JwtX5tValidator.VALIDATION_FAILED;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class JwtX5tValidatorTest {
 
@@ -54,10 +53,18 @@ class JwtX5tValidatorTest {
 	}
 
 	@Test
+	void given_NoConfig() {
+		assertThrows(
+				IllegalArgumentException.class,
+				() -> new JwtX5tValidator(null),
+				"Service configuration must not be null");
+	}
+
+	@Test
 	void given_NoToken() {
 		ValidationResult result = CUT.validate(null);
 		assertTrue(result.isErroneous());
-		assertEquals("No token passed to extract cnf thumbprint", result.getErrorDescription());
+		assertEquals("No token passed to validate certificate thumbprint", result.getErrorDescription());
 	}
 
 	@Test
@@ -101,7 +108,7 @@ class JwtX5tValidatorTest {
 		Mockito.when(TOKEN.getAudiences()).thenReturn(Sets.newSet("myClientId"));
 		ValidationResult result = CUT.validate(TOKEN);
 		assertTrue(result.isErroneous());
-		assertEquals("Token doesn't provide cnf thumbprint", result.getErrorDescription());
+		assertEquals("Token doesn't contain certificate thumbprint confirmation method", result.getErrorDescription());
 	}
 
 	@Disabled("until proofOfPossession validator subchain is implemented")
