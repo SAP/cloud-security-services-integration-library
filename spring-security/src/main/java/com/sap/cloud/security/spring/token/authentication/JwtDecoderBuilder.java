@@ -135,7 +135,7 @@ public class JwtDecoderBuilder {
 		if (iasValidatorBuilder == null) {
 			throw new IllegalStateException("There is no xsuaa and no identity service config.");
 		}
-		return new IasJwtDecoder(iasValidatorBuilder.build());
+		return new IasJwtDecoder(iasValidatorBuilder.build()); // lgtm [java/dereferenced-value-may-be-null] - line 136
 	}
 
 
