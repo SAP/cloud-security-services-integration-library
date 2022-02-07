@@ -4,6 +4,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import static com.sap.cloud.security.config.cf.CFConstants.CLIENT_ID;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
@@ -16,11 +18,16 @@ public class XsuaaServiceConfigurationFromEnvTest {
 	@Rule
 	public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
-	@Before
+	@BeforeAll
 	public void setup() {
 		environmentVariables.set(VCAP_SERVICES,
 				"{\"xsuaa\":[{\"credentials\":{\"apiurl\":\"https://api.mydomain.com\",\"tenantid\":\"tenant-id\",\"subaccountid\":\"subaccount-id\",\"clientid\":\"client-id\"},\"tags\":[\"xsuaa\"]}]}");
 		cut = new XsuaaServiceConfigurationDefault();
+	}
+
+	@AfterAll
+	public void teardown() {
+		environmentVariables.set(VCAP_SERVICES, "");
 	}
 
 	@Test
