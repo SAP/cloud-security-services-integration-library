@@ -23,7 +23,7 @@ class XsuaaServiceConfigurationFromEnvTest {
 	}
 
 	@Test
-	public void getProperty() {
+	void getProperty() {
 		assertThat(cut.getProperty(API_URL)).isEqualTo("https://api.mydomain.com");
 		assertThat(cut.getProperty(SUBACCOUNT_ID)).isEqualTo("subaccount-id");
 		assertThat(cut.getProperty(TENANT_ID)).isEqualTo("tenant-id");
@@ -32,7 +32,7 @@ class XsuaaServiceConfigurationFromEnvTest {
 	}
 
 	@Test
-	public void hasProperty() {
+	void hasProperty() {
 		assertThat(cut.hasProperty(API_URL)).isTrue();
 		assertThat(cut.hasProperty(SUBACCOUNT_ID)).isTrue();
 		assertThat(cut.hasProperty("unknownProp")).isFalse();
