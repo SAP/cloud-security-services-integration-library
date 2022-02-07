@@ -5,17 +5,17 @@
  */
 package com.sap.cloud.security.xsuaa;
 
-import com.sap.cloud.security.config.ClientCertificate;
-import com.sap.cloud.security.config.ClientCredentials;
-import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.config.CredentialType;
+import com.sap.cloud.security.config.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import java.net.URI;
+import java.util.Objects;
 
 @Configuration
 public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfiguration {
+
+	static final String VCAP_SERVICES_CREDENTIALS = "xsuaa credentials from VCAP_SERVICES/secret must not be null";
 
 	@Value("${xsuaa.clientid:}")
 	private String clientId;
@@ -101,4 +101,31 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 		return identity;
 	}
 
+	/**
+	 * This only supports read from VCAP_SERVICES in cf environment or read from
+	 * secrets in kubernetes environment.
+	 * 
+	 * @param name
+	 *            of the credential property
+	 * @return the property value or null if not found
+	 */
+	@Override
+	public String getProperty(String name) {
+		return Objects.requireNonNull(Environments.getCurrent().getXsuaaConfiguration(), VCAP_SERVICES_CREDENTIALS)
+				.getProperty(name);
+	}
+
+	/**
+	 * This only supports VCAP_SERVICES in cf environment or read from secrets in
+	 * kubernetes environment.
+	 * 
+	 * @param name
+	 *            of the credential property
+	 * @return false if property doesn't exist
+	 */
+	@Override
+	public boolean hasProperty(String name) {
+		return Objects.requireNonNull(Environments.getCurrent().getXsuaaConfiguration(), VCAP_SERVICES_CREDENTIALS)
+				.hasProperty(name);
+	}
 }

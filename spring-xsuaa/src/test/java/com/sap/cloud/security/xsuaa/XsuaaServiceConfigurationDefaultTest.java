@@ -10,6 +10,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.net.URI;
 
+import static com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault.VCAP_SERVICES_CREDENTIALS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -52,8 +53,20 @@ public class XsuaaServiceConfigurationDefaultTest {
 
 	@Test
 	public void unsupportedMethods() {
-		assertThatThrownBy(() -> cut.hasProperty("")).isInstanceOf(UnsupportedOperationException.class);
-		assertThatThrownBy(() -> cut.getProperty("")).isInstanceOf(UnsupportedOperationException.class);
 		assertThatThrownBy(() -> cut.getProperties()).isInstanceOf(UnsupportedOperationException.class);
+	}
+
+	@Test
+	public void hasPropertyRequiresEnvironmentVar() {
+		assertThatThrownBy(() -> cut.hasProperty("clientid"))
+				.isInstanceOf(NullPointerException.class)
+				.hasMessageContaining(VCAP_SERVICES_CREDENTIALS);
+	}
+
+	@Test
+	public void getPropertyRequiresEnvironmentVar() {
+		assertThatThrownBy(() -> cut.getProperty("clientid"))
+				.isInstanceOf(NullPointerException.class)
+				.hasMessageContaining(VCAP_SERVICES_CREDENTIALS);
 	}
 }
