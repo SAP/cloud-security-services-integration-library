@@ -70,6 +70,26 @@ public class XsuaaAutoConfigurationTest {
 	}
 
 	@Test
+	public void configures_xsuaaRestTemplateWithInstanceSecret() {
+		contextRunner
+				.withPropertyValues("xsuaa.credential-type:instance-secret")
+				.run((context) -> {
+					assertThat(context).hasSingleBean(RestOperations.class);
+					assertThat(context).hasBean("xsuaaRestOperations");
+				});
+	}
+
+	@Test
+	public void configures_xsuaaRestTemplateWithBindingSecret() {
+		contextRunner
+				.withPropertyValues("xsuaa.credential-type:binding-secret")
+				.run((context) -> {
+					assertThat(context).hasSingleBean(RestOperations.class);
+					assertThat(context).hasBean("xsuaaRestOperations");
+				});
+	}
+
+	@Test
 	public void configures_xsuaaMtlsRestTemplateWithCredType() {
 		contextRunner
 				.withPropertyValues("spring.xsuaa.flows.auto:true")
