@@ -43,7 +43,7 @@ class JwtDecoderBuilderTest {
 	}
 
 	@Test
-	void buildHybridWithoutConfiguration() {
+	void buildHybridWithConfigurations() {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.IAS)
 				.withClientId("clientId")
