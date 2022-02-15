@@ -40,7 +40,7 @@ The former SAP Java Buildpack versions have used deprecated (Spring) Security li
 Applications requiring access tokens (Jwt) use the Token Flows API defined in [token-client](./token-client) to obtain Jwt tokens for their clients (applications) or for their users.
 
 ### Requirements
-- Java 8
+- Java 8 or 11
 - maven 3.3.9 or later
 
 ### Sample
