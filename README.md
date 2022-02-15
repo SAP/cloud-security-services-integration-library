@@ -23,7 +23,7 @@ OAuth resource servers (as the one in step 4) require libraries for validating a
 The SAP Java Buildpack integrates token validation into the tomcat server. Application developers requiring authentication and authorization information in their application use the interfaces defined in [java-api](./java-api) to obtain information like user name and scopes.
 
 ### Requirements
-- Java 8
+- Java 8 or 11
 - maven 3.3.9 or later
 - You use `sap_java_buildpack` (e.g. in your `manifest.yml`)
 
@@ -51,7 +51,7 @@ Applications requiring access tokens (Jwt) use the Token Flows API defined in [t
 Application developers requiring authentication and authorization information in their application use the libraries defined in [java-security](./java-security) to obtain token information like user name.
 
 ### Requirements
-- Java 8
+- Java 8 or 11
 - maven 3.3.9 or later
 
 ### Sample
@@ -65,7 +65,7 @@ See [java-security-usage](samples/java-security-usage) for an example.
 Spring Boot provides OAuth resource servers. Application developers requiring authentication and authorization information in their application use the libraries defined in [spring-security](./spring-security) to obtain token information like user name and scopes.
 
 ### Requirements
-- Java 8
+- Java 8 or 11
 - maven 3.3.9 or later
 - as of version 2.6.1 Spring Boot >= 2.2 is required. Consequently, it also requires Spring Security version >= 5.2
 
