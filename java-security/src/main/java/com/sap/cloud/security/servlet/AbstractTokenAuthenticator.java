@@ -191,7 +191,9 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	@Nullable
 	String getClientCertificate(HttpServletRequest request) {
 		String clientCert = request.getHeader(FWD_CLIENT_CERT_HEADER);
-		logger.debug("{} = {}", FWD_CLIENT_CERT_HEADER, clientCert);
+		if (clientCert == null) {
+			logger.info("There is no '{}' header provided", FWD_CLIENT_CERT_HEADER);
+		}
 		return clientCert;
 	}
 

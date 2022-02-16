@@ -10,8 +10,6 @@ import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.x509.Certificate;
 import com.sap.cloud.security.xsuaa.Assertions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
@@ -28,9 +26,6 @@ import javax.annotation.Nullable;
  * variable 'X5T_VALIDATOR_ENABLED' to true.
  */
 public class JwtX5tValidator implements Validator<Token> {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(JwtX5tValidator.class);
-	static final String VALIDATION_FAILED = "Certificate thumbprint validation failed";
 
 	public JwtX5tValidator(OAuth2ServiceConfiguration config) {
 		Assertions.assertNotNull(config, "Service configuration must not be null");
@@ -55,7 +50,6 @@ public class JwtX5tValidator implements Validator<Token> {
 			return ValidationResults.createInvalid("No token passed to validate certificate thumbprint");
 		}
 		String tokenX5t = extractCnfThumbprintFromToken(token);
-		LOGGER.debug("Token 'cnf' thumbprint: {}", tokenX5t);
 		if (tokenX5t == null) {
 			return ValidationResults.createInvalid("Token doesn't contain certificate thumbprint confirmation method");
 		}
@@ -67,7 +61,9 @@ public class JwtX5tValidator implements Validator<Token> {
 		if (clientCertificateX5t.equals(tokenX5t)) {
 			return ValidationResults.createValid();
 		}
-		return ValidationResults.createInvalid(VALIDATION_FAILED);
+		return ValidationResults.createInvalid(
+				"Certificate thumbprint validation failed with Token 'cnf' thumbprint: {} != {}", tokenX5t,
+				clientCertificateX5t);
 	}
 
 	/**

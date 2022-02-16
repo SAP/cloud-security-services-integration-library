@@ -91,7 +91,6 @@ class X509Parser {
 		if (!base64EncodedCert.endsWith(END_CERTIFICATE)) {
 			base64EncodedCert = base64EncodedCert + "\n" + END_CERTIFICATE;
 		}
-		LOGGER.debug("PEM encoded certificate: {}", base64EncodedCert);
 		return base64EncodedCert;
 	}
 

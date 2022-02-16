@@ -24,7 +24,7 @@ import org.mockito.internal.util.collections.Sets;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static com.sap.cloud.security.token.validation.validators.JwtX5tValidator.VALIDATION_FAILED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JwtX5tValidatorTest {
@@ -90,7 +90,9 @@ class JwtX5tValidatorTest {
 		SecurityContext.setClientCertificate(x509);
 		ValidationResult result = CUT.validate(token);
 		assertTrue(result.isErroneous());
-		assertEquals(VALIDATION_FAILED, result.getErrorDescription());
+		assertThat(result.getErrorDescription())
+				.contains("Certificate thumbprint validation failed with Token 'cnf' thumbprint");
+		assertThat(result.getErrorDescription()).contains("invalid != fU-XoQlhMTpQsz9ArXl6zHIpMGuRO4ExLKdLRTc5VjM");
 	}
 
 	@Test

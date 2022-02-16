@@ -72,10 +72,7 @@ public class X509Certificate implements Certificate {
 		Map<String, String> map = Stream.of(getSubjectDN().split(",")).collect(Collectors.toMap(
 				dn -> dn.split("=")[0].trim(),
 				dn -> dn.split("=")[1],
-				(dn1, dn2) -> {
-					LOGGER.info("found multiple entries for key");
-					return dn1 + "," + dn2;
-				}));
+				(dn1, dn2) -> dn1 + "," + dn2));
 		return map;
 	}
 
