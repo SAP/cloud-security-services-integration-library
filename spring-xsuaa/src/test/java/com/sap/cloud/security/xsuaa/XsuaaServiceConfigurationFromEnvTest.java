@@ -16,7 +16,6 @@ class XsuaaServiceConfigurationFromEnvTest {
 	XsuaaServiceConfigurationDefault cut;
 	String vcapServiceCredentials = "{\"xsuaa\":[{\"credentials\":{\"apiurl\":\"https://api.mydomain.com\",\"tenantid\":\"tenant-id\",\"subaccountid\":\"subaccount-id\",\"clientid\":\"client-id\"},\"tags\":[\"xsuaa\"]}]}";
 
-
 	@BeforeEach
 	void setup(EnvironmentVariables environmentVariables) {
 		cut = new XsuaaServiceConfigurationDefault();
