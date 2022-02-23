@@ -13,6 +13,7 @@ import java.util.List;
 
 @ConfigurationProperties("sap.security.services")
 public class XsuaaServiceConfigurations {
+
 	@NestedConfigurationProperty
 	private List<XsuaaServiceConfiguration> xsuaa = new ArrayList<>();
 

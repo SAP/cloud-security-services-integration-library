@@ -72,6 +72,17 @@ public class HybridIdentityServicesAutoConfiguration {
 		}
 
 		@Bean
+		@ConditionalOnProperty("xsuaa.uaadomain")
+		public JwtDecoder hybridJwtDecoderComp(XsuaaServiceConfiguration xsuaaConfig,
+										   IdentityServiceConfiguration identityConfig) {
+			LOGGER.debug("auto-configures HybridJwtDecoder.");
+			return new JwtDecoderBuilder()
+					.withIasServiceConfiguration(identityConfig)
+					.withXsuaaServiceConfiguration(xsuaaConfig)
+					.build();
+		}
+
+		@Bean
 		@Primary
 		@ConditionalOnProperty("sap.security.services.xsuaa[0].uaadomain")
 		public JwtDecoder hybridJwtDecoderMultiXsuaaServices(IdentityServiceConfiguration identityConfig) {

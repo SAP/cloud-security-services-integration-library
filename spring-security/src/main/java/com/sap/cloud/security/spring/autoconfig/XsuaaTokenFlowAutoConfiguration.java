@@ -128,5 +128,9 @@ public class XsuaaTokenFlowAutoConfiguration {
 		@ConditionalOnProperty(prefix = "sap.security.services", name = "xsuaa.clientid")
 		static class SingleBindingCondition {
 		}
+
+		@ConditionalOnProperty(name = "xsuaa.clientid")
+		static class SingleBindingConditionComp {
+		}
 	}
 }
