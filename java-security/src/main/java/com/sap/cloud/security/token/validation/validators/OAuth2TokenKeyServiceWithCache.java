@@ -235,7 +235,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		JsonWebKeySet keySet = JsonWebKeySetFactory
 				.createFromJson(getTokenKeyService().retrieveTokenKeys(jwksUri, zoneId));
 		if (keySet == null || keySet.getAll().isEmpty()) {
-			LOGGER.error("Retrieved no token keys from {} for zone id '{}'", jwksUri, zoneId);
+			LOGGER.error("Retrieved no token keys from {} for zone '{}'", jwksUri, zoneId);
 			return;
 		}
 		Set<JsonWebKey> jwks = keySet.getAll();
