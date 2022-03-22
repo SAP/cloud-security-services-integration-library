@@ -129,15 +129,13 @@ For compatibility, ``XsuaaTokenComp`` class can be used to decorate the token is
 
 ```java
 AccessToken token = SpringSecurityContext.getAccessToken();
-xsuaaToken = XsuaaTokenComp.createInstance(token);
-token.getCloneServiceInstanceId();
+XsuaaTokenComp xsuaaToken = XsuaaTokenComp.createInstance(token);
+xsuaaToken.getCloneServiceInstanceId();
 ```
+> :bulb: `getAuthorities` and `getExpirationDate` are not implemented by `XsuaaTokenComp`. Furthermore, `createInstance` raises an `IllegalArgumentException` exception in case its not a token issued by xsuaa. 
 
 See the following table for methods that are not directly available in the target ```Token``` interface.
 
-```
-> :bulb: `getAuthorities` and `getExpirationDate` are not implemented by `XsuaaTokenComp`.
->
 | `com.sap.cloud.security.xsuaa.token.Token` methods  | Xsuaa only? | Workaround in `spring.security` (`com.sap.cloud.security.token.Token`) |
 |-------------------------|---|-----------------------------------------------------------------------------------------------|
 | `getSubaccountId`       | X | Available via `AccessToken` interface.     
