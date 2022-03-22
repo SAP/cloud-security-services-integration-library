@@ -44,7 +44,6 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 	private static final Logger logger = LoggerFactory.getLogger(IdentityServicesPropertySourceFactory.class);
 
 	protected static final String PROPERTIES_KEY = "sap.security.services";
-	protected static final String XSUAA_PREFIX_COMP = "xsuaa.";
 	protected static final String XSUAA_PREFIX = "sap.security.services.xsuaa.";
 	protected static final String IAS_PREFIX = "sap.security.services.identity.";
 

@@ -11,11 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -41,26 +39,10 @@ public class HybridAuthorizationAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(XsuaaTokenAuthorizationConverter.class)
-	@Conditional(OnXsuaaProperty.class)
+	@ConditionalOnProperty("sap.security.services.xsuaa.xsappname")
 	public Converter<Jwt, AbstractAuthenticationToken> xsuaaAuthConverter(XsuaaServiceConfiguration xsuaaConfig) {
 		logger.debug(
 				"auto-configures Converter<Jwt, AbstractAuthenticationToken> with 'xsuaa.xsappname' from XsuaaServiceConfiguration.");
 		return new XsuaaTokenAuthorizationConverter(xsuaaConfig.getProperty(APP_ID));
-	}
-
-	static class OnXsuaaProperty extends AnyNestedCondition {
-
-		OnXsuaaProperty() {
-			super(ConfigurationPhase.REGISTER_BEAN);
-		}
-
-		@ConditionalOnProperty("xsuaa.xsappname")
-		static class XsuaaPropertyComp {
-		}
-
-		@ConditionalOnProperty("sap.security.services.xsuaa.xsappname")
-		static class XsuaaProperty {
-		}
-
 	}
 }

@@ -6,7 +6,6 @@
 package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
-import com.sap.cloud.security.spring.config.XsuaaServiceConfigurationComp;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.spring.token.authentication.XsuaaTokenAuthorizationConverter;
 import org.junit.jupiter.api.Test;
@@ -23,22 +22,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class HybridAuthorizationAutoConfigurationTest {
 	private final WebApplicationContextRunner runner = new WebApplicationContextRunner()
+			.withPropertyValues("sap.security.services.xsuaa.xsappname:theAppName")
 			.withUserConfiguration(XsuaaServiceConfiguration.class, XsuaaServiceConfigurations.class,
-								   XsuaaServiceConfigurationComp.class,
-								   XsuaaServiceConfigurations.class)
+					XsuaaServiceConfigurations.class)
 			.withConfiguration(AutoConfigurations.of(HybridAuthorizationAutoConfiguration.class));
 
 	@Test
-	void autoConfigurationActiveCompatibility() {
-		runner.withPropertyValues("xsuaa.xsappname:theAppName").run(context -> {
-			assertNotNull(context.getBean(XsuaaTokenAuthorizationConverter.class));
-			assertNotNull(context.getBean("xsuaaAuthConverter", Converter.class));
-		});
-	}
-
-	@Test
 	void autoConfigurationActive() {
-		runner.withPropertyValues("sap.security.services.xsuaa.xsappname:theAppName").run(context -> {
+		runner.run(context -> {
 			assertNotNull(context.getBean(XsuaaTokenAuthorizationConverter.class));
 			assertNotNull(context.getBean("xsuaaAuthConverter", Converter.class));
 		});
@@ -64,7 +55,8 @@ class HybridAuthorizationAutoConfigurationTest {
 	void autoConfigurationDisabledForMultipleXsuaaServices() {
 		WebApplicationContextRunner runner = new WebApplicationContextRunner()
 				.withPropertyValues("sap.security.services.xsuaa[0].xsappname:theAppName")
-				.withUserConfiguration(XsuaaServiceConfiguration.class, XsuaaServiceConfigurations.class)
+				.withUserConfiguration(XsuaaServiceConfiguration.class, XsuaaServiceConfigurations.class,
+						XsuaaServiceConfigurations.class)
 				.withConfiguration(AutoConfigurations.of(HybridAuthorizationAutoConfiguration.class));
 
 		runner.run(context -> {
