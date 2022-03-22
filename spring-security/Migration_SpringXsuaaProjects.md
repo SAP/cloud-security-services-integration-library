@@ -116,37 +116,49 @@ import com.sap.cloud.security.xsuaa.token.Token;
 to
 ````java
 import com.sap.cloud.security.token.Token; // new import
-````
+// or
+import com.sap.cloud.security.token.XsuaaTokenComp; // new import
+`````
 
-The ``Token`` interface from ``spring-security`` needs to provide methods that can be served by both kind of tokens. That's why they are not compatible.
-It provides two sub-interfaces: 
-- ```AccessToken``` interface in case of access token issued by the xsuaa service, or 
-- ```SapIdToken``` interface in case of oidc token issued by the identity service.
+![](images/TokenInterfaces.drawio.svg)
 
-See the following table for methods that are not directly available in the target ```Token``` interface. 
+The ``Token`` interface from ``java-api`` provides methods that serves access to token details issued by xsuaa, as well as issued by identity service. That's why ``Token`` is not compatible to the ``Token`` interface from ``spring-xsuaa`` client library.
+``java-api`` provides also the ```AccessToken``` sub-interfaces to access xsuaa specific claims, in case of access tokens issued by the xsuaa service.
 
+For compatibility, ``XsuaaTokenComp`` class can be used to decorate the token issued by xsuaa:
 
-| `com.sap.cloud.security.xsuaa.token.Token` methods  | Xsuaa? | Workaround in `spring.security` (`com.sap.cloud.security.token.Token`) |
+```java
+AccessToken token = SpringSecurityContext.getAccessToken();
+xsuaaToken = XsuaaTokenComp.createInstance(token);
+token.getCloneServiceInstanceId();
+```
+
+See the following table for methods that are not directly available in the target ```Token``` interface.
+
+```
+> :bulb: `getAuthorities` and `getExpirationDate` are not implemented by `XsuaaTokenComp`.
+>
+| `com.sap.cloud.security.xsuaa.token.Token` methods  | Xsuaa only? | Workaround in `spring.security` (`com.sap.cloud.security.token.Token`) |
 |-------------------------|---|-----------------------------------------------------------------------------------------------|
 | `getSubaccountId`       | X | Available via `AccessToken` interface.     
-| `getSubdomain`          | X | Available via `XsuaaToken` implementation. 
-| `getGrantType`          | X | Available via `AccessToken` interface: `getGrantType().toString()`.
-| `getLogonName`          |   | ``getPrincipal().getName()``. :bulb: the name differs between the two services.
+| `getSubdomain`          | X | `getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN)
+| `getGrantType`          | X | `getGrantType().toString()`.
+| `getLogonName`          | (X) | ``getPrincipal().getName()``. :bulb: the name differs between the two services.
 | `getOrigin`             | X | ``getClaimAsString(TokenClaims.XSUAA.ORIGIN)``.
 | `getGivenName`          |   | ``getClaimAsString(TokenClaims.GIVEN_NAME)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
 | `getFamilyName`         |   | ``getClaimAsString(TokenClaims.FAMILY_NAME)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
 | `getEmail`              |   | ``getClaimAsString(TokenClaims.EMAIL)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
-| `getXSUserAttribute`    | X | Available via ```getAttributeFromClaimAsStringList(TokenClaims.XS_USER_ATTRIBUTES, attributeName)```
-| `getAdditionalAuthAttribute`  | X | Available via ```getAttributeFromClaimAsString("az_attr", attributeName)```
-| `getCloneServiceInstanceId`   | X | Available via ```getAttributeFromClaimAsString(TokenClaims.EXTERNAL_ATTRIBUTE, "serviceinstanceid")```
+| `getXSUserAttribute`    | X | ```getAttributeFromClaimAsStringList(TokenClaims.XSUAA.XS_USER_ATTRIBUTES, attributeName)```
+| `getAdditionalAuthAttribute`  | X | ```getAttributeFromClaimAsString("az_attr", attributeName)```
+| `getCloneServiceInstanceId`   | X | ```getAttributeFromClaimAsString(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, "serviceinstanceid")```
 | `getAppToken`           |   | `getTokenValue`
 | `getScopes`             | X | `getClaimAsStringList(TokenClaims.XSUAA.SCOPES)`
 | `getAuthorities()`      |   | ./.
 | `getExpiration()`       |   | `getExpiration()` and for convenience `isExpired()`
 
-> :bulb: In case the ```Xsuaa?``` flag is set, the method returns "null" in case of Id token from identity service.  
-> :bulb: In case of Id token from identity service, the ``Token`` can neither be casted to `AccessToken` nor `XsuaaToken`.  A cast is possible in case of: ```Service.XSUAA.equals(token.getService())```.   
-> :bulb: `getAttributeFromClaimAsStringList` and `getAttributeFromClaimAsString` are available on `Token` interface as of `java-security` version `2.8.5`.
+> :bulb: In case the ```Xsuaa only?``` flag is set, the method returns "null" in case of Id token from identity service.  
+> :bulb: In case of Id token from identity service, the ``Token`` can neither be casted to `AccessToken` nor to `XsuaaToken`.  A cast is possible in case of: ```Service.XSUAA.equals(token.getService())```.   
+
 
 #### Spring's `Jwt` methods
 
