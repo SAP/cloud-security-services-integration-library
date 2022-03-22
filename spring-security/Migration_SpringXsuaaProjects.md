@@ -122,8 +122,8 @@ import com.sap.cloud.security.token.XsuaaTokenComp; // new import
 
 ![](images/TokenInterfaces.drawio.svg)
 
-The ``Token`` interface from ``java-api`` provides methods that serves access to token details issued by xsuaa, as well as issued by identity service. That's why ``Token`` is not compatible to the ``Token`` interface from ``spring-xsuaa`` client library.
-``java-api`` provides also the ```AccessToken``` sub-interfaces to access xsuaa specific claims, in case of access tokens issued by the xsuaa service.
+The ``Token`` interface from ``java-api`` provides methods that serves access to token details issued by xsuaa, as well as issued by identity service. That's why ``Token`` is not compatible to the ``Token`` interface from ``spring-xsuaa`` client library.<br>
+``java-api`` provides also the ```AccessToken``` sub-interface to access xsuaa specific claims, in case of access tokens issued by the xsuaa service.
 
 For compatibility, ``XsuaaTokenComp`` class can be used to decorate the token issued by xsuaa:
 
@@ -132,9 +132,9 @@ AccessToken token = SpringSecurityContext.getAccessToken();
 XsuaaTokenComp xsuaaToken = XsuaaTokenComp.createInstance(token);
 xsuaaToken.getCloneServiceInstanceId();
 ```
-> :bulb: `getAuthorities` and `getExpirationDate` are not implemented by `XsuaaTokenComp`. Furthermore, `createInstance` raises an `IllegalArgumentException` exception in case its not a token issued by xsuaa. 
+> :bulb: `getAuthorities` and `getExpirationDate` are not implemented by `XsuaaTokenComp`. Furthermore, `createInstance` raises an `IllegalArgumentException` exception in case token isn't issued by xsuaa. 
 
-See the following table for methods that are not directly available in the target ```Token``` interface.
+See the following table gives an overview of methods that are not directly available in the ```Token``` interface, but can be accessed via the ``XsuaaTokenComp`` decorator class.
 
 | `com.sap.cloud.security.xsuaa.token.Token` methods  | Xsuaa only? | Workaround in `spring.security` (`com.sap.cloud.security.token.Token`) |
 |-------------------------|---|-----------------------------------------------------------------------------------------------|
