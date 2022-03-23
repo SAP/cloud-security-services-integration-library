@@ -13,6 +13,8 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,6 +24,8 @@ import java.net.URI;
 import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_ZONE_UUID;
 
 public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultOAuth2TokenKeyService.class);
 
 	private final CloseableHttpClient httpClient;
 
@@ -44,6 +48,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		try (CloseableHttpResponse response = httpClient.execute(request)) {
 			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
 			int statusCode = response.getStatusLine().getStatusCode();
+			LOGGER.debug("retrieve token keys {} for zone '{}'", tokenKeysEndpointUri, zoneId);
 			if (statusCode == HttpStatus.SC_OK) {
 				return bodyAsString;
 			} else {

@@ -17,6 +17,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -199,7 +200,13 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		if (publicKey == null) {
 			retrieveTokenKeysAndFillCache(keyUri, zoneId);
 		}
-		return getCache().getIfPresent(cacheKey);
+		publicKey = getCache().getIfPresent(cacheKey);
+		if (publicKey == null && LOGGER.isDebugEnabled()) {
+			Set<String> keys = getCache().asMap().keySet();
+			LOGGER.debug("Key {} not found in cache. Keys cached: {}", cacheKey,
+					keys.stream().map(String::valueOf).collect(Collectors.joining("|")));
+		}
+		return publicKey;
 	}
 
 	private TokenKeyCacheConfiguration getCheckedConfiguration(CacheConfiguration cacheConfiguration) {
@@ -227,7 +234,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		JsonWebKeySet keySet = JsonWebKeySetFactory
 				.createFromJson(getTokenKeyService().retrieveTokenKeys(jwksUri, zoneId));
-		if (keySet == null) {
+		if (keySet == null || keySet.getAll().isEmpty()) {
+			LOGGER.error("Retrieved no token keys from {} for zone '{}'", jwksUri, zoneId);
 			return;
 		}
 		Set<JsonWebKey> jwks = keySet.getAll();
@@ -277,7 +285,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 
 	public static String getUniqueCacheKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI jwksUri,
 			String zoneId) {
-		return jwksUri + String.valueOf(JsonWebKeyImpl.calculateUniqueId(keyAlgorithm, keyId)) + zoneId;
+		return jwksUri + keyId + keyAlgorithm + zoneId;
 	}
 
 }
