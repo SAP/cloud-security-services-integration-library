@@ -10,6 +10,8 @@ import org.springframework.lang.Nullable;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Optional;
 
 /**
  * Decorates a {@code Token} issued by xsuaa to provide compatibility methods for spring-xsuaa's {@code Token} interface.
@@ -28,7 +30,7 @@ public class XsuaaTokenComp {
      *
      * @param token a token issued by xsuaa
      */
-    static public XsuaaTokenComp createInstance(final Token token) {
+    public static XsuaaTokenComp createInstance(final Token token) {
 		if (Service.XSUAA.equals(token.getService())) {
 			return new XsuaaTokenComp(token);
 		}
@@ -42,7 +44,7 @@ public class XsuaaTokenComp {
 	 *            the encoded access token, e.g. from the {@code Authorization}
 	 *            header.
 	 */
-	static public XsuaaTokenComp createInstance(final String jwtToken) {
+	public static XsuaaTokenComp createInstance(final String jwtToken) {
 		Token aToken = Token.create(jwtToken);
 		if (Service.XSUAA.equals(aToken.getService())) {
 			return new XsuaaTokenComp(aToken);
@@ -119,7 +121,7 @@ public class XsuaaTokenComp {
 	 */
 	@Nullable
 	public String getLogonName() {
-		return token.getPrincipal().getName();
+		return token.getClaimAsString("user_name");
 	}
 
 	/**
@@ -181,7 +183,9 @@ public class XsuaaTokenComp {
      */
     @Nullable
     public String[] getXSUserAttribute(String attributeName) {
-		return (String[]) token.getAttributeFromClaimAsStringList(TokenClaims.XSUAA.XS_USER_ATTRIBUTES, attributeName).toArray();
+		return Optional.ofNullable(token.getAttributeFromClaimAsStringList(TokenClaims.XSUAA.XS_USER_ATTRIBUTES, attributeName))
+				.map(values -> values.toArray(new String[] {}))
+				.orElse(new String[] {});
     }
 
 	/**
@@ -239,5 +243,26 @@ public class XsuaaTokenComp {
 	@Nullable
 	public Instant getExpiration() {
 		return token.getExpiration();
+	}
+
+	public String getExpirationDate() {
+		return token.getExpiration() != null ? Date.from(token.getExpiration()).toString() : null;
+	}
+
+	/**
+	 * Returns the username used to authenticate the user.
+	 * See {@link import org.springframework.security.core.userdetails.UserDetails#getUsername()}
+	 * @return the username
+	 */
+	public String getUsername() {
+		return token.getPrincipal().getName();
+	}
+
+	/**
+	 * Returns the user name for token.
+	 * @return the user name.
+	 */
+	public String toString() {
+		return getUsername();
 	}
 }

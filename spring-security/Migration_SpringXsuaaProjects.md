@@ -18,7 +18,7 @@ com.sap.cloud.security.xsuaa | xsuaa-spring-boot-starter
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
 
-In case you have configured your `TokenAuthenticationConverter` with `setLocalScopeAsAuthorities(true)` then you can use the auto-configured converter instead as  documented [here](/spring-security#setup-spring-security-oauth-20-resource-server):
+In case you have configured your `TokenAuthenticationConverter` with `setLocalScopeAsAuthorities(true)` then you can use the auto-configured converter instead as  documented [here](/spring-security#setup-spring-security-oauth-20-resource-server), which initializes the `XsuaaTokenAuthorizationConverter`:
 ```java
 @Autowired
 Converter<Jwt, AbstractAuthenticationToken> authConverter;
@@ -143,7 +143,7 @@ The table below gives an overview of the methods that are not directly available
 | `getSubaccountId`       | X | Available via `AccessToken` interface.     
 | `getSubdomain`          | X | `getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN)
 | `getGrantType`          | X | `getGrantType().toString()`.
-| `getLogonName`          | (X) | ``getPrincipal().getName()``. :bulb: the name differs between the two services.
+| `getLogonName`          | (X) | ``getClaimAsString("user_name")``. :bulb: the name differs between the two services.
 | `getOrigin`             | X | ``getClaimAsString(TokenClaims.XSUAA.ORIGIN)``.
 | `getGivenName`          |   | ``getClaimAsString(TokenClaims.GIVEN_NAME)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
 | `getFamilyName`         |   | ``getClaimAsString(TokenClaims.FAMILY_NAME)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
@@ -154,10 +154,11 @@ The table below gives an overview of the methods that are not directly available
 | `getAppToken`           |   | `getTokenValue`
 | `getScopes`             | X | `getClaimAsStringList(TokenClaims.XSUAA.SCOPES)`
 | `getExpiration()`       |   | `getExpiration()` and for convenience `isExpired()`
+| `getUsername()`         |   | `getPrincipal()`
 
 > :bulb: In case the ```Xsuaa only?``` flag is set, the method returns "null" in case of Id token from identity service.  
 > :bulb: In case of Id token from identity service, the ``Token`` can neither be casted to `AccessToken` nor to `XsuaaToken`.  A cast is possible in case of: ```Service.XSUAA.equals(token.getService())```.   
-> :bulb: `getAuthorities` and `getExpirationDate` are not implemented by `XsuaaTokenComp`.
+> :bulb: `getAuthorities` is not implemented by `XsuaaTokenComp`.
 </details>
  
 #### Spring's `Jwt` methods
