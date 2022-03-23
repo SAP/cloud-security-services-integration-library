@@ -251,7 +251,7 @@ public class XsuaaTokenComp {
 
 	/**
 	 * Returns the username used to authenticate the user.
-	 * See {@link import org.springframework.security.core.userdetails.UserDetails#getUsername()}
+	 * See {@code import org.springframework.security.core.userdetails.UserDetails#getUsername()}
 	 * @return the username
 	 */
 	public String getUsername() {
