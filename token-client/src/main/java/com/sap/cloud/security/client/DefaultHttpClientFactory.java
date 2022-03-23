@@ -34,11 +34,11 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClientFactory.class);
 	private final ConcurrentHashMap<String, SslConnection> sslConnectionPool = new ConcurrentHashMap<>();
 	private static final int MAX_CONNECTIONS_PER_ROUTE = 4; // 2 is default
-	private static final int MAX_CONNECTIONS = 100;
+	private static final int MAX_CONNECTIONS = 20;
 	private static final int DEFAULT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5);
 	private final RequestConfig timeoutConfig;
 
-	DefaultHttpClientFactory() {
+	public DefaultHttpClientFactory() {
 		timeoutConfig = RequestConfig.custom()
 				.setConnectTimeout(DEFAULT_TIMEOUT)
 				.setConnectionRequestTimeout(DEFAULT_TIMEOUT)
