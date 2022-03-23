@@ -117,7 +117,7 @@ to
 ````java
 import com.sap.cloud.security.token.Token; // new import - preferred
 // or
-import com.sap.cloud.security.token.XsuaaTokenAdapter; // new import
+import com.sap.cloud.security.token.XsuaaTokenComp; // new import
 `````
 
 The ``Token`` interface from ``java-api`` provides methods that serves access to details of a token, independent whether it is issued by xsuaa or by identity service. That's why ``Token`` is not compatible to the ``Token`` interface from ``spring-xsuaa`` client library.<br>
@@ -125,16 +125,16 @@ The ``Token`` interface from ``java-api`` provides methods that serves access to
 
 ![](images/TokenInterfaces.drawio.svg)
 
-For compatibility, ``XsuaaTokenAdapter`` class can be used to decorate the `AccessToken` interface:
+For compatibility, ``XsuaaTokenComp`` class can be used to decorate the `AccessToken` interface:
 
 ```java
-XsuaaTokenAdapter xsuaaToken = XsuaaTokenAdapter.createInstance(SpringSecurityContext.getAccessToken());
+XsuaaTokenComp xsuaaToken = XsuaaTokenComp.createInstance(SpringSecurityContext.getAccessToken());
 xsuaaToken.getCloneServiceInstanceId();
 ```
 
 > :bulb: `createInstance` raises an `IllegalArgumentException` runtime exception if the token isn't issued by xsuaa service. 
 
-The table below gives an overview of the methods that are not directly available in the ```Token``` interface, but can be accessed via the ``XsuaaTokenAdapter`` decorator class.
+The table below gives an overview of the methods that are not directly available in the ```Token``` interface, but can be accessed via the ``XsuaaTokenComp`` decorator class.
 
 <details><br>
  
@@ -158,7 +158,7 @@ The table below gives an overview of the methods that are not directly available
 
 > :bulb: In case the ```Xsuaa only?``` flag is set, the method returns "null" in case of Id token from identity service.  
 > :bulb: In case of Id token from identity service, the ``Token`` can neither be casted to `AccessToken` nor to `XsuaaToken`.  A cast is possible in case of: ```Service.XSUAA.equals(token.getService())```.   
-> :bulb: `getAuthorities` is not implemented by `XsuaaTokenAdapter`.
+> :bulb: `getAuthorities` is not implemented by `XsuaaTokenComp`.
 </details>
  
 #### Spring's `Jwt` methods

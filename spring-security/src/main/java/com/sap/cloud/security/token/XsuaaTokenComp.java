@@ -18,10 +18,10 @@ import java.util.Optional;
  * @deprecated please use the methods exposed by the {@code Token} interface.
  */
 @Deprecated
-public class XsuaaTokenAdapter {
+public class XsuaaTokenComp {
 	private final AccessToken token;
 
-	private XsuaaTokenAdapter(final Token token) {
+	private XsuaaTokenComp(final Token token) {
 		this.token = (AccessToken) token;
 	}
 
@@ -30,9 +30,9 @@ public class XsuaaTokenAdapter {
      *
      * @param token a token issued by xsuaa
      */
-    public static XsuaaTokenAdapter createInstance(final Token token) {
+    public static XsuaaTokenComp createInstance(final Token token) {
 		if (Service.XSUAA.equals(token.getService())) {
-			return new XsuaaTokenAdapter(token);
+			return new XsuaaTokenComp(token);
 		}
 		throw new IllegalArgumentException("The token is not issued by xsuaa service");
 	}
@@ -44,10 +44,10 @@ public class XsuaaTokenAdapter {
 	 *            the encoded access token, e.g. from the {@code Authorization}
 	 *            header.
 	 */
-	public static XsuaaTokenAdapter createInstance(final String jwtToken) {
+	public static XsuaaTokenComp createInstance(final String jwtToken) {
 		Token aToken = Token.create(jwtToken);
 		if (Service.XSUAA.equals(aToken.getService())) {
-			return new XsuaaTokenAdapter(aToken);
+			return new XsuaaTokenComp(aToken);
 		}
 		throw new IllegalArgumentException("The token is not issued by xsuaa service");
 	}
@@ -251,7 +251,7 @@ public class XsuaaTokenAdapter {
 
 	/**
 	 * Returns the username used to authenticate the user.
-	 * See {@code import org.springframework.security.core.userdetails.UserDetails#getUsername()}
+	 * See {@link import org.springframework.security.core.userdetails.UserDetails#getUsername()}
 	 * @return the username
 	 */
 	public String getUsername() {
