@@ -13,10 +13,7 @@ import com.sap.cloud.security.xsuaa.extractor.TokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.context.annotation.*;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -84,8 +81,9 @@ public class XsuaaAutoConfiguration {
 	 * @return the {@link RestOperations} instance.
 	 */
 	@Bean
-	@Conditional({ OnNotX509CredentialTypeCondition.class })
+	@Conditional({ OnSecretCredentialTypeCondition.class, NoClientCertificateCondition.class })
 	@ConditionalOnMissingBean
+	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	public RestOperations xsuaaRestOperations() {
 		LOGGER.warn("In productive environment provide a well configured client secret based RestOperations bean");
 		return new RestTemplate();
@@ -98,21 +96,29 @@ public class XsuaaAutoConfiguration {
 	 * @return the {@link RestOperations} instance.
 	 */
 	@Bean
-	@ConditionalOnProperty(prefix = "xsuaa", name = "credential-type", havingValue = "x509")
 	@ConditionalOnMissingBean
 	@ConditionalOnClass(name = "org.apache.http.impl.client.CloseableHttpClient")
+	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	public RestOperations xsuaaMtlsRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		LOGGER.warn("In productive environment provide a well configured certificate based RestOperations bean");
 		return SpringHttpClient.getInstance().create(xsuaaServiceConfiguration.getClientIdentity());
 	}
 
-	private static class OnNotX509CredentialTypeCondition implements Condition {
+	private static class OnSecretCredentialTypeCondition implements Condition {
 		@Override
 		public boolean matches(ConditionContext context, @Nonnull AnnotatedTypeMetadata metadata) {
 			CredentialType credentialType = CredentialType
 					.from(context.getEnvironment().getProperty("xsuaa.credential-type"));
 			return credentialType == CredentialType.BINDING_SECRET || credentialType == CredentialType.INSTANCE_SECRET
 					|| credentialType == null;
+		}
+	}
+
+	private static class NoClientCertificateCondition implements Condition {
+		@Override
+		public boolean matches(ConditionContext context, @Nonnull AnnotatedTypeMetadata metadata) {
+			return context.getEnvironment().getProperty("xsuaa.certificate") == null &&
+					context.getEnvironment().getProperty("xsuaa.key") == null;
 		}
 	}
 

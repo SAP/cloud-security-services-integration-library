@@ -6,6 +6,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
@@ -73,7 +74,11 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	@Override
 	protected OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
-		HttpPost httpPost = createHttpPost(tokenEndpointUri, headers, parameters);
+		HttpHeaders requestHeaders = new HttpHeaders();
+		headers.getHeaders().forEach(h -> requestHeaders.withHeader(h.getName(), h.getValue()));
+		requestHeaders.withHeader(MDCHelper.CORRELATION_HEADER, MDCHelper.getOrCreateCorrelationId());
+
+		HttpPost httpPost = createHttpPost(tokenEndpointUri, requestHeaders, parameters);
 		LOGGER.debug("access token request {} - {}", headers, parameters);
 		return executeRequest(httpPost);
 	}
@@ -113,8 +118,9 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		String accessToken = getParameter(accessTokenMap, ACCESS_TOKEN);
 		String refreshToken = getParameter(accessTokenMap, REFRESH_TOKEN);
 		String expiresIn = getParameter(accessTokenMap, EXPIRES_IN);
+		String tokenType = getParameter(accessTokenMap, TOKEN_TYPE);
 		return new OAuth2TokenResponse(accessToken, convertExpiresInToLong(expiresIn),
-				refreshToken);
+				refreshToken, tokenType);
 	}
 
 	private Long convertExpiresInToLong(String expiresIn) throws OAuth2ServiceException {

@@ -5,8 +5,13 @@
  */
 package sample.spring.xsuaa;
 
-import java.util.concurrent.TimeUnit;
-
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
+import com.sap.cloud.security.xsuaa.extractor.DefaultAuthenticationInformationExtractor;
+import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
+import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.caffeine.CaffeineCache;
@@ -20,18 +25,18 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.springframework.web.client.RestOperations;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
-import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
-import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import java.util.concurrent.TimeUnit;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	XsuaaServiceConfiguration xsuaaServiceConfiguration;
+
+	@Autowired
+	RestOperations xsuaaMtlsRestOperations;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -43,7 +48,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		// @formatter:off
 		http.authorizeRequests()
 				.antMatchers("/hello-token").hasAuthority("Display")
-				.anyRequest().authenticated()
+				.antMatchers("/health").permitAll()
+				.anyRequest().denyAll()
 			.and()
 				.sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -62,7 +68,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 						.expireAfterWrite(15, TimeUnit.MINUTES)
 						.maximumSize(100).build(), false);
 
-		return new TokenBrokerResolver(xsuaaServiceConfiguration, cache, AuthenticationMethod.BASIC);
+		return new TokenBrokerResolver(xsuaaServiceConfiguration, cache,
+				new XsuaaOAuth2TokenService(xsuaaMtlsRestOperations),
+				new DefaultAuthenticationInformationExtractor(AuthenticationMethod.BASIC));
 	}
 
 
@@ -72,5 +80,4 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		converter.setLocalScopeAsAuthorities(true);
 		return converter;
 	}
-
 }

@@ -33,7 +33,7 @@ public class HelloJavaServletIntegrationTest {
 
 	@After
 	public void tearDown() {
-		SecurityContext.clearToken();
+		SecurityContext.clear();
 	}
 
 	@Test

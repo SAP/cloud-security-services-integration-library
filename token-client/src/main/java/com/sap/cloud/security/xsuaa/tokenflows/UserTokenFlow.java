@@ -13,9 +13,6 @@ import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.xsa.security.container.XSTokenRequest;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.*;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -225,20 +222,6 @@ public class UserTokenFlow {
 							"Error requesting token with grant_type 'urn:ietf:params:oauth:grant-type:jwt-bearer': %s",
 							e.getMessage()),
 					e);
-		}
-	}
-
-	@Nullable
-	private String readFromPropertyFile(String property) {
-		String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-		String appConfigPath = rootPath + "application.properties";
-
-		Properties appProps = new Properties();
-		try {
-			appProps.load(new FileInputStream(appConfigPath));
-			return appProps.getProperty(property);
-		} catch (IOException e) {
-			return null;
 		}
 	}
 

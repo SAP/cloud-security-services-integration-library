@@ -34,7 +34,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
 @Configuration
 @ConditionalOnProperty(name = "sap.spring.security.hybrid.auto", havingValue = "true", matchIfMissing = true)
 @AutoConfigureAfter(HybridIdentityServicesAutoConfiguration.class)
-class HybridAuthorizationAutoConfiguration {
+public class HybridAuthorizationAutoConfiguration {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Bean

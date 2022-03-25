@@ -5,11 +5,14 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
@@ -46,22 +49,34 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	public static final String UAA_DOMAIN = "xsuaa.uaadomain";
 
 	private static final List<String> XSUAA_ATTRIBUTES = Arrays
-			.asList("clientid", "clientsecret", "identityzoneid",
+			.asList("clientid", "clientsecret",
 					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
 					"certificate",
 					"key", "credential-type", "certurl");
 
 	@Override
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
-		Properties properties;
-		XsuaaServicesParser vcapServicesParser;
-		if (resource != null && resource.getResource().getFilename() != null
-				&& !resource.getResource().getFilename().isEmpty()) {
-			vcapServicesParser = new XsuaaServicesParser(resource.getResource().getInputStream());
+		Properties properties = new Properties();
+		Environment environment;
+		if (resource.getResource() instanceof InputStreamResource
+				|| (resource.getResource().getFilename() != null && !resource.getResource().getFilename().isEmpty())) {
+			environment = Environments.readFromInput(resource.getResource().getInputStream());
 		} else {
-			vcapServicesParser = new XsuaaServicesParser();
+			environment = Environments.getCurrent();
 		}
-		properties = vcapServicesParser.parseCredentials();
+		if (environment.getNumberOfXsuaaConfigurations() > 1
+				&& environment.getXsuaaConfigurationForTokenExchange() != null) { // TODO check for number of xsuaa and
+																					// ignore api plan
+			throw new IllegalStateException(
+					"Found more than one xsuaa bindings. Please consider unified broker plan or use com.sap.cloud.security:spring-security client library.");
+		}
+		if (environment.getXsuaaConfiguration() != null) {
+			for (String key : XSUAA_ATTRIBUTES) {
+				if (environment.getXsuaaConfiguration().hasProperty(key)) {
+					properties.put(key, environment.getXsuaaConfiguration().getProperty(key));
+				}
+			}
+		}
 		logger.info("Parsed {} XSUAA properties.", properties.size());
 		return create(XSUAA_PROPERTIES_KEY, properties);
 	}
@@ -73,7 +88,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	 *            of the propertySource. Use only "xsuaa" as name in case you like
 	 *            to overwrite/set all properties.
 	 * @param properties
-	 *            map of xsuaa properties.
+	 *            map of xsuaa properties
 	 * @return created @Code{PropertySource}
 	 */
 	public static PropertySource create(String name, Properties properties) {

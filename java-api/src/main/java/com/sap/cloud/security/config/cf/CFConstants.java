@@ -31,6 +31,9 @@ public class CFConstants {
 		}
 
 		public static final String IDENTITY_ZONE = "identityzone";
+		public static final String API_URL = "apiurl";
+		public static final String SUBACCOUNT_ID = "subaccountid";
+		public static final String TENANT_ID = "tenantid";
 		public static final String UAA_DOMAIN = "uaadomain";
 		public static final String APP_ID = "xsappname";
 		public static final String VERIFICATION_KEY = "verificationkey";
@@ -57,8 +60,15 @@ public class CFConstants {
 		DEFAULT, BROKER, APPLICATION, SPACE, APIACCESS, SYSTEM;
 
 		public static Plan from(String planAsString) {
+			if (planAsString == null) {
+				return APPLICATION;
+			}
 			return Plan.valueOf(planAsString.toUpperCase());
 		}
 
+		@Override
+		public String toString() {
+			return super.toString().toLowerCase();
+		}
 	}
 }

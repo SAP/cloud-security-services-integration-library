@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import com.sap.cloud.security.config.Environments;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -21,6 +22,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Deprecated in favor of {@link Environments#getCurrent()}.
+ */
+@Deprecated
 public class XsuaaServicesParser {
 
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaServicesParser.class);

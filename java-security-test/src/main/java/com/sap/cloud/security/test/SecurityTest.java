@@ -270,7 +270,7 @@ public class SecurityTest
 		}
 		// TODO return JSON Media type
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
-				String.format(LOCALHOST_PATTERN, wireMockServer.port()));
+				String.format(LOCALHOST_PATTERN, wireMockServer.port()), null);
 		wireMockServer.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
 				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())
 						.withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.value())));

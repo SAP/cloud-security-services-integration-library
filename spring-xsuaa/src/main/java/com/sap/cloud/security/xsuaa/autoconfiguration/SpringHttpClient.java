@@ -15,8 +15,6 @@ import javax.annotation.Nullable;
  */
 class SpringHttpClient {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SpringHttpClient.class);
-
 	private SpringHttpClient() {
 	}
 

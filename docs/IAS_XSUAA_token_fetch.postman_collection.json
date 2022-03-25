@@ -1,0 +1,248 @@
+{
+	"info": {
+		"_postman_id": "c924ac21-d83b-4cb1-9fab-793821803f3c",
+		"name": "IAS XSUAA token fetch",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "IAS token | pswd grant",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"",
+							"pm.environment.set(\"ias_id_token\", jsonData.id_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{ias_clientsecret}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{ias_clientid}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "response_type",
+							"value": "id_token",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{ias_user}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{ias_pswd}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{ias_url}}/oauth2/token",
+					"protocol": "https",
+					"host": [
+						"{{ias_url}}"
+					],
+					"path": [
+						"oauth2",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Xsuaa token | pswd grant",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{xsuaa_clientid}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{xsuaa_clientsecret}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{xsuaa_user}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{xsuaa_pswd}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{xsuaa_url}}/oauth/token",
+					"protocol": "https",
+					"host": [
+						"{{xsuaa_url}}"
+					],
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Xsuaa token | pswd grant mTLS",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{xsuaa_clientid}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{xsuaa_user}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{xsuaa_pswd}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{xsuaa_certurl}}/oauth/token",
+					"protocol": "https",
+					"host": [
+						"{{xsuaa_certurl}}"
+					],
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "ias_url",
+			"value": ""
+		},
+		{
+			"key": "ias_clientid",
+			"value": ""
+		},
+		{
+			"key": "ias_clientsecret",
+			"value": ""
+		},
+		{
+			"key": "ias_user",
+			"value": ""
+		},
+		{
+			"key": "ias_pswd",
+			"value": ""
+		},
+		{
+			"key": "xsuaa_url",
+			"value": ""
+		},
+		{
+			"key": "xsuaa_certurl",
+			"value": ""
+		},
+		{
+			"key": "xsuaa_clientid",
+			"value": ""
+		},
+		{
+			"key": "xsuaa_clientsecret",
+			"value": ""
+		},
+		{
+			"key": "xsuaa_user",
+			"value": ""
+		},
+		{
+			"key": "xsuaa_pswd",
+			"value": ""
+		}
+	]
+}

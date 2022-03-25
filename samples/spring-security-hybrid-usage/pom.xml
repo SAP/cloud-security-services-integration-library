@@ -16,7 +16,7 @@
 
 	<groupId>com.sap.cloud.security.samples</groupId>
 	<artifactId>spring-security-hybrid-usage</artifactId>
-	<version>0.3.1</version>
+	<version>2.11.13</version>
 
 	<properties>
 		<!-- 
@@ -28,9 +28,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
-		<sap.cloud.security.version>2.10.1</sap.cloud.security.version>
+		<sap.cloud.security.version>2.11.13</sap.cloud.security.version>
 		<apache.httpclient.version>4.5.13</apache.httpclient.version>
-		<jetty.version>9.4.39.v20210325</jetty.version>
 	</properties>
 
     <dependencies>
@@ -46,13 +45,17 @@
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>resourceserver-security-spring-boot-starter</artifactId>
-			<!--<version>${sap.cloud.security.version}</version>-->
-			<version>0.3.1</version> <!-- TODO when spring-security provides GA release -->
+			<version>${sap.cloud.security.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>${apache.httpclient.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.hcp.cf.logging</groupId>
+			<artifactId>cf-java-logging-support-servlet</artifactId>
+			<version>3.5.2</version>
 		</dependency>
 
 		<!-- test dependencies-->

@@ -5,6 +5,10 @@
  */
 package com.sap.cloud.security.xsuaa;
 
+import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.CredentialType;
+
 public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration {
 
 	private String clientId;
@@ -47,6 +51,16 @@ public class DummyXsuaaServiceConfiguration implements XsuaaServiceConfiguration
 	@Override
 	public String getVerificationKey() {
 		return null;
+	}
+
+	@Override
+	public CredentialType getCredentialType() {
+		return null;
+	}
+
+	@Override
+	public ClientIdentity getClientIdentity() {
+		return new ClientCredentials(getClientId(), getClientSecret());
 	}
 
 }

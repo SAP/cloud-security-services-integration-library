@@ -15,6 +15,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
 
+import javax.annotation.Nullable;
+
 /**
  * Internal class that decodes and validates the provided encoded token using
  * {@code java-security} client library.<br>
@@ -39,32 +41,42 @@ public class HybridJwtDecoder implements JwtDecoder {
 	 *            set of validators that should be used to validate an ias oidc
 	 *            token.
 	 */
-	public HybridJwtDecoder(CombiningValidator<Token> xsuaaValidator, CombiningValidator<Token> iasValidator) {
+	public HybridJwtDecoder(CombiningValidator<Token> xsuaaValidator,
+			@Nullable CombiningValidator<Token> iasValidator) {
 		xsuaaTokenValidators = xsuaaValidator;
 		iasTokenValidators = iasValidator;
 	}
 
 	@Override
 	public Jwt decode(String encodedToken) {
-		Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
-		Token token = Token.create(encodedToken);
+		Token token;
+		Jwt jwt;
+		try {
+			Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
+			token = Token.create(encodedToken);
+			jwt = parseJwt(token);
+		} catch (RuntimeException ex) {
+			throw new BadJwtException("Error initializing JWT decoder: " + ex.getMessage(), ex);
+		}
 		ValidationResult validationResult;
-
 		switch (token.getService()) {
 		case IAS:
+			if (iasTokenValidators == null) {
+				throw new BadJwtException("Tokens issued by IAS service aren't accepted");
+			}
 			validationResult = iasTokenValidators.validate(token);
 			break;
 		case XSUAA:
 			validationResult = xsuaaTokenValidators.validate(token);
 			break;
 		default:
-			throw new BadJwtException("The token of service " + token.getService() + " is not supported.");
+			throw new BadJwtException("Tokens issued by " + token.getService() + " service aren't supported.");
 		}
 		if (validationResult.isErroneous()) {
 			throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
 		}
-		logger.debug("The token of service {} was successfully validated.", token.getService());
-		return parseJwt(token);
+		logger.debug("Token issued by {} service was successfully validated.", token.getService());
+		return jwt;
 	}
 
 	/**

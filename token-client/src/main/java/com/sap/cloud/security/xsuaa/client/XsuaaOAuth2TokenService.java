@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import org.slf4j.Logger;
@@ -69,10 +70,9 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		// Create URI
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
 		URI requestUri = builder.build().encode().toUri();
-
 		org.springframework.http.HttpHeaders springHeaders = new org.springframework.http.HttpHeaders();
 		headers.getHeaders().forEach(h -> springHeaders.add(h.getName(), h.getValue()));
-
+		springHeaders.add(MDCHelper.CORRELATION_HEADER, MDCHelper.getOrCreateCorrelationId());
 		// Create entity
 		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(copyIntoForm(parameters),
 				springHeaders);
@@ -93,7 +93,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 			throw new OAuth2ServiceException(warningMsg);
 		} catch (ResourceAccessException ex) {
 			String warningMsg = String.format(
-					"RestClient isn't configured properly - Error while obtaining access token from XSUAA: %s",
+					"RestClient isn't configured properly - Error while obtaining access token from XSUAA (%s): %s",
 					requestUri, ex.getLocalizedMessage());
 			LOGGER.error(warningMsg);
 			throw ex;
@@ -106,7 +106,8 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		String accessToken = accessTokenMap.get(ACCESS_TOKEN);
 		long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
 		String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
-		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken);
+		String tokenType = accessTokenMap.get(TOKEN_TYPE);
+		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken, tokenType);
 	}
 
 	/**

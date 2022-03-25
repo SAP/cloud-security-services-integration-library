@@ -117,28 +117,34 @@ public class JwtDecoderBuilder {
 	 * @return JwtDecoder
 	 */
 	public JwtDecoder build() {
-		JwtValidatorBuilder iasValidatorBuilder = JwtValidatorBuilder.getInstance(iasConfiguration)
-				.withCacheConfiguration(tokenKeyCacheConfiguration)
-				.withHttpClient(httpClient);
-		for (ValidationListener listener : validationListeners) {
-			iasValidatorBuilder.withValidatorListener(listener);
+		JwtValidatorBuilder iasValidatorBuilder = null;
+		if (iasConfiguration != null && !iasConfiguration.getProperties().isEmpty()) {
+			iasValidatorBuilder = initializeBuilder(iasConfiguration);
 		}
 		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
 			int index = 0;
-			JwtValidatorBuilder xsuaaValidatorBuilder = JwtValidatorBuilder.getInstance(xsuaaConfigurations.get(index))
-					.withCacheConfiguration(tokenKeyCacheConfiguration)
-					.withHttpClient(httpClient);
+			JwtValidatorBuilder xsuaaValidatorBuilder = initializeBuilder(xsuaaConfigurations.get(index));
 			for (OAuth2ServiceConfiguration xsuaaConfig : xsuaaConfigurations) {
 				if (index++ != 0) {
 					xsuaaValidatorBuilder.configureAnotherServiceInstance(xsuaaConfig);
 				}
 			}
-			for (ValidationListener listener : validationListeners) {
-				xsuaaValidatorBuilder.withValidatorListener(listener);
-			}
 			return new HybridJwtDecoder(xsuaaValidatorBuilder.build(),
-					iasValidatorBuilder.build());
+					iasValidatorBuilder != null ? iasValidatorBuilder.build() : null);
 		}
-		return new IasJwtDecoder(iasValidatorBuilder.build());
+		if (iasValidatorBuilder == null) {
+			throw new IllegalStateException("There is no xsuaa and no identity service config.");
+		}
+		return new IasJwtDecoder(iasValidatorBuilder.build()); // lgtm [java/dereferenced-value-may-be-null] - line 136
+	}
+
+	private JwtValidatorBuilder initializeBuilder(OAuth2ServiceConfiguration config) {
+		JwtValidatorBuilder builder = JwtValidatorBuilder.getInstance(config)
+				.withCacheConfiguration(tokenKeyCacheConfiguration)
+				.withHttpClient(httpClient);
+		for (ValidationListener listener : validationListeners) {
+			builder.withValidatorListener(listener);
+		}
+		return builder;
 	}
 }

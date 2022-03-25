@@ -1,5 +1,8 @@
 {
 	"xsappname": "spring-security-basic-auth",
+	"oauth2-configuration": {
+		"credential-types": ["x509"]
+	},
 	"tenant-mode": "dedicated",
 	"scopes": 
 	[

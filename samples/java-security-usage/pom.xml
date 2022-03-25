@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.security.xssec.samples</groupId>
     <artifactId>java-security-usage</artifactId>
-    <version>2.10.1</version>
+    <version>2.11.13</version>
     <packaging>war</packaging>
 
     <!--profiles>
@@ -27,13 +27,25 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <sap.cloud.security.version>2.10.1</sap.cloud.security.version>
+        <sap.cloud.security.version>2.11.13</sap.cloud.security.version>
         <slf4j.api.version>1.7.30</slf4j.api.version>
         <apache.httpclient.version>4.5.13</apache.httpclient.version>
         <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
         <assertj.version>3.13.2</assertj.version>
         <junit.version>5.7.0</junit.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.sap.cloud.security</groupId>
+                <artifactId>java-bom</artifactId>
+                <version>${sap.cloud.security.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -57,14 +69,12 @@
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-security</artifactId>
-            <version>${sap.cloud.security.version}</version>
         </dependency>
 
         <!-- test utilities -->
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-security-test</artifactId>
-            <version>${sap.cloud.security.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
