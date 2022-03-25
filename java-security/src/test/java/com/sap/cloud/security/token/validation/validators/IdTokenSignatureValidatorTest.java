@@ -116,7 +116,7 @@ public class IdTokenSignatureValidatorTest {
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString(
-						"There is no Json Web Token Key with keyId 'default-kid-2' and type 'RSA' to prove the identity of the Jwt."));
+						"There is no Json Web Token Key with keyId 'default-kid-2' and type 'RSA' found"));
 	}
 
 }

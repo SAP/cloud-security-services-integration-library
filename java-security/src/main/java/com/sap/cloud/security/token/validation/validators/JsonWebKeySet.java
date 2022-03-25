@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class JsonWebKeySet {
@@ -55,5 +56,9 @@ class JsonWebKeySet {
 	public JsonWebKeySet withZoneId(String zoneId, boolean isAccepted) {
 		zoneIdAccepted.put(zoneId, isAccepted);
 		return this;
+	}
+
+	public String toString() {
+		return jsonWebKeys.stream().map(String::valueOf).collect(Collectors.joining("|"));
 	}
 }

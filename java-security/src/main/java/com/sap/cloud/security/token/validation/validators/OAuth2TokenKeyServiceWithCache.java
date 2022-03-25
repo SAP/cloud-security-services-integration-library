@@ -188,15 +188,19 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		if (keySet == null || !keySet.containsZoneId(zoneId)) {
 			keySet = retrieveTokenKeysAndUpdateCache(keyUri, zoneId, keySet); // creates and updates cache entries
 		}
+		if (keySet == null || keySet.getAll().isEmpty()) {
+			LOGGER.error("Retrieved no token keys from {}", keyUri);
+			return null;
+		}
 		if (!keySet.isZoneIdAccepted(zoneId)) {
-			throw new OAuth2ServiceException("Invalid zone_uuid provided.");
+			throw new OAuth2ServiceException("Keys not accepted for zone_uuid " + zoneId);
 		}
 		for (JsonWebKey jwk : keySet.getAll()) {
-			if (jwk.getId().equals(keyId) && jwk.getKeyAlgorithm().equals(keyAlgorithm)) {
+			if (keyId.equals(jwk.getId()) && jwk.getKeyAlgorithm().equals(keyAlgorithm)) {
 				return jwk.getPublicKey();
 			}
 		}
-		LOGGER.warn("No matching Key found in cache");
+		LOGGER.warn("No matching key found. Keys cached: {}", keySet.toString());
 		return null;
 	}
 

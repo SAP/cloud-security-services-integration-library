@@ -113,4 +113,9 @@ class JsonWebKeyImpl implements JsonWebKey {
 		return keyId.equals(that.keyId);
 	}
 
+	@Override
+	public String toString() {
+		return getId() + "(" + getKeyAlgorithm() + ")";
+	}
+
 }
