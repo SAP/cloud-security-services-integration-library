@@ -36,6 +36,10 @@
             <artifactId>httpclient</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sap.cloud.environment.servicebinding</groupId>
+            <artifactId>cloud-environment-java-sap-service-operator</artifactId>
+        </dependency>
 
         <!-- test utilities -->
         <dependency>
