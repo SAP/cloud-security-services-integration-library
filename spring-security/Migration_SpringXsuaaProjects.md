@@ -158,7 +158,7 @@ The table below gives an overview of the methods that are not directly available
 
 > :bulb: In case the ```Xsuaa only?``` flag is set, the method returns "null" in case of Id token from identity service.  
 > :bulb: In case of Id token from identity service, the ``Token`` can neither be casted to `AccessToken` nor to `XsuaaToken`.  A cast is possible in case of: ```Service.XSUAA.equals(token.getService())```.   
-> :bulb: `getAuthorities` is not implemented by `XsuaaTokenComp`.
+> :bulb: `getAuthorities`, as well as the `org.springframework.security.core.userdetails.UserDetails` is not implemented by `XsuaaTokenComp`.
 </details>
  
 #### Spring's `Jwt` methods
