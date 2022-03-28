@@ -23,22 +23,18 @@
             <artifactId>java-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Required only in case of multiple xsuaa bindings -->
-        <dependency>
-            <groupId>com.sap.cloud.security.xsuaa</groupId>
-            <artifactId>token-client</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Required only in case of multiple xsuaa bindings -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>com.sap.cloud.environment.servicebinding</groupId>
             <artifactId>cloud-environment-java-sap-service-operator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sap.cloud.environment.api</groupId>
+            <artifactId>cloud-environment-java-consumption-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- test utilities -->
@@ -68,12 +64,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-jre8</artifactId>
-            <version>2.32.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.github.stefanbirkner</groupId>
             <artifactId>system-rules</artifactId>
             <version>1.19.0</version>
@@ -94,6 +84,11 @@
             <groupId>io.github.hakky54</groupId>
             <artifactId>logcaptor</artifactId>
             <version>2.7.9</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

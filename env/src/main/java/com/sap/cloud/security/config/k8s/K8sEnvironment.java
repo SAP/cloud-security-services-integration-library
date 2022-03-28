@@ -5,18 +5,24 @@
  */
 package com.sap.cloud.security.config.k8s;
 
+import com.sap.cloud.environment.api.DefaultServiceBindingAccessor;
+import com.sap.cloud.environment.api.ServiceBinding;
+import com.sap.cloud.environment.api.TypedMapView;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static com.sap.cloud.security.config.Service.*;
 import static com.sap.cloud.security.config.k8s.K8sConstants.Plan;
 
 /**
@@ -29,10 +35,11 @@ public class K8sEnvironment implements Environment {
 	private static final Logger LOGGER = LoggerFactory.getLogger(K8sEnvironment.class);
 
 	private static K8sEnvironment instance;
-	private final Map<Service, Map<String, OAuth2ServiceConfiguration>> k8sServiceConfigurations;
+	private final Map<Service, Map<String, OAuth2ServiceConfiguration>> serviceConfigurations;
 
 	private K8sEnvironment() {
-		k8sServiceConfigurations = new K8sServiceConfigurationProvider().getServiceConfigurations();
+		serviceConfigurations = new EnumMap<>(Service.class);
+		loadAll();
 	}
 
 	public static K8sEnvironment getInstance() {
@@ -48,15 +55,58 @@ public class K8sEnvironment implements Environment {
 		return Type.KUBERNETES;
 	}
 
+	private void loadAll() {
+		Map<String, OAuth2ServiceConfiguration> xsuaaPlans = DefaultServiceBindingAccessor.getInstance().getServiceBindings().stream()
+				.filter(b -> XSUAA.getCFName().equalsIgnoreCase(b.getServiceName().orElse(null)))
+				.map(b -> mapToOAuth2ServiceConfiguration(b)).collect(Collectors.toMap(c -> c.getProperty("plan"),
+						Function.identity()));
+		Map<String, OAuth2ServiceConfiguration> identityPlans = DefaultServiceBindingAccessor.getInstance().getServiceBindings().stream()
+				.filter(b -> IAS.getCFName().equalsIgnoreCase(b.getServiceName().orElse(null)))
+				.map(b -> mapToOAuth2ServiceConfiguration(b)).collect(Collectors.toMap(c -> c.getProperty("plan"),
+						Function.identity()));
+		serviceConfigurations.put(XSUAA, xsuaaPlans);
+		serviceConfigurations.put(IAS, identityPlans);
+	}
+
+	private OAuth2ServiceConfiguration mapToOAuth2ServiceConfiguration(ServiceBinding b) {
+		if (!b.getServiceName().isPresent()) {
+			LOGGER.error("Ignores Service Binding with name {} as service name is not provided.", b.getName());
+			return null; // TODO test
+		}
+		final Service service = from(b.getServiceName().get());
+		OAuth2ServiceConfigurationBuilder configBuilder =  OAuth2ServiceConfigurationBuilder.forService(service)
+				.withProperties(TypedMapView.ofCredentials(b).getEntries(String.class))
+				.withProperty("plan", b.getServicePlan().orElse(Plan.APPLICATION.name()).toUpperCase());
+		switch (service) {
+			case XSUAA:
+				configBuilder.withProperty(CFConstants.XSUAA.UAA_DOMAIN, (String) b.getCredentials().get(CFConstants.XSUAA.UAA_DOMAIN));
+				break;
+			case IAS:
+				configBuilder.withDomains(((List<String>)b.getCredentials().get("domains")).toArray(new String[]{}));
+				break;
+		}
+		return configBuilder.build();
+	}
+
+	/**
+	 * Loads all configurations of all service instances of the dedicated service.
+	 *
+	 * @param service
+	 *            the service name
+	 * @return the list of all found configurations or empty map, in case there are
+	 *         no service bindings.
+	 */
+	Map<String, OAuth2ServiceConfiguration> getServiceConfigurationsOf(Service service) {
+		return serviceConfigurations.getOrDefault(service, Collections.emptyMap());
+	}
+
 	@Nullable
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfiguration() {
-		Map<String, OAuth2ServiceConfiguration> xsuaaPlans = k8sServiceConfigurations.get(Service.XSUAA);
-
-		return Optional.ofNullable(xsuaaPlans.get(Plan.APPLICATION.name()))
-				.orElse(Optional.ofNullable(xsuaaPlans.get(Plan.BROKER.name()))
-						.orElse(Optional.ofNullable(xsuaaPlans.get(Plan.SPACE.name()))
-								.orElse(Optional.ofNullable(xsuaaPlans.get(Plan.DEFAULT.name()))
+		return Optional.ofNullable(getServiceConfigurationsOf(XSUAA).get(Plan.APPLICATION.name()))
+				.orElse(Optional.ofNullable(getServiceConfigurationsOf(XSUAA).get(Plan.BROKER.name()))
+						.orElse(Optional.ofNullable(getServiceConfigurationsOf(XSUAA).get(Plan.SPACE.name()))
+								.orElse(Optional.ofNullable(getServiceConfigurationsOf(XSUAA).get(Plan.DEFAULT.name()))
 										.orElse(null))));
 
 	}
@@ -65,7 +115,7 @@ public class K8sEnvironment implements Environment {
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange() {
 		if (getNumberOfXsuaaConfigurations() > 1) {
-			return k8sServiceConfigurations.get(Service.XSUAA).get(Plan.BROKER.name());
+			return getServiceConfigurationsOf(XSUAA).get(Plan.BROKER.name());
 		}
 		return getXsuaaConfiguration();
 	}
@@ -73,17 +123,15 @@ public class K8sEnvironment implements Environment {
 	@Nullable
 	@Override
 	public OAuth2ServiceConfiguration getIasConfiguration() {
-		Set<Map.Entry<String, OAuth2ServiceConfiguration>> iasConfigEntries = k8sServiceConfigurations
-				.get(Service.IAS).entrySet();
-		if (iasConfigEntries.size() > 1) {
-			LOGGER.warn("{} IAS bindings found. Using the first one from the list", iasConfigEntries.size());
+		if (getServiceConfigurationsOf(IAS).size() > 1) {
+			LOGGER.warn("{} IAS bindings found. Using the first one from the list", getServiceConfigurationsOf(IAS).size());
 		}
-		return iasConfigEntries.stream().findFirst().map(Map.Entry::getValue).orElse(null);
+		return getServiceConfigurationsOf(IAS).entrySet().stream().findFirst().map(Map.Entry::getValue).orElse(null);
 	}
 
 	@Override
 	public int getNumberOfXsuaaConfigurations() {
-		return k8sServiceConfigurations.get(Service.XSUAA).size();
+		return getServiceConfigurationsOf(XSUAA).size();
 	}
 
 }

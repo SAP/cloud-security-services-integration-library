@@ -220,6 +220,11 @@
 				<version>${sap.cloud.env.servicebinding.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.sap.cloud.environment.api</groupId>
+				<artifactId>cloud-environment-java-consumption-api</artifactId>
+				<version>${sap.cloud.env.servicebinding.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>
 				<version>${org.json.version}</version>
