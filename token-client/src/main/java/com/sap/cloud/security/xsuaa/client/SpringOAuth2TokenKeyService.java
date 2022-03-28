@@ -6,6 +6,8 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.Assertions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
@@ -19,6 +21,9 @@ import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_ZONE_UUID;
 import static org.springframework.http.HttpMethod.GET;
 
 public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpringOAuth2TokenKeyService.class);
+
 	private final RestOperations restOperations;
 
 	public SpringOAuth2TokenKeyService(@Nonnull RestOperations restOperations) {
@@ -27,7 +32,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public String retrieveTokenKeys(URI tokenKeysEndpointUri, @Nullable String zoneId) throws OAuth2ServiceException {
+	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String zoneId) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		try {
 			// create headers
@@ -36,10 +41,10 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 			if (zoneId != null) {
 				headers.set(X_ZONE_UUID, zoneId);
 			}
-
 			ResponseEntity<String> response = restOperations.exchange(
 					tokenKeysEndpointUri, GET, new HttpEntity(headers), String.class);
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
+				LOGGER.debug("Successfully retrieved token keys from {} for zone '{}'", tokenKeysEndpointUri, zoneId);
 				return response.getBody();
 			} else {
 				throw OAuth2ServiceException.builder("Error retrieving token keys")
