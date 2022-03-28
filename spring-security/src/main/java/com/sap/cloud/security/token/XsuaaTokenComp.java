@@ -170,7 +170,7 @@ public class XsuaaTokenComp {
 	 * @return the user origin if present.
 	 */
 	@Nullable
-	String getOrigin() {
+	public String getOrigin() {
 		return token.getClaimAsString(TokenClaims.XSUAA.ORIGIN);
 	}
 
@@ -245,8 +245,8 @@ public class XsuaaTokenComp {
 		return token.getExpiration();
 	}
 
-	public String getExpirationDate() {
-		return token.getExpiration() != null ? Date.from(token.getExpiration()).toString() : null;
+	public Date getExpirationDate() {
+		return token.getExpiration() != null ? Date.from(token.getExpiration()) : null;
 	}
 
 	/**

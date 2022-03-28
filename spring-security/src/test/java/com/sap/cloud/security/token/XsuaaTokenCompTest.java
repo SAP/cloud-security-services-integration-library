@@ -59,7 +59,7 @@ class XsuaaTokenCompTest {
         assertThat(token.getEmail(), is("testUser@test.org"));
         assertThat(token.getSubaccountId(), is(zoneId));
         //assertThat(token.getAuthorities().size(), is(0));
-        assertThat(token.getExpirationDate(), is(Date.from(JwtGenerator.NO_EXPIRE_DATE).toString()));
+        assertThat(token.getExpirationDate(), is(Date.from(JwtGenerator.NO_EXPIRE_DATE)));
         assertThat(token.getExpiration(), is(JwtGenerator.NO_EXPIRE_DATE));
         assertThat(token.getAdditionalAuthAttribute("any"), nullValue());
         assertThat(token.getZoneId(), is(zoneId));
