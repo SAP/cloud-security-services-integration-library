@@ -6,9 +6,19 @@ This library enhances the [spring-security](https://github.com/spring-projects/s
 
 ## Configuration
 
-These (spring) dependencies needs to be provided:
+### :mega: Service configuration in Kubernetes/Kyma environment 
+To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container. 
+Library will look up the configuration files in the following paths:
+- XSUAA: `/etc/secrets/sapbtp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
+- IAS: `/etc/secrets/sapbtp/identity/<YOUR IAS INSTANCE NAME>`
+- Service-manager: `/etc/secrets/sapbtp/service-manager/<YOUR SERVICE-MANAGER NAME>`
+
+:exclamation: service-manager binding is mandatory to resolve multiple Xsuaa bindings! If it is not provided the first Xsuaa binding from a list is used and treated as instance with `application` plan.
+
+Detailed information on how to use ``spring-xsuaa`` library in Kubernetes/Kyma environment can be found in [spring-security-basic-auth](/samples/spring-security-basic-auth/README.md#deployment-on-kymakubernetes) sample README.
 
 ### Maven Dependencies
+These (spring) dependencies needs to be provided:
 ```xml
 <dependency> <!-- includes spring-security-oauth2 -->
     <groupId>org.springframework.security</groupId>
@@ -25,7 +35,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>2.10.5</version>
+    <version>2.11.13</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
@@ -39,7 +49,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.10.5</version>
+    <version>2.11.13</version>
 </dependency>
 ```
 
@@ -259,6 +269,10 @@ Finally you need do re-deploy your application for the changes to take effect.
 #### Multiple XSUAA Bindings (broker & application)  
 If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), you run into the following issue:
 
+```
+IllegalStateException: Found more than one xsuaa bindings. Please consider unified broker plan or use com.sap.cloud.security:spring-security client library.
+```
+Or,
 ```
 Caused by: java.lang.RuntimeException: Found more than one xsuaa binding. There can only be one.
 at com.sap.cloud.security.xsuaa.XsuaaServicesParser.getJSONObjectFromTag(XsuaaServicesParser.java:91)

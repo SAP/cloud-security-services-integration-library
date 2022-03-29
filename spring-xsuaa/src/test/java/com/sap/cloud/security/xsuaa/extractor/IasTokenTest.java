@@ -34,6 +34,7 @@ class IasTokenTest {
 				.claim(SAP_GLOBAL_USER_ID, USER_ID)
 				.claim(SAP_GLOBAL_ZONE_ID, zoneId)
 				.claim(USER_NAME, USER_NAME_VALUE)
+				.claim(AUTHORIZATION_PARTY, "client-id")
 				.claim(AUDIENCE, Arrays.asList("aud1", "aud2"));
 	}
 
@@ -41,7 +42,7 @@ class IasTokenTest {
 	public void checkIasTokenTest() {
 		IasToken token = createToken(claimsSetBuilder);
 
-		assertThat(token.getClientId(), is(USER_ID));
+		assertThat(token.getClientId(), is("client-id"));
 		assertThat(token.getZoneId(), is(zoneId));
 		assertThat(token.getExpiration(), is(JwtGenerator.NO_EXPIRE_DATE.toInstant()));
 		assertThat(token.getAudiences().size(), is(2));

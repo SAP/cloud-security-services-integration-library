@@ -135,7 +135,7 @@ public class SecurityTestRuleTest {
 		Token token = cut.getJwtGeneratorFromFile("/token.json").createToken();
 
 		String baseUrl = cut.base.wireMockServer.baseUrl();
-		URI jwksUrl = new XsuaaDefaultEndpoints(baseUrl).getJwksUri();
+		URI jwksUrl = new XsuaaDefaultEndpoints(baseUrl, null).getJwksUri();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(jwksUrl.toString());
 		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(baseUrl);
 	}

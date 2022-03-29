@@ -1,8 +1,137 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.13
+- [java-security] [spring-security]
+  -  Improves JWKS cache handling for OIDC token validation. This is especially relevant when using a shared IAS tenant.
+
+
+## 2.11.12
+- [java-security] `XsuaaTokenAuthenticator` should support validation of tokens issued by Cloud Foundry UAA (NGPBUG-175120)
+
+#### Dependency upgrades
+* Bump reactor-core from 3.4.13 to 3.4.14
+* Bump spring.core.version from 5.3.14 to 5.3.15
+* Bump slf4j.api.version from 1.7.32 to 1.7.35
+* Bump spring.boot.version from 2.6.2 to 2.6.3
+
+## 2.11.11
+- Ensure compatibility with Java 11 (see PR #775)
+- [spring-xsuaa-starter] ``xsuaaMtlsRestOperations`` and ``xsuaaRestOperations`` are only auto-configured if ``XsuaaServiceConfiguration`` bean is given
+- [java-security] Support oidc tokens from single tenant apps w/o zone_uuid claim (NGPBUG-170120)
+
+#### Dependency upgrades
+- remove net.minidev:json-smart
+- Bump log4j2.version from 2.17.0 to 2.17.1 
+
+## 2.11.10
+[spring-xsuaa-starter] Patches CVE-2021-42550
+
+#### Dependency upgrades
+- Bump spring.boot.version from 2.6.1 to 2.6.2 contains logback 1.2.9 (CVE-2021-42550)
+- Bump dependency-check-maven from 6.5.0 to 6.5.1
+- Bump logcaptor from 2.7.4 to 2.7.7
+
+## 2.11.9
+- provides Bill of Material that helps you to keep all of your SAP security related dependencies on sync: 
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.sap.cloud.security</groupId>
+            <artifactId>java-bom</artifactId>
+            <version>...</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/samples/java-security-usage/pom.xml).
+
+#### Dependency upgrades
+- Bump spring.security.version from 5.6.0 to 5.6.1
+- Bump spring.core.version from 5.3.13 to 5.3.14
+- Bump log4j-api to 2.17.0 (CVE-2021-45105)
+- Sets Spring property `log4j2.version` to `2.17.0` and overwrites `org.apache.logging.log4j:log4j-to-slf4j` and ``org.apache.logging.log4j:log4j-api`` version used in the Spring projects. This patch is not urgent, see also [Blog: Log4J2 Vulnerability and Spring Boot](https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot).
+- Bump reactor-core from 3.4.12 to 3.4.13
+- Bump log4j-to-slf4j from 2.14.1 to 2.17.0
+
+
+## 2.11.5
+- [token-client] hotfix for token cache miss issue
+
+#### Dependency upgrades
+- org.json.version 20210307 --> 20211205
+
+## 2.11.4
+#### Dependency upgrades
+- spring.boot.version 2.6.0 --> 2.6.1
+- caffeine 2.9.2 --> 2.9.3
+- com.github.tomakehurst:wiremock-jre8-standalone 2.31.0 --> 2.32.0
+
+## 2.11.3
+- [java-api] 
+    - `SecurityContext` has been extended to provide thread-wide X.509 certificate storage
+- [java-security] 
+    - Introduces X.509 certificate thumbprint validator `JwtX5tValidator` as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/README.md#x509-certificate-thumbprint-x5t-validation)
+    - `IasTokenAuthenticator` and `XsuaaTokenAuthenticator` store the forwarded X.509 certificate for incoming requests in `SecurityContext`
+    - `XsuaaDefaultEndpoints` provides a new [constructor(url, certUrl)](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/XsuaaDefaultEndpoints.java#L56) (issue [707](https://github.com/SAP/cloud-security-xsuaa-integration/issues/707))
+- [spring-xsuaa] 
+    - `XsuaaServiceConfiguration` interface default method `getClientIdentity()` needs to be overridden to be used
+    - :exclamation: Incompatible change `XsuaaCredentials`  `getPrivateKey()` `setPrivateKey()` has changed to `getKey()` `setKey()` to reflect the attribute name from configuration
+- [token-client] Adds ``X-CorrelationID`` header to outgoing requests. In case MDC provides "correlation_id" this one is taken (issue [691](https://github.com/SAP/cloud-security-xsuaa-integration/issues/691))
+
+#### Dependency upgrades
+  - io.projectreactor:reactor-test 3.4.11 --> 3.4.12
+  - io.projectreactor:reactor-core 3.4.11 --> 3.4.12
+  - dependency-check-maven-plugin 6.4.1 --> 6.5.0
+  - org.springframework:spring.core.version  5.3.12 --> 5.3.13
+  - org.springframework:spring.security.version 5.5.3 --> 5.6.0
+  - org.springframework.boot:spring-boot 2.5.6 to 2.6.0 
+  - logcaptor 2.7.0 --> 2.7.2
+
+
+## 2.11.2
+- [spring-xsuaa] fixes issue in `TokenBrokerResolver` for `CLIENT_CREDENTIALS` method (issue [705](https://github.com/SAP/cloud-security-xsuaa-integration/issues/705))
+
+## 2.11.1
+- [java-security][spring-security] supports custom domains of identity service. If `ias_iss` is given and not empty, `JwtIssuerValidator.java` checks whether its a valid url and checks whether this matches one of the valid domains of the identity service. The check whether `iss` matches to any given domains is skipped in that case.
+- Resolves regression in `XsuaaServiceConfigurationDefault` (fixes [#695](https://github.com/SAP/cloud-security-xsuaa-integration/issues/695))
+
+#### Dependency upgrades
+  - io.projectreactor:reactor-test 3.4.10 --> 3.4.11
+  - io.projectreactor:reactor-core 3.4.10 --> 3.4.11
+  - org.springframework:spring.core.version  5.3.10 --> 5.3.12
+  - org.springframework.boot:spring-boot 2.5.4 to 2.5.6 
+
+
+## 2.11.0
+:mega: Client Libraries support Kubernetes/Kyma environment
+- [env]
+  - The extraction of `OAuth2ServiceConfiguration` for xsuaa oder ias identity provider is moved into `com.sap.cloud.security:env` client library.
+  - Extended with Kubernetes/Kyma environment support
+- [samples/java-security-usage] enabled for Kyma/Kubernetes environment
+- [samples/spring-security-basic-auth] enabled for Kyma/Kubernetes environment
+- [samples/spring-security-hybrid-usage] enabled for Kyma/Kubernetes environment
+- [spring-xsuaa] `LocalAuthoritiesExtractor` supports also `appId`s that contains pipe (`|`) characters [#640](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640).
+- [spring-security] `XsuaaTokenAuthorizationConverter` supports also `appId`s that contains pipe (`|`) characters [#640](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640).
+
+#### Dependency upgrades
+- maven-javadoc-plugin 3.3.0 --> 3.3.1
+- maven-pmd-plugin 3.14.0 --> 3.15.0
+- dependency-check-maven 6.2.2 --> 6.3.1 
+- com.github.tomakehurst:wiremock-jre8-standalone 2.30.1 --> 2.31.0
+- io.projectreactor:reactor-test 3.4.9 --> 3.4.10
+- io.projectreactor:reactor-core 3.4.9 --> 3.4.10
+- org.springframework:spring.core.version  5.3.9 --> 5.3.10
+- org.springframework.boot:spring-boot 2.5.3 to 2.5.4 
+- org.mockito:mockito-core 3.11.2 --> 3.12.4
+
+
 ## 2.10.5
-- [token-client] 
+- [token-client]
+  - new method `SSLContextFactory.createKeyStore(ClientIdentity)`
   - `XsuaaTokenFlows` constructor accepts `com.sap.cloud.security.xsuaa.client.ClientCredentials` as argument.
   
 #### Dependency upgrades

@@ -147,14 +147,17 @@ class SampleTest(abc.ABC, unittest.TestCase):
                                                                          deployed_app.clientid,
                                                                          deployed_app.clientsecret))
         if deployed_app.credential_type == 'x509':
-            body = HttpUtil.encode_request_body(self, clientid=deployed_app.clientid,
-                                         grant_type='password',
-                                         username=self.credentials.username,
-                                         password=self.credentials.password + self.__get_2factor_auth_code())
-            return HttpUtil.post_request_x509(self, url=deployed_app.xsuaa_cert_url,
-                                       data=body,
-                                       certificate=deployed_app.certificate,
-                                       key=deployed_app.key)
+            body = HttpUtil.encode_request_body(self,
+                                                clientid=deployed_app.clientid,
+                                                grant_type='password',
+                                                username=self.credentials.username,
+                                                password=self.credentials.password + self.__get_2factor_auth_code())
+            return HttpUtil.post_request_x509(self,
+                                              url=deployed_app.xsuaa_cert_url,
+                                              url_path='/oauth/token',
+                                              payload=body,
+                                              certificate=deployed_app.certificate,
+                                              key=deployed_app.key)
         else:
             return HttpUtil().get_token(
                 xsuaa_service_url=deployed_app.xsuaa_service_url,
@@ -171,9 +174,11 @@ class SampleTest(abc.ABC, unittest.TestCase):
             'GET id token to {} for user {} ({}, {})'.format(deployed_app.ias_service_url, self.credentials.username,
                                                              deployed_app.ias_clientid, deployed_app.ias_clientsecret))
         id_token = HttpUtil().get_id_token(
-            ias_service_url=deployed_app.ias_service_url + '/oauth2/token',
+            ias_service_url=deployed_app.ias_service_url,
             clientid=deployed_app.ias_clientid,
-            clientsecret=deployed_app.ias_clientsecret,
+            clientsecret="" if deployed_app.ias_clientsecret is None else deployed_app.ias_clientsecret,
+            certificate=deployed_app.ias_certificate,
+            key=deployed_app.ias_key,
             grant_type='password',
             username=self.credentials.username,
             password=self.credentials.password).get('id_token')
@@ -522,20 +527,24 @@ class HttpUtil:
         self.__add_headers(req, access_token, additional_headers)
         return self.__execute(req)
 
-    def post_request_x509(self, url, data=None, access_token=None, certificate=None, key=None):
+    def post_request_x509(self, url, url_path, payload=None, access_token=None, certificate=None, key=None,
+                          additional_headers=None):
         with open("cert.pem", "w") as cert_pem:
             cert_pem.write(certificate)
         with open("key.pem", "w") as key_pem:
             key_pem.write(key)
         host = url = url.replace("https://", "")
-        url_path = '/oauth/token'
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        if additional_headers is not None:
+            headers.update(additional_headers)
 
         context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)  # PROTOCOL_SSLV3 doesn't work
         context.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
 
         connection = http.client.HTTPSConnection(host, port=443, context=context, timeout=500)
         connection.set_debuglevel(1)
-        connection.request(method="POST", url=url_path, body=data, headers={'Content-Type': 'application/x-www-form-urlencoded', 'Connection': 'close'})
+        connection.request(method="POST", url=url_path, body=payload, headers=headers)
 
         logging.debug('Performing POST request over mTLS to {} {}'
                       .format(url, 'with access token: ' + access_token if access_token else 'without access token'))
@@ -546,7 +555,7 @@ class HttpUtil:
         if response.status == 200:
             return json.loads(body_decoded)
         else:
-            logging.error('mTLS post request failed - {}'.format(response.status))
+            logging.error('mTLS post request failed - {} {}'.format(response.status, response.body))
             return None
 
     def encode_request_body(self, clientid, grant_type, username=None, password=None):
@@ -571,7 +580,8 @@ class HttpUtil:
             logging.error('Could not retrieve access token')
             return None
 
-    def get_id_token(self, ias_service_url, clientid, clientsecret, grant_type='password', username=None,
+    def get_id_token(self, ias_service_url, clientid, clientsecret="", certificate=None, key=None, grant_type='password',
+                     username=None,
                      password=None):
         authorization_value = b64encode(bytes("{}:{}".format(clientid, clientsecret), 'utf-8')).decode("ascii")
         additional_headers = {'Authorization': 'Basic ' + authorization_value,
@@ -580,7 +590,19 @@ class HttpUtil:
                                    'response_type': 'id_token',
                                    'username': username,
                                    'password': password}).encode()
-        resp = HttpUtil().post_request(ias_service_url, data=post_req_body, additional_headers=additional_headers)
+
+        if certificate is not None:
+            return HttpUtil.post_request_x509(self, url=ias_service_url,
+                                              url_path='/oauth2/token',
+                                              payload=post_req_body,
+                                              certificate=certificate,
+                                              key=key,
+                                              additional_headers=additional_headers)
+        else:
+            resp = HttpUtil().post_request(ias_service_url + '/oauth2/token',
+                                           data=post_req_body,
+                                           additional_headers=additional_headers)
+
         if resp.is_ok:
             logging.debug(resp.body)
             return json.loads(resp.body)
@@ -613,6 +635,8 @@ class IasAccess:
         self.ias_service_url = None
         self.ias_client_id = None
         self.ias_client_secret = None
+        self.ias_certificate = None
+        self.ias_key = None
         self.ias_token = None
         self.__create_ias_service()
         self.__create_ias_service_key()
@@ -625,7 +649,7 @@ class IasAccess:
     def __create_ias_service(self):
         logging.info("Creating IAS service '{}'".format(self.ias_service_name))
         subprocess.call(['cf', 'create-service', 'identity', 'application', self.ias_service_name,
-                         '-c', '{"xsuaa-cross-consumption": "true"}'], stdout=cf_logs)
+                         '-c', '{"xsuaa-cross-consumption": "true", "credential-type": "X509_GENERATED"}'], stdout=cf_logs)
         self.__wait_service_created()
 
     def __wait_service_created(self):
@@ -650,7 +674,7 @@ class IasAccess:
         logging.info("Creating service-key for {} IAS service with service-key name: {}"
                      .format(self.ias_service_name, self.ias_service_key_name))
         subprocess.run(['cf', 'create-service-key', self.ias_service_name,
-                        self.ias_service_key_name], stdout=cf_logs)
+                        self.ias_service_key_name, '-c', '{"credential-type": "X509_GENERATED"}'], stdout=cf_logs)
 
     def __get_ias_service_key(self):
         logging.info("Fetching service-key '{}' for '{}' IAS service"
@@ -663,13 +687,17 @@ class IasAccess:
             self.ias_client_id = self.__extract_json_values(json_output, 'clientid')
             self.ias_client_secret = self.__extract_json_values(json_output, 'clientsecret')
             self.ias_service_url = self.__extract_json_values(json_output, 'url')
+            self.ias_certificate = self.__extract_json_values(json_output, 'certificate')
+            self.ias_key = self.__extract_json_values(json_output, 'key')
 
     def fetch_ias_token(self, user):
         logging.info("Fetching IAS token for '{}' IAS service".format(self.ias_service_name))
         self.ias_token = HttpUtil().get_id_token(
-            ias_service_url=self.ias_service_url + '/oauth2/token',
+            ias_service_url=self.ias_service_url,
             clientid=self.ias_client_id,
             clientsecret=self.ias_client_secret,
+            certificate=self.ias_certificate,
+            key=self.ias_key,
             grant_type='password',
             username=user.credentials.username,
             password=user.credentials.password).get('id_token')
@@ -779,6 +807,11 @@ class CFApps:
             return paginated_resources.get('resources')[0]
 
     def __get_with_token(self, url):
+        attempts = 3
+        res = HttpUtil().get_request(url, additional_headers={
+            'Authorization': self.bearer_token})
+        if res.status != 200 and attempts:
+            self.bearer_token = subprocess.run(['cf', 'oauth-token'], capture_output=True).stdout.strip().decode()
         res = HttpUtil().get_request(url, additional_headers={
             'Authorization': self.bearer_token})
         return json.loads(res.body)
@@ -789,7 +822,7 @@ class CFApps:
         return env.get('system_env_json').get('VCAP_SERVICES')
 
     def __parse_target_output(self, target_output):
-        api_endpoint_match = re.search(r'api endpoint:(.*)', target_output)
+        api_endpoint_match = re.search(r'API endpoint:(.*)', target_output)  # required cf cli version < 7.3
         user_id_match = re.search(r'user:(.*)', target_output)
         space_match = re.search(r'space:(.*)', target_output)
         api_endpoint = api_endpoint_match.group(1)
@@ -907,6 +940,14 @@ class DeployedApp:
     @property
     def ias_clientsecret(self):
         return self.get_ias_credentials_property('clientsecret')
+
+    @property
+    def ias_certificate(self):
+        return self.get_ias_credentials_property('certificate')
+
+    @property
+    def ias_key(self):
+        return self.get_ias_credentials_property('key')
 
     def get_credentials_property(self, property_name):
         return self.xsuaa_properties.get('credentials').get(property_name)

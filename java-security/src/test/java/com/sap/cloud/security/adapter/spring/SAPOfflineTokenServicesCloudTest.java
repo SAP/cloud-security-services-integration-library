@@ -63,7 +63,7 @@ public class SAPOfflineTokenServicesCloudTest {
 				.build();
 
 		cut = new SAPOfflineTokenServicesCloud(configuration, jwtValidatorBuilderSpy);
-		SecurityContext.clearToken();
+		SecurityContext.clear();
 	}
 
 	@Test

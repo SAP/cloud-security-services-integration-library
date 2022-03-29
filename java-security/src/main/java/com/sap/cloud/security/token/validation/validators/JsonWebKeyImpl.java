@@ -96,11 +96,7 @@ class JsonWebKeyImpl implements JsonWebKey {
 
 	@Override
 	public int hashCode() {
-		return calculateUniqueId(keyAlgorithm, keyId);
-	}
-
-	public static int calculateUniqueId(JwtSignatureAlgorithm algorithm, String keyId) {
-		return Objects.hash(algorithm, keyId != null ? keyId : DEFAULT_KEY_ID);
+		return Objects.hash(keyAlgorithm, keyId != null ? keyId : DEFAULT_KEY_ID);
 	}
 
 	@Override
@@ -115,6 +111,11 @@ class JsonWebKeyImpl implements JsonWebKey {
 		if (getKeyAlgorithm() != that.getKeyAlgorithm())
 			return false;
 		return keyId.equals(that.keyId);
+	}
+
+	@Override
+	public String toString() {
+		return getId() + "(" + getKeyAlgorithm() + ")";
 	}
 
 }

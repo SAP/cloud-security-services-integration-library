@@ -247,7 +247,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					String token;
 					if (oAuth2TokenService != null) {
 						token = oAuth2TokenService.retrieveAccessTokenViaClientCredentialsGrant(
-								URI.create(oauthTokenUrl), clientIdentity, null, null,
+								URI.create(oauthTokenUrl), clientCredentialsFromHeader, null, null,
 								null, false).getAccessToken();
 					} else {
 						// only when deprecated constructors are used, for backward compatibility

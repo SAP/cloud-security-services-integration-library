@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import org.slf4j.Logger;
@@ -69,10 +70,9 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		// Create URI
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(tokenEndpointUri);
 		URI requestUri = builder.build().encode().toUri();
-
 		org.springframework.http.HttpHeaders springHeaders = new org.springframework.http.HttpHeaders();
 		headers.getHeaders().forEach(h -> springHeaders.add(h.getName(), h.getValue()));
-
+		springHeaders.add(MDCHelper.CORRELATION_HEADER, MDCHelper.getOrCreateCorrelationId());
 		// Create entity
 		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(copyIntoForm(parameters),
 				springHeaders);

@@ -14,16 +14,15 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
 @SpringBootTest
 @java.lang.SuppressWarnings("squid:S2699")
 @ActiveProfiles("multixsuaa") // properties are provided with /resources/application-multixsuaa.yml
 class ApplicationTest {
-	@Autowired
-	XsuaaTokenFlows tokenflows;
+    @Autowired
+    XsuaaTokenFlows tokenflows;
 
-	@Test
-	void whenSpringContextIsBootstrapped_thenNoExceptions() throws TokenFlowException {
-		assertNotNull(tokenflows.clientCredentialsTokenFlow());
-	}
+    @Test
+    void whenSpringContextIsBootstrapped_thenNoExceptions() throws TokenFlowException {
+        assertNotNull(tokenflows.clientCredentialsTokenFlow());
+    }
 }

@@ -24,7 +24,7 @@ public class Assertions {
 		}
 	}
 
-	public static void assertNotEmpty(List<String> list, String message) {
+	public static void assertNotEmpty(List<?> list, String message) {
 		if (list == null || list.isEmpty()) {
 			throw new IllegalArgumentException(message);
 		}

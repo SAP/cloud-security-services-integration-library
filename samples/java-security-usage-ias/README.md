@@ -34,29 +34,24 @@ cf push --vars-file ../vars.yml
 ```
 
 ## Access the application
-- Get an access token via `curl`. Make sure that you replace the placeholders `clientid`, `clientsecret` and `url` (without `https://` !!!) according to the service configuration that are stored as system environment variable `VCAP_SERVICES.identity.credentials`. You can get them using `cf env java-security-usage-ias`. 
+1. Follow [HowToFetchToken](../../docs/HowToFetchToken.md#ias-tokens) guide to fetch IAS id token.
+ 
+   You can get the information to fill the placeholders from your system environment `cf env java-security-usage-ias`   
 
-```
-curl -X POST \
-  https://<<clientid>>:<<clientsecret>>@<<url>>/oauth2/token \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'grant_type=password&username=<<your ias user>>&password=<<your ias password>>'
-```
+   Copy the `id_token` to your clipboard.
 
-Copy the `id_token` into your clipboard.
+2. Access the app via `curl`. Don't forget to fill the placeholders.
+   ```
+   curl -X GET \
+     https://java-security-usage-ias-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/hello-java-security-ias \
+     -H 'Authorization: Bearer <<your id_token>>'
+   ```
 
-- Access the app via `curl`. Don't forget to fill the placeholders.
-```
-curl -X GET \
-  https://java-security-usage-ias-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/hello-java-security-ias \
-  -H 'Authorization: Bearer <<your id_token>>'
-```
-
-You should see something like this:
-```
-You ('<your email>') are authenticated and can access the application.
-```
-- If you call the same endpoint without `Authorization` header you should get a `401`.
+3. You should see something like this:
+   ```
+   You ('<your email>') are authenticated and can access the application.
+   ```
+   :bulb: If you call the same endpoint without `Authorization` header you should get a `401`.
 
 ## Clean-Up
 Finally delete your application and your service instances using the following commands:

@@ -41,8 +41,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This constructor requires a dependency to Spring-security oauth, which will
- * be deprecated soon.
+ * This constructor requires a dependency to spring-security-oauth2, which is
+ * deprecated.
  *
  * <pre>
  * {@code

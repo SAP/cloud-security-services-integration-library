@@ -10,11 +10,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import java.net.URI;
-import java.util.Map;
-import java.util.Properties;
+import java.util.Objects;
 
 @Configuration
 public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfiguration {
+
+	static final String VCAP_SERVICES_CREDENTIALS = "xsuaa credentials from VCAP_SERVICES/secret must not be null";
 
 	@Value("${xsuaa.clientid:}")
 	private String clientId;
@@ -40,13 +41,11 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Value("${xsuaa.verificationkey:}")
 	private String verificationKey;
 
-	@Value("${xsuaa.credentialtype:#{null}}")
+	@Value("${xsuaa.credential-type:#{null}}")
 	private String credentialType;
 
 	@Value("${xsuaa.certurl:#{null}}")
 	private String certUrl;
-
-	private Properties vcapServiceProperties;
 
 	/*
 	 * (non-Javadoc)
@@ -61,14 +60,6 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	@Override
 	public String getClientSecret() {
 		return clientSecret;
-	}
-
-	@Override
-	public ClientIdentity getClientIdentity() {
-		if (getCredentialType() == CredentialType.X509) {
-			return new ClientCertificate(certificate, privateKey, getClientId());
-		}
-		return new ClientCredentials(getClientId(), getClientSecret());
 	}
 
 	@Override
@@ -101,28 +92,40 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 		return URI.create(certUrl);
 	}
 
-	private Properties getVcapServiceProperties() {
-		if (vcapServiceProperties == null) {
-			vcapServiceProperties = new Properties();
-			if (Environments.getCurrent().getNumberOfXsuaaConfigurations() > 1) {
-				throw new IllegalStateException(
-						"Found more than one xsuaa bindings. Make use of Environments.getCurrent() directly.");
-			}
-			for (Map.Entry<String, String> property : Environments.getCurrent().getXsuaaConfiguration().getProperties()
-					.entrySet()) {
-				vcapServiceProperties.put(property.getKey(), property.getValue());
-			}
+	@Override
+	public ClientIdentity getClientIdentity() {
+		ClientIdentity identity = new ClientCertificate(certificate, privateKey, getClientId());
+		if (!identity.isValid()) {
+			identity = new ClientCredentials(getClientId(), getClientSecret());
 		}
-		return vcapServiceProperties;
+		return identity;
 	}
 
+	/**
+	 * This only supports read from VCAP_SERVICES in cf environment or read from
+	 * secrets in kubernetes environment.
+	 * 
+	 * @param name
+	 *            of the credential property
+	 * @return the property value or null if not found
+	 */
 	@Override
 	public String getProperty(String name) {
-		return getVcapServiceProperties().getProperty(name);
+		return Objects.requireNonNull(Environments.getCurrent().getXsuaaConfiguration(), VCAP_SERVICES_CREDENTIALS)
+				.getProperty(name);
 	}
 
+	/**
+	 * This only supports VCAP_SERVICES in cf environment or read from secrets in
+	 * kubernetes environment.
+	 * 
+	 * @param name
+	 *            of the credential property
+	 * @return false if property doesn't exist
+	 */
 	@Override
 	public boolean hasProperty(String name) {
-		return getVcapServiceProperties().containsKey(name);
+		return Objects.requireNonNull(Environments.getCurrent().getXsuaaConfiguration(), VCAP_SERVICES_CREDENTIALS)
+				.hasProperty(name);
 	}
 }

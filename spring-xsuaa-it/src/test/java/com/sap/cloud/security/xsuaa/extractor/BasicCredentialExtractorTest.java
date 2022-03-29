@@ -1,7 +1,4 @@
 /**
- * 
- */
-/**
  * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -110,7 +107,7 @@ public class BasicCredentialExtractorTest {
 				"basic " + Base64.getEncoder().encodeToString("client1234:secret1234".getBytes()));
 
 		String token = extractor.resolve(request);
-		assertThat(token).isEqualTo("token_cc");
+		assertThat(token).isEqualTo("token_client1234");
 	}
 
 	@Test
@@ -138,7 +135,7 @@ public class BasicCredentialExtractorTest {
 		request.setScheme("http");
 		request.setServerName("t1.cloudfoundry");
 		String token = extractor.resolve(request);
-		assertThat(token).isEqualTo("token_cc");
+		assertThat(token).isEqualTo("token_client1234");
 	}
 
 	@Test

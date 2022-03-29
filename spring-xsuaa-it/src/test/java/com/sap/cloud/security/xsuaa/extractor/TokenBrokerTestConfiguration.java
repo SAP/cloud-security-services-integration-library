@@ -43,7 +43,7 @@ public class TokenBrokerTestConfiguration {
 					@Nullable Map<String, String> optionalParameters, boolean disableCacheForRequest)
 					throws OAuth2ServiceException {
 				try {
-					return new OAuth2TokenResponse("token_cc", 100, null);
+					return new OAuth2TokenResponse("token_" + clientIdentity.getId(), 100, null);
 				} catch (Exception e) {
 					throw new OAuth2ServiceException("Error retrieving token: " + e.getMessage());
 				}

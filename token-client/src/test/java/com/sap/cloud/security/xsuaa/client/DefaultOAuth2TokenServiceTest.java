@@ -5,6 +5,12 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import com.sap.cloud.security.config.ClientCredentials;
+import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
@@ -14,7 +20,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +27,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.io.IOException;
 import java.net.URI;
@@ -29,7 +36,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Map;
 
-import static java.util.Collections.*;
+import static com.sap.cloud.security.servlet.MDCHelper.CORRELATION_ID;
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -79,6 +87,27 @@ public class DefaultOAuth2TokenServiceTest {
 	}
 
 	@Test
+	public void correlationIdProvisioning() throws IOException {
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(VALID_JSON_RESPONSE);
+		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(response);
+
+		ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+		Logger logger = (Logger) LoggerFactory.getLogger(MDCHelper.class);
+		listAppender.start();
+		logger.addAppender(listAppender);
+
+		requestAccessToken(emptyMap());
+		assertThat(listAppender.list.get(0).getLevel()).isEqualTo(Level.INFO);
+		assertThat(listAppender.list.get(0).getMessage()).contains("was not found in the MDC");
+
+		MDC.put(CORRELATION_ID, "my-correlation-id");
+		requestAccessToken(emptyMap());
+		assertThat(listAppender.list.get(1).getLevel()).isEqualTo(Level.DEBUG);
+		assertThat(listAppender.list.get(1).getArgumentArray()[1]).isEqualTo(("my-correlation-id"));
+		MDC.clear();
+	}
+
+	@Test
 	public void executeWithAdditionalParameters_putsParametersIntoPostBody() throws IOException {
 		ArgumentCaptor<HttpPost> httpPostCaptor = ArgumentCaptor.forClass(HttpPost.class);
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(VALID_JSON_RESPONSE);
@@ -106,6 +135,20 @@ public class DefaultOAuth2TokenServiceTest {
 				.hasMessageContaining(unauthorizedResponseText)
 				.hasMessageContaining(TOKEN_ENDPOINT_URI.toString())
 				.extracting("httpStatusCode").isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+	}
+
+	@Test
+	public void retrieveToken_testCache() throws IOException {
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(VALID_JSON_RESPONSE);
+		when(mockHttpClient.execute(any(HttpPost.class)))
+				.thenReturn(response);
+
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI,
+				new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
+		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI,
+				new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
+
+		verify(mockHttpClient, times(1)).execute(any(HttpPost.class));
 	}
 
 	private OAuth2TokenResponse requestAccessToken(Map<String, String> optionalParameters)

@@ -40,8 +40,8 @@ public class XsuaaIntegrationTest {
 			.setKeys("/publicKey.txt", "/privateKey.txt");
 
 	@Test
-	public void xsuaaTokenValidationSucceeds_withXsuaaCombiningValidator() throws IOException {
-		OAuth2ServiceConfigurationBuilder configuration = rule.getConfigurationBuilderFromFile(
+	public void xsuaaTokenValidationSucceeds_withXsuaaCombiningValidator() {
+		OAuth2ServiceConfigurationBuilder configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
 				"/xsuaa/vcap_services-single.json");
 		Token token = rule.getJwtGeneratorFromFile("/xsuaa/token.json").createToken();
 
@@ -52,7 +52,7 @@ public class XsuaaIntegrationTest {
 
 	@Test
 	public void xsaTokenValidationSucceeds_withXsuaaCombiningValidator() throws IOException {
-		OAuth2ServiceConfiguration configuration = rule.getConfigurationBuilderFromFile(
+		OAuth2ServiceConfiguration configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
 				"/xsa-simple/vcap_services-single.json")
 				.runInLegacyMode(true)
 				.build();
@@ -66,7 +66,7 @@ public class XsuaaIntegrationTest {
 	}
 
 	@Test
-	public void xsuaaTokenValidationFails_withIasCombiningValidator() throws IOException {
+	public void xsuaaTokenValidationFails_withIasCombiningValidator() {
 		OAuth2ServiceConfiguration configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
 				"/ias-simple/vcap_services-single.json")
 				.withDomains("myauth.com")
@@ -83,7 +83,21 @@ public class XsuaaIntegrationTest {
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isFalse();
 		assertThat(result.getErrorDescription()).startsWith(
-				"Issuer is not trusted because 'iss' 'http://auth.com' doesn't match any of these domains '[myauth.com]' of the identity provider");
+				"Issuer is not trusted because issuer 'http://auth.com' doesn't match any of these domains '[myauth.com]' of the identity provider");
+	}
+
+	@Test
+	public void uaaTokenValidationSucceeds_withXsuaaCombiningValidator() {
+		OAuth2ServiceConfigurationBuilder configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
+				"/uaa/vcap_services.json");
+		Token token = rule.getJwtGeneratorFromFile("/uaa/token.json")
+				//.withHeaderParameter("jku", "http://auth.com/token_keys")  // required to create uaaAccessTokenRSA.txt
+				//.withHeaderParameter("kid", "key-id-0")
+				.createToken();
+
+		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration.build()).build();
+		ValidationResult result = tokenValidator.validate(token);
+		assertThat(result.isValid()).isTrue();
 	}
 
 	@Test

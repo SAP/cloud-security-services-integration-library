@@ -10,10 +10,12 @@ applications:
   memory: 896M
   routes:
     - route: java-security-usage-ias-((ID)).((LANDSCAPE_APPS_DOMAIN))
+    - route: java-security-usage-ias-((ID)).cert.((LANDSCAPE_APPS_DOMAIN))
   host: 
   path: target/java-security-usage-ias.war
   buildpacks:
     - java_buildpack
   services:
-    - ias-java-security
+    - name: ias-java-security
+      parameters: { "credential-type": "X509_GENERATED" }
 ...

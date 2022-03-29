@@ -42,7 +42,7 @@ public class IasSecurityFilter implements Filter {
 				sendUnauthenticatedResponse(response, authenticationResult.getUnauthenticatedReason());
 			}
 		} finally {
-			SecurityContext.clearToken();
+			SecurityContext.clear();
 		}
 	}
 

@@ -27,7 +27,6 @@ public class DefaultJsonObjectTest {
 	private static final String STRING_VALUE = "\"" + STRING_TEXT + "\"";
 
 	private static final String STRING_LIST_VALUE = "[\"a\", \"b\", \"c\"]";
-	private static final String MAP_OBJECT = "{\"key1\": \"value1\",\"key2\": \"value2\"}";
 
 	private DefaultJsonObject cut;
 
@@ -209,6 +208,14 @@ public class DefaultJsonObjectTest {
 	@Test
 	public void getJsonObjects_propertyExistsButIsNotAnArray_throwsException() {
 		assertThatThrownBy(() -> cut.getJsonObjects(KEY_1)).isInstanceOf(JsonParsingException.class);
+	}
+
+	@Test
+	public void getJsonObject_propertyContainsEscapeChar() {
+		String objectWithEscapeChars = "{\"iss\": \"https:\\/\\/subdomain.accounts400.ondemand.com\",\"key\": \"value\"}";
+		DefaultJsonObject json = new DefaultJsonObject(objectWithEscapeChars);
+		assertThat(json.getAsString("iss")).isEqualTo("https://subdomain.accounts400.ondemand.com");
+		assertThat(json.getAsString("key")).isEqualTo("value");
 	}
 
 	private DefaultJsonObject createJsonParser(String key, Object value) {

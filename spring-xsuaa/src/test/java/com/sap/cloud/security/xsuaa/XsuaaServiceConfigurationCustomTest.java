@@ -18,13 +18,12 @@ class XsuaaServiceConfigurationCustomTest {
 	@BeforeEach
 	public void setup() {
 		credentials.setClientId("cid");
-		credentials.setClientSecret("secret");
 		credentials.setUaaDomain("uaaDomain");
 		credentials.setUrl("url");
 		credentials.setXsAppName("xsappname");
 		credentials.setCertificate("-----BEGIN CERTIFICATE-----");
 		credentials.setCertUrl("cert-url");
-		credentials.setPrivateKey("-----BEGIN RSA PRIVATE KEY-----");
+		credentials.setKey("-----BEGIN RSA PRIVATE KEY-----");
 		credentials.setCredentialType(CredentialType.X509);
 
 		cut = new XsuaaServiceConfigurationCustom(credentials);
@@ -40,7 +39,7 @@ class XsuaaServiceConfigurationCustomTest {
 		assertEquals(credentials.getCredentialType(), cut.getCredentialType());
 		assertEquals(credentials.getCertUrl(), cut.getCertUrl().toString());
 		assertEquals(credentials.getCertificate(), cut.getClientIdentity().getCertificate());
-		assertEquals(credentials.getPrivateKey(), cut.getClientIdentity().getKey());
+		assertEquals(credentials.getKey(), cut.getClientIdentity().getKey());
 	}
 
 	@Test

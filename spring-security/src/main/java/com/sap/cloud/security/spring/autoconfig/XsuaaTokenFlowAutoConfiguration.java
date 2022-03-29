@@ -46,19 +46,20 @@ import javax.annotation.Nonnull;
 @ConditionalOnProperty(name = "sap.spring.security.xsuaa.flows.auto", havingValue = "true", matchIfMissing = true)
 @AutoConfigureAfter(HybridIdentityServicesAutoConfiguration.class)
 @ConditionalOnMissingBean(XsuaaTokenFlows.class)
-class XsuaaTokenFlowAutoConfiguration {
+public class XsuaaTokenFlowAutoConfiguration {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	XsuaaServiceConfiguration xsuaaConfig;
 
-	XsuaaTokenFlowAutoConfiguration(XsuaaServiceConfigurations xsuaaConfigs, XsuaaServiceConfiguration xsuaaConfig) {
+	public XsuaaTokenFlowAutoConfiguration(XsuaaServiceConfigurations xsuaaConfigs,
+			XsuaaServiceConfiguration xsuaaConfig) {
 		logger.debug("prepares XsuaaTokenFlowAutoConfiguration.");
 		this.xsuaaConfig = xsuaaConfigs.getConfigurations().isEmpty() ? xsuaaConfig
 				: xsuaaConfigs.getConfigurations().get(0);
 	}
 
 	@Bean
-	@Conditional({ PropertyConditions.class })
+	@Conditional(PropertyConditions.class)
 	public XsuaaTokenFlows xsuaaTokenFlows(RestOperations xsuaaRestOperations) {
 		logger.debug("auto-configures XsuaaTokenFlows using {} based restOperations",
 				xsuaaConfig.getClientIdentity().isCertificateBased() ? "certificate" : "client secret");
@@ -75,7 +76,7 @@ class XsuaaTokenFlowAutoConfiguration {
 	 * @return the {@link RestOperations} instance.
 	 */
 	@Bean
-	@Conditional({ OnNotX509CredentialTypeCondition.class })
+	@Conditional({ OnSecretCredentialTypeCondition.class, NoClientCertificateCondition.class })
 	@ConditionalOnMissingBean
 	public RestOperations restOperations() {
 		logger.warn("In productive environment provide a well configured client secret based RestOperations bean");
@@ -89,7 +90,6 @@ class XsuaaTokenFlowAutoConfiguration {
 	 * @return the {@link RestOperations} instance.
 	 */
 	@Bean
-	@ConditionalOnProperty(prefix = "sap.security.services.xsuaa", name = "credential-type", havingValue = "x509")
 	@ConditionalOnClass(name = "org.apache.http.impl.client.CloseableHttpClient")
 	@ConditionalOnMissingBean
 	public RestOperations mtlsRestOperations(XsuaaServiceConfiguration xsuaaConfig) {
@@ -97,7 +97,7 @@ class XsuaaTokenFlowAutoConfiguration {
 		return SpringHttpClient.getInstance().create(xsuaaConfig.getClientIdentity());
 	}
 
-	private static class OnNotX509CredentialTypeCondition implements Condition {
+	private static class OnSecretCredentialTypeCondition implements Condition {
 		@Override
 		public boolean matches(ConditionContext context, @Nonnull AnnotatedTypeMetadata metadata) {
 			CredentialType credentialType = CredentialType
@@ -107,17 +107,25 @@ class XsuaaTokenFlowAutoConfiguration {
 		}
 	}
 
+	private static class NoClientCertificateCondition implements Condition {
+		@Override
+		public boolean matches(ConditionContext context, @Nonnull AnnotatedTypeMetadata metadata) {
+			return context.getEnvironment().getProperty("sap.security.services.xsuaa.certificate") == null &&
+					context.getEnvironment().getProperty("sap.security.services.xsuaa[0].certificate") == null;
+		}
+	}
+
 	private static class PropertyConditions extends AnyNestedCondition {
 
 		public PropertyConditions() {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
-		@ConditionalOnProperty(prefix = "sap.security.services", name = "xsuaa[0].clientsecret")
+		@ConditionalOnProperty(prefix = "sap.security.services", name = "xsuaa[0].clientid")
 		static class MultipleBindingsCondition {
 		}
 
-		@ConditionalOnProperty(prefix = "sap.security.services", name = "xsuaa.clientsecret")
+		@ConditionalOnProperty(prefix = "sap.security.services", name = "xsuaa.clientid")
 		static class SingleBindingCondition {
 		}
 	}
