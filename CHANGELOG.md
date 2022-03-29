@@ -1,6 +1,35 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.14
+- [java-security] 
+    * Never log certificates
+    * Improves Jwks cache handling
+    * add further logs in respect to key mismatches
+- [spring-xsuaa]    
+    * XsuaaJwtDecoder must ignore line breaks in verificationkey
+- [java-security-test]
+    * Bump jackson-databind.version from 2.12.1 to 2.13.2.2 (solves security vulnerability)
+
+#### Dependency upgrades
+* Bump slf4j.api.version from 1.7.35 to 1.7.36
+* Bump spring.security.version from 5.6.1 to 5.6.2
+* Bump log4j2.version from 2.17.1 to 2.17.2
+* Bump spring.boot.version from 2.6.3 to 2.6.4
+* Bump reactor-core from 3.4.15 to 3.4.16
+* Bump json from 20211205 to 20220320
+* Bump spring.core.version from 5.3.15 to 5.3.17
+
+## 2.11.13
+- [java-security] 
+  - removes audience check as part of `JwtX5tValidator`
+- [spring-xsuaa] 
+  - XsuaaServiceConfigurationDefault supports access to other credentials (fix #802)
+  - XsuaaServiceConfigurationDefault supports non relaxed-binding rules for non spring framework cases
+  - auto-configures mtls-based rest operations w/o credential-type=x509 property
+- [spring-security]
+  - HybridJwtDecoder should support xsuaa only (see #790)
+  - auto-configures mtls-based rest operations w/o credential-type=x509 property
 
 ## 2.11.12
 - [java-security] `XsuaaTokenAuthenticator` should support validation of tokens issued by Cloud Foundry UAA (NGPBUG-175120)
