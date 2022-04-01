@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.15
+[spring-xsuaa][spring-security]
+- fix [CVE-2022-22965](https://tanzu.vmware.com/security/cve-2022-22965) vulnerability in spring version
+
+#### Dependency upgrades
+* Bump spring.core.version from 5.3.17 to 5.3.18
+* Bump spring.boot.version from 2.6.5 to 2.6.6
+
 ## 2.11.14
 - [java-security] [spring-security]
     * Never log certificates
