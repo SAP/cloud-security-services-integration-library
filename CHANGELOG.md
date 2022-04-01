@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 
 #### Dependency upgrades
 * Bump spring.core.version from 5.3.17 to 5.3.18
-* Bump spring.boot.version from 2.6.4 to 2.6.6
+* Bump spring.boot.version from 2.6.5 to 2.6.6
 
 ## 2.11.14
 - [java-security] [spring-security]
