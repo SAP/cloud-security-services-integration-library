@@ -48,8 +48,8 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		try (CloseableHttpResponse response = httpClient.execute(request)) {
 			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
 			int statusCode = response.getStatusLine().getStatusCode();
-			LOGGER.debug("retrieve token keys {} for zone '{}'", tokenKeysEndpointUri, zoneId);
 			if (statusCode == HttpStatus.SC_OK) {
+				LOGGER.debug("Successfully retrieved token keys from {} for zone '{}'", tokenKeysEndpointUri, zoneId);
 				return bodyAsString;
 			} else {
 				throw OAuth2ServiceException.builder("Error retrieving token keys for x-zone_uuid " + zoneId)
