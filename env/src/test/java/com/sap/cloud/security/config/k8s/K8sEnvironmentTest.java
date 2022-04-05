@@ -5,33 +5,30 @@
  */
 package com.sap.cloud.security.config.k8s;
 
+import com.sap.cloud.environment.api.DefaultServiceBindingAccessor;
+import com.sap.cloud.environment.servicebinding.SapServiceOperatorServiceBindingAccessor;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
-import static com.sap.cloud.environment.servicebinding.SapServiceOperatorServiceBindingAccessor.K8S_CONFIG_PATH;
-import static com.sap.cloud.security.config.k8s.K8sConstants.*;
+import java.nio.file.Paths;
+
+import static com.sap.cloud.environment.servicebinding.SapServiceOperatorServiceBindingAccessor.DEFAULT_PARSING_STRATEGIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(SystemStubsExtension.class)
 class K8sEnvironmentTest {
 
-	private static final String K8S_HOST_VALUE = "0.0.0.0";
 	private static Environment cut;
 
 	@BeforeAll
-	static void beforeAll(EnvironmentVariables environmentVariables) {
-		environmentVariables.set(KUBERNETES_SERVICE_HOST, K8S_HOST_VALUE);
-		environmentVariables.set(K8S_CONFIG_PATH, "src/test/resources/k8s");
+	static void beforeAll() {
+		DefaultServiceBindingAccessor.setInstance(new SapServiceOperatorServiceBindingAccessor(Paths.get("src/test/resources/k8s"), DEFAULT_PARSING_STRATEGIES));
 	}
 
 	@AfterAll
-	static void afterAll(EnvironmentVariables environmentVariables) throws Exception {
-		environmentVariables.teardown();
+	static void afterAll() {
+		DefaultServiceBindingAccessor.setInstance(null);
 	}
 
 	@Test
