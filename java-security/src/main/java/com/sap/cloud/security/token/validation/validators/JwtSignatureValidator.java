@@ -214,8 +214,8 @@ class JwtSignatureValidator implements Validator<Token> {
 			}
 			if (this.publicKey == null) {
 				return createInvalid(
-						"There is no Json Web Token Key with keyId '{}' and type '{}' to prove the identity of the Jwt.",
-						keyId, jwtSignatureAlgorithm.type());
+						"There is no Json Web Token Key with keyId '{}' and type '{}' found on jwks uri {} for zone '{}' to prove the identity of the Jwt.",
+						keyId, jwtSignatureAlgorithm.type(), keyUri, zoneId);
 			}
 			return createValid();
 		}

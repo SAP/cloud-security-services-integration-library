@@ -1,6 +1,43 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.15
+[spring-xsuaa][spring-security]
+- fix [CVE-2022-22965](https://tanzu.vmware.com/security/cve-2022-22965) vulnerability in spring version
+
+#### Dependency upgrades
+* Bump spring.core.version from 5.3.17 to 5.3.18
+* Bump spring.boot.version from 2.6.5 to 2.6.6
+
+## 2.11.14
+- [java-security] [spring-security]
+    * Never log certificates
+    * Improves JWKS cache handling for OIDC token validation. This is especially relevant when using a shared IAS tenant.
+    * Adds further logs in respect to key mismatches.
+- [spring-xsuaa]    
+    * XsuaaJwtDecoder must ignore line breaks in verificationkey
+- [java-security-test]
+    * Bump jackson-databind.version from 2.12.1 to 2.13.2.2 (solves security vulnerability)
+
+#### Dependency upgrades
+* Bump slf4j.api.version from 1.7.35 to 1.7.36
+* Bump spring.security.version from 5.6.1 to 5.6.2
+* Bump log4j2.version from 2.17.1 to 2.17.2
+* Bump spring.boot.version from 2.6.3 to 2.6.4
+* Bump reactor-core from 3.4.15 to 3.4.16
+* Bump json from 20211205 to 20220320
+* Bump spring.core.version from 5.3.15 to 5.3.17
+
+## 2.11.13
+- [java-security] 
+  - removes audience check as part of `JwtX5tValidator`
+- [spring-xsuaa] 
+  - XsuaaServiceConfigurationDefault supports access to other credentials (fix #802)
+  - XsuaaServiceConfigurationDefault supports non relaxed-binding rules for non spring framework cases
+  - auto-configures mtls-based rest operations w/o credential-type=x509 property
+- [spring-security]
+  - HybridJwtDecoder should support xsuaa only (see #790)
+  - auto-configures mtls-based rest operations w/o credential-type=x509 property
 
 ## 2.11.12
 - [java-security] `XsuaaTokenAuthenticator` should support validation of tokens issued by Cloud Foundry UAA (NGPBUG-175120)
@@ -193,6 +230,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
   - logs 'WARN' message, in case application has not overwritten the default http client. Find further information about that [here](/token-client#common-pitfalls).
 - [java-security] 
   - `IasXsuaaExchangeBroker` supports X.509 based token exchange. In case the token exchange is done via `XsuaaTokenAuthenticator` you need to provide a http client that is prepared with ssl context.
+  - `JwtIssuerValidator.java` supports custom domains of identity service. If `ias_iss` is given and not empty, `JwtIssuerValidator.java` checks whether its a valid url and checks whether this matches one of the valid domains of the identity service. The check whether `ias` matches to any given domains is skipped in that case.
   - The token keys cache does not accept cache time longer than 15 minutes.
 - [spring-xsuaa] and starter
   - As of Spring Security version 5.5.0 only `BadJwtException` results in `InvalidBearerTokenException`, which are handled and mapped to ``401`` status code. Consequently, `XsuaaJwtDecoder` raises `BadJwtException`s instead of `JwtException`s.

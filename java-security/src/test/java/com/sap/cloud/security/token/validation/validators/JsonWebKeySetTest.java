@@ -106,4 +106,9 @@ public class JsonWebKeySetTest {
 				.isEqualTo(JSON_WEB_KEY_DEFAULT);
 	}
 
+	@Test
+	public void stringify() {
+		cut.put(JSON_WEB_KEY);
+		assertThat(cut.toString()).isEqualTo("key-id-1(RS256)");
+	}
 }
