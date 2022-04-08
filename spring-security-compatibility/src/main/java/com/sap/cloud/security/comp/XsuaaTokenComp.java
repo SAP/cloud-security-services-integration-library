@@ -3,22 +3,28 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.token;
+package com.sap.cloud.security.comp;
 
 import com.sap.cloud.security.config.Service;
-import org.springframework.lang.Nullable;
+import com.sap.cloud.security.token.AccessToken;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
+
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ZDN;
 
 /**
  * Decorates a {@code Token} issued by xsuaa to provide compatibility methods for spring-xsuaa's {@code Token} interface.
  * @deprecated please use the methods exposed by the {@code Token} interface.
  */
 @Deprecated
-public class XsuaaTokenComp {
+public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token {
 	private final AccessToken token;
 
 	private XsuaaTokenComp(final Token token) {
@@ -30,7 +36,7 @@ public class XsuaaTokenComp {
      *
      * @param token a token issued by xsuaa
      */
-    public static XsuaaTokenComp createInstance(final Token token) {
+    public static com.sap.cloud.security.xsuaa.token.Token createInstance(final Token token) {
 		if (Service.XSUAA.equals(token.getService())) {
 			return new XsuaaTokenComp(token);
 		}
@@ -44,7 +50,7 @@ public class XsuaaTokenComp {
 	 *            the encoded access token, e.g. from the {@code Authorization}
 	 *            header.
 	 */
-	public static XsuaaTokenComp createInstance(final String jwtToken) {
+	public static com.sap.cloud.security.xsuaa.token.Token createInstance(final String jwtToken) {
 		Token aToken = Token.create(jwtToken);
 		if (Service.XSUAA.equals(aToken.getService())) {
 			return new XsuaaTokenComp(aToken);
@@ -80,7 +86,7 @@ public class XsuaaTokenComp {
 	 * @return the subdomain of the tenant the JWT belongs to.
 	 */
 	public String getSubdomain() {
-		return ((XsuaaToken)token).getSubdomain();
+		return token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN);
 	}
 
 	/**
@@ -235,6 +241,17 @@ public class XsuaaTokenComp {
 		return token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 	}
 
+	@Override
+	public Collection<? extends org.springframework.security.core.GrantedAuthority> getAuthorities() {
+		throw new UnsupportedOperationException("does not support methods from org.springframework.security.core.userdetails.UserDetails interface");
+		//return null;
+	}
+
+	@Override
+	public String getPassword() {
+		throw new UnsupportedOperationException("does not support methods from org.springframework.security.core.userdetails.UserDetails interface");
+	}
+
 	/**
 	 * Returns the moment in time when the token is expired.
 	 *
@@ -256,6 +273,26 @@ public class XsuaaTokenComp {
 	 */
 	public String getUsername() {
 		return token.getPrincipal().getName();
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
 	}
 
 	/**

@@ -120,29 +120,38 @@ import com.sap.cloud.security.token.Token; // new import - preferred
 import com.sap.cloud.security.token.XsuaaTokenComp; // new import
 `````
 
-The ``Token`` interface from ``java-api`` provides methods that serves access to details of a token, independent whether it is issued by xsuaa or by identity service. That's why ``Token`` is not compatible to the ``Token`` interface from ``spring-xsuaa`` client library.<br>
+The ``Token`` interface from ``java-api`` provides methods that serves access to details of a token, independent whether it is issued by xsuaa or by identity service. That's why the new ``Token`` interface isn't compatible to the ``Token`` interface from ``spring-xsuaa`` client library.<br>
 ``java-api`` provides also the ```AccessToken``` sub-interface to access xsuaa specific claims, in case of access tokens issued by the xsuaa service.
 
 ![](images/TokenInterfaces.drawio.svg)
 
-For compatibility, ``XsuaaTokenComp`` class can be used to decorate the `AccessToken` interface:
+**Alternatively - for compatibility, ``XsuaaTokenComp`` class can be used to decorate the `AccessToken` interface, which implements almost all methods of ` com.sap.cloud.security.xsuaa.token.Token` (spring-xsuaa) interface**. <br>
+
+It is provided in an extra module. This maven dependency needs to be provided additionally:
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>spring-security-compatibility</artifactId>
+    <version>2.11.15</version>
+</dependency>
+```
 
 ```java
-XsuaaTokenComp xsuaaToken = XsuaaTokenComp.createInstance(SpringSecurityContext.getAccessToken());
+Token xsuaaToken = XsuaaTokenComp.createInstance(SpringSecurityContext.getAccessToken());
 xsuaaToken.getCloneServiceInstanceId();
 ```
 
 > :bulb: `createInstance` raises an `IllegalArgumentException` runtime exception if the token isn't issued by xsuaa service. 
-
-The table below gives an overview of the methods that are not directly available in the ```Token``` interface, but can be accessed via the ``XsuaaTokenComp`` decorator class.
 > :bulb: `getAuthorities`, as well as the `org.springframework.security.core.userdetails.UserDetails` is not implemented by `XsuaaTokenComp`.
+
+The table below gives an overview of the methods that are not directly available in the new ```Token``` interface, but can be accessed via the ``XsuaaTokenComp`` decorator class.
 
 <details><br>
  
 | `com.sap.cloud.security.xsuaa.token.Token` methods  | Xsuaa only? | Workaround in `spring.security` (`com.sap.cloud.security.token.Token`) |
 |-------------------------|---|-----------------------------------------------------------------------------------------------|
 | `getSubaccountId`       | X | Available via `AccessToken` interface.     
-| `getSubdomain`          | X | `getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN)
+| `getSubdomain`          | X | `getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN)`
 | `getGrantType`          | X | `getGrantType().toString()`.
 | `getLogonName`          | (X) | ``getClaimAsString("user_name")``. :bulb: the name differs between the two services.
 | `getOrigin`             | X | ``getClaimAsString(TokenClaims.XSUAA.ORIGIN)``.
