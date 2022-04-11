@@ -95,6 +95,7 @@
 		<module>token-client</module>
 		<module>java-security</module>
 		<module>spring-security</module>
+		<module>spring-security-compatibility</module>
 		<module>spring-security-starter</module>
 		<module>java-security-test</module>
 		<module>spring-xsuaa</module>

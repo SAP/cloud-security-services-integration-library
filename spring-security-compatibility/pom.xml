@@ -27,6 +27,7 @@
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-api</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
