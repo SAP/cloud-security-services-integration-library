@@ -9,6 +9,7 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -242,7 +243,7 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	}
 
 	@Override
-	public Collection<? extends org.springframework.security.core.GrantedAuthority> getAuthorities() {
+	public Collection<? extends GrantedAuthority> getAuthorities() {
 		throw new UnsupportedOperationException("does not support methods from org.springframework.security.core.userdetails.UserDetails interface");
 		//return null;
 	}

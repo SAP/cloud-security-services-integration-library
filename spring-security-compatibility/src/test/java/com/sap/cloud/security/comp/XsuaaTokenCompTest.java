@@ -19,8 +19,7 @@ import java.util.stream.Stream;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Copied from {@code com.sap.cloud.security.xsuaa.token.XsuaaTokenTest}.
@@ -51,6 +50,14 @@ class XsuaaTokenCompTest {
     }
 
     @Test
+    void createInstance_failsForNonXsuaaToken() {
+        Token iasToken = JwtGenerator.getInstance(Service.IAS, CLIENT_ID).createToken();
+        assertThrows(IllegalArgumentException.class, () -> XsuaaTokenComp.createInstance(iasToken));
+        assertThrows(IllegalArgumentException.class,
+                () -> XsuaaTokenComp.createInstance(iasToken.getTokenValue()));
+    }
+
+    @Test
     void checkBasicJwtWithoutScopes() {
         token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
 
@@ -71,7 +78,7 @@ class XsuaaTokenCompTest {
 
     @ParameterizedTest
     @MethodSource("clientIdTestArguments")
-    void getClientIdTest(String azp, List<String> aud, String expectedClientId) {
+    void getClientId(String azp, List<String> aud, String expectedClientId) {
         token = XsuaaTokenComp.createInstance(jwtGenerator
                 .withClaimValue(TokenClaims.AUTHORIZATION_PARTY, azp)
                 .withClaimValues(TokenClaims.AUDIENCE, aud.toArray(new String[]{})).createToken());
@@ -219,6 +226,24 @@ class XsuaaTokenCompTest {
     void getAppToken() {
         token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
         assertThat(token.getAppToken(), startsWith("eyJqa3UiOiJodHRwOi8vbG9jYWx"));
+    }
+
+    @Test
+    void unsupportedOperations() {
+        token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
+
+        assertThrows(UnsupportedOperationException.class, () -> token.getAuthorities());
+        assertThrows(UnsupportedOperationException.class, () -> token.getPassword());
+    }
+
+    @Test
+    void userDetailsOperations() {
+        token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
+
+        assertTrue(token.isAccountNonExpired());
+        assertTrue(token.isAccountNonLocked());
+        assertTrue(token.isCredentialsNonExpired());
+        assertTrue(token.isEnabled());
     }
 
 }
