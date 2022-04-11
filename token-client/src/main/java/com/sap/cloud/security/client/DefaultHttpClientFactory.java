@@ -32,7 +32,8 @@ import java.util.concurrent.TimeUnit;
 public class DefaultHttpClientFactory implements HttpClientFactory {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClientFactory.class);
-	private final ConcurrentHashMap<String, SslConnection> sslConnectionPool = new ConcurrentHashMap<>();
+	// reuse ssl connections
+	final ConcurrentHashMap<String, SslConnection> sslConnectionPool = new ConcurrentHashMap<>();
 	private static final int MAX_CONNECTIONS_PER_ROUTE = 4; // 2 is default
 	private static final int MAX_CONNECTIONS = 20;
 	private static final int DEFAULT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5);
@@ -72,8 +73,8 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 				this.context = SSLContextFactory.getInstance().create(clientIdentity);
 			} catch (IOException | GeneralSecurityException e) {
 				throw new HttpClientException(
-						String.format("Couldn't set up https client for service provider. %s.",
-								e.getLocalizedMessage()));
+						String.format("Couldn't set up https client for service provider %s. %s.",
+								clientIdentity.getId(), e.getLocalizedMessage()));
 			}
 			this.sslSocketFactory = new SSLConnectionSocketFactory(context);
 			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
