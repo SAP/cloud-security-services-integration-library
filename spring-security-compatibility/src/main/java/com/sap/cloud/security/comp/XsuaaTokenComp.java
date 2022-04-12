@@ -22,7 +22,7 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_
 
 /**
  * Decorates a {@code Token} issued by xsuaa to provide compatibility methods for spring-xsuaa's {@code Token} interface.
- * @deprecated please use the methods exposed by the {@code Token} interface.
+ * @deprecated use methods exposed by the {@link Token} interface.
  */
 @Deprecated
 public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token {
@@ -36,8 +36,10 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
      * Creates an instance.
      *
      * @param token a token issued by xsuaa
+	 * @deprecated use methods exposed by the {@link Token} interface.
      */
-    public static com.sap.cloud.security.xsuaa.token.Token createInstance(final Token token) {
+	@Deprecated
+    public static XsuaaTokenComp createInstance(final Token token) {
 		if (Service.XSUAA.equals(token.getService())) {
 			return new XsuaaTokenComp(token);
 		}
@@ -50,8 +52,10 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * @param jwtToken
 	 *            the encoded access token, e.g. from the {@code Authorization}
 	 *            header.
+	 * @deprecated use methods exposed by the {@link Token} interface.
 	 */
-	public static com.sap.cloud.security.xsuaa.token.Token createInstance(final String jwtToken) {
+	@Deprecated
+	public static XsuaaTokenComp createInstance(final String jwtToken) {
 		Token aToken = Token.create(jwtToken);
 		if (Service.XSUAA.equals(aToken.getService())) {
 			return new XsuaaTokenComp(aToken);
@@ -65,7 +69,9 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * to get the unique tenant id! For that use {@link #getZoneId()}.
 	 *
 	 * @return the subaccount identifier.
+	 * @deprecated use {@link AccessToken#getSubaccountId()} instead.
 	 */
+	@Deprecated
 	public String getSubaccountId() {
 		return token.getSubaccountId();
 	}
@@ -76,7 +82,9 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * {@link #getSubaccountId()}.
 	 *
 	 * @return the zone identifier.
+	 * @deprecated use {@link Token#getZoneId()} instead.
 	 */
+	@Deprecated
 	public String getZoneId() {
 		return token.getZoneId();
 	}
@@ -85,7 +93,9 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * Returns the subdomain of the calling tenant's subaccount.
 	 *
 	 * @return the subdomain of the tenant the JWT belongs to.
+	 * @deprecated use {@link Token#getAttributeFromClaimAsString(String, String)} instead
 	 */
+	@Deprecated
 	public String getSubdomain() {
 		return token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN);
 	}
@@ -97,7 +107,9 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * claim, but only in case there is one audience.
 	 *
 	 * @return the OAuth client ID.
+	 * @deprecated use {@link Token#getClientId()} instead.
 	 */
+	@Deprecated
 	public String getClientId() {
 		return token.getClientId();
 	}
@@ -106,7 +118,9 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * Returns the OAuth2.0 grant type used for retrieving / creating this token.
 	 *
 	 * @return the grant type
+	 * @deprecated use {@link Token#getGrantType()} instead.
 	 */
+	@Deprecated
 	public String getGrantType() {
 		return token.getGrantType().toString();
 	}
@@ -125,8 +139,10 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * </ul>
 	 *
 	 * @return unique principal name or null if it can not be determined.
+	 * @deprecated use {@link Token#getClaimAsString(String)} instead.
 	 */
 	@Nullable
+	@Deprecated
 	public String getLogonName() {
 		return token.getClaimAsString("user_name");
 	}
@@ -137,8 +153,10 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * {@code given_name} claim.
 	 *
 	 * @return the given name if present.
+	 * @deprecated use {@link Token#getClaimAsString(String)} instead
 	 */
 	@Nullable
+	@Deprecated
 	public String getGivenName() {
 		return token.getClaimAsString(TokenClaims.GIVEN_NAME);
 	}
@@ -149,8 +167,10 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * {@code family_name} claim.
 	 *
 	 * @return the family name if present.
+	 * @deprecated use {@link Token#getClaimAsString(String)} instead
 	 */
 	@Nullable
+	@Deprecated
 	public String getFamilyName() {
 		return token.getClaimAsString(TokenClaims.FAMILY_NAME);
 	}
@@ -159,8 +179,10 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * Returns the email address of the user, if present.
 	 *
 	 * @return The email address if present.
+	 * @deprecated use {@link Token#getClaimAsString(String)} instead
 	 */
 	@Nullable
+	@Deprecated
 	public String getEmail() {
 		return token.getClaimAsString(TokenClaims.EMAIL);
 	}
@@ -175,8 +197,10 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * credentials flow.
 	 *
 	 * @return the user origin if present.
+	 * @deprecated use {@link Token#getClaimAsString(String)} instead
 	 */
 	@Nullable
+	@Deprecated
 	public String getOrigin() {
 		return token.getClaimAsString(TokenClaims.XSUAA.ORIGIN);
 	}
@@ -187,8 +211,10 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
      * @param attributeName
      *            name of the attribute inside 'xs.user.attributes'.
      * @return the attribute values array or null if there exists no such attribute.
+	 * @deprecated use {@link Token#getAttributeFromClaimAsStringList(String, String)} (String)} instead
      */
     @Nullable
+	@Deprecated
     public String[] getXSUserAttribute(String attributeName) {
 		return Optional.ofNullable(token.getAttributeFromClaimAsStringList(TokenClaims.XSUAA.XS_USER_ATTRIBUTES, attributeName))
 				.map(values -> values.toArray(new String[] {}))
@@ -203,8 +229,10 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * @param attributeName
 	 *            name of the authentication attribute
 	 * @return additional attribute value if present.
+	 * @deprecated use {@link Token#getAttributeFromClaimAsString(String, String)} instead
 	 */
 	@Nullable
+	@Deprecated
 	public String getAdditionalAuthAttribute(String attributeName) {
 		return token.getAttributeFromClaimAsString("az_attr", attributeName);
 	}
@@ -215,8 +243,10 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * instance id if present.
 	 *
 	 * @return the XSUAA clone service instance id if present.
+	 * @deprecated use {@link Token#getAttributeFromClaimAsString(String, String)} instead
 	 */
 	@Nullable
+	@Deprecated
 	public String getCloneServiceInstanceId() {
 		return token.getAttributeFromClaimAsString(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, "serviceinstanceid");
 	}
@@ -228,7 +258,9 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * Never expose this token via log or via HTTP.
 	 *
 	 * @return token
+	 * @deprecated use {@link Token#getTokenValue()} instead
 	 */
+	@Deprecated
 	public String getAppToken() {
 		return token.getTokenValue();
 	}
@@ -237,18 +269,27 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * Returns list of scopes with appId prefix, e.g. "&lt;my-app!t123&gt;.Display".
 	 *
 	 * @return all scopes
+	 * @deprecated use {@link Token#getClaimAsStringList(String)} instead
 	 */
+	@Deprecated
 	public Collection<String> getScopes() {
 		return token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
 	}
 
+	/**
+	 * @throws UnsupportedOperationException in any case
+	 */
 	@Override
+	@Deprecated
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		throw new UnsupportedOperationException("does not support methods from org.springframework.security.core.userdetails.UserDetails interface");
-		//return null;
 	}
 
+	/**
+	 * @throws UnsupportedOperationException in any case
+	 */
 	@Override
+	@Deprecated
 	public String getPassword() {
 		throw new UnsupportedOperationException("does not support methods from org.springframework.security.core.userdetails.UserDetails interface");
 	}
@@ -257,12 +298,22 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * Returns the moment in time when the token is expired.
 	 *
 	 * @return the expiration point in time if present.
+	 * @deprecated use {@link Token#getExpiration()} instead
 	 */
 	@Nullable
+	@Deprecated
 	public Instant getExpiration() {
 		return token.getExpiration();
 	}
 
+	/**
+	 * Returns the moment in time when the token is expired.
+	 *
+	 * @return the expiration point in time if present.
+	 * @deprecated use {@link Token#getExpiration()} instead
+	 */
+	@Deprecated
+	@Nullable
 	public Date getExpirationDate() {
 		return token.getExpiration() != null ? Date.from(token.getExpiration()) : null;
 	}
@@ -271,27 +322,33 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * Returns the username used to authenticate the user.
 	 * See {@code import org.springframework.security.core.userdetails.UserDetails#getUsername()}
 	 * @return the username
+	 * @deprecated use {@link Token#getPrincipal()}{@code .getName()} instead
 	 */
+	@Deprecated
 	public String getUsername() {
 		return token.getPrincipal().getName();
 	}
 
 	@Override
+	@Deprecated
 	public boolean isAccountNonExpired() {
 		return true;
 	}
 
 	@Override
+	@Deprecated
 	public boolean isAccountNonLocked() {
 		return true;
 	}
 
 	@Override
+	@Deprecated
 	public boolean isCredentialsNonExpired() {
 		return true;
 	}
 
 	@Override
+	@Deprecated
 	public boolean isEnabled() {
 		return true;
 	}
@@ -299,7 +356,9 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	/**
 	 * Returns the user name for token.
 	 * @return the user name.
+	 * @deprecated use {@link Token#getPrincipal()}{@code .getName()} instead
 	 */
+	@Deprecated
 	public String toString() {
 		return getUsername();
 	}
