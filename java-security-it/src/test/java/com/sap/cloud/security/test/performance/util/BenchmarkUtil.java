@@ -5,14 +5,17 @@
  */
 package com.sap.cloud.security.test.performance.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.Supplier;
 
 public class BenchmarkUtil {
 
 	static final int WARMUP_ITERATIONS = 10_000;
 	static final int BENCHMARK_ITERATIONS = 100_000;
+	private static final Logger LOGGER = LoggerFactory.getLogger(BenchmarkUtil.class);
 
 	public static String getSystemInfo() {
 		String systemInfo =  String.format("Running on %s's %s %s, home is %s", System.getProperty("java.vm.vendor"),
@@ -23,28 +26,32 @@ public class BenchmarkUtil {
 		return systemInfo + System.lineSeparator() + compilerInfo;
 	}
 
-	public static Result execute(int iterations, Supplier<Object> toTestFn) {
+	public static Result execute(int warmupIterations, int iterations, CheckedSupplier<Object> toTestFn) {
 		// Warm up phase
-		// 10 000 iterations shall giver the JVM sufficient time to native-compile the code, so
+		// 10 000 iterations shall give the JVM sufficient time to native-compile the code, so
 		// we're hopefully not hitting a compile phase when benchmarking.
 		// It is observable that higher values lead to effectively higher measured throughput.
-		executeInternal(WARMUP_ITERATIONS, toTestFn);
+		executeInternal(warmupIterations, toTestFn);
 
 		// actual benchmark run
 		Duration duration = executeInternal(iterations, toTestFn);
 		return new Result(iterations, duration);
 	}
 
-	public static Result execute(Supplier<Object> toTestFn) {
-		return execute(BENCHMARK_ITERATIONS, toTestFn);
+	public static Result execute(CheckedSupplier<Object> toTestFn) {
+		return execute(WARMUP_ITERATIONS, BENCHMARK_ITERATIONS, toTestFn);
 	}
 
-	private static Duration executeInternal(int localIterations, Supplier<Object> validationFn) {
+	private static Duration executeInternal(int localIterations, CheckedSupplier<Object> toTestFn) {
 		// Trick JVM escape analysis optimizations that may optimize out calls to validate entirely
-		Object obj;
 		final Instant start = Instant.now();
 		for (int i = 0; i < localIterations; ++i) {
-			obj = validationFn.get();
+			try {
+				LOGGER.info("call function: {}", i);
+				toTestFn.get();
+			} catch (Exception e) {
+				LOGGER.info("error calling function: {}", e.getMessage());
+			}
 		}
 		final Instant stop = Instant.now();
 		return Duration.between(start, stop);
@@ -68,5 +75,10 @@ public class BenchmarkUtil {
 		public String toString() {
 			return String.format("Benchmark result: %s", getFormattedResult());
 		}
+	}
+
+	@FunctionalInterface
+	public interface CheckedSupplier<T> {
+		public T get() throws Exception;
 	}
 }

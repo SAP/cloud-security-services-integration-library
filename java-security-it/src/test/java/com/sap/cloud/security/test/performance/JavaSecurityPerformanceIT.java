@@ -18,6 +18,7 @@ import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Performance test for java-security jwt token validation.
  */
+@Disabled
 class JavaSecurityPerformanceIT {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JavaSecurityPerformanceIT.class);
