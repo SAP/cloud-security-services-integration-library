@@ -123,7 +123,11 @@ public class XsuaaJwtSignatureValidatorTest {
 		ValidationResult result = cut.validate(xsuaaTokenSignedWithVerificationKey);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
-				containsString("Signature of Jwt Token is not valid"));
+				containsString("Signature of Jwt Token is not valid")
+		);
+		assertThat(result.getErrorDescription(),
+				containsString("(Signature: CetA62rQSNRj93S9mqaHrKJyzONKeEKcEJ9O5wObRD_")
+		);
 	}
 
 }

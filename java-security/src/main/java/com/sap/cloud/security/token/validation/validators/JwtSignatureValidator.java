@@ -253,7 +253,7 @@ class JwtSignatureValidator implements Validator<Token> {
 					return createValid();
 				}
 				return createInvalid(
-						"Signature of Jwt Token is not valid: the identity provided by the JSON Web Token Key can not be verified.");
+						"Signature of Jwt Token is not valid: the identity provided by the JSON Web Token Key can not be verified (Signature: {}).", tokenHeaderPayloadSignature[2]);
 			} catch (Exception e) {
 				return createInvalid("Error occurred during Json Web Signature Validation: {}.", e.getMessage());
 			}
