@@ -14,7 +14,6 @@ import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Performance test for spring-xsuaa jwt token validation.
  */
-@Disabled
 class SpringXsuaaPerformanceIT {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpringXsuaaPerformanceIT.class);
