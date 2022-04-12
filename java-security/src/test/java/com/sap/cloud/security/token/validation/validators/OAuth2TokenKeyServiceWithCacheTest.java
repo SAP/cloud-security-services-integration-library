@@ -42,7 +42,7 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	@Before
 	public void setup() throws IOException {
 		tokenKeyServiceMock = mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(eq(TOKEN_KEYS_URI), any()))
+		when(tokenKeyServiceMock.retrieveTokenKeys(eq(TOKEN_KEYS_URI), isNotNull()))
 				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
 
 		testCacheTicker = new TestCacheTicker();
@@ -84,10 +84,13 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 
 	@Test
 	public void retrieveTokenKeys() throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		PublicKey key = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, ZONE_ID);
+		PublicKey key1 = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, ZONE_ID);
+		PublicKey key2 = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "other-zone-id");
 
-		assertThat(String.valueOf(key.getAlgorithm())).isEqualTo("RSA");
+		assertThat(String.valueOf(key1.getAlgorithm())).isEqualTo("RSA");
+		assertThat(String.valueOf(key2.getAlgorithm())).isEqualTo("RSA");
 		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), eq(ZONE_ID));
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), eq("other-zone-id"));
 	}
 
 	@Test
@@ -122,13 +125,26 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	@Test
 	public void retrieveTokenKeys_afterCacheWasCleared()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, null);
+		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, ZONE_ID);
 		cut.clearCache();
+		PublicKey cachedKey = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, ZONE_ID);
+
+		assertThat(cachedKey).isNotNull();
+		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), eq(ZONE_ID));
+	}
+
+	@Test
+	public void getCachedTokenKeys_noZoneId() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+		when(tokenKeyServiceMock.retrieveTokenKeys(eq(TOKEN_KEYS_URI), isNull()))
+				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
+		PublicKey key = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, null);
 		PublicKey cachedKey = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, null);
 
 		assertThat(cachedKey).isNotNull();
-		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), eq(null));
+		assertThat(cachedKey).isSameAs(key);
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), isNull());
 	}
+
 
 	@Test
 	public void retrieveTokenKeys_doesRequestKeysAgainAfterCacheExpired()

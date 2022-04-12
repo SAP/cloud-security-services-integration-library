@@ -54,7 +54,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	}
 
 	@Test
-	public void retrieveTokenKeys_responseNotOk_throwsException() throws IOException {
+	public void retrieveTokenKeysForZone_responseNotOk_throwsException() throws IOException {
 		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
@@ -66,6 +66,20 @@ public class DefaultOAuth2TokenKeyServiceTest {
 				.hasMessageContaining("'Something went wrong'")
 				.hasMessageContaining("Error retrieving token keys")
 				.hasMessageContaining("Headers [x-zone_uuid=92768714-4c2e-4b79-bc1b-009a4127ee3c]");
+	}
+
+	@Test
+	public void retrieveTokenKeys_responseNotOk_throwsException() throws IOException {
+		String errorDescription = "Something went wrong";
+		CloseableHttpResponse response = HttpClientTestFactory
+				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
+		when(httpClient.execute(any())).thenReturn(response);
+
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null))
+				.isInstanceOf(OAuth2ServiceException.class)
+				.hasMessageContaining(errorDescription)
+				.hasMessageContaining("'Something went wrong'")
+				.hasMessageContaining("Error retrieving token keys");
 	}
 
 	@Test

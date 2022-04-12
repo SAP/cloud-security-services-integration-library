@@ -62,10 +62,13 @@ class JwtSignatureValidator implements Validator<Token> {
 	public ValidationResult validate(Token token) {
 		String jwksUri;
 		String keyId;
+		String zoneIdForTokenKeys = null;
 
-		if (Service.IAS == configuration.getService() && !token.getIssuer().equals("" + configuration.getUrl())
-				&& token.getZoneId() == null) { // lgtm[java/dereferenced-value-may-be-null]
-			return createInvalid("Error occurred during signature validation: OIDC token must provide zone_uuid.");
+		if (Service.IAS == configuration.getService()) {
+			zoneIdForTokenKeys = token.getZoneId();
+			if (!token.getIssuer().equals("" + configuration.getUrl()) && zoneIdForTokenKeys  == null) { // lgtm[java/dereferenced-value-may-be-null]
+				return createInvalid("Error occurred during signature validation: OIDC token must provide zone_uuid.");
+			}
 		}
 		try {
 			jwksUri = getOrRequestJwksUri(token);
@@ -79,7 +82,7 @@ class JwtSignatureValidator implements Validator<Token> {
 					keyId,
 					jwksUri,
 					fallbackPublicKey,
-					token.getZoneId());
+					zoneIdForTokenKeys);
 		} catch (OAuth2ServiceException | IllegalArgumentException e) {
 			return createInvalid("Error occurred during jwks uri determination: {}", e.getMessage());
 		}
