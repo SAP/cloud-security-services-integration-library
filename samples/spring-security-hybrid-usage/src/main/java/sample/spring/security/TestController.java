@@ -10,10 +10,8 @@ import java.util.Map;
 
 import com.sap.cloud.security.comp.XsuaaTokenComp;
 import com.sap.cloud.security.token.AccessToken;
-import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
