@@ -8,16 +8,21 @@ package sample.spring.security;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sap.cloud.security.comp.XsuaaTokenComp;
 import com.sap.cloud.security.token.AccessToken;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
 
@@ -64,6 +69,30 @@ public class TestController {
             result.put("(Xsuaa) scopes", String.valueOf(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES)));
             result.put("grant type", token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE));
         }
+        return result;
+    }
+
+    @GetMapping("/comp/sayHello")
+    public Map<String, String> sayHello_compatibility(@AuthenticationPrincipal Token token) throws IllegalArgumentException {
+        logger.debug("Got the token: {}", token);
+        com.sap.cloud.security.xsuaa.token.Token compToken;
+        // XsuaaTokenComp compToken // -> analyze deprecated methods via javadoc.
+        try {
+            compToken = XsuaaTokenComp.createInstance(token);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+        Map<String, String> result = new HashMap<>();
+        result.put("grant type", compToken.getGrantType());
+        result.put("client id", compToken.getClientId());
+        result.put("subaccount id", compToken.getSubaccountId());
+        result.put("zone id", compToken.getZoneId());
+        result.put("logon name", compToken.getLogonName());
+        result.put("family name", compToken.getFamilyName());
+        result.put("given name", compToken.getGivenName());
+        result.put("email", compToken.getEmail());
+        result.put("scopes", String.valueOf(compToken.getScopes()));
+
         return result;
     }
 

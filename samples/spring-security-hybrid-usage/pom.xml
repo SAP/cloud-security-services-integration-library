@@ -48,6 +48,11 @@
 			<version>${sap.cloud.security.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>com.sap.cloud.security.xsuaa</groupId>
+			<artifactId>spring-security-compatibility</artifactId>
+			<version>${sap.cloud.security.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>${apache.httpclient.version}</version>
