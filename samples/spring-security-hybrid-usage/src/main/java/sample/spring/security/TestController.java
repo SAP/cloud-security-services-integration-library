@@ -73,10 +73,9 @@ public class TestController {
     }
 
     @GetMapping("/comp/sayHello")
-    public Map<String, String> sayHello_compatibility(@AuthenticationPrincipal Token token) throws IllegalArgumentException {
+    public Map<String, String> sayHello_compatibility(@AuthenticationPrincipal Token token) {
         logger.debug("Got the token: {}", token);
-        com.sap.cloud.security.xsuaa.token.Token compToken;
-        // XsuaaTokenComp compToken // -> analyze deprecated methods via javadoc.
+        com.sap.cloud.security.xsuaa.token.Token compToken; // to analyze deprecated methods: XsuaaTokenComp compToken;
         try {
             compToken = XsuaaTokenComp.createInstance(token);
         } catch (IllegalArgumentException e) {
