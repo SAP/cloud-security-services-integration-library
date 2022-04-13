@@ -15,9 +15,12 @@ import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
@@ -29,15 +32,16 @@ import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
  * Custom validators can be added via {@link #with(Validator)} method.
  */
 public class JwtValidatorBuilder {
-	private static Map<OAuth2ServiceConfiguration, JwtValidatorBuilder> instances = new HashMap<>();
-	private final Collection<Validator<Token>> validators = new ArrayList<>();
-	private final List<ValidationListener> validationListeners = new ArrayList<>();
+	private static Map<OAuth2ServiceConfiguration, JwtValidatorBuilder> instances = new ConcurrentHashMap<>();
+	private final Set<Validator<Token>> validators = new HashSet<>();
+	private final Set<ValidationListener> validationListeners = new HashSet<>();
 	private OAuth2ServiceConfiguration configuration;
 	private final Set<OAuth2ServiceConfiguration> otherConfigurations = new HashSet();
 	private OidcConfigurationService oidcConfigurationService = null;
 	private OAuth2TokenKeyService tokenKeyService = null;
 	private Validator<Token> customAudienceValidator;
 	private CacheConfiguration tokenKeyCacheConfiguration;
+	private static final Logger LOGGER = LoggerFactory.getLogger(JwtValidatorBuilder.class);
 
 	private JwtValidatorBuilder() {
 		// use getInstance factory method
@@ -93,6 +97,7 @@ public class JwtValidatorBuilder {
 	 * @return this builder.
 	 */
 	public JwtValidatorBuilder withAudienceValidator(Validator<Token> audienceValidator) {
+		LOGGER.info("Configures a custom audience validator: {}", audienceValidator.getClass());
 		this.customAudienceValidator = audienceValidator;
 		return this;
 	}

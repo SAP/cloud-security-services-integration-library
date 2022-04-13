@@ -40,6 +40,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	protected CloseableHttpClient httpClient;
 	protected OAuth2ServiceConfiguration serviceConfiguration;
 	private CacheConfiguration tokenKeyCacheConfiguration;
+	private Validator<Token> audienceValidator;
 
 	@Override
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
@@ -98,6 +99,11 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return this;
 	}
 
+	public AbstractTokenAuthenticator withAudienceValidator(Validator<Token> validator) {
+		this.audienceValidator = validator;
+		return this;
+	}
+
 	private void setupTokenFactory() {
 		if (serviceConfiguration.getService() == Service.XSUAA) {
 			HybridTokenFactory.withXsuaaAppId(serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
@@ -147,6 +153,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	Validator<Token> getOrCreateTokenValidator() {
 		if (tokenValidator == null) {
 			JwtValidatorBuilder jwtValidatorBuilder = JwtValidatorBuilder.getInstance(getServiceConfiguration())
+					.withAudienceValidator(audienceValidator)
 					.withHttpClient(httpClient);
 			jwtValidatorBuilder.configureAnotherServiceInstance(getOtherServiceConfiguration());
 			Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(jwtValidatorBuilder::withCacheConfiguration);
@@ -196,5 +203,4 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		}
 		return clientCert;
 	}
-
 }
