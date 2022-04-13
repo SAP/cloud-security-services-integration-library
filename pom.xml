@@ -228,6 +228,7 @@
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-annotations</artifactId>
 				<version>${spotbugs.annotations.version}</version>
+				<optional>true</optional>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
