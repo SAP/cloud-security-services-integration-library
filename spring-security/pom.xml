@@ -33,7 +33,6 @@
 			<artifactId>spring-boot-autoconfigure</artifactId>
 			<scope>provided</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security</artifactId>
@@ -42,6 +41,11 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.spotbugs</groupId>
+			<artifactId>spotbugs-annotations</artifactId>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- test utilities -->
