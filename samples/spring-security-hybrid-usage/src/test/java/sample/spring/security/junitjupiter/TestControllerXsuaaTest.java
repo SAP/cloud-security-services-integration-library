@@ -51,6 +51,16 @@ class TestControllerXsuaaTest {
 	}
 
 	@Test
+	void sayHello_compatibility() throws Exception {
+		String response = mvc.perform(get("/comp/sayHello").with(bearerToken(jwt)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+
+		assertTrue(response.contains("sb-clientId!t0815"));
+		assertTrue(response.contains("xsapp!t0815.Read"));
+	}
+
+	@Test
 	void readData_OK() throws Exception {
 		String response = mvc
 				.perform(get("/method").with(bearerToken(jwt)))

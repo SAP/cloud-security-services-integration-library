@@ -84,6 +84,7 @@ public interface AccessToken extends Token {
 	 *         attribute does not exist.
 	 **/
 	@Nullable
+	@Override
 	default String getAttributeFromClaimAsString(String claimName, String attributeName) {
 		return Optional.ofNullable(getClaimAsJsonObject(claimName))
 				.map(claim -> claim.getAsString(attributeName))

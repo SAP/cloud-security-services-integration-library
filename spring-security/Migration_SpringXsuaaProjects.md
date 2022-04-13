@@ -1,6 +1,6 @@
 # Migration Guide for Applications that use spring-xsuaa Security Client Library
 
-This migration guide is a step-by-step guide explaining how to replace the [`spring-xsuaa`](/spring-xsuaa) with this ``spring-security``(/spring-security) Security client library.
+This migration guide is a step-by-step guide explaining how to replace the [`spring-xsuaa`](/spring-xsuaa) with this [`spring-security`](/spring-security) Security client library.
 
 ## Maven Dependencies
 To use the new SAP CP [spring-security](/spring-security) client library the dependencies declared in maven `pom.xml` need to be updated.
@@ -18,14 +18,14 @@ com.sap.cloud.security.xsuaa | xsuaa-spring-boot-starter
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
 
-In case you have configured your `TokenAuthenticationConverter` with `setLocalScopeAsAuthorities(true)` then you can use the auto-configured converter instead as  documented [here](/spring-security#setup-spring-security-oauth-20-resource-server):
+In case you have configured your `TokenAuthenticationConverter` with `setLocalScopeAsAuthorities(true)` then you can use the auto-configured converter instead as  documented [here](/spring-security#setup-spring-security-oauth-20-resource-server), which initializes the `XsuaaTokenAuthorizationConverter`:
 ```java
 @Autowired
 Converter<Jwt, AbstractAuthenticationToken> authConverter;
 ```
 
 ## Access VCAP_SERVICES values
-```spring-security``` automatically maps the `VCAP_SERVICES` credentials to Spring properties. Please note that the **prefix has changed** from ```xsuaa.*``` to ```sap.security.services.xsuaa``` or ```sap.security.services.xsuaa[0]``` in case of multiple xsuaa service bindings. Please find some adoption samples here.  
+```spring-security``` automatically maps the `VCAP_SERVICES` credentials to Spring properties. Please note that the **prefix has changed** from ```xsuaa.*``` to ```sap.security.services.xsuaa``` or ```sap.security.services.xsuaa[0]``` in case of multiple xsuaa service bindings. Please find an sample [here](/samples/spring-security-hybrid-usage).  
 
 #### ``@Value``
   **Before**  
@@ -57,7 +57,7 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
   XsuaaServiceConfiguration xsuaaServiceConfiguration;
   ```  
 
-#### Bean ``XsuaaServiceConfiguration`` (multiple xsuaa bindings)
+#### Bean ``XsuaaServiceConfigurations`` (multiple xsuaa bindings)
   **Before**  
 
   ```java
@@ -93,13 +93,13 @@ Converter<Jwt, AbstractAuthenticationToken> authConverter;
   ```  
 
   > :bulb: application plan is served as *main* configuration, you can get it using ``xsuaaServiceConfigurations.get(0)``.   
-  > Other configurations, e.g. of plan broker can be accessed with index >= 0.
+  > Other configurations, e.g. of plan broker, can be accessed with index > 0.
 
 
 ## Fetch data from token
 
 #### ``SpringSecurityContext``
-You may have code parts that uses the `SpringSecurityContext` to get the token. Just update the import from:
+You may have code parts that use the `SpringSecurityContext` to get the token. Just update the import from:
 ````java
 import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 ````
@@ -109,45 +109,68 @@ import com.sap.cloud.security.spring.token.SpringSecurityContext; // new import
 ````
 
 #### `Token` methods
-You may have code parts that uses the `Token` interface to access details from the token. You need to update the imports from:
+You may have code parts that use the `Token` interface to access details from the token. You need to update the import from:
 ````java
 import com.sap.cloud.security.xsuaa.token.Token;
 ````
 to
 ````java
-import com.sap.cloud.security.token.Token; // new import
-````
+import com.sap.cloud.security.token.Token; // new import - preferred
+// or
+import com.sap.cloud.security.token.XsuaaTokenComp; // new import
+`````
 
-The ``Token`` interface from ``spring-security`` needs to provide methods that can be served by both kind of tokens. That's why they are not compatible.
-It provides two sub-interfaces: 
-- ```AccessToken``` interface in case of access token issued by the xsuaa service, or 
-- ```SapIdToken``` interface in case of oidc token issued by the identity service.
+The ``Token`` interface from ``java-api`` provides methods that serves access to details of a token, independent whether it is issued by xsuaa or by identity service. That's why the new ``Token`` interface isn't compatible to the ``Token`` interface from ``spring-xsuaa`` client library.<br>
+``java-api`` provides also the ```AccessToken``` sub-interface to access xsuaa specific claims, in case of access tokens issued by the xsuaa service.
 
-See the following table for methods that are not directly available in the target ```Token``` interface. 
+![](images/TokenInterfaces.drawio.svg)
 
+**Alternatively - for compatibility, ``XsuaaTokenComp`` class can be used to decorate the `AccessToken` interface, which implements almost all methods of ` com.sap.cloud.security.xsuaa.token.Token` (spring-xsuaa) interface**. <br>
 
-| `com.sap.cloud.security.xsuaa.token.Token` methods  | Xsuaa? | Workaround in `spring.security` (`com.sap.cloud.security.token.Token`) |
+It is provided in an extra module. This maven dependency needs to be provided additionally:
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>spring-security-compatibility</artifactId>
+    <version>2.11.15</version>
+</dependency>
+```
+
+```java
+Token xsuaaToken = XsuaaTokenComp.createInstance(SpringSecurityContext.getAccessToken());
+xsuaaToken.getCloneServiceInstanceId();
+```
+
+> :bulb: `createInstance` raises an `IllegalArgumentException` runtime exception if the token isn't issued by xsuaa service. 
+> :bulb: `getAuthorities`, as well as the `org.springframework.security.core.userdetails.UserDetails` is not implemented by `XsuaaTokenComp`.
+
+The table below gives an overview of the methods that are not directly available in the new ```Token``` interface, but can be accessed via the ``XsuaaTokenComp`` decorator class.
+
+<details><br>
+ 
+| `com.sap.cloud.security.xsuaa.token.Token` methods  | Xsuaa only? | Workaround in `spring.security` (`com.sap.cloud.security.token.Token`) |
 |-------------------------|---|-----------------------------------------------------------------------------------------------|
 | `getSubaccountId`       | X | Available via `AccessToken` interface.     
-| `getSubdomain`          | X | Available via `XsuaaToken` implementation. 
-| `getGrantType`          | X | Available via `AccessToken` interface: `getGrantType().toString()`.
-| `getLogonName`          |   | ``getPrincipal().getName()``. :bulb: the name differs between the two services.
+| `getSubdomain`          | X | `getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_ZDN)`
+| `getGrantType`          | X | `getGrantType().toString()`.
+| `getLogonName`          | (X) | ``getClaimAsString("user_name")``. :bulb: the name differs between the two services.
 | `getOrigin`             | X | ``getClaimAsString(TokenClaims.XSUAA.ORIGIN)``.
 | `getGivenName`          |   | ``getClaimAsString(TokenClaims.GIVEN_NAME)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
 | `getFamilyName`         |   | ``getClaimAsString(TokenClaims.FAMILY_NAME)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
 | `getEmail`              |   | ``getClaimAsString(TokenClaims.EMAIL)``. :bulb: no support for SAML 2.0 - XSUAA mapping.
-| `getXSUserAttribute`    | X | Available via ```getAttributeFromClaimAsStringList(TokenClaims.XS_USER_ATTRIBUTES, attributeName)```
-| `getAdditionalAuthAttribute`  | X | Available via ```getAttributeFromClaimAsString("az_attr", attributeName)```
-| `getCloneServiceInstanceId`   | X | Available via ```getAttributeFromClaimAsString(TokenClaims.EXTERNAL_ATTRIBUTE, "serviceinstanceid")```
+| `getXSUserAttribute`    | X | ```getAttributeFromClaimAsStringList(TokenClaims.XSUAA.XS_USER_ATTRIBUTES, attributeName)```
+| `getAdditionalAuthAttribute`  | X | ```getAttributeFromClaimAsString("az_attr", attributeName)```
+| `getCloneServiceInstanceId`   | X | ```getAttributeFromClaimAsString(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, "serviceinstanceid")```
 | `getAppToken`           |   | `getTokenValue`
 | `getScopes`             | X | `getClaimAsStringList(TokenClaims.XSUAA.SCOPES)`
-| `getAuthorities()`      |   | ./.
 | `getExpiration()`       |   | `getExpiration()` and for convenience `isExpired()`
+| `getUsername()`         |   | `getPrincipal()`
 
-> :bulb: In case the ```Xsuaa?``` flag is set, the method returns "null" in case of Id token from identity service.  
-> :bulb: In case of Id token from identity service, the ``Token`` can neither be casted to `AccessToken` nor `XsuaaToken`.  A cast is possible in case of: ```Service.XSUAA.equals(token.getService())```.   
-> :bulb: `getAttributeFromClaimAsStringList` and `getAttributeFromClaimAsString` are available on `Token` interface as of `java-security` version `2.8.5`.
+> :bulb: In case the ```Xsuaa only?``` flag is set, the method returns "null" in case of Id token from identity service.  
+> :bulb: In case of Id token from identity service, the ``Token`` can neither be casted to `AccessToken` nor to `XsuaaToken`.  A cast is possible in case of: ```Service.XSUAA.equals(token.getService())```.   
 
+</details>
+ 
 #### Spring's `Jwt` methods
 
 The runtime type of `com.sap.cloud.security.xsuaa.token.Token` is `com.sap.cloud.security.xsuaa.token.XsuaaToken`, which provides additional methods that can be used to extract data from the token since it is a subclass of
