@@ -1,9 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.16
+- [java-security] [spring-security] JwtSignatureValidator improvements:
+  - Only identity service requires `x-zone_uuid` header for token keys retrieval
+  - in case of signature mismatch the result should expose the signature of the encoded JWT token
+- [spring-security]
+Introduces with `spring-security-compatibility` a compatibility module that provides with ``XsuaaTokenComp`` class an option to decorate a token issued by xsuaa to ``com.sap.cloud.security.xsuaa.token.Token`` api, which was used in `spring-xsuaa`.
+  - See also [Migration Guide](https://github.com/SAP/cloud-security-xsuaa-integration/blob/token-compatibility/spring-security/Migration_SpringXsuaaProjects.md) and PR #847
+
+#### Dependency upgrades
+* Bump spring-boot-starter-parent version from 2.5.2 to 2.6.6 (only in samples)
+* Bump reactor-core from 3.4.16 to 3.4.17
+
+
 ## 2.11.15
 [spring-xsuaa][spring-security]
-- fix [CVE-2022-22965](https://tanzu.vmware.com/security/cve-2022-22965) vulnerability in spring version
+- Fixes [CVE-2022-22965](https://tanzu.vmware.com/security/cve-2022-22965) vulnerability in spring version
 
 #### Dependency upgrades
 * Bump spring.core.version from 5.3.17 to 5.3.18
