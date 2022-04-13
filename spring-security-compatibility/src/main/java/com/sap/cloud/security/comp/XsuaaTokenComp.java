@@ -11,7 +11,6 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import org.springframework.security.core.GrantedAuthority;
 
-import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
@@ -141,7 +140,6 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * @return unique principal name or null if it can not be determined.
 	 * @deprecated use {@link Token#getClaimAsString(String)} instead.
 	 */
-	@Nullable
 	@Deprecated
 	public String getLogonName() {
 		return token.getClaimAsString("user_name");
@@ -155,7 +153,6 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * @return the given name if present.
 	 * @deprecated use {@link Token#getClaimAsString(String)} instead
 	 */
-	@Nullable
 	@Deprecated
 	public String getGivenName() {
 		return token.getClaimAsString(TokenClaims.GIVEN_NAME);
@@ -169,7 +166,6 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * @return the family name if present.
 	 * @deprecated use {@link Token#getClaimAsString(String)} instead
 	 */
-	@Nullable
 	@Deprecated
 	public String getFamilyName() {
 		return token.getClaimAsString(TokenClaims.FAMILY_NAME);
@@ -181,7 +177,6 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * @return The email address if present.
 	 * @deprecated use {@link Token#getClaimAsString(String)} instead
 	 */
-	@Nullable
 	@Deprecated
 	public String getEmail() {
 		return token.getClaimAsString(TokenClaims.EMAIL);
@@ -199,7 +194,6 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * @return the user origin if present.
 	 * @deprecated use {@link Token#getClaimAsString(String)} instead
 	 */
-	@Nullable
 	@Deprecated
 	public String getOrigin() {
 		return token.getClaimAsString(TokenClaims.XSUAA.ORIGIN);
@@ -213,7 +207,6 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
      * @return the attribute values array or null if there exists no such attribute.
 	 * @deprecated use {@link Token#getAttributeFromClaimAsStringList(String, String)} (String)} instead
      */
-    @Nullable
 	@Deprecated
     public String[] getXSUserAttribute(String attributeName) {
 		return Optional.ofNullable(token.getAttributeFromClaimAsStringList(TokenClaims.XSUAA.XS_USER_ATTRIBUTES, attributeName))
@@ -231,7 +224,6 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * @return additional attribute value if present.
 	 * @deprecated use {@link Token#getAttributeFromClaimAsString(String, String)} instead
 	 */
-	@Nullable
 	@Deprecated
 	public String getAdditionalAuthAttribute(String attributeName) {
 		return token.getAttributeFromClaimAsString("az_attr", attributeName);
@@ -245,7 +237,6 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * @return the XSUAA clone service instance id if present.
 	 * @deprecated use {@link Token#getAttributeFromClaimAsString(String, String)} instead
 	 */
-	@Nullable
 	@Deprecated
 	public String getCloneServiceInstanceId() {
 		return token.getAttributeFromClaimAsString(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, "serviceinstanceid");
@@ -300,7 +291,6 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * @return the expiration point in time if present.
 	 * @deprecated use {@link Token#getExpiration()} instead
 	 */
-	@Nullable
 	@Deprecated
 	public Instant getExpiration() {
 		return token.getExpiration();
@@ -313,7 +303,6 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * @deprecated use {@link Token#getExpiration()} instead
 	 */
 	@Deprecated
-	@Nullable
 	public Date getExpirationDate() {
 		return token.getExpiration() != null ? Date.from(token.getExpiration()) : null;
 	}
