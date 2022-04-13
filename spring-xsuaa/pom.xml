@@ -34,8 +34,8 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.github.spotbugs</groupId>
-			<artifactId>spotbugs-annotations</artifactId>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
