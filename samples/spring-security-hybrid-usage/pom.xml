@@ -50,7 +50,7 @@
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>spring-security-compatibility</artifactId>
-			<version>2.11.15</version> <!-- TOOD fix that to 2.11.16 -->
+			<version>2.11.16</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
