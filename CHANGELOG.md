@@ -12,7 +12,7 @@ Introduces with `spring-security-compatibility` a compatibility module that prov
 #### Dependency upgrades
 * Bump spring-boot-starter-parent version from 2.5.2 to 2.6.6 (only in samples)
 * Bump reactor-core from 3.4.16 to 3.4.17
-
+* Bump spring.security.version from 5.6.2 to 5.6.3
 
 ## 2.11.15
 [spring-xsuaa][spring-security]
