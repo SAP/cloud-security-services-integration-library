@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.17
+
+#### Dependency upgrades
+* Bump spring-security-oauth2 from 2.5.1.RELEASE to 2.5.2.RELEASE
+* Bump spring-boot-starter version from 2.6.6 to 2.6.7
+
+
 ## 2.11.16
 - [java-security] [spring-security] JwtSignatureValidator improvements:
   - Only identity service requires `x-zone_uuid` header for token keys retrieval
