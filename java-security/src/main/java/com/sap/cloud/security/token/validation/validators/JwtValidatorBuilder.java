@@ -34,9 +34,9 @@ import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 public class JwtValidatorBuilder {
 	private static Map<OAuth2ServiceConfiguration, JwtValidatorBuilder> instances = new ConcurrentHashMap<>();
 	private final Set<Validator<Token>> validators = new HashSet<>();
-	private final Set<ValidationListener> validationListeners = new HashSet<>();
+	private final Set<ValidationListener> validationListeners = Collections.synchronizedSet(new HashSet<>());
 	private OAuth2ServiceConfiguration configuration;
-	private final Set<OAuth2ServiceConfiguration> otherConfigurations = new HashSet();
+	private final Set<OAuth2ServiceConfiguration> otherConfigurations = Collections.synchronizedSet(new HashSet());
 	private OidcConfigurationService oidcConfigurationService = null;
 	private OAuth2TokenKeyService tokenKeyService = null;
 	private Validator<Token> customAudienceValidator;
