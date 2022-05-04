@@ -132,7 +132,7 @@ It is provided in an extra module. This maven dependency needs to be provided ad
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-security-compatibility</artifactId>
-    <version>2.11.15</version>
+    <version>2.11.16</version>
 </dependency>
 ```
 
