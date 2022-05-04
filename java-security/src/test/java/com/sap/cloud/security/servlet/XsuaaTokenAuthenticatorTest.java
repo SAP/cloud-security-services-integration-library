@@ -5,16 +5,12 @@
  */
 package com.sap.cloud.security.servlet;
 
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
-import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
-import com.sap.cloud.security.token.validation.*;
-import com.sap.cloud.security.token.validation.validators.JwtAudienceValidator;
-import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.util.HttpClientTestFactory;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
@@ -30,7 +26,6 @@ import org.mockito.Mockito;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
 import static com.sap.cloud.security.config.cf.CFConstants.*;
@@ -38,7 +33,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 public class XsuaaTokenAuthenticatorTest {
 
@@ -309,21 +305,6 @@ public class XsuaaTokenAuthenticatorTest {
 		assertFalse(response[0].isAuthenticated());
 	}
 
-	@Test
-	public void withAudienceValidator_overridesDefaultJwtAudienceValidator() {
-		String errorMessage = "aud didn't match";
-		Validator<Token> validator = mock(Validator.class);
-		when(validator.validate(any())).thenReturn(ValidationResults.createInvalid(errorMessage));
-		cut = new XsuaaTokenAuthenticator()
-				.withHttpClient(mockHttpClient)
-				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build())
-				.withAudienceValidator(validator);
-		TokenAuthenticationResult response = cut.validateRequest(createRequestWithToken(xsuaaToken.getTokenValue()), HTTP_RESPONSE);
-		Mockito.verify(validator, times(1)).validate(any());
-		assertThat(response.isAuthenticated()).isFalse();
-		assertThat(response.getUnauthenticatedReason()).contains(errorMessage);
-	}
-
 	private HttpServletRequest createRequestWithoutToken() {
 		return Mockito.mock(HttpServletRequest.class);
 	}
@@ -333,4 +314,5 @@ public class XsuaaTokenAuthenticatorTest {
 		when(httpRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer " + jwtToken);
 		return httpRequest;
 	}
+
 }
