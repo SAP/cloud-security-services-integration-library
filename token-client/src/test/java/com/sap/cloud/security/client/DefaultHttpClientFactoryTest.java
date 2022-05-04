@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 class DefaultHttpClientFactoryTest {
 
-    public static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://google.de"));
+    public static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://www.sap.com/"));
     private static ClientIdentity config = Mockito.mock(ClientIdentity.class);
     private static ClientIdentity config2 = Mockito.mock(ClientIdentity.class);
     private DefaultHttpClientFactory cut = new DefaultHttpClientFactory();
@@ -107,7 +107,14 @@ class DefaultHttpClientFactoryTest {
 
         cut.createClient(config);
         assertThat(logCaptor.getWarnLogs().get(0))
-                .startsWith("Application has already created HttpClient for theClientId, please check.");
+                .startsWith("Application has already created HttpClient for clientId = theClientId, please check.");
+
+        cut.createClient(null);
+        logCaptor.clearLogs();
+        cut.createClient(null);
+        assertThat(logCaptor.getWarnLogs().size()).isEqualTo(2);
+        assertThat(logCaptor.getWarnLogs().get(0))
+                .startsWith("Application has already created HttpClient for clientId = null, please check.");
     }
 
     private static String readFromFile(String file) throws IOException {

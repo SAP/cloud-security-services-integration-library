@@ -22,8 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +35,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClientFactory.class);
 	// reuse ssl connections
 	final ConcurrentHashMap<String, SslConnection> sslConnectionPool = new ConcurrentHashMap<>();
-	final List<String> httpClientsCreated = new ArrayList<>();
+	final Set<String> httpClientsCreated = Collections.synchronizedSet(new HashSet<>());
 	static final int MAX_CONNECTIONS_PER_ROUTE = 4; // 2 is default
 	static final int MAX_CONNECTIONS = 20;
 	private static final int DEFAULT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5);
@@ -52,21 +51,20 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 
 	@Override
 	public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException {
-		if (clientIdentity != null) {
-			if (httpClientsCreated.contains(clientIdentity.getId())) {
-				LOGGER.warn("Application has already created HttpClient for {}, please check.", clientIdentity.getId());
-			}
-			httpClientsCreated.add(clientIdentity.getId());
-			if (clientIdentity.isCertificateBased()) {
-				LOGGER.info("In productive environment provide well configured HttpClientFactory service");
-				SslConnection connectionPool = sslConnectionPool.computeIfAbsent(clientIdentity.getId(), s -> new SslConnection(clientIdentity));
-				return HttpClients.custom()
-						.setDefaultRequestConfig(timeoutConfig)
-						.setConnectionManager(connectionPool.poolingConnectionManager)
-						.setSSLContext(connectionPool.context)
-						.setSSLSocketFactory(connectionPool.sslSocketFactory)
-						.build();
-			}
+		String clientId = clientIdentity != null ? clientIdentity.getId() : null;
+		if (httpClientsCreated.contains(clientId)) {
+			LOGGER.warn("Application has already created HttpClient for clientId = {}, please check.", clientId);
+		}
+		httpClientsCreated.add(clientId);
+		if (clientId != null && clientIdentity.isCertificateBased()) {
+			LOGGER.info("In productive environment provide well configured HttpClientFactory service");
+			SslConnection connectionPool = sslConnectionPool.computeIfAbsent(clientId, s -> new SslConnection(clientIdentity));
+			return HttpClients.custom()
+					.setDefaultRequestConfig(timeoutConfig)
+					.setConnectionManager(connectionPool.poolingConnectionManager)
+					.setSSLContext(connectionPool.context)
+					.setSSLSocketFactory(connectionPool.sslSocketFactory)
+					.build();
 		}
 		LOGGER.warn("In productive environment provide well configured HttpClientFactory service, don't use default http client");
 		return HttpClients.createDefault();
