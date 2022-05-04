@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.11.17
+- [token-client]
+    - DefaultHttpClientFactory does not longer log warning messages in case of cert-based HttpClients
 
 #### Dependency upgrades
 * Bump spring-security-oauth2 from 2.5.1.RELEASE to 2.5.2.RELEASE
