@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 ## 2.12.0
 - [token-client]
     - **DefaultHttpClientFactory** does not longer log warning messages in case of cert-based Apache Http Clients.
-    - Usages of HTTP Clients as part of this client library is depicted [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/improve-http-client/docs/images/HttpClient.drawio.svg).
+    - Usages of HTTP Clients as part of this client library are depicted [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/improve-http-client/docs/images/HttpClient.drawio.svg).
     - This improves the default Apache Http Client configuration, provided with `DefaultHttpClientFactory`, so that warning message described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main/token-client#new-warning-in-productive-environment-provide-well-configured-httpclientfactory-service) is no longer logged in case of certificate based setup, and stakeholders must not overwrite the default configuration.
     - In case there is no certificate given in `VCAP_SERVICES` a default http client gets created (`HttpClients.createDefault()`) and the message is still logged with severity `WARNING` .
 
@@ -14,7 +14,7 @@ It sets
 - connection request timeout = 5 sec
 - socket timeout = 5 sec
 
-Furthermore, it makes sure that per client id `SSLContext`, `SSLConnectionSocketFactory` and `PoolingHttpClientConnectionManager` is created only once per instance.
+Furthermore, it makes sure that per client id `SSLContext`, `SSLConnectionSocketFactory` and `PoolingHttpClientConnectionManager` are created only once per instance.
 
 It introduces a `PoolingHttpClientConnectionManager` and limits
 - maximum connections per route to 4 (default is 2)
