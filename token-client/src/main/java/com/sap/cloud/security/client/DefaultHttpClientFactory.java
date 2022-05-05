@@ -58,7 +58,8 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 		httpClientsCreated.add(clientId);
 		if (clientId != null && clientIdentity.isCertificateBased()) {
 			LOGGER.info("In productive environment provide well configured HttpClientFactory service");
-			SslConnection connectionPool = sslConnectionPool.computeIfAbsent(clientId, s -> new SslConnection(clientIdentity));
+			SslConnection connectionPool = sslConnectionPool.computeIfAbsent(clientId,
+					s -> new SslConnection(clientIdentity));
 			return HttpClients.custom()
 					.setDefaultRequestConfig(timeoutConfig)
 					.setConnectionManager(connectionPool.poolingConnectionManager)
@@ -66,7 +67,8 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 					.setSSLSocketFactory(connectionPool.sslSocketFactory)
 					.build();
 		}
-		LOGGER.warn("In productive environment provide well configured HttpClientFactory service, don't use default http client");
+		LOGGER.warn(
+				"In productive environment provide well configured HttpClientFactory service, don't use default http client");
 		return HttpClients.createDefault();
 	}
 
@@ -84,7 +86,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 								clientIdentity.getId(), e.getLocalizedMessage()));
 			}
 			this.sslSocketFactory = new SSLConnectionSocketFactory(context);
-			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
 					.register("http", PlainConnectionSocketFactory.getSocketFactory())
 					.register("https", sslSocketFactory).build();
 			this.poolingConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);

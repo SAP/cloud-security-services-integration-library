@@ -23,102 +23,104 @@ import static org.mockito.Mockito.when;
 
 class DefaultHttpClientFactoryTest {
 
-    public static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://www.sap.com/"));
-    private static ClientIdentity config = Mockito.mock(ClientIdentity.class);
-    private static ClientIdentity config2 = Mockito.mock(ClientIdentity.class);
-    private DefaultHttpClientFactory cut = new DefaultHttpClientFactory();
-    private static LogCaptor logCaptor;
+	public static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://www.sap.com/"));
+	private static ClientIdentity config = Mockito.mock(ClientIdentity.class);
+	private static ClientIdentity config2 = Mockito.mock(ClientIdentity.class);
+	private DefaultHttpClientFactory cut = new DefaultHttpClientFactory();
+	private static LogCaptor logCaptor;
 
-    @BeforeAll
-    static void setup() throws IOException {
-        when(config.getId()).thenReturn("theClientId");
-        when(config.getKey()).thenReturn(readFromFile("/privateRSAKey.txt"));
-        when(config.getCertificate()).thenReturn(readFromFile("/certificates.txt"));
-        when(config.isCertificateBased()).thenCallRealMethod();
+	@BeforeAll
+	static void setup() throws IOException {
+		when(config.getId()).thenReturn("theClientId");
+		when(config.getKey()).thenReturn(readFromFile("/privateRSAKey.txt"));
+		when(config.getCertificate()).thenReturn(readFromFile("/certificates.txt"));
+		when(config.isCertificateBased()).thenCallRealMethod();
 
-        when(config2.getId()).thenReturn("theClientId-2");
-        when(config2.getKey()).thenReturn(readFromFile("/privateRSAKey.txt"));
-        when(config2.getCertificate()).thenReturn(readFromFile("/certificates.txt"));
-        when(config2.isCertificateBased()).thenCallRealMethod();
+		when(config2.getId()).thenReturn("theClientId-2");
+		when(config2.getKey()).thenReturn(readFromFile("/privateRSAKey.txt"));
+		when(config2.getCertificate()).thenReturn(readFromFile("/certificates.txt"));
+		when(config2.isCertificateBased()).thenCallRealMethod();
 
-        logCaptor = LogCaptor.forClass(DefaultHttpClientFactory.class);
-    }
+		logCaptor = LogCaptor.forClass(DefaultHttpClientFactory.class);
+	}
 
-    @AfterEach
-    void tearDown() {
-        logCaptor.clearLogs();
-    }
+	@AfterEach
+	void tearDown() {
+		logCaptor.clearLogs();
+	}
 
-    @Test
-    void createHttpClient_sameClientId() {
-        HttpClient client1 = cut.createClient(config);
-        HttpClient client2 = cut.createClient(config);
+	@Test
+	void createHttpClient_sameClientId() {
+		HttpClient client1 = cut.createClient(config);
+		HttpClient client2 = cut.createClient(config);
 
-        assertNotEquals(client1, client2);
-        assertNotEquals(client1.getConnectionManager(), client2.getConnectionManager()); // different InternalHttpClient instances
-        assertEquals(1, cut.sslConnectionPool.size());
-    }
+		assertNotEquals(client1, client2);
+		assertNotEquals(client1.getConnectionManager(), client2.getConnectionManager()); // different InternalHttpClient
+																							// instances
+		assertEquals(1, cut.sslConnectionPool.size());
+	}
 
-    @Test
-    void createHttpClient_differentClientId() {
-        HttpClient client1 = cut.createClient(config);
-        HttpClient client2 = cut.createClient(config2);
+	@Test
+	void createHttpClient_differentClientId() {
+		HttpClient client1 = cut.createClient(config);
+		HttpClient client2 = cut.createClient(config2);
 
-        assertNotEquals(client1, client2);
-        assertNotEquals(client1.getConnectionManager(), client2.getConnectionManager()); // different InternalHttpClient instances
-        assertEquals(2, cut.sslConnectionPool.size());
-    }
+		assertNotEquals(client1, client2);
+		assertNotEquals(client1.getConnectionManager(), client2.getConnectionManager()); // different InternalHttpClient
+																							// instances
+		assertEquals(2, cut.sslConnectionPool.size());
+	}
 
-    @Test
-    void closeHttpClient() throws IOException {
-        CloseableHttpClient client1 = cut.createClient(config);
-        HttpClient client2 = cut.createClient(config2);
+	@Test
+	void closeHttpClient() throws IOException {
+		CloseableHttpClient client1 = cut.createClient(config);
+		HttpClient client2 = cut.createClient(config2);
 
-        HttpResponse response = client1.execute(HTTP_GET);
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+		HttpResponse response = client1.execute(HTTP_GET);
+		assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
-        client1.close();
+		client1.close();
 
-        assertThrows(IllegalStateException.class, () -> client1.execute(HTTP_GET));
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+		assertThrows(IllegalStateException.class, () -> client1.execute(HTTP_GET));
+		assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
-        response = client2.execute(HTTP_GET);
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+		response = client2.execute(HTTP_GET);
+		assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
-        assertEquals(2, cut.sslConnectionPool.size());
-    }
+		assertEquals(2, cut.sslConnectionPool.size());
+	}
 
-    @Test
-    void reuseConnections() throws IOException {
-        HttpClient client = cut.createClient(config);
+	@Test
+	void reuseConnections() throws IOException {
+		HttpClient client = cut.createClient(config);
 
-        for (int i = 0; i < 40; ++i) {
-            HttpResponse response = client.execute(HTTP_GET);
-            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-            EntityUtils.consumeQuietly(response.getEntity());
-        }
-    }
+		for (int i = 0; i < 40; ++i) {
+			HttpResponse response = client.execute(HTTP_GET);
+			assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+			EntityUtils.consumeQuietly(response.getEntity());
+		}
+	}
 
-    @Test
-    void assertWarnWhenCalledMoreThanOnce() {
-        cut.createClient(config);
-        cut.createClient(config2);
-        assertThat(logCaptor.getWarnLogs().size()).isEqualTo(0);
+	@Test
+	void assertWarnWhenCalledMoreThanOnce() {
+		cut.createClient(config);
+		cut.createClient(config2);
+		assertThat(logCaptor.getWarnLogs().size()).isEqualTo(0);
 
-        cut.createClient(config);
-        assertThat(logCaptor.getWarnLogs().get(0))
-                .startsWith("Application has already created HttpClient for clientId = theClientId, please check.");
+		cut.createClient(config);
+		assertThat(logCaptor.getWarnLogs().get(0))
+				.startsWith("Application has already created HttpClient for clientId = theClientId, please check.");
 
-        cut.createClient(null);
-        logCaptor.clearLogs();
-        cut.createClient(null);
-        assertThat(logCaptor.getWarnLogs().size()).isEqualTo(2);
-        assertThat(logCaptor.getWarnLogs().get(0))
-                .startsWith("Application has already created HttpClient for clientId = null, please check.");
-    }
+		cut.createClient(null);
+		logCaptor.clearLogs();
+		cut.createClient(null);
+		assertThat(logCaptor.getWarnLogs().size()).isEqualTo(2);
+		assertThat(logCaptor.getWarnLogs().get(0))
+				.startsWith("Application has already created HttpClient for clientId = null, please check.");
+	}
 
-    private static String readFromFile(String file) throws IOException {
-        return IOUtils.resourceToString(file, StandardCharsets.UTF_8);
-    }
+	private static String readFromFile(String file) throws IOException {
+		return IOUtils.resourceToString(file, StandardCharsets.UTF_8);
+	}
 
 }

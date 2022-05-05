@@ -143,7 +143,8 @@ public class SSLContextFactory {
 		privateKeyPEM = privateKeyPEM.replace("\n", "");
 		privateKeyPEM = privateKeyPEM.replace("\\n", "");
 		if (logger.isDebugEnabled()) {
-			logger.debug("privateKeyPem: '{}...{}'", privateKeyPEM.substring(0, 7),  privateKeyPEM.substring(privateKeyPEM.length() - 7) );
+			logger.debug("privateKeyPem: '{}...{}'", privateKeyPEM.substring(0, 7),
+					privateKeyPEM.substring(privateKeyPEM.length() - 7));
 		}
 
 		KeySpec keySpec = parseDERPrivateKey(Base64.getDecoder().decode(privateKeyPEM));

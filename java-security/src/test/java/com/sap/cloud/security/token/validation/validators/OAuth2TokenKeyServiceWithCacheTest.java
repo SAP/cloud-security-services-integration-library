@@ -145,7 +145,6 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), isNull());
 	}
 
-
 	@Test
 	public void retrieveTokenKeys_doesRequestKeysAgainAfterCacheExpired()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
@@ -204,7 +203,8 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 		}).isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
 		assertThatThrownBy(() -> {
 			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "invalid-zone");
-		}).isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Keys not accepted for zone_uuid invalid-zone");
+		}).isInstanceOf(OAuth2ServiceException.class)
+				.hasMessageStartingWith("Keys not accepted for zone_uuid invalid-zone");
 
 		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq("invalid-zone"));
 	}

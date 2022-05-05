@@ -32,7 +32,8 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String zoneId) throws OAuth2ServiceException {
+	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String zoneId)
+			throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		try {
 			// create headers

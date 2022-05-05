@@ -49,10 +49,11 @@ public interface HttpClientFactory {
 	CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException;
 
 	/**
-	 * Don't close the HTTPClient when you've provided it to {@code TokenAuthenticator}
-	 * or {@code XsuaaTokenFlows} instance.
+	 * Don't close the HTTPClient when you've provided it to
+	 * {@code TokenAuthenticator} or {@code XsuaaTokenFlows} instance.
 	 *
-	 * @param clientIdentity to identify the identity provider client.
+	 * @param clientIdentity
+	 *            to identify the identity provider client.
 	 * @return HTTP or HTTPS client
 	 * @throws HttpClientException
 	 */
