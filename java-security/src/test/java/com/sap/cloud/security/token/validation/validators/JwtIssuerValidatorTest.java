@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
@@ -96,8 +97,7 @@ class JwtIssuerValidatorTest {
 	@CsvSource({ "https://subdomain.accounts400.ondemand.com#anyFragment_keys",
 			"https://subdomain.accounts400.ondemand.com?a=b",
 			"\0://myauth.com",
-			"https://otherDomain.org?accounts400.ondemand.com",
-			"subdomain.accounts400.ondemand.com" })
+			"https://otherDomain.org?accounts400.ondemand.com",})
 	void validationFails_iasIssuerUrl(String iasIssuer) {
 		cut = new JwtIssuerValidator(Arrays.asList(domains));
 		configureMock("https://otherDomain.accounts400.ondemand.com", iasIssuer);
@@ -108,10 +108,38 @@ class JwtIssuerValidatorTest {
 	}
 
 	@ParameterizedTest
+	@CsvSource({ "https://subdomain.accounts400.ondemand.com#anyFragment_keys",
+			"https://subdomain.accounts400.ondemand.com?a=b",
+			"\0://myauth.com",
+			"https://otherDomain.org?accounts400.ondemand.com",
+			"subdomain.accounts400.ondemand.com",})
+	void validationFails_xsuaaToken(String issuer) {
+		cut = new JwtIssuerValidator(Arrays.asList(domains));
+		configureMock(issuer, null);
+		when(token.getService()).thenReturn(Service.XSUAA);
+
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isErroneous(), is(true));
+		assertThat(validationResult.getErrorDescription(), startsWith("Issuer is not trusted because issuer "));
+	}
+
+	@ParameterizedTest
 	@CsvSource({ "https://otherDomain.accounts400.ondemand.com,",
 			"https://paas.accounts400.ondemand.com,",
 			"https://nestle.com,https://paas.accounts400.ondemand.com," })
-	void validationSucceeds(String issuer, String iasIssuer) {
+	void validationSucceeds_XsuaaToken(String issuer, String iasIssuer) {
+		cut = new JwtIssuerValidator(Arrays.asList(domains));
+		configureMock(issuer, iasIssuer);
+		when(token.getService()).thenReturn(Service.XSUAA);
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isValid(), is(true));
+	}
+
+	@ParameterizedTest
+	@CsvSource({ "https://otherDomain.accounts400.ondemand.com,",
+			"subdomain.accounts400.ondemand.com,",
+			"https://nestle.com,paas.accounts400.ondemand.com," })
+	void validationSucceeds_IasToken(String issuer, String iasIssuer) {
 		cut = new JwtIssuerValidator(Arrays.asList(domains));
 		configureMock(issuer, iasIssuer);
 
@@ -120,6 +148,7 @@ class JwtIssuerValidatorTest {
 	}
 
 	private void configureMock(String issuer, String iasIssuer) {
+		when(token.getService()).thenReturn(Service.IAS);
 		when(token.getIssuer()).thenCallRealMethod();
 		when(token.getClaimAsString(TokenClaims.ISSUER)).thenReturn(issuer);
 		when(token.getClaimAsString(TokenClaims.IAS_ISSUER)).thenReturn(iasIssuer);
