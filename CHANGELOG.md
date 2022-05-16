@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.12.1
+- [java-security] `JwtIssuerValidator` rules have been relaxed, it accepts issuers without `https` schema
+
+#### Dependency upgrades
+* Bump jackson-databind from 2.13.2.2 to 2.13.3
+* Bump spring.core.version from 5.3.19 to 5.3.20
+* Bump reactor-core from 3.4.17 to 3.4.18
+
 ## 2.12.0
 - [token-client]
     - **DefaultHttpClientFactory** does not longer log warning messages in case of cert-based Apache Http Clients.
