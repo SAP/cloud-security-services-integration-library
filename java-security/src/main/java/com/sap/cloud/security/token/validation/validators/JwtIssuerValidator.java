@@ -13,6 +13,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import com.sap.cloud.security.config.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,9 @@ class JwtIssuerValidator implements Validator<Token> {
 	@Override
 	public ValidationResult validate(Token token) {
 		String issuer = token.getIssuer();
+		if (token.getService().equals(Service.IAS) && !issuer.startsWith("http")){
+			issuer = "https://" + issuer;
+		}
 		ValidationResult validationResult = validateUrl(issuer);
 		if (validationResult.isErroneous()) {
 			return validationResult;
