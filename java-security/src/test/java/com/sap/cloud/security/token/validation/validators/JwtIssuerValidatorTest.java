@@ -124,12 +124,11 @@ class JwtIssuerValidatorTest {
 	}
 
 	@ParameterizedTest
-	@CsvSource({ "https://otherDomain.accounts400.ondemand.com,",
-			"https://paas.accounts400.ondemand.com,",
-			"https://nestle.com,https://paas.accounts400.ondemand.com," })
-	void validationSucceeds_XsuaaToken(String issuer, String iasIssuer) {
+	@CsvSource({ "https://otherDomain.accounts400.ondemand.com",
+			"https://paas.accounts400.ondemand.com", })
+	void validationSucceeds_XsuaaToken(String issuer) {
 		cut = new JwtIssuerValidator(Arrays.asList(domains));
-		configureMock(issuer, iasIssuer);
+		configureMock(issuer, null);
 		when(token.getService()).thenReturn(Service.XSUAA);
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isValid(), is(true));
