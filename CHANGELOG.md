@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 
 #### Dependency upgrades
 - Bump spring.security.version from 5.6.3 to 5.7.1
+- Bump spring.boot.version from 2.6.7 to 2.7.0
 
 ## 2.12.1
 - [java-security] `JwtIssuerValidator` rules have been relaxed, it accepts issuers without `https` schema
