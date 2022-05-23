@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.12.2
+[spring-xsuaa][spring-security]
+- Fixes [CVE-2022-22978](https://tanzu.vmware.com/security/cve-2022-22978) vulnerability in spring security version
+
+#### Dependency upgrades
+- Bump spring.security.version from 5.6.3 to 5.7.1
+- Bump spring.boot.version from 2.6.7 to 2.7.0
+
 ## 2.12.1
 - [java-security] `JwtIssuerValidator` rules have been relaxed, it accepts issuers without `https` schema
 
