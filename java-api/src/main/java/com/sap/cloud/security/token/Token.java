@@ -306,8 +306,8 @@ public interface Token extends Serializable {
 	@Nullable
 	default List<String> getAttributeFromClaimAsStringList(String claimName, String attributeName) {
 		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);
-		return Optional.ofNullable(claimAsJsonObject)
-				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class))
-				.orElse(null);
+		List<String> attributes = Optional.ofNullable(claimAsJsonObject)
+				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class)).orElse(Collections.emptyList());
+		return attributes.isEmpty() ? null : attributes;
 	}
 }
