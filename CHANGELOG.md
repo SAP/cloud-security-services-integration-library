@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.12.3
+[java-api][spring-xsuaa][spring-security-compatibility] bug fix for #910 `Token.getAttributeFromClaimAsStringList`, `XsuaaToken.getXSUserAttribute`, `XsuaaTokenComp.getXSUserAttribute` methods' return type if claim is not present. It returns now `null` value instead of empty `String Array` or `List` as documented.
+
 ## 2.12.2
 [spring-xsuaa][spring-security]
 - Fixes [CVE-2022-22978](https://tanzu.vmware.com/security/cve-2022-22978) vulnerability in spring security version
