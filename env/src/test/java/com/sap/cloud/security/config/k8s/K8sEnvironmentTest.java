@@ -5,8 +5,8 @@
  */
 package com.sap.cloud.security.config.k8s;
 
-import com.sap.cloud.environment.api.DefaultServiceBindingAccessor;
-import com.sap.cloud.environment.servicebinding.SapServiceOperatorServiceBindingAccessor;
+import com.sap.cloud.environment.servicebinding.SapServiceOperatorLayeredServiceBindingAccessor;
+import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.*;
 
 import java.nio.file.Paths;
 
-import static com.sap.cloud.environment.servicebinding.SapServiceOperatorServiceBindingAccessor.DEFAULT_PARSING_STRATEGIES;
+import static com.sap.cloud.environment.servicebinding.SapServiceOperatorLayeredServiceBindingAccessor.DEFAULT_PARSING_STRATEGIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class K8sEnvironmentTest {
@@ -23,7 +23,7 @@ class K8sEnvironmentTest {
 
 	@BeforeAll
 	static void beforeAll() {
-		DefaultServiceBindingAccessor.setInstance(new SapServiceOperatorServiceBindingAccessor(Paths.get("src/test/resources/k8s"), DEFAULT_PARSING_STRATEGIES));
+		DefaultServiceBindingAccessor.setInstance(new SapServiceOperatorLayeredServiceBindingAccessor(Paths.get("src/test/resources/k8s"), DEFAULT_PARSING_STRATEGIES));
 	}
 
 	@AfterAll

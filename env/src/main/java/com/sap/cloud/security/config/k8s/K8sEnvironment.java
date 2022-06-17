@@ -5,9 +5,9 @@
  */
 package com.sap.cloud.security.config.k8s;
 
-import com.sap.cloud.environment.api.DefaultServiceBindingAccessor;
-import com.sap.cloud.environment.api.ServiceBinding;
-import com.sap.cloud.environment.api.TypedMapView;
+import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
+import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
+import com.sap.cloud.environment.servicebinding.api.TypedMapView;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;

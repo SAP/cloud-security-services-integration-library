@@ -142,7 +142,10 @@ public class SSLContextFactory {
 		privateKeyPEM = privateKeyPEM.replace("-----END RSA PRIVATE KEY-----", "");
 		privateKeyPEM = privateKeyPEM.replace("\n", "");
 		privateKeyPEM = privateKeyPEM.replace("\\n", "");
-		logger.debug("privateKeyPem: '{}'", privateKeyPEM);
+		if (logger.isDebugEnabled()) {
+			logger.debug("privateKeyPem: '{}...{}'", privateKeyPEM.substring(0, 7),
+					privateKeyPEM.substring(privateKeyPEM.length() - 7));
+		}
 
 		KeySpec keySpec = parseDERPrivateKey(Base64.getDecoder().decode(privateKeyPEM));
 

@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>2.11.15</version>
+		<version>2.12.2</version>
 	</parent>
 
 	<artifactId>spring-xsuaa-mock</artifactId>
@@ -17,7 +17,7 @@
 	<description>DEPRECATED in favor of com.sap.cloud.security:java-security-test</description>
 	<packaging>jar</packaging>
 	<properties>
-		<mockwebserver.version>3.9.1</mockwebserver.version>
+		<mockwebserver.version>4.9.3</mockwebserver.version>
 	</properties>
 
 	<dependencies>

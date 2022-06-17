@@ -7,7 +7,7 @@
 
 	<groupId>com.sap.cloud.security.xsuaa</groupId>
 	<artifactId>parent</artifactId>
-	<version>2.11.15</version>
+	<version>2.12.2</version>
 	<packaging>pom</packaging>
 
 	<name>parent</name>
@@ -33,10 +33,9 @@
 
 	<scm>
 		<connection>scm:git:git://github.com/SAP/cloud-security-xsuaa-integration.git</connection>
-		<developerConnection>sscm:git:git://github.com/SAP/cloud-security-xsuaa-integration.git</developerConnection>
-		<url>http://github.com/SAP/cloud-security-xsuaa-integration/tree/master</url>
+		<developerConnection>scm:git:ssh//github.com/SAP/cloud-security-xsuaa-integration.git</developerConnection>
+		<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	</scm>
-
 
 	<distributionManagement>
 		<snapshotRepository>
@@ -58,16 +57,16 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.source.plugin.version>3.2.1</maven.source.plugin.version>
 		<!-- make sure that spring core and spring boot versions are compatible-->
-		<spring.boot.version>2.6.6</spring.boot.version>
-		<spring.core.version>5.3.18</spring.core.version>
-		<spring.security.version>5.6.2</spring.security.version>
-		<spring.security.oauth2.version>2.5.1.RELEASE</spring.security.oauth2.version>
+		<spring.boot.version>2.7.0</spring.boot.version>
+		<spring.core.version>5.3.21</spring.core.version>
+		<spring.security.version>5.7.1</spring.security.version>
+		<spring.security.oauth2.version>2.5.2.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
-		<reactor.version>3.4.16</reactor.version>
+		<reactor.version>3.4.19</reactor.version>
 		<log4j2.version>2.17.2</log4j2.version>
 		<slf4j.api.version>1.7.36</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20220320</org.json.version>
-		<sap.cloud.env.servicebinding.version>0.0.1-SNAPSHOT</sap.cloud.env.servicebinding.version>
+		<sap.cloud.env.servicebinding.version>0.2.0</sap.cloud.env.servicebinding.version>
 		<google.jsr305.version>3.0.2</google.jsr305.version>
 		<apache.httpclient.version>4.5.13</apache.httpclient.version>
 		<caffeine.version>2.9.3</caffeine.version>
@@ -76,15 +75,15 @@
 		<junit.version>4.13.2</junit.version>
 		<junit.version>4.13.2</junit.version>
 		<junit-jupiter.version>5.7.2</junit-jupiter.version>
-		<maven-surefire-plugin>3.0.0-M5</maven-surefire-plugin>
+		<maven-surefire-plugin>3.0.0-M7</maven-surefire-plugin>
 		<hamcrest.version>1.3</hamcrest.version>
 		<mockito.version>3.12.4</mockito.version>
-		<assertj.version>3.22.0</assertj.version>
-		<reactor.test.version>3.4.16</reactor.test.version>
-		<wiremock.version>2.32.0</wiremock.version>
+		<assertj.version>3.23.1</assertj.version>
+		<reactor.test.version>3.4.19</reactor.test.version>
+		<wiremock.version>2.33.2</wiremock.version>
 		<javax.annotation.version>1.3.2</javax.annotation.version>
-		<spotbugs.annotations.version>4.6.0</spotbugs.annotations.version>
-		<spotbugs.version>4.6.0.0</spotbugs.version>
+		<spotbugs.annotations.version>4.7.0</spotbugs.annotations.version>
+		<spotbugs.version>4.7.0.0</spotbugs.version>
 		<skipTests>false</skipTests>
 		<jacoco.skip>${skipTests}</jacoco.skip>
 	</properties>
@@ -96,6 +95,7 @@
 		<module>token-client</module>
 		<module>java-security</module>
 		<module>spring-security</module>
+		<module>spring-security-compatibility</module>
 		<module>spring-security-starter</module>
 		<module>java-security-test</module>
 		<module>spring-xsuaa</module>
@@ -108,11 +108,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>2.13.2.2</version><!-- temporarily solves security vulnerability-->
-			</dependency>
 			<!-- Project BOM -->
 			<dependency>
 				<groupId>com.sap.cloud.security</groupId>
@@ -221,12 +216,12 @@
 			<!-- other -->
 			<dependency>
 				<groupId>com.sap.cloud.environment.servicebinding</groupId>
-				<artifactId>cloud-environment-java-sap-service-operator</artifactId>
+				<artifactId>java-sap-service-operator</artifactId>
 				<version>${sap.cloud.env.servicebinding.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.sap.cloud.environment.api</groupId>
-				<artifactId>cloud-environment-java-consumption-api</artifactId>
+			<dependency> <!-- optional if using TypedMapView etc. -->
+				<groupId>com.sap.cloud.environment.servicebinding.api</groupId>
+				<artifactId>java-consumption-api</artifactId>
 				<version>${sap.cloud.env.servicebinding.version}</version>
 			</dependency>
 			<dependency>
@@ -238,6 +233,7 @@
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-annotations</artifactId>
 				<version>${spotbugs.annotations.version}</version>
+				<optional>true</optional>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
@@ -325,7 +321,7 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-pmd-plugin</artifactId>
-							<version>3.16.0</version>
+							<version>3.17.0</version>
 							<configuration>
 								<skip>${skipTests}</skip>
 							</configuration>
@@ -342,7 +338,7 @@
 						<plugin>
 							<groupId>org.jacoco</groupId>
 							<artifactId>jacoco-maven-plugin</artifactId>
-							<version>0.8.7</version>
+							<version>0.8.8</version>
 							<executions>
 								<execution>
 									<id>default-prepare-agent</id>
@@ -390,7 +386,7 @@
 						<plugin>
 							<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
 							<artifactId>dependency-check-maven</artifactId>
-							<version>7.0.4</version>
+							<version>7.1.1</version>
 							<executions>
 								<execution>
 									<goals>
@@ -408,7 +404,7 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-javadoc-plugin</artifactId>
-							<version>3.3.2</version>
+							<version>3.4.0</version>
 						</plugin>
 						<plugin>
 							<groupId>net.revelc.code.formatter</groupId>
@@ -478,7 +474,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.3.2</version>
+						<version>3.4.0</version>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
@@ -513,7 +509,7 @@
 					<plugin>
 						<groupId>org.sonatype.plugins</groupId>
 						<artifactId>nexus-staging-maven-plugin</artifactId>
-						<version>1.6.12</version>
+						<version>1.6.13</version>
 						<extensions>true</extensions>
 						<configuration>
 							<serverId>ossrh</serverId>

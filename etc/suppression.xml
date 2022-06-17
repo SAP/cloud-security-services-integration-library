@@ -9,4 +9,17 @@
         ]]></notes>
         <cve>CVE-2018-1258</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[Ignored as vulnerable classes of ^HttpInvoker* are not used in the project]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-*.*$</packageUrl>
+        <cve>CVE-2016-1000027</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   spring-boot-starter-security-2.7.0.jar is flagged as vulnerable, but the vulnerability is relevant for Spring Security versions below 5.5.7 and 5.6.4
+   Ignored as spring-security 5.7.1 is used which has fix for CVE-2022-22978 https://spring.io/blog/2022/05/15/spring-security-5-7-0-5-6-4-5-5-7-released-fixes-cve-2022-22978-cve-2022-22976
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-security@.*$</packageUrl>
+        <cve>CVE-2022-22978</cve>
+    </suppress>
 </suppressions>

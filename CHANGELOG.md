@@ -1,9 +1,62 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.12.2
+[spring-xsuaa][spring-security]
+- Fixes [CVE-2022-22978](https://tanzu.vmware.com/security/cve-2022-22978) vulnerability in spring security version
+
+#### Dependency upgrades
+- Bump spring.security.version from 5.6.3 to 5.7.1
+- Bump spring.boot.version from 2.6.7 to 2.7.0
+
+## 2.12.1
+- [java-security] `JwtIssuerValidator` rules have been relaxed, it accepts issuers without `https` schema
+
+#### Dependency upgrades
+* Bump jackson-databind from 2.13.2.2 to 2.13.3
+* Bump spring.core.version from 5.3.19 to 5.3.20
+* Bump reactor-core from 3.4.17 to 3.4.18
+
+## 2.12.0
+- [token-client]
+    - **DefaultHttpClientFactory** does not longer log warning messages in case of cert-based Apache Http Clients.
+    - Usages of HTTP Clients as part of this client library are depicted [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/improve-http-client/docs/images/HttpClient.drawio.svg).
+    - This improves the default Apache Http Client configuration, provided with `DefaultHttpClientFactory`, so that warning message described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main/token-client#new-warning-in-productive-environment-provide-well-configured-httpclientfactory-service) is no longer logged in case of certificate based setup, and stakeholders must not overwrite the default configuration.
+    - In case there is no certificate given in `VCAP_SERVICES` a default http client gets created (`HttpClients.createDefault()`) and the message is still logged with severity `WARNING` .
+
+#### Details DefaultHttpClientFactory
+It sets
+- connect timeout = 5 sec
+- connection request timeout = 5 sec
+- socket timeout = 5 sec
+
+Furthermore, it makes sure that per client id `SSLContext`, `SSLConnectionSocketFactory` and `PoolingHttpClientConnectionManager` are created only once per instance.
+
+It introduces a `PoolingHttpClientConnectionManager` and limits
+- maximum connections per route to 4 (default is 2)
+- and the maximum connections to 20
+
+#### Dependency upgrades
+* Bump spring-security-oauth2 from 2.5.1.RELEASE to 2.5.2.RELEASE
+* Bump spring-boot-starter version from 2.6.6 to 2.6.7
+
+
+## 2.11.16
+- [java-security] [spring-security] JwtSignatureValidator improvements:
+  - Only identity service requires `x-zone_uuid` header for token keys retrieval
+  - in case of signature mismatch the result should expose the signature of the encoded JWT token
+- [spring-security]
+Introduces with `spring-security-compatibility` a compatibility module that provides with ``XsuaaTokenComp`` class an option to decorate a token issued by xsuaa to ``com.sap.cloud.security.xsuaa.token.Token`` api, which was used in `spring-xsuaa`.
+  - See also [Migration Guide](https://github.com/SAP/cloud-security-xsuaa-integration/blob/token-compatibility/spring-security/Migration_SpringXsuaaProjects.md) and PR #847
+
+#### Dependency upgrades
+* Bump spring-boot-starter-parent version from 2.5.2 to 2.6.6 (only in samples)
+* Bump reactor-core from 3.4.16 to 3.4.17
+* Bump spring.security.version from 5.6.2 to 5.6.3
+
 ## 2.11.15
 [spring-xsuaa][spring-security]
-- fix [CVE-2022-22965](https://tanzu.vmware.com/security/cve-2022-22965) vulnerability in spring version
+- Fixes [CVE-2022-22965](https://tanzu.vmware.com/security/cve-2022-22965) vulnerability in spring version
 
 #### Dependency upgrades
 * Bump spring.core.version from 5.3.17 to 5.3.18
