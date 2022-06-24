@@ -188,9 +188,9 @@ class XsuaaTokenCompTest {
 	}
 
 	@Test
-	void getXsUserAttributeValuesIsNull() {
+	void getXsUserAttributeValuesFails() {
 		String[] userAttrValues = XsuaaTokenComp.createInstance(tokenSAML).getXSUserAttribute("costcenter");
-		assertThat(userAttrValues, is(nullValue()));
+		assertThat(userAttrValues.length, is(0));
 	}
 
 	@Test

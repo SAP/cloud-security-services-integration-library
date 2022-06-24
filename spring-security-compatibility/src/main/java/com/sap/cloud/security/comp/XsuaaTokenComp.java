@@ -219,7 +219,7 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 				.ofNullable(
 						token.getAttributeFromClaimAsStringList(TokenClaims.XSUAA.XS_USER_ATTRIBUTES, attributeName))
 				.map(values -> values.toArray(new String[] {}))
-				.orElse(null);
+				.orElse(new String[] {});
 	}
 
 	/**
