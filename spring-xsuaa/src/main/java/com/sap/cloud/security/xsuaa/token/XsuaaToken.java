@@ -262,7 +262,7 @@ public class XsuaaToken extends Jwt implements Token {
 		String[] attributeValues = null;
 
 		Map<String, Object> claimMap = getClaimAsMap(claimName);
-		if (claimMap == null) {
+		if (claimMap == null || !claimMap.containsKey(attributeName)) {
 			logger.debug("Claim '{}' not found. Returning null.", claimName);
 			return attributeValues;
 		}
