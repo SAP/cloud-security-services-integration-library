@@ -18,14 +18,25 @@ com.sap.cloud.security.xsuaa | xsuaa-spring-boot-starter
 ## Configuration changes
 After the dependencies have been changed, the spring security configuration needs some adjustments as well.
 
-In case you have configured your `TokenAuthenticationConverter` with `setLocalScopeAsAuthorities(true)` then you can use the auto-configured converter instead as  documented [here](/spring-security#setup-spring-security-oauth-20-resource-server), which initializes the `XsuaaTokenAuthorizationConverter`:
+In case you have configured your `TokenAuthenticationConverter` with `setLocalScopeAsAuthorities(true)` then you can use the auto-configured converter as documented [here](/spring-security#setup-spring-security-oauth-20-resource-server), which initializes the `XsuaaTokenAuthorizationConverter`.
+
+**Before**
+```java
+Converter<Jwt, AbstractAuthenticationToken> customJwtAuthenticationConverter() {
+    TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
+    converter.setLocalScopeAsAuthorities(true);
+    return converter;
+}
+```
+
+**After**
 ```java
 @Autowired
 Converter<Jwt, AbstractAuthenticationToken> authConverter;
 ```
 
 ## Access VCAP_SERVICES values
-```spring-security``` automatically maps the `VCAP_SERVICES` credentials to Spring properties. Please note that the **prefix has changed** from ```xsuaa.*``` to ```sap.security.services.xsuaa``` or ```sap.security.services.xsuaa[0]``` in case of multiple xsuaa service bindings. Please find an sample [here](/samples/spring-security-hybrid-usage).  
+```spring-security``` automatically maps the `VCAP_SERVICES` credentials to Spring properties. Please note that the **prefix has changed** from ```xsuaa.*``` to ```sap.security.services.xsuaa``` or ```sap.security.services.xsuaa[0]``` in case of multiple xsuaa service bindings. Please find an sample property file [here](/samples/spring-security-hybrid-usage/src/test/resources/application-multixsuaa.yml).  
 
 #### ``@Value``
   **Before**  
