@@ -59,6 +59,7 @@ class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	@Override
+	@SuppressWarnings("lgtm[java/dereferenced-value-may-be-null]")
 	public ValidationResult validate(Token token) {
 		String jwksUri;
 		String keyId;
