@@ -39,7 +39,6 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	@SuppressWarnings("lgtm[java/ssrf]") // tokenKeysEndpointUri is validated as part of XsuaaJkuValidator in java-security
 	public String retrieveTokenKeys(URI tokenKeysEndpointUri, @Nullable String zoneId) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri); // lgtm[java/ssrf] tokenKeysEndpointUri is validated as part of XsuaaJkuValidator in java-security
