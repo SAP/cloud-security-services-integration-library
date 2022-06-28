@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 [java-api]
 - `Token.getAttributeFromClaimAsStringList` javadoc has been fixed, this method supposed to return empty `List` in case of missing attribute not `null`
 
+#### Dependency upgrades
+- Bump spring.security.version from 5.7.1 to 5.7.2
+- Bump spring.boot.version from 2.7.0 to 2.7.1
+- Bump spring.core.version from 5.3.20 to 5.3.21
+- Bump reactor-core from 3.4.18 to 3.4.19
+
 ## 2.12.2
 [spring-xsuaa][spring-security]
 - Fixes [CVE-2022-22978](https://tanzu.vmware.com/security/cve-2022-22978) vulnerability in spring security version
