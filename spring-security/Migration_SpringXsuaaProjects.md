@@ -9,7 +9,7 @@ Make sure, that you add the dependencies that are documented [here](/spring-secu
 
 Now you are ready to **remove** the **`spring-xsuaa`** client library by deleting the following dependencies from the `pom.xml`:
 
-groupId (deprecated) | artifactId (deprecated) 
+groupId | artifactId
 --- | --- 
 com.sap.cloud.security.xsuaa | spring-xsuaa
 com.sap.cloud.security.xsuaa | xsuaa-spring-boot-starter
