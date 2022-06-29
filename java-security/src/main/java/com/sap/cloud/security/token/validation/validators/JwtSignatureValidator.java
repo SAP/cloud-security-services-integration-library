@@ -59,6 +59,7 @@ class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	@Override
+	@SuppressWarnings("lgtm[java/dereferenced-value-may-be-null]")
 	public ValidationResult validate(Token token) {
 		String jwksUri;
 		String keyId;
@@ -66,7 +67,7 @@ class JwtSignatureValidator implements Validator<Token> {
 
 		if (Service.IAS == configuration.getService()) {
 			zoneIdForTokenKeys = token.getZoneId();
-			if (!token.getIssuer().equals("" + configuration.getUrl()) && zoneIdForTokenKeys == null) { // lgtm[java/dereferenced-value-may-be-null]
+			if (!token.getIssuer().equals("" + configuration.getUrl()) && zoneIdForTokenKeys == null) {
 				return createInvalid("Error occurred during signature validation: OIDC token must provide zone_uuid.");
 			}
 		}
