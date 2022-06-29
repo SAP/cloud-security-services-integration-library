@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Bump spring.boot.version from 2.7.0 to 2.7.1
 - Bump spring.core.version from 5.3.20 to 5.3.21
 - Bump reactor-core from 3.4.18 to 3.4.19
+- Bump spring-boot-starter-parent version from 2.6.7 to 2.7.1
 
 ## 2.12.2
 [spring-xsuaa][spring-security]
