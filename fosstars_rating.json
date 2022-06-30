@@ -195,7 +195,7 @@
         }
       }
     },
-    "value" : 5.784618055555556,
+    "value" : 5.817951388888888,
     "weight" : 1.0,
     "confidence" : 10.0,
     "usedValues" : [ {
@@ -401,7 +401,7 @@
           "type" : "PositiveIntegerFeature",
           "name" : "Number of commits in the last three months"
         },
-        "number" : 70
+        "number" : 69
       }, {
         "type" : "IntegerValue",
         "feature" : {
@@ -410,7 +410,7 @@
         },
         "number" : 2
       } ],
-      "explanation" : [ "70 commits in the last 3 months results to 10.00 points", "2 contributors increase the score value from 10.00 to 10.50" ],
+      "explanation" : [ "69 commits in the last 3 months results to 10.00 points", "2 contributors increase the score value from 10.00 to 10.50" ],
       "isUnknown" : false,
       "isNotApplicable" : false
     }, {
@@ -485,7 +485,7 @@
           }
         }
       },
-      "value" : 5.4399999999999995,
+      "value" : 5.6,
       "weight" : 1.0,
       "confidence" : 10.0,
       "usedValues" : [ {
@@ -644,7 +644,7 @@
             }
           }
         },
-        "value" : 3.6,
+        "value" : 4.0,
         "weight" : 1.0,
         "confidence" : 10.0,
         "usedValues" : [ {
@@ -653,7 +653,7 @@
             "type" : "LgtmScore",
             "name" : "How a project addresses issues reported by LGTM"
           },
-          "value" : 9.0,
+          "value" : 10.0,
           "weight" : 1.0,
           "confidence" : 10.0,
           "usedValues" : [ {
@@ -662,7 +662,7 @@
               "type" : "LgtmGradeFeature",
               "name" : "The worst LGTM grade of a project"
             },
-            "value" : "A"
+            "value" : "A+"
           }, {
             "type" : "LanguagesValue",
             "feature" : {
@@ -1015,7 +1015,7 @@
             }
           }
         },
-        "value" : 5.4399999999999995,
+        "value" : 5.6,
         "weight" : 1.0,
         "confidence" : 10.0,
         "usedValues" : [ {
@@ -1174,7 +1174,7 @@
               }
             }
           },
-          "value" : 3.6,
+          "value" : 4.0,
           "weight" : 1.0,
           "confidence" : 10.0,
           "usedValues" : [ {
@@ -1183,7 +1183,7 @@
               "type" : "LgtmScore",
               "name" : "How a project addresses issues reported by LGTM"
             },
-            "value" : 9.0,
+            "value" : 10.0,
             "weight" : 1.0,
             "confidence" : 10.0,
             "usedValues" : [ {
@@ -1192,7 +1192,7 @@
                 "type" : "LgtmGradeFeature",
                 "name" : "The worst LGTM grade of a project"
               },
-              "value" : "A"
+              "value" : "A+"
             }, {
               "type" : "LanguagesValue",
               "feature" : {
