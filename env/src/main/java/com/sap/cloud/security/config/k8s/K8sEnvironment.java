@@ -56,11 +56,13 @@ public class K8sEnvironment implements Environment {
 	}
 
 	private void loadAll() {
-		Map<String, OAuth2ServiceConfiguration> xsuaaPlans = DefaultServiceBindingAccessor.getInstance().getServiceBindings().stream()
+		List<ServiceBinding> serviceBindings = DefaultServiceBindingAccessor.getInstance().getServiceBindings();
+
+		Map<String, OAuth2ServiceConfiguration> xsuaaPlans = serviceBindings.stream()
 				.filter(b -> XSUAA.getCFName().equalsIgnoreCase(b.getServiceName().orElse(null)))
 				.map(b -> mapToOAuth2ServiceConfiguration(b)).collect(Collectors.toMap(c -> c.getProperty("plan"),
 						Function.identity()));
-		Map<String, OAuth2ServiceConfiguration> identityPlans = DefaultServiceBindingAccessor.getInstance().getServiceBindings().stream()
+		Map<String, OAuth2ServiceConfiguration> identityPlans = serviceBindings.stream()
 				.filter(b -> IAS.getCFName().equalsIgnoreCase(b.getServiceName().orElse(null)))
 				.map(b -> mapToOAuth2ServiceConfiguration(b)).collect(Collectors.toMap(c -> c.getProperty("plan"),
 						Function.identity()));

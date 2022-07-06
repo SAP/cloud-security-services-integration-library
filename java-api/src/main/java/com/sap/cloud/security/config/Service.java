@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.token.GrantType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
