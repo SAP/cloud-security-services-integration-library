@@ -300,14 +300,13 @@ public interface Token extends Serializable {
 	 *     token.getAttributeFromClaimAsString(XS_USER_ATTRIBUTES, "custom_role");
 	 *     </code>
 	 *
-	 * @return the String value of a claim attribute or null if claim or its
+	 * @return the String value of a claim attribute or empty List if claim or its
 	 *         attribute does not exist.
 	 **/
-	@Nullable
 	default List<String> getAttributeFromClaimAsStringList(String claimName, String attributeName) {
 		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);
 		return Optional.ofNullable(claimAsJsonObject)
 				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class))
-				.orElse(null);
+				.orElse(Collections.emptyList());
 	}
 }

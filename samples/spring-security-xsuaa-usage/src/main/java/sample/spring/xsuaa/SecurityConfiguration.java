@@ -7,24 +7,24 @@ package sample.spring.xsuaa;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.extractor.IasXsuaaExchangeBroker;
+import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
 	@Autowired
 	XsuaaServiceConfiguration xsuaaServiceConfiguration;
@@ -32,8 +32,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Autowired
 	XsuaaTokenFlows xsuaaTokenFlows;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http
 			.sessionManagement()
@@ -53,6 +53,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.jwt()
 				.jwtAuthenticationConverter(getJwtAuthenticationConverter());
 		// @formatter:on
+
+		return http.build();
 	}
 
 	/**

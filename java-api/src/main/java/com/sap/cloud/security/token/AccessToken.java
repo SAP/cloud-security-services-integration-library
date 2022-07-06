@@ -5,11 +5,8 @@
  */
 package com.sap.cloud.security.token;
 
-import com.sap.cloud.security.json.JsonObject;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -88,32 +85,6 @@ public interface AccessToken extends Token {
 	default String getAttributeFromClaimAsString(String claimName, String attributeName) {
 		return Optional.ofNullable(getClaimAsJsonObject(claimName))
 				.map(claim -> claim.getAsString(attributeName))
-				.orElse(null);
-	}
-
-	/**
-	 * Returns the String list of a claim attribute. <br>
-	 * <code>
-	 *     "claimName": {
-	 *         "attributeName": ["attributeValueAsString", "attributeValue2AsString"]
-	 *     },
-	 *     </code><br>
-	 * <br>
-	 * Example: <br>
-	 * <code>
-	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
-	 *
-	 *     token.getAttributeFromClaimAsString(XS_USER_ATTRIBUTES, "custom_role");
-	 *     </code>
-	 *
-	 * @return the String value of a claim attribute or null if claim or its
-	 *         attribute does not exist.
-	 **/
-	@Nullable
-	default List<String> getAttributeFromClaimAsStringList(String claimName, String attributeName) {
-		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);
-		return Optional.ofNullable(claimAsJsonObject)
-				.map(jsonObject -> jsonObject.getAsList(attributeName, String.class))
 				.orElse(null);
 	}
 }

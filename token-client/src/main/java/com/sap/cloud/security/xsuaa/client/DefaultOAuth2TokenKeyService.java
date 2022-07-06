@@ -41,7 +41,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	@Override
 	public String retrieveTokenKeys(URI tokenKeysEndpointUri, @Nullable String zoneId) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
-		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
+		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri); // lgtm[java/ssrf] tokenKeysEndpointUri is validated as part of XsuaaJkuValidator in java-security
 		if (zoneId != null) {
 			request.addHeader(X_ZONE_UUID, zoneId);
 		}

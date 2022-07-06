@@ -9,19 +9,19 @@ import com.sap.cloud.security.spring.config.IdentityServicesPropertySourceFactor
 import com.sap.cloud.security.spring.token.authentication.AuthenticationToken;
 import com.sap.cloud.security.token.TokenClaims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,29 +33,30 @@ import java.util.stream.Collectors;
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 @PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" })
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
     @Autowired
     Converter<Jwt, AbstractAuthenticationToken> authConverter; // Required only when Xsuaa is used
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http.sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                    .authorizeRequests()
-                    .antMatchers("/sayHello").hasAuthority("Read")
-                    .antMatchers("/comp/sayHello").hasAuthority("Read")
-                    .antMatchers("/*").authenticated()
-                    .anyRequest().denyAll()
+                .authorizeRequests()
+                .antMatchers("/sayHello").hasAuthority("Read")
+                .antMatchers("/comp/sayHello").hasAuthority("Read")
+                .antMatchers("/*").authenticated()
+                .anyRequest().denyAll()
                 .and()
-                    .oauth2ResourceServer()
-                    .jwt()
-                    .jwtAuthenticationConverter(new MyCustomHybridTokenAuthenticationConverter()); // Adjust the converter to represent your use case
+                .oauth2ResourceServer()
+                .jwt()
+                .jwtAuthenticationConverter(new MyCustomHybridTokenAuthenticationConverter()); // Adjust the converter to represent your use case
                                                                                                // Use MyCustomHybridTokenAuthenticationConverter when IAS and XSUAA is used
                                                                                                // Use MyCustomIasTokenAuthenticationConverter when only IAS is used
         // @formatter:on
+        return http.build();
     }
 
     /**

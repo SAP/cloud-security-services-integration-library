@@ -20,17 +20,17 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.web.client.RestOperations;
 
 import java.util.concurrent.TimeUnit;
 
 @EnableWebSecurity
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
 	@Autowired
 	XsuaaServiceConfiguration xsuaaServiceConfiguration;
@@ -38,8 +38,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Autowired
 	RestOperations xsuaaMtlsRestOperations;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 		//enforce browser login popup with basic authentication
 		BasicAuthenticationEntryPoint authEntryPoint = new BasicAuthenticationEntryPoint();
@@ -60,6 +60,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.jwtAuthenticationConverter(jwtAuthenticationConverter());
 
 		// @formatter:on
+		return http.build();
 	}
 
 	BearerTokenResolver getTokenBrokerResolver() {

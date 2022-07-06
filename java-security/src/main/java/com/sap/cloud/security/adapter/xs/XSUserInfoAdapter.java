@@ -25,10 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static com.sap.cloud.security.token.TokenClaims.*;
@@ -407,9 +404,11 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName) {
-		return Optional.ofNullable(accessToken.getAttributeFromClaimAsStringList(claimName, attributeName))
-				.map(values -> values.toArray(new String[] {}))
-				.orElseThrow(createXSUserInfoException(attributeName));
+		List<String> claims = accessToken.getAttributeFromClaimAsStringList(claimName, attributeName);
+		if (claims.isEmpty()) {
+			throw new XSUserInfoException("Invalid user attribute " + attributeName);
+		}
+		return claims.toArray(new String[0]);
 	}
 
 	private void checkNotGrantTypeClientCredentials(String methodName) {

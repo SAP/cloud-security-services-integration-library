@@ -14,7 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Optional;
+import java.util.List;
 
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ZDN;
@@ -215,11 +215,8 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 */
 	@Deprecated
 	public String[] getXSUserAttribute(String attributeName) {
-		return Optional
-				.ofNullable(
-						token.getAttributeFromClaimAsStringList(TokenClaims.XSUAA.XS_USER_ATTRIBUTES, attributeName))
-				.map(values -> values.toArray(new String[] {}))
-				.orElse(new String[] {});
+		List<String> claims = token.getAttributeFromClaimAsStringList(TokenClaims.XSUAA.XS_USER_ATTRIBUTES, attributeName);
+		return claims.isEmpty() ? null : claims.toArray(new String[0]);
 	}
 
 	/**

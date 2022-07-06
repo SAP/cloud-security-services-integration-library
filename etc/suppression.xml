@@ -10,6 +10,12 @@
         <cve>CVE-2018-1258</cve>
     </suppress>
     <suppress>
+        <notes><![CDATA[
+        It's only relevant for AWS log4j patches]]>
+        </notes>
+        <cve>CVE-2022-33915</cve>
+    </suppress>
+    <suppress>
         <notes><![CDATA[Ignored as vulnerable classes of ^HttpInvoker* are not used in the project]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-*.*$</packageUrl>
         <cve>CVE-2016-1000027</cve>

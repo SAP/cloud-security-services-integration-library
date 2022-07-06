@@ -255,17 +255,19 @@ public class XsuaaTokenTest {
 	@Test
 	public void getXsUserAttributeValues() {
 		Token token = new XsuaaToken(jwtSaml);
-		String[] userAttrValues = token.getXSUserAttribute("cost-center");
-		assertThat(userAttrValues.length, is(2));
-		assertThat(userAttrValues[0], is("0815"));
-		assertThat(userAttrValues[1], is("4711"));
+		String[] userAttrValuesCostCenter = token.getXSUserAttribute("cost-center");
+		String[] userAttrValuesCountry = token.getXSUserAttribute("country");
+		assertThat(userAttrValuesCountry.length, is(1));
+		assertThat(userAttrValuesCostCenter.length, is(2));
+		assertThat(userAttrValuesCostCenter[0], is("0815"));
+		assertThat(userAttrValuesCostCenter[1], is("4711"));
 	}
 
 	@Test
-	public void getXsUserAttributeValuesFails() {
+	public void getXsUserAttributeValuesIsNull() {
 		Token token = new XsuaaToken(jwtSaml);
 		String[] userAttrValues = token.getXSUserAttribute("costcenter");
-		assertThat(userAttrValues.length, is(0));
+		assertThat(userAttrValues, is(nullValue()));
 	}
 
 	@Test
