@@ -82,7 +82,9 @@ public class K8sEnvironment implements Environment {
 				configBuilder.withProperty(CFConstants.XSUAA.UAA_DOMAIN, (String) b.getCredentials().get(CFConstants.XSUAA.UAA_DOMAIN));
 				break;
 			case IAS:
-				configBuilder.withDomains(((List<String>)b.getCredentials().get("domains")).toArray(new String[]{}));
+				List<String> domains = TypedMapView.ofCredentials(b).getListView("domains").getItems(String.class);
+				LOGGER.info("first domain : {}", domains.get(0));
+				configBuilder.withDomains(domains.toArray(new String[]{}));
 				break;
 		}
 		return configBuilder.build();
