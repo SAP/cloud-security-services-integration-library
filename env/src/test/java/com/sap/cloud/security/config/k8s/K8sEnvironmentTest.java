@@ -23,7 +23,8 @@ class K8sEnvironmentTest {
 
 	@BeforeAll
 	static void beforeAll() {
-		DefaultServiceBindingAccessor.setInstance(new SapServiceOperatorLayeredServiceBindingAccessor(Paths.get("src/test/resources/k8s"), DEFAULT_PARSING_STRATEGIES));
+		DefaultServiceBindingAccessor.setInstance(new SapServiceOperatorLayeredServiceBindingAccessor(
+				Paths.get("src/test/resources/k8s"), DEFAULT_PARSING_STRATEGIES));
 	}
 
 	@AfterAll

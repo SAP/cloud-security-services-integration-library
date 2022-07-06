@@ -76,18 +76,19 @@ public class K8sEnvironment implements Environment {
 			return null; // TODO test
 		}
 		final Service service = from(b.getServiceName().get());
-		OAuth2ServiceConfigurationBuilder configBuilder =  OAuth2ServiceConfigurationBuilder.forService(service)
+		OAuth2ServiceConfigurationBuilder configBuilder = OAuth2ServiceConfigurationBuilder.forService(service)
 				.withProperties(TypedMapView.ofCredentials(b).getEntries(String.class))
 				.withProperty("plan", b.getServicePlan().orElse(Plan.APPLICATION.name()).toUpperCase());
 		switch (service) {
-			case XSUAA:
-				configBuilder.withProperty(CFConstants.XSUAA.UAA_DOMAIN, (String) b.getCredentials().get(CFConstants.XSUAA.UAA_DOMAIN));
-				break;
-			case IAS:
-				List<String> domains = TypedMapView.ofCredentials(b).getListView("domains").getItems(String.class);
-				LOGGER.info("first domain : {}", domains.get(0));
-				configBuilder.withDomains(domains.toArray(new String[]{}));
-				break;
+		case XSUAA:
+			configBuilder.withProperty(CFConstants.XSUAA.UAA_DOMAIN,
+					(String) b.getCredentials().get(CFConstants.XSUAA.UAA_DOMAIN));
+			break;
+		case IAS:
+			List<String> domains = TypedMapView.ofCredentials(b).getListView("domains").getItems(String.class);
+			LOGGER.info("first domain : {}", domains.get(0));
+			configBuilder.withDomains(domains.toArray(new String[] {}));
+			break;
 		}
 		return configBuilder.build();
 	}
@@ -128,7 +129,8 @@ public class K8sEnvironment implements Environment {
 	@Override
 	public OAuth2ServiceConfiguration getIasConfiguration() {
 		if (getServiceConfigurationsOf(IAS).size() > 1) {
-			LOGGER.warn("{} IAS bindings found. Using the first one from the list", getServiceConfigurationsOf(IAS).size());
+			LOGGER.warn("{} IAS bindings found. Using the first one from the list",
+					getServiceConfigurationsOf(IAS).size());
 		}
 		return getServiceConfigurationsOf(IAS).entrySet().stream().findFirst().map(Map.Entry::getValue).orElse(null);
 	}

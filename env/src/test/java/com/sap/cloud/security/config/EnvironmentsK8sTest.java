@@ -28,14 +28,14 @@ class EnvironmentsK8sTest {
 	@BeforeAll
 	static void beforeAll(EnvironmentVariables environmentVariables) {
 		environmentVariables.set(KUBERNETES_SERVICE_HOST, K8S_HOST_VALUE);
-		DefaultServiceBindingAccessor.setInstance(new SapServiceOperatorLayeredServiceBindingAccessor(Paths.get("src/test/resources/k8s"), DEFAULT_PARSING_STRATEGIES));
+		DefaultServiceBindingAccessor.setInstance(new SapServiceOperatorLayeredServiceBindingAccessor(
+				Paths.get("src/test/resources/k8s"), DEFAULT_PARSING_STRATEGIES));
 	}
 
 	@AfterAll
 	static void afterAll() {
 		DefaultServiceBindingAccessor.setInstance(null);
 	}
-
 
 	@Test
 	void getCurrent_returnsOnlySingleK8sInstance() {
