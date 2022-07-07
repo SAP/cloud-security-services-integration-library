@@ -12,7 +12,6 @@ import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.sap.cloud.security.config.Service.*;
+import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
+import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.config.k8s.K8sConstants.Plan;
 
 /**
@@ -59,33 +60,35 @@ public class K8sEnvironment implements Environment {
 		List<ServiceBinding> serviceBindings = DefaultServiceBindingAccessor.getInstance().getServiceBindings();
 
 		Map<String, OAuth2ServiceConfiguration> xsuaaPlans = serviceBindings.stream()
-				.filter(b -> XSUAA.getCFName().equalsIgnoreCase(b.getServiceName().orElse(null)))
-				.map(b -> mapToOAuth2ServiceConfiguration(b)).collect(Collectors.toMap(c -> c.getProperty("plan"),
+				.filter(b -> Service.XSUAA.getCFName().equalsIgnoreCase(b.getServiceName().orElse(null)))
+				.map(this::mapToOAuth2ServiceConfiguration)
+				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN),
 						Function.identity()));
 		Map<String, OAuth2ServiceConfiguration> identityPlans = serviceBindings.stream()
-				.filter(b -> IAS.getCFName().equalsIgnoreCase(b.getServiceName().orElse(null)))
-				.map(b -> mapToOAuth2ServiceConfiguration(b)).collect(Collectors.toMap(c -> c.getProperty("plan"),
+				.filter(b -> Service.IAS.getCFName().equalsIgnoreCase(b.getServiceName().orElse(null)))
+				.map(this::mapToOAuth2ServiceConfiguration)
+				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN),
 						Function.identity()));
-		serviceConfigurations.put(XSUAA, xsuaaPlans);
-		serviceConfigurations.put(IAS, identityPlans);
+		serviceConfigurations.put(Service.XSUAA, xsuaaPlans);
+		serviceConfigurations.put(Service.IAS, identityPlans);
 	}
 
 	private OAuth2ServiceConfiguration mapToOAuth2ServiceConfiguration(ServiceBinding b) {
 		if (!b.getServiceName().isPresent()) {
-			LOGGER.error("Ignores Service Binding with name {} as service name is not provided.", b.getName());
+			LOGGER.error("Ignores Service Binding with name '{}' as service name is not provided.", b.getName());
 			return null; // TODO test
 		}
-		final Service service = from(b.getServiceName().get());
+		final Service service = Service.from(b.getServiceName().get());
 		OAuth2ServiceConfigurationBuilder configBuilder = OAuth2ServiceConfigurationBuilder.forService(service)
 				.withProperties(TypedMapView.ofCredentials(b).getEntries(String.class))
-				.withProperty("plan", b.getServicePlan().orElse(Plan.APPLICATION.name()).toUpperCase());
+				.withProperty(SERVICE_PLAN, b.getServicePlan().orElse(Plan.APPLICATION.name()).toUpperCase());
 		switch (service) {
 		case XSUAA:
-			configBuilder.withProperty(CFConstants.XSUAA.UAA_DOMAIN,
-					(String) b.getCredentials().get(CFConstants.XSUAA.UAA_DOMAIN));
+			configBuilder.withProperty(UAA_DOMAIN,
+					(String) b.getCredentials().get(UAA_DOMAIN));
 			break;
 		case IAS:
-			List<String> domains = TypedMapView.ofCredentials(b).getListView("domains").getItems(String.class);
+			List<String> domains = TypedMapView.ofCredentials(b).getListView(DOMAINS).getItems(String.class);
 			LOGGER.info("first domain : {}", domains.get(0));
 			configBuilder.withDomains(domains.toArray(new String[] {}));
 			break;
@@ -108,10 +111,11 @@ public class K8sEnvironment implements Environment {
 	@Nullable
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfiguration() {
-		return Optional.ofNullable(getServiceConfigurationsOf(XSUAA).get(Plan.APPLICATION.name()))
-				.orElse(Optional.ofNullable(getServiceConfigurationsOf(XSUAA).get(Plan.BROKER.name()))
-						.orElse(Optional.ofNullable(getServiceConfigurationsOf(XSUAA).get(Plan.SPACE.name()))
-								.orElse(Optional.ofNullable(getServiceConfigurationsOf(XSUAA).get(Plan.DEFAULT.name()))
+		return Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.APPLICATION.name()))
+				.orElse(Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.BROKER.name()))
+						.orElse(Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.SPACE.name()))
+								.orElse(Optional
+										.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.DEFAULT.name()))
 										.orElse(null))));
 
 	}
@@ -120,7 +124,7 @@ public class K8sEnvironment implements Environment {
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange() {
 		if (getNumberOfXsuaaConfigurations() > 1) {
-			return getServiceConfigurationsOf(XSUAA).get(Plan.BROKER.name());
+			return getServiceConfigurationsOf(Service.XSUAA).get(Plan.BROKER.name());
 		}
 		return getXsuaaConfiguration();
 	}
@@ -128,16 +132,17 @@ public class K8sEnvironment implements Environment {
 	@Nullable
 	@Override
 	public OAuth2ServiceConfiguration getIasConfiguration() {
-		if (getServiceConfigurationsOf(IAS).size() > 1) {
+		if (getServiceConfigurationsOf(Service.IAS).size() > 1) {
 			LOGGER.warn("{} IAS bindings found. Using the first one from the list",
-					getServiceConfigurationsOf(IAS).size());
+					getServiceConfigurationsOf(Service.IAS).size());
 		}
-		return getServiceConfigurationsOf(IAS).entrySet().stream().findFirst().map(Map.Entry::getValue).orElse(null);
+		return getServiceConfigurationsOf(Service.IAS).entrySet().stream().findFirst().map(Map.Entry::getValue)
+				.orElse(null);
 	}
 
 	@Override
 	public int getNumberOfXsuaaConfigurations() {
-		return getServiceConfigurationsOf(XSUAA).size();
+		return getServiceConfigurationsOf(Service.XSUAA).size();
 	}
 
 }
