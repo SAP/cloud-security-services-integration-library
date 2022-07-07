@@ -15,7 +15,6 @@ import com.sap.cloud.security.config.cf.CFConstants;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
-import javax.annotation.Nonnull;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -27,14 +26,15 @@ class K8sEnvironmentTest {
 
 	private static Environment cut;
 
-	@BeforeAll
-	static void beforeAll() {
+	@BeforeEach
+	void beforeEach() {
 		DefaultServiceBindingAccessor.setInstance(new SapServiceOperatorLayeredServiceBindingAccessor(
 				Paths.get(K8sEnvironmentTest.class.getResource("/k8s").getPath()), DEFAULT_PARSING_STRATEGIES));
 	}
 
-	@AfterAll
-	static void afterAll() {
+	@AfterEach
+	void afterEach() {
+		K8sEnvironment.instance = null;
 		DefaultServiceBindingAccessor.setInstance(null);
 	}
 
@@ -77,11 +77,9 @@ class K8sEnvironmentTest {
 	@Test
 	void getNoConfigIfNoServiceNameIsGiven() {
 		ServiceBindingAccessor accessor = Mockito.mock(ServiceBindingAccessor.class);
-		List<ServiceBinding> bindings = new ArrayList();
 		ServiceBinding binding = Mockito.mock(ServiceBinding.class);
 		Mockito.when(binding.getServiceName()).thenReturn(Optional.empty());
-		bindings.add(binding);
-		Mockito.when(accessor.getServiceBindings()).thenReturn(bindings);
+		Mockito.when(accessor.getServiceBindings()).thenReturn(Collections.singletonList(binding));
 		DefaultServiceBindingAccessor.setInstance(accessor);
 
 		cut = K8sEnvironment.getInstance();
@@ -105,11 +103,9 @@ class K8sEnvironmentTest {
 	@Test
 	void getNoConfigIfNoServicePlanIsGiven() {
 		ServiceBindingAccessor accessor = Mockito.mock(ServiceBindingAccessor.class);
-		List<ServiceBinding> bindings = new ArrayList();
 		ServiceBinding binding = Mockito.mock(ServiceBinding.class);
 		Mockito.when(binding.getServicePlan()).thenReturn(Optional.empty());
-		bindings.add(binding);
-		Mockito.when(accessor.getServiceBindings()).thenReturn(bindings);
+		Mockito.when(accessor.getServiceBindings()).thenReturn(Collections.singletonList(binding));
 		DefaultServiceBindingAccessor.setInstance(accessor);
 
 		cut = K8sEnvironment.getInstance();

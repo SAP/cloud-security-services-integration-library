@@ -35,7 +35,7 @@ import static com.sap.cloud.security.config.k8s.K8sConstants.Plan;
 public class K8sEnvironment implements Environment {
 	private static final Logger LOGGER = LoggerFactory.getLogger(K8sEnvironment.class);
 
-	private static K8sEnvironment instance;
+	static K8sEnvironment instance;
 	private final Map<Service, Map<String, OAuth2ServiceConfiguration>> serviceConfigurations;
 
 	private K8sEnvironment() {
