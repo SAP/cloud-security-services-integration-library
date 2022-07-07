@@ -22,7 +22,7 @@ It includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) th
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>2.12.3</version>
+    <version>2.13.0</version>
     <scope>test</scope>
 </dependency>
 ```

@@ -42,7 +42,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>2.12.3</version>
+    <version>2.13.0</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
