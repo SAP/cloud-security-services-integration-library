@@ -1,13 +1,13 @@
 ---
 ###  SERVICE INSTANCE CONFIGURATION  ###
 # Xsuaa instance
-apiVersion: servicecatalog.k8s.io/v1beta1
+apiVersion: services.cloud.sap.com/v1alpha1
 kind: ServiceInstance
 metadata:
-  name: xsuaa-java-security
+  name: xsuaa
 spec:
-  clusterServiceClassExternalName: xsuaa
-  clusterServicePlanExternalName: application
+  serviceOfferingName: xsuaa
+  servicePlanName: application
   parameters:
     xsappname: xsuaa-java-security
     tenant-mode: dedicated
@@ -25,93 +25,31 @@ spec:
         role-template-references:
           - "$XSAPPNAME.Viewer"
 ---
-apiVersion: servicecatalog.k8s.io/v1beta1
+apiVersion: services.cloud.sap.com/v1alpha1
 kind: ServiceBinding
 metadata:
   name: xsuaa-service-binding
 spec:
-  instanceRef:
-    name: xsuaa-java-security
----
-apiVersion: servicecatalog.kyma-project.io/v1alpha1
-kind: ServiceBindingUsage
-metadata:
-  name: xsuaa-service-binding-usage
-spec:
-  parameters:
-    envPrefix:
-      name: xsuaa_
-  serviceBindingRef:
-    name: xsuaa-service-binding
-  usedBy:
-    kind: deployment
-    name: java-security-usage
+  serviceInstanceName: xsuaa
 ---
 # Xsuaa broker instance
-apiVersion: servicecatalog.k8s.io/v1beta1
+apiVersion: services.cloud.sap.com/v1alpha1
 kind: ServiceInstance
 metadata:
   name: xsuaa-broker
 spec:
-  clusterServiceClassExternalName: xsuaa
-  clusterServicePlanExternalName: broker
+  serviceOfferingName: xsuaa
+  servicePlanName: broker
   parameters:
     xsappname: xsuaa-broker
     tenant-mode: dedicated
 ---
-apiVersion: servicecatalog.k8s.io/v1beta1
+apiVersion: services.cloud.sap.com/v1alpha1
 kind: ServiceBinding
 metadata:
   name: xsuaa-broker-binding
 spec:
-  instanceRef:
-    name: xsuaa-broker
----
-apiVersion: servicecatalog.kyma-project.io/v1alpha1
-kind: ServiceBindingUsage
-metadata:
-  name: xsuaa-broker-binding-usage
-spec:
-  parameters:
-    envPrefix:
-      name: xsuaa_
-  serviceBindingRef:
-    name: xsuaa-broker-binding
-  usedBy:
-    kind: deployment
-    name: java-security-usage
----
-# Service manager instance
-apiVersion: servicecatalog.k8s.io/v1beta1
-kind: ServiceInstance
-metadata:
-  name: service-manager
-spec:
-  clusterServiceClassExternalName: service-manager
-  clusterServicePlanExternalName: subaccount-admin
-  parameters:
----
-apiVersion: servicecatalog.k8s.io/v1beta1
-kind: ServiceBinding
-metadata:
-  name: service-manager-binding
-spec:
-  instanceRef:
-    name: service-manager
----
-apiVersion: servicecatalog.kyma-project.io/v1alpha1
-kind: ServiceBindingUsage
-metadata:
-  name: service-manager-binding-usage
-spec:
-  parameters:
-    envPrefix:
-      name: sm_
-  serviceBindingRef:
-    name: service-manager-binding
-  usedBy:
-    kind: deployment
-    name: java-security-usage
+  serviceInstanceName: xsuaa-broker
 ---
 ###  APPLICATION CONFIGURATION  ###
 apiVersion: apps/v1
@@ -119,7 +57,6 @@ kind: Deployment
 metadata:
   labels:
     app: java-security-usage
-    kyma-grafana: enabled
   name: java-security-usage
 spec:
   replicas: 1
@@ -130,7 +67,6 @@ spec:
     metadata:
       labels:
         app: java-security-usage
-        kyma-grafana: enabled
     spec:
       imagePullSecrets:
         - name: sap-repo-registry
@@ -143,25 +79,18 @@ spec:
               containerPort: 8080
           volumeMounts:
             - name: xsuaa
-              mountPath: "/etc/secrets/sapbtp/xsuaa/xsuaa-java-security"
+              mountPath: "/bindings/xsuaa"
               readOnly: true
             - name: xsuaa-broker
-              mountPath: "/etc/secrets/sapbtp/xsuaa/xsuaa-broker"
+              mountPath: "/bindings/xsuaa-broker"
               readOnly: true
-            - name: service-manager
-              mountPath: "/etc/secrets/sapbtp/service-manager/sm"
-              readOnly: true
-
       volumes:
-        - name: xsuaa
+        - name: xsuaa-secret
           secret:
-              secretName: xsuaa-service-binding
-        - name: xsuaa-broker
+            secretName: "xsuaa"
+        - name: xsuaa-broker-secret
           secret:
-              secretName: xsuaa-broker-binding
-        - name: service-manager
-          secret:
-              secretName: service-manager-binding
+            secretName: "xsuaa-broker"
 ---
 apiVersion: v1
 kind: Service
