@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -221,8 +220,5 @@ public class OAuth2ServiceConfigurationBuilderTest {
 		assertThat(configuration.getUrl()).isNull();
 		assertThat(configuration.getCertUrl()).isEqualTo(URI.create(url));
 		assertThat(configuration.getCredentialType()).isEqualTo(CredentialType.X509);
-
-		XsuaaDefaultEndpoints endpoints = new XsuaaDefaultEndpoints(configuration);
-		assertThat(endpoints.getAuthorizeEndpoint().toString()).isEqualTo("http://the.cert.Url.org/oauth/authorize");
 	}
 }

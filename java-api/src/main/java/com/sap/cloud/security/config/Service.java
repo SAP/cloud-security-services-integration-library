@@ -8,6 +8,8 @@ package com.sap.cloud.security.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+
 /**
  * Represents a supported identity service.
  */
@@ -38,5 +40,15 @@ public enum Service {
 	 */
 	public String getCFName() {
 		return cloudFoundryName;
+	}
+
+	@Nullable
+	public static Service from(String cloudFoundryName) {
+		for (Service service : values()) {
+			if (service.cloudFoundryName.equalsIgnoreCase(cloudFoundryName)) {
+				return service;
+			}
+		}
+		return null;
 	}
 }

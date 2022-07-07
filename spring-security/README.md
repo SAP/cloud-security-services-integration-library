@@ -29,9 +29,6 @@ To access service instance configurations from the application, Kubernetes secre
 Library will look up the configuration files in the following paths:
 - XSUAA: `/etc/secrets/sapbtp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
 - IAS: `/etc/secrets/sapbtp/identity/<YOUR IAS INSTANCE NAME>`
-- Service-manager: `/etc/secrets/sapbtp/service-manager/<YOUR SERVICE-MANAGER NAME>`
-
-:exclamation: service-manager binding is mandatory to resolve multiple Xsuaa bindings! If it is not provided the first Xsuaa binding from a list is used and treated as instance with `application` plan.
 
 Detailed information on how to use ``spring-security`` library in Kubernetes/Kyma environment can be found in [spring-security-hybrid-usage](/samples/spring-security-hybrid-usage/README.md#deployment-on-kymakubernetes) sample README.
 

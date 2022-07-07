@@ -159,10 +159,12 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withDomains(String... domains) {
-		if (Service.XSUAA.equals(service)) {
-			properties.put(XSUAA.UAA_DOMAIN, domains[0]);
-		} else {
-			this.domains = Arrays.asList(domains);
+		if (domains != null) {
+			if (Service.XSUAA.equals(service) && domains.length == 1) {
+				properties.put(XSUAA.UAA_DOMAIN, domains[0]);
+			} else {
+				this.domains = Arrays.asList(domains);
+			}
 		}
 		return this;
 	}

@@ -13,22 +13,6 @@ import com.sap.cloud.security.config.cf.CFConstants;
  */
 public class K8sConstants {
 	public static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
-	static final String XSUAA_CONFIG_PATH_DEFAULT = "/etc/secrets/sapbtp/xsuaa";
-	static final String IAS_CONFIG_PATH_DEFAULT = "/etc/secrets/sapbtp/identity";
-	static final String SERVICE_MANAGER_CONFIG_PATH_DEFAULT = "/etc/secrets/sapbtp/service-manager";
-
-	/**
-	 * System variable name for user defined Xsuaa configuration path
-	 */
-	static final String XSUAA_CONFIG_PATH = "XSUAA_CONFIG_PATH";
-	/**
-	 * System variable name for user defined IAS configuration path
-	 */
-	static final String IAS_CONFIG_PATH = "IAS_CONFIG_PATH";
-	/**
-	 * System variable name for user defined Service manager configuration path
-	 */
-	static final String SM_CONFIG_PATH = "SM_CONFIG_PATH";
 
 	private K8sConstants() {
 	}
