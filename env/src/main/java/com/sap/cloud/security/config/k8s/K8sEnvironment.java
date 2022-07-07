@@ -75,8 +75,8 @@ public class K8sEnvironment implements Environment {
 
 	private OAuth2ServiceConfiguration mapToOAuth2ServiceConfiguration(ServiceBinding b) {
 		if (!b.getServiceName().isPresent()) {
-			LOGGER.error("Ignores Service Binding with name '{}' as service name is not provided.", b.getName());
-			return null; // TODO test
+			LOGGER.error("Ignores Service Binding with name {} as service name is not provided.", b.getName());
+			return null; // as of now, method is never called when service name isn't given
 		}
 		final Service service = Service.from(b.getServiceName().get());
 		OAuth2ServiceConfigurationBuilder configBuilder = OAuth2ServiceConfigurationBuilder.forService(service)
