@@ -27,9 +27,17 @@
             <groupId>com.sap.cloud.environment.servicebinding</groupId>
             <artifactId>java-sap-service-operator</artifactId>
         </dependency>
-        <dependency>
+        <dependency><!-- optional if using TypedMapView etc. -->
             <groupId>com.sap.cloud.environment.servicebinding.api</groupId>
             <artifactId>java-consumption-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sap.cloud.environment.servicebinding.api</groupId>
+            <artifactId>java-access-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

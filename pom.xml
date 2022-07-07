@@ -132,6 +132,13 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>com.sap.cloud.environment.servicebinding</groupId>
+				<artifactId>java-bom</artifactId>
+				<version>${sap.cloud.env.servicebinding.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<!-- spring core -->
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -214,16 +221,6 @@
 				<scope>test</scope>
 			</dependency>
 			<!-- other -->
-			<dependency>
-				<groupId>com.sap.cloud.environment.servicebinding</groupId>
-				<artifactId>java-sap-service-operator</artifactId>
-				<version>${sap.cloud.env.servicebinding.version}</version>
-			</dependency>
-			<dependency> <!-- optional if using TypedMapView etc. -->
-				<groupId>com.sap.cloud.environment.servicebinding.api</groupId>
-				<artifactId>java-consumption-api</artifactId>
-				<version>${sap.cloud.env.servicebinding.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>
