@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 ## 2.13.0
 - [env]
   - Uses https://github.com/SAP/btp-environment-variable-access (version 0.3.1), which supports access to service credentials provisioned by SAP BTP Service Operator. With that there is no service-manager longer required to distinguish by plan, if multiple xsuaa instances are bound.
+- [token-client]
+  - NPE bug fix for `UriUtil.replaceSubdomain(@Nonnull URI, @Nullable subdomain)` in cases when provided URI does not contain host(no http/s schema provided) #943
 
 ## 2.12.3
 [spring-xsuaa][spring-security-compatibility] 
