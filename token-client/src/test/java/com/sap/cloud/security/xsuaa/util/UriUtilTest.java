@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class UriUtilTest {
 
-	private URI tokenEndpointUri = URI.create("https://subdomain.myauth.com/mypath");
+	private final URI tokenEndpointUri = URI.create("https://subdomain.myauth.com/mypath");
 
 	@Test
 	public void replaceSubdomain_replacesNothingWhenSubdomainIsNull() {
@@ -38,5 +38,11 @@ public class UriUtilTest {
 	public void replaceSubdomain_replacesNothingWhenUrlContainsNoSubdomain() {
 		URI replacedURI = UriUtil.replaceSubdomain(URI.create("http://localhost"), "newsubdomain");
 		assertThat(replacedURI.toString(), is("http://localhost"));
+	}
+
+	@Test
+	public void replaceSubdomain_noUrlSchemaGiven() {
+		URI replacedURI = UriUtil.replaceSubdomain(URI.create("localhost"), "newsubdomain");
+		assertThat(replacedURI.toString(), is("localhost"));
 	}
 }

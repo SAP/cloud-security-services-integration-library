@@ -51,7 +51,7 @@ public class UriUtil {
 	}
 
 	private static boolean hasSubdomain(URI uri) {
-		return uri.getHost().contains(".");
+		return uri.isAbsolute() && uri.getHost().contains(".");
 	}
 
 	private static boolean hasText(String string) {
