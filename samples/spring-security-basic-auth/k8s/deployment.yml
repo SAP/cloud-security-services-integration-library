@@ -1,13 +1,13 @@
 ---
 ###  SERVICE INSTANCE CONFIGURATION  ###
 # Xsuaa instance
-apiVersion: servicecatalog.k8s.io/v1beta1
+apiVersion: services.cloud.sap.com/v1alpha1
 kind: ServiceInstance
 metadata:
   name: xsuaa-basic
 spec:
-  clusterServiceClassExternalName: xsuaa
-  clusterServicePlanExternalName: application
+  serviceOfferingName: xsuaa
+  servicePlanName: application
   parameters:
     xsappname: spring-security-basic-auth
     tenant-mode: dedicated
@@ -28,27 +28,12 @@ spec:
         role-template-references:
           - "$XSAPPNAME.AccessRole"
 ---
-apiVersion: servicecatalog.k8s.io/v1beta1
+apiVersion: services.cloud.sap.com/v1alpha1
 kind: ServiceBinding
 metadata:
   name: xsuaa-basic-binding
 spec:
-  instanceRef:
-    name: xsuaa-basic
----
-apiVersion: servicecatalog.kyma-project.io/v1alpha1
-kind: ServiceBindingUsage
-metadata:
-  name: xsuaa-basic-binding-usage
-spec:
-  parameters:
-    envPrefix:
-      name: xsuaa_
-  serviceBindingRef:
-    name: xsuaa-basic-binding
-  usedBy:
-    kind: deployment
-    name: spring-security-basic-auth
+  serviceInstanceName: xsuaa-basic
 ---
 ###  APPLICATION CONFIGURATION  ###
 apiVersion: apps/v1
@@ -56,7 +41,6 @@ kind: Deployment
 metadata:
   labels:
     app: spring-security-basic-auth
-    kyma-grafana: enabled
   name: spring-security-basic-auth
 spec:
   replicas: 1
@@ -71,17 +55,20 @@ spec:
     spec:
       containers:
         - image: <YOUR IMAGE REPOSITORY>
+          env:
+            - name: SERVICE_BINDING_ROOT
+              value: "/bindings"
           imagePullPolicy: Always
           name: spring-security-basic-auth
           ports:
             - name: http
               containerPort: 8080
           volumeMounts:
-            - name: xsuaa
-              mountPath: "/etc/secrets/sapbtp/xsuaa/xsuaa-basic"
+            - name: xsuaa-basic
+              mountPath: "/bindings/xsuaa-basic"
               readOnly: true
       volumes:
-        - name: xsuaa
+        - name: xsuaa-basic
           secret:
               secretName: xsuaa-basic-binding
 ---
