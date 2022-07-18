@@ -72,6 +72,9 @@ spec:
         - name: sap-repo-registry
       containers:
         - image: <YOUR IMAGE REPOSITORY>
+          env:
+            - name: SERVICE_BINDING_ROOT
+              value: "/bindings"
           imagePullPolicy: Always
           name: java-security-usage
           ports:
@@ -85,12 +88,12 @@ spec:
               mountPath: "/bindings/xsuaa-broker"
               readOnly: true
       volumes:
-        - name: xsuaa-secret
+        - name: xsuaa
           secret:
-            secretName: "xsuaa"
-        - name: xsuaa-broker-secret
+            secretName: xsuaa-service-binding
+        - name: xsuaa-broker
           secret:
-            secretName: "xsuaa-broker"
+            secretName: xsuaa-broker-binding
 ---
 apiVersion: v1
 kind: Service
