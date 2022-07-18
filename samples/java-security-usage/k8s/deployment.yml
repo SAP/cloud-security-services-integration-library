@@ -79,18 +79,18 @@ spec:
               containerPort: 8080
           volumeMounts:
             - name: xsuaa
-              mountPath: "/etc/secrets/sapbtp/xsuaa/xsuaa-java-security"
+              mountPath: "/bindings/xsuaa"
               readOnly: true
             - name: xsuaa-broker
-              mountPath: "/etc/secrets/sapbtp/xsuaa/xsuaa-broker"
+              mountPath: "/bindings/xsuaa-broker"
               readOnly: true
       volumes:
         - name: xsuaa-secret
           secret:
-              secretName: xsuaa
+            secretName: "xsuaa"
         - name: xsuaa-broker-secret
           secret:
-              secretName: xsuaa-broker
+            secretName: "xsuaa-broker"
 ---
 apiVersion: v1
 kind: Service
@@ -117,8 +117,7 @@ metadata:
 spec:
   gateway: kyma-gateway.kyma-system.svc.cluster.local
   rules:
-    - path: /.*
-      accessStrategies:
+    - accessStrategies:
         - config: {}
           handler: allow
       methods:
@@ -128,6 +127,7 @@ spec:
         - PATCH
         - DELETE
         - HEAD
+      path: /.*
   service:
     host: java-security-api
     name: java-security-usage
