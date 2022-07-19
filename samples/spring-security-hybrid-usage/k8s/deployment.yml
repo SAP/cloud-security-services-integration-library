@@ -1,13 +1,13 @@
 ---
 ###  SERVICE INSTANCE CONFIGURATION  ###
 # Xsuaa instance
-apiVersion: servicecatalog.k8s.io/v1beta1
+apiVersion: services.cloud.sap.com/v1alpha1
 kind: ServiceInstance
 metadata:
   name: xsuaa-authn
 spec:
-  clusterServiceClassExternalName: xsuaa
-  clusterServicePlanExternalName: application
+  serviceOfferingName: xsuaa
+  servicePlanName: application
   parameters:
     xsappname: spring-security-hybrid-usage
     tenant-mode: dedicated
@@ -28,62 +28,32 @@ spec:
         role-template-references:
           - "$XSAPPNAME.Viewer"
 ---
-apiVersion: servicecatalog.k8s.io/v1beta1
+apiVersion: services.cloud.sap.com/v1alpha1
 kind: ServiceBinding
 metadata:
-  name: xsuaa-service-binding
+  name: xsuaa-authn-binding
 spec:
-  instanceRef:
-    name: xsuaa-authn
----
-apiVersion: servicecatalog.kyma-project.io/v1alpha1
-kind: ServiceBindingUsage
-metadata:
-  name: xsuaa-service-binding-usage
-spec:
-  parameters:
-    envPrefix:
-      name: xsuaa_
-  serviceBindingRef:
-    name: xsuaa-service-binding
-  usedBy:
-    kind: deployment
-    name: spring-security-hybrid-usage
+  serviceInstanceName: xsuaa-authn
 ---
 # IAS instance
-apiVersion: servicecatalog.k8s.io/v1beta1
+apiVersion: services.cloud.sap.com/v1alpha1
 kind: ServiceInstance
 metadata:
   name: ias-authn
 spec:
-  clusterServiceClassExternalName: identity
-  clusterServicePlanExternalName: application
+  serviceOfferingName: identity
+  servicePlanName: application
   parameters:
     credential-type: "X509_GENERATED"
 ---
-apiVersion: servicecatalog.k8s.io/v1beta1
+apiVersion: services.cloud.sap.com/v1alpha1
 kind: ServiceBinding
 metadata:
   name: ias-service-binding
 spec:
-  instanceRef:
-    name: ias-authn
+  serviceInstanceName: ias-authn
   parameters:
     credential-type: "X509_GENERATED"
----
-apiVersion: servicecatalog.kyma-project.io/v1alpha1
-kind: ServiceBindingUsage
-metadata:
-  name: ias-service-binding-usage
-spec:
-  parameters:
-    envPrefix:
-      name: ias_
-  serviceBindingRef:
-    name: ias-service-binding
-  usedBy:
-    kind: deployment
-    name: spring-security-hybrid-usage
 ---
 ###  APPLICATION CONFIGURATION  ###
 apiVersion: apps/v1
@@ -106,6 +76,9 @@ spec:
     spec:
       containers:
         - image: <YOUR IMAGE REPOSITORY>
+          env:
+            - name: SERVICE_BINDING_ROOT
+              value: "/bindings"
           imagePullPolicy: Always
           name: spring-security-hybrid-usage
           ports:
@@ -113,16 +86,16 @@ spec:
               containerPort: 8080
           volumeMounts:
             - name: xsuaa
-              mountPath: "/etc/secrets/sapbtp/xsuaa/xsuaa-authn"
+              mountPath: "/bindings/xsuaa-authn"
               readOnly: true
             - name: ias-authn
-              mountPath: "/etc/secrets/sapbtp/identity/ias-authn"
+              mountPath: "/bindings/ias-authn"
               readOnly: true
 
       volumes:
         - name: xsuaa
           secret:
-            secretName: xsuaa-service-binding
+            secretName: xsuaa-authn-binding
         - name: ias-authn
           secret:
             secretName: ias-service-binding
