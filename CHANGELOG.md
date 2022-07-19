@@ -2,16 +2,26 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.13.0
-- [env]
-  - Uses https://github.com/SAP/btp-environment-variable-access (version 0.3.1), which supports access to service credentials provisioned by SAP BTP Service Operator. With that there is no service-manager longer required to distinguish by plan, if multiple xsuaa instances are bound.
+- [env] 
+  - uses https://github.com/SAP/btp-environment-variable-access (version 0.3.1), which supports access to service credentials in K8s/Kyma environment provisioned by [SAP BTP Service Operator](https://github.com/SAP/sap-btp-service-operator). Usage of service-catalog is no longer supported. With that there is no service-manager longer required to distinguish the service instance plan, when multiple xsuaa instances are bound (#855).
 - [token-client]
   - NPE bug fix for `UriUtil.replaceSubdomain(@Nonnull URI, @Nullable subdomain)` in cases when provided URI does not contain host(no http/s schema provided) #943
+- [samples]
+  - `java-security-usage`, `spring-security-basic-auth`, `spring-security-hybrid-usage`  adjusted for service-operator higher than v0.2.3 usage
+
+#### Dependency upgrades
+* Bump log4j2.version from 2.17.2 to 2.18.0
+* Bumps `spring.core.version` from 5.3.21 to 5.3.22.
+* Bumps [reactor-core](https://github.com/reactor/reactor-core) from 3.4.19 to 3.4.21.
+
+
+**Full Changelog**: https://github.com/SAP/cloud-security-xsuaa-integration/compare/2.12.3...2.13.0
 
 ## 2.12.3
-[spring-xsuaa][spring-security-compatibility] 
-- bug fix for #910 `XsuaaToken.getXSUserAttribute`, `XsuaaTokenComp.getXSUserAttribute` methods' return `null` if claim is not present as documented in javadoc.
-[java-api]
-- `Token.getAttributeFromClaimAsStringList` javadoc has been fixed, this method supposed to return empty `List` in case of missing attribute not `null`
+- [spring-xsuaa][spring-security-compatibility] 
+  - bug fix for #910 `XsuaaToken.getXSUserAttribute`, `XsuaaTokenComp.getXSUserAttribute` methods' return `null` if claim is not present as documented in javadoc.
+- [java-api]
+  - `Token.getAttributeFromClaimAsStringList` javadoc has been fixed, this method supposed to return empty `List` in case of missing attribute not `null`
 
 #### Dependency upgrades
 - Bump spring.security.version from 5.7.1 to 5.7.2
@@ -21,8 +31,8 @@ All notable changes to this project will be documented in this file.
 - Bump spring-boot-starter-parent version from 2.6.7 to 2.7.1
 
 ## 2.12.2
-[spring-xsuaa][spring-security]
-- Fixes [CVE-2022-22978](https://tanzu.vmware.com/security/cve-2022-22978) vulnerability in spring security version
+- [spring-xsuaa][spring-security]
+  - Fixes [CVE-2022-22978](https://tanzu.vmware.com/security/cve-2022-22978) vulnerability in spring security version
 
 #### Dependency upgrades
 - Bump spring.security.version from 5.6.3 to 5.7.1
