@@ -1,11 +1,15 @@
 package com.sap.cloud.security.client;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 import nl.altindag.log.LogCaptor;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
@@ -17,16 +21,17 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 class DefaultHttpClientFactoryTest {
 
-	public static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://www.sap.com/"));
-	private static ClientIdentity config = Mockito.mock(ClientIdentity.class);
-	private static ClientIdentity config2 = Mockito.mock(ClientIdentity.class);
-	private DefaultHttpClientFactory cut = new DefaultHttpClientFactory();
+	public static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://www.sap.com/index.html"));
+	private static final ClientIdentity config = Mockito.mock(ClientIdentity.class);
+	private static final ClientIdentity config2 = Mockito.mock(ClientIdentity.class);
+	private final DefaultHttpClientFactory cut = new DefaultHttpClientFactory();
 	private static LogCaptor logCaptor;
 
 	@BeforeAll
@@ -105,7 +110,7 @@ class DefaultHttpClientFactoryTest {
 	void assertWarnWhenCalledMoreThanOnce() {
 		cut.createClient(config);
 		cut.createClient(config2);
-		assertThat(logCaptor.getWarnLogs().size()).isEqualTo(0);
+		assertThat(logCaptor.getWarnLogs()).isEmpty();
 
 		cut.createClient(config);
 		assertThat(logCaptor.getWarnLogs().get(0))
@@ -114,13 +119,33 @@ class DefaultHttpClientFactoryTest {
 		cut.createClient(null);
 		logCaptor.clearLogs();
 		cut.createClient(null);
-		assertThat(logCaptor.getWarnLogs().size()).isEqualTo(2);
+		assertThat(logCaptor.getWarnLogs()).hasSize(2);
 		assertThat(logCaptor.getWarnLogs().get(0))
 				.startsWith("Application has already created HttpClient for clientId = null, please check.");
 	}
 
 	private static String readFromFile(String file) throws IOException {
 		return IOUtils.resourceToString(file, StandardCharsets.UTF_8);
+	}
+
+	@Test
+	void disableRedirects() throws IOException {
+		WireMockServer wireMockServer = new WireMockServer(8000);
+		wireMockServer.stubFor(get(urlEqualTo("/redirect"))
+				.willReturn(aResponse().withHeader(HttpHeaders.LOCATION, "https://sap.com").withStatus(HttpStatus.SC_MOVED_PERMANENTLY))
+		);
+		wireMockServer.start();
+		try {
+			CloseableHttpClient client = cut.createClient(config);
+			CloseableHttpResponse resp = client.execute(new HttpGet("http://localhost:8000/redirect"));
+			assertThat(resp.getStatusLine().getStatusCode()).isEqualTo(301);
+
+			CloseableHttpClient client2 = cut.createClient(new ClientCredentials("client", "secret"));
+			CloseableHttpResponse resp2 = client2.execute(new HttpGet("http://localhost:8000/redirect"));
+			assertThat(resp2.getStatusLine().getStatusCode()).isEqualTo(301);
+		} finally {
+			wireMockServer.stop();
+		}
 	}
 
 }
