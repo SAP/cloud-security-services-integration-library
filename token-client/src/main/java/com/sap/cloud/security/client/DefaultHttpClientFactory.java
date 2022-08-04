@@ -39,13 +39,14 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 	static final int MAX_CONNECTIONS_PER_ROUTE = 4; // 2 is default
 	static final int MAX_CONNECTIONS = 20;
 	private static final int DEFAULT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5);
-	private final RequestConfig timeoutConfig;
+	private final RequestConfig customConfig;
 
 	public DefaultHttpClientFactory() {
-		timeoutConfig = RequestConfig.custom()
+		customConfig = RequestConfig.custom()
 				.setConnectTimeout(DEFAULT_TIMEOUT)
 				.setConnectionRequestTimeout(DEFAULT_TIMEOUT)
 				.setSocketTimeout(DEFAULT_TIMEOUT)
+				.setRedirectsEnabled(false)
 				.build();
 	}
 
@@ -61,7 +62,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 			SslConnection connectionPool = sslConnectionPool.computeIfAbsent(clientId,
 					s -> new SslConnection(clientIdentity));
 			return HttpClients.custom()
-					.setDefaultRequestConfig(timeoutConfig)
+					.setDefaultRequestConfig(customConfig)
 					.setConnectionManager(connectionPool.poolingConnectionManager)
 					.setSSLContext(connectionPool.context)
 					.setSSLSocketFactory(connectionPool.sslSocketFactory)
@@ -69,7 +70,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 		}
 		LOGGER.warn(
 				"In productive environment provide well configured HttpClientFactory service, don't use default http client");
-		return HttpClients.createDefault();
+		return HttpClients.custom().disableRedirectHandling().build();
 	}
 
 	private static class SslConnection {

@@ -285,9 +285,11 @@ For spring applications using rest template, you can set
 ### Common Pitfalls
 
 #### New warning `In productive environment provide well configured HttpClientFactory service` 
-As of version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service` is exposed to the application log in case there is no own `HttpClientFactory` implementation that serves a well-configured ``ClosableRestClient``.
+As of version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service` is exposed to the application log in case there is no user provided `HttpClientFactory` implementation that serves a well-configured ``CloseableRestClient``.
 
 > Instead of using the default Apache Rest Client config for productive and high available applications we recommend you to customize your http client carefully. You may need to configure the timeouts to specify how long to wait until a connection is established and how long a socket should be kept open (i.e. how long to wait for the (next) data package). As the SSL handshake is time-consuming, it might be recommended to configure an HTTP connection pool to reuse connections by keeping the sockets open. See also [Baeldung: HttpClient Connection Management"](https://www.baeldung.com/httpclient-connection-management).<br>
+
+:bangbang: For your custom `CloseableHttpClient` implementation always disable redirects :bangbang:
 
 In case you like to overwrite [`DefaultHttpClientFactory`](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) you can register your own implementation of `HttpClientFactory` interface as following:
 
