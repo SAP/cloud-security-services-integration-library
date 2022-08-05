@@ -62,7 +62,7 @@ public class DefaultOidcConfigurationServiceTest {
 
 	@Test
 	public void retrieveEndpoints_badRequest_throwsException() throws IOException {
-		String errorDescription = "Something wen't wrong";
+		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
 		when(httpClientMock.execute(any())).thenReturn(response);

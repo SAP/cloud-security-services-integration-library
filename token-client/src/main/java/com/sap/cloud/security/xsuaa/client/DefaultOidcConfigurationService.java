@@ -20,6 +20,8 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URI;
 
+import org.apache.http.HttpHeaders;
+
 /**
  * https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest
  */
@@ -48,6 +50,8 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 		Assertions.assertNotNull(discoveryEndpointUri, "discoveryEndpointUri must not be null!");
 
 		HttpUriRequest request = new HttpGet(discoveryEndpointUri);
+		request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
+
 		try (CloseableHttpResponse response = httpClient.execute(request)) {
 			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
 			int statusCode = response.getStatusLine().getStatusCode();

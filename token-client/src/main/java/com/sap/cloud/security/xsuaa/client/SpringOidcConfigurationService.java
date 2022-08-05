@@ -9,8 +9,8 @@ import javax.annotation.Nonnull;
 
 import java.net.URI;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 
@@ -29,7 +29,10 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
 			throws OAuth2ServiceException {
 		Assertions.assertNotNull(discoveryEndpointUri, "discoveryEndpointUri must not be null!");
 		try {
-			ResponseEntity<String> response = restOperations.getForEntity(discoveryEndpointUri, String.class);
+			HttpHeaders headers = new HttpHeaders();
+			headers.set(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
+
+			ResponseEntity<String> response = restOperations.exchange(discoveryEndpointUri, HttpMethod.GET, new HttpEntity(headers), String.class);
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
 				return new DefaultOidcConfigurationService.OidcEndpointsProvider(response.getBody());
 			} else {

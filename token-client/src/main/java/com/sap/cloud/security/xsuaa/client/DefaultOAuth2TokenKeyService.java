@@ -8,6 +8,7 @@ package com.sap.cloud.security.xsuaa.client;
 import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -45,6 +46,9 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		if (zoneId != null) {
 			request.addHeader(X_ZONE_UUID, zoneId);
 		}
+		request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
+
+		LOGGER.debug("Executing token key retrieval GET request to {} with headers: {} ", tokenKeysEndpointUri, request.getAllHeaders());
 		try (CloseableHttpResponse response = httpClient.execute(request)) {
 			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
 			int statusCode = response.getStatusLine().getStatusCode();
