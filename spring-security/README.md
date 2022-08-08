@@ -294,10 +294,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 ```
 
 Finally, you need do re-deploy your application for the changes to take effect.
-### Known pitfalls
+### Common pitfalls
 
 #### Configuration property name vcap.services.<<xsuaa instance name>>.credentials is not valid
 We recognized that this error is raised, when your instance name contains upper cases.
+
+#### Local setup fails with "APPLICATION FAILED TO START"
+When you're trying to run the application locally, but application fails to start with the following error message:
+```log
+org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.core.convert.converter.Converter<org.springframework.security.oauth2.jwt.Jwt, org.springframework.security.authentication.AbstractAuthenticationToken>' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {@org.springframework.beans.factory.annotation.Autowired(required=true)}
+
+***************************
+APPLICATION FAILED TO START
+***************************
+Field authConverter in com.sap.cloud.test.SecurityConfiguration required a bean of type 'org.springframework.core.convert.converter.Converter' that could not be found.
+```
+Make sure that you have defined the following mandatory attribute in the service configuration (VCAP_SERVICES env variable or application.yaml or application.properties)
+- xsappname
+
+:bulb: Example of minimal application configuration [application.yml](/samples/spring-security-hybrid-usage/src/test/resources/application.yml) for local setup.
 
 ## Samples
 - [Sample](/samples/spring-security-hybrid-usage)    
