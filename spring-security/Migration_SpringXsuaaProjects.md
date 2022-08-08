@@ -230,7 +230,7 @@ application locally make sure it is still working and finally test the applicati
 
 
 ## Issues
-In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue. With that you can help us to improve this migration guide!
+In case you face issues with the migration steps check this [troubleshoot guide](/spring-security/README.md#troubleshoot) for known issues and file a new github issue in case youe problem is not yet described in the section. With that you can help us to improve this migration guide!
 
 ## Samples
 - [Sample](/samples/spring-security-hybrid-usage)    
