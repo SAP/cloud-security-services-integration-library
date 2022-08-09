@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.13.1
+- [token-client]
+  - `DefaultHttpClientFactory` creates `CloseableHttpClient` with disabled redirects to avoid security vulnerabilities. :bangbang: For your custom `CloseableHttpClient` implementation make sure to disable redirects as well.
+  - all `TokenServices` and `TokenKeyServices` have been enhanced to add to all outgoing requests a `user-agent` header that contains value `token-client/x.x.x` where x.x.x is token-client version being used
+
+#### Dependency upgrades
+* Bump `spring.boot.version` from 2.7.1 to 2.7.2.
+* Bump https://github.com/SAP/btp-environment-variable-access from 0.3.1 to 0.4.0.
+* Bump reactor-core from 3.4.21 to 3.4.22
+
 ## 2.13.0
 - [env] 
   - uses https://github.com/SAP/btp-environment-variable-access (version 0.3.1), which supports access to service credentials in K8s/Kyma environment provisioned by [SAP BTP Service Operator](https://github.com/SAP/sap-btp-service-operator). Usage of service-catalog is no longer supported. With that there is no service-manager longer required to distinguish the service instance plan, when multiple xsuaa instances are bound (#855).
@@ -11,8 +21,8 @@ All notable changes to this project will be documented in this file.
 
 #### Dependency upgrades
 * Bump log4j2.version from 2.17.2 to 2.18.0
-* Bumps `spring.core.version` from 5.3.21 to 5.3.22.
-* Bumps [reactor-core](https://github.com/reactor/reactor-core) from 3.4.19 to 3.4.21.
+* Bump `spring.core.version` from 5.3.21 to 5.3.22.
+* Bump [reactor-core](https://github.com/reactor/reactor-core) from 3.4.19 to 3.4.21.
 
 
 **Full Changelog**: https://github.com/SAP/cloud-security-xsuaa-integration/compare/2.12.3...2.13.0
