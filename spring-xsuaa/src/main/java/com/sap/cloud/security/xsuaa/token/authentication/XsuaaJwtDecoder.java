@@ -40,8 +40,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	private final XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
 	Cache<String, JwtDecoder> cache;
-	private OAuth2TokenValidator<Jwt> tokenValidators;
-	private Collection<PostValidationAction> postValidationActions;
+	private final OAuth2TokenValidator<Jwt> tokenValidators;
+	private final Collection<PostValidationAction> postValidationActions;
 	private TokenInfoExtractor tokenInfoExtractor;
 	private RestOperations restOperations;
 
@@ -188,12 +188,13 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 	private Jwt verifyWithVerificationKey(String token, String verificationKey) {
 		try {
-			RSAPublicKey verficationKey = createPublicKey(verificationKey);
-			NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(verficationKey).build();
+			RSAPublicKey rsaPublicKey = createPublicKey(verificationKey);
+			NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(rsaPublicKey).build();
 			decoder.setJwtValidator(tokenValidators);
 			return decoder.decode(token);
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			throw new BadJwtException(e.getMessage());
+		} catch (NoSuchAlgorithmException | IllegalArgumentException | InvalidKeySpecException e) {
+			logger.debug("Jwt signature validation with fallback verificationkey failed: {}", e.getMessage());
+			throw new BadJwtException("Jwt validation with fallback verificationkey failed");
 		}
 	}
 
