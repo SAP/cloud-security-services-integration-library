@@ -3,8 +3,12 @@ All notable changes to this project will be documented in this file.
 
 ## 2.13.1
 - [token-client]
-  - `DefaultHttpClientFactory` creates `CloseableHttpClient` with disabled redirects to avoid security vulnerabilities. :bangbang: For your custom `CloseableHttpClient` implementation make sure to disable redirects as well.
+  - `DefaultHttpClientFactory` creates `CloseableHttpClient` with disabled redirects to avoid security vulnerabilities. 
+  
+  :bangbang: For your custom `CloseableHttpClient` implementation make sure to disable redirects as well. :bangbang:
   - all `TokenServices` and `TokenKeyServices` have been enhanced to add to all outgoing requests a `user-agent` header that contains value `token-client/x.x.x` where x.x.x is token-client version being used
+- [spring-xsuaa] 
+  - `XsuaaJwtDecoder` catches bases64 decoder `IllegalArgumentException` that can be caused by decoding malformed `verificationkey` from xsuaa service configuration to avoid `500 Internal server error` responses    
 
 #### Dependency upgrades
 * Bump `spring.boot.version` from 2.7.1 to 2.7.2.
