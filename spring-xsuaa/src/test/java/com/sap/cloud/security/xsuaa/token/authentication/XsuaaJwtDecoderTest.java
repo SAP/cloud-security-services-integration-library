@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -40,7 +41,7 @@ public class XsuaaJwtDecoderTest {
 	XsuaaServiceConfiguration configuration = new XsuaaServiceConfigurationCustom(new XsuaaCredentials());
 
 	@Test
-	public void decode_withVerficationKey() throws IOException {
+	public void decode_withVerificationKey() throws IOException {
 		String token = IOUtils.resourceToString("/accessTokenRSA256WithVerificationKey.txt", StandardCharsets.UTF_8);
 		final JwtDecoder cut = new XsuaaJwtDecoderBuilder(configurationWithVerificationKey).build();
 
@@ -51,15 +52,29 @@ public class XsuaaJwtDecoderTest {
 	}
 
 	@Test
-	public void decode_withInvalidVerificationKey() throws IOException {
+	public void decode_withInvalidFallbackVerificationKey_withoutUaaDomain() throws IOException {
 		XsuaaServiceConfiguration config = Mockito.mock(XsuaaServiceConfiguration.class);
 		Mockito.when(config.getVerificationKey()).thenReturn("xsuaa.verificationkey=-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTNVTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9YoU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GPn38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4oQIDAQAB-----END PUBLIC KEY-----");
 
 		String token = IOUtils.resourceToString("/accessTokenRSA256WithVerificationKey.txt", StandardCharsets.UTF_8);
 		final JwtDecoder cut = new XsuaaJwtDecoderBuilder(config).build();
 
-		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(JwtException.class)
+		assertThatThrownBy(() -> cut.decode(token)).isInstanceOf(BadJwtException.class)
 				.hasMessageContaining("Jwt validation with fallback verificationkey failed");
+	}
+
+	@Test
+	public void decode_withFallbackVerificationKey_remoteKeyFetchFailed() throws IOException {
+		XsuaaServiceConfiguration config = Mockito.mock(XsuaaServiceConfiguration.class);
+		Mockito.when(config.getVerificationKey()).thenReturn("-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTNVTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9YoU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GPn38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4oQIDAQAB-----END PUBLIC KEY-----");
+		Mockito.when(config.getUaaDomain()).thenReturn("localhost");
+		Mockito.when(config.getClientId()).thenReturn("sb-clientId!t0815");
+
+		String token = IOUtils.resourceToString("/accessTokenRSA256WithVerificationKey.txt", StandardCharsets.UTF_8);
+		final JwtDecoder cut = new XsuaaJwtDecoderBuilder(config).build();
+		final Jwt jwt = cut.decode(token);
+
+		assertThat(jwt.getAudience().get(0)).isEqualTo("sb-clientId!t0815");
 	}
 
 	@Test
