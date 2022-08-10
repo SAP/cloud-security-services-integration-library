@@ -5,26 +5,25 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestOperations;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestOperations;
+import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class SpringOidcConfigurationServiceTest {
 	public static final URI CONFIG_ENDPOINT_URI = URI.create("https://sub.myauth.com" + DISCOVERY_ENDPOINT_DEFAULT);
@@ -51,16 +50,16 @@ public class SpringOidcConfigurationServiceTest {
 	}
 
 	@Test
-	public void retrieveEndpoints_parameterIsNull_throwsException() throws OAuth2ServiceException {
+	public void retrieveEndpoints_parameterIsNull_throwsException() {
 		assertThatThrownBy(() -> retrieveEndpoints(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void retrieveEndpoints_badRequest_throwsException() {
-		String errorDescription = "Something wen't wrong";
+		String errorDescription = "Something went wrong";
 		mockResponse(errorDescription, HttpStatus.BAD_REQUEST);
-		assertThatThrownBy(() -> retrieveEndpoints())
+		assertThatThrownBy(this::retrieveEndpoints)
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription);
 	}
@@ -72,7 +71,7 @@ public class SpringOidcConfigurationServiceTest {
 		retrieveEndpoints();
 
 		Mockito.verify(restOperationsMock, times(1))
-				.getForEntity(CONFIG_ENDPOINT_URI, String.class);
+				.exchange(eq(CONFIG_ENDPOINT_URI), eq(HttpMethod.GET), any(), eq(String.class));
 	}
 
 	@Test
@@ -81,9 +80,9 @@ public class SpringOidcConfigurationServiceTest {
 
 		OAuth2ServiceEndpointsProvider result = retrieveEndpoints();
 
-		assertThat(result.getTokenEndpoint().toString()).isEqualTo("http://localhost/oauth/token");
-		assertThat(result.getJwksUri().toString()).isEqualTo("http://localhost/token_keys");
-		assertThat(result.getAuthorizeEndpoint().toString()).isEqualTo("http://localhost/oauth/authorize");
+		assertThat(result.getTokenEndpoint()).hasToString("http://localhost/oauth/token");
+		assertThat(result.getJwksUri()).hasToString("http://localhost/token_keys");
+		assertThat(result.getAuthorizeEndpoint()).hasToString("http://localhost/oauth/authorize");
 	}
 
 	private void mockResponse() {
@@ -92,7 +91,7 @@ public class SpringOidcConfigurationServiceTest {
 
 	private void mockResponse(String responseAsString, HttpStatus httpStatus) {
 		ResponseEntity<String> stringResponseEntity = new ResponseEntity<>(responseAsString, httpStatus);
-		when(restOperationsMock.getForEntity(any(URI.class), eq(String.class)))
+		when(restOperationsMock.exchange(any(URI.class), eq(HttpMethod.GET), any(), eq(String.class)))
 				.thenReturn(stringResponseEntity);
 	}
 

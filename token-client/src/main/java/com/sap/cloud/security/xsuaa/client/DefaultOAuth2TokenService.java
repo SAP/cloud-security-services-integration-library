@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
+import static org.apache.http.HttpHeaders.USER_AGENT;
+
 
 public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
@@ -84,6 +86,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	private OAuth2TokenResponse executeRequest(HttpPost httpPost) throws OAuth2ServiceException {
+		httpPost.addHeader(USER_AGENT, HttpClientUtil.getUserAgent());
 		LOGGER.debug("Requesting access token from url {} with headers {}", httpPost.getURI(),
 				httpPost.getAllHeaders());
 		try (CloseableHttpResponse response = httpClient.execute(httpPost)) {

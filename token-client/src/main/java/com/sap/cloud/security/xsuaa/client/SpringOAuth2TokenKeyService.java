@@ -6,6 +6,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -39,6 +40,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 			// create headers
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.set(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 			if (zoneId != null) {
 				headers.set(X_ZONE_UUID, zoneId);
 			}
