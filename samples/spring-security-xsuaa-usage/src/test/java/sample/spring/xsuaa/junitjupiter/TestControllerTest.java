@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 		"xsuaa.xsappname=" + DEFAULT_APP_ID,
 		"xsuaa.clientid=" + DEFAULT_CLIENT_ID })
 @ExtendWith(XsuaaExtension.class)
-public class TestControllerTest {
+class TestControllerTest {
 
 	@Autowired
 	private MockMvc mvc;
@@ -51,7 +51,7 @@ public class TestControllerTest {
 	}
 
 	@Test
-	public void v1_sayHello() throws Exception {
+	void v1_sayHello() throws Exception {
 		String response = mvc.perform(get("/v1/sayHello").with(bearerToken(jwtAdmin)))
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
@@ -63,7 +63,7 @@ public class TestControllerTest {
 	}
 
 	@Test
-	public void v2_sayHello() throws Exception {
+	void v2_sayHello() throws Exception {
 		String response = mvc
 				.perform(get("/v2/sayHello").with(bearerToken(jwt)))
 				.andExpect(status().isOk())
@@ -73,7 +73,7 @@ public class TestControllerTest {
 	}
 
 	@Test
-	public void v1_readData_OK() throws Exception {
+	void v1_readData_OK() throws Exception {
 		String response = mvc
 				.perform(get("/v1/method").with(bearerToken(jwt)))
 				.andExpect(status().isOk())
@@ -83,7 +83,7 @@ public class TestControllerTest {
 	}
 
 	@Test
-	public void v1_accessSensitiveData_OK() throws Exception {
+	void v1_accessSensitiveData_OK() throws Exception {
 		String response = mvc.perform(get("/v1/getAdminData").with(bearerToken(jwtAdmin)))
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
@@ -92,7 +92,7 @@ public class TestControllerTest {
 	}
 
 	@Test
-	public void v1_accessSensitiveData_Forbidden(SecurityTestContext securityTest) throws Exception {
+	void v1_accessSensitiveData_Forbidden(SecurityTestContext securityTest) throws Exception {
 		String jwtNoScopes = securityTest.getPreconfiguredJwtGenerator()
 				.createToken().getTokenValue();
 
@@ -101,13 +101,13 @@ public class TestControllerTest {
 	}
 
 	@Test
-	public void v1_accessSensitiveData_unauthenticated() throws Exception {
+	void v1_accessSensitiveData_unauthenticated() throws Exception {
 		mvc.perform(get("/v1/getAdminData"))
 				.andExpect(status().isUnauthorized());
 	}
 
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
-		private String token;
+		private final String token;
 
 		public BearerTokenRequestPostProcessor(String token) {
 			this.token = token;
