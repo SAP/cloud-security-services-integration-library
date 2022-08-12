@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 
-public class XsuaaTokenTest {
+class XsuaaTokenTest {
 
 	private XsuaaToken token;
 	private Jwt jwtSaml;
@@ -63,7 +64,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void checkBasicJwtWithoutScopes() {
+	void checkBasicJwtWithoutScopes() {
 		token = createToken(claimsSetBuilder);
 
 		assertThat(token.getPassword(), nullValue());
@@ -87,7 +88,7 @@ public class XsuaaTokenTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = { "", "  " })
-	public void getClientIdNegativeTest(String cid) {
+	void getClientIdNegativeTest(String cid) {
 		token = createToken(
 				claimsSetBuilder.claim(TokenClaims.CLAIM_AUTHORIZATION_PARTY, null).audience(Collections.EMPTY_LIST)
 						.claim(TokenClaims.CLAIM_CLIENT_ID, cid));
@@ -96,7 +97,7 @@ public class XsuaaTokenTest {
 
 	@ParameterizedTest
 	@MethodSource("clientIdTestArguments")
-	public void getClientIdTest(String azp, List<String> aud, String expectedClientId) {
+	void getClientIdTest(String azp, List<String> aud, String expectedClientId) {
 		token = createToken(claimsSetBuilder.claim(TokenClaims.CLAIM_AUTHORIZATION_PARTY, azp).audience(aud));
 		assertThat(token.getClientId(), is(expectedClientId));
 	}
@@ -117,7 +118,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void authenticationConverterShouldSetAuthorities() {
+	void authenticationConverterShouldSetAuthorities() {
 		TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsAppName);
 		converter.setLocalScopeAsAuthorities(true);
 
@@ -139,7 +140,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getAuthoritiesReturnsSetAuthorities() {
+	void getAuthoritiesReturnsSetAuthorities() {
 		Collection<GrantedAuthority> authorities = new ArrayList<>();
 		authorities.add(new SimpleGrantedAuthority(scopeRead));
 		authorities.add(new SimpleGrantedAuthority(scopeOther));
@@ -153,7 +154,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getScopesReturnsAllScopes() {
+	void getScopesReturnsAllScopes() {
 		List<String> scopesList = new ArrayList<>();
 		scopesList.add(scopeWrite);
 		scopesList.add(scopeRead);
@@ -170,7 +171,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getZoneIdAsTenantGuid() {
+	void getZoneIdAsTenantGuid() {
 		claimsSetBuilder.claim(TokenClaims.CLAIM_ZONE_ID, zoneId);
 
 		token = createToken(claimsSetBuilder);
@@ -180,13 +181,13 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getSubaccountIdFromSystemAttributes() {
+	void getSubaccountIdFromSystemAttributes() {
 		Token token = new XsuaaToken(jwtSaml);
 		assertThat(token.getSubaccountId(), is("test-subaccount"));
 	}
 
 	@Test
-	public void getAuthoritiesNoScopeClaimReturnsEmptyList() {
+	void getAuthoritiesNoScopeClaimReturnsEmptyList() {
 		claimsSetBuilder.claim(TokenClaims.CLAIM_SCOPES, new ArrayList<>());
 
 		token = createToken(claimsSetBuilder);
@@ -196,7 +197,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void isCredentialsExpiredWhenExpiryDateExceeded() {
+	void isCredentialsExpiredWhenExpiryDateExceeded() {
 		claimsSetBuilder.issueTime(new Date(System.currentTimeMillis() - 300000));
 		claimsSetBuilder.expirationTime(new Date(System.currentTimeMillis() - 20000));
 		token = createToken(claimsSetBuilder);
@@ -204,74 +205,74 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getUserNameIsUniqueWithOrigin() {
+	void getUserNameIsUniqueWithOrigin() {
 		token = createToken(claimsSetBuilder);
 		assertThat(token.getUsername(), is("user/userIdp/testUser"));
 	}
 
 	@Test
-	public void toStringShouldReturnUserName() {
+	void toStringShouldReturnUserName() {
 		token = createToken(claimsSetBuilder);
 		assertThat(token.toString(), is(token.getUsername()));
 	}
 
 	@Test
-	public void getUserNameReturnsErrorWhenOriginContainsDelimeter() {
+	void getUserNameReturnsErrorWhenOriginContainsDelimeter() {
 		claimsSetBuilder.claim(TokenClaims.CLAIM_ORIGIN, "my/Idp");
 		token = createToken(claimsSetBuilder);
 		assertNull(token.getUsername());
 	}
 
 	@Test
-	public void getUniquePrincipalNameForOriginAndName() {
+	void getUniquePrincipalNameForOriginAndName() {
 		String uniqueUserName = XsuaaToken.getUniquePrincipalName("origin", "name");
 		assertThat(uniqueUserName, is("user/origin/name"));
 	}
 
 	@Test
-	public void getUniquePrincipalNameRaisesErrorWhenOriginIsNull() {
+	void getUniquePrincipalNameRaisesErrorWhenOriginIsNull() {
 		assertNull(XsuaaToken.getUniquePrincipalName(null, "name"));
 	}
 
 	@Test
-	public void getUniquePrincipalNameRaisesErrorWhenLogonNameIsNull() {
+	void getUniquePrincipalNameRaisesErrorWhenLogonNameIsNull() {
 		assertNull(XsuaaToken.getUniquePrincipalName("origin", null));
 	}
 
 	@Test
-	public void getPrincipalNameReturnUniqueLogonNameWithOrigin() {
+	void getPrincipalNameReturnUniqueLogonNameWithOrigin() {
 		Token token = new XsuaaToken(jwtSaml);
 		UserDetails principal = token;
 		assertEquals("user/useridp/Mustermann", principal.getUsername());
 	}
 
 	@Test
-	public void getPrincipalNameReturnUniqueClientId() {
+	void getPrincipalNameReturnUniqueClientId() {
 		Token token = new XsuaaToken(jwtCC);
 		assertEquals(CLIENT_ID, token.getClientId());
 		assertEquals("client/sb-java-hello-world", token.getUsername());
 	}
 
 	@Test
-	public void getXsUserAttributeValues() {
+	void getXsUserAttributeValues() {
 		Token token = new XsuaaToken(jwtSaml);
+		String[] userAttrValueEmptyArray = token.getXSUserAttribute("empty-array");
 		String[] userAttrValuesCostCenter = token.getXSUserAttribute("cost-center");
 		String[] userAttrValuesCountry = token.getXSUserAttribute("country");
-		assertThat(userAttrValuesCountry.length, is(1));
-		assertThat(userAttrValuesCostCenter.length, is(2));
-		assertThat(userAttrValuesCostCenter[0], is("0815"));
-		assertThat(userAttrValuesCostCenter[1], is("4711"));
+		assertThat(userAttrValueEmptyArray, emptyArray());
+		assertThat(userAttrValuesCountry, arrayContaining("Germany"));
+		assertThat(userAttrValuesCostCenter, arrayContainingInAnyOrder("0815", "4711"));
 	}
 
 	@Test
-	public void getXsUserAttributeValuesIsNull() {
+	void getXsUserAttributeValuesIsNull() {
 		Token token = new XsuaaToken(jwtSaml);
-		String[] userAttrValues = token.getXSUserAttribute("costcenter");
-		assertThat(userAttrValues, is(nullValue()));
+		String[] userAttrValues = token.getXSUserAttribute("nonExisting");
+		assertThat(userAttrValues, nullValue());
 	}
 
 	@Test
-	public void getServiceInstanceIdFromExtAttr() {
+	void getServiceInstanceIdFromExtAttr() {
 		claimsSetBuilder.claim(XsuaaToken.CLAIM_EXTERNAL_ATTR, new SamlExternalAttrClaim());
 
 		token = createToken(claimsSetBuilder);
@@ -279,7 +280,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getSubdomainFromExtAttr() {
+	void getSubdomainFromExtAttr() {
 		claimsSetBuilder.claim(XsuaaToken.CLAIM_EXTERNAL_ATTR, new SamlExternalAttrClaim());
 
 		token = createToken(claimsSetBuilder);
@@ -287,7 +288,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getSubdomainFails() {
+	void getSubdomainFails() {
 		assertThat(createToken(claimsSetBuilder).getSubdomain(), nullValue());
 
 		claimsSetBuilder.claim(XsuaaToken.CLAIM_EXTERNAL_ATTR, new AdditionalAuthorizationAttrClaim());
@@ -295,7 +296,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getSomeAdditionalAttributeValueFromAuthorizationAttr() {
+	void getSomeAdditionalAttributeValueFromAuthorizationAttr() {
 		claimsSetBuilder.claim(XsuaaToken.CLAIM_ADDITIONAL_AZ_ATTR, new AdditionalAuthorizationAttrClaim());
 
 		token = createToken(claimsSetBuilder);
@@ -303,7 +304,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getAppToken() {
+	void getAppToken() {
 		token = createToken(claimsSetBuilder);
 		assertThat(token.getAppToken(), startsWith("eyJhbGciOiJSUzI1NiIsInR5"));
 	}
