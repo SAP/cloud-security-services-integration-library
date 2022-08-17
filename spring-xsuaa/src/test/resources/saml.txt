@@ -7,7 +7,8 @@
     ],
     "country": [
       "Germany"
-    ]
+    ],
+    "empty-array": []
   },
     "xs.system.attributes": {
     "xs.saml.groups": [

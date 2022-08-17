@@ -51,6 +51,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	static final String HDB = "HDB";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(XSUserInfoAdapter.class);
+	private static final String INVALID_USER_ATTRIBUTE = "Invalid user attribute ";
 
 	private final AccessToken accessToken;
 	private final OAuth2ServiceConfiguration configuration;
@@ -405,8 +406,8 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName) {
 		List<String> claims = accessToken.getAttributeFromClaimAsStringList(claimName, attributeName);
-		if (claims.isEmpty()) {
-			throw new XSUserInfoException("Invalid user attribute " + attributeName);
+		if (claims.isEmpty() && !(claims instanceof ArrayList)) {
+			throw new XSUserInfoException(INVALID_USER_ATTRIBUTE + attributeName);
 		}
 		return claims.toArray(new String[0]);
 	}
@@ -420,13 +421,13 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	private Supplier<XSUserInfoException> createXSUserInfoException(String attribute) {
-		return () -> new XSUserInfoException("Invalid user attribute " + attribute);
+		return () -> new XSUserInfoException(INVALID_USER_ATTRIBUTE + attribute);
 	}
 
 	private String getClaimValue(String claimname) {
 		String value = accessToken.getClaimAsString(claimname);
 		if (value == null) {
-			throw new XSUserInfoException("Invalid user attribute " + claimname);
+			throw new XSUserInfoException(INVALID_USER_ATTRIBUTE + claimname);
 		}
 		return value;
 	}
@@ -486,7 +487,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 					.attributes(additionalAuthAttributes)
 					.execute().getAccessToken();
 		} catch (TokenFlowException e) {
-			LOGGER.error("Error performing User Token Flow", e);
 			throw new XSUserInfoException("Error performing User Token Flow.", e);
 		}
 		return userToken;
@@ -501,7 +501,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 					.attributes(additionalAuthAttributes)
 					.execute().getAccessToken();
 		} catch (TokenFlowException e) {
-			LOGGER.error("Error performing Client Credentials Flow", e);
 			throw new XSUserInfoException("Error performing Client Credentials Flow.", e);
 		}
 		return ccfToken;

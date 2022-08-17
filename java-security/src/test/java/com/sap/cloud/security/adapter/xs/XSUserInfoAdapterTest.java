@@ -206,6 +206,17 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
+	public void testGetAttribute_emptyArray() {
+		String[] attribute = cut.getAttribute("emptyArray");
+		assertThat(attribute).isEmpty();
+	}
+
+	@Test
+	public void testGetAttribute_nonExisting() {
+		assertThatThrownBy(() -> cut.getAttribute("nonExisting")).isInstanceOf(XSUserInfoException.class);
+	}
+
+	@Test
 	public void testGetAttribute_grantTypeClientCredentials_throwsException() throws XSUserInfoException {
 		cut = new XSUserInfoAdapter(createMockToken(GrantType.CLIENT_CREDENTIALS));
 
@@ -343,7 +354,7 @@ public class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	public void accessAttributes_doNotExist_throwsException() throws IOException, XSUserInfoException {
+	public void accessAttributes_doNotExist_throwsException() throws XSUserInfoException {
 		String nonExistingAttribute = "doesNotExist";
 		cut = new XSUserInfoAdapter(emptyToken.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)));
 

@@ -22,8 +22,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -182,15 +182,15 @@ class XsuaaTokenCompTest {
 	@Test
 	void getXsUserAttributeValues() {
 		String[] userAttrValues = XsuaaTokenComp.createInstance(tokenSAML).getXSUserAttribute("cost-center");
-		assertThat(userAttrValues.length, is(2));
-		assertThat(userAttrValues[0], is("0815"));
-		assertThat(userAttrValues[1], is("4711"));
+		assertThat(userAttrValues, arrayContainingInAnyOrder("0815", "4711"));
 	}
 
 	@Test
-	void getXsUserAttributeValuesIsNull() {
-		String[] userAttrValues = XsuaaTokenComp.createInstance(tokenSAML).getXSUserAttribute("costcenter");
-		assertThat(userAttrValues, is(nullValue()));
+	void getXsUserAttributeValues_isNull() {
+		String[] userAttrEmptyArray = XsuaaTokenComp.createInstance(tokenSAML).getXSUserAttribute("empty-array");
+		assertThat(userAttrEmptyArray, nullValue());
+		String[] userAttrValues = XsuaaTokenComp.createInstance(tokenSAML).getXSUserAttribute("nonExisting");
+		assertThat(userAttrValues, nullValue());
 	}
 
 	@Test
