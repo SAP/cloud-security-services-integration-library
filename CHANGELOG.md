@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.13.2
+- [java-security] Bug fix for regression in `XSUserInfoAdapter.getMultiValueAttributeFromExtObject()` when error was thrown accessing xs.user.attributes with empty array value. It throws an error only in case of non existing attribute as before 2.12.3
+
+#### Dependency upgrades
+* Bump spring.security.version from 5.7.2 to 5.7.3
+* Bump java-bom(https://github.com/SAP/btp-environment-variable-access) from 0.4.0 to 0.4.1
+
 ## 2.13.1
 - [token-client]
   - `DefaultHttpClientFactory` creates `CloseableHttpClient` with disabled redirects to avoid security vulnerabilities. 
