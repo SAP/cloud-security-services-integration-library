@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## 2.13.3
 - [spring-xsuaa-starter]   
-  - Patches [CVE 2022-25857](https://tanzu.vmware.com/security/cve-2022-22978) vulnerability in spring boot starter transient dependency.
+  - Patches [CVE 2022-25857](https://nvd.nist.gov/vuln/detail/CVE-2022-25857) vulnerability in spring boot starter transient dependency.
 
 #### Dependency upgrades
 * Bump spring-boot-starter-parent from 2.7.1 to 2.7.3
