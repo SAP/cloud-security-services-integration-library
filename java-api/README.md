@@ -5,6 +5,6 @@
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-api</artifactId>
-    <version>2.13.2</version>
+    <version>2.13.3</version>
 </dependency>
 ```

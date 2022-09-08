@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.13.3
+- [spring-xsuaa-starter]   
+  - Patches [CVE 2022-25857](https://nvd.nist.gov/vuln/detail/CVE-2022-25857) vulnerability in spring boot starter transient dependency.
+
+#### Dependency upgrades
+* Bump spring-boot-starter-parent from 2.7.1 to 2.7.3
+* Bump slf4j.api.version from 1.7.36 to 2.0.0
+
 ## 2.13.2
 - [java-security] Bug fix for regression in `XSUserInfoAdapter.getMultiValueAttributeFromExtObject()` when error was thrown accessing xs.user.attributes with empty array value. It throws an error only in case of non existing attribute as before 2.12.3
 
