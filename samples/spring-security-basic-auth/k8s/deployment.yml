@@ -1,7 +1,7 @@
 ---
 ###  SERVICE INSTANCE CONFIGURATION  ###
 # Xsuaa instance
-apiVersion: services.cloud.sap.com/v1alpha1
+apiVersion: services.cloud.sap.com/v1
 kind: ServiceInstance
 metadata:
   name: xsuaa-basic
@@ -28,7 +28,7 @@ spec:
         role-template-references:
           - "$XSAPPNAME.AccessRole"
 ---
-apiVersion: services.cloud.sap.com/v1alpha1
+apiVersion: services.cloud.sap.com/v1
 kind: ServiceBinding
 metadata:
   name: xsuaa-basic-binding
@@ -87,7 +87,7 @@ spec:
   selector:
     app: spring-security-basic-auth
 ---
-apiVersion: gateway.kyma-project.io/v1alpha1
+apiVersion: gateway.kyma-project.io/v1beta1
 kind: APIRule
 metadata:
   name: spring-security-basic-auth-api
@@ -95,6 +95,7 @@ metadata:
     app: spring-security-basic-auth
 spec:
   gateway: kyma-gateway.kyma-system.svc.cluster.local
+  host: spring-security-basic-auth-api
   rules:
     - accessStrategies:
         - config: {}
@@ -108,6 +109,5 @@ spec:
         - HEAD
       path: /.*
   service:
-    host: spring-security-basic-auth-api
     name: spring-security-basic-auth
     port: 80

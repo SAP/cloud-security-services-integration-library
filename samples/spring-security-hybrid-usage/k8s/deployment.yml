@@ -1,7 +1,7 @@
 ---
 ###  SERVICE INSTANCE CONFIGURATION  ###
 # Xsuaa instance
-apiVersion: services.cloud.sap.com/v1alpha1
+apiVersion: services.cloud.sap.com/v1
 kind: ServiceInstance
 metadata:
   name: xsuaa-authn
@@ -28,7 +28,7 @@ spec:
         role-template-references:
           - "$XSAPPNAME.Viewer"
 ---
-apiVersion: services.cloud.sap.com/v1alpha1
+apiVersion: services.cloud.sap.com/v1
 kind: ServiceBinding
 metadata:
   name: xsuaa-authn-binding
@@ -36,7 +36,7 @@ spec:
   serviceInstanceName: xsuaa-authn
 ---
 # IAS instance
-apiVersion: services.cloud.sap.com/v1alpha1
+apiVersion: services.cloud.sap.com/v1
 kind: ServiceInstance
 metadata:
   name: ias-authn
@@ -46,7 +46,7 @@ spec:
   parameters:
     credential-type: "X509_GENERATED"
 ---
-apiVersion: services.cloud.sap.com/v1alpha1
+apiVersion: services.cloud.sap.com/v1
 kind: ServiceBinding
 metadata:
   name: ias-service-binding
@@ -117,7 +117,7 @@ spec:
     app: spring-security-hybrid-usage
 
 ---
-apiVersion: gateway.kyma-project.io/v1alpha1
+apiVersion: gateway.kyma-project.io/v1beta1
 kind: APIRule
 metadata:
   name: spring-security-hybrid-api
@@ -125,6 +125,7 @@ metadata:
     app: spring-security-hybrid-usage
 spec:
   gateway: kyma-gateway.kyma-system.svc.cluster.local
+  host: spring-security-hybrid-api
   rules:
     - accessStrategies:
         - config: {}
@@ -138,6 +139,5 @@ spec:
         - HEAD
       path: /.*
   service:
-    host: spring-security-hybrid-api
     name: spring-security-hybrid-usage
     port: 80

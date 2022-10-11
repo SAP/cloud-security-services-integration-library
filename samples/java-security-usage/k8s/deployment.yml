@@ -1,7 +1,7 @@
 ---
 ###  SERVICE INSTANCE CONFIGURATION  ###
 # Xsuaa instance
-apiVersion: services.cloud.sap.com/v1alpha1
+apiVersion: services.cloud.sap.com/v1
 kind: ServiceInstance
 metadata:
   name: xsuaa
@@ -25,7 +25,7 @@ spec:
         role-template-references:
           - "$XSAPPNAME.Viewer"
 ---
-apiVersion: services.cloud.sap.com/v1alpha1
+apiVersion: services.cloud.sap.com/v1
 kind: ServiceBinding
 metadata:
   name: xsuaa-service-binding
@@ -33,7 +33,7 @@ spec:
   serviceInstanceName: xsuaa
 ---
 # Xsuaa broker instance
-apiVersion: services.cloud.sap.com/v1alpha1
+apiVersion: services.cloud.sap.com/v1
 kind: ServiceInstance
 metadata:
   name: xsuaa-broker
@@ -44,7 +44,7 @@ spec:
     xsappname: xsuaa-broker
     tenant-mode: dedicated
 ---
-apiVersion: services.cloud.sap.com/v1alpha1
+apiVersion: services.cloud.sap.com/v1
 kind: ServiceBinding
 metadata:
   name: xsuaa-broker-binding
@@ -111,7 +111,7 @@ spec:
     app: java-security-usage
 
 ---
-apiVersion: gateway.kyma-project.io/v1alpha1
+apiVersion: gateway.kyma-project.io/v1beta1
 kind: APIRule
 metadata:
   name: java-security-api
@@ -119,6 +119,7 @@ metadata:
     app: java-security-usage
 spec:
   gateway: kyma-gateway.kyma-system.svc.cluster.local
+  host: java-security-api
   rules:
     - accessStrategies:
         - config: {}
@@ -132,6 +133,5 @@ spec:
         - HEAD
       path: /.*
   service:
-    host: java-security-api
     name: java-security-usage
     port: 80
