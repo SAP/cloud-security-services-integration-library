@@ -1,6 +1,6 @@
 **Rating**: **MODERATE**
 
-**Score**: **5.68**, max score value is 10.0
+**Score**: **5.69**, max score value is 10.0
 
 **Confidence**: Max (10.0, max confidence value is 10.0)
 
@@ -194,7 +194,7 @@ Here is how a number of watchers contributes to the score:
 
 This sub-score is based on 2 features:
 
-1.  Number of stars for a GitHub repository: **112**
+1.  Number of stars for a GitHub repository: **113**
 1.  Number of watchers for a GitHub repository: **12**
 
 ### Dependency testing
