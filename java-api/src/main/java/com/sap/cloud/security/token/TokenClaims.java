@@ -39,6 +39,7 @@ public final class TokenClaims {
 	 * true if the user physically exists in the IAS user store and IAS is not a
 	 * pure proxy which simply forwards all information from the corporate IdP.
 	 */
+	public static final String SAP_GLOBAL_SCIM_ID = "SCIM_ID";
 	public static final String SAP_GLOBAL_USER_ID = "user_uuid";
 	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // tenant GUID
 	public static final String GROUPS = "groups"; // scim groups
@@ -69,10 +70,5 @@ public final class TokenClaims {
 		public static final String XS_USER_ATTRIBUTES = "xs.user.attributes";
 		public static final String TRUSTED_CLIENT_ID_SUFFIX = "trustedclientidsuffix";
 	}
-
-	// SAP User token
-	/*
-	 * public final class SAP_ID { private SAP_ID() { } // service_instance_id }
-	 */
 
 }
