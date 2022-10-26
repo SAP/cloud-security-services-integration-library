@@ -149,6 +149,7 @@ public class JwtGenerator {
 			jsonPayload.put(TokenClaims.AUDIENCE, azp);
 			jsonPayload.put(TokenClaims.SAP_GLOBAL_ZONE_ID, DEFAULT_ZONE_ID);
 			jsonPayload.put(TokenClaims.SAP_GLOBAL_USER_ID, DEFAULT_USER_ID);
+			jsonPayload.put(TokenClaims.SAP_GLOBAL_SCIM_ID, DEFAULT_USER_ID);
 		} else {
 			withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
 			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(azp));
