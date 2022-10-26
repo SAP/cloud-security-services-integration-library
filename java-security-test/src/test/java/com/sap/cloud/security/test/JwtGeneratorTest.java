@@ -299,7 +299,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void loadClaimsFromFile_containsStringClaims() throws IOException {
+	public void loadClaimsFromFile_containsStringClaims() {
 		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		assertThat(token.getClaimAsString(EMAIL)).isEqualTo("test@uaa.org");
@@ -308,14 +308,14 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void loadClaimsFromFile_containsExpirationClaim() throws IOException {
+	public void loadClaimsFromFile_containsExpirationClaim() {
 		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		assertThat(token.getExpiration()).isEqualTo(Instant.ofEpochSecond(1542416800));
 	}
 
 	@Test
-	public void loadClaimsFromFile_containsJsonObjectClaims() throws IOException {
+	public void loadClaimsFromFile_containsJsonObjectClaims() {
 		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		JsonObject externalAttributes = token.getClaimAsJsonObject("ext_attr");
@@ -326,7 +326,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void loadClaimsFromFile_containsListClaims() throws IOException {
+	public void loadClaimsFromFile_containsListClaims() {
 		final Token token = cut.withClaimsFromFile("/claims.json").createToken();
 
 		assertThat(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES))
@@ -335,7 +335,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void getInstanceFromFile_overridesTokenPropertiesForTesting() throws IOException {
+	public void getInstanceFromFile_overridesTokenPropertiesForTesting() {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token.json")
 				.createToken();
 
@@ -344,7 +344,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void getInstanceFromFile_loadsJsonData() throws IOException {
+	public void getInstanceFromFile_loadsJsonData() {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token.json")
 				.createToken();
 
@@ -357,7 +357,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void getInstanceFromFile_noHeader_noErrorAndReadsPayload() throws IOException {
+	public void getInstanceFromFile_noHeader_noErrorAndReadsPayload() {
 		Token token = JwtGenerator.getInstanceFromFile(XSUAA, "/token_no_header.json")
 				.createToken();
 
@@ -365,7 +365,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void getInstanceFromFile_invalidAlg_throwsException() throws IOException {
+	public void getInstanceFromFile_invalidAlg_throwsException() {
 		assertThatThrownBy(() -> JwtGenerator.getInstanceFromFile(XSUAA, "/token_invalid_alg.json"))
 				.isInstanceOf(UnsupportedOperationException.class);
 	}
@@ -387,7 +387,7 @@ public class JwtGeneratorTest {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new NoSuchAlgorithmException();
 		});
-		assertThatThrownBy(() -> instance.createToken()).isInstanceOf(RuntimeException.class);
+		assertThatThrownBy(instance::createToken).isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
@@ -395,7 +395,7 @@ public class JwtGeneratorTest {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new SignatureException();
 		});
-		assertThatThrownBy(() -> instance.createToken()).isInstanceOf(RuntimeException.class);
+		assertThatThrownBy(instance::createToken).isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
@@ -403,7 +403,7 @@ public class JwtGeneratorTest {
 		JwtGenerator instance = JwtGenerator.getInstance(XSUAA, (key, alg, data) -> {
 			throw new InvalidKeyException();
 		});
-		assertThatThrownBy(() -> instance.createToken()).isInstanceOf(RuntimeException.class);
+		assertThatThrownBy(instance::createToken).isInstanceOf(RuntimeException.class);
 	}
 
 }
