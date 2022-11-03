@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.13.4
+- [spring-xsuaa][spring-security]
+  - Patches [CVE-2022-31692](https://nvd.nist.gov/vuln/detail/CVE-2022-31692) vulnerability in spring security dependency.
+
+#### Dependency upgrades
+* Bump spring.security.version from 5.7.3 to 5.7.5 
+* Bump btp-environment-variable-access java-bom from 0.4.1 to 0.5.1
+* Bump spring.boot.version from 2.7.3 to 2.7.5
+* Bump reactor-core from 3.4.23 to 3.4.24
+* Bump slf4j.api.version from 2.0.0 to 2.0.3 
+* Bump spring-boot-starter-parent from 2.7.3 to 2.7.5
+
 ## 2.13.3
 - [spring-xsuaa-starter]   
   - Patches [CVE 2022-25857](https://nvd.nist.gov/vuln/detail/CVE-2022-25857) vulnerability in spring boot starter transient dependency.
