@@ -19,13 +19,10 @@ public class SapIdTokenTest {
 
 	private final SapIdToken cut;
 	private final SapIdToken cut2;
-	private final SapIdToken cut3;
-
 
 	public SapIdTokenTest() throws IOException {
-		cut = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8)); //legacy principal - user_uuid
+		cut = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8));
 		cut2 = new SapIdToken(IOUtils.resourceToString("/iasTokenWithCnfRSA256.txt", StandardCharsets.UTF_8));
-		cut3 = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenWithScimId.txt",StandardCharsets.UTF_8)); //principal with SCIM_ID
 	}
 
 	@Test
@@ -39,7 +36,6 @@ public class SapIdTokenTest {
 
 	@Test
 	public void getPrincipal() {
-		assertThat(cut3.getPrincipal().getName()).isEqualTo("scim-12345");
 		assertThat(cut.getPrincipal().getName()).isEqualTo("1234567890");
 	}
 

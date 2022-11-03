@@ -31,8 +31,7 @@ public class SapIdToken extends AbstractToken {
 
 	@Override
 	public Principal getPrincipal() {
-		// fallback SAP_GLOBAL_USER_ID
-		return createPrincipalByName(getClaimAsString(SAP_GLOBAL_SCIM_ID) != null ? getClaimAsString(SAP_GLOBAL_SCIM_ID) : getClaimAsString(SAP_GLOBAL_USER_ID));
+		return createPrincipalByName(getClaimAsString(SAP_GLOBAL_USER_ID));
 	}
 
 	@Override

@@ -40,7 +40,7 @@ public class IasTokenAuthenticatorTest {
 	private AbstractTokenAuthenticator cut;
 
 	public IasTokenAuthenticatorTest() throws IOException {
-		token = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenWithScimId.txt", UTF_8));
+		token = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 	}
 
 	@Before
