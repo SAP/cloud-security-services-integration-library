@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 ## 2.13.4
 - [spring-xsuaa][spring-security]
   - Patches [CVE-2022-31692](https://nvd.nist.gov/vuln/detail/CVE-2022-31692) vulnerability in spring security dependency.
+- [java-security-test]
+  - `scim_id` added as default attribute for identity token Jwt generator
 
 #### Dependency upgrades
 * Bump spring.security.version from 5.7.3 to 5.7.5 
