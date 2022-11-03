@@ -44,8 +44,8 @@ public class JwtGenerator {
 	private final JSONObject jsonHeader = new JSONObject();
 	private final JSONObject jsonPayload = new JSONObject();
 
-	private SignatureCalculator signatureCalculator;
-	private Service service;
+	private final SignatureCalculator signatureCalculator;
+	private final Service service;
 
 	private JwtSignatureAlgorithm signatureAlgorithm;
 	private PrivateKey privateKey = RSAKeys.generate().getPrivate();
@@ -149,9 +149,10 @@ public class JwtGenerator {
 			jsonPayload.put(TokenClaims.AUDIENCE, azp);
 			jsonPayload.put(TokenClaims.SAP_GLOBAL_ZONE_ID, DEFAULT_ZONE_ID);
 			jsonPayload.put(TokenClaims.SAP_GLOBAL_USER_ID, DEFAULT_USER_ID);
+			jsonPayload.put(TokenClaims.SAP_GLOBAL_SCIM_ID, DEFAULT_USER_ID);
 		} else {
 			withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
-			jsonPayload.put(TokenClaims.AUDIENCE, Arrays.asList(azp));
+			jsonPayload.put(TokenClaims.AUDIENCE, Collections.singletonList(azp));
 			jsonPayload.put(TokenClaims.XSUAA.ZONE_ID, DEFAULT_ZONE_ID);
 			jsonPayload.put(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, createJsonObject("{\"enhancer\" : \"XSUAA\"} "));
 		}
@@ -266,14 +267,14 @@ public class JwtGenerator {
 	 *
 	 * @throws JsonParsingException
 	 *             if the file does not contain a valid json object.
-	 * @throws IOException
+	 * @throws IllegalArgumentException
 	 *             when the file cannot be read or does not exist.
 	 * @param claimsJsonResource
 	 *            the resource path to the file containing the claims in json
 	 *            format, e.g. "/claims.json"
 	 * @return the builder object.
 	 */
-	public JwtGenerator withClaimsFromFile(String claimsJsonResource) throws IOException {
+	public JwtGenerator withClaimsFromFile(String claimsJsonResource) throws IllegalArgumentException {
 		String claimsJson = read(claimsJsonResource);
 		JSONObject jsonObject = createJsonObject(claimsJson);
 		copyJsonProperties(jsonObject, jsonPayload);
