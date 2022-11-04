@@ -1,6 +1,6 @@
 **Rating**: **MODERATE**
 
-**Score**: **5.6**, max score value is 10.0
+**Score**: **5.67**, max score value is 10.0
 
 **Confidence**: Max (10.0, max confidence value is 10.0)
 
@@ -40,8 +40,8 @@ It used the following sub-scores:
         1.  **[Memory-safety testing](#memory-safety-testing)**: **N/A** (weight is 1.0)
         1.  **[nohttp tool](#nohttp-tool)**: **0.0** (weight is 0.5)
 1.  **[Community commitment](#community-commitment)**: **8.0** (weight is 0.5)
-1.  **[Project activity](#project-activity)**: **7.92** (weight is 0.5)
-1.  **[Project popularity](#project-popularity)**: **0.15** (weight is 0.5)
+1.  **[Project activity](#project-activity)**: **8.56** (weight is 0.5)
+1.  **[Project popularity](#project-popularity)**: **0.16** (weight is 0.5)
 
 
 ## How to improve the rating
@@ -168,21 +168,21 @@ This sub-score is based on 3 features:
 
 ### Project activity
 
-Score: **7.92**, confidence is 10.0 (max), weight is 0.5 (medium)
+Score: **8.56**, confidence is 10.0 (max), weight is 0.5 (medium)
 
 The score evaluates how active a project is. It's based on number of commits and contributors in the last 3 months.
 
-49 commits in the last 3 months results to 7.54 points
-2 contributors increase the score value from 7.54 to 7.92
+53 commits in the last 3 months results to 8.15 points
+2 contributors increase the score value from 8.15 to 8.56
 
 This sub-score is based on 2 features:
 
-1.  Number of commits in the last three months: **49**
+1.  Number of commits in the last three months: **53**
 1.  Number of contributors in the last three months: **2**
 
 ### Project popularity
 
-Score: **0.15**, confidence is 10.0 (max), weight is 0.5 (medium)
+Score: **0.16**, confidence is 10.0 (max), weight is 0.5 (medium)
 
 The score is based on number of stars and watchers.
 Here is how a number of stars contributes to the score:
@@ -194,7 +194,7 @@ Here is how a number of watchers contributes to the score:
 
 This sub-score is based on 2 features:
 
-1.  Number of stars for a GitHub repository: **115**
+1.  Number of stars for a GitHub repository: **116**
 1.  Number of watchers for a GitHub repository: **12**
 
 ### Dependency testing
