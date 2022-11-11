@@ -7,6 +7,5 @@ updates:
       time: "10:00"
       timezone: Etc/UCT
     reviewers:
-      - "nenaraab"
       - "liga-oz"
     open-pull-requests-limit: 10
