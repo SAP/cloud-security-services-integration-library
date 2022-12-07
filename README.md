@@ -1,6 +1,5 @@
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP/cloud-security-xsuaa-integration)](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration)
 [![Java CI with Maven](https://github.com/SAP/cloud-security-xsuaa-integration/actions/workflows/maven.yml/badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/actions/workflows/maven.yml)
-[![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/SAP/cloud-security-xsuaa-integration.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SAP/cloud-security-xsuaa-integration/context:java)
 [![Fosstars security rating](https://raw.githubusercontent.com/SAP/cloud-security-xsuaa-integration/fosstars-report/fosstars_badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/blob/fosstars-report/fosstars_report.md)
 
 
