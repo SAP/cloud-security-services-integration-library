@@ -4,6 +4,16 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <suppress>
         <notes><![CDATA[
+        suppresses CVE-2022-1471 according to https://github.com/spring-projects/spring-boot/issues/33457 spring does not use the affected constructor,
+        it uses SafeConstructor and only for application.yaml file parsing, therefore it's a false positive
+        file name: snakeyaml-1.33.jar
+        ]]>
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-1471</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
         This suppresses CVE-2018-1258 which is necessary because of a bug in the dependency-check plugin itself
         and needs to be active until it is resolved: https://github.com/jeremylong/DependencyCheck/issues/1827
         ]]></notes>
