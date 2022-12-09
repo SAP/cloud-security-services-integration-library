@@ -6,11 +6,12 @@
         <notes><![CDATA[
         suppresses CVE-2022-1471 according to https://github.com/spring-projects/spring-boot/issues/33457 spring does not use the affected constructor,
         it uses SafeConstructor and only for application.yaml file parsing, therefore it's a false positive
-        file name: snakeyaml-1.33.jar
+        file name: snakeyaml-1.30.jar
         ]]>
         </notes>
         <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
-        <vulnerabilityName>CVE-2022-1471</vulnerabilityName>
+        <cve>CVE-2022-1471</cve>
+        <cve>CVE-2022-25857</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
