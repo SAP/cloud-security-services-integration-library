@@ -34,18 +34,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.yaml</groupId>
-					<artifactId>snakeyaml</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-<!--	Fixes https://nvd.nist.gov/vuln/detail/CVE-2022-25857 Once spring boot starter is patched check if can be removed-->
-		<dependency>
-			<groupId>org.yaml</groupId>
-			<artifactId>snakeyaml</artifactId>
-			<version>1.33</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
