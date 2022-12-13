@@ -33,7 +33,7 @@
 			<dependency>
 				<groupId>com.sap.cloud.sjb.cf</groupId>
 				<artifactId>sap-java-buildpack-bom</artifactId>
-				<version>1.48.0</version>
+				<version>1.64.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
