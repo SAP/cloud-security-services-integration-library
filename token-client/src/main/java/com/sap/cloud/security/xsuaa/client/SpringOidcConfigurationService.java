@@ -32,7 +32,8 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
 			HttpHeaders headers = new HttpHeaders();
 			headers.set(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 
-			ResponseEntity<String> response = restOperations.exchange(discoveryEndpointUri, HttpMethod.GET, new HttpEntity(headers), String.class);
+			ResponseEntity<String> response = restOperations.exchange(discoveryEndpointUri, HttpMethod.GET,
+					new HttpEntity(headers), String.class);
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
 				return new DefaultOidcConfigurationService.OidcEndpointsProvider(response.getBody());
 			} else {

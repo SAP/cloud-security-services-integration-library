@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static org.apache.http.HttpHeaders.USER_AGENT;
 
-
 public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultOAuth2TokenService.class);

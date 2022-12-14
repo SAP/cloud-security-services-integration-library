@@ -215,7 +215,8 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 */
 	@Deprecated
 	public String[] getXSUserAttribute(String attributeName) {
-		List<String> claims = token.getAttributeFromClaimAsStringList(TokenClaims.XSUAA.XS_USER_ATTRIBUTES, attributeName);
+		List<String> claims = token.getAttributeFromClaimAsStringList(TokenClaims.XSUAA.XS_USER_ATTRIBUTES,
+				attributeName);
 		return claims.isEmpty() ? null : claims.toArray(new String[0]);
 	}
 

@@ -56,7 +56,7 @@ class JwtIssuerValidator implements Validator<Token> {
 	@Override
 	public ValidationResult validate(Token token) {
 		String issuer = token.getIssuer();
-		if (token.getService().equals(Service.IAS) && !issuer.startsWith("http")){
+		if (token.getService().equals(Service.IAS) && !issuer.startsWith("http")) {
 			issuer = "https://" + issuer;
 		}
 		ValidationResult validationResult = validateUrl(issuer);

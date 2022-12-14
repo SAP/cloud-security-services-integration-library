@@ -97,7 +97,7 @@ class JwtIssuerValidatorTest {
 	@CsvSource({ "https://subdomain.accounts400.ondemand.com#anyFragment_keys",
 			"https://subdomain.accounts400.ondemand.com?a=b",
 			"\0://myauth.com",
-			"https://otherDomain.org?accounts400.ondemand.com",})
+			"https://otherDomain.org?accounts400.ondemand.com", })
 	void validationFails_iasIssuerUrl(String iasIssuer) {
 		cut = new JwtIssuerValidator(Arrays.asList(domains));
 		configureMock("https://otherDomain.accounts400.ondemand.com", iasIssuer);

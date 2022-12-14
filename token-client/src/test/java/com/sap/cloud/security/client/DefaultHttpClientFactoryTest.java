@@ -137,8 +137,8 @@ class DefaultHttpClientFactoryTest {
 	void disableRedirects() throws IOException {
 		WireMockServer wireMockServer = new WireMockServer(8000);
 		wireMockServer.stubFor(get(urlEqualTo("/redirect"))
-				.willReturn(aResponse().withHeader(HttpHeaders.LOCATION, "https://sap.com").withStatus(HttpStatus.SC_MOVED_PERMANENTLY))
-		);
+				.willReturn(aResponse().withHeader(HttpHeaders.LOCATION, "https://sap.com")
+						.withStatus(HttpStatus.SC_MOVED_PERMANENTLY)));
 		wireMockServer.start();
 		try {
 			CloseableHttpClient client = cut.createClient(config);
