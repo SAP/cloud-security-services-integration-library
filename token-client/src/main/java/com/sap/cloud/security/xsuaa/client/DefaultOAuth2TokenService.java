@@ -80,7 +80,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		requestHeaders.withHeader(MDCHelper.CORRELATION_HEADER, MDCHelper.getOrCreateCorrelationId());
 
 		HttpPost httpPost = createHttpPost(tokenEndpointUri, requestHeaders, parameters);
-		LOGGER.debug("access token request {} - {}", headers, parameters);
+		LOGGER.debug("access token request {} - {}", headers, parameters.entrySet().stream().filter(e-> !e.getKey().contains(PASSWORD) && !e.getKey().contains(CLIENT_SECRET)).collect(Collectors.toList()));
 		return executeRequest(httpPost);
 	}
 

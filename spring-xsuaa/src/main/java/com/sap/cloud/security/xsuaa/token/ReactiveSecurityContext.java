@@ -28,13 +28,13 @@ public class ReactiveSecurityContext {
 	 *         {@link AccessDeniedException} in case there is no token, user is not
 	 *         authenticated.
 	 */
-	static public Mono<XsuaaToken> getToken() {
+	public static Mono<XsuaaToken> getToken() {
 		return ReactiveSecurityContextHolder.getContext()
 				.switchIfEmpty(Mono.error(new AccessDeniedException("Access forbidden: not authenticated")))
 				.map(SecurityContext::getAuthentication)
 				.map(Authentication::getCredentials)
 				.map(credentials -> new XsuaaToken((Jwt) credentials))
-				.doOnSuccess(token -> logger.info("Got Jwt token: {}", token))
+				.doOnSuccess(token -> logger.debug("Got Jwt token with clientid: {}", token.getClientId()))
 				.doOnError(throwable -> logger.error("ERROR to getToken", throwable));
 	}
 }
