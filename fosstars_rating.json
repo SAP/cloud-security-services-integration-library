@@ -195,7 +195,7 @@
         }
       }
     },
-    "value" : 4.965176282051282,
+    "value" : 5.348990384615385,
     "weight" : 1.0,
     "confidence" : 9.87962962962963,
     "usedValues" : [ {
@@ -424,7 +424,7 @@
           }
         }
       },
-      "value" : 4.0,
+      "value" : 5.6,
       "weight" : 1.0,
       "confidence" : 9.555555555555555,
       "usedValues" : [ {
@@ -554,7 +554,7 @@
             }
           }
         },
-        "value" : 0.0,
+        "value" : 4.0,
         "weight" : 1.0,
         "confidence" : 8.0,
         "usedValues" : [ {
@@ -620,7 +620,7 @@
             "type" : "CodeqlScore",
             "name" : "How a project uses CodeQL"
           },
-          "value" : 0.0,
+          "value" : 10.0,
           "weight" : 1.0,
           "confidence" : 10.0,
           "usedValues" : [ {
@@ -636,14 +636,14 @@
               "type" : "BooleanFeature",
               "name" : "If a project runs CodeQL checks for commits"
             },
-            "flag" : false
+            "flag" : true
           }, {
             "type" : "BooleanValue",
             "feature" : {
               "type" : "BooleanFeature",
               "name" : "If a project runs CodeQL scans"
             },
-            "flag" : false
+            "flag" : true
           }, {
             "type" : "LanguagesValue",
             "feature" : {
@@ -806,7 +806,7 @@
         "type" : "ProjectActivityScore",
         "name" : "Open-source project activity score"
       },
-      "value" : 5.007692307692308,
+      "value" : 5.492307692307692,
       "weight" : 0.5,
       "confidence" : 10.0,
       "usedValues" : [ {
@@ -815,7 +815,7 @@
           "type" : "PositiveIntegerFeature",
           "name" : "Number of commits in the last three months"
         },
-        "number" : 31
+        "number" : 34
       }, {
         "type" : "IntegerValue",
         "feature" : {
@@ -824,7 +824,7 @@
         },
         "number" : 2
       } ],
-      "explanation" : [ "31 commits in the last 3 months results to 4.77 points", "2 contributors increase the score value from 4.77 to 5.01" ],
+      "explanation" : [ "34 commits in the last 3 months results to 5.23 points", "2 contributors increase the score value from 5.23 to 5.49" ],
       "isUnknown" : false,
       "isNotApplicable" : false
     }, {
@@ -987,7 +987,7 @@
             }
           }
         },
-        "value" : 4.0,
+        "value" : 5.6,
         "weight" : 1.0,
         "confidence" : 9.555555555555555,
         "usedValues" : [ {
@@ -1117,7 +1117,7 @@
               }
             }
           },
-          "value" : 0.0,
+          "value" : 4.0,
           "weight" : 1.0,
           "confidence" : 8.0,
           "usedValues" : [ {
@@ -1183,7 +1183,7 @@
               "type" : "CodeqlScore",
               "name" : "How a project uses CodeQL"
             },
-            "value" : 0.0,
+            "value" : 10.0,
             "weight" : 1.0,
             "confidence" : 10.0,
             "usedValues" : [ {
@@ -1199,14 +1199,14 @@
                 "type" : "BooleanFeature",
                 "name" : "If a project runs CodeQL checks for commits"
               },
-              "flag" : false
+              "flag" : true
             }, {
               "type" : "BooleanValue",
               "feature" : {
                 "type" : "BooleanFeature",
                 "name" : "If a project runs CodeQL scans"
               },
-              "flag" : false
+              "flag" : true
             }, {
               "type" : "LanguagesValue",
               "feature" : {
