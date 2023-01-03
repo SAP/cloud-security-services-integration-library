@@ -25,6 +25,7 @@ import java.net.URI;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -256,7 +257,13 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	private OAuth2TokenResponse getOrRequestAccessToken(URI tokenEndpoint, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException {
 		LOGGER.debug("Token was requested for endpoint uri={} with headers={} and parameters={}", tokenEndpoint,
-				headers, parameters.entrySet().stream().filter(e-> !e.getKey().contains(PASSWORD) && !e.getKey().contains(CLIENT_SECRET)).collect(Collectors.toList()));
+				headers, parameters.entrySet().stream().map(e -> {
+					if (e.getKey().contains(PASSWORD) || e.getKey().contains(CLIENT_SECRET)
+							|| e.getKey().contains(ASSERTION)) {
+						return new AbstractMap.SimpleImmutableEntry<>(e.getKey(), "****");
+					}
+					return e;
+				}).collect(Collectors.toList()));
 		CacheKey cacheKey = new CacheKey(tokenEndpoint, headers, parameters);
 		OAuth2TokenResponse oAuth2TokenResponse = responseCache.getIfPresent(cacheKey);
 		if (oAuth2TokenResponse == null) {

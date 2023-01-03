@@ -26,6 +26,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -80,7 +81,15 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		requestHeaders.withHeader(MDCHelper.CORRELATION_HEADER, MDCHelper.getOrCreateCorrelationId());
 
 		HttpPost httpPost = createHttpPost(tokenEndpointUri, requestHeaders, parameters);
-		LOGGER.debug("access token request {} - {}", headers, parameters.entrySet().stream().filter(e-> !e.getKey().contains(PASSWORD) && !e.getKey().contains(CLIENT_SECRET)).collect(Collectors.toList()));
+		LOGGER.debug("access token request {} - {}", headers, parameters.entrySet().stream()
+				.map(e -> {
+					if (e.getKey().contains(PASSWORD) || e.getKey().contains(CLIENT_SECRET)
+							|| e.getKey().contains(ASSERTION)) {
+						return new AbstractMap.SimpleImmutableEntry<>(e.getKey(), "****");
+					}
+					return e;
+				})
+				.collect(Collectors.toList()));
 		return executeRequest(httpPost);
 	}
 
