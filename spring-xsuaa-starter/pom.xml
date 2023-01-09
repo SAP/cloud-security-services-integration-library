@@ -6,11 +6,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<!-- Don't use the Spring Boot starter parent in a custom starter. The spring 
-		boot starter parent also declares some dependencies to maven plugins that 
-		would be pulled into an application then and might conflict with the version 
-		the application actually needs to use. All we need from Spring Boot is the 
-		dependency _management_ information. We will get this from the Spring Boot 
+	<!-- Don't use the Spring Boot starter parent in a custom starter. The spring
+		boot starter parent also declares some dependencies to maven plugins that
+		would be pulled into an application then and might conflict with the version
+		the application actually needs to use. All we need from Spring Boot is the
+		dependency _management_ information. We will get this from the Spring Boot
 		BOM: https://docs.spring.io/spring-boot/docs/2.1.6.RELEASE/reference/htmlsingle/#using-boot-maven-without-a-parent -->
 
 	<parent>
@@ -34,6 +34,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+				<exclusion>
+					<groupId>org.yaml</groupId>
+					<artifactId>snakeyaml</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
