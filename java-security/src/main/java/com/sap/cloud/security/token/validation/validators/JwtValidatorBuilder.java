@@ -13,7 +13,10 @@ import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +35,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
  * Custom validators can be added via {@link #with(Validator)} method.
  */
 public class JwtValidatorBuilder {
-	private static Map<OAuth2ServiceConfiguration, JwtValidatorBuilder> instances = new ConcurrentHashMap<>();
+	private static final Map<OAuth2ServiceConfiguration, JwtValidatorBuilder> instances = new ConcurrentHashMap<>();
 	private final Set<Validator<Token>> validators = new HashSet<>();
 	private final Set<ValidationListener> validationListeners = Collections.synchronizedSet(new HashSet<>());
 	private OAuth2ServiceConfiguration configuration;
@@ -41,6 +44,8 @@ public class JwtValidatorBuilder {
 	private OAuth2TokenKeyService tokenKeyService = null;
 	private Validator<Token> customAudienceValidator;
 	private CacheConfiguration tokenKeyCacheConfiguration;
+	private boolean isZoneCheckDisabled;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtValidatorBuilder.class);
 
 	private JwtValidatorBuilder() {
@@ -49,7 +54,7 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Creates a builder instance that can be configured further.
-	 * 
+	 *
 	 * @param configuration
 	 *            the identity service configuration
 	 * @return the builder
@@ -133,11 +138,10 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
-	 * In case you want to configure the {@link OidcConfigurationService} and the
+	 * In case you want to configure the {@link OidcConfigurationService} and
 	 * the {@link OAuth2TokenKeyService} with your own Rest client.
 	 *
-	 * @param httpClient
-	 *            your own http client
+	 * @param httpClient your own http client
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withHttpClient(CloseableHttpClient httpClient) {
@@ -167,13 +171,24 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Adds the validation listener to the jwt validator that is being built.
-	 * 
+	 *
 	 * @param validationListener
 	 *            the listener to be added to the validator.
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withValidatorListener(ValidationListener validationListener) {
 		validationListeners.add(validationListener);
+		return this;
+	}
+
+	/**
+	 * Disables zone-id check for JwtSignatureValidator. In case Jwt issuer claim doesn't match with the url attribute from OAuth2ServiceConfiguration zone-id claim needs to be present in token to ensure that the zone belongs to this issuer.
+	 * This method disables the zone check. Use with caution as it relaxes the validation rules! It is not recommended to disable this check for standard Identity service setup.
+	 *
+	 * @return this builder
+	 */
+	public JwtValidatorBuilder disableZoneCheck() {
+		this.isZoneCheckDisabled = true;
 		return this;
 	}
 
@@ -199,10 +214,8 @@ public class JwtValidatorBuilder {
 			if (!configuration.isLegacyMode()) {
 				defaultValidators.add(new XsuaaJkuValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
-		} else if (configuration.getService() == IAS) {
-			if (configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {
-				defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
-			}
+		} else if (configuration.getService() == IAS && configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {
+			defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
 		}
 		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
 		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);
@@ -210,6 +223,10 @@ public class JwtValidatorBuilder {
 				configuration,
 				tokenKeyServiceWithCache,
 				getOidcConfigurationServiceWithCache());
+
+		if (configuration.getService() == IAS && isZoneCheckDisabled) {
+			signatureValidator.disableZoneCheck();
+		}
 		defaultValidators.add(signatureValidator);
 
 		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
@@ -225,7 +242,7 @@ public class JwtValidatorBuilder {
 		if (configuration.hasProperty(CFConstants.XSUAA.APP_ID)) {
 			jwtAudienceValidator.configureTrustedClientId(configuration.getProperty(CFConstants.XSUAA.APP_ID));
 		}
-		otherConfigurations.forEach((otherConfiguration) -> {
+		otherConfigurations.forEach(otherConfiguration -> {
 			jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getClientId());
 			if (otherConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
 				jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getProperty(CFConstants.XSUAA.APP_ID));

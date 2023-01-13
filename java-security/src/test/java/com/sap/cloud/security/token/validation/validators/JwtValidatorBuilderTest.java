@@ -8,8 +8,15 @@ package com.sap.cloud.security.token.validation.validators;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.validation.*;
+import com.sap.cloud.security.token.validation.CombiningValidator;
+import com.sap.cloud.security.token.validation.TokenTestValidator;
+import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,13 +24,18 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JwtValidatorBuilderTest {
@@ -107,6 +119,29 @@ public class JwtValidatorBuilderTest {
 	}
 
 	@Test
+	public void build_ias_withZoneCheckDisabled() throws IOException {
+		OAuth2ServiceConfigurationBuilder iasConfigBuilder = OAuth2ServiceConfigurationBuilder.forService(IAS)
+				.withDomains("myauth.com")
+				.withClientId("T000310");
+		OAuth2TokenKeyService tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
+		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
+		OidcConfigurationService oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
+
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), any())).thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("https://application.myauth.com/jwks_uri"));
+		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);
+		
+		CombiningValidator<Token> combiningValidator = JwtValidatorBuilder.getInstance(iasConfigBuilder.build())
+				.withOAuth2TokenKeyService(tokenKeyServiceMock)
+				.withOidcConfigurationService(oidcConfigServiceMock)
+				.disableZoneCheck()
+				.build();
+
+		assertThat(combiningValidator.validate(new SapIdToken("eyJraWQiOiJkZWZhdWx0LWtpZCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJQMTc2OTQ1IiwiYXVkIjoiVDAwMDMxMCIsInVzZXJfdXVpZCI6IjEyMzQ1Njc4OTAiLCJpc3MiOiJodHRwczovL2FwcGxpY2F0aW9uLm15YXV0aC5jb20iLCJleHAiOjY5NzQwMzE2MDAsImdpdmVuX25hbWUiOiJqb2huIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5vcmciLCJjaWQiOiJUMDAwMzEwIn0.Svrb5PriAuHOdhTFXiicr_qizHiby6b73SdovJAFnWCPDr0r8mmFoEWXjJmdLdw08daNzt8ww_r2khJ-rusUZVfiZY3kyRV1hfeChpNROGfmGbfN62KSsYBPi4dBMIGRz8SqkF6nw5nTC-HOr7Gd8mtZjG9KZYC5fKYOYRvbAZN_xyvLDzFUE6LgLmiT6fV7fHPQi5NSUfawpWQbIgK2sJjnp-ODTAijohyxQNuF4Lq1Prqzjt2QZRwvbskTcYM3gK5fgt6RYDN6MbARJIVFsb1Y7wZFg00dp2XhdFzwWoQl6BluvUL8bL73A8iJSam0csm1cuG0A7kMF9spy_whQw"))
+				.isValid()).isTrue();
+	}
+
+	@Test
 	public void buildWithAnotherValidator_containsAddedValidator() {
 		TokenTestValidator tokenValidator = TokenTestValidator.createValid();
 
@@ -123,7 +158,6 @@ public class JwtValidatorBuilderTest {
 	@Test
 	public void configureOtherServiceInstances() {
 		Collection clientIds = new ArrayList();
-		JwtAudienceValidator audienceValidator;
 
 		OAuth2ServiceConfiguration xsuaaConfig1 = xsuaaConfigBuilder.build();
 		OAuth2ServiceConfiguration xsuaaConfig2 = OAuth2ServiceConfigurationBuilder.forService(XSUAA)
