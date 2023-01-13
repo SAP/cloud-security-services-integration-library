@@ -45,7 +45,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private final OidcConfigurationServiceWithCache oidcConfigurationService;
-	private OAuth2ServiceConfiguration configuration;
+	private final OAuth2ServiceConfiguration configuration;
+ 	private boolean isZoneCheckEnabled = true;
 
 	JwtSignatureValidator(OAuth2ServiceConfiguration configuration, OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
@@ -58,6 +59,10 @@ class JwtSignatureValidator implements Validator<Token> {
 		this.oidcConfigurationService = oidcConfigurationService;
 	}
 
+	void disableZoneCheck() {
+		this.isZoneCheckEnabled = false;
+	}
+
 	@Override
 	@SuppressWarnings("lgtm[java/dereferenced-value-may-be-null]")
 	public ValidationResult validate(Token token) {
@@ -67,7 +72,7 @@ class JwtSignatureValidator implements Validator<Token> {
 
 		if (Service.IAS == configuration.getService()) {
 			zoneIdForTokenKeys = token.getZoneId();
-			if (!token.getIssuer().equals("" + configuration.getUrl()) && zoneIdForTokenKeys == null) {
+			if (isZoneCheckEnabled && !token.getIssuer().equals("" + configuration.getUrl()) && zoneIdForTokenKeys == null) {
 				return createInvalid("Error occurred during signature validation: OIDC token must provide zone_uuid.");
 			}
 		}

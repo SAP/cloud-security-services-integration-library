@@ -10,7 +10,10 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +23,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.regex.Pattern;
 
-import static java.nio.charset.StandardCharsets.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,6 +39,7 @@ public class JwtSignatureValidatorTest {
 	private JwtSignatureValidator cut;
 	private OAuth2TokenKeyService tokenKeyServiceMock;
 	private OAuth2ServiceConfiguration mockConfiguration;
+	private OidcConfigurationService oidcConfigServiceMock;
 
 	@Before
 	public void setup() throws IOException {
@@ -55,7 +59,7 @@ public class JwtSignatureValidatorTest {
 		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProviderMock.getJwksUri()).thenReturn(DUMMY_JKU_URI);
 
-		OidcConfigurationService oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
+		oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
 		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);
 
 		cut = new JwtSignatureValidator(
@@ -99,6 +103,18 @@ public class JwtSignatureValidatorTest {
 		assertTrue(validationResult.isErroneous());
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Error occurred during signature validation: OIDC token must provide zone_uuid."));
+	}
+
+	@Test
+	public void validate_whenZoneIdIsNull_withDisabledZoneId() {
+		JwtSignatureValidator cut = new JwtSignatureValidator(
+				mockConfiguration,
+				OAuth2TokenKeyServiceWithCache.getInstance()
+						.withTokenKeyService(tokenKeyServiceMock),
+				OidcConfigurationServiceWithCache.getInstance()
+						.withOidcConfigurationService(oidcConfigServiceMock));
+		cut.disableZoneCheck();
+		assertTrue(cut.validate(iasPaasToken).isValid());
 	}
 
 	@Test
