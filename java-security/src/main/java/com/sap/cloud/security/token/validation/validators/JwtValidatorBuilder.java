@@ -138,10 +138,11 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
-	 * In case you want to configure the {@link OidcConfigurationService} and
-	 * the {@link OAuth2TokenKeyService} with your own Rest client.
+	 * In case you want to configure the {@link OidcConfigurationService} and the
+	 * {@link OAuth2TokenKeyService} with your own Rest client.
 	 *
-	 * @param httpClient your own http client
+	 * @param httpClient
+	 *            your own http client
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withHttpClient(CloseableHttpClient httpClient) {
@@ -182,8 +183,12 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
-	 * Disables zone-id check for JwtSignatureValidator. In case Jwt issuer claim doesn't match with the url attribute from OAuth2ServiceConfiguration zone-id claim needs to be present in token to ensure that the zone belongs to this issuer.
-	 * This method disables the zone check. Use with caution as it relaxes the validation rules! It is not recommended to disable this check for standard Identity service setup.
+	 * Disables zone-id check for JwtSignatureValidator. In case Jwt issuer claim
+	 * doesn't match with the url attribute from OAuth2ServiceConfiguration zone-id
+	 * claim needs to be present in token to ensure that the zone belongs to this
+	 * issuer. This method disables the zone check. Use with caution as it relaxes
+	 * the validation rules! It is not recommended to disable this check for
+	 * standard Identity service setup.
 	 *
 	 * @return this builder
 	 */
@@ -214,7 +219,8 @@ public class JwtValidatorBuilder {
 			if (!configuration.isLegacyMode()) {
 				defaultValidators.add(new XsuaaJkuValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
-		} else if (configuration.getService() == IAS && configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {
+		} else if (configuration.getService() == IAS && configuration.getDomains() != null
+				&& !configuration.getDomains().isEmpty()) {
 			defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
 		}
 		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();

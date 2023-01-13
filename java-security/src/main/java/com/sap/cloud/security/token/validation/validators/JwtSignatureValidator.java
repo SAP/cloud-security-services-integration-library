@@ -46,7 +46,7 @@ class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private final OidcConfigurationServiceWithCache oidcConfigurationService;
 	private final OAuth2ServiceConfiguration configuration;
- 	private boolean isZoneCheckEnabled = true;
+	private boolean isZoneCheckEnabled = true;
 
 	JwtSignatureValidator(OAuth2ServiceConfiguration configuration, OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
@@ -59,6 +59,15 @@ class JwtSignatureValidator implements Validator<Token> {
 		this.oidcConfigurationService = oidcConfigurationService;
 	}
 
+	/**
+	 * This method disables the zone check. In case Jwt issuer `iss` claim doesn't
+	 * match with the `url` attribute from {@link OAuth2ServiceConfiguration)},
+	 * zone-id claim needs to be present in token to ensure that the zone belongs to
+	 * this issuer.
+	 * <p>
+	 * Use with caution as it relaxes the validation rules! It is not recommended to
+	 * disable this check for standard Identity service setup.
+	 */
 	void disableZoneCheck() {
 		this.isZoneCheckEnabled = false;
 	}
@@ -72,7 +81,8 @@ class JwtSignatureValidator implements Validator<Token> {
 
 		if (Service.IAS == configuration.getService()) {
 			zoneIdForTokenKeys = token.getZoneId();
-			if (isZoneCheckEnabled && !token.getIssuer().equals("" + configuration.getUrl()) && zoneIdForTokenKeys == null) {
+			if (isZoneCheckEnabled && !token.getIssuer().equals("" + configuration.getUrl())
+					&& zoneIdForTokenKeys == null) {
 				return createInvalid("Error occurred during signature validation: OIDC token must provide zone_uuid.");
 			}
 		}
