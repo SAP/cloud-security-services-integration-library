@@ -383,7 +383,7 @@
 						<plugin>
 							<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
 							<artifactId>dependency-check-maven</artifactId>
-							<version>7.4.4</version>
+							<version>8.0.0</version>
 							<executions>
 								<execution>
 									<goals>
