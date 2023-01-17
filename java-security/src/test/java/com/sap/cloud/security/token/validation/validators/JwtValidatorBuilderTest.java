@@ -119,7 +119,7 @@ public class JwtValidatorBuilderTest {
 	}
 
 	@Test
-	public void build_ias_withZoneCheckDisabled() throws IOException {
+	public void build_ias_withTenantIdCheckDisabled() throws IOException {
 		OAuth2ServiceConfigurationBuilder iasConfigBuilder = OAuth2ServiceConfigurationBuilder.forService(IAS)
 				.withDomains("myauth.com")
 				.withClientId("T000310");
@@ -135,7 +135,7 @@ public class JwtValidatorBuilderTest {
 		CombiningValidator<Token> combiningValidator = JwtValidatorBuilder.getInstance(iasConfigBuilder.build())
 				.withOAuth2TokenKeyService(tokenKeyServiceMock)
 				.withOidcConfigurationService(oidcConfigServiceMock)
-				.disableZoneCheck()
+				.disableTenantIdCheck()
 				.build();
 
 		assertThat(combiningValidator.validate(new SapIdToken(

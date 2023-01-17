@@ -44,7 +44,7 @@ public class JwtValidatorBuilder {
 	private OAuth2TokenKeyService tokenKeyService = null;
 	private Validator<Token> customAudienceValidator;
 	private CacheConfiguration tokenKeyCacheConfiguration;
-	private boolean isZoneCheckDisabled;
+	private boolean isTenantIdCheckDisabled;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtValidatorBuilder.class);
 
@@ -183,17 +183,17 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
-	 * Disables zone-id check for JwtSignatureValidator. In case Jwt issuer claim
-	 * doesn't match with the url attribute from OAuth2ServiceConfiguration zone-id
-	 * claim needs to be present in token to ensure that the zone belongs to this
-	 * issuer. This method disables the zone check. Use with caution as it relaxes
+	 * Disables tenant id check for JwtSignatureValidator. In case Jwt issuer claim
+	 * doesn't match with the url attribute from OAuth2ServiceConfiguration tenant id (zid)
+	 * claim needs to be present in token to ensure that the tenant belongs to this
+	 * issuer. This method disables the tenant id check. Use with caution as it relaxes
 	 * the validation rules! It is not recommended to disable this check for
 	 * standard Identity service setup.
 	 *
 	 * @return this builder
 	 */
-	public JwtValidatorBuilder disableZoneCheck() {
-		this.isZoneCheckDisabled = true;
+	public JwtValidatorBuilder disableTenantIdCheck() {
+		this.isTenantIdCheckDisabled = true;
 		return this;
 	}
 
@@ -230,8 +230,8 @@ public class JwtValidatorBuilder {
 				tokenKeyServiceWithCache,
 				getOidcConfigurationServiceWithCache());
 
-		if (configuration.getService() == IAS && isZoneCheckDisabled) {
-			signatureValidator.disableZoneCheck();
+		if (configuration.getService() == IAS && isTenantIdCheckDisabled) {
+			signatureValidator.disableTenantIdCheck();
 		}
 		defaultValidators.add(signatureValidator);
 

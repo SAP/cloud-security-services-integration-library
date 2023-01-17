@@ -113,7 +113,7 @@ public class JwtSignatureValidatorTest {
 						.withTokenKeyService(tokenKeyServiceMock),
 				OidcConfigurationServiceWithCache.getInstance()
 						.withOidcConfigurationService(oidcConfigServiceMock));
-		cut.disableZoneCheck();
+		cut.disableTenantIdCheck();
 		assertTrue(cut.validate(iasPaasToken).isValid());
 	}
 
