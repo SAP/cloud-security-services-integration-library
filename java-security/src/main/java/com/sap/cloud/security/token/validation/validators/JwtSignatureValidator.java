@@ -45,7 +45,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 class JwtSignatureValidator implements Validator<Token> {
 	private final OAuth2TokenKeyServiceWithCache tokenKeyService;
 	private final OidcConfigurationServiceWithCache oidcConfigurationService;
-	private OAuth2ServiceConfiguration configuration;
+	private final OAuth2ServiceConfiguration configuration;
+	private boolean isTenantIdCheckEnabled = true;
 
 	JwtSignatureValidator(OAuth2ServiceConfiguration configuration, OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
@@ -58,6 +59,19 @@ class JwtSignatureValidator implements Validator<Token> {
 		this.oidcConfigurationService = oidcConfigurationService;
 	}
 
+	/**
+	 * This method disables the tenant id check. In case Jwt issuer `iss` claim doesn't
+	 * match with the `url` attribute from {@link OAuth2ServiceConfiguration)},
+	 * tenant-id (zid) claim needs to be present in token to ensure that the tenant belongs to
+	 * this issuer.
+	 * <p>
+	 * Use with caution as it relaxes the validation rules! It is not recommended to
+	 * disable this check for standard Identity service setup.
+	 */
+	void disableTenantIdCheck() {
+		this.isTenantIdCheckEnabled = false;
+	}
+
 	@Override
 	@SuppressWarnings("lgtm[java/dereferenced-value-may-be-null]")
 	public ValidationResult validate(Token token) {
@@ -67,7 +81,8 @@ class JwtSignatureValidator implements Validator<Token> {
 
 		if (Service.IAS == configuration.getService()) {
 			zoneIdForTokenKeys = token.getZoneId();
-			if (!token.getIssuer().equals("" + configuration.getUrl()) && zoneIdForTokenKeys == null) {
+			if (isTenantIdCheckEnabled && !token.getIssuer().equals("" + configuration.getUrl())
+					&& zoneIdForTokenKeys == null) {
 				return createInvalid("Error occurred during signature validation: OIDC token must provide zone_uuid.");
 			}
 		}
