@@ -30,7 +30,7 @@ import com.sap.cloud.security.xsuaa.token.TokenClaims;
  * the audience is derived from the scope field.
  */
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
-	private Map<String, String> appIdClientIdMap = new HashMap<>();
+	private final Map<String, String> appIdClientIdMap = new HashMap<>();
 	private final Logger logger = LoggerFactory.getLogger(XsuaaAudienceValidator.class);
 
 	public XsuaaAudienceValidator(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
@@ -62,7 +62,8 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 		}
 
 		final String description = String.format("Jwt token with allowed audiences %s matches none of these: %s",
-				allowedAudiences, appIdClientIdMap.keySet().toString());
+				allowedAudiences, appIdClientIdMap.keySet());
+		logger.debug(description);
 		return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, description, null));
 	}
 
@@ -80,7 +81,7 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	 * Retrieve audiences from token. In case the audience list is empty, takes
 	 * audiences based on the scope names.
 	 *
-	 * @param token
+	 * @param token Jwt token
 	 * @return (empty) set of audiences
 	 */
 	static Set<String> getAllowedAudiences(Jwt token) {
