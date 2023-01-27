@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.13.5
+- [spring-xsuaa] improved logging for JwtAudienceValidator
+- [java-security] enables token validation without zones
+  
+#### Dependency upgrades
+* Bump httpclient from 4.5.13 to 4.5.14
+* Bump btp-environment-variable-access java-bom from 0.5.1 to 0.5.2
+* Bump spring.boot.version from 2.7.5 to 2.7.8
+* Bump spring.core.version from 5.3.23 to 5.3.25
+* Bump spring.security.version from 5.7.5 to 5.8.1
+* Bump slf4j.api.version from 2.0.3 to 2.0.6
+
 ## 2.13.4
 - [spring-xsuaa][spring-security]
   - Patches [CVE-2022-31692](https://nvd.nist.gov/vuln/detail/CVE-2022-31692) vulnerability in spring security dependency.
