@@ -82,12 +82,11 @@ public class JwtGeneratorTest {
 	@Test
 	public void createIasToken_isNotNull() {
 		cut = JwtGenerator.getInstance(IAS, "T000310")
-				.withClaimValue("sub", "P176945")
-				.withClaimValue("scope", "john.doe")
-				.withClaimValue("iss", "https://application.myauth.com")
-				.withClaimValue("first_name", "john")
-				.withClaimValue("last_name", "doe")
-				.withClaimValue("email", "john.doe@email.org")
+				.withClaimValue(SUBJECT, "P176945")
+				.withClaimValue(ISSUER, "https://application.myauth.com")
+				.withClaimValue(GIVEN_NAME, "john")
+				.withClaimValue(FAMILY_NAME, "doe")
+				.withClaimValue(EMAIL, "john.doe@email.org")
 				.withClaimValue(SAP_GLOBAL_USER_ID, "1234567890")
 				.withClaimValue(SAP_GLOBAL_SCIM_ID, "scim-1234567890")
 				.withPrivateKey(keys.getPrivate());
