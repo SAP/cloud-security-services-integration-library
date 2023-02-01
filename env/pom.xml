@@ -25,6 +25,10 @@
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.environment.servicebinding</groupId>
+            <artifactId>java-sap-vcap-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sap.cloud.environment.servicebinding</groupId>
             <artifactId>java-sap-service-operator</artifactId>
         </dependency>
         <dependency><!-- optional if using TypedMapView etc. -->
@@ -81,10 +85,11 @@
             <artifactId>wiremock-jre8</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.stefanbirkner/system-lambda -->
         <dependency>
             <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-rules</artifactId>
-            <version>1.19.0</version>
+            <artifactId>system-lambda</artifactId>
+            <version>1.2.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

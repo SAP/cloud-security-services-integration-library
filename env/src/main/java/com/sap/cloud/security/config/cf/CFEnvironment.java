@@ -1,25 +1,30 @@
 /**
  * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.config.cf;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
-import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
+import static com.sap.cloud.security.config.cf.CFConstants.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
+import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
+import com.sap.cloud.environment.servicebinding.api.ServiceBindingAccessor;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants.Plan;
+import com.sap.cloud.security.json.DefaultJsonObject;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 /**
  * Loads the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a
@@ -31,30 +36,68 @@ public class CFEnvironment implements Environment {
 	private static final String EMPTY_JSON = "{}";
 
 	private Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations;
-	private UnaryOperator<String> systemEnvironmentProvider;
-	private UnaryOperator<String> systemPropertiesProvider;
+	private ServiceBindingAccessor serviceBindingAccessor;
+	private UnaryOperator<String> environmentVariableReader;
 
 	private CFEnvironment() {
 		// implemented in getInstance() factory method
 	}
 
-	public static CFEnvironment getInstance() {
-		return getInstance(System::getenv, System::getProperty);
-	}
-
+	@Deprecated
 	public static CFEnvironment getInstance(UnaryOperator<String> systemEnvironmentProvider,
 			UnaryOperator<String> systemPropertiesProvider) {
-		CFEnvironment instance = new CFEnvironment();
-		instance.systemEnvironmentProvider = systemEnvironmentProvider;
-		instance.systemPropertiesProvider = systemPropertiesProvider;
-		instance.serviceConfigurations = CFEnvParser.loadAll(instance.extractVcapServicesJson(),
-				instance.extractVcapApplicationJson());
+		CFEnvironment instance = new CFEnvironment().withEnvironmentVariableReader(key -> {
+			Optional<String> value = Optional.ofNullable(systemPropertiesProvider.apply(key));
+			if (!value.isPresent()) {
+				value = Optional.ofNullable(systemEnvironmentProvider.apply(key));
+			}
+
+			return value.orElse(EMPTY_JSON);
+		});
+		instance.serviceConfigurations = CFEnvParser.loadAll(instance.extractVcapJson(VCAP_SERVICES),
+				instance.extractVcapJson(VCAP_APPLICATION));
+
 		return instance;
+	}
+
+	public static CFEnvironment getInstance() {
+		CFEnvironment instance = new CFEnvironment();
+		instance.serviceBindingAccessor = DefaultServiceBindingAccessor.getInstance();
+		instance.environmentVariableReader = System::getenv;
+		return instance;
+	}
+
+	public CFEnvironment withServiceBindingAccessor(ServiceBindingAccessor serviceBindingAccessor) {
+		this.serviceBindingAccessor = serviceBindingAccessor;
+		return this;
+	}
+
+	public CFEnvironment withEnvironmentVariableReader(UnaryOperator<String> environmentVariableReader) {
+		this.environmentVariableReader = environmentVariableReader;
+		return this;
+	}
+
+	@Override
+	@Nonnull
+	public Type getType() {
+		return Type.CF;
 	}
 
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfiguration() {
-		return loadXsuaa();
+		Optional<OAuth2ServiceConfiguration> applicationService = Optional
+				.ofNullable(loadForServicePlan(XSUAA, Plan.APPLICATION));
+		Optional<OAuth2ServiceConfiguration> brokerService = Optional
+				.ofNullable(loadForServicePlan(XSUAA, Plan.BROKER));
+		Optional<OAuth2ServiceConfiguration> legacyService = Optional
+				.ofNullable(loadForServicePlan(XSUAA, Plan.SPACE));
+		Optional<OAuth2ServiceConfiguration> legacyServiceSimple = Optional
+				.ofNullable(loadForServicePlan(XSUAA, Plan.DEFAULT));
+
+		return applicationService.orElse(
+				brokerService.orElse(
+						legacyService.orElse(
+								legacyServiceSimple.orElse(null))));
 	}
 
 	@Nullable
@@ -77,57 +120,6 @@ public class CFEnvironment implements Environment {
 	}
 
 	/**
-	 * Loads all configurations of all service instances of the dedicated service.
-	 *
-	 * @param service
-	 *            the service name
-	 * @return the list of all found configurations or empty list, in case there are
-	 *         no service bindings.
-	 */
-	List<OAuth2ServiceConfiguration> loadAllForService(Service service) {
-		return serviceConfigurations.getOrDefault(service, Collections.emptyList());
-	}
-
-	@Override
-	@Nonnull
-	public Type getType() {
-		return Type.CF;
-	}
-
-	private String extractVcapServicesJson() {
-		String env = systemPropertiesProvider.apply(VCAP_SERVICES);
-		if (env == null) {
-			env = systemEnvironmentProvider.apply(VCAP_SERVICES);
-		}
-		return emptyStringOrNull(env) ? EMPTY_JSON : env;
-	}
-
-	private boolean emptyStringOrNull(String env) {
-		return env == null || env.trim().isEmpty();
-	}
-
-	private String extractVcapApplicationJson() {
-		String env = System.getenv(VCAP_APPLICATION);
-		return env != null ? env : "{}";
-	}
-
-	OAuth2ServiceConfiguration loadXsuaa() {
-		Optional<OAuth2ServiceConfiguration> applicationService = Optional
-				.ofNullable(loadForServicePlan(XSUAA, Plan.APPLICATION));
-		Optional<OAuth2ServiceConfiguration> brokerService = Optional
-				.ofNullable(loadForServicePlan(XSUAA, Plan.BROKER));
-		Optional<OAuth2ServiceConfiguration> legacyService = Optional
-				.ofNullable(loadForServicePlan(XSUAA, Plan.SPACE));
-		Optional<OAuth2ServiceConfiguration> legacyServiceSimple = Optional
-				.ofNullable(loadForServicePlan(XSUAA, Plan.DEFAULT));
-
-		return applicationService.orElse(
-				brokerService.orElse(
-						legacyService.orElse(
-								legacyServiceSimple.orElse(null))));
-	}
-
-	/**
 	 * Loads the configuration for a dedicated service plan.
 	 *
 	 * @param service
@@ -139,10 +131,64 @@ public class CFEnvironment implements Environment {
 	 */
 	@Nullable
 	public OAuth2ServiceConfiguration loadForServicePlan(Service service, Plan plan) {
+		if (serviceConfigurations == null) {
+			readServiceConfigurations();
+		}
+
 		return loadAllForService(service).stream()
 				.filter(configuration -> Plan.from(configuration.getProperty(CFConstants.SERVICE_PLAN)).equals(plan))
 				.findFirst()
 				.orElse(null);
 	}
 
+	/**
+	 * Loads all configurations of all service instances of the dedicated service.
+	 *
+	 * @param service
+	 *            the service name
+	 * @return the list of all found configurations or empty list, in case there are
+	 *         no service bindings.
+	 */
+	List<OAuth2ServiceConfiguration> loadAllForService(Service service) {
+		if (serviceConfigurations == null) {
+			readServiceConfigurations();
+		}
+
+		return serviceConfigurations.getOrDefault(service, Collections.emptyList());
+	}
+
+	private void readServiceConfigurations() {
+		List<ServiceBinding> serviceBindings = serviceBindingAccessor.getServiceBindings();
+		String vcapApplicationJson = extractVcapJson(VCAP_APPLICATION);
+		boolean runInLegacyMode = runInLegacyMode(vcapApplicationJson);
+
+		List<OAuth2ServiceConfiguration> xsuaaPlans = serviceBindings.stream()
+				.filter(b -> Service.XSUAA.equals(Service.from(b.getServiceName().orElse(""))))
+				.map(OAuth2ServiceConfigurationBuilder::fromServiceBinding)
+				.map(builder -> builder.runInLegacyMode(runInLegacyMode))
+				.map(OAuth2ServiceConfigurationBuilder::build)
+				.collect(Collectors.toList());
+		List<OAuth2ServiceConfiguration> iasPlans = serviceBindings.stream()
+				.filter(b -> Service.IAS.equals(Service.from(b.getServiceName().orElse(""))))
+				.map(OAuth2ServiceConfigurationBuilder::fromServiceBinding)
+				.map(OAuth2ServiceConfigurationBuilder::build)
+				.collect(Collectors.toList());
+
+		serviceConfigurations = new HashMap<>();
+		serviceConfigurations.put(XSUAA, xsuaaPlans);
+		serviceConfigurations.put(IAS, iasPlans);
+	}
+
+	private String extractVcapJson(String vcapKey) {
+		Optional<String> value = Optional.ofNullable(environmentVariableReader.apply(vcapKey));
+		if (value.isPresent() && !value.get().trim().isEmpty()) {
+			return value.get();
+		} else {
+			return EMPTY_JSON;
+		}
+	}
+
+	private static boolean runInLegacyMode(String vcapApplicationJson) {
+		return new DefaultJsonObject(vcapApplicationJson).contains("xs_api");
+	}
 }

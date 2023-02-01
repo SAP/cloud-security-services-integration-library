@@ -5,17 +5,28 @@
  */
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
+import com.sap.cloud.environment.servicebinding.api.TypedMapView;
+import com.sap.cloud.security.config.k8s.K8sConstants;
+import com.sap.cloud.security.config.k8s.K8sEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.Nonnull;
 import java.net.URI;
 import java.util.*;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
+import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 
 /**
  * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) for a
  * dedicated identity ({@link Service}) based on the properties applied.
  */
 public class OAuth2ServiceConfigurationBuilder {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(K8sEnvironment.class);
 	private Service service;
 	private boolean runInLegacyMode;
 	private final Map<String, String> properties = new HashMap<>();
@@ -45,6 +56,37 @@ public class OAuth2ServiceConfigurationBuilder {
 		OAuth2ServiceConfigurationBuilder builder = forService(baseConfiguration.getService());
 		builder.withProperties(baseConfiguration.getProperties());
 		return builder;
+	}
+
+	public static OAuth2ServiceConfigurationBuilder fromServiceBinding(ServiceBinding b) {
+		if (!b.getServiceName().isPresent()) {
+			LOGGER.error("Ignores Service Binding with name {} as service name is not provided.", b.getName());
+			return null; // as of now, method is never called when service name isn't given
+		}
+
+		final Service service = Service.from(b.getServiceName().get());
+		if (service == null) {
+			LOGGER.error("Service name {} is unknown. Could not create a OAuth2ServiceConfiguration from a service binding.", b.getServiceName().get());
+			return null;
+		}
+
+		OAuth2ServiceConfigurationBuilder configBuilder = OAuth2ServiceConfigurationBuilder.forService(service)
+				.withProperties(TypedMapView.ofCredentials(b).getEntries(String.class))
+				.withProperty(SERVICE_PLAN,
+						b.getServicePlan().orElse(K8sConstants.Plan.APPLICATION.name()).toUpperCase());
+		switch (service) {
+		case XSUAA:
+			configBuilder.withProperty(UAA_DOMAIN,
+					(String) b.getCredentials().get(UAA_DOMAIN));
+			break;
+		case IAS:
+			List<String> domains = TypedMapView.ofCredentials(b).getListView(DOMAINS).getItems(String.class);
+			LOGGER.info("first domain : {}", domains.get(0));
+			configBuilder.withDomains(domains.toArray(new String[] {}));
+			break;
+		}
+
+		return configBuilder;
 	}
 
 	/**
@@ -118,7 +160,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * this is the url where the service instance was created.
 	 *
 	 * @param url
-	 *            base url, e.g. https://paastenant.idservice.com
+	 *            base url, e.g. <a href="https://paastenant.idservice.com">...</a>
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withUrl(String url) {
@@ -130,7 +172,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * Cert URL of the OAuth2 identity service instance.
 	 *
 	 * @param url
-	 *            cert url, e.g. https://paastenant.cert.idservice.com
+	 *            cert url, e.g. <a href="https://paastenant.cert.idservice.com">...</a>
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withCertUrl(String url) {

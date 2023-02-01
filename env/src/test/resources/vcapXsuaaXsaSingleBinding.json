@@ -1,18 +1,22 @@
 {
-  "xsuaa" : [ {
-    "name" : "java-uaa",
-    "label" : "xsuaa",
-    "tags" : [ "xsuaa" ],
-    "plan" : "space",
-    "credentials" : {
-      "tenantmode" : "dedicated",
-      "clientid" : "sb-java-hello-world!i1",
-      "verificationkey" : "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOzNGEDK6jNrJcl3L2wstY8SnX9KNo4ic/JtrEQX4U/+749b9y6JlSGOXSKBFJ6alNGHVyPK66SfSgeWHwPjVekdnHYM7bQTyYX1NoSOxqUgvsktIpxeYJLC+J5qJTtnFcjFTRUovKwtCYxlTP4b63b7dWixwc+iSnkuvl4IkZjVTcstK73eTlmVtJDC5DIisPyYOK06qxTPrLC8KlgFA6a0FdPJF9G8s/ElxPHFu7mw6UKn2LTmDlDbADQZLMXGKBw/zg3l5scjxkOCVGTkGvv1ooccqCfYgZAsmsPbQdoZxznSdQTPfaWULnYLo8i5hFXiS1q8agvXHjWpUmWcMwIDAQAB-----END PUBLIC KEY-----",
-      "xsappname" : "java-hello-world!i1",
-      "identityzone" : "uaa",
-      "identityzoneid" : "uaa",
-      "clientsecret" : "fxnWLHqLh6KC0Wp/bbv8Gwbu50OEbpSvVYTiI/kZILsR/dYH8YL2V5tP1buzke9QmqK9AruntTAI\nKu4enzCTNw==",
-      "url" : "https://xsa-test.c.eu-de-2.cloud.sap:30132/uaa-security"
-  }
-  } ]
+  "xsuaa": [
+    {
+      "name": "java-uaa",
+      "label": "xsuaa",
+      "tags": [
+        "xsuaa"
+      ],
+      "plan": "space",
+      "credentials": {
+        "tenantmode": "dedicated",
+        "clientid": "sb-java-hello-world!i1",
+        "verificationkey": "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOzNGEDK6jNrJcl3L2wstY8SnX9KNo4ic/JtrEQX4U/+749b9y6JlSGOXSKBFJ6alNGHVyPK66SfSgeWHwPjVekdnHYM7bQTyYX1NoSOxqUgvsktIpxeYJLC+J5qJTtnFcjFTRUovKwtCYxlTP4b63b7dWixwc+iSnkuvl4IkZjVTcstK73eTlmVtJDC5DIisPyYOK06qxTPrLC8KlgFA6a0FdPJF9G8s/ElxPHFu7mw6UKn2LTmDlDbADQZLMXGKBw/zg3l5scjxkOCVGTkGvv1ooccqCfYgZAsmsPbQdoZxznSdQTPfaWULnYLo8i5hFXiS1q8agvXHjWpUmWcMwIDAQAB-----END PUBLIC KEY-----",
+        "xsappname": "java-hello-world!i1",
+        "identityzone": "uaa",
+        "identityzoneid": "uaa",
+        "clientsecret": "fxnWLHqLh6KC0Wp/bbv8Gwbu50OEbpSvVYTiI/kZILsR/dYH8YL2V5tP1buzke9QmqK9AruntTAI\nKu4enzCTNw==",
+        "url": "https://xsa-test.c.eu-de-2.cloud.sap:30132/uaa-security"
+      }
+    }
+  ]
 }
