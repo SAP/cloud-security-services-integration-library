@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.security.config.cf.CFEnvironment;
 import com.sap.cloud.security.config.k8s.K8sEnvironment;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.Scanner;
+import java.util.function.UnaryOperator;
 
 import static com.sap.cloud.security.config.k8s.K8sConstants.KUBERNETES_SERVICE_HOST;
 
@@ -24,6 +26,7 @@ public class Environments {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Environments.class);
 
 	private static Environment currentEnvironment;
+	private static UnaryOperator<String> environmentVariableReader = System::getenv;
 
 	private Environments() {
 		// use factoryMethods instead
@@ -47,11 +50,15 @@ public class Environments {
 		return currentEnvironment;
 	}
 
+	public static void setEnvironmentVariableReader(UnaryOperator<String> environmentVariableReader) {
+		Environments.environmentVariableReader = environmentVariableReader;
+	}
+
 	/**
 	 * Reads {@link Environment} not from system environment but from
 	 * {@link InputStream}. Is applicable only to CF environment and expects the
 	 * input to be in VCAP services format.
-	 * 
+	 *
 	 * @param input
 	 *            e.g. from file
 	 * @return the environment
@@ -62,11 +69,12 @@ public class Environments {
 		while (scanner.hasNext()) {
 			vcapServices.append(scanner.nextLine());
 		}
-		return CFEnvironment.getInstance(str -> vcapServices.toString(), str -> null);
+
+		return CFEnvironment.getInstance().withServiceBindingAccessor(new SapVcapServicesServiceBindingAccessor(any -> vcapServices.toString()));
 	}
 
 	private static boolean isK8sEnv() {
-		return System.getenv().get(KUBERNETES_SERVICE_HOST) != null;
+		return environmentVariableReader.apply(KUBERNETES_SERVICE_HOST) != null;
 	}
 
 }

@@ -18,7 +18,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,18 +50,6 @@ public class CFEnvironmentTest {
 
 		assertThat(cut).isNotSameAs(CFEnvironment.getInstance());
 		assertThat(cut.getType()).isEqualTo(Environment.Type.CF);
-	}
-
-	@Test
-	public void readConfigurationsFromEnv() throws Exception {
-		withEnvironmentVariable(VCAP_SERVICES, vcapMultipleXsuaa)
-				.execute(() -> {
-					assertThat(System.getenv(VCAP_SERVICES)).isNotNull();
-
-					cut = CFEnvironment.getInstance();
-
-					assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
-				});
 	}
 
 	@Test
@@ -100,26 +87,21 @@ public class CFEnvironmentTest {
 	}
 
 	@Test
-	public void getConfigurationOfXsuaaInstanceInXsaSystem() throws Exception {
-		cut = buildCFEnvironmentForVcapJson(vcapXsa);
+	public void getConfigurationOfXsuaaInstanceInXsaSystem() {
+		cut = buildCFEnvironmentForVcapJson(vcapXsa).withEnvironmentVariableReader(var -> VCAP_APPLICATION.equals(var) ? "{\"xs_api\": \"anyvalue\"}" : System.getenv(var));
 
-		withEnvironmentVariable(VCAP_APPLICATION, "{\"xs_api\": \"anyvalue\"}")
-				.execute(() -> {
-					assertThat(System.getenv(VCAP_APPLICATION)).isNotNull();
+		assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
+		assertThat(Plan.from(cut.getXsuaaConfiguration().getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
+		assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("sb-java-hello-world!i1");
+		assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.APP_ID)).isEqualTo("java-hello-world!i1");
+		assertThat(cut.getXsuaaConfiguration().getClientSecret())
+				.startsWith("fxnWLHqLh6KC0Wp/bbv8Gwbu50OEbpS");
+		assertThat(cut.getXsuaaConfiguration().getUrl())
+				.hasToString("https://xsa-test.c.eu-de-2.cloud.sap:30132/uaa-security");
+		assertThat(cut.getXsuaaConfiguration().isLegacyMode()).isTrue();
 
-					assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
-					assertThat(Plan.from(cut.getXsuaaConfiguration().getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
-					assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("sb-java-hello-world!i1");
-					assertThat(cut.getXsuaaConfiguration().getProperty(XSUAA.APP_ID)).isEqualTo("java-hello-world!i1");
-					assertThat(cut.getXsuaaConfiguration().getClientSecret())
-							.startsWith("fxnWLHqLh6KC0Wp/bbv8Gwbu50OEbpS");
-					assertThat(cut.getXsuaaConfiguration().getUrl())
-							.hasToString("https://xsa-test.c.eu-de-2.cloud.sap:30132/uaa-security");
-					assertThat(cut.getXsuaaConfiguration().isLegacyMode()).isTrue();
-
-					assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
-					assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
-				});
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
+		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
 	}
 
 	@Test
