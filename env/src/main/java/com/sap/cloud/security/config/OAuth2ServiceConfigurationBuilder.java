@@ -27,7 +27,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
  */
 public class OAuth2ServiceConfigurationBuilder {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(K8sEnvironment.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2ServiceConfigurationBuilder.class);
 	private Service service;
 	private boolean runInLegacyMode;
 	private final Map<String, String> properties = new HashMap<>();
