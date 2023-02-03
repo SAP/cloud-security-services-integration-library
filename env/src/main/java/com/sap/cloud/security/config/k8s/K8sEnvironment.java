@@ -57,14 +57,16 @@ public class K8sEnvironment implements Environment {
 		List<ServiceBinding> serviceBindings = DefaultServiceBindingAccessor.getInstance().getServiceBindings();
 
 		Map<String, OAuth2ServiceConfiguration> xsuaaPlans = serviceBindings.stream()
-				.filter(b -> Service.XSUAA.equals(Service.from(b.getServiceName().orElse(""))))
+				.filter(b -> Service.XSUAA.equals(Service.from(b.getServiceName().orElse(null))))
 				.map(OAuth2ServiceConfigurationBuilder::fromServiceBinding)
+				.filter(Objects::nonNull)
 				.map(OAuth2ServiceConfigurationBuilder::build)
 				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN),
 						Function.identity()));
 		Map<String, OAuth2ServiceConfiguration> identityPlans = serviceBindings.stream()
-				.filter(b -> Service.IAS.equals(Service.from(b.getServiceName().orElse(""))))
+				.filter(b -> Service.IAS.equals(Service.from(b.getServiceName().orElse(null))))
 				.map(OAuth2ServiceConfigurationBuilder::fromServiceBinding)
+				.filter(Objects::nonNull)
 				.map(OAuth2ServiceConfigurationBuilder::build)
 				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN),
 						Function.identity()));
@@ -77,7 +79,7 @@ public class K8sEnvironment implements Environment {
 	 *
 	 * @param service
 	 *            the service name
-	 * @return the list of all found configurations or empty map, in case there are
+	 * @return the map of all found configurations or empty map, in case there are
 	 *         no service bindings.
 	 */
 	Map<String, OAuth2ServiceConfiguration> getServiceConfigurationsOf(Service service) {

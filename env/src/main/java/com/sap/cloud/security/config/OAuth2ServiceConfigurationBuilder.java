@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.*;
 
@@ -58,6 +59,7 @@ public class OAuth2ServiceConfigurationBuilder {
 		return builder;
 	}
 
+	@Nullable
 	public static OAuth2ServiceConfigurationBuilder fromServiceBinding(ServiceBinding b) {
 		if (!b.getServiceName().isPresent()) {
 			LOGGER.error("Ignores Service Binding with name {} as service name is not provided.", b.getName());
@@ -70,23 +72,23 @@ public class OAuth2ServiceConfigurationBuilder {
 			return null;
 		}
 
-		OAuth2ServiceConfigurationBuilder configBuilder = OAuth2ServiceConfigurationBuilder.forService(service)
+		OAuth2ServiceConfigurationBuilder builder = forService(service)
 				.withProperties(TypedMapView.ofCredentials(b).getEntries(String.class))
 				.withProperty(SERVICE_PLAN,
 						b.getServicePlan().orElse(K8sConstants.Plan.APPLICATION.name()).toUpperCase());
 		switch (service) {
 		case XSUAA:
-			configBuilder.withProperty(UAA_DOMAIN,
+			builder.withProperty(UAA_DOMAIN,
 					(String) b.getCredentials().get(UAA_DOMAIN));
 			break;
 		case IAS:
 			List<String> domains = TypedMapView.ofCredentials(b).getListView(DOMAINS).getItems(String.class);
 			LOGGER.info("first domain : {}", domains.get(0));
-			configBuilder.withDomains(domains.toArray(new String[] {}));
+			builder.withDomains(domains.toArray(new String[] {}));
 			break;
 		}
 
-		return configBuilder;
+		return builder;
 	}
 
 	/**

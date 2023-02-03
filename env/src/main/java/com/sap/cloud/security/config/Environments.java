@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.security.config.cf.CFEnvironment;
 import com.sap.cloud.security.config.k8s.K8sEnvironment;
 import org.slf4j.Logger;
@@ -24,7 +23,6 @@ import static com.sap.cloud.security.config.k8s.K8sConstants.KUBERNETES_SERVICE_
 public class Environments {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Environments.class);
-
 	private static Environment currentEnvironment;
 	private static UnaryOperator<String> environmentVariableReader = System::getenv;
 
@@ -50,7 +48,7 @@ public class Environments {
 		return currentEnvironment;
 	}
 
-	public static void setEnvironmentVariableReader(UnaryOperator<String> environmentVariableReader) {
+	static void setEnvironmentVariableReader(UnaryOperator<String> environmentVariableReader) {
 		Environments.environmentVariableReader = environmentVariableReader;
 	}
 
@@ -70,7 +68,7 @@ public class Environments {
 			vcapServices.append(scanner.nextLine());
 		}
 
-		return CFEnvironment.getInstance().withServiceBindingAccessor(new SapVcapServicesServiceBindingAccessor(any -> vcapServices.toString()));
+		return CFEnvironment.getInstance(str -> vcapServices.toString());
 	}
 
 	private static boolean isK8sEnv() {

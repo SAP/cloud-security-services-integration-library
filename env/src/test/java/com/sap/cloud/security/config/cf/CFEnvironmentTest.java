@@ -5,23 +5,23 @@
  */
 package com.sap.cloud.security.config.cf;
 
-import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
-import com.sap.cloud.security.json.JsonParsingException;
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
 import static com.sap.cloud.security.config.cf.CFConstants.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CFEnvironmentTest {
 
@@ -38,24 +38,44 @@ public class CFEnvironmentTest {
 		vcapXsa = IOUtils.resourceToString("/vcapXsuaaXsaSingleBinding.json", UTF_8);
 	}
 
-	private static CFEnvironment buildCFEnvironmentForVcapJson(String vcapJson) {
-		final SapVcapServicesServiceBindingAccessor mockedAccessor = new SapVcapServicesServiceBindingAccessor(
-				any -> vcapJson);
-		return CFEnvironment.getInstance().withServiceBindingAccessor(mockedAccessor);
+	@Before
+	public void setUp() {
+		cut = CFEnvironment.getInstance((str) -> vcapXsuaa);
 	}
 
 	@Test
 	public void getInstance() {
-		cut = buildCFEnvironmentForVcapJson(vcapXsuaa);
-
-		assertThat(cut).isNotSameAs(CFEnvironment.getInstance());
+		assertThat(CFEnvironment.getInstance()).isNotSameAs(CFEnvironment.getInstance());
 		assertThat(cut.getType()).isEqualTo(Environment.Type.CF);
 	}
 
 	@Test
-	public void getConfigurationOfOneXsuaaInstance() {
-		cut = buildCFEnvironmentForVcapJson(vcapXsuaa);
+	public void getCFServiceConfigurationAndCredentialsAsMap() {
+		JsonObject serviceJsonObject = new DefaultJsonObject(vcapXsuaa).getJsonObjects(Service.XSUAA.getCFName())
+				.get(0);
+		Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
+		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CREDENTIALS).getKeyValueMap();
 
+		assertThat(xsuaaConfigMap).hasSize(4);
+		assertThat(credentialsMap).hasSize(10).containsEntry(CLIENT_SECRET, "secret");
+	}
+
+	@Test
+	public void getConfigurationOfOneIasInstance() {
+		cut = CFEnvironment.getInstance((str) -> vcapIas);
+		assertThat(cut.getIasConfiguration()).isSameAs(cut.getIasConfiguration());
+		assertThat(cut.getIasConfiguration().getService()).isEqualTo(Service.IAS);
+		assertThat(cut.getIasConfiguration().getClientId()).isEqualTo("T000310");
+		assertThat(cut.getIasConfiguration().getClientSecret()).startsWith("pCghfbrL");
+		assertThat(cut.getIasConfiguration().getUrl()).hasToString("https://myauth.com");
+		assertThat(cut.getIasConfiguration().isLegacyMode()).isFalse();
+
+		assertThat(cut.getXsuaaConfiguration()).isNull();
+		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isNull();
+	}
+
+	@Test
+	public void getConfigurationOfOneXsuaaInstance() {
 		assertThat(cut.getXsuaaConfiguration()).isSameAs(cut.getXsuaaConfiguration());
 		assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
 		assertThat(cut.getXsuaaConfiguration().getClientId()).isEqualTo("clientId");
@@ -72,23 +92,12 @@ public class CFEnvironmentTest {
 	}
 
 	@Test
-	public void getConfigurationOfOneIasInstance() {
-		cut = buildCFEnvironmentForVcapJson(vcapIas);
-
-		assertThat(cut.getIasConfiguration()).isSameAs(cut.getIasConfiguration());
-		assertThat(cut.getIasConfiguration().getService()).isEqualTo(Service.IAS);
-		assertThat(cut.getIasConfiguration().getClientId()).isEqualTo("T000310");
-		assertThat(cut.getIasConfiguration().getClientSecret()).startsWith("pCghfbrL");
-		assertThat(cut.getIasConfiguration().getUrl()).hasToString("https://myauth.com");
-		assertThat(cut.getIasConfiguration().isLegacyMode()).isFalse();
-
-		assertThat(cut.getXsuaaConfiguration()).isNull();
-		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isNull();
-	}
-
-	@Test
 	public void getConfigurationOfXsuaaInstanceInXsaSystem() {
-		cut = buildCFEnvironmentForVcapJson(vcapXsa).withEnvironmentVariableReader(var -> VCAP_APPLICATION.equals(var) ? "{\"xs_api\": \"anyvalue\"}" : System.getenv(var));
+		UnaryOperator<String> envVarReaderMock = Mockito.mock(UnaryOperator.class);
+		Mockito.when(envVarReaderMock.apply(VCAP_SERVICES)).thenReturn(vcapXsa);
+		Mockito.when(envVarReaderMock.apply(VCAP_APPLICATION)).thenReturn("{\"xs_api\": \"anyvalue\"}");
+
+		cut = CFEnvironment.getInstance(envVarReaderMock);
 
 		assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
 		assertThat(Plan.from(cut.getXsuaaConfiguration().getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
@@ -106,7 +115,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getConfigurationOfMultipleInstance() {
-		cut = buildCFEnvironmentForVcapJson(vcapMultipleXsuaa);
+		cut = CFEnvironment.getInstance((str) -> vcapMultipleXsuaa);
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
 		OAuth2ServiceConfiguration appServConfig = cut.getXsuaaConfiguration();
@@ -123,7 +132,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getConfigurationByPlan() {
-		cut = buildCFEnvironmentForVcapJson(vcapMultipleXsuaa);
+		cut = CFEnvironment.getInstance((str) -> vcapMultipleXsuaa);
 
 		OAuth2ServiceConfiguration appServConfig = cut.loadForServicePlan(Service.XSUAA,
 				Plan.APPLICATION);
@@ -138,13 +147,24 @@ public class CFEnvironmentTest {
 	}
 
 	@Test
+	public void getXsuaaServiceConfiguration_usesSystemProperties() {
+		cut = CFEnvironment.getInstance((str) -> vcapXsuaa, (str) -> vcapMultipleXsuaa);
+
+		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaConfiguration();
+
+		assertThat(serviceConfiguration).isNotNull();
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
+	}
+
+	@Test
 	public void getServiceConfiguration_vcapServicesNotAvailable_returnsNull() {
-		cut = buildCFEnvironmentForVcapJson(null);
+		cut = CFEnvironment.getInstance((str) -> null);
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isNull();
 		assertThat(cut.loadForServicePlan(Service.IAS, Plan.DEFAULT)).isNull();
+		assertThat(CFEnvironment.getInstance().getXsuaaConfiguration()).isNull();
 		assertThat(cut.getIasConfiguration()).isNull();
 	}
 
@@ -153,7 +173,7 @@ public class CFEnvironmentTest {
 		String allBindings = "{\"xsuaa\": ["
 				+ "{\"plan\": \"broker\", \"credentials\": {}},"
 				+ "{\"plan\": \"application\", \"credentials\": {}}]}";
-		cut = buildCFEnvironmentForVcapJson(allBindings);
+		cut = CFEnvironment.getInstance((str) -> allBindings);
 
 		OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
 		assertThat(Plan.from(config.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);
@@ -164,7 +184,7 @@ public class CFEnvironmentTest {
 		String allBindings = "{\"xsuaa\": ["
 				+ "{\"plan\": \"default\", \"credentials\": {}},"
 				+ "{\"plan\": \"space\", \"credentials\": {}}]}";
-		cut = buildCFEnvironmentForVcapJson(allBindings);
+		cut = CFEnvironment.getInstance((str) -> allBindings);
 
 		OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
 		assertThat(Plan.from(config.getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
@@ -172,7 +192,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getXsuaaConfiguration_noVcapServices_doesNotThrowExceptions() {
-		cut = buildCFEnvironmentForVcapJson(null);
+		cut = CFEnvironment.getInstance((any) -> null);
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
@@ -180,7 +200,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getXsuaaConfiguration_vcapServicesEmptyString_doesNotThrowExceptions() {
-		cut = buildCFEnvironmentForVcapJson("");
+		cut = CFEnvironment.getInstance((any) -> "");
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
@@ -188,43 +208,16 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getXsuaaConfiguration_vcapServicesEmptyJson_doesNotThrowExceptions() {
-		cut = buildCFEnvironmentForVcapJson("{}");
+		cut = CFEnvironment.getInstance((any) -> "{}");
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
 	}
 
-	@Deprecated
 	@Test
-	public void getXsuaaServiceConfiguration_usesSystemProperties() {
-		cut = CFEnvironment.getInstance((str) -> vcapXsuaa, (str) -> vcapMultipleXsuaa);
-
-		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaConfiguration();
-
-		assertThat(serviceConfiguration).isNotNull();
-		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
-	}
-
-	@Deprecated
-	@Test
-	public void getCFServiceConfigurationAndCredentialsAsMap() {
-		JsonObject serviceJsonObject = new DefaultJsonObject(vcapXsuaa).getJsonObjects(Service.XSUAA.getCFName())
-				.get(0);
-		Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
-		Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CREDENTIALS).getKeyValueMap();
-
-		assertThat(xsuaaConfigMap).hasSize(4);
-		assertThat(credentialsMap).hasSize(10).containsEntry(CLIENT_SECRET, "secret");
-	}
-
-	@Deprecated
-	@Test
-	public void getCorruptConfiguration_raisesException() {
-		String xsuaaBinding = "{\"xsuaa\": [{ \"credentials\": null }]}";
-
-		assertThatThrownBy(() -> cut = CFEnvironment.getInstance((str) -> xsuaaBinding, (str) -> null))
-				.isInstanceOf(JsonParsingException.class).hasMessageContainingAll(
-						"The credentials of 'VCAP_SERVICES' can not be parsed for service 'XSUAA'",
-						"Please check the service binding.");
+	public void getXsuaaConfiguration_vcapServicesNoServiceName_doesNotThrowExceptions() {
+		String xsuaaBinding = "{\"\": [{ \"credentials\": null }]}";
+		cut = CFEnvironment.getInstance((str) -> xsuaaBinding);
+		assertThat(cut.getXsuaaConfiguration()).isNull();
 	}
 }
