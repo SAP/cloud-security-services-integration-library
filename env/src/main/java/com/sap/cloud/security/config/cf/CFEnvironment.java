@@ -8,10 +8,7 @@ package com.sap.cloud.security.config.cf;
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
-import com.sap.cloud.security.config.Environment;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.config.cf.CFConstants.Plan;
 import com.sap.cloud.security.json.DefaultJsonObject;
 
@@ -49,15 +46,16 @@ public class CFEnvironment implements Environment {
 	public static CFEnvironment getInstance(UnaryOperator<String> vcapProvider) {
 		CFEnvironment instance = new CFEnvironment();
 		instance.environmentVariableReader = vcapProvider;
-		DefaultServiceBindingAccessor.setInstance(new SapVcapServicesServiceBindingAccessor(instance.environmentVariableReader));
+		DefaultServiceBindingAccessor
+				.setInstance(new SapVcapServicesServiceBindingAccessor(instance.environmentVariableReader));
 		instance.readServiceConfigurations();
 		return instance;
 	}
 
 	/**
-	 * @deprecated in favor of
-	 *  *             {@link com.sap.cloud.security.config.cf.CFEnvironment#getInstance(UnaryOperator)}.
-	 *  *             Will be deleted with version 3.0.0.
+	 * @deprecated in favor of *
+	 *             {@link com.sap.cloud.security.config.cf.CFEnvironment#getInstance(UnaryOperator)}.
+	 *             * Will be deleted with version 3.0.0.
 	 */
 	@Deprecated
 	public static CFEnvironment getInstance(UnaryOperator<String> systemEnvironmentProvider,
@@ -66,7 +64,7 @@ public class CFEnvironment implements Environment {
 	}
 
 	private static UnaryOperator<String> pickEnvironmentAccessor(UnaryOperator<String> systemEnvironmentProvider,
-																 UnaryOperator<String> systemPropertiesProvider) {
+			UnaryOperator<String> systemPropertiesProvider) {
 		String env = systemPropertiesProvider.apply(VCAP_SERVICES);
 		if (env != null) {
 			return systemPropertiesProvider;
@@ -84,14 +82,14 @@ public class CFEnvironment implements Environment {
 
 		List<OAuth2ServiceConfiguration> xsuaaPlans = serviceBindings.stream()
 				.filter(b -> Service.XSUAA.equals(Service.from(b.getServiceName().orElse(""))))
-				.map(OAuth2ServiceConfigurationBuilder::fromServiceBinding)
+				.map(ServiceBindingMapper::mapToOAuth2ServiceConfigurationBuilder)
 				.filter(Objects::nonNull)
 				.map(builder -> builder.runInLegacyMode(runInLegacyMode()))
 				.map(OAuth2ServiceConfigurationBuilder::build)
 				.collect(Collectors.toList());
 		List<OAuth2ServiceConfiguration> iasPlans = serviceBindings.stream()
 				.filter(b -> Service.IAS.equals(Service.from(b.getServiceName().orElse(""))))
-				.map(OAuth2ServiceConfigurationBuilder::fromServiceBinding)
+				.map(ServiceBindingMapper::mapToOAuth2ServiceConfigurationBuilder)
 				.filter(Objects::nonNull)
 				.map(OAuth2ServiceConfigurationBuilder::build)
 				.collect(Collectors.toList());

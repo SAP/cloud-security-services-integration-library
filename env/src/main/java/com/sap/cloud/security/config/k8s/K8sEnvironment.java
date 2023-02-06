@@ -7,10 +7,7 @@ package com.sap.cloud.security.config.k8s;
 
 import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
-import com.sap.cloud.security.config.Environment;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,14 +55,14 @@ public class K8sEnvironment implements Environment {
 
 		Map<String, OAuth2ServiceConfiguration> xsuaaPlans = serviceBindings.stream()
 				.filter(b -> Service.XSUAA.equals(Service.from(b.getServiceName().orElse(null))))
-				.map(OAuth2ServiceConfigurationBuilder::fromServiceBinding)
+				.map(ServiceBindingMapper::mapToOAuth2ServiceConfigurationBuilder)
 				.filter(Objects::nonNull)
 				.map(OAuth2ServiceConfigurationBuilder::build)
 				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN),
 						Function.identity()));
 		Map<String, OAuth2ServiceConfiguration> identityPlans = serviceBindings.stream()
 				.filter(b -> Service.IAS.equals(Service.from(b.getServiceName().orElse(null))))
-				.map(OAuth2ServiceConfigurationBuilder::fromServiceBinding)
+				.map(ServiceBindingMapper::mapToOAuth2ServiceConfigurationBuilder)
 				.filter(Objects::nonNull)
 				.map(OAuth2ServiceConfigurationBuilder::build)
 				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN),
