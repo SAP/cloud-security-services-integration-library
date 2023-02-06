@@ -4,6 +4,16 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <suppress>
         <notes><![CDATA[
+        suppresses CVE-2022-45688 as the affected method is not called by code of this project.
+        added a test to https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/env/src/test/java/com/sap/cloud/security/json/DefaultJsonObjectTest.java#L225 to check for vulnerability.
+        file name: json-20220924.jar
+        ]]>
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-45688</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
         suppresses CVE-2022-1471 according to https://github.com/spring-projects/spring-boot/issues/33457 spring does not use the affected constructor,
         it uses SafeConstructor and only for application.yaml file parsing, therefore it's a false positive
         file name: snakeyaml-1.30.jar

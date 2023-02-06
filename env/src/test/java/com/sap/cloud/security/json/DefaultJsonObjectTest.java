@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.json;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -216,6 +217,38 @@ public class DefaultJsonObjectTest {
 		DefaultJsonObject json = new DefaultJsonObject(objectWithEscapeChars);
 		assertThat(json.getAsString("iss")).isEqualTo("https://subdomain.accounts400.ondemand.com");
 		assertThat(json.getAsString("key")).isEqualTo("value");
+	}
+
+	// Test if affected by CVE https://nvd.nist.gov/vuln/detail/CVE-2022-45688
+	// TODO: remove once org.json has released an updated version that fixes CVE
+	@Test
+	public void notVulnerableToStackOverflowException() {
+		String deeplyNestedJsonObject = createDeeplyNestedJsonObjectString(100000);
+		try {
+			new DefaultJsonObject(deeplyNestedJsonObject);
+		} catch(StackOverflowError e) {
+			Assert.fail("Encountered StackoverflowError.");
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static String createDeeplyNestedJsonObjectString(int depth) {
+		StringBuilder sb = new StringBuilder("{");
+
+		// go down the JSON Object rabbit hole...
+		for(int i = 0; i < depth; i++) {
+			sb.append("\"a\" : {");
+		}
+
+		// ... and up again
+		for(int i = 0; i < depth; i++) {
+			sb.append("}");
+		}
+
+		sb.append("}");
+
+		return sb.toString();
 	}
 
 	private DefaultJsonObject createJsonParser(String key, Object value) {
