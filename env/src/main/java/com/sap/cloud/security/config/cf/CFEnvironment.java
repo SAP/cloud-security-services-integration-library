@@ -8,7 +8,6 @@ package com.sap.cloud.security.config.cf;
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
-import com.sap.cloud.environment.servicebinding.api.ServiceBindingAccessor;
 import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.config.cf.CFConstants.Plan;
 import com.sap.cloud.security.json.DefaultJsonObject;
@@ -40,14 +39,16 @@ public class CFEnvironment implements Environment {
 
 	public static CFEnvironment getInstance() {
 		CFEnvironment instance = new CFEnvironment();
-		instance.readServiceConfigurations(DefaultServiceBindingAccessor.getInstance());
+		instance.readServiceConfigurations();
 		return instance;
 	}
 
 	public static CFEnvironment getInstance(UnaryOperator<String> vcapProvider) {
 		CFEnvironment instance = new CFEnvironment();
 		instance.environmentVariableReader = vcapProvider;
-		instance.readServiceConfigurations(new SapVcapServicesServiceBindingAccessor(instance.environmentVariableReader));
+		DefaultServiceBindingAccessor
+				.setInstance(new SapVcapServicesServiceBindingAccessor(instance.environmentVariableReader));
+		instance.readServiceConfigurations();
 		return instance;
 	}
 
@@ -76,8 +77,8 @@ public class CFEnvironment implements Environment {
 		return systemEnvironmentProvider;
 	}
 
-	private void readServiceConfigurations(ServiceBindingAccessor serviceBindingAccessor) {
-		List<ServiceBinding> serviceBindings = serviceBindingAccessor.getServiceBindings();
+	private void readServiceConfigurations() {
+		List<ServiceBinding> serviceBindings = DefaultServiceBindingAccessor.getInstance().getServiceBindings();
 
 		List<OAuth2ServiceConfiguration> xsuaaPlans = serviceBindings.stream()
 				.filter(b -> Service.XSUAA.equals(Service.from(b.getServiceName().orElse(""))))
