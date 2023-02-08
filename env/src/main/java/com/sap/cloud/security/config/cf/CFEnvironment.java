@@ -6,7 +6,6 @@
 package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
-import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.config.cf.CFConstants.Plan;
@@ -30,24 +29,31 @@ import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
  */
 public class CFEnvironment implements Environment {
 
-	private final Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations;
+	private SapVcapServicesServiceBindingAccessor serviceBindingAccessor;
 	private UnaryOperator<String> environmentVariableReader = System::getenv;
+	private final Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations;
 
 	private CFEnvironment() {
 		serviceConfigurations = new EnumMap<>(Service.class);
 	}
 
+	/**
+	 * Creates a new CFEnvironment that reads VCAP services from
+	 * 		system properties OR
+	 * 		environment variables if system properties contains no VCAP services
+	 * */
 	public static CFEnvironment getInstance() {
-		CFEnvironment instance = new CFEnvironment();
-		instance.readServiceConfigurations();
-		return instance;
+		return getInstance(pickEnvironmentAccessor(System::getProperty, System::getenv));
 	}
 
+	/**
+	 * Creates a new CFEnvironment that reads VCAP services from
+	 * @param vcapProvider
+	 * */
 	public static CFEnvironment getInstance(UnaryOperator<String> vcapProvider) {
 		CFEnvironment instance = new CFEnvironment();
 		instance.environmentVariableReader = vcapProvider;
-		DefaultServiceBindingAccessor
-				.setInstance(new SapVcapServicesServiceBindingAccessor(instance.environmentVariableReader));
+		instance.serviceBindingAccessor = new SapVcapServicesServiceBindingAccessor(vcapProvider);
 		instance.readServiceConfigurations();
 		return instance;
 	}
@@ -78,7 +84,7 @@ public class CFEnvironment implements Environment {
 	}
 
 	private void readServiceConfigurations() {
-		List<ServiceBinding> serviceBindings = DefaultServiceBindingAccessor.getInstance().getServiceBindings();
+		List<ServiceBinding> serviceBindings = serviceBindingAccessor.getServiceBindings();
 
 		List<OAuth2ServiceConfiguration> xsuaaPlans = serviceBindings.stream()
 				.filter(b -> Service.XSUAA.equals(Service.from(b.getServiceName().orElse(""))))

@@ -148,6 +148,19 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getXsuaaServiceConfiguration_usesSystemProperties() {
+		String previousSystemProperty = System.getProperty(VCAP_SERVICES, vcapMultipleXsuaa);
+		System.setProperty(VCAP_SERVICES, vcapMultipleXsuaa);
+		cut = CFEnvironment.getInstance();
+		System.setProperty(VCAP_SERVICES, previousSystemProperty);
+
+		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaConfiguration();
+
+		assertThat(serviceConfiguration).isNotNull();
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
+	}
+
+	@Test
+	public void getXsuaaServiceConfiguration_prioritizesSystemProperties() {
 		cut = CFEnvironment.getInstance((str) -> vcapXsuaa, (str) -> vcapMultipleXsuaa);
 
 		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaConfiguration();
