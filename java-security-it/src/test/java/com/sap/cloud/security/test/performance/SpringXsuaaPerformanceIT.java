@@ -8,7 +8,6 @@ package com.sap.cloud.security.test.performance;
 import com.sap.cloud.security.test.SecurityTest;
 import com.sap.cloud.security.test.performance.util.BenchmarkUtil;
 import com.sap.cloud.security.xsuaa.XsuaaCredentials;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationCustom;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import org.apache.commons.io.IOUtils;
@@ -32,12 +31,16 @@ class SpringXsuaaPerformanceIT {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpringXsuaaPerformanceIT.class);
 	private static SecurityTest securityTest;
+	private static JwtDecoder jwtDecoder;
+	private static String token;
 
 	@BeforeAll
 	static void setUp() throws Exception {
 		LOGGER.debug(BenchmarkUtil.getSystemInfo());
 		securityTest = new SecurityTest(XSUAA).setKeys("/publicKey.txt", "/privateKey.txt");
+		jwtDecoder = createJwtDecoder();
 		securityTest.setup();
+		token = securityTest.createToken().getTokenValue();
 	}
 
 	@AfterAll
@@ -47,48 +50,37 @@ class SpringXsuaaPerformanceIT {
 
 	@Test
 	void onlineValidation() {
-		String token = securityTest.createToken().getTokenValue();
-		JwtDecoder jwtDecoder = createOnlineJwtDecoder();
+		assertThat(securityTest.getWireMockServer().isRunning()).isTrue();
 		assertThat(jwtDecoder.decode(token)).isNotNull();
 
 		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> jwtDecoder.decode(token));
-		LOGGER.info("Online validation result: {}", result.toString());
+		LOGGER.info("Online validation result: {}", result);
 	}
 
 	@Test
-	void offlineValidation() throws Exception {
-		String token = securityTest.createToken().getTokenValue();
-		JwtDecoder jwtDecoder = createOfflineJwtDecoder();
+	void offlineValidation() {
+		securityTest.tearDown(); // to test offline validation oauth2 server needs to be shut down
+
+		assertThat(securityTest.getWireMockServer().isRunning()).isFalse();
 		assertThat(jwtDecoder.decode(token)).isNotNull();
 
 		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> jwtDecoder.decode(token));
-		LOGGER.info("Offline validation result: {}", result.toString());
+		LOGGER.info("Offline validation result: {}", result);
 	}
 
-	private JwtDecoder createOnlineJwtDecoder() {
+	private static JwtDecoder createJwtDecoder() throws IOException {
 		XsuaaServiceConfigurationCustom configuration = new XsuaaServiceConfigurationCustom(createXsuaaCredentials());
 		return new XsuaaJwtDecoderBuilder(configuration).build();
 	}
 
-	private JwtDecoder createOfflineJwtDecoder() throws IOException {
-		final XsuaaCredentials xsuaaCredentials = createXsuaaCredentials();
-		// Workaround because RestOperations cannot easily be switched off
-		xsuaaCredentials.setUaaDomain("__nonExistingUaaDomainForOfflineTesting__");
+	private static XsuaaCredentials createXsuaaCredentials() throws IOException {
 		final String publicKey = IOUtils.resourceToString("/publicKey.txt", StandardCharsets.UTF_8);
-		final XsuaaServiceConfiguration xsuaaConfig = new XsuaaServiceConfigurationCustom(xsuaaCredentials) {
-			@Override
-			public String getVerificationKey() {
-				return publicKey.replace("\n", "");
-			}
-		};
-		return new XsuaaJwtDecoderBuilder(xsuaaConfig).build();
-	}
 
-	private XsuaaCredentials createXsuaaCredentials() {
 		XsuaaCredentials xsuaaCredentials = new XsuaaCredentials();
 		xsuaaCredentials.setUaaDomain(SecurityTest.DEFAULT_DOMAIN);
 		xsuaaCredentials.setClientId(SecurityTest.DEFAULT_CLIENT_ID);
 		xsuaaCredentials.setXsAppName(SecurityTest.DEFAULT_APP_ID);
+		xsuaaCredentials.setVerificationKey(publicKey.replace("\n", ""));
 		return xsuaaCredentials;
 	}
 
