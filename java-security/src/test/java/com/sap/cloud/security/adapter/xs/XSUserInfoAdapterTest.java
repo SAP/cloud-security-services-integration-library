@@ -36,7 +36,7 @@ import static org.mockito.Mockito.*;
 public class XSUserInfoAdapterTest {
 
 	private static final String TEST_APP_ID = "testApp";
-	private final XsuaaToken token;
+	private XsuaaToken token;
 	private XSUserInfoAdapter cut;
 	private XsuaaToken emptyToken;
 
@@ -519,6 +519,46 @@ public class XSUserInfoAdapterTest {
 		doThrow(new XSUserInfoException("")).when(cut).getIdentityZone();
 
 		assertThat(cut.isInForeignMode()).isTrue();
+	}
+
+	@Test
+	public void canReadSystemAttributesAsStringArray() throws IOException {
+		token = new XsuaaToken(IOUtils.resourceToString("/tokenWithSystemPropertyAttributeAsStringArray.txt", UTF_8));
+		cut = new XSUserInfoAdapter(token);
+
+		assertThat(cut.getSystemAttribute("foo")).contains("bar1", "bar2");
+	}
+
+	@Test
+	public void canReadSystemAttributesAsPlainString() throws IOException {
+		token = new XsuaaToken(IOUtils.resourceToString("/tokenWithSystemPropertyAttributeAsString.txt", UTF_8));
+		cut = new XSUserInfoAdapter(token);
+
+		assertThat(cut.getSystemAttribute("foo")).contains("bar");
+	}
+
+	@Test
+	public void readingEmptySystemAttributesRaisesException() throws IOException {
+		token = new XsuaaToken(IOUtils.resourceToString("/tokenWithEmptySystemPropertyAttributes.txt", UTF_8));
+		cut = new XSUserInfoAdapter(token);
+
+		assertThatThrownBy(() -> cut.getSystemAttribute("foo")).isInstanceOf(XSUserInfoException.class);
+	}
+
+	@Test
+	public void readingSystemAttributesAsIntegerRaisesException() throws IOException {
+		token = new XsuaaToken(IOUtils.resourceToString("/tokenWithSystemPropertyAttributeAsInteger.txt", UTF_8));
+		cut = new XSUserInfoAdapter(token);
+
+		assertThatThrownBy(() -> cut.getSystemAttribute("foo")).isInstanceOf(XSUserInfoException.class);
+	}
+
+	@Test
+	public void readingMissingSystemAttributesRaisesException() throws IOException {
+		token = new XsuaaToken(IOUtils.resourceToString("/xsuaaEmptyToken.txt", UTF_8));
+		cut = new XSUserInfoAdapter(token);
+
+		assertThatThrownBy(() -> cut.getSystemAttribute("foo")).isInstanceOf(XSUserInfoException.class);
 	}
 
 	private XSUserInfoAdapter createComponentUnderTestSpy() throws XSUserInfoException {

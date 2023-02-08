@@ -405,11 +405,26 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	private String[] getMultiValueAttributeFromExtObject(String claimName, String attributeName) {
-		List<String> claims = accessToken.getAttributeFromClaimAsStringList(claimName, attributeName);
-		if (claims.isEmpty() && !(claims instanceof ArrayList)) {
+		List<String> values = null;
+
+		try {
+			values = accessToken.getAttributeFromClaimAsStringList(claimName, attributeName);
+		} catch (JsonParsingException e) {}
+
+		if (values == null || (values.isEmpty() && !(values instanceof ArrayList))) {
+			try {
+				String stringValue = accessToken.getAttributeFromClaimAsString(claimName, attributeName);
+				values = stringValue != null
+						? Collections.singletonList(stringValue)
+						: Collections.emptyList();
+			} catch (JsonParsingException e) {}
+		}
+
+		if (values == null || (values.isEmpty() && !(values instanceof ArrayList))) {
 			throw new XSUserInfoException(INVALID_USER_ATTRIBUTE + attributeName);
 		}
-		return claims.toArray(new String[0]);
+
+		return values.toArray(new String[values.size()]);
 	}
 
 	private void checkNotGrantTypeClientCredentials(String methodName) {
