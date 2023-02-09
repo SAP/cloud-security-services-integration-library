@@ -53,7 +53,7 @@ public class CFEnvironment implements Environment {
 	 * Creates a new CFEnvironment that reads {@link CFConstants#VCAP_SERVICES} via the provided vcapProvider.
 	 * <br>
 	 * <b>Example use:</b>
-	 * CFEnvironment.getInstance(any -> VCAP_SERVICES_JSON)
+	 * CFEnvironment.getInstance(any -&gt; VCAP_SERVICES_JSON)
 	 *
 	 * @param vcapProvider provides Cloud Foundry environment configurations as JSON string including but not
 	 *                        necessarily limited to key {@link com.sap.cloud.security.config.cf.CFConstants#VCAP_SERVICES}.
