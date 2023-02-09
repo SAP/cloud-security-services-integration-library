@@ -409,19 +409,15 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 		try {
 			values = accessToken.getAttributeFromClaimAsStringList(claimName, attributeName);
-		} catch (JsonParsingException e) {}
-
-		if (values == null || (values.isEmpty() && !(values instanceof ArrayList))) {
-			try {
-				String stringValue = accessToken.getAttributeFromClaimAsString(claimName, attributeName);
-				values = stringValue != null
-						? Collections.singletonList(stringValue)
-						: Collections.emptyList();
-			} catch (JsonParsingException e) {}
-		}
-
-		if (values == null || (values.isEmpty() && !(values instanceof ArrayList))) {
-			throw new XSUserInfoException(INVALID_USER_ATTRIBUTE + attributeName);
+		} catch (JsonParsingException e) {
+			String stringValue = accessToken.getAttributeFromClaimAsString(claimName, attributeName);
+			values = stringValue != null
+					? Collections.singletonList(stringValue)
+					: Collections.emptyList();
+		} finally {
+			if (values == null || (values.isEmpty() && !(values instanceof ArrayList))) {
+				throw new XSUserInfoException(INVALID_USER_ATTRIBUTE + attributeName);
+			}
 		}
 
 		return values.toArray(new String[values.size()]);
