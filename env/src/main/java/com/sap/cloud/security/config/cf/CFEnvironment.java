@@ -7,6 +7,7 @@ package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
+import com.sap.cloud.environment.servicebinding.api.ServiceBindingAccessor;
 import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.config.cf.CFConstants.Plan;
 import com.sap.cloud.security.json.DefaultJsonObject;
@@ -29,7 +30,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
  */
 public class CFEnvironment implements Environment {
 
-	private SapVcapServicesServiceBindingAccessor serviceBindingAccessor;
+	private ServiceBindingAccessor serviceBindingAccessor;
 	private UnaryOperator<String> environmentVariableReader = System::getenv;
 	private final Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations;
 
@@ -38,22 +39,41 @@ public class CFEnvironment implements Environment {
 	}
 
 	/**
-	 * Creates a new CFEnvironment that reads VCAP services from
-	 * 		system properties OR
-	 * 		environment variables if system properties contains no VCAP services
+	 * Creates a new CFEnvironment that reads {@link CFConstants#VCAP_SERVICES} from
+	 * 		<ul>
+	 * 		    <li>system properties OR</li>
+	 * 		    <li>environment variables if system properties has no {@link CFConstants#VCAP_SERVICES}.</li>
+	 * 		</ul>
 	 * */
 	public static CFEnvironment getInstance() {
 		return getInstance(pickEnvironmentAccessor(System::getProperty, System::getenv));
 	}
 
 	/**
-	 * Creates a new CFEnvironment that reads VCAP services from
-	 * @param vcapProvider
+	 * Creates a new CFEnvironment that reads {@link CFConstants#VCAP_SERVICES} via the provided vcapProvider.
+	 * <br>
+	 * <b>Example use:</b>
+	 * CFEnvironment.getInstance(any -> VCAP_SERVICES_JSON)
+	 *
+	 * @param vcapProvider provides Cloud Foundry environment configurations as JSON string including but not
+	 *                        necessarily limited to key {@link com.sap.cloud.security.config.cf.CFConstants#VCAP_SERVICES}.
 	 * */
 	public static CFEnvironment getInstance(UnaryOperator<String> vcapProvider) {
 		CFEnvironment instance = new CFEnvironment();
 		instance.environmentVariableReader = vcapProvider;
 		instance.serviceBindingAccessor = new SapVcapServicesServiceBindingAccessor(vcapProvider);
+		instance.readServiceConfigurations();
+		return instance;
+	}
+
+	/**
+	 * Creates a new CFEnvironment that uses the provided ServiceBindingAccessor to create a configuration.
+	 * @param serviceBindingAccessor a ServiceBindingAccessor that is used to build a {@link OAuth2ServiceConfiguration}
+	 * from the service bindings.
+	 * */
+	public static CFEnvironment getInstance(ServiceBindingAccessor serviceBindingAccessor) {
+		CFEnvironment instance = new CFEnvironment();
+		instance.serviceBindingAccessor = serviceBindingAccessor;
 		instance.readServiceConfigurations();
 		return instance;
 	}
