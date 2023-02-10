@@ -5,13 +5,14 @@
  */
 package com.sap.cloud.security.adapter.xs;
 
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.json.JsonObject;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.*;
-import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.tokenflows.ClientCredentialsTokenFlow;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
@@ -21,9 +22,13 @@ import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.IDENTITY_ZONE;
@@ -537,28 +542,39 @@ public class XSUserInfoAdapterTest {
 		assertThat(cut.getSystemAttribute("foo")).contains("bar");
 	}
 
-	@Test
-	public void readingEmptySystemAttributesRaisesException() throws IOException {
-		token = new XsuaaToken(IOUtils.resourceToString("/tokenWithEmptySystemPropertyAttributes.txt", UTF_8));
+	@ParameterizedTest
+	@MethodSource
+	public void readingInvalidSystemAttributesRaisesExpectedException(Token token, String attributeName, Class expectedException) {
 		cut = new XSUserInfoAdapter(token);
 
-		assertThatThrownBy(() -> cut.getSystemAttribute("foo")).isInstanceOf(XSUserInfoException.class);
+		assertThatThrownBy(() -> cut.getSystemAttribute(attributeName)).isInstanceOf(expectedException);
 	}
 
-	@Test
-	public void readingSystemAttributesAsIntegerRaisesException() throws IOException {
-		token = new XsuaaToken(IOUtils.resourceToString("/tokenWithSystemPropertyAttributeAsInteger.txt", UTF_8));
-		cut = new XSUserInfoAdapter(token);
+	private static Stream<Arguments> readingInvalidSystemAttributesRaisesExpectedException() {
+		String attributeName = "foo";
 
-		assertThatThrownBy(() -> cut.getSystemAttribute("foo")).isInstanceOf(XSUserInfoException.class);
-	}
+		Token t1 = Mockito.mock(AccessToken.class);
+		when(t1.getAttributeFromClaimAsString(XS_SYSTEM_ATTRIBUTES, attributeName)).thenReturn(null);
+		when(t1.getAttributeFromClaimAsStringList(XS_SYSTEM_ATTRIBUTES, attributeName)).thenReturn(null);
 
-	@Test
-	public void readingMissingSystemAttributesRaisesException() throws IOException {
-		token = new XsuaaToken(IOUtils.resourceToString("/xsuaaEmptyToken.txt", UTF_8));
-		cut = new XSUserInfoAdapter(token);
+		Token t2 = Mockito.mock(AccessToken.class);
+		when(t2.getAttributeFromClaimAsString(XS_SYSTEM_ATTRIBUTES, attributeName)).thenReturn(null);
+		when(t2.getAttributeFromClaimAsStringList(XS_SYSTEM_ATTRIBUTES, attributeName)).thenThrow(new JsonParsingException(""));
 
-		assertThatThrownBy(() -> cut.getSystemAttribute("foo")).isInstanceOf(XSUserInfoException.class);
+		Token t3 = Mockito.mock(AccessToken.class);
+		when(t3.getAttributeFromClaimAsString(XS_SYSTEM_ATTRIBUTES, attributeName)).thenThrow(new JsonParsingException(""));
+		when(t3.getAttributeFromClaimAsStringList(XS_SYSTEM_ATTRIBUTES, attributeName)).thenReturn(null);
+
+		Token t4 = Mockito.mock(AccessToken.class);
+		when(t4.getAttributeFromClaimAsString(XS_SYSTEM_ATTRIBUTES, attributeName)).thenThrow(new JsonParsingException(""));
+		when(t4.getAttributeFromClaimAsStringList(XS_SYSTEM_ATTRIBUTES, attributeName)).thenThrow(new JsonParsingException(""));
+
+		return Stream.of(
+				Arguments.of(t1, attributeName, XSUserInfoException.class),
+				Arguments.of(t2, attributeName, XSUserInfoException.class),
+				Arguments.of(t3, attributeName, XSUserInfoException.class),
+				Arguments.of(t4, attributeName, XSUserInfoException.class)
+		);
 	}
 
 	private XSUserInfoAdapter createComponentUnderTestSpy() throws XSUserInfoException {
