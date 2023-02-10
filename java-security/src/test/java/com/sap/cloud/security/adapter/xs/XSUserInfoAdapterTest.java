@@ -26,8 +26,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+import org.mockito.stubbing.OngoingStubbing;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
@@ -542,40 +545,49 @@ public class XSUserInfoAdapterTest {
 		assertThat(cut.getSystemAttribute("foo")).contains("bar");
 	}
 
-	@ParameterizedTest
-	@MethodSource
-	public void readingInvalidSystemAttributesRaisesExpectedException(Token token, String attributeName, Class expectedException) {
-		cut = new XSUserInfoAdapter(token);
+    @ParameterizedTest
+    @MethodSource
+    public void canReadSystemAttributesAsListAndPlainString(Object attributeAsStringResult, Object attributeAsStringListResult, Object expectedAttributeResult) {
+        Token t = Mockito.mock(AccessToken.class);
+        cut = new XSUserInfoAdapter(t);
 
-		assertThatThrownBy(() -> cut.getSystemAttribute(attributeName)).isInstanceOf(expectedException);
-	}
+        OngoingStubbing<String> whenAttributeReadAsString = when(t.getAttributeFromClaimAsString(
+                eq(XS_SYSTEM_ATTRIBUTES), anyString()));
+        if (attributeAsStringResult instanceof Throwable) {
+            whenAttributeReadAsString.thenThrow((Throwable) attributeAsStringResult);
+        } else {
+            whenAttributeReadAsString.thenReturn((String) attributeAsStringResult);
+        }
 
-	private static Stream<Arguments> readingInvalidSystemAttributesRaisesExpectedException() {
-		String attributeName = "foo";
+        OngoingStubbing<List<String>> whenAttributeReadAsStringList = when(t.getAttributeFromClaimAsStringList(
+                eq(XS_SYSTEM_ATTRIBUTES), anyString()));
+        if (attributeAsStringListResult instanceof Throwable) {
+            whenAttributeReadAsStringList.thenThrow((Throwable) attributeAsStringListResult);
+        } else {
+            whenAttributeReadAsStringList.thenReturn((List<String>) attributeAsStringListResult);
+        }
 
-		Token t1 = Mockito.mock(AccessToken.class);
-		when(t1.getAttributeFromClaimAsString(XS_SYSTEM_ATTRIBUTES, attributeName)).thenReturn(null);
-		when(t1.getAttributeFromClaimAsStringList(XS_SYSTEM_ATTRIBUTES, attributeName)).thenReturn(null);
+        if (expectedAttributeResult instanceof Throwable) {
+            assertThatThrownBy(() -> cut.getSystemAttribute("foo")).isInstanceOf(expectedAttributeResult.getClass());
+        } else {
+            List<String> x = (List<String>) expectedAttributeResult;
+            assertThat(cut.getSystemAttribute("foo")).containsAll(x);
+        }
+    }
 
-		Token t2 = Mockito.mock(AccessToken.class);
-		when(t2.getAttributeFromClaimAsString(XS_SYSTEM_ATTRIBUTES, attributeName)).thenReturn(null);
-		when(t2.getAttributeFromClaimAsStringList(XS_SYSTEM_ATTRIBUTES, attributeName)).thenThrow(new JsonParsingException(""));
+    private static Stream<Arguments> canReadSystemAttributesAsListAndPlainString() {
+        String systemAttributeValue = "bar";
+        List<String> systemAttributValuesAsList = Stream.of("bar1", "bar2").collect(Collectors.toList());
 
-		Token t3 = Mockito.mock(AccessToken.class);
-		when(t3.getAttributeFromClaimAsString(XS_SYSTEM_ATTRIBUTES, attributeName)).thenThrow(new JsonParsingException(""));
-		when(t3.getAttributeFromClaimAsStringList(XS_SYSTEM_ATTRIBUTES, attributeName)).thenReturn(null);
-
-		Token t4 = Mockito.mock(AccessToken.class);
-		when(t4.getAttributeFromClaimAsString(XS_SYSTEM_ATTRIBUTES, attributeName)).thenThrow(new JsonParsingException(""));
-		when(t4.getAttributeFromClaimAsStringList(XS_SYSTEM_ATTRIBUTES, attributeName)).thenThrow(new JsonParsingException(""));
-
-		return Stream.of(
-				Arguments.of(t1, attributeName, XSUserInfoException.class),
-				Arguments.of(t2, attributeName, XSUserInfoException.class),
-				Arguments.of(t3, attributeName, XSUserInfoException.class),
-				Arguments.of(t4, attributeName, XSUserInfoException.class)
-		);
-	}
+        return Stream.of(
+                Arguments.of(null, null, new XSUserInfoException("")),
+                Arguments.of(new JsonParsingException(""), null, new XSUserInfoException("")),
+                Arguments.of(null, new JsonParsingException(""), new XSUserInfoException("")),
+                Arguments.of(new JsonParsingException(""), new JsonParsingException(""), new XSUserInfoException("")),
+                Arguments.of(systemAttributeValue, new JsonParsingException(""), Stream.of(systemAttributeValue).collect(Collectors.toList())),
+                Arguments.of(new JsonParsingException(""), systemAttributValuesAsList, systemAttributValuesAsList)
+        );
+    }
 
 	private XSUserInfoAdapter createComponentUnderTestSpy() throws XSUserInfoException {
 		return spy(new XSUserInfoAdapter(mock(XsuaaToken.class), mock(OAuth2ServiceConfiguration.class)));
