@@ -529,22 +529,6 @@ public class XSUserInfoAdapterTest {
 		assertThat(cut.isInForeignMode()).isTrue();
 	}
 
-	@Test
-	public void canReadSystemAttributesAsStringArray() throws IOException {
-		token = new XsuaaToken(IOUtils.resourceToString("/tokenWithSystemPropertyAttributeAsStringArray.txt", UTF_8));
-		cut = new XSUserInfoAdapter(token);
-
-		assertThat(cut.getSystemAttribute("foo")).contains("bar1", "bar2");
-	}
-
-	@Test
-	public void canReadSystemAttributesAsPlainString() throws IOException {
-		token = new XsuaaToken(IOUtils.resourceToString("/tokenWithSystemPropertyAttributeAsString.txt", UTF_8));
-		cut = new XSUserInfoAdapter(token);
-
-		assertThat(cut.getSystemAttribute("foo")).contains("bar");
-	}
-
 	@ParameterizedTest
 	@MethodSource
 	public void canReadSystemAttributesAsListAndPlainString(Object attributeAsStringResult, Object attributeAsStringListResult, List<String> expectedAttributeResult, Class<?> expectedException) {
