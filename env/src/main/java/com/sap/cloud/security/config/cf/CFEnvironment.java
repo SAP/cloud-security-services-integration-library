@@ -68,6 +68,8 @@ public class CFEnvironment implements Environment {
 	}
 
 	/**
+	 * Beta feature.
+	 *
 	 * Creates a new CFEnvironment that uses the provided ServiceBindingAccessor to create a configuration.
 	 * @param serviceBindingAccessor a ServiceBindingAccessor that is used to build a {@link OAuth2ServiceConfiguration}
 	 * from the service bindings.
