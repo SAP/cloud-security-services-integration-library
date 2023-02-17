@@ -67,16 +67,17 @@ public class CFEnvironment implements Environment {
 		return instance;
 	}
 
-	@Beta
 	/**
 	 * Creates a new CFEnvironment that uses the provided ServiceBindingAccessor to create a configuration.
 	 * @param serviceBindingAccessor a ServiceBindingAccessor that is used to build a {@link OAuth2ServiceConfiguration}
 	 * from the service bindings.
-	 * */
+	 */
+	@Beta
 	public static CFEnvironment getInstance(ServiceBindingAccessor serviceBindingAccessor) {
 		CFEnvironment instance = new CFEnvironment();
 		instance.serviceBindingAccessor = serviceBindingAccessor;
 		instance.readServiceConfigurations();
+
 		return instance;
 	}
 
