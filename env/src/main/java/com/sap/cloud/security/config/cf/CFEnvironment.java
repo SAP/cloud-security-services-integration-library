@@ -8,6 +8,7 @@ package com.sap.cloud.security.config.cf;
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.environment.servicebinding.api.ServiceBindingAccessor;
+import com.sap.cloud.security.annotation.Beta;
 import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.config.cf.CFConstants.Plan;
 import com.sap.cloud.security.json.DefaultJsonObject;
@@ -66,6 +67,7 @@ public class CFEnvironment implements Environment {
 		return instance;
 	}
 
+	@Beta
 	/**
 	 * Creates a new CFEnvironment that uses the provided ServiceBindingAccessor to create a configuration.
 	 * @param serviceBindingAccessor a ServiceBindingAccessor that is used to build a {@link OAuth2ServiceConfiguration}
