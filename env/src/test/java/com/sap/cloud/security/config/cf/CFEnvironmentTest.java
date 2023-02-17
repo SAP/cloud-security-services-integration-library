@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.config.cf;
 
+import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
@@ -148,19 +149,9 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getXsuaaServiceConfiguration_usesSystemProperties() {
-		// remember current property value
-		String previousSystemProperty = System.getProperty(VCAP_SERVICES);
-		// set custom property value for test
 		System.setProperty(VCAP_SERVICES, vcapMultipleXsuaa);
-		// use custom property value
-		cut = CFEnvironment.getInstance();
-		// restore previous property value
-		if(previousSystemProperty != null) {
-			System.setProperty(VCAP_SERVICES, previousSystemProperty);
-		} else {
-			System.clearProperty(VCAP_SERVICES);
-		}
 
+		cut = CFEnvironment.getInstance();
 		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaConfiguration();
 
 		assertThat(serviceConfiguration).isNotNull();
