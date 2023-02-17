@@ -148,10 +148,18 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getXsuaaServiceConfiguration_usesSystemProperties() {
-		String previousSystemProperty = System.getProperty(VCAP_SERVICES, vcapMultipleXsuaa);
+		// remember current property value
+		String previousSystemProperty = System.getProperty(VCAP_SERVICES);
+		// set custom property value for test
 		System.setProperty(VCAP_SERVICES, vcapMultipleXsuaa);
+		// use custom property value
 		cut = CFEnvironment.getInstance();
-		System.setProperty(VCAP_SERVICES, previousSystemProperty);
+		// restore previous property value
+		if(previousSystemProperty != null) {
+			System.setProperty(VCAP_SERVICES, previousSystemProperty);
+		} else {
+			System.clearProperty(VCAP_SERVICES);
+		}
 
 		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaConfiguration();
 
