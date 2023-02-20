@@ -300,7 +300,7 @@ public interface Token extends Serializable {
 	 *     token.getAttributeFromClaimAsString(XS_USER_ATTRIBUTES, "custom_role");
 	 *     </code>
 	 *
-	 * @return the String value of a claim attribute or empty List if claim or its
+	 * @return the list of String values of a claim attribute or empty List if claim or its
 	 *         attribute does not exist.
 	 **/
 	default List<String> getAttributeFromClaimAsStringList(String claimName, String attributeName) {
