@@ -16,6 +16,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.*;
  * dedicated identity ({@link Service}) based on the properties applied.
  */
 public class OAuth2ServiceConfigurationBuilder {
+
 	private Service service;
 	private boolean runInLegacyMode;
 	private final Map<String, String> properties = new HashMap<>();
@@ -118,7 +119,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * this is the url where the service instance was created.
 	 *
 	 * @param url
-	 *            base url, e.g. https://paastenant.idservice.com
+	 *            base url, e.g. <a href="https://paastenant.idservice.com">...</a>
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withUrl(String url) {
@@ -130,7 +131,8 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * Cert URL of the OAuth2 identity service instance.
 	 *
 	 * @param url
-	 *            cert url, e.g. https://paastenant.cert.idservice.com
+	 *            cert url, e.g.
+	 *            <a href="https://paastenant.cert.idservice.com">...</a>
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withCertUrl(String url) {

@@ -5,13 +5,13 @@
  */
 package com.sap.cloud.security.adapter.xs;
 
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.CFEnvironment;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
 import com.sap.cloud.security.token.XsuaaToken;
-import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -23,9 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.*;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TestRule;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -52,25 +50,23 @@ public class XSUserInfoAdapterIntegrationTest {
 	private XSUserInfo correctEnduserInfo;
 	private XSUserInfo correctEnduserInfoWithUaaUser;
 	private OAuth2TokenService oAuth2TokenService;
+	private OAuth2ServiceConfiguration xsuaaConfiguration;
 
-	@Rule
-	public final TestRule restoreSystemProperties = new RestoreSystemProperties();
 
 	@Before
 	public void setup() throws XSUserInfoException, IOException, JSONException {
 		oAuth2TokenService = Mockito.mock(OAuth2TokenService.class);
 		String vcapServices = buildVcapServices("java-hello-world", "default");
-		infoUser = createToken(readData("/token_user.txt"), vcapServices);
-		infoUserNoAttr = createToken(readData("/token_user_noattr.txt"), vcapServices);
-		infoCc = createToken(readData("/token_cc.txt"), vcapServices);
-		infoCcNoAttr = createToken(readData("/token_cc_noattr.txt"), vcapServices);
-		correctEnduserInfo = createToken(readData("/correctEndUserToken.txt"), vcapServices);
-		correctEnduserInfoWithUaaUser = createToken(readData("/correctEndUserTokenUaaUser.txt"), vcapServices);
+		xsuaaConfiguration = CFEnvironment.getInstance(any -> vcapServices).getXsuaaConfiguration();
+		infoUser = createToken(readData("/token_user.txt"));
+		infoUserNoAttr = createToken(readData("/token_user_noattr.txt"));
+		infoCc = createToken(readData("/token_cc.txt"));
+		infoCcNoAttr = createToken(readData("/token_cc_noattr.txt"));
+		correctEnduserInfo = createToken(readData("/correctEndUserToken.txt"));
+		correctEnduserInfoWithUaaUser = createToken(readData("/correctEndUserTokenUaaUser.txt"));
 	}
 
-	private XSUserInfo createToken(String token, String vcapServices) {
-		System.setProperty(CFConstants.VCAP_SERVICES, vcapServices); // restored by RestoreSystemProperties rule
-		OAuth2ServiceConfiguration xsuaaConfiguration = CFEnvironment.getInstance().getXsuaaConfiguration();
+	private XSUserInfo createToken(String token) {
 		String appId = xsuaaConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
 		XsuaaToken accessToken = new XsuaaToken(token).withScopeConverter(new XsuaaScopeConverter(appId));
 		XSUserInfoAdapter xsUserInfoAdapter = new XSUserInfoAdapter(accessToken, xsuaaConfiguration);
@@ -181,14 +177,14 @@ public class XSUserInfoAdapterIntegrationTest {
 	public void checkLocalScopeVcapServicesOneBinding() throws XSUserInfoException, IOException, JSONException {
 		// test default plan binding with default plan token
 		String token = readData("/token_user.txt");
-		XSUserInfo userInfo = createToken(token, buildVcapServices("cloud_controller", "default"));
+		XSUserInfo userInfo = createToken(token);
 		Assert.assertFalse(userInfo.checkLocalScope("read"));
-		userInfo = createToken(token, buildVcapServices("java-hello-world", "default"));
+		userInfo = createToken(token);
 		Assert.assertTrue(userInfo.checkLocalScope("Display"));
 		// test application plan binding with default plan token
-		userInfo = createToken(token, buildVcapServices("cloud_controller", "application"));
+		userInfo = createToken(token);
 		Assert.assertFalse(userInfo.checkLocalScope("read"));
-		userInfo = createToken(token, buildVcapServices("java-hello-world", "application"));
+		userInfo = createToken(token);
 		Assert.assertTrue(userInfo.checkLocalScope("Display"));
 	}
 
@@ -206,16 +202,16 @@ public class XSUserInfoAdapterIntegrationTest {
 		String vcapServices = buildVcapServices("cloud_controller", "default",
 				"java-hello-world!t5", "application");
 		String token = readData("/token_user.txt");
-		XSUserInfo userInfo = createToken(token, vcapServices);
+		XSUserInfo userInfo = createToken(token);
 		Assert.assertFalse(userInfo.checkLocalScope("read"));
 		vcapServices = buildVcapServices("java-hello-world", "default",
 				"java-hello-world!t5", "application");
-		userInfo = createToken(token, vcapServices);
+		userInfo = createToken(token);
 		Assert.assertTrue(userInfo.checkLocalScope("Display"));
 
 		// test broker & application plan binding with default plan token
 		vcapServices = buildVcapServices("cloud_controller!b4", "broker", "java-hello-world!t5", "application");
-		userInfo = createToken(token, vcapServices);
+		userInfo = createToken(token);
 		try {
 			Assert.assertFalse(userInfo.checkLocalScope("read"));
 			fail();
@@ -224,7 +220,7 @@ public class XSUserInfoAdapterIntegrationTest {
 					e.getMessage());
 		}
 		vcapServices = buildVcapServices("java-hello-world!b4", "broker", "java-hello-world!t5", "application");
-		userInfo = createToken(token, vcapServices);
+		userInfo = createToken(token);
 		try {
 			Assert.assertFalse(userInfo.checkLocalScope("Display"));
 			fail();
@@ -234,7 +230,7 @@ public class XSUserInfoAdapterIntegrationTest {
 		}
 		// test two default plan binding with default plan token
 		vcapServices = buildVcapServices("cloud_controller", "default", "node-hello-world", "default");
-		userInfo = createToken(token, vcapServices);
+		userInfo = createToken(token);
 		try {
 			Assert.assertFalse(userInfo.checkLocalScope("read"));
 			fail();
@@ -243,7 +239,7 @@ public class XSUserInfoAdapterIntegrationTest {
 					e.getMessage());
 		}
 		vcapServices = buildVcapServices("cloud_controller", "default", "java-hello-world", "default");
-		userInfo = createToken(token, vcapServices);
+		userInfo = createToken(token);
 		try {
 			Assert.assertFalse(userInfo.checkLocalScope("Display"));
 			fail();
@@ -253,7 +249,7 @@ public class XSUserInfoAdapterIntegrationTest {
 		}
 		// test two application plan binding with default plan token
 		vcapServices = buildVcapServices("node-hello-world!t5", "application", "java-hello-world!t5", "application");
-		userInfo = createToken(token, vcapServices);
+		userInfo = createToken(token);
 		try {
 			Assert.assertFalse(userInfo.checkLocalScope("read"));
 			fail();
@@ -262,7 +258,7 @@ public class XSUserInfoAdapterIntegrationTest {
 					e.getMessage());
 		}
 		vcapServices = buildVcapServices("node-hello-world!t5", "application", "java-hello-world!t5", "application");
-		userInfo = createToken(token, vcapServices);
+		userInfo = createToken(token);
 		try {
 			Assert.assertFalse(userInfo.checkLocalScope("Display"));
 			fail();

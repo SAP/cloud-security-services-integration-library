@@ -28,7 +28,8 @@
    "credentials": {
     "clientsecret": "secret",
     "clientid": "T000310",
-    "url": "http://localhost"
+    "url": "http://localhost",
+    "domains": ["localhost"]
    },
    "instance_name": "myservice",
    "label": "identity",
