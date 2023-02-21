@@ -16,7 +16,7 @@ jobs:
       java-version-matrix: ${{ steps.set-matrix.outputs.matrix }}
       steps:
         - id: set-matrix
-          run: |
+          run:
             branchName=$(echo '${{ github.ref }}' | sed 's,refs/heads/,,g')        
             echo "::notice::Branch name is $branchName"
   build:
