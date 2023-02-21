@@ -1,29 +1,20 @@
 # SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
 # SPDX-License-Identifier: Apache-2.0
 ---
-name: Java CI with Maven New
+name: Maven Build main-2.x
 
 on:
   push:
-    branches: [ main-dev, main-2.x ]
+    branches: [ main-dev ]
   pull_request:
-    branches: [ main-dev, main-2.x ]
+    branches: [ main-dev ]
 
 jobs:
-  choose-java-version:
-    runs-on: ubuntu-latest
-    outputs:
-      java-version-matrix: ${{ steps.set-matrix.outputs.matrix }}
-      steps:
-        - id: set-matrix
-          run:
-            branchName=$(echo '${{ github.ref }}' | sed 's,refs/heads/,,g')        
-            echo "::notice::Branch name is $branchName"
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 8, 11 ]
+        java-version: [ 17 ]
     name: Build with Java ${{ matrix.java-version }}
 
     steps:
