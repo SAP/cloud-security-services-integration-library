@@ -56,7 +56,8 @@ public class ServiceBindingEnvironment implements Environment {
     public OAuth2ServiceConfiguration getXsuaaConfiguration() {
         return Stream.of(ServicePlan.APPLICATION, ServicePlan.BROKER, ServicePlan.SPACE, ServicePlan.DEFAULT)
                 .map(plan -> getServiceConfigurations().get(XSUAA).get(plan))
-                .findFirst().get();
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     @Override
