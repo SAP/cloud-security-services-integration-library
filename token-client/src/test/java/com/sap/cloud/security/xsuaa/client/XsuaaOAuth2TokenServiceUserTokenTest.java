@@ -60,15 +60,15 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 
 	@Test
 	public void retrieveToken_throwsOnNullValues() {
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaUserTokenGrant(null, clientIdentity, userTokenToBeExchanged,
-				null, null)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaJwtBearerTokenGrant(null, clientIdentity, userTokenToBeExchanged,
+				null, null, true)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpoint");
 
 		assertThatThrownBy(
-				() -> cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, null, userTokenToBeExchanged, null, null))
+				() -> cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, null, userTokenToBeExchanged, null, null, true))
 						.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
 
 		assertThatThrownBy(
-				() -> cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientIdentity, null, null, null))
+				() -> cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientIdentity, null, null, null, true))
 						.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
 	}
 
@@ -76,22 +76,22 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 	public void retrieveToken_throwsIfHttpStatusUnauthorized() throws OAuth2ServiceException {
 		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
-		cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientIdentity,
-				userTokenToBeExchanged, null, null);
+		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientIdentity,
+				userTokenToBeExchanged, null, null, true);
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
 	public void retrieveToken_throwsIfHttpStatusNotOk() throws OAuth2ServiceException {
 		Mockito.when(mockRestOperations.postForEntity(any(URI.class), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
-		cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientIdentity,
-				userTokenToBeExchanged, null, null);
+		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientIdentity,
+				userTokenToBeExchanged, null, null, true);
 	}
 
 	@Test
 	public void retrieveToken() throws OAuth2ServiceException {
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
-		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
+		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_JWT_BEARER);
 		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID, clientIdentity.getId());
 
 		HttpHeaders expectedHeaders = new HttpHeaders();
@@ -106,8 +106,8 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
-		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientIdentity,
-				userTokenToBeExchanged, null, null);
+		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientIdentity,
+				userTokenToBeExchanged, null, null, true);
 		assertThat(accessToken.getRefreshToken(), is(responseMap.get(REFRESH_TOKEN)));
 		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
 		assertThat(accessToken.getTokenType(), is(responseMap.get(TOKEN_TYPE)));
@@ -121,7 +121,7 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 		additionalParameters.put("add-param-2", "value2");
 
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
-		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
+		tokenHttpEntityMatcher.setGrantType(GRANT_TYPE_JWT_BEARER);
 		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID, clientIdentity.getId());
 		tokenHttpEntityMatcher.addParameters(additionalParameters);
 
@@ -131,15 +131,15 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 				eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
-		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientIdentity,
-				userTokenToBeExchanged, null, additionalParameters);
+		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientIdentity,
+				userTokenToBeExchanged, null, additionalParameters, true);
 		assertThat(accessToken.getRefreshToken(), is(responseMap.get(REFRESH_TOKEN)));
 	}
 
 	@Test
 	public void retrieveToken_requiredParametersCanNotBeOverwritten() throws OAuth2ServiceException {
 		TokenServiceHttpEntityMatcher tokenHttpEntityMatcher = new TokenServiceHttpEntityMatcher();
-		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
+		tokenHttpEntityMatcher.setGrantType(OAuth2TokenServiceConstants.GRANT_TYPE_JWT_BEARER);
 		tokenHttpEntityMatcher.addParameter(OAuth2TokenServiceConstants.PARAMETER_CLIENT_ID, clientIdentity.getId());
 
 		Mockito.when(
@@ -152,8 +152,8 @@ public class XsuaaOAuth2TokenServiceUserTokenTest {
 		Map<String, String> overwrittenGrantType = new HashMap<>();
 		overwrittenGrantType.put(OAuth2TokenServiceConstants.GRANT_TYPE, "overwrite-obligatory-param");
 
-		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaUserTokenGrant(tokenEndpoint, clientIdentity,
-				userTokenToBeExchanged, null, overwrittenGrantType);
+		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientIdentity,
+				userTokenToBeExchanged, null, overwrittenGrantType, true);
 		assertThat(accessToken.getRefreshToken(), is(responseMap.get(REFRESH_TOKEN)));
 	}
 }

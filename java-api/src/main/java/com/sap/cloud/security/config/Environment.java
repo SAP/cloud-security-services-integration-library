@@ -5,29 +5,14 @@
  */
 package com.sap.cloud.security.config;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Map;
 
 /**
  * Central entry point to access the OAuth configuration
  * ({@link OAuth2ServiceConfiguration}) of a supported identity {@link Service}.
  */
 public interface Environment {
-
-	/**
-	 * Represents a supported SAP CP environment.
-	 */
-	enum Type {
-		CF, KUBERNETES;
-
-		public static Type from(String typeAsString) {
-			return Type.valueOf(typeAsString.toUpperCase());
-		}
-	}
-
-	@Nonnull
-	Type getType();
-
 	/**
 	 * Return OAuth service configuration of Xsuaa identity service instance.
 	 * 
@@ -65,4 +50,5 @@ public interface Environment {
 	@Nullable
 	OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange();
 
+	Map<Service, Map<ServicePlan, OAuth2ServiceConfiguration>> getServiceConfigurations();
 }

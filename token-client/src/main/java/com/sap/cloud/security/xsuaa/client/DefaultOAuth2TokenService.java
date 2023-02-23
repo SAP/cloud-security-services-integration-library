@@ -40,30 +40,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private final CloseableHttpClient httpClient;
 
-	/**
-	 * @deprecated in favor of
-	 *             {@link #DefaultOAuth2TokenService(CloseableHttpClient)} as it
-	 *             doesn't support certificate based communication. Will be deleted
-	 *             with version 3.0.0.
-	 */
-	@Deprecated
-	public DefaultOAuth2TokenService() {
-		this(HttpClientFactory.create(null), TokenCacheConfiguration.defaultConfiguration());
-	}
-
 	public DefaultOAuth2TokenService(@Nonnull CloseableHttpClient httpClient) {
 		this(httpClient, TokenCacheConfiguration.defaultConfiguration());
-	}
-
-	/**
-	 * @deprecated in favor of
-	 *             {@link #DefaultOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration)}
-	 *             as it doesn't support certificate based communication. Will be
-	 *             deleted with version 3.0.0.
-	 */
-	@Deprecated
-	public DefaultOAuth2TokenService(@Nonnull TokenCacheConfiguration tokenCacheConfiguration) {
-		this(HttpClientFactory.create(null), tokenCacheConfiguration);
 	}
 
 	public DefaultOAuth2TokenService(@Nonnull CloseableHttpClient httpClient,

@@ -121,7 +121,7 @@ class XSUserInfoAdapterTest {
 
 	@Test
 	void testGetIdentityZone() throws XSUserInfoException {
-		assertThat(cut.getIdentityZone()).isEqualTo("paas");
+		assertThat(cut.getZoneId()).isEqualTo("paas");
 	}
 
 	@Test
@@ -132,11 +132,6 @@ class XSUserInfoAdapterTest {
 	@Test
 	void testGetClientId() throws XSUserInfoException {
 		assertThat(cut.getClientId()).isEqualTo("sb-clone1!b5|LR-master!b5");
-	}
-
-	@Test
-	void testGetJsonValue() throws XSUserInfoException {
-		assertThat(cut.getJsonValue("azp")).isEqualTo("sb-clone1!b5|LR-master!b5");
 	}
 
 	@Test
@@ -165,14 +160,14 @@ class XSUserInfoAdapterTest {
 
 	@Test
 	void testGetDBToken() throws XSUserInfoException {
-		assertThat(cut.getDBToken()).isEqualTo(cut.getAppToken());
+		assertThat(cut.getHdbToken()).isEqualTo(cut.getAppToken());
 	}
 
 	@Test
 	void testGetDBToken_onEmptyToken_throwsException() throws XSUserInfoException {
 		cut = new XSUserInfoAdapter(emptyToken);
 
-		assertThatThrownBy(() -> cut.getDBToken()).isInstanceOf(XSUserInfoException.class);
+		assertThatThrownBy(() -> cut.getHdbToken()).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getHdbToken()).isInstanceOf(XSUserInfoException.class);
 	}
 
@@ -315,45 +310,6 @@ class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	void requestTokenForClient() throws TokenFlowException {
-		String clientId = "theClientId";
-		String clientSecret = "theClientSecret";
-		String uaaBaseUrl = "http://oauth.base.url/oauth/token";
-
-		XsuaaTokenFlows xsuaaTokenFlowsMock = Mockito.mock(XsuaaTokenFlows.class);
-		doReturn(clientCredentialsTokenFlowMock()).when(xsuaaTokenFlowsMock).clientCredentialsTokenFlow();
-		cut = createComponentUnderTestSpy();
-		doReturn(xsuaaTokenFlowsMock).when(cut).getXsuaaTokenFlows(anyString(), any(ClientCredentials.class));
-
-		cut.requestTokenForClient(clientId, clientSecret, uaaBaseUrl);
-
-		verify(cut, times(1)).getXsuaaTokenFlows(eq(uaaBaseUrl), eq(new ClientCredentials(clientId, clientSecret)));
-		verify(xsuaaTokenFlowsMock, times(1)).clientCredentialsTokenFlow();
-	}
-
-	@Test
-	void requestTokenForUser() throws TokenFlowException {
-		String clientId = "theClientId";
-		String clientSecret = "theClientSecret";
-		String uaaBaseUrl = "http://oauth.base.url/oauth/token";
-		String token = "token";
-
-		XsuaaTokenFlows xsuaaTokenFlowsMock = Mockito.mock(XsuaaTokenFlows.class);
-		UserTokenFlow userTokenFlowMock = userTokenFlowMock();
-		doReturn(userTokenFlowMock).when(xsuaaTokenFlowsMock).userTokenFlow();
-		cut = createComponentUnderTestSpy();
-		doReturn(xsuaaTokenFlowsMock).when(cut).getXsuaaTokenFlows(anyString(), any(ClientCredentials.class));
-		doReturn(token).when(cut).getAppToken();
-
-		cut.requestTokenForUser(clientId, clientSecret, uaaBaseUrl);
-
-		verify(cut, times(1)).getXsuaaTokenFlows(eq(uaaBaseUrl), eq(new ClientCredentials(clientId, clientSecret)));
-		verify(cut, times(1)).getAppToken();
-		verify(userTokenFlowMock, times(1)).token(token);
-		verify(xsuaaTokenFlowsMock, times(1)).userTokenFlow();
-	}
-
-	@Test
 	void testGetOrigin_grantTypeClientCredentials_throwsException() throws XSUserInfoException {
 		cut = new XSUserInfoAdapter(createMockToken(GrantType.CLIENT_CREDENTIALS));
 
@@ -370,12 +326,11 @@ class XSUserInfoAdapterTest {
 		assertThatThrownBy(() -> cut.getGrantType()).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getLogonName()).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getFamilyName()).isInstanceOf(XSUserInfoException.class);
-		assertThatThrownBy(() -> cut.getIdentityZone()).isInstanceOf(XSUserInfoException.class);
-		assertThatThrownBy(() -> cut.getDBToken()).isInstanceOf(XSUserInfoException.class);
+		assertThatThrownBy(() -> cut.getZoneId()).isInstanceOf(XSUserInfoException.class);
+		assertThatThrownBy(() -> cut.getHdbToken()).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getCloneServiceInstanceId()).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getGrantType()).isInstanceOf(XSUserInfoException.class);
 
-		assertThatThrownBy(() -> cut.getJsonValue(nonExistingAttribute)).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getAttribute(nonExistingAttribute)).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getSystemAttribute(nonExistingAttribute)).isInstanceOf(XSUserInfoException.class);
 	}
@@ -459,7 +414,7 @@ class XSUserInfoAdapterTest {
 
 		cut = createComponentUnderTestSpy(configuration);
 		doReturn(tokenClientId).when(cut).getClientId();
-		doReturn("otherIdentityZone").when(cut).getIdentityZone();
+		doReturn("otherIdentityZone").when(cut).getZoneId();
 
 		assertThat(cut.isInForeignMode()).isFalse();
 	}
@@ -476,7 +431,7 @@ class XSUserInfoAdapterTest {
 
 		cut = createComponentUnderTestSpy(configuration);
 		doReturn(tokenClientId).when(cut).getClientId();
-		doReturn("otherIdentityZone").when(cut).getIdentityZone();
+		doReturn("otherIdentityZone").when(cut).getZoneId();
 
 		assertThat(cut.isInForeignMode()).isFalse();
 	}
@@ -492,7 +447,7 @@ class XSUserInfoAdapterTest {
 
 		cut = createComponentUnderTestSpy(configuration);
 		doReturn(tokenClientId).when(cut).getClientId();
-		doReturn(identityZone).when(cut).getIdentityZone();
+		doReturn(identityZone).when(cut).getZoneId();
 
 		assertThat(cut.isInForeignMode()).isFalse();
 	}
@@ -505,7 +460,7 @@ class XSUserInfoAdapterTest {
 
 		cut = createComponentUnderTestSpy(configuration);
 		doReturn("sb-application!t0123").when(cut).getClientId();
-		doReturn("otherIdentityZone").when(cut).getIdentityZone();
+		doReturn("otherIdentityZone").when(cut).getZoneId();
 
 		assertThat(cut.isInForeignMode()).isTrue();
 	}
@@ -514,7 +469,7 @@ class XSUserInfoAdapterTest {
 	void isForeignModeTrue_whenClientIdIsMissing() throws XSUserInfoException {
 		cut = createComponentUnderTestSpy();
 
-		doReturn("brokerplanmasterapp!b123").when(cut).getIdentityZone();
+		doReturn("brokerplanmasterapp!b123").when(cut).getZoneId();
 		doThrow(new XSUserInfoException("")).when(cut).getClientId();
 
 		assertThat(cut.isInForeignMode()).isTrue();
@@ -525,7 +480,7 @@ class XSUserInfoAdapterTest {
 		cut = createComponentUnderTestSpy();
 
 		doReturn("sb-application!t0123").when(cut).getClientId();
-		doThrow(new XSUserInfoException("")).when(cut).getIdentityZone();
+		doThrow(new XSUserInfoException("")).when(cut).getZoneId();
 
 		assertThat(cut.isInForeignMode()).isTrue();
 	}

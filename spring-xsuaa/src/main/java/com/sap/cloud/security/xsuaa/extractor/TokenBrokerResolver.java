@@ -55,33 +55,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	private final XsuaaServiceConfiguration configuration;
 
 	private final Cache tokenCache;
-	private TokenBroker tokenBroker;
 	private OAuth2TokenService oAuth2TokenService;
 	private AuthenticationInformationExtractor authenticationConfig;
 	private IasXsuaaExchangeBroker iasXsuaaExchangeBroker;
-
-	/**
-	 * @param configuration
-	 *            Configuration properties from environment
-	 * @param tokenCache
-	 *            Token-Cache
-	 * @param tokenBroker
-	 *            Token-Broker for accessing the UAA
-	 * @param authenticationConfig
-	 *            configured AuthenticationMethodConfiguration
-	 * @deprecated in favor of
-	 *             {@link #TokenBrokerResolver(XsuaaServiceConfiguration, Cache, OAuth2TokenService, AuthenticationInformationExtractor)}
-	 *             gets removed with the version 3.0.0
-	 *
-	 */
-	@Deprecated
-	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache, TokenBroker tokenBroker,
-			AuthenticationInformationExtractor authenticationConfig) {
-		this.configuration = configuration;
-		this.tokenCache = tokenCache;
-		this.tokenBroker = tokenBroker;
-		this.authenticationConfig = authenticationConfig;
-	}
 
 	/**
 	 * @param configuration
@@ -104,27 +80,6 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
 			this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(configuration, tokenService);
 		}
-	}
-
-	/**
-	 * @param configuration
-	 *            Configuration properties from environment
-	 * @param tokenCache
-	 *            Token-Cache
-	 * @param authenticationMethods
-	 *            list of supported authentication methods. Choose either
-	 *            {@link AuthenticationMethod#BASIC} or
-	 *            {@link AuthenticationMethod#CLIENT_CREDENTIALS}.
-	 * @deprecated in favor of
-	 *             {@link #TokenBrokerResolver(XsuaaServiceConfiguration, Cache, OAuth2TokenService, AuthenticationInformationExtractor)}
-	 *             gets removed with the version 3.0.0, does not support certificate
-	 *             based authentication
-	 */
-	@Deprecated
-	public TokenBrokerResolver(XsuaaServiceConfiguration configuration, Cache tokenCache,
-			AuthenticationMethod... authenticationMethods) {
-		this(configuration, tokenCache, new XsuaaOAuth2TokenService(),
-				new DefaultAuthenticationInformationExtractor(authenticationMethods));
 	}
 
 	@Override
@@ -165,22 +120,32 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	}
 
 	private String getOAuthTokenUrl(HttpServletRequest request) {
-		String uaaUrl = configuration.getCredentialType() == CredentialType.X509
-				? String.valueOf(configuration.getCertUrl())
-				: configuration.getUaaUrl();
-		String uaaDomain = configuration.getUaaDomain();
+//		String uaaUrl = configuration.getCredentialType() == CredentialType.X509
+//				? String.valueOf(configuration.getCertUrl())
+//				: configuration.getUaaUrl();
+//		String uaaDomain = configuration.getUaaDomain();
+//
+//		Optional<String> subdomainResult = authenticationConfig.getSubdomain(request);
+//
+//		String oauthTokenUrl;
+//		if (subdomainResult.isPresent()) {
+//			oauthTokenUrl = TokenUrlUtils.getMultiTenancyUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain,
+//					subdomainResult.get());
+//		} else {
+//			oauthTokenUrl = TokenUrlUtils.getOauthTokenUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain);
+//		}
+//
+//		String tenantUaaDomain = tenantSubDomain + "." + uaaDomain;
+//
+//		URI uri = URI.create(uaaUrl);
+//
+//		String protocol = uri.getScheme();
+//
+//		String tenantTokenUrl = String.format("%s://%s", protocol, tenantUaaDomain + endpoint);
+//
+//		return oauthTokenUrl;
 
-		Optional<String> subdomainResult = authenticationConfig.getSubdomain(request);
-
-		String oauthTokenUrl;
-		if (subdomainResult.isPresent()) {
-			oauthTokenUrl = TokenUrlUtils.getMultiTenancyUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain,
-					subdomainResult.get());
-		} else {
-			oauthTokenUrl = TokenUrlUtils.getOauthTokenUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain);
-		}
-
-		return oauthTokenUrl;
+		return "";
 	}
 
 	private String getBrokerToken(AuthenticationMethod credentialType, String authHeaderValue,
@@ -215,18 +180,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					logger.debug("return (basic) access token for {} from cache", cacheKey);
 					return cachedToken;
 				} else {
-					String token;
-					if (oAuth2TokenService != null) {
-						token = oAuth2TokenService.retrieveAccessTokenViaPasswordGrant(URI.create(oauthTokenUrl),
-								clientIdentity, userCredentialsFromHeader.getId(),
-								userCredentialsFromHeader.getSecret(), null, null, false).getAccessToken();
-					} else {
-						// only when deprecated constructors are used, for backward compatibility
-						token = tokenBroker.getAccessTokenFromPasswordCredentials(oauthTokenUrl,
-								clientIdentity.getId(),
-								clientIdentity.getSecret(), userCredentialsFromHeader.getId(),
-								userCredentialsFromHeader.getSecret());
-					}
+					String token = oAuth2TokenService.retrieveAccessTokenViaPasswordGrant(URI.create(oauthTokenUrl),
+							clientIdentity, userCredentialsFromHeader.getId(),
+							userCredentialsFromHeader.getSecret(), null, null, false).getAccessToken();
 					tokenCache.put(cacheKey, token);
 					return token;
 				}
@@ -244,17 +200,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 					logger.debug("return (client-credentials) access token for {} from cache", cacheKey);
 					return cachedToken;
 				} else {
-					String token;
-					if (oAuth2TokenService != null) {
-						token = oAuth2TokenService.retrieveAccessTokenViaClientCredentialsGrant(
-								URI.create(oauthTokenUrl), clientCredentialsFromHeader, null, null,
-								null, false).getAccessToken();
-					} else {
-						// only when deprecated constructors are used, for backward compatibility
-						token = tokenBroker
-								.getAccessTokenFromClientCredentials(oauthTokenUrl, clientCredentialsFromHeader.getId(),
-										clientCredentialsFromHeader.getSecret());
-					}
+					String token = oAuth2TokenService.retrieveAccessTokenViaClientCredentialsGrant(
+							URI.create(oauthTokenUrl), clientCredentialsFromHeader, null, null,
+							null, false).getAccessToken();
 					tokenCache.put(cacheKey, token);
 					return token;
 				}

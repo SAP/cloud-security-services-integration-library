@@ -6,8 +6,8 @@
 package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.Service;
+import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
+import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.config.cf.VcapServicesParser;
 import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
 import com.sap.cloud.security.test.api.SecurityTestContext;
@@ -38,6 +38,7 @@ import javax.annotation.Nullable;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -144,7 +145,7 @@ public class SecurityTest
 			jwtGenerator
 					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
 					.withAppId(DEFAULT_APP_ID)
-					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
+					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_JWT_BEARER);
 		}
 		return jwtGenerator.withClaimValue(TokenClaims.ISSUER, issuerUrl);
 	}

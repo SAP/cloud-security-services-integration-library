@@ -7,6 +7,7 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.CacheConfiguration;
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.*;
 import org.junit.Before;
@@ -72,7 +73,7 @@ public class XsuaaTokenFlowsTest {
 
 		assertThatThrownBy(() -> {
 			new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientCredentials");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientIdentity");
 
 	}
 
@@ -103,7 +104,7 @@ public class XsuaaTokenFlowsTest {
 	@Test
 	public void versionMismatch() throws TokenFlowException {
 		cut = new XsuaaTokenFlows(oAuth2TokenService, this.endpointsProvider,
-				new com.sap.cloud.security.xsuaa.client.ClientCredentials("sb-spring-netflix-demo!t12291",
+				new ClientCredentials("sb-spring-netflix-demo!t12291",
 						"2Tc2Xz7DNy4KiACwvunulmxF32w="));
 		cut.clientCredentialsTokenFlow().execute();
 	}
