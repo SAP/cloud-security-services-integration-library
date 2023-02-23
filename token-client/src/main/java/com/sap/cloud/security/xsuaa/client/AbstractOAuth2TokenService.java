@@ -115,26 +115,6 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	}
 
 	@Override
-	public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(@Nonnull URI tokenEndpointUri,
-			@Nonnull ClientIdentity clientIdentity, @Nonnull String token, @Nullable String subdomain,
-			@Nullable Map<String, String> optionalParameters)
-			throws OAuth2ServiceException {
-		assertNotNull(tokenEndpointUri, "tokenEndpointUri is required");
-		assertNotNull(clientIdentity, "clientIdentity is required");
-		assertNotNull(token, "token is required");
-
-		Map<String, String> parameters = new RequestParameterBuilder()
-				.withGrantType(GRANT_TYPE_USER_TOKEN)
-				.withClientId(clientIdentity.getId())
-				.withOptionalParameters(optionalParameters)
-				.buildAsMap();
-
-		HttpHeaders headers = HttpHeadersFactory.createWithAuthorizationBearerHeader(token);
-
-		return getOAuth2TokenResponse(tokenEndpointUri, headers, parameters, subdomain, false);
-	}
-
-	@Override
 	public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(@Nonnull URI tokenEndpointUri,
 			@Nonnull ClientIdentity clientIdentity,
 			@Nonnull String refreshToken, String subdomain, boolean disableCacheForRequest)

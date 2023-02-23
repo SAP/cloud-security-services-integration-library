@@ -50,13 +50,6 @@ public class TokenBrokerTestConfiguration {
 			}
 
 			@Override
-			public OAuth2TokenResponse retrieveAccessTokenViaUserTokenGrant(URI tokenEndpointUri,
-					ClientIdentity clientIdentity, String token, @Nullable String subdomain,
-					@Nullable Map<String, String> optionalParameters) {
-				return null;
-			}
-
-			@Override
 			public OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri,
 					ClientIdentity clientIdentity, String refreshToken, @Nullable String subdomain,
 					boolean disableCacheForRequest) {

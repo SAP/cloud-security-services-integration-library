@@ -60,17 +60,6 @@ public class OAuth2TokenResponse {
 	 * Returns the moment in time when the token will be expired.
 	 *
 	 * @return the expiration point in time if present.
-	 * @deprecated use {@link #getExpiredAt()}.
-	 */
-	@Deprecated
-	public Date getExpiredAtDate() {
-		return new Date(expiredTimeMillis);
-	}
-
-	/**
-	 * Returns the moment in time when the token will be expired.
-	 *
-	 * @return the expiration point in time if present.
 	 */
 	public Instant getExpiredAt() {
 		return Instant.ofEpochMilli(expiredTimeMillis);

@@ -56,13 +56,6 @@ public class Base64JwtDecoderTest {
 	}
 
 	@Test
-	@Deprecated // will be deleted with version 3.0.0
-	public void deprecatedConstructor() {
-		DecodedJwt decodedJwt = new Base64JwtDecoder().decode("header..signature");
-		assertEquals("", decodedJwt.getPayload());
-	}
-
-	@Test
 	public void toStringReturnsHeadersAndPayload() {
 		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(TOKEN.getTokenValue());
 		assertThat(decodedJwt.toString())

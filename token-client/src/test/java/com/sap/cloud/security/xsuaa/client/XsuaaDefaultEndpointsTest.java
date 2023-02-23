@@ -77,14 +77,6 @@ public class XsuaaDefaultEndpointsTest {
 	}
 
 	@Test
-	@Deprecated
-	public void getEndpoint_forBaseUrl() {
-		cut = new XsuaaDefaultEndpoints(URL);
-
-		assertThat(cut.getTokenEndpoint().toString(), is(URL + "/oauth/token"));
-	}
-
-	@Test
 	public void withEndingPathDelimiter() {
 		cut = createXsuaaDefaultEndpointProvider("http://localhost:8080/uaa/");
 

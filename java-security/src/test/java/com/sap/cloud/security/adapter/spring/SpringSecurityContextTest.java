@@ -16,6 +16,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.io.IOException;
@@ -29,10 +34,12 @@ import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.token.TokenClaims.SUBJECT;
 import static com.sap.cloud.security.xsuaa.token.SpringSecurityContext.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SpringXsuaaSecurityContextTest {
+public class SpringSecurityContextTest {
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	AccessToken token;
 	SapIdToken sapIdToken;
@@ -74,6 +81,12 @@ public class SpringXsuaaSecurityContextTest {
 		setToken(sapIdToken);
 		assertThat(SpringSecurityContext.getToken().getService()).isEqualTo(IAS);
 		assertThat(SpringSecurityContext.getToken().getClaimAsString(SUBJECT)).isEqualTo("P176945");
+	}
+
+	@Test
+	public void getAccessTokenWithAlternativeSetterReturnsIasOidcToken() {
+		setTokenViaMockedAuthentication(sapIdToken);
+		assertThat(SpringSecurityContext.getToken()).isEqualTo(sapIdToken);
 	}
 
 	@Test
@@ -127,5 +140,19 @@ public class SpringXsuaaSecurityContextTest {
 
 	static DecodedJwt decodeJwt(String encodedJwtToken) {
 		return Base64JwtDecoder.getInstance().decode(encodedJwtToken);
+	}
+
+	private static void setTokenViaMockedAuthentication(Token token) {
+		OidcIdToken oidcIdToken = new OidcIdToken(token.getTokenValue(), Instant.now(), Instant.now().plusSeconds(1L),
+				token.getClaims());
+		SecurityContextHolder.getContext().setAuthentication(getMockAuthentication(oidcIdToken));
+	}
+
+	static Authentication getMockAuthentication(OidcIdToken oidcIdToken) {
+		Authentication authentication = mock(Authentication.class);
+		when(authentication.getPrincipal())
+				.thenReturn(new DefaultOidcUser(singleton(new SimpleGrantedAuthority("openid")), oidcIdToken));
+		when(authentication.isAuthenticated()).thenReturn(true);
+		return authentication;
 	}
 }

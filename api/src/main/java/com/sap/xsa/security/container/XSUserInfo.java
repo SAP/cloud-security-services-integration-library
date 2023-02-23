@@ -76,18 +76,6 @@ public interface XSUserInfo {
 	 */
 	String getOrigin() throws XSUserInfoException;
 
-	/**
-	 * Return identity zone which is in most cases same like the subaccount
-	 * identifier.
-	 * 
-	 * @deprecated Have to be replaced with {@link #getZoneId()} or
-	 *             {@link #getSubaccountId()}.
-	 * @return identity zone
-	 * @throws XSUserInfoException
-	 *             if attribute is not available in the authentication token
-	 */
-	@Deprecated
-	String getIdentityZone() throws XSUserInfoException;
 
 	/**
 	 * Return subaccount identifier.
@@ -138,18 +126,6 @@ public interface XSUserInfo {
 	String getClientId() throws XSUserInfoException;
 
 	/**
-	 * @deprecated Can be replaced with {@code token.getClaimAsString(attribute)}
-	 *             from the {@code com.sap.cloud.security.token} package.
-	 * @param attribute
-	 *            the name of the JSON property
-	 * @return value of attribute
-	 * @throws XSUserInfoException
-	 *             if attribute is not available in the authentication token
-	 */
-	@Deprecated
-	String getJsonValue(String attribute) throws XSUserInfoException;
-
-	/**
 	 * Return the email of the user
 	 * 
 	 * @deprecated Can be replaced with
@@ -161,15 +137,6 @@ public interface XSUserInfo {
 	 *             if attribute is not available in the authentication token
 	 */
 	String getEmail() throws XSUserInfoException;
-
-	/**
-	 * @deprecated use {@link #getHdbToken()} instead.
-	 * @return the hana database token
-	 * @throws XSUserInfoException
-	 *             if db token is not available in the authentication token
-	 */
-	@Deprecated
-	String getDBToken() throws XSUserInfoException;
 
 	/**
 	 * Still Supported via {@code XSUserInfoAdapter} from the
@@ -189,23 +156,6 @@ public interface XSUserInfo {
 	 * @return authentication token
 	 */
 	String getAppToken();
-
-	/**
-	 * Still Supported via {@code XSUserInfoAdapter} from the
-	 * {@code com.sap.cloud.security.adapter.xs} package.
-	 *
-	 * @param namespace
-	 *            the namespace
-	 * @param name
-	 *            the name
-	 * @return the token
-	 * @throws XSUserInfoException
-	 *             if token is not available in the authentication token
-	 *
-	 * @deprecated use {@link #getHdbToken()} instead.
-	 */
-	@Deprecated
-	String getToken(String namespace, String name) throws XSUserInfoException;
 
 	/**
 	 * Return user attributes.
@@ -323,61 +273,5 @@ public interface XSUserInfo {
 	 *             if attribute is not available in the authentication token
 	 */
 	boolean isInForeignMode() throws XSUserInfoException;
-
-	/**
-	 * Performs a client credentials token flow.
-	 *
-	 * @param clientId
-	 *            client id
-	 * @param clientSecret
-	 *            client secret
-	 * @param uaaUrl
-	 *            the uaa url
-	 * @return the token
-	 *
-	 * @deprecated can be replaced with token flows from the token-client library.
-	 *             Does not support mtls-based communication to XSUAA identity
-	 *             provider and will be removed with version 3.0.0.
-	 *
-	 * @throws XSUserInfoException
-	 *             if an error occurs during token request
-	 */
-	@Deprecated
-	String requestTokenForClient(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
-
-	/**
-	 * Performs a user token flow.
-	 *
-	 * @param clientId
-	 *            client id
-	 * @param clientSecret
-	 *            client secret
-	 * @param uaaUrl
-	 *            the uaa url
-	 * @return the token
-	 * @deprecated can be replaced with token flows from the token-client library.
-	 *             Does not support mtls-based communication to XSUAA identity
-	 *             provider and will be removed with version 3.0.0.
-	 *
-	 * @throws XSUserInfoException
-	 *             if an error occurs during token request
-	 */
-	@Deprecated
-	String requestTokenForUser(String clientId, String clientSecret, String uaaUrl) throws XSUserInfoException;
-
-	/**
-	 * Exchange a token into a token from another service instance
-	 *
-	 * @param tokenRequest
-	 *            request data
-	 * @deprecated can be replaced with token flows from the token-client library.
-	 *             Does not support mtls-based communication to XSUAA identity
-	 *             provider and will be removed with version 3.0.0.
-	 * @return requested token
-	 * @throws XSUserInfoException
-	 *             if an error occurs during token exchange
-	 */
-	@Deprecated
-	String requestToken(XSTokenRequest tokenRequest) throws XSUserInfoException;
 
 }

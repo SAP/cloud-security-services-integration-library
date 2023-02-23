@@ -19,7 +19,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
+import com.sap.cloud.security.xsuaa.extractor.DefaultAuthenticationInformationExtractor;
 import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
 import com.sap.cloud.security.xsuaa.mock.MockXsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
@@ -39,7 +39,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		tokenBrokerResolver = new TokenBrokerResolver(getXsuaaServiceConfiguration(), cacheManager.getCache("token"),
-				AuthenticationMethod.BASIC);
+				null, new DefaultAuthenticationInformationExtractor());
 		// @formatter:off
 		http.authorizeRequests()
 				.antMatchers("/user/**").hasAuthority("java-hello-world.Display")

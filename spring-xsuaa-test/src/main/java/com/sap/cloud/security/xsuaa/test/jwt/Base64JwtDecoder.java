@@ -15,12 +15,7 @@ import static java.lang.System.lineSeparator;
 public final class Base64JwtDecoder {
 	private static final Base64JwtDecoder instance = new Base64JwtDecoder();
 
-	/**
-	 * @deprecated in favor of the {@link #getInstance() method} and will become
-	 *             private with version 3.0.0
-	 */
-	@Deprecated
-	public Base64JwtDecoder() {
+	private Base64JwtDecoder() {
 		// becomes private with version 3.0.0
 	}
 

@@ -16,19 +16,6 @@ import javax.annotation.Nullable;
 public interface OAuth2TokenKeyService {
 
 	/**
-	 * Same as {@link #retrieveTokenKeys(URI, String)} except that zoneId is set to
-	 * {@code null}.
-	 *
-	 * @deprecated gets removed in favor of {@link #retrieveTokenKeys(URI, String)}
-	 *             with next major version 3.0.0
-	 */
-	@Deprecated
-	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri) throws OAuth2ServiceException {
-		throw new UnsupportedOperationException(
-				"for security reason this internal method was replaced with retrieveTokenKeys(<jwks_url>, <zone_uuid>)");
-	}
-
-	/**
 	 * Requests token web key set from OAuth Server.
 	 *
 	 * @param tokenKeysEndpointUri

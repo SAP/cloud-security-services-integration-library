@@ -1,5 +1,6 @@
 package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -14,7 +15,7 @@ class IasXsuaaExchangeBrokerTest {
 	void doIasToXsuaaXchange_ConfigurationIsNull() {
 		assertThrows(
 				IllegalArgumentException.class,
-				() -> IasXsuaaExchangeBroker.build(null, new DefaultOAuth2TokenService()),
+				() -> IasXsuaaExchangeBroker.build(null, new DefaultOAuth2TokenService(HttpClientFactory.create(null))),
 				"Service configuration must not be null");
 
 		assertThrows(

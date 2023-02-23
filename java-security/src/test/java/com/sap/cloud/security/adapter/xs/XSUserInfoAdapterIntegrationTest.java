@@ -5,11 +5,9 @@
  */
 package com.sap.cloud.security.adapter.xs;
 
-import com.sap.cloud.security.config.ClientCredentials;
-import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
+import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.config.cf.CFEnvironment;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
@@ -57,7 +55,7 @@ public class XSUserInfoAdapterIntegrationTest {
 	public void setup() throws XSUserInfoException, IOException, JSONException {
 		oAuth2TokenService = Mockito.mock(OAuth2TokenService.class);
 		String vcapServices = buildVcapServices("java-hello-world", "default");
-		xsuaaConfiguration = CFEnvironment.getInstance(any -> vcapServices).getXsuaaConfiguration();
+		xsuaaConfiguration = (new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> vcapServices))).getXsuaaConfiguration();
 		infoUser = createToken(readData("/token_user.txt"));
 		infoUserNoAttr = createToken(readData("/token_user_noattr.txt"));
 		infoCc = createToken(readData("/token_cc.txt"));
@@ -122,12 +120,6 @@ public class XSUserInfoAdapterIntegrationTest {
 	@Test(expected = XSUserInfoException.class)
 	public void getOriginCc() {
 		Assert.assertNull(infoCc.getOrigin()); // not in token
-	}
-
-	@Test
-	public void getIdentityZone() {
-		assertEquals("uaa", infoUser.getIdentityZone());
-		assertEquals("uaa", infoUser.getZoneId());
 	}
 
 	@Test
@@ -325,39 +317,6 @@ public class XSUserInfoAdapterIntegrationTest {
 		assertEquals("abcd1234", infoUserNoAttr.getAdditionalAuthAttribute("external_id"));
 	}
 
-	@Test
-	public void getToken() {
-		Assert.assertNotNull("Token must not be null", infoUser.getHdbToken());
-		Assert.assertTrue(!infoUser.getHdbToken().isEmpty());
-		Assert.assertTrue(infoUser.getHdbToken().equals(infoUser.getToken("SYSTEM", "HDB")));
-		Assert.assertTrue(!infoUser.getAppToken().isEmpty());
-		Assert.assertTrue(infoUser.getAppToken().equals(infoUser.getToken("SYSTEM", "JobScheduler")));
-	}
-
-	@Test
-	public void getTokenCc() {
-		Assert.assertNotNull("Token must not be null", infoCc.getHdbToken());
-		Assert.assertTrue(!infoCc.getHdbToken().isEmpty());
-		Assert.assertTrue(infoCc.getHdbToken().equals(infoCc.getToken("SYSTEM", "HDB")));
-		Assert.assertTrue(!infoCc.getAppToken().isEmpty());
-		Assert.assertTrue(infoCc.getAppToken().equals(infoCc.getToken("SYSTEM", "JobScheduler")));
-	}
-
-	@Test(expected = XSUserInfoException.class)
-	public void requestTokenForClientTestInvalidClientId() {
-		correctEnduserInfoWithUaaUser.requestTokenForClient(null, "foo", "bar");
-	}
-
-	@Test(expected = XSUserInfoException.class)
-	public void requestTokenForClientTestInvalidClientSecret() {
-		correctEnduserInfoWithUaaUser.requestTokenForClient("foo", null, "bar");
-	}
-
-	@Test(expected = XSUserInfoException.class)
-	public void requestTokenForClientTestInvalidUaaUrl() {
-		correctEnduserInfoWithUaaUser.requestTokenForClient("foo", "bar", null);
-	}
-
 	private String readData(String path) throws IOException {
 		return IOUtils.resourceToString("/userInfoIntegration" + path, StandardCharsets.UTF_8);
 	}
@@ -365,59 +324,11 @@ public class XSUserInfoAdapterIntegrationTest {
 	@Rule
 	public ExpectedException userInfoException = ExpectedException.none();
 
-	@Test
-	public void jwtBearerFlowSuccess() throws Exception {
-		// prepare mocks
-		String testToken = "mytesttoken";
-		XSTokenRequest request = createXSTokenRequest();
-
-		OAuth2TokenResponse oAuth2TokenResponse = mock(OAuth2TokenResponse.class);
-		ClientIdentity clientIdentity = new ClientCredentials(request.getClientId(), request.getClientSecret());
-		URI tokenEndpointUri = URI.create(request.getTokenEndpoint() + "/oauth/token");
-		when(oAuth2TokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-				eq(tokenEndpointUri),
-				eq(clientIdentity),
-				eq(correctEnduserInfo.getAppToken()),
-				any(),
-				anyMap(),
-				anyBoolean())).thenReturn(oAuth2TokenResponse);
-		when(oAuth2TokenResponse.getAccessToken()).thenReturn(testToken);
-
-		// execute flow
-		String token = correctEnduserInfo.requestToken(request);
-
-		// verify token
-		assertEquals(testToken, token);
-	}
-
-	@Test(expected = XSUserInfoException.class)
-	public void jwtBearerFlowAuthFail() throws Exception {
-		// prepare mocks
-		XSTokenRequest request = createXSTokenRequest();
-		ClientIdentity clientIdentity = new ClientCredentials(request.getClientId(), request.getClientSecret());
-		URI tokenEndpointUri = URI.create(request.getTokenEndpoint() + "/oauth/token");
-
-		when(oAuth2TokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-				eq(tokenEndpointUri),
-				eq(clientIdentity),
-				eq(correctEnduserInfo.getAppToken()),
-				any(),
-				anyMap()))
-						.thenThrow(OAuth2ServiceException.builder("Unauthorized")
-								.withStatusCode(org.apache.http.HttpStatus.SC_UNAUTHORIZED)
-								.withUri(tokenEndpointUri)
-								.build());
-
-		// execute flow
-		correctEnduserInfo.requestToken(request);
-	}
-
 	private XSTokenRequest createXSTokenRequest() {
 		XSTokenRequest request = mock(XSTokenRequest.class);
 		when(request.getTokenEndpoint()).thenReturn(URI.create("http://localhost:8080"));
 		when(request.getClientId()).thenReturn("test");
 		when(request.getClientSecret()).thenReturn("secret");
-		when(request.getType()).thenReturn(XSTokenRequest.TYPE_USER_TOKEN);
 		when(request.isValid()).thenReturn(true);
 		return request;
 	}

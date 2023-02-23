@@ -24,6 +24,6 @@ public class TestController {
 		return ReactiveSecurityContext.getToken()
 				.doOnError(throwable -> Mono.just(unAuthenticated))
 				.map(token -> ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN)
-						.body(new Base64JwtDecoder().decode(token.getAppToken()).getPayload()));
+						.body(Base64JwtDecoder.getInstance().decode(token.getAppToken()).getPayload()));
 	}
 }

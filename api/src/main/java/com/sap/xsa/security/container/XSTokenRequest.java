@@ -86,24 +86,6 @@ public interface XSTokenRequest {
 	 */
 	public XSTokenRequest setAdditionalAuthorizationAttributes(Map<String, String> additionalAuthorizationAttributes);
 
-	/**
-	 * Returns the type of the requested token
-	 *
-	 * @return the type of the requested token
-	 *
-	 */
-	public int getType();
-
-	/**
-	 * Set the requested token type
-	 *
-	 * @param type
-	 *            type of token request: TYPE_USER_TOKEN or
-	 *            TYPE_CLIENT_CREDENTIAL_TOKEN
-	 * @return this mutable object
-	 *
-	 */
-	public XSTokenRequest setType(int type);
 
 	/**
 	 * Returns the token exchange endpoint URI. For example
@@ -112,14 +94,5 @@ public interface XSTokenRequest {
 	 * @return the token exchange endpoint URI.
 	 */
 	public URI getTokenEndpoint();
-
-	/**
-	 * Set the token endpoint URI
-	 *
-	 * @param tokenEndpoint
-	 *            url of token endpoint
-	 * @return this mutable object
-	 */
-	public XSTokenRequest setTokenEndpoint(URI tokenEndpoint);
 
 }

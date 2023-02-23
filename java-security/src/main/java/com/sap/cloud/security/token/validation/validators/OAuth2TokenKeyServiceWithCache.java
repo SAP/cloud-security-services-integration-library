@@ -71,36 +71,6 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	/**
-	 * Caches the Json web keys. Overwrite the cache time (default: 600 seconds).
-	 *
-	 * @deprecated in favor of {@link #withCacheConfiguration(CacheConfiguration)}
-	 * @param timeInSeconds
-	 *            time to cache the signing keys
-	 * @return this
-	 */
-	@Deprecated
-	public OAuth2TokenKeyServiceWithCache withCacheTime(int timeInSeconds) {
-		withCacheConfiguration(TokenKeyCacheConfiguration
-				.getInstance(Duration.ofSeconds(timeInSeconds), this.cacheConfiguration.getCacheSize(), false));
-		return this;
-	}
-
-	/**
-	 * Caches the Json web keys. Overwrite the size of the cache (default: 1000).
-	 *
-	 * @deprecated in favor of {@link #withCacheConfiguration(CacheConfiguration)}
-	 * @param size
-	 *            number of cached json web keys.
-	 * @return this
-	 */
-	@Deprecated
-	public OAuth2TokenKeyServiceWithCache withCacheSize(int size) {
-		withCacheConfiguration(TokenKeyCacheConfiguration
-				.getInstance(cacheConfiguration.getCacheDuration(), size, false));
-		return this;
-	}
-
-	/**
 	 * Configures the token key cache. Use
 	 * {@link TokenKeyCacheConfiguration#getInstance(Duration, int, boolean)} to
 	 * pass a custom configuration.
@@ -131,27 +101,6 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	public OAuth2TokenKeyServiceWithCache withTokenKeyService(OAuth2TokenKeyService tokenKeyService) {
 		this.tokenKeyService = tokenKeyService;
 		return this;
-	}
-
-	/**
-	 * Returns the cached key by id and type or requests the keys from the jwks URI
-	 * of the identity service.
-	 *
-	 * @param keyAlgorithm
-	 *            the Key Algorithm of the Access Token.
-	 * @param keyId
-	 *            the Key Id of the Access Token.
-	 * @param keyUri
-	 *            the Token Key Uri (jwks) of the Access Token (can be tenant
-	 *            specific).
-	 * @return a PublicKey
-	 * @deprecated in favor of
-	 *             {@link #getPublicKey(JwtSignatureAlgorithm, String, URI, String)}
-	 */
-	@Nullable
-	@Deprecated
-	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri) {
-		throw new UnsupportedOperationException("use getPublicKey(keyAlgorithm, keyId, keyUri, zoneId) instead");
 	}
 
 	/**

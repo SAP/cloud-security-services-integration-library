@@ -46,7 +46,6 @@ public class SecurityConfiguration {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/sayHello").hasAuthority("Read")
-                .antMatchers("/comp/sayHello").hasAuthority("Read")
                 .antMatchers("/*").authenticated()
                 .anyRequest().denyAll()
                 .and()

@@ -123,7 +123,7 @@ public class SecurityTestRuleTest {
 	@Test
 	public void getConfigurationBuilderFromFile_configurationHasCorrectUrl() {
 		OAuth2ServiceConfiguration configuration = cut
-				.getConfigurationBuilderFromFile("/vcapServices/vcapSimple.json")
+				.getOAuth2ServiceConfigurationBuilderFromFile("/vcapServices/vcapSimple.json")
 				.build();
 
 		assertThat(configuration.getUrl()).isNotNull();

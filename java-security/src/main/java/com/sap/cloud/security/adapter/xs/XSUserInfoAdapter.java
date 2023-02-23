@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.adapter.xs;
 
+import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.Environments;
@@ -23,6 +24,7 @@ import com.sap.xsa.security.container.XSUserInfo;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -123,11 +125,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
-	public String getIdentityZone() {
-		return getClaimValue(ZONE_ID);
-	}
-
-	@Override
 	/**
 	 * "ext_attr": { "enhancer": "XSUAA", "subaccountid": "my-subaccount-1234" },
 	 */
@@ -156,19 +153,9 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	}
 
 	@Override
-	public String getJsonValue(String attribute) {
-		return getClaimValue(attribute);
-	}
-
-	@Override
 	public String getEmail() {
 		checkNotGrantTypeClientCredentials("getEmail");
 		return getClaimValue(EMAIL);
-	}
-
-	@Override
-	public String getDBToken() {
-		return getHdbToken();
 	}
 
 	@Override
@@ -181,7 +168,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		return accessToken.getTokenValue();
 	}
 
-	@Override
 	public String getToken(String namespace, String name) {
 		if (!(getGrantType().equals(GrantType.CLIENT_CREDENTIALS.toString())) && hasAttributes() && isInForeignMode()) {
 			throw new XSUserInfoException("The SecurityContext has been initialized with an access token of a "
@@ -286,7 +272,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		String tokenClientId, tokenIdentityZone;
 		try {
 			tokenClientId = getClientId();
-			tokenIdentityZone = getIdentityZone();
+			tokenIdentityZone = getZoneId();
 		} catch (XSUserInfoException e) {
 			LOGGER.warn("Tried to access missing attribute when checking for foreign mode", e);
 			return true;
@@ -313,30 +299,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 				"Token in foreign mode: clientIdsMatch={}, identityZonesMatch={}, isApplicationPlan={}, bindingTrustedClientIdSuffix={}",
 				clientIdsMatch, identityZonesMatch, isApplicationPlan, bindingTrustedClientIdSuffix);
 		return true;
-	}
-
-	@Override
-	public String requestTokenForClient(String clientId, String clientSecret, String baseUaaUrl) {
-		return performTokenFlow(baseUaaUrl, XSTokenRequest.TYPE_CLIENT_CREDENTIALS_TOKEN, clientId, clientSecret,
-				new HashMap<>());
-	}
-
-	@Override
-	public String requestTokenForUser(String clientId, String clientSecret, String baseUaaUrl) {
-		return performTokenFlow(baseUaaUrl, XSTokenRequest.TYPE_USER_TOKEN, clientId, clientSecret, new HashMap<>());
-	}
-
-	@Override
-	public String requestToken(XSTokenRequest tokenRequest) {
-		Assertions.assertNotNull(tokenRequest, "TokenRequest argument is required");
-		if (!tokenRequest.isValid()) {
-			throw new XSUserInfoException("Invalid grant type or missing parameters for requested grant type.");
-		}
-		String tokenEndpoint = tokenRequest.getTokenEndpoint().toString();
-		String baseUaaUrl = tokenEndpoint.replace(tokenRequest.getTokenEndpoint().getPath(), "");
-		Map<String, String> additionalAuthAttributes = tokenRequest.getAdditionalAuthorizationAttributes();
-		return performTokenFlow(baseUaaUrl, tokenRequest.getType(), tokenRequest.getClientId(),
-				tokenRequest.getClientSecret(), additionalAuthAttributes);
 	}
 
 	/**
@@ -374,7 +336,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	private OAuth2TokenService tryToCreateDefaultOAuth2TokenService() {
 		LOGGER.debug("Trying to create DefaultOAuth2TokenService.");
 		try {
-			return new DefaultOAuth2TokenService();
+			return new DefaultOAuth2TokenService(HttpClientFactory.create(null));
 		} catch (Exception | LinkageError e) {
 			LOGGER.debug("Failed to create DefaultOAuth2TokenService.", e);
 		}
@@ -392,7 +354,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	private OAuth2TokenService tryToCreateXsuaaOAuth2TokenService() {
 		LOGGER.debug("Trying to create XsuaaOAuth2TokenService.");
 		try {
-			return new XsuaaOAuth2TokenService();
+			return new XsuaaOAuth2TokenService(new RestTemplate());
 		} catch (Exception | LinkageError e) {
 			LOGGER.debug("Failed to create XsuaaOAuth2TokenService.", e);
 		}
