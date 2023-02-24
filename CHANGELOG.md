@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 - [env] `CFEnvironment` has migrated to use btp-environment-variable-access library for accessing configuration from VCAP_SERVICES
 - [java-security] `XsUserInfoAdapter.getSystemAttribute()` supports in token `xs.system.attributes` values in string format along with string array
 
+‼️ slf4j API version has been reverted back to 1.7.x to be in line with spring-boot 2.x supported slf4j API version
+
 #### Dependency upgrades
 * Bump spring.boot.version from 2.7.8 to 2.7.9
 * Bump spring.security.version from 5.8.1 to 5.8.2
