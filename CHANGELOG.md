@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.13.6
+- [env] `CFEnvironment` has migrated to use btp-environment-variable-access library for accessing configuration from VCAP_SERVICES
+- [java-security] `XsUserInfoAdapter.getSystemAttribute()` supports in token `xs.system.attributes` values in string format along with string array
+
+#### Dependency upgrades
+* Bump spring.boot.version from 2.7.8 to 2.7.9
+* Bump spring.security.version from 5.8.1 to 5.8.2
+
 ## 2.13.5
 - [spring-xsuaa] improved logging for JwtAudienceValidator
 - [java-security] enables token validation without zones

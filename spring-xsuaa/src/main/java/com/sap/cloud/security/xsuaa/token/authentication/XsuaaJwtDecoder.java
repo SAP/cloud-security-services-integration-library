@@ -197,7 +197,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(rsaPublicKey).build();
 			decoder.setJwtValidator(tokenValidators);
 			return decoder.decode(token);
-		} catch (NoSuchAlgorithmException | IllegalArgumentException | InvalidKeySpecException e) {
+		} catch (NoSuchAlgorithmException | IllegalArgumentException | InvalidKeySpecException | BadJwtException e) {
 			logger.debug("Jwt signature validation with fallback verificationkey failed: {}", e.getMessage());
 			throw new BadJwtException("Jwt validation with fallback verificationkey failed");
 		}
