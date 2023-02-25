@@ -1,6 +1,6 @@
 **Rating**: **GOOD**
 
-**Score**: **6.42**, max score value is 10.0
+**Score**: **6.52**, max score value is 10.0
 
 **Confidence**: Max (10.0, max confidence value is 10.0)
 
@@ -75,7 +75,7 @@ It used the following sub-scores:
     
 1.  **[Community commitment](#community-commitment)**: **8.0** (weight is 0.5)
     
-1.  **[Project activity](#project-activity)**: **6.14** (weight is 0.5)
+1.  **[Project activity](#project-activity)**: **7.11** (weight is 0.5)
     
 1.  **[Project popularity](#project-popularity)**: **0.25** (weight is 0.5)
     
@@ -283,19 +283,19 @@ This sub-score is based on 3 features:
 
 ### Project activity
 
-Score: **6.14**, confidence is 10.0 (max), weight is 0.5 (medium)
+Score: **7.11**, confidence is 10.0 (max), weight is 0.5 (medium)
 
 The score evaluates how active a project is. It's based on number of commits and contributors in the last 3 months.
 
-38 commits in the last 3 months results to 5.85 points
-2 contributors increase the score value from 5.85 to 6.14
+42 commits in the last 3 months results to 6.46 points
+3 contributors increase the score value from 6.46 to 7.11
 
 This sub-score is based on 2 features:
 
 
 
-1.  **Number of commits in the last three months:** 38
-1.  **Number of contributors in the last three months:** 2
+1.  **Number of commits in the last three months:** 42
+1.  **Number of contributors in the last three months:** 3
 
 
 ### Project popularity
@@ -312,7 +312,7 @@ This sub-score is based on 3 features:
 
 1.  **Number of projects on GitHub that use an open source project:** 129
 1.  **Number of stars for a GitHub repository:** 123
-1.  **Number of watchers for a GitHub repository:** 12
+1.  **Number of watchers for a GitHub repository:** 13
 
 
 ### Security reviews
