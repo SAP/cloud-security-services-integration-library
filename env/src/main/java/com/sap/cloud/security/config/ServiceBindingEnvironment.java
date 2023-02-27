@@ -30,7 +30,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
 public class ServiceBindingEnvironment implements Environment {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBindingEnvironment.class);
     private final ServiceBindingAccessor serviceBindingAccessor;
-    private UnaryOperator<String> environmentVariableReader = System::getenv;;
+    private UnaryOperator<String> environmentVariableReader = System::getenv;
     private Map<Service, Map<ServicePlan, OAuth2ServiceConfiguration>> serviceConfigurations;
 
     public ServiceBindingEnvironment() {
@@ -68,7 +68,11 @@ public class ServiceBindingEnvironment implements Environment {
     @Nullable
     @Override
     public OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange() {
-        return getServiceConfigurations().get(XSUAA).getOrDefault(ServicePlan.BROKER, getXsuaaConfiguration());
+        if(getNumberOfXsuaaConfigurations() > 1) {
+            return getServiceConfigurations().get(XSUAA).get(ServicePlan.BROKER);
+        }
+
+        return getXsuaaConfiguration();
     }
 
     @Nullable
