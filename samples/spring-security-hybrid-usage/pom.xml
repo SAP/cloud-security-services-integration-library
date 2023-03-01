@@ -27,7 +27,7 @@
     	<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
+		<java.version>17</java.version>
 		<sap.cloud.security.version>2.13.5</sap.cloud.security.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 	</properties>
@@ -89,6 +89,14 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.3.2</version>
+				<configuration>
+					<warName>spring-security-hybrid-usage</warName>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->

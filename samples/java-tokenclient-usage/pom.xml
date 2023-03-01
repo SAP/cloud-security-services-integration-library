@@ -10,8 +10,8 @@
     <packaging>war</packaging>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <sap.cloud.security.version>2.13.5</sap.cloud.security.version>
         <apache.httpclient.version>4.5.14</apache.httpclient.version>
         <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
@@ -54,7 +54,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.3</version>
+                <version>3.3.2</version>
                 <configuration>
                     <warName>java-tokenclient-usage</warName>
                 </configuration>
