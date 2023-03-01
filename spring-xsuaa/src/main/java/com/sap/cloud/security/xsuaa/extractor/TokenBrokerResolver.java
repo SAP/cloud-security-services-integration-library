@@ -7,12 +7,12 @@ package com.sap.cloud.security.xsuaa.extractor;
 
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import com.sap.cloud.security.xsuaa.util.UriUtil;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,13 +49,12 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 	private static final String AUTH_BASIC_CREDENTIAL = HttpServletRequest.BASIC_AUTH;
 	private static final String AUTH_HEADER = "Authorization";
-	private static final String OAUTH_TOKEN_PATH = "/oauth/token";
 	private static final String AUTH_BEARER = "bearer";
 
 	private final XsuaaServiceConfiguration configuration;
 
 	private final Cache tokenCache;
-	private OAuth2TokenService oAuth2TokenService;
+	private final OAuth2TokenService oAuth2TokenService;
 	private AuthenticationInformationExtractor authenticationConfig;
 	private IasXsuaaExchangeBroker iasXsuaaExchangeBroker;
 
@@ -120,32 +119,19 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	}
 
 	private String getOAuthTokenUrl(HttpServletRequest request) {
-//		String uaaUrl = configuration.getCredentialType() == CredentialType.X509
-//				? String.valueOf(configuration.getCertUrl())
-//				: configuration.getUaaUrl();
-//		String uaaDomain = configuration.getUaaDomain();
-//
-//		Optional<String> subdomainResult = authenticationConfig.getSubdomain(request);
-//
-//		String oauthTokenUrl;
-//		if (subdomainResult.isPresent()) {
-//			oauthTokenUrl = TokenUrlUtils.getMultiTenancyUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain,
-//					subdomainResult.get());
-//		} else {
-//			oauthTokenUrl = TokenUrlUtils.getOauthTokenUrl(OAUTH_TOKEN_PATH, uaaUrl, uaaDomain);
-//		}
-//
-//		String tenantUaaDomain = tenantSubDomain + "." + uaaDomain;
-//
-//		URI uri = URI.create(uaaUrl);
-//
-//		String protocol = uri.getScheme();
-//
-//		String tenantTokenUrl = String.format("%s://%s", protocol, tenantUaaDomain + endpoint);
-//
-//		return oauthTokenUrl;
+		URI uaaUri = URI.create(configuration.getUaaUrl());
+		URI certUri = configuration.getCertUrl();
 
-		return "";
+		Optional<String> subdomainResult = authenticationConfig.getSubdomain(request);
+		if (subdomainResult.isPresent()) {
+			uaaUri = UriUtil.replaceSubdomain(uaaUri, subdomainResult.get());
+			if(certUri != null) {
+				certUri = UriUtil.replaceSubdomain(certUri, subdomainResult.get());
+			}
+		}
+
+		XsuaaDefaultEndpoints tokenEndpoints = new XsuaaDefaultEndpoints(uaaUri.toString(), certUri != null ? certUri.toString() : null);
+		return tokenEndpoints.getTokenEndpoint().toString();
 	}
 
 	private String getBrokerToken(AuthenticationMethod credentialType, String authHeaderValue,
