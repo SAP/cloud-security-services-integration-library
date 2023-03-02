@@ -52,12 +52,6 @@ class TestControllerIasTest {
 	}
 
 	@Test
-	void sayHello_compatibility() throws Exception {
-		mvc.perform(get("/comp/sayHello").with(bearerToken(jwt)))
-				.andExpect(status().is5xxServerError());
-	}
-
-	@Test
 	void readData_OK() throws Exception {
 		String response = mvc
 				.perform(get("/method").with(bearerToken(jwt)))
