@@ -23,6 +23,11 @@ jobs:
         language: [ java ]
 
     steps:
+      - name: Set Java Version 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+          
       - name: Checkout
         uses: actions/checkout@v3
 
