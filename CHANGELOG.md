@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.13.7
+- [token-client] Fixes regression introduced with logback dependency not having scope test
+
+#### Dependency upgrades
+- Bump org.json from to 20230227
+
 ## 2.13.6
 - [env] `CFEnvironment` has migrated to use btp-environment-variable-access library for accessing configuration from VCAP_SERVICES
 - [java-security] `XsUserInfoAdapter.getSystemAttribute()` supports in token `xs.system.attributes` values in string format along with string array
