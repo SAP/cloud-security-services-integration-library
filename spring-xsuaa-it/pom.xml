@@ -141,29 +141,29 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<plugin>
-				<groupId>net.revelc.code</groupId>
-				<artifactId>impsort-maven-plugin</artifactId>
-				<version>1.6.2</version>
-				<configuration>
-					<groups>java.,javax.,org.,com.</groups>
-					<staticGroups>java,*</staticGroups>
-					<staticAfter>false</staticAfter>
-					<removeUnused>true</removeUnused>
-					<excludes>
-						<exclude>**/test/resources/**</exclude>
-					</excludes>
-				</configuration>
-				<executions>
-					<execution>
-						<id>sort-imports</id>
-						<goals>
-							<goal>sort</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+<!--TODO find the root cause of error from impsort and uncomment these lines-->
+<!--			<plugin>-->
+<!--				<groupId>net.revelc.code</groupId>-->
+<!--				<artifactId>impsort-maven-plugin</artifactId>-->
+<!--				<version>1.7.0</version>-->
+<!--				<configuration>-->
+<!--					<groups>java.,javax.,org.,com.</groups>-->
+<!--					<staticGroups>java,*</staticGroups>-->
+<!--					<staticAfter>false</staticAfter>-->
+<!--					<removeUnused>true</removeUnused>-->
+<!--					<excludes>-->
+<!--						<exclude>**/test/resources/**</exclude>-->
+<!--					</excludes>-->
+<!--				</configuration>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<id>sort-imports</id>-->
+<!--						<goals>-->
+<!--							<goal>sort</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
