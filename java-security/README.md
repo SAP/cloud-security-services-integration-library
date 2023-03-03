@@ -30,8 +30,8 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
 
 ## Supported Identity Services
 - XSUAA
-- as of version `2.8.0` IAS
-- as of version `2.9.0` IAS tokens from multiple tenants and zones
+- starting with version `2.8.0` IAS
+- starting with version `2.9.0` IAS tokens from multiple tenants and zones
 
 ## Supported Algorithms
 
@@ -309,7 +309,7 @@ Or, alternatively in `src/main/webapp/WEB-INF/web.xml`:
 
 
 #### java.util.ServiceConfigurationError: com.sap.cloud.security.token.TokenFactory: Provider com.sap.cloud.security.servlet.HybridTokenFactory not a subtype
-As of version [`2.8.3`](https://github.com/SAP/cloud-security-xsuaa-integration/releases/tag/2.8.3) the version of `java-api` needs to match the version of `java-security` client library. In case you use the **SAP Java Buildpack** `java-security` is provided. To keep them in synch its recommended to use [SAP Java Buildpack BoM](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html) of the respective SAP Java Buildpack version and as done in the [sap-java-buildpack-api-usage sample](/samples/sap-java-buildpack-api-usage/pom.xml).
+Starting with version [`2.8.3`](https://github.com/SAP/cloud-security-xsuaa-integration/releases/tag/2.8.3) the version of `java-api` needs to match the version of `java-security` client library. In case you use the **SAP Java Buildpack** `java-security` is provided. To keep them in synch its recommended to use [SAP Java Buildpack BoM](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html) of the respective SAP Java Buildpack version and as done in the [sap-java-buildpack-api-usage sample](/samples/sap-java-buildpack-api-usage/pom.xml).
 
 ## Specs und References
 1. [JSON Web Token](https://tools.ietf.org/html/rfc7519)
