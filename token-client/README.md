@@ -6,7 +6,7 @@ This library serves as slim client for some XSUAA `/oauth/token` token endpoints
 Furthermore it introduces a new API to support the following token flows:
 
 * **User Token Flow**.  
-The idea behind a User Token exchange is to separate service-specific access scopes into separate tokens. For example, if Service A has scopes specific to its functionality and Service B has other scopes, the intention is that there is no single Jwt token that contains all of these scopes. As of version `2.5.1` the `grant_type`=`urn:ietf:params:oauth:grant-type:jwt-bearer` is used ([RFC 7523](https://tools.ietf.org/html/rfc7523)).
+The idea behind a User Token exchange is to separate service-specific access scopes into separate tokens. For example, if Service A has scopes specific to its functionality and Service B has other scopes, the intention is that there is no single Jwt token that contains all of these scopes. Starting with version `2.5.1` the `grant_type`=`urn:ietf:params:oauth:grant-type:jwt-bearer` is used ([RFC 7523](https://tools.ietf.org/html/rfc7523)).
 * **Client Credentials Flow**.  
 The Client Credentials ([RFC 6749, section 4.4](https://tools.ietf.org/html/rfc6749#section-4.4)) is used by clients to obtain an access token outside of the context of a user. It is used for non interactive applications (a CLI, a batch job, or for service-2-service communication) where the token is issued to the application itself, instead of an end user for accessing resources without principal propagation. 
 * **Refresh Token Flow**.  
@@ -40,7 +40,7 @@ The `DefaultOAuth2TokenService` need to be instantiated with a `CloseableHttpCli
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new DefaultOAuth2TokenService(<CloseableHttpClient>), 
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.10
+                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated starting with 2.10
                     <OAuth2ServiceConfiguration>.getClientIdentity()));
 ```
 - `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. Find further information on how to set it up [here](#OAuth2ServiceConfiguration).
@@ -99,7 +99,7 @@ With Spring-Web available `XsuaaTokenFlows` can be instantiated with a `RestTemp
 ```java
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
                     new XsuaaOAuth2TokenService(<RestOperations>),
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.10
+                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated starting with 2.10
                     <OAuth2ServiceConfiguration>.getClientIdentity());
 ```
 - `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`. Find further information on how to set it up [here](#OAuth2ServiceConfiguration).
@@ -144,7 +144,7 @@ Then, xsuaa integration libraries auto-configures beans, that are required to in
 
 Auto-configuration class | Description
 ---- | --------
-[XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java) | Adds `xsuaa.*` properties to Spring's Environment. The properties are by default parsed from `VCAP_SERVICES` system environment variables and can be overwritten by properties such as `xsuaa.url` e.g. for testing purposes. Furthermore it exposes a `XsuaaServiceConfiguration` bean that can be used to access xsuaa service information.  Alternatively you can access them with `@Value` annotation e.g. `@Value("${xsuaa.url:}") String xsuaaBaseUrl`. As of version `1.7.0` it creates a default [`RestTemplate`](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/client/RestOperations.html) bean that serves as Rest client that is used inside a default `OAuth2TokenService` to perform HTTP requests to the XSUAA server. **It is recommended to overwrite this default and configuring it with the HTTP client of your choice.**
+[XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java) | Adds `xsuaa.*` properties to Spring's Environment. The properties are by default parsed from `VCAP_SERVICES` system environment variables and can be overwritten by properties such as `xsuaa.url` e.g. for testing purposes. Furthermore it exposes a `XsuaaServiceConfiguration` bean that can be used to access xsuaa service information.  Alternatively you can access them with `@Value` annotation e.g. `@Value("${xsuaa.url:}") String xsuaaBaseUrl`. Starting with version `1.7.0` it creates a default [`RestTemplate`](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/client/RestOperations.html) bean that serves as Rest client that is used inside a default `OAuth2TokenService` to perform HTTP requests to the XSUAA server. **It is recommended to overwrite this default and configuring it with the HTTP client of your choice.**
 [XsuaaTokenFlowAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean for a given `RestOperations` and `XsuaaServiceConfiguration` bean to fetch the XSUAA service binding information. 
 
 You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
@@ -285,7 +285,7 @@ For spring applications using rest template, you can set
 ### Common Pitfalls
 
 #### New warning `In productive environment provide well configured HttpClientFactory service` 
-As of version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service` is exposed to the application log in case there is no user provided `HttpClientFactory` implementation that serves a well-configured ``CloseableRestClient``.
+Starting with version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service` is exposed to the application log in case there is no user provided `HttpClientFactory` implementation that serves a well-configured ``CloseableRestClient``.
 
 > Instead of using the default Apache Rest Client config for productive and high available applications we recommend you to customize your http client carefully. You may need to configure the timeouts to specify how long to wait until a connection is established and how long a socket should be kept open (i.e. how long to wait for the (next) data package). As the SSL handshake is time-consuming, it might be recommended to configure an HTTP connection pool to reuse connections by keeping the sockets open. See also [Baeldung: HttpClient Connection Management"](https://www.baeldung.com/httpclient-connection-management).<br>
 

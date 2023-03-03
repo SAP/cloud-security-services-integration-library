@@ -31,7 +31,7 @@ The SAP Java Buildpack integrates token validation into the tomcat server. Appli
 See [sap-java-builpack-api-usage](samples/sap-java-buildpack-api-usage) for an example.
 
 ### Changes with SAP Java Buildpack 1.26.0
-The former SAP Java Buildpack versions have used deprecated (Spring) Security libraries and had to be updated. As of version 1.26.0 SAP Java Buildpack uses the [`java-security`](/java-security) library. Please consider these (migration) guides:
+The former SAP Java Buildpack versions have used deprecated (Spring) Security libraries and had to be updated. Starting with version 1.26.0 SAP Java Buildpack uses the [`java-security`](/java-security) library. Please consider these (migration) guides:
 
 - [MANDATORY: clean-up deprecated dependencies](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/Migration_SAPJavaBuildpackProjects.md)
 - [OPTIONAL: Leverage new APIs and features](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/Migration_SAPJavaBuildpackProjects_V2.md)
@@ -67,7 +67,7 @@ Spring Boot provides OAuth resource servers. Application developers requiring au
 ### Requirements
 - Java 8 or 11
 - maven 3.3.9 or later
-- as of version 2.6.1 Spring Boot >= 2.2 is required. Consequently, it also requires Spring Security version >= 5.2
+- starting with version 2.6.1 Spring Boot >= 2.2 is required. Consequently, it also requires Spring Security version >= 5.2
 
 ### Sample
 - See [spring-security-hybrid-usage](samples/spring-security-hybrid-usage) for an example.

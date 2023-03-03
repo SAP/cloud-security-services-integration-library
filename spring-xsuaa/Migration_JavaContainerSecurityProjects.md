@@ -117,8 +117,8 @@ In case of multiple bindings you need to adapt your **Spring Security Configurat
     ```java
     @PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = {""})
     ```
-2. Instead, provide your own implementation of `XsuaaSecurityConfiguration` interface to access the **primary Xsuaa service configuration** of your application (chose the service instance of plan `application` here), which are exposed in the `VCAP_SERVICES` system environment variable (in Cloud Foundry). 
-with version `2.6.2` you can implement it like that: 
+2. Instead, provide your own implementation of `XsuaaSecurityConfiguration` interface to access the **primary Xsuaa service configuration** of your application (chose the service instance of plan `application` here), which are exposed in the `VCAP_SERVICES` system environment variable (in Cloud Foundry). 
+Starting with version `2.6.2` you can implement it like that: 
 
     ```java
     import com.sap.cloud.security.xsuaa.XsuaaCredentials;

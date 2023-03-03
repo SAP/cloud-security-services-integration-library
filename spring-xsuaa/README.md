@@ -2,7 +2,7 @@
 
 ## Integrate in a OAuth resource server
 
-This library enhances the [spring-security](https://github.com/spring-projects/spring-security/) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. A Spring boot application needs a security configuration class that enables the resource server and configures authentication using JWT tokens.
+This library enhances the [spring-security](https://github.com/spring-projects/spring-security/) project. Starting with version 5 of spring-security, this includes the OAuth resource-server functionality. A Spring boot application needs a security configuration class that enables the resource server and configures authentication using JWT tokens.
 
 ## Configuration
 
@@ -258,7 +258,7 @@ Finally you need do re-deploy your application for the changes to take effect.
   java.lang.IllegalStateException: Failed to load ApplicationContext
      Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'springSecurityFilterChain' defined in class path resource [org/springframework/security/config/annotation/web/configuration/WebSecurityConfiguration.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [javax.servlet.Filter]: Factory method 'springSecurityFilterChain' threw exception; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.oauth2.jwt.JwtDecoder' available
    ```  
-   As of version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage auto-configuration.
+   Starting with version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage auto-configuration.
    Make use of the Xsuaa Spring Boot Starter dependency as explained [here](README.md#maven-dependencies).     
 
 #### NoUniqueBeanDefinitionException, APPLICATION FAILED TO START

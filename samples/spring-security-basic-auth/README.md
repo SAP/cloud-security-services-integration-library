@@ -8,7 +8,7 @@ In order to get the basic auth login popup, the response header `WWW-Authenticat
 This is done by means of the class `BasicAuthenticationEntryPoint` in the Security Configuration.
 
 # Coding
-This sample is using the spring-security project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. It enables caching using [`Caffeine`](https://github.com/ben-manes/caffeine) to avoid requesting new tokens from XSUAA for every incoming request.
+This sample is using the spring-security project. Starting with version 5 of spring-security, this includes the OAuth resource-server functionality. It enables caching using [`Caffeine`](https://github.com/ben-manes/caffeine) to avoid requesting new tokens from XSUAA for every incoming request.
 
 Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes) or [Cloud Foundry](#Deployment-on-Cloud-Foundry).
 

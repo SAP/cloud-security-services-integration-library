@@ -3,7 +3,7 @@ This sample uses the SAP application router as OAuth client and forwards as reve
 In a typical UI5 application, the application router serves HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
 
 # Coding
-This sample is using the [`spring-xsuaa`](/spring-xsuaa/) library which bases on [spring-security](https://github.com/spring-projects/spring-security) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure JWT for authentication.
+This sample is using the [`spring-xsuaa`](/spring-xsuaa/) library which bases on [spring-security](https://github.com/spring-projects/spring-security) project. Starting with version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure JWT for authentication.
 
 Furthermore, it demonstrates how to leverage the token flows provided by the [Token Client](/token-client/) library to request / exchange access tokens.
 
