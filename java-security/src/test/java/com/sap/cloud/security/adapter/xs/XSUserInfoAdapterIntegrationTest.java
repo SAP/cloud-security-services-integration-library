@@ -6,34 +6,30 @@
 package com.sap.cloud.security.adapter.xs;
 
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
-import com.sap.cloud.security.config.*;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.ServiceBindingEnvironment;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
 import com.sap.cloud.security.token.XsuaaToken;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.xsa.security.container.XSTokenRequest;
 import com.sap.xsa.security.container.XSUserInfo;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.*;
-import org.junit.rules.ExpectedException;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.TRUSTED_CLIENT_ID_SUFFIX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * This integration test has been ported from the original implementation of
@@ -319,17 +315,5 @@ public class XSUserInfoAdapterIntegrationTest {
 
 	private String readData(String path) throws IOException {
 		return IOUtils.resourceToString("/userInfoIntegration" + path, StandardCharsets.UTF_8);
-	}
-
-	@Rule
-	public ExpectedException userInfoException = ExpectedException.none();
-
-	private XSTokenRequest createXSTokenRequest() {
-		XSTokenRequest request = mock(XSTokenRequest.class);
-		when(request.getTokenEndpoint()).thenReturn(URI.create("http://localhost:8080"));
-		when(request.getClientId()).thenReturn("test");
-		when(request.getClientSecret()).thenReturn("secret");
-		when(request.isValid()).thenReturn(true);
-		return request;
 	}
 }
