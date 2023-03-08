@@ -30,17 +30,13 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<mockwebserver.version>4.9.3</mockwebserver.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>spring-xsuaa</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sap.cloud.security.xsuaa</groupId>
-			<artifactId>spring-xsuaa-mock</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -82,6 +78,25 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-jwt</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>mockwebserver</artifactId>
+			<version>${mockwebserver.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk15on</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+		</dependency>
 
 		<!-- test utilities -->
 		<dependency>
@@ -94,7 +109,7 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>
@@ -106,6 +121,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
+					<reuseForks>false</reuseForks>
+					<forkCount>1</forkCount>
 					<environmentVariables>
 						<IAS_XSUAA_XCHANGE_ENABLED>true</IAS_XSUAA_XCHANGE_ENABLED>
 					</environmentVariables>

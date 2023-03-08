@@ -1,9 +1,4 @@
-/**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-package com.sap.cloud.security.xsuaa.mock;
+package com.sap.cloud.security.xsuaa;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +10,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import com.sap.cloud.security.xsuaa.mock.JWTUtil;
+
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -23,21 +20,57 @@ public class XsuaaRequestDispatcher extends Dispatcher {
 	protected static final String RESPONSE_404 = "Xsuaa mock authorization server does not support this request";
 	protected static final String RESPONSE_401 = "Xsuaa mock authorization server can't authenticate client/user";
 	protected static final String RESPONSE_500 = "Xsuaa mock authorization server can't process request";
-	protected static final String PATH_TOKEN_KEYS_TEMPLATE = "/mock/token_keys_template.json";
-	protected static final String PATH_PUBLIC_KEY = "/mock/publicKey.txt";
+	protected static final String PATH_TESTDOMAIN_TOKEN_KEYS = "/mockServer/testdomain_token_keys.json";
+	public static final String PATH_OTHER_DOMAIN_TOKEN_KEYS = "/mockServer/otherdomain_token_keys.json";
+	protected static final String PATH_PUBLIC_KEY = "/mockServer/publicKey.txt";
 	protected final Logger logger = LoggerFactory.getLogger(XsuaaRequestDispatcher.class);
 	private static int callCount = 0;
 
 	@Override
 	public MockResponse dispatch(RecordedRequest request) {
-		callCount++;
+		// mock JWKS endpoints
 		if ("/testdomain/token_keys".equals(request.getPath())) {
 			String subdomain = "testdomain";
-			return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, "legacy-token-key-" + subdomain);
+			return getTokenKeyForKeyId(PATH_TESTDOMAIN_TOKEN_KEYS, "legacy-token-key-" + subdomain);
 		}
+
+		if ("/otherdomain/token_keys".equals(request.getPath())) {
+			return getResponseFromFile(PATH_OTHER_DOMAIN_TOKEN_KEYS, HttpStatus.OK);
+		}
+
 		if (request.getPath().endsWith("/token_keys")) {
-			return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, "legacy-token-key");
+			return getTokenKeyForKeyId(PATH_TESTDOMAIN_TOKEN_KEYS, "legacy-token-key");
 		}
+
+		// mock access token endpoints
+		if (request.getPath().equals("/oauth/token") && "POST".equals(request.getMethod())) {
+			String body = request.getBody().readString(StandardCharsets.UTF_8);
+			if (body.contains("grant_type=password") && body.contains("username=basic.user")
+					&& body.contains("password=basic.password")) {
+				try {
+					return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+							.setResponseCode(HttpStatus.OK.value())
+							.setBody(String.format("{\"expires_in\": 43199, \"access_token\": \"%s\"}",
+									JWTUtil.createJWT("/password.txt", "testdomain")));
+				} catch (Exception e) {
+					e.printStackTrace();
+					getResponse(RESPONSE_500, HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+			}
+			if (body.contains("grant_type=client_credentials")) {
+				try {
+					return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+							.setResponseCode(HttpStatus.OK.value()).setBody(String.format(
+									"{\"expires_in\": 43199, \"access_token\": \"%s\"}",
+									JWTUtil.createJWT("/cc.txt", "testdomain")));
+				} catch (Exception e) {
+					e.printStackTrace();
+					getResponse(RESPONSE_500, HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+			}
+			getResponse(RESPONSE_401, HttpStatus.UNAUTHORIZED);
+		}
+
 		return getResponse(RESPONSE_404, HttpStatus.NOT_FOUND);
 	}
 

@@ -5,33 +5,49 @@
  */
 package testservice.api;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.IOException;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.sap.cloud.security.xsuaa.MockXSUAAServerConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
+import okhttp3.mockwebserver.MockWebServer;
 import testservice.api.nohttp.MyEventHandler;
 import testservice.api.nohttp.SecurityConfiguration;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
 		XsuaaAutoConfiguration.class,
 		XsuaaResourceServerJwkAutoConfiguration.class })
+@Import(MockXSUAAServerConfiguration.class)
 @ActiveProfiles({ "test.api.nohttp", "uaamock" })
 public class XsuaaJwtDecoderTest {
+
+	@BeforeAll
+	public static void startMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
+		xsuaaServer.start(33195);
+	}
+
+	@AfterAll
+	public static void shutdownMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
+		xsuaaServer.shutdown();
+	}
 
 	boolean postActionExecuted;
 	JwtDecoder jwtDecoderWithPostAction;
@@ -48,7 +64,7 @@ public class XsuaaJwtDecoderTest {
 	@Autowired
 	MyEventHandler eventHandler;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		postActionExecuted = false;
 		jwtDecoderWithPostAction = new XsuaaJwtDecoderBuilder(serviceConfiguration)
@@ -61,7 +77,7 @@ public class XsuaaJwtDecoderTest {
 				.setJwtHeaderKeyId("legacy-token-key").getToken().getTokenValue();
 
 		jwtDecoderWithPostAction.decode(jwt);
-		Assert.assertTrue(postActionExecuted);
+		assertTrue(postActionExecuted);
 	}
 
 	@Test
@@ -70,9 +86,9 @@ public class XsuaaJwtDecoderTest {
 				.setJwtHeaderKeyId("legacy-token-key").setJku(null).getToken().getTokenValue();
 		try {
 			jwtDecoderWithPostAction.decode(jwt);
-			Assert.fail();
+			fail();
 		} catch (JwtException e) {
-			Assert.assertFalse(postActionExecuted);
+			assertFalse(postActionExecuted);
 		}
 	}
 }

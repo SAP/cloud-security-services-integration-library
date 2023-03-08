@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.token.authentication;
@@ -10,33 +10,55 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.io.IOException;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import com.sap.cloud.security.xsuaa.MockXSUAAServerConfiguration;
 import com.sap.cloud.security.xsuaa.mock.JWTUtil;
 
+import okhttp3.mockwebserver.MockWebServer;
 import testservice.api.XsuaaITApplication;
 import testservice.api.v1.TestController;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(properties = {
-		"xsuaa.xsappname=java-hello-world",
-		"xsuaa.clientid=sb-java-hello-world" }, classes = { XsuaaITApplication.class,
-				testservice.api.v1.SecurityConfiguration.class, TestController.class })
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(properties = { "xsuaa.xsappname=java-hello-world", "xsuaa.clientid=sb-java-hello-world",
+		"spring.main.allow-bean-definition-overriding=true" })
+@ContextConfiguration(classes = { XsuaaITApplication.class, testservice.api.v1.SecurityConfiguration.class,
+		TestController.class, XsuaaTokenValidationTest.class })
+@Import(MockXSUAAServerConfiguration.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test.api.v1")
 public class XsuaaTokenValidationTest {
-
 	@Autowired
 	MockMvc mvc;
+
+	@BeforeAll
+	public static void startMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
+		xsuaaServer.start(33195);
+	}
+
+	@AfterAll
+	public static void shutdownMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
+		xsuaaServer.shutdown();
+	}
+
+	private static BearerTokenRequestPostProcessor bearerToken(String token) {
+		return new BearerTokenRequestPostProcessor(token);
+	}
 
 	@Test
 	public void testToken_testdomain() throws Exception {
@@ -85,7 +107,7 @@ public class XsuaaTokenValidationTest {
 	}
 
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
-		private String token;
+		private final String token;
 
 		public BearerTokenRequestPostProcessor(String token) {
 			this.token = token;
@@ -96,9 +118,5 @@ public class XsuaaTokenValidationTest {
 			request.addHeader("Authorization", "Bearer " + this.token);
 			return request;
 		}
-	}
-
-	private static BearerTokenRequestPostProcessor bearerToken(String token) {
-		return new BearerTokenRequestPostProcessor(token);
 	}
 }

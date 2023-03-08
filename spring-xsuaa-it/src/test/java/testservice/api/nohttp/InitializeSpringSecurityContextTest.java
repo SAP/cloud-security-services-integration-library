@@ -1,30 +1,30 @@
 /**
  * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package testservice.api.nohttp;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,20 +33,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.sap.cloud.security.xsuaa.MockXSUAAServerConfiguration;
+import com.sap.cloud.security.xsuaa.XsuaaRequestDispatcher;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
 import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
-import com.sap.cloud.security.xsuaa.mock.XsuaaRequestDispatcher;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 import com.sap.cloud.security.xsuaa.token.Token;
 
-@RunWith(SpringRunner.class)
+import okhttp3.mockwebserver.MockWebServer;
+
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
 		XsuaaAutoConfiguration.class,
 		XsuaaResourceServerJwkAutoConfiguration.class })
+@Import(MockXSUAAServerConfiguration.class)
 @ActiveProfiles({ "test.api.nohttp", "uaamock" })
 public class InitializeSpringSecurityContextTest {
 	@Value("${xsuaa.clientid}")
@@ -60,6 +64,16 @@ public class InitializeSpringSecurityContextTest {
 
 	@Autowired
 	MyEventHandler eventHandler;
+
+	@BeforeAll
+	public static void startMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
+		xsuaaServer.start(33195);
+	}
+
+	@AfterAll
+	public static void shutdownMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
+		xsuaaServer.shutdown();
+	}
 
 	@Test
 	public void initializeSecurityContext_succeeds() {
@@ -78,9 +92,9 @@ public class InitializeSpringSecurityContextTest {
 
 		// test authorities
 		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
-		Assert.assertThat(authorities.size(), is(1));
-		Assert.assertThat(authorities, hasItem(new SimpleGrantedAuthority("Display")));
-		Assert.assertThat(authorities, not(hasItem(new SimpleGrantedAuthority("Other"))));
+		assertThat(authorities.size(), is(1));
+		assertThat(authorities, hasItem(new SimpleGrantedAuthority("Display")));
+		assertThat(authorities, not(hasItem(new SimpleGrantedAuthority("Other"))));
 
 		// test principal (Token)
 		Token token = (Token) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -95,7 +109,7 @@ public class InitializeSpringSecurityContextTest {
 		SpringSecurityContext.init(jwt, jwtDecoder, new LocalAuthoritiesExtractor(appId));
 		SpringSecurityContext.clear();
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication(), is(nullValue()));
+		assertNull(SecurityContextHolder.getContext().getAuthentication());
 	}
 
 	@Test
@@ -107,10 +121,10 @@ public class InitializeSpringSecurityContextTest {
 		int callCountAfterFirstCall = XsuaaRequestDispatcher.getCallCount();
 
 		jwtDecoder.decode(jwt);
-		Assert.assertEquals(callCountAfterFirstCall, XsuaaRequestDispatcher.getCallCount());
+		assertEquals(callCountAfterFirstCall, XsuaaRequestDispatcher.getCallCount());
 	}
 
-	@Test(expected = JwtValidationException.class)
+	@Test
 	// An error occurred while attempting to decode the Jwt: Jwt expired at ...
 	public void decodeExpiredToken_raisesValidationException() {
 		Map customClaims = new HashMap<String, Object>();
@@ -120,7 +134,7 @@ public class InitializeSpringSecurityContextTest {
 		String jwt = new JwtGenerator(clientId, "subdomain").addCustomClaims(customClaims).deriveAudiences(true)
 				.getToken().getTokenValue();
 
-		jwtDecoder.decode(jwt);
+		assertThrows(JwtValidationException.class, () -> jwtDecoder.decode(jwt));
 	}
 
 	@Test
@@ -134,30 +148,34 @@ public class InitializeSpringSecurityContextTest {
 		Mockito.verify(eventHandler, Mockito.times(1)).handleEvent();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void callEventWithInsufficientAuthorization_raisesAccessDeniedException() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
 				.deriveAudiences(true).getToken().getTokenValue();
 
-		eventHandler.onEvent(jwt);
+		assertThrows(AccessDeniedException.class, () -> {
+			eventHandler.onEvent(jwt);
+		});
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void callEventWithInsufficientAuthorization_raisesAccessDeniedException_2() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
 				.deriveAudiences(true).getToken().getTokenValue();
 
-		eventHandler.onEvent(jwt);
+		assertThrows(AccessDeniedException.class, () -> {
+			eventHandler.onEvent(jwt);
+		});
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void callEventWithNoJwtToken_raisesAccessDeniedException() {
-		eventHandler.onEvent(null);
+		assertThrows(AccessDeniedException.class, () -> eventHandler.onEvent(null));
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void callEventWithNoJwtToken_raisesAccessDeniedException_2() {
-		eventHandler.onEvent(null);
+		assertThrows(AccessDeniedException.class, () -> eventHandler.onEvent(null));
 	}
 
 }
