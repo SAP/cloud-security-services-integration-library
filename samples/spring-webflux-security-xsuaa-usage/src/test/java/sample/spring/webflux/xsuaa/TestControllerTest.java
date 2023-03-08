@@ -5,33 +5,57 @@
  */
 package sample.spring.webflux.xsuaa;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Assert;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.startsWith;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
-@RunWith(SpringRunner.class)
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.hamcrest.CoreMatchers.containsString;
+
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureWebTestClient(timeout = "2500000")
 public class TestControllerTest {
 
+	private static WireMockServer server;
 	@Autowired
 	private WebTestClient webClient;
 
 	@Autowired
 	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
+
+	@BeforeEach
+	public void startWireMockServer() throws IOException {
+		if(server == null) {
+			server = new WireMockServer(33195);
+			server.start();
+
+			String jwksJson = IOUtils.resourceToString("/mockServer/jwks.json", StandardCharsets.UTF_8);
+			server.stubFor(get(urlEqualTo("/token_keys")).willReturn(aResponse().withBody(jwksJson)));
+		}
+	}
+
+	@AfterAll
+	public static void stopWireMockServer() {
+		server.stop();
+	}
 
 	@Test
 	public void unauthorizedRequest() {
