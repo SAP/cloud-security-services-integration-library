@@ -1,12 +1,11 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 package sample.spring.webflux.xsuaa;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import com.sap.cloud.security.xsuaa.token.ReactiveTokenAuthenticationConverter;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
@@ -31,29 +30,25 @@ public class SecurityConfiguration {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	@Autowired
+	XsuaaServiceConfiguration xsuaaServiceConfiguration;
+
 	@Bean
-	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, @Autowired
-	XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http.authorizeExchange()
 				.pathMatchers("/v1/sayHello").hasAuthority("Read")
 				.and().oauth2ResourceServer().jwt()
-				.jwtAuthenticationConverter(getJwtAuthenticationConverter(xsuaaServiceConfiguration))
+				.jwtAuthenticationConverter(getJwtAuthenticationConverter())
 				.jwtDecoder(new XsuaaJwtDecoderBuilder(xsuaaServiceConfiguration)
 						.withPostValidationActions(token -> logger.info("post validation action performed"))
 						.buildAsReactive());
 		return http.build();
 	}
 
-	@Bean
-	public XsuaaServiceConfiguration xsuaaServiceConfiguration() {
-		return new XsuaaServiceConfigurationDefault();
-	}
-
 	/**
 	 * Customizes how GrantedAuthority are derived from a Jwt
 	 */
-	Converter<Jwt, Mono<AbstractAuthenticationToken>> getJwtAuthenticationConverter(@Autowired
-																					XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+	Converter<Jwt, Mono<AbstractAuthenticationToken>> getJwtAuthenticationConverter() {
 		ReactiveTokenAuthenticationConverter converter = new ReactiveTokenAuthenticationConverter(xsuaaServiceConfiguration);
 		converter.setLocalScopeAsAuthorities(true);
 		return converter;

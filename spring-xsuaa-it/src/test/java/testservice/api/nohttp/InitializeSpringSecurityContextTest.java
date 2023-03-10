@@ -35,7 +35,7 @@ import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.sap.cloud.security.xsuaa.MockXSUAAServerConfiguration;
+import com.sap.cloud.security.xsuaa.MockXsuaaServerConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaRequestDispatcher;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
@@ -50,8 +50,8 @@ import okhttp3.mockwebserver.MockWebServer;
 @SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
 		XsuaaAutoConfiguration.class,
 		XsuaaResourceServerJwkAutoConfiguration.class })
-@Import(MockXSUAAServerConfiguration.class)
-@ActiveProfiles({ "test.api.nohttp", "uaamock" })
+@Import(MockXsuaaServerConfiguration.class)
+@ActiveProfiles({ "test.api.nohttp" })
 public class InitializeSpringSecurityContextTest {
 	@Value("${xsuaa.clientid}")
 	String clientId;
@@ -66,17 +66,17 @@ public class InitializeSpringSecurityContextTest {
 	MyEventHandler eventHandler;
 
 	@BeforeAll
-	public static void startMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
+	static void startMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
 		xsuaaServer.start(33195);
 	}
 
 	@AfterAll
-	public static void shutdownMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
+	static void shutdownMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
 		xsuaaServer.shutdown();
 	}
 
 	@Test
-	public void initializeSecurityContext_succeeds() {
+	void initializeSecurityContext_succeeds() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
 				.addScopes("openid", appId + ".Display", "otherXSAPP.Display")
 				.deriveAudiences(true).getToken().getTokenValue();
@@ -103,7 +103,7 @@ public class InitializeSpringSecurityContextTest {
 	}
 
 	@Test
-	public void clearSecurityContext_succeeds() {
+	void clearSecurityContext_succeeds() {
 		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true).getToken().getTokenValue();
 
 		SpringSecurityContext.init(jwt, jwtDecoder, new LocalAuthoritiesExtractor(appId));
@@ -113,7 +113,7 @@ public class InitializeSpringSecurityContextTest {
 	}
 
 	@Test
-	public void cacheHit() {
+	void cacheHit() {
 		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
 				.setJwtHeaderKeyId("legacy-token-key").getToken().getTokenValue();
 
@@ -126,7 +126,7 @@ public class InitializeSpringSecurityContextTest {
 
 	@Test
 	// An error occurred while attempting to decode the Jwt: Jwt expired at ...
-	public void decodeExpiredToken_raisesValidationException() {
+	void decodeExpiredToken_raisesValidationException() {
 		Map customClaims = new HashMap<String, Object>();
 		Instant justOutdated = new Date().toInstant().minusSeconds(3600);
 		customClaims.put("exp", Date.from(justOutdated)); // token should be expired
@@ -138,7 +138,7 @@ public class InitializeSpringSecurityContextTest {
 	}
 
 	@Test
-	public void callEventWithSufficientAuthorization_succeeds() {
+	void callEventWithSufficientAuthorization_succeeds() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
 				.addScopes("openid", appId + ".Display")
 				.deriveAudiences(true).getToken().getTokenValue();
@@ -149,7 +149,7 @@ public class InitializeSpringSecurityContextTest {
 	}
 
 	@Test
-	public void callEventWithInsufficientAuthorization_raisesAccessDeniedException() {
+	void callEventWithInsufficientAuthorization_raisesAccessDeniedException() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
 				.deriveAudiences(true).getToken().getTokenValue();
 
@@ -159,7 +159,7 @@ public class InitializeSpringSecurityContextTest {
 	}
 
 	@Test
-	public void callEventWithInsufficientAuthorization_raisesAccessDeniedException_2() {
+	void callEventWithInsufficientAuthorization_raisesAccessDeniedException_2() {
 		String jwt = new JwtGenerator(clientId, "subdomain")
 				.deriveAudiences(true).getToken().getTokenValue();
 
@@ -169,12 +169,12 @@ public class InitializeSpringSecurityContextTest {
 	}
 
 	@Test
-	public void callEventWithNoJwtToken_raisesAccessDeniedException() {
+	void callEventWithNoJwtToken_raisesAccessDeniedException() {
 		assertThrows(AccessDeniedException.class, () -> eventHandler.onEvent(null));
 	}
 
 	@Test
-	public void callEventWithNoJwtToken_raisesAccessDeniedException_2() {
+	void callEventWithNoJwtToken_raisesAccessDeniedException_2() {
 		assertThrows(AccessDeniedException.class, () -> eventHandler.onEvent(null));
 	}
 

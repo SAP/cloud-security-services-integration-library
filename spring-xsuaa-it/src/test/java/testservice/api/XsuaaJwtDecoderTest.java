@@ -20,7 +20,7 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.sap.cloud.security.xsuaa.MockXSUAAServerConfiguration;
+import com.sap.cloud.security.xsuaa.MockXsuaaServerConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
@@ -35,8 +35,8 @@ import testservice.api.nohttp.SecurityConfiguration;
 @SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
 		XsuaaAutoConfiguration.class,
 		XsuaaResourceServerJwkAutoConfiguration.class })
-@Import(MockXSUAAServerConfiguration.class)
-@ActiveProfiles({ "test.api.nohttp", "uaamock" })
+@Import(MockXsuaaServerConfiguration.class)
+@ActiveProfiles({ "test.api.nohttp" })
 public class XsuaaJwtDecoderTest {
 
 	@BeforeAll

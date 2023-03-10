@@ -47,7 +47,7 @@ public class TestController {
 	}
 
 	@GetMapping("/user")
-	public String message(@AuthenticationPrincipal Token token) {
+	String message(@AuthenticationPrincipal Token token) {
 		// attributes - old style
 		assertEquals(2, token.getXSUserAttribute("cost-center").length);
 		assertEquals("0815", token.getXSUserAttribute("cost-center")[0]);

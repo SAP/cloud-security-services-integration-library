@@ -42,7 +42,7 @@ public class TestControllerTest {
 	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
 	@BeforeEach
-	public void startWireMockServer() throws IOException {
+	void startWireMockServer() throws IOException {
 		if(server == null) {
 			server = new WireMockServer(33195);
 			server.start();
@@ -53,12 +53,12 @@ public class TestControllerTest {
 	}
 
 	@AfterAll
-	public static void stopWireMockServer() {
+	static void stopWireMockServer() {
 		server.stop();
 	}
 
 	@Test
-	public void unauthorizedRequest() {
+	void unauthorizedRequest() {
 		JwtGenerator jwtGenerator = new JwtGenerator("WrongClientId");
 
 		webClient.method(HttpMethod.GET).uri("/v1/sayHello").contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -67,7 +67,7 @@ public class TestControllerTest {
 	}
 
 	@Test
-	public void authorizedRequest() {
+	void authorizedRequest() {
 		JwtGenerator jwtGenerator = new JwtGenerator().addScopes(getGlobalScope("Read"));
 
 		webClient.method(HttpMethod.GET).uri("/v1/sayHello").contentType(MediaType.APPLICATION_JSON_UTF8)

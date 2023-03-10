@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Primary;
 import okhttp3.mockwebserver.MockWebServer;
 
 @TestConfiguration
-public class MockXSUAAServerConfiguration {
+public class MockXsuaaServerConfiguration {
 
 	@Bean
 	@Primary
@@ -23,7 +23,8 @@ public class MockXSUAAServerConfiguration {
 		return new XsuaaServiceConfigurationDefault() {
 			@Override
 			public String getUaaDomain() {
-				if (!mockServer.url("").toString().isEmpty()) {
+				String mockServerUrl = mockServer.url("").toString();
+				if (!mockServerUrl.isEmpty()) {
 					return "localhost";
 				}
 				return super.getUaaDomain();

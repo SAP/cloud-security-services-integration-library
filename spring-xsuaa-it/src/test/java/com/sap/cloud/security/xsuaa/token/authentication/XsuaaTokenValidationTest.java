@@ -27,7 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import com.sap.cloud.security.xsuaa.MockXSUAAServerConfiguration;
+import com.sap.cloud.security.xsuaa.MockXsuaaServerConfiguration;
 import com.sap.cloud.security.xsuaa.mock.JWTUtil;
 
 import okhttp3.mockwebserver.MockWebServer;
@@ -39,7 +39,7 @@ import testservice.api.v1.TestController;
 		"spring.main.allow-bean-definition-overriding=true" })
 @ContextConfiguration(classes = { XsuaaITApplication.class, testservice.api.v1.SecurityConfiguration.class,
 		TestController.class, XsuaaTokenValidationTest.class })
-@Import(MockXSUAAServerConfiguration.class)
+@Import(MockXsuaaServerConfiguration.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test.api.v1")
 public class XsuaaTokenValidationTest {
