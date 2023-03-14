@@ -3,7 +3,17 @@
 [![Fosstars security rating](https://raw.githubusercontent.com/SAP/cloud-security-xsuaa-integration/fosstars-report/fosstars_badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/blob/fosstars-report/fosstars_report.md)
 [![CodeQL](https://github.com/SAP/cloud-security-xsuaa-integration/workflows/CodeQL/badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/actions?query=workflow%3ACodeQL)
 
+# :bangbang: End Of Support notice
+With end of support for [Spring Boot 2.x](https://spring.io/projects/spring-boot#support) and for [Spring Framework 5.x](https://spring.io/projects/spring-framework#support), we are defining end of support for our Spring dependant artifacts as well, meaning that there won't be any bugfixes, nor security updates provided after the end of support date for the affected modules.
+Consider switching to our [3.x major](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main) release which is supporting Spring Boot 3.x and Spring Framework 6.x and Java 17. See migration guide for more info.
 
+| ArtifactId                                  | End of Support |
+|---------------------------------------------|----------------|
+| spring-xsuaa                                | Dec, 2025      |
+| spring-xsuaa-test                           | Dec, 2025      |
+| xsuaa-spring-boot-starter                   | Nov, 2023      |
+| spring-security                             | Dec, 2025      |
+| resourceserver-security-spring-boot-starter | Nov, 2023      |
 
 # Description
 Authentication services provided by the xsuaa service on [SAP Cloud Platform](https://cloudplatform.sap.com) or [SAP HANA XS Advanced](https://help.sap.com/viewer/4505d0bdaf4948449b7f7379d24d0f0d/2.0.00/en-US) rely on usage of the [OAuth 2.0](https://oauth.net) protocol and OAuth 2.0 access tokens.
