@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.config;
 
+import com.sap.cloud.security.config.cf.ServiceConstants;
+
 import javax.annotation.Nullable;
 import java.util.Map;
 
@@ -50,5 +52,5 @@ public interface Environment {
 	@Nullable
 	OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange();
 
-	Map<Service, Map<ServicePlan, OAuth2ServiceConfiguration>> getServiceConfigurations();
+	Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> getServiceConfigurations();
 }

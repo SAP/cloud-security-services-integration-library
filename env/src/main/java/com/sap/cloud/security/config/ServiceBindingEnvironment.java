@@ -31,7 +31,7 @@ public class ServiceBindingEnvironment implements Environment {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBindingEnvironment.class);
     private final ServiceBindingAccessor serviceBindingAccessor;
     private UnaryOperator<String> environmentVariableReader = System::getenv;
-    private Map<Service, Map<ServicePlan, OAuth2ServiceConfiguration>> serviceConfigurations;
+    private Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> serviceConfigurations;
 
     public ServiceBindingEnvironment() {
         this(DefaultServiceBindingAccessor.getInstance());
@@ -54,7 +54,7 @@ public class ServiceBindingEnvironment implements Environment {
     @Nullable
     @Override
     public OAuth2ServiceConfiguration getXsuaaConfiguration() {
-        return Stream.of(ServicePlan.APPLICATION, ServicePlan.BROKER, ServicePlan.SPACE, ServicePlan.DEFAULT)
+        return Stream.of(ServiceConstants.Plan.APPLICATION, ServiceConstants.Plan.BROKER, ServiceConstants.Plan.SPACE, ServiceConstants.Plan.DEFAULT)
                 .map(plan -> getServiceConfigurations().get(XSUAA).get(plan))
                 .filter(Objects::nonNull)
                 .findFirst().orElse(null);
@@ -69,7 +69,7 @@ public class ServiceBindingEnvironment implements Environment {
     @Override
     public OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange() {
         if(getNumberOfXsuaaConfigurations() > 1) {
-            return getServiceConfigurations().get(XSUAA).get(ServicePlan.BROKER);
+            return getServiceConfigurations().get(XSUAA).get(ServiceConstants.Plan.BROKER);
         }
 
         return getXsuaaConfiguration();
@@ -82,7 +82,7 @@ public class ServiceBindingEnvironment implements Environment {
     }
 
     @Override
-    public Map<Service, Map<ServicePlan, OAuth2ServiceConfiguration>> getServiceConfigurations() {
+    public Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> getServiceConfigurations() {
         if(serviceConfigurations == null) {
             this.readServiceConfigurations();
         }
@@ -102,7 +102,7 @@ public class ServiceBindingEnvironment implements Environment {
                         .filter(Objects::nonNull)
                         .map(builder -> builder.runInLegacyMode(runInLegacyMode()))
                         .map(OAuth2ServiceConfigurationBuilder::build)
-                        .collect(Collectors.toMap(config -> ServicePlan.from(config.getProperty(SERVICE_PLAN)), Function.identity()))));
+                        .collect(Collectors.toMap(config -> ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN)), Function.identity()))));
     }
 
     /** Clears service configurations, so they are computed again on next access. */
@@ -112,7 +112,7 @@ public class ServiceBindingEnvironment implements Environment {
 
     @Nullable
     private static OAuth2ServiceConfigurationBuilder mapServiceBindingToConfigurationBuilder(ServiceBinding b) {
-        if (!b.getServiceName().isPresent()) {
+        if (b.getServiceName().isEmpty()) {
             LOGGER.error("Ignores Service Binding with name {} as service name is not provided.", b.getName());
             return null;
         }

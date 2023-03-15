@@ -6,8 +6,7 @@
 package com.sap.cloud.security.config.cf;
 
 /**
- * Constants that simplifies access to service configuration properties in the
- * Cloud Foundry environment.
+ * Constants that simplifies access to service configuration properties.
  */
 public class ServiceConstants {
 	public static final String VCAP_SERVICES = "VCAP_SERVICES";
@@ -53,8 +52,7 @@ public class ServiceConstants {
 	}
 
 	/**
-	 * Represents the service plans on CF marketplace. The various plans are
-	 * considered in {@code CFEnvironment#loadXsuaa()}
+	 * Represents service plans of identity services.
 	 */
 	public enum Plan {
 		DEFAULT, BROKER, APPLICATION, SPACE, APIACCESS, SYSTEM;

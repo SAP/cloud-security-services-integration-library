@@ -106,7 +106,7 @@ public class VcapServicesParser {
 	 * @return the extracted configuration
 	 */
 	private static OAuth2ServiceConfiguration findConfiguration(String vcapServicesJson) {
-		Map<Service, Map<ServicePlan, OAuth2ServiceConfiguration>> serviceConfigurations =
+		Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> serviceConfigurations =
 				new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> vcapServicesJson)).getServiceConfigurations();
 		List<OAuth2ServiceConfiguration> oAuth2ServiceConfigurations = serviceConfigurations
 				.values()
