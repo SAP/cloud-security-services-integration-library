@@ -76,9 +76,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		this.tokenCache = tokenCache;
 		this.oAuth2TokenService = tokenService;
 		this.authenticationConfig = authenticationConfig;
-		if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
-			this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(configuration, tokenService);
-		}
+		this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(configuration, tokenService);
 	}
 
 	@Override
@@ -143,16 +141,16 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 			if (oAuth2token == null) {
 				break;
 			}
-			if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
-				DecodedJwt decodedJwt = TokenUtil.decodeJwt(oAuth2token);
-				if (!TokenUtil.isXsuaaToken(decodedJwt)) {
-					try {
-						return iasXsuaaExchangeBroker.doIasXsuaaXchange(decodedJwt);
-					} catch (JSONException e) {
-						logger.error("Couldn't decode the token: {}", e.getMessage());
-					}
+
+			DecodedJwt decodedJwt = TokenUtil.decodeJwt(oAuth2token);
+			if (!TokenUtil.isXsuaaToken(decodedJwt)) {
+				try {
+					return iasXsuaaExchangeBroker.doIasXsuaaXchange(decodedJwt);
+				} catch (JSONException e) {
+					logger.error("Couldn't decode the token: {}", e.getMessage());
 				}
 			}
+
 			return oAuth2token;
 		case BASIC:
 			String basicAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL, authHeaderValue);

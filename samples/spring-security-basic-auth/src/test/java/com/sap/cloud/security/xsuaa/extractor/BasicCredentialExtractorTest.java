@@ -5,34 +5,35 @@
  */
 package com.sap.cloud.security.xsuaa.extractor;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
 
-@RunWith(SpringRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { XsuaaServiceConfigurationDummy.class,
-		TokenBrokerTestConfiguration.class })
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { TokenBrokerTestConfiguration.class })
 public class BasicCredentialExtractorTest {
 
 	private MockHttpServletRequest request;
 
+	@Autowired
+	private XsuaaServiceConfiguration xsuaaServiceConfiguration;
+	
 	@Autowired
 	private Cache tokenCache;
 
@@ -44,17 +45,14 @@ public class BasicCredentialExtractorTest {
 
 	private static final String XSUAA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHRfYXR0ciI6eyJlbmhhbmNlciI6IlhTVUFBIn19._cocFCqqATDXx6eBUoF22W9F8VwUVYY59XdLGdEDFso";
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 		request = new MockHttpServletRequest();
 	}
 
 	@Test
-	public void testBasicCredentialsNoMultiTenancy() {
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+	void testBasicCredentialsNoMultiTenancy() {
+		TokenBrokerResolver extractor = new TokenBrokerResolver(xsuaaServiceConfiguration, tokenCache,
 				oAuth2TokenService,
 				authenticationConfiguration);
 
@@ -64,8 +62,8 @@ public class BasicCredentialExtractorTest {
 	}
 
 	@Test
-	public void testBasicCredentialsMultiTenancy() {
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+	void testBasicCredentialsMultiTenancy() {
+		TokenBrokerResolver extractor = new TokenBrokerResolver(xsuaaServiceConfiguration, tokenCache,
 				oAuth2TokenService,
 				authenticationConfiguration);
 
@@ -77,8 +75,8 @@ public class BasicCredentialExtractorTest {
 	}
 
 	@Test
-	public void testMultipleAuthorizationHeaders_useMatchOfFirstMethod() {
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+	void testMultipleAuthorizationHeaders_useMatchOfFirstMethod() {
+		TokenBrokerResolver extractor = new TokenBrokerResolver(xsuaaServiceConfiguration, tokenCache,
 				oAuth2TokenService,
 				authenticationConfiguration);
 
@@ -97,8 +95,8 @@ public class BasicCredentialExtractorTest {
 	}
 
 	@Test
-	public void testMultipleAuthorizationHeaders_useSecondMethod() {
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+	void testMultipleAuthorizationHeaders_useSecondMethod() {
+		TokenBrokerResolver extractor = new TokenBrokerResolver(xsuaaServiceConfiguration, tokenCache,
 				oAuth2TokenService,
 				new DefaultAuthenticationInformationExtractor(AuthenticationMethod.OAUTH2,
 						AuthenticationMethod.CLIENT_CREDENTIALS));
@@ -111,8 +109,8 @@ public class BasicCredentialExtractorTest {
 	}
 
 	@Test
-	public void testMultipleBasicAuthorizationHeaders_useSecond() {
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+	void testMultipleBasicAuthorizationHeaders_useSecond() {
+		TokenBrokerResolver extractor = new TokenBrokerResolver(xsuaaServiceConfiguration, tokenCache,
 				oAuth2TokenService,
 				authenticationConfiguration);
 
@@ -125,8 +123,8 @@ public class BasicCredentialExtractorTest {
 	}
 
 	@Test
-	public void testClientCredentials() {
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+	void testClientCredentials() {
+		TokenBrokerResolver extractor = new TokenBrokerResolver(xsuaaServiceConfiguration, tokenCache,
 				oAuth2TokenService,
 				authenticationMethods(AuthenticationMethod.CLIENT_CREDENTIALS));
 		request.addHeader("Authorization",
@@ -139,8 +137,8 @@ public class BasicCredentialExtractorTest {
 	}
 
 	@Test
-	public void testOAuth2Credentials() {
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+	void testOAuth2Credentials() {
+		TokenBrokerResolver extractor = new TokenBrokerResolver(xsuaaServiceConfiguration, tokenCache,
 				oAuth2TokenService,
 				authenticationMethods(AuthenticationMethod.OAUTH2));
 
@@ -151,9 +149,8 @@ public class BasicCredentialExtractorTest {
 				XSUAA_TOKEN);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testInvalidCombinedCredentials() {
-
+	@Test
+	void testInvalidCombinedCredentials() {
 		AuthenticationInformationExtractor invalidCombination = new DefaultAuthenticationInformationExtractor() {
 
 			@Override
@@ -165,17 +162,18 @@ public class BasicCredentialExtractorTest {
 
 		request.addHeader("Authorization", "Bearer "
 				+ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
-		TokenBrokerResolver credentialExtractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+		TokenBrokerResolver credentialExtractor = new TokenBrokerResolver(xsuaaServiceConfiguration, tokenCache,
 				oAuth2TokenService, invalidCombination);
-		credentialExtractor.resolve(request);
+
+		Assertions.assertThrows(IllegalArgumentException.class, () -> credentialExtractor.resolve(request));
 	}
 
 	@Test
-	public void testCombinedCredentials() {
+	void testCombinedCredentials() {
 		request.addHeader("Authorization", "Bearer "
 				+ XSUAA_TOKEN);
 
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+		TokenBrokerResolver extractor = new TokenBrokerResolver(xsuaaServiceConfiguration, tokenCache,
 				oAuth2TokenService,
 				authenticationMethods(AuthenticationMethod.OAUTH2, AuthenticationMethod.BASIC));
 
@@ -185,10 +183,10 @@ public class BasicCredentialExtractorTest {
 	}
 
 	@Test
-	public void testCombinedCredentials_shouldTakeBasicAsFallback() {
+	void testCombinedCredentials_shouldTakeBasicAsFallback() {
 		request.addHeader("Authorization", "basic " + Base64.getEncoder().encodeToString("myuser:mypass".getBytes()));
 
-		TokenBrokerResolver extractor = new TokenBrokerResolver(getXsuaaServiceConfiguration(), tokenCache,
+		TokenBrokerResolver extractor = new TokenBrokerResolver(xsuaaServiceConfiguration, tokenCache,
 				oAuth2TokenService,
 				authenticationMethods(AuthenticationMethod.BASIC, AuthenticationMethod.OAUTH2));
 
@@ -196,17 +194,7 @@ public class BasicCredentialExtractorTest {
 		assertThat(token).isEqualTo("token_pwd");
 	}
 
-	private XsuaaServiceConfiguration getXsuaaServiceConfiguration() {
-		XsuaaServiceConfigurationDummy cfg = new XsuaaServiceConfigurationDummy();
-		cfg.appId = "a1!123";
-		cfg.clientId = "myclient!t1";
-		cfg.clientSecret = "top.secret";
-		cfg.uaaDomain = "auth.com";
-		cfg.uaaUrl = "https://mydomain.auth.com";
-		return cfg;
-	}
-
-	public AuthenticationInformationExtractor authenticationMethods(AuthenticationMethod... methods) {
+	private AuthenticationInformationExtractor authenticationMethods(AuthenticationMethod... methods) {
 		return new DefaultAuthenticationInformationExtractor() {
 
 			@Override
