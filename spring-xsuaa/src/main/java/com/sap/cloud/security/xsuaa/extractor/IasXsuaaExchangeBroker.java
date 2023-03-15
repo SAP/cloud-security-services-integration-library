@@ -11,7 +11,6 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
@@ -32,9 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 
 	private static final Logger logger = LoggerFactory.getLogger(IasXsuaaExchangeBroker.class);
-
-	private final XsuaaTokenFlows xsuaaTokenFlows;
 	private static final String AUTH_HEADER = "Authorization";
+	private final XsuaaTokenFlows xsuaaTokenFlows;
 
 	public IasXsuaaExchangeBroker(XsuaaTokenFlows xsuaaTokenFlows) {
 		this.xsuaaTokenFlows = xsuaaTokenFlows;
@@ -60,11 +58,9 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 			return null;
 		}
 		try {
-			if (TokenUtil.isIasToXsuaaXchangeEnabled()) {
-				DecodedJwt decodedJwt = TokenUtil.decodeJwt(oAuth2Token);
-				if (!TokenUtil.isXsuaaToken(decodedJwt)) {
-					return doIasXsuaaXchange(decodedJwt);
-				}
+			DecodedJwt decodedJwt = TokenUtil.decodeJwt(oAuth2Token);
+			if (!TokenUtil.isXsuaaToken(decodedJwt)) {
+				return doIasXsuaaXchange(decodedJwt);
 			}
 		} catch (JSONException e) {
 			logger.error("Couldn't decode the token: {}", e.getMessage());

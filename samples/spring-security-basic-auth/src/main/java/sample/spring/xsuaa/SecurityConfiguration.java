@@ -6,11 +6,11 @@
 package sample.spring.xsuaa;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.extractor.AuthenticationMethod;
 import com.sap.cloud.security.xsuaa.extractor.DefaultAuthenticationInformationExtractor;
-import com.sap.cloud.security.xsuaa.extractor.TokenBrokerResolver;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;

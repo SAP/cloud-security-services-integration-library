@@ -11,6 +11,9 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.sap.cloud.security.xsuaa.XsuaaCredentials;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationCustom;
 import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +31,17 @@ public class TokenBrokerTestConfiguration {
 
 	private static final String TOKEN_NAME = "token";
 	private static final String XSUAA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHRfYXR0ciI6eyJlbmhhbmNlciI6IlhTVUFBIn19._cocFCqqATDXx6eBUoF22W9F8VwUVYY59XdLGdEDFso";
+
+	@Bean
+	public XsuaaServiceConfiguration xsuaaServiceConfiguration() {
+		XsuaaCredentials xsuaaCredentials = new XsuaaCredentials();
+		xsuaaCredentials.setXsAppName("a1!123");
+		xsuaaCredentials.setClientId("myclient!t1");
+		xsuaaCredentials.setClientSecret("top.secret");
+		xsuaaCredentials.setUaaDomain("auth.com");
+		xsuaaCredentials.setUrl("https://mydomain.auth.com");
+		return new XsuaaServiceConfigurationCustom(xsuaaCredentials);
+	}
 
 	@Bean
 	public Cache tokenCache() {
