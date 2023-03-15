@@ -118,7 +118,7 @@ class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	void testGetIdentityZone() throws XSUserInfoException {
+	void testGetZoneId() throws XSUserInfoException {
 		assertThat(cut.getZoneId()).isEqualTo("paas");
 	}
 
@@ -157,7 +157,7 @@ class XSUserInfoAdapterTest {
 	}
 
 	@Test
-	void testGetDBToken() throws XSUserInfoException {
+	void testGetHdbToken() throws XSUserInfoException {
 		assertThat(cut.getHdbToken()).isEqualTo(cut.getAppToken());
 	}
 
@@ -167,11 +167,6 @@ class XSUserInfoAdapterTest {
 
 		assertThatThrownBy(() -> cut.getHdbToken()).isInstanceOf(XSUserInfoException.class);
 		assertThatThrownBy(() -> cut.getHdbToken()).isInstanceOf(XSUserInfoException.class);
-	}
-
-	@Test
-	void testGetHdbToken() throws XSUserInfoException {
-		assertThat(cut.getHdbToken()).isEqualTo(cut.getAppToken());
 	}
 
 	@Test
