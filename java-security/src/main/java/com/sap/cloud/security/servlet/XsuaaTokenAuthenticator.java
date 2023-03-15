@@ -9,7 +9,7 @@ import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.x509.X509Certificate;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
@@ -135,7 +135,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	private ScopeConverter getScopeConverter() {
 		return new XsuaaScopeConverter(
-				getServiceConfiguration().getProperty(CFConstants.XSUAA.APP_ID));
+				getServiceConfiguration().getProperty(ServiceConstants.XSUAA.APP_ID));
 	}
 
 	/**

@@ -7,7 +7,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationListener;
@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
+import static com.sap.cloud.security.config.cf.ServiceConstants.XSUAA.UAA_DOMAIN;
 
 /**
  * Class used to build a token validator for a oauth service configuration
@@ -245,13 +245,13 @@ public class JwtValidatorBuilder {
 
 	private JwtAudienceValidator createAudienceValidator() {
 		JwtAudienceValidator jwtAudienceValidator = new JwtAudienceValidator(configuration.getClientId());
-		if (configuration.hasProperty(CFConstants.XSUAA.APP_ID)) {
-			jwtAudienceValidator.configureTrustedClientId(configuration.getProperty(CFConstants.XSUAA.APP_ID));
+		if (configuration.hasProperty(ServiceConstants.XSUAA.APP_ID)) {
+			jwtAudienceValidator.configureTrustedClientId(configuration.getProperty(ServiceConstants.XSUAA.APP_ID));
 		}
 		otherConfigurations.forEach(otherConfiguration -> {
 			jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getClientId());
-			if (otherConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
-				jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
+			if (otherConfiguration.hasProperty(ServiceConstants.XSUAA.APP_ID)) {
+				jwtAudienceValidator.configureTrustedClientId(otherConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID));
 			}
 		});
 		return jwtAudienceValidator;

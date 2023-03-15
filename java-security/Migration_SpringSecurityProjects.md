@@ -173,23 +173,24 @@ try {
 ### Security configuration for tests
 If you want to overwrite the service configuration of the `SAPOfflineTokenServicesCloud` for your test, you can do so by
 using some test constants provided by the test library. The following snippet shows how to do that:
+
 ```java 
-import static com.sap.cloud.security.config.cf.CFConstants.*;
+
 
 @Configuration
 public class TestSecurityConfig {
-	@Bean
-	@Primary
-	public SAPOfflineTokenServicesCloud sapOfflineTokenServices() {
-		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
-				.forService(Service.XSUAA)
-				.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
-				.withProperty(CFConstants.XSUAA.APP_ID, SecurityTestRule.DEFAULT_APP_ID)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
-				.build();
+    @Bean
+    @Primary
+    public SAPOfflineTokenServicesCloud sapOfflineTokenServices() {
+        OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
+                .forService(Service.XSUAA)
+                .withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
+                .withProperty(CFConstants.XSUAA.APP_ID, SecurityTestRule.DEFAULT_APP_ID)
+                .withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
+                .build();
 
-		return new SAPOfflineTokenServicesCloud(configuration).setLocalScopeAsAuthorities(true);
-	}
+        return new SAPOfflineTokenServicesCloud(configuration).setLocalScopeAsAuthorities(true);
+    }
 }
 ```
 

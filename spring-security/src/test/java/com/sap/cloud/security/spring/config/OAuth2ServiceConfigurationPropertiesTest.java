@@ -7,11 +7,10 @@ package com.sap.cloud.security.spring.config;
 
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
-import com.sap.cloud.security.config.cf.CFConstants.*;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 import org.junit.jupiter.api.Test;
 
-import static com.sap.cloud.security.config.cf.CFConstants.*;
+import static com.sap.cloud.security.config.cf.ServiceConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class OAuth2ServiceConfigurationPropertiesTest {
@@ -23,13 +22,13 @@ class OAuth2ServiceConfigurationPropertiesTest {
 	void setGetClientId() {
 		cutIas.setClientId(ANY_VALUE);
 		assertEquals(ANY_VALUE, cutIas.getClientId());
-		assertTrue(cutIas.hasProperty(CFConstants.CLIENT_ID));
-		assertEquals(ANY_VALUE, cutIas.getProperty(CFConstants.CLIENT_ID));
+		assertTrue(cutIas.hasProperty(ServiceConstants.CLIENT_ID));
+		assertEquals(ANY_VALUE, cutIas.getProperty(ServiceConstants.CLIENT_ID));
 
 		cutXsuaa.setClientId(ANY_VALUE);
 		assertEquals(ANY_VALUE, cutXsuaa.getClientId());
-		assertTrue(cutXsuaa.hasProperty(CFConstants.CLIENT_ID));
-		assertEquals(ANY_VALUE, cutXsuaa.getProperty(CFConstants.CLIENT_ID));
+		assertTrue(cutXsuaa.hasProperty(ServiceConstants.CLIENT_ID));
+		assertEquals(ANY_VALUE, cutXsuaa.getProperty(ServiceConstants.CLIENT_ID));
 	}
 
 	@Test

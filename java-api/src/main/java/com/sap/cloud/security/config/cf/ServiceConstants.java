@@ -9,7 +9,7 @@ package com.sap.cloud.security.config.cf;
  * Constants that simplifies access to service configuration properties in the
  * Cloud Foundry environment.
  */
-public class CFConstants {
+public class ServiceConstants {
 	public static final String VCAP_SERVICES = "VCAP_SERVICES";
 	public static final String VCAP_APPLICATION = "VCAP_APPLICATION";
 	public static final String CREDENTIALS = "credentials";
@@ -20,7 +20,7 @@ public class CFConstants {
 	public static final String CERTIFICATE = "certificate";
 	public static final String KEY = "key";
 
-	private CFConstants() {
+	private ServiceConstants() {
 	}
 
 	/**

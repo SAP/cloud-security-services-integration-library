@@ -10,7 +10,7 @@ import com.sap.cloud.security.json.JsonParsingException;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.VERIFICATION_KEY;
+import static com.sap.cloud.security.config.cf.ServiceConstants.XSUAA.VERIFICATION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -28,7 +28,7 @@ public class VcapServicesParserTest {
 		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = cut.createConfiguration();
 
 		assertThat(oAuth2ServiceConfiguration.getClientId()).isEqualTo("clientId");
-		assertThat(oAuth2ServiceConfiguration.getProperty(CFConstants.SERVICE_PLAN)).isEqualToIgnoringCase("broker");
+		assertThat(oAuth2ServiceConfiguration.getProperty(ServiceConstants.SERVICE_PLAN)).isEqualToIgnoringCase("broker");
 	}
 
 	@Test

@@ -7,14 +7,12 @@ package com.sap.cloud.security.adapter.spring;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.SpringOAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.client.SpringOidcConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -29,8 +27,6 @@ import org.springframework.security.oauth2.common.exceptions.InvalidTokenExcepti
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
-import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -110,9 +106,9 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 		this.serviceConfiguration = serviceConfiguration;
 		this.jwtValidatorBuilder = jwtValidatorBuilder;
-		if (serviceConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
+		if (serviceConfiguration.hasProperty(ServiceConstants.XSUAA.APP_ID)) {
 			this.xsuaaScopeConverter = new XsuaaScopeConverter(
-					serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
+					serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID));
 		}
 	}
 

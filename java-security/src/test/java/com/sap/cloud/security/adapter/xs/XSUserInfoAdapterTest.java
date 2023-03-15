@@ -5,11 +5,10 @@
  */
 package com.sap.cloud.security.adapter.xs;
 
-import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.*;
@@ -17,7 +16,6 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.tokenflows.ClientCredentialsTokenFlow;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.UserTokenFlow;
-import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.IDENTITY_ZONE;
+import static com.sap.cloud.security.config.cf.ServiceConstants.XSUAA.IDENTITY_ZONE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +56,7 @@ class XSUserInfoAdapterTest {
 	void setUp() throws XSUserInfoException {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId("sb-clone1!b5|LR-master!b5")
-				.withProperty(CFConstants.XSUAA.APP_ID, "brokerplanmasterapp!b123")
+				.withProperty(ServiceConstants.XSUAA.APP_ID, "brokerplanmasterapp!b123")
 				.withProperty(IDENTITY_ZONE, "paas")
 				.build();
 		cut = new XSUserInfoAdapter(token.withScopeConverter(new XsuaaScopeConverter(TEST_APP_ID)), configuration);
@@ -341,7 +339,7 @@ class XSUserInfoAdapterTest {
 				IOUtils.resourceToString("/xsuaaXsaAccessTokenRSA256_signedWithVerificationKey.txt", UTF_8));
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId("sb-java-hello-world!i1")
-				.withProperty(CFConstants.XSUAA.APP_ID, "java-hello-world!i1")
+				.withProperty(ServiceConstants.XSUAA.APP_ID, "java-hello-world!i1")
 				.withProperty(IDENTITY_ZONE, "uaa")
 				.withProperty("identityzoneid", "uaa")
 				.build();
@@ -370,7 +368,7 @@ class XSUserInfoAdapterTest {
 
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId("sb-margin-assurance-ui!i1")
-				.withProperty(CFConstants.XSUAA.APP_ID, "margin-assurance-ui!i1")
+				.withProperty(ServiceConstants.XSUAA.APP_ID, "margin-assurance-ui!i1")
 				.withProperty(IDENTITY_ZONE, "uaa")
 				.withProperty("identityzoneid", "uaa")
 				.build();
@@ -391,8 +389,8 @@ class XSUserInfoAdapterTest {
 
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(tokenClientId)
-				.withProperty(CFConstants.CLIENT_ID, tokenClientId)
-				.withProperty(CFConstants.XSUAA.APP_ID, configurationAppId)
+				.withProperty(ServiceConstants.CLIENT_ID, tokenClientId)
+				.withProperty(ServiceConstants.XSUAA.APP_ID, configurationAppId)
 				.withProperty(IDENTITY_ZONE, "uaa")
 				.withProperty(TRUSTED_CLIENT_ID_SUFFIX, "|brokerplanmasterapp!b123")
 				.build();
@@ -455,7 +453,7 @@ class XSUserInfoAdapterTest {
 	@Test
 	void isForeignModeTrue_whenClientIdDoesNotMatchIdentityZone() throws XSUserInfoException {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
-				.withProperty(CFConstants.XSUAA.APP_ID, "sb-application")
+				.withProperty(ServiceConstants.XSUAA.APP_ID, "sb-application")
 				.build();
 
 		cut = createComponentUnderTestSpy(configuration);

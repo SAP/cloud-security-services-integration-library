@@ -8,7 +8,7 @@ package com.sap.cloud.security.test.integration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.VERIFICATION_KEY;
+import static com.sap.cloud.security.config.cf.ServiceConstants.XSUAA.VERIFICATION_KEY;
 import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_CLIENT_ID;
 import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_DOMAIN;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,7 +105,7 @@ public class XsuaaIntegrationTest {
 		String publicKey = IOUtils.resourceToString("/publicKey.txt", StandardCharsets.UTF_8);
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(XSUAA)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, DEFAULT_DOMAIN)
+				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, DEFAULT_DOMAIN)
 				.withClientId(DEFAULT_CLIENT_ID)
 				.withProperty(VERIFICATION_KEY, publicKey)
 				.build();

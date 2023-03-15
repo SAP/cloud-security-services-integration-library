@@ -7,7 +7,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
@@ -42,7 +42,7 @@ public class JwtValidatorBuilderTest {
 
 	OAuth2ServiceConfigurationBuilder xsuaaConfigBuilder = OAuth2ServiceConfigurationBuilder.forService(XSUAA)
 			.withDomains("auth.com")
-			.withProperty(CFConstants.XSUAA.APP_ID, "test-app!t123")
+			.withProperty(ServiceConstants.XSUAA.APP_ID, "test-app!t123")
 			.withClientId("sb-test-app!t123");
 
 	@Before

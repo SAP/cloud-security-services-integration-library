@@ -6,7 +6,7 @@
 package com.sap.cloud.security.spring.config;
 
 import com.sap.cloud.security.config.*;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 
 import java.net.URI;
 import java.util.List;
@@ -162,7 +162,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 *            uaa domain
 	 */
 	public void setUaaDomain(String uaaDomain) {
-		builder.withProperty(CFConstants.XSUAA.UAA_DOMAIN, uaaDomain);
+		builder.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, uaaDomain);
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 *            the xsappname as specified in the {@code xs-security.json}.
 	 */
 	public void setXsAppName(String xsAppName) {
-		builder.withProperty(CFConstants.XSUAA.APP_ID, xsAppName);
+		builder.withProperty(ServiceConstants.XSUAA.APP_ID, xsAppName);
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 *            key the token is signed with.
 	 */
 	public void setVerificationKey(String verificationKey) {
-		builder.withProperty(CFConstants.XSUAA.VERIFICATION_KEY, verificationKey);
+		builder.withProperty(ServiceConstants.XSUAA.VERIFICATION_KEY, verificationKey);
 	}
 
 	@Override

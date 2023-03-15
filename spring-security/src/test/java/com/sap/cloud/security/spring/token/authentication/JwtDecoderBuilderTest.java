@@ -9,7 +9,7 @@ import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ class JwtDecoderBuilderTest {
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.IAS)
 				.withClientId("clientId")
-				.withProperty(CFConstants.URL, "https://domain.myauth.com")
+				.withProperty(ServiceConstants.URL, "https://domain.myauth.com")
 				.build();
 
 		cut.withIasServiceConfiguration(configuration);
@@ -62,7 +62,7 @@ class JwtDecoderBuilderTest {
 		OAuth2ServiceConfiguration iasConfiguration = OAuth2ServiceConfigurationBuilder
 				.forService(Service.IAS)
 				.withClientId("clientId")
-				.withProperty(CFConstants.URL, "https://domain.myauth.com")
+				.withProperty(ServiceConstants.URL, "https://domain.myauth.com")
 				// .withProperty(CFConstants.IAS.DOMAIN, "myauth.com")
 				.build();
 

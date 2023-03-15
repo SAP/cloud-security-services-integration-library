@@ -9,7 +9,7 @@ import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccesso
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.environment.servicebinding.api.ServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.TypedMapView;
-import com.sap.cloud.security.config.k8s.K8sConstants;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +23,9 @@ import java.util.stream.Stream;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
-import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
-import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
+import static com.sap.cloud.security.config.cf.ServiceConstants.IAS.DOMAINS;
+import static com.sap.cloud.security.config.cf.ServiceConstants.SERVICE_PLAN;
+import static com.sap.cloud.security.config.cf.ServiceConstants.VCAP_APPLICATION;
 
 public class ServiceBindingEnvironment implements Environment {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBindingEnvironment.class);
@@ -128,7 +128,7 @@ public class ServiceBindingEnvironment implements Environment {
         OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.forService(service)
                 .withProperties(TypedMapView.ofCredentials(b).getEntries(String.class))
                 .withProperty(SERVICE_PLAN,
-                        b.getServicePlan().orElse(K8sConstants.Plan.APPLICATION.name()).toUpperCase());
+                        b.getServicePlan().orElse(ServiceConstants.Plan.APPLICATION.name()).toUpperCase());
 
         if (IAS.equals(service)) {
             List<String> domains = TypedMapView.ofCredentials(b).getListView(DOMAINS).getItems(String.class);

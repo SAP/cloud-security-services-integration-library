@@ -8,7 +8,7 @@ package com.sap.cloud.security.adapter.xs;
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.ServiceBindingEnvironment;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
@@ -61,7 +61,7 @@ public class XSUserInfoAdapterIntegrationTest {
 	}
 
 	private XSUserInfo createToken(String token) {
-		String appId = xsuaaConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
+		String appId = xsuaaConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID);
 		XsuaaToken accessToken = new XsuaaToken(token).withScopeConverter(new XsuaaScopeConverter(appId));
 		XSUserInfoAdapter xsUserInfoAdapter = new XSUserInfoAdapter(accessToken, xsuaaConfiguration);
 		xsUserInfoAdapter.setOAuth2TokenService(oAuth2TokenService);
@@ -132,7 +132,7 @@ public class XSUserInfoAdapterIntegrationTest {
 	private JSONObject buildBinding(String xsappname, String planName) throws JSONException {
 		JSONObject credentials = new JSONObject();
 		credentials.put("verificationkey", "key");
-		credentials.put(CFConstants.XSUAA.APP_ID, xsappname);
+		credentials.put(ServiceConstants.XSUAA.APP_ID, xsappname);
 		credentials.put(TRUSTED_CLIENT_ID_SUFFIX, xsappname);
 		JSONObject binding = new JSONObject();
 		binding.put("name", planName + "-uaa");

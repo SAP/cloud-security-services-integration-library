@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.VERIFICATION_KEY;
+import static com.sap.cloud.security.config.cf.ServiceConstants.XSUAA.VERIFICATION_KEY;
 
 public class VcapServicesParser {
 

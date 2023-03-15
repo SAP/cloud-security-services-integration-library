@@ -10,12 +10,11 @@ import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.cf.ServiceConstants;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.GrantType;
-import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
@@ -279,7 +278,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 		}
 		boolean clientIdsMatch = tokenClientId.equals(configuration.getClientId());
 		boolean identityZonesMatch = tokenIdentityZone
-				.equals(configuration.getProperty(CFConstants.XSUAA.IDENTITY_ZONE));
+				.equals(configuration.getProperty(ServiceConstants.XSUAA.IDENTITY_ZONE));
 		boolean isApplicationPlan = tokenClientId.contains("!t");
 		boolean isBrokerPlan = tokenClientId.contains("!b");
 
