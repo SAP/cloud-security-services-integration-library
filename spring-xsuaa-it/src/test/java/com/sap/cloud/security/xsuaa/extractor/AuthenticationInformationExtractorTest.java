@@ -12,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -26,10 +25,6 @@ public class AuthenticationInformationExtractorTest {
 	public void setUp() {
 		request = new MockHttpServletRequest();
 		authenticationConfiguration = authenticationConfiguration();
-	}
-
-	@After
-	public void tearDown() {
 	}
 
 	public AuthenticationInformationExtractor authenticationConfiguration() {
