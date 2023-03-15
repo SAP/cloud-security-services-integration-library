@@ -1,8 +1,8 @@
 **Rating**: **GOOD**
 
-**Score**: **6.5**, max score value is 10.0
+**Score**: **6.46**, max score value is 10.0
 
-**Confidence**: Max (10.0, max confidence value is 10.0)
+**Confidence**: High (9.65, max confidence value is 10.0)
 
 ## Details
 
@@ -75,9 +75,9 @@ It used the following sub-scores:
     
 1.  **[Community commitment](#community-commitment)**: **8.0** (weight is 0.5)
     
-1.  **[Project activity](#project-activity)**: **6.94** (weight is 0.5)
+1.  **[Project activity](#project-activity)**: **6.6** (weight is 0.5)
     
-1.  **[Project popularity](#project-popularity)**: **0.26** (weight is 0.5)
+1.  **[Project popularity](#project-popularity)**: **0.17** (weight is 0.5)
     
 1.  **[Security reviews](#security-reviews)**: **0.0** (weight is 0.2)
     
@@ -283,24 +283,24 @@ This sub-score is based on 3 features:
 
 ### Project activity
 
-Score: **6.94**, confidence is 10.0 (max), weight is 0.5 (medium)
+Score: **6.6**, confidence is 10.0 (max), weight is 0.5 (medium)
 
 The score evaluates how active a project is. It's based on number of commits and contributors in the last 3 months.
 
-41 commits in the last 3 months results to 6.31 points
-3 contributors increase the score value from 6.31 to 6.94
+39 commits in the last 3 months results to 6.00 points
+3 contributors increase the score value from 6.00 to 6.60
 
 This sub-score is based on 2 features:
 
 
 
-1.  **Number of commits in the last three months:** 41
+1.  **Number of commits in the last three months:** 39
 1.  **Number of contributors in the last three months:** 3
 
 
 ### Project popularity
 
-Score: **0.26**, confidence is 10.0 (max), weight is 0.5 (medium)
+Score: **0.17**, confidence is 6.67 (low), weight is 0.5 (medium)
 
 This scoring function is based on number of stars, watchers and dependent projects.
 
@@ -310,7 +310,7 @@ This sub-score is based on 3 features:
 
 
 
-1.  **Number of projects on GitHub that use an open source project:** 130
+1.  **Number of projects on GitHub that use an open source project:** unknown
 1.  **Number of stars for a GitHub repository:** 123
 1.  **Number of watchers for a GitHub repository:** 15
 
