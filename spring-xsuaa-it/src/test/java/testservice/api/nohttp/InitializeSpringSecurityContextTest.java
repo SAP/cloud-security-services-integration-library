@@ -9,22 +9,17 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,10 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.sap.cloud.security.xsuaa.MockXsuaaServerConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaRequestDispatcher;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
 import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
@@ -44,15 +36,14 @@ import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 import com.sap.cloud.security.xsuaa.token.Token;
 
-import okhttp3.mockwebserver.MockWebServer;
+import testservice.api.MockXsuaaServerConfiguration;
+import testservice.api.XsuaaRequestDispatcher;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
+@SpringBootTest(classes = { MyEventHandler.class,
 		XsuaaAutoConfiguration.class,
 		XsuaaResourceServerJwkAutoConfiguration.class })
-@Import(MockXsuaaServerConfiguration.class)
 @ActiveProfiles({ "test.api.nohttp" })
-public class InitializeSpringSecurityContextTest {
+class InitializeSpringSecurityContextTest extends MockXsuaaServerConfiguration {
 	@Value("${xsuaa.clientid}")
 	String clientId;
 
@@ -64,16 +55,6 @@ public class InitializeSpringSecurityContextTest {
 
 	@Autowired
 	MyEventHandler eventHandler;
-
-	@BeforeAll
-	static void startMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
-		xsuaaServer.start(33195);
-	}
-
-	@AfterAll
-	static void shutdownMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
-		xsuaaServer.shutdown();
-	}
 
 	@Test
 	void initializeSecurityContext_succeeds() {
@@ -153,9 +134,7 @@ public class InitializeSpringSecurityContextTest {
 		String jwt = new JwtGenerator(clientId, "subdomain")
 				.deriveAudiences(true).getToken().getTokenValue();
 
-		assertThrows(AccessDeniedException.class, () -> {
-			eventHandler.onEvent(jwt);
-		});
+		assertThrows(AccessDeniedException.class, () -> eventHandler.onEvent(jwt));
 	}
 
 	@Test
@@ -163,9 +142,7 @@ public class InitializeSpringSecurityContextTest {
 		String jwt = new JwtGenerator(clientId, "subdomain")
 				.deriveAudiences(true).getToken().getTokenValue();
 
-		assertThrows(AccessDeniedException.class, () -> {
-			eventHandler.onEvent(jwt);
-		});
+		assertThrows(AccessDeniedException.class, () -> eventHandler.onEvent(jwt));
 	}
 
 	@Test

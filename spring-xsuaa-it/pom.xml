@@ -121,8 +121,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<reuseForks>false</reuseForks>
-					<forkCount>1</forkCount>
 					<environmentVariables>
 						<IAS_XSUAA_XCHANGE_ENABLED>true</IAS_XSUAA_XCHANGE_ENABLED>
 					</environmentVariables>

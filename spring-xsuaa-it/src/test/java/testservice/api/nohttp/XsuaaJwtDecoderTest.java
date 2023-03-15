@@ -3,51 +3,32 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package testservice.api;
+package testservice.api.nohttp;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.IOException;
-
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.sap.cloud.security.xsuaa.MockXsuaaServerConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
-import okhttp3.mockwebserver.MockWebServer;
-import testservice.api.nohttp.MyEventHandler;
-import testservice.api.nohttp.SecurityConfiguration;
+import testservice.api.MockXsuaaServerConfiguration;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { SecurityConfiguration.class, MyEventHandler.class,
+@SpringBootTest(classes = { MyEventHandler.class,
 		XsuaaAutoConfiguration.class,
 		XsuaaResourceServerJwkAutoConfiguration.class })
-@Import(MockXsuaaServerConfiguration.class)
 @ActiveProfiles({ "test.api.nohttp" })
-public class XsuaaJwtDecoderTest {
-
-	@BeforeAll
-	public static void startMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
-		xsuaaServer.start(33195);
-	}
-
-	@AfterAll
-	public static void shutdownMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
-		xsuaaServer.shutdown();
-	}
+class XsuaaJwtDecoderTest extends MockXsuaaServerConfiguration {
 
 	boolean postActionExecuted;
 	JwtDecoder jwtDecoderWithPostAction;
@@ -72,7 +53,7 @@ public class XsuaaJwtDecoderTest {
 	}
 
 	@Test
-	public void postValidationActionIsExecutedIfSuccess() {
+	void postValidationActionIsExecutedIfSuccess() {
 		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
 				.setJwtHeaderKeyId("legacy-token-key").getToken().getTokenValue();
 
@@ -81,7 +62,7 @@ public class XsuaaJwtDecoderTest {
 	}
 
 	@Test
-	public void postValidationActionIsNotExecutedIfFail() {
+	void postValidationActionIsNotExecutedIfFail() {
 		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
 				.setJwtHeaderKeyId("legacy-token-key").setJku(null).getToken().getTokenValue();
 		try {

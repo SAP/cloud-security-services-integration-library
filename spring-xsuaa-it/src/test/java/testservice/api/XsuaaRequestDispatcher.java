@@ -1,4 +1,4 @@
-package com.sap.cloud.security.xsuaa;
+package testservice.api;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +24,7 @@ public class XsuaaRequestDispatcher extends Dispatcher {
 	public static final String PATH_OTHER_DOMAIN_TOKEN_KEYS = "/mockServer/otherdomain_token_keys.json";
 	protected static final String PATH_PUBLIC_KEY = "/mockServer/publicKey.txt";
 	protected final Logger logger = LoggerFactory.getLogger(XsuaaRequestDispatcher.class);
-	private static int callCount = 0;
+	private static final int callCount = 0;
 
 	@Override
 	public MockResponse dispatch(RecordedRequest request) {

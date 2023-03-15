@@ -3,65 +3,44 @@
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.xsuaa.token.authentication;
+package testservice.api.v1;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.io.IOException;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import com.sap.cloud.security.xsuaa.MockXsuaaServerConfiguration;
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
 import com.sap.cloud.security.xsuaa.mock.JWTUtil;
 
-import okhttp3.mockwebserver.MockWebServer;
+import testservice.api.MockXsuaaServerConfiguration;
 import testservice.api.XsuaaITApplication;
-import testservice.api.v1.TestController;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(properties = { "xsuaa.xsappname=java-hello-world", "xsuaa.clientid=sb-java-hello-world",
-		"spring.main.allow-bean-definition-overriding=true" })
-@ContextConfiguration(classes = { XsuaaITApplication.class, testservice.api.v1.SecurityConfiguration.class,
-		TestController.class, XsuaaTokenValidationTest.class })
-@Import(MockXsuaaServerConfiguration.class)
+@SpringBootTest(classes = {
+		XsuaaITApplication.class,
+		TestController.class, XsuaaAutoConfiguration.class,
+})
 @AutoConfigureMockMvc
 @ActiveProfiles("test.api.v1")
-public class XsuaaTokenValidationTest {
+class XsuaaTokenValidationTest extends MockXsuaaServerConfiguration {
 	@Autowired
 	MockMvc mvc;
-
-	@BeforeAll
-	public static void startMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
-		xsuaaServer.start(33195);
-	}
-
-	@AfterAll
-	public static void shutdownMockServer(@Autowired MockWebServer xsuaaServer) throws IOException {
-		xsuaaServer.shutdown();
-	}
 
 	private static BearerTokenRequestPostProcessor bearerToken(String token) {
 		return new BearerTokenRequestPostProcessor(token);
 	}
 
 	@Test
-	public void testToken_testdomain() throws Exception {
+	void testToken_testdomain() throws Exception {
 		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
@@ -69,19 +48,19 @@ public class XsuaaTokenValidationTest {
 	}
 
 	@Test
-	public void testToken_otherdomain() throws Exception {
+	void testToken_otherdomain() throws Exception {
 		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain"))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
-	public void test_Scope() throws Exception {
+	void test_Scope() throws Exception {
 		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain"))))
 				.andExpect(status().isOk());
 	}
 
 	@Test
-	public void test_clientcredentialstoken() throws Exception {
+	void test_clientcredentialstoken() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
 						.with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa", "legacy-token-key"))))
@@ -90,7 +69,7 @@ public class XsuaaTokenValidationTest {
 	}
 
 	@Test
-	public void test_insufficientScopedToken_isUnauthorized() throws Exception {
+	void test_insufficientScopedToken_isUnauthorized() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
 						.with(bearerToken(
@@ -99,7 +78,7 @@ public class XsuaaTokenValidationTest {
 	}
 
 	@Test
-	public void test_expiredToken_isUnauthorized() throws Exception {
+	void test_expiredToken_isUnauthorized() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
 						.with(bearerToken(JWTUtil.createJWT("/expired.txt", "uaa", "legacy-token-key"))))
@@ -119,4 +98,5 @@ public class XsuaaTokenValidationTest {
 			return request;
 		}
 	}
+
 }
