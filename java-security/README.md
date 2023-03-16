@@ -305,7 +305,6 @@ Or, alternatively in `src/main/webapp/WEB-INF/web.xml`:
 </web-app>
 ```
 
-> In case your application provides no scopes, consider the documentation [here](Migration_SAPJavaBuildpackProjects_V2.md#new-feature-sap-java-buildpack-without-application-roles).
 
 
 #### java.util.ServiceConfigurationError: com.sap.cloud.security.token.TokenFactory: Provider com.sap.cloud.security.servlet.HybridTokenFactory not a subtype
