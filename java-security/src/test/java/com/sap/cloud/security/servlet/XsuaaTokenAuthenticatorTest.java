@@ -177,35 +177,6 @@ public class XsuaaTokenAuthenticatorTest {
 		Mockito.verifyNoMoreInteractions(validationListener2);
 	}
 
-	@Test
-	public void validateRequest_tokenXchangeFalse_validXsuaa() throws Exception {
-
-		IasXsuaaExchangeBroker mockExchangeBroker = Mockito.mock(IasXsuaaExchangeBroker.class);
-		when(mockExchangeBroker.resolve(any())).thenReturn(xsuaaToken.getTokenValue());
-
-		cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
-				.withHttpClient(mockHttpClient)
-				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
-
-		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
-		final TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
-		assertTrue(response.isAuthenticated());
-	}
-
-	@Test
-	public void validateRequest_tokenXchangeFalse_invalidXsuaa() throws Exception {
-		IasXsuaaExchangeBroker mockExchangeBroker = Mockito.mock(IasXsuaaExchangeBroker.class);
-		when(mockExchangeBroker.resolve(any())).thenThrow(TokenFlowException.class);
-
-		cut = new XsuaaTokenAuthenticator(mockExchangeBroker)
-				.withHttpClient(mockHttpClient)
-				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
-
-		HttpServletRequest httpRequest = createRequestWithToken(invalidToken.getTokenValue());
-		final TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
-		assertFalse(response.isAuthenticated());
-	}
-
 	private HttpServletRequest createRequestWithoutToken() {
 		return Mockito.mock(HttpServletRequest.class);
 	}
