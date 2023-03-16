@@ -6,12 +6,9 @@
 package com.sap.cloud.security.config;
 
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.Scanner;
-import java.util.function.UnaryOperator;
 
 /**
  * Central entry point to access the current SAP Cloud Platform
@@ -19,10 +16,7 @@ import java.util.function.UnaryOperator;
  */
 public class Environments {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Environments.class);
 	private static Environment currentEnvironment;
-	private static UnaryOperator<String> environmentVariableReader = System::getenv;
-
 	private Environments() {
 		// use factoryMethods instead
 	}
@@ -36,12 +30,7 @@ public class Environments {
 		if (currentEnvironment == null) {
 			currentEnvironment = new ServiceBindingEnvironment();
 		}
-
 		return currentEnvironment;
-	}
-
-	static void setEnvironmentVariableReader(UnaryOperator<String> environmentVariableReader) {
-		Environments.environmentVariableReader = environmentVariableReader;
 	}
 
 	/**
@@ -59,7 +48,6 @@ public class Environments {
 		while (scanner.hasNext()) {
 			vcapServices.append(scanner.nextLine());
 		}
-
 		return new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(str -> vcapServices.toString()));
 	}
 

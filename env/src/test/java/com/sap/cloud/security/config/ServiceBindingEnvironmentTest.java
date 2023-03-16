@@ -14,83 +14,87 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceBindingEnvironmentTest {
+    private static ServiceBindingEnvironment cutIas;
+    private static ServiceBindingEnvironment cutXsuaa;
+    private static ServiceBindingEnvironment cutMultipleXsuaa;
 
-    private static String singleXsuaaConfiguration;
-    private static String multipleXsuaaConfigurations;
-    private static String singleIasConfiguration;
+    private static String vcapXsa;
 
     @BeforeAll
     static void setUp() throws IOException {
-        singleXsuaaConfiguration = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
-        multipleXsuaaConfigurations = IOUtils.resourceToString("/vcapXsuaaServiceMultipleBindings.json", UTF_8);
-        singleIasConfiguration = IOUtils.resourceToString("/vcapIasServiceSingleBinding.json", UTF_8);
+        String singleXsuaaConfiguration = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
+        String multipleXsuaaConfigurations = IOUtils.resourceToString("/vcapXsuaaServiceMultipleBindings.json", UTF_8);
+        String singleIasConfiguration = IOUtils.resourceToString("/vcapIasServiceSingleBinding.json", UTF_8);
+        vcapXsa = IOUtils.resourceToString("/vcapXsuaaXsaSingleBinding.json", UTF_8);
+
+        cutIas = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleIasConfiguration));
+        cutXsuaa = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleXsuaaConfiguration));
+        cutMultipleXsuaa = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> multipleXsuaaConfigurations));
     }
 
     @Test
     void getNumberOfXsuaaConfigurations() {
-        ServiceBindingEnvironment cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleIasConfiguration));
-        assertEquals(0, cut.getNumberOfXsuaaConfigurations());
-
-        cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleXsuaaConfiguration));
-        assertEquals(1, cut.getNumberOfXsuaaConfigurations());
-
-        cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> multipleXsuaaConfigurations));
-        assertEquals(2, cut.getNumberOfXsuaaConfigurations());
+        assertEquals(0, cutIas.getNumberOfXsuaaConfigurations());
+        assertEquals(1, cutXsuaa.getNumberOfXsuaaConfigurations());
+        assertEquals(2, cutMultipleXsuaa.getNumberOfXsuaaConfigurations());
     }
 
     @Test
     void getXsuaaConfiguration() {
-        ServiceBindingEnvironment cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleIasConfiguration));
-        assertNull(cut.getXsuaaConfiguration());
-
-        cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleXsuaaConfiguration));
-        assertNotEquals(null, cut.getXsuaaConfiguration());
+        assertNull(cutIas.getXsuaaConfiguration());
+        assertNotNull(cutXsuaa.getXsuaaConfiguration());
+        assertEquals(Service.XSUAA, cutXsuaa.getXsuaaConfiguration().getService());
+        assertThat(cutMultipleXsuaa.getXsuaaConfiguration().getProperty(ServiceConstants.SERVICE_PLAN), equalToIgnoringCase(ServiceConstants.Plan.APPLICATION.toString()));
     }
 
     @Test
     void getXsuaaConfigurationForTokenExchange() {
-        ServiceBindingEnvironment cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> multipleXsuaaConfigurations));
-        assertThat(ServiceConstants.Plan.BROKER.toString(), is(equalToIgnoringCase(cut.getXsuaaConfigurationForTokenExchange().getProperty(ServiceConstants.SERVICE_PLAN))));
+        assertThat(cutMultipleXsuaa.getXsuaaConfigurationForTokenExchange().getProperty(ServiceConstants.SERVICE_PLAN), equalToIgnoringCase(ServiceConstants.Plan.BROKER.toString()));
+        assertNotSame(cutMultipleXsuaa.getXsuaaConfigurationForTokenExchange(), cutMultipleXsuaa.getXsuaaConfiguration());
 
-        cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleXsuaaConfiguration));
-        assertNotNull(cut.getXsuaaConfigurationForTokenExchange());
+        assertThat(cutXsuaa.getXsuaaConfigurationForTokenExchange().getProperty(ServiceConstants.SERVICE_PLAN), equalToIgnoringCase(ServiceConstants.Plan.APPLICATION.toString()));
+        assertSame(cutXsuaa.getXsuaaConfigurationForTokenExchange(), cutXsuaa.getXsuaaConfiguration());
+
+        assertNull(cutIas.getXsuaaConfigurationForTokenExchange());
     }
 
     @Test
     void getIasConfiguration() {
-        ServiceBindingEnvironment cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleXsuaaConfiguration));
-        assertNull(cut.getIasConfiguration());
-
-        cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleIasConfiguration));
-        assertNotEquals(null, cut.getIasConfiguration());
+        assertNull(cutXsuaa.getIasConfiguration());
+        assertNotNull(cutIas.getIasConfiguration());
+        assertThat(cutIas.getIasConfiguration().getService(), equalTo(Service.IAS));
+        assertThat(cutIas.getIasConfiguration().getClientId(), equalTo("T000310"));
+        assertThat(cutIas.getIasConfiguration().getClientSecret(), startsWith("pCghfbrL"));
+        assertThat(cutIas.getIasConfiguration().getDomains(), hasSize(2));
+        assertFalse(cutIas.getIasConfiguration().isLegacyMode());
     }
 
     @Test
     void getServiceConfigurations() {
-        ServiceBindingEnvironment cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleIasConfiguration));
-        Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> configs = cut.getServiceConfigurations();
+        Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> configs = cutIas.getServiceConfigurations();
         assertThat(configs.get(Service.XSUAA).entrySet(), is((empty())));
         assertThat(configs.get(Service.IAS).entrySet(), hasSize(1));
 
-        cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleXsuaaConfiguration));
-        configs = cut.getServiceConfigurations();
+        configs = cutXsuaa.getServiceConfigurations();
         assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(1));
         assertThat(configs.get(Service.IAS).entrySet(), is(empty()));
 
-        cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> multipleXsuaaConfigurations));
-        configs = cut.getServiceConfigurations();
+        configs = cutMultipleXsuaa.getServiceConfigurations();
         assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(2));
         assertThat(configs.get(Service.IAS).entrySet(), is(empty()));
     }
 
     @Test
-    void supportLegacyMode() {
-        ServiceBindingEnvironment cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleXsuaaConfiguration));
-        assertFalse(cut.getXsuaaConfiguration().isLegacyMode());
+    void getConfigurationOfXsuaaInstanceInXsaSystem() {
+        ServiceBindingEnvironment cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> vcapXsa))
+                .withEnvironmentVariableReader(vcap_application -> "{\"xs_api\" : \"\"}");
 
-        String aJSONContainingXs_Api = "{\"xs_api\" : \"\"}";
-        cut = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> singleXsuaaConfiguration))
-                .withEnvironmentVariableReader(vcap_application -> aJSONContainingXs_Api);
+        assertEquals(Service.XSUAA, cut.getXsuaaConfiguration().getService());
+        assertEquals(ServiceConstants.Plan.SPACE, ServiceConstants.Plan.from(cut.getXsuaaConfiguration().getProperty(ServiceConstants.SERVICE_PLAN)));
+        assertEquals("java-hello-world!i1", cut.getXsuaaConfiguration().getProperty(ServiceConstants.XSUAA.APP_ID));
         assertTrue(cut.getXsuaaConfiguration().isLegacyMode());
+
+        assertEquals(1, cut.getNumberOfXsuaaConfigurations());
+        assertThat(cut.getXsuaaConfigurationForTokenExchange(), sameInstance(cut.getXsuaaConfiguration()));
     }
 }
