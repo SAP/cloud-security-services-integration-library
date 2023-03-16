@@ -5,8 +5,6 @@
  */
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.config.cf.ServiceConstants;
-
 import javax.annotation.Nullable;
 
 import java.net.URI;
@@ -14,8 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.sap.cloud.security.config.cf.ServiceConstants.CERTIFICATE;
-import static com.sap.cloud.security.config.cf.ServiceConstants.KEY;
+import static com.sap.cloud.security.config.ServiceConstants.CERTIFICATE;
+import static com.sap.cloud.security.config.ServiceConstants.KEY;
 
 /**
  * Provides information of the identity {@link Service}.

@@ -8,7 +8,7 @@ package com.sap.cloud.security.adapter.xs;
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.ServiceBindingEnvironment;
-import com.sap.cloud.security.config.cf.ServiceConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.XsuaaScopeConverter;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;

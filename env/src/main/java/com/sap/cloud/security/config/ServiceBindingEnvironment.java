@@ -9,7 +9,6 @@ import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccesso
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.environment.servicebinding.api.ServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.TypedMapView;
-import com.sap.cloud.security.config.cf.ServiceConstants;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +22,9 @@ import java.util.stream.Stream;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.cf.ServiceConstants.IAS.DOMAINS;
-import static com.sap.cloud.security.config.cf.ServiceConstants.SERVICE_PLAN;
-import static com.sap.cloud.security.config.cf.ServiceConstants.VCAP_APPLICATION;
+import static com.sap.cloud.security.config.ServiceConstants.IAS.DOMAINS;
+import static com.sap.cloud.security.config.ServiceConstants.SERVICE_PLAN;
+import static com.sap.cloud.security.config.ServiceConstants.VCAP_APPLICATION;
 
 public class ServiceBindingEnvironment implements Environment {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBindingEnvironment.class);

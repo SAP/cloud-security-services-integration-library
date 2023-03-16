@@ -8,7 +8,7 @@ package com.sap.cloud.security.adapter.xs;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.ServiceConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.json.JsonObject;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.*;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.sap.cloud.security.adapter.xs.XSUserInfoAdapter.*;
-import static com.sap.cloud.security.config.cf.ServiceConstants.XSUAA.IDENTITY_ZONE;
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.IDENTITY_ZONE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;

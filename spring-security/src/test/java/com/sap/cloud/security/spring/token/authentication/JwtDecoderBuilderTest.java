@@ -9,7 +9,7 @@ import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.ServiceConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Test;

@@ -7,7 +7,7 @@ package com.sap.cloud.security.test.performance;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.cf.ServiceConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.test.SecurityTest;
 import com.sap.cloud.security.test.performance.util.BenchmarkUtil;
 import com.sap.cloud.security.token.Token;
@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.cf.ServiceConstants.XSUAA.VERIFICATION_KEY;
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.VERIFICATION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

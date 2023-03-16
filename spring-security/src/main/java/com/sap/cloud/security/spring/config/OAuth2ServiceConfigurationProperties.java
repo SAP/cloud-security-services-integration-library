@@ -6,7 +6,7 @@
 package com.sap.cloud.security.spring.config;
 
 import com.sap.cloud.security.config.*;
-import com.sap.cloud.security.config.cf.ServiceConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 
 import java.net.URI;
 import java.util.List;

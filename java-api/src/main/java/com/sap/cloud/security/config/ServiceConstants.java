@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.config.cf;
+package com.sap.cloud.security.config;
 
 /**
  * Constants that simplifies access to service configuration properties.

@@ -6,11 +6,12 @@
 package com.sap.cloud.security.config.cf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.json.JsonParsingException;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.sap.cloud.security.config.cf.ServiceConstants.XSUAA.VERIFICATION_KEY;
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.VERIFICATION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

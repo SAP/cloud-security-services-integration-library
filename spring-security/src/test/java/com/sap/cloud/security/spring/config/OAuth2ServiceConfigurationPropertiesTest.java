@@ -7,10 +7,10 @@ package com.sap.cloud.security.spring.config;
 
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.ServiceConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import org.junit.jupiter.api.Test;
 
-import static com.sap.cloud.security.config.cf.ServiceConstants.*;
+import static com.sap.cloud.security.config.ServiceConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class OAuth2ServiceConfigurationPropertiesTest {

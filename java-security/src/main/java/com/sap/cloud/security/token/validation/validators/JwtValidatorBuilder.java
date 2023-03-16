@@ -7,7 +7,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.ServiceConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationListener;
@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.cf.ServiceConstants.XSUAA.UAA_DOMAIN;
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.UAA_DOMAIN;
 
 /**
  * Class used to build a token validator for a oauth service configuration

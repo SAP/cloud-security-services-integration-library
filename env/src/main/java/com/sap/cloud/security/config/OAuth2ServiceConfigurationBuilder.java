@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import java.net.URI;
 import java.util.*;
 
-import static com.sap.cloud.security.config.cf.ServiceConstants.*;
+import static com.sap.cloud.security.config.ServiceConstants.*;
 
 /**
  * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) for a
