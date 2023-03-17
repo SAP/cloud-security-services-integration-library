@@ -11,7 +11,7 @@ import org.junit.Test;
 import java.net.URI;
 import java.util.Collections;
 
-import static com.sap.cloud.security.config.cf.CFConstants.URL;
+import static com.sap.cloud.security.config.ServiceConstants.URL;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 

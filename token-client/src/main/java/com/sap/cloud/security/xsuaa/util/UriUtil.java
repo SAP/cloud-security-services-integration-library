@@ -42,11 +42,11 @@ public class UriUtil {
 				return uri.resolve(new URI(uri.getScheme(), uri.getUserInfo(), newHost, uri.getPort(), uri.getPath(),
 						uri.getQuery(), uri.getFragment()));
 			} catch (URISyntaxException e) {
-				logger.error("Could not replace subdomain {} in given uri {}", subdomain, uri);
+				logger.error("Could not replace subdomain in given uri {}", uri);
 				throw new IllegalArgumentException(e);
 			}
 		}
-		logger.debug("the subdomain of the URI '{}' is not replaced by subdomain '{}'", uri, subdomain);
+		logger.debug("the subdomain of the URI {} was not replaced by subdomain", uri);
 		return uri;
 	}
 

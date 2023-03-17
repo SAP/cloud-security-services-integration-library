@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.VERIFICATION_KEY;
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.VERIFICATION_KEY;
 
 public class VcapServicesParser {
 
@@ -106,7 +106,7 @@ public class VcapServicesParser {
 	 * @return the extracted configuration
 	 */
 	private static OAuth2ServiceConfiguration findConfiguration(String vcapServicesJson) {
-		Map<Service, Map<ServicePlan, OAuth2ServiceConfiguration>> serviceConfigurations =
+		Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> serviceConfigurations =
 				new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> vcapServicesJson)).getServiceConfigurations();
 		List<OAuth2ServiceConfiguration> oAuth2ServiceConfigurations = serviceConfigurations
 				.values()

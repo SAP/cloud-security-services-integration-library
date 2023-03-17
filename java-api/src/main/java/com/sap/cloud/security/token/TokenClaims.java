@@ -15,15 +15,7 @@ public final class TokenClaims {
 		throw new IllegalStateException("Utility class");
 	}
 
-	/**
-	 * @deprecated Use {@link Token#getIssuer()} instead.
-	 */
-	@Deprecated
 	public static final String ISSUER = "iss";
-	/**
-	 * @deprecated Use {@link Token#getIssuer()} instead.
-	 */
-	@Deprecated
 	public static final String IAS_ISSUER = "ias_iss";
 	public static final String EXPIRATION = "exp";
 	public static final String AUDIENCE = "aud";
@@ -55,10 +47,6 @@ public final class TokenClaims {
 		public static final String ORIGIN = "origin";
 		public static final String GRANT_TYPE = "grant_type"; // OAuth grant type used for token creation
 		public static final String ZONE_ID = "zid"; // tenant GUID -> SAP_GLOBAL_ZONE_ID
-		/**
-		 * @deprecated Use {@link Token#getClientId} instead.
-		 */
-		@Deprecated
 		public static final String CLIENT_ID = "cid"; // avoid using directly, make use of Token#getClientId() instead
 		public static final String SCOPES = "scope"; // list of scopes including app id, e.g. "my-app!t123.Display"
 		public static final String ISSUED_AT = "iat";

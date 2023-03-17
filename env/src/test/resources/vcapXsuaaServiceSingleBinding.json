@@ -5,7 +5,7 @@
       "label": "xsuaa",
       "binding_name": null,
       "instance_name": "my-xsuaa",
-      "plan": "broker",
+      "plan": "application",
       "provider": null,
       "syslog_drain_url": null,
       "tags": [

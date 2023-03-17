@@ -20,7 +20,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.APP_ID;
 
 /**
  * {@link EnableAutoConfiguration} exposes a {@link JwtDecoder}, which is able

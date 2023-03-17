@@ -51,12 +51,6 @@ public class TokenUtilTest {
 	}
 
 	@Test
-	public void isXchangeEnabledTest() {
-		assertEquals("true", iasXchange);
-		assertTrue(TokenUtil.isIasToXsuaaXchangeEnabled());
-	}
-
-	@Test
 	public void parseXsuaaTest() {
 		Jwt jwt = TokenUtil.parseJwt(TokenUtil.decodeJwt(encodedXsuaaToken));
 		assertEquals(2, jwt.getHeaders().size());

@@ -35,7 +35,7 @@ class TestControllerIasTest {
 	private String jwt;
 
 	@BeforeEach
-	void setup(SecurityTestContext securityTest) throws IOException {
+	void setup(SecurityTestContext securityTest) {
 		jwt = securityTest.getPreconfiguredJwtGenerator()
 				.withClaimsFromFile("/iasClaims.json")
 				.createToken().getTokenValue();
@@ -49,6 +49,12 @@ class TestControllerIasTest {
 
 		assertTrue(response.contains("sb-clientId!t0815"));
 		assertTrue(response.contains("the-zone-id"));
+	}
+
+	@Test
+	void sayHello_compatibility() throws Exception {
+		mvc.perform(get("/comp/sayHello").with(bearerToken(jwt)))
+				.andExpect(status().is5xxServerError());
 	}
 
 	@Test

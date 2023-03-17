@@ -46,7 +46,7 @@ public class SpringSecurityContextTest {
 
 	@BeforeEach
 	public void setUp() throws IOException {
-		token = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
+		token = new XsuaaToken(IOUtils.resourceToString("/xsuaaJwtBearerTokenRSA256.txt", UTF_8));
 		sapIdToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 		SpringSecurityContext.clear();
 	}

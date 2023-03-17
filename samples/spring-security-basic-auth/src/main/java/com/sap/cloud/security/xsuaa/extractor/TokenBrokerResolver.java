@@ -11,9 +11,7 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
-import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
@@ -38,10 +36,6 @@ import java.util.Optional;
  * {@code X-Identity-Zone-Subdomain} must be set (or the
  * AuthenticationInformationExtractor needs to be implemented).
  *
- * Token exchange between IAS and XSUAA is disabled by default. To enable IAS to
- * XSUAA token exchange set the environment variable IAS_XSUAA_XCHANGE_ENABLED
- * to any value except false.
- *
  */
 public class TokenBrokerResolver implements BearerTokenResolver {
 
@@ -49,14 +43,12 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 	private static final String AUTH_BASIC_CREDENTIAL = HttpServletRequest.BASIC_AUTH;
 	private static final String AUTH_HEADER = "Authorization";
-	private static final String AUTH_BEARER = "bearer";
 
 	private final XsuaaServiceConfiguration configuration;
 
 	private final Cache tokenCache;
 	private final OAuth2TokenService oAuth2TokenService;
 	private AuthenticationInformationExtractor authenticationConfig;
-	private IasXsuaaExchangeBroker iasXsuaaExchangeBroker;
 
 	/**
 	 * @param configuration
@@ -76,7 +68,6 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		this.tokenCache = tokenCache;
 		this.oAuth2TokenService = tokenService;
 		this.authenticationConfig = authenticationConfig;
-		this.iasXsuaaExchangeBroker = new IasXsuaaExchangeBroker(configuration, tokenService);
 	}
 
 	@Override
@@ -135,23 +126,6 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	private String getBrokerToken(AuthenticationMethod credentialType, String authHeaderValue,
 			String oauthTokenUrl, ClientIdentity clientIdentity) throws TokenBrokerException, OAuth2ServiceException {
 		switch (credentialType) {
-		case OAUTH2:
-			String oAuth2token = extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
-
-			if (oAuth2token == null) {
-				break;
-			}
-
-			DecodedJwt decodedJwt = TokenUtil.decodeJwt(oAuth2token);
-			if (!TokenUtil.isXsuaaToken(decodedJwt)) {
-				try {
-					return iasXsuaaExchangeBroker.doIasXsuaaXchange(decodedJwt);
-				} catch (JSONException e) {
-					logger.error("Couldn't decode the token: {}", e.getMessage());
-				}
-			}
-
-			return oAuth2token;
 		case BASIC:
 			String basicAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL, authHeaderValue);
 			ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(

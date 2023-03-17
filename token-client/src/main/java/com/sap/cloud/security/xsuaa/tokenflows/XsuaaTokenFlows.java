@@ -5,12 +5,11 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import java.io.Serializable;
-
-import com.sap.cloud.security.config.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+
+import java.io.Serializable;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
@@ -63,16 +62,6 @@ public class XsuaaTokenFlows implements Serializable {
 		this.oAuth2TokenService = oAuth2TokenService;
 		this.endpointsProvider = endpointsProvider;
 		this.clientIdentity = clientIdentity;
-	}
-
-	/**
-	 * Creates a new User Token Flow builder object. Token, authorize and key set
-	 * endpoints will be derived relative to the base URI.
-	 * 
-	 * @return the {@link UserTokenFlow} builder object.
-	 */
-	public UserTokenFlow userTokenFlow() {
-		return new UserTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 
 	/**

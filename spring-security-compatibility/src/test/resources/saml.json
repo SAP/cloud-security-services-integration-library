@@ -1,0 +1,58 @@
+{
+  "payload": {
+    "jti": "8e7b3b00-7751-4b46-9b1a-5a46a2a1d5b8",
+    "xs.user.attributes": {
+      "cost-center": [
+        "0815",
+        "4711"
+      ],
+      "country": [
+        "Germany"
+      ],
+      "empty-array": []
+    },
+    "xs.system.attributes": {
+      "xs.saml.groups": [
+        "g1"
+      ],
+      "xs.rolecollections": [
+        "rc1"
+      ]
+    },
+    "sub": "1002191",
+    "scope": [
+      "java-hello-world.Display",
+      "openid",
+      "java-hello-world.Delete",
+      "java-hello-world.Create"
+    ],
+    "client_id": "sb-java-hello-world",
+    "cid": "sb-java-hello-world",
+    "azp": "sb-java-hello-world",
+    "grant_type": "authorization_code",
+    "user_id": "1002191",
+    "user_name": "Mustermann",
+    "origin": "useridp",
+    "email": "max@example.com",
+    "iat": 1442912244,
+    "exp": 1442955322,
+    "iss": "http://localhost:8080/uaa/oauth/token",
+    "zid": "11-22-33",
+    "hdb.nameduser.saml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><saml2:Assertion xmlns:saml2=\"urn:oasis:names:tc:SAML:2.0:assertion\" ID=\"_f946bc7b-9339-4200-b7eb-1bba6580106b\" IssueInstant=\"2015-09-22T08:55:22.755Z\" Version=\"2.0\"><saml2:Issuer>xs2-login-test.cf.sap-cf.com-saml-login</saml2:Issuer><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/><ds:SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\"/><ds:Reference URI=\"#_f946bc7b-9339-4200-b7eb-1bba6580106b\"><ds:Transforms><ds:Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/><ds:Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/></ds:Transforms><ds:DigestMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#sha1\"/><ds:DigestValue>nCBFNaR4yfXHaICtvZh6TVpXmIw=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>CVJvIPgfOY6vmF89TfmpxYmIVAaQ3bmJTajeNNuMEC1XNtJwOzz2OeF6xVV1oZI536KADMyPfNVpDnmuPZAEs6qIG7KVFeX+P13GQX237hmDqx1UdtnM94Ca8yWybtaIxcY+O20PbAEkTZAZrP+rs0mN78AIFNMJa+sIZNbnLuU=</ds:SignatureValue></ds:Signature><saml2:Subject><saml2:NameID Format=\"urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified\">WOLFGANG</saml2:NameID><saml2:SubjectConfirmation Method=\"urn:oasis:names:tc:SAML:2.0:cm:bearer\"><saml2:SubjectConfirmationData NotOnOrAfter=\"2015-09-22T12:55:22.755Z\"/></saml2:SubjectConfirmation></saml2:Subject><saml2:Conditions NotBefore=\"2015-09-22T08:55:22.755Z\" NotOnOrAfter=\"2015-09-22T12:55:22.755Z\"/><saml2:AuthnStatement AuthnInstant=\"2015-09-22T08:55:22.757Z\" SessionNotOnOrAfter=\"2015-09-22T09:00:22.757Z\"><saml2:AuthnContext><saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml2:AuthnContextClassRef></saml2:AuthnContext></saml2:AuthnStatement></saml2:Assertion>",
+    "aud": [
+      "sb-java-hello-world",
+      "java-hello-world",
+      "openid"
+    ],
+    "az_attr": {
+      "external_group": "domain\\group1",
+      "external_id": "abcd1234"
+    },
+    "ext_attr": {
+      "enhancer": "XSUAA",
+      "serviceinstanceid": "abcd1234",
+      "zdn": "testsubdomain",
+      "subaccountid": "test-subaccount"
+    }
+  }
+}

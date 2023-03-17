@@ -25,9 +25,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
@@ -46,6 +44,7 @@ public class SecurityConfiguration {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/sayHello").hasAuthority("Read")
+                .antMatchers("/comp/sayHello").hasAuthority("Read")
                 .antMatchers("/*").authenticated()
                 .anyRequest().denyAll()
                 .and()
@@ -79,19 +78,6 @@ public class SecurityConfiguration {
                 }
             }
             return groupAuthorities;
-        }
-    }
-
-    /**
-     * Workaround for IAS only use case until Cloud Authorization Service is globally available.
-     */
-    class MyCustomIasTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
-
-        public AbstractAuthenticationToken convert(Jwt jwt) {
-            final List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
-            final List<GrantedAuthority> groupAuthorities = groups == null ? Collections.emptyList()
-                    : groups.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-            return new AuthenticationToken(jwt, groupAuthorities);
         }
     }
 }

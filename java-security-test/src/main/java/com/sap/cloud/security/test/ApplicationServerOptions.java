@@ -8,7 +8,7 @@ package com.sap.cloud.security.test;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.servlet.IasTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticator;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
@@ -115,8 +115,8 @@ public class ApplicationServerOptions {
 	private static OAuth2ServiceConfiguration createServiceConfiguration(String appId, String clientId) {
 		return OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(clientId)
-				.withProperty(CFConstants.XSUAA.APP_ID, appId)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
+				.withProperty(ServiceConstants.XSUAA.APP_ID, appId)
+				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
 				.build();
 	}
 
