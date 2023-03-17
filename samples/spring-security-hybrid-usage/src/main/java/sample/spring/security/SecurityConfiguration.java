@@ -25,7 +25,9 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
@@ -51,8 +53,8 @@ public class SecurityConfiguration {
                 .oauth2ResourceServer()
                 .jwt()
                 .jwtAuthenticationConverter(new MyCustomHybridTokenAuthenticationConverter()); // Adjust the converter to represent your use case
-                                                                                               // Use MyCustomHybridTokenAuthenticationConverter when IAS and XSUAA is used
-                                                                                               // Use MyCustomIasTokenAuthenticationConverter when only IAS is used
+        // Use MyCustomHybridTokenAuthenticationConverter when IAS and XSUAA is used
+        // Use MyCustomIasTokenAuthenticationConverter when only IAS is used
         // @formatter:on
         return http.build();
     }
@@ -80,4 +82,18 @@ public class SecurityConfiguration {
             return groupAuthorities;
         }
     }
+
+    /**
+     * Workaround for IAS only use case until Cloud Authorization Service is globally available.
+     */
+    class MyCustomIasTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+
+        public AbstractAuthenticationToken convert(Jwt jwt) {
+            final List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+            final List<GrantedAuthority> groupAuthorities = groups == null ? Collections.emptyList()
+                    : groups.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+            return new AuthenticationToken(jwt, groupAuthorities);
+        }
+    }
 }
+
