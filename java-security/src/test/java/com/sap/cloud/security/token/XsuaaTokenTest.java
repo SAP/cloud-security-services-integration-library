@@ -28,7 +28,7 @@ public class XsuaaTokenTest {
 	public XsuaaTokenTest() throws IOException {
 		clientCredentialsToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
-		userToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
+		userToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaJwtBearerTokenRSA256.txt", UTF_8));
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class XsuaaTokenTest {
 	@Test
 	public void getGrantType() {
 		assertThat(clientCredentialsToken.getGrantType()).isEqualTo(GrantType.CLIENT_CREDENTIALS);
-		assertThat(userToken.getGrantType()).isEqualTo(GrantType.USER_TOKEN);
+		assertThat(userToken.getGrantType()).isEqualTo(GrantType.JWT_BEARER);
 	}
 
 	@Test
@@ -109,7 +109,7 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void getPrincipalShouldBeEqualForSameUser() throws IOException {
-		Token userToken2 = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
+		Token userToken2 = new XsuaaToken(IOUtils.resourceToString("/xsuaaJwtBearerTokenRSA256.txt", UTF_8));
 		assertThat(userToken.getPrincipal()).isEqualTo(userToken2.getPrincipal());
 	}
 
@@ -164,8 +164,8 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getSubaccountId_noSubaccountIdAndNoFallback_isNull() {
-		assertThat(userToken.getSubaccountId()).isNull();
+	public void getSubaccountId_noSubaccountIdAndFallback_toZoneId() {
+		assertThat(userToken.getSubaccountId()).isEqualTo("the-zone-id");
 	}
 
 }

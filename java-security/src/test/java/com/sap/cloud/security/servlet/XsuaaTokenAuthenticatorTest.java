@@ -13,7 +13,6 @@ import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.util.HttpClientTestFactory;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -30,7 +29,6 @@ import java.io.IOException;
 import static com.sap.cloud.security.config.ServiceConstants.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -49,7 +47,7 @@ public class XsuaaTokenAuthenticatorTest {
 	private AbstractTokenAuthenticator cut;
 
 	public XsuaaTokenAuthenticatorTest() throws IOException {
-		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
+		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaJwtBearerTokenRSA256.txt", UTF_8));
 		invalidToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
 		iasToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
@@ -66,7 +64,7 @@ public class XsuaaTokenAuthenticatorTest {
 
 		CloseableHttpResponse xsuaaTokenResponse = HttpClientTestFactory
 				.createHttpResponse(
-						"{ \"access_token\": \"" + IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8)
+						"{ \"access_token\": \"" + IOUtils.resourceToString("/xsuaaJwtBearerTokenRSA256.txt", UTF_8)
 								+ "\", \"expires_in\" : 43199}");
 		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(xsuaaTokenResponse);
 
