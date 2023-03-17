@@ -8,7 +8,7 @@ package com.sap.cloud.security.servlet;
 import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.ServiceConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.x509.X509Certificate;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;

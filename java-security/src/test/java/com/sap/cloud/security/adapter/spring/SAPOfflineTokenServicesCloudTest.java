@@ -29,8 +29,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.sap.cloud.security.config.cf.ServiceConstants.CLIENT_ID;
-import static com.sap.cloud.security.config.cf.ServiceConstants.XSUAA;
+import static com.sap.cloud.security.config.ServiceConstants.CLIENT_ID;
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
