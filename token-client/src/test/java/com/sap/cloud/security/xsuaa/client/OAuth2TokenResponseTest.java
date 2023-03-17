@@ -9,12 +9,11 @@ import org.hamcrest.number.OrderingComparison;
 import org.junit.Test;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public class OAuth2TokenResponseTest {
 
