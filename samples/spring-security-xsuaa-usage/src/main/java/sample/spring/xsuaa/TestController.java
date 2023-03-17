@@ -158,19 +158,21 @@ public class TestController {
      * @param token - the Jwt as a result of authentication.
      * @throws TokenFlowException in case of any errors.
      */
-    @GetMapping("/v3/requestUserToken")
-    public String requestUserToken(@AuthenticationPrincipal Token token) throws TokenFlowException {
-        OAuth2TokenResponse userTokenResponse = tokenFlows.userTokenFlow()
-                .token(token.getAppToken())
-                .subdomain(token.getSubdomain())
-                .execute();
-
-        logger.info("Got the exchanged token for 3rd party service: {}", userTokenResponse);
-        logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ", userTokenResponse);
-
-        return "<p>The access-token (decoded):</p><p>" + userTokenResponse.getDecodedAccessToken().getPayload()
-                + "</p><p>The refresh-token: </p><p>" + userTokenResponse.getRefreshToken()
-                + "</p><p>The access-token (encoded) can be found in the logs 'cf logs spring-security-xsuaa-usage --recent'</p>";
+    @GetMapping("/v3/requestJwtBearerToken")
+    public String requestUserToken(@AuthenticationPrincipal Token token) {
+//        TODO adapt with the new JwtBeaerTokenFlow
+//        OAuth2TokenResponse userTokenResponse = tokenFlows.userTokenFlow()
+//                .token(token.getAppToken())
+//                .subdomain(token.getSubdomain())
+//                .execute();
+//
+//        logger.info("Got the exchanged token for 3rd party service: {}", userTokenResponse);
+//        logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ", userTokenResponse);
+//
+//        return "<p>The access-token (decoded):</p><p>" + userTokenResponse.getDecodedAccessToken().getPayload()
+//                + "</p><p>The refresh-token: </p><p>" + userTokenResponse.getRefreshToken()
+//                + "</p><p>The access-token (encoded) can be found in the logs 'cf logs spring-security-xsuaa-usage --recent'</p>";
+        return "";
     }
 
     /**
