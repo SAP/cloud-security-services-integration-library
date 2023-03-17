@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -87,7 +87,7 @@ public class XsuaaTokenFlows implements Serializable {
 	}
 
 	/**
-	 * Creates a new Refresh Token Flow builder object.<br>
+	 * Creates a new Password Token Flow builder object.<br>
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
 	 *
@@ -95,5 +95,16 @@ public class XsuaaTokenFlows implements Serializable {
 	 */
 	public PasswordTokenFlow passwordTokenFlow() {
 		return new PasswordTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
+	}
+
+	/**
+	 * Creates a new JWT Bearer Token Flow builder object.<br>
+	 * Token, authorize and key set endpoints will be derived relative to the base
+	 * URI.
+	 *
+	 * @return the {@link JwtBearerTokenFlow} builder object.
+	 */
+	public JwtBearerTokenFlow jwtBearerTokenFlow() {
+		return new JwtBearerTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 }

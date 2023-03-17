@@ -5,9 +5,12 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
@@ -24,7 +27,7 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SC
  * using a builder pattern.
  */
 public class ClientCredentialsTokenFlow {
-	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
+	private static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	private final OAuth2TokenService tokenService;
 	private final OAuth2ServiceEndpointsProvider endpointsProvider;
 	private final ClientIdentity clientIdentity;
@@ -98,7 +101,7 @@ public class ClientCredentialsTokenFlow {
 	 * Sets the scope attribute for the token request. This will restrict the scope
 	 * of the created token to the scopes provided. By default the scope is not
 	 * restricted and the created token contains all granted scopes.
-	 *
+	 * <br>
 	 * If you specify a scope that is not authorized for the client, the token
 	 * request will fail.
 	 *
@@ -137,7 +140,7 @@ public class ClientCredentialsTokenFlow {
 	 */
 	@Nullable
 	public OAuth2TokenResponse execute() throws IllegalArgumentException, TokenFlowException {
-		Map<String, String> requestParameter = new HashMap();
+		Map<String, String> requestParameter = new HashMap<>();
 		String authorities = buildAuthorities();
 
 		if (authorities != null) {
@@ -165,14 +168,14 @@ public class ClientCredentialsTokenFlow {
 	 * request does not have any additional authorities set.
 	 *
 	 * @return the additional authorities claims or null, if the request has no
-	 *         additional authorities set.
-	 * @throws TokenFlowException
+	 * additional authorities set.
+	 * @throws IllegalArgumentException in case authorization attributes couldn't be mapped
 	 */
+	@Nullable
 	private String buildAuthorities() throws IllegalArgumentException {
 		if (authzAttributes== null) {
 			return null;
 		}
-
 		try {
 			Map<String, Object> additionalAuthorizationAttributes = new HashMap<>();
 			additionalAuthorizationAttributes.put(CLAIM_ADDITIONAL_AZ_ATTR, authzAttributes);

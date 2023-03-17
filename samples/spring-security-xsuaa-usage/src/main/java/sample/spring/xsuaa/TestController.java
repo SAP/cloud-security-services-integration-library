@@ -151,25 +151,25 @@ public class TestController {
      * Rather the intention is to have a Jwt token to call Service A (containing just the scopes of Service A),
      * and another one to call Service B (containing just the scopes of Service B). An application calling Service A and
      * B on behalf of a user therefore has to exchange the user's Jwt token against a token for Service A and B respectively
-     * before calling these services. This scenario is handled by the user token flow.
+     * before calling these services. This scenario is handled by the JWT Bearer token flow.
      * <p>
      *
      *
      * @param token - the Jwt as a result of authentication.
      * @throws TokenFlowException in case of any errors.
      */
-    @GetMapping("/v3/requestUserToken")
-    public String requestUserToken(@AuthenticationPrincipal Token token) throws TokenFlowException {
-        OAuth2TokenResponse userTokenResponse = tokenFlows.userTokenFlow()
-                .token(token.getAppToken())
+    @GetMapping("/v3/requestJwtBearerToken")
+    public String requestJwtBearerToken(@AuthenticationPrincipal Token token) throws TokenFlowException {
+        OAuth2TokenResponse tokenResponse = tokenFlows.jwtBearerTokenFlow()
+                .bearerToken(token.getAppToken())
                 .subdomain(token.getSubdomain())
                 .execute();
 
-        logger.info("Got the exchanged token for 3rd party service: {}", userTokenResponse);
-        logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ", userTokenResponse);
+        logger.info("Got the exchanged token for 3rd party service: {}", tokenResponse);
+        logger.info("You can now call the 3rd party service passing the exchanged token value: {}. ", tokenResponse);
 
-        return "<p>The access-token (decoded):</p><p>" + userTokenResponse.getDecodedAccessToken().getPayload()
-                + "</p><p>The refresh-token: </p><p>" + userTokenResponse.getRefreshToken()
+        return "<p>The access-token (decoded):</p><p>" + tokenResponse.getDecodedAccessToken().getPayload()
+                + "</p><p>The refresh-token: </p><p>" + tokenResponse.getRefreshToken()
                 + "</p><p>The access-token (encoded) can be found in the logs 'cf logs spring-security-xsuaa-usage --recent'</p>";
     }
 

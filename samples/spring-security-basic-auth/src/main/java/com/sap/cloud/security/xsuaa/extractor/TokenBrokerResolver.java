@@ -43,7 +43,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 	private static final String AUTH_BASIC_CREDENTIAL = HttpServletRequest.BASIC_AUTH;
 	private static final String AUTH_HEADER = "Authorization";
-
+	private static final String AUTH_BEARER = "bearer";
 	private final XsuaaServiceConfiguration configuration;
 
 	private final Cache tokenCache;
@@ -74,13 +74,13 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	public String resolve(HttpServletRequest request) {
 		try {
 			return extractToken(request);
-		} catch (TokenBrokerException | OAuth2ServiceException e) {
+		} catch (OAuth2ServiceException e) {
 			logger.warn("Error obtaining token: " + e.getMessage(), e);
 			return null;
 		}
 	}
 
-	private String extractToken(HttpServletRequest request) throws TokenBrokerException, OAuth2ServiceException {
+	private String extractToken(HttpServletRequest request) throws OAuth2ServiceException {
 		List<AuthenticationMethod> authenticationMethods = authenticationConfig.getAuthenticationMethods(request);
 
 		checkTypes(authenticationMethods);
@@ -124,18 +124,20 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	}
 
 	private String getBrokerToken(AuthenticationMethod credentialType, String authHeaderValue,
-			String oauthTokenUrl, ClientIdentity clientIdentity) throws TokenBrokerException, OAuth2ServiceException {
+								  String oauthTokenUrl, ClientIdentity clientIdentity) throws OAuth2ServiceException {
 		switch (credentialType) {
-		case BASIC:
-			String basicAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL, authHeaderValue);
-			ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
-					basicAuthHeader);
-			if (userCredentialsFromHeader != null) {
-				String cacheKey = createSecureHash(oauthTokenUrl, clientIdentity.toString(),
-						userCredentialsFromHeader.toString());
-				String cachedToken = tokenCache.get(cacheKey, String.class);
-				if (cachedToken != null) {
-					logger.debug("return (basic) access token for {} from cache", cacheKey);
+			case OAUTH2:
+				return extractAuthenticationFromHeader(AUTH_BEARER, authHeaderValue);
+			case BASIC:
+				String basicAuthHeader = extractAuthenticationFromHeader(AUTH_BASIC_CREDENTIAL, authHeaderValue);
+				ClientCredentials userCredentialsFromHeader = getCredentialsFromBasicAuthorizationHeader(
+						basicAuthHeader);
+				if (userCredentialsFromHeader != null) {
+					String cacheKey = createSecureHash(oauthTokenUrl, clientIdentity.toString(),
+							userCredentialsFromHeader.toString());
+					String cachedToken = tokenCache.get(cacheKey, String.class);
+					if (cachedToken != null) {
+						logger.debug("return (basic) access token for {} from cache", cacheKey);
 					return cachedToken;
 				} else {
 					String token = oAuth2TokenService.retrieveAccessTokenViaPasswordGrant(URI.create(oauthTokenUrl),

@@ -243,27 +243,29 @@ OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
                               .execute();
 ```
 ### User Token Flow
-In order to exchange a user token for another user access token:
-```java
-Token jwtToken = SpringSecurityContext.getToken();
+Deprecated, please use Jwt bearer token flow instead.
 
-OAuth2TokenResponse userToken = tokenFlows.userTokenFlow()
-                .token(jwtToken)
-                .subdomain(jwtToken.getSubdomain()) // optional, if not set it trys to extract zone Id from token
-                .disableCache(true)                 // optionally disables token cache for request
-                .attributes(additionalAttributes)   // this is optional
-                .execute();
+### Jwt Bearer Token Flow
+In order to exchange an access token for a different service:
+
+```java
+OAuth2TokenResponse tokenResponse = tokenFlows.jwtBearerTokenFlow()
+                                    .bearerToken(bearerToken)
+                                    .subdomain(bearerToken.getSubdomain()) // optional
+                                    .scopes("READ") // optional restriction of granted scopes
+                                    .disableCache(true)  // optionally disables token cache for request
+                                    .execute();
 ```
 
 ### Password Token Flow
 In order to obtain an access token for a user:
 ```java
-OAuth2TokenResponse clientCredentialsToken = tokenFlows.passwordTokenFlow()
-                                                    .subdomain(jwtToken.getSubdomain()) 
-                                                    .username(<your username>)
-                                                    .password(<your password>)
-                                                    .disableCache(true)  // optionally disables token cache for request
-                                                    .execute();
+OAuth2TokenResponse tokenResponse = tokenFlows.passwordTokenFlow()
+                                    .subdomain(jwtToken.getSubdomain()) 
+                                    .username(<your username>)
+                                    .password(<your password>)
+                                    .disableCache(true)  // optionally disables token cache for request
+                                    .execute();
 ```
 
 
@@ -314,7 +316,7 @@ If you have classpath related  issues involving JSON you should take a look at t
 ```  
 Token exchange is only supported within the same identity zone/tenant. That means, that you have to call the `/oauth/token` endpoint of the same subdomain, that was used for the original token. This can be achieved by configuring the user token flow the following way:
 ````
-tokenFlows.userTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());
+tokenFlows.jwtBearerTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());
 ````
 
 #### In Spring: `UnsatisfiedDependencyException`
