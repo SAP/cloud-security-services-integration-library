@@ -246,17 +246,26 @@ OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
 Deprecated, please use Jwt bearer token flow instead.
 
 ### Jwt Bearer Token Flow
-[//]: # (TODO fill in details)
+In order to exchange an access token for a different service:
+
+```java
+OAuth2TokenResponse tokenResponse = tokenFlows.jwtBearerTokenFlow()
+                                    .bearerToken(bearerToken)
+                                    .subdomain(bearerToken.getSubdomain()) // optional
+                                    .scopes("READ") // optional restriction of granted scopes
+                                    .disableCache(true)  // optionally disables token cache for request
+                                    .execute();
+```
 
 ### Password Token Flow
 In order to obtain an access token for a user:
 ```java
-OAuth2TokenResponse clientCredentialsToken = tokenFlows.passwordTokenFlow()
-                                                    .subdomain(jwtToken.getSubdomain()) 
-                                                    .username(<your username>)
-                                                    .password(<your password>)
-                                                    .disableCache(true)  // optionally disables token cache for request
-                                                    .execute();
+OAuth2TokenResponse tokenResponse = tokenFlows.passwordTokenFlow()
+                                    .subdomain(jwtToken.getSubdomain()) 
+                                    .username(<your username>)
+                                    .password(<your password>)
+                                    .disableCache(true)  // optionally disables token cache for request
+                                    .execute();
 ```
 
 
