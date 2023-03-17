@@ -40,13 +40,9 @@ public class ServiceBindingEnvironment implements Environment {
         this.serviceBindingAccessor = serviceBindingAccessor;
     }
 
-    public void setEnvironmentVariableReader(UnaryOperator<String> environmentVariableReader) {
+    public ServiceBindingEnvironment withEnvironmentVariableReader(UnaryOperator<String> environmentVariableReader) {
         this.environmentVariableReader = environmentVariableReader;
         this.clearServiceConfigurations(); // re-compute service configurations on next access
-    }
-
-    public ServiceBindingEnvironment withEnvironmentVariableReader(UnaryOperator<String> environmentVariableReader) {
-        this.setEnvironmentVariableReader(environmentVariableReader);
         return this;
     }
 
