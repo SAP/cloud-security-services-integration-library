@@ -6,13 +6,14 @@
 package testservice.api.v1;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.GrantedAuthority;
@@ -46,30 +47,30 @@ public class TestController {
 	}
 
 	@GetMapping("/user")
-	public String message(@AuthenticationPrincipal Token token) {
+	String message(@AuthenticationPrincipal Token token) {
 		// attributes - old style
-		Assert.assertEquals(2, token.getXSUserAttribute("cost-center").length);
-		Assert.assertEquals("0815", token.getXSUserAttribute("cost-center")[0]);
-		Assert.assertEquals("4711", token.getXSUserAttribute("cost-center")[1]);
-		Assert.assertEquals(1, token.getXSUserAttribute("country").length);
-		Assert.assertEquals("Germany", token.getXSUserAttribute("country")[0]);
+		assertEquals(2, token.getXSUserAttribute("cost-center").length);
+		assertEquals("0815", token.getXSUserAttribute("cost-center")[0]);
+		assertEquals("4711", token.getXSUserAttribute("cost-center")[1]);
+		assertEquals(1, token.getXSUserAttribute("country").length);
+		assertEquals("Germany", token.getXSUserAttribute("country")[0]);
 		// client id
-		Assert.assertEquals("sb-java-hello-world", token.getClientId());
+		assertEquals("sb-java-hello-world", token.getClientId());
 		// grant type
-		Assert.assertEquals("authorization_code", token.getGrantType());
+		assertEquals("authorization_code", token.getGrantType());
 
 		// logon name
-		Assert.assertEquals("Mustermann", token.getLogonName());
+		assertEquals("Mustermann", token.getLogonName());
 		// email
-		Assert.assertEquals("max@example.com", token.getEmail());
+		assertEquals("max@example.com", token.getEmail());
 		// zone
-		Assert.assertTrue(token.getZoneId().endsWith("domain-id"));
+		assertTrue(token.getZoneId().endsWith("domain-id"));
 		// ext attr
-		Assert.assertEquals("domain\\group1", token.getAdditionalAuthAttribute("external_group"));
-		Assert.assertEquals("abcd1234", token.getAdditionalAuthAttribute("external_id"));
+		assertEquals("domain\\group1", token.getAdditionalAuthAttribute("external_group"));
+		assertEquals("abcd1234", token.getAdditionalAuthAttribute("external_id"));
 
 		// service instance id
-		Assert.assertEquals("abcd1234", token.getCloneServiceInstanceId());
+		assertEquals("abcd1234", token.getCloneServiceInstanceId());
 
 		return "user:" + token.getLogonName();
 	}

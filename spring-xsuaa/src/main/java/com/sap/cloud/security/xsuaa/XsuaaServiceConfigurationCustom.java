@@ -39,7 +39,8 @@ public class XsuaaServiceConfigurationCustom implements XsuaaServiceConfiguratio
 	@Nullable
 	@Override
 	public URI getCertUrl() {
-		return URI.create(credentials.getCertUrl());
+		String certUrl = credentials.getCertUrl();
+		return certUrl == null ? null : URI.create(certUrl);
 	}
 
 	@Override

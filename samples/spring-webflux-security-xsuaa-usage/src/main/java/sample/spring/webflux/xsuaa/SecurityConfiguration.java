@@ -1,15 +1,13 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 package sample.spring.webflux.xsuaa;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import com.sap.cloud.security.xsuaa.token.ReactiveTokenAuthenticationConverter;
-import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +43,6 @@ public class SecurityConfiguration {
 						.withPostValidationActions(token -> logger.info("post validation action performed"))
 						.buildAsReactive());
 		return http.build();
-	}
-
-	@Bean
-	public XsuaaServiceConfiguration xsuaaServiceConfiguration() {
-		return new XsuaaServiceConfigurationDefault();
 	}
 
 	/**
