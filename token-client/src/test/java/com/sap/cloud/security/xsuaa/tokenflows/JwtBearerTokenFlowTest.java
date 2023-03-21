@@ -36,7 +36,7 @@ public class JwtBearerTokenFlowTest {
 
         when(endpointsProvider.getTokenEndpoint()).thenReturn(TOKEN_ENDPOINT_URI);
 
-        cut = new JwtBearerTokenFlow(tokenService, endpointsProvider, CLIENT_CREDENTIALS).bearerToken(ACCESS_TOKEN);
+        cut = new JwtBearerTokenFlow(tokenService, endpointsProvider, CLIENT_CREDENTIALS).token(ACCESS_TOKEN);
     }
 
     @Test

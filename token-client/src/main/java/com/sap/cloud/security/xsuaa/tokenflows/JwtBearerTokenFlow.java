@@ -46,7 +46,7 @@ public class JwtBearerTokenFlow {
      *            - the bearer token.
      * @return this builder.
      */
-    public JwtBearerTokenFlow bearerToken(String bearerToken) {
+    public JwtBearerTokenFlow token(String bearerToken) {
         this.bearerToken = bearerToken;
         return this;
     }

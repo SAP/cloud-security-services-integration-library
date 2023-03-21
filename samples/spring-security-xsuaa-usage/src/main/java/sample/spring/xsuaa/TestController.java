@@ -161,7 +161,7 @@ public class TestController {
     @GetMapping("/v3/requestJwtBearerToken")
     public String requestJwtBearerToken(@AuthenticationPrincipal Token token) throws TokenFlowException {
         OAuth2TokenResponse tokenResponse = tokenFlows.jwtBearerTokenFlow()
-                .bearerToken(token.getAppToken())
+                .token(token.getAppToken())
                 .subdomain(token.getSubdomain())
                 .execute();
 

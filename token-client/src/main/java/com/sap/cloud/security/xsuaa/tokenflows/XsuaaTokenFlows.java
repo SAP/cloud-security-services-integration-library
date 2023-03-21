@@ -16,7 +16,7 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 /**
  * A bean that can be {@code @Autowired} by applications to get access to token
  * flow builders. The token flow builders allow for the execution of a client
- * credentials flow (to get a technical user token) and a user token flow (to
+ * credentials flow (to get a technical user token) and a jwt bearer token flow (to
  * get an exchange token with different scopes). <br>
  * 
  * This class uses a RestTemplate which it passes on to the builders.

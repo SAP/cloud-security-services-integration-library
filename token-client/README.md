@@ -5,8 +5,10 @@
 This library serves as slim client for some XSUAA `/oauth/token` token endpoints as specified [here](https://docs.cloudfoundry.org/api/uaa/version/74.1.0/index.html#token). 
 Furthermore it introduces a new API to support the following token flows:
 
-* **User Token Flow**.  
-The idea behind a User Token exchange is to separate service-specific access scopes into separate tokens. For example, if Service A has scopes specific to its functionality and Service B has other scopes, the intention is that there is no single Jwt token that contains all of these scopes. As of version `2.5.1` the `grant_type`=`urn:ietf:params:oauth:grant-type:jwt-bearer` is used ([RFC 7523](https://tools.ietf.org/html/rfc7523)).
+* **User Token Flow**.
+Deprecated in favor of Jwt Bearer Token Flow.
+* **Jwt Bearer Token Flow**.  
+The idea behind a token exchange is to separate service-specific access scopes into separate tokens. For example, if Service A has scopes specific to its functionality and Service B has other scopes, the intention is that there is no single Jwt token that contains all of these scopes. As of version `2.5.1` the `grant_type`=`urn:ietf:params:oauth:grant-type:jwt-bearer` is used ([RFC 7523](https://tools.ietf.org/html/rfc7523)) instead of User Token Flow to exchange tokens.
 * **Client Credentials Flow**.  
 The Client Credentials ([RFC 6749, section 4.4](https://tools.ietf.org/html/rfc6749#section-4.4)) is used by clients to obtain an access token outside of the context of a user. It is used for non interactive applications (a CLI, a batch job, or for service-2-service communication) where the token is issued to the application itself, instead of an end user for accessing resources without principal propagation. 
 * **Refresh Token Flow**.  
@@ -243,7 +245,7 @@ OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
                               .execute();
 ```
 ### User Token Flow
-Deprecated, please use Jwt bearer token flow instead.
+Deprecated, please use Jwt Bearer Token Flow instead.
 
 ### Jwt Bearer Token Flow
 In order to exchange an access token for a different service:
@@ -314,7 +316,7 @@ If you have classpath related  issues involving JSON you should take a look at t
 ```bash
 {\"error\":\"unauthorized\",\"error_description\":\"Unable to map issuer, [http://subdomain.localhost:8080/uaa/oauth/token] , to a single registered provider\"}
 ```  
-Token exchange is only supported within the same identity zone/tenant. That means, that you have to call the `/oauth/token` endpoint of the same subdomain, that was used for the original token. This can be achieved by configuring the user token flow the following way:
+Token exchange is only supported within the same identity zone/tenant. That means, that you have to call the `/oauth/token` endpoint of the same subdomain, that was used for the original token. This can be achieved by configuring the JWT Bearer Token Flow the following way:
 ````
 tokenFlows.jwtBearerTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());
 ````
