@@ -25,8 +25,8 @@
     </profiles-->
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <sap.cloud.security.version>2.13.5</sap.cloud.security.version>
         <slf4j.api.version>2.0.5</slf4j.api.version>
         <apache.httpclient.version>4.5.14</apache.httpclient.version>
@@ -80,7 +80,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
         <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <warName>java-security-usage-ias</warName>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

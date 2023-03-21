@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
@@ -34,12 +35,12 @@ class X509ParserTest {
 
 	@Test
 	void parseCertificate_validBase64() throws CertificateException {
-		assertThat(parseCertificate(x509_base64).getIssuerDN().getName()).isEqualTo(DN_ISSUER_VALUE);
+		assertThat(parseCertificate(x509_base64).getIssuerX500Principal().getName(X500Principal.RFC1779)).isEqualTo(DN_ISSUER_VALUE);
 	}
 
 	@Test
 	void parseCertificate_validPEM() throws CertificateException {
-		assertThat(parseCertificate(x509_pem_format).getIssuerDN().getName()).isEqualTo(DN_ISSUER_VALUE);
+		assertThat(parseCertificate(x509_pem_format).getIssuerX500Principal().getName(X500Principal.RFC1779)).isEqualTo(DN_ISSUER_VALUE);
 	}
 
 	@Test

@@ -7,14 +7,12 @@ package com.sap.cloud.security.adapter.spring;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.SpringOAuth2TokenKeyService;
-import com.sap.cloud.security.xsuaa.client.SpringOidcConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -29,8 +27,6 @@ import org.springframework.security.oauth2.common.exceptions.InvalidTokenExcepti
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
-import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -100,43 +96,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	 * from SAP CP Environment.
 	 */
 	public SAPOfflineTokenServicesCloud() {
-		this(Environments.getCurrent().getXsuaaConfiguration());
-	}
-
-	/**
-	 * Constructs an instance with custom configuration.
-	 *
-	 * @param serviceConfiguration
-	 *            the service configuration. You can use
-	 *            {@link com.sap.cloud.security.config.Environments} in order to
-	 *            load service configuration from the binding information in your
-	 *            environment.
-	 * @deprecated In favor of
-	 *             {{@link #SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration, RestOperations)}}
-	 *             gets removed with the version 3.0.0, does not support certificate
-	 *             based authentication
-	 */
-	@Deprecated
-	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration) {
-		this(serviceConfiguration, new RestTemplate());
-	}
-
-	/**
-	 * Constructs an instance with custom configuration and rest template.
-	 *
-	 * @param serviceConfiguration
-	 *            the service configuration. You can use
-	 *            {@link com.sap.cloud.security.config.Environments} in order to
-	 *            load service configuration from the binding information in your
-	 *            environment.
-	 * @param restOperations
-	 *            the spring rest template
-	 */
-	public SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
-			RestOperations restOperations) {
-		this(serviceConfiguration, JwtValidatorBuilder.getInstance(serviceConfiguration)
-				.withOAuth2TokenKeyService(new SpringOAuth2TokenKeyService(restOperations))
-				.withOidcConfigurationService(new SpringOidcConfigurationService(restOperations)));
+		this(Environments.getCurrent().getXsuaaConfiguration(), JwtValidatorBuilder.getInstance(Environments.getCurrent().getXsuaaConfiguration()));
 	}
 
 	SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration serviceConfiguration,
@@ -146,9 +106,9 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 
 		this.serviceConfiguration = serviceConfiguration;
 		this.jwtValidatorBuilder = jwtValidatorBuilder;
-		if (serviceConfiguration.hasProperty(CFConstants.XSUAA.APP_ID)) {
+		if (serviceConfiguration.hasProperty(ServiceConstants.XSUAA.APP_ID)) {
 			this.xsuaaScopeConverter = new XsuaaScopeConverter(
-					serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
+					serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID));
 		}
 	}
 
@@ -157,7 +117,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	 *
 	 * @param otherServiceConfiguration
 	 *            another service configuration. You can use
-	 *            {@link com.sap.cloud.security.config.cf.CFEnvironment#getXsuaaConfigurationForTokenExchange()}
+	 *            {@link com.sap.cloud.security.config.Environment#getXsuaaConfigurationForTokenExchange()}
 	 *            in order to load additional broker service configuration from the
 	 *            binding information in your environment.
 	 * @return the instance itself
@@ -203,7 +163,7 @@ public class SAPOfflineTokenServicesCloud implements ResourceServerTokenServices
 	private static UserAuthenticationToken getUserAuthentication(Token token, Set<String> scopes) {
 		GrantType grantType = null;
 		if (token instanceof AccessToken) {
-			grantType = ((AccessToken) token).getGrantType();
+			grantType = token.getGrantType();
 		}
 		if (grantType == GrantType.CLIENT_CREDENTIALS || grantType == GrantType.CLIENT_X509) {
 			return null;

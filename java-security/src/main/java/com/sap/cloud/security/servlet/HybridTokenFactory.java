@@ -7,7 +7,7 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.Assertions;
@@ -83,7 +83,7 @@ public class HybridTokenFactory implements TokenFactory {
 			if (serviceConfiguration == null) {
 				LOGGER.warn("There is no xsuaa service configuration: no local scope check possible.");
 			} else {
-				xsAppId = serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
+				xsAppId = serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID);
 			}
 		}
 		return xsAppId;

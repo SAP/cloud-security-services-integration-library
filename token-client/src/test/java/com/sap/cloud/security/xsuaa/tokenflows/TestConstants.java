@@ -19,6 +19,7 @@ interface TestConstants {
 	String PASSWORD = "qwerty";
 	String ACCESS_TOKEN = "8fea5fdea005417d8c7104a5a4165da2";
 	String REFRESH_TOKEN = "c9336d3de6b7450b8b14cc61362d595d";
+	String JWT_BEARER_TOKEN = "cabb9a945e43f5d9d7eb5aa7c";
 	long EXPIRED_IN = 4223;
 }
 //@formatter:on

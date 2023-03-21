@@ -5,8 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.client.HttpClientFactory;
-import com.sap.cloud.security.config.CacheConfiguration;
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.*;
 import org.junit.Before;
@@ -21,12 +20,10 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.TOKEN_TYPE;
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.CLIENT_CREDENTIALS;
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.XSUAA_BASE_URI;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -72,7 +69,7 @@ public class XsuaaTokenFlowsTest {
 
 		assertThatThrownBy(() -> {
 			new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientCredentials");
+		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientIdentity");
 
 	}
 
@@ -80,12 +77,6 @@ public class XsuaaTokenFlowsTest {
 	public void startRefreshTokenFlow() {
 		RefreshTokenFlow flow = cut.refreshTokenFlow();
 		assertNotNull("RefreshTokenFlow must not be null.", flow);
-	}
-
-	@Test
-	public void startUserTokenFlow() {
-		UserTokenFlow flow = cut.userTokenFlow();
-		assertNotNull("UserTokenFlow must not be null.", flow);
 	}
 
 	@Test
@@ -103,7 +94,7 @@ public class XsuaaTokenFlowsTest {
 	@Test
 	public void versionMismatch() throws TokenFlowException {
 		cut = new XsuaaTokenFlows(oAuth2TokenService, this.endpointsProvider,
-				new com.sap.cloud.security.xsuaa.client.ClientCredentials("sb-spring-netflix-demo!t12291",
+				new ClientCredentials("sb-spring-netflix-demo!t12291",
 						"2Tc2Xz7DNy4KiACwvunulmxF32w="));
 		cut.clientCredentialsTokenFlow().execute();
 	}

@@ -17,14 +17,6 @@ import java.util.Date;
 public interface Token extends UserDetails {
 
 	/**
-	 * @deprecated use
-	 *             {@link com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants#GRANT_TYPE_CLIENT_CREDENTIALS}
-	 *             instead
-	 */
-	@Deprecated
-	static final String GRANTTYPE_CLIENTCREDENTIAL = "client_credentials";
-
-	/**
 	 * Return subaccount identifier which is in most cases same like the identity
 	 * zone. DO only use this for metering purposes. DO NOT longer use this method
 	 * to get the unique tenant id! For that use {@link #getZoneId()}.
@@ -186,16 +178,6 @@ public interface Token extends UserDetails {
 	 */
 	@Override
 	Collection<? extends GrantedAuthority> getAuthorities();
-
-	/**
-	 * Returns date of when jwt token expires.
-	 *
-	 * @return expiration date if present
-	 * @deprecated use {@link #getExpiration()}.
-	 */
-	@Nullable
-	@Deprecated
-	Date getExpirationDate();
 
 	/**
 	 * Returns the moment in time when the token will be expired.

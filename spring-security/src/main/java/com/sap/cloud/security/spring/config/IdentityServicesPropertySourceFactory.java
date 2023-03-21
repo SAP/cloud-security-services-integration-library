@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
+import static com.sap.cloud.security.config.ServiceConstants.IAS.DOMAINS;
 
 /**
  * Part of Auto Configuration {@code HybridIdentityServicesAutoConfiguration}

@@ -98,11 +98,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${xsuaa-groupId}</groupId>
-                <artifactId>spring-xsuaa-mock</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>spring-security</artifactId>
                 <version>${project.version}</version>

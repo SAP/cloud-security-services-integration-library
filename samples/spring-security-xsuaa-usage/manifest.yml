@@ -14,8 +14,6 @@ applications:
   path: target/spring-security-xsuaa-usage.jar
   services:
     - xsuaa-authentication
-  env:
-    IAS_XSUAA_XCHANGE_ENABLED: true
 
 # Application Router as web server
 - name: approuter-spring-security-xsuaa-usage

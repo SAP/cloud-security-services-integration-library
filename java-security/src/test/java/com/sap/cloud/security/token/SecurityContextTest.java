@@ -83,7 +83,7 @@ public class SecurityContextTest {
 
 	@Test
 	public void getAccessTokenReturns() throws IOException {
-		AccessToken accessToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaUserAccessTokenRSA256.txt", UTF_8));
+		AccessToken accessToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaJwtBearerTokenRSA256.txt", UTF_8));
 		SecurityContext.setToken(accessToken);
 		assertThat(SecurityContext.getAccessToken()).isEqualTo(accessToken);
 	}

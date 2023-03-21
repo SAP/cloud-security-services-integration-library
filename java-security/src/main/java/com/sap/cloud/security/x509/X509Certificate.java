@@ -9,10 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.security.auth.x500.X500Principal;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -64,7 +64,7 @@ public class X509Certificate implements Certificate {
 
 	@Override
 	public String getSubjectDN() {
-		return x509.getSubjectDN().getName().trim();
+		return x509.getSubjectX500Principal().getName(X500Principal.RFC1779).trim();
 	}
 
 	@Override

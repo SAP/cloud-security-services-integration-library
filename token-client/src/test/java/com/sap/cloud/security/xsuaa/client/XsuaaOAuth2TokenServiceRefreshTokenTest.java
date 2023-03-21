@@ -60,13 +60,13 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 
 	@Test
 	public void retrieveToken_throwsOnNullValues() {
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaRefreshToken(null, clientIdentity, refreshToken, null))
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaRefreshToken(null, clientIdentity, refreshToken, null, true))
 				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
 
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, null, refreshToken, null))
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, null, refreshToken, null, true))
 				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
 
-		assertThatThrownBy(() -> cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientIdentity, null, null))
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientIdentity, null, null, true))
 				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("refreshToken");
 	}
 
@@ -75,7 +75,7 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 		Mockito.when(mockRestOperations.postForEntity(eq(tokenEndpoint), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientIdentity,
-				refreshToken, null);
+				refreshToken, null, true);
 	}
 
 	@Test(expected = OAuth2ServiceException.class)
@@ -83,7 +83,7 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 		Mockito.when(mockRestOperations.postForEntity(eq(tokenEndpoint), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientIdentity,
-				refreshToken, null);
+				refreshToken, null, true);
 	}
 
 	@Test
@@ -101,7 +101,7 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientIdentity,
-				refreshToken, null);
+				refreshToken, null, true);
 		assertThat(accessToken.getRefreshToken(), is(responseMap.get(REFRESH_TOKEN)));
 		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
 		assertThat(accessToken.getTokenType(), is(responseMap.get(TOKEN_TYPE)));

@@ -1,23 +1,22 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import java.io.Serializable;
-
-import com.sap.cloud.security.config.ClientCredentials;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+
+import java.io.Serializable;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
  * A bean that can be {@code @Autowired} by applications to get access to token
  * flow builders. The token flow builders allow for the execution of a client
- * credentials flow (to get a technical user token) and a user token flow (to
+ * credentials flow (to get a technical user token) and a jwt bearer token flow (to
  * get an exchange token with different scopes). <br>
  * 
  * This class uses a RestTemplate which it passes on to the builders.
@@ -28,23 +27,6 @@ public class XsuaaTokenFlows implements Serializable {
 	private final ClientIdentity clientIdentity;
 	private final OAuth2TokenService oAuth2TokenService;
 	private final OAuth2ServiceEndpointsProvider endpointsProvider;
-
-	/**
-	 * @deprecated in favor of
-	 *             {@link #XsuaaTokenFlows(OAuth2TokenService, OAuth2ServiceEndpointsProvider, ClientIdentity)}
-	 */
-	@Deprecated
-	public XsuaaTokenFlows(OAuth2TokenService oAuth2TokenService,
-			OAuth2ServiceEndpointsProvider endpointsProvider,
-			com.sap.cloud.security.xsuaa.client.ClientCredentials clientCredentials) {
-		assertNotNull(oAuth2TokenService, "OAuth2TokenService must not be null.");
-		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null");
-		assertNotNull(clientCredentials, "ClientCredentials must not be null.");
-
-		this.oAuth2TokenService = oAuth2TokenService;
-		this.endpointsProvider = endpointsProvider;
-		this.clientIdentity = new ClientCredentials(clientCredentials.getId(), clientCredentials.getSecret());
-	}
 
 	/**
 	 * Create a new instance of this bean with the given RestTemplate. Applications
@@ -83,16 +65,6 @@ public class XsuaaTokenFlows implements Serializable {
 	}
 
 	/**
-	 * Creates a new User Token Flow builder object. Token, authorize and key set
-	 * endpoints will be derived relative to the base URI.
-	 * 
-	 * @return the {@link UserTokenFlow} builder object.
-	 */
-	public UserTokenFlow userTokenFlow() {
-		return new UserTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
-	}
-
-	/**
 	 * Creates a new Client Credentials Flow builder object. <br>
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
@@ -115,7 +87,7 @@ public class XsuaaTokenFlows implements Serializable {
 	}
 
 	/**
-	 * Creates a new Refresh Token Flow builder object.<br>
+	 * Creates a new Password Token Flow builder object.<br>
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
 	 *
@@ -123,5 +95,16 @@ public class XsuaaTokenFlows implements Serializable {
 	 */
 	public PasswordTokenFlow passwordTokenFlow() {
 		return new PasswordTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
+	}
+
+	/**
+	 * Creates a new JWT Bearer Token Flow builder object.<br>
+	 * Token, authorize and key set endpoints will be derived relative to the base
+	 * URI.
+	 *
+	 * @return the {@link JwtBearerTokenFlow} builder object.
+	 */
+	public JwtBearerTokenFlow jwtBearerTokenFlow() {
+		return new JwtBearerTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 }

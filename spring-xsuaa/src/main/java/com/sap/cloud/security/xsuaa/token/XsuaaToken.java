@@ -60,11 +60,6 @@ public class XsuaaToken extends Jwt implements Token {
 	}
 
 	@Override
-	public Date getExpirationDate() {
-		return getExpiresAt() != null ? Date.from(getExpiresAt()) : null;
-	}
-
-	@Override
 	public Instant getExpiration() {
 		return getExpiresAt();
 	}

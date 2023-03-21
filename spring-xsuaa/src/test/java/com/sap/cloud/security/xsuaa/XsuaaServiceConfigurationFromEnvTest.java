@@ -11,9 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
-import static com.sap.cloud.security.config.cf.CFConstants.CLIENT_ID;
-import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.*;
+import static com.sap.cloud.security.config.ServiceConstants.CLIENT_ID;
+import static com.sap.cloud.security.config.ServiceConstants.VCAP_SERVICES;
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SystemStubsExtension.class)

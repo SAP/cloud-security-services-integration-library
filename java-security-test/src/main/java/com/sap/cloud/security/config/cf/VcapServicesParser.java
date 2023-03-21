@@ -5,9 +5,8 @@
  */
 package com.sap.cloud.security.config.cf;
 
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.Service;
+import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
+import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.json.JsonParsingException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.VERIFICATION_KEY;
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.VERIFICATION_KEY;
 
 public class VcapServicesParser {
 
@@ -97,8 +96,7 @@ public class VcapServicesParser {
 	}
 
 	/**
-	 * Uses {@link CFEnvParser} to create an {@link OAuth2ServiceConfiguration}
-	 * object from the given json.
+	 * Returns the first {@link OAuth2ServiceConfiguration} it can find from the service bindings in the given json.
 	 *
 	 * Multiple bindings are not supported! If VCAP_SERVICES contains more than one
 	 * binding, the first one is used!
@@ -108,12 +106,12 @@ public class VcapServicesParser {
 	 * @return the extracted configuration
 	 */
 	private static OAuth2ServiceConfiguration findConfiguration(String vcapServicesJson) {
-		Map<Service, List<OAuth2ServiceConfiguration>> serviceToConfigurations = CFEnvParser
-				.loadAll(vcapServicesJson, "{}");
-		List<OAuth2ServiceConfiguration> oAuth2ServiceConfigurations = serviceToConfigurations
+		Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> serviceConfigurations =
+				new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> vcapServicesJson)).getServiceConfigurations();
+		List<OAuth2ServiceConfiguration> oAuth2ServiceConfigurations = serviceConfigurations
 				.values()
 				.stream()
-				.flatMap(configurations -> configurations.stream())
+				.flatMap(configurations -> configurations.values().stream())
 				.collect(Collectors.toList());
 		if (oAuth2ServiceConfigurations.isEmpty()) {
 			throw new JsonParsingException("No supported binding found in VCAP_SERVICES!");

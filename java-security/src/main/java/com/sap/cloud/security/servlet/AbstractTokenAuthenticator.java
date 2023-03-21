@@ -8,7 +8,7 @@ package com.sap.cloud.security.servlet;
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationListener;
@@ -100,7 +100,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private void setupTokenFactory() {
 		if (serviceConfiguration.getService() == Service.XSUAA) {
-			HybridTokenFactory.withXsuaaAppId(serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
+			HybridTokenFactory.withXsuaaAppId(serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID));
 		}
 	}
 

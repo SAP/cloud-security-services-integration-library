@@ -361,7 +361,7 @@ class TestSpringSecurity(SampleTest):
         resp = self.perform_get_request_with_token('/v3/requestClientCredentialsToken')
         self.assertEqual(resp.status, 200, EXPECT_200)
 
-        resp = self.perform_get_request_with_token('/v3/requestUserToken')
+        resp = self.perform_get_request_with_token('/v3/requestJwtBearerToken')
         self.assertEqual(resp.status, 200, EXPECT_200)
 
         token = self.get_token()

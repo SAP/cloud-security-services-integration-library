@@ -6,7 +6,6 @@
 package sample.spring.xsuaa;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.extractor.IasXsuaaExchangeBroker;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +48,6 @@ public class SecurityConfiguration {
 				.anyRequest().denyAll()
 			.and()
 				.oauth2ResourceServer()
-				.bearerTokenResolver(new IasXsuaaExchangeBroker(xsuaaTokenFlows))
 				.jwt()
 				.jwtAuthenticationConverter(getJwtAuthenticationConverter());
 		// @formatter:on

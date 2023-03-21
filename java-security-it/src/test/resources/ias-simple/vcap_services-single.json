@@ -5,7 +5,7 @@
       "credentials": {
         "clientsecret": "",
         "clientid": "T000310",
-        "domains": "domain.gets.overwritten.bylocalhost.com"
+        "domains": ["domain.gets.overwritten.bylocalhost.com"]
       },
       "instance_name": "myservice",
       "label": "identity",

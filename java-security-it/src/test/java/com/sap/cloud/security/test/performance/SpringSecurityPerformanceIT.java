@@ -7,7 +7,7 @@ package com.sap.cloud.security.test.performance;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
 import com.sap.cloud.security.test.SecurityTest;
 import com.sap.cloud.security.test.performance.util.BenchmarkUtil;
@@ -99,8 +99,8 @@ class SpringSecurityPerformanceIT {
 
 	private OAuth2ServiceConfigurationBuilder createXsuaaConfigurationBuilder() {
 		return OAuth2ServiceConfigurationBuilder.forService(XSUAA)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTest.DEFAULT_DOMAIN)
-				.withProperty(CFConstants.XSUAA.APP_ID, SecurityTest.DEFAULT_APP_ID)
+				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, SecurityTest.DEFAULT_DOMAIN)
+				.withProperty(ServiceConstants.XSUAA.APP_ID, SecurityTest.DEFAULT_APP_ID)
 				.withClientId(SecurityTest.DEFAULT_CLIENT_ID);
 	}
 

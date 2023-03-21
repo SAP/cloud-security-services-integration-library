@@ -5,10 +5,13 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.*;
 import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.xsa.security.container.XSTokenRequest;
+import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,7 +20,6 @@ import java.util.*;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
-import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 /**
  * A client credentials flow builder class. Applications retrieve an instance of
@@ -25,11 +27,15 @@ import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.build
  * using a builder pattern.
  */
 public class ClientCredentialsTokenFlow {
-
-	private final XsuaaTokenFlowRequest request;
+	private static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	private final OAuth2TokenService tokenService;
+	private final OAuth2ServiceEndpointsProvider endpointsProvider;
+	private final ClientIdentity clientIdentity;
 	private boolean disableCache = false;
 	private List<String> scopes = new ArrayList<>();
+	private String subdomain;
+	private String zoneId;
+	private Map<String, String> authzAttributes;
 
 	/**
 	 * Creates a new instance.
@@ -47,13 +53,10 @@ public class ClientCredentialsTokenFlow {
 		assertNotNull(tokenService, "OAuth2TokenService must not be null.");
 		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
 		assertNotNull(clientIdentity, "ClientIdentity must not be null.");
-
+		
 		this.tokenService = tokenService;
-		this.request = new XsuaaTokenFlowRequest(endpointsProvider.getTokenEndpoint());
-		this.request.setClientIdentity(clientIdentity);
-		if (!clientIdentity.isCertificateBased()) {
-			this.request.setClientSecret(clientIdentity.getSecret());
-		}
+		this.endpointsProvider = endpointsProvider;
+		this.clientIdentity = clientIdentity;
 	}
 
 	/**
@@ -66,7 +69,7 @@ public class ClientCredentialsTokenFlow {
 	 * @return this builder.
 	 */
 	public ClientCredentialsTokenFlow attributes(Map<String, String> additionalAuthorizationAttributes) {
-		request.setAdditionalAuthorizationAttributes(additionalAuthorizationAttributes);
+		this.authzAttributes = additionalAuthorizationAttributes;
 		return this;
 	}
 
@@ -78,7 +81,7 @@ public class ClientCredentialsTokenFlow {
 	 * @return this builder.
 	 */
 	public ClientCredentialsTokenFlow subdomain(String subdomain) {
-		request.setSubdomain(subdomain);
+		this.subdomain = subdomain;
 		return this;
 	}
 
@@ -90,7 +93,7 @@ public class ClientCredentialsTokenFlow {
 	 * @return this builder.
 	 */
 	public ClientCredentialsTokenFlow zoneId(String zoneId) {
-		request.setZoneId(zoneId);
+		this.zoneId = zoneId;
 		return this;
 	}
 
@@ -98,7 +101,7 @@ public class ClientCredentialsTokenFlow {
 	 * Sets the scope attribute for the token request. This will restrict the scope
 	 * of the created token to the scopes provided. By default the scope is not
 	 * restricted and the created token contains all granted scopes.
-	 *
+	 * <br>
 	 * If you specify a scope that is not authorized for the client, the token
 	 * request will fail.
 	 *
@@ -135,41 +138,10 @@ public class ClientCredentialsTokenFlow {
 	 *             - in case of an error during the flow, or when the token cannot
 	 *             be refreshed.
 	 */
-	public OAuth2TokenResponse execute() throws IllegalArgumentException, TokenFlowException {
-		checkRequest(request);
-
-		return requestTechnicalUserToken(request);
-	}
-
-	/**
-	 * Checks if the built request is valid. Throws an exception if not all
-	 * mandatory fields are filled.
-	 *
-	 * @param request
-	 *            - the token flow request.
-	 * @throws IllegalArgumentException
-	 *             in case the request does not have all mandatory fields set.
-	 */
-	private void checkRequest(XSTokenRequest request) throws IllegalArgumentException {
-		if (!request.isValid()) {
-			throw new IllegalArgumentException(
-					"Client credentials flow request is not valid. Make sure all mandatory fields are set.");
-		}
-	}
-
-	/**
-	 * Requests the client credentials token from XSUAA.
-	 *
-	 * @param request
-	 *            - the token request.
-	 * @return the encoded OAuth access token returned by XSUAA.
-	 * @throws TokenFlowException
-	 *             in case of an error during the flow.
-	 */
 	@Nullable
-	private OAuth2TokenResponse requestTechnicalUserToken(XsuaaTokenFlowRequest request) throws TokenFlowException {
-		Map<String, String> requestParameter = new HashMap();
-		String authorities = buildAuthorities(request);
+	public OAuth2TokenResponse execute() throws IllegalArgumentException, TokenFlowException {
+		Map<String, String> requestParameter = new HashMap<>();
+		String authorities = buildAuthorities();
 
 		if (authorities != null) {
 			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI
@@ -180,14 +152,39 @@ public class ClientCredentialsTokenFlow {
 		}
 		try {
 			return tokenService
-					.retrieveAccessTokenViaClientCredentialsGrant(request.getTokenEndpoint(),
-							request.getClientIdentity(),
-							request.getZoneId(), request.getSubdomain(), requestParameter, disableCache);
+					.retrieveAccessTokenViaClientCredentialsGrant(endpointsProvider.getTokenEndpoint(),
+							clientIdentity,
+							zoneId, subdomain, requestParameter, disableCache);
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
 					String.format("Error requesting technical user token with grant_type 'client_credentials': %s",
 							e.getMessage()),
 					e);
+		}
+	}
+
+	/**
+	 * Builds the additional authorities claim of the JWT. Returns null, if the
+	 * request does not have any additional authorities set.
+	 *
+	 * @return the additional authorities claims or null, if the request has no
+	 * additional authorities set.
+	 * @throws IllegalArgumentException in case authorization attributes couldn't be mapped
+	 */
+	@Nullable
+	private String buildAuthorities() throws IllegalArgumentException {
+		if (authzAttributes== null) {
+			return null;
+		}
+		try {
+			Map<String, Object> additionalAuthorizationAttributes = new HashMap<>();
+			additionalAuthorizationAttributes.put(CLAIM_ADDITIONAL_AZ_ATTR, authzAttributes);
+
+			JSONObject additionalAuthorizationAttributesJson = new JSONObject(additionalAuthorizationAttributes);
+			return additionalAuthorizationAttributesJson.toString();
+		} catch (RuntimeException e) {
+			throw new IllegalArgumentException(
+					"Error mapping additional authorization attributes to JSON. See root cause exception. ", e);
 		}
 	}
 }

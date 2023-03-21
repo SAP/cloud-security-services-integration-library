@@ -29,170 +29,160 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.sap.cloud.security.config.ServiceConstants.CLIENT_ID;
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
-import static com.sap.cloud.security.config.cf.CFConstants.*;
 
 public class SAPOfflineTokenServicesCloudTest {
 
-	private SAPOfflineTokenServicesCloud cut;
-	private JwtValidatorBuilder jwtValidatorBuilderSpy;
+    private SAPOfflineTokenServicesCloud cut;
+    private JwtValidatorBuilder jwtValidatorBuilderSpy;
 
-	private final String xsuaaToken;
-	private final String iasToken;
-	private final String userToken;
+    private final String xsuaaToken;
+    private final String iasToken;
+    private final String userToken;
 
-	public SAPOfflineTokenServicesCloudTest() throws IOException {
-		xsuaaToken = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
-		iasToken = IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8);
-		userToken = IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", StandardCharsets.UTF_8);
-	}
+    public SAPOfflineTokenServicesCloudTest() throws IOException {
+        xsuaaToken = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
+        iasToken = IOUtils.resourceToString("/iasOidcTokenRSA256.txt", StandardCharsets.UTF_8);
+        userToken = IOUtils.resourceToString("/xsuaaUserInfoAdapterToken.txt", StandardCharsets.UTF_8);
+    }
 
-	@Before
-	public void setUp() {
-		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
-				.forService(Service.XSUAA)
-				.withProperty(XSUAA.APP_ID, "testApp")
-				.withProperty(CLIENT_ID, "clientId-offline")
-				.withDomains("localhost")
-				.build();
+    @Before
+    public void setUp() {
+        OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
+                .forService(Service.XSUAA)
+                .withProperty(XSUAA.APP_ID, "testApp")
+                .withProperty(CLIENT_ID, "clientId-offline")
+                .withDomains("localhost")
+                .build();
 
-		jwtValidatorBuilderSpy = Mockito.spy(JwtValidatorBuilder.getInstance(configuration));
-		doReturn(new CombiningValidator<>(token -> ValidationResults.createValid())).when(jwtValidatorBuilderSpy)
-				.build();
+        jwtValidatorBuilderSpy = Mockito.spy(JwtValidatorBuilder.getInstance(configuration));
+        doReturn(new CombiningValidator<>(token -> ValidationResults.createValid())).when(jwtValidatorBuilderSpy)
+                .build();
 
-		cut = new SAPOfflineTokenServicesCloud(configuration, jwtValidatorBuilderSpy);
-		SecurityContext.clear();
-	}
+        cut = new SAPOfflineTokenServicesCloud(configuration, jwtValidatorBuilderSpy);
+        SecurityContext.clear();
+    }
 
-	@Test
-	public void loadAuthentication_setsOAuth2Request() {
-		cut.afterPropertiesSet();
-		OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
-		OAuth2Request oAuth2Request = authentication.getOAuth2Request();
+    @Test
+    public void loadAuthentication_setsOAuth2Request() {
+        cut.afterPropertiesSet();
+        OAuth2Authentication authentication = cut.loadAuthentication(xsuaaToken);
+        OAuth2Request oAuth2Request = authentication.getOAuth2Request();
 
-		assertThat(oAuth2Request).isNotNull();
-		assertThat(oAuth2Request.getScope()).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
-		Collection<String> authorities = oAuth2Request.getAuthorities().stream()
-				.map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-		assertThat(authorities).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
-		assertThat(authentication.getAuthorities()).contains(new SimpleGrantedAuthority("uaa.resource"),
-				new SimpleGrantedAuthority("ROLE_SERVICEBROKER"));
-		assertThat(SecurityContext.getToken().getTokenValue()).isEqualTo(xsuaaToken);
-	}
+        assertThat(oAuth2Request).isNotNull();
+        assertThat(oAuth2Request.getScope()).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
+        Collection<String> authorities = oAuth2Request.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        assertThat(authorities).containsExactlyInAnyOrder("ROLE_SERVICEBROKER", "uaa.resource");
+        assertThat(authentication.getAuthorities()).contains(new SimpleGrantedAuthority("uaa.resource"),
+                new SimpleGrantedAuthority("ROLE_SERVICEBROKER"));
+        assertThat(SecurityContext.getToken().getTokenValue()).isEqualTo(xsuaaToken);
+    }
 
-	@Test
-	public void loadAuthentication_userToken() {
-		cut.afterPropertiesSet();
-		OAuth2Authentication oAuth2Authentication = cut.loadAuthentication(userToken);
-		Authentication userAuthentication = oAuth2Authentication.getUserAuthentication();
+    @Test
+    public void loadAuthentication_userToken() {
+        cut.afterPropertiesSet();
+        OAuth2Authentication oAuth2Authentication = cut.loadAuthentication(userToken);
+        Authentication userAuthentication = oAuth2Authentication.getUserAuthentication();
 
-		assertThat(oAuth2Authentication.isAuthenticated()).isTrue();
-		assertThat(getAuthorities(oAuth2Authentication))
-				.containsExactlyInAnyOrder("testApp.localScope", "testScope", "openid");
-		assertThat(userAuthentication).isNotNull();
-		assertThat(userAuthentication.getPrincipal()).isEqualTo("TestUser");
-	}
+        assertThat(oAuth2Authentication.isAuthenticated()).isTrue();
+        assertThat(getAuthorities(oAuth2Authentication))
+                .containsExactlyInAnyOrder("testApp.localScope", "testScope", "openid");
+        assertThat(userAuthentication).isNotNull();
+        assertThat(userAuthentication.getPrincipal()).isEqualTo("TestUser");
+    }
 
-	@Test
-	public void loadAuthentication_iasToken_throwsException() {
-		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
-				.forService(Service.IAS)
-				.withProperty(CLIENT_ID, "clientId")
-				.build();
+    @Test
+    public void loadAuthentication_iasToken_throwsException() {
+        OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
+                .forService(Service.IAS)
+                .withProperty(CLIENT_ID, "clientId")
+                .build();
 
-		cut = new SAPOfflineTokenServicesCloud(configuration, jwtValidatorBuilderSpy);
+        cut = new SAPOfflineTokenServicesCloud(configuration, jwtValidatorBuilderSpy);
 
-		cut.afterPropertiesSet();
-		assertThatThrownBy(() -> cut.loadAuthentication(iasToken))
-				.isInstanceOf(InvalidTokenException.class)
-				.hasMessageContaining("AccessToken of service IAS is not supported");
-	}
+        cut.afterPropertiesSet();
+        assertThatThrownBy(() -> cut.loadAuthentication(iasToken))
+                .isInstanceOf(InvalidTokenException.class)
+                .hasMessageContaining("AccessToken of service IAS is not supported");
+    }
 
-	@Test
-	public void loadAuthenticationWithLocalScopes() {
-		cut.afterPropertiesSet();
-		cut.setLocalScopeAsAuthorities(true);
-		OAuth2Authentication oAuth2Authentication = cut.loadAuthentication(userToken);
+    @Test
+    public void loadAuthenticationWithLocalScopes() {
+        cut.afterPropertiesSet();
+        cut.setLocalScopeAsAuthorities(true);
+        OAuth2Authentication oAuth2Authentication = cut.loadAuthentication(userToken);
 
-		assertThat(oAuth2Authentication.isAuthenticated()).isTrue();
-		assertThat(getAuthorities(cut.loadAuthentication(userToken))).containsExactlyInAnyOrder("localScope");
-	}
+        assertThat(oAuth2Authentication.isAuthenticated()).isTrue();
+        assertThat(getAuthorities(cut.loadAuthentication(userToken))).containsExactlyInAnyOrder("localScope");
+    }
 
-	@Test
-	public void loadAuthentication_tokenIsNull_throwsException() {
-		assertThatThrownBy(() -> cut.loadAuthentication(null)).isInstanceOf(InvalidTokenException.class);
-	}
+    @Test
+    public void loadAuthentication_tokenIsNull_throwsException() {
+        assertThatThrownBy(() -> cut.loadAuthentication(null)).isInstanceOf(InvalidTokenException.class);
+    }
 
-	@Test
-	public void loadAuthentication_tokenIsMalformed_throwsException() {
-		assertThatThrownBy(() -> cut.loadAuthentication("a.b.c")).isInstanceOf(InvalidTokenException.class);
-	}
+    @Test
+    public void loadAuthentication_tokenIsMalformed_throwsException() {
+        assertThatThrownBy(() -> cut.loadAuthentication("a.b.c")).isInstanceOf(InvalidTokenException.class);
+    }
 
-	@Test
-	public void readAccessToken() {
-		assertThatThrownBy(() -> cut.readAccessToken("token")).isInstanceOf(UnsupportedOperationException.class);
-	}
+    @Test
+    public void readAccessToken() {
+        assertThatThrownBy(() -> cut.readAccessToken("token")).isInstanceOf(UnsupportedOperationException.class);
+    }
 
-	@Test
-	public void loadAuthentication_tokenValidationFailed_throwsException() {
-		when(jwtValidatorBuilderSpy.build()).thenCallRealMethod();
-		cut.afterPropertiesSet();
+    @Test
+    public void loadAuthentication_tokenValidationFailed_throwsException() {
+        when(jwtValidatorBuilderSpy.build()).thenCallRealMethod();
+        cut.afterPropertiesSet();
 
-		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
+        assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
 
-		assertThat(SecurityContext.getToken()).isNull();
-	}
+        assertThat(SecurityContext.getToken()).isNull();
+    }
 
-	@Test
-	public void createInstanceWithEmptyConfiguration_throwsException() {
-		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class));
-		assertThatThrownBy(() -> cut.afterPropertiesSet()).isInstanceOf(IllegalArgumentException.class);
-	}
+    @Test
+    public void createInstanceWithEmptyConfiguration_throwsException() {
+        assertThatThrownBy(() -> new SAPOfflineTokenServicesCloud()).isInstanceOf(IllegalArgumentException.class);
+    }
 
-	@Test
-	public void createInstanceWithClientIdConfiguration_throwsException() {
-		OAuth2ServiceConfiguration mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
-		when(mockConfiguration.getClientId()).thenReturn("clientId");
+    @Test
+    public void createInstanceWithMultipleOtherConfigurations() {
+        OAuth2ServiceConfiguration otherConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
+        when(otherConfiguration.getClientId()).thenReturn("clientId1");
 
-		cut = new SAPOfflineTokenServicesCloud(mockConfiguration);
-		cut.afterPropertiesSet();
-		assertThatThrownBy(() -> cut.loadAuthentication(xsuaaToken)).isInstanceOf(InvalidTokenException.class);
-	}
+        OAuth2ServiceConfiguration otherConfiguration2 = Mockito.mock(OAuth2ServiceConfiguration.class);
+        when(otherConfiguration2.getClientId()).thenReturn("clientId2");
 
-	@Test
-	public void createInstanceWithMultipleOtherConfigurations() {
-		OAuth2ServiceConfiguration otherConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
-		when(otherConfiguration.getClientId()).thenReturn("clientId1");
+        cut.withAnotherServiceConfiguration(otherConfiguration);
+        cut.withAnotherServiceConfiguration(otherConfiguration2);
 
-		OAuth2ServiceConfiguration otherConfiguration2 = Mockito.mock(OAuth2ServiceConfiguration.class);
-		when(otherConfiguration2.getClientId()).thenReturn("clientId2");
+        cut.afterPropertiesSet();
+        Mockito.verify(jwtValidatorBuilderSpy,
+                times(1)).configureAnotherServiceInstance(otherConfiguration);
+        Mockito.verify(jwtValidatorBuilderSpy,
+                times(1)).configureAnotherServiceInstance(otherConfiguration2);
+    }
 
-		cut.withAnotherServiceConfiguration(otherConfiguration);
-		cut.withAnotherServiceConfiguration(otherConfiguration2);
+    @Test
+    public void afterPropertiesSet() {
+        cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class), jwtValidatorBuilderSpy);
 
-		cut.afterPropertiesSet();
-		Mockito.verify(jwtValidatorBuilderSpy,
-				times(1)).configureAnotherServiceInstance(otherConfiguration);
-		Mockito.verify(jwtValidatorBuilderSpy,
-				times(1)).configureAnotherServiceInstance(otherConfiguration2);
-	}
+        Mockito.verify(jwtValidatorBuilderSpy, times(0)).build();
+        cut.afterPropertiesSet();
+        Mockito.verify(jwtValidatorBuilderSpy, times(1)).build();
+    }
 
-	@Test
-	public void afterPropertiesSet() {
-		cut = new SAPOfflineTokenServicesCloud(Mockito.mock(OAuth2ServiceConfiguration.class), jwtValidatorBuilderSpy);
-
-		Mockito.verify(jwtValidatorBuilderSpy, times(0)).build();
-		cut.afterPropertiesSet();
-		Mockito.verify(jwtValidatorBuilderSpy, times(1)).build();
-	}
-
-	private List<String> getAuthorities(OAuth2Authentication oAuth2Authentication) {
-		return oAuth2Authentication.getAuthorities()
-				.stream()
-				.map(GrantedAuthority::getAuthority)
-				.collect(Collectors.toList());
-	}
+    private List<String> getAuthorities(OAuth2Authentication oAuth2Authentication) {
+        return oAuth2Authentication.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+    }
 
 }

@@ -110,15 +110,6 @@ public class SecurityTestRule extends ExternalResource
 	}
 
 	/**
-	 * @deprecated use {@link #getOAuth2ServiceConfigurationBuilderFromFile(String)}
-	 *             instead.
-	 */
-	@Deprecated
-	public OAuth2ServiceConfigurationBuilder getConfigurationBuilderFromFile(String configurationJson) {
-		return base.getOAuth2ServiceConfigurationBuilderFromFile(configurationJson);
-	}
-
-	/**
 	 * @return the {@link SecurityTestContext} of this {@link SecurityTestRule}
 	 */
 	public SecurityTestContext getContext() {
@@ -128,17 +119,6 @@ public class SecurityTestRule extends ExternalResource
 	@Override
 	public Token createToken() {
 		return base.createToken();
-	}
-
-	/**
-	 * @deprecated use {@link #getWireMockServer()} method instead. Note that
-	 *             WireMockServer is the base class of WireMockRule.
-	 *
-	 */
-	@Deprecated
-	public WireMockRule getWireMockRule() {
-		throw new UnsupportedOperationException(
-				"Deprecated since version 2.6.0. Please use getWireMockServer instead. WireMockServer is the base class of WireMockRule.");
 	}
 
 	@Override

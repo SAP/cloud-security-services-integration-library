@@ -35,7 +35,7 @@ class TestControllerIasTest {
 	private String jwt;
 
 	@BeforeEach
-	void setup(SecurityTestContext securityTest) throws IOException {
+	void setup(SecurityTestContext securityTest) {
 		jwt = securityTest.getPreconfiguredJwtGenerator()
 				.withClaimsFromFile("/iasClaims.json")
 				.createToken().getTokenValue();

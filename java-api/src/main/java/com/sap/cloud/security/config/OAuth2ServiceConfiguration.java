@@ -5,8 +5,6 @@
  */
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.security.config.cf.CFConstants;
-
 import javax.annotation.Nullable;
 
 import java.net.URI;
@@ -14,8 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.sap.cloud.security.config.cf.CFConstants.CERTIFICATE;
-import static com.sap.cloud.security.config.cf.CFConstants.KEY;
+import static com.sap.cloud.security.config.ServiceConstants.CERTIFICATE;
+import static com.sap.cloud.security.config.ServiceConstants.KEY;
 
 /**
  * Provides information of the identity {@link Service}.
@@ -60,7 +58,7 @@ public interface OAuth2ServiceConfiguration {
 		if (getClientIdentity() != null && getClientIdentity().isCertificateBased()) {
 			return CredentialType.X509;
 		}
-		return CredentialType.from(getProperty(CFConstants.XSUAA.CREDENTIAL_TYPE));
+		return CredentialType.from(getProperty(ServiceConstants.XSUAA.CREDENTIAL_TYPE));
 	}
 
 	/**
@@ -95,7 +93,7 @@ public interface OAuth2ServiceConfiguration {
 	 *
 	 * @param name
 	 *            the name of the property. You can find constants in
-	 *            {@link com.sap.cloud.security.config.cf.CFConstants}
+	 *            {@link ServiceConstants}
 	 * @return the string value of the given property or null if the property does
 	 *         not exist.
 	 */
@@ -114,7 +112,7 @@ public interface OAuth2ServiceConfiguration {
 	 *
 	 * @param name
 	 *            the name of the property. You can find constants in
-	 *            {@link com.sap.cloud.security.config.cf.CFConstants}
+	 *            {@link ServiceConstants}
 	 * @return true if the property does not exist.
 	 */
 	boolean hasProperty(String name);
