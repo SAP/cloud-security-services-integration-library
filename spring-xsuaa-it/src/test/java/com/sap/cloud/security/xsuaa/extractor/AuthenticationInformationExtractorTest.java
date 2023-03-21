@@ -1,7 +1,4 @@
 /**
- * 
- */
-/**
  * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -33,7 +30,7 @@ public class AuthenticationInformationExtractorTest {
 
 	/**
 	 * Test method for
-	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(javax.servlet.http.HttpServletRequest)}.
+	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(jakarta.servlet.http.HttpServletRequest)}.
 	 */
 	@Test(expected = RuntimeException.class)
 	public void getSubdomainWithoutRequest() {
@@ -43,7 +40,7 @@ public class AuthenticationInformationExtractorTest {
 
 	/**
 	 * Test method for
-	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(javax.servlet.http.HttpServletRequest)}.
+	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(jakarta.servlet.http.HttpServletRequest)}.
 	 */
 	@Test
 	public void withoutSubdomainParameters() {
@@ -53,7 +50,7 @@ public class AuthenticationInformationExtractorTest {
 
 	/**
 	 * Test method for
-	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(javax.servlet.http.HttpServletRequest)}.
+	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getSubdomain(jakarta.servlet.http.HttpServletRequest)}.
 	 */
 	@Test
 	public void validSubDomain() {
@@ -65,7 +62,7 @@ public class AuthenticationInformationExtractorTest {
 
 	/**
 	 * Test method for
-	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getAuthenticationMethods(javax.servlet.http.HttpServletRequest)}.
+	 * {@link com.sap.cloud.security.xsuaa.extractor.AuthenticationInformationExtractor#getAuthenticationMethods(jakarta.servlet.http.HttpServletRequest)}.
 	 */
 	@Test
 	public void getAuthenticationMethods() {

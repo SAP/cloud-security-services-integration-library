@@ -5,8 +5,8 @@
  */
 package com.sap.cloud.security.servlet;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 /**
  * TokenAuthenticator is used to authenticate a user sending servlet requests to

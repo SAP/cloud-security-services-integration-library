@@ -71,7 +71,7 @@
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>2.9.3</caffeine.version>
 		<commons.io.version>2.11.0</commons.io.version>
-		<javax.servlet.api.version>4.0.1</javax.servlet.api.version>
+		<jakarta.servlet.api.version>6.0.0</jakarta.servlet.api.version>
 		<junit.version>4.13.2</junit.version>
 		<junit.version>4.13.2</junit.version>
 		<junit-jupiter.version>5.7.2</junit-jupiter.version>
@@ -252,9 +252,9 @@
 				<version>${commons.io.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>javax.servlet-api</artifactId>
-				<version>${javax.servlet.api.version}</version>
+				<groupId>jakarta.servlet</groupId>
+				<artifactId>jakarta.servlet-api</artifactId>
+				<version>${jakarta.servlet.api.version}</version>
 			</dependency>
 			<!--testing-->
 			<dependency>

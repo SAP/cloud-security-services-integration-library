@@ -13,8 +13,8 @@ import com.sap.cloud.security.test.api.ServiceMockConfiguration;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.jupiter.api.extension.*;
 
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
+import jakarta.servlet.Filter;
+import jakarta.servlet.Servlet;
 
 /**
  * This class creates a

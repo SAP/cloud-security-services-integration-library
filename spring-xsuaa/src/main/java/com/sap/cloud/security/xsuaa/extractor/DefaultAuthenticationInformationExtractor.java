@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.extractor;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,7 +56,7 @@ public class DefaultAuthenticationInformationExtractor implements Authentication
 	 * (non-Javadoc)
 	 * 
 	 * @see com.sap.cloud.security.xsuaa.extractor.AuthenticationInformation#
-	 * getSubdomain(javax.servlet.http.HttpServletRequest)
+	 * getSubdomain(jakarta.servlet.http.HttpServletRequest)
 	 */
 	@Override
 	public Optional<String> getSubdomain(HttpServletRequest request) {
@@ -84,7 +84,7 @@ public class DefaultAuthenticationInformationExtractor implements Authentication
 	 * (non-Javadoc)
 	 * 
 	 * @see com.sap.cloud.security.xsuaa.extractor.AuthenticationInformation#
-	 * getAuthenticationMethods(javax.servlet.http.HttpServletRequest)
+	 * getAuthenticationMethods(jakarta.servlet.http.HttpServletRequest)
 	 */
 	@Override
 	public List<AuthenticationMethod> getAuthenticationMethods(HttpServletRequest request) {
