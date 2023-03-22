@@ -12,21 +12,21 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpStatus;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -67,7 +67,7 @@ public class SecurityTestRuleTest {
 			String expEncodedKey = Base64.getEncoder()
 					.encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
 
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
+			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
 
 			List<JsonObject> tokenKeys = new DefaultJsonObject(readContent(response)).getJsonObjects("keys");
 			assertThat(tokenKeys).hasSize(4);
@@ -165,7 +165,7 @@ public class SecurityTestRuleTest {
 		public void testThatServletMethodIsNotCalled() throws ServletException, IOException {
 			HttpGet httpGet = new HttpGet(mockServletRule.getApplicationServerUri());
 			try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
-				assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
+				assertThat(response.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 			}
 			Mockito.verify(mockServlet, Mockito.times(0)).service(any(), any());
 		}

@@ -114,8 +114,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
             .authorizeRequests()
-            .antMatchers("/hello-token/**").hasAuthority("Read") // checks whether it has scope "<xsappId>.Read"
-            .antMatchers("/actuator/**").authenticated()
+            .requestMatchers("/hello-token/**").hasAuthority("Read") // checks whether it has scope "<xsappId>.Read"
+            .requestMatchers("/actuator/**").authenticated()
             .anyRequest().denyAll()
         .and()
             .oauth2ResourceServer()

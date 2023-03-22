@@ -97,7 +97,7 @@ public class XsuaaAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnMissingBean
-	@ConditionalOnClass(name = "org.apache.http.impl.client.CloseableHttpClient")
+	@ConditionalOnClass(name = "org.apache.hc.client5.http.impl.classic.CloseableHttpClient")
 	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	public RestOperations xsuaaMtlsRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		LOGGER.warn("In productive environment provide a well configured certificate based RestOperations bean");

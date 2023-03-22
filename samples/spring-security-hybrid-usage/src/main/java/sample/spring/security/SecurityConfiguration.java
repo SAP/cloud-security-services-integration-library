@@ -45,16 +45,16 @@ public class SecurityConfiguration {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/sayHello").hasAuthority("Read")
-                .antMatchers("/comp/sayHello").hasAuthority("Read")
-                .antMatchers("/*").authenticated()
+                .requestMatchers("/sayHello").hasAuthority("Read")
+                .requestMatchers("/comp/sayHello").hasAuthority("Read")
+                .requestMatchers("/*").authenticated()
                 .anyRequest().denyAll()
                 .and()
                 .oauth2ResourceServer()
                 .jwt()
                 .jwtAuthenticationConverter(new MyCustomHybridTokenAuthenticationConverter()); // Adjust the converter to represent your use case
-        // Use MyCustomHybridTokenAuthenticationConverter when IAS and XSUAA is used
-        // Use MyCustomIasTokenAuthenticationConverter when only IAS is used
+                                            // Use MyCustomHybridTokenAuthenticationConverter when IAS and XSUAA is used
+                                            // Use MyCustomIasTokenAuthenticationConverter when only IAS is used
         // @formatter:on
         return http.build();
     }

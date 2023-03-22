@@ -8,11 +8,11 @@ package com.sap.cloud.security.test.extension;
 import com.sap.cloud.security.test.ApplicationServerOptions;
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -23,7 +23,7 @@ import java.nio.charset.Charset;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class SecurityTestExtensionTest {
 
@@ -63,7 +63,7 @@ class SecurityTestExtensionTest {
 						.willReturn(aResponse().withBody("OK")));
 
 		try (CloseableHttpResponse response = httpClient.execute(new HttpGet(url))) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
+			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
 			String responseBody = readBody(response);
 			assertThat(responseBody).isEqualTo("OK");
 		}

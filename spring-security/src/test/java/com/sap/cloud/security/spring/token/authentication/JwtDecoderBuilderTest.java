@@ -5,13 +5,9 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
-import com.sap.cloud.security.config.CacheConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.ServiceConstants;
+import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.token.validation.ValidationListener;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.security.oauth2.jwt.JwtDecoder;

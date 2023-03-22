@@ -8,12 +8,12 @@ package com.sap.cloud.security.xsuaa.client;
 import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,10 +50,10 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 
 		LOGGER.debug("Executing token key retrieval GET request to {} with headers: {} ", tokenKeysEndpointUri,
-				request.getAllHeaders());
-		try (CloseableHttpResponse response = httpClient.execute(request)) {
+				request.headerIterator());
+		try (ClassicHttpResponse response = httpClient.execute(request)) {
 			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
-			int statusCode = response.getStatusLine().getStatusCode();
+			int statusCode = response.getCode();
 			if (statusCode == HttpStatus.SC_OK) {
 				LOGGER.debug("Successfully retrieved token keys from {} for zone '{}'", tokenKeysEndpointUri, zoneId);
 				return bodyAsString;
