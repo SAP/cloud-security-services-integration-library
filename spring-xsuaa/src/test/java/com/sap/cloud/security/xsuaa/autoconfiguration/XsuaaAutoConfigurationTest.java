@@ -89,33 +89,33 @@ public class XsuaaAutoConfigurationTest {
 				});
 	}
 
-//	@Test
-//	public void configures_xsuaaMtlsRestTemplateWithCredType() {
-//		contextRunner
-//				.withPropertyValues("spring.xsuaa.flows.auto:true")
-//				.withPropertyValues("xsuaa.credential-type:x509")
-//				.withPropertyValues("xsuaa.clientid:client")
-//				.withPropertyValues("xsuaa.certificate:" + cert)
-//				.withPropertyValues("xsuaa.key:" + key)
-//				.withPropertyValues("xsuaa.certurl:https://domain.cert.authentication.sap.com")
-//				.run((context) -> {
-//					assertThat(context).hasSingleBean(RestOperations.class);
-//					assertThat(context).hasBean("xsuaaMtlsRestOperations");
-//				});
-//	}
-//
-//	@Test
-//	public void configures_xsuaaMtlsRestTemplate() {
-//		contextRunner
-//				.withPropertyValues("xsuaa.clientid:client")
-//				.withPropertyValues("xsuaa.certificate:" + cert)
-//				.withPropertyValues("xsuaa.key:" + key)
-//				.withPropertyValues("xsuaa.certurl:https://domain.cert.authentication.sap.com")
-//				.run((context) -> {
-//					assertThat(context).hasSingleBean(RestOperations.class);
-//					assertThat(context).hasBean("xsuaaMtlsRestOperations");
-//				});
-//	}
+	@Test
+	public void configures_xsuaaMtlsRestTemplateWithCredType() {
+		contextRunner
+				.withPropertyValues("spring.xsuaa.flows.auto:true")
+				.withPropertyValues("xsuaa.credential-type:x509")
+				.withPropertyValues("xsuaa.clientid:client")
+				.withPropertyValues("xsuaa.certificate:" + cert)
+				.withPropertyValues("xsuaa.key:" + key)
+				.withPropertyValues("xsuaa.certurl:https://domain.cert.authentication.sap.com")
+				.run((context) -> {
+					assertThat(context).hasSingleBean(RestOperations.class);
+					assertThat(context).hasBean("xsuaaMtlsRestOperations");
+				});
+	}
+
+	@Test
+	public void configures_xsuaaMtlsRestTemplate() {
+		contextRunner
+				.withPropertyValues("xsuaa.clientid:client")
+				.withPropertyValues("xsuaa.certificate:" + cert)
+				.withPropertyValues("xsuaa.key:" + key)
+				.withPropertyValues("xsuaa.certurl:https://domain.cert.authentication.sap.com")
+				.run((context) -> {
+					assertThat(context).hasSingleBean(RestOperations.class);
+					assertThat(context).hasBean("xsuaaMtlsRestOperations");
+				});
+	}
 
 	@Test
 	public void configures_xsuaaServiceConfiguration_withProperties() {
