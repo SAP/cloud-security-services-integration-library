@@ -59,16 +59,16 @@
             <version>${jakarta.servlet.api.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- security -->
+        <dependency>
+            <groupId>com.sap.cloud.security</groupId>
+            <artifactId>java-security</artifactId>
+        </dependency>
         <!-- logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.api.version}</version>
-        </dependency>
-        <!-- security -->
-        <dependency>
-            <groupId>com.sap.cloud.security</groupId>
-            <artifactId>java-security</artifactId>
         </dependency>
 
         <!-- test utilities -->

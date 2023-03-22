@@ -9,21 +9,6 @@
     <version>2.13.5</version>
     <packaging>war</packaging>
 
-    <!--profiles>
-        <profile>
-            <id>allow-snapshots</id>
-            <activation><activeByDefault>true</activeByDefault></activation>
-            <repositories>
-                <repository>
-                    <id>snapshots-repo</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                    <releases><enabled>false</enabled></releases>
-                    <snapshots><enabled>true</enabled></snapshots>
-                </repository>
-            </repositories>
-        </profile>
-    </profiles-->
-
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -34,6 +19,18 @@
         <assertj.version>3.23.1</assertj.version>
         <junit.version>5.9.1</junit.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.sap.cloud.security</groupId>
+                <artifactId>java-bom</artifactId>
+                <version>${sap.cloud.security.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -57,14 +54,12 @@
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-security</artifactId>
-            <version>${sap.cloud.security.version}</version>
         </dependency>
 
         <!-- test utilities -->
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-security-test</artifactId>
-            <version>${sap.cloud.security.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

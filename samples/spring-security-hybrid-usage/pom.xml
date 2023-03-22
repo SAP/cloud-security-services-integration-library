@@ -32,6 +32,18 @@
 		<apache.httpclient.version>5.2.1</apache.httpclient.version>
 	</properties>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.sap.cloud.security</groupId>
+				<artifactId>java-bom</artifactId>
+				<version>${sap.cloud.security.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -45,12 +57,10 @@
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>resourceserver-security-spring-boot-starter</artifactId>
-			<version>${sap.cloud.security.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>spring-security-compatibility</artifactId>
-			<version>2.13.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents.client5</groupId>
@@ -78,7 +88,6 @@
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security-test</artifactId>
-			<version>${sap.cloud.security.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
