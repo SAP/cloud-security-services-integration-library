@@ -50,7 +50,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 
 		LOGGER.debug("Executing token key retrieval GET request to {} with headers: {} ", tokenKeysEndpointUri,
-				request.headerIterator());
+				request.getHeaders());
 		try (ClassicHttpResponse response = httpClient.execute(request)) {
 			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
 			int statusCode = response.getCode();
