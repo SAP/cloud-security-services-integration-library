@@ -11,12 +11,8 @@ import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +39,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public String retrieveTokenKeys(URI tokenKeysEndpointUri, @Nullable String zoneId)  {
+	public String retrieveTokenKeys(URI tokenKeysEndpointUri, @Nullable String zoneId) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri); // lgtm[java/ssrf] tokenKeysEndpointUri is validated
 																	// as part of XsuaaJkuValidator in java-security

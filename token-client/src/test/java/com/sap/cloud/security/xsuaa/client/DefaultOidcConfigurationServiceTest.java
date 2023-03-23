@@ -11,6 +11,7 @@ import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -65,7 +66,10 @@ public class DefaultOidcConfigurationServiceTest {
 		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
-		when(httpClientMock.execute(any())).thenReturn(response);
+		when(httpClientMock.execute(any(), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		assertThatThrownBy(this::retrieveEndpoints)
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -78,14 +82,13 @@ public class DefaultOidcConfigurationServiceTest {
 
 		retrieveEndpoints();
 
-		Mockito.verify(httpClientMock, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()));
-
+		Mockito.verify(httpClientMock, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()), any(HttpClientResponseHandler.class));
 	}
 
 	@Test
 	public void retrieveEndpoints_errorOccurs_throwsServiceException() throws IOException {
 		String errorMessage = "useful error message";
-		when(httpClientMock.execute(any())).thenThrow(new IOException(errorMessage));
+		when(httpClientMock.execute(any(), any(HttpClientResponseHandler.class))).thenThrow(new IOException(errorMessage));
 
 		assertThatThrownBy(this::retrieveEndpoints)
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -127,10 +130,12 @@ public class DefaultOidcConfigurationServiceTest {
 		assertThat(result.getAuthorizeEndpoint().toString()).isEqualTo("http://localhost/oauth/authorize");
 	}
 
-	private CloseableHttpResponse mockResponse() throws IOException {
+	private void mockResponse() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonOidcConfiguration);
-		when(httpClientMock.execute(any())).thenReturn(response);
-		return response;
+		when(httpClientMock.execute(any(), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 	}
 
 	private OAuth2ServiceEndpointsProvider retrieveEndpoints() throws OAuth2ServiceException {

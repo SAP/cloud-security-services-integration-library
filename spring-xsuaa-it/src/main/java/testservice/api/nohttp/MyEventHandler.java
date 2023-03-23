@@ -5,8 +5,8 @@
  */
 package testservice.api.nohttp;
 
-import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
-import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
+import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
 
 @Service
 @Profile({ "test.api.nohttp" })

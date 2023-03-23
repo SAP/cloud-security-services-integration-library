@@ -11,16 +11,13 @@ import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URI;
-
-import org.apache.http.HttpHeaders;
 
 /**
  * https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest

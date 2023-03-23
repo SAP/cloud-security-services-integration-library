@@ -13,7 +13,6 @@ import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.json.JSONObject;
@@ -30,7 +29,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
-import static org.apache.http.HttpHeaders.USER_AGENT;
+import static org.apache.hc.core5.http.HttpHeaders.USER_AGENT;
 
 public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
@@ -66,35 +65,39 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 					return e;
 				})
 				.collect(Collectors.toList()));
-		return executeRequest(httpPost);
-	}
 
-	private OAuth2TokenResponse executeRequest(HttpPost httpPost) throws OAuth2ServiceException {
-		httpPost.addHeader(USER_AGENT, HttpClientUtil.getUserAgent());
-
-		String responseBody;
 		try {
-			responseBody = httpClient.execute(httpPost, response -> {
-				LOGGER.debug("Requesting access token from url {} with headers {}", httpPost.getRequestUri(),
-						httpPost.getHeaders());
-				int statusCode = HttpClientUtil.STATUS_CODE_EXTRACTOR.handleResponse(response);
-				LOGGER.debug("Received statusCode {}", statusCode);
-				String responseBodyAsString = HttpClientUtil.STRING_CONTENT_EXTRACTOR.handleResponse(response);
+			return executeRequest(httpPost);
+		} catch (IOException | URISyntaxException e) {
+			if(e instanceof OAuth2ServiceException) throw (OAuth2ServiceException) e;
 
-				if (statusCode != HttpStatus.SC_OK) {
-					LOGGER.debug("Received response body: {}", responseBodyAsString);
-					throw OAuth2ServiceException.builder("Error retrieving JWT token")
-							.withStatusCode(statusCode)
-							.withUri(httpPost.getRequestUri())
-							.withResponseBody(responseBodyAsString)
-							.build();
-				}
-
-				return responseBodyAsString;
-			});
-		} catch (IOException e) {
 			throw new OAuth2ServiceException("Unexpected error retrieving JWT token: " + e.getMessage());
 		}
+	}
+
+	private OAuth2TokenResponse executeRequest(HttpPost httpPost) throws IOException, URISyntaxException {
+		httpPost.addHeader(USER_AGENT, HttpClientUtil.getUserAgent());
+
+		URI requestUri = httpPost.getUri();
+		LOGGER.debug("Requesting access token from url {} with headers {}", requestUri,
+				httpPost.getHeaders());
+
+		String responseBody = httpClient.execute(httpPost, response -> {
+			int statusCode = HttpClientUtil.STATUS_CODE_EXTRACTOR.handleResponse(response);
+			LOGGER.debug("Received statusCode {}", statusCode);
+			String responseBodyAsString = HttpClientUtil.STRING_CONTENT_EXTRACTOR.handleResponse(response);
+
+			if (statusCode != HttpStatus.SC_OK) {
+				LOGGER.debug("Received response body: {}", responseBodyAsString);
+				throw OAuth2ServiceException.builder("Error retrieving JWT token")
+						.withStatusCode(statusCode)
+						.withUri(requestUri)
+						.withResponseBody(responseBodyAsString)
+						.build();
+			}
+
+			return responseBodyAsString;
+		});
 
 		return convertToOAuth2TokenResponse(responseBody);
 	}

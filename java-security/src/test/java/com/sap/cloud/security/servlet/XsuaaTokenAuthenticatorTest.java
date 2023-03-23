@@ -21,6 +21,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -63,7 +64,11 @@ class XsuaaTokenAuthenticatorTest {
 
 		CloseableHttpResponse xsuaaTokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
-		when(mockHttpClient.execute(any(HttpGet.class))).thenReturn(xsuaaTokenKeysResponse);
+		when(mockHttpClient.execute(any(HttpGet.class), any(HttpClientResponseHandler.class)))
+				.thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(xsuaaTokenKeysResponse);
+		});
 
 		CloseableHttpResponse xsuaaTokenResponse = HttpClientTestFactory
 				.createHttpResponse(

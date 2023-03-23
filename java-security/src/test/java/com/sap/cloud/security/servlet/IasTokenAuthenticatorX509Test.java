@@ -19,6 +19,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -64,9 +65,15 @@ class IasTokenAuthenticatorX509Test {
 				.createHttpResponse("{\"jwks_uri\" : \"https://application.auth.com/oauth2/certs\"}");
 		CloseableHttpResponse tokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
-		when(httpClientMock.execute(any(HttpGet.class)))
-				.thenReturn(oidcResponse)
-				.thenReturn(tokenKeysResponse);
+		when(httpClientMock.execute(any(HttpGet.class), any(HttpClientResponseHandler.class)))
+				.thenAnswer(invocation -> {
+					HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+					return responseHandler.handleResponse(oidcResponse);
+				})
+				.thenAnswer(invocation -> {
+					HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+					return responseHandler.handleResponse(tokenKeysResponse);
+				});
 
 		JwtValidatorBuilder
 				.getInstance(configuration)
