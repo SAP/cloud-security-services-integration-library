@@ -20,6 +20,7 @@ import org.springframework.http.HttpMethod;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
@@ -143,7 +144,12 @@ public class DefaultOidcConfigurationServiceTest {
 
 	private ArgumentMatcher<HttpUriRequest> isHttpGetAndContainsCorrectURI() {
 		return (httpGet) -> {
-			boolean hasCorrectURI = httpGet.getRequestUri().equals(CONFIG_ENDPOINT_URI);
+			boolean hasCorrectURI;
+			try {
+				hasCorrectURI = httpGet.getUri().equals(CONFIG_ENDPOINT_URI);
+			} catch (URISyntaxException e) {
+				hasCorrectURI = false;
+			}
 			boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
 			return hasCorrectURI && correctMethod;
 		};

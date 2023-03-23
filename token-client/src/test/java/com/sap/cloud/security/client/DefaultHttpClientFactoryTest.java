@@ -8,15 +8,14 @@ package com.sap.cloud.security.client;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import nl.altindag.log.LogCaptor;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.*;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -33,7 +32,7 @@ import static org.mockito.Mockito.when;
 
 class DefaultHttpClientFactoryTest {
 
-	public static final ClassicHttpRequest HTTP_GET = ClassicRequestBuilder.get("https://www.sap.com/index.html").build();
+	public static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://www.sap.com/index.html"));
 	private static final ClientIdentity config = Mockito.mock(ClientIdentity.class);
 	private static final ClientIdentity config2 = Mockito.mock(ClientIdentity.class);
 	private final DefaultHttpClientFactory cut = new DefaultHttpClientFactory();
@@ -65,6 +64,8 @@ class DefaultHttpClientFactoryTest {
 		HttpClient client2 = cut.createClient(config);
 
 		assertNotSame(client1, client2);
+
+		assertEquals(1, cut.sslConnectionManagers.size());
 	}
 
 	@Test
@@ -73,6 +74,8 @@ class DefaultHttpClientFactoryTest {
 		HttpClient client2 = cut.createClient(config2);
 
 		assertNotSame(client1, client2);
+
+		assertEquals(2, cut.sslConnectionManagers.size());
 	}
 
 	@Test
@@ -80,16 +83,18 @@ class DefaultHttpClientFactoryTest {
 		CloseableHttpClient client1 = cut.createClient(config);
 		HttpClient client2 = cut.createClient(config2);
 
-		HttpResponse response = client1.execute(HTTP_GET);
-		assertEquals(HttpStatus.SC_OK, response.getCode());
+		int statusCode;
+		statusCode = client1.execute(HTTP_GET, HttpClientUtil.STATUS_CODE_EXTRACTOR);
+		assertEquals(statusCode, HttpStatus.SC_OK);
 
 		client1.close();
 
 		assertThrows(IllegalStateException.class, () -> client1.execute(HTTP_GET));
-		assertEquals(HttpStatus.SC_OK, response.getCode());
 
-		response = client2.execute(HTTP_GET);
-		assertEquals(HttpStatus.SC_OK, response.getCode());
+		statusCode = client2.execute(HTTP_GET, HttpClientUtil.STATUS_CODE_EXTRACTOR);
+		assertEquals(statusCode, HttpStatus.SC_OK);
+
+		assertEquals(2, cut.sslConnectionManagers.size());
 	}
 
 	@Test
@@ -98,9 +103,8 @@ class DefaultHttpClientFactoryTest {
 		HttpClient client = cut.createClient(config);
 
 		for (int i = 0; i < 40; ++i) {
-			ClassicHttpResponse response = (ClassicHttpResponse) client.execute(HTTP_GET);
-			assertEquals(HttpStatus.SC_OK, response.getCode());
-			EntityUtils.consumeQuietly(response.getEntity());
+			int statusCode = client.execute(HTTP_GET, HttpClientUtil.STATUS_CODE_EXTRACTOR);
+			assertEquals(statusCode, HttpStatus.SC_OK);
 		}
 	}
 
@@ -136,12 +140,13 @@ class DefaultHttpClientFactoryTest {
 		wireMockServer.start();
 		try {
 			CloseableHttpClient client = cut.createClient(config);
-			CloseableHttpResponse resp = client.execute(new HttpGet("http://localhost:8000/redirect"));
-			assertThat(resp.getCode()).isEqualTo(301);
+
+			int statusCode = client.execute(new HttpGet("http://localhost:8000/redirect"), HttpClientUtil.STATUS_CODE_EXTRACTOR);
+			assertEquals(statusCode, HttpStatus.SC_MOVED_PERMANENTLY);
 
 			CloseableHttpClient client2 = cut.createClient(new ClientCredentials("client", "secret"));
-			CloseableHttpResponse resp2 = client2.execute(new HttpGet("http://localhost:8000/redirect"));
-			assertThat(resp2.getCode()).isEqualTo(301);
+			statusCode = client2.execute(new HttpGet("http://localhost:8000/redirect"), HttpClientUtil.STATUS_CODE_EXTRACTOR);
+			assertEquals(statusCode, HttpStatus.SC_MOVED_PERMANENTLY);
 		} finally {
 			wireMockServer.stop();
 		}
