@@ -12,7 +12,7 @@ import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.x509.X509Certificate;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;

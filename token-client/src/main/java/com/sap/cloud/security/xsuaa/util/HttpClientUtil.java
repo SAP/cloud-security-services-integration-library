@@ -6,7 +6,9 @@
 package com.sap.cloud.security.xsuaa.util;
 
 import com.sap.cloud.security.xsuaa.Assertions;
-import org.apache.http.HttpResponse;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,14 +19,11 @@ import java.util.stream.Collectors;
 
 public class HttpClientUtil {
 
-	private HttpClientUtil() {
-		// use static methods
-	}
+	public static final HttpClientResponseHandler<Integer> STATUS_CODE_EXTRACTOR = response -> response.getCode();
+	public static final HttpClientResponseHandler<String> STRING_CONTENT_EXTRACTOR = response -> EntityUtils.toString(response.getEntity(), "UTF-8");
 
-	public static String extractResponseBodyAsString(HttpResponse response) throws IOException {
-		Assertions.assertNotNull(response, "response must not be null.");
-		return new BufferedReader(new InputStreamReader(response.getEntity().getContent()))
-				.lines().collect(Collectors.joining(System.lineSeparator()));
+	private HttpClientUtil() {
+		// use static fields and methods
 	}
 
 	public static String getUserAgent() {

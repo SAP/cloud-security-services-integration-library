@@ -8,16 +8,14 @@ package com.sap.cloud.security.client;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import nl.altindag.log.LogCaptor;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -65,9 +63,8 @@ class DefaultHttpClientFactoryTest {
 		HttpClient client2 = cut.createClient(config);
 
 		assertNotEquals(client1, client2);
-		assertNotEquals(client1.getConnectionManager(), client2.getConnectionManager()); // different InternalHttpClient
-																							// instances
-		assertEquals(1, cut.sslConnectionPool.size());
+
+		assertEquals(1, cut.sslConnectionManagers.size());
 	}
 
 	@Test
@@ -76,9 +73,8 @@ class DefaultHttpClientFactoryTest {
 		HttpClient client2 = cut.createClient(config2);
 
 		assertNotEquals(client1, client2);
-		assertNotEquals(client1.getConnectionManager(), client2.getConnectionManager()); // different InternalHttpClient
-																							// instances
-		assertEquals(2, cut.sslConnectionPool.size());
+
+		assertEquals(2, cut.sslConnectionManagers.size());
 	}
 
 	@Test
@@ -86,18 +82,18 @@ class DefaultHttpClientFactoryTest {
 		CloseableHttpClient client1 = cut.createClient(config);
 		HttpClient client2 = cut.createClient(config2);
 
-		HttpResponse response = client1.execute(HTTP_GET);
-		assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+		int statusCode;
+		statusCode = client1.execute(HTTP_GET, HttpClientUtil.STATUS_CODE_EXTRACTOR);
+		assertEquals(statusCode, HttpStatus.SC_OK);
 
 		client1.close();
 
 		assertThrows(IllegalStateException.class, () -> client1.execute(HTTP_GET));
-		assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
-		response = client2.execute(HTTP_GET);
-		assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+		statusCode = client2.execute(HTTP_GET, HttpClientUtil.STATUS_CODE_EXTRACTOR);
+		assertEquals(statusCode, HttpStatus.SC_OK);
 
-		assertEquals(2, cut.sslConnectionPool.size());
+		assertEquals(2, cut.sslConnectionManagers.size());
 	}
 
 	@Test
@@ -105,9 +101,8 @@ class DefaultHttpClientFactoryTest {
 		HttpClient client = cut.createClient(config);
 
 		for (int i = 0; i < 40; ++i) {
-			HttpResponse response = client.execute(HTTP_GET);
-			assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-			EntityUtils.consumeQuietly(response.getEntity());
+			int statusCode = client.execute(HTTP_GET, HttpClientUtil.STATUS_CODE_EXTRACTOR);
+			assertEquals(statusCode, HttpStatus.SC_OK);
 		}
 	}
 
@@ -142,12 +137,13 @@ class DefaultHttpClientFactoryTest {
 		wireMockServer.start();
 		try {
 			CloseableHttpClient client = cut.createClient(config);
-			CloseableHttpResponse resp = client.execute(new HttpGet("http://localhost:8000/redirect"));
-			assertThat(resp.getStatusLine().getStatusCode()).isEqualTo(301);
+
+			int statusCode = client.execute(new HttpGet("http://localhost:8000/redirect"), HttpClientUtil.STATUS_CODE_EXTRACTOR);
+			assertEquals(statusCode, HttpStatus.SC_MOVED_PERMANENTLY);
 
 			CloseableHttpClient client2 = cut.createClient(new ClientCredentials("client", "secret"));
-			CloseableHttpResponse resp2 = client2.execute(new HttpGet("http://localhost:8000/redirect"));
-			assertThat(resp2.getStatusLine().getStatusCode()).isEqualTo(301);
+			statusCode = client2.execute(new HttpGet("http://localhost:8000/redirect"), HttpClientUtil.STATUS_CODE_EXTRACTOR);
+			assertEquals(statusCode, HttpStatus.SC_MOVED_PERMANENTLY);
 		} finally {
 			wireMockServer.stop();
 		}

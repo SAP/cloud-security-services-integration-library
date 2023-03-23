@@ -5,27 +5,25 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
@@ -73,37 +71,37 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
 	private OAuth2TokenResponse executeRequest(HttpPost httpPost) throws OAuth2ServiceException {
 		httpPost.addHeader(USER_AGENT, HttpClientUtil.getUserAgent());
-		LOGGER.debug("Requesting access token from url {} with headers {}", httpPost.getURI(),
-				httpPost.getAllHeaders());
-		try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
-			int statusCode = response.getStatusLine().getStatusCode();
-			LOGGER.debug("Received statusCode {}", statusCode);
-			if (statusCode == HttpStatus.SC_OK) {
-				return handleResponse(response);
-			} else {
-				String responseBodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
-				LOGGER.debug("Received response body: {}", responseBodyAsString);
-				throw OAuth2ServiceException.builder("Error retrieving JWT token")
-						.withStatusCode(statusCode)
-						.withUri(httpPost.getURI())
-						.withResponseBody(responseBodyAsString)
-						.build();
-			}
-		} catch (OAuth2ServiceException e) {
-			throw e;
+
+		String responseBody;
+		try {
+			responseBody = httpClient.execute(httpPost, response -> {
+				LOGGER.debug("Requesting access token from url {} with headers {}", httpPost.getRequestUri(),
+						httpPost.getHeaders());
+				int statusCode = HttpClientUtil.STATUS_CODE_EXTRACTOR.handleResponse(response);
+				LOGGER.debug("Received statusCode {}", statusCode);
+				String responseBodyAsString = HttpClientUtil.STRING_CONTENT_EXTRACTOR.handleResponse(response);
+
+				if (statusCode != HttpStatus.SC_OK) {
+					LOGGER.debug("Received response body: {}", responseBodyAsString);
+					throw OAuth2ServiceException.builder("Error retrieving JWT token")
+							.withStatusCode(statusCode)
+							.withUri(httpPost.getRequestUri())
+							.withResponseBody(responseBodyAsString)
+							.build();
+				}
+
+				return responseBodyAsString;
+			});
 		} catch (IOException e) {
 			throw new OAuth2ServiceException("Unexpected error retrieving JWT token: " + e.getMessage());
 		}
+
+		return convertToOAuth2TokenResponse(responseBody);
 	}
 
-	private OAuth2TokenResponse handleResponse(HttpResponse response) throws IOException {
-		String responseBody = HttpClientUtil.extractResponseBodyAsString(response);
-		Map<String, Object> accessTokenMap = new JSONObject(responseBody).toMap();
-		return convertToOAuth2TokenResponse(accessTokenMap);
-	}
-
-	private OAuth2TokenResponse convertToOAuth2TokenResponse(Map<String, Object> accessTokenMap)
+	private OAuth2TokenResponse convertToOAuth2TokenResponse(String responseBody)
 			throws OAuth2ServiceException {
+		Map<String, Object> accessTokenMap = new JSONObject(responseBody).toMap();
 		String accessToken = getParameter(accessTokenMap, ACCESS_TOKEN);
 		String refreshToken = getParameter(accessTokenMap, REFRESH_TOKEN);
 		String expiresIn = getParameter(accessTokenMap, EXPIRES_IN);
@@ -125,18 +123,13 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		return String.valueOf(accessTokenMap.get(key));
 	}
 
-	private HttpPost createHttpPost(URI uri, HttpHeaders headers, Map<String, String> parameters)
-			throws OAuth2ServiceException {
+	private HttpPost createHttpPost(URI uri, HttpHeaders headers, Map<String, String> parameters) {
 		HttpPost httpPost = new HttpPost(uri);
 		headers.getHeaders().forEach(header -> httpPost.setHeader(header.getName(), header.getValue()));
-		try {
-			List<BasicNameValuePair> basicNameValuePairs = parameters.entrySet().stream()
-					.map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
-					.collect(Collectors.toList());
-			httpPost.setEntity(new UrlEncodedFormEntity(basicNameValuePairs));
-		} catch (UnsupportedEncodingException e) {
-			throw new OAuth2ServiceException("Unexpected error parsing URI: " + e.getMessage());
-		}
+		List<BasicNameValuePair> basicNameValuePairs = parameters.entrySet().stream()
+				.map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
+				.collect(Collectors.toList());
+		httpPost.setEntity(new UrlEncodedFormEntity(basicNameValuePairs));
 		return httpPost;
 	}
 

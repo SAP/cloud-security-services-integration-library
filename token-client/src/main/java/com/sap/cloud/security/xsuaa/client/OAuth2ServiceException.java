@@ -69,7 +69,7 @@ public class OAuth2ServiceException extends IOException {
 
 		/**
 		 * Parameterizes the Exception with a HTTP status code.
-		 * 
+		 *
 		 * @param httpStatusCode
 		 *            the http status code
 		 * @return the builder
@@ -81,6 +81,11 @@ public class OAuth2ServiceException extends IOException {
 
 		public Builder withUri(URI serverUri) {
 			this.serverUri = serverUri;
+			return this;
+		}
+
+		public Builder withUri(String requestUri) {
+			withUri(URI.create(requestUri));
 			return this;
 		}
 
@@ -122,6 +127,5 @@ public class OAuth2ServiceException extends IOException {
 		private String createHeaderMessage() {
 			return headers == null ? null : "Headers " + headers;
 		}
-
 	}
 }
