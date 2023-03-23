@@ -5,6 +5,9 @@
  */
 package testservice.api.v1;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,12 +19,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
-
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 
 @Configuration
 @EnableWebSecurity
@@ -32,14 +29,13 @@ public class SecurityConfiguration {
 	XsuaaServiceConfiguration xsuaaServiceConfiguration;
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector)
+	public SecurityFilterChain filterChain(HttpSecurity http)
 			throws Exception {
 		// @formatter:off
-		MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
 		http
 				.authorizeHttpRequests((authorize) -> authorize
 						.requestMatchers("/**").hasAuthority("Display")
-						.anyRequest().authenticated()
+						.anyRequest().denyAll()
 				)
 				.oauth2ResourceServer()
 				.jwt()
