@@ -12,7 +12,6 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
@@ -62,20 +61,18 @@ public class DefaultOidcConfigurationServiceTest {
 	}
 
 	@Test
-	@Ignore
 	public void retrieveEndpoints_badRequest_throwsException() throws IOException {
 		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
 		when(httpClientMock.execute(any())).thenReturn(response);
 
-		assertThatThrownBy(() -> retrieveEndpoints())
+		assertThatThrownBy(this::retrieveEndpoints)
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription);
 	}
 
 	@Test
-	@Ignore
 	public void retrieveEndpoints_executesHttpGetRequestWithCorrectURI() throws IOException {
 		mockResponse();
 
@@ -86,12 +83,11 @@ public class DefaultOidcConfigurationServiceTest {
 	}
 
 	@Test
-	@Ignore
 	public void retrieveEndpoints_errorOccurs_throwsServiceException() throws IOException {
 		String errorMessage = "useful error message";
 		when(httpClientMock.execute(any())).thenThrow(new IOException(errorMessage));
 
-		assertThatThrownBy(() -> retrieveEndpoints())
+		assertThatThrownBy(this::retrieveEndpoints)
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorMessage)
 				.extracting("httpStatusCode").isEqualTo(0);
@@ -121,7 +117,6 @@ public class DefaultOidcConfigurationServiceTest {
 	}
 
 	@Test
-	@Ignore
 	public void retrieveEndpoints_containsBothKeys() throws IOException {
 		mockResponse();
 
@@ -144,11 +139,10 @@ public class DefaultOidcConfigurationServiceTest {
 
 	private ArgumentMatcher<HttpUriRequest> isHttpGetAndContainsCorrectURI() {
 		return (httpGet) -> {
-			boolean hasCorrectURI;
+			boolean hasCorrectURI = false;
 			try {
 				hasCorrectURI = httpGet.getUri().equals(CONFIG_ENDPOINT_URI);
 			} catch (URISyntaxException e) {
-				hasCorrectURI = false;
 			}
 			boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
 			return hasCorrectURI && correctMethod;
