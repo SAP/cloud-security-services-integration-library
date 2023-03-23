@@ -11,10 +11,9 @@ import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,9 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -44,13 +45,13 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 
 	public DefaultHttpClientFactory() {
 		defaultRequestConfig = RequestConfig.custom()
-				.setConnectTimeout(DEFAULT_TIMEOUT)
 				.setConnectionRequestTimeout(DEFAULT_TIMEOUT)
 				.setRedirectsEnabled(false)
 				.build();
 
 		defaultConnectionConfig = ConnectionConfig.custom()
 				.setSocketTimeout(DEFAULT_SOCKET_TIMEOUT)
+				.setConnectTimeout(DEFAULT_TIMEOUT)
 				.build();
 	}
 
@@ -86,7 +87,9 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 						.setDefaultConnectionConfig(defaultConnectionConfig)
 						.setMaxConnPerRoute(MAX_CONNECTIONS_PER_ROUTE)
 						.setMaxConnTotal(MAX_CONNECTIONS)
-						.setSSLSocketFactory(new SSLConnectionSocketFactory(context))
+						.setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
+								.setSslContext(context)
+								.build())
 						.build());
 
 		return HttpClients.custom()
