@@ -93,7 +93,7 @@ class DefaultHttpClientFactoryTest {
 	}
 
 	@Test
-	@Disabled
+	@Disabled("To be fixed")
 	void reuseConnections() throws IOException {
 		HttpClient client = cut.createClient(config);
 
@@ -105,7 +105,7 @@ class DefaultHttpClientFactoryTest {
 	}
 
 	@Test
-	@Disabled
+	@Disabled("To be fixed")
 	void assertWarnWhenCalledMoreThanOnce() {
 		cut.createClient(config);
 		cut.createClient(config2);
