@@ -97,7 +97,7 @@ public class CombiningValidatorTest {
 
 		combiningValidator.validate(TOKEN);
 
-		Mockito.verifyZeroInteractions(validationListenerMock);
+		Mockito.verifyNoMoreInteractions(validationListenerMock);
 	}
 
 	@Test
