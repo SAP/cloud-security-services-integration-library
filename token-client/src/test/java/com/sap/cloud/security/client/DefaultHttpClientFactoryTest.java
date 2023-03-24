@@ -99,7 +99,7 @@ class DefaultHttpClientFactoryTest {
 	}
 
 	@Test
-	@Disabled("To be fixed")
+	@Disabled("Testing parallelism requires better test logic")
 	void reuseConnections() throws IOException {
 		HttpClient client = cut.createClient(config);
 
@@ -110,7 +110,6 @@ class DefaultHttpClientFactoryTest {
 	}
 
 	@Test
-	@Disabled("To be fixed")
 	void assertWarnWhenCalledMoreThanOnce() {
 		cut.createClient(config);
 		cut.createClient(config2);
