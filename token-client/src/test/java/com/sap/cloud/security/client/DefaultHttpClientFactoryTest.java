@@ -85,15 +85,15 @@ class DefaultHttpClientFactoryTest {
 		HttpClient client2 = cut.createClient(config2);
 
 		int statusCode;
-		statusCode = client1.execute(HTTP_GET, HttpClientUtil.STATUS_CODE_EXTRACTOR);
-		assertEquals(statusCode, HttpStatus.SC_OK);
+		statusCode = client1.execute(HTTP_GET, STATUS_CODE_EXTRACTOR);
+		assertEquals(HttpStatus.SC_OK, statusCode);
 
 		client1.close();
 
 		assertThrows(IllegalStateException.class, () -> client1.execute(HTTP_GET));
 
-		statusCode = client2.execute(HTTP_GET, HttpClientUtil.STATUS_CODE_EXTRACTOR);
-		assertEquals(statusCode, HttpStatus.SC_OK);
+		statusCode = client2.execute(HTTP_GET, STATUS_CODE_EXTRACTOR);
+		assertEquals(HttpStatus.SC_OK, statusCode);
 
 		assertEquals(2, cut.sslConnectionManagers.size());
 	}
@@ -104,8 +104,8 @@ class DefaultHttpClientFactoryTest {
 		HttpClient client = cut.createClient(config);
 
 		for (int i = 0; i < 40; ++i) {
-			int statusCode = client.execute(HTTP_GET, HttpClientUtil.STATUS_CODE_EXTRACTOR);
-			assertEquals(statusCode, HttpStatus.SC_OK);
+			int statusCode = client.execute(HTTP_GET, STATUS_CODE_EXTRACTOR);
+			assertEquals(HttpStatus.SC_OK, statusCode);
 		}
 	}
 
