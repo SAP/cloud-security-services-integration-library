@@ -21,7 +21,6 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -38,9 +37,9 @@ import static org.mockito.Mockito.when;
 class IasTokenAuthenticatorTest {
 
 	private final static HttpServletResponse HTTP_RESPONSE = Mockito.mock(HttpServletResponse.class);
-
+	private static ValidationListener validationListener1;
+	private static ValidationListener validationListener2;
 	private final SapIdToken token;
-
 	private static AbstractTokenAuthenticator cut;
 
 	IasTokenAuthenticatorTest() throws IOException {
@@ -54,6 +53,9 @@ class IasTokenAuthenticatorTest {
 				.withDomains("myauth.com")
 				.withClientId("T000310")
 				.build();
+
+		validationListener1 = Mockito.mock(ValidationListener.class);
+		validationListener2 = Mockito.mock(ValidationListener.class);
 
 		CloseableHttpClient httpClientMock = Mockito.mock(CloseableHttpClient.class);
 
@@ -73,12 +75,14 @@ class IasTokenAuthenticatorTest {
 
 		cut = new IasTokenAuthenticator()
 				.withServiceConfiguration(configuration)
-				.withHttpClient(httpClientMock);
+				.withHttpClient(httpClientMock)
+				.withValidationListener(validationListener1)
+				.withValidationListener(validationListener2);
 	}
 
 	@Test
 	void validateWhenConfigurationIsNull() {
-		cut = new IasTokenAuthenticator();
+		AbstractTokenAuthenticator cut = new IasTokenAuthenticator();
 
 		HttpServletRequest httpRequest = createRequestWithToken(token.getTokenValue());
 
@@ -119,36 +123,26 @@ class IasTokenAuthenticatorTest {
 		assertSame(response.getToken(), SecurityContext.getToken());
 	}
 
-	@Test@Disabled("To be fixed")
-	void validateRequest_validToken_listenerIsCalled() {
+	@Test
+	void validateRequest_listenerIsCalled() {
 		HttpServletRequest httpRequest = createRequestWithToken(token.getTokenValue());
-		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
-		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 
-		cut.withValidationListener(validationListener1)
-				.withValidationListener(validationListener2)
-				.validateRequest(httpRequest, HTTP_RESPONSE);
+		cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		Mockito.verify(validationListener1, times(1)).onValidationSuccess();
-		Mockito.verify(validationListener2, times(1)).onValidationSuccess();
+		Mockito.verify(validationListener1, times(2)).onValidationSuccess();
+		Mockito.verify(validationListener2, times(2)).onValidationSuccess();
 		Mockito.verifyNoMoreInteractions(validationListener1);
 		Mockito.verifyNoMoreInteractions(validationListener2);
 	}
 
-	@Test@Disabled("To be fixed")
+	@Test
 	void validateRequest_invalidToken_listenerIsCalled() {
 		HttpServletRequest httpRequest = createRequestWithToken(token.getTokenValue() + "B");
-		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
-		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 
-		cut.withValidationListener(validationListener1)
-				.withValidationListener(validationListener2)
-				.validateRequest(httpRequest, HTTP_RESPONSE);
+		cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		Mockito.verify(validationListener1, times(1)).onValidationError(any());
 		Mockito.verify(validationListener2, times(1)).onValidationError(any());
-		Mockito.verifyNoMoreInteractions(validationListener2);
-		Mockito.verifyNoMoreInteractions(validationListener2);
 	}
 
 	private HttpServletRequest createRequestWithoutToken() {

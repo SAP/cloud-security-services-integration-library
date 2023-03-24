@@ -8,7 +8,6 @@ package com.sap.cloud.security.servlet;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.ServiceConstants;
-import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationListener;
@@ -23,7 +22,6 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -44,17 +42,17 @@ class XsuaaTokenAuthenticatorTest {
 	private final XsuaaToken xsuaaToken;
 	private final XsuaaToken invalidToken;
 	private final XsuaaToken uaaToken;
-	private final SapIdToken iasToken;
 	private static CloseableHttpClient mockHttpClient;
+	private static final ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
+	private static final ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
 	private static OAuth2ServiceConfigurationBuilder oAuth2ServiceConfigBuilder;
-
 	private static AbstractTokenAuthenticator cut;
+
 
 	XsuaaTokenAuthenticatorTest() throws IOException {
 		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaJwtBearerTokenRSA256.txt", UTF_8));
 		invalidToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
-		iasToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 		uaaToken = new XsuaaToken(IOUtils.resourceToString("/uaaAccessTokenRSA256.txt", UTF_8));
 	}
 
@@ -86,12 +84,14 @@ class XsuaaTokenAuthenticatorTest {
 
 		cut = new XsuaaTokenAuthenticator()
 				.withHttpClient(mockHttpClient)
+				.withValidationListener(validationListener1)
+				.withValidationListener(validationListener2)
 				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
 	}
 
 	@Test
 	void validateXsuaaToken_WhenConfigurationIsNull() {
-		cut = new XsuaaTokenAuthenticator();
+		AbstractTokenAuthenticator cut = new XsuaaTokenAuthenticator();
 
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
 
@@ -150,15 +150,11 @@ class XsuaaTokenAuthenticatorTest {
 		assertFalse(((XsuaaToken) response.getToken()).hasLocalScope("test"));
 	}
 
-	@Test@Disabled("To be fixed")
+	@Test
 	void validateRequest_validToken_listenerIsCalled() {
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
-		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
-		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 
-		cut.withValidationListener(validationListener1)
-				.withValidationListener(validationListener2)
-				.validateRequest(httpRequest, HTTP_RESPONSE);
+		cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		Mockito.verify(validationListener1, times(1)).onValidationSuccess();
 		Mockito.verify(validationListener2, times(1)).onValidationSuccess();
@@ -166,20 +162,14 @@ class XsuaaTokenAuthenticatorTest {
 		Mockito.verifyNoMoreInteractions(validationListener2);
 	}
 
-	@Test@Disabled("To be fixed")
+	@Test
 	void validateRequest_invalidToken_listenerIsCalled() {
 		HttpServletRequest httpRequest = createRequestWithToken(invalidToken.getTokenValue());
-		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
-		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 
-		cut.withValidationListener(validationListener1)
-				.withValidationListener(validationListener2)
-				.validateRequest(httpRequest, HTTP_RESPONSE);
+		cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		Mockito.verify(validationListener1, times(1)).onValidationError(any());
 		Mockito.verify(validationListener2, times(1)).onValidationError(any());
-		Mockito.verifyNoMoreInteractions(validationListener2);
-		Mockito.verifyNoMoreInteractions(validationListener2);
 	}
 
 	private HttpServletRequest createRequestWithoutToken() {
