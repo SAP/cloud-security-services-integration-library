@@ -1,4 +1,4 @@
-# SAP CP Java Security Client Library
+# SAP BTP Java Security Client Library
 
 Token Validation for Java applications.
 
