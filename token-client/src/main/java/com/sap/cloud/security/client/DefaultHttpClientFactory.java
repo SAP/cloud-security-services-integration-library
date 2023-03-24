@@ -14,6 +14,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
+import org.apache.hc.core5.http.ssl.TLS;
 import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 	private final RequestConfig defaultRequestConfig;
 	private final ConnectionConfig defaultConnectionConfig;
 	// reuse ssl connections
-	final ConcurrentHashMap<ClientIdentity, HttpClientConnectionManager> sslConnectionManagers = new ConcurrentHashMap<>();
+	final ConcurrentHashMap<String, HttpClientConnectionManager> sslConnectionManagers = new ConcurrentHashMap<>();
 	final Set<String> httpClientsCreated = Collections.synchronizedSet(new HashSet<>());
 
 	public DefaultHttpClientFactory() {
@@ -82,12 +83,13 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 							clientIdentity.getId(), e.getLocalizedMessage()));
 		}
 
-		HttpClientConnectionManager connectionManager = sslConnectionManagers.computeIfAbsent(clientIdentity,
+		HttpClientConnectionManager connectionManager = sslConnectionManagers.computeIfAbsent(clientIdentity.getId(),
 				cid -> PoolingHttpClientConnectionManagerBuilder.create()
 						.setDefaultConnectionConfig(defaultConnectionConfig)
 						.setMaxConnPerRoute(MAX_CONNECTIONS_PER_ROUTE)
 						.setMaxConnTotal(MAX_CONNECTIONS)
 						.setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
+								.setTlsVersions(TLS.V_1_3)
 								.setSslContext(context)
 								.build())
 						.build());
