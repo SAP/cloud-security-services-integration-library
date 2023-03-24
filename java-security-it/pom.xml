@@ -28,8 +28,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -66,11 +66,6 @@
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>spring-security</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

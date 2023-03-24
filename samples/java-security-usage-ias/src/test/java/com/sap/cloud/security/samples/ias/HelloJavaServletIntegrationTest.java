@@ -12,10 +12,10 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.*;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class HelloJavaServletIntegrationTest {
 	public void requestWithoutAuthorizationHeader_unauthenticated() throws IOException {
 		HttpGet request = createGetRequest(null);
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
+			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 		}
 	}
 
@@ -48,7 +48,7 @@ public class HelloJavaServletIntegrationTest {
 	public void requestWithEmptyAuthorizationHeader_unauthenticated() throws IOException {
 		HttpGet request = createGetRequest("");
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
+			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 		}
 	}
 
@@ -60,7 +60,7 @@ public class HelloJavaServletIntegrationTest {
 		HttpGet request = createGetRequest(token.getTokenValue());
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
 			String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
+			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
 			assertThat(responseBody).isEqualTo("You ('john.doe@email.com') are authenticated and can access the application.");
 		}
 	}
@@ -71,7 +71,7 @@ public class HelloJavaServletIntegrationTest {
 				.withClaimValue(TokenClaims.ISSUER, "INVALID Issuer")
 				.createToken().getTokenValue());
 		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
+			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 		}
 	}
 

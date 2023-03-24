@@ -13,21 +13,25 @@ import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.token.validation.validators.JwtX5tValidator;
 import com.sap.cloud.security.util.HttpClientTestFactory;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -61,9 +65,15 @@ class IasTokenAuthenticatorX509Test {
 				.createHttpResponse("{\"jwks_uri\" : \"https://application.auth.com/oauth2/certs\"}");
 		CloseableHttpResponse tokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
-		when(httpClientMock.execute(any(HttpGet.class)))
-				.thenReturn(oidcResponse)
-				.thenReturn(tokenKeysResponse);
+		when(httpClientMock.execute(any(HttpGet.class), any(HttpClientResponseHandler.class)))
+				.thenAnswer(invocation -> {
+					HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+					return responseHandler.handleResponse(oidcResponse);
+				})
+				.thenAnswer(invocation -> {
+					HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+					return responseHandler.handleResponse(tokenKeysResponse);
+				});
 
 		JwtValidatorBuilder
 				.getInstance(configuration)
@@ -79,17 +89,14 @@ class IasTokenAuthenticatorX509Test {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason())
-				.contains("Error during token validation: Client certificate missing");
-		assertThat(response.isAuthenticated()).isFalse();
+		assertTrue(response.getUnauthenticatedReason().contains("Error during token validation: Client certificate missing"));
+		assertFalse(response.isAuthenticated());
 
 		when(httpRequest.getHeader(FWD_CLIENT_CERT_HEADER)).thenReturn("");
 		TokenAuthenticationResult response2 = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response2.getUnauthenticatedReason())
-				.contains("Error during token validation: Client certificate missing");
-		assertThat(response2.isAuthenticated()).isFalse();
-
+		assertTrue(response2.getUnauthenticatedReason().contains("Error during token validation: Client certificate missing"));
+		assertFalse(response2.isAuthenticated());
 	}
 
 	@Test
@@ -99,9 +106,8 @@ class IasTokenAuthenticatorX509Test {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason())
-				.contains("Error during token validation: Client certificate missing");
-		assertThat(response.isAuthenticated()).isFalse();
+		assertTrue(response.getUnauthenticatedReason().contains("Error during token validation: Client certificate missing"));
+		assertFalse(response.isAuthenticated());
 	}
 
 	@Test
@@ -111,9 +117,8 @@ class IasTokenAuthenticatorX509Test {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason())
-				.contains("Error during token validation: Certificate thumbprint validation failed");
-		assertThat(response.isAuthenticated()).isFalse();
+		assertTrue(response.getUnauthenticatedReason().contains("Error during token validation: Certificate thumbprint validation failed"));
+		assertFalse(response.isAuthenticated());
 	}
 
 	@Test
@@ -123,8 +128,8 @@ class IasTokenAuthenticatorX509Test {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason()).isEmpty();
-		assertThat(response.isAuthenticated()).isTrue();
+		assertThat(response.getUnauthenticatedReason(), emptyString());
+		assertTrue(response.isAuthenticated());
 	}
 
 	private HttpServletRequest createRequestWithToken(String bearerAuthorizationHeader) {

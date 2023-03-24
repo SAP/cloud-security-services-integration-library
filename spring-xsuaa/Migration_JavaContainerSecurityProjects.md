@@ -157,7 +157,7 @@ In case of multiple bindings you need to adapt your **Spring Security Configurat
     ```
  4. For authorization checks you can't perform any longer "local scope checks", as same scope names might be specified in context of different XSUAA service instances. That means you have to compare scope as it is given with the access token (`scope` claim) including the `xsappname` prefix. So, make sure that `TokenAuthenticationConverter` is NOT configured to check for local scopes (`setLocalScopeAsAuthorities(false)`)! In this case configure the HttpSecurity with an `antMatcher` for local scope "Read" as following:<br>  
     ```
- 	.antMatchers("/v1/sayHello").hasAuthority(customXsuaaConfig().getAppId() + '.' + "Read")
+ 	.requestMatchers("/v1/sayHello").hasAuthority(customXsuaaConfig().getAppId() + '.' + "Read")
     ```
             
 

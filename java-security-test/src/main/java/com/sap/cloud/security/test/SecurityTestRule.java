@@ -6,7 +6,6 @@
 package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
@@ -17,8 +16,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.rules.ExternalResource;
 
 import javax.annotation.Nullable;
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
+import jakarta.servlet.Filter;
+import jakarta.servlet.Servlet;
 
 public class SecurityTestRule extends ExternalResource
 		implements SecurityTestContext, ServiceMockConfiguration, ApplicationServerConfiguration {

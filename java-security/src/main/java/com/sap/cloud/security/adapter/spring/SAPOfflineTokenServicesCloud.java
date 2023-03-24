@@ -30,7 +30,7 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;

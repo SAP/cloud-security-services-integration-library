@@ -1,4 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration,\
-com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration,\
-com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaTokenFlowAutoConfiguration

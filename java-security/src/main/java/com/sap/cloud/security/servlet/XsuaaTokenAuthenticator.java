@@ -12,13 +12,13 @@ import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.x509.X509Certificate;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import org.apache.http.impl.client.CloseableHttpClient;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import javax.annotation.Nullable;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 
 import static com.sap.cloud.security.servlet.TokenAuthenticatorResult.createUnauthenticated;

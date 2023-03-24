@@ -7,60 +7,66 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.token.SapIdToken;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.util.HttpClientTestFactory;
-import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.sap.cloud.security.config.ServiceConstants.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.apache.logging.log4j.ThreadContext.isEmpty;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-public class XsuaaTokenAuthenticatorTest {
+class XsuaaTokenAuthenticatorTest {
 
 	private final static HttpServletResponse HTTP_RESPONSE = Mockito.mock(HttpServletResponse.class);
 
 	private final XsuaaToken xsuaaToken;
 	private final XsuaaToken invalidToken;
 	private final XsuaaToken uaaToken;
-	private final SapIdToken iasToken;
-	private CloseableHttpClient mockHttpClient;
-	private OAuth2ServiceConfigurationBuilder oAuth2ServiceConfigBuilder;
+	private static CloseableHttpClient mockHttpClient;
+	private static final ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
+	private static final ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
+	private static OAuth2ServiceConfigurationBuilder oAuth2ServiceConfigBuilder;
+	private static AbstractTokenAuthenticator cut;
 
-	private AbstractTokenAuthenticator cut;
 
-	public XsuaaTokenAuthenticatorTest() throws IOException {
+	XsuaaTokenAuthenticatorTest() throws IOException {
 		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaJwtBearerTokenRSA256.txt", UTF_8));
 		invalidToken = new XsuaaToken(
 				IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", UTF_8));
-		iasToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 		uaaToken = new XsuaaToken(IOUtils.resourceToString("/uaaAccessTokenRSA256.txt", UTF_8));
 	}
 
-	@Before
-	public void setUp() throws IOException {
+	@BeforeAll
+	static void setUp() throws IOException {
 		mockHttpClient = Mockito.mock(CloseableHttpClient.class);
 
 		CloseableHttpResponse xsuaaTokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
-		when(mockHttpClient.execute(any(HttpGet.class))).thenReturn(xsuaaTokenKeysResponse);
+		when(mockHttpClient.execute(any(HttpGet.class), any(HttpClientResponseHandler.class)))
+				.thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(xsuaaTokenKeysResponse);
+		});
 
 		CloseableHttpResponse xsuaaTokenResponse = HttpClientTestFactory
 				.createHttpResponse(
@@ -71,30 +77,31 @@ public class XsuaaTokenAuthenticatorTest {
 		oAuth2ServiceConfigBuilder = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
 				.withDomains("auth.com")
-				.withProperty(XSUAA.APP_ID, "appId")
+				.withProperty(ServiceConstants.XSUAA.APP_ID, "appId")
 				.withClientId("clientId")
 				.withClientSecret("mySecret")
 				.withUrl("https://myauth.com");
 
 		cut = new XsuaaTokenAuthenticator()
 				.withHttpClient(mockHttpClient)
+				.withValidationListener(validationListener1)
+				.withValidationListener(validationListener2)
 				.withServiceConfiguration(oAuth2ServiceConfigBuilder.build());
 	}
 
 	@Test
-	public void validateXsuaaToken_WhenConfigurationIsNull() {
-		cut = new XsuaaTokenAuthenticator();
+	void validateXsuaaToken_WhenConfigurationIsNull() {
+		AbstractTokenAuthenticator cut = new XsuaaTokenAuthenticator();
 
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
-		assertThat(response.isAuthenticated()).isFalse();
-		assertThat(response.getUnauthenticatedReason())
-				.contains("Unexpected error occurred: There must be a service configuration.");
+		assertFalse(response.isAuthenticated());
+		assertTrue(response.getUnauthenticatedReason().contains("Unexpected error occurred: There must be a service configuration."));
 	}
 
 	@Test
-	public void validateUaaToken() {
+	void validateUaaToken() {
 		HttpServletRequest httpRequest = createRequestWithToken(uaaToken.getTokenValue());
 
 		cut = new XsuaaTokenAuthenticator()
@@ -103,55 +110,51 @@ public class XsuaaTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason()).isEmpty();
-		assertThat(response.isAuthenticated()).isTrue();
-		assertThat(response.getToken()).isSameAs(SecurityContext.getToken());
-		assertThat(response.getToken().getService()).isEqualTo(Service.XSUAA);
+		assertThat(response.getUnauthenticatedReason(), isEmpty());
+		assertTrue(response.isAuthenticated());
+		assertSame(response.getToken(), SecurityContext.getToken());
+		assertEquals(Service.XSUAA, response.getToken().getService());
 	}
 
 	@Test
-	public void validateRequest_noHeader_isUnauthenticated() {
+	void validateRequest_noHeader_isUnauthenticated() {
 		HttpServletRequest httpRequest = createRequestWithoutToken();
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.isAuthenticated()).isFalse();
-		assertThat(response.getUnauthenticatedReason()).contains("Authorization header is missing");
+		assertFalse(response.isAuthenticated());
+		assertTrue(response.getUnauthenticatedReason().contains("Authorization header is missing"));
 	}
 
 	@Test
-	public void validateRequest_invalidToken_isUnauthenticated() {
+	void validateRequest_invalidToken_isUnauthenticated() {
 		String errorMessage = "JWT token does not consist of 'header'.'payload'.'signature'";
 		HttpServletRequest httpRequest = createRequestWithToken("Bearer invalid");
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.isAuthenticated()).isFalse();
-		assertThat(response.getUnauthenticatedReason()).contains(errorMessage);
+		assertFalse(response.isAuthenticated());
+		assertTrue(response.getUnauthenticatedReason().contains(errorMessage));
 	}
 
 	@Test
-	public void validateRequest_validToken_containedInSecurityContext() {
+	void validateRequest_validToken_containedInSecurityContext() {
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason()).isEmpty();
-		assertThat(response.isAuthenticated()).isTrue();
-		assertThat(response.getToken()).isSameAs(SecurityContext.getToken());
-		assertThat(response.getToken().getService()).isEqualTo(Service.XSUAA);
-		assertThat(((XsuaaToken) response.getToken()).hasLocalScope("test")).isFalse();
+		assertThat(response.getUnauthenticatedReason(), isEmpty());
+		assertTrue(response.isAuthenticated());
+		assertSame(response.getToken(), SecurityContext.getToken());
+		assertEquals(Service.XSUAA, response.getToken().getService());
+		assertFalse(((XsuaaToken) response.getToken()).hasLocalScope("test"));
 	}
 
 	@Test
-	public void validateRequest_validToken_listenerIsCalled() {
+	void validateRequest_validToken_listenerIsCalled() {
 		HttpServletRequest httpRequest = createRequestWithToken(xsuaaToken.getTokenValue());
-		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
-		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 
-		cut.withValidationListener(validationListener1)
-				.withValidationListener(validationListener2)
-				.validateRequest(httpRequest, HTTP_RESPONSE);
+		cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		Mockito.verify(validationListener1, times(1)).onValidationSuccess();
 		Mockito.verify(validationListener2, times(1)).onValidationSuccess();
@@ -160,19 +163,13 @@ public class XsuaaTokenAuthenticatorTest {
 	}
 
 	@Test
-	public void validateRequest_invalidToken_listenerIsCalled() {
+	void validateRequest_invalidToken_listenerIsCalled() {
 		HttpServletRequest httpRequest = createRequestWithToken(invalidToken.getTokenValue());
-		ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
-		ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 
-		cut.withValidationListener(validationListener1)
-				.withValidationListener(validationListener2)
-				.validateRequest(httpRequest, HTTP_RESPONSE);
+		cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
 		Mockito.verify(validationListener1, times(1)).onValidationError(any());
 		Mockito.verify(validationListener2, times(1)).onValidationError(any());
-		Mockito.verifyNoMoreInteractions(validationListener2);
-		Mockito.verifyNoMoreInteractions(validationListener2);
 	}
 
 	private HttpServletRequest createRequestWithoutToken() {

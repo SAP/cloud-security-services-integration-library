@@ -15,11 +15,12 @@ import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +67,10 @@ public class DefaultOAuth2TokenServiceTest {
 	@Test
 	public void emptyResponse_throwsException() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse("{}");
-		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(response);
+		when(mockHttpClient.execute(any(HttpPost.class), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		assertThatThrownBy(() -> requestAccessToken(emptyMap()))
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -76,7 +80,10 @@ public class DefaultOAuth2TokenServiceTest {
 	@Test
 	public void execute_yieldsTokenResponseWithCorrectData() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(VALID_JSON_RESPONSE);
-		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(response);
+		when(mockHttpClient.execute(any(HttpPost.class), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		OAuth2TokenResponse re = requestAccessToken(emptyMap());
 
@@ -89,7 +96,10 @@ public class DefaultOAuth2TokenServiceTest {
 	@Test
 	public void correlationIdProvisioning() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(VALID_JSON_RESPONSE);
-		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(response);
+		when(mockHttpClient.execute(any(HttpPost.class), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
 		Logger logger = (Logger) LoggerFactory.getLogger(MDCHelper.class);
@@ -111,11 +121,14 @@ public class DefaultOAuth2TokenServiceTest {
 	public void executeWithAdditionalParameters_putsParametersIntoPostBody() throws IOException {
 		ArgumentCaptor<HttpPost> httpPostCaptor = ArgumentCaptor.forClass(HttpPost.class);
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(VALID_JSON_RESPONSE);
-		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(response);
+		when(mockHttpClient.execute(any(HttpPost.class), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		requestAccessToken(Maps.newHashMap("myKey", "myValue"));
 
-		verify(mockHttpClient, times(1)).execute(httpPostCaptor.capture());
+		verify(mockHttpClient, times(1)).execute(httpPostCaptor.capture(), any(HttpClientResponseHandler.class));
 		HttpPost httpPost = httpPostCaptor.getValue();
 		HttpEntity httpEntity = httpPost.getEntity();
 		assertThat(httpEntity).isNotNull();
@@ -128,7 +141,10 @@ public class DefaultOAuth2TokenServiceTest {
 		String unauthorizedResponseText = "Unauthorized!";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(unauthorizedResponseText, HttpStatus.SC_UNAUTHORIZED);
-		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(response);
+		when(mockHttpClient.execute(any(HttpPost.class), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		assertThatThrownBy(() -> requestAccessToken(emptyMap()))
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -140,15 +156,17 @@ public class DefaultOAuth2TokenServiceTest {
 	@Test
 	public void retrieveToken_testCache() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(VALID_JSON_RESPONSE);
-		when(mockHttpClient.execute(any(HttpPost.class)))
-				.thenReturn(response);
+		when(mockHttpClient.execute(any(HttpPost.class), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI,
 				new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
 		cut.retrieveAccessTokenViaClientCredentialsGrant(TOKEN_ENDPOINT_URI,
 				new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
 
-		verify(mockHttpClient, times(1)).execute(any(HttpPost.class));
+		verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
 	}
 
 	private OAuth2TokenResponse requestAccessToken(Map<String, String> optionalParameters)

@@ -50,8 +50,8 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
     <version>2.13.5</version>
 </dependency>
 <dependency>
-    <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpclient</artifactId>
+    <groupId>org.apache.httpcomponents.client5</groupId>
+    <artifactId>httpclient5</artifactId>
 </dependency>
 ```
 

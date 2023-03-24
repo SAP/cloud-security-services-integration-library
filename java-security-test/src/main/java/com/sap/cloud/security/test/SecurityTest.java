@@ -6,7 +6,6 @@
 package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.config.cf.VcapServicesParser;
 import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
@@ -35,9 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.Servlet;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;

@@ -13,9 +13,10 @@ import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -23,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
@@ -53,11 +55,12 @@ public class JavaSSRFAttackTest {
 	 */
 	@ParameterizedTest
 	@CsvSource({
+			"http://localhost:4242/token_keys,											true",
 			"http://localhost:4242/token_keys@malicious.ondemand.com/token_keys,		false",
-			"http://malicious.ondemand.com@localhost:4242/token_keys,					true",
+			"http://user@localhost:4242/token_keys,										false", // user info in URI is deprecated by apache http client 5
 			"http://localhost:4242/token_keys///malicious.ondemand.com/token_keys,		false",
 	})
-	public void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid) throws IOException {
+	public void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid) throws IOException, URISyntaxException {
 		OAuth2ServiceConfigurationBuilder configuration = extension.getContext()
 				.getOAuth2ServiceConfigurationBuilderFromFile("/xsuaa/vcap_services-single.json");
 		Token token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json")
@@ -71,10 +74,10 @@ public class JavaSSRFAttackTest {
 		ValidationResult result = tokenValidator.validate(token);
 
 		assertThat(result.isValid()).isEqualTo(isValid);
-		ArgumentCaptor<HttpUriRequest> httpUriRequestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
-		Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture());
-		HttpUriRequest request = httpUriRequestCaptor.getValue();
-		assertThat(request.getURI().getHost()).isEqualTo("localhost"); // ensure request was sent to trusted host
+		ArgumentCaptor<ClassicHttpRequest> httpUriRequestCaptor = ArgumentCaptor.forClass(ClassicHttpRequest.class);
+		Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture(), ArgumentCaptor.forClass(HttpClientResponseHandler.class).capture());
+		ClassicHttpRequest request = httpUriRequestCaptor.getValue();
+		assertThat(request.getUri().getHost()).isEqualTo("localhost"); // ensure request was sent to trusted host
 	}
 
 }

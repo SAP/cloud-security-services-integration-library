@@ -49,8 +49,8 @@ These (spring) dependencies needs to be provided:
     <version>2.13.5</version>
 </dependency>
 <dependency>
-    <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpclient</artifactId>
+    <groupId>org.apache.httpcomponents.client5</groupId>
+    <artifactId>httpclient5</artifactId>
 </dependency>
 ```
 
@@ -95,8 +95,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 	.and()
 	    .authorizeRequests()
-	    .antMatchers("/sayHello").hasAuthority("Read")
-	    .antMatchers("/*").authenticated()
+	    .requestMatchers("/sayHello").hasAuthority("Read")
+	    .requestMatchers("/*").authenticated()
 	    .anyRequest().denyAll()
 	.and()
 	    .oauth2ResourceServer()

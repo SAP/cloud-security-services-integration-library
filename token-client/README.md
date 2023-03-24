@@ -28,8 +28,8 @@ The Resource owner password credentials (i.e., username and password) can be use
     <version>2.13.5</version>
 </dependency>
 <dependency>
-  <groupId>org.apache.httpcomponents</groupId>
-  <artifactId>httpclient</artifactId>
+    <groupId>org.apache.httpcomponents.client5</groupId>
+    <artifactId>httpclient5</artifactId>
 </dependency>
 ```
 
@@ -90,8 +90,8 @@ tokenService.clearCache();
     <artifactId>spring-web</artifactId>
 </dependency>
 <dependency> <!-- required when using Spring Web `RestTemplate` with X.509 authentication method-->
-  <groupId>org.apache.httpcomponents</groupId>
-  <artifactId>httpclient</artifactId>
+    <groupId>org.apache.httpcomponents.client5</groupId>
+    <artifactId>httpclient5</artifactId>
 </dependency>
 ```
 
@@ -135,8 +135,8 @@ In context of a Spring Boot application you may like to leverage auto-configurat
     <version>2.13.5</version>
 </dependency>
 <dependency> <!-- required when using Spring Web `RestTemplate` with X.509 authentication method-->
-  <groupId>org.apache.httpcomponents</groupId>
-  <artifactId>httpclient</artifactId>
+    <groupId>org.apache.httpcomponents.client5</groupId>
+    <artifactId>httpclient5</artifactId>
 </dependency>
 ```
 

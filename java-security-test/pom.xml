@@ -31,8 +31,8 @@
 			<artifactId>junit-jupiter-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -40,8 +40,8 @@
 			<artifactId>jetty-server</artifactId>
 			<exclusions>
 				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>javax.servlet-api</artifactId>
+					<groupId>jakarta.servlet</groupId>
+					<artifactId>jakarta.servlet-api</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -67,7 +67,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.tomakehurst</groupId>
-			<artifactId>wiremock-jre8</artifactId>
+			<artifactId>wiremock</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.github.spotbugs</groupId>
@@ -77,8 +77,8 @@
 
 		<!-- test dependencies -->
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
 			<scope>test</scope>
 		</dependency>
         <dependency>

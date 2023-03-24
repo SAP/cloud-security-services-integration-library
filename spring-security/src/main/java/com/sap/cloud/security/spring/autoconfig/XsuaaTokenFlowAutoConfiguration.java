@@ -90,7 +90,7 @@ public class XsuaaTokenFlowAutoConfiguration {
 	 * @return the {@link RestOperations} instance.
 	 */
 	@Bean
-	@ConditionalOnClass(name = "org.apache.http.impl.client.CloseableHttpClient")
+	@ConditionalOnClass(name = "org.apache.hc.client5.http.impl.classic.CloseableHttpClient")
 	@ConditionalOnMissingBean
 	public RestOperations mtlsRestOperations(XsuaaServiceConfiguration xsuaaConfig) {
 		logger.warn("In productive environment provide a well configured certificate based RestOperations bean");

@@ -8,10 +8,11 @@ package com.sap.cloud.security.xsuaa.client;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpMethod;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -58,7 +60,10 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
-		when(httpClient.execute(any())).thenReturn(response);
+		when(httpClient.execute(any(), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID))
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -73,7 +78,10 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
-		when(httpClient.execute(any())).thenReturn(response);
+		when(httpClient.execute(any(), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null))
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -91,7 +99,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	@Test
 	public void retrieveTokenKeys_errorOccurs_throwsServiceException() throws IOException {
 		String errorMessage = "useful error message";
-		when(httpClient.execute(any())).thenThrow(new IOException(errorMessage));
+		when(httpClient.execute(any(), any(HttpClientResponseHandler.class))).thenThrow(new IOException(errorMessage));
 
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID))
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -100,22 +108,24 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 	@Test
 	public void retrieveTokenKeys_executesHttpGetRequestWithCorrectURI() throws IOException {
-		mockResponse();
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString);
+
+		when(httpClient.execute(any(), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
+			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID);
 
-		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()));
-	}
-
-	private CloseableHttpResponse mockResponse() throws IOException {
-		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString);
-		when(httpClient.execute(any())).thenReturn(response);
-		return response;
+		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()), any(HttpClientResponseHandler.class));
 	}
 
 	private ArgumentMatcher<HttpUriRequest> isHttpGetAndContainsCorrectURI() {
 		return (httpGet) -> {
-			boolean hasCorrectURI = httpGet.getURI().equals(TOKEN_KEYS_ENDPOINT_URI);
+			boolean hasCorrectURI = false;
+			try {
+				hasCorrectURI = httpGet.getUri().equals(TOKEN_KEYS_ENDPOINT_URI);
+			} catch (URISyntaxException e) {}
 			boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
 			boolean correctZoneHeader = httpGet.getFirstHeader(HttpHeaders.X_ZONE_UUID).getValue().equals(ZONE_UUID);
 			return hasCorrectURI && correctMethod && correctZoneHeader;

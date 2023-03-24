@@ -9,18 +9,17 @@ import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URI;
-
-import org.apache.http.HttpHeaders;
+import java.nio.charset.StandardCharsets;
 
 /**
  * https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest
@@ -49,32 +48,31 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 			throws OAuth2ServiceException {
 		Assertions.assertNotNull(discoveryEndpointUri, "discoveryEndpointUri must not be null!");
 
-		HttpUriRequest request = new HttpGet(discoveryEndpointUri);
+		HttpGet request = new HttpGet(discoveryEndpointUri);
 		request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 
-		try (CloseableHttpResponse response = httpClient.execute(request)) {
-			String bodyAsString = HttpClientUtil.extractResponseBodyAsString(response);
-			int statusCode = response.getStatusLine().getStatusCode();
-			return handleResponse(bodyAsString, statusCode, discoveryEndpointUri);
+		String endpointsJson;
+		try {
+			endpointsJson = httpClient.execute(request, response -> {
+				String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+				int statusCode = response.getCode();
+				if(statusCode != HttpStatus.SC_OK) {
+					throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
+							.withUri(discoveryEndpointUri)
+							.withStatusCode(statusCode)
+							.withResponseBody(body)
+							.build();
+				}
+
+				return body;
+			});
 		} catch (IOException e) {
 			throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints: " + e.getMessage())
 					.withUri(discoveryEndpointUri)
 					.build();
 		}
-	}
 
-	private OAuth2ServiceEndpointsProvider handleResponse(String bodyAsString, int statusCode,
-			URI discoveryEndpointUri)
-			throws OAuth2ServiceException {
-		if (statusCode == HttpStatus.SC_OK) {
-			return new OidcEndpointsProvider(bodyAsString);
-		} else {
-			throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
-					.withUri(discoveryEndpointUri)
-					.withStatusCode(statusCode)
-					.withResponseBody(bodyAsString)
-					.build();
-		}
+		return new OidcEndpointsProvider(endpointsJson);
 	}
 
 	static class OidcEndpointsProvider implements OAuth2ServiceEndpointsProvider {
