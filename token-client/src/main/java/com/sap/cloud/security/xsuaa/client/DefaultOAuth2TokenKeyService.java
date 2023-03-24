@@ -13,6 +13,7 @@ import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_ZONE_UUID;
 
@@ -52,19 +54,20 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 				request.getHeaders());
 		try {
 			String jwksJson = httpClient.execute(request, response -> {
-				String bodyAsString = HttpClientUtil.STRING_CONTENT_EXTRACTOR.handleResponse(response);
-				int statusCode = HttpClientUtil.STATUS_CODE_EXTRACTOR.handleResponse(response);
+				int statusCode = response.getCode();
+				LOGGER.debug("Received statusCode {}", statusCode);
+				String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 				if (statusCode != HttpStatus.SC_OK) {
 					throw OAuth2ServiceException.builder("Error retrieving token keys for x-zone_uuid " + zoneId)
 							.withUri(tokenKeysEndpointUri)
 							.withHeaders(X_ZONE_UUID + "=" + zoneId)
 							.withStatusCode(statusCode)
-							.withResponseBody(bodyAsString)
+							.withResponseBody(body)
 							.build();
 				}
 
 				LOGGER.debug("Successfully retrieved token keys from {} for zone '{}'", tokenKeysEndpointUri, zoneId);
-				return bodyAsString;
+				return body;
 			});
 
 			return jwksJson;

@@ -13,11 +13,13 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 /**
  * https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest
@@ -49,21 +51,20 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 		HttpGet request = new HttpGet(discoveryEndpointUri);
 		request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 
-		String endpointsJson = null;
+		String endpointsJson;
 		try {
 			endpointsJson = httpClient.execute(request, response -> {
-				String bodyAsString = HttpClientUtil.STRING_CONTENT_EXTRACTOR.handleResponse(response);
-				int statusCode = HttpClientUtil.STATUS_CODE_EXTRACTOR.handleResponse(response);
-
+				String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+				int statusCode = response.getCode();
 				if(statusCode != HttpStatus.SC_OK) {
 					throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
 							.withUri(discoveryEndpointUri)
 							.withStatusCode(statusCode)
-							.withResponseBody(bodyAsString)
+							.withResponseBody(body)
 							.build();
 				}
 
-				return bodyAsString;
+				return body;
 			});
 		} catch (IOException e) {
 			throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints: " + e.getMessage())

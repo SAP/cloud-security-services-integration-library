@@ -84,11 +84,6 @@ public class OAuth2ServiceException extends IOException {
 			return this;
 		}
 
-		public Builder withUri(String requestUri) {
-			withUri(URI.create(requestUri));
-			return this;
-		}
-
 		public Builder withResponseBody(String responseBody) {
 			this.responseBody = responseBody;
 			return this;

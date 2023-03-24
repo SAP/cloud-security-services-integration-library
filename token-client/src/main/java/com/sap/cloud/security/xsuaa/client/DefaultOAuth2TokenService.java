@@ -14,6 +14,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
@@ -83,20 +85,20 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 				httpPost.getHeaders());
 
 		String responseBody = httpClient.execute(httpPost, response -> {
-			int statusCode = HttpClientUtil.STATUS_CODE_EXTRACTOR.handleResponse(response);
+			int statusCode = response.getCode();
 			LOGGER.debug("Received statusCode {}", statusCode);
-			String responseBodyAsString = HttpClientUtil.STRING_CONTENT_EXTRACTOR.handleResponse(response);
+			String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
 			if (statusCode != HttpStatus.SC_OK) {
-				LOGGER.debug("Received response body: {}", responseBodyAsString);
+				LOGGER.debug("Received response body: {}", body);
 				throw OAuth2ServiceException.builder("Error retrieving JWT token")
 						.withStatusCode(statusCode)
 						.withUri(requestUri)
-						.withResponseBody(responseBodyAsString)
+						.withResponseBody(body)
 						.build();
 			}
 
-			return responseBodyAsString;
+			return body;
 		});
 
 		return convertToOAuth2TokenResponse(responseBody);
