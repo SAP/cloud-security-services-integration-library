@@ -8,7 +8,6 @@ package com.sap.cloud.security.client;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import nl.altindag.log.LogCaptor;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -16,6 +15,7 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -32,7 +32,8 @@ import static org.mockito.Mockito.when;
 
 class DefaultHttpClientFactoryTest {
 
-	public static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://www.sap.com/index.html"));
+	private static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://www.sap.com/index.html"));
+	private static final HttpClientResponseHandler<Integer> STATUS_CODE_EXTRACTOR = response -> response.getCode();
 	private static final ClientIdentity config = Mockito.mock(ClientIdentity.class);
 	private static final ClientIdentity config2 = Mockito.mock(ClientIdentity.class);
 	private final DefaultHttpClientFactory cut = new DefaultHttpClientFactory();
@@ -141,12 +142,12 @@ class DefaultHttpClientFactoryTest {
 		try {
 			CloseableHttpClient client = cut.createClient(config);
 
-			int statusCode = client.execute(new HttpGet("http://localhost:8000/redirect"), HttpClientUtil.STATUS_CODE_EXTRACTOR);
-			assertEquals(statusCode, HttpStatus.SC_MOVED_PERMANENTLY);
+			int statusCode = client.execute(new HttpGet("http://localhost:8000/redirect"), STATUS_CODE_EXTRACTOR);
+			assertEquals(HttpStatus.SC_MOVED_PERMANENTLY, statusCode);
 
 			CloseableHttpClient client2 = cut.createClient(new ClientCredentials("client", "secret"));
-			statusCode = client2.execute(new HttpGet("http://localhost:8000/redirect"), HttpClientUtil.STATUS_CODE_EXTRACTOR);
-			assertEquals(statusCode, HttpStatus.SC_MOVED_PERMANENTLY);
+			statusCode = client2.execute(new HttpGet("http://localhost:8000/redirect"), STATUS_CODE_EXTRACTOR);
+			assertEquals(HttpStatus.SC_MOVED_PERMANENTLY, statusCode);
 		} finally {
 			wireMockServer.stop();
 		}

@@ -5,15 +5,11 @@
  */
 package com.sap.cloud.security.xsuaa.util;
 
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class HttpClientUtil {
-
-	public static final HttpClientResponseHandler<Integer> STATUS_CODE_EXTRACTOR = response -> response.getCode();
 
 	private HttpClientUtil() {
 		// use static fields and methods
