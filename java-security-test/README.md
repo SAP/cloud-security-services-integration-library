@@ -1,4 +1,4 @@
-# SAP CP Java Security Test Library
+# SAP BTP Java Security Test Library
 
 ## Description
 This library complements the `java-security` project with testing utilities.

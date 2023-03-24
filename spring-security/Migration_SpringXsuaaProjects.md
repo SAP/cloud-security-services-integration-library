@@ -3,7 +3,7 @@
 This migration guide is a step-by-step guide explaining how to replace the [`spring-xsuaa`](/spring-xsuaa) with this [`spring-security`](/spring-security) Security client library.
 
 ## Maven Dependencies
-To use the new SAP CP [spring-security](/spring-security) client library the dependencies declared in maven `pom.xml` need to be updated.
+To use the new SAP BTP [spring-security](/spring-security) client library the dependencies declared in maven `pom.xml` need to be updated.
 
 Make sure, that you add the dependencies that are documented [here](/spring-security#maven-dependencies).
 

@@ -1,4 +1,4 @@
-# SAP CP Spring XSUAA Security Library 
+# SAP BTP Spring XSUAA Security Library 
 
 ## Integrate in a OAuth resource server
 
