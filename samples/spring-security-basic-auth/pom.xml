@@ -13,14 +13,14 @@
 	</parent>
 
 	<artifactId>spring-security-basic-auth</artifactId>
-	<version>2.13.5</version>
+	<version>3.0.0</version>
 	<name>spring-security-basic-auth</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<sap.cloud.security.version>2.13.5</sap.cloud.security.version>
+		<sap.cloud.security.version>3.0.0</sap.cloud.security.version>
 		<apache.httpclient.version>5.2.1</apache.httpclient.version>
 	</properties>
 
