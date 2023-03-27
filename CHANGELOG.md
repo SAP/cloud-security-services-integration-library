@@ -8,7 +8,6 @@ All notable changes to this project will be documented in this file.
 
 #### Dependency upgrades
 * Bump spring.boot.version from 2.7.9 to 2.7.10
-* Bump com.github.ben-manes.caffeine version from 2.9.3 to 3.1.5
 
 ## 2.13.7
 - [token-client] Fixes regression introduced with logback dependency not having scope test
