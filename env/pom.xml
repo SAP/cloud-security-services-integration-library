@@ -26,18 +26,46 @@
         <dependency>
             <groupId>com.sap.cloud.environment.servicebinding</groupId>
             <artifactId>java-sap-vcap-services</artifactId>
+            <!-- it depends on slf4j-api 2.x whereas we depends on 1.7.x -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.environment.servicebinding</groupId>
             <artifactId>java-sap-service-operator</artifactId>
+            <!-- it depends on slf4j-api 2.x whereas we depends on 1.7.x -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency><!-- optional if using TypedMapView etc. -->
             <groupId>com.sap.cloud.environment.servicebinding.api</groupId>
             <artifactId>java-consumption-api</artifactId>
+            <!-- it depends on slf4j-api 2.x whereas we depends on 1.7.x -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.environment.servicebinding.api</groupId>
             <artifactId>java-access-api</artifactId>
+            <!-- it depends on slf4j-api 2.x whereas we depends on 1.7.x -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
