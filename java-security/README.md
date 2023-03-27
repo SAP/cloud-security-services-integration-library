@@ -1,4 +1,4 @@
-# SAP CP Java Security Client Library
+# SAP BTP Java Security Client Library
 
 Token Validation for Java applications.
 
@@ -47,7 +47,7 @@ In case of XSUAA does the JWT provide a valid `jku` token header parameter that 
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>2.13.7</version>
+    <version>2.13.8</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>

@@ -8,7 +8,7 @@
 
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-bom</artifactId>
-    <version>2.13.7</version>
+    <version>2.13.8</version>
     <packaging>pom</packaging>
     <name>java-bom</name>
 
@@ -110,6 +110,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>resourceserver-security-spring-boot-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${xsuaa-groupId}</groupId>
+                <artifactId>spring-security-compatibility</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -1,4 +1,4 @@
-# SAP CP Spring XSUAA Security Library 
+# SAP BTP Spring XSUAA Security Library 
 
 ## Integrate in a OAuth resource server
 
@@ -36,7 +36,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>2.13.7</version>
+    <version>2.13.8</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
@@ -50,7 +50,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.13.7</version>
+    <version>2.13.8</version>
 </dependency>
 ```
 
