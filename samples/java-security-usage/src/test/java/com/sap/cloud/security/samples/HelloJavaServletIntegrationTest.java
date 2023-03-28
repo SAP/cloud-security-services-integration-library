@@ -16,9 +16,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
@@ -36,16 +34,20 @@ public class HelloJavaServletIntegrationTest {
 			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT)
 			.addApplicationServlet(HelloJavaServletScopeProtected.class, HelloJavaServletScopeProtected.ENDPOINT);
 
-	private CloseableHttpClient httpClient;
+	private static CloseableHttpClient httpClient;
 
-	@BeforeEach
-	void setup() {
+	@BeforeAll
+	static void setup() {
 		httpClient = HttpClients.createDefault();
 	}
 
 	@AfterEach
-	void tearDown() throws IOException {
+	void clearSecurityContext() {
 		SecurityContext.clear();
+	}
+
+	@AfterAll
+	static void tearDown() throws IOException {
 		httpClient.close();
 	}
 
