@@ -188,23 +188,18 @@ public class SecurityTest
 	}
 
 	void startApplicationServer() throws Exception {
-		// create SecurityHandler
 		JettyTokenAuthenticator authenticator = new JettyTokenAuthenticator(
 				applicationServerOptions.getTokenAuthenticator());
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
 		security.setAuthenticator(authenticator);
 
-		// Create a ServletContextHandler
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/");
 		context.setSecurityHandler(security);
 		context.setResourceBase("src/main/java/webapp");
 
-		// add Servlets
 		applicationServletsByPath
 				.forEach((path, servletHolder) -> context.addServlet(servletHolder, path));
-
-		// add ServletFilters
 		applicationServletFilters.forEach((filterHolder) -> context
 				.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
 
