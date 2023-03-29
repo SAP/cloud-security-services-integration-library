@@ -28,7 +28,6 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -189,41 +188,26 @@ public class SecurityTest
 	}
 
 	void startApplicationServer() throws Exception {
-		WebAppContext context = createWebAppContext();
-		ServletHandler servletHandler = createServletHandler(context);
-
-		applicationServletsByPath
-				.forEach((path, servletHolder) -> servletHandler.addServletWithMapping(servletHolder, path));
-		applicationServletFilters.forEach((filterHolder) -> servletHandler
-				.addFilterWithMapping(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
-
-		servletHandler
-				.addFilterWithMapping(new FilterHolder(new SecurityFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
-
-		applicationServer = new Server(applicationServerOptions.getPort());
-		applicationServer.setHandler(context);
-		applicationServer.start();
-	}
-
-	ServletHandler createServletHandler(WebAppContext context) {
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
 		JettyTokenAuthenticator authenticator = new JettyTokenAuthenticator(
 				applicationServerOptions.getTokenAuthenticator());
 		security.setAuthenticator(authenticator);
 
-		ServletHandler servletHandler = new ServletHandler();
-		security.setHandler(servletHandler);
-		context.setServletHandler(servletHandler);
-		context.setSecurityHandler(security);
-
-		return servletHandler;
-	}
-
-	WebAppContext createWebAppContext() {
 		WebAppContext context = new WebAppContext();
 		context.setContextPath("/");
-		context.setResourceBase("src/main/java/webapp");
-		return context;
+		context.setResourceBase("src/main/webapp");
+		context.setSecurityHandler(security);
+
+		applicationServletsByPath
+				.forEach((path, servletHolder) -> context.addServlet(servletHolder, path));
+		applicationServletFilters.forEach((filterHolder) -> context
+				.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
+
+		context.addFilter(new FilterHolder(new SecurityFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
+
+		applicationServer = new Server(applicationServerOptions.getPort());
+		applicationServer.setHandler(context);
+		applicationServer.start();
 	}
 
 	String createDefaultTokenKeyResponse() throws IOException {
