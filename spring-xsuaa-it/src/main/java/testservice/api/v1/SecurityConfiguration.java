@@ -33,10 +33,9 @@ public class SecurityConfiguration {
 			throws Exception {
 		// @formatter:off
 		http
-				.authorizeHttpRequests((authorize) -> authorize
+				.authorizeHttpRequests(authz -> authz
 						.requestMatchers("/**").hasAuthority("Display")
-						.anyRequest().denyAll()
-				)
+						.anyRequest().denyAll())
 				.oauth2ResourceServer()
 				.jwt()
 				.jwtAuthenticationConverter(getJwtAuthenticationConverter());
