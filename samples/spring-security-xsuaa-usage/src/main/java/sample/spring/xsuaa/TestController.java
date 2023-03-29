@@ -5,9 +5,15 @@
  */
 package sample.spring.xsuaa;
 
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_USER_NAME;
+
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
+import com.sap.cloud.security.xsuaa.token.Token;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
-import com.sap.cloud.security.xsuaa.token.Token;
-import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
-import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
-
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_USER_NAME;
-
 @RestController
 public class TestController {
 
@@ -33,13 +32,13 @@ public class TestController {
     /**
      * The injected factory for XSUAA token tokenflows.
      */
-    private XsuaaTokenFlows tokenFlows;
+    private final XsuaaTokenFlows tokenFlows;
 
     /**
      * A (fake) data layer showing global method security features of Spring Security
      * in combination with tokens from XSUAA.
      */
-    private DataService dataService;
+    private final DataService dataService;
 
     @Autowired
     public TestController(XsuaaTokenFlows tokenFlows, DataService dataService) {
@@ -57,13 +56,12 @@ public class TestController {
      *
      * @param token the XSUAA token from the request injected by Spring Security.
      * @return the requested address.
-     * @throws Exception in case of an internal error.
      */
     @GetMapping("/v1/sayHello")
     public Map<String, String> sayHello(@AuthenticationPrincipal Token token) {
 
         logger.info("Got the Xsuaa token: {}", token.getAppToken());
-        logger.info(token.toString());
+        logger.info("{}", token);
 
         Map<String, String> result = new HashMap<>();
         result.put("grant type", token.getGrantType());
@@ -86,14 +84,13 @@ public class TestController {
      *
      * @param jwt the JWT from the request injected by Spring Security.
      * @return the requested address.
-     * @throws Exception in case of an internal error.
      */
     @GetMapping("/v2/sayHello")
     public String sayHello(@AuthenticationPrincipal Jwt jwt) {
 
         logger.info("Got the JWT: {}", jwt);
         logger.info(jwt.getClaimAsString(CLAIM_USER_NAME));
-        logger.info(jwt.toString());
+        logger.info("{}", jwt);
 
         return "Hello Jwt-Protected World!";
     }
@@ -119,8 +116,6 @@ public class TestController {
      *
      * @return the sensitive data read from the {@link DataService} or fails
      * with an access denied error.
-     *
-     * @see {@link DataService}.
      */
     @GetMapping("/v1/getAdminData")
     public String readFromDataService() {

@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,7 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
+@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfiguration {
 
 	@Autowired
@@ -35,18 +35,18 @@ public class SecurityConfiguration {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http
-			.sessionManagement()
+				.sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // session is created by approuter
-			.and()
-				.authorizeRequests()
-				.requestMatchers("/v1/sayHello").hasAuthority("Read")
-				.requestMatchers("/v1/*").authenticated()
-				.requestMatchers("/v2/*").hasAuthority("Read")
-				.requestMatchers("/v3/*").hasAuthority("Read")
-				.requestMatchers("/v3/requestRefreshToken/*").hasAuthority("Read")
-				.requestMatchers("/health").permitAll()
-				.anyRequest().denyAll()
-			.and()
+				.and()
+				.authorizeHttpRequests(authz ->
+						authz.requestMatchers("/v1/sayHello").hasAuthority("Read")
+								.requestMatchers("/v1/*").authenticated()
+								.requestMatchers("/v2/*").hasAuthority("Read")
+								.requestMatchers("/v3/*").hasAuthority("Read")
+								.requestMatchers("/v3/requestRefreshToken/*").hasAuthority("Read")
+								.requestMatchers("/health").permitAll()
+								.anyRequest().denyAll()
+				)
 				.oauth2ResourceServer()
 				.jwt()
 				.jwtAuthenticationConverter(getJwtAuthenticationConverter());

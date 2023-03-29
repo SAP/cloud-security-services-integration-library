@@ -5,6 +5,10 @@
  */
 package sample.spring.xsuaa;
 
+import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.test.SecurityTestRule;
 import org.junit.Before;
@@ -20,10 +24,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-
-import static org.junit.Assert.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -111,19 +111,14 @@ public class TestControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
-        private String token;
-
-        public BearerTokenRequestPostProcessor(String token) {
-            this.token = token;
-        }
+    private record BearerTokenRequestPostProcessor(String token) implements RequestPostProcessor {
 
         @Override
-        public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-            request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.token);
-            return request;
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.token);
+                return request;
+            }
         }
-    }
 
     private static BearerTokenRequestPostProcessor bearerToken(String token) {
         return new BearerTokenRequestPostProcessor(token);
