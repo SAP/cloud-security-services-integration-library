@@ -10,13 +10,13 @@ import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
@@ -30,60 +30,70 @@ public class HelloJavaServletIntegrationTest {
 
 	@RegisterExtension
 	static SecurityTestExtension extension = SecurityTestExtension.forService(XSUAA)
-			.useApplicationServer()
-			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT)
-			.addApplicationServlet(HelloJavaServletScopeProtected.class, HelloJavaServletScopeProtected.ENDPOINT);
+			.useApplicationServer();
+
+	private static CloseableHttpClient httpClient;
+
+	@BeforeAll
+	static void setup() {
+		httpClient = HttpClients.createDefault();
+	}
 
 	@AfterEach
-	public void tearDown() {
+	void clearSecurityContext() {
 		SecurityContext.clear();
 	}
 
+	@AfterAll
+	static void tearDown() throws IOException {
+		httpClient.close();
+	}
+
 	@Test
-	public void requestWithoutAuthorizationHeader_unauthenticated() throws IOException {
+	void requestWithoutAuthorizationHeader_unauthenticated() throws IOException {
 		HttpGet request = createGetRequest(null);
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
-		}
+		int statusCode = httpClient.execute(request, HttpResponse::getCode);
+		assertThat(statusCode).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 	}
 
 	@Test
-	public void requestWithEmptyAuthorizationHeader_unauthenticated() throws Exception {
+	void requestWithEmptyAuthorizationHeader_unauthenticated() throws Exception {
 		HttpGet request = createGetRequest("");
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
-		}
+		int statusCode = httpClient.execute(request, HttpResponse::getCode);
+		assertThat(statusCode).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 	}
 
 	@Test
-	public void requestWithValidTokenWithoutScopes_unauthorized() throws IOException {
+	void requestWithValidTokenWithoutScopes_unauthorized() throws IOException {
 		String jwt = extension.getContext().getPreconfiguredJwtGenerator()
 				.withClaimValue(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS)
 				.createToken()
 				.getTokenValue();
 		HttpGet request = createGetRequest(jwt, HelloJavaServletScopeProtected.ENDPOINT);
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
- 			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_FORBIDDEN); // 403
-		}
+		int statusCode = httpClient.execute(request, HttpResponse::getCode);
+		assertThat(statusCode).isEqualTo(HttpStatus.SC_FORBIDDEN); // 403
 	}
 
 	@Test
-	public void requestWithValidToken_ok() throws IOException {
+	void requestWithValidToken_ok() throws IOException {
 		String jwt = extension.getContext().getPreconfiguredJwtGenerator()
 				.withClaimValue(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS)
-				.withScopes(getGlobalScope("Read"))
+				.withScopes(SecurityTestRule.DEFAULT_APP_ID + '.' + "Read")
 				.withClaimValue(TokenClaims.EMAIL, "tester@mail.com")
 				.createToken()
 				.getTokenValue();
 		HttpGet request = createGetRequest(jwt);
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(request)) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK); // 200
-			String responseBody = EntityUtils.toString(response.getEntity());
-			assertThat(responseBody)
-					.contains("You ('tester@mail.com') can access the application with the following scopes: '[xsapp!t0815.Read]'.");
-			assertThat(responseBody)
-					.contains("Having scope '$XSAPPNAME.Read'? true");
-		}
+
+		String responseBody = httpClient.execute(request, response -> {
+			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK); // 200
+
+			return EntityUtils.toString(response.getEntity());
+		});
+
+		assertThat(responseBody)
+				.contains("You ('tester@mail.com') can access the application with the following scopes: '[xsapp!t0815.Read]'.");
+		assertThat(responseBody)
+				.contains("Having scope '$XSAPPNAME.Read'? true");
 	}
 
 	private HttpGet createGetRequest(String accessToken) {
@@ -96,9 +106,5 @@ public class HelloJavaServletIntegrationTest {
 			httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 		}
 		return httpGet;
-	}
-
-	private String getGlobalScope(String scope) {
-		return SecurityTestRule.DEFAULT_APP_ID + '.' + scope;
 	}
 }
