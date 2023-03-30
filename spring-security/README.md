@@ -265,7 +265,7 @@ Finally, it should look as following:
          clientid:  # clientid of xsuaa of plan 'broker' 
 ````
 
-## Troubleshoot
+## Troubleshooting
 In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
 and provide these details:
 - security related dependencies, get maven dependency tree with `mvn dependency:tree`
