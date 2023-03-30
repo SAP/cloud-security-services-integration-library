@@ -1,16 +1,17 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import com.github.benmanes.caffeine.cache.Ticker;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URI;
@@ -20,13 +21,10 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 
-import com.github.benmanes.caffeine.cache.Ticker;
-import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class OAuth2TokenKeyServiceWithCacheTest {
 

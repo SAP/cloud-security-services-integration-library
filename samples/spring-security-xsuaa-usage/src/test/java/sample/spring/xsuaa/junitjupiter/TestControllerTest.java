@@ -1,14 +1,9 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package sample.spring.xsuaa.junitjupiter;
-
-import static com.sap.cloud.security.test.SecurityTest.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.extension.XsuaaExtension;
@@ -23,6 +18,11 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+
+import static com.sap.cloud.security.test.SecurityTest.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc

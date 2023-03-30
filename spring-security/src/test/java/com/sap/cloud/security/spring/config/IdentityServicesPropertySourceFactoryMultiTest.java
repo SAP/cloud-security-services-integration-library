@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.config;
@@ -14,7 +14,6 @@ import org.springframework.context.annotation.PropertySource;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

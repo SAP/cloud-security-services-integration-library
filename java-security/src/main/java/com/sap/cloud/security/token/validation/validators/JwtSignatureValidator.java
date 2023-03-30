@@ -1,21 +1,20 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
-import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
-import static com.sap.cloud.security.token.validation.validators.JsonWebKey.DEFAULT_KEY_ID;
-import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.*;
-import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
-import static java.nio.charset.StandardCharsets.*;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -24,14 +23,13 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.regex.Pattern;
 
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.token.validation.Validator;
-
-import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
+import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
+import static com.sap.cloud.security.token.validation.validators.JsonWebKey.DEFAULT_KEY_ID;
+import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.*;
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Validates whether the jwt was signed with the public key of the trust-worthy

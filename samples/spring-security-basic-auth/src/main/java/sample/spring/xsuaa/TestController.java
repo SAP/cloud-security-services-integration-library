@@ -1,18 +1,17 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package sample.spring.xsuaa;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.sap.cloud.security.xsuaa.token.Token;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sap.cloud.security.xsuaa.token.Token;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class TestController {

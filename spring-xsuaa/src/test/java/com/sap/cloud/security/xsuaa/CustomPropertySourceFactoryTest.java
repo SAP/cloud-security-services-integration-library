@@ -1,14 +1,9 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Properties;
 
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.Environments;
@@ -23,6 +18,11 @@ import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Properties;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = { CustomConfiguration.class, XsuaaServiceConfigurationDefault.class })

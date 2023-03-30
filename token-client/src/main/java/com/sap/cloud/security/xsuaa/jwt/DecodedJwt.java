@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.jwt;
@@ -8,7 +8,7 @@ package com.sap.cloud.security.xsuaa.jwt;
 /**
  * A Jwt token consists of three parts, separated by ".":
  * header.payload.signature
- *
+ * <p>
  * Use {@code Base64JwtDecoder.getInstance().decode(token)} to get a
  * {@link DecodedJwt} instance.
  */

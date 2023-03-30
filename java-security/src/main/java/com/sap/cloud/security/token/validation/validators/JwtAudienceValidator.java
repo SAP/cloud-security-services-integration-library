@@ -1,11 +1,9 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
-
-import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
@@ -13,11 +11,13 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 /**
  * Validates if the jwt access token is intended for the OAuth2 client of this

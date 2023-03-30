@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.samples;
@@ -10,12 +10,12 @@ import com.sap.cloud.security.servlet.AbstractTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticationResult;
 import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
 import com.sap.cloud.security.token.SecurityContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.Objects;
 

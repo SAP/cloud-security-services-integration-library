@@ -1,23 +1,22 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
-
-import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
-
-import javax.annotation.Nullable;
 
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
 
+import javax.annotation.Nullable;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.function.Supplier;
+
+import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 
 /**
  * Validates whether the jwt access token is used before the "expiration"

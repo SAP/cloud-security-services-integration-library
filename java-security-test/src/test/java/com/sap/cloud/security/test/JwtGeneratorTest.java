@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.test;
@@ -12,7 +12,10 @@ import com.sap.cloud.security.token.AbstractToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
@@ -33,9 +36,10 @@ import java.util.List;
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.JwtGenerator.*;
-import static com.sap.cloud.security.test.SecurityTestRule.*;
+import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_APP_ID;
+import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_CLIENT_ID;
 import static com.sap.cloud.security.token.TokenClaims.*;
-import static com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm.*;
+import static com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm.RS256;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;

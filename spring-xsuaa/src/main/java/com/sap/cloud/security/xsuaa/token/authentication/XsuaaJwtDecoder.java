@@ -1,13 +1,23 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
-import static org.springframework.util.StringUtils.hasText;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder;
+import org.springframework.util.Assert;
+import org.springframework.web.client.RestOperations;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,20 +30,9 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.*;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder;
-import org.springframework.util.Assert;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import org.springframework.web.client.RestOperations;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
+import static org.springframework.util.StringUtils.hasText;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
