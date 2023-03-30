@@ -26,26 +26,53 @@ import static com.sap.cloud.security.config.ServiceConstants.IAS.DOMAINS;
 import static com.sap.cloud.security.config.ServiceConstants.SERVICE_PLAN;
 import static com.sap.cloud.security.config.ServiceConstants.VCAP_APPLICATION;
 
+/**
+ * Accessor for service configurations that are defined in the environment.
+ * Uses a {@link com.sap.cloud.environment.servicebinding.api.ServiceBindingAccessor} to read service bindings from the environment
+ * and supplies accessor methods for service-specific configuration objects parsed from these bindings. *
+ */
 public class ServiceBindingEnvironment implements Environment {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBindingEnvironment.class);
     private final ServiceBindingAccessor serviceBindingAccessor;
     private UnaryOperator<String> environmentVariableReader = System::getenv;
     private Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> serviceConfigurations;
 
+    /** Uses the {@link com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor} singleton to read service bindings from the environment.  */
     public ServiceBindingEnvironment() {
         this(DefaultServiceBindingAccessor.getInstance());
     }
 
+    /**
+     * Uses the given ServiceBindingAccessor to read service bindings from the environment.
+     * For instance, a {@link com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor} can be used
+     * to get service configurations for testing based on a local JSON.
+     */
     public ServiceBindingEnvironment(ServiceBindingAccessor serviceBindingAccessor) {
         this.serviceBindingAccessor = serviceBindingAccessor;
     }
 
+    /**
+     * Overwrites {@link System#getenv} with a custom environment variable reader.
+     * The given reader is only used to determine if an XS legacy environment is present.
+     * Instead, the reading of service bindings is based on the ServiceBindingAccessor supplied during construction.
+     */
     public ServiceBindingEnvironment withEnvironmentVariableReader(UnaryOperator<String> environmentVariableReader) {
         this.environmentVariableReader = environmentVariableReader;
         this.clearServiceConfigurations(); // re-compute service configurations on next access
         return this;
     }
 
+    /**
+     * Gets the configuration of the primary XSUAA service binding.
+     * The primary binding is determined based on the service plan.
+     * The priority of the service plans used for this, is (from high to low priority):
+     * <p><ul>
+     *     <li>APPLICATION</li>
+     *     <li>BROKER</li>
+     *     <li>SPACE</li>
+     *     <li>DEFAULT</li>
+     * </ul></p>
+     */
     @Nullable
     @Override
     public OAuth2ServiceConfiguration getXsuaaConfiguration() {
@@ -60,6 +87,11 @@ public class ServiceBindingEnvironment implements Environment {
         return getServiceConfigurations().get(XSUAA).size();
     }
 
+    /**
+     * Gets the configuration of the XSUAA service binding that is used for token exchange.
+     * Returns the configuration of the service binding with service plan BROKER if present,
+     * otherwise delegates to {@link ServiceBindingEnvironment#getXsuaaConfiguration()}.
+     */
     @Nullable
     @Override
     public OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange() {
@@ -76,6 +108,11 @@ public class ServiceBindingEnvironment implements Environment {
         return getServiceConfigurations().get(IAS).values().stream().findFirst().orElse(null);
     }
 
+    /**
+     * Gives access to all service configurations parsed from the environment.
+     * The service configurations are parsed on the first access, then cached.
+     * @return the service configurations grouped first by service, then by service plan.
+     */
     @Override
     public Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> getServiceConfigurations() {
         if(serviceConfigurations == null) {
@@ -85,6 +122,7 @@ public class ServiceBindingEnvironment implements Environment {
         return serviceConfigurations;
     }
 
+    /** Parses the service configurations from the environment. */
     private void readServiceConfigurations() {
         List<ServiceBinding> serviceBindings = serviceBindingAccessor.getServiceBindings();
 
@@ -100,11 +138,19 @@ public class ServiceBindingEnvironment implements Environment {
                         .collect(Collectors.toMap(config -> ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN)), Function.identity()))));
     }
 
-    /** Clears service configurations, so they are computed again on next access. */
+    /**
+     * Clears service configurations, so they are computed again on next access.
+     * Must be called again if the environment has changed, to update the service configurations that are returned
+     * on the next access.
+     */
     private void clearServiceConfigurations() {
         this.serviceConfigurations = null;
     }
 
+    /**
+     * Parses a service binding by extracting the configuration information and passing it to a configuration builder.
+     * @return a new {@link OAuth2ServiceConfigurationBuilder} that is configured based on the given {@link ServiceBinding}.
+     */
     @Nullable
     private static OAuth2ServiceConfigurationBuilder mapServiceBindingToConfigurationBuilder(ServiceBinding b) {
         if (b.getServiceName().isEmpty()) {
