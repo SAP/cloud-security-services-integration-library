@@ -11,7 +11,6 @@ Tailored to support Java EE and Spring Boot applications running on Cloud Foundr
 The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token validation for tokens issued by XSUAA and Identity Services, in addition, it offers a token-client library to easily fetch tokens without cumbersome setup for http requests. 
 
 ## Table of Contents
-
 1. [Prerequisites](#prerequisites)
 2. [Usage](#usage)
    - [2.1 Token Validation](#21-token-validation)
@@ -24,7 +23,6 @@ The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token 
 6. [License](#license)
 
 ## Prerequisites
-
 Before you can use the SAP Cloud Security Services Integration libraries, you must fulfil the following requirements:
 
 1. Access to an SAP BTP account and the XSUAA or identity service.
@@ -36,7 +34,6 @@ Before you can use the SAP Cloud Security Services Integration libraries, you mu
 
 
 ## Usage
-
 Typical UI5 applications consist of a server providing the HTML content and one or more application serving REST APIs used by the application. Web application use the OAuth Authorization Code Flow for interactive authentication:
 1. A user accesses the web application using a browser or mobile device
 2. The web application (in typical SAP Business Technology Platform scenario, this is an application router) acts as OAuth client and redirects requests to the OAuth server for authorization
@@ -50,7 +47,6 @@ OAuth resource servers (as the one in step 4) require libraries for validating a
 ### 2.1. Token Validation
 
 #### 2.1.1. Java EE web applications
-
 Developers who need OAuth2 token validation and token access in their Java EE applications can utilize the [java-security](./java-security) library. This library simplifies the process of acquiring token information such as principal and audiences from the security context and takes over token validation for tokens issued by Xsuaa or Identity services.
 This library is also integrated in SAP Java Buildpack. There is also testing utility library at your disposal that can be used for unit and integration tests. It provides [JwtGenerator](/java-security-test/src/main/java/com/sap/cloud/security/test/JwtGenerator.java) to generate custom JWT tokens, application server which you can setup with your defined servlets and it pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service to fetch JWKS.  
 
@@ -84,7 +80,6 @@ In the table below you'll find links to detailed information.
 
 
 ### 2.2. Token Flows
-
 Java applications that require access tokens (JWT) from Xsuaa or identity services can utilize the Token Flows API from the [token-client](./token-client) library, to fetch JWT tokens for their clients (applications) or users.
 
 In the table below you'll find links to detailed information.
@@ -95,7 +90,6 @@ In the table below you'll find links to detailed information.
 
 
 ## Installation
-
 The SAP Cloud Security Services Integration is published to maven central: https://search.maven.org/search?q=com.sap.cloud.security and is available as a Maven dependency. Add the following BOM to your dependency management in your `pom.xml`:
 ```xml
 <dependencyManagement>
@@ -119,13 +113,16 @@ along with libraries that you intend to use e.g. `java-security`
     </dependency>
 </dependencies>
 ```
+:bulb: Please refer to each library's that you intend to use `README.md` Maven Dependencies section for detailed information on which dependencies need to be added to the `pom.xml`.
 
-To download and install this project manually clone this repository via:
+
+If you intend to extend this library you can clone this repository and install this project with `mvn` as follows:
 ```sh
 git clone https://github.com/SAP/cloud-security-xsuaa-integration
 cd cloud-security-xsuaa-integration
 mvn clean install
 ```
+
 ## Troubleshooting
 Please refer to each library's Troubleshooting section
 
@@ -144,4 +141,4 @@ We welcome contributions to this project. Please see the [CONTRIBUTING.md](CONTR
 Open a [Github issue](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new/choose).
 
 ## License
-Please see our [LICENSE](LICENSES/Apache-2.0.txt) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available via the [REUSE tool](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration).
+Please see our [LICENSE](LICENSES/Apache-2.0.txt) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available in the [REUSE tool](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration).
